@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD9F46243D
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E86DA46254F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:34:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233218AbhK2WRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56628 "EHLO
+        id S233423AbhK2Whv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:37:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231276AbhK2WQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06B1AC12711E;
-        Mon, 29 Nov 2021 10:21:59 -0800 (PST)
+        with ESMTP id S233332AbhK2WhZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:37:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B3C9C0800D6;
+        Mon, 29 Nov 2021 10:38:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7F2CACE13DE;
-        Mon, 29 Nov 2021 18:21:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB42C53FAD;
-        Mon, 29 Nov 2021 18:21:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6223AB815E0;
+        Mon, 29 Nov 2021 18:38:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B9D9C53FAD;
+        Mon, 29 Nov 2021 18:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210116;
-        bh=vhhQTfrCy1Jff1g9L/tEoS8r5KRE+i7ueXb7ad4/avw=;
+        s=korg; t=1638211134;
+        bh=jxWdCZKE5faMX1OHns8SDll9sYz3TwCmkl0k0W22p/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ds5C6s1iVResgmvQfZld4Vq4/BLGuW4lwlUpYNuT2fF1sgcCgcN4u9p1ZA072/dz3
-         P4ZKeQtum49geTBIPw9Nq2rmbY1oiSg5YuTbBhtpps5+Sb1DtFMBq+Clftfxl0eMgQ
-         /N/860WQfvCUZh4z5IFUvZQQ8V+SkXacUjWXwO6Y=
+        b=CZKgJ9D8bM8bgmtWZcVC6unRwlQiIwtU60xSzBwaQrN4sTcWddTWjR83URposex/W
+         dbXCNYePvJRDwHhiN+ZHHkpzuWvgK8sTVdgUV0LoSJe2kN30DsDw2jost0pCzCo4n8
+         CdSj2gku3kGmR9Bzwgz+zYCFmzOcQaKCP7Dwvl/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Tobias Brunner <tobias@strongswan.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 48/69] ipv6: fix typos in __ip6_finish_output()
+Subject: [PATCH 5.15 116/179] scsi: scsi_debug: Zero clear zones at reset write pointer
 Date:   Mon, 29 Nov 2021 19:18:30 +0100
-Message-Id: <20211129181705.225925797@linuxfoundation.org>
+Message-Id: <20211129181722.779457122@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,43 +51,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-[ Upstream commit 19d36c5f294879949c9d6f57cb61d39cc4c48553 ]
+[ Upstream commit 2d62253eb1b60f4ce8b39125eee282739b519297 ]
 
-We deal with IPv6 packets, so we need to use IP6CB(skb)->flags and
-IP6SKB_REROUTED, instead of IPCB(skb)->flags and IPSKB_REROUTED
+When a reset is requested the position of the write pointer is updated but
+the data in the corresponding zone is not cleared. Instead scsi_debug
+returns any data written before the write pointer was reset. This is an
+error and prevents using scsi_debug for stale page cache testing of the
+BLKRESETZONE ioctl.
 
-Found by code inspection, please double check that fixing this bug
-does not surface other bugs.
+Zero written data in the zone when resetting the write pointer.
 
-Fixes: 09ee9dba9611 ("ipv6: Reinject IPv6 packets if IPsec policy matches after SNAT")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Tobias Brunner <tobias@strongswan.org>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: David Ahern <dsahern@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Tested-by: Tobias Brunner <tobias@strongswan.org>
-Acked-by: Tobias Brunner <tobias@strongswan.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20211122061223.298890-1-shinichiro.kawasaki@wdc.com
+Fixes: f0d1cf9378bd ("scsi: scsi_debug: Add ZBC zone commands")
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_debug.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index fc36f3b0dceb3..251ec12517e93 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -175,7 +175,7 @@ static int ip6_finish_output(struct net *net, struct sock *sk, struct sk_buff *s
- #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
- 	/* Policy lookup after SNAT yielded a new policy */
- 	if (skb_dst(skb)->xfrm) {
--		IPCB(skb)->flags |= IPSKB_REROUTED;
-+		IP6CB(skb)->flags |= IP6SKB_REROUTED;
- 		return dst_output(net, sk, skb);
- 	}
- #endif
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index ead65cdfb522e..1b1a63a467816 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -4649,6 +4649,7 @@ static void zbc_rwp_zone(struct sdebug_dev_info *devip,
+ 			 struct sdeb_zone_state *zsp)
+ {
+ 	enum sdebug_z_cond zc;
++	struct sdeb_store_info *sip = devip2sip(devip, false);
+ 
+ 	if (zbc_zone_is_conv(zsp))
+ 		return;
+@@ -4660,6 +4661,10 @@ static void zbc_rwp_zone(struct sdebug_dev_info *devip,
+ 	if (zsp->z_cond == ZC4_CLOSED)
+ 		devip->nr_closed--;
+ 
++	if (zsp->z_wp > zsp->z_start)
++		memset(sip->storep + zsp->z_start * sdebug_sector_size, 0,
++		       (zsp->z_wp - zsp->z_start) * sdebug_sector_size);
++
+ 	zsp->z_non_seq_resource = false;
+ 	zsp->z_wp = zsp->z_start;
+ 	zsp->z_cond = ZC1_EMPTY;
 -- 
 2.33.0
 
