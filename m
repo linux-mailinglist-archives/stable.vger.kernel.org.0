@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39AB5461F16
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF230461E3D
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380486AbhK2Snt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:43:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45378 "EHLO
+        id S1377219AbhK2Seo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:34:44 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37258 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378241AbhK2SkN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:40:13 -0500
+        with ESMTP id S1348606AbhK2Sck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:32:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA175B815DA;
-        Mon, 29 Nov 2021 18:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 262D0C53FC7;
-        Mon, 29 Nov 2021 18:36:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1ADCB815C8;
+        Mon, 29 Nov 2021 18:29:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB07CC53FAD;
+        Mon, 29 Nov 2021 18:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211013;
-        bh=r89LhmtnfAxeAtBP6DU/9hfGWRoXlp5G41Qo4nocGIg=;
+        s=korg; t=1638210560;
+        bh=wohp1RPRJ43mXUalQFcRtevwt2ybUlKtK5Kb07SyTPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nu0FT60xcGEqMPMLiWKQhof1xocUkACFuU6G1wSlSr8CPpcWR5WN8fotxmb5gcHIr
-         5BMxJYajxC2jYr2MdhBiCbxiY8dPZHIRSgwQoGGeNz3wainp8hr9WqGfG2OObdK6Ah
-         j5fHKgh5S1D7A7yjiUSvudpUEOG55Js3LWBb5adc=
+        b=gmD3SdH0KXHRkb7B0cop/KHTYohUMfzfLZn9AosKd1zm1Vm7IUpdFkUx1UKkYgfja
+         UFQ4Cf7DppSc7/Dw83ff28bxR+Btt1f/w4Y8l/t6tXMeNdStMQG5rle24Zq25fYSQB
+         VN4suG5dOlMhkSCMHEc/1C0CyxW0PHrgmV49KxCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 074/179] ASoC: qdsp6: q6routing: Conditionally reset FrontEnd Mixer
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.10 037/121] PCI: aardvark: Implement re-issuing config requests on CRS response
 Date:   Mon, 29 Nov 2021 19:17:48 +0100
-Message-Id: <20211129181721.393315855@linuxfoundation.org>
+Message-Id: <20211129181712.888787463@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +46,209 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 861afeac7990587588d057b2c0b3222331c3da29 ]
+commit 223dec14a05337a4155f1deed46d2becce4d00fd upstream.
 
-Stream IDs are reused across multiple BackEnd mixers, do not reset the
-stream mixers if they are not already set for that particular FrontEnd.
+Commit 43f5c77bcbd2 ("PCI: aardvark: Fix reporting CRS value") fixed
+handling of CRS response and when CRSSVE flag was not enabled it marked CRS
+response as failed transaction (due to simplicity).
 
-Ex:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
+But pci-aardvark.c driver is already waiting up to the PIO_RETRY_CNT count
+for PIO config response and so we can with a small change implement
+re-issuing of config requests as described in PCIe base specification.
 
-would set the MultiMedia1 steam for SLIMBUS_0_RX, however doing below
-command will reset previously setup MultiMedia1 stream, because both of them
-are using MultiMedia1 PCM stream.
+This change implements re-issuing of config requests when response is CRS.
+Set upper bound of wait cycles to around PIO_RETRY_CNT, afterwards the
+transaction is marked as failed and an all-ones value is returned as
+before.
 
-amixer cset iface=MIXER,name='SLIMBUS_2_RX Audio Mixer MultiMedia1' 0
+We do this by returning appropriate error codes from function
+advk_pcie_check_pio_status(). On CRS we return -EAGAIN and caller then
+reissues transaction.
 
-reset the FrontEnd Mixers conditionally to fix this issue.
-
-This is more noticeable in desktop setup, where in alsactl tries to restore
-the alsa state and overwriting the previous mixer settings.
-
-Fixes: e3a33673e845 ("ASoC: qdsp6: q6routing: Add q6routing driver")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211116114721.12517-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211005180952.6812-10-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/qdsp6/q6routing.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |   69 +++++++++++++++++++++-------------
+ 1 file changed, 44 insertions(+), 25 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6routing.c b/sound/soc/qcom/qdsp6/q6routing.c
-index 3390ebef9549d..243b8179e59df 100644
---- a/sound/soc/qcom/qdsp6/q6routing.c
-+++ b/sound/soc/qcom/qdsp6/q6routing.c
-@@ -495,7 +495,11 @@ static int msm_routing_put_audio_mixer(struct snd_kcontrol *kcontrol,
- 		session->port_id = be_id;
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 1, update);
- 	} else {
--		session->port_id = -1;
-+		if (session->port_id == be_id) {
-+			session->port_id = -1;
-+			return 0;
-+		}
-+
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 0, update);
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -699,6 +699,7 @@ static int advk_pcie_check_pio_status(st
+ 	u32 reg;
+ 	unsigned int status;
+ 	char *strcomp_status, *str_posted;
++	int ret;
+ 
+ 	reg = advk_readl(pcie, PIO_STAT);
+ 	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
+@@ -723,6 +724,7 @@ static int advk_pcie_check_pio_status(st
+ 	case PIO_COMPLETION_STATUS_OK:
+ 		if (reg & PIO_ERR_STATUS) {
+ 			strcomp_status = "COMP_ERR";
++			ret = -EFAULT;
+ 			break;
+ 		}
+ 		/* Get the read result */
+@@ -730,9 +732,11 @@ static int advk_pcie_check_pio_status(st
+ 			*val = advk_readl(pcie, PIO_RD_DATA);
+ 		/* No error */
+ 		strcomp_status = NULL;
++		ret = 0;
+ 		break;
+ 	case PIO_COMPLETION_STATUS_UR:
+ 		strcomp_status = "UR";
++		ret = -EOPNOTSUPP;
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CRS:
+ 		if (allow_crs && val) {
+@@ -750,6 +754,7 @@ static int advk_pcie_check_pio_status(st
+ 			 */
+ 			*val = CFG_RD_CRS_VAL;
+ 			strcomp_status = NULL;
++			ret = 0;
+ 			break;
+ 		}
+ 		/* PCIe r4.0, sec 2.3.2, says:
+@@ -765,21 +770,24 @@ static int advk_pcie_check_pio_status(st
+ 		 * Request and taking appropriate action, e.g., complete the
+ 		 * Request to the host as a failed transaction.
+ 		 *
+-		 * To simplify implementation do not re-issue the Configuration
+-		 * Request and complete the Request as a failed transaction.
++		 * So return -EAGAIN and caller (pci-aardvark.c driver) will
++		 * re-issue request again up to the PIO_RETRY_CNT retries.
+ 		 */
+ 		strcomp_status = "CRS";
++		ret = -EAGAIN;
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CA:
+ 		strcomp_status = "CA";
++		ret = -ECANCELED;
+ 		break;
+ 	default:
+ 		strcomp_status = "Unknown";
++		ret = -EINVAL;
+ 		break;
  	}
  
--- 
-2.33.0
-
+ 	if (!strcomp_status)
+-		return 0;
++		return ret;
+ 
+ 	if (reg & PIO_NON_POSTED_REQ)
+ 		str_posted = "Non-posted";
+@@ -789,7 +797,7 @@ static int advk_pcie_check_pio_status(st
+ 	dev_dbg(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
+ 		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
+ 
+-	return -EFAULT;
++	return ret;
+ }
+ 
+ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
+@@ -797,13 +805,13 @@ static int advk_pcie_wait_pio(struct adv
+ 	struct device *dev = &pcie->pdev->dev;
+ 	int i;
+ 
+-	for (i = 0; i < PIO_RETRY_CNT; i++) {
++	for (i = 1; i <= PIO_RETRY_CNT; i++) {
+ 		u32 start, isr;
+ 
+ 		start = advk_readl(pcie, PIO_START);
+ 		isr = advk_readl(pcie, PIO_ISR);
+ 		if (!start && isr)
+-			return 0;
++			return i;
+ 		udelay(PIO_RETRY_DELAY);
+ 	}
+ 
+@@ -1075,6 +1083,7 @@ static int advk_pcie_rd_conf(struct pci_
+ 			     int where, int size, u32 *val)
+ {
+ 	struct advk_pcie *pcie = bus->sysdata;
++	int retry_count;
+ 	bool allow_crs;
+ 	u32 reg;
+ 	int ret;
+@@ -1117,16 +1126,22 @@ static int advk_pcie_rd_conf(struct pci_
+ 	/* Program the data strobe */
+ 	advk_writel(pcie, 0xf, PIO_WR_DATA_STRB);
+ 
+-	/* Clear PIO DONE ISR and start the transfer */
+-	advk_writel(pcie, 1, PIO_ISR);
+-	advk_writel(pcie, 1, PIO_START);
+-
+-	ret = advk_pcie_wait_pio(pcie);
+-	if (ret < 0)
+-		goto try_crs;
++	retry_count = 0;
++	do {
++		/* Clear PIO DONE ISR and start the transfer */
++		advk_writel(pcie, 1, PIO_ISR);
++		advk_writel(pcie, 1, PIO_START);
++
++		ret = advk_pcie_wait_pio(pcie);
++		if (ret < 0)
++			goto try_crs;
++
++		retry_count += ret;
++
++		/* Check PIO status and get the read result */
++		ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
++	} while (ret == -EAGAIN && retry_count < PIO_RETRY_CNT);
+ 
+-	/* Check PIO status and get the read result */
+-	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
+ 	if (ret < 0)
+ 		goto fail;
+ 
+@@ -1158,6 +1173,7 @@ static int advk_pcie_wr_conf(struct pci_
+ 	struct advk_pcie *pcie = bus->sysdata;
+ 	u32 reg;
+ 	u32 data_strobe = 0x0;
++	int retry_count;
+ 	int offset;
+ 	int ret;
+ 
+@@ -1199,19 +1215,22 @@ static int advk_pcie_wr_conf(struct pci_
+ 	/* Program the data strobe */
+ 	advk_writel(pcie, data_strobe, PIO_WR_DATA_STRB);
+ 
+-	/* Clear PIO DONE ISR and start the transfer */
+-	advk_writel(pcie, 1, PIO_ISR);
+-	advk_writel(pcie, 1, PIO_START);
++	retry_count = 0;
++	do {
++		/* Clear PIO DONE ISR and start the transfer */
++		advk_writel(pcie, 1, PIO_ISR);
++		advk_writel(pcie, 1, PIO_START);
++
++		ret = advk_pcie_wait_pio(pcie);
++		if (ret < 0)
++			return PCIBIOS_SET_FAILED;
+ 
+-	ret = advk_pcie_wait_pio(pcie);
+-	if (ret < 0)
+-		return PCIBIOS_SET_FAILED;
++		retry_count += ret;
+ 
+-	ret = advk_pcie_check_pio_status(pcie, false, NULL);
+-	if (ret < 0)
+-		return PCIBIOS_SET_FAILED;
++		ret = advk_pcie_check_pio_status(pcie, false, NULL);
++	} while (ret == -EAGAIN && retry_count < PIO_RETRY_CNT);
+ 
+-	return PCIBIOS_SUCCESSFUL;
++	return ret < 0 ? PCIBIOS_SET_FAILED : PCIBIOS_SUCCESSFUL;
+ }
+ 
+ static struct pci_ops advk_pcie_ops = {
 
 
