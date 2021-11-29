@@ -2,115 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76C41460EEB
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 07:46:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8F2460F2D
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231966AbhK2GuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 01:50:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49924 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244306AbhK2Gr2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 01:47:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392DDC06175B
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 22:43:26 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BAE9B80D6D
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 06:43:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF5BDC004E1;
-        Mon, 29 Nov 2021 06:43:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638168203;
-        bh=SsuKZJ83T3/Zr7xtPiqrkHd95tvU47yLZzw6U2QYHjc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wc2qFLeWbh9AlV79FJRMM0toyQKZ6HqZIiMX0247BYh9o7ufoz2dqHt8cIq0KWAEt
-         3oGfqcyOgl3ywfmoJpdiN9g/BBGjYdh8/2ycV3j0zqoBuxmnSxzG2y8EyFcbEgEjgu
-         O/Q8/uKBgEbZH5mm5iZh7pCnpl2VmXk+t0mXGjDw=
-Date:   Mon, 29 Nov 2021 07:43:20 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Kyle Huey <me@kylehuey.com>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Robert O'Callahan <robert@ocallahan.org>,
-        Kees Cook <keescook@chromium.org>,
-        Kyle Huey <khuey@kylehuey.com>,
-        Oliver Sang <oliver.sang@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] signal: Don't always set SA_IMMUTABLE for
- forced signals" failed to apply to 5.15-stable tree
-Message-ID: <YaR2iFc/pkM8e6l/@kroah.com>
-References: <163758427225348@kroah.com>
- <CAP045ApHdVjC59KE7+morWY_5j4px3O0Fm6F6-cuJ+p6Q9PCPA@mail.gmail.com>
- <87y25ef82b.fsf@email.froward.int.ebiederm.org>
- <CAP045ApWgeLtpGXjEt8DvH1uGJ-2vEo1zq-0EzFcR6F+HNoj7Q@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAP045ApWgeLtpGXjEt8DvH1uGJ-2vEo1zq-0EzFcR6F+HNoj7Q@mail.gmail.com>
+        id S231389AbhK2HJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 02:09:52 -0500
+Received: from 192-163-196-79.unifiedlayer.com ([192.163.196.79]:50534 "EHLO
+        192-163-196-79.unifiedlayer.com" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236228AbhK2HHw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 02:07:52 -0500
+Received: from besteditor by 192-163-196-79.ipage.com with local (Exim 4.93)
+        (envelope-from <besteditor@192-163-196-79.ipage.com>)
+        id 1mraSF-0001Y7-PD; Sun, 28 Nov 2021 23:48:00 -0700
+To:     stalinmedico@gmail.com
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: scriptproofpub.org/mail4/send.php for 129.205.124.94
+X-PHP-Originating-Script: 1003:send.php
+From:   manuscriptediting34@pub.org
+Reply-To: mmanuscripteditserv@gmail.com
+Message-Id: <E1mraSF-0001Y7-PD@192-163-196-79.ipage.com>
+Date:   Sun, 28 Nov 2021 23:47:59 -0700
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 192-163-196-79.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1003 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 192-163-196-79.ipage.com
+X-Get-Message-Sender-Via: 192-163-196-79.ipage.com: authenticated_id: besteditor/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 192-163-196-79.ipage.com: besteditor
+X-Source: 
+X-Source-Args: php-fpm: pool scriptproofpub_org                         
+X-Source-Dir: scriptproofpub.org:/public_html/mail4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 28, 2021 at 10:23:38PM -0800, Kyle Huey wrote:
-> On Tue, Nov 23, 2021 at 9:15 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
-> >
-> > Kyle Huey <me@kylehuey.com> writes:
-> >
-> >
-> > > Since this is taken care of now, AFAICT, I do have one additional
-> > > question. I reported the regression to LKML a day or so before 5.15.3
-> > > was cut. What should I have noticed to see that the regressing
-> > > changeset was going to 5.15 and where should I have said "hey please
-> > > don't ship this on 5.15 yet"?
-> > >
-> > > I'd like to know what to do next time :)
-> > >
-> > When patches are added to the stable tree they are posted
-> > for review.
-> >
-> > I was Cc'd on a couple of them because of this discussion.  The list
-> > appear to be "<stable-commits@vger.kernel.org>".  Feedback is requested
-> > to go to "<stable@vger.kernel.org>".  So I believe this conversation is
-> > enough to remove the unnecessary patches before they make it to a stable
-> > release.
-> >
-> > The boiler plate looks like:
-> > > Cc: <stable-commits@vger.kernel.org>
-> > > Date: Tue, 23 Nov 2021 19:11:53 +0100 (10 hours, 58 minutes, 56 seconds ago)
-> > >
-> > >
-> > > This is a note to let you know that I've just added the patch titled
-> > >
-> > >     exit/syscall_user_dispatch: Send ordinary signals on failure
-> > >
-> > > to the 5.15-stable tree which can be found at:
-> > >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > >
-> > > The filename of the patch is:
-> > >      exit-syscall_user_dispatch-send-ordinary-signals-on-failure.patch
-> > > and it can be found in the queue-5.15 subdirectory.
-> > >
-> > > If you, or anyone else, feels it should not be added to the stable tree,
-> > > please let <stable@vger.kernel.org> know about it.
-> >
-> >
-> > I hope that helps.
-> >
-> > Eric
-> 
-> So if I understand this correctly the best (or maybe even only) way to
-> stop a regressing changeset from making it into a stable release is to
-> separately search/watch the stable mailing list for the changeset in
-> question?
+MODERN MANUSCRIPT EDITING SERVICES
+http://www.mmanuscripteditserv.com/index.htm
 
-That is the best way, yes.
 
-But note that I also cc: lkml with all stable patches for when they are
-in a -rc release to give developers time to object if needed as well, so
-you can search there too.
+Do you want your manuscript TO BE written in standard English?
+Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
+Does your manuscript have to be in a particular journal format?
+Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
+So hurry up and get your papers edited in Standard English.
 
-thanks,
+Dear Colleague,
+Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
 
-greg k-h
+Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
+
+Our charges are as follows: $25 per 1000 words, meaning
+
+Number of Words	Price
+1 to 1,000    	$25
+1,001 to 2,000	$50
+2,001 to 3,000	$75
+3,001 to 4,000	$100
+4,001 to 5,000	$125
+5,001 to 6,000	$150
+6,001 to 7,000	$175
+
+Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
+
+For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
+
+Best regards,
+
+Dr. Philip Benz
+Editor
+Modern Manuscript Editing Services
+
+To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
+
