@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BF4461F45
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07844461F46
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380100AbhK2Sp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:45:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46414 "EHLO
+        id S1378898AbhK2Sp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:45:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48348 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380259AbhK2SnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:43:24 -0500
+        with ESMTP id S1380284AbhK2Sn2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:43:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59655B815C5;
-        Mon, 29 Nov 2021 18:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84450C53FAD;
-        Mon, 29 Nov 2021 18:40:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35549B815C9;
+        Mon, 29 Nov 2021 18:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A9F4C53FAD;
+        Mon, 29 Nov 2021 18:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211205;
-        bh=MG1Yf1Gik9hQKxESksFmltQTtVwc8uUr1Drh14KDg3w=;
+        s=korg; t=1638211207;
+        bh=nFeVJENmnb1f/2Uj6fZwYFql+n9XmZelkoWzVeWVQp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TLCMlg+DWRzkR6oJmHfrc5Szn+b3eb/UAZccMJEE7YnGwt2IT2TNqxzKC9tX1Uh8y
-         f3VW21yjq/xFzfzEvxIW0wLLKOFizIyYckpzlIJeUix2eMhYFTrJ2u7MC5j6CRBMNa
-         v6387pjUkedOL5tKTBgcZ2A03qCy1Nci1XO/iIlo=
+        b=G8qKmAA6jNFJzRHioc1nb4ZLbIWJw/ghHIwGgIOntAoe0w1m8lcl9xsJbY/49RtyZ
+         wyYkfJvOO1Ltgs+hFuXFRkUj28YplsZCark+Iy1HM53HXAI/Qv+Mf6yhT895pWZV9L
+         mZgBDLd7gOk2oO8s15uXmE2Mh0I9+u7/M1cGVzOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Danielle Ratson <danieller@nvidia.com>,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 140/179] igb: fix netpoll exit with traffic
-Date:   Mon, 29 Nov 2021 19:18:54 +0100
-Message-Id: <20211129181723.554788331@linuxfoundation.org>
+Subject: [PATCH 5.15 141/179] MIPS: loongson64: fix FTLB configuration
+Date:   Mon, 29 Nov 2021 19:18:55 +0100
+Message-Id: <20211129181723.585631679@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -49,54 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Huang Pei <huangpei@loongson.cn>
 
-[ Upstream commit eaeace60778e524a2820d0c0ad60bf80289e292c ]
+[ Upstream commit 7db5e9e9e5e6c10d7d26f8df7f8fd8841cb15ee7 ]
 
-Oleksandr brought a bug report where netpoll causes trace
-messages in the log on igb.
+It turns out that 'decode_configs' -> 'set_ftlb_enable' is called under
+c->cputype unset, which leaves FTLB disabled on BOTH 3A2000 and 3A3000
 
-Danielle brought this back up as still occurring, so we'll try
-again.
+Fix it by calling "decode_configs" after c->cputype is initialized
 
-[22038.710800] ------------[ cut here ]------------
-[22038.710801] igb_poll+0x0/0x1440 [igb] exceeded budget in poll
-[22038.710802] WARNING: CPU: 12 PID: 40362 at net/core/netpoll.c:155 netpoll_poll_dev+0x18a/0x1a0
-
-As Alex suggested, change the driver to return work_done at the
-exit of napi_poll, which should be safe to do in this driver
-because it is not polling multiple queues in this single napi
-context (multiple queues attached to one MSI-X vector). Several
-other drivers contain the same simple sequence, so I hope
-this will not create new problems.
-
-Fixes: 16eb8815c235 ("igb: Refactor clean_rx_irq to reduce overhead and improve performance")
-Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Reported-by: Danielle Ratson <danieller@nvidia.com>
-Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Tested-by: Danielle Ratson <danieller@nvidia.com>
-Link: https://lore.kernel.org/r/20211123204000.1597971-1-jesse.brandeburg@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: da1bd29742b1 ("MIPS: Loongson64: Probe CPU features via CPUCFG")
+Signed-off-by: Huang Pei <huangpei@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/kernel/cpu-probe.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 751de06019a0e..8f30577386b6f 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -8019,7 +8019,7 @@ static int igb_poll(struct napi_struct *napi, int budget)
- 	if (likely(napi_complete_done(napi, work_done)))
- 		igb_ring_irq_enable(q_vector);
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index 630fcb4cb30e7..7c861e6a89529 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -1734,8 +1734,6 @@ static inline void decode_cpucfg(struct cpuinfo_mips *c)
  
--	return min(work_done, budget - 1);
-+	return work_done;
+ static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
+ {
+-	decode_configs(c);
+-
+ 	/* All Loongson processors covered here define ExcCode 16 as GSExc. */
+ 	c->options |= MIPS_CPU_GSEXCEX;
+ 
+@@ -1796,6 +1794,8 @@ static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
+ 		panic("Unknown Loongson Processor ID!");
+ 		break;
+ 	}
++
++	decode_configs(c);
  }
- 
- /**
+ #else
+ static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu) { }
 -- 
 2.33.0
 
