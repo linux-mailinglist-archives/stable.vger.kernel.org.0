@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B1814622E6
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9294F46243B
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231761AbhK2VHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 16:07:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40700 "EHLO
+        id S232100AbhK2WRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231759AbhK2VFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:05:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B90C12531D;
-        Mon, 29 Nov 2021 10:26:56 -0800 (PST)
+        with ESMTP id S232748AbhK2WQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:44 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2805C08ED8F;
+        Mon, 29 Nov 2021 10:20:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CD23B815E0;
-        Mon, 29 Nov 2021 18:26:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2A0EC53FC7;
-        Mon, 29 Nov 2021 18:26:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 36E5CCE13D5;
+        Mon, 29 Nov 2021 18:20:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5BF5C53FC7;
+        Mon, 29 Nov 2021 18:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210414;
-        bh=+YFwBlf9hNzfgMBDypiZR0VBFBB0t4m/GzR8KSQJIuQ=;
+        s=korg; t=1638210048;
+        bh=62zfnLtY6sigOaOUyXC1QYoLen+uqHrw7HKSLpKKm1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+W9VeQ1YjL4igcKEp3mKWovY9h4HQ7x5hSJARnjz4zEkV4QUJVYfSdPTcqTZeHj5
-         zAfkJr+lXqWre2Do28PPi7nx1daI7E6GhGobuL35y7I/Qnxl3Edmf6h+6sLUXGuc0y
-         WopMs41b3Ct/e+j8IKflMUQX4zRuy380JBZRb9RI=
+        b=hQTGLzpwakyDTyHriTee8vNe/1rhNZ4nnqdGyrHmhVPl6X41oNDzvjaVisgEcwT+r
+         B8rn6OJIgAJ9YNd0hw+pGnS1Oh6pzHasXS+ez/YRkLILODHuBricW4fu4sd5QJvbKp
+         yb5UF4fxS32ZdKeibEjYgEx70+aGuXzMyrocOd9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 37/92] PCI: aardvark: Implement re-issuing config requests on CRS response
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.19 24/69] PCI: aardvark: Dont touch PCIe registers if no card connected
 Date:   Mon, 29 Nov 2021 19:18:06 +0100
-Message-Id: <20211129181708.665340189@linuxfoundation.org>
+Message-Id: <20211129181704.463324459@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,207 +51,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 223dec14a05337a4155f1deed46d2becce4d00fd upstream.
+commit 70e380250c3621c55ff218cbaf2272830d9dbb1d upstream.
 
-Commit 43f5c77bcbd2 ("PCI: aardvark: Fix reporting CRS value") fixed
-handling of CRS response and when CRSSVE flag was not enabled it marked CRS
-response as failed transaction (due to simplicity).
+When there is no PCIe card connected and advk_pcie_rd_conf() or
+advk_pcie_wr_conf() is called for PCI bus which doesn't belong to emulated
+root bridge, the aardvark driver throws the following error message:
 
-But pci-aardvark.c driver is already waiting up to the PIO_RETRY_CNT count
-for PIO config response and so we can with a small change implement
-re-issuing of config requests as described in PCIe base specification.
+  advk-pcie d0070000.pcie: config read/write timed out
 
-This change implements re-issuing of config requests when response is CRS.
-Set upper bound of wait cycles to around PIO_RETRY_CNT, afterwards the
-transaction is marked as failed and an all-ones value is returned as
-before.
+Obviously accessing PCIe registers of disconnected card is not possible.
 
-We do this by returning appropriate error codes from function
-advk_pcie_check_pio_status(). On CRS we return -EAGAIN and caller then
-reissues transaction.
+Extend check in advk_pcie_valid_device() function for validating
+availability of PCIe bus. If PCIe link is down, then the device is marked
+as Not Found and the driver does not try to access these registers.
 
-Link: https://lore.kernel.org/r/20211005180952.6812-10-kabel@kernel.org
+This is just an optimization to prevent accessing PCIe registers when card
+is disconnected. Trying to access PCIe registers of disconnected card does
+not cause any crash, kernel just needs to wait for a timeout. So if card
+disappear immediately after checking for PCIe link (before accessing PCIe
+registers), it does not cause any problems.
+
+Link: https://lore.kernel.org/r/20200702083036.12230-1-pali@kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   69 +++++++++++++++++++++-------------
- 1 file changed, 44 insertions(+), 25 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -666,6 +666,7 @@ static int advk_pcie_check_pio_status(st
- 	u32 reg;
- 	unsigned int status;
- 	char *strcomp_status, *str_posted;
-+	int ret;
+@@ -525,6 +525,13 @@ static bool advk_pcie_valid_device(struc
+ 	if ((bus->number == pcie->root_bus_nr) && PCI_SLOT(devfn) != 0)
+ 		return false;
  
- 	reg = advk_readl(pcie, PIO_STAT);
- 	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
-@@ -690,6 +691,7 @@ static int advk_pcie_check_pio_status(st
- 	case PIO_COMPLETION_STATUS_OK:
- 		if (reg & PIO_ERR_STATUS) {
- 			strcomp_status = "COMP_ERR";
-+			ret = -EFAULT;
- 			break;
- 		}
- 		/* Get the read result */
-@@ -697,9 +699,11 @@ static int advk_pcie_check_pio_status(st
- 			*val = advk_readl(pcie, PIO_RD_DATA);
- 		/* No error */
- 		strcomp_status = NULL;
-+		ret = 0;
- 		break;
- 	case PIO_COMPLETION_STATUS_UR:
- 		strcomp_status = "UR";
-+		ret = -EOPNOTSUPP;
- 		break;
- 	case PIO_COMPLETION_STATUS_CRS:
- 		if (allow_crs && val) {
-@@ -717,6 +721,7 @@ static int advk_pcie_check_pio_status(st
- 			 */
- 			*val = CFG_RD_CRS_VAL;
- 			strcomp_status = NULL;
-+			ret = 0;
- 			break;
- 		}
- 		/* PCIe r4.0, sec 2.3.2, says:
-@@ -732,21 +737,24 @@ static int advk_pcie_check_pio_status(st
- 		 * Request and taking appropriate action, e.g., complete the
- 		 * Request to the host as a failed transaction.
- 		 *
--		 * To simplify implementation do not re-issue the Configuration
--		 * Request and complete the Request as a failed transaction.
-+		 * So return -EAGAIN and caller (pci-aardvark.c driver) will
-+		 * re-issue request again up to the PIO_RETRY_CNT retries.
- 		 */
- 		strcomp_status = "CRS";
-+		ret = -EAGAIN;
- 		break;
- 	case PIO_COMPLETION_STATUS_CA:
- 		strcomp_status = "CA";
-+		ret = -ECANCELED;
- 		break;
- 	default:
- 		strcomp_status = "Unknown";
-+		ret = -EINVAL;
- 		break;
- 	}
- 
- 	if (!strcomp_status)
--		return 0;
-+		return ret;
- 
- 	if (reg & PIO_NON_POSTED_REQ)
- 		str_posted = "Non-posted";
-@@ -756,7 +764,7 @@ static int advk_pcie_check_pio_status(st
- 	dev_dbg(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
- 		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
- 
--	return -EFAULT;
-+	return ret;
++	/*
++	 * If the link goes down after we check for link-up, nothing bad
++	 * happens but the config access times out.
++	 */
++	if (bus->number != pcie->root_bus_nr && !advk_pcie_link_up(pcie))
++		return false;
++
+ 	return true;
  }
  
- static int advk_pcie_wait_pio(struct advk_pcie *pcie)
-@@ -764,13 +772,13 @@ static int advk_pcie_wait_pio(struct adv
- 	struct device *dev = &pcie->pdev->dev;
- 	int i;
- 
--	for (i = 0; i < PIO_RETRY_CNT; i++) {
-+	for (i = 1; i <= PIO_RETRY_CNT; i++) {
- 		u32 start, isr;
- 
- 		start = advk_readl(pcie, PIO_START);
- 		isr = advk_readl(pcie, PIO_ISR);
- 		if (!start && isr)
--			return 0;
-+			return i;
- 		udelay(PIO_RETRY_DELAY);
- 	}
- 
-@@ -974,6 +982,7 @@ static int advk_pcie_rd_conf(struct pci_
- 			     int where, int size, u32 *val)
- {
- 	struct advk_pcie *pcie = bus->sysdata;
-+	int retry_count;
- 	bool allow_crs;
- 	u32 reg;
- 	int ret;
-@@ -1016,16 +1025,22 @@ static int advk_pcie_rd_conf(struct pci_
- 	/* Program the data strobe */
- 	advk_writel(pcie, 0xf, PIO_WR_DATA_STRB);
- 
--	/* Clear PIO DONE ISR and start the transfer */
--	advk_writel(pcie, 1, PIO_ISR);
--	advk_writel(pcie, 1, PIO_START);
--
--	ret = advk_pcie_wait_pio(pcie);
--	if (ret < 0)
--		goto try_crs;
-+	retry_count = 0;
-+	do {
-+		/* Clear PIO DONE ISR and start the transfer */
-+		advk_writel(pcie, 1, PIO_ISR);
-+		advk_writel(pcie, 1, PIO_START);
-+
-+		ret = advk_pcie_wait_pio(pcie);
-+		if (ret < 0)
-+			goto try_crs;
-+
-+		retry_count += ret;
-+
-+		/* Check PIO status and get the read result */
-+		ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
-+	} while (ret == -EAGAIN && retry_count < PIO_RETRY_CNT);
- 
--	/* Check PIO status and get the read result */
--	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
- 	if (ret < 0)
- 		goto fail;
- 
-@@ -1057,6 +1072,7 @@ static int advk_pcie_wr_conf(struct pci_
- 	struct advk_pcie *pcie = bus->sysdata;
- 	u32 reg;
- 	u32 data_strobe = 0x0;
-+	int retry_count;
- 	int offset;
- 	int ret;
- 
-@@ -1098,19 +1114,22 @@ static int advk_pcie_wr_conf(struct pci_
- 	/* Program the data strobe */
- 	advk_writel(pcie, data_strobe, PIO_WR_DATA_STRB);
- 
--	/* Clear PIO DONE ISR and start the transfer */
--	advk_writel(pcie, 1, PIO_ISR);
--	advk_writel(pcie, 1, PIO_START);
-+	retry_count = 0;
-+	do {
-+		/* Clear PIO DONE ISR and start the transfer */
-+		advk_writel(pcie, 1, PIO_ISR);
-+		advk_writel(pcie, 1, PIO_START);
-+
-+		ret = advk_pcie_wait_pio(pcie);
-+		if (ret < 0)
-+			return PCIBIOS_SET_FAILED;
- 
--	ret = advk_pcie_wait_pio(pcie);
--	if (ret < 0)
--		return PCIBIOS_SET_FAILED;
-+		retry_count += ret;
- 
--	ret = advk_pcie_check_pio_status(pcie, false, NULL);
--	if (ret < 0)
--		return PCIBIOS_SET_FAILED;
-+		ret = advk_pcie_check_pio_status(pcie, false, NULL);
-+	} while (ret == -EAGAIN && retry_count < PIO_RETRY_CNT);
- 
--	return PCIBIOS_SUCCESSFUL;
-+	return ret < 0 ? PCIBIOS_SET_FAILED : PCIBIOS_SUCCESSFUL;
- }
- 
- static struct pci_ops advk_pcie_ops = {
 
 
