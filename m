@@ -2,61 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16DF3460FA8
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AF19460FBB
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 09:07:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240455AbhK2H7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 02:59:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37408 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241164AbhK2H5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 02:57:16 -0500
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0B90C0613FB
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 23:51:35 -0800 (PST)
-Received: by mail-lj1-x229.google.com with SMTP id u22so32744244lju.7
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 23:51:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=BMaWvkUh+ezz21OhtfDs4W+aGM5+tSz2idiLr7TjYPE=;
-        b=DytNJ2cu3rO0Kmn7vqn0Px/6Pxg+Xp0FXULbXH8iuh0rQJIe8h8qRc8X/k8Gda4kCK
-         VnESBAoiF89yCxasyjlET9G81jXvSW0p3Ouiz6D7x5AMhZt6RKWUJ5P5PnxHdaV0CzmX
-         T/WSXAbvO8svTmwpbxPs49DlWE7bpIFNhGv1PTCY6s2v7Hbdkfw4/8zsOSUSKSINn1LC
-         0OlxVdJxdnE3iXRQjJ2zCVFqgYjBTUb+rdq09F4Rt+SVeiBAOuV4op6WTUqEgjybYGek
-         lyn7LMdINaA0x5TAbHowPhE1dBOjFin+TPkdyw622vMiKLbnLaXRXzXuN6n3Qp3EUfJd
-         Javg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=BMaWvkUh+ezz21OhtfDs4W+aGM5+tSz2idiLr7TjYPE=;
-        b=QJwuy7V2UISxVojrHL5iXjzccnGE6g1OphftiDMkbQDGGTnLutQXNJXA1sogqVXWAK
-         0EhPLnMvGsQdPsB244vO1ikIV6y7BnK1Ng1URO+OnUXVHCT80G9JsI1iqcxlMYT9rfoQ
-         VLNN24IKe6xX2FbKldYMKvXBlg5hu6LNMmUASHrgKFe/0FPXs/8YHzalEon8XWVq/zRE
-         bsVQIME6S/t21nv045sKIanAFq4Bct2vSXG4E9UP9givzmdnvWEpuVAg2Z/aeLngQL0M
-         JA6ey3tGiq2HS/TNDdJ7SfNnY+qPNk+n9qGTPzgKjtDf9aUtHbbCkxC3KwrZ+suVabZ/
-         LZIw==
-X-Gm-Message-State: AOAM531rZKktxOmEm4l+TN2ozxI4ZkQJAPOc2JlGKJ+85eKSpJnrX92F
-        XW9fCIORdhilrXNRN5jT1pxZVgyjH8ig4ULTuUg=
-X-Google-Smtp-Source: ABdhPJz28AJchqF+2piJGBzs5HYCeiltpNLEGFANhJ6+ew1RtN8irybspu05+ZvpbpiU/g5vUObyPUWAks5Uy3YztSc=
-X-Received: by 2002:a2e:964a:: with SMTP id z10mr46725834ljh.210.1638172294220;
- Sun, 28 Nov 2021 23:51:34 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a19:ae11:0:0:0:0:0 with HTTP; Sun, 28 Nov 2021 23:51:34
- -0800 (PST)
-Reply-To: kivaindiafinance@gmail.com
-From:   Kiva Finance Loan <martinsscout44@gmail.com>
-Date:   Sun, 28 Nov 2021 23:51:34 -0800
-Message-ID: <CAOxu2DY4qs5SKOHjLFjB83jqgwUYWmkG4vBWfJUEmqzVOJJmVQ@mail.gmail.com>
-Subject: DARLEHEN
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S239337AbhK2IKv convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 29 Nov 2021 03:10:51 -0500
+Received: from coyote.holtmann.net ([212.227.132.17]:39354 "EHLO
+        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238618AbhK2IIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 03:08:48 -0500
+Received: from smtpclient.apple (p5b3d2e91.dip0.t-ipconnect.de [91.61.46.145])
+        by mail.holtmann.org (Postfix) with ESMTPSA id B41FFCED1F;
+        Mon, 29 Nov 2021 09:05:29 +0100 (CET)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
+Subject: Re: [PATCH v2 1/6] Bluetooth: add quirk disabling LE Read Transmit
+ Power
+From:   Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
+Date:   Mon, 29 Nov 2021 09:05:28 +0100
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Daniel Winkler <danielwinkler@google.com>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
+References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
+ <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
+ <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
+ <20211117124717.12352-1-redecorating@protonmail.com>
+ <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
+ <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
+ <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
+ <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
+ <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
+ <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
+To:     Aditya Garg <gargaditya08@live.com>
+X-Mailer: Apple Mail (2.3693.20.0.1.32)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ben=C3=B6tigen Sie einen Kredit, wenn ja? E-Mail mit ben=C3=B6tigtem Betrag=
- zur=C3=BCck
+Hi Aditya,
+
+> Some devices have a bug causing them to not work if they query LE tx power on startup. Thus we add a 
+> quirk in order to not query it and default min/max tx power values to HCI_TX_POWER_INVALID.
+> 
+> v2: Wrap the changeling at 72 columns, correct email and remove tested by.
+
+that part is for the reviewer and needs to go after ---. Otherwise please break
+at 72 characters.
+
+> 
+> Signed-off-by: Aditya Garg <gargaditya08@live.com>
+> ---
+> include/net/bluetooth/hci.h | 9 +++++++++
+> net/bluetooth/hci_core.c    | 3 ++-
+> 2 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+> index 63065bc01b766c..383342efcdc464 100644
+> --- a/include/net/bluetooth/hci.h
+> +++ b/include/net/bluetooth/hci.h
+> @@ -246,6 +246,15 @@ enum {
+> 	 * HCI after resume.
+> 	 */
+> 	HCI_QUIRK_NO_SUSPEND_NOTIFIER,
+> +
+> +	/*
+> +	 * When this quirk is set, LE tx power is not queried on startup
+> +	 * and the min/max tx power values default to HCI_TX_POWER_INVALID.
+> +	 *
+> +	 * This quirk can be set before hci_register_dev is called or
+> +	 * during the hdev->setup vendor callback.
+> +	 */
+> +	HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER,
+> };
+> 
+> /* HCI device flags */
+> diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+> index 8d33aa64846b1c..434c6878fe9640 100644
+> --- a/net/bluetooth/hci_core.c
+> +++ b/net/bluetooth/hci_core.c
+> @@ -619,7 +619,8 @@ static int hci_init3_req(struct hci_request *req, unsigned long opt)
+> 			hci_req_add(req, HCI_OP_LE_READ_ADV_TX_POWER, 0, NULL);
+> 		}
+> 
+> -		if (hdev->commands[38] & 0x80) {
+> +		if (hdev->commands[38] & 0x80 &&
+> +		!test_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks)) {
+
+	if ((hdev->commands[38] & 0x80) &&
+	    !test_bit(HCI_QUIRK_.., &hdev->quirks)) {
+
+> 			/* Read LE Min/Max Tx Power*/
+> 			hci_req_add(req, HCI_OP_LE_READ_TRANSMIT_POWER,
+> 				    0, NULL);
+> 
+
+Regards
+
+Marcel
+
