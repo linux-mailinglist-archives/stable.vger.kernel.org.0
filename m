@@ -2,89 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E46F3461B2B
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:39:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C07461B22
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346996AbhK2PmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 10:42:12 -0500
-Received: from mga06.intel.com ([134.134.136.31]:52861 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343715AbhK2PkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Nov 2021 10:40:10 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10182"; a="296796222"
-X-IronPort-AV: E=Sophos;i="5.87,273,1631602800"; 
-   d="scan'208";a="296796222"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 07:27:45 -0800
-X-IronPort-AV: E=Sophos;i="5.87,273,1631602800"; 
-   d="scan'208";a="558842006"
-Received: from vanderss-mobl.ger.corp.intel.com (HELO thellstr-mobl1.intel.com) ([10.249.254.176])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 07:27:42 -0800
-From:   =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     maarten.lankhorst@linux.intel.com, matthew.auld@intel.com,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Gustavo Padovan <gustavo@padovan.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2] dma_fence_array: Fix PENDING_ERROR leak in dma_fence_array_signaled()
-Date:   Mon, 29 Nov 2021 16:27:27 +0100
-Message-Id: <20211129152727.448908-1-thomas.hellstrom@linux.intel.com>
-X-Mailer: git-send-email 2.31.1
+        id S1344333AbhK2Pkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 10:40:51 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:47146
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244980AbhK2Piv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:38:51 -0500
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 70F2540009
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 15:35:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1638200132;
+        bh=tf96AuO5x5gjp6koQeTaZjV3TfVhaiadm4gVY/ssPY0=;
+        h=From:Subject:To:Cc:Message-ID:Date:MIME-Version:Content-Type;
+        b=IFG+lHwQP3RkS/mSaK1drPo5kbj6CASSintGwAkI5b59bXilvaTMA6ag7fPvLTIt2
+         R2+1mweyok/KPFkq9jHCAEthtd//xRbHEZVvdZg18I06W6gwLhWxR6WGoZB7Y9kagn
+         nzu7EXhYNBGQ0hFBQpLrboSbh+H5pHF0/ADuZCCmT39vSnLz63YTZuWL5+7u/lDwua
+         8qlVbGw/+9RdJ+LffNSGvsjey2imq39YRhBG9LXonO5CGxEXwB85AMdSAqazuELhiT
+         dvNLuVqBTnaeQlfS7RpEVnU5NcPG/wWgmB8lM30q2KtqqGnjE6BB24sZj2pO8b/IEv
+         rvEum9PQoh+OA==
+Received: by mail-pl1-f198.google.com with SMTP id 4-20020a170902c20400b0014381f710d5so6538335pll.11
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 07:35:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:subject:to:cc:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=tf96AuO5x5gjp6koQeTaZjV3TfVhaiadm4gVY/ssPY0=;
+        b=McjU5n/FnTM09q3D8VlUpFLsolIde2Ae+0XT9YCChnQV1sXgk8KZ6gYVzDF5UYRaCp
+         q+D2drQG/4qG+8AZvTsOVOhmIyWIPX/pXbPgVEh5vKdMdjjlEMts87Ar88TCxQT75aq3
+         u/Q0h0lUK9CfVSFgLPYbJG8okzBYbNfboMWcBL1euijvKMvrFALVAPL5dkcqGy4a5EsN
+         JoVoa7uqYr2QdcW7P1GF9euM7ZXlDYvcVkit87WczRYUCQ/6ouI/nBz+7l3fSgPlIVX3
+         PcVigYjfhzbNeGPR/uD/RDwdoXC+9CcP0xN3XwQjpcl4JMl9Tv/a74xWQozIBKYvylxI
+         C5Gw==
+X-Gm-Message-State: AOAM531nqHhsG/kifmOtM5xBr8Xp1SeuUxXDG9qB9tIWKEPQ9ybPd5NQ
+        QVAwxQMjZbACH56NZM1LngKiiC7y+NrefxCxe32Ep3uSVpJdBFXD4MWq9om+hc9x1zfzQU6EP1O
+        oYNoE8JtCHADfxj+Og5x//umnqOszZLypzg==
+X-Received: by 2002:a17:90a:bf8a:: with SMTP id d10mr38703473pjs.67.1638200131115;
+        Mon, 29 Nov 2021 07:35:31 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzrtghVy2cB06KZtU+MpQ0hZ+SPUtpz89k2kZUBlz6J0QLHMTxsDRgbAg5O5FYs/Nbm1imESQ==
+X-Received: by 2002:a17:90a:bf8a:: with SMTP id d10mr38703435pjs.67.1638200130843;
+        Mon, 29 Nov 2021 07:35:30 -0800 (PST)
+Received: from [192.168.1.124] ([69.163.84.166])
+        by smtp.gmail.com with ESMTPSA id u30sm12251881pgo.60.2021.11.29.07.35.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 29 Nov 2021 07:35:30 -0800 (PST)
+From:   Tim Gardner <tim.gardner@canonical.com>
+Subject: Commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 causes a regression
+To:     len.baker@gmx.com
+Cc:     pc@cjr.nz, jlayton@kernel.org, stfrench@microsoft.com,
+        Kamal Mostafa <Kamal.Mostafa@canonical.com>,
+        linux-cifs@vger.kernel.org,
+        samba-technical <samba-technical@lists.samba.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Message-ID: <a8b2287b-c459-2169-fbf4-31f3065e0897@canonical.com>
+Date:   Mon, 29 Nov 2021 08:35:29 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a dma_fence_array is reported signaled by a call to
-dma_fence_is_signaled(), it may leak the PENDING_ERROR status.
+Hi Len,
 
-Fix this by clearing the PENDING_ERROR status if we return true in
-dma_fence_array_signaled().
+I have a report (https://bugs.launchpad.net/bugs/1952094) that commit 
+f980d055a0f858d73d9467bb0b570721bbfcdfb8 ("CIFS: Fix a potencially 
+linear read overflow") causes a regression as a stable backport in a 5.4 
+based kernel. I don't know if this regression exists in tip as well, or 
+if it is unique to the backported environment. I suspect, given the 
+content of the patch, that it is generic. As such, it has been 
+backported to a number of stable releases:
 
-v2:
-- Update Cc list, and add R-b.
+linux-4.4.y.txt:0955df2d9bf4857e3e2287e3028903e6cec06c30
+linux-4.9.y.txt:8878af780747f498551b7d360cae61b415798f18
+linux-4.14.y.txt:20967547ffc6039f17c63a1c24eb779ee166b245
+linux-4.19.y.txt:bea655491daf39f1934a71bf576bf3499092d3a4
+linux-5.4.y.txt:b444064a0e0ef64491b8739a9ae05a952b5f8974
+linux-5.10.y.txt:6c4857203ffa36918136756a889b12c5864bc4ad
+linux-5.13.y.txt:9bffe470e9b537075345406512df01ca2188b725
+linux-5.14.y.txt:c41dd61c86482ab34f6f039b13296308018fd99b
 
-Fixes: 1f70b8b812f3 ("dma-fence: Propagate errors to dma-fence-array container")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Gustavo Padovan <gustavo@padovan.org>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: linux-media@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: linaro-mm-sig@lists.linaro.org
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
----
- drivers/dma-buf/dma-fence-array.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Could this be an off-by-one issue if the source string is full length ?
 
-diff --git a/drivers/dma-buf/dma-fence-array.c b/drivers/dma-buf/dma-fence-array.c
-index d3fbd950be94..3e07f961e2f3 100644
---- a/drivers/dma-buf/dma-fence-array.c
-+++ b/drivers/dma-buf/dma-fence-array.c
-@@ -104,7 +104,11 @@ static bool dma_fence_array_signaled(struct dma_fence *fence)
- {
- 	struct dma_fence_array *array = to_dma_fence_array(fence);
- 
--	return atomic_read(&array->num_pending) <= 0;
-+	if (atomic_read(&array->num_pending) > 0)
-+		return false;
-+
-+	dma_fence_array_clear_pending_error(array);
-+	return true;
- }
- 
- static void dma_fence_array_release(struct dma_fence *fence)
+rtg
 -- 
-2.31.1
-
+-----------
+Tim Gardner
+Canonical, Inc
