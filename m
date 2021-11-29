@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9294F46243B
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2046E462670
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:49:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbhK2WRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56754 "EHLO
+        id S232966AbhK2Wwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:52:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232748AbhK2WQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:44 -0500
+        with ESMTP id S234772AbhK2Wuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:35 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2805C08ED8F;
-        Mon, 29 Nov 2021 10:20:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FBCCC1404FE;
+        Mon, 29 Nov 2021 10:30:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 36E5CCE13D5;
-        Mon, 29 Nov 2021 18:20:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5BF5C53FC7;
-        Mon, 29 Nov 2021 18:20:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B86DDCE13D4;
+        Mon, 29 Nov 2021 18:30:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65F9EC53FAD;
+        Mon, 29 Nov 2021 18:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210048;
-        bh=62zfnLtY6sigOaOUyXC1QYoLen+uqHrw7HKSLpKKm1Q=;
+        s=korg; t=1638210649;
+        bh=M+PHgp3FQ13zYAqDWhSXFEp5Tw2qjySumZ5hPHWjOl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQTGLzpwakyDTyHriTee8vNe/1rhNZ4nnqdGyrHmhVPl6X41oNDzvjaVisgEcwT+r
-         B8rn6OJIgAJ9YNd0hw+pGnS1Oh6pzHasXS+ez/YRkLILODHuBricW4fu4sd5QJvbKp
-         yb5UF4fxS32ZdKeibEjYgEx70+aGuXzMyrocOd9s=
+        b=iSiY94NuWAci7GcpZmgX/B85zyjYdokoWhe0Nfi7x7BlzruWLNh6WCYWm4iTmqDlr
+         AxLRsCjDSuxCuhK3l7k7MdtRQ6oPqeVdgz0UOsWeM2rkYpD/vNQvvHJfm7GWTuV5aV
+         bLgLL4vhGy9gD8FHDYtltKVQDXYGb+kWQHswpKyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 4.19 24/69] PCI: aardvark: Dont touch PCIe registers if no card connected
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 055/121] ARM: socfpga: Fix crash with CONFIG_FORTIRY_SOURCE
 Date:   Mon, 29 Nov 2021 19:18:06 +0100
-Message-Id: <20211129181704.463324459@linuxfoundation.org>
+Message-Id: <20211129181713.498162461@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,52 +49,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 70e380250c3621c55ff218cbaf2272830d9dbb1d upstream.
+[ Upstream commit 187bea472600dcc8d2eb714335053264dd437172 ]
 
-When there is no PCIe card connected and advk_pcie_rd_conf() or
-advk_pcie_wr_conf() is called for PCI bus which doesn't belong to emulated
-root bridge, the aardvark driver throws the following error message:
+When CONFIG_FORTIFY_SOURCE is set, memcpy() checks the potential
+buffer overflow and panics.  The code in sofcpga bootstrapping
+contains the memcpy() calls are mistakenly translated as the shorter
+size, hence it triggers a panic as if it were overflowing.
 
-  advk-pcie d0070000.pcie: config read/write timed out
+This patch changes the secondary_trampoline and *_end definitions
+to arrays for avoiding the false-positive crash above.
 
-Obviously accessing PCIe registers of disconnected card is not possible.
-
-Extend check in advk_pcie_valid_device() function for validating
-availability of PCIe bus. If PCIe link is down, then the device is marked
-as Not Found and the driver does not try to access these registers.
-
-This is just an optimization to prevent accessing PCIe registers when card
-is disconnected. Trying to access PCIe registers of disconnected card does
-not cause any crash, kernel just needs to wait for a timeout. So if card
-disappear immediately after checking for PCIe link (before accessing PCIe
-registers), it does not cause any problems.
-
-Link: https://lore.kernel.org/r/20200702083036.12230-1-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c4566a117a6 ("ARM: socfpga: Enable SMP for socfpga")
+Suggested-by: Kees Cook <keescook@chromium.org>
+Buglink: https://bugzilla.suse.com/show_bug.cgi?id=1192473
+Link: https://lore.kernel.org/r/20211117193244.31162-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/mach-socfpga/core.h    | 2 +-
+ arch/arm/mach-socfpga/platsmp.c | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -525,6 +525,13 @@ static bool advk_pcie_valid_device(struc
- 	if ((bus->number == pcie->root_bus_nr) && PCI_SLOT(devfn) != 0)
- 		return false;
+diff --git a/arch/arm/mach-socfpga/core.h b/arch/arm/mach-socfpga/core.h
+index fc2608b18a0d0..18f01190dcfd4 100644
+--- a/arch/arm/mach-socfpga/core.h
++++ b/arch/arm/mach-socfpga/core.h
+@@ -33,7 +33,7 @@ extern void __iomem *sdr_ctl_base_addr;
+ u32 socfpga_sdram_self_refresh(u32 sdr_base);
+ extern unsigned int socfpga_sdram_self_refresh_sz;
  
-+	/*
-+	 * If the link goes down after we check for link-up, nothing bad
-+	 * happens but the config access times out.
-+	 */
-+	if (bus->number != pcie->root_bus_nr && !advk_pcie_link_up(pcie))
-+		return false;
-+
- 	return true;
- }
+-extern char secondary_trampoline, secondary_trampoline_end;
++extern char secondary_trampoline[], secondary_trampoline_end[];
  
+ extern unsigned long socfpga_cpu1start_addr;
+ 
+diff --git a/arch/arm/mach-socfpga/platsmp.c b/arch/arm/mach-socfpga/platsmp.c
+index fbb80b883e5dd..201191cf68f32 100644
+--- a/arch/arm/mach-socfpga/platsmp.c
++++ b/arch/arm/mach-socfpga/platsmp.c
+@@ -20,14 +20,14 @@
+ 
+ static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
+ {
+-	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
++	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
+ 
+ 	if (socfpga_cpu1start_addr) {
+ 		/* This will put CPU #1 into reset. */
+ 		writel(RSTMGR_MPUMODRST_CPU1,
+ 		       rst_manager_base_addr + SOCFPGA_RSTMGR_MODMPURST);
+ 
+-		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
++		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
+ 
+ 		writel(__pa_symbol(secondary_startup),
+ 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x000000ff));
+@@ -45,12 +45,12 @@ static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
+ 
+ static int socfpga_a10_boot_secondary(unsigned int cpu, struct task_struct *idle)
+ {
+-	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
++	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
+ 
+ 	if (socfpga_cpu1start_addr) {
+ 		writel(RSTMGR_MPUMODRST_CPU1, rst_manager_base_addr +
+ 		       SOCFPGA_A10_RSTMGR_MODMPURST);
+-		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
++		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
+ 
+ 		writel(__pa_symbol(secondary_startup),
+ 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x00000fff));
+-- 
+2.33.0
+
 
 
