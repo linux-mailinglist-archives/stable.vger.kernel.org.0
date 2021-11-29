@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9FB462721
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 161A7462458
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236464AbhK2XBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 18:01:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38968 "EHLO
+        id S233787AbhK2WRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236293AbhK2W7s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:59:48 -0500
+        with ESMTP id S232836AbhK2WQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:57 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF42C127B66;
-        Mon, 29 Nov 2021 10:29:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71C95C041F46;
+        Mon, 29 Nov 2021 10:23:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 328E4CE1412;
-        Mon, 29 Nov 2021 18:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D593EC53FAD;
-        Mon, 29 Nov 2021 18:29:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AD44BCE13E6;
+        Mon, 29 Nov 2021 18:23:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D952C53FCD;
+        Mon, 29 Nov 2021 18:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210543;
-        bh=2dPLHybo8syiVs2yZlbDsNz3+AJisHBoz7cghMSts7M=;
+        s=korg; t=1638210225;
+        bh=5litAKwirw5zIvIuxoawFfIPCybI5E48IZw4Q3ClOU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1Zgtg5mK5Q7yeQrxcN3jMvxslU2dF+NjR89kYmctSE+Du5CvM7+Nc9lqab9GJkHH
-         8iOmOMbIhaU3XltNIw6jY31SooByo2c7zld24AoyHL6hSySkyOhwbGLnX8ceTTpih8
-         nk1zoMGlm8SyYLEPXR1UGAIbwjipA9qH1X8+KNmk=
+        b=E0XfywlZJXwurnrvMg0083XbE+PY3EqmOxvvn8vUmJ7IC63arprhO3bJQaFh0/vsC
+         a538aDeBD+e12HfizUu46Sj9nO1LyLB7H9ionKAGiaWWfmFbIgR1IHXTjkJTHZldV7
+         +zouQHAldEZu8MjjQ2ED6wZ8Fo5gVhEVDyS4v5kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 031/121] mmc: sdhci-esdhc-imx: disable CMDQ support
-Date:   Mon, 29 Nov 2021 19:17:42 +0100
-Message-Id: <20211129181712.697423094@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH 5.4 14/92] staging/fbtft: Fix backlight
+Date:   Mon, 29 Nov 2021 19:17:43 +0100
+Message-Id: <20211129181707.897718313@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,84 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Noralf Trønnes <noralf@tronnes.org>
 
-commit adab993c25191b839b415781bdc7173a77315240 upstream.
+commit 7865dd24934ad580d1bcde8f63c39f324211a23b upstream.
 
-On IMX SoC's which support CMDQ the following can occur during high a
-high cpu load:
+Commit b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate") forgot to
+update fbtft breaking its backlight support when FB_BACKLIGHT is a module.
 
-mmc2: cqhci: ============ CQHCI REGISTER DUMP ===========
-mmc2: cqhci: Caps:      0x0000310a | Version:  0x00000510
-mmc2: cqhci: Config:    0x00001001 | Control:  0x00000000
-mmc2: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
-mmc2: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
-mmc2: cqhci: TDL base:  0x8003f000 | TDL up32: 0x00000000
-mmc2: cqhci: Doorbell:  0xbf01dfff | TCN:      0x00000000
-mmc2: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x08000000
-mmc2: cqhci: Task clr:  0x00000000 | SSC1:     0x00011000
-mmc2: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000800
-mmc2: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
-mmc2: cqhci: Resp idx:  0x0000000d | Resp arg: 0x00000000
-mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
-mmc2: sdhci: Sys addr:  0x7c722000 | Version:  0x00000002
-mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000020
-mmc2: sdhci: Argument:  0x00018000 | Trn mode: 0x00000023
-mmc2: sdhci: Present:   0x01f88008 | Host ctl: 0x00000030
-mmc2: sdhci: Power:     0x00000002 | Blk gap:  0x00000080
-mmc2: sdhci: Wake-up:   0x00000008 | Clock:    0x0000000f
-mmc2: sdhci: Timeout:   0x0000008f | Int stat: 0x00000000
-mmc2: sdhci: Int enab:  0x107f4000 | Sig enab: 0x107f4000
-mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000502
-mmc2: sdhci: Caps:      0x07eb0000 | Caps_1:   0x8000b407
-mmc2: sdhci: Cmd:       0x00000d1a | Max curr: 0x00ffffff
-mmc2: sdhci: Resp[0]:   0x00000000 | Resp[1]:  0xffc003ff
-mmc2: sdhci: Resp[2]:   0x328f5903 | Resp[3]:  0x00d07f01
-mmc2: sdhci: Host ctl2: 0x00000088
-mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr: 0xfe179020
-mmc2: sdhci-esdhc-imx: ========= ESDHC IMX DEBUG STATUS DUMP ====
-mmc2: sdhci-esdhc-imx: cmd debug status:  0x2120
-mmc2: sdhci-esdhc-imx: data debug status:  0x2200
-mmc2: sdhci-esdhc-imx: trans debug status:  0x2300
-mmc2: sdhci-esdhc-imx: dma debug status:  0x2400
-mmc2: sdhci-esdhc-imx: adma debug status:  0x2510
-mmc2: sdhci-esdhc-imx: fifo debug status:  0x2680
-mmc2: sdhci-esdhc-imx: async fifo debug status:  0x2750
-mmc2: sdhci: ============================================
+Since FB_TFT selects FB_BACKLIGHT there's no need for this conditional
+so just remove it and we're good.
 
-For now, disable CMDQ support on the imx8qm/imx8qxp/imx8mm until the
-issue is found and resolved.
-
-Fixes: bb6e358169bf6 ("mmc: sdhci-esdhc-imx: add CMDQ support")
-Fixes: cde5e8e9ff146 ("mmc: sdhci-esdhc-imx: Add an new esdhc_soc_data for i.MX8MM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20211103165415.2016-1-tharvey@gateworks.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate")
+Cc: <stable@vger.kernel.org>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Link: https://lore.kernel.org/r/20211105204358.2991-1-noralf@tronnes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/staging/fbtft/fb_ssd1351.c |    4 ----
+ drivers/staging/fbtft/fbtft-core.c |    9 +--------
+ 2 files changed, 1 insertion(+), 12 deletions(-)
 
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -263,7 +263,6 @@ static struct esdhc_soc_data usdhc_imx8q
- 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
- 			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
- 			| ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
--			| ESDHC_FLAG_CQHCI
- 			| ESDHC_FLAG_STATE_LOST_IN_LPMODE
- 			| ESDHC_FLAG_CLK_RATE_LOST_IN_PM_RUNTIME,
+--- a/drivers/staging/fbtft/fb_ssd1351.c
++++ b/drivers/staging/fbtft/fb_ssd1351.c
+@@ -187,7 +187,6 @@ static struct fbtft_display display = {
+ 	},
  };
-@@ -272,7 +271,6 @@ static struct esdhc_soc_data usdhc_imx8m
- 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
- 			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
- 			| ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
--			| ESDHC_FLAG_CQHCI
- 			| ESDHC_FLAG_STATE_LOST_IN_LPMODE,
- };
+ 
+-#ifdef CONFIG_FB_BACKLIGHT
+ static int update_onboard_backlight(struct backlight_device *bd)
+ {
+ 	struct fbtft_par *par = bl_get_data(bd);
+@@ -231,9 +230,6 @@ static void register_onboard_backlight(s
+ 	if (!par->fbtftops.unregister_backlight)
+ 		par->fbtftops.unregister_backlight = fbtft_unregister_backlight;
+ }
+-#else
+-static void register_onboard_backlight(struct fbtft_par *par) { };
+-#endif
+ 
+ FBTFT_REGISTER_DRIVER(DRVNAME, "solomon,ssd1351", &display);
+ 
+--- a/drivers/staging/fbtft/fbtft-core.c
++++ b/drivers/staging/fbtft/fbtft-core.c
+@@ -136,7 +136,6 @@ static int fbtft_request_gpios_dt(struct
+ }
+ #endif
+ 
+-#ifdef CONFIG_FB_BACKLIGHT
+ static int fbtft_backlight_update_status(struct backlight_device *bd)
+ {
+ 	struct fbtft_par *par = bl_get_data(bd);
+@@ -169,6 +168,7 @@ void fbtft_unregister_backlight(struct f
+ 		par->info->bl_dev = NULL;
+ 	}
+ }
++EXPORT_SYMBOL(fbtft_unregister_backlight);
+ 
+ static const struct backlight_ops fbtft_bl_ops = {
+ 	.get_brightness	= fbtft_backlight_get_brightness,
+@@ -206,12 +206,7 @@ void fbtft_register_backlight(struct fbt
+ 	if (!par->fbtftops.unregister_backlight)
+ 		par->fbtftops.unregister_backlight = fbtft_unregister_backlight;
+ }
+-#else
+-void fbtft_register_backlight(struct fbtft_par *par) { };
+-void fbtft_unregister_backlight(struct fbtft_par *par) { };
+-#endif
+ EXPORT_SYMBOL(fbtft_register_backlight);
+-EXPORT_SYMBOL(fbtft_unregister_backlight);
+ 
+ static void fbtft_set_addr_win(struct fbtft_par *par, int xs, int ys, int xe,
+ 			       int ye)
+@@ -860,13 +855,11 @@ int fbtft_register_framebuffer(struct fb
+ 		 fb_info->fix.smem_len >> 10, text1,
+ 		 HZ / fb_info->fbdefio->delay, text2);
+ 
+-#ifdef CONFIG_FB_BACKLIGHT
+ 	/* Turn on backlight if available */
+ 	if (fb_info->bl_dev) {
+ 		fb_info->bl_dev->props.power = FB_BLANK_UNBLANK;
+ 		fb_info->bl_dev->ops->update_status(fb_info->bl_dev);
+ 	}
+-#endif
+ 
+ 	return 0;
  
 
 
