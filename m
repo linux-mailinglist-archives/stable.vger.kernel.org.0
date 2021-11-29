@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F2046242E
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B50D4625BF
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231807AbhK2WRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56756 "EHLO
+        id S234444AbhK2WnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:43:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232757AbhK2WQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:44 -0500
+        with ESMTP id S232965AbhK2Wmh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:42:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F41C08ED90;
-        Mon, 29 Nov 2021 10:20:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04D97C1A25E8;
+        Mon, 29 Nov 2021 10:38:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F174B815C9;
-        Mon, 29 Nov 2021 18:20:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959FEC53FAD;
-        Mon, 29 Nov 2021 18:20:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1759B815FE;
+        Mon, 29 Nov 2021 18:38:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B8DC58322;
+        Mon, 29 Nov 2021 18:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210054;
-        bh=JFN4GuLRvIKpNMxkLEIMVSfKpN2f3U8SJwVdN64xtJ0=;
+        s=korg; t=1638211108;
+        bh=wxcImDFfBA74zUbspjrRcwg/4BMLKA49CRZaFphyD1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMBqkbJX8uBm9gFO0E1BOzdrRpAywDzYnpcttydaC9eHA3kg9pjsDIDq7vWpdWvid
-         EN4g/pXPmo4bD9deEBbSUzQudRubMppLKqfY/NFpxh29XsR7FWhiTwT45a1N+A1N5s
-         Wchsf5G+C7yxPX+qUhgR9caWZAy8gR5rN7pA5nTI=
+        b=G8Iloa85rCzN7xfDj+Ly4bY1x4hol+AUS2/xowv20sfLEt6BcsqFGoIHOFIMUKwg6
+         Ir2bOgTjc4MdK/szZMxZ3ih5joCLheL41Mp79lDIXFoi0XhcGpZrV62wmZLI5S1Oqd
+         VN91LZhaA4oyklLk6eAzl1I+xSkkXdqLhyObxCbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 4.19 26/69] PCI: aardvark: Move PCIe reset card code to advk_pcie_train_link()
-Date:   Mon, 29 Nov 2021 19:18:08 +0100
-Message-Id: <20211129181704.526624830@linuxfoundation.org>
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Benjamin Tissoires <btissoir@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 095/179] HID: input: Fix parsing of HID_CP_CONSUMER_CONTROL fields
+Date:   Mon, 29 Nov 2021 19:18:09 +0100
+Message-Id: <20211129181722.053703149@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,127 +50,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit d0c6a3475b033960e85ae2bf176b14cab0a627d2 upstream.
+[ Upstream commit 7fc48fd6b2c0acacd8130d83d2a037670d6192d2 ]
 
-Move code which belongs to link training (delays and resets) into
-advk_pcie_train_link() function, so everything related to link training,
-including timings is at one place.
+Fix parsing of HID_CP_CONSUMER_CONTROL fields which are not in
+the HID_CP_PROGRAMMABLEBUTTONS collection.
 
-After experiments it can be observed that link training in aardvark
-hardware is very sensitive to timings and delays, so it is a good idea to
-have this code at the same place as link training calls.
-
-This patch does not change behavior of aardvark initialization.
-
-Link: https://lore.kernel.org/r/20200907111038.5811-6-pali@kernel.org
-Tested-by: Marek Behún <marek.behun@nic.cz>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bcfa8d14570d ("HID: input: Add support for Programmable Buttons")
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=2018096
+Cc: Thomas Weißschuh <linux@weissschuh.net>
+Suggested-by: Benjamin Tissoires <btissoir@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-By: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   64 ++++++++++++++++++----------------
- 1 file changed, 34 insertions(+), 30 deletions(-)
+ drivers/hid/hid-input.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -229,6 +229,25 @@ static int advk_pcie_wait_for_link(struc
- 	return -ETIMEDOUT;
- }
- 
-+static void advk_pcie_issue_perst(struct advk_pcie *pcie)
-+{
-+	u32 reg;
-+
-+	if (!pcie->reset_gpio)
-+		return;
-+
-+	/* PERST does not work for some cards when link training is enabled */
-+	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
-+	reg &= ~LINK_TRAINING_EN;
-+	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
-+
-+	/* 10ms delay is needed for some cards */
-+	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
-+	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
-+	usleep_range(10000, 11000);
-+	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
-+}
-+
- static int advk_pcie_train_at_gen(struct advk_pcie *pcie, int gen)
- {
- 	int ret, neg_gen;
-@@ -277,6 +296,21 @@ static void advk_pcie_train_link(struct
- 	int neg_gen = -1, gen;
- 
- 	/*
-+	 * Reset PCIe card via PERST# signal. Some cards are not detected
-+	 * during link training when they are in some non-initial state.
-+	 */
-+	advk_pcie_issue_perst(pcie);
-+
-+	/*
-+	 * PERST# signal could have been asserted by pinctrl subsystem before
-+	 * probe() callback has been called or issued explicitly by reset gpio
-+	 * function advk_pcie_issue_perst(), making the endpoint going into
-+	 * fundamental reset. As required by PCI Express spec a delay for at
-+	 * least 100ms after such a reset before link training is needed.
-+	 */
-+	msleep(PCI_PM_D3COLD_WAIT);
-+
-+	/*
- 	 * Try link training at link gen specified by device tree property
- 	 * 'max-link-speed'. If this fails, iteratively train at lower gen.
- 	 */
-@@ -308,31 +342,10 @@ err:
- 	dev_err(dev, "link never came up\n");
- }
- 
--static void advk_pcie_issue_perst(struct advk_pcie *pcie)
--{
--	u32 reg;
--
--	if (!pcie->reset_gpio)
--		return;
--
--	/* PERST does not work for some cards when link training is enabled */
--	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
--	reg &= ~LINK_TRAINING_EN;
--	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
--
--	/* 10ms delay is needed for some cards */
--	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
--	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
--	usleep_range(10000, 11000);
--	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
--}
--
- static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- {
- 	u32 reg;
- 
--	advk_pcie_issue_perst(pcie);
--
- 	/* Set to Direct mode */
- 	reg = advk_readl(pcie, CTRL_CONFIG_REG);
- 	reg &= ~(CTRL_MODE_MASK << CTRL_MODE_SHIFT);
-@@ -404,15 +417,6 @@ static void advk_pcie_setup_hw(struct ad
- 	reg |= PIO_CTRL_ADDR_WIN_DISABLE;
- 	advk_writel(pcie, reg, PIO_CTRL);
- 
--	/*
--	 * PERST# signal could have been asserted by pinctrl subsystem before
--	 * probe() callback has been called or issued explicitly by reset gpio
--	 * function advk_pcie_issue_perst(), making the endpoint going into
--	 * fundamental reset. As required by PCI Express spec a delay for at
--	 * least 100ms after such a reset before link training is needed.
--	 */
--	msleep(PCI_PM_D3COLD_WAIT);
--
- 	advk_pcie_train_link(pcie);
- 
- 	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 4b5ebeacd2836..4b3f4a5e23058 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -650,10 +650,9 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 						code += KEY_MACRO1;
+ 					else
+ 						code += BTN_TRIGGER_HAPPY - 0x1e;
+-				} else {
+-					goto ignore;
++					break;
+ 				}
+-				break;
++				fallthrough;
+ 		default:
+ 			switch (field->physical) {
+ 			case HID_GD_MOUSE:
+-- 
+2.33.0
+
 
 
