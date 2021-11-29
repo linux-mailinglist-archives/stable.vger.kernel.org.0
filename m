@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE66F461EF9
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:40:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA560461D97
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378958AbhK2SmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:42:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45458 "EHLO
+        id S1377897AbhK2S0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:26:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58824 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379345AbhK2SkQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:40:16 -0500
+        with ESMTP id S1349599AbhK2SYu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:24:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF270B815D2;
-        Mon, 29 Nov 2021 18:36:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83F8C53FAD;
-        Mon, 29 Nov 2021 18:36:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBFC1B815CF;
+        Mon, 29 Nov 2021 18:21:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047F0C53FAD;
+        Mon, 29 Nov 2021 18:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211016;
-        bh=L7PJGtgk51mjSUL2KueB+rBv6XSeZNfM0qrD3CHOCLE=;
+        s=korg; t=1638210090;
+        bh=ZD2mWSV3ePzau/4DyXKXKwtar36HxC0s/POOFGwy+uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osqDql35uJ5zmmWEX2LmRL7lFTqcgmDmDueUnpwdq3+PvIxIo/I4/6ZqPB51yeDyL
-         FsPsP903Y4cTVrgW4bGpBm6qLuOaoLcaIc0P88m+5xqkNcBKPKWBQ6KpWf+qsq1a/a
-         3s9eXn87l7Z39xjHJj1tpAdJpD7jECJGFM+CG23E=
+        b=ihU0IakHYG2G4IOOFTPHzck+aK5GVxyj+hcwUBNBVJr50drsMjWWj8nDVRgcxm0aQ
+         QBsE6ZmbsFd9+ZmClyZtze8n6EdE+A4QoarGKBkFfpD89rChl5k9pW4J522duP4As8
+         lmf39KmZEA/Wk/tvkyb0ecPKpfevkmBX+6mjhO4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 075/179] ASoC: qdsp6: q6asm: fix q6asm_dai_prepare error handling
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 07/69] ALSA: ctxfi: Fix out-of-range access
 Date:   Mon, 29 Nov 2021 19:17:49 +0100
-Message-Id: <20211129181721.424338782@linuxfoundation.org>
+Message-Id: <20211129181703.906646450@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +43,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 721a94b4352dc8e47bff90b549a0118c39776756 ]
+commit 76c47183224c86e4011048b80f0e2d0d166f01c2 upstream.
 
-Error handling in q6asm_dai_prepare() seems to be completely broken,
-Fix this by handling it properly.
+The master and next_conj of rcs_ops are used for iterating the
+resource list entries, and currently those are supposed to return the
+current value.  The problem is that next_conf may go over the last
+entry before the loop abort condition is evaluated, and it may return
+the "current" value that is beyond the array size.  It was caught
+recently as a GPF, for example.
 
-Fixes: 2a9e92d371db ("ASoC: qdsp6: q6asm: Add q6asm dai driver")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211116114721.12517-4-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Those return values are, however, never actually evaluated, hence
+basically we don't have to consider the current value as the return at
+all.  By dropping those return values, the potential out-of-range
+access above is also fixed automatically.
+
+This patch changes the return type of master and next_conj callbacks
+to void and drop the superfluous code accordingly.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214985
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211118215729.26257-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/qdsp6/q6asm-dai.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ sound/pci/ctxfi/ctamixer.c   |   14 ++++++--------
+ sound/pci/ctxfi/ctdaio.c     |   16 ++++++++--------
+ sound/pci/ctxfi/ctresource.c |    7 +++----
+ sound/pci/ctxfi/ctresource.h |    4 ++--
+ sound/pci/ctxfi/ctsrc.c      |    7 +++----
+ 5 files changed, 22 insertions(+), 26 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6asm-dai.c b/sound/soc/qcom/qdsp6/q6asm-dai.c
-index 46f365528d501..b74b67720ef43 100644
---- a/sound/soc/qcom/qdsp6/q6asm-dai.c
-+++ b/sound/soc/qcom/qdsp6/q6asm-dai.c
-@@ -269,9 +269,7 @@ static int q6asm_dai_prepare(struct snd_soc_component *component,
+--- a/sound/pci/ctxfi/ctamixer.c
++++ b/sound/pci/ctxfi/ctamixer.c
+@@ -27,16 +27,15 @@
  
- 	if (ret < 0) {
- 		dev_err(dev, "%s: q6asm_open_write failed\n", __func__);
--		q6asm_audio_client_free(prtd->audio_client);
--		prtd->audio_client = NULL;
--		return -ENOMEM;
-+		goto open_err;
- 	}
+ #define BLANK_SLOT		4094
  
- 	prtd->session_id = q6asm_get_session_id(prtd->audio_client);
-@@ -279,7 +277,7 @@ static int q6asm_dai_prepare(struct snd_soc_component *component,
- 			      prtd->session_id, substream->stream);
- 	if (ret) {
- 		dev_err(dev, "%s: stream reg failed ret:%d\n", __func__, ret);
--		return ret;
-+		goto routing_err;
- 	}
- 
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-@@ -301,10 +299,19 @@ static int q6asm_dai_prepare(struct snd_soc_component *component,
- 	}
- 	if (ret < 0)
- 		dev_info(dev, "%s: CMD Format block failed\n", __func__);
-+	else
-+		prtd->state = Q6ASM_STREAM_RUNNING;
- 
--	prtd->state = Q6ASM_STREAM_RUNNING;
-+	return ret;
- 
--	return 0;
-+routing_err:
-+	q6asm_cmd(prtd->audio_client, prtd->stream_id,  CMD_CLOSE);
-+open_err:
-+	q6asm_unmap_memory_regions(substream->stream, prtd->audio_client);
-+	q6asm_audio_client_free(prtd->audio_client);
-+	prtd->audio_client = NULL;
-+
-+	return ret;
+-static int amixer_master(struct rsc *rsc)
++static void amixer_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
  }
  
- static int q6asm_dai_trigger(struct snd_soc_component *component,
--- 
-2.33.0
-
+-static int amixer_next_conj(struct rsc *rsc)
++static void amixer_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct amixer, rsc)->idx[rsc->conj];
+ }
+ 
+ static int amixer_index(const struct rsc *rsc)
+@@ -335,16 +334,15 @@ int amixer_mgr_destroy(struct amixer_mgr
+ 
+ /* SUM resource management */
+ 
+-static int sum_master(struct rsc *rsc)
++static void sum_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
+ }
+ 
+-static int sum_next_conj(struct rsc *rsc)
++static void sum_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct sum, rsc)->idx[rsc->conj];
+ }
+ 
+ static int sum_index(const struct rsc *rsc)
+--- a/sound/pci/ctxfi/ctdaio.c
++++ b/sound/pci/ctxfi/ctdaio.c
+@@ -55,12 +55,12 @@ static struct daio_rsc_idx idx_20k2[NUM_
+ 	[SPDIFIO] = {.left = 0x05, .right = 0x85},
+ };
+ 
+-static int daio_master(struct rsc *rsc)
++static void daio_master(struct rsc *rsc)
+ {
+ 	/* Actually, this is not the resource index of DAIO.
+ 	 * For DAO, it is the input mapper index. And, for DAI,
+ 	 * it is the output time-slot index. */
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static int daio_index(const struct rsc *rsc)
+@@ -68,19 +68,19 @@ static int daio_index(const struct rsc *
+ 	return rsc->conj;
+ }
+ 
+-static int daio_out_next_conj(struct rsc *rsc)
++static void daio_out_next_conj(struct rsc *rsc)
+ {
+-	return rsc->conj += 2;
++	rsc->conj += 2;
+ }
+ 
+-static int daio_in_next_conj_20k1(struct rsc *rsc)
++static void daio_in_next_conj_20k1(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x200;
++	rsc->conj += 0x200;
+ }
+ 
+-static int daio_in_next_conj_20k2(struct rsc *rsc)
++static void daio_in_next_conj_20k2(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x100;
++	rsc->conj += 0x100;
+ }
+ 
+ static const struct rsc_ops daio_out_rsc_ops = {
+--- a/sound/pci/ctxfi/ctresource.c
++++ b/sound/pci/ctxfi/ctresource.c
+@@ -113,18 +113,17 @@ static int audio_ring_slot(const struct
+     return (rsc->conj << 4) + offset_in_audio_slot_block[rsc->type];
+ }
+ 
+-static int rsc_next_conj(struct rsc *rsc)
++static void rsc_next_conj(struct rsc *rsc)
+ {
+ 	unsigned int i;
+ 	for (i = 0; (i < 8) && (!(rsc->msr & (0x1 << i))); )
+ 		i++;
+ 	rsc->conj += (AUDIO_SLOT_BLOCK_NUM >> i);
+-	return rsc->conj;
+ }
+ 
+-static int rsc_master(struct rsc *rsc)
++static void rsc_master(struct rsc *rsc)
+ {
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static const struct rsc_ops rsc_generic_ops = {
+--- a/sound/pci/ctxfi/ctresource.h
++++ b/sound/pci/ctxfi/ctresource.h
+@@ -43,8 +43,8 @@ struct rsc {
+ };
+ 
+ struct rsc_ops {
+-	int (*master)(struct rsc *rsc);	/* Move to master resource */
+-	int (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
++	void (*master)(struct rsc *rsc); /* Move to master resource */
++	void (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
+ 	int (*index)(const struct rsc *rsc); /* Return the index of resource */
+ 	/* Return the output slot number */
+ 	int (*output_slot)(const struct rsc *rsc);
+--- a/sound/pci/ctxfi/ctsrc.c
++++ b/sound/pci/ctxfi/ctsrc.c
+@@ -594,16 +594,15 @@ int src_mgr_destroy(struct src_mgr *src_
+ 
+ /* SRCIMP resource manager operations */
+ 
+-static int srcimp_master(struct rsc *rsc)
++static void srcimp_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
+ }
+ 
+-static int srcimp_next_conj(struct rsc *rsc)
++static void srcimp_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct srcimp, rsc)->idx[rsc->conj];
+ }
+ 
+ static int srcimp_index(const struct rsc *rsc)
 
 
