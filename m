@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C0B461E79
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD083461DBD
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379584AbhK2Sg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:36:26 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:52318 "EHLO
+        id S231145AbhK2S3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:29:15 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:48206 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379589AbhK2Se0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:34:26 -0500
+        with ESMTP id S1377720AbhK2S1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:27:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 59F07CE157F;
-        Mon, 29 Nov 2021 18:31:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96F24C53FCF;
-        Mon, 29 Nov 2021 18:31:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 98D8DCE13DE;
+        Mon, 29 Nov 2021 18:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46617C53FAD;
+        Mon, 29 Nov 2021 18:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210663;
-        bh=4r6Jct0rKKk+7X8RnZ3WUarmw0UVQL1OFoRvrx3uF+0=;
+        s=korg; t=1638210200;
+        bh=4Fm6j3ICJq9RcLGNelDiZbMqVMzF/L0u4zpT9hiL/bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUXB9Bj5mNJI7Z+UdOz34cW6Bfdbx51SFhYU7wb1qafWZnNWnksw6t8JuN/AWhtuO
-         Frq9hwAqWLFA4EPr4C4vWAWU2+6lcmzCCaCfD5X0bgqhNiiSXLcbBswiqSQNicNtSS
-         vduBXgo6xNBdM8FqGEOHwFXLICNv/hmH6ZpxLWQ8=
+        b=kQQZDHKiEzG3sTjqLCLndMPUqiLPc7lnUn01C2V2p4CODrq3PUkxRf3/LENN5Hjk8
+         uNAysOgExQcTzFRbrkgpl+vu2RFgYfVlSSx7K0I/0L1XNbvQFs5tFry++eyBLOH2k5
+         6xcfCX31QFal+KjkXZIN+aHYATFjp3yLgw7uz/m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Huang Jianan <huangjianan@oppo.com>,
-        Jianhua Hao <haojianhua1@xiaomi.com>,
-        Gao Xiang <xiang@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/121] erofs: fix deadlock when shrink erofs slab
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 43/69] firmware: arm_scmi: pm: Propagate return value to caller
 Date:   Mon, 29 Nov 2021 19:18:25 +0100
-Message-Id: <20211129181714.140186215@linuxfoundation.org>
+Message-Id: <20211129181705.071604867@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,81 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Jianan <huangjianan@oppo.com>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 57bbeacdbee72a54eb97d56b876cf9c94059fc34 ]
+[ Upstream commit 1446fc6c678e8d8b31606a4b877abe205f344b38 ]
 
-We observed the following deadlock in the stress test under low
-memory scenario:
+of_genpd_add_provider_onecell may return error, so let's propagate
+its return value to caller
 
-Thread A                               Thread B
-- erofs_shrink_scan
- - erofs_try_to_release_workgroup
-  - erofs_workgroup_try_to_freeze -- A
-                                       - z_erofs_do_read_page
-                                        - z_erofs_collection_begin
-                                         - z_erofs_register_collection
-                                          - erofs_insert_workgroup
-                                           - xa_lock(&sbi->managed_pslots) -- B
-                                           - erofs_workgroup_get
-                                            - erofs_wait_on_workgroup_freezed -- A
-  - xa_erase
-   - xa_lock(&sbi->managed_pslots) -- B
-
-To fix this, it needs to hold xa_lock before freezing the workgroup
-since xarray will be touched then. So let's hold the lock before
-accessing each workgroup, just like what we did with the radix tree
-before.
-
-[ Gao Xiang: Jianhua Hao also reports this issue at
-  https://lore.kernel.org/r/b10b85df30694bac8aadfe43537c897a@xiaomi.com ]
-
-Link: https://lore.kernel.org/r/20211118135844.3559-1-huangjianan@oppo.com
-Fixes: 64094a04414f ("erofs: convert workstn to XArray")
-Reviewed-by: Chao Yu <chao@kernel.org>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Huang Jianan <huangjianan@oppo.com>
-Reported-by: Jianhua Hao <haojianhua1@xiaomi.com>
-Signed-off-by: Gao Xiang <xiang@kernel.org>
+Link: https://lore.kernel.org/r/20211116064227.20571-1-peng.fan@oss.nxp.com
+Fixes: 898216c97ed2 ("firmware: arm_scmi: add device power domain support using genpd")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/utils.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/scmi_pm_domain.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/erofs/utils.c b/fs/erofs/utils.c
-index de9986d2f82fd..5c11199d753a6 100644
---- a/fs/erofs/utils.c
-+++ b/fs/erofs/utils.c
-@@ -154,7 +154,7 @@ static bool erofs_try_to_release_workgroup(struct erofs_sb_info *sbi,
- 	 * however in order to avoid some race conditions, add a
- 	 * DBG_BUGON to observe this in advance.
- 	 */
--	DBG_BUGON(xa_erase(&sbi->managed_pslots, grp->index) != grp);
-+	DBG_BUGON(__xa_erase(&sbi->managed_pslots, grp->index) != grp);
+diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+index 041f8152272bf..177874adccf0d 100644
+--- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
++++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
+@@ -106,9 +106,7 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
+ 	scmi_pd_data->domains = domains;
+ 	scmi_pd_data->num_domains = num_domains;
  
- 	/* last refcount should be connected with its managed pslot.  */
- 	erofs_workgroup_unfreeze(grp, 0);
-@@ -169,15 +169,19 @@ static unsigned long erofs_shrink_workstation(struct erofs_sb_info *sbi,
- 	unsigned int freed = 0;
- 	unsigned long index;
- 
-+	xa_lock(&sbi->managed_pslots);
- 	xa_for_each(&sbi->managed_pslots, index, grp) {
- 		/* try to shrink each valid workgroup */
- 		if (!erofs_try_to_release_workgroup(sbi, grp))
- 			continue;
-+		xa_unlock(&sbi->managed_pslots);
- 
- 		++freed;
- 		if (!--nr_shrink)
--			break;
-+			return freed;
-+		xa_lock(&sbi->managed_pslots);
- 	}
-+	xa_unlock(&sbi->managed_pslots);
- 	return freed;
+-	of_genpd_add_provider_onecell(np, scmi_pd_data);
+-
+-	return 0;
++	return of_genpd_add_provider_onecell(np, scmi_pd_data);
  }
  
+ static const struct scmi_device_id scmi_id_table[] = {
 -- 
 2.33.0
 
