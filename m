@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05772461DCD
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34174461F0E
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378457AbhK2S3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:29:33 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:48636 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378448AbhK2S1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:27:30 -0500
+        id S1354941AbhK2Smx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:42:53 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46006 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378898AbhK2Skw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:40:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C38D5CE140B;
-        Mon, 29 Nov 2021 18:24:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F5D2C53FAD;
-        Mon, 29 Nov 2021 18:24:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6AED2B815D5;
+        Mon, 29 Nov 2021 18:37:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E707C53FAD;
+        Mon, 29 Nov 2021 18:37:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210249;
-        bh=PM/yQpI+6fYexdm9iC3694oATmfAwBxaiumR98Y7WFk=;
+        s=korg; t=1638211051;
+        bh=IBS/HV18Omp/QQLMHFgIcFcOZzElEdLIN426AL5/SmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2TNrMlBb2yDvHGzN8U4xTpRLTxaAllDLqv4cB2sMg3jsW3pyMqv9Ic5N/e2BP5MGZ
-         V0Mqq67W9OdfAEI+A+vW88Bpc2Q2eEca0vKgwNimrNiD1ilyL14mwXE6ju8dxcwF8z
-         RhgDinoo6YmPUCAvVOGBSqLs1gjmkUoJ2GtfNH3s=
+        b=QLi7GrfK+nfqWF+0ngZA5d/py6ScNhGJ3lhkx0QNxmsIHpT0VqaXFxJG8e+lfnNp3
+         pzc5TwFWKQfHSKyNOTw5Niel2KkeI+0sV7l+7BLGSe4JGkY8NokRm+AtjBCdC2fA7g
+         XJyEhv8DmXe1JA6lMfKyUU2/akpNyUJA1HKfZge8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        John Keeping <john@metanate.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.4 04/92] usb: dwc2: hcd_queue: Fix use of floating point literal
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.15 059/179] PCI: aardvark: Implement re-issuing config requests on CRS response
 Date:   Mon, 29 Nov 2021 19:17:33 +0100
-Message-Id: <20211129181707.544406356@linuxfoundation.org>
+Message-Id: <20211129181720.907440302@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +46,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 310780e825f3ffd211b479b8f828885a6faedd63 upstream.
+commit 223dec14a05337a4155f1deed46d2becce4d00fd upstream.
 
-A new commit in LLVM causes an error on the use of 'long double' when
-'-mno-x87' is used, which the kernel does through an alias,
-'-mno-80387' (see the LLVM commit below for more details around why it
-does this).
+Commit 43f5c77bcbd2 ("PCI: aardvark: Fix reporting CRS value") fixed
+handling of CRS response and when CRSSVE flag was not enabled it marked CRS
+response as failed transaction (due to simplicity).
 
- drivers/usb/dwc2/hcd_queue.c:1744:25: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-                         delay = ktime_set(0, DWC2_RETRY_WAIT_DELAY);
-                                             ^
- drivers/usb/dwc2/hcd_queue.c:62:34: note: expanded from macro 'DWC2_RETRY_WAIT_DELAY'
- #define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
-                                 ^
- 1 error generated.
+But pci-aardvark.c driver is already waiting up to the PIO_RETRY_CNT count
+for PIO config response and so we can with a small change implement
+re-issuing of config requests as described in PCIe base specification.
 
-This happens due to the use of a 'long double' literal. The 'E6' part of
-'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
-it to 'long double'.
+This change implements re-issuing of config requests when response is CRS.
+Set upper bound of wait cycles to around PIO_RETRY_CNT, afterwards the
+transaction is marked as failed and an all-ones value is returned as
+before.
 
-There is no visible reason for a floating point value in this driver, as
-the value is only used as a parameter to a function that expects an
-integer type. Use NSEC_PER_MSEC, which is the same integer value as
-'1E6L', to avoid changing functionality but fix the error.
+We do this by returning appropriate error codes from function
+advk_pcie_check_pio_status(). On CRS we return -EAGAIN and caller then
+reissues transaction.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1497
-Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
-Fixes: 6ed30a7d8ec2 ("usb: dwc2: host: use hrtimer for NAK retries")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211105145802.2520658-1-nathan@kernel.org
+Link: https://lore.kernel.org/r/20211005180952.6812-10-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/hcd_queue.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |   69 +++++++++++++++++++++-------------
+ 1 file changed, 44 insertions(+), 25 deletions(-)
 
---- a/drivers/usb/dwc2/hcd_queue.c
-+++ b/drivers/usb/dwc2/hcd_queue.c
-@@ -59,7 +59,7 @@
- #define DWC2_UNRESERVE_DELAY (msecs_to_jiffies(5))
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -692,6 +692,7 @@ static int advk_pcie_check_pio_status(st
+ 	u32 reg;
+ 	unsigned int status;
+ 	char *strcomp_status, *str_posted;
++	int ret;
  
- /* If we get a NAK, wait this long before retrying */
--#define DWC2_RETRY_WAIT_DELAY 1*1E6L
-+#define DWC2_RETRY_WAIT_DELAY (1 * NSEC_PER_MSEC)
+ 	reg = advk_readl(pcie, PIO_STAT);
+ 	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
+@@ -716,6 +717,7 @@ static int advk_pcie_check_pio_status(st
+ 	case PIO_COMPLETION_STATUS_OK:
+ 		if (reg & PIO_ERR_STATUS) {
+ 			strcomp_status = "COMP_ERR";
++			ret = -EFAULT;
+ 			break;
+ 		}
+ 		/* Get the read result */
+@@ -723,9 +725,11 @@ static int advk_pcie_check_pio_status(st
+ 			*val = advk_readl(pcie, PIO_RD_DATA);
+ 		/* No error */
+ 		strcomp_status = NULL;
++		ret = 0;
+ 		break;
+ 	case PIO_COMPLETION_STATUS_UR:
+ 		strcomp_status = "UR";
++		ret = -EOPNOTSUPP;
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CRS:
+ 		if (allow_crs && val) {
+@@ -743,6 +747,7 @@ static int advk_pcie_check_pio_status(st
+ 			 */
+ 			*val = CFG_RD_CRS_VAL;
+ 			strcomp_status = NULL;
++			ret = 0;
+ 			break;
+ 		}
+ 		/* PCIe r4.0, sec 2.3.2, says:
+@@ -758,21 +763,24 @@ static int advk_pcie_check_pio_status(st
+ 		 * Request and taking appropriate action, e.g., complete the
+ 		 * Request to the host as a failed transaction.
+ 		 *
+-		 * To simplify implementation do not re-issue the Configuration
+-		 * Request and complete the Request as a failed transaction.
++		 * So return -EAGAIN and caller (pci-aardvark.c driver) will
++		 * re-issue request again up to the PIO_RETRY_CNT retries.
+ 		 */
+ 		strcomp_status = "CRS";
++		ret = -EAGAIN;
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CA:
+ 		strcomp_status = "CA";
++		ret = -ECANCELED;
+ 		break;
+ 	default:
+ 		strcomp_status = "Unknown";
++		ret = -EINVAL;
+ 		break;
+ 	}
  
- /**
-  * dwc2_periodic_channel_available() - Checks that a channel is available for a
+ 	if (!strcomp_status)
+-		return 0;
++		return ret;
+ 
+ 	if (reg & PIO_NON_POSTED_REQ)
+ 		str_posted = "Non-posted";
+@@ -782,7 +790,7 @@ static int advk_pcie_check_pio_status(st
+ 	dev_dbg(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
+ 		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
+ 
+-	return -EFAULT;
++	return ret;
+ }
+ 
+ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
+@@ -790,13 +798,13 @@ static int advk_pcie_wait_pio(struct adv
+ 	struct device *dev = &pcie->pdev->dev;
+ 	int i;
+ 
+-	for (i = 0; i < PIO_RETRY_CNT; i++) {
++	for (i = 1; i <= PIO_RETRY_CNT; i++) {
+ 		u32 start, isr;
+ 
+ 		start = advk_readl(pcie, PIO_START);
+ 		isr = advk_readl(pcie, PIO_ISR);
+ 		if (!start && isr)
+-			return 0;
++			return i;
+ 		udelay(PIO_RETRY_DELAY);
+ 	}
+ 
+@@ -1068,6 +1076,7 @@ static int advk_pcie_rd_conf(struct pci_
+ 			     int where, int size, u32 *val)
+ {
+ 	struct advk_pcie *pcie = bus->sysdata;
++	int retry_count;
+ 	bool allow_crs;
+ 	u32 reg;
+ 	int ret;
+@@ -1110,16 +1119,22 @@ static int advk_pcie_rd_conf(struct pci_
+ 	/* Program the data strobe */
+ 	advk_writel(pcie, 0xf, PIO_WR_DATA_STRB);
+ 
+-	/* Clear PIO DONE ISR and start the transfer */
+-	advk_writel(pcie, 1, PIO_ISR);
+-	advk_writel(pcie, 1, PIO_START);
+-
+-	ret = advk_pcie_wait_pio(pcie);
+-	if (ret < 0)
+-		goto try_crs;
++	retry_count = 0;
++	do {
++		/* Clear PIO DONE ISR and start the transfer */
++		advk_writel(pcie, 1, PIO_ISR);
++		advk_writel(pcie, 1, PIO_START);
++
++		ret = advk_pcie_wait_pio(pcie);
++		if (ret < 0)
++			goto try_crs;
++
++		retry_count += ret;
++
++		/* Check PIO status and get the read result */
++		ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
++	} while (ret == -EAGAIN && retry_count < PIO_RETRY_CNT);
+ 
+-	/* Check PIO status and get the read result */
+-	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
+ 	if (ret < 0)
+ 		goto fail;
+ 
+@@ -1151,6 +1166,7 @@ static int advk_pcie_wr_conf(struct pci_
+ 	struct advk_pcie *pcie = bus->sysdata;
+ 	u32 reg;
+ 	u32 data_strobe = 0x0;
++	int retry_count;
+ 	int offset;
+ 	int ret;
+ 
+@@ -1192,19 +1208,22 @@ static int advk_pcie_wr_conf(struct pci_
+ 	/* Program the data strobe */
+ 	advk_writel(pcie, data_strobe, PIO_WR_DATA_STRB);
+ 
+-	/* Clear PIO DONE ISR and start the transfer */
+-	advk_writel(pcie, 1, PIO_ISR);
+-	advk_writel(pcie, 1, PIO_START);
++	retry_count = 0;
++	do {
++		/* Clear PIO DONE ISR and start the transfer */
++		advk_writel(pcie, 1, PIO_ISR);
++		advk_writel(pcie, 1, PIO_START);
++
++		ret = advk_pcie_wait_pio(pcie);
++		if (ret < 0)
++			return PCIBIOS_SET_FAILED;
+ 
+-	ret = advk_pcie_wait_pio(pcie);
+-	if (ret < 0)
+-		return PCIBIOS_SET_FAILED;
++		retry_count += ret;
+ 
+-	ret = advk_pcie_check_pio_status(pcie, false, NULL);
+-	if (ret < 0)
+-		return PCIBIOS_SET_FAILED;
++		ret = advk_pcie_check_pio_status(pcie, false, NULL);
++	} while (ret == -EAGAIN && retry_count < PIO_RETRY_CNT);
+ 
+-	return PCIBIOS_SUCCESSFUL;
++	return ret < 0 ? PCIBIOS_SET_FAILED : PCIBIOS_SUCCESSFUL;
+ }
+ 
+ static struct pci_ops advk_pcie_ops = {
 
 
