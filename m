@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B200F461F52
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1433461F55
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380186AbhK2Spy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:45:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48724 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378241AbhK2Snx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:43:53 -0500
+        id S1380257AbhK2Sp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:45:59 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:56130 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380020AbhK2Sn5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:43:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB93EB81637;
-        Mon, 29 Nov 2021 18:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01535C53FCD;
-        Mon, 29 Nov 2021 18:40:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 26B4FCE167D;
+        Mon, 29 Nov 2021 18:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C921BC53FAD;
+        Mon, 29 Nov 2021 18:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211233;
-        bh=9blOShvMbrmjZkPjvmWtij5JnAYoJQDe7JToON5Qh1s=;
+        s=korg; t=1638211236;
+        bh=qjpZ9gF+zx05uMW+HrkiH+IG+c6WLISugR5rtJZ0vh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mt6ll6tC7EdFxmWpff+bPXE4dAPL5wsC9oN9nHbPFVe8s1rRVzjpOzkxQUJ4wEl3N
-         O1WZRvYRoCeGWTDzvN8ezolD+eAX5mxN5lNqDYNg/7mVhnKYfL76pJkXlFv/GhCpql
-         gnIToOzx2bwtWV1CgOFuIAY1+fdg02NllTywpnXU=
+        b=TkP3LeverOWylH99tr6tTdOPSX1hU/HaPrDg6lJ8JGJ2Jc06eGPaUkSTtJMqW+duZ
+         qjXgSJSw/5CSTpCwVpO3jKS3wzhilqBslimnnRC4VyjsZrqZezCIYcwL5Ar2Yamgpv
+         XliMqVl85/N6Sa1rnDw3rG7lmIQ8sPssB7CNYAAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 149/179] net: vlan: fix underflow for the real_dev refcnt
-Date:   Mon, 29 Nov 2021 19:19:03 +0100
-Message-Id: <20211129181723.847656420@linuxfoundation.org>
+Subject: [PATCH 5.15 150/179] net/smc: Dont call clcsock shutdown twice when smc shutdown
+Date:   Mon, 29 Nov 2021 19:19:04 +0100
+Message-Id: <20211129181723.886775718@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -46,76 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Tony Lu <tonylu@linux.alibaba.com>
 
-[ Upstream commit 01d9cc2dea3fde3bad6d27f464eff463496e2b00 ]
+[ Upstream commit bacb6c1e47691cda4a95056c21b5487fb7199fcc ]
 
-Inject error before dev_hold(real_dev) in register_vlan_dev(),
-and execute the following testcase:
+When applications call shutdown() with SHUT_RDWR in userspace,
+smc_close_active() calls kernel_sock_shutdown(), and it is called
+twice in smc_shutdown().
 
-ip link add dev dummy1 type dummy
-ip link add name dummy1.100 link dummy1 type vlan id 100
-ip link del dev dummy1
+This fixes this by checking sk_state before do clcsock shutdown, and
+avoids missing the application's call of smc_shutdown().
 
-When the dummy netdevice is removed, we will get a WARNING as following:
-
-=======================================================================
-refcount_t: decrement hit 0; leaking memory.
-WARNING: CPU: 2 PID: 0 at lib/refcount.c:31 refcount_warn_saturate+0xbf/0x1e0
-
-and an endless loop of:
-
-=======================================================================
-unregister_netdevice: waiting for dummy1 to become free. Usage count = -1073741824
-
-That is because dev_put(real_dev) in vlan_dev_free() be called without
-dev_hold(real_dev) in register_vlan_dev(). It makes the refcnt of real_dev
-underflow.
-
-Move the dev_hold(real_dev) to vlan_dev_init() which is the call-back of
-ndo_init(). That makes dev_hold() and dev_put() for vlan's real_dev
-symmetrical.
-
-Fixes: 563bcbae3ba2 ("net: vlan: fix a UAF in vlan_dev_real_dev()")
-Reported-by: Petr Machata <petrm@nvidia.com>
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Link: https://lore.kernel.org/r/20211126015942.2918542-1-william.xuanziyang@huawei.com
+Link: https://lore.kernel.org/linux-s390/1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com/
+Fixes: 606a63c9783a ("net/smc: Ensure the active closing peer first closes clcsock")
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://lore.kernel.org/r/20211126024134.45693-1-tonylu@linux.alibaba.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/8021q/vlan.c     | 3 ---
- net/8021q/vlan_dev.c | 3 +++
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/smc/af_smc.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
-index a3a0a5e994f5a..abaa5d96ded24 100644
---- a/net/8021q/vlan.c
-+++ b/net/8021q/vlan.c
-@@ -184,9 +184,6 @@ int register_vlan_dev(struct net_device *dev, struct netlink_ext_ack *extack)
- 	if (err)
- 		goto out_unregister_netdev;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 4f1fa1bcb0316..3d8219e3b0264 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2154,8 +2154,10 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
+ static int smc_shutdown(struct socket *sock, int how)
+ {
+ 	struct sock *sk = sock->sk;
++	bool do_shutdown = true;
+ 	struct smc_sock *smc;
+ 	int rc = -EINVAL;
++	int old_state;
+ 	int rc1 = 0;
  
--	/* Account for reference in struct vlan_dev_priv */
--	dev_hold(real_dev);
--
- 	vlan_stacked_transfer_operstate(real_dev, dev, vlan);
- 	linkwatch_fire_event(dev); /* _MUST_ call rfc2863_policy() */
- 
-diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
-index aeeb5f90417b5..8602885c8a8e0 100644
---- a/net/8021q/vlan_dev.c
-+++ b/net/8021q/vlan_dev.c
-@@ -615,6 +615,9 @@ static int vlan_dev_init(struct net_device *dev)
- 	if (!vlan->vlan_pcpu_stats)
- 		return -ENOMEM;
- 
-+	/* Get vlan's reference to real_dev */
-+	dev_hold(real_dev);
-+
- 	return 0;
- }
- 
+ 	smc = smc_sk(sk);
+@@ -2182,7 +2184,11 @@ static int smc_shutdown(struct socket *sock, int how)
+ 	}
+ 	switch (how) {
+ 	case SHUT_RDWR:		/* shutdown in both directions */
++		old_state = sk->sk_state;
+ 		rc = smc_close_active(smc);
++		if (old_state == SMC_ACTIVE &&
++		    sk->sk_state == SMC_PEERCLOSEWAIT1)
++			do_shutdown = false;
+ 		break;
+ 	case SHUT_WR:
+ 		rc = smc_close_shutdown_write(smc);
+@@ -2192,7 +2198,7 @@ static int smc_shutdown(struct socket *sock, int how)
+ 		/* nothing more to do because peer is not involved */
+ 		break;
+ 	}
+-	if (smc->clcsock)
++	if (do_shutdown && smc->clcsock)
+ 		rc1 = kernel_sock_shutdown(smc->clcsock, how);
+ 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
+ 	sk->sk_shutdown |= how + 1;
 -- 
 2.33.0
 
