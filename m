@@ -2,90 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182E8461A47
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 15:49:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A8B846163D
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 14:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233559AbhK2Own (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 09:52:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43320 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241965AbhK2Oun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 09:50:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2E4C0048E3
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:14:44 -0800 (PST)
+        id S1377777AbhK2N27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 08:28:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56862 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377818AbhK2N06 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 08:26:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39B35614CA
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:14:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136ADC004E1;
-        Mon, 29 Nov 2021 13:14:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90D7BB8113B
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:23:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC562C004E1;
+        Mon, 29 Nov 2021 13:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638191683;
-        bh=CQupDxmI7OEpwojFpfIdnicQpmFJRgYlRsme5l3N+ww=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fR1zz4A7Xu8kk5oaOZMNpm3Q1fLYRTDlc1np/uAxjXRqQzGT4aL4rg03R0ppiiVSs
-         64BW5d+uzGqidZ+ioA/VFENEMnvo1Wezs7JsHhlArkBU8FEZRowqlUyNE6OTxgZgSn
-         OZXnvxvb/IGUpnLxezBgs5Xa3ED7IoZsFIHd5FsM=
-Date:   Mon, 29 Nov 2021 14:14:40 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Max Filippov <jcmvbkbc@gmail.com>
-Cc:     stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH] xtensa: use CONFIG_USE_OF instead of CONFIG_OF
-Message-ID: <YaTSQJ6DQLhOCLic@kroah.com>
-References: <20211129130626.25163-1-jcmvbkbc@gmail.com>
+        s=korg; t=1638192219;
+        bh=1BTxuF5B39jZq7jELByMwWT2/VECkcFXp0ra9v7oEFM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=SCqeovACWPC4Nq0LFZsaVTBQekgidv58dfdNs4S/bXTBsezqnxGHEp4nZdWFHxJcC
+         O9a1JqeeD16yihMuzbPzdM58c+JsnySDWDu2I3UM/SxLhg3ztIryfmZinAP7kCZesx
+         oHOzGiFmlQgMn1HLV924iJIZru2AA9+XhHz0rqP4=
+Subject: FAILED: patch "[PATCH] net/smc: Fix loop in smc_listen" failed to apply to 4.4-stable tree
+To:     guodaxing@huawei.com, kgraul@linux.ibm.com, kuba@kernel.org,
+        tonylu@linux.alibaba.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 29 Nov 2021 14:23:36 +0100
+Message-ID: <163819221674239@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211129130626.25163-1-jcmvbkbc@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 29, 2021 at 05:06:26AM -0800, Max Filippov wrote:
-> From: Randy Dunlap <rdunlap@infradead.org>
-> 
-> commit d67ed2510d28a1eb33171010d35cf52178cfcbdd upstream.
-> 
-> CONFIG_OF can be set by a randconfig or by a user -- without setting the
-> early flattree option (OF_EARLY_FLATTREE).  This causes build errors.
-> However, if randconfig or a user sets USE_OF in the Xtensa config,
-> the right kconfig symbols are set to fix the build.
-> 
-> Fixes these build errors:
-> 
-> ../arch/xtensa/kernel/setup.c:67:19: error: ‘__dtb_start’ undeclared here (not in a function); did you mean ‘dtb_start’?
->    67 | void *dtb_start = __dtb_start;
->       |                   ^~~~~~~~~~~
-> ../arch/xtensa/kernel/setup.c: In function 'xtensa_dt_io_area':
-> ../arch/xtensa/kernel/setup.c:201:14: error: implicit declaration of function 'of_flat_dt_is_compatible'; did you mean 'of_machine_is_compatible'? [-Werror=implicit-function-declaration]
->   201 |         if (!of_flat_dt_is_compatible(node, "simple-bus"))
-> ../arch/xtensa/kernel/setup.c:204:18: error: implicit declaration of function 'of_get_flat_dt_prop' [-Werror=implicit-function-declaration]
->   204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
-> ../arch/xtensa/kernel/setup.c:204:16: error: assignment to 'const __be32 *' {aka 'const unsigned int *'} from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
->   204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
->       |                ^
-> ../arch/xtensa/kernel/setup.c: In function 'early_init_devtree':
-> ../arch/xtensa/kernel/setup.c:228:9: error: implicit declaration of function 'early_init_dt_scan'; did you mean 'early_init_devtree'? [-Werror=implicit-function-declaration]
->   228 |         early_init_dt_scan(params);
-> ../arch/xtensa/kernel/setup.c:229:9: error: implicit declaration of function 'of_scan_flat_dt' [-Werror=implicit-function-declaration]
->   229 |         of_scan_flat_dt(xtensa_dt_io_area, NULL);
-> 
-> xtensa-elf-ld: arch/xtensa/mm/mmu.o:(.text+0x0): undefined reference to `xtensa_kio_paddr'
-> 
-> Fixes: da844a81779e ("xtensa: add device trees support")
-> Fixes: 6cb971114f63 ("xtensa: remap io area defined in device tree")
-> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-> Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  arch/xtensa/include/asm/vectors.h |  2 +-
->  arch/xtensa/kernel/setup.c        | 12 ++++++------
->  arch/xtensa/mm/mmu.c              |  2 +-
->  3 files changed, 8 insertions(+), 8 deletions(-)
 
-Thanks, now updated.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 9ebb0c4b27a6158303b791b5b91e66d7665ee30e Mon Sep 17 00:00:00 2001
+From: Guo DaXing <guodaxing@huawei.com>
+Date: Wed, 24 Nov 2021 13:32:38 +0100
+Subject: [PATCH] net/smc: Fix loop in smc_listen
+
+The kernel_listen function in smc_listen will fail when all the available
+ports are occupied.  At this point smc->clcsock->sk->sk_data_ready has
+been changed to smc_clcsock_data_ready.  When we call smc_listen again,
+now both smc->clcsock->sk->sk_data_ready and smc->clcsk_data_ready point
+to the smc_clcsock_data_ready function.
+
+The smc_clcsock_data_ready() function calls lsmc->clcsk_data_ready which
+now points to itself resulting in an infinite loop.
+
+This patch restores smc->clcsock->sk->sk_data_ready with the old value.
+
+Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
+Signed-off-by: Guo DaXing <guodaxing@huawei.com>
+Acked-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 2692cba5a7b6..4b62c925a13e 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2134,8 +2134,10 @@ static int smc_listen(struct socket *sock, int backlog)
+ 	smc->clcsock->sk->sk_user_data =
+ 		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
+ 	rc = kernel_listen(smc->clcsock, backlog);
+-	if (rc)
++	if (rc) {
++		smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
+ 		goto out;
++	}
+ 	sk->sk_max_ack_backlog = backlog;
+ 	sk->sk_ack_backlog = 0;
+ 	sk->sk_state = SMC_LISTEN;
+
