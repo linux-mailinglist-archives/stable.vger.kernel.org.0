@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E315D46257B
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08EBD462653
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:48:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234033AbhK2WkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:40:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33738 "EHLO
+        id S234012AbhK2Wuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:50:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234410AbhK2WkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:40:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BE6C0800C9;
-        Mon, 29 Nov 2021 10:38:47 -0800 (PST)
+        with ESMTP id S235567AbhK2WuG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:06 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41E0BC1A3C81;
+        Mon, 29 Nov 2021 10:39:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C03D4B815E0;
-        Mon, 29 Nov 2021 18:38:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA539C53FAD;
-        Mon, 29 Nov 2021 18:38:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 83FEFCE12FD;
+        Mon, 29 Nov 2021 18:39:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E015C53FC7;
+        Mon, 29 Nov 2021 18:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211125;
-        bh=OLIjOVpAZr3WQu451s1pGvvPn88OPDhxU3OmxKfXEPk=;
+        s=korg; t=1638211159;
+        bh=Y+To21s6kMtIDaIqmvusYNn1unit1lAwaUsveHx/MZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6+T5g9L3SwP1NR1bNNoQfgbgjaCKIUBswK45PzYfN8BMJPuUUa8rCTpYvgjRpK0m
-         477PdzLY8G56LE4lDOOXGP/vT7IJ0hPPqAwas5iWCQxTPlRdDyYoQNb2aiC+ftunxZ
-         ThF0jrTCNR+1RUVVxY5I/yK/UKN8fpWZ/ucevf/4=
+        b=PVXrCqIOguWECmg6bSZ0lHNCg4MnZ8LncfrDEAlY2gkEF0CpvUK51kzrq0+05tmqk
+         SPRF63CcPBGVLmMSLsgdXGna71lv4HpDdabmXaMsVVK+GjXtS2vCUN/JBwoKftB92g
+         k7oMnByuPZMTRs+AnrvyUmt3RWXvrzWLJg7fy+sM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/179] mptcp: fix delack timer
-Date:   Mon, 29 Nov 2021 19:18:18 +0100
-Message-Id: <20211129181722.360957073@linuxfoundation.org>
+Subject: [PATCH 5.15 105/179] mptcp: use delegate action to schedule 3rd ack retrans
+Date:   Mon, 29 Nov 2021 19:18:19 +0100
+Message-Id: <20211129181722.402391759@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -49,40 +48,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit ee50e67ba0e17b1a1a8d76691d02eadf9e0f392c ]
+[ Upstream commit bcd97734318d1d87bb237dbc0a60c81237b0ac50 ]
 
-To compute the rtx timeout schedule_3rdack_retransmission() does multiple
-things in the wrong way: srtt_us is measured in usec/8 and the timeout
-itself is an absolute value.
+Scheduling a delack in mptcp_established_options_mp() is
+not a good idea: such function is called by tcp_send_ack() and
+the pending delayed ack will be cleared shortly after by the
+tcp_event_ack_sent() call in __tcp_transmit_skb().
+
+Instead use the mptcp delegated action infrastructure to
+schedule the delayed ack after the current bh processing completes.
+
+Additionally moves the schedule_3rdack_retransmission() helper
+into protocol.c to avoid making it visible in a different compilation
+unit.
 
 Fixes: ec3edaa7ca6ce02f ("mptcp: Add handling of outgoing MP_JOIN requests")
-Acked-by: Paolo Abeni <pabeni@redhat.com>
 Reviewed-by: Mat Martineau <mathew.j.martineau>@linux.intel.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/options.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mptcp/options.c  | 33 ++++++++--------------------
+ net/mptcp/protocol.c | 51 ++++++++++++++++++++++++++++++++++++--------
+ net/mptcp/protocol.h | 17 ++++++++-------
+ 3 files changed, 60 insertions(+), 41 deletions(-)
 
 diff --git a/net/mptcp/options.c b/net/mptcp/options.c
-index 350348f070700..3fcc2e0c8a5df 100644
+index 3fcc2e0c8a5df..0966855a7c251 100644
 --- a/net/mptcp/options.c
 +++ b/net/mptcp/options.c
-@@ -434,9 +434,10 @@ static void schedule_3rdack_retransmission(struct sock *sk)
+@@ -422,29 +422,6 @@ bool mptcp_syn_options(struct sock *sk, const struct sk_buff *skb,
+ 	return false;
+ }
  
- 	/* reschedule with a timeout above RTT, as we must look only for drop */
- 	if (tp->srtt_us)
--		timeout = tp->srtt_us << 1;
+-/* MP_JOIN client subflow must wait for 4th ack before sending any data:
+- * TCP can't schedule delack timer before the subflow is fully established.
+- * MPTCP uses the delack timer to do 3rd ack retransmissions
+- */
+-static void schedule_3rdack_retransmission(struct sock *sk)
+-{
+-	struct inet_connection_sock *icsk = inet_csk(sk);
+-	struct tcp_sock *tp = tcp_sk(sk);
+-	unsigned long timeout;
+-
+-	/* reschedule with a timeout above RTT, as we must look only for drop */
+-	if (tp->srtt_us)
+-		timeout = usecs_to_jiffies(tp->srtt_us >> (3 - 1));
+-	else
+-		timeout = TCP_TIMEOUT_INIT;
+-	timeout += jiffies;
+-
+-	WARN_ON_ONCE(icsk->icsk_ack.pending & ICSK_ACK_TIMER);
+-	icsk->icsk_ack.pending |= ICSK_ACK_SCHED | ICSK_ACK_TIMER;
+-	icsk->icsk_ack.timeout = timeout;
+-	sk_reset_timer(sk, &icsk->icsk_delack_timer, timeout);
+-}
+-
+ static void clear_3rdack_retransmission(struct sock *sk)
+ {
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+@@ -527,7 +504,15 @@ static bool mptcp_established_options_mp(struct sock *sk, struct sk_buff *skb,
+ 		*size = TCPOLEN_MPTCP_MPJ_ACK;
+ 		pr_debug("subflow=%p", subflow);
+ 
+-		schedule_3rdack_retransmission(sk);
++		/* we can use the full delegate action helper only from BH context
++		 * If we are in process context - sk is flushing the backlog at
++		 * socket lock release time - just set the appropriate flag, will
++		 * be handled by the release callback
++		 */
++		if (sock_owned_by_user(sk))
++			set_bit(MPTCP_DELEGATE_ACK, &subflow->delegated_status);
++		else
++			mptcp_subflow_delegate(subflow, MPTCP_DELEGATE_ACK);
+ 		return true;
+ 	}
+ 	return false;
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 4379d69aead7e..421fa62ce5cdf 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1621,7 +1621,8 @@ static void __mptcp_subflow_push_pending(struct sock *sk, struct sock *ssk)
+ 			if (!xmit_ssk)
+ 				goto out;
+ 			if (xmit_ssk != ssk) {
+-				mptcp_subflow_delegate(mptcp_subflow_ctx(xmit_ssk));
++				mptcp_subflow_delegate(mptcp_subflow_ctx(xmit_ssk),
++						       MPTCP_DELEGATE_SEND);
+ 				goto out;
+ 			}
+ 
+@@ -2959,7 +2960,7 @@ void __mptcp_check_push(struct sock *sk, struct sock *ssk)
+ 		if (xmit_ssk == ssk)
+ 			__mptcp_subflow_push_pending(sk, ssk);
+ 		else if (xmit_ssk)
+-			mptcp_subflow_delegate(mptcp_subflow_ctx(xmit_ssk));
++			mptcp_subflow_delegate(mptcp_subflow_ctx(xmit_ssk), MPTCP_DELEGATE_SEND);
+ 	} else {
+ 		set_bit(MPTCP_PUSH_PENDING, &mptcp_sk(sk)->flags);
+ 	}
+@@ -3013,18 +3014,50 @@ static void mptcp_release_cb(struct sock *sk)
+ 	__mptcp_update_rmem(sk);
+ }
+ 
++/* MP_JOIN client subflow must wait for 4th ack before sending any data:
++ * TCP can't schedule delack timer before the subflow is fully established.
++ * MPTCP uses the delack timer to do 3rd ack retransmissions
++ */
++static void schedule_3rdack_retransmission(struct sock *ssk)
++{
++	struct inet_connection_sock *icsk = inet_csk(ssk);
++	struct tcp_sock *tp = tcp_sk(ssk);
++	unsigned long timeout;
++
++	if (mptcp_subflow_ctx(ssk)->fully_established)
++		return;
++
++	/* reschedule with a timeout above RTT, as we must look only for drop */
++	if (tp->srtt_us)
 +		timeout = usecs_to_jiffies(tp->srtt_us >> (3 - 1));
- 	else
- 		timeout = TCP_TIMEOUT_INIT;
++	else
++		timeout = TCP_TIMEOUT_INIT;
 +	timeout += jiffies;
++
++	WARN_ON_ONCE(icsk->icsk_ack.pending & ICSK_ACK_TIMER);
++	icsk->icsk_ack.pending |= ICSK_ACK_SCHED | ICSK_ACK_TIMER;
++	icsk->icsk_ack.timeout = timeout;
++	sk_reset_timer(ssk, &icsk->icsk_delack_timer, timeout);
++}
++
+ void mptcp_subflow_process_delegated(struct sock *ssk)
+ {
+ 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
+ 	struct sock *sk = subflow->conn;
  
- 	WARN_ON_ONCE(icsk->icsk_ack.pending & ICSK_ACK_TIMER);
- 	icsk->icsk_ack.pending |= ICSK_ACK_SCHED | ICSK_ACK_TIMER;
+-	mptcp_data_lock(sk);
+-	if (!sock_owned_by_user(sk))
+-		__mptcp_subflow_push_pending(sk, ssk);
+-	else
+-		set_bit(MPTCP_PUSH_PENDING, &mptcp_sk(sk)->flags);
+-	mptcp_data_unlock(sk);
+-	mptcp_subflow_delegated_done(subflow);
++	if (test_bit(MPTCP_DELEGATE_SEND, &subflow->delegated_status)) {
++		mptcp_data_lock(sk);
++		if (!sock_owned_by_user(sk))
++			__mptcp_subflow_push_pending(sk, ssk);
++		else
++			set_bit(MPTCP_PUSH_PENDING, &mptcp_sk(sk)->flags);
++		mptcp_data_unlock(sk);
++		mptcp_subflow_delegated_done(subflow, MPTCP_DELEGATE_SEND);
++	}
++	if (test_bit(MPTCP_DELEGATE_ACK, &subflow->delegated_status)) {
++		schedule_3rdack_retransmission(ssk);
++		mptcp_subflow_delegated_done(subflow, MPTCP_DELEGATE_ACK);
++	}
+ }
+ 
+ static int mptcp_hash(struct sock *sk)
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index dc984676c5eb1..82c5dc4d6b49d 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -401,6 +401,7 @@ struct mptcp_delegated_action {
+ DECLARE_PER_CPU(struct mptcp_delegated_action, mptcp_delegated_actions);
+ 
+ #define MPTCP_DELEGATE_SEND		0
++#define MPTCP_DELEGATE_ACK		1
+ 
+ /* MPTCP subflow context */
+ struct mptcp_subflow_context {
+@@ -506,23 +507,23 @@ static inline void mptcp_add_pending_subflow(struct mptcp_sock *msk,
+ 
+ void mptcp_subflow_process_delegated(struct sock *ssk);
+ 
+-static inline void mptcp_subflow_delegate(struct mptcp_subflow_context *subflow)
++static inline void mptcp_subflow_delegate(struct mptcp_subflow_context *subflow, int action)
+ {
+ 	struct mptcp_delegated_action *delegated;
+ 	bool schedule;
+ 
++	/* the caller held the subflow bh socket lock */
++	lockdep_assert_in_softirq();
++
+ 	/* The implied barrier pairs with mptcp_subflow_delegated_done(), and
+ 	 * ensures the below list check sees list updates done prior to status
+ 	 * bit changes
+ 	 */
+-	if (!test_and_set_bit(MPTCP_DELEGATE_SEND, &subflow->delegated_status)) {
++	if (!test_and_set_bit(action, &subflow->delegated_status)) {
+ 		/* still on delegated list from previous scheduling */
+ 		if (!list_empty(&subflow->delegated_node))
+ 			return;
+ 
+-		/* the caller held the subflow bh socket lock */
+-		lockdep_assert_in_softirq();
+-
+ 		delegated = this_cpu_ptr(&mptcp_delegated_actions);
+ 		schedule = list_empty(&delegated->head);
+ 		list_add_tail(&subflow->delegated_node, &delegated->head);
+@@ -547,16 +548,16 @@ mptcp_subflow_delegated_next(struct mptcp_delegated_action *delegated)
+ 
+ static inline bool mptcp_subflow_has_delegated_action(const struct mptcp_subflow_context *subflow)
+ {
+-	return test_bit(MPTCP_DELEGATE_SEND, &subflow->delegated_status);
++	return !!READ_ONCE(subflow->delegated_status);
+ }
+ 
+-static inline void mptcp_subflow_delegated_done(struct mptcp_subflow_context *subflow)
++static inline void mptcp_subflow_delegated_done(struct mptcp_subflow_context *subflow, int action)
+ {
+ 	/* pairs with mptcp_subflow_delegate, ensures delegate_node is updated before
+ 	 * touching the status bit
+ 	 */
+ 	smp_wmb();
+-	clear_bit(MPTCP_DELEGATE_SEND, &subflow->delegated_status);
++	clear_bit(action, &subflow->delegated_status);
+ }
+ 
+ int mptcp_is_enabled(const struct net *net);
 -- 
 2.33.0
 
