@@ -2,57 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 189154626CD
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:54:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1523E46265E
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236117AbhK2W5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:57:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37768 "EHLO
+        id S236187AbhK2WvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:51:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236075AbhK2W5H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:07 -0500
+        with ESMTP id S235489AbhK2WuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74614C03AD6F
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 10:14:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A698C12BCE1;
+        Mon, 29 Nov 2021 10:34:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E4B3B815B0
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 18:13:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77001C53FAD;
-        Mon, 29 Nov 2021 18:13:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1240CB815C9;
+        Mon, 29 Nov 2021 18:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36D38C53FAD;
+        Mon, 29 Nov 2021 18:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638209638;
-        bh=F+WfkWfrxxnIhMlyNpExanRvNwfWDNap8xamGA8a5cQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UsVPD6/9hEJi2Btrc/oHhwFMXnhqB/92eu2VqHUUMVsw0cp/4CJYCiDQA5nb+N0q+
-         VWOWgLa1XeFLdpQ1SA97eCHCPazkXapcTUGfJLYCpE523uX2W4W6dfBSCk4bL6vTID
-         YZQ0tkYoz3gfOb3KGP29UVFxdvcBir/ONFif0FWY=
-Date:   Mon, 29 Nov 2021 19:13:55 +0100
+        s=korg; t=1638210878;
+        bh=wvEMOgID32Rxz0hBDEo0ylZYdFgjbuZmaAq09s734wI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dWdj6tqCPJLABWh2CWC0NFrSxkOXz5vXxs/OSKLpWD1T9yDGCitL6tkR3SkYPtcfi
+         KbrcaOa0qKVnqaaG8gU7Civ29IMzZ/vSlfQM4Gq8oNiZSkADcXA/S3gHPvnfvbt9bj
+         WHTJbwek2qvrFHc4Blm9AlnbXSOqEmsxxEt7MzlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-Subject: Re: Stable backports of Xen related patches
-Message-ID: <YaUYYzzPR5p7ePZU@kroah.com>
-References: <bb28bab1-eb2e-0dde-3a59-6b5c25e3744d@suse.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        John Keeping <john@metanate.com>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.15 008/179] usb: dwc2: hcd_queue: Fix use of floating point literal
+Date:   Mon, 29 Nov 2021 19:16:42 +0100
+Message-Id: <20211129181719.215269006@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bb28bab1-eb2e-0dde-3a59-6b5c25e3744d@suse.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 29, 2021 at 04:15:31PM +0100, Juergen Gross wrote:
-> Hi Greg,
-> 
-> attached are git bundles for some patches you merged into the 5.10
-> stable kernel already this morning.
-> 
-> Naming should be obvious, the patches are on the branch "back" in
-> each bundle.
+From: Nathan Chancellor <nathan@kernel.org>
 
-All now queued up, thanks!
+commit 310780e825f3ffd211b479b8f828885a6faedd63 upstream.
 
-greg k-h
+A new commit in LLVM causes an error on the use of 'long double' when
+'-mno-x87' is used, which the kernel does through an alias,
+'-mno-80387' (see the LLVM commit below for more details around why it
+does this).
+
+ drivers/usb/dwc2/hcd_queue.c:1744:25: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
+                         delay = ktime_set(0, DWC2_RETRY_WAIT_DELAY);
+                                             ^
+ drivers/usb/dwc2/hcd_queue.c:62:34: note: expanded from macro 'DWC2_RETRY_WAIT_DELAY'
+ #define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
+                                 ^
+ 1 error generated.
+
+This happens due to the use of a 'long double' literal. The 'E6' part of
+'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
+it to 'long double'.
+
+There is no visible reason for a floating point value in this driver, as
+the value is only used as a parameter to a function that expects an
+integer type. Use NSEC_PER_MSEC, which is the same integer value as
+'1E6L', to avoid changing functionality but fix the error.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1497
+Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
+Fixes: 6ed30a7d8ec2 ("usb: dwc2: host: use hrtimer for NAK retries")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20211105145802.2520658-1-nathan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/dwc2/hcd_queue.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/usb/dwc2/hcd_queue.c
++++ b/drivers/usb/dwc2/hcd_queue.c
+@@ -59,7 +59,7 @@
+ #define DWC2_UNRESERVE_DELAY (msecs_to_jiffies(5))
+ 
+ /* If we get a NAK, wait this long before retrying */
+-#define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
++#define DWC2_RETRY_WAIT_DELAY (1 * NSEC_PER_MSEC)
+ 
+ /**
+  * dwc2_periodic_channel_available() - Checks that a channel is available for a
+
+
