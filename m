@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E82461A9A
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:03:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16144461B30
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:40:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239381AbhK2PHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 10:07:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
+        id S1345353AbhK2Pnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 10:43:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245313AbhK2PFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:05:06 -0500
+        with ESMTP id S1343529AbhK2Plx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:41:53 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4B7C08E79C
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:23:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC221C09CE43
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:46:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74D34B80EF2
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:23:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8217C004E1;
-        Mon, 29 Nov 2021 13:23:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D7E8B8118A
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:46:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A74D8C004E1;
+        Mon, 29 Nov 2021 13:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638192236;
-        bh=66ZpyEjqeBZ6P1MWPOqyTz3r3Kcfxu7/qfArlbVY6Gs=;
+        s=korg; t=1638193604;
+        bh=qs7ejLLSrZfxMp98dfPB46lUUmPDUq1H1uPgwPlP+Yw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Wjts6JjBIksffAUICXuPTQcla+GT3Q/d3ZQheI4ZZzQepWwZ5ftMKT/9xc1UROtoo
-         hXt/jH2x7hIFL049vMy9QzgS3LZgktxeFKVz2GrSH/ZdMHHmd0owwmIGp6NjIKMToA
-         RF9g/4UWRM49I3aXIidaJqU26wS7VMV+m2VljYzc=
-Subject: FAILED: patch "[PATCH] net/smc: Fix loop in smc_listen" failed to apply to 4.19-stable tree
-To:     guodaxing@huawei.com, kgraul@linux.ibm.com, kuba@kernel.org,
-        tonylu@linux.alibaba.com
+        b=AgcDiMgwCeVw2BLg8JHGELOAI1UBnv+DTBXZMUOI+DHrDTZTdXWDsbm/3vnUSn7P2
+         kjIqDJvRCd+iHf/sAXadhuh62NMRbq5q8R9UH9YUG2HundKEB0Z8z11L65FUBgfYoD
+         yf5bMXeZVqL9xrsQOpswlIZRmcdz4BvVW1X1sEm0=
+Subject: FAILED: patch "[PATCH] iavf: Fix deadlock occurrence during resetting VF interface" failed to apply to 5.4-stable tree
+To:     jedrzej.jagielski@intel.com, anthony.l.nguyen@intel.com,
+        jaroslawx.gawin@intel.com, konrad0.jankowski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Nov 2021 14:23:38 +0100
-Message-ID: <16381922188390@kroah.com>
+Date:   Mon, 29 Nov 2021 14:46:34 +0100
+Message-ID: <1638193594177169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,42 +54,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9ebb0c4b27a6158303b791b5b91e66d7665ee30e Mon Sep 17 00:00:00 2001
-From: Guo DaXing <guodaxing@huawei.com>
-Date: Wed, 24 Nov 2021 13:32:38 +0100
-Subject: [PATCH] net/smc: Fix loop in smc_listen
+From 0cc318d2e8408bc0ffb4662a0c3e5e57005ac6ff Mon Sep 17 00:00:00 2001
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Date: Tue, 7 Sep 2021 09:25:40 +0000
+Subject: [PATCH] iavf: Fix deadlock occurrence during resetting VF interface
 
-The kernel_listen function in smc_listen will fail when all the available
-ports are occupied.  At this point smc->clcsock->sk->sk_data_ready has
-been changed to smc_clcsock_data_ready.  When we call smc_listen again,
-now both smc->clcsock->sk->sk_data_ready and smc->clcsk_data_ready point
-to the smc_clcsock_data_ready function.
+System hangs if close the interface is called from the kernel during
+the interface is in resetting state.
+During resetting operation the link is closing but kernel didn't
+know it and it tried to close this interface again what sometimes
+led to deadlock.
+Inform kernel about current state of interface
+and turn off the flag IFF_UP when interface is closing until reset
+is finished.
+Previously it was most likely to hang the system when kernel
+(network manager) tried to close the interface in the same time
+when interface was in resetting state because of deadlock.
 
-The smc_clcsock_data_ready() function calls lsmc->clcsk_data_ready which
-now points to itself resulting in an infinite loop.
+Fixes: 3c8e0b989aa1 ("i40vf: don't stop me now")
+Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-This patch restores smc->clcsock->sk->sk_data_ready with the old value.
-
-Fixes: a60a2b1e0af1 ("net/smc: reduce active tcp_listen workers")
-Signed-off-by: Guo DaXing <guodaxing@huawei.com>
-Acked-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 2692cba5a7b6..4b62c925a13e 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2134,8 +2134,10 @@ static int smc_listen(struct socket *sock, int backlog)
- 	smc->clcsock->sk->sk_user_data =
- 		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 	rc = kernel_listen(smc->clcsock, backlog);
--	if (rc)
-+	if (rc) {
-+		smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
- 		goto out;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 336e6bf95e48..84680777ac12 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2254,6 +2254,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 		   (adapter->state == __IAVF_RESETTING));
+ 
+ 	if (running) {
++		netdev->flags &= ~IFF_UP;
+ 		netif_carrier_off(netdev);
+ 		netif_tx_stop_all_queues(netdev);
+ 		adapter->link_up = false;
+@@ -2365,7 +2366,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 		 * to __IAVF_RUNNING
+ 		 */
+ 		iavf_up_complete(adapter);
+-
++		netdev->flags |= IFF_UP;
+ 		iavf_irq_enable(adapter, true);
+ 	} else {
+ 		iavf_change_state(adapter, __IAVF_DOWN);
+@@ -2378,8 +2379,10 @@ static void iavf_reset_task(struct work_struct *work)
+ reset_err:
+ 	mutex_unlock(&adapter->client_lock);
+ 	mutex_unlock(&adapter->crit_lock);
+-	if (running)
++	if (running) {
+ 		iavf_change_state(adapter, __IAVF_RUNNING);
++		netdev->flags |= IFF_UP;
 +	}
- 	sk->sk_max_ack_backlog = backlog;
- 	sk->sk_ack_backlog = 0;
- 	sk->sk_state = SMC_LISTEN;
+ 	dev_err(&adapter->pdev->dev, "failed to allocate resources during reinit\n");
+ 	iavf_close(netdev);
+ }
 
