@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 757D4462777
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 00:03:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3F6446279E
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 00:05:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236777AbhK2XGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 18:06:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40408 "EHLO
+        id S236962AbhK2XI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 18:08:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237209AbhK2XFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:05:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16885C1A3C83;
-        Mon, 29 Nov 2021 10:39:25 -0800 (PST)
+        with ESMTP id S235243AbhK2XHp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:07:45 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD055C047CF1;
+        Mon, 29 Nov 2021 10:31:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3404B81636;
-        Mon, 29 Nov 2021 18:39:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D93AC53FAD;
-        Mon, 29 Nov 2021 18:39:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 16929CE155A;
+        Mon, 29 Nov 2021 18:31:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E8CC53FAD;
+        Mon, 29 Nov 2021 18:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211162;
-        bh=pbHZVCbXC/eF3f6TOtZqlHEN9GURbrP05wCUtPzDAo8=;
+        s=korg; t=1638210709;
+        bh=A+1qHYMO6JtiED62UWE5ACrqZxhFWv40m9CHb0FxN3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXlFVJnS9eKVydeNV6cc9JzmW8saNFVW3r+7upPM9rK3thJLoKSJZf9IOV0tAtFMf
-         Xh0YH+OIIR3H9GZ/1GKCC9dnIyR/2y6+723Le/sP1I3bb2nOra2eJ6MYXTXEJl1sA2
-         jZ6sf3q7KnOyN1sko6UFXSygF8a8mV1Hyy4EeoSw=
+        b=GIv6nXi7syyaW+gx6+Rpx2BibTC4u9JIoTVQ8jDftMMfI+dn9EsvL5oS9f1m7d/Jo
+         yR/JKccdqJWcvx4mGjy1h0N48xsQLJU7B7ZtX7XKVmtDK1XBPoQa7M4hy6JWUwZPd6
+         7WHJ5iBKIziEJfHwjTa0Ib/KFI0Y9Q1HhoFAugyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Deng <jie.deng@intel.com>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 118/179] i2c: virtio: disable timeout handling
-Date:   Mon, 29 Nov 2021 19:18:32 +0100
-Message-Id: <20211129181722.841187768@linuxfoundation.org>
+        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 089/121] nvmet: use IOCB_NOWAIT only if the filesystem supports it
+Date:   Mon, 29 Nov 2021 19:18:40 +0100
+Message-Id: <20211129181714.659953184@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,103 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 84e1d0bf1d7121759622dabf8fbef4c99ad597c5 ]
+[ Upstream commit c024b226a417c4eb9353ff500b1c823165d4d508 ]
 
-If a timeout is hit, it can result is incorrect data on the I2C bus
-and/or memory corruptions in the guest since the device can still be
-operating on the buffers it was given while the guest has freed them.
+Submit I/O requests with the IOCB_NOWAIT flag set only if
+the underlying filesystem supports it.
 
-Here is, for example, the start of a slub_debug splat which was
-triggered on the next transfer after one transfer was forced to timeout
-by setting a breakpoint in the backend (rust-vmm/vhost-device):
-
- BUG kmalloc-1k (Not tainted): Poison overwritten
- First byte 0x1 instead of 0x6b
- Allocated in virtio_i2c_xfer+0x65/0x35c age=350 cpu=0 pid=29
- 	__kmalloc+0xc2/0x1c9
- 	virtio_i2c_xfer+0x65/0x35c
- 	__i2c_transfer+0x429/0x57d
- 	i2c_transfer+0x115/0x134
- 	i2cdev_ioctl_rdwr+0x16a/0x1de
- 	i2cdev_ioctl+0x247/0x2ed
- 	vfs_ioctl+0x21/0x30
- 	sys_ioctl+0xb18/0xb41
- Freed in virtio_i2c_xfer+0x32e/0x35c age=244 cpu=0 pid=29
- 	kfree+0x1bd/0x1cc
- 	virtio_i2c_xfer+0x32e/0x35c
- 	__i2c_transfer+0x429/0x57d
- 	i2c_transfer+0x115/0x134
- 	i2cdev_ioctl_rdwr+0x16a/0x1de
- 	i2cdev_ioctl+0x247/0x2ed
- 	vfs_ioctl+0x21/0x30
- 	sys_ioctl+0xb18/0xb41
-
-There is no simple fix for this (the driver would have to always create
-bounce buffers and hold on to them until the device eventually returns
-the buffers), so just disable the timeout support for now.
-
-Fixes: 3cfc88380413d20f ("i2c: virtio: add a virtio i2c frontend driver")
-Acked-by: Jie Deng <jie.deng@intel.com>
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 50a909db36f2 ("nvmet: use IOCB_NOWAIT for file-ns buffered I/O")
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-virtio.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/nvme/target/io-cmd-file.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index f10a603b13fb0..7b2474e6876f4 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -106,11 +106,10 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index b575997244482..c81690b2a681b 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -8,6 +8,7 @@
+ #include <linux/uio.h>
+ #include <linux/falloc.h>
+ #include <linux/file.h>
++#include <linux/fs.h>
+ #include "nvmet.h"
  
- static int virtio_i2c_complete_reqs(struct virtqueue *vq,
- 				    struct virtio_i2c_req *reqs,
--				    struct i2c_msg *msgs, int num,
--				    bool timedout)
-+				    struct i2c_msg *msgs, int num)
- {
- 	struct virtio_i2c_req *req;
--	bool failed = timedout;
-+	bool failed = false;
- 	unsigned int len;
- 	int i, j = 0;
+ #define NVMET_MAX_MPOOL_BVEC		16
+@@ -266,7 +267,8 @@ static void nvmet_file_execute_rw(struct nvmet_req *req)
  
-@@ -132,7 +131,7 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
- 			j++;
- 	}
- 
--	return timedout ? -ETIMEDOUT : j;
-+	return j;
- }
- 
- static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-@@ -141,7 +140,6 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	struct virtio_i2c *vi = i2c_get_adapdata(adap);
- 	struct virtqueue *vq = vi->vq;
- 	struct virtio_i2c_req *reqs;
--	unsigned long time_left;
- 	int count;
- 
- 	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
-@@ -164,11 +162,9 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	reinit_completion(&vi->completion);
- 	virtqueue_kick(vq);
- 
--	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
--	if (!time_left)
--		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
-+	wait_for_completion(&vi->completion);
- 
--	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count, !time_left);
-+	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
- 
- err_free:
- 	kfree(reqs);
+ 	if (req->ns->buffered_io) {
+ 		if (likely(!req->f.mpool_alloc) &&
+-				nvmet_file_execute_io(req, IOCB_NOWAIT))
++		    (req->ns->file->f_mode & FMODE_NOWAIT) &&
++		    nvmet_file_execute_io(req, IOCB_NOWAIT))
+ 			return;
+ 		nvmet_file_submit_buffered_io(req);
+ 	} else
 -- 
 2.33.0
 
