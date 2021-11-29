@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5D1462453
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC94462530
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbhK2WRc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56644 "EHLO
+        id S233442AbhK2WgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:36:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231442AbhK2WQs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:48 -0500
+        with ESMTP id S233408AbhK2WfX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:35:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E970CC127137;
-        Mon, 29 Nov 2021 10:22:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E47C1A3C90;
+        Mon, 29 Nov 2021 10:39:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE82BB815DB;
-        Mon, 29 Nov 2021 18:22:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F09C53FAD;
-        Mon, 29 Nov 2021 18:22:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FB24B815C3;
+        Mon, 29 Nov 2021 18:39:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81994C53FAD;
+        Mon, 29 Nov 2021 18:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210154;
-        bh=NSCTX1scdSQAoI5XZx8ANgtfKgdgdc6lM7PaYiImTXw=;
+        s=korg; t=1638211171;
+        bh=c83TouqOIBIylf88FcE7rPNVLI3GfRII4FTSSAPmsHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNgqO+IGQEuUwnFqNJIno1LLnHFpKPX5hcV8D9H0cGT4HTbRPPpslh+RJTz/Fp/+F
-         UJvAZpiwaZpwwrEgwXMCaXfz8UJUgbFjWc6ypJemnPDxuOwXbbeEXj6GdG/yjqBwkL
-         Hoplmd/wlEYitlzFtfNE0HFZonDXCovZtGokib1M=
+        b=DHkfa26jCk/MogeydwNBtAI5SoQCWBsjuPoF13KMN0jU+RSanuTdH09v4yrXt0YpS
+         EOiNGC+Wsod7V42TPdlDlpegy7012fSN7yFLzHfg2yo8rHP3Ln6ghzatSrHgKjgMdb
+         SbCfX/UThBIetw9NcdXEbw4Mv90HmDbYa/B8HlTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.19 60/69] fuse: release pipe buf after last use
-Date:   Mon, 29 Nov 2021 19:18:42 +0100
-Message-Id: <20211129181705.603467667@linuxfoundation.org>
+        stable@vger.kernel.org, Kumar Thangavel <thangavel.k@hcl.com>,
+        Samuel Mendoza-Jonas <sam@mendozajonas.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 129/179] net/ncsi : Add payload to be 32-bit aligned to fix dropped packets
+Date:   Mon, 29 Nov 2021 19:18:43 +0100
+Message-Id: <20211129181723.205858803@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +50,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Kumar Thangavel <kumarthangavel.hcl@gmail.com>
 
-commit 473441720c8616dfaf4451f9c7ea14f0eb5e5d65 upstream.
+[ Upstream commit ac132852147ad303a938dda318970dd1bbdfda4e ]
 
-Checking buf->flags should be done before the pipe_buf_release() is called
-on the pipe buffer, since releasing the buffer might modify the flags.
+Update NC-SI command handler (both standard and OEM) to take into
+account of payload paddings in allocating skb (in case of payload
+size is not 32-bit aligned).
 
-This is exactly what page_cache_pipe_buf_release() does, and which results
-in the same VM_BUG_ON_PAGE(PageLRU(page)) that the original patch was
-trying to fix.
+The checksum field follows payload field, without taking payload
+padding into account can cause checksum being truncated, leading to
+dropped packets.
 
-Reported-by: Justin Forbes <jmforbes@linuxtx.org>
-Fixes: 712a951025c0 ("fuse: fix page stealing")
-Cc: <stable@vger.kernel.org> # v2.6.35
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: fb4ee67529ff ("net/ncsi: Add NCSI OEM command support")
+Signed-off-by: Kumar Thangavel <thangavel.k@hcl.com>
+Acked-by: Samuel Mendoza-Jonas <sam@mendozajonas.com>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/ncsi/ncsi-cmd.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -905,17 +905,17 @@ static int fuse_try_move_page(struct fus
- 		goto out_put_old;
- 	}
+diff --git a/net/ncsi/ncsi-cmd.c b/net/ncsi/ncsi-cmd.c
+index ba9ae482141b0..dda8b76b77988 100644
+--- a/net/ncsi/ncsi-cmd.c
++++ b/net/ncsi/ncsi-cmd.c
+@@ -18,6 +18,8 @@
+ #include "internal.h"
+ #include "ncsi-pkt.h"
  
-+	get_page(newpage);
++static const int padding_bytes = 26;
 +
-+	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
-+		lru_cache_add_file(newpage);
-+
- 	/*
- 	 * Release while we have extra ref on stolen page.  Otherwise
- 	 * anon_pipe_buf_release() might think the page can be reused.
+ u32 ncsi_calculate_checksum(unsigned char *data, int len)
+ {
+ 	u32 checksum = 0;
+@@ -213,12 +215,17 @@ static int ncsi_cmd_handler_oem(struct sk_buff *skb,
+ {
+ 	struct ncsi_cmd_oem_pkt *cmd;
+ 	unsigned int len;
++	int payload;
++	/* NC-SI spec DSP_0222_1.2.0, section 8.2.2.2
++	 * requires payload to be padded with 0 to
++	 * 32-bit boundary before the checksum field.
++	 * Ensure the padding bytes are accounted for in
++	 * skb allocation
++	 */
+ 
++	payload = ALIGN(nca->payload, 4);
+ 	len = sizeof(struct ncsi_cmd_pkt_hdr) + 4;
+-	if (nca->payload < 26)
+-		len += 26;
+-	else
+-		len += nca->payload;
++	len += max(payload, padding_bytes);
+ 
+ 	cmd = skb_put_zero(skb, len);
+ 	memcpy(&cmd->mfr_id, nca->data, nca->payload);
+@@ -272,6 +279,7 @@ static struct ncsi_request *ncsi_alloc_command(struct ncsi_cmd_arg *nca)
+ 	struct net_device *dev = nd->dev;
+ 	int hlen = LL_RESERVED_SPACE(dev);
+ 	int tlen = dev->needed_tailroom;
++	int payload;
+ 	int len = hlen + tlen;
+ 	struct sk_buff *skb;
+ 	struct ncsi_request *nr;
+@@ -281,14 +289,14 @@ static struct ncsi_request *ncsi_alloc_command(struct ncsi_cmd_arg *nca)
+ 		return NULL;
+ 
+ 	/* NCSI command packet has 16-bytes header, payload, 4 bytes checksum.
++	 * Payload needs padding so that the checksum field following payload is
++	 * aligned to 32-bit boundary.
+ 	 * The packet needs padding if its payload is less than 26 bytes to
+ 	 * meet 64 bytes minimal ethernet frame length.
  	 */
- 	pipe_buf_release(cs->pipe, buf);
+ 	len += sizeof(struct ncsi_cmd_pkt_hdr) + 4;
+-	if (nca->payload < 26)
+-		len += 26;
+-	else
+-		len += nca->payload;
++	payload = ALIGN(nca->payload, 4);
++	len += max(payload, padding_bytes);
  
--	get_page(newpage);
--
--	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
--		lru_cache_add_file(newpage);
--
- 	err = 0;
- 	spin_lock(&cs->req->waitq.lock);
- 	if (test_bit(FR_ABORTED, &cs->req->flags))
+ 	/* Allocate skb */
+ 	skb = alloc_skb(len, GFP_ATOMIC);
+-- 
+2.33.0
+
 
 
