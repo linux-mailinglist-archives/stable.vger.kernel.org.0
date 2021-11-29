@@ -2,113 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AF19460FBB
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 09:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CFA2460FC0
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 09:09:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239337AbhK2IKv convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 29 Nov 2021 03:10:51 -0500
-Received: from coyote.holtmann.net ([212.227.132.17]:39354 "EHLO
-        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238618AbhK2IIs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 03:08:48 -0500
-Received: from smtpclient.apple (p5b3d2e91.dip0.t-ipconnect.de [91.61.46.145])
-        by mail.holtmann.org (Postfix) with ESMTPSA id B41FFCED1F;
-        Mon, 29 Nov 2021 09:05:29 +0100 (CET)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
-Subject: Re: [PATCH v2 1/6] Bluetooth: add quirk disabling LE Read Transmit
- Power
-From:   Marcel Holtmann <marcel@holtmann.org>
-In-Reply-To: <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
-Date:   Mon, 29 Nov 2021 09:05:28 +0100
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Daniel Winkler <danielwinkler@google.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Transfer-Encoding: 8BIT
-Message-Id: <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
-References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
- <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
- <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
- <20211117124717.12352-1-redecorating@protonmail.com>
- <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
- <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
- <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
- <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
- <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
- <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
-To:     Aditya Garg <gargaditya08@live.com>
-X-Mailer: Apple Mail (2.3693.20.0.1.32)
+        id S233486AbhK2IM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 03:12:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40408 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240406AbhK2IKz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 03:10:55 -0500
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A305AC061759
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 00:07:38 -0800 (PST)
+Received: by mail-ot1-x341.google.com with SMTP id x19-20020a9d7053000000b0055c8b39420bso24458129otj.1
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 00:07:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=wE15AX+YKAr6gux7pFWbybWd7n2h2scMswRoQsyqs3c=;
+        b=AvDWiX6jgAZHHhk1IgTDd/6o6+YWfB3SzIFFAwl4zgUUbxqiL7m2i/jJvjBgDQBkzc
+         aJZ2Kh/yAnAclUoIcfjpxp2qzzduF1bIz/n1rPTqTynfSx49jcjh3t5oxQRGL2kvPFa9
+         jNiY/WfY5faucIQIgkj0ZXORgChofSN/oZ3fjMQTRmxfCxTqv5nHcTu4EMJBKKBttdrG
+         70Uow0vIOsOq7wJwnGJeRBoZYd+sNoJSqjLxCAorprK2Btj7PjZ+VKYyegLgTlpgMY6u
+         ChBmae/Tj3VBBnckZgXKw4u3cj0wTZwSjKchFgk3QdVeLchMGtAWKVGlP3iHq9aYF+WS
+         g5vQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=wE15AX+YKAr6gux7pFWbybWd7n2h2scMswRoQsyqs3c=;
+        b=odfSepfOi9eApiT99BIAKScrvVzOcIMuJ8nQXfKy9ZO9Tzdex9Vg0x9C5YI3Onw6nV
+         rzPIHg5Ak1CzzL/oPiIrxGbaTv557DwEixwATQRUeqDUh3BPqx1DaF1UkT74UyBBGgFk
+         6GaI0CkJLag8xeE1IgaWVMnnM5xM+rwZGXQvvMDtzb+WxkQnqRRE85XbBz6r5V9jBrRv
+         AXd9O+7k7ecw3RUrmxckgMtS30weaPc7YjiXgBdl6Wcwhox2c0wbg6PUMEanxf1dNqgj
+         z71n4uSHvsswCW4bW+v+ni+3IaEH3FppnH72JOz+Ox7nkXK8gZjiI3ONJkzvYppYKJgJ
+         96CA==
+X-Gm-Message-State: AOAM533LK1tEsikXc3db6FbNE0miGpd3th0kNpyZLJjXfPuOgSu64vCj
+        1P1W9DRo0AknTKa9dny6RFCixK+WdLKMvG74lqU=
+X-Google-Smtp-Source: ABdhPJyDnrv3M3A5q6nBrSwJfBiqxJv+HQUobH2qflVGpBJCjW0ZP0m/pI0KzNa2A4O5pRPDWaqIt0P4WpHg1jSoMKI=
+X-Received: by 2002:a9d:4804:: with SMTP id c4mr31136560otf.82.1638173257996;
+ Mon, 29 Nov 2021 00:07:37 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:a4a:98ea:0:0:0:0:0 with HTTP; Mon, 29 Nov 2021 00:07:37
+ -0800 (PST)
+Reply-To: LishaHaman225@gmail.com
+From:   Miss Lisha Haman <alikanto679@gmail.com>
+Date:   Mon, 29 Nov 2021 00:07:37 -0800
+Message-ID: <CAL29UNBGnV7m-x0m+2+z_Cmu59pqN4ckx9CbvdpcjQukdxLDUA@mail.gmail.com>
+Subject: Hello Dearest
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Aditya,
+My dear I am Miss Lisha Haman 23 years of age , I am the only daughter
+to Dr Abdul Haman from France-Paris who work with (SEMAFO) the biggest
+Canadian gold producer here in West Africa Burkina Faso,
 
-> Some devices have a bug causing them to not work if they query LE tx power on startup. Thus we add a 
-> quirk in order to not query it and default min/max tx power values to HCI_TX_POWER_INVALID.
-> 
-> v2: Wrap the changeling at 72 columns, correct email and remove tested by.
+Unfortunately my father was a victim on the deadliest attack by the
+jihadist On the 6 November 2019 when gunmen ambushed a convoy
+transporting workers of the Canadian mining firm Semafo, it is my sad
+moment each time I think about this, but the reason why I contacted
+you is that I have my late father receipt of deposit he made with a
+bank in abroad with my name as next of kin, The total amount deposited
+was 3.7 million United Stated dollars,
 
-that part is for the reviewer and needs to go after ---. Otherwise please break
-at 72 characters.
+Now I decided to travel for the money but embassy here deny me visa
+due to the Corona virus outbreak,
 
-> 
-> Signed-off-by: Aditya Garg <gargaditya08@live.com>
-> ---
-> include/net/bluetooth/hci.h | 9 +++++++++
-> net/bluetooth/hci_core.c    | 3 ++-
-> 2 files changed, 11 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-> index 63065bc01b766c..383342efcdc464 100644
-> --- a/include/net/bluetooth/hci.h
-> +++ b/include/net/bluetooth/hci.h
-> @@ -246,6 +246,15 @@ enum {
-> 	 * HCI after resume.
-> 	 */
-> 	HCI_QUIRK_NO_SUSPEND_NOTIFIER,
-> +
-> +	/*
-> +	 * When this quirk is set, LE tx power is not queried on startup
-> +	 * and the min/max tx power values default to HCI_TX_POWER_INVALID.
-> +	 *
-> +	 * This quirk can be set before hci_register_dev is called or
-> +	 * during the hdev->setup vendor callback.
-> +	 */
-> +	HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER,
-> };
-> 
-> /* HCI device flags */
-> diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-> index 8d33aa64846b1c..434c6878fe9640 100644
-> --- a/net/bluetooth/hci_core.c
-> +++ b/net/bluetooth/hci_core.c
-> @@ -619,7 +619,8 @@ static int hci_init3_req(struct hci_request *req, unsigned long opt)
-> 			hci_req_add(req, HCI_OP_LE_READ_ADV_TX_POWER, 0, NULL);
-> 		}
-> 
-> -		if (hdev->commands[38] & 0x80) {
-> +		if (hdev->commands[38] & 0x80 &&
-> +		!test_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks)) {
+I talk to the bank regarding my visa problem and they advise me to
+look for my relative trusted bank account so that they will transfer
+the total fund in there, But I am the only daughter of my father and
+have no relative to present, that is why I want to present you to the
+bank as my relative who will receive the total fund on my behalf and
+also take care of me as well,
 
-	if ((hdev->commands[38] & 0x80) &&
-	    !test_bit(HCI_QUIRK_.., &hdev->quirks)) {
+please send me your complete
 
-> 			/* Read LE Min/Max Tx Power*/
-> 			hci_req_add(req, HCI_OP_LE_READ_TRANSMIT_POWER,
-> 				    0, NULL);
-> 
+full details such as, Your Full Name:
 
-Regards
+Home and Office Addresses:
 
-Marcel
+Telephone Number:
 
+Occupation:
+
+Country of Residence:
+
+Your Bank account number where the bank will remit the fund
+
+Once I received your details, I will give you the bank contact so that
+you can contact them directly to discuss how they can transfer the
+total fund in your bank account so that you can relocate me to join
+you over there in your country,
+
+Sincerely
+
+LishaHaman225@gmail.com
+
+Miss Lisha Haman
