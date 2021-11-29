@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA79B461F35
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 562A2461F36
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379780AbhK2So4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:44:56 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:56622 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379939AbhK2Smz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:42:55 -0500
+        id S1355166AbhK2So7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:44:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48026 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352764AbhK2Sm4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:42:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id ACF9FCE1626;
-        Mon, 29 Nov 2021 18:39:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59730C53FAD;
-        Mon, 29 Nov 2021 18:39:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 032CFB815D4;
+        Mon, 29 Nov 2021 18:39:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F639C53FCF;
+        Mon, 29 Nov 2021 18:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211173;
-        bh=QnwtEr6uTMgVFWBAHMfxc/x+vt3b93MVx8sU0x8jb/w=;
+        s=korg; t=1638211176;
+        bh=77lKU25UqTxrpcyjhlWsg48qZH2NtkMQ9vIFqit5rqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aSLl5I1WPeP0ZK6dsE9cFya4latM0KSDALt2PRW/RW1j7O33W/g4zTs7gsxKN2T2f
-         gvF2wV5foBRoI7CDThJrU/xYfPLIE9e50AatyVTolwPhoo9bCjBtwocdlev4/z0y6u
-         osv9e+Lza8T6fiTFkk7WgSYOVR4MorOtGm3VCEIU=
+        b=ow/DRxAueMf8BiEVwWiGcVWVo9upSRonKWCb/JZJhnADrAid59OW2qz5RgJyReb8R
+         ITPG0YJXhpldOm5ZUZrcPm42OdvWpzdXCYpqypYOHY0n5+TVH9ifHT23mjTgAQgIuV
+         Lqgjr6/SJLKQZfqWsXK+vSJby04Pmh9qbI5VHimM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Jude Shih <Jude.Shih@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 130/179] PM: hibernate: use correct mode for swsusp_close()
-Date:   Mon, 29 Nov 2021 19:18:44 +0100
-Message-Id: <20211129181723.235519788@linuxfoundation.org>
+Subject: [PATCH 5.15 131/179] drm/amd/display: Fix DPIA outbox timeout after GPU reset
+Date:   Mon, 29 Nov 2021 19:18:45 +0100
+Message-Id: <20211129181723.266322935@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -46,60 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit cefcf24b4d351daf70ecd945324e200d3736821e ]
+[ Upstream commit 6eff272dbee7ad444c491c9a96d49e78e91e2161 ]
 
-Commit 39fbef4b0f77 ("PM: hibernate: Get block device exclusively in
-swsusp_check()") changed the opening mode of the block device to
-(FMODE_READ | FMODE_EXCL).
+[Why]
+The HW interrupt gets disabled after GPU reset so we don't receive
+notifications for HPD or AUX from DMUB - leading to timeout and
+black screen with (or without) DPIA links connected.
 
-In the corresponding calls to swsusp_close(), the mode is still just
-FMODE_READ which triggers the warning in blkdev_flush_mapping() on
-resume from hibernate.
+[How]
+Re-enable the interrupt after GPU reset like we do for the other
+DC interrupts.
 
-So, use the mode (FMODE_READ | FMODE_EXCL) also when closing the
-device.
+Fixes: 81927e2808be ("drm/amd/display: Support for DMUB AUX")
 
-Fixes: 39fbef4b0f77 ("PM: hibernate: Get block device exclusively in swsusp_check()")
-Signed-off-by: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Jude Shih <Jude.Shih@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/hibernate.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index 559acef3fddb8..b0888e9224da3 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -691,7 +691,7 @@ static int load_image_and_restore(void)
- 		goto Unlock;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index d15967239474e..56f4569da2f7d 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2213,6 +2213,8 @@ static int dm_resume(void *handle)
+ 	if (amdgpu_in_reset(adev)) {
+ 		dc_state = dm->cached_dc_state;
  
- 	error = swsusp_read(&flags);
--	swsusp_close(FMODE_READ);
-+	swsusp_close(FMODE_READ | FMODE_EXCL);
- 	if (!error)
- 		error = hibernation_restore(flags & SF_PLATFORM_MODE);
- 
-@@ -981,7 +981,7 @@ static int software_resume(void)
- 	/* The snapshot device should not be opened while we're running */
- 	if (!hibernate_acquire()) {
- 		error = -EBUSY;
--		swsusp_close(FMODE_READ);
-+		swsusp_close(FMODE_READ | FMODE_EXCL);
- 		goto Unlock;
- 	}
- 
-@@ -1016,7 +1016,7 @@ static int software_resume(void)
- 	pm_pr_dbg("Hibernation image not present or could not be loaded.\n");
- 	return error;
-  Close_Finish:
--	swsusp_close(FMODE_READ);
-+	swsusp_close(FMODE_READ | FMODE_EXCL);
- 	goto Finish;
- }
- 
++		amdgpu_dm_outbox_init(adev);
++
+ 		r = dm_dmub_hw_init(adev);
+ 		if (r)
+ 			DRM_ERROR("DMUB interface failed to initialize: status=%d\n", r);
 -- 
 2.33.0
 
