@@ -2,209 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 750AE461A0C
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 15:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D58461A40
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 15:48:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378423AbhK2Oox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 09:44:53 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:46232 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378848AbhK2Omk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 09:42:40 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 82EB71FCA1;
-        Mon, 29 Nov 2021 14:39:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1638196760; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=g7uRp09YN+2wwoLXxVBcU3pfHZe88L/deD7R42M+YS8=;
-        b=bDuBVaOCI2Jte50hcwFHZesvTNeoIHO47fD7LtWPgm3eNoKRZq8wsqCNHXR4oq64LqIUal
-        Pd0RhrRj4sEpboM+ubV2MaMEcaDhw4XSYlSX6W0QJ+A5wm43EOsvpCFewNqPp7w+TFDuB6
-        JAQrt2poofsGS6s5XP5S7WCzu/aO+lI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1638196760;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=g7uRp09YN+2wwoLXxVBcU3pfHZe88L/deD7R42M+YS8=;
-        b=YrRKqm8hESMq65g/AmZkNHO/Edk1fC7lkhXr4UvthN2XPdISdmKptwUvOk88XdoA5bQ14L
-        S/AJ0FqIBpSraDAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0B70B13B15;
-        Mon, 29 Nov 2021 14:39:19 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id eJFpMBfmpGEjCAAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Mon, 29 Nov 2021 14:39:19 +0000
-Message-ID: <800280a5-ea6f-2f9c-1ae1-d626f3a18e23@suse.de>
-Date:   Mon, 29 Nov 2021 15:39:19 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Subject: Re: [PATCH] efi: Move efifb_setup_from_dmi() prototype from arch
- headers
+        id S1344730AbhK2Ov3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 09:51:29 -0500
+Received: from mail-dm6nam11on2055.outbound.protection.outlook.com ([40.107.223.55]:25601
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234274AbhK2Ot2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 09:49:28 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=S1nw8HrQQ5LdxR9rruAwd2uZf5Qc1Nqw9ejYsACvhUA4eczu5mmms4jzI/df+wVB9ItNBkfQTqVMi5aP7pteDIEcdr8gsVD7BjgDM+w01k5Wgvjf+uwB2ny3v6Zwe/kxC7FQTLAv/wDT9tUt6xwiQX9JUs7E7YwfRj1vCiEbYW54MQyCvP2h+YSAAgaRcXveMcX9Zc+JCEzvDaRmS8ZE+CBYCc6rIaPXNnR2ZdELAB8QZgOFCl5FFyp+fjg9RTBocGWwvO3WHWL2H+CAOELds8eUPya0wbNbfEDIlf2xTquxYW3Xc/SqJn3V7A4l68ict7Tn8Z6XxwzOer+6XhpGiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Y0f3oVZoGStGG+hp0kn3gdZw8Me/sMQ4W9avSpAJeto=;
+ b=oISuRwjvKBXmAkAESIQowdYMYGh2jCrIjcqrOE23kUlg3SWoBDsHij7mP6xlUdhBPtzp4RHHaCYLc3lUG0QUQI1FwiL439W7hOAt5KvVHmRutu2+SugwstH+vmrjSFJbhMWUnkdLNc6mXM6Z0iVPgyCq1yD1RKSrUXNTT0ODm1ESFs+RrGjQv9xfHHB77njw1KB8WeqX+n81Kmrs91mp4noayNq4yrgr1OBCfZRONNPuK5wWRdPNRIYTuUKCYhlvvlQ1NxcLZhporjzRRHPmVzONRmRXs2ugatYXuBFQGU95eb+EiZqVNKUkVafuhwSZDcCw06tym2jVBjlBxLyH5Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Y0f3oVZoGStGG+hp0kn3gdZw8Me/sMQ4W9avSpAJeto=;
+ b=zPvOCd9ff7cPxI0YbUHR5gxlOjAyKsrzBWeKxI6wVf288h87WiJ4hwO+32upa0YASiNVfYQ+WMS2PUI4b/eH3ZFJI+YxLyJZnH8MVm3QmQ9M+NYlqDfMP8RMfyXZj/l8pZFV5Jt3XvHbXb0ZRMJgPATMNZqAXgkSq/VAcKQjB1s=
+Received: from SA0PR12MB4510.namprd12.prod.outlook.com (2603:10b6:806:94::8)
+ by SN6PR12MB2717.namprd12.prod.outlook.com (2603:10b6:805:68::29) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Mon, 29 Nov
+ 2021 14:46:09 +0000
+Received: from SA0PR12MB4510.namprd12.prod.outlook.com
+ ([fe80::7cbc:2454:74b9:f4ea]) by SA0PR12MB4510.namprd12.prod.outlook.com
+ ([fe80::7cbc:2454:74b9:f4ea%6]) with mapi id 15.20.4734.024; Mon, 29 Nov 2021
+ 14:46:09 +0000
+From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
+To:     Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: RE: [PATCH AUTOSEL 5.15 28/39] ata: libahci: Adjust behavior when
+ StorageD3Enable _DSD is set
+Thread-Topic: [PATCH AUTOSEL 5.15 28/39] ata: libahci: Adjust behavior when
+ StorageD3Enable _DSD is set
+Thread-Index: AQHX4m3uCQqkwa+t+Ee513+VqjeqJKwamo7Q
+Date:   Mon, 29 Nov 2021 14:46:09 +0000
+Message-ID: <SA0PR12MB45107C702F031A7FF2052A2BE2669@SA0PR12MB4510.namprd12.prod.outlook.com>
+References: <20211126023156.441292-1-sashal@kernel.org>
+ <20211126023156.441292-28-sashal@kernel.org>
+In-Reply-To: <20211126023156.441292-28-sashal@kernel.org>
+Accept-Language: en-US
 Content-Language: en-US
-To:     Javier Martinez Canillas <javierm@redhat.com>,
-        linux-kernel@vger.kernel.org
-Cc:     kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org,
-        stable@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-efi@vger.kernel.org,
-        linux-riscv@lists.infradead.org, x86@kernel.org
-References: <20211126001333.555514-1-javierm@redhat.com>
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <20211126001333.555514-1-javierm@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------zGJ8z5U3jir98KXlGDVY7zsl"
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 8ee7f250-f3e0-469e-c8b0-08d9b346fb39
+x-ms-traffictypediagnostic: SN6PR12MB2717:
+x-microsoft-antispam-prvs: <SN6PR12MB2717002A899CC4FF0F85B1F1E2669@SN6PR12MB2717.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: y5xXEcjyDDql9sGdbpGDxKUMzaNLQZ13UWAhoxwHbACY0gCr8qXPaRXRz19PIKUffIGmKd+wRXeEMpX+Nx6V4iV+Wu+sTQwQQ+PWFoVg/169ZPy+O6tDqzp5f5eOQJDZpjabzXWRfsQCjJDrV7kTw92mZMBy28aS2lBSAekXQj1hC8HeksG23RQLmwyunJOvISZZCN36HI1Ka3l5hAUn9XXywZ8P+6YN8DZitTijZcf0jNMotLYsirZ+iH0XYs0Kx2oRsIywcfTPS3M+2SaTcoHqpI0bArb9uLtI7K1eNDCj6OglFGQLsLYy5uXP99255qbr19bi6EWWRtXsIi0JJat9UZ5j7PsLkZUTg2aQEb/P9PGWCDPCkEwfKl3aIMmLEWQn/QV91zFQ9jzXn0dyOUQPB47n7gUCjyP4WWQHWkQS+e1wiEdqpSVfo95MQb5WvrhCSb2oWQI+nRueB4MnBec50D6d5AE1H4DmodfOUvjR6J5e0kKh/lPmYbL5Z2F0/RaJVlqE2ixooXJFUy54IYicr2cgOE3utVqCcWi95LuSr+YqskW9GJTTeBElW7axBzl1/BUJHBqoGlhMf1G9J2imBIT5v6wvs6oQGWgZgN17YLo5WztGVeA02uZjJgc7px+VJ1TloFHAJozu1RDi8Koq5FYnFFrNUuqwM+vcoH8GHBO1y0l6+0rdZcbRdwF/HTIqksixVByytCdhLpPWiLLTCPn7GSwD2zCnkDbAVe4DVjpuTTVCg6QH5CDrWKJK1L+sjXeOAr2D3QZR64uCWC/6NoCAISD4wVevXM7NH5cQdxV9KboseXeOQh9lXnYXvxyC2RSj5YXW5mvTQ5JRFw==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR12MB4510.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(5660300002)(66476007)(52536014)(66946007)(76116006)(26005)(66556008)(9686003)(2906002)(45080400002)(33656002)(186003)(38070700005)(55016003)(7696005)(66446008)(64756008)(6506007)(53546011)(38100700002)(122000001)(4326008)(71200400001)(508600001)(316002)(86362001)(110136005)(8936002)(54906003)(8676002)(966005)(83380400001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?S8enzK2o0hGOXxg3IpGzV28pISDqDNLSRYL3QvR9IcSBkJEw6YFW7nT408lM?=
+ =?us-ascii?Q?XICEkB8hAQfA6SxrEmMCDn+HfRozwEEggu6xH/koOQkFaUH2bgwsAI2i7xf1?=
+ =?us-ascii?Q?7tbhFSG6BHf1oW6eZVl+I3bCyiBWrZZTcj9OlpXSlQsMbYN1QOd9rLAfUzPH?=
+ =?us-ascii?Q?RXyKg4V+ekuTWKSDTT/8tLbRX0+g3kjHW9fO3n4sVTKp7OdDpSgfaRLvCecp?=
+ =?us-ascii?Q?QcULawjQkRkQrFi0K8FDWWJn4j5kAC7xSJd62VkupY82bQzb87majjIsfJCl?=
+ =?us-ascii?Q?SaZXKjEBdpsSvQC4MpOfCh5z4iZCDlX1WOQb+Ub0rdjeH43dvajtkYMDpknU?=
+ =?us-ascii?Q?3V5aL7fhMxJmXL5T/dg48+Fd/LOQWkUf5o01i8irHpQNrHvd6Vt1z5LxqZE9?=
+ =?us-ascii?Q?tpIjuKs+mqB+/tSDRQHzsUxElGXHMXS1M9DKaeL2O4UH2wZelHCO8dwG8b3g?=
+ =?us-ascii?Q?1kB0B7FDIO8UbfELEmJ27z/zHBWrIXlSnXYmI2UYZpXpoesNDS2rreBq8DYP?=
+ =?us-ascii?Q?oQD+mf98ZnjnMCZ9QHtwdsO0XJWmY8+PZPSoIm1lWaPkhmDpLHH/AOBJaPGN?=
+ =?us-ascii?Q?51R25ABrZ5+CXkCgPcsFSV1w7TIOSsKU4g1ddacJyJP5ZYrluEIRzEKMfFow?=
+ =?us-ascii?Q?iCV1AExvCtVJZhY8pwmTK5zVNI8YZAhmeWB9tR7o3JGqhYm9Zmh6tQl/JP1U?=
+ =?us-ascii?Q?yhs9eNfMzp7q8jN9r5QJwWQjONshExdB2EeXONnjb8jpvj1RIatJULyEwzGp?=
+ =?us-ascii?Q?7d2kAwkfHtGe7fIDVE9qWtrpWJC4LVOo9GMEdk9CKI4sDrsOyddNdJL8A7b1?=
+ =?us-ascii?Q?WbY7f7hIuuJOmd46rThC8g8f6m2penX1gOnp80N/Rp1zaMB//u59Y5GTedOu?=
+ =?us-ascii?Q?Y1pcezGimXF81LshlqVW1o6iy6YxVz0kPdr/KvS92sqvRGxnnfCJpLpwGKk2?=
+ =?us-ascii?Q?XCiDefVmUDZ/ShL+pgEKjSvh5pNrrfTiPtqMAtsFBEaSbFkY5lcq4GHKqWJf?=
+ =?us-ascii?Q?z5SJOX7ZH4ZviDECcFUdBO5WcSy89JpQdbWYL4Xi1J/rh+Iq6nrrv76yJxrl?=
+ =?us-ascii?Q?TKFTsmXcE5TEIgRz0ilILUtStDB6IgUINFMPvx/eIbCmB4/mWlH1TMj3CKv5?=
+ =?us-ascii?Q?3esLa2M3n8GPrWh/E02tOBy4UjyMql5vnimA2q2T29UdCaFym6DYJICKhpj8?=
+ =?us-ascii?Q?zFKC7tdJW3Oty4Aqwy8LKwyF/32snW/+DRpjItnpBn+Ahrvqu+WfHo8oexH4?=
+ =?us-ascii?Q?0V2ROt3Af/+C5fL0epCpM0TBP7feW8Xu56M0nbEHjIc726N+uvdCSEuLMsv2?=
+ =?us-ascii?Q?R6y6RkXkNK3XkOTeQUeCaxqaAhBjhtGSazwzOFQU6lO+ZtPwFihtr1NIle5W?=
+ =?us-ascii?Q?i9kWaQMNPSc2/v9SQX0dBZAkctvn8K7cJzzFk4m1NwDUiJN/9Iexb/6+j4As?=
+ =?us-ascii?Q?aDr3hkVptGx1nX0ssx0NuEBDsx0LJquSClh/05wc6EWfmku6kIs8ninjEk6p?=
+ =?us-ascii?Q?Ny0o++szuoJtDQPXnxrhdKMM7maO6QHvRiD3sLlA9+MKt1/hI7WJdXuiaNB3?=
+ =?us-ascii?Q?0qKQkbPbSkVT/4s9PxBm3NLbCEH8ThJtgCLxF3wGmg5zuXw++PGwg8XJSdZP?=
+ =?us-ascii?Q?Ww=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SA0PR12MB4510.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8ee7f250-f3e0-469e-c8b0-08d9b346fb39
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Nov 2021 14:46:09.2252
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: BTrvOZlp+xL+Vz1YB6KZE2Axftg0hNT2A1f2lgN3ly3itUmH1DfbJ8LhtOguWj91zd7LpWJkeayDv8RmYYgfOg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR12MB2717
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------zGJ8z5U3jir98KXlGDVY7zsl
-Content-Type: multipart/mixed; boundary="------------6KQ91Ngk6Y2LlxOCUjB8Gk4a";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Javier Martinez Canillas <javierm@redhat.com>,
- linux-kernel@vger.kernel.org
-Cc: kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org,
- stable@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
- Ard Biesheuvel <ardb@kernel.org>, Borislav Petkov <bp@alien8.de>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Daniel Vetter <daniel.vetter@ffwll.ch>,
- Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- Ingo Molnar <mingo@redhat.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Paul Walmsley <paul.walmsley@sifive.com>,
- Russell King <linux@armlinux.org.uk>, Thomas Gleixner <tglx@linutronix.de>,
- Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org,
- linux-efi@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org
-Message-ID: <800280a5-ea6f-2f9c-1ae1-d626f3a18e23@suse.de>
-Subject: Re: [PATCH] efi: Move efifb_setup_from_dmi() prototype from arch
- headers
-References: <20211126001333.555514-1-javierm@redhat.com>
-In-Reply-To: <20211126001333.555514-1-javierm@redhat.com>
 
---------------6KQ91Ngk6Y2LlxOCUjB8Gk4a
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
 
-SGkNCg0KQW0gMjYuMTEuMjEgdW0gMDE6MTMgc2NocmllYiBKYXZpZXIgTWFydGluZXogQ2Fu
-aWxsYXM6DQo+IENvbW1pdCA4NjMzZWY4MmYxMDEgKCJkcml2ZXJzL2Zpcm13YXJlOiBjb25z
-b2xpZGF0ZSBFRkkgZnJhbWVidWZmZXIgc2V0dXANCj4gZm9yIGFsbCBhcmNoZXMiKSBtYWRl
-IHRoZSBHZW5lcmljIFN5c3RlbSBGcmFtZWJ1ZmZlcnMgKHN5c2ZiKSBkcml2ZXIgYWJsZQ0K
-PiB0byBiZSBidWlsdCBvbiBub24teDg2IGFyY2hpdGVjdHVyZXMuDQo+IA0KPiBCdXQgbGVm
-dCB0aGUgZWZpZmJfc2V0dXBfZnJvbV9kbWkoKSBmdW5jdGlvbiBwcm90b3R5cGUgZGVjbGFy
-YXRpb24gaW4gdGhlDQo+IGFyY2hpdGVjdHVyZSBzcGVjaWZpYyBoZWFkZXJzLiBUaGlzIGNv
-dWxkIGxlYWQgdG8gdGhlIGZvbGxvd2luZyBjb21waWxlcg0KPiB3YXJuaW5nIGFzIHJlcG9y
-dGVkIGJ5IHRoZSBrZXJuZWwgdGVzdCByb2JvdDoNCj4gDQo+ICAgICBkcml2ZXJzL2Zpcm13
-YXJlL2VmaS9zeXNmYl9lZmkuYzo3MDo2OiB3YXJuaW5nOiBubyBwcmV2aW91cyBwcm90b3R5
-cGUgZm9yIGZ1bmN0aW9uICdlZmlmYl9zZXR1cF9mcm9tX2RtaScgWy1XbWlzc2luZy1wcm90
-b3R5cGVzXQ0KPiAgICAgdm9pZCBlZmlmYl9zZXR1cF9mcm9tX2RtaShzdHJ1Y3Qgc2NyZWVu
-X2luZm8gKnNpLCBjb25zdCBjaGFyICpvcHQpDQo+ICAgICAgICAgIF4NCj4gICAgIGRyaXZl
-cnMvZmlybXdhcmUvZWZpL3N5c2ZiX2VmaS5jOjcwOjE6IG5vdGU6IGRlY2xhcmUgJ3N0YXRp
-YycgaWYgdGhlIGZ1bmN0aW9uIGlzIG5vdCBpbnRlbmRlZCB0byBiZSB1c2VkIG91dHNpZGUg
-b2YgdGhpcyB0cmFuc2xhdGlvbiB1bml0DQo+ICAgICB2b2lkIGVmaWZiX3NldHVwX2Zyb21f
-ZG1pKHN0cnVjdCBzY3JlZW5faW5mbyAqc2ksIGNvbnN0IGNoYXIgKm9wdCkNCj4gDQo+IEZp
-eGVzOiA4NjMzZWY4MmYxMDEgKCJkcml2ZXJzL2Zpcm13YXJlOiBjb25zb2xpZGF0ZSBFRkkg
-ZnJhbWVidWZmZXIgc2V0dXAgZm9yIGFsbCBhcmNoZXMiKQ0KPiBSZXBvcnRlZC1ieToga2Vy
-bmVsIHRlc3Qgcm9ib3QgPGxrcEBpbnRlbC5jb20+DQo+IENjOiA8c3RhYmxlQHZnZXIua2Vy
-bmVsLm9yZz4gIyA1LjE1LngNCj4gU2lnbmVkLW9mZi1ieTogSmF2aWVyIE1hcnRpbmV6IENh
-bmlsbGFzIDxqYXZpZXJtQHJlZGhhdC5jb20+DQoNCkFja2VkLWJ5OiBUaG9tYXMgWmltbWVy
-bWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4NCg0KPiAtLS0NCj4gDQo+ICAgYXJjaC9hcm0v
-aW5jbHVkZS9hc20vZWZpLmggICB8IDEgLQ0KPiAgIGFyY2gvYXJtNjQvaW5jbHVkZS9hc20v
-ZWZpLmggfCAxIC0NCj4gICBhcmNoL3Jpc2N2L2luY2x1ZGUvYXNtL2VmaS5oIHwgMSAtDQo+
-ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vZWZpLmggICB8IDIgLS0NCj4gICBpbmNsdWRlL2xp
-bnV4L2VmaS5oICAgICAgICAgIHwgNiArKysrKysNCj4gICA1IGZpbGVzIGNoYW5nZWQsIDYg
-aW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9hcmNo
-L2FybS9pbmNsdWRlL2FzbS9lZmkuaCBiL2FyY2gvYXJtL2luY2x1ZGUvYXNtL2VmaS5oDQo+
-IGluZGV4IGE2ZjNiMTc5ZThhOS4uMjcyMThlYWJiZjlhIDEwMDY0NA0KPiAtLS0gYS9hcmNo
-L2FybS9pbmNsdWRlL2FzbS9lZmkuaA0KPiArKysgYi9hcmNoL2FybS9pbmNsdWRlL2FzbS9l
-ZmkuaA0KPiBAQCAtMTcsNyArMTcsNiBAQA0KPiAgIA0KPiAgICNpZmRlZiBDT05GSUdfRUZJ
-DQo+ICAgdm9pZCBlZmlfaW5pdCh2b2lkKTsNCj4gLWV4dGVybiB2b2lkIGVmaWZiX3NldHVw
-X2Zyb21fZG1pKHN0cnVjdCBzY3JlZW5faW5mbyAqc2ksIGNvbnN0IGNoYXIgKm9wdCk7DQo+
-ICAgDQo+ICAgaW50IGVmaV9jcmVhdGVfbWFwcGluZyhzdHJ1Y3QgbW1fc3RydWN0ICptbSwg
-ZWZpX21lbW9yeV9kZXNjX3QgKm1kKTsNCj4gICBpbnQgZWZpX3NldF9tYXBwaW5nX3Blcm1p
-c3Npb25zKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tLCBlZmlfbWVtb3J5X2Rlc2NfdCAqbWQpOw0K
-PiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS9lZmkuaCBiL2FyY2gvYXJt
-NjQvaW5jbHVkZS9hc20vZWZpLmgNCj4gaW5kZXggZDNlMTgyNTMzN2JlLi5hZDU1MDc5YWJl
-NDcgMTAwNjQ0DQo+IC0tLSBhL2FyY2gvYXJtNjQvaW5jbHVkZS9hc20vZWZpLmgNCj4gKysr
-IGIvYXJjaC9hcm02NC9pbmNsdWRlL2FzbS9lZmkuaA0KPiBAQCAtMTQsNyArMTQsNiBAQA0K
-PiAgIA0KPiAgICNpZmRlZiBDT05GSUdfRUZJDQo+ICAgZXh0ZXJuIHZvaWQgZWZpX2luaXQo
-dm9pZCk7DQo+IC1leHRlcm4gdm9pZCBlZmlmYl9zZXR1cF9mcm9tX2RtaShzdHJ1Y3Qgc2Ny
-ZWVuX2luZm8gKnNpLCBjb25zdCBjaGFyICpvcHQpOw0KPiAgICNlbHNlDQo+ICAgI2RlZmlu
-ZSBlZmlfaW5pdCgpDQo+ICAgI2VuZGlmDQo+IGRpZmYgLS1naXQgYS9hcmNoL3Jpc2N2L2lu
-Y2x1ZGUvYXNtL2VmaS5oIGIvYXJjaC9yaXNjdi9pbmNsdWRlL2FzbS9lZmkuaA0KPiBpbmRl
-eCA0OWIzOThmZTk5ZjEuLmNjNGY2Nzg3ZjkzNyAxMDA2NDQNCj4gLS0tIGEvYXJjaC9yaXNj
-di9pbmNsdWRlL2FzbS9lZmkuaA0KPiArKysgYi9hcmNoL3Jpc2N2L2luY2x1ZGUvYXNtL2Vm
-aS5oDQo+IEBAIC0xMyw3ICsxMyw2IEBADQo+ICAgDQo+ICAgI2lmZGVmIENPTkZJR19FRkkN
-Cj4gICBleHRlcm4gdm9pZCBlZmlfaW5pdCh2b2lkKTsNCj4gLWV4dGVybiB2b2lkIGVmaWZi
-X3NldHVwX2Zyb21fZG1pKHN0cnVjdCBzY3JlZW5faW5mbyAqc2ksIGNvbnN0IGNoYXIgKm9w
-dCk7DQo+ICAgI2Vsc2UNCj4gICAjZGVmaW5lIGVmaV9pbml0KCkNCj4gICAjZW5kaWYNCj4g
-ZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2VmaS5oIGIvYXJjaC94ODYvaW5j
-bHVkZS9hc20vZWZpLmgNCj4gaW5kZXggNGQwYjEyNjgzNWI4Li42MzE1OGZkNTU4NTYgMTAw
-NjQ0DQo+IC0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2VmaS5oDQo+ICsrKyBiL2FyY2gv
-eDg2L2luY2x1ZGUvYXNtL2VmaS5oDQo+IEBAIC0xOTcsOCArMTk3LDYgQEAgc3RhdGljIGlu
-bGluZSBib29sIGVmaV9ydW50aW1lX3N1cHBvcnRlZCh2b2lkKQ0KPiAgIA0KPiAgIGV4dGVy
-biB2b2lkIHBhcnNlX2VmaV9zZXR1cCh1NjQgcGh5c19hZGRyLCB1MzIgZGF0YV9sZW4pOw0K
-PiAgIA0KPiAtZXh0ZXJuIHZvaWQgZWZpZmJfc2V0dXBfZnJvbV9kbWkoc3RydWN0IHNjcmVl
-bl9pbmZvICpzaSwgY29uc3QgY2hhciAqb3B0KTsNCj4gLQ0KPiAgIGV4dGVybiB2b2lkIGVm
-aV90aHVua19ydW50aW1lX3NldHVwKHZvaWQpOw0KPiAgIGVmaV9zdGF0dXNfdCBlZmlfc2V0
-X3ZpcnR1YWxfYWRkcmVzc19tYXAodW5zaWduZWQgbG9uZyBtZW1vcnlfbWFwX3NpemUsDQo+
-ICAgCQkJCQkgdW5zaWduZWQgbG9uZyBkZXNjcmlwdG9yX3NpemUsDQo+IGRpZmYgLS1naXQg
-YS9pbmNsdWRlL2xpbnV4L2VmaS5oIGIvaW5jbHVkZS9saW51eC9lZmkuaA0KPiBpbmRleCBk
-YmQzOWIyMGUwMzQuLmVmOGRiYzBhMTUyMiAxMDA2NDQNCj4gLS0tIGEvaW5jbHVkZS9saW51
-eC9lZmkuaA0KPiArKysgYi9pbmNsdWRlL2xpbnV4L2VmaS5oDQo+IEBAIC0xMjgzLDQgKzEy
-ODMsMTAgQEAgc3RhdGljIGlubGluZSBzdHJ1Y3QgZWZpX21va3Zhcl90YWJsZV9lbnRyeSAq
-ZWZpX21va3Zhcl9lbnRyeV9maW5kKA0KPiAgIH0NCj4gICAjZW5kaWYNCj4gICANCj4gKyNp
-ZmRlZiBDT05GSUdfU1lTRkINCj4gK2V4dGVybiB2b2lkIGVmaWZiX3NldHVwX2Zyb21fZG1p
-KHN0cnVjdCBzY3JlZW5faW5mbyAqc2ksIGNvbnN0IGNoYXIgKm9wdCk7DQo+ICsjZWxzZQ0K
-PiArc3RhdGljIGlubGluZSB2b2lkIGVmaWZiX3NldHVwX2Zyb21fZG1pKHN0cnVjdCBzY3Jl
-ZW5faW5mbyAqc2ksIGNvbnN0IGNoYXIgKm9wdCkgeyB9DQo+ICsjZW5kaWYNCj4gKw0KPiAg
-ICNlbmRpZiAvKiBfTElOVVhfRUZJX0ggKi8NCj4gDQoNCi0tIA0KVGhvbWFzIFppbW1lcm1h
-bm4NCkdyYXBoaWNzIERyaXZlciBEZXZlbG9wZXINClNVU0UgU29mdHdhcmUgU29sdXRpb25z
-IEdlcm1hbnkgR21iSA0KTWF4ZmVsZHN0ci4gNSwgOTA0MDkgTsO8cm5iZXJnLCBHZXJtYW55
-DQooSFJCIDM2ODA5LCBBRyBOw7xybmJlcmcpDQpHZXNjaMOkZnRzZsO8aHJlcjogSXZvIFRv
-dGV2DQo=
+> -----Original Message-----
+> From: Sasha Levin <sashal@kernel.org>
+> Sent: Thursday, November 25, 2021 20:32
+> To: linux-kernel@vger.kernel.org; stable@vger.kernel.org
+> Cc: Limonciello, Mario <Mario.Limonciello@amd.com>; Shah, Nehal-
+> bakulchandra <Nehal-bakulchandra.Shah@amd.com>; Damien Le Moal
+> <damien.lemoal@opensource.wdc.com>; Sasha Levin <sashal@kernel.org>;
+> linux-ide@vger.kernel.org
+> Subject: [PATCH AUTOSEL 5.15 28/39] ata: libahci: Adjust behavior when
+> StorageD3Enable _DSD is set
+>=20
+> From: Mario Limonciello <mario.limonciello@amd.com>
+>=20
+> [ Upstream commit 7c5f641a5914ce0303b06bcfcd7674ee64aeebe9 ]
+>=20
+> The StorageD3Enable _DSD is used for the vendor to indicate that the disk
+> should be opted into or out of a different behavior based upon the platfo=
+rm
+> design.
+>=20
+> For AMD's Renoir and Green Sardine platforms it's important that any
+> attached SATA storage has transitioned into DevSlp when s2idle is used.
+>=20
+> If the disk is left in active/partial/slumber, then the system is not abl=
+e
+> to resume properly.
+>=20
+> When the StorageD3Enable _DSD is detected, check the system is using
+> s2idle
+> and DevSlp is enabled and if so explicitly wait long enough for the disk =
+to
+> enter DevSlp.
+>=20
+> Cc: Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>
+> BugLink:
+> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Fbugz
+> illa.kernel.org%2Fshow_bug.cgi%3Fid%3D214091&amp;data=3D04%7C01%7Cm
+> ario.limonciello%40amd.com%7C15dc139812a0497d31bc08d9b0850f45%7C3d
+> d8961fe4884e608e11a82d994e183d%7C0%7C0%7C637734907816859936%7CU
+> nknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI
+> 6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=3D%2BX2cfl%2BYeFYWZJ%2
+> FPFWX%2FzxnNtneb2er7w%2BeJpVxxBcU%3D&amp;reserved=3D0
+> Link:
+> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Fdocs
+> .microsoft.com%2Fen-us%2Fwindows-hardware%2Fdesign%2Fcomponent-
+> guidelines%2Fpower-management-for-storage-hardware-devices-
+> intro&amp;data=3D04%7C01%7Cmario.limonciello%40amd.com%7C15dc139812
+> a0497d31bc08d9b0850f45%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C
+> 0%7C637734907816859936%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLj
+> AwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;
+> sdata=3DubGKpzMA6EaXugHAanwRUQJ2lvL957wBRFKKMjUBGlw%3D&amp;re
+> served=3D0
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/ata/libahci.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+>=20
+> diff --git a/drivers/ata/libahci.c b/drivers/ata/libahci.c
+> index 5b3fa2cbe7223..395772fa39432 100644
+> --- a/drivers/ata/libahci.c
+> +++ b/drivers/ata/libahci.c
+> @@ -2305,6 +2305,18 @@ int ahci_port_resume(struct ata_port *ap)
+>  EXPORT_SYMBOL_GPL(ahci_port_resume);
+>=20
+>  #ifdef CONFIG_PM
+> +static void ahci_handle_s2idle(struct ata_port *ap)
+> +{
+> +	void __iomem *port_mmio =3D ahci_port_base(ap);
+> +	u32 devslp;
+> +
+> +	if (pm_suspend_via_firmware())
+> +		return;
+> +	devslp =3D readl(port_mmio + PORT_DEVSLP);
+> +	if ((devslp & PORT_DEVSLP_ADSE))
+> +		ata_msleep(ap, devslp_idle_timeout);
+> +}
+> +
+>  static int ahci_port_suspend(struct ata_port *ap, pm_message_t mesg)
+>  {
+>  	const char *emsg =3D NULL;
+> @@ -2318,6 +2330,9 @@ static int ahci_port_suspend(struct ata_port *ap,
+> pm_message_t mesg)
+>  		ata_port_freeze(ap);
+>  	}
+>=20
+> +	if (acpi_storage_d3(ap->host->dev))
+> +		ahci_handle_s2idle(ap);
+> +
+>  	ahci_rpm_put_port(ap);
+>  	return rc;
+>  }
+> --
+> 2.33.0
 
---------------6KQ91Ngk6Y2LlxOCUjB8Gk4a--
+Sasha,
 
---------------zGJ8z5U3jir98KXlGDVY7zsl
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+No concerns for me to 5.15 or any of the earlier kernels the autosel picked=
+, but would you mind also sending this to 5.14.y too?
 
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGk5hcFAwAAAAAACgkQlh/E3EQov+BU
-IBAAsrJse0TjcHf8zr6/2DkGksRGeAdo2qzMsN++QB4k5UCY7x3qo3kE8iSOU5BPtBE+EI9ColSs
-mSjE4reGmcjo6RKpPqhUQGFyhwG5Aa2TQcXmobdSnMrAZUa3eoNpg0K4joRJoFTzujG2Ap0zawr1
-pv7ygAzexGU8UzhxYW1p+4kwoHL7ehz3VA6wUqYaUlE22zk3Mr1Nnkhqz3XQ2pGbdTSqY9c7j3/q
-4QDBZhVvS0W6kHcRGw/nHypwpAYUH8GgFjr5NOUntm6K2oZRRR9tg+hm97igR/FDF6wkQkIDDH0A
-vtRIVKWq+ByLF9djP5Wj9csmUQ4GckdHGYsD+jmAcJFSBkIFer87NGJABa+TfL2Nc4R70cEiMfeQ
-PcrL7cu6jAFJQ/MCh660ByMoV8t905fjhV0xZicNdBc4bMRY3zxepxgwuWttrTwcBkAlF1TqdLuP
-PgcpEKQxCFXay7b+rWuWkH7A4ewbrIOfqljftsCbAPgYP3JXJyi66Wx7vEiS53cZsYzNyUEJgnTT
-45nqSIT4xiTCdQF2zHKiYZjacCqzUMV1zAEn2CF3+wSNB1DKOjiKfKQHOMdZUgV0IAHP2aXYxdJz
-hqAaSED/o1wFc95toK42TyKgLh0zRHVTDM1OdP94SRPB2bGQkJ4yWxVxZuAGJohKWWGv0pEFNr+c
-Jx8=
-=+2u3
------END PGP SIGNATURE-----
-
---------------zGJ8z5U3jir98KXlGDVY7zsl--
+Thanks,
