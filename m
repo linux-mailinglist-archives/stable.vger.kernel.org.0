@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B267462500
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD2C4622EA
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:04:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233175AbhK2Wdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:33:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60746 "EHLO
+        id S232797AbhK2VHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 16:07:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232445AbhK2WdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:33:15 -0500
+        with ESMTP id S232320AbhK2VFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:05:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED5DC048F70;
-        Mon, 29 Nov 2021 10:40:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA885C125321;
+        Mon, 29 Nov 2021 10:26:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9570BB81642;
-        Mon, 29 Nov 2021 18:40:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02D5C53FAD;
-        Mon, 29 Nov 2021 18:40:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 725F3B815D7;
+        Mon, 29 Nov 2021 18:26:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CAAFC53FAD;
+        Mon, 29 Nov 2021 18:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211256;
-        bh=xMJrK2BvIw4m4Y1YBl3YT+eVpB5qu/F26LCrc3lM44E=;
+        s=korg; t=1638210417;
+        bh=45J77wPbXWc+4rsvzaRPmHL+x9l2rFqfitkdCzj2Yr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6JNwNiaWetYOKMAG/w0+bN8xrVGNdwi8k6xlyoDAIMVQbHbR4xXUQ2Bj8whpR1iQ
-         L0s+WH9w8LOBbDLXv0nX+P7QD+Y3CMi0fl1EzDSb8sCpvC/Rcx1XexKGeAZK2awpG0
-         sjlG57U6y9qxIJ8OkUkTI/b4Inw0aoqLPSey4IWA=
+        b=hD1tut9k/QBjHTH/dIBAvCk4zY5pzClK0tQkdY1r5UAtUuJ2vgtyKo5UJVTY0DBqI
+         rR3XenSP3jQ13/aXUeLh92uzXY3TaS2C9sBVCs/vZxDPZJ0fpAJQUNY+GejzUd930S
+         h4SkgsoBYFl5+FpYbDTcyrZZGamuEHgXz1vZztmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 126/179] nvmet-tcp: fix incomplete data digest send
-Date:   Mon, 29 Nov 2021 19:18:40 +0100
-Message-Id: <20211129181723.111510390@linuxfoundation.org>
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 73/92] net: hns3: fix VF RSS failed problem after PF enable multi-TCs
+Date:   Mon, 29 Nov 2021 19:18:42 +0100
+Message-Id: <20211129181709.847956528@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-[ Upstream commit 102110efdff6beedece6ab9b51664c32ac01e2db ]
+[ Upstream commit 8d2ad993aa05c0768f00c886c9d369cd97a337ac ]
 
-Current nvmet_try_send_ddgst() code does not check whether
-all data digest bytes are transmitted, fix this by returning
--EAGAIN if all data digest bytes are not transmitted.
+When PF is set to multi-TCs and configured mapping relationship between
+priorities and TCs, the hardware will active these settings for this PF
+and its VFs.
 
-Fixes: 872d26a391da ("nvmet-tcp: add NVMe over TCP target driver")
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+In this case when VF just uses one TC and its rx packets contain priority,
+and if the priority is not mapped to TC0, as other TCs of VF is not valid,
+hardware always put this kind of packets to the queue 0. It cause this kind
+of packets of VF can not be used RSS function.
+
+To fix this problem, set tc mode of all unused TCs of VF to the setting of
+TC0, then rx packet with priority which map to unused TC will be direct to
+TC0.
+
+Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 84c387e4bf431..2b8bab28417b8 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -700,10 +700,11 @@ static int nvmet_try_send_r2t(struct nvmet_tcp_cmd *cmd, bool last_in_batch)
- static int nvmet_try_send_ddgst(struct nvmet_tcp_cmd *cmd, bool last_in_batch)
- {
- 	struct nvmet_tcp_queue *queue = cmd->queue;
-+	int left = NVME_TCP_DIGEST_LENGTH - cmd->offset;
- 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT };
- 	struct kvec iov = {
- 		.iov_base = (u8 *)&cmd->exp_ddgst + cmd->offset,
--		.iov_len = NVME_TCP_DIGEST_LENGTH - cmd->offset
-+		.iov_len = left
- 	};
- 	int ret;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index db2e9dd5681eb..ce6a4e1965e1d 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -644,9 +644,9 @@ static int hclgevf_set_rss_tc_mode(struct hclgevf_dev *hdev,  u16 rss_size)
+ 	roundup_size = ilog2(roundup_size);
  
-@@ -717,6 +718,10 @@ static int nvmet_try_send_ddgst(struct nvmet_tcp_cmd *cmd, bool last_in_batch)
- 		return ret;
+ 	for (i = 0; i < HCLGEVF_MAX_TC_NUM; i++) {
+-		tc_valid[i] = !!(hdev->hw_tc_map & BIT(i));
++		tc_valid[i] = 1;
+ 		tc_size[i] = roundup_size;
+-		tc_offset[i] = rss_size * i;
++		tc_offset[i] = (hdev->hw_tc_map & BIT(i)) ? rss_size * i : 0;
+ 	}
  
- 	cmd->offset += ret;
-+	left -= ret;
-+
-+	if (left)
-+		return -EAGAIN;
- 
- 	if (queue->nvme_sq.sqhd_disabled) {
- 		cmd->queue->snd_cmd = NULL;
+ 	hclgevf_cmd_setup_basic_desc(&desc, HCLGEVF_OPC_RSS_TC_MODE, false);
 -- 
 2.33.0
 
