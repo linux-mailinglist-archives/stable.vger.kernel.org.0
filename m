@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13CFF461F50
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 496AB461E23
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355317AbhK2Spx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:45:53 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:56990 "EHLO
+        id S1349582AbhK2Sc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:32:57 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:50332 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380465AbhK2Snt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:43:49 -0500
+        with ESMTP id S1379181AbhK2Saw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:30:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9FD10CE167C;
-        Mon, 29 Nov 2021 18:40:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DB3AC53FAD;
-        Mon, 29 Nov 2021 18:40:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C0437CE13DB;
+        Mon, 29 Nov 2021 18:27:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70D98C53FCD;
+        Mon, 29 Nov 2021 18:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211227;
-        bh=4mY7ix0S0TSI/dDWpexeHSvWG/T+2WNw8dTbNy/XUz8=;
+        s=korg; t=1638210452;
+        bh=DXHAjmFlnrhh7BnaSi3W/7J0CQA0A1mD4BRReI6Z51U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJI48Y25ChmqCdNHl6nMyBZSVeJDCRV/f3MOzAPrnk+hKj083qOe9ANNOE03vaTy4
-         uQUv+QnF9maNPZMpKEXN9hDLlbkjLGYYFOuA+/XUfFCfZceiqyJ6bWMHJriHQVMu72
-         WXun17xKaz0VP2DHWvadevr+6GlpvKW4+e6s6Jco=
+        b=LQUYN4p9oQKfxYnTU2VenA4olvybaeWDrUXgth4gqo5YVOTlWuWZG6ktjbgEv+jhG
+         SrGjsMbCD7Jg2NhyAJfiBr9PhsuKGIRZ3YU6G5o3fcicmBjfbUSz+1mnhDqd+IdtOT
+         WYlfYIvS+l7ApWDeGVxC+GpR8Gh3CogoD2tanov0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 147/179] net/sched: sch_ets: dont peek at classes beyond nbands
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.4 92/92] tty: hvc: replace BUG_ON() with negative return value
 Date:   Mon, 29 Nov 2021 19:19:01 +0100
-Message-Id: <20211129181723.786714771@linuxfoundation.org>
+Message-Id: <20211129181710.453563305@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,101 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit de6d25924c2a8c2988c6a385990cafbe742061bf ]
+commit e679004dec37566f658a255157d3aed9d762a2b7 upstream.
 
-when the number of DRR classes decreases, the round-robin active list can
-contain elements that have already been freed in ets_qdisc_change(). As a
-consequence, it's possible to see a NULL dereference crash, caused by the
-attempt to call cl->qdisc->ops->peek(cl->qdisc) when cl->qdisc is NULL:
+Xen frontends shouldn't BUG() in case of illegal data received from
+their backends. So replace the BUG_ON()s when reading illegal data from
+the ring page with negative return values.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000018
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 1 PID: 910 Comm: mausezahn Not tainted 5.16.0-rc1+ #475
- Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
- RIP: 0010:ets_qdisc_dequeue+0x129/0x2c0 [sch_ets]
- Code: c5 01 41 39 ad e4 02 00 00 0f 87 18 ff ff ff 49 8b 85 c0 02 00 00 49 39 c4 0f 84 ba 00 00 00 49 8b ad c0 02 00 00 48 8b 7d 10 <48> 8b 47 18 48 8b 40 38 0f ae e8 ff d0 48 89 c3 48 85 c0 0f 84 9d
- RSP: 0000:ffffbb36c0b5fdd8 EFLAGS: 00010287
- RAX: ffff956678efed30 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 0000000000000002 RSI: ffffffff9b938dc9 RDI: 0000000000000000
- RBP: ffff956678efed30 R08: e2f3207fe360129c R09: 0000000000000000
- R10: 0000000000000001 R11: 0000000000000001 R12: ffff956678efeac0
- R13: ffff956678efe800 R14: ffff956611545000 R15: ffff95667ac8f100
- FS:  00007f2aa9120740(0000) GS:ffff95667b800000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000018 CR3: 000000011070c000 CR4: 0000000000350ee0
- Call Trace:
-  <TASK>
-  qdisc_peek_dequeued+0x29/0x70 [sch_ets]
-  tbf_dequeue+0x22/0x260 [sch_tbf]
-  __qdisc_run+0x7f/0x630
-  net_tx_action+0x290/0x4c0
-  __do_softirq+0xee/0x4f8
-  irq_exit_rcu+0xf4/0x130
-  sysvec_apic_timer_interrupt+0x52/0xc0
-  asm_sysvec_apic_timer_interrupt+0x12/0x20
- RIP: 0033:0x7f2aa7fc9ad4
- Code: b9 ff ff 48 8b 54 24 18 48 83 c4 08 48 89 ee 48 89 df 5b 5d e9 ed fc ff ff 0f 1f 00 66 2e 0f 1f 84 00 00 00 00 00 f3 0f 1e fa <53> 48 83 ec 10 48 8b 05 10 64 33 00 48 8b 00 48 85 c0 0f 85 84 00
- RSP: 002b:00007ffe5d33fab8 EFLAGS: 00000202
- RAX: 0000000000000002 RBX: 0000561f72c31460 RCX: 0000561f72c31720
- RDX: 0000000000000002 RSI: 0000561f72c31722 RDI: 0000561f72c31720
- RBP: 000000000000002a R08: 00007ffe5d33fa40 R09: 0000000000000014
- R10: 0000000000000000 R11: 0000000000000246 R12: 0000561f7187e380
- R13: 0000000000000000 R14: 0000000000000000 R15: 0000561f72c31460
-  </TASK>
- Modules linked in: sch_ets sch_tbf dummy rfkill iTCO_wdt intel_rapl_msr iTCO_vendor_support intel_rapl_common joydev virtio_balloon lpc_ich i2c_i801 i2c_smbus pcspkr ip_tables xfs libcrc32c crct10dif_pclmul crc32_pclmul crc32c_intel ahci libahci ghash_clmulni_intel serio_raw libata virtio_blk virtio_console virtio_net net_failover failover sunrpc dm_mirror dm_region_hash dm_log dm_mod
- CR2: 0000000000000018
+This is commit e679004dec37566f upstream.
 
-Ensuring that 'alist' was never zeroed [1] was not sufficient, we need to
-remove from the active list those elements that are no more SP nor DRR.
-
-[1] https://lore.kernel.org/netdev/60d274838bf09777f0371253416e8af71360bc08.1633609148.git.dcaratti@redhat.com/
-
-v3: fix race between ets_qdisc_change() and ets_qdisc_dequeue() delisting
-    DRR classes beyond 'nbands' in ets_qdisc_change() with the qdisc lock
-    acquired, thanks to Cong Wang.
-
-v2: when a NULL qdisc is found in the DRR active list, try to dequeue skb
-    from the next list item.
-
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
-Fixes: dcc68b4d8084 ("net: sch_ets: Add a new Qdisc")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Link: https://lore.kernel.org/r/7a5c496eed2d62241620bdbb83eb03fb9d571c99.1637762721.git.dcaratti@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20210707091045.460-1-jgross@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_ets.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/tty/hvc/hvc_xen.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
-index 1f857ffd1ac23..92a686807971b 100644
---- a/net/sched/sch_ets.c
-+++ b/net/sched/sch_ets.c
-@@ -667,12 +667,14 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
- 			q->classes[i].deficit = quanta[i];
- 		}
- 	}
-+	for (i = q->nbands; i < oldbands; i++) {
-+		qdisc_tree_flush_backlog(q->classes[i].qdisc);
-+		if (i >= q->nstrict)
-+			list_del(&q->classes[i].alist);
+--- a/drivers/tty/hvc/hvc_xen.c
++++ b/drivers/tty/hvc/hvc_xen.c
+@@ -86,7 +86,11 @@ static int __write_console(struct xencon
+ 	cons = intf->out_cons;
+ 	prod = intf->out_prod;
+ 	mb();			/* update queue values before going on */
+-	BUG_ON((prod - cons) > sizeof(intf->out));
++
++	if ((prod - cons) > sizeof(intf->out)) {
++		pr_err_once("xencons: Illegal ring page indices");
++		return -EINVAL;
 +	}
- 	q->nstrict = nstrict;
- 	memcpy(q->prio2band, priomap, sizeof(priomap));
  
--	for (i = q->nbands; i < oldbands; i++)
--		qdisc_tree_flush_backlog(q->classes[i].qdisc);
--
- 	for (i = 0; i < q->nbands; i++)
- 		q->classes[i].quantum = quanta[i];
+ 	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
+ 		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
+@@ -114,7 +118,10 @@ static int domU_write_console(uint32_t v
+ 	 */
+ 	while (len) {
+ 		int sent = __write_console(cons, data, len);
+-		
++
++		if (sent < 0)
++			return sent;
++
+ 		data += sent;
+ 		len -= sent;
  
--- 
-2.33.0
-
+@@ -138,7 +145,11 @@ static int domU_read_console(uint32_t vt
+ 	cons = intf->in_cons;
+ 	prod = intf->in_prod;
+ 	mb();			/* get pointers before reading ring */
+-	BUG_ON((prod - cons) > sizeof(intf->in));
++
++	if ((prod - cons) > sizeof(intf->in)) {
++		pr_err_once("xencons: Illegal ring page indices");
++		return -EINVAL;
++	}
+ 
+ 	while (cons != prod && recv < len)
+ 		buf[recv++] = intf->in[MASK_XENCONS_IDX(cons++, intf->in)];
 
 
