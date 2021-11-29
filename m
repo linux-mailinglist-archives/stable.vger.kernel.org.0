@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3335C4626D6
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7E04622C9
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:02:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236072AbhK2W5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:57:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37640 "EHLO
+        id S229710AbhK2VFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 16:05:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235758AbhK2W50 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:26 -0500
+        with ESMTP id S229716AbhK2VDn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:03:43 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD23C12B68A;
-        Mon, 29 Nov 2021 10:30:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90E9AC07E5C2;
+        Mon, 29 Nov 2021 10:26:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C8E42CE1414;
-        Mon, 29 Nov 2021 18:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76AF0C53FCF;
-        Mon, 29 Nov 2021 18:30:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C8CBDCE1412;
+        Mon, 29 Nov 2021 18:26:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72408C53FAD;
+        Mon, 29 Nov 2021 18:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210626;
-        bh=KVv4kMF9jLuKUSE7WjuzI5Ay7Lyk3PM4qDujM0Pd6ZM=;
+        s=korg; t=1638210403;
+        bh=b9sKywcWh7+9PlK635yNvfEsXHgvj150xS3g0qU7AVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moiF7rMbZSeMH9GhqsSd5u180kMHK8qMAen6vCs8n0Do3APwkw4F9lntX0YPQF+TC
-         v16z1ldnDNxmK+P1rafjiD7NLtkwzBTEWaKkz/xuA5e2e7jAtbZvLDq1iXsbPm6KWf
-         vN0wY7HbqvF8OlmLVmddInetb1AXM9EAVC23y0dg=
+        b=rCuGatO4IFBp3i4GyClGiAVgpnpXWKXAB9YRGbM1lp3+tZiH5FsdUMojdvI2RABCi
+         ERs3N7TXaSUbNP1hOT3cuxaiyjCcTtuLw2Ns3DuKaoBvr/QIcu8SdOVXjiR/KIQ0X2
+         MC7jKDli9yIJVS5nll/vWebMWGkJOS4y+B5HWZxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/121] ALSA: intel-dsp-config: add quirk for JSL devices based on ES8336 codec
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 43/92] pinctrl: armada-37xx: Correct PWM pins definitions
 Date:   Mon, 29 Nov 2021 19:18:12 +0100
-Message-Id: <20211129181713.707296344@linuxfoundation.org>
+Message-Id: <20211129181708.867120051@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,51 +49,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit fa9730b4f28b7bd183d28a0bf636ab7108de35d7 ]
+commit baf8d6899b1e8906dc076ef26cc633e96a8bb0c3 upstream.
 
-These devices are based on an I2C/I2S device, we need to force the use
-of the SOF driver otherwise the legacy HDaudio driver will be loaded -
-only HDMI will be supported.
+The PWM pins on North Bridge on Armada 37xx can be configured into PWM
+or GPIO functions. When in PWM function, each pin can also be configured
+to drive low on 0 and tri-state on 1 (LED mode).
 
-We previously added support for other Intel platforms but missed
-JasperLake.
+The current definitions handle this by declaring two pin groups for each
+pin:
+- group "pwmN" with functions "pwm" and "gpio"
+- group "ledN_od" ("od" for open drain) with functions "led" and "gpio"
 
-BugLink: https://github.com/thesofproject/linux/issues/3210
-Fixes: 9d36ceab9415 ('ALSA: intel-dsp-config: add quirk for APL/GLK/TGL devices based on ES8336 codec')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20211027023254.24955-1-yung-chuan.liao@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is semantically incorrect. The correct definition for each pin
+should be one group with three functions: "pwm", "led" and "gpio".
+
+Change the "pwmN" groups to support "led" function.
+
+Remove "ledN_od" groups. This cannot break backwards compatibility with
+older device trees: no device tree uses it since there is no PWM driver
+for this SOC yet. Also "ledN_od" groups are not even documented.
+
+Fixes: b835d6953009 ("pinctrl: armada-37xx: swap polarity on LED group")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20210719112938.27594-1-kabel@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/hda/intel-dsp-config.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt |    8 ++--
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c                               |   17 ++++------
+ 2 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
-index 6cdb3db7507b1..fc61571a3ac73 100644
---- a/sound/hda/intel-dsp-config.c
-+++ b/sound/hda/intel-dsp-config.c
-@@ -298,6 +298,15 @@ static const struct config_entry config_table[] = {
- 	},
- #endif
+--- a/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
++++ b/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
+@@ -43,19 +43,19 @@ group emmc_nb
  
-+/* JasperLake */
-+#if IS_ENABLED(CONFIG_SND_SOC_SOF_JASPERLAKE)
-+	{
-+		.flags = FLAG_SOF,
-+		.device = 0x4dc8,
-+		.codec_hid = "ESSX8336",
-+	},
-+#endif
-+
- /* Tigerlake */
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_TIGERLAKE)
- 	{
--- 
-2.33.0
-
+ group pwm0
+  - pin 11 (GPIO1-11)
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm1
+  - pin 12
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm2
+  - pin 13
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm3
+  - pin 14
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pmic1
+  - pin 7
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -166,10 +166,14 @@ static struct armada_37xx_pin_group arma
+ 	PIN_GRP_GPIO("jtag", 20, 5, BIT(0), "jtag"),
+ 	PIN_GRP_GPIO("sdio0", 8, 3, BIT(1), "sdio"),
+ 	PIN_GRP_GPIO("emmc_nb", 27, 9, BIT(2), "emmc"),
+-	PIN_GRP_GPIO("pwm0", 11, 1, BIT(3), "pwm"),
+-	PIN_GRP_GPIO("pwm1", 12, 1, BIT(4), "pwm"),
+-	PIN_GRP_GPIO("pwm2", 13, 1, BIT(5), "pwm"),
+-	PIN_GRP_GPIO("pwm3", 14, 1, BIT(6), "pwm"),
++	PIN_GRP_GPIO_3("pwm0", 11, 1, BIT(3) | BIT(20), 0, BIT(20), BIT(3),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm1", 12, 1, BIT(4) | BIT(21), 0, BIT(21), BIT(4),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm2", 13, 1, BIT(5) | BIT(22), 0, BIT(22), BIT(5),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm3", 14, 1, BIT(6) | BIT(23), 0, BIT(23), BIT(6),
++		       "pwm", "led"),
+ 	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
+ 	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
+ 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
+@@ -183,11 +187,6 @@ static struct armada_37xx_pin_group arma
+ 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
+ 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
+ 		      18, 2, "gpio", "uart"),
+-	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
+-	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
+-	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
+-	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
+-
+ };
+ 
+ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 
 
