@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0606E461E6B
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 019AB461F12
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353618AbhK2Sf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:35:56 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38660 "EHLO
+        id S1380134AbhK2SnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:43:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46098 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378883AbhK2Sdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:33:54 -0500
+        with ESMTP id S1379996AbhK2Sk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:40:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10D08B815D5;
-        Mon, 29 Nov 2021 18:30:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A3E5C53FAD;
-        Mon, 29 Nov 2021 18:30:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 133B3B815EB;
+        Mon, 29 Nov 2021 18:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EB25C53FCD;
+        Mon, 29 Nov 2021 18:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210634;
-        bh=zixNzzC1qaOd265BmQALbj6b4g0lK33VIM7jawuNE0Y=;
+        s=korg; t=1638211059;
+        bh=HlhotSDn4teo7jrAZ4o+SGTSC00feLvdHwD307QugaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQZm71pvHuoRf3qfnUyUmwDdFWVzimBbWlVTC8OpyR+JvQjZYYui2Q5K44NY73S69
-         FTc97HInKRmSZi1BzwWB87mU8Hlyop/6MNlmdiTHJfGR3zPvRl0P/JyUAPhF968ypE
-         CfpVJRXIoaBKY5JAwvpfM2Fw7VnNhbV8hkUS3qz0=
+        b=tPsv5bF9w+k4hLAnCuM7/DD/vxtyp3ngafqe3pEyTc2iZ964uIR3CcEusEpdVenml
+         Ru9h9U3Q5VotP82Ae7LCSOghxM60Pm1RKM+Pha57DODXNBM21qqXxHbqj3AcYEEhii
+         2ePHTEKNaxgH8GiKhvZaTohnvcfgmA5UbKF0Xs90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/121] ASoC: topology: Add missing rwsem around snd_ctl_remove() calls
-Date:   Mon, 29 Nov 2021 19:18:01 +0100
-Message-Id: <20211129181713.340451825@linuxfoundation.org>
+Subject: [PATCH 5.15 088/179] scsi: mpt3sas: Fix kernel panic during drive powercycle test
+Date:   Mon, 29 Nov 2021 19:18:02 +0100
+Message-Id: <20211129181721.838657758@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 7e567b5ae06315ef2d70666b149962e2bb4b97af ]
+[ Upstream commit 0ee4ba13e09c9d9c1cb6abb59da8295d9952328b ]
 
-snd_ctl_remove() has to be called with card->controls_rwsem held (when
-called after the card instantiation).  This patch add the missing
-rwsem calls around it.
+While looping over shost's sdev list it is possible that one
+of the drives is getting removed and its sas_target object is
+freed but its sdev object remains intact.
 
-Fixes: 8a9782346dcc ("ASoC: topology: Add topology core")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211116071812.18109-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Consequently, a kernel panic can occur while the driver is trying to access
+the sas_address field of sas_target object without also checking the
+sas_target object for NULL.
+
+Link: https://lore.kernel.org/r/20211117104909.2069-1-sreekanth.reddy@broadcom.com
+Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index 1030e11017b27..4d24ac255d253 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -2873,6 +2873,7 @@ EXPORT_SYMBOL_GPL(snd_soc_tplg_widget_remove_all);
- /* remove dynamic controls from the component driver */
- int snd_soc_tplg_component_remove(struct snd_soc_component *comp, u32 index)
- {
-+	struct snd_card *card = comp->card->snd_card;
- 	struct snd_soc_dobj *dobj, *next_dobj;
- 	int pass = SOC_TPLG_PASS_END;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index ad1b6c2b37a74..1272b5ebea7ae 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -3869,7 +3869,7 @@ _scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc,
  
-@@ -2880,6 +2881,7 @@ int snd_soc_tplg_component_remove(struct snd_soc_component *comp, u32 index)
- 	while (pass >= SOC_TPLG_PASS_START) {
- 
- 		/* remove mixer controls */
-+		down_write(&card->controls_rwsem);
- 		list_for_each_entry_safe(dobj, next_dobj, &comp->dobj_list,
- 			list) {
- 
-@@ -2923,6 +2925,7 @@ int snd_soc_tplg_component_remove(struct snd_soc_component *comp, u32 index)
- 				break;
- 			}
- 		}
-+		up_write(&card->controls_rwsem);
- 		pass--;
- 	}
- 
+ 	shost_for_each_device(sdev, ioc->shost) {
+ 		sas_device_priv_data = sdev->hostdata;
+-		if (!sas_device_priv_data)
++		if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
+ 			continue;
+ 		if (sas_device_priv_data->sas_target->sas_address
+ 		    != sas_address)
 -- 
 2.33.0
 
