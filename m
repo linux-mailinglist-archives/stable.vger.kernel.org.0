@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 898A5462724
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D262E462560
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:37:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236891AbhK2XBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 18:01:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
+        id S234128AbhK2WiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:38:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236286AbhK2W7s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:59:48 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDE1C12A4E7;
-        Mon, 29 Nov 2021 10:29:32 -0800 (PST)
+        with ESMTP id S232502AbhK2Whn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:37:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929FAC19AC28;
+        Mon, 29 Nov 2021 10:35:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D83B8CE13D5;
-        Mon, 29 Nov 2021 18:29:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8104DC53FAD;
-        Mon, 29 Nov 2021 18:29:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B85AB815CC;
+        Mon, 29 Nov 2021 18:35:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83204C5831C;
+        Mon, 29 Nov 2021 18:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210569;
-        bh=/o2yBw79DHbqMA2wnnJJmpM4fNmrvNpwDUNyfaJlsCg=;
+        s=korg; t=1638210954;
+        bh=S3A90GeDhHejh4r69zFWjcps0VwCMum+HW7fknQjaKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9NPjeXfuaPcf2BRc2IEhx/rD1xcJQRciEOEj/AXHaTEgeWwasmHU0yrIQ/xaC9wv
-         jOHbc61b/k7E0V8dHLS59XBxx4xeXffz7E1Gmw0mrqwePE5NZOH6Km5aAMjpl9i9y1
-         cGyMnulWI62VfXY/xRnKF9UqiVakfSWrCt/F7TQ0=
+        b=H0iZE/g/hhiz1JHdxQErXA/jqLvXm3MJh7svJYGtPX/gUURH7vBZgEBC/zHyCQUUa
+         v694OH5i+QOisKGr3UPB+eI3HMn/IBxtT5VhgIWqPNtBmz6t35zFEZLHUw8bN302jj
+         TAxur1QtP5nrKCVvEiEAbKw8QAi1fbWH2r78KRjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 013/121] usb: hub: Fix usb enumeration issue due to address0 race
-Date:   Mon, 29 Nov 2021 19:17:24 +0100
-Message-Id: <20211129181712.095274914@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Bough Chen <haibo.chen@nxp.com>
+Subject: [PATCH 5.15 051/179] mmc: sdhci: Fix ADMA for PAGE_SIZE >= 64KiB
+Date:   Mon, 29 Nov 2021 19:17:25 +0100
+Message-Id: <20211129181720.657069128@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,108 +48,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 6ae6dc22d2d1ce6aa77a6da8a761e61aca216f8b upstream.
+commit 3d7c194b7c9ad414264935ad4f943a6ce285ebb1 upstream.
 
-xHC hardware can only have one slot in default state with address 0
-waiting for a unique address at a time, otherwise "undefined behavior
-may occur" according to xhci spec 5.4.3.4
+The block layer forces a minimum segment size of PAGE_SIZE, so a segment
+can be too big for the ADMA table, if PAGE_SIZE >= 64KiB. Fix by writing
+multiple descriptors, noting that the ADMA table is sized for 4KiB chunks
+anyway, so it will be big enough.
 
-The address0_mutex exists to prevent this across both xhci roothubs.
-
-If hub_port_init() fails, it may unlock the mutex and exit with a xhci
-slot in default state. If the other xhci roothub calls hub_port_init()
-at this point we end up with two slots in default state.
-
-Make sure the address0_mutex protects the slot default state across
-hub_port_init() retries, until slot is addressed or disabled.
-
-Note, one known minor case is not fixed by this patch.
-If device needs to be reset during resume, but fails all hub_port_init()
-retries in usb_reset_and_verify_device(), then it's possible the slot is
-still left in default state when address0_mutex is unlocked.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 638139eb95d2 ("usb: hub: allow to process more usb hub events in parallel")
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115221630.871204-1-mathias.nyman@linux.intel.com
+Reported-and-tested-by: Bough Chen <haibo.chen@nxp.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211115082345.802238-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/mmc/host/sdhci.c |   21 ++++++++++++++++++---
+ drivers/mmc/host/sdhci.h |    4 +++-
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -4628,8 +4628,6 @@ hub_port_init(struct usb_hub *hub, struc
- 	if (oldspeed == USB_SPEED_LOW)
- 		delay = HUB_LONG_RESET_TIME;
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -771,7 +771,19 @@ static void sdhci_adma_table_pre(struct
+ 			len -= offset;
+ 		}
  
--	mutex_lock(hcd->address0_mutex);
--
- 	/* Reset the device; full speed may morph to high speed */
- 	/* FIXME a USB 2.0 device may morph into SuperSpeed on reset. */
- 	retval = hub_port_reset(hub, port1, udev, delay, false);
-@@ -4940,7 +4938,6 @@ fail:
- 		hub_port_disable(hub, port1, 0);
- 		update_devnum(udev, devnum);	/* for disconnect processing */
+-		BUG_ON(len > 65536);
++		/*
++		 * The block layer forces a minimum segment size of PAGE_SIZE,
++		 * so 'len' can be too big here if PAGE_SIZE >= 64KiB. Write
++		 * multiple descriptors, noting that the ADMA table is sized
++		 * for 4KiB chunks anyway, so it will be big enough.
++		 */
++		while (len > host->max_adma) {
++			int n = 32 * 1024; /* 32KiB*/
++
++			__sdhci_adma_write_desc(host, &desc, addr, n, ADMA2_TRAN_VALID);
++			addr += n;
++			len -= n;
++		}
+ 
+ 		/* tran, valid */
+ 		if (len)
+@@ -3952,6 +3964,7 @@ struct sdhci_host *sdhci_alloc_host(stru
+ 	 * descriptor for each segment, plus 1 for a nop end descriptor.
+ 	 */
+ 	host->adma_table_cnt = SDHCI_MAX_SEGS * 2 + 1;
++	host->max_adma = 65536;
+ 
+ 	host->max_timeout_count = 0xE;
+ 
+@@ -4617,10 +4630,12 @@ int sdhci_setup_host(struct sdhci_host *
+ 	 * be larger than 64 KiB though.
+ 	 */
+ 	if (host->flags & SDHCI_USE_ADMA) {
+-		if (host->quirks & SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC)
++		if (host->quirks & SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC) {
++			host->max_adma = 65532; /* 32-bit alignment */
+ 			mmc->max_seg_size = 65535;
+-		else
++		} else {
+ 			mmc->max_seg_size = 65536;
++		}
+ 	} else {
+ 		mmc->max_seg_size = mmc->max_req_size;
  	}
--	mutex_unlock(hcd->address0_mutex);
- 	return retval;
- }
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -340,7 +340,8 @@ struct sdhci_adma2_64_desc {
  
-@@ -5170,6 +5167,9 @@ static void hub_port_connect(struct usb_
- 		unit_load = 100;
+ /*
+  * Maximum segments assuming a 512KiB maximum requisition size and a minimum
+- * 4KiB page size.
++ * 4KiB page size. Note this also allows enough for multiple descriptors in
++ * case of PAGE_SIZE >= 64KiB.
+  */
+ #define SDHCI_MAX_SEGS		128
  
- 	status = 0;
-+
-+	mutex_lock(hcd->address0_mutex);
-+
- 	for (i = 0; i < PORT_INIT_TRIES; i++) {
+@@ -543,6 +544,7 @@ struct sdhci_host {
+ 	unsigned int blocks;	/* remaining PIO blocks */
  
- 		/* reallocate for each attempt, since references
-@@ -5206,6 +5206,8 @@ static void hub_port_connect(struct usb_
- 		if (status < 0)
- 			goto loop;
+ 	int sg_count;		/* Mapped sg entries */
++	int max_adma;		/* Max. length in ADMA descriptor */
  
-+		mutex_unlock(hcd->address0_mutex);
-+
- 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
- 			msleep(2000);
- 
-@@ -5294,6 +5296,7 @@ static void hub_port_connect(struct usb_
- 
- loop_disable:
- 		hub_port_disable(hub, port1, 1);
-+		mutex_lock(hcd->address0_mutex);
- loop:
- 		usb_ep0_reinit(udev);
- 		release_devnum(udev);
-@@ -5320,6 +5323,8 @@ loop:
- 	}
- 
- done:
-+	mutex_unlock(hcd->address0_mutex);
-+
- 	hub_port_disable(hub, port1, 1);
- 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
- 		if (status != -ENOTCONN && status != -ENODEV)
-@@ -5839,6 +5844,8 @@ static int usb_reset_and_verify_device(s
- 	bos = udev->bos;
- 	udev->bos = NULL;
- 
-+	mutex_lock(hcd->address0_mutex);
-+
- 	for (i = 0; i < PORT_INIT_TRIES; ++i) {
- 
- 		/* ep0 maxpacket size may change; let the HCD know about it.
-@@ -5848,6 +5855,7 @@ static int usb_reset_and_verify_device(s
- 		if (ret >= 0 || ret == -ENOTCONN || ret == -ENODEV)
- 			break;
- 	}
-+	mutex_unlock(hcd->address0_mutex);
- 
- 	if (ret < 0)
- 		goto re_enumerate;
+ 	void *adma_table;	/* ADMA descriptor table */
+ 	void *align_buffer;	/* Bounce buffer */
 
 
