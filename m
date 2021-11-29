@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD553461E8D
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 856E3461F33
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351996AbhK2ShP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:37:15 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:51684 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378760AbhK2SfP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:35:15 -0500
+        id S1378723AbhK2Sov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:44:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47888 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380095AbhK2Sms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:42:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B2080CE13C4;
-        Mon, 29 Nov 2021 18:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61CD8C53FC7;
-        Mon, 29 Nov 2021 18:31:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83701B8164A;
+        Mon, 29 Nov 2021 18:39:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16D4C53FC7;
+        Mon, 29 Nov 2021 18:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210714;
-        bh=GfFT2GMkSOnPkaL7P46tG7bDElxCKV02FEDM9qZ41Uk=;
+        s=korg; t=1638211168;
+        bh=/9vCxg6bgEM62doE344SIAPej0iddu+5Whro+SeWXVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NO64/OBFTFgRKjfwol/jUgFOnxrGH6EdoHmssRlsfoksf/nLEZLd6RtOiiCVuK0Q9
-         XSL5flX0riaSteUmErr4mJp7hxmQp2V2OGu58Wxv3z3DOjeocyKThvc9b2bgCsfF7C
-         fWj+t+OUjvUi/8HevbN5M7AFPKYfm0nIdpFBhzjQ=
+        b=FUg1nrdGVJRwBUxjO0R7fDt6avDg6ij43c93VF5QPQxjjdXte8PAppXWz0GzuFktc
+         VFkCkV6gHiTqAQ3js2qAY5mqsGY+zyJUhmMCBy/7tItZJOzaltxrID5+P3JjMmO/9u
+         IrQexngURgH9EFRRM9xJGjRfAaETMR5+zJcaeH20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/121] MIPS: loongson64: fix FTLB configuration
+Subject: [PATCH 5.15 128/179] arm64: uaccess: avoid blocking within critical sections
 Date:   Mon, 29 Nov 2021 19:18:42 +0100
-Message-Id: <20211129181714.730118922@linuxfoundation.org>
+Message-Id: <20211129181723.173589344@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +48,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 7db5e9e9e5e6c10d7d26f8df7f8fd8841cb15ee7 ]
+[ Upstream commit 94902d849e85093aafcdbea2be8e2beff47233e6 ]
 
-It turns out that 'decode_configs' -> 'set_ftlb_enable' is called under
-c->cputype unset, which leaves FTLB disabled on BOTH 3A2000 and 3A3000
+As Vincent reports in:
 
-Fix it by calling "decode_configs" after c->cputype is initialized
+  https://lore.kernel.org/r/20211118163417.21617-1-vincent.whitchurch@axis.com
 
-Fixes: da1bd29742b1 ("MIPS: Loongson64: Probe CPU features via CPUCFG")
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+The put_user() in schedule_tail() can get stuck in a livelock, similar
+to a problem recently fixed on riscv in commit:
+
+  285a76bb2cf51b0c ("riscv: evaluate put_user() arg before enabling user access")
+
+In __raw_put_user() we have a critical section between
+uaccess_ttbr0_enable() and uaccess_ttbr0_disable() where we cannot
+safely call into the scheduler without having taken an exception, as
+schedule() and other scheduling functions will not save/restore the
+TTBR0 state. If either of the `x` or `ptr` arguments to __raw_put_user()
+contain a blocking call, we may call into the scheduler within the
+critical section. This can result in two problems:
+
+1) The access within the critical section will occur without the
+   required TTBR0 tables installed. This will fault, and where the
+   required tables permit access, the access will be retried without the
+   required tables, resulting in a livelock.
+
+2) When TTBR0 SW PAN is in use, check_and_switch_context() does not
+   modify TTBR0, leaving a stale value installed. The mappings of the
+   blocked task will erroneously be accessible to regular accesses in
+   the context of the new task. Additionally, if the tables are
+   subsequently freed, local TLB maintenance required to reuse the ASID
+   may be lost, potentially resulting in TLB corruption (e.g. in the
+   presence of CnP).
+
+The same issue exists for __raw_get_user() in the critical section
+between uaccess_ttbr0_enable() and uaccess_ttbr0_disable().
+
+A similar issue exists for __get_kernel_nofault() and
+__put_kernel_nofault() for the critical section between
+__uaccess_enable_tco_async() and __uaccess_disable_tco_async(), as the
+TCO state is not context-switched by direct calls into the scheduler.
+Here the TCO state may be lost from the context of the current task,
+resulting in unexpected asynchronous tag check faults. It may also be
+leaked to another task, suppressing expected tag check faults.
+
+To fix all of these cases, we must ensure that we do not directly call
+into the scheduler in their respective critical sections. This patch
+reworks __raw_put_user(), __raw_get_user(), __get_kernel_nofault(), and
+__put_kernel_nofault(), ensuring that parameters are evaluated outside
+of the critical sections. To make this requirement clear, comments are
+added describing the problem, and line spaces added to separate the
+critical sections from other portions of the macros.
+
+For __raw_get_user() and __raw_put_user() the `err` parameter is
+conditionally assigned to, and we must currently evaluate this in the
+critical section. This behaviour is relied upon by the signal code,
+which uses chains of put_user_error() and get_user_error(), checking the
+return value at the end. In all cases, the `err` parameter is a plain
+int rather than a more complex expression with a blocking call, so this
+is safe.
+
+In future we should try to clean up the `err` usage to remove the
+potential for this to be a problem.
+
+Aside from the changes to time of evaluation, there should be no
+functional change as a result of this patch.
+
+Reported-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Link: https://lore.kernel.org/r/20211118163417.21617-1-vincent.whitchurch@axis.com
+Fixes: f253d827f33c ("arm64: uaccess: refactor __{get,put}_user")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20211122125820.55286-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/cpu-probe.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/uaccess.h | 48 +++++++++++++++++++++++++++-----
+ 1 file changed, 41 insertions(+), 7 deletions(-)
 
-diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-index 067cb3eb16141..d120201910acf 100644
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -1721,8 +1721,6 @@ static inline void decode_cpucfg(struct cpuinfo_mips *c)
+diff --git a/arch/arm64/include/asm/uaccess.h b/arch/arm64/include/asm/uaccess.h
+index 190b494e22ab9..0fd6056ba412b 100644
+--- a/arch/arm64/include/asm/uaccess.h
++++ b/arch/arm64/include/asm/uaccess.h
+@@ -292,12 +292,22 @@ do {									\
+ 	(x) = (__force __typeof__(*(ptr)))__gu_val;			\
+ } while (0)
  
- static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
- {
--	decode_configs(c);
--
- 	/* All Loongson processors covered here define ExcCode 16 as GSExc. */
- 	c->options |= MIPS_CPU_GSEXCEX;
++/*
++ * We must not call into the scheduler between uaccess_ttbr0_enable() and
++ * uaccess_ttbr0_disable(). As `x` and `ptr` could contain blocking functions,
++ * we must evaluate these outside of the critical section.
++ */
+ #define __raw_get_user(x, ptr, err)					\
+ do {									\
++	__typeof__(*(ptr)) __user *__rgu_ptr = (ptr);			\
++	__typeof__(x) __rgu_val;					\
+ 	__chk_user_ptr(ptr);						\
++									\
+ 	uaccess_ttbr0_enable();						\
+-	__raw_get_mem("ldtr", x, ptr, err);				\
++	__raw_get_mem("ldtr", __rgu_val, __rgu_ptr, err);		\
+ 	uaccess_ttbr0_disable();					\
++									\
++	(x) = __rgu_val;						\
+ } while (0)
  
-@@ -1783,6 +1781,8 @@ static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
- 		panic("Unknown Loongson Processor ID!");
- 		break;
- 	}
-+
-+	decode_configs(c);
- }
- #else
- static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu) { }
+ #define __get_user_error(x, ptr, err)					\
+@@ -321,14 +331,22 @@ do {									\
+ 
+ #define get_user	__get_user
+ 
++/*
++ * We must not call into the scheduler between __uaccess_enable_tco_async() and
++ * __uaccess_disable_tco_async(). As `dst` and `src` may contain blocking
++ * functions, we must evaluate these outside of the critical section.
++ */
+ #define __get_kernel_nofault(dst, src, type, err_label)			\
+ do {									\
++	__typeof__(dst) __gkn_dst = (dst);				\
++	__typeof__(src) __gkn_src = (src);				\
+ 	int __gkn_err = 0;						\
+ 									\
+ 	__uaccess_enable_tco_async();					\
+-	__raw_get_mem("ldr", *((type *)(dst)),				\
+-		      (__force type *)(src), __gkn_err);		\
++	__raw_get_mem("ldr", *((type *)(__gkn_dst)),			\
++		      (__force type *)(__gkn_src), __gkn_err);		\
+ 	__uaccess_disable_tco_async();					\
++									\
+ 	if (unlikely(__gkn_err))					\
+ 		goto err_label;						\
+ } while (0)
+@@ -367,11 +385,19 @@ do {									\
+ 	}								\
+ } while (0)
+ 
++/*
++ * We must not call into the scheduler between uaccess_ttbr0_enable() and
++ * uaccess_ttbr0_disable(). As `x` and `ptr` could contain blocking functions,
++ * we must evaluate these outside of the critical section.
++ */
+ #define __raw_put_user(x, ptr, err)					\
+ do {									\
+-	__chk_user_ptr(ptr);						\
++	__typeof__(*(ptr)) __user *__rpu_ptr = (ptr);			\
++	__typeof__(*(ptr)) __rpu_val = (x);				\
++	__chk_user_ptr(__rpu_ptr);					\
++									\
+ 	uaccess_ttbr0_enable();						\
+-	__raw_put_mem("sttr", x, ptr, err);				\
++	__raw_put_mem("sttr", __rpu_val, __rpu_ptr, err);		\
+ 	uaccess_ttbr0_disable();					\
+ } while (0)
+ 
+@@ -396,14 +422,22 @@ do {									\
+ 
+ #define put_user	__put_user
+ 
++/*
++ * We must not call into the scheduler between __uaccess_enable_tco_async() and
++ * __uaccess_disable_tco_async(). As `dst` and `src` may contain blocking
++ * functions, we must evaluate these outside of the critical section.
++ */
+ #define __put_kernel_nofault(dst, src, type, err_label)			\
+ do {									\
++	__typeof__(dst) __pkn_dst = (dst);				\
++	__typeof__(src) __pkn_src = (src);				\
+ 	int __pkn_err = 0;						\
+ 									\
+ 	__uaccess_enable_tco_async();					\
+-	__raw_put_mem("str", *((type *)(src)),				\
+-		      (__force type *)(dst), __pkn_err);		\
++	__raw_put_mem("str", *((type *)(__pkn_src)),			\
++		      (__force type *)(__pkn_dst), __pkn_err);		\
+ 	__uaccess_disable_tco_async();					\
++									\
+ 	if (unlikely(__pkn_err))					\
+ 		goto err_label;						\
+ } while(0)
 -- 
 2.33.0
 
