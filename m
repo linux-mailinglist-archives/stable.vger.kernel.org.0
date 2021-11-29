@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04033461E10
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 764EB461F27
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239422AbhK2ScG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:32:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60850 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379028AbhK2SaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:30:00 -0500
+        id S239908AbhK2SoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:44:17 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:56130 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237476AbhK2Slz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:41:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70D9CB815C9;
-        Mon, 29 Nov 2021 18:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A47E7C53FAD;
-        Mon, 29 Nov 2021 18:26:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E1676CE139A;
+        Mon, 29 Nov 2021 18:38:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 910E5C53FC7;
+        Mon, 29 Nov 2021 18:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210400;
-        bh=gmvm8A/FaO51URGrff557TTl3PJqRtPca7Wm2b5e28w=;
+        s=korg; t=1638211114;
+        bh=hWETnBSe4qogJq67JHOa6T+6Lo9CUK5lNWwv2SQokTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQGPZEGuQu6wcL2CM8Vv1UANm2fuMaRUWb+/Zq6Snw52LGa3YiAo22B54nLUx0lM3
-         e1ForTD8OtJf6+yrH5gZMLYw9XmYXf9OpbMZzabhfhn5WrilXx6y3ydxKdZfwgg46T
-         I1lWK+1Onp8vazDur4Xx5u0sj98CiVJJTMOVsgRY=
+        b=04cneB6xfmmVoNn+KBTgZKu2h92bC9Jvux/gjbrn2ZbOC8R3f7sOr8N8Zk/Uo6l0z
+         +9G2RQw3z0p/BfuajWCittangf0oZSm0frkWEIEVGHK4RVYOHUzdzJMMDjsRL2HSRE
+         MYiHInLhY1U985/b0m9jsA6LikagyigMJ131vtWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 42/92] PCI: aardvark: Fix support for PCI_BRIDGE_CTL_BUS_RESET on emulated bridge
+        stable@vger.kernel.org, Claudia Pellegrino <linux@cpellegrino.de>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 097/179] HID: magicmouse: prevent division by 0 on scroll
 Date:   Mon, 29 Nov 2021 19:18:11 +0100
-Message-Id: <20211129181708.830135157@linuxfoundation.org>
+Message-Id: <20211129181722.119489930@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,75 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Claudia Pellegrino <linux@cpellegrino.de>
 
-commit bc4fac42e5f8460af09c0a7f2f1915be09e20c71 upstream.
+[ Upstream commit a1091118e0d6d84c2fdb94e6c397ac790bfb9dd6 ]
 
-Aardvark supports PCIe Hot Reset via PCIE_CORE_CTRL1_REG.
+In hid_magicmouse, if the user has set scroll_speed to a value between
+55 and 63 and scrolls seven times in quick succession, the
+step_hr variable in the magicmouse_emit_touch function becomes 0.
 
-Use it for implementing PCI_BRIDGE_CTL_BUS_RESET bit of PCI_BRIDGE_CONTROL
-register on emulated bridge.
+That causes a division by zero further down in the function when
+it does `step_x_hr /= step_hr`.
 
-With this, the function pci_reset_secondary_bus() starts working and can
-reset connected PCIe card. Custom userspace script [1] which uses setpci
-can trigger PCIe Hot Reset and reset the card manually.
+To reproduce, create `/etc/modprobe.d/hid_magicmouse.conf` with the
+following content:
 
-[1] https://alexforencich.com/wiki/en/pcie/hot-reset-linux
+```
+options hid_magicmouse scroll_acceleration=1 scroll_speed=55
+```
 
-Link: https://lore.kernel.org/r/20211028185659.20329-7-kabel@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Then reboot, connect a Magic Mouse and scroll seven times quickly.
+The system will freeze for a minute, and after that `dmesg` will
+confirm that a division by zero occurred.
+
+Enforce a minimum of 1 for the variable so the high resolution
+step count can never reach 0 even at maximum scroll acceleration.
+
+Fixes: d4b9f10a0eb6 ("HID: magicmouse: enable high-resolution scroll")
+
+Signed-off-by: Claudia Pellegrino <linux@cpellegrino.de>
+Tested-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/hid/hid-magicmouse.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -764,6 +764,22 @@ advk_pci_bridge_emul_base_conf_read(stru
- 		*value = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
- 		return PCI_BRIDGE_EMUL_HANDLED;
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 686788ebf3e1e..d7687ce706144 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -256,8 +256,11 @@ static void magicmouse_emit_touch(struct magicmouse_sc *msc, int raw_id, u8 *tda
+ 		unsigned long now = jiffies;
+ 		int step_x = msc->touches[id].scroll_x - x;
+ 		int step_y = msc->touches[id].scroll_y - y;
+-		int step_hr = ((64 - (int)scroll_speed) * msc->scroll_accel) /
+-			      SCROLL_HR_STEPS;
++		int step_hr =
++			max_t(int,
++			      ((64 - (int)scroll_speed) * msc->scroll_accel) /
++					SCROLL_HR_STEPS,
++			      1);
+ 		int step_x_hr = msc->touches[id].scroll_x_hr - x;
+ 		int step_y_hr = msc->touches[id].scroll_y_hr - y;
  
-+	case PCI_INTERRUPT_LINE: {
-+		/*
-+		 * From the whole 32bit register we support reading from HW only
-+		 * one bit: PCI_BRIDGE_CTL_BUS_RESET.
-+		 * Other bits are retrieved only from emulated config buffer.
-+		 */
-+		__le32 *cfgspace = (__le32 *)&bridge->conf;
-+		u32 val = le32_to_cpu(cfgspace[PCI_INTERRUPT_LINE / 4]);
-+		if (advk_readl(pcie, PCIE_CORE_CTRL1_REG) & HOT_RESET_GEN)
-+			val |= PCI_BRIDGE_CTL_BUS_RESET << 16;
-+		else
-+			val &= ~(PCI_BRIDGE_CTL_BUS_RESET << 16);
-+		*value = val;
-+		return PCI_BRIDGE_EMUL_HANDLED;
-+	}
-+
- 	default:
- 		return PCI_BRIDGE_EMUL_NOT_HANDLED;
- 	}
-@@ -780,6 +796,17 @@ advk_pci_bridge_emul_base_conf_write(str
- 		advk_writel(pcie, new, PCIE_CORE_CMD_STATUS_REG);
- 		break;
- 
-+	case PCI_INTERRUPT_LINE:
-+		if (mask & (PCI_BRIDGE_CTL_BUS_RESET << 16)) {
-+			u32 val = advk_readl(pcie, PCIE_CORE_CTRL1_REG);
-+			if (new & (PCI_BRIDGE_CTL_BUS_RESET << 16))
-+				val |= HOT_RESET_GEN;
-+			else
-+				val &= ~HOT_RESET_GEN;
-+			advk_writel(pcie, val, PCIE_CORE_CTRL1_REG);
-+		}
-+		break;
-+
- 	default:
- 		break;
- 	}
+-- 
+2.33.0
+
 
 
