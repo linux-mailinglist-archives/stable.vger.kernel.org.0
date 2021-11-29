@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2280C4622F5
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D318F4626DA
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbhK2VJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 16:09:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40252 "EHLO
+        id S236208AbhK2W55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:57:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229846AbhK2VHr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:07:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067D2C12532A;
-        Mon, 29 Nov 2021 10:27:13 -0800 (PST)
+        with ESMTP id S231318AbhK2W53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:29 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F5EC141B36;
+        Mon, 29 Nov 2021 10:32:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0FABB815CF;
-        Mon, 29 Nov 2021 18:27:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78BEC53FCD;
-        Mon, 29 Nov 2021 18:27:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C3ECACE13D0;
+        Mon, 29 Nov 2021 18:32:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75401C53FAD;
+        Mon, 29 Nov 2021 18:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210431;
-        bh=F2rRZN7KHykaQkyTOKUkqLXb7EDLqjwTFBsqEiLkjVk=;
+        s=korg; t=1638210752;
+        bh=ea4tfQQOfMATtlI7evWrjciHYa2mDFvBvDEMF8y32IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxX13KntDwG6SiJ7ujDQC9z2zhUDjANdBO/LzpNv6VNLninb9KGLn/ll1rnpRI7FG
-         lrsBzf/iLM24W78VyKZ/MJlP2rWPyjqE6TRG/c4qXdp/YT88X+jYPm/AlkPMfgEBrP
-         HPFJzcm3nAv8GmfpkwLb3BFWPuXfBNIMQntk8QU4=
+        b=YvMnfxxMGjFbquhe608SULEUkGLqTFB0escCB+s8k1abYBPHyxO4QQsiar0bDZEvr
+         9dCC/EfK9QWusgjnBGd7E/MuPOqotIYaVkONG/qTMpWnjqSNG3+vTk3rXpHGqqvm1x
+         NOD7kMnOCY3Y7RSDz7DHM31Ojf1BjppcqUJ0CLec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
-Subject: [PATCH 5.4 86/92] xen/blkfront: dont take local copy of a request from the ring page
-Date:   Mon, 29 Nov 2021 19:18:55 +0100
-Message-Id: <20211129181710.266890887@linuxfoundation.org>
+        stable@vger.kernel.org, Julian Sikorski <belegdol@gmail.com>,
+        Jeremy Allison <jra@samba.org>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 105/121] smb3: do not error on fsync when readonly
+Date:   Mon, 29 Nov 2021 19:18:56 +0100
+Message-Id: <20211129181715.196035836@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,103 +50,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Steve French <stfrench@microsoft.com>
 
-commit 8f5a695d99000fc3aa73934d7ced33cfc64dcdab upstream.
+[ Upstream commit 71e6864eacbef0b2645ca043cdfbac272cb6cea3 ]
 
-In order to avoid a malicious backend being able to influence the local
-copy of a request build the request locally first and then copy it to
-the ring page instead of doing it the other way round as today.
+Linux allows doing a flush/fsync on a file open for read-only,
+but the protocol does not allow that.  If the file passed in
+on the flush is read-only try to find a writeable handle for
+the same inode, if that is not possible skip sending the
+fsync call to the server to avoid breaking the apps.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
-Link: https://lore.kernel.org/r/20210730103854.12681-3-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Julian Sikorski <belegdol@gmail.com>
+Tested-by: Julian Sikorski <belegdol@gmail.com>
+Suggested-by: Jeremy Allison <jra@samba.org>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/xen-blkfront.c |   25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ fs/cifs/file.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -536,7 +536,7 @@ static unsigned long blkif_ring_get_requ
- 	rinfo->shadow[id].status = REQ_WAITING;
- 	rinfo->shadow[id].associated_id = NO_ASSOCIATED_ID;
- 
--	(*ring_req)->u.rw.id = id;
-+	rinfo->shadow[id].req.u.rw.id = id;
- 
- 	return id;
- }
-@@ -544,11 +544,12 @@ static unsigned long blkif_ring_get_requ
- static int blkif_queue_discard_req(struct request *req, struct blkfront_ring_info *rinfo)
- {
- 	struct blkfront_info *info = rinfo->dev_info;
--	struct blkif_request *ring_req;
-+	struct blkif_request *ring_req, *final_ring_req;
- 	unsigned long id;
- 
- 	/* Fill out a communications ring structure. */
--	id = blkif_ring_get_request(rinfo, req, &ring_req);
-+	id = blkif_ring_get_request(rinfo, req, &final_ring_req);
-+	ring_req = &rinfo->shadow[id].req;
- 
- 	ring_req->operation = BLKIF_OP_DISCARD;
- 	ring_req->u.discard.nr_sectors = blk_rq_sectors(req);
-@@ -559,8 +560,8 @@ static int blkif_queue_discard_req(struc
- 	else
- 		ring_req->u.discard.flag = 0;
- 
--	/* Keep a private copy so we can reissue requests when recovering. */
--	rinfo->shadow[id].req = *ring_req;
-+	/* Copy the request to the ring page. */
-+	*final_ring_req = *ring_req;
- 
- 	return 0;
- }
-@@ -693,6 +694,7 @@ static int blkif_queue_rw_req(struct req
- {
- 	struct blkfront_info *info = rinfo->dev_info;
- 	struct blkif_request *ring_req, *extra_ring_req = NULL;
-+	struct blkif_request *final_ring_req, *final_extra_ring_req = NULL;
- 	unsigned long id, extra_id = NO_ASSOCIATED_ID;
- 	bool require_extra_req = false;
- 	int i;
-@@ -737,7 +739,8 @@ static int blkif_queue_rw_req(struct req
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 67139f9d583f2..6c06870f90184 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -2618,12 +2618,23 @@ int cifs_strict_fsync(struct file *file, loff_t start, loff_t end,
+ 	tcon = tlink_tcon(smbfile->tlink);
+ 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
+ 		server = tcon->ses->server;
+-		if (server->ops->flush)
+-			rc = server->ops->flush(xid, tcon, &smbfile->fid);
+-		else
++		if (server->ops->flush == NULL) {
+ 			rc = -ENOSYS;
++			goto strict_fsync_exit;
++		}
++
++		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
++			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
++			if (smbfile) {
++				rc = server->ops->flush(xid, tcon, &smbfile->fid);
++				cifsFileInfo_put(smbfile);
++			} else
++				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
++		} else
++			rc = server->ops->flush(xid, tcon, &smbfile->fid);
  	}
  
- 	/* Fill out a communications ring structure. */
--	id = blkif_ring_get_request(rinfo, req, &ring_req);
-+	id = blkif_ring_get_request(rinfo, req, &final_ring_req);
-+	ring_req = &rinfo->shadow[id].req;
++strict_fsync_exit:
+ 	free_xid(xid);
+ 	return rc;
+ }
+@@ -2635,6 +2646,7 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
+ 	struct cifs_tcon *tcon;
+ 	struct TCP_Server_Info *server;
+ 	struct cifsFileInfo *smbfile = file->private_data;
++	struct inode *inode = file_inode(file);
+ 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
  
- 	num_sg = blk_rq_map_sg(req->q, req, rinfo->shadow[id].sg);
- 	num_grant = 0;
-@@ -788,7 +791,9 @@ static int blkif_queue_rw_req(struct req
- 		ring_req->u.rw.nr_segments = num_grant;
- 		if (unlikely(require_extra_req)) {
- 			extra_id = blkif_ring_get_request(rinfo, req,
--							  &extra_ring_req);
-+							  &final_extra_ring_req);
-+			extra_ring_req = &rinfo->shadow[extra_id].req;
+ 	rc = file_write_and_wait_range(file, start, end);
+@@ -2651,12 +2663,23 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
+ 	tcon = tlink_tcon(smbfile->tlink);
+ 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
+ 		server = tcon->ses->server;
+-		if (server->ops->flush)
+-			rc = server->ops->flush(xid, tcon, &smbfile->fid);
+-		else
++		if (server->ops->flush == NULL) {
+ 			rc = -ENOSYS;
++			goto fsync_exit;
++		}
 +
- 			/*
- 			 * Only the first request contains the scatter-gather
- 			 * list.
-@@ -830,10 +835,10 @@ static int blkif_queue_rw_req(struct req
- 	if (setup.segments)
- 		kunmap_atomic(setup.segments);
++		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
++			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
++			if (smbfile) {
++				rc = server->ops->flush(xid, tcon, &smbfile->fid);
++				cifsFileInfo_put(smbfile);
++			} else
++				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
++		} else
++			rc = server->ops->flush(xid, tcon, &smbfile->fid);
+ 	}
  
--	/* Keep a private copy so we can reissue requests when recovering. */
--	rinfo->shadow[id].req = *ring_req;
-+	/* Copy request(s) to the ring page. */
-+	*final_ring_req = *ring_req;
- 	if (unlikely(require_extra_req))
--		rinfo->shadow[extra_id].req = *extra_ring_req;
-+		*final_extra_ring_req = *extra_ring_req;
- 
- 	if (new_persistent_gnts)
- 		gnttab_free_grant_references(setup.gref_head);
++fsync_exit:
+ 	free_xid(xid);
+ 	return rc;
+ }
+-- 
+2.33.0
+
 
 
