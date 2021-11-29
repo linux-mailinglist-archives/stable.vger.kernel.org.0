@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A8C46261A
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4365462447
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234436AbhK2WrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:47:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35172 "EHLO
+        id S232287AbhK2WRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234729AbhK2Woc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:44:32 -0500
+        with ESMTP id S232037AbhK2WQv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7FBBC125CCC;
-        Mon, 29 Nov 2021 10:27:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36FD5C12A749;
+        Mon, 29 Nov 2021 10:22:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92705B815DE;
-        Mon, 29 Nov 2021 18:27:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD9C1C53FCF;
-        Mon, 29 Nov 2021 18:27:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED430B815C5;
+        Mon, 29 Nov 2021 18:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A5CC53FAD;
+        Mon, 29 Nov 2021 18:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210466;
-        bh=fwumt0t3WetoMoze0Hl6lr11cOQkI2ouBHKbNlaTTY8=;
+        s=korg; t=1638210174;
+        bh=rj05xErI7bWvejqxe+Yna01qNpU8znVU8NEtD+aQUG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g32Aqvb3pKLUoOgyvFBDOTUcHrp0tdSUjEEEf7WR2VVDLrAc8rYa5DBoMpzOE8frI
-         iXktJKFjod5tlOs9J0fOzQyUqzLCpA7e7quo0lvmlQXXWvYOrZ1dpo5Cd0B2ztG5t0
-         br1oA4MhmvTP4X3LuYXvhe0AQjMX0OuukKDMdxCc=
+        b=2F75gxHtZnhvNxa9kKQ+zsDeffg5PkLHmXLfCNhoWcFmoMFjS9ADR5/7eg7agUpeq
+         Vzna18ExwbvgLmDHQW0dT7XdBMcF8YcnSuGcDNE1hbSwr4QbtH8hAl+CudzkLpKVdk
+         yFIUnQvJE7d3FrEnEJDf3xCD3yr0oMZk1usaG7OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 79/92] tracing: Check pid filtering when creating events
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 66/69] xen/netfront: dont read data from request on the ring page
 Date:   Mon, 29 Nov 2021 19:18:48 +0100
-Message-Id: <20211129181710.046794194@linuxfoundation.org>
+Message-Id: <20211129181705.791385322@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +48,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 6cb206508b621a9a0a2c35b60540e399225c8243 upstream.
+commit 162081ec33c2686afa29d91bf8d302824aa846c7 upstream.
 
-When pid filtering is activated in an instance, all of the events trace
-files for that instance has the PID_FILTER flag set. This determines
-whether or not pid filtering needs to be done on the event, otherwise the
-event is executed as normal.
+In order to avoid a malicious backend being able to influence the local
+processing of a request build the request locally first and then copy
+it to the ring page. Any reading from the request influencing the
+processing in the frontend needs to be done on the local instance.
 
-If pid filtering is enabled when an event is created (via a dynamic event
-or modules), its flag is not updated to reflect the current state, and the
-events are not filtered properly.
-
-Cc: stable@vger.kernel.org
-Fixes: 3fdaf80f4a836 ("tracing: Implement event pid filtering")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/xen-netfront.c |   80 ++++++++++++++++++++-------------------------
+ 1 file changed, 37 insertions(+), 43 deletions(-)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -2247,12 +2247,19 @@ static struct trace_event_file *
- trace_create_new_event(struct trace_event_call *call,
- 		       struct trace_array *tr)
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -425,7 +425,8 @@ struct xennet_gnttab_make_txreq {
+ 	struct netfront_queue *queue;
+ 	struct sk_buff *skb;
+ 	struct page *page;
+-	struct xen_netif_tx_request *tx; /* Last request */
++	struct xen_netif_tx_request *tx;      /* Last request on ring page */
++	struct xen_netif_tx_request tx_local; /* Last request local copy*/
+ 	unsigned int size;
+ };
+ 
+@@ -453,30 +454,27 @@ static void xennet_tx_setup_grant(unsign
+ 	queue->grant_tx_page[id] = page;
+ 	queue->grant_tx_ref[id] = ref;
+ 
+-	tx->id = id;
+-	tx->gref = ref;
+-	tx->offset = offset;
+-	tx->size = len;
+-	tx->flags = 0;
++	info->tx_local.id = id;
++	info->tx_local.gref = ref;
++	info->tx_local.offset = offset;
++	info->tx_local.size = len;
++	info->tx_local.flags = 0;
++
++	*tx = info->tx_local;
+ 
+ 	info->tx = tx;
+-	info->size += tx->size;
++	info->size += info->tx_local.size;
+ }
+ 
+ static struct xen_netif_tx_request *xennet_make_first_txreq(
+-	struct netfront_queue *queue, struct sk_buff *skb,
+-	struct page *page, unsigned int offset, unsigned int len)
++	struct xennet_gnttab_make_txreq *info,
++	unsigned int offset, unsigned int len)
  {
-+	struct trace_pid_list *pid_list;
- 	struct trace_event_file *file;
+-	struct xennet_gnttab_make_txreq info = {
+-		.queue = queue,
+-		.skb = skb,
+-		.page = page,
+-		.size = 0,
+-	};
++	info->size = 0;
  
- 	file = kmem_cache_alloc(file_cachep, GFP_TRACE);
- 	if (!file)
- 		return NULL;
+-	gnttab_for_one_grant(page, offset, len, xennet_tx_setup_grant, &info);
++	gnttab_for_one_grant(info->page, offset, len, xennet_tx_setup_grant, info);
  
-+	pid_list = rcu_dereference_protected(tr->filtered_pids,
-+					     lockdep_is_held(&event_mutex));
-+
-+	if (pid_list)
-+		file->flags |= EVENT_FILE_FL_PID_FILTER;
-+
- 	file->event_call = call;
- 	file->tr = tr;
- 	atomic_set(&file->sm_ref, 0);
+-	return info.tx;
++	return info->tx;
+ }
+ 
+ static void xennet_make_one_txreq(unsigned long gfn, unsigned int offset,
+@@ -489,35 +487,27 @@ static void xennet_make_one_txreq(unsign
+ 	xennet_tx_setup_grant(gfn, offset, len, data);
+ }
+ 
+-static struct xen_netif_tx_request *xennet_make_txreqs(
+-	struct netfront_queue *queue, struct xen_netif_tx_request *tx,
+-	struct sk_buff *skb, struct page *page,
++static void xennet_make_txreqs(
++	struct xennet_gnttab_make_txreq *info,
++	struct page *page,
+ 	unsigned int offset, unsigned int len)
+ {
+-	struct xennet_gnttab_make_txreq info = {
+-		.queue = queue,
+-		.skb = skb,
+-		.tx = tx,
+-	};
+-
+ 	/* Skip unused frames from start of page */
+ 	page += offset >> PAGE_SHIFT;
+ 	offset &= ~PAGE_MASK;
+ 
+ 	while (len) {
+-		info.page = page;
+-		info.size = 0;
++		info->page = page;
++		info->size = 0;
+ 
+ 		gnttab_foreach_grant_in_range(page, offset, len,
+ 					      xennet_make_one_txreq,
+-					      &info);
++					      info);
+ 
+ 		page++;
+ 		offset = 0;
+-		len -= info.size;
++		len -= info->size;
+ 	}
+-
+-	return info.tx;
+ }
+ 
+ /*
+@@ -571,7 +561,7 @@ static netdev_tx_t xennet_start_xmit(str
+ {
+ 	struct netfront_info *np = netdev_priv(dev);
+ 	struct netfront_stats *tx_stats = this_cpu_ptr(np->tx_stats);
+-	struct xen_netif_tx_request *tx, *first_tx;
++	struct xen_netif_tx_request *first_tx;
+ 	unsigned int i;
+ 	int notify;
+ 	int slots;
+@@ -580,6 +570,7 @@ static netdev_tx_t xennet_start_xmit(str
+ 	unsigned int len;
+ 	unsigned long flags;
+ 	struct netfront_queue *queue = NULL;
++	struct xennet_gnttab_make_txreq info = { };
+ 	unsigned int num_queues = dev->real_num_tx_queues;
+ 	u16 queue_index;
+ 	struct sk_buff *nskb;
+@@ -637,21 +628,24 @@ static netdev_tx_t xennet_start_xmit(str
+ 	}
+ 
+ 	/* First request for the linear area. */
+-	first_tx = tx = xennet_make_first_txreq(queue, skb,
+-						page, offset, len);
+-	offset += tx->size;
++	info.queue = queue;
++	info.skb = skb;
++	info.page = page;
++	first_tx = xennet_make_first_txreq(&info, offset, len);
++	offset += info.tx_local.size;
+ 	if (offset == PAGE_SIZE) {
+ 		page++;
+ 		offset = 0;
+ 	}
+-	len -= tx->size;
++	len -= info.tx_local.size;
+ 
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 		/* local packet? */
+-		tx->flags |= XEN_NETTXF_csum_blank | XEN_NETTXF_data_validated;
++		first_tx->flags |= XEN_NETTXF_csum_blank |
++				   XEN_NETTXF_data_validated;
+ 	else if (skb->ip_summed == CHECKSUM_UNNECESSARY)
+ 		/* remote but checksummed. */
+-		tx->flags |= XEN_NETTXF_data_validated;
++		first_tx->flags |= XEN_NETTXF_data_validated;
+ 
+ 	/* Optional extra info after the first request. */
+ 	if (skb_shinfo(skb)->gso_size) {
+@@ -660,7 +654,7 @@ static netdev_tx_t xennet_start_xmit(str
+ 		gso = (struct xen_netif_extra_info *)
+ 			RING_GET_REQUEST(&queue->tx, queue->tx.req_prod_pvt++);
+ 
+-		tx->flags |= XEN_NETTXF_extra_info;
++		first_tx->flags |= XEN_NETTXF_extra_info;
+ 
+ 		gso->u.gso.size = skb_shinfo(skb)->gso_size;
+ 		gso->u.gso.type = (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6) ?
+@@ -674,13 +668,13 @@ static netdev_tx_t xennet_start_xmit(str
+ 	}
+ 
+ 	/* Requests for the rest of the linear area. */
+-	tx = xennet_make_txreqs(queue, tx, skb, page, offset, len);
++	xennet_make_txreqs(&info, page, offset, len);
+ 
+ 	/* Requests for all the frags. */
+ 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+ 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+-		tx = xennet_make_txreqs(queue, tx, skb,
+-					skb_frag_page(frag), frag->page_offset,
++		xennet_make_txreqs(&info, skb_frag_page(frag),
++					frag->page_offset,
+ 					skb_frag_size(frag));
+ 	}
+ 
 
 
