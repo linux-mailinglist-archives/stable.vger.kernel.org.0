@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE84F461D91
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB17F461E12
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377747AbhK2S0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:26:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58686 "EHLO
+        id S235998AbhK2ScH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:32:07 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34822 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348699AbhK2SYd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:24:33 -0500
+        with ESMTP id S1379059AbhK2SaG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:30:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75611B815C9;
-        Mon, 29 Nov 2021 18:21:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F72C53FC7;
-        Mon, 29 Nov 2021 18:21:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19054B815F8;
+        Mon, 29 Nov 2021 18:26:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D8A1C53FCD;
+        Mon, 29 Nov 2021 18:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210073;
-        bh=pTKdweK3dgnMuAhx19Ko+lSabZhOpaKUF7dgxJjBn+o=;
+        s=korg; t=1638210405;
+        bh=8+B12Z2kLtdYTzTycUhAkA/ExSUrQLkZ5YM/3khJ8uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cp0bwOkf+13kBXPHp8O2VORbmh/4JEF95Rl9e90J7dZwP/8ZwO7B56FX+EDMtIwqv
-         M5lDUic6Qn8FvFP4sK/srLGfuKnhQ7dryXF/JqFWZV3OJWkBebz/WPjEB8qFjQ+8AI
-         2GrAbcs4MVMjHJ2BIwXmITAJl74O15lE906FRW7g=
+        b=R9u8nlK1N44/jsGFUUji2uR2zRoqPeDP9VnTjUTXMt50BMKWV/1f23kvMri3Lqt2s
+         brxRJbTIhueCBdq+CVQAi2eYRgsfDFQZxedw5iciPyyV62LafBExpHtDufvE+0KICK
+         5PCISCi2ZtB75WQX8GZXWGkfoxXLC5PUIFNEwGlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Remi Pommarel <repk@triplefau.lt>
-Subject: [PATCH 4.19 31/69] PCI: aardvark: Fix checking for link up via LTSSM state
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Remi Pommarel <repk@triplefau.lt>,
+        Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 5.4 44/92] arm64: dts: marvell: armada-37xx: Set pcie_reset_pin to gpio function
 Date:   Mon, 29 Nov 2021 19:18:13 +0100
-Message-Id: <20211129181704.682331923@linuxfoundation.org>
+Message-Id: <20211129181708.900926243@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,128 +49,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Marek Behún <kabel@kernel.org>
 
-commit 661c399a651c11aaf83c45cbfe0b4a1fb7bc3179 upstream.
+commit 715878016984b2617f6c1f177c50039e12e7bd5b upstream.
 
-Current implementation of advk_pcie_link_up() is wrong as it marks also
-link disabled or hot reset states as link up.
+We found out that we are unable to control the PERST# signal via the
+default pin dedicated to be PERST# pin (GPIO2[3] pin) on A3700 SOC when
+this pin is in EP_PCIE1_Resetn mode. There is a register in the PCIe
+register space called PERSTN_GPIO_EN (D0088004[3]), but changing the
+value of this register does not change the pin output when measuring
+with voltmeter.
 
-Fix it by marking link up only to those states which are defined in PCIe
-Base specification 3.0, Table 4-14: Link Status Mapped to the LTSSM.
+We do not know if this is a bug in the SOC, or if it works only when
+PCIe controller is in a certain state.
 
-To simplify implementation, Define macros for every LTSSM state which
-aardvark hardware can return in CFG_REG register.
+Commit f4c7d053d7f7 ("PCI: aardvark: Wait for endpoint to be ready
+before training link") says that when this pin changes pinctrl mode
+from EP_PCIE1_Resetn to GPIO, the PERST# signal is asserted for a brief
+moment.
 
-Fix also checking for link training according to the same Table 4-14.
-Define a new function advk_pcie_link_training() for this purpose.
+So currently the situation is that on A3700 boards the PERST# signal is
+asserted in U-Boot (because the code in U-Boot issues reset via this pin
+via GPIO mode), and then in Linux by the obscure and undocumented
+mechanism described by the above mentioned commit.
 
-Link: https://lore.kernel.org/r/20211005180952.6812-13-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
+We want to issue PERST# signal in a known way, therefore this patch
+changes the pcie_reset_pin function from "pcie" to "gpio" and adds the
+reset-gpios property to the PCIe node in device tree files of
+EspressoBin and Armada 3720 Dev Board (Turris Mox device tree already
+has this property and uDPU does not have a PCIe port).
+
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
 Cc: Remi Pommarel <repk@triplefau.lt>
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   71 ++++++++++++++++++++++++++++++++--
- 1 file changed, 67 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-3720-db.dts          |    3 +++
+ arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts |    1 +
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts  |    4 ----
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi            |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -151,9 +151,50 @@
- #define CFG_REG					(LMI_BASE_ADDR + 0x0)
- #define     LTSSM_SHIFT				24
- #define     LTSSM_MASK				0x3f
--#define     LTSSM_L0				0x10
- #define     RC_BAR_CONFIG			0x300
+--- a/arch/arm64/boot/dts/marvell/armada-3720-db.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
+@@ -128,6 +128,9 @@
  
-+/* LTSSM values in CFG_REG */
-+enum {
-+	LTSSM_DETECT_QUIET			= 0x0,
-+	LTSSM_DETECT_ACTIVE			= 0x1,
-+	LTSSM_POLLING_ACTIVE			= 0x2,
-+	LTSSM_POLLING_COMPLIANCE		= 0x3,
-+	LTSSM_POLLING_CONFIGURATION		= 0x4,
-+	LTSSM_CONFIG_LINKWIDTH_START		= 0x5,
-+	LTSSM_CONFIG_LINKWIDTH_ACCEPT		= 0x6,
-+	LTSSM_CONFIG_LANENUM_ACCEPT		= 0x7,
-+	LTSSM_CONFIG_LANENUM_WAIT		= 0x8,
-+	LTSSM_CONFIG_COMPLETE			= 0x9,
-+	LTSSM_CONFIG_IDLE			= 0xa,
-+	LTSSM_RECOVERY_RCVR_LOCK		= 0xb,
-+	LTSSM_RECOVERY_SPEED			= 0xc,
-+	LTSSM_RECOVERY_RCVR_CFG			= 0xd,
-+	LTSSM_RECOVERY_IDLE			= 0xe,
-+	LTSSM_L0				= 0x10,
-+	LTSSM_RX_L0S_ENTRY			= 0x11,
-+	LTSSM_RX_L0S_IDLE			= 0x12,
-+	LTSSM_RX_L0S_FTS			= 0x13,
-+	LTSSM_TX_L0S_ENTRY			= 0x14,
-+	LTSSM_TX_L0S_IDLE			= 0x15,
-+	LTSSM_TX_L0S_FTS			= 0x16,
-+	LTSSM_L1_ENTRY				= 0x17,
-+	LTSSM_L1_IDLE				= 0x18,
-+	LTSSM_L2_IDLE				= 0x19,
-+	LTSSM_L2_TRANSMIT_WAKE			= 0x1a,
-+	LTSSM_DISABLED				= 0x20,
-+	LTSSM_LOOPBACK_ENTRY_MASTER		= 0x21,
-+	LTSSM_LOOPBACK_ACTIVE_MASTER		= 0x22,
-+	LTSSM_LOOPBACK_EXIT_MASTER		= 0x23,
-+	LTSSM_LOOPBACK_ENTRY_SLAVE		= 0x24,
-+	LTSSM_LOOPBACK_ACTIVE_SLAVE		= 0x25,
-+	LTSSM_LOOPBACK_EXIT_SLAVE		= 0x26,
-+	LTSSM_HOT_RESET				= 0x27,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE0	= 0x28,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE1	= 0x29,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE2	= 0x2a,
-+	LTSSM_RECOVERY_EQUALIZATION_PHASE3	= 0x2b,
-+};
-+
- /* PCIe core controller registers */
- #define CTRL_CORE_BASE_ADDR			0x18000
- #define CTRL_CONFIG_REG				(CTRL_CORE_BASE_ADDR + 0x0)
-@@ -247,13 +288,35 @@ static inline u32 advk_readl(struct advk
- 	return readl(pcie->base + reg);
- }
+ /* CON15(V2.0)/CON17(V1.4) : PCIe / CON15(V2.0)/CON12(V1.4) :mini-PCIe */
+ &pcie0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
++	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
  
--static int advk_pcie_link_up(struct advk_pcie *pcie)
-+static u8 advk_pcie_ltssm_state(struct advk_pcie *pcie)
- {
--	u32 val, ltssm_state;
-+	u32 val;
-+	u8 ltssm_state;
+--- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
+@@ -59,6 +59,7 @@
+ 	phys = <&comphy1 0>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
++	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
+ };
  
- 	val = advk_readl(pcie, CFG_REG);
- 	ltssm_state = (val >> LTSSM_SHIFT) & LTSSM_MASK;
--	return ltssm_state >= LTSSM_L0;
-+	return ltssm_state;
-+}
-+
-+static inline bool advk_pcie_link_up(struct advk_pcie *pcie)
-+{
-+	/* check if LTSSM is in normal operation - some L* state */
-+	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
-+	return ltssm_state >= LTSSM_L0 && ltssm_state < LTSSM_DISABLED;
-+}
-+
-+static inline bool advk_pcie_link_training(struct advk_pcie *pcie)
-+{
-+	/*
-+	  * According to PCIe Base specification 3.0, Table 4-14: Link
-+	  * Status Mapped to the LTSSM is Link Training mapped to LTSSM
-+	  * Configuration and Recovery states.
-+	  */
-+	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
-+	return ((ltssm_state >= LTSSM_CONFIG_LINKWIDTH_START &&
-+		  ltssm_state < LTSSM_L0) ||
-+		(ltssm_state >= LTSSM_RECOVERY_EQUALIZATION_PHASE0 &&
-+		  ltssm_state <= LTSSM_RECOVERY_EQUALIZATION_PHASE3));
- }
+ /* J6 */
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -127,10 +127,6 @@
+ 	};
+ };
  
- static int advk_pcie_wait_for_link(struct advk_pcie *pcie)
+-&pcie_reset_pins {
+-	function = "gpio";
+-};
+-
+ &pcie0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -318,7 +318,7 @@
+ 
+ 				pcie_reset_pins: pcie-reset-pins {
+ 					groups = "pcie1";
+-					function = "pcie";
++					function = "gpio";
+ 				};
+ 
+ 				pcie_clkreq_pins: pcie-clkreq-pins {
 
 
