@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92771461E01
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72065461F41
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350513AbhK2Sba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:31:30 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34244 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350492AbhK2S33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:29:29 -0500
+        id S245614AbhK2SpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:45:16 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:55738 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380171AbhK2SnO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:43:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DB80B815AE;
-        Mon, 29 Nov 2021 18:26:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89613C53FAD;
-        Mon, 29 Nov 2021 18:26:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8A575CE13DD;
+        Mon, 29 Nov 2021 18:39:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37362C53FAD;
+        Mon, 29 Nov 2021 18:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210369;
-        bh=MTsQyaOHTAvk1c1t+ZjMVYRROQAtcjd/N4gXfKRF1/Q=;
+        s=korg; t=1638211193;
+        bh=FizMX89KWAN1teQcdmUbzyU2kTMzyQmu95FLWYJismY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IK0rnP0FfIOnx6Ul5oexGf6yJm9GiSeD4ChDHWD3nxlNgYNEPgBlOSZ08FKEntH/z
-         8oTZVpM1NkkgnmXmbJWiIWx5bFzSprCKsIlobVZPwELchxGjRJwZ3aUcFljnTouWgf
-         D4AGqcEROBTUOuITxK4DSnAfyxYNYdhdXerFimN0=
+        b=XmWziA6fBBN41+aGJtDO689hOcvdPvA/SZBP6bDNUgFUJHXEcrrqobvOb15cGHpTg
+         r0IRfcaFMrQH8BJv7EIiNIccWvifUU/NUbrBooRijwP3TZ8jwatsx+1/yo6rLQmb5S
+         C3AMKZ3xcvSv8mBgJYjiW0egn+013UT3idrGbunk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Wen Gu <guwen@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 63/92] net/smc: Ensure the active closing peer first closes clcsock
-Date:   Mon, 29 Nov 2021 19:18:32 +0100
-Message-Id: <20211129181709.519506197@linuxfoundation.org>
+Subject: [PATCH 5.15 119/179] net/smc: Ensure the active closing peer first closes clcsock
+Date:   Mon, 29 Nov 2021 19:18:33 +0100
+Message-Id: <20211129181722.872612511@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -99,12 +99,12 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+)
 
 diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index fc06720b53c14..2eabf39dee74d 100644
+index 0f9ffba07d268..04620b53b74a7 100644
 --- a/net/smc/smc_close.c
 +++ b/net/smc/smc_close.c
-@@ -218,6 +218,12 @@ int smc_close_active(struct smc_sock *smc)
- 			if (rc)
- 				break;
+@@ -228,6 +228,12 @@ int smc_close_active(struct smc_sock *smc)
+ 			/* send close request */
+ 			rc = smc_close_final(conn);
  			sk->sk_state = SMC_PEERCLOSEWAIT1;
 +
 +			/* actively shutdown clcsock before peer close it,
