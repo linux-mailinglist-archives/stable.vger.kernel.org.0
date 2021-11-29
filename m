@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 911994625B4
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E9B6462549
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234173AbhK2Wm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:42:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34898 "EHLO
+        id S232637AbhK2Whs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:37:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233965AbhK2Wl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:41:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039AAC0443CC;
-        Mon, 29 Nov 2021 10:29:44 -0800 (PST)
+        with ESMTP id S233512AbhK2WhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:37:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D04C03AA3C;
+        Mon, 29 Nov 2021 10:20:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 504B0CE167C;
-        Mon, 29 Nov 2021 18:29:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00663C53FAD;
-        Mon, 29 Nov 2021 18:29:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F127B8159D;
+        Mon, 29 Nov 2021 18:20:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C7B4C53FAD;
+        Mon, 29 Nov 2021 18:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210580;
-        bh=UfdAoQDGyc+48qTkqvrj5H6Ic2W5FLrDqeLuRM2yp8o=;
+        s=korg; t=1638210013;
+        bh=lUlt9JGpH9X+S1Kq4bUSx5oRPBLdQ6EdLL1YGfnFsqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9NW8FA+jOUnvclEGRwIjIk2wghZbE6E/o74jFhvbg1VaL2kqTPvoKez8Evn0ByhA
-         YzJsRuEpTJvl3qlflWU6jw00yQcQ9Xc6XIxD/isVRIOkB2CaMmjtNdEgG5Tg3f9YXw
-         BH2u8AmcIZuC08GmMtvSKZmujrCCajk34ELxK1xs=
+        b=XG6DNFrdozqdDR1Am7Cir1cPoarLrdTp2JmRuRz31ifB5fAUQLCHGzgVL7jpVRvOh
+         9Jk+Kc5o2pCoIMb/+c81iiU0h40WUWjad7Ir2viwXA2mTsIxxL2nqfpjCcdOowbcvv
+         UA/WPSF/JjD7wdz/lhu0du2Pk77Qeo9NdeV/VSmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuanqi Liu <legend050709@qq.com>,
-        yangxingwu <xingwu.yang@gmail.com>,
-        Simon Horman <horms@verge.net.au>,
-        Julian Anastasov <ja@ssi.bg>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/121] netfilter: ipvs: Fix reuse connection if RS weight is 0
-Date:   Mon, 29 Nov 2021 19:17:54 +0100
-Message-Id: <20211129181713.108926643@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.19 13/69] xen: detect uninitialized xenbus in xenbus_init
+Date:   Mon, 29 Nov 2021 19:17:55 +0100
+Message-Id: <20211129181704.099920975@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,78 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangxingwu <xingwu.yang@gmail.com>
+From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-[ Upstream commit c95c07836fa4c1767ed11d8eca0769c652760e32 ]
+commit 36e8f60f0867d3b70d398d653c17108459a04efe upstream.
 
-We are changing expire_nodest_conn to work even for reused connections when
-conn_reuse_mode=0, just as what was done with commit dc7b3eb900aa ("ipvs:
-Fix reuse connection if real server is dead").
+If the xenstore page hasn't been allocated properly, reading the value
+of the related hvm_param (HVM_PARAM_STORE_PFN) won't actually return
+error. Instead, it will succeed and return zero. Instead of attempting
+to xen_remap a bad guest physical address, detect this condition and
+return early.
 
-For controlled and persistent connections, the new connection will get the
-needed real server depending on the rules in ip_vs_check_template().
+Note that although a guest physical address of zero for
+HVM_PARAM_STORE_PFN is theoretically possible, it is not a good choice
+and zero has never been validly used in that capacity.
 
-Fixes: d752c3645717 ("ipvs: allow rescheduling of new connections when port reuse is detected")
-Co-developed-by: Chuanqi Liu <legend050709@qq.com>
-Signed-off-by: Chuanqi Liu <legend050709@qq.com>
-Signed-off-by: yangxingwu <xingwu.yang@gmail.com>
-Acked-by: Simon Horman <horms@verge.net.au>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also recognize all bits set as an invalid value.
+
+For 32-bit Linux, any pfn above ULONG_MAX would get truncated. Pfns
+above ULONG_MAX should never be passed by the Xen tools to HVM guests
+anyway, so check for this condition and return early.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/20211123210748.1910236-1-sstabellini@kernel.org
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/networking/ipvs-sysctl.rst | 3 +--
- net/netfilter/ipvs/ip_vs_core.c          | 8 ++++----
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ drivers/xen/xenbus/xenbus_probe.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/Documentation/networking/ipvs-sysctl.rst b/Documentation/networking/ipvs-sysctl.rst
-index 2afccc63856ee..1cfbf1add2fc9 100644
---- a/Documentation/networking/ipvs-sysctl.rst
-+++ b/Documentation/networking/ipvs-sysctl.rst
-@@ -37,8 +37,7 @@ conn_reuse_mode - INTEGER
- 
- 	0: disable any special handling on port reuse. The new
- 	connection will be delivered to the same real server that was
--	servicing the previous connection. This will effectively
--	disable expire_nodest_conn.
-+	servicing the previous connection.
- 
- 	bit 1: enable rescheduling of new connections when it is safe.
- 	That is, whenever expire_nodest_conn and for TCP sockets, when
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index c0b8215ab3d47..3a76da58d88bb 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -1976,7 +1976,6 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
- 	struct ip_vs_proto_data *pd;
- 	struct ip_vs_conn *cp;
- 	int ret, pkts;
--	int conn_reuse_mode;
- 	struct sock *sk;
- 
- 	/* Already marked as IPVS request or reply? */
-@@ -2053,15 +2052,16 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
- 	cp = INDIRECT_CALL_1(pp->conn_in_get, ip_vs_conn_in_get_proto,
- 			     ipvs, af, skb, &iph);
- 
--	conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
--	if (conn_reuse_mode && !iph.fragoffs && is_new_conn(skb, &iph) && cp) {
-+	if (!iph.fragoffs && is_new_conn(skb, &iph) && cp) {
-+		int conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
- 		bool old_ct = false, resched = false;
- 
- 		if (unlikely(sysctl_expire_nodest_conn(ipvs)) && cp->dest &&
- 		    unlikely(!atomic_read(&cp->dest->weight))) {
- 			resched = true;
- 			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
--		} else if (is_new_conn_expected(cp, conn_reuse_mode)) {
-+		} else if (conn_reuse_mode &&
-+			   is_new_conn_expected(cp, conn_reuse_mode)) {
- 			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
- 			if (!atomic_read(&cp->n_control)) {
- 				resched = true;
--- 
-2.33.0
-
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -886,6 +886,29 @@ static int __init xenbus_init(void)
+ 		err = hvm_get_parameter(HVM_PARAM_STORE_PFN, &v);
+ 		if (err)
+ 			goto out_error;
++		/*
++		 * Uninitialized hvm_params are zero and return no error.
++		 * Although it is theoretically possible to have
++		 * HVM_PARAM_STORE_PFN set to zero on purpose, in reality it is
++		 * not zero when valid. If zero, it means that Xenstore hasn't
++		 * been properly initialized. Instead of attempting to map a
++		 * wrong guest physical address return error.
++		 *
++		 * Also recognize all bits set as an invalid value.
++		 */
++		if (!v || !~v) {
++			err = -ENOENT;
++			goto out_error;
++		}
++		/* Avoid truncation on 32-bit. */
++#if BITS_PER_LONG == 32
++		if (v > ULONG_MAX) {
++			pr_err("%s: cannot handle HVM_PARAM_STORE_PFN=%llx > ULONG_MAX\n",
++			       __func__, v);
++			err = -EINVAL;
++			goto out_error;
++		}
++#endif
+ 		xen_store_gfn = (unsigned long)v;
+ 		xen_store_interface =
+ 			xen_remap(xen_store_gfn << XEN_PAGE_SHIFT,
 
 
