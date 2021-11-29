@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CE26462430
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9688A46255B
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233006AbhK2WRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
+        id S233889AbhK2WiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:38:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231473AbhK2WQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:47 -0500
+        with ESMTP id S231545AbhK2Whi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:37:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F0CEC127125;
-        Mon, 29 Nov 2021 10:22:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BA74C0613F4;
+        Mon, 29 Nov 2021 10:31:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06791B815DB;
-        Mon, 29 Nov 2021 18:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A018C53FAD;
-        Mon, 29 Nov 2021 18:22:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64A5BB815A9;
+        Mon, 29 Nov 2021 18:31:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94207C53FAD;
+        Mon, 29 Nov 2021 18:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210122;
-        bh=VYiRlfloXRGTmj4FdDoX3+bibzj4hSrda9n62yaAsMw=;
+        s=korg; t=1638210689;
+        bh=0l0Hecp7loOQJiK9HvOlZaQePbUyh/4l3X1RoZUkBW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLW0+cJHMBSKIwn3qylEiMdN3fkLZIh4YonN9CR44N9PuDVpRNYs9TuSejsWLwnnk
-         6VppQiQ0fpHvjsYv2kXmcCnslVhUU1SiQFFRsPEREg6xfl6LERl31K2aatN/MAHj78
-         NDZAeQIqJLW8w7lSjBHGBX1RO5SzBoHO/4wX9Its=
+        b=R0GEBV9R8N6zBlQrUklq890m/TPlMx8oXZ8QymxcSOVjw7fbvQfHYPiVdfo75F2xr
+         6tgYcc/+dkRpYmoMpcm4FLxLgiPuk3Ox/QCoxDxHKbLJcx9fppQuJjI/Px2blHzAKy
+         fVZ6gRrumKylRpKClcBrIED1DOVkWgFyEnf6/QuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Harry Wentland <Harry.Wentland@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/69] PM: hibernate: use correct mode for swsusp_close()
-Date:   Mon, 29 Nov 2021 19:18:32 +0100
-Message-Id: <20211129181705.288398033@linuxfoundation.org>
+Subject: [PATCH 5.10 082/121] drm/amd/display: Set plane update flags for all planes in reset
+Date:   Mon, 29 Nov 2021 19:18:33 +0100
+Message-Id: <20211129181714.416731522@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,60 +51,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit cefcf24b4d351daf70ecd945324e200d3736821e ]
+[ Upstream commit 21431f70f6014f81b0d118ff4fcee12b00b9dd70 ]
 
-Commit 39fbef4b0f77 ("PM: hibernate: Get block device exclusively in
-swsusp_check()") changed the opening mode of the block device to
-(FMODE_READ | FMODE_EXCL).
+[Why]
+We're only setting the flags on stream[0]'s planes so this logic fails
+if we have more than one stream in the state.
 
-In the corresponding calls to swsusp_close(), the mode is still just
-FMODE_READ which triggers the warning in blkdev_flush_mapping() on
-resume from hibernate.
+This can cause a page flip timeout with multiple displays in the
+configuration.
 
-So, use the mode (FMODE_READ | FMODE_EXCL) also when closing the
-device.
+[How]
+Index into the stream_status array using the stream index - it's a 1:1
+mapping.
 
-Fixes: 39fbef4b0f77 ("PM: hibernate: Get block device exclusively in swsusp_check()")
-Signed-off-by: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: cdaae8371aa9 ("drm/amd/display: Handle GPU reset for DC block")
+
+Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/hibernate.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
-index 28db51274ed0e..6670a44ec5d45 100644
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -677,7 +677,7 @@ static int load_image_and_restore(void)
- 		goto Unlock;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index d9525fbedad2d..a5b6f36fe1d72 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1963,8 +1963,8 @@ static int dm_resume(void *handle)
  
- 	error = swsusp_read(&flags);
--	swsusp_close(FMODE_READ);
-+	swsusp_close(FMODE_READ | FMODE_EXCL);
- 	if (!error)
- 		hibernation_restore(flags & SF_PLATFORM_MODE);
- 
-@@ -874,7 +874,7 @@ static int software_resume(void)
- 	/* The snapshot device should not be opened while we're running */
- 	if (!atomic_add_unless(&snapshot_device_available, -1, 0)) {
- 		error = -EBUSY;
--		swsusp_close(FMODE_READ);
-+		swsusp_close(FMODE_READ | FMODE_EXCL);
- 		goto Unlock;
- 	}
- 
-@@ -910,7 +910,7 @@ static int software_resume(void)
- 	pm_pr_dbg("Hibernation image not present or could not be loaded.\n");
- 	return error;
-  Close_Finish:
--	swsusp_close(FMODE_READ);
-+	swsusp_close(FMODE_READ | FMODE_EXCL);
- 	goto Finish;
- }
- 
+ 		for (i = 0; i < dc_state->stream_count; i++) {
+ 			dc_state->streams[i]->mode_changed = true;
+-			for (j = 0; j < dc_state->stream_status->plane_count; j++) {
+-				dc_state->stream_status->plane_states[j]->update_flags.raw
++			for (j = 0; j < dc_state->stream_status[i].plane_count; j++) {
++				dc_state->stream_status[i].plane_states[j]->update_flags.raw
+ 					= 0xffffffff;
+ 			}
+ 		}
 -- 
 2.33.0
 
