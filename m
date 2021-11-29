@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04ACC461DB5
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B9A461E95
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232297AbhK2S2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:28:16 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47968 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352061AbhK2S0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:26:08 -0500
+        id S1378517AbhK2Shg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:37:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40556 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379329AbhK2Sff (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:35:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E1F39CE13E0;
-        Mon, 29 Nov 2021 18:22:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D1D7C53FC7;
-        Mon, 29 Nov 2021 18:22:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A772B815C9;
+        Mon, 29 Nov 2021 18:32:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77ECAC53FC7;
+        Mon, 29 Nov 2021 18:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210166;
-        bh=vsyv97+wxPgk1+sgTcJkMXCjOqicQMlEY113z7aefYI=;
+        s=korg; t=1638210735;
+        bh=c9MeRBFroZ87rEfIL2qKbxCvnRt+F2gQw6PMQ8+chg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QkQhxG7odT6wvRFHQT+oFf33lWF+mR4eiEGt5rPc9UQJiMPk0Nlp03DtP0Tc7Q0gS
-         pB5JfQqMoSrZXZfswWGSsPTBFLDyATOnBjMhWeF+PICOKXxz+689vHXjaQd8y9WD25
-         iQTqwE+NS+nAgAclRWQNl7bAR0TrnS/mZSlV07vY=
+        b=Szi6hva57l9J3WSucZMJA66Fjz+xbdSeWpy4oc2EslL6GrgnBkJGtVaHdWp8WCLlY
+         f3P05Ucf/fTbihobmu+tYX/B9HT7O1SJn94Rb7+VIt/ormDMTpg3tgLK5GxbH3Mvfs
+         GermCcYV50LzLHZ84ldAd379twdtQtjDQmyzd8oM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuanqi Liu <legend050709@qq.com>,
-        yangxingwu <xingwu.yang@gmail.com>,
-        Simon Horman <horms@verge.net.au>,
-        Julian Anastasov <ja@ssi.bg>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 37/69] netfilter: ipvs: Fix reuse connection if RS weight is 0
+Subject: [PATCH 5.10 068/121] net: ipv6: add fib6_nh_release_dsts stub
 Date:   Mon, 29 Nov 2021 19:18:19 +0100
-Message-Id: <20211129181704.879968692@linuxfoundation.org>
+Message-Id: <20211129181713.926746977@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangxingwu <xingwu.yang@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-[ Upstream commit c95c07836fa4c1767ed11d8eca0769c652760e32 ]
+[ Upstream commit 8837cbbf854246f5f4d565f21e6baa945d37aded ]
 
-We are changing expire_nodest_conn to work even for reused connections when
-conn_reuse_mode=0, just as what was done with commit dc7b3eb900aa ("ipvs:
-Fix reuse connection if real server is dead").
+We need a way to release a fib6_nh's per-cpu dsts when replacing
+nexthops otherwise we can end up with stale per-cpu dsts which hold net
+device references, so add a new IPv6 stub called fib6_nh_release_dsts.
+It must be used after an RCU grace period, so no new dsts can be created
+through a group's nexthop entry.
+Similar to fib6_nh_release it shouldn't be used if fib6_nh_init has failed
+so it doesn't need a dummy stub when IPv6 is not enabled.
 
-For controlled and persistent connections, the new connection will get the
-needed real server depending on the rules in ip_vs_check_template().
-
-Fixes: d752c3645717 ("ipvs: allow rescheduling of new connections when port reuse is detected")
-Co-developed-by: Chuanqi Liu <legend050709@qq.com>
-Signed-off-by: Chuanqi Liu <legend050709@qq.com>
-Signed-off-by: yangxingwu <xingwu.yang@gmail.com>
-Acked-by: Simon Horman <horms@verge.net.au>
-Acked-by: Julian Anastasov <ja@ssi.bg>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 7bf4796dd099 ("nexthops: add support for replace")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/networking/ipvs-sysctl.txt | 3 +--
- net/netfilter/ipvs/ip_vs_core.c          | 8 ++++----
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ include/net/ip6_fib.h    |  1 +
+ include/net/ipv6_stubs.h |  1 +
+ net/ipv6/af_inet6.c      |  1 +
+ net/ipv6/route.c         | 19 +++++++++++++++++++
+ 4 files changed, 22 insertions(+)
 
-diff --git a/Documentation/networking/ipvs-sysctl.txt b/Documentation/networking/ipvs-sysctl.txt
-index 056898685d408..fc531c29a2e83 100644
---- a/Documentation/networking/ipvs-sysctl.txt
-+++ b/Documentation/networking/ipvs-sysctl.txt
-@@ -30,8 +30,7 @@ conn_reuse_mode - INTEGER
+diff --git a/include/net/ip6_fib.h b/include/net/ip6_fib.h
+index ac5ff3c3afb14..88bc66b8d02b0 100644
+--- a/include/net/ip6_fib.h
++++ b/include/net/ip6_fib.h
+@@ -491,6 +491,7 @@ int fib6_nh_init(struct net *net, struct fib6_nh *fib6_nh,
+ 		 struct fib6_config *cfg, gfp_t gfp_flags,
+ 		 struct netlink_ext_ack *extack);
+ void fib6_nh_release(struct fib6_nh *fib6_nh);
++void fib6_nh_release_dsts(struct fib6_nh *fib6_nh);
  
- 	0: disable any special handling on port reuse. The new
- 	connection will be delivered to the same real server that was
--	servicing the previous connection. This will effectively
--	disable expire_nodest_conn.
-+	servicing the previous connection.
+ int call_fib6_entry_notifiers(struct net *net,
+ 			      enum fib_event_type event_type,
+diff --git a/include/net/ipv6_stubs.h b/include/net/ipv6_stubs.h
+index 8fce558b5fea3..14a43111ffc6a 100644
+--- a/include/net/ipv6_stubs.h
++++ b/include/net/ipv6_stubs.h
+@@ -47,6 +47,7 @@ struct ipv6_stub {
+ 			    struct fib6_config *cfg, gfp_t gfp_flags,
+ 			    struct netlink_ext_ack *extack);
+ 	void (*fib6_nh_release)(struct fib6_nh *fib6_nh);
++	void (*fib6_nh_release_dsts)(struct fib6_nh *fib6_nh);
+ 	void (*fib6_update_sernum)(struct net *net, struct fib6_info *rt);
+ 	int (*ip6_del_rt)(struct net *net, struct fib6_info *rt, bool skip_notify);
+ 	void (*fib6_rt_update)(struct net *net, struct fib6_info *rt,
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+index e648fbebb1670..090575346daf6 100644
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -1016,6 +1016,7 @@ static const struct ipv6_stub ipv6_stub_impl = {
+ 	.ip6_mtu_from_fib6 = ip6_mtu_from_fib6,
+ 	.fib6_nh_init	   = fib6_nh_init,
+ 	.fib6_nh_release   = fib6_nh_release,
++	.fib6_nh_release_dsts = fib6_nh_release_dsts,
+ 	.fib6_update_sernum = fib6_update_sernum_stub,
+ 	.fib6_rt_update	   = fib6_rt_update,
+ 	.ip6_del_rt	   = ip6_del_rt,
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index a68a7d7c07280..6fef0d7586bf6 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -3570,6 +3570,25 @@ void fib6_nh_release(struct fib6_nh *fib6_nh)
+ 	fib_nh_common_release(&fib6_nh->nh_common);
+ }
  
- 	bit 1: enable rescheduling of new connections when it is safe.
- 	That is, whenever expire_nodest_conn and for TCP sockets, when
-diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
-index acaeeaf814415..f20b08db9fe91 100644
---- a/net/netfilter/ipvs/ip_vs_core.c
-+++ b/net/netfilter/ipvs/ip_vs_core.c
-@@ -1850,7 +1850,6 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
- 	struct ip_vs_proto_data *pd;
- 	struct ip_vs_conn *cp;
- 	int ret, pkts;
--	int conn_reuse_mode;
- 	struct sock *sk;
- 
- 	/* Already marked as IPVS request or reply? */
-@@ -1926,15 +1925,16 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
- 	 */
- 	cp = pp->conn_in_get(ipvs, af, skb, &iph);
- 
--	conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
--	if (conn_reuse_mode && !iph.fragoffs && is_new_conn(skb, &iph) && cp) {
-+	if (!iph.fragoffs && is_new_conn(skb, &iph) && cp) {
-+		int conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
- 		bool old_ct = false, resched = false;
- 
- 		if (unlikely(sysctl_expire_nodest_conn(ipvs)) && cp->dest &&
- 		    unlikely(!atomic_read(&cp->dest->weight))) {
- 			resched = true;
- 			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
--		} else if (is_new_conn_expected(cp, conn_reuse_mode)) {
-+		} else if (conn_reuse_mode &&
-+			   is_new_conn_expected(cp, conn_reuse_mode)) {
- 			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
- 			if (!atomic_read(&cp->n_control)) {
- 				resched = true;
++void fib6_nh_release_dsts(struct fib6_nh *fib6_nh)
++{
++	int cpu;
++
++	if (!fib6_nh->rt6i_pcpu)
++		return;
++
++	for_each_possible_cpu(cpu) {
++		struct rt6_info *pcpu_rt, **ppcpu_rt;
++
++		ppcpu_rt = per_cpu_ptr(fib6_nh->rt6i_pcpu, cpu);
++		pcpu_rt = xchg(ppcpu_rt, NULL);
++		if (pcpu_rt) {
++			dst_dev_put(&pcpu_rt->dst);
++			dst_release(&pcpu_rt->dst);
++		}
++	}
++}
++
+ static struct fib6_info *ip6_route_info_create(struct fib6_config *cfg,
+ 					      gfp_t gfp_flags,
+ 					      struct netlink_ext_ack *extack)
 -- 
 2.33.0
 
