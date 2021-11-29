@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8409B46245D
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAC3C462469
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231826AbhK2WRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
+        id S232265AbhK2WSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:18:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbhK2WQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:58 -0500
+        with ESMTP id S232769AbhK2WQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECEFC041F4D;
-        Mon, 29 Nov 2021 10:23:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0375CC12711C;
+        Mon, 29 Nov 2021 10:21:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DABA1B815C2;
-        Mon, 29 Nov 2021 18:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16E2DC53FC7;
-        Mon, 29 Nov 2021 18:23:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E20BB815C3;
+        Mon, 29 Nov 2021 18:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C605DC53FAD;
+        Mon, 29 Nov 2021 18:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210231;
-        bh=DSymmW3TimmC2MEuqS+FO0e0oWWzopNEUfyIRa9o89U=;
+        s=korg; t=1638210067;
+        bh=PM/yQpI+6fYexdm9iC3694oATmfAwBxaiumR98Y7WFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsAFQ+FXvdLVhpUglFsKEvlVEdVlXEvFEpw0d9bc4GVxqrq3GFhC0l/ZSFJE4j31H
-         nZXOyeuJANL8Hyxb8gOsNEZMQVGaroqt5gjNi9sFl3KbVzjMxZgrdmdclECYdn7rOy
-         fNfaUui6X7D+JGRbHDR2ZsWsBax28NusHAXFwzEw=
+        b=f17MKusfp7IqP8VK0V5GbNUwttlGJQ/DQxeOD/LJ8Kdu4uOHP8dn+NhvJa1CZs0Dz
+         D+Hdd82ejgTiaG6kp8jxWB4MniTWSZoaAy0iQhKNFlp5J+FgDGhO8NghJt+I5raYu/
+         AyDFvWBLxWXlNGSIOYwAP4yc2Pto9cpV61DQV9YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stable@vger.kernel.org, jbeulich@suse.com,
-        Stefano Stabellini <stefano.stabellini@xilinx.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 16/92] xen: dont continue xenstore initialization in case of errors
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        John Keeping <john@metanate.com>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.19 03/69] usb: dwc2: hcd_queue: Fix use of floating point literal
 Date:   Mon, 29 Nov 2021 19:17:45 +0100
-Message-Id: <20211129181707.962586545@linuxfoundation.org>
+Message-Id: <20211129181703.778282417@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,57 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 08f6c2b09ebd4b326dbe96d13f94fee8f9814c78 upstream.
+commit 310780e825f3ffd211b479b8f828885a6faedd63 upstream.
 
-In case of errors in xenbus_init (e.g. missing xen_store_gfn parameter),
-we goto out_error but we forget to reset xen_store_domain_type to
-XS_UNKNOWN. As a consequence xenbus_probe_initcall and other initcalls
-will still try to initialize xenstore resulting into a crash at boot.
+A new commit in LLVM causes an error on the use of 'long double' when
+'-mno-x87' is used, which the kernel does through an alias,
+'-mno-80387' (see the LLVM commit below for more details around why it
+does this).
 
-[    2.479830] Call trace:
-[    2.482314]  xb_init_comms+0x18/0x150
-[    2.486354]  xs_init+0x34/0x138
-[    2.489786]  xenbus_probe+0x4c/0x70
-[    2.498432]  xenbus_probe_initcall+0x2c/0x7c
-[    2.503944]  do_one_initcall+0x54/0x1b8
-[    2.507358]  kernel_init_freeable+0x1ac/0x210
-[    2.511617]  kernel_init+0x28/0x130
-[    2.516112]  ret_from_fork+0x10/0x20
+ drivers/usb/dwc2/hcd_queue.c:1744:25: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
+                         delay = ktime_set(0, DWC2_RETRY_WAIT_DELAY);
+                                             ^
+ drivers/usb/dwc2/hcd_queue.c:62:34: note: expanded from macro 'DWC2_RETRY_WAIT_DELAY'
+ #define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
+                                 ^
+ 1 error generated.
 
-Cc: <Stable@vger.kernel.org>
-Cc: jbeulich@suse.com
-Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
-Link: https://lore.kernel.org/r/20211115222719.2558207-1-sstabellini@kernel.org
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+This happens due to the use of a 'long double' literal. The 'E6' part of
+'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
+it to 'long double'.
+
+There is no visible reason for a floating point value in this driver, as
+the value is only used as a parameter to a function that expects an
+integer type. Use NSEC_PER_MSEC, which is the same integer value as
+'1E6L', to avoid changing functionality but fix the error.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1497
+Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
+Fixes: 6ed30a7d8ec2 ("usb: dwc2: host: use hrtimer for NAK retries")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20211105145802.2520658-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/xenbus/xenbus_probe.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/dwc2/hcd_queue.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -846,7 +846,7 @@ static struct notifier_block xenbus_resu
+--- a/drivers/usb/dwc2/hcd_queue.c
++++ b/drivers/usb/dwc2/hcd_queue.c
+@@ -59,7 +59,7 @@
+ #define DWC2_UNRESERVE_DELAY (msecs_to_jiffies(5))
  
- static int __init xenbus_init(void)
- {
--	int err = 0;
-+	int err;
- 	uint64_t v = 0;
- 	xen_store_domain_type = XS_UNKNOWN;
+ /* If we get a NAK, wait this long before retrying */
+-#define DWC2_RETRY_WAIT_DELAY 1*1E6L
++#define DWC2_RETRY_WAIT_DELAY (1 * NSEC_PER_MSEC)
  
-@@ -920,8 +920,10 @@ static int __init xenbus_init(void)
- 	 */
- 	proc_create_mount_point("xen");
- #endif
-+	return 0;
- 
- out_error:
-+	xen_store_domain_type = XS_UNKNOWN;
- 	return err;
- }
- 
+ /**
+  * dwc2_periodic_channel_available() - Checks that a channel is available for a
 
 
