@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 297BE461EA2
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 931C9461F76
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243216AbhK2Sip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:38:45 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41382 "EHLO
+        id S1380171AbhK2SrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:47:23 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48258 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379625AbhK2Sg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:36:29 -0500
+        with ESMTP id S1380291AbhK2SpT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:45:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E44B3B815C3;
-        Mon, 29 Nov 2021 18:33:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1B1C53FAD;
-        Mon, 29 Nov 2021 18:33:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3CAF5B815D4;
+        Mon, 29 Nov 2021 18:42:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67898C53FC7;
+        Mon, 29 Nov 2021 18:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210789;
-        bh=S9anbES425jn8PdzDLo3Io70Wb16S0SbaConbkvpnS0=;
+        s=korg; t=1638211319;
+        bh=utZ8/tjCy+a1E2RU2GANH6wVq53NnZCEWck9N9rB7fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmoPYyFwxBFduK2ZvUYPDtJvi/9QsuNhMkyIPxKTmeveWSOVOtJOkITb3ByOUuS4v
-         wxRyWNIuxRofTDgoDxDxR1Fz3zBCIiOlExLyLaNMnw1OqQaXTlkK2CgEP/WJjk3j28
-         RNL9hNoPh5C63ft/0Kc/Szc7VclHZYDlT9N/Qed8=
+        b=YLpK0crl33De0bjvQv634kff6jWNmjAUOjwpf3lbWtZN3xL1+cyw9qrcyan34CjDq
+         NR3g/69Zv+zV/zxgJOpEKMmVnRBWzO8UR+W4RhSmy0v27RlOySAzkm0MiLulwq6fok
+         bOzhmWdVnQPi0ZdB0SeLmPqzu6fhfuY6bvq6ONsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 117/121] tty: hvc: replace BUG_ON() with negative return value
-Date:   Mon, 29 Nov 2021 19:19:08 +0100
-Message-Id: <20211129181715.597203561@linuxfoundation.org>
+        stable@vger.kernel.org, Zhenhua Ma <mazhenhua@xiaomi.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 155/179] locking/rwsem: Make handoff bit handling more consistent
+Date:   Mon, 29 Nov 2021 19:19:09 +0100
+Message-Id: <20211129181724.051544085@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +46,381 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Waiman Long <longman@redhat.com>
 
-commit e679004dec37566f658a255157d3aed9d762a2b7 upstream.
+[ Upstream commit d257cc8cb8d5355ffc43a96bab94db7b5a324803 ]
 
-Xen frontends shouldn't BUG() in case of illegal data received from
-their backends. So replace the BUG_ON()s when reading illegal data from
-the ring page with negative return values.
+There are some inconsistency in the way that the handoff bit is being
+handled in readers and writers that lead to a race condition.
 
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20210707091045.460-1-jgross@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Firstly, when a queue head writer set the handoff bit, it will clear
+it when the writer is being killed or interrupted on its way out
+without acquiring the lock. That is not the case for a queue head
+reader. The handoff bit will simply be inherited by the next waiter.
+
+Secondly, in the out_nolock path of rwsem_down_read_slowpath(), both
+the waiter and handoff bits are cleared if the wait queue becomes
+empty.  For rwsem_down_write_slowpath(), however, the handoff bit is
+not checked and cleared if the wait queue is empty. This can
+potentially make the handoff bit set with empty wait queue.
+
+Worse, the situation in rwsem_down_write_slowpath() relies on wstate,
+a variable set outside of the critical section containing the ->count
+manipulation, this leads to race condition where RWSEM_FLAG_HANDOFF
+can be double subtracted, corrupting ->count.
+
+To make the handoff bit handling more consistent and robust, extract
+out handoff bit clearing code into the new rwsem_del_waiter() helper
+function. Also, completely eradicate wstate; always evaluate
+everything inside the same critical section.
+
+The common function will only use atomic_long_andnot() to clear bits
+when the wait queue is empty to avoid possible race condition.  If the
+first waiter with handoff bit set is killed or interrupted to exit the
+slowpath without acquiring the lock, the next waiter will inherit the
+handoff bit.
+
+While at it, simplify the trylock for loop in
+rwsem_down_write_slowpath() to make it easier to read.
+
+Fixes: 4f23dbc1e657 ("locking/rwsem: Implement lock handoff to prevent lock starvation")
+Reported-by: Zhenhua Ma <mazhenhua@xiaomi.com>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211116012912.723980-1-longman@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_xen.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ kernel/locking/rwsem.c | 171 ++++++++++++++++++++---------------------
+ 1 file changed, 85 insertions(+), 86 deletions(-)
 
---- a/drivers/tty/hvc/hvc_xen.c
-+++ b/drivers/tty/hvc/hvc_xen.c
-@@ -86,7 +86,11 @@ static int __write_console(struct xencon
- 	cons = intf->out_cons;
- 	prod = intf->out_prod;
- 	mb();			/* update queue values before going on */
--	BUG_ON((prod - cons) > sizeof(intf->out));
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index 29eea50a3e678..e63f740c2cc84 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -106,9 +106,9 @@
+  * atomic_long_cmpxchg() will be used to obtain writer lock.
+  *
+  * There are three places where the lock handoff bit may be set or cleared.
+- * 1) rwsem_mark_wake() for readers.
+- * 2) rwsem_try_write_lock() for writers.
+- * 3) Error path of rwsem_down_write_slowpath().
++ * 1) rwsem_mark_wake() for readers		-- set, clear
++ * 2) rwsem_try_write_lock() for writers	-- set, clear
++ * 3) rwsem_del_waiter()			-- clear
+  *
+  * For all the above cases, wait_lock will be held. A writer must also
+  * be the first one in the wait_list to be eligible for setting the handoff
+@@ -335,6 +335,9 @@ struct rwsem_waiter {
+ 	struct task_struct *task;
+ 	enum rwsem_waiter_type type;
+ 	unsigned long timeout;
 +
-+	if ((prod - cons) > sizeof(intf->out)) {
-+		pr_err_once("xencons: Illegal ring page indices");
-+		return -EINVAL;
-+	}
++	/* Writer only, not initialized in reader */
++	bool handoff_set;
+ };
+ #define rwsem_first_waiter(sem) \
+ 	list_first_entry(&sem->wait_list, struct rwsem_waiter, list)
+@@ -345,12 +348,6 @@ enum rwsem_wake_type {
+ 	RWSEM_WAKE_READ_OWNED	/* Waker thread holds the read lock */
+ };
  
- 	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
- 		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
-@@ -114,7 +118,10 @@ static int domU_write_console(uint32_t v
+-enum writer_wait_state {
+-	WRITER_NOT_FIRST,	/* Writer is not first in wait list */
+-	WRITER_FIRST,		/* Writer is first in wait list     */
+-	WRITER_HANDOFF		/* Writer is first & handoff needed */
+-};
+-
+ /*
+  * The typical HZ value is either 250 or 1000. So set the minimum waiting
+  * time to at least 4ms or 1 jiffy (if it is higher than 4ms) in the wait
+@@ -366,6 +363,31 @@ enum writer_wait_state {
+  */
+ #define MAX_READERS_WAKEUP	0x100
+ 
++static inline void
++rwsem_add_waiter(struct rw_semaphore *sem, struct rwsem_waiter *waiter)
++{
++	lockdep_assert_held(&sem->wait_lock);
++	list_add_tail(&waiter->list, &sem->wait_list);
++	/* caller will set RWSEM_FLAG_WAITERS */
++}
++
++/*
++ * Remove a waiter from the wait_list and clear flags.
++ *
++ * Both rwsem_mark_wake() and rwsem_try_write_lock() contain a full 'copy' of
++ * this function. Modify with care.
++ */
++static inline void
++rwsem_del_waiter(struct rw_semaphore *sem, struct rwsem_waiter *waiter)
++{
++	lockdep_assert_held(&sem->wait_lock);
++	list_del(&waiter->list);
++	if (likely(!list_empty(&sem->wait_list)))
++		return;
++
++	atomic_long_andnot(RWSEM_FLAG_HANDOFF | RWSEM_FLAG_WAITERS, &sem->count);
++}
++
+ /*
+  * handle the lock release when processes blocked on it that can now run
+  * - if we come here from up_xxxx(), then the RWSEM_FLAG_WAITERS bit must
+@@ -377,6 +399,8 @@ enum writer_wait_state {
+  *   preferably when the wait_lock is released
+  * - woken process blocks are discarded from the list after having task zeroed
+  * - writers are only marked woken if downgrading is false
++ *
++ * Implies rwsem_del_waiter() for all woken readers.
+  */
+ static void rwsem_mark_wake(struct rw_semaphore *sem,
+ 			    enum rwsem_wake_type wake_type,
+@@ -491,18 +515,25 @@ static void rwsem_mark_wake(struct rw_semaphore *sem,
+ 
+ 	adjustment = woken * RWSEM_READER_BIAS - adjustment;
+ 	lockevent_cond_inc(rwsem_wake_reader, woken);
++
++	oldcount = atomic_long_read(&sem->count);
+ 	if (list_empty(&sem->wait_list)) {
+-		/* hit end of list above */
++		/*
++		 * Combined with list_move_tail() above, this implies
++		 * rwsem_del_waiter().
++		 */
+ 		adjustment -= RWSEM_FLAG_WAITERS;
++		if (oldcount & RWSEM_FLAG_HANDOFF)
++			adjustment -= RWSEM_FLAG_HANDOFF;
++	} else if (woken) {
++		/*
++		 * When we've woken a reader, we no longer need to force
++		 * writers to give up the lock and we can clear HANDOFF.
++		 */
++		if (oldcount & RWSEM_FLAG_HANDOFF)
++			adjustment -= RWSEM_FLAG_HANDOFF;
+ 	}
+ 
+-	/*
+-	 * When we've woken a reader, we no longer need to force writers
+-	 * to give up the lock and we can clear HANDOFF.
+-	 */
+-	if (woken && (atomic_long_read(&sem->count) & RWSEM_FLAG_HANDOFF))
+-		adjustment -= RWSEM_FLAG_HANDOFF;
+-
+ 	if (adjustment)
+ 		atomic_long_add(adjustment, &sem->count);
+ 
+@@ -533,12 +564,12 @@ static void rwsem_mark_wake(struct rw_semaphore *sem,
+  * race conditions between checking the rwsem wait list and setting the
+  * sem->count accordingly.
+  *
+- * If wstate is WRITER_HANDOFF, it will make sure that either the handoff
+- * bit is set or the lock is acquired with handoff bit cleared.
++ * Implies rwsem_del_waiter() on success.
+  */
+ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
+-					enum writer_wait_state wstate)
++					struct rwsem_waiter *waiter)
+ {
++	bool first = rwsem_first_waiter(sem) == waiter;
+ 	long count, new;
+ 
+ 	lockdep_assert_held(&sem->wait_lock);
+@@ -547,13 +578,19 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
+ 	do {
+ 		bool has_handoff = !!(count & RWSEM_FLAG_HANDOFF);
+ 
+-		if (has_handoff && wstate == WRITER_NOT_FIRST)
+-			return false;
++		if (has_handoff) {
++			if (!first)
++				return false;
++
++			/* First waiter inherits a previously set handoff bit */
++			waiter->handoff_set = true;
++		}
+ 
+ 		new = count;
+ 
+ 		if (count & RWSEM_LOCK_MASK) {
+-			if (has_handoff || (wstate != WRITER_HANDOFF))
++			if (has_handoff || (!rt_task(waiter->task) &&
++					    !time_after(jiffies, waiter->timeout)))
+ 				return false;
+ 
+ 			new |= RWSEM_FLAG_HANDOFF;
+@@ -570,9 +607,17 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
+ 	 * We have either acquired the lock with handoff bit cleared or
+ 	 * set the handoff bit.
  	 */
- 	while (len) {
- 		int sent = __write_console(cons, data, len);
--		
-+
-+		if (sent < 0)
-+			return sent;
-+
- 		data += sent;
- 		len -= sent;
- 
-@@ -138,7 +145,11 @@ static int domU_read_console(uint32_t vt
- 	cons = intf->in_cons;
- 	prod = intf->in_prod;
- 	mb();			/* get pointers before reading ring */
--	BUG_ON((prod - cons) > sizeof(intf->in));
-+
-+	if ((prod - cons) > sizeof(intf->in)) {
-+		pr_err_once("xencons: Illegal ring page indices");
-+		return -EINVAL;
+-	if (new & RWSEM_FLAG_HANDOFF)
++	if (new & RWSEM_FLAG_HANDOFF) {
++		waiter->handoff_set = true;
++		lockevent_inc(rwsem_wlock_handoff);
+ 		return false;
 +	}
  
- 	while (cons != prod && recv < len)
- 		buf[recv++] = intf->in[MASK_XENCONS_IDX(cons++, intf->in)];
++	/*
++	 * Have rwsem_try_write_lock() fully imply rwsem_del_waiter() on
++	 * success.
++	 */
++	list_del(&waiter->list);
+ 	rwsem_set_owner(sem);
+ 	return true;
+ }
+@@ -953,7 +998,7 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, unsigned int stat
+ 		}
+ 		adjustment += RWSEM_FLAG_WAITERS;
+ 	}
+-	list_add_tail(&waiter.list, &sem->wait_list);
++	rwsem_add_waiter(sem, &waiter);
+ 
+ 	/* we're now waiting on the lock, but no longer actively locking */
+ 	count = atomic_long_add_return(adjustment, &sem->count);
+@@ -999,11 +1044,7 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, unsigned int stat
+ 	return sem;
+ 
+ out_nolock:
+-	list_del(&waiter.list);
+-	if (list_empty(&sem->wait_list)) {
+-		atomic_long_andnot(RWSEM_FLAG_WAITERS|RWSEM_FLAG_HANDOFF,
+-				   &sem->count);
+-	}
++	rwsem_del_waiter(sem, &waiter);
+ 	raw_spin_unlock_irq(&sem->wait_lock);
+ 	__set_current_state(TASK_RUNNING);
+ 	lockevent_inc(rwsem_rlock_fail);
+@@ -1017,9 +1058,7 @@ static struct rw_semaphore *
+ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
+ {
+ 	long count;
+-	enum writer_wait_state wstate;
+ 	struct rwsem_waiter waiter;
+-	struct rw_semaphore *ret = sem;
+ 	DEFINE_WAKE_Q(wake_q);
+ 
+ 	/* do optimistic spinning and steal lock if possible */
+@@ -1035,16 +1074,13 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
+ 	waiter.task = current;
+ 	waiter.type = RWSEM_WAITING_FOR_WRITE;
+ 	waiter.timeout = jiffies + RWSEM_WAIT_TIMEOUT;
++	waiter.handoff_set = false;
+ 
+ 	raw_spin_lock_irq(&sem->wait_lock);
+-
+-	/* account for this before adding a new element to the list */
+-	wstate = list_empty(&sem->wait_list) ? WRITER_FIRST : WRITER_NOT_FIRST;
+-
+-	list_add_tail(&waiter.list, &sem->wait_list);
++	rwsem_add_waiter(sem, &waiter);
+ 
+ 	/* we're now waiting on the lock */
+-	if (wstate == WRITER_NOT_FIRST) {
++	if (rwsem_first_waiter(sem) != &waiter) {
+ 		count = atomic_long_read(&sem->count);
+ 
+ 		/*
+@@ -1080,13 +1116,16 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
+ 	/* wait until we successfully acquire the lock */
+ 	set_current_state(state);
+ 	for (;;) {
+-		if (rwsem_try_write_lock(sem, wstate)) {
++		if (rwsem_try_write_lock(sem, &waiter)) {
+ 			/* rwsem_try_write_lock() implies ACQUIRE on success */
+ 			break;
+ 		}
+ 
+ 		raw_spin_unlock_irq(&sem->wait_lock);
+ 
++		if (signal_pending_state(state, current))
++			goto out_nolock;
++
+ 		/*
+ 		 * After setting the handoff bit and failing to acquire
+ 		 * the lock, attempt to spin on owner to accelerate lock
+@@ -1095,7 +1134,7 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
+ 		 * In this case, we attempt to acquire the lock again
+ 		 * without sleeping.
+ 		 */
+-		if (wstate == WRITER_HANDOFF) {
++		if (waiter.handoff_set) {
+ 			enum owner_state owner_state;
+ 
+ 			preempt_disable();
+@@ -1106,66 +1145,26 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
+ 				goto trylock_again;
+ 		}
+ 
+-		/* Block until there are no active lockers. */
+-		for (;;) {
+-			if (signal_pending_state(state, current))
+-				goto out_nolock;
+-
+-			schedule();
+-			lockevent_inc(rwsem_sleep_writer);
+-			set_current_state(state);
+-			/*
+-			 * If HANDOFF bit is set, unconditionally do
+-			 * a trylock.
+-			 */
+-			if (wstate == WRITER_HANDOFF)
+-				break;
+-
+-			if ((wstate == WRITER_NOT_FIRST) &&
+-			    (rwsem_first_waiter(sem) == &waiter))
+-				wstate = WRITER_FIRST;
+-
+-			count = atomic_long_read(&sem->count);
+-			if (!(count & RWSEM_LOCK_MASK))
+-				break;
+-
+-			/*
+-			 * The setting of the handoff bit is deferred
+-			 * until rwsem_try_write_lock() is called.
+-			 */
+-			if ((wstate == WRITER_FIRST) && (rt_task(current) ||
+-			    time_after(jiffies, waiter.timeout))) {
+-				wstate = WRITER_HANDOFF;
+-				lockevent_inc(rwsem_wlock_handoff);
+-				break;
+-			}
+-		}
++		schedule();
++		lockevent_inc(rwsem_sleep_writer);
++		set_current_state(state);
+ trylock_again:
+ 		raw_spin_lock_irq(&sem->wait_lock);
+ 	}
+ 	__set_current_state(TASK_RUNNING);
+-	list_del(&waiter.list);
+ 	raw_spin_unlock_irq(&sem->wait_lock);
+ 	lockevent_inc(rwsem_wlock);
+-
+-	return ret;
++	return sem;
+ 
+ out_nolock:
+ 	__set_current_state(TASK_RUNNING);
+ 	raw_spin_lock_irq(&sem->wait_lock);
+-	list_del(&waiter.list);
+-
+-	if (unlikely(wstate == WRITER_HANDOFF))
+-		atomic_long_add(-RWSEM_FLAG_HANDOFF,  &sem->count);
+-
+-	if (list_empty(&sem->wait_list))
+-		atomic_long_andnot(RWSEM_FLAG_WAITERS, &sem->count);
+-	else
++	rwsem_del_waiter(sem, &waiter);
++	if (!list_empty(&sem->wait_list))
+ 		rwsem_mark_wake(sem, RWSEM_WAKE_ANY, &wake_q);
+ 	raw_spin_unlock_irq(&sem->wait_lock);
+ 	wake_up_q(&wake_q);
+ 	lockevent_inc(rwsem_wlock_fail);
+-
+ 	return ERR_PTR(-EINTR);
+ }
+ 
+-- 
+2.33.0
+
 
 
