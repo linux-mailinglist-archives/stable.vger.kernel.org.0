@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93FCB461ED5
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:38:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78382461E30
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:30:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379483AbhK2Sk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:40:56 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:54654 "EHLO
+        id S1377849AbhK2Sdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:33:43 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:50790 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379454AbhK2Siy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:38:54 -0500
+        with ESMTP id S1350491AbhK2Sbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:31:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EA568CE13D0;
-        Mon, 29 Nov 2021 18:35:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98837C53FAD;
-        Mon, 29 Nov 2021 18:35:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CAC84CE13F9;
+        Mon, 29 Nov 2021 18:28:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75629C53FAD;
+        Mon, 29 Nov 2021 18:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210933;
-        bh=IJ2dXdwhT25l1CIeqH3ncy6xMkbSsRJusfJIZXgqJTo=;
+        s=korg; t=1638210498;
+        bh=CctDmUDtPYBvIs6XJg3akBXJ5RnL5ij5joMJudApFq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgtgeorI5eJmZdbeJeau27pgxeBXUhmITj0kfuHDD5qW/sj3XLcCRd8ovaiaAi6P6
-         E9WRYhXHdQC5hTA4Mo5jiPZ5BwjiMy6HCysKo+qEixPNuDRzgdNTKioI9R8Xvv6TnG
-         u2nGiRFZOmkqq8GZxEHVbHttR3bQ5zZzEefXy72Q=
+        b=T1MTC9afLte7DPd9M+LZLdV4iMtc5baNEY86f21bQfrpVHqhm24SHTvIl3OJQ7jP+
+         VJXtUhLx6ifFnyWDJi2+lOfJhkU+Ola3tMgWfthWGcx1CTUtKzN3fxKUgwVin7RTvb
+         HOSF+xKksGJzAfN+a/UAK0GMNSLwosSsoCSOryF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 045/179] ksmbd: contain default data stream even if xattr is empty
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.10 008/121] usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer
 Date:   Mon, 29 Nov 2021 19:17:19 +0100
-Message-Id: <20211129181720.448146300@linuxfoundation.org>
+Message-Id: <20211129181711.922740074@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 1ec72153ff434ce75bace3044dc89a23a05d7064 upstream.
+commit 63c4c320ccf77074ffe9019ac596603133c1b517 upstream.
 
-If xattr is not supported like exfat or fat, ksmbd server doesn't
-contain default data stream in FILE_STREAM_INFORMATION response. It will
-cause ppt or doc file update issue if local filesystem is such as ones.
-This patch move goto statement to contain it.
+The programming guide noted that the driver needs to verify if the link
+state is in U0 before executing the Start Transfer command. If it's not
+in U0, the driver needs to perform remote wakeup. This is not accurate.
+If the link state is in U1/U2, then the controller will not respond to
+link recovery request from DCTL.ULSTCHNGREQ. The Start Transfer command
+will trigger a link recovery if it is in U1/U2. A clarification will be
+added to the programming guide for all controller versions.
 
-Fixes: 9f6323311c70 ("ksmbd: add default data stream name in FILE_STREAM_INFORMATION")
-Cc: stable@vger.kernel.org # v5.15
-Acked-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+The current implementation shouldn't cause any functional issue. It may
+occasionally report an invalid time out warning from failed link
+recovery request. The driver will still go ahead with the Start Transfer
+command if the remote wakeup fails. The new change only initiates remote
+wakeup where it is needed, which is when the link state is in L1/L2/U3.
+
+Fixes: c36d8e947a56 ("usb: dwc3: gadget: put link to U0 before Start Transfer")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/05b4a5fbfbd0863fc9b1d7af934a366219e3d0b4.1635204761.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2pdu.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/usb/dwc3/gadget.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -4450,6 +4450,12 @@ static void get_file_stream_info(struct
- 			 &stat);
- 	file_info = (struct smb2_file_stream_info *)rsp->Buffer;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -310,13 +310,24 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_
+ 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
+ 		int link_state;
  
-+	buf_free_len =
-+		smb2_calc_max_out_buf_len(work, 8,
-+					  le32_to_cpu(req->OutputBufferLength));
-+	if (buf_free_len < 0)
-+		goto out;
++		/*
++		 * Initiate remote wakeup if the link state is in U3 when
++		 * operating in SS/SSP or L1/L2 when operating in HS/FS. If the
++		 * link state is in U1/U2, no remote wakeup is needed. The Start
++		 * Transfer command will initiate the link recovery.
++		 */
+ 		link_state = dwc3_gadget_get_link_state(dwc);
+-		if (link_state == DWC3_LINK_STATE_U1 ||
+-		    link_state == DWC3_LINK_STATE_U2 ||
+-		    link_state == DWC3_LINK_STATE_U3) {
++		switch (link_state) {
++		case DWC3_LINK_STATE_U2:
++			if (dwc->gadget->speed >= USB_SPEED_SUPER)
++				break;
 +
- 	xattr_list_len = ksmbd_vfs_listxattr(path->dentry, &xattr_list);
- 	if (xattr_list_len < 0) {
- 		goto out;
-@@ -4458,12 +4464,6 @@ static void get_file_stream_info(struct
- 		goto out;
++			fallthrough;
++		case DWC3_LINK_STATE_U3:
+ 			ret = __dwc3_gadget_wakeup(dwc);
+ 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
+ 					ret);
++			break;
+ 		}
  	}
  
--	buf_free_len =
--		smb2_calc_max_out_buf_len(work, 8,
--					  le32_to_cpu(req->OutputBufferLength));
--	if (buf_free_len < 0)
--		goto out;
--
- 	while (idx < xattr_list_len) {
- 		stream_name = xattr_list + idx;
- 		streamlen = strlen(stream_name);
-@@ -4507,6 +4507,7 @@ static void get_file_stream_info(struct
- 		file_info->NextEntryOffset = cpu_to_le32(next);
- 	}
- 
-+out:
- 	if (!S_ISDIR(stat.mode) &&
- 	    buf_free_len >= sizeof(struct smb2_file_stream_info) + 7 * 2) {
- 		file_info = (struct smb2_file_stream_info *)
-@@ -4515,14 +4516,13 @@ static void get_file_stream_info(struct
- 					      "::$DATA", 7, conn->local_nls, 0);
- 		streamlen *= 2;
- 		file_info->StreamNameLength = cpu_to_le32(streamlen);
--		file_info->StreamSize = 0;
--		file_info->StreamAllocationSize = 0;
-+		file_info->StreamSize = cpu_to_le64(stat.size);
-+		file_info->StreamAllocationSize = cpu_to_le64(stat.blocks << 9);
- 		nbytes += sizeof(struct smb2_file_stream_info) + streamlen;
- 	}
- 
- 	/* last entry offset should be 0 */
- 	file_info->NextEntryOffset = 0;
--out:
- 	kvfree(xattr_list);
- 
- 	rsp->OutputBufferLength = cpu_to_le32(nbytes);
 
 
