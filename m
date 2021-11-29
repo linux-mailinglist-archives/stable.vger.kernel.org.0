@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEF36462591
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:38:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F29084626B1
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:53:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233917AbhK2WlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:41:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33628 "EHLO
+        id S236080AbhK2W4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:56:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234208AbhK2WkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:40:05 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23703C047CE3;
-        Mon, 29 Nov 2021 10:31:37 -0800 (PST)
+        with ESMTP id S236192AbhK2WzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:55:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B20CC048F5D;
+        Mon, 29 Nov 2021 10:40:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9BDD2CE1412;
-        Mon, 29 Nov 2021 18:31:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47321C53FAD;
-        Mon, 29 Nov 2021 18:31:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13AD0B815DE;
+        Mon, 29 Nov 2021 18:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 473F7C53FC7;
+        Mon, 29 Nov 2021 18:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210694;
-        bh=MXSe230fZrR/MrrpQUhCLTmj/f+27LZwHX4BSqDKQEA=;
+        s=korg; t=1638211244;
+        bh=oA0BAx0jOKoeChQCepU6B+zLh2sSKBvhASQi+H2WFDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxXvBtWNSUpPy42x4ys+nJfAxgzWPN1F2haimpmwzVilJTbP9Bflg7LT+7gP2oPun
-         tlacIapSFa0kS3bkZi9mNHGQ7czGLJpt4WJUgpfb7J/VKI7mM7Z0wVhzD++XbB7vUm
-         VmzCZUMlzG2y9uuxSwqC9TwYy/6bbaOj1FvOjz6E=
+        b=iVR42Kgci9OjCTuPYvAHRsrSJCN0tjc5mjkI5iVwBxDXAYHCSgCQWAhS8uI6sxmW+
+         G/hW3/8tOdZrf5KqwxhKTwVGHlUKnlwGyX7kaJQAOjYsg27R0VkR9JQ1Bm07IPaHjn
+         fT4XLxnGnwTAGBPDTpQ3MUrN9OVMaKilx/y8UE+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alessandro B Maurici <abmaurici@gmail.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/121] lan743x: fix deadlock in lan743x_phy_link_status_change()
-Date:   Mon, 29 Nov 2021 19:18:35 +0100
-Message-Id: <20211129181714.489077987@linuxfoundation.org>
+Subject: [PATCH 5.15 122/179] net: ipa: separate disabling setup from modem stop
+Date:   Mon, 29 Nov 2021 19:18:36 +0100
+Message-Id: <20211129181722.970601953@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,71 +48,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit ddb826c2c92d461f290a7bab89e7c28696191875 ]
+[ Upstream commit 8afc7e471ad3c92a9c96adc62d1b67de77378bb6 ]
 
-Usage of phy_ethtool_get_link_ksettings() in the link status change
-handler isn't needed, and in combination with the referenced change
-it results in a deadlock. Simply remove the call and replace it with
-direct access to phydev->speed. The duplex argument of
-lan743x_phy_update_flowcontrol() isn't used and can be removed.
+The IPA setup_complete flag is set at the end of ipa_setup(), when
+the setup phase of initialization has completed successfully.  This
+occurs as part of driver probe processing, or (if "modem-init" is
+specified in the DTS file) it is triggered by the "ipa-setup-ready"
+SMP2P interrupt generated by the modem.
 
-Fixes: c10a485c3de5 ("phy: phy_ethtool_ksettings_get: Lock the phy for consistency")
-Reported-by: Alessandro B Maurici <abmaurici@gmail.com>
-Tested-by: Alessandro B Maurici <abmaurici@gmail.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/40e27f76-0ba3-dcef-ee32-a78b9df38b0f@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In the latter case, it's possible for driver shutdown (or remove) to
+begin while setup processing is underway, and this can't be allowed.
+The problem is that the setup_complete flag is not adequate to signal
+that setup is underway.
+
+If setup_complete is set, it will never be un-set, so that case is
+not a problem.  But if setup_complete is false, there's a chance
+setup is underway.
+
+Because setup is triggered by an interrupt on a "modem-init" system,
+there is a simple way to ensure the value of setup_complete is safe
+to read.  The threaded handler--if it is executing--will complete as
+part of a request to disable the "ipa-modem-ready" interrupt.  This
+means that ipa_setup() (which is called from the handler) will run
+to completion if it was underway, or will never be called otherwise.
+
+The request to disable the "ipa-setup-ready" interrupt is currently
+made within ipa_modem_stop().  Instead, disable the interrupt
+outside that function in the two places it's called.  In the case of
+ipa_remove(), this ensures the setup_complete flag is safe to read
+before we read it.
+
+Rename ipa_smp2p_disable() to be ipa_smp2p_irq_disable_setup(), to be
+more specific about its effect.
+
+Fixes: 530f9216a953 ("soc: qcom: ipa: AP/modem communications")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/lan743x_main.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/net/ipa/ipa_main.c  | 6 ++++++
+ drivers/net/ipa/ipa_modem.c | 6 +++---
+ drivers/net/ipa/ipa_smp2p.c | 2 +-
+ drivers/net/ipa/ipa_smp2p.h | 7 +++----
+ 4 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan743x_main.c b/drivers/net/ethernet/microchip/lan743x_main.c
-index 3eea8cf076c48..481f89d193f77 100644
---- a/drivers/net/ethernet/microchip/lan743x_main.c
-+++ b/drivers/net/ethernet/microchip/lan743x_main.c
-@@ -922,8 +922,7 @@ static int lan743x_phy_reset(struct lan743x_adapter *adapter)
+diff --git a/drivers/net/ipa/ipa_main.c b/drivers/net/ipa/ipa_main.c
+index cdfa98a76e1f4..a448ec198bee1 100644
+--- a/drivers/net/ipa/ipa_main.c
++++ b/drivers/net/ipa/ipa_main.c
+@@ -28,6 +28,7 @@
+ #include "ipa_reg.h"
+ #include "ipa_mem.h"
+ #include "ipa_table.h"
++#include "ipa_smp2p.h"
+ #include "ipa_modem.h"
+ #include "ipa_uc.h"
+ #include "ipa_interrupt.h"
+@@ -801,6 +802,11 @@ static int ipa_remove(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	int ret;
+ 
++	/* Prevent the modem from triggering a call to ipa_setup().  This
++	 * also ensures a modem-initiated setup that's underway completes.
++	 */
++	ipa_smp2p_irq_disable_setup(ipa);
++
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (WARN_ON(ret < 0))
+ 		goto out_power_put;
+diff --git a/drivers/net/ipa/ipa_modem.c b/drivers/net/ipa/ipa_modem.c
+index ad116bcc0580e..d0ab4d70c303b 100644
+--- a/drivers/net/ipa/ipa_modem.c
++++ b/drivers/net/ipa/ipa_modem.c
+@@ -339,9 +339,6 @@ int ipa_modem_stop(struct ipa *ipa)
+ 	if (state != IPA_MODEM_STATE_RUNNING)
+ 		return -EBUSY;
+ 
+-	/* Prevent the modem from triggering a call to ipa_setup() */
+-	ipa_smp2p_disable(ipa);
+-
+ 	/* Clean up the netdev and endpoints if it was started */
+ 	if (netdev) {
+ 		struct ipa_priv *priv = netdev_priv(netdev);
+@@ -369,6 +366,9 @@ static void ipa_modem_crashed(struct ipa *ipa)
+ 	struct device *dev = &ipa->pdev->dev;
+ 	int ret;
+ 
++	/* Prevent the modem from triggering a call to ipa_setup() */
++	ipa_smp2p_irq_disable_setup(ipa);
++
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "error %d getting power to handle crash\n", ret);
+diff --git a/drivers/net/ipa/ipa_smp2p.c b/drivers/net/ipa/ipa_smp2p.c
+index 24bc112a072c6..2112336120391 100644
+--- a/drivers/net/ipa/ipa_smp2p.c
++++ b/drivers/net/ipa/ipa_smp2p.c
+@@ -309,7 +309,7 @@ void ipa_smp2p_exit(struct ipa *ipa)
+ 	kfree(smp2p);
  }
  
- static void lan743x_phy_update_flowcontrol(struct lan743x_adapter *adapter,
--					   u8 duplex, u16 local_adv,
--					   u16 remote_adv)
-+					   u16 local_adv, u16 remote_adv)
+-void ipa_smp2p_disable(struct ipa *ipa)
++void ipa_smp2p_irq_disable_setup(struct ipa *ipa)
  {
- 	struct lan743x_phy *phy = &adapter->phy;
- 	u8 cap;
-@@ -951,7 +950,6 @@ static void lan743x_phy_link_status_change(struct net_device *netdev)
+ 	struct ipa_smp2p *smp2p = ipa->smp2p;
  
- 	phy_print_status(phydev);
- 	if (phydev->state == PHY_RUNNING) {
--		struct ethtool_link_ksettings ksettings;
- 		int remote_advertisement = 0;
- 		int local_advertisement = 0;
+diff --git a/drivers/net/ipa/ipa_smp2p.h b/drivers/net/ipa/ipa_smp2p.h
+index 99a9567896388..59cee31a73836 100644
+--- a/drivers/net/ipa/ipa_smp2p.h
++++ b/drivers/net/ipa/ipa_smp2p.h
+@@ -27,13 +27,12 @@ int ipa_smp2p_init(struct ipa *ipa, bool modem_init);
+ void ipa_smp2p_exit(struct ipa *ipa);
  
-@@ -988,18 +986,14 @@ static void lan743x_phy_link_status_change(struct net_device *netdev)
- 		}
- 		lan743x_csr_write(adapter, MAC_CR, data);
+ /**
+- * ipa_smp2p_disable() - Prevent "ipa-setup-ready" interrupt handling
++ * ipa_smp2p_irq_disable_setup() - Disable the "setup ready" interrupt
+  * @ipa:	IPA pointer
+  *
+- * Prevent handling of the "setup ready" interrupt from the modem.
+- * This is used before initiating shutdown of the driver.
++ * Disable the "ipa-setup-ready" interrupt from the modem.
+  */
+-void ipa_smp2p_disable(struct ipa *ipa);
++void ipa_smp2p_irq_disable_setup(struct ipa *ipa);
  
--		memset(&ksettings, 0, sizeof(ksettings));
--		phy_ethtool_get_link_ksettings(netdev, &ksettings);
- 		local_advertisement =
- 			linkmode_adv_to_mii_adv_t(phydev->advertising);
- 		remote_advertisement =
- 			linkmode_adv_to_mii_adv_t(phydev->lp_advertising);
- 
--		lan743x_phy_update_flowcontrol(adapter,
--					       ksettings.base.duplex,
--					       local_advertisement,
-+		lan743x_phy_update_flowcontrol(adapter, local_advertisement,
- 					       remote_advertisement);
--		lan743x_ptp_update_latency(adapter, ksettings.base.speed);
-+		lan743x_ptp_update_latency(adapter, phydev->speed);
- 	}
- }
- 
+ /**
+  * ipa_smp2p_notify_reset() - Reset modem notification state
 -- 
 2.33.0
 
