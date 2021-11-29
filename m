@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D75F46271A
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F062462437
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236391AbhK2XBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 18:01:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39006 "EHLO
+        id S233083AbhK2WRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237098AbhK2XAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:00:43 -0500
+        with ESMTP id S231255AbhK2WQq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:46 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B98C043CD0;
-        Mon, 29 Nov 2021 10:36:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC627C08ED9F;
+        Mon, 29 Nov 2021 10:21:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A01C4CE1626;
-        Mon, 29 Nov 2021 18:36:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B4AC53FC7;
-        Mon, 29 Nov 2021 18:36:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 713C7CE13D5;
+        Mon, 29 Nov 2021 18:21:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D649C53FC7;
+        Mon, 29 Nov 2021 18:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211010;
-        bh=xsc1aAWlMbS7mY+1QE2TqEgslezv64uAQqQSKohAjw4=;
+        s=korg; t=1638210084;
+        bh=VOndYeX8B0Om55V1+iK2RhJ5H6+F+wjglGsfH6c0Pxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlgVnaiECLSsfuYXK4ORM6v/XDMMEuKXaaKC6eRkrL7qcpvY+lj3WwgLHgv6GKMz8
-         kCnQufGGUb2nJviO4upLSRM4r4yVtHwCCehzdUwFkK51b8hbiJ+iqGumvevu8qeff7
-         KezjqGZbEQCouEBmII9ms/VVTZYTFBBDezqR8Aj4=
+        b=1kxQOErVGVyKLEdFFAmcCX3i+dI2dyM4KeBGmQccxTalAIrUc1CoHayW2stZlJQh5
+         AXGLYtLugdWnSFKlsQIFwa4d/wkka8MF0Q3GHjxIy6LRo++CBsIEmYxfr1MSdSunIs
+         uCzm7f6IpYE96sEbaAQ3tbfJSGJRzUY7Rl48Hd18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Quinlan <jim2101024@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/179] ARM: dts: bcm2711: Fix PCIe interrupts
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 05/69] usb: hub: Fix locking issues with address0_mutex
 Date:   Mon, 29 Nov 2021 19:17:47 +0100
-Message-Id: <20211129181721.356541681@linuxfoundation.org>
+Message-Id: <20211129181703.847697604@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +49,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 98481f3d72fb88cb5b973153434061015f094925 ]
+commit 6cca13de26eea6d32a98d96d916a048d16a12822 upstream.
 
-The PCIe host bridge has two interrupt lines, one that goes towards it
-PCIE_INTR2 second level interrupt controller and one for its MSI second
-level interrupt controller. The first interrupt line is not currently
-managed by the driver, which is why it was not a functional problem.
+Fix the circular lock dependency and unbalanced unlock of addess0_mutex
+introduced when fixing an address0_mutex enumeration retry race in commit
+ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
 
-The interrupt-map property was also only listing the PCI_INTA interrupts
-when there are also the INTB, C and D.
+Make sure locking order between port_dev->status_lock and address0_mutex
+is correct, and that address0_mutex is not unlocked in hub_port_connect
+"done:" codepath which may be reached without locking address0_mutex
 
-Reported-by: Jim Quinlan <jim2101024@gmail.com>
-Fixes: d5c8dc0d4c88 ("ARM: dts: bcm2711: Enable PCIe controller")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+Cc: <stable@vger.kernel.org>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211123101656.1113518-1-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/bcm2711.dtsi | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/usb/core/hub.c |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
-index 3b60297af7f60..9e01dbca4a011 100644
---- a/arch/arm/boot/dts/bcm2711.dtsi
-+++ b/arch/arm/boot/dts/bcm2711.dtsi
-@@ -506,11 +506,17 @@ pcie0: pcie@7d500000 {
- 			#address-cells = <3>;
- 			#interrupt-cells = <1>;
- 			#size-cells = <2>;
--			interrupts = <GIC_SPI 148 IRQ_TYPE_LEVEL_HIGH>,
-+			interrupts = <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>,
- 				     <GIC_SPI 148 IRQ_TYPE_LEVEL_HIGH>;
- 			interrupt-names = "pcie", "msi";
- 			interrupt-map-mask = <0x0 0x0 0x0 0x7>;
- 			interrupt-map = <0 0 0 1 &gicv2 GIC_SPI 143
-+							IRQ_TYPE_LEVEL_HIGH>,
-+					<0 0 0 2 &gicv2 GIC_SPI 144
-+							IRQ_TYPE_LEVEL_HIGH>,
-+					<0 0 0 3 &gicv2 GIC_SPI 145
-+							IRQ_TYPE_LEVEL_HIGH>,
-+					<0 0 0 4 &gicv2 GIC_SPI 146
- 							IRQ_TYPE_LEVEL_HIGH>;
- 			msi-controller;
- 			msi-parent = <&pcie0>;
--- 
-2.33.0
-
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -4978,6 +4978,7 @@ static void hub_port_connect(struct usb_
+ 	struct usb_port *port_dev = hub->ports[port1 - 1];
+ 	struct usb_device *udev = port_dev->child;
+ 	static int unreliable_port = -1;
++	bool retry_locked;
+ 
+ 	/* Disconnect any existing devices under this port */
+ 	if (udev) {
+@@ -5034,9 +5035,10 @@ static void hub_port_connect(struct usb_
+ 
+ 	status = 0;
+ 
+-	mutex_lock(hcd->address0_mutex);
+-
+ 	for (i = 0; i < SET_CONFIG_TRIES; i++) {
++		usb_lock_port(port_dev);
++		mutex_lock(hcd->address0_mutex);
++		retry_locked = true;
+ 
+ 		/* reallocate for each attempt, since references
+ 		 * to the previous one can escape in various ways
+@@ -5045,6 +5047,8 @@ static void hub_port_connect(struct usb_
+ 		if (!udev) {
+ 			dev_err(&port_dev->dev,
+ 					"couldn't allocate usb_device\n");
++			mutex_unlock(hcd->address0_mutex);
++			usb_unlock_port(port_dev);
+ 			goto done;
+ 		}
+ 
+@@ -5066,13 +5070,13 @@ static void hub_port_connect(struct usb_
+ 		}
+ 
+ 		/* reset (non-USB 3.0 devices) and get descriptor */
+-		usb_lock_port(port_dev);
+ 		status = hub_port_init(hub, udev, port1, i);
+-		usb_unlock_port(port_dev);
+ 		if (status < 0)
+ 			goto loop;
+ 
+ 		mutex_unlock(hcd->address0_mutex);
++		usb_unlock_port(port_dev);
++		retry_locked = false;
+ 
+ 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
+ 			msleep(2000);
+@@ -5162,11 +5166,14 @@ static void hub_port_connect(struct usb_
+ 
+ loop_disable:
+ 		hub_port_disable(hub, port1, 1);
+-		mutex_lock(hcd->address0_mutex);
+ loop:
+ 		usb_ep0_reinit(udev);
+ 		release_devnum(udev);
+ 		hub_free_dev(udev);
++		if (retry_locked) {
++			mutex_unlock(hcd->address0_mutex);
++			usb_unlock_port(port_dev);
++		}
+ 		usb_put_dev(udev);
+ 		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
+ 			break;
+@@ -5189,8 +5196,6 @@ loop:
+ 	}
+ 
+ done:
+-	mutex_unlock(hcd->address0_mutex);
+-
+ 	hub_port_disable(hub, port1, 1);
+ 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
+ 		if (status != -ENOTCONN && status != -ENODEV)
 
 
