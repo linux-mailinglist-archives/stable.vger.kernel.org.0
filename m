@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 126DC4638C7
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 824034638D3
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243369AbhK3PGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:06:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34014 "EHLO
+        id S244696AbhK3PGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:06:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244563AbhK3PCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:33 -0500
+        with ESMTP id S244691AbhK3PCl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:41 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACD0C061746;
-        Tue, 30 Nov 2021 06:53:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29202C08EA41;
+        Tue, 30 Nov 2021 06:53:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57F2BCE1A6C;
-        Tue, 30 Nov 2021 14:53:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D595AC53FCF;
-        Tue, 30 Nov 2021 14:53:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 76166CE1A84;
+        Tue, 30 Nov 2021 14:53:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE798C53FCD;
+        Tue, 30 Nov 2021 14:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284019;
-        bh=sv6SHN8BiLPKNf1x5CfhepLuwQcvghPgfP6OXk2juBA=;
+        s=k20201202; t=1638284030;
+        bh=EGDJvL6BOLQxfNAUYSF7urXaPeK+GMK9kP0lBV4i+94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwTTsdB8nSxOaERr10r7cHKNLMzFP7PEKJY2/rJW3GQ6ZOQhvVab6RkKGD0ePyQdd
-         PHGobzslbY6v8SNg1DKmKAxinG+MxOl3foBlU4uBKYYQYQK20LJTFfYLmw22aImLH7
-         pGiYbwuJT2nRUQ1L7be13tKY+8VJIK1Y49U1ASrhCuB1VMmQxlPpYs3ZcCj82eXva/
-         KwwDSkHWox2UKBKT0Ha1LnQPdWT6h/4e9tPaHQ9xXZ68UBf4CjCe7p1C9FsWmU2/4h
-         2A84BaaM/Gg6F8jrTQPemeeOdt3b0YsMDNA/aMkVqZB8geAObGt6NB0cca9m0IPe3Q
-         rpJiCm6DbIeBQ==
+        b=aoHrm0wc2Gw4huw/0eJNyuh32YIlw7TTyloWZtbH9YaiuD4VGq0/5yEz6BMCQ0tdY
+         wdu4Gw9HZERU2Pmc7/wqXvwmphGz/0+CxJTPVRkDsrbgETmARvWy7jZjyaEurt+/Jm
+         R4yZzP78Aa4hQBlHEEqQpW2z1puaYlrpKVBGbiySe76SeQzHSAmQ57Kea1hgQxaySl
+         CdGOpKegu4rK/JjokVbvHyN+fscJUVK4C7lAKdNWO1SmE4IMPrtY8ENGcP+E2Sb+2c
+         wuA6mP7AQZ7E9kOSnESH4ksmfANFQothVhWFu6WJQscdOJLW0zpZulixr7ERYSqNlf
+         HzBFSA3B5IOKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
         Sasha Levin <sashal@kernel.org>,
-        linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 14/14] fs: ntfs: Limit NTFS_RW to page sizes smaller than 64k
-Date:   Tue, 30 Nov 2021 09:53:15 -0500
-Message-Id: <20211130145317.946676-14-sashal@kernel.org>
+        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 05/12] parisc: Provide an extru_safe() macro to extract unsigned bits
+Date:   Tue, 30 Nov 2021 09:53:33 -0500
+Message-Id: <20211130145341.946891-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211130145317.946676-1-sashal@kernel.org>
-References: <20211130145317.946676-1-sashal@kernel.org>
+In-Reply-To: <20211130145341.946891-1-sashal@kernel.org>
+References: <20211130145341.946891-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,48 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 4eec7faf6775263d9e450ae7ee5bc4101d4a0bc9 ]
+[ Upstream commit 169d1a4a2adb2c246396c56aa2f9eec3868546f1 ]
 
-NTFS_RW code allocates page size dependent arrays on the stack. This
-results in build failures if the page size is 64k or larger.
+The extru instruction leaves the most significant 32 bits of the
+target register in an undefined state on PA 2.0 systems.
+Provide a macro to safely use extru on 32- and 64-bit machines.
 
-  fs/ntfs/aops.c: In function 'ntfs_write_mst_block':
-  fs/ntfs/aops.c:1311:1: error:
-	the frame size of 2240 bytes is larger than 2048 bytes
-
-Since commit f22969a66041 ("powerpc/64s: Default to 64K pages for 64 bit
-book3s") this affects ppc:allmodconfig builds, but other architectures
-supporting page sizes of 64k or larger are also affected.
-
-Increasing the maximum frame size for affected architectures just to
-silence this error does not really help.  The frame size would have to
-be set to a really large value for 256k pages.  Also, a large frame size
-could potentially result in stack overruns in this code and elsewhere
-and is therefore not desirable.  Make NTFS_RW dependent on page sizes
-smaller than 64k instead.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Suggested-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/include/asm/assembly.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/fs/ntfs/Kconfig b/fs/ntfs/Kconfig
-index f5a868cc9152e..5b384ec44793f 100644
---- a/fs/ntfs/Kconfig
-+++ b/fs/ntfs/Kconfig
-@@ -51,6 +51,7 @@ config NTFS_DEBUG
- config NTFS_RW
- 	bool "NTFS write support"
- 	depends on NTFS_FS
-+	depends on PAGE_SIZE_LESS_THAN_64KB
- 	help
- 	  This enables the partial, but safe, write support in the NTFS driver.
+diff --git a/arch/parisc/include/asm/assembly.h b/arch/parisc/include/asm/assembly.h
+index eb83d65153b83..2272cbeb65f22 100644
+--- a/arch/parisc/include/asm/assembly.h
++++ b/arch/parisc/include/asm/assembly.h
+@@ -153,6 +153,17 @@
+ 	extrd,u \r, 63-(\sa), 64-(\sa), \t
+ 	.endm
  
++	/* Extract unsigned for 32- and 64-bit
++	 * The extru instruction leaves the most significant 32 bits of the
++	 * target register in an undefined state on PA 2.0 systems. */
++	.macro extru_safe r, p, len, t
++#ifdef CONFIG_64BIT
++	extrd,u	\r, 32+(\p), \len, \t
++#else
++	extru	\r, \p, \len, \t
++#endif
++	.endm
++
+ 	/* load 32-bit 'value' into 'reg' compensating for the ldil
+ 	 * sign-extension when running in wide mode.
+ 	 * WARNING!! neither 'value' nor 'reg' can be expressions
 -- 
 2.33.0
 
