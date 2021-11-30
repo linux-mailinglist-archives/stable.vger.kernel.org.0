@@ -2,60 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32BC94636AD
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:30:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B718B4636C7
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242190AbhK3OeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:34:13 -0500
-Received: from foss.arm.com ([217.140.110.172]:39722 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242174AbhK3OeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Nov 2021 09:34:12 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0DB281063;
-        Tue, 30 Nov 2021 06:30:53 -0800 (PST)
-Received: from e123427-lin.arm.com (unknown [10.57.34.132])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6FACB3F5A1;
-        Tue, 30 Nov 2021 06:30:51 -0800 (PST)
-From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-To:     =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Andrew Murray <amurray@thegoodpenguin.co.uk>,
-        Rob Herring <robh@kernel.org>,
-        Toan Le <toan@os.amperecomputing.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Cc:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        stable@vger.kernel.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH] PCI: xgene: Fix IB window setup
-Date:   Tue, 30 Nov 2021 14:30:46 +0000
-Message-Id: <163828263383.20216.14338890370157557636.b4-ty@arm.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20211129173637.303201-1-robh@kernel.org>
-References: <20211129173637.303201-1-robh@kernel.org>
+        id S242226AbhK3OhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:37:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242223AbhK3OhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:37:24 -0500
+Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com [IPv6:2607:f8b0:4864:20::c30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B16BC061748;
+        Tue, 30 Nov 2021 06:34:02 -0800 (PST)
+Received: by mail-oo1-xc30.google.com with SMTP id v30-20020a4a315e000000b002c52d555875so6750382oog.12;
+        Tue, 30 Nov 2021 06:34:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=VzXaRiL/I8pc8Mlqw7AKcPRe1BRMY9UINIalpZhNbfw=;
+        b=YTnEaa6u6j3wVnl4Cdg+jMNe/ODuZhL1Ses7vhU2tjfxJfu1zZxzQBCHhIx9qfXG4o
+         eK+C11BeDdZhTS66um0KJkq//wWUHtZ5gyRnFOrWjmYXa761YHpMCqVgx7j0koA4+lKB
+         U8qOVjBgBqbxoH1r8Sdg5kAip7/xr28yn9nBAkgbM15u/rzDIJ9LJCfdLrr1O/eJTouX
+         ZIJA5op9Zm0tfNDKVabTfdDc4qyR0BDUltUngs1oeheDq314Hhw3V7HafZX1GIb5EC5X
+         RStIsIE7SZnMtnjs1220CKspmZun3/XtxMgK7BC8WKj0CywPCmfYX688gbpwrkaTLhfD
+         Wb0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=VzXaRiL/I8pc8Mlqw7AKcPRe1BRMY9UINIalpZhNbfw=;
+        b=TJkj6yDE6DRwptvq0VnO6F3IHa90a3Ewn7H9zllqOOL+K8Zx6h4WqZk6QdHTkxcLdv
+         4JCZbBaZzn5h0Fkr/qqQTktPxYyqZ6ZhSUdi0QzxtlDMxou9vDB1wXeKB9ouipnf7yCT
+         VQh9z8lselmZwuEjZEElTHwiQFJ+BzVD0nBOxH2lnFthBVsVMrJiS/Q5CqTKRbpPt9jW
+         BdbdiCK34Q3rljm++RUFmMyyj6bPYn9kqZuaenRgm9doMdGPB3vzOiISYV38gFmsJPKk
+         DlS7pfXgptv9DZCM0RI+1WZKOB5LR1aZel+2sf2n+16p4GYeEEbqi9+/4gVdDFkDYtcY
+         0/3g==
+X-Gm-Message-State: AOAM532SvvzymAw1rHfzYm9+AmdvaHX4v4pVswJHccbfv2X64/njGWmk
+        qtTEy9NUuvOd75jPsjifE7c5IzZRLCI=
+X-Google-Smtp-Source: ABdhPJxLV2vvhMd3qNDm9vAirWDFACsobvcg/sJ2rxtYXd6Tr5bBpod0yxH7Q+16n+p4UyEAko0VNA==
+X-Received: by 2002:a4a:a44b:: with SMTP id w11mr17324454ool.66.1638282841352;
+        Tue, 30 Nov 2021 06:34:01 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i3sm2759642ooq.39.2021.11.30.06.33.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Nov 2021 06:34:00 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH] hwmon: (pwm-fan) Ensure the fan going on in .probe()
+To:     Billy Tsai <billy_tsai@aspeedtech.com>, b.zolnierkie@samsung.com,
+        jdelvare@suse.com, u.kleine-koenig@pengutronix.de,
+        linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     BMC-SW@aspeedtech.com, stable@vger.kernel.org
+References: <20211130092212.17783-1-billy_tsai@aspeedtech.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <175a4963-62dd-9213-1e92-74e8cd9829fc@roeck-us.net>
+Date:   Tue, 30 Nov 2021 06:33:59 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211130092212.17783-1-billy_tsai@aspeedtech.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Nov 2021 11:36:37 -0600, Rob Herring wrote:
-> Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
-> broke PCI support on XGene. The cause is the IB resources are now sorted
-> in address order instead of being in DT dma-ranges order. The result is
-> which inbound registers are used for each region are swapped. I don't
-> know the details about this h/w, but it appears that IB region 0
-> registers can't handle a size greater than 4GB. In any case, limiting
-> the size for region 0 is enough to get back to the original assignment
-> of dma-ranges to regions.
+On 11/30/21 1:22 AM, Billy Tsai wrote:
+> Before commit 86585c61972f ("hwmon: (pwm-fan) stop using legacy
+> PWM functions and some cleanups") pwm_apply_state() was called
+> unconditionally in pwm_fan_probe(). In this commit this direct
+> call was replaced by a call to __set_pwm(ct, MAX_PWM) which
+> however is a noop if ctx->pwm_value already matches the value to
+> set.
+> After probe the fan is supposed to run at full speed, and the
+> internal driver state suggests it does, but this isn't asserted
+> and depending on bootloader and pwm low-level driver, the fan
+> might just be off.
+> So drop setting pwm_value to MAX_PWM to ensure the check in
+> __set_pwm doesn't make it exit early and the fan goes on as
+> intended.
 > 
-> [...]
+> Cc: stable@vger.kernel.org
+> Fixes: 86585c61972f ("hwmon: (pwm-fan) stop using legacy PWM functions and some cleanups")
+> Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
 
-Applied to pci/xgene, thanks!
+I'll apply this patch, but _please_ version your patches in the future
+and provide a change log.
 
-[1/1] PCI: xgene: Fix IB window setup
-      https://git.kernel.org/lpieralisi/pci/c/c7a75d0782
+Guenter
 
-Thanks,
-Lorenzo
+> ---
+>   drivers/hwmon/pwm-fan.c | 2 --
+>   1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+> index 17518b4cab1b..f12b9a28a232 100644
+> --- a/drivers/hwmon/pwm-fan.c
+> +++ b/drivers/hwmon/pwm-fan.c
+> @@ -336,8 +336,6 @@ static int pwm_fan_probe(struct platform_device *pdev)
+>   			return ret;
+>   	}
+>   
+> -	ctx->pwm_value = MAX_PWM;
+> -
+>   	pwm_init_state(ctx->pwm, &ctx->pwm_state);
+>   
+>   	/*
+> 
+
