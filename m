@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74FE5463764
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD9C463742
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:49:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242920AbhK3Ox1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:53:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60028 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242738AbhK3Owg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:52:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2633C0613F2;
-        Tue, 30 Nov 2021 06:48:25 -0800 (PST)
+        id S242737AbhK3Owg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:52:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45508 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242565AbhK3Ovr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D07AB81A20;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BA41B81A1D;
+        Tue, 30 Nov 2021 14:48:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 023CFC53FC7;
         Tue, 30 Nov 2021 14:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEF05C53FC1;
-        Tue, 30 Nov 2021 14:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283703;
-        bh=mpEyYu4PWzomuBycfIkHmVbV0lljm3jVg/CS7Xg/Ym4=;
+        s=k20201202; t=1638283705;
+        bh=vE312v6223elY83DNKZK/9DVrz8d8dbSesJ+1sYfWeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqJLt1oELdheJwSYVA06rHH0tZW6plGe3wdIvf3Iiw9mTZCuczzcPLiSaJH0uj/eV
-         KQvevh74T7Sgz52RfnsICKeSj5JAULEcgKHiDOe6FSWUSJlgypi/zpsNw8A/zSjVh+
-         YXiw631gce4nyqLmRntz8CtWxuf+aeC2oQMpTfpVl4WaUS7D/Qq/qiNJmTitY6U6NF
-         86rQay9mlf754jFZ6kOQdn8vRlZjiaOArqsBEAeewaFLyZ1sJg99B6domwul8+iTl6
-         jg/ia/EyqeOjWPZ3MBJDC0h0A93ExIosuVN+OB4XS0L3d1Xmkt5KPY1j3YALLN72J6
-         0BH1vSMoGe56Q==
+        b=ZJZwpcrscb7fh+/0COiCQzl8XW/2vU4CsS3uyo76iCpLluP/ZYMICbehEdH0dQWM5
+         5ByUhUNopw0Y4S08H/W1jJ3hs0Q8S7zm6Hpj2JyHXUzMoIHAaUc6Afsx3tbOg41puM
+         tBpwWqcAxhsOp0qBeADO9gI5fqaCGCZRsmrW/l9mBwPEoAoKGaPXB60HSh5E8cZYJj
+         ffCz5ixpVFrIhK+JvshwbjyiLxHqLKS2nrg1Yl09ADl/yCpeyvjQXHv0GW+NGxPr5D
+         xKgwl+IKjlAeVRZGZG6Rv6zzByUKxCphKv12ZoF7b83fadmr4j/Q/Fn4YWAtd+kGHE
+         3ELV3+4tf85fQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Helge Deller <deller@gmx.de>, kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>, akpm@linux-foundation.org,
-        masahiroy@kernel.org, ndesaulniers@google.com,
-        peterz@infradead.org, nathan@kernel.org,
-        penguin-kernel@I-love.SAKURA.ne.jp, tpiepho@gmail.com,
-        paulmck@kernel.org, glittao@gmail.com, tglx@linutronix.de,
-        dlatypov@google.com
-Subject: [PATCH AUTOSEL 5.15 26/68] parisc: Increase FRAME_WARN to 2048 bytes on parisc
-Date:   Tue, 30 Nov 2021 09:46:22 -0500
-Message-Id: <20211130144707.944580-26-sashal@kernel.org>
+Cc:     Helge Deller <deller@gmx.de>,
+        John David Anglin <dave.anglin@bell.net>,
+        Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 27/68] parisc: Provide an extru_safe() macro to extract unsigned bits
+Date:   Tue, 30 Nov 2021 09:46:23 -0500
+Message-Id: <20211130144707.944580-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -56,35 +51,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 8d192bec534bd5b778135769a12e5f04580771f7 ]
+[ Upstream commit 169d1a4a2adb2c246396c56aa2f9eec3868546f1 ]
 
-PA-RISC uses a much bigger frame size for functions than other
-architectures. So increase it to 2048 for 32- and 64-bit kernels.
-This fixes e.g. a warning in lib/xxhash.c.
+The extru instruction leaves the most significant 32 bits of the
+target register in an undefined state on PA 2.0 systems.
+Provide a macro to safely use extru on 32- and 64-bit machines.
 
-Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: John David Anglin <dave.anglin@bell.net>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/parisc/include/asm/assembly.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 2a9b6dcdac4ff..f54ffa79643d3 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -346,8 +346,9 @@ config FRAME_WARN
- 	int "Warn for stack frames larger than"
- 	range 0 8192
- 	default 2048 if GCC_PLUGIN_LATENT_ENTROPY
--	default 1536 if (!64BIT && (PARISC || XTENSA))
--	default 1024 if (!64BIT && !PARISC)
-+	default 2048 if PARISC
-+	default 1536 if (!64BIT && XTENSA)
-+	default 1024 if !64BIT
- 	default 2048 if 64BIT
- 	help
- 	  Tell gcc to warn at build time for stack frames larger than this.
+diff --git a/arch/parisc/include/asm/assembly.h b/arch/parisc/include/asm/assembly.h
+index a39250cb7dfcf..0c95030017e8f 100644
+--- a/arch/parisc/include/asm/assembly.h
++++ b/arch/parisc/include/asm/assembly.h
+@@ -135,6 +135,17 @@
+ 	extrd,u \r, 63-(\sa), 64-(\sa), \t
+ 	.endm
+ 
++	/* Extract unsigned for 32- and 64-bit
++	 * The extru instruction leaves the most significant 32 bits of the
++	 * target register in an undefined state on PA 2.0 systems. */
++	.macro extru_safe r, p, len, t
++#ifdef CONFIG_64BIT
++	extrd,u	\r, 32+(\p), \len, \t
++#else
++	extru	\r, \p, \len, \t
++#endif
++	.endm
++
+ 	/* load 32-bit 'value' into 'reg' compensating for the ldil
+ 	 * sign-extension when running in wide mode.
+ 	 * WARNING!! neither 'value' nor 'reg' can be expressions
 -- 
 2.33.0
 
