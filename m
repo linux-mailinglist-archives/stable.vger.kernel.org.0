@@ -2,224 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E15462951
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 01:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2264462955
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 01:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234356AbhK3A6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 19:58:19 -0500
-Received: from so254-9.mailgun.net ([198.61.254.9]:14509 "EHLO
-        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234229AbhK3A6T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 19:58:19 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1638233701; h=Message-ID: References: In-Reply-To: Reply-To:
- Subject: Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=Si6o8utt9hx7y8YzH3OhVdkira7dpL45F1uP7ReREDA=;
- b=oiwHYZF8qX37vCQyORTezRKZjUMdmVFH4bhrGrZ2/TbZ2TbCiEBz8jtHKTircSuKnuJvdS9O
- etMizqte0Ygbg5MsiUUwjS5wc/2BWqbDq9AsCjT9RUMfDngZap0gkr90DU7CBBkEyn5mkNeL
- eGfHE2+diVPBin8uT12uqrNNqDc=
-X-Mailgun-Sending-Ip: 198.61.254.9
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n07.prod.us-west-2.postgun.com with SMTP id
- 61a576641abc6f02d055b808 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 30 Nov 2021 00:55:00
- GMT
-Sender: quic_bbhatt=quicinc.com@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 52347C43619; Tue, 30 Nov 2021 00:55:00 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbhatt)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 35796C4338F;
-        Tue, 30 Nov 2021 00:54:59 +0000 (UTC)
+        id S232860AbhK3A6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 19:58:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232650AbhK3A6r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 19:58:47 -0500
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDFB2C061574
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 16:55:28 -0800 (PST)
+Received: by mail-pg1-x532.google.com with SMTP id 137so10800859pgg.3
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 16:55:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=bzMdEZ5X9+AZYgFv+8e9b1t3ht2f4dPk3nMGReqmDKc=;
+        b=CUfxKTdLLb5Mh8qg8+/QqboJJWTeq0T3nZevuOfhoMMYAMcf3ZEOTmjO0glPlhpuqW
+         d7jiJvK+Dlv6+NKvypjlO2ZFbmqZvuhH6bzJK18TbESr4gBfNGFO4O9SNyrLs7uvQ0hg
+         NqX89VZiRnXepCE9mGfBISh6/3hNhjqH1nzc5+2CxLH11Yr/ksrLKj9KHbblUkXxTdVE
+         OHNivedHLiG3AIOXzBVl5LL4fAlhsaES1DrMFSXLSPcXWUfVN0gtRNQs0ttbErMzOpvU
+         cCwzd+LroS3bYuKJgD1AtHT2Cnxcp3AuvsD9fVvnsEEZlkSvEj8Z0x17p6AAqOuKSAPl
+         9SXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=bzMdEZ5X9+AZYgFv+8e9b1t3ht2f4dPk3nMGReqmDKc=;
+        b=r1yy0sWqFkd0pTmoiMxgv01DzwTTLrla5J0sqOWZItiLXmUexfA2GDL06bP3t957Wu
+         yePYAwdmjzTDJxLIB1HPurhI8SF8T/Yetddy3ll594bCQdZeKsfFm5dLeihPNqA5Av7s
+         L531dStKL5AG7g8KROwhj0oUh51bfLa43nn+H/s+8IcDu5tUep++pbXuJqI0QofrKOkd
+         m55D1rxaCjOSWq6MXkt2Bo3c5oD4eoeoX/5dKAxbgyXv563AwgJpPlEfwjVQYLJHK+x+
+         TgeuDjyYE4uMYd3N5QPOtB3VlWRgpdyKkFSdKaprmDh4+e5q5QeyEUx2QRJbAlTLD138
+         wH+w==
+X-Gm-Message-State: AOAM533Ae2EO2nzXZEfvDtvL+hILR0hxDt6D8Zeb19m0DT/PiKTD9b1C
+        9hZQUORwMcdtq/7lZOdVabkW6NSIle3XHuOE
+X-Google-Smtp-Source: ABdhPJwmmLJ3cQWcKFG7nZfI1pmkPXtNZ/sQ7y2e97Hu8emTlUqXwLFh6pJFYb6/WE5656zlnKxrgA==
+X-Received: by 2002:a05:6a00:2151:b0:4a2:5c9a:f0a9 with SMTP id o17-20020a056a00215100b004a25c9af0a9mr44102590pfk.39.1638233728250;
+        Mon, 29 Nov 2021 16:55:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f19sm18984942pfv.76.2021.11.29.16.55.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Nov 2021 16:55:27 -0800 (PST)
+Message-ID: <61a5767f.1c69fb81.86479.3aab@mx.google.com>
+Date:   Mon, 29 Nov 2021 16:55:27 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Mon, 29 Nov 2021 16:54:59 -0800
-From:   Bhaumik Bhatt <quic_bbhatt@quicinc.com>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     mhi@lists.linux.dev, quic_jhugo@quicinc.com,
-        hemantk@codeaurora.org, bbhatt@codeaurora.org,
-        aleksander@aleksander.es, loic.poulain@linaro.org,
-        thomas.perrot@bootlin.com, linux-arm-msm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4] bus: mhi: Fix race while handling SYS_ERR at power up
-Organization: Qualcomm Innovation Center, Inc.
-Reply-To: quic_bbhatt@quicinc.com
-Mail-Reply-To: quic_bbhatt@quicinc.com
-In-Reply-To: <20211126030144.GC5859@thinkpad>
-References: <20211124132221.44915-1-manivannan.sadhasivam@linaro.org>
- <20211126030144.GC5859@thinkpad>
-Message-ID: <020937096d9039a295b97d71994a6d5a@quicinc.com>
-X-Sender: quic_bbhatt@quicinc.com
-User-Agent: Roundcube Webmail/1.3.9
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.291-36-gaafa77f2a96bd
+Subject: stable-rc/queue/4.9 baseline: 86 runs,
+ 1 regressions (v4.9.291-36-gaafa77f2a96bd)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-11-25 07:01 PM, Manivannan Sadhasivam wrote:
-> On Wed, Nov 24, 2021 at 06:52:21PM +0530, Manivannan Sadhasivam wrote:
->> Some devices tend to trigger SYS_ERR interrupt while the host handling
->> SYS_ERR state of the device during power up. This creates a race
->> condition and causes a failure in booting up the device.
->> 
->> The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
->> handling in mhi_async_power_up(). Once the host detects that the 
->> device
->> is in SYS_ERR state, it issues MHI_RESET and waits for the device to
->> process the reset request. During this time, the device triggers 
->> SYS_ERR
->> interrupt to the host and host starts handling SYS_ERR execution.
-Since device does not actually trigger a SYS_ERR interrupt, we could say 
-"device
-triggers BHI interrupt acknowledging the MHI RESET sent by host but does 
-not clear
-the MHI state to reset or ready and leaves it as SYS_ERR" or any such 
-wording.
->> 
->> So by the time the device has completed reset, host starts SYS_ERR
->> handling. This causes the race condition and the modem fails to boot.
->> 
->> Hence, register the IRQ handler only after handling the SYS_ERR check
->> to avoid getting spurious IRQs from the device.
->> 
->> Cc: stable@vger.kernel.org
->> Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
->> Reported-by: Aleksander Morgado <aleksander@aleksander.es>
->> Signed-off-by: Manivannan Sadhasivam 
->> <manivannan.sadhasivam@linaro.org>
-> 
-> Hemant, Bhaumik, Jeff: Can you please do the review again?
-> 
-> Thanks,
-> Mani
-> 
->> ---
->> 
->> Changes in v4:
->> 
->> * Reverted the change that moved BHI_INTVEC as that was causing issue 
->> as
->>   reported by Aleksander.
->> 
->> Changes in v3:
->> 
->> * Moved BHI_INTVEC setup after irq setup
->> * Used interval_us as the delay for the polling API
->> 
->> Changes in v2:
->> 
->> * Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
->> 
->>  drivers/bus/mhi/core/pm.c | 33 +++++++++++----------------------
->>  1 file changed, 11 insertions(+), 22 deletions(-)
->> 
->> diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
->> index fb99e3727155..21484a61bbed 100644
->> --- a/drivers/bus/mhi/core/pm.c
->> +++ b/drivers/bus/mhi/core/pm.c
->> @@ -1038,7 +1038,7 @@ int mhi_async_power_up(struct mhi_controller 
->> *mhi_cntrl)
->>  	enum mhi_ee_type current_ee;
->>  	enum dev_st_transition next_state;
->>  	struct device *dev = &mhi_cntrl->mhi_dev->dev;
->> -	u32 val;
->> +	u32 interval_us = 25000; /* poll register field every 25 
->> milliseconds */
->>  	int ret;
->> 
->>  	dev_info(dev, "Requested to power ON\n");
->> @@ -1055,10 +1055,6 @@ int mhi_async_power_up(struct mhi_controller 
->> *mhi_cntrl)
->>  	mutex_lock(&mhi_cntrl->pm_mutex);
->>  	mhi_cntrl->pm_state = MHI_PM_DISABLE;
->> 
->> -	ret = mhi_init_irq_setup(mhi_cntrl);
->> -	if (ret)
->> -		goto error_setup_irq;
->> -
->>  	/* Setup BHI INTVEC */
->>  	write_lock_irq(&mhi_cntrl->pm_lock);
->>  	mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
->> @@ -1072,7 +1068,7 @@ int mhi_async_power_up(struct mhi_controller 
->> *mhi_cntrl)
->>  		dev_err(dev, "%s is not a valid EE for power on\n",
->>  			TO_MHI_EXEC_STR(current_ee));
->>  		ret = -EIO;
->> -		goto error_async_power_up;
->> +		goto error_setup_irq;
-We're using the label "error_setup_irq" even though there has not been 
-any prior IRQ
-setup done. Can we use the label "error_async_power_up" instead?
->>  	}
->> 
->>  	state = mhi_get_mhi_state(mhi_cntrl);
->> @@ -1081,20 +1077,12 @@ int mhi_async_power_up(struct mhi_controller 
->> *mhi_cntrl)
->> 
->>  	if (state == MHI_STATE_SYS_ERR) {
->>  		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
->> -		ret = wait_event_timeout(mhi_cntrl->state_event,
->> -				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
->> -					mhi_read_reg_field(mhi_cntrl,
->> -							   mhi_cntrl->regs,
->> -							   MHICTRL,
->> -							   MHICTRL_RESET_MASK,
->> -							   MHICTRL_RESET_SHIFT,
->> -							   &val) ||
->> -					!val,
->> -				msecs_to_jiffies(mhi_cntrl->timeout_ms));
->> -		if (!ret) {
->> -			ret = -EIO;
->> +		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
->> +				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
->> +				 interval_us);
->> +		if (ret) {
->>  			dev_info(dev, "Failed to reset MHI due to syserr state\n");
->> -			goto error_async_power_up;
->> +			goto error_setup_irq;
-Same here
->>  		}
->> 
->>  		/*
->> @@ -1104,6 +1092,10 @@ int mhi_async_power_up(struct mhi_controller 
->> *mhi_cntrl)
->>  		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
->>  	}
->> 
->> +	ret = mhi_init_irq_setup(mhi_cntrl);
->> +	if (ret)
->> +		goto error_setup_irq;
-And here
->> +
->>  	/* Transition to next state */
->>  	next_state = MHI_IN_PBL(current_ee) ?
->>  		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
->> @@ -1116,9 +1108,6 @@ int mhi_async_power_up(struct mhi_controller 
->> *mhi_cntrl)
->> 
->>  	return 0;
->> 
->> -error_async_power_up:
->> -	mhi_deinit_free_irq(mhi_cntrl);
->> -
->>  error_setup_irq:
-s/error_setup_irq/error_async_power_up
->>  	mhi_cntrl->pm_state = MHI_PM_DISABLE;
->>  	mutex_unlock(&mhi_cntrl->pm_mutex);
->> --
->> 2.25.1
->> 
+stable-rc/queue/4.9 baseline: 86 runs, 1 regressions (v4.9.291-36-gaafa77f2=
+a96bd)
 
--- 
-Thanks,
-Bhaumik
+Regressions Summary
+-------------------
+
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.291-36-gaafa77f2a96bd/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.291-36-gaafa77f2a96bd
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      aafa77f2a96bd18e03f8f4e31eb7e6228c60b558 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61a53b42eb9317880f18f6e9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.291-3=
+6-gaafa77f2a96bd/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p2=
+00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.291-3=
+6-gaafa77f2a96bd/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p2=
+00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61a53b42eb9317880f18f=
+6ea
+        new failure (last pass: v4.9.291-27-g7ff5d3e83f3d5) =
+
+ =20
