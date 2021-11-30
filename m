@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06EDD46372E
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4EA463761
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237445AbhK3OwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:52:01 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:56870 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242540AbhK3Ovl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:41 -0500
+        id S242710AbhK3Ox1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:53:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60212 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242727AbhK3Owf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:52:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845DCC0613E0;
+        Tue, 30 Nov 2021 06:48:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8C572CE1A3B;
-        Tue, 30 Nov 2021 14:48:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B1AC53FD2;
-        Tue, 30 Nov 2021 14:48:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 13814CE1A4D;
+        Tue, 30 Nov 2021 14:48:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D9E0C53FCF;
+        Tue, 30 Nov 2021 14:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283695;
-        bh=y8NOEcY5kDlImIPmiTHA40JZIwhnWyfL7nfO8ohA3ls=;
+        s=k20201202; t=1638283697;
+        bh=BhIew2AD86pu1If7zFqfREteOWJx4UUFBUVRbRKMWlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NeArPvzwOCjeYtrdEIh1/dKBdN7wRmH09cyVUlGbCRiFbpc29ggighin7wbD4oNzu
-         zC8lK2d+q0Voaf63Gh8WYsj/Suor95wq80QXuxr6YYFFqKSeJXj3p5MHeB8Qq0BSJj
-         vCvVMtnMu2EhjIKoX5B2hmT2KC+5TKiUCXKSN4K4le+g8MAiu4dMrkMi4LFyjCE3sl
-         7r5CGJa8HwKa7niy8Cmw2CrZrrxScPHCrwCunz4mRaOQUIf8YilvLBQuQyyF+FEi8d
-         YTeNAYVsNyV+Ng95TZ4ueyDBCNdEDfKY7szX0BBS6N0lDAbLWiJN8JwbjkxOVnpwrD
-         8xDUDGs4Y/Hew==
+        b=Vg8CMKryZUFqwW9l5BY93MM4JG+I34CgMbkJKyXJ8ru8MTLNMyOBv5kcKhJ5TisXg
+         lH89wqCdB0y5gF9Qv9Z8FhsmqVw6gjP237wqQNkeNUSRSse7sCYaDNSvXg3MIiDyBd
+         eY2GOYnl6eS8NHsknvWdOOY6hY2URSGtGDGE2Jej3P7lIwwuKee6LwiuuLSN03qyLj
+         b5963fI6YtTQshs2XCC+N3OZE1ummSxcl0b0pfJqGvZEdWZB8dLW5vuHQEYHxGA4nn
+         s+9Kxf6tob6kyRQILB5QfYFkDdkUm9pB1wT+Z0aB2OOmo5ZneTRYhCfb5/9RLKA/gR
+         vFOCYtMWE4oCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zekun Shen <bruceshenzk@gmail.com>,
-        Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, peppe.cavallaro@st.com,
-        alexandre.torgue@foss.st.com, joabreu@synopsys.com,
-        kuba@kernel.org, mcoquelin.stm32@gmail.com, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 22/68] stmmac_pci: Fix underflow size in stmmac_rx
-Date:   Tue, 30 Nov 2021 09:46:18 -0500
-Message-Id: <20211130144707.944580-22-sashal@kernel.org>
+Cc:     Michael Zaidman <michael.zaidman@gmail.com>,
+        Germain Hebert <germain.hebert@ca.abb.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 23/68] HID: ft260: fix i2c probing for hwmon devices
+Date:   Tue, 30 Nov 2021 09:46:19 -0500
+Message-Id: <20211130144707.944580-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -52,83 +52,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Michael Zaidman <michael.zaidman@gmail.com>
 
-[ Upstream commit 0f296e782f21dc1c55475a3c107ac68ab09cc1cf ]
+[ Upstream commit a94f61e63f337d95001e1a976ab701100fa1d666 ]
 
-This bug report came up when we were testing the device driver
-by fuzzing. It shows that buf1_len can get underflowed and be
-0xfffffffc (4294967292).
+The below scenario causes the kernel NULL pointer dereference failure:
+1. sudo insmod hid-ft260.ko
+2. sudo modprobe lm75
+3. unplug USB hid-ft260
+4. plug USB hid-ft260
 
-This bug is triggerable with a compromised/malfunctioning device.
-We found the bug through QEMU emulation tested the patch with
-emulation. We did NOT test it on real hardware.
+[  +0.000006] Call Trace:
+[  +0.000004]  __i2c_smbus_xfer.part.0+0xd1/0x310
+[  +0.000007]  ? ft260_smbus_write+0x140/0x140 [hid_ft260]
+[  +0.000005]  __i2c_smbus_xfer+0x2b/0x80
+[  +0.000004]  i2c_smbus_xfer+0x61/0xf0
+[  +0.000005]  i2c_default_probe+0xf9/0x130
+[  +0.000004]  i2c_detect_address+0x84/0x160
+[  +0.000004]  ? kmem_cache_alloc_trace+0xf6/0x200
+[  +0.000009]  ? i2c_detect.isra.0+0x69/0x130
+[  +0.000005]  i2c_detect.isra.0+0xbf/0x130
+[  +0.000004]  ? __process_new_driver+0x30/0x30
+[  +0.000004]  __process_new_adapter+0x18/0x20
+[  +0.000004]  bus_for_each_drv+0x84/0xd0
+[  +0.000003]  i2c_register_adapter+0x1e4/0x400
+[  +0.000005]  i2c_add_adapter+0x5c/0x80
+[  +0.000004]  ft260_probe.cold+0x222/0x2e2 [hid_ft260]
+[  +0.000006]  hid_device_probe+0x10e/0x170 [hid]
+[  +0.000009]  really_probe+0xff/0x460
+[  +0.000004]  driver_probe_device+0xe9/0x160
+[  +0.000003]  __device_attach_driver+0x71/0xd0
+[  +0.000004]  ? driver_allows_async_probing+0x50/0x50
+[  +0.000004]  bus_for_each_drv+0x84/0xd0
+[  +0.000002]  __device_attach+0xde/0x1e0
+[  +0.000004]  device_initial_probe+0x13/0x20
+[  +0.000004]  bus_probe_device+0x8f/0xa0
+[  +0.000003]  device_add+0x333/0x5f0
 
-Attached is the bug report by fuzzing.
+It happened when i2c core probed for the devices associated with the lm75
+driver by invoking 2c_detect()-->..-->ft260_smbus_write() from within the
+ft260_probe before setting the adapter data with i2c_set_adapdata().
 
-BUG: KASAN: use-after-free in stmmac_napi_poll_rx+0x1c08/0x36e0 [stmmac]
-Read of size 4294967292 at addr ffff888016358000 by task ksoftirqd/0/9
+Moving the i2c_set_adapdata() before i2c_add_adapter() fixed the failure.
 
-CPU: 0 PID: 9 Comm: ksoftirqd/0 Tainted: G        W         5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? stmmac_napi_poll_rx+0x1c08/0x36e0 [stmmac]
- ? stmmac_napi_poll_rx+0x1c08/0x36e0 [stmmac]
- __kasan_report.cold+0x37/0x7c
- ? stmmac_napi_poll_rx+0x1c08/0x36e0 [stmmac]
- kasan_report+0xe/0x20
- check_memory_region+0x15a/0x1d0
- memcpy+0x20/0x50
- stmmac_napi_poll_rx+0x1c08/0x36e0 [stmmac]
- ? stmmac_suspend+0x850/0x850 [stmmac]
- ? __next_timer_interrupt+0xba/0xf0
- net_rx_action+0x363/0xbd0
- ? call_timer_fn+0x240/0x240
- ? __switch_to_asm+0x40/0x70
- ? napi_busy_loop+0x520/0x520
- ? __schedule+0x839/0x15a0
- __do_softirq+0x18c/0x634
- ? takeover_tasklets+0x5f0/0x5f0
- run_ksoftirqd+0x15/0x20
- smpboot_thread_fn+0x2f1/0x6b0
- ? smpboot_unregister_percpu_thread+0x160/0x160
- ? __kthread_parkme+0x80/0x100
- ? smpboot_unregister_percpu_thread+0x160/0x160
- kthread+0x2b5/0x3b0
- ? kthread_create_on_node+0xd0/0xd0
- ret_from_fork+0x22/0x40
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+Signed-off-by: Germain Hebert <germain.hebert@ca.abb.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/hid/hid-ft260.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 0ab20e2f984b9..348ad489f154c 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -5153,12 +5153,13 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 		if (likely(!(status & rx_not_ls)) &&
- 		    (likely(priv->synopsys_id >= DWMAC_CORE_4_00) ||
- 		     unlikely(status != llc_snap))) {
--			if (buf2_len)
-+			if (buf2_len) {
- 				buf2_len -= ETH_FCS_LEN;
--			else
-+				len -= ETH_FCS_LEN;
-+			} else if (buf1_len) {
- 				buf1_len -= ETH_FCS_LEN;
--
--			len -= ETH_FCS_LEN;
-+				len -= ETH_FCS_LEN;
-+			}
- 		}
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 4ef1c3b8094ea..8ee77f4afe9ff 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -966,24 +966,23 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	mutex_init(&dev->lock);
+ 	init_completion(&dev->wait);
  
- 		if (!skb) {
++	ret = ft260_xfer_status(dev);
++	if (ret)
++		ft260_i2c_reset(hdev);
++
++	i2c_set_adapdata(&dev->adap, dev);
+ 	ret = i2c_add_adapter(&dev->adap);
+ 	if (ret) {
+ 		hid_err(hdev, "failed to add i2c adapter\n");
+ 		goto err_hid_close;
+ 	}
+ 
+-	i2c_set_adapdata(&dev->adap, dev);
+-
+ 	ret = sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "failed to create sysfs attrs\n");
+ 		goto err_i2c_free;
+ 	}
+ 
+-	ret = ft260_xfer_status(dev);
+-	if (ret)
+-		ft260_i2c_reset(hdev);
+-
+ 	return 0;
+ 
+ err_i2c_free:
 -- 
 2.33.0
 
