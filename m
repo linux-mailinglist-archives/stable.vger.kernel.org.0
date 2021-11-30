@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1835C463728
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:48:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A83DF46373C
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:49:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242598AbhK3Ov4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:51:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59918 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232757AbhK3OvU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B5A8C061748;
-        Tue, 30 Nov 2021 06:48:01 -0800 (PST)
+        id S236924AbhK3OwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:52:22 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:56746 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242475AbhK3OvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 209A0B819E7;
-        Tue, 30 Nov 2021 14:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB38CC53FCF;
-        Tue, 30 Nov 2021 14:47:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1B9ABCE1A44;
+        Tue, 30 Nov 2021 14:48:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4589DC53FC1;
+        Tue, 30 Nov 2021 14:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283678;
-        bh=1pNQ+60EcBJZgMSHUy+cmbnowyPvPxR5LTtFNKojRWM=;
+        s=k20201202; t=1638283680;
+        bh=z1z08V6GyRqJF14EjuoW9FWHbAnULnnl4fT0ZA7WNhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USG8OCWZArILxPfYyNYpPFPIAV9f9JcHFmnxSeJhFn0CfANYvs1H3PLIIecaA/YCG
-         rNwX3yeRPhp+m/uQr22roXjsyb8MAvqOeUmjGcBeTrIj4qjbpN99u4w087clmDPx5W
-         +JjtjKkF4bL8Ac2+CKjLJ8yIJqhWoMLELv4rw6fTXWkDi4kvJiW/eWU8hZCfMFK3Xg
-         /lFCDSVaqBGiXQBzmXsV1niacnkokB8IHX+EXZGqHOYp5gWQFuvYewv1COSXBWfgph
-         HUhN9OYtNdW0SFhhWrOsrUmTn2xNz04IPN+LE8gzVX9CLEvh/Y36OAxyTb+B0JGVKA
-         BHlrQkdXp5u4w==
+        b=Qs8Bf3eC02djVBcLGLWBeWaVIa6xv9oge/GXQKpKyENio+5tZZVKPl/ecyB/oB2Eq
+         tNLP1HYmc0jNvg896xnvScaQY3gl2CCEhYwywnPxua97be647bfm8chcD78A9AN/7x
+         5BydrwT2jo2L1sZMV6A7BrghxfU6ZTdrmi8q0Kf1fhmrTN/vEtZcACjdDiDXwA98z2
+         vu7F/IF1GABm/vh2aORT+5MfkHpDKP3GQJ14M3eE3XxcoW+eEIfkK+U9yfstyPpyBb
+         iCy0DFQzUsbsw3x5BiuOeUJpL1+tnZO3852VKiOJAjJNbq8E4A/9vmPc656S2TrYXz
+         mvsRegf9UtJMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, bgoswami@codeaurora.org,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        stephan@gerhold.net, ultracoolguy@disroot.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 15/68] ASoC: qdsp6: q6routing: validate port id before setting up route
-Date:   Tue, 30 Nov 2021 09:46:11 -0500
-Message-Id: <20211130144707.944580-15-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.15 16/68] xen/privcmd: make option visible in Kconfig
+Date:   Tue, 30 Nov 2021 09:46:12 -0500
+Message-Id: <20211130144707.944580-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,38 +50,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 6712c2e18c06b0976559fd4bd47774b243038e9c ]
+[ Upstream commit 897919ad8b42eb8222553838ab82414a924694aa ]
 
-Validate port id before it starts sending commands to dsp this would
-make error handling simpler.
+This configuration option provides a misc device as an API to userspace.
+Make this API usable without having to select the module as a transitive
+dependency.
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211116114721.12517-6-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This also fixes an issue where localyesconfig would select
+CONFIG_XEN_PRIVCMD=m because it was not visible and defaulted to
+building as module.
+
+[boris: clarified help message per Jan's suggestion]
+
+Based-on-patch-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20211116143323.18866-1-jgross@suse.com
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6routing.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/xen/Kconfig | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6routing.c b/sound/soc/qcom/qdsp6/q6routing.c
-index 3390ebef9549d..ff81553b13362 100644
---- a/sound/soc/qcom/qdsp6/q6routing.c
-+++ b/sound/soc/qcom/qdsp6/q6routing.c
-@@ -372,6 +372,12 @@ int q6routing_stream_open(int fedai_id, int perf_mode,
- 	}
+diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
+index 1b2c3aca6887c..dba66348dd2ff 100644
+--- a/drivers/xen/Kconfig
++++ b/drivers/xen/Kconfig
+@@ -235,9 +235,15 @@ config XEN_SCSI_BACKEND
+ 	  if guests need generic access to SCSI devices.
  
- 	session = &routing_data->sessions[stream_id - 1];
-+	if (session->port_id < 0) {
-+		dev_err(routing_data->dev, "Routing not setup for MultiMedia%d Session\n",
-+			session->fedai_id);
-+		return -EINVAL;
-+	}
-+
- 	pdata = &routing_data->port_data[session->port_id];
+ config XEN_PRIVCMD
+-	tristate
++	tristate "Xen hypercall passthrough driver"
+ 	depends on XEN
+ 	default m
++	help
++	  The hypercall passthrough driver allows privileged user programs to
++	  perform Xen hypercalls. This driver is normally required for systems
++	  running as Dom0 to perform privileged operations, but in some
++	  disaggregated Xen setups this driver might be needed for other
++	  domains, too.
  
- 	mutex_lock(&routing_data->lock);
+ config XEN_ACPI_PROCESSOR
+ 	tristate "Xen ACPI processor"
 -- 
 2.33.0
 
