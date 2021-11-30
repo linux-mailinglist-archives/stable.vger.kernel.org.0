@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23BDF463730
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:49:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C76463766
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:50:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242549AbhK3OwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:52:01 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:56886 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242545AbhK3Ovl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:41 -0500
+        id S242934AbhK3Ox2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:53:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60052 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242736AbhK3Owg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:52:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7202C0613ED;
+        Tue, 30 Nov 2021 06:48:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F0AD9CE1A4C;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 91C8CCE1A3E;
+        Tue, 30 Nov 2021 14:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E87C53FD3;
         Tue, 30 Nov 2021 14:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39ACC53FD1;
-        Tue, 30 Nov 2021 14:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283698;
-        bh=TVJWxzNijEhbJED7/Sdij2uqBXatVDjJBZILNO0AOAE=;
+        s=k20201202; t=1638283699;
+        bh=odx8qL1TMIvvlfh1vMm6j9AVYLh6gBs/yL2ViP2g4R4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dQ8JxrKZk0O7aVRuVNPa1bs9WSpHyfsM8VqB6oirJjG9Spo8rWkmqpGS4W30AELlj
-         B9w0a+LftPUQUR7Zkgt6BDE/i4CX2t2dNtZE3gOvgzHbsu6U99D97PRnGP6TJHH4ku
-         OlqUiT9iJGDyW8i0GM0K41vrTLP1/Q/znJ8bPaYvMpE6leJGALzIk+SIztCFw01f2v
-         Yw11veLgVKGuVVJ6LG6Etb6pH0wH3WWB0uAxFEQ1j/FcZeqAzKV59UbpV7HY8lp64e
-         Vaw9IQ7KjKp8GjT3l1dYUB2lwSI6gFn7ZltxS+1spq8EFSrz8XkVVkSxWxRWHco0L1
-         svlx5PB/7Vw2A==
+        b=mjEsoyOVljNAkeMN+ZxTl7+0MfYDr1u0d1zR9EBnvhjHxYgwgNbbvAZ9BQRW4E56q
+         cdWINq0JlvyKNlU2SG4Y3GUoqe00kEG+P6hmkBC/8CAwTzFkqf7y5jNmRYQYMKAECr
+         m2CXvE05JSYdoNBSMIS0S93Baob3sEMZRT/52l1p0YOS+2Q6hiZkykuyaVPv286X+Q
+         RALyn1hUg3uz6nBveiEzt7rWVHZKZ41Dlied+jXxgCToJ7z6tKRWTrsDTBuSOXLx1c
+         4o47hl/0hfmZRuVhCjZsH0WjBEtyK3HPqMY8qojZrjJWFB00S9RNWXI2KiPW9OqgZC
+         kBTGMVWk3oZ5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trevor Davenport <trevor.davenport@gmail.com>,
+Cc:     Ondrej Zary <linux@zary.sk>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 24/68] HID: Ignore battery for Elan touchscreen on HP Envy X360 15-eu0xxx
-Date:   Tue, 30 Nov 2021 09:46:20 -0500
-Message-Id: <20211130144707.944580-24-sashal@kernel.org>
+        jikos@kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 25/68] HID: multitouch: Fix Iiyama ProLite T1931SAW (0eef:0001 again!)
+Date:   Tue, 30 Nov 2021 09:46:21 -0500
+Message-Id: <20211130144707.944580-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -48,47 +51,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trevor Davenport <trevor.davenport@gmail.com>
+From: Ondrej Zary <linux@zary.sk>
 
-[ Upstream commit b74edf9bfbc11a7d0d0d756f06b17beb213ad5ca ]
+[ Upstream commit 32bea35746097985c48cec836d5f557a3b66b60a ]
 
-Battery status is reported for the HP Envy X360 Convertible 15-eu0xxx
-even if it does not have a battery. Prevent it from always reporting the
-battery as low.
+Iiyama ProLite T1931SAW does not work with Linux - input devices are
+created but cursor does not move.
 
-Signed-off-by: Trevor Davenport <trevor.davenport@gmail.com>
+It has the infamous 0eef:0001 ID which has been reused for various
+devices before.
+
+It seems to require export_all_inputs = true.
+
+Hopefully there are no HID devices using this ID that will break.
+It should not break non-HID devices (handled by usbtouchscreen).
+
+Signed-off-by: Ondrej Zary <linux@zary.sk>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/hid/hid-multitouch.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3706c635b12ee..3c5564038c969 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -393,6 +393,7 @@
- #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
-+#define I2C_DEVICE_ID_HP_ENVY_X360_15	0x2d05
- #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 4b5ebeacd2836..e31041ae3e435 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -324,6 +324,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index e1afddb7b33d8..082376a6cb3d7 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1888,6 +1888,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
+ 			USB_DEVICE_ID_CVTOUCH_SCREEN) },
+ 
++	/* eGalax devices (SAW) */
++	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER) },
++
+ 	/* eGalax devices (resistive) */
+ 	{ .driver_data = MT_CLS_EGALAX,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
 -- 
 2.33.0
 
