@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA62463895
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 656D8463896
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244143AbhK3PFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:05:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60774 "EHLO
+        id S244162AbhK3PFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:05:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243777AbhK3O6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:58:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ACF4C06139C;
-        Tue, 30 Nov 2021 06:51:36 -0800 (PST)
+        with ESMTP id S243799AbhK3O6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:58:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F66AC0613B5;
+        Tue, 30 Nov 2021 06:51:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D8E80CE1A58;
-        Tue, 30 Nov 2021 14:51:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C81C53FCD;
-        Tue, 30 Nov 2021 14:51:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17661B81A22;
+        Tue, 30 Nov 2021 14:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5C7EC53FCF;
+        Tue, 30 Nov 2021 14:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283893;
-        bh=71CGjOfUIb3TjUWIc4RjZNQ40Lhywk3KLg33jW+fqjc=;
+        s=k20201202; t=1638283901;
+        bh=mvfh7oVZeXZA36lXXXo7Z+ltFgM+teaqeOEjVs7N4CI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWU5Qq+6+BdZ6fIpgGAECSYY4Tqpl2tFeYIw34hs2nd7IlH8N1CShwcCDEKf5J5Vy
-         iL10V7Cxc4qRJexqrSCqsbDwYLyry8DXA1BABy45Nvt4l786uhxkLAnkT8Cs854hda
-         z5tI6Ogxl+o3ySAeklWQ8/xHtaA8Sxjg2aIjqLCr4QRMAbklBdxdLEXIxI9MIp5OIR
-         I0lxywa8m8wRCsBswx9MjIK//f5bVyW3jVp1dwteZr95+7c9eiI8WrpAzcTLIYqHyV
-         aJJ/M3pyZd2VyB/QOmMlzaLAjAtdUhuVYOb8vzKw5DvdFVVpzCVWRgcfVlbaeIYCB4
-         fkBrB8byi3ttg==
+        b=bFSjDA9rdY/iWsUjnZLP5aGt9WwdukSfLaelFl79hVmW2bcMZzrmUBhy/CbdtbmF5
+         LewPa00iUFaL7zRyKite7EwxWOVRwxZ5/psNiIWkAarEMInfNdys5PcMOHAiA7SxlV
+         ehxjV5ARM5aLDE9zC+rRxzcp0X53F9CoBn7VubiBN3K+RucG6S4G1cXooffA470A7N
+         gm79QG+ggrpYGjULMKLWvXoSt6vNwI2XWITkN3NheJjcFoXPsMZjboedfc7XFtybk1
+         O//+yzp+NbviN2yz6vrq6U1Q5Z9xqSXTySYhz2zerepkMGXAx1qfkvc6VSnmg1LDX5
+         aItWOUtWUgdTg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Klaus Jensen <k.jensen@samsung.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 33/43] nvme: fix write zeroes pi
-Date:   Tue, 30 Nov 2021 09:50:10 -0500
-Message-Id: <20211130145022.945517-33-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.10 35/43] xen: flag xen_drm_front to be not essential for system boot
+Date:   Tue, 30 Nov 2021 09:50:12 -0500
+Message-Id: <20211130145022.945517-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145022.945517-1-sashal@kernel.org>
 References: <20211130145022.945517-1-sashal@kernel.org>
@@ -52,52 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Klaus Jensen <k.jensen@samsung.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 00b33cf3da726757aef636365bb52e9536434e9a ]
+[ Upstream commit 1c669938c31b6e2a0d5149c3c6257ca9df6cb100 ]
 
-Write Zeroes sets PRACT when block integrity is enabled (as it should),
-but neglects to also set the reftag which is expected by reads. This
-causes protection errors on reads.
+Similar to the virtual frame buffer (vfb) the pv display driver is not
+essential for booting the system. Set the respective flag.
 
-Fix this by setting the reftag for type 1 and 2 (for type 3, reads will
-not check the reftag).
-
-Signed-off-by: Klaus Jensen <k.jensen@samsung.com>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20211022064800.14978-3-jgross@suse.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/xen/xen_drm_front.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index c76f3a7fb1d18..9b57a9db8f1dc 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -750,10 +750,19 @@ static inline blk_status_t nvme_setup_write_zeroes(struct nvme_ns *ns,
- 		cpu_to_le64(nvme_sect_to_lba(ns, blk_rq_pos(req)));
- 	cmnd->write_zeroes.length =
- 		cpu_to_le16((blk_rq_bytes(req) >> ns->lba_shift) - 1);
--	if (nvme_ns_has_pi(ns))
-+
-+	if (nvme_ns_has_pi(ns)) {
- 		cmnd->write_zeroes.control = cpu_to_le16(NVME_RW_PRINFO_PRACT);
--	else
--		cmnd->write_zeroes.control = 0;
-+
-+		switch (ns->pi_type) {
-+		case NVME_NS_DPS_PI_TYPE1:
-+		case NVME_NS_DPS_PI_TYPE2:
-+			cmnd->write_zeroes.reftag =
-+				cpu_to_le32(t10_pi_ref_tag(req));
-+			break;
-+		}
-+	}
-+
- 	return BLK_STS_OK;
- }
+diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
+index 8ea91542b567a..a2789ac2d4540 100644
+--- a/drivers/gpu/drm/xen/xen_drm_front.c
++++ b/drivers/gpu/drm/xen/xen_drm_front.c
+@@ -783,6 +783,7 @@ static struct xenbus_driver xen_driver = {
+ 	.probe = xen_drv_probe,
+ 	.remove = xen_drv_remove,
+ 	.otherend_changed = displback_changed,
++	.not_essential = true,
+ };
  
+ static int __init xen_drv_init(void)
 -- 
 2.33.0
 
