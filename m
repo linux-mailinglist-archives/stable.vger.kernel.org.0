@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A105D4638C8
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43A6F4638D7
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244612AbhK3PGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:06:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33894 "EHLO
+        id S244733AbhK3PGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:06:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244773AbhK3PCl (ORCPT
+        with ESMTP id S244775AbhK3PCl (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1703EC08EA7B;
-        Tue, 30 Nov 2021 06:54:03 -0800 (PST)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B17DC08EAC9;
+        Tue, 30 Nov 2021 06:54:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3FACB81A52;
-        Tue, 30 Nov 2021 14:54:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78C1C53FD1;
-        Tue, 30 Nov 2021 14:54:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 86C2DCE1A85;
+        Tue, 30 Nov 2021 14:54:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 033AAC53FC1;
+        Tue, 30 Nov 2021 14:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284041;
-        bh=sv6SHN8BiLPKNf1x5CfhepLuwQcvghPgfP6OXk2juBA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXAfrKLogSUAQGVD/j+etukD7UoKbKr/SNt83ehkdtdeagTfb7Um8939EAQwYYPNh
-         oqWRzvGjGjFp1k6+W2wYVpWJaoNfpWHI2NGnSah/DkWWoGmrhhuiVv5lheaQQGi+HB
-         09YtKNdDvx1F95CxgvPc4dSfdv0Zz4F150bU44j5djijNYTFt7u3KVEKvjHxOwNP7n
-         0C1RTte8Zk0CF8pnA+XkvZeSn0sK3V6Vq3t4hKtYg8Rh+CiiDF9+wlpbs0ffMBlQCY
-         wMp4YVZ2HY5GMw6Wgzx6URWSAh99pTKVr/FYcH3D2H8p8g7La3o2HTTN1KWqdHntwf
-         TpAgGvbJy4ZyA==
+        s=k20201202; t=1638284044;
+        bh=a3uz0IJyj8SniB2opKJ04Vx2hKXu1OLTWs+GDsbDHmA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ouMuOhfX05mFao2bqxElSiFk/QVZb138iHstl8qNcYfEX9VhczJjybHIoN2BrJVaS
+         J76iSQHz88OCPWcmNGi4gqSEtuhaWgRm9QOBcMcGfZql0Cy0zAvBdvo26kbzcxggf8
+         Fepi7SDqJOMGCuxInIcziW52MtlqCyHZjwOjA80bxEM7AZV05cbSuG7FHInK8Xv7AV
+         ELU9ZJ/Vq76yssNtB1eztWJSTutg4dIxcWAHa5ehrc3W4UhgQpqxWaPzmiISamO/FD
+         6BlQRt+q5cQdl4GJ1P0zaTOvu1h3nTDysTknPKSuoB+7r11ASnbLnkiD7YkvncsQIm
+         4B31JXFFnk4aQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 12/12] fs: ntfs: Limit NTFS_RW to page sizes smaller than 64k
-Date:   Tue, 30 Nov 2021 09:53:40 -0500
-Message-Id: <20211130145341.946891-12-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.4 1/9] xen/privcmd: make option visible in Kconfig
+Date:   Tue, 30 Nov 2021 09:53:54 -0500
+Message-Id: <20211130145402.947049-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211130145341.946891-1-sashal@kernel.org>
-References: <20211130145341.946891-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -52,48 +51,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 4eec7faf6775263d9e450ae7ee5bc4101d4a0bc9 ]
+[ Upstream commit 897919ad8b42eb8222553838ab82414a924694aa ]
 
-NTFS_RW code allocates page size dependent arrays on the stack. This
-results in build failures if the page size is 64k or larger.
+This configuration option provides a misc device as an API to userspace.
+Make this API usable without having to select the module as a transitive
+dependency.
 
-  fs/ntfs/aops.c: In function 'ntfs_write_mst_block':
-  fs/ntfs/aops.c:1311:1: error:
-	the frame size of 2240 bytes is larger than 2048 bytes
+This also fixes an issue where localyesconfig would select
+CONFIG_XEN_PRIVCMD=m because it was not visible and defaulted to
+building as module.
 
-Since commit f22969a66041 ("powerpc/64s: Default to 64K pages for 64 bit
-book3s") this affects ppc:allmodconfig builds, but other architectures
-supporting page sizes of 64k or larger are also affected.
+[boris: clarified help message per Jan's suggestion]
 
-Increasing the maximum frame size for affected architectures just to
-silence this error does not really help.  The frame size would have to
-be set to a really large value for 256k pages.  Also, a large frame size
-could potentially result in stack overruns in this code and elsewhere
-and is therefore not desirable.  Make NTFS_RW dependent on page sizes
-smaller than 64k instead.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Based-on-patch-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20211116143323.18866-1-jgross@suse.com
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/xen/Kconfig | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ntfs/Kconfig b/fs/ntfs/Kconfig
-index f5a868cc9152e..5b384ec44793f 100644
---- a/fs/ntfs/Kconfig
-+++ b/fs/ntfs/Kconfig
-@@ -51,6 +51,7 @@ config NTFS_DEBUG
- config NTFS_RW
- 	bool "NTFS write support"
- 	depends on NTFS_FS
-+	depends on PAGE_SIZE_LESS_THAN_64KB
- 	help
- 	  This enables the partial, but safe, write support in the NTFS driver.
+diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
+index 3a14948269b1e..59f862350a6ec 100644
+--- a/drivers/xen/Kconfig
++++ b/drivers/xen/Kconfig
+@@ -199,9 +199,15 @@ config XEN_SCSI_BACKEND
+ 	  if guests need generic access to SCSI devices.
  
+ config XEN_PRIVCMD
+-	tristate
++	tristate "Xen hypercall passthrough driver"
+ 	depends on XEN
+ 	default m
++	help
++	  The hypercall passthrough driver allows privileged user programs to
++	  perform Xen hypercalls. This driver is normally required for systems
++	  running as Dom0 to perform privileged operations, but in some
++	  disaggregated Xen setups this driver might be needed for other
++	  domains, too.
+ 
+ config XEN_STUB
+ 	bool "Xen stub drivers"
 -- 
 2.33.0
 
