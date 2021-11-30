@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37A984638EA
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:03:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3738B4638BA
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244891AbhK3PG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:06:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48632 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243438AbhK3O4f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:56:35 -0500
+        id S244336AbhK3PFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:05:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33894 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244506AbhK3PCC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BE8C0619DD;
+        Tue, 30 Nov 2021 06:53:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 090BAB81A61;
-        Tue, 30 Nov 2021 14:53:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2837C53FC7;
-        Tue, 30 Nov 2021 14:53:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 481A0B81A49;
+        Tue, 30 Nov 2021 14:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAE72C53FC7;
+        Tue, 30 Nov 2021 14:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283994;
-        bh=sv6SHN8BiLPKNf1x5CfhepLuwQcvghPgfP6OXk2juBA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oHZxRmAVkmlTedR4+L4lO01LiwmGe9FnKT4XucP350tjFOvCSq5damahbTExcgkRd
-         tqRDvWqm1f0Lb/mG+wB/s0nwfdfF4PbmUG8sZUky0rVAYWakU1H00yJ6mCUcjKOHSB
-         LobuWo/GCNO8BKY3lWByW79uPFUN64zWYd/SojCCJapJc3PbmKNPfQqrVJ7/IonaWC
-         mNPiF/XiekjeJkjh7WblaZkwmL10M2DHFaXuI3ZiPUsgVMioQKDgqdThx44m0PQzoM
-         elwIpvNPxmO60HaDXhZgD823MGIN1Sdrmjr5pfJIt+UP8JrkvP80P9Y+QDa1xQ+YdC
-         hGZ6lqQL9pUfA==
+        s=k20201202; t=1638284000;
+        bh=0+3Ym9+8lvkQFX27bQsSayMoZxPuQ4FYLs8LPgF5CZs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OvymiwdNah2sXlGx3Jzbt92R66+AuEvF0mRGHk7cJp8DEjG4dRjDZCpgKecEfO9lw
+         LDP85vkqlymQ53JYUKn1Jn6Kpcy2eTsZ2206Q7dLV+sMw+hpdV/9UXktcojTdtw/dT
+         NnnBhoHER1zNWuFtqGB48I5DWtCN1Ct+r1DARI0/IjOpXqC66y/SjBj8oG1P56kRrf
+         pthqnRUXxjRQN7qtRhoWzj67j1OUPEuS0SbbZHj9HWcE9UA9n4woMgMuw1h9Ds1SgV
+         WGJNk6gug11S2sfCf460scszlvf9YvDXoTe1yDIn5CD3WHi0M5zuvYIdIXLR4KHYwS
+         yp9Y/fyfrI30w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 17/17] fs: ntfs: Limit NTFS_RW to page sizes smaller than 64k
-Date:   Tue, 30 Nov 2021 09:52:41 -0500
-Message-Id: <20211130145243.946407-17-sashal@kernel.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
+        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 01/14] ASoC: mediatek: mt8173-rt5650: Rename Speaker control to Ext Spk
+Date:   Tue, 30 Nov 2021 09:53:02 -0500
+Message-Id: <20211130145317.946676-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211130145243.946407-1-sashal@kernel.org>
-References: <20211130145243.946407-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,48 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit 4eec7faf6775263d9e450ae7ee5bc4101d4a0bc9 ]
+[ Upstream commit 0a8facac0d1e38dc8b86ade6d3f0d8b33dae7c58 ]
 
-NTFS_RW code allocates page size dependent arrays on the stack. This
-results in build failures if the page size is 64k or larger.
+Some RT5645 and RT5650 powered platforms are using "Ext Spk"
+instead of "Speaker", and this is also reflected in alsa-lib
+configurations for the generic RT5645 usecase manager configs.
 
-  fs/ntfs/aops.c: In function 'ntfs_write_mst_block':
-  fs/ntfs/aops.c:1311:1: error:
-	the frame size of 2240 bytes is larger than 2048 bytes
+Rename the "Speaker" control to "Ext Spk" in order to be able
+to make the userspace reuse/inherit the same configurations also
+for this machine, along with the others.
 
-Since commit f22969a66041 ("powerpc/64s: Default to 64K pages for 64 bit
-book3s") this affects ppc:allmodconfig builds, but other architectures
-supporting page sizes of 64k or larger are also affected.
-
-Increasing the maximum frame size for affected architectures just to
-silence this error does not really help.  The frame size would have to
-be set to a really large value for 256k pages.  Also, a large frame size
-could potentially result in stack overruns in this code and elsewhere
-and is therefore not desirable.  Make NTFS_RW dependent on page sizes
-smaller than 64k instead.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Anton Altaparmakov <anton@tuxera.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20211105152013.75252-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/mediatek/mt8173/mt8173-rt5650.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ntfs/Kconfig b/fs/ntfs/Kconfig
-index f5a868cc9152e..5b384ec44793f 100644
---- a/fs/ntfs/Kconfig
-+++ b/fs/ntfs/Kconfig
-@@ -51,6 +51,7 @@ config NTFS_DEBUG
- config NTFS_RW
- 	bool "NTFS write support"
- 	depends on NTFS_FS
-+	depends on PAGE_SIZE_LESS_THAN_64KB
- 	help
- 	  This enables the partial, but safe, write support in the NTFS driver.
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
+index e69c141d8ed4c..60a6a83aa772c 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
+@@ -38,15 +38,15 @@ static struct mt8173_rt5650_platform_data mt8173_rt5650_priv = {
+ };
  
+ static const struct snd_soc_dapm_widget mt8173_rt5650_widgets[] = {
+-	SND_SOC_DAPM_SPK("Speaker", NULL),
++	SND_SOC_DAPM_SPK("Ext Spk", NULL),
+ 	SND_SOC_DAPM_MIC("Int Mic", NULL),
+ 	SND_SOC_DAPM_HP("Headphone", NULL),
+ 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
+ };
+ 
+ static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
+-	{"Speaker", NULL, "SPOL"},
+-	{"Speaker", NULL, "SPOR"},
++	{"Ext Spk", NULL, "SPOL"},
++	{"Ext Spk", NULL, "SPOR"},
+ 	{"DMIC L1", NULL, "Int Mic"},
+ 	{"DMIC R1", NULL, "Int Mic"},
+ 	{"Headphone", NULL, "HPOL"},
+@@ -58,7 +58,7 @@ static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
+ };
+ 
+ static const struct snd_kcontrol_new mt8173_rt5650_controls[] = {
+-	SOC_DAPM_PIN_SWITCH("Speaker"),
++	SOC_DAPM_PIN_SWITCH("Ext Spk"),
+ 	SOC_DAPM_PIN_SWITCH("Int Mic"),
+ 	SOC_DAPM_PIN_SWITCH("Headphone"),
+ 	SOC_DAPM_PIN_SWITCH("Headset Mic"),
 -- 
 2.33.0
 
