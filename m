@@ -2,136 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F9E46290C
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 01:21:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B05ED462919
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 01:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233607AbhK3AZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 19:25:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59634 "EHLO
+        id S231424AbhK3Aad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 19:30:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230195AbhK3AZL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 19:25:11 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9023C061746
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 16:21:52 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id e3so79250534edu.4
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 16:21:52 -0800 (PST)
+        with ESMTP id S230092AbhK3Aac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 19:30:32 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F18EC061574
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 16:27:14 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id w33-20020a17090a6ba400b001a722a06212so12752808pjj.0
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 16:27:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ci94NnhvjNDm0+nVGHKxyhtDjWfoGOaQGIN6N4LSRhE=;
-        b=M53/U3hREszj1yH/KQDRSGJwykb2+3EWcdSwlq3cyn30fQyJARab/+HU0AA6KFg98b
-         yeUUPk+C38qRl87ro4If+M3eLvRet45QNoQudDSuJnoNoe4GcjcBWOG2/XTM/7t4Jg5Z
-         1NPHp3FrTVc4/s8fKGHVk6QKmSmkK2iDxlbWq5yA9hc92hPmVwSX/Ly2XRzEfmZXRDE5
-         G008ZlAoxZdJsFVqPxlMCVj0oHvr4trTGlCExIM8UTFUFKFTifDx77uOJfuBFkudOt3F
-         I7VuzCznctRFvRBmttVZ4yCtOJKLk9pe1Dg2KexAFixqvjuztAUUzZJ02Y/UZskvmnyy
-         9TvA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=fd3o29lF2YfeH6YTmaexwfW1h6mz1x5AQhEBFHyPe7Y=;
+        b=U6Xli+ByO0MA3zVJQWcqTJ/qFciwZAyb9nRpfzzUqIO16paZZVwQ/ZlJZvjQCkLvVp
+         ktybjz/hzWeeiY6AoZpozWX2EjU9XAWZHrsQWLjy4rTY97vDVZaCmKCBO2fhhjqAveN3
+         CHt+4ex4oAWXhrhFNe/apbtQbO2pziCY/04T0UJ0hlPTBuZIyt6NuMAjgqel/bMoDeCH
+         srF1BRZRBQGEkxhJW2Shg7famFJ6mZvRe4ZcwC2WpMHc1xB+mdRDvTi8KfuzyDQe+HJJ
+         Fk4fBWngQrwnYatFtyXDjkvFqQI6iO7CpMtgEUqB05hgGvceITYEZJVPMgNXJcFZcnfv
+         dxLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ci94NnhvjNDm0+nVGHKxyhtDjWfoGOaQGIN6N4LSRhE=;
-        b=2JinbwQT6Pbh5RSs27wMpeTyGYVO156HLRxdoWQJhGX+2Bj1IozdezzshQyorg+o+2
-         XXynoTEFK49gIyx5kcPRdGXsVrFRQ9R1llWI9TJHCWWx3qMd1+2TLChKnHIqB68GAMFU
-         RBO9N5F6abhujd1cWpoas3LgzwjP+kbAN0FAlwhBkq/dulbDJ20WaDQjInqRLJ54g8CU
-         /tcuzBbLgxNb/1nX1HXfN/EDFYizQ/KJTzf9ZSvRVTW+7Lklmh8kCleziXZ2QthFhYdT
-         8FSqLoXa9dzRjLuJ0eoom96kn6tShKxiGEEONqa1wlpuN3DJEzHdHrojIUZ3/nc5k+7f
-         bA8Q==
-X-Gm-Message-State: AOAM533h0eLnJVymy6ofQmKoygyC9AplDUSZYBT7JZ2BUwGLeZj5ZtGB
-        b4rFliHmZKqGI+UZpcNMgTqiywDXlZmKTu7KEWOCQg==
-X-Google-Smtp-Source: ABdhPJxvo5fpYlewG0MUn+bdVkv6oDtGOSLMbiJWgjp4wTnepUtGOh+Y+XkgY7WxBRbCSQ8WeTF6WYndljTIlrSWkWU=
-X-Received: by 2002:aa7:c14a:: with SMTP id r10mr77883888edp.122.1638231711210;
- Mon, 29 Nov 2021 16:21:51 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=fd3o29lF2YfeH6YTmaexwfW1h6mz1x5AQhEBFHyPe7Y=;
+        b=hkYmL/wzlT/zao4Vj9z/6HjtviefgjgjAw24AWPZNu7fmP1KfcTO1cHTMozDquNlod
+         qF18zI4xVQFxkN9H352Pzncvb8aZpZezXQdMp1Ret/Gm7m3kNewyDmaqg9YqTv5Vp0rd
+         8PnHlsaBuxIW1FRIS3YSfGGCmxoq8rC6R2AldZVvTgOmETbIQePc8Eo5MB0k0ApPtiAH
+         jY1D+IFifOD+y3LUlGO+hm7fIP1rAAGrXLKXo9PpdmoG+5TRRie2g+yw7EM66SHajwgm
+         EqWwtw0UM5rJNRyk9rri5Avcp5pBqMN52/t/tkult0GX5150e+Ibx6wOlCqF/UemDeVv
+         zbBQ==
+X-Gm-Message-State: AOAM532iCL1hm/v8M9BM3UYMupCmQ7rKknagOZF2dGtFpkRfoNDqI9y9
+        CIIYSogo8WkKFcpxI7qxsOm7TYph5iB/nygp
+X-Google-Smtp-Source: ABdhPJwy9bPf+T35mIeM5wjvlNq5gBMfGfKnkYdPTWvDU7bssb4Xj/n/mX1kCo3cajuj3JvkXJb70A==
+X-Received: by 2002:a17:90b:1d90:: with SMTP id pf16mr1731882pjb.93.1638232034021;
+        Mon, 29 Nov 2021 16:27:14 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y6sm19490867pfi.154.2021.11.29.16.27.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Nov 2021 16:27:13 -0800 (PST)
+Message-ID: <61a56fe1.1c69fb81.37587.4b35@mx.google.com>
+Date:   Mon, 29 Nov 2021 16:27:13 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20211124224036.734679-1-badhri@google.com> <YZ8mdjPn39ekClLq@kroah.com>
-In-Reply-To: <YZ8mdjPn39ekClLq@kroah.com>
-From:   Badhri Jagan Sridharan <badhri@google.com>
-Date:   Mon, 29 Nov 2021 16:21:14 -0800
-Message-ID: <CAPTae5LTg20LmAoUZXZYULP4HvX-2DMvp7qq1MwsHce-Y7LynQ@mail.gmail.com>
-Subject: Re: [PATCH v1] usb: typec: tcpm: Wait in SNK_DEBOUNCED until disconnect
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.293-31-g052eaf60dbd3d
+Subject: stable-rc/queue/4.4 baseline: 67 runs,
+ 1 regressions (v4.4.293-31-g052eaf60dbd3d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks Greg ! Missed the "Cc: stable@vger.kernel.org". Have updated
-the commit message and sent it as V2.
+stable-rc/queue/4.4 baseline: 67 runs, 1 regressions (v4.4.293-31-g052eaf60=
+dbd3d)
 
-Regards,
-Badhri
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
-On Wed, Nov 24, 2021 at 10:00 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Wed, Nov 24, 2021 at 02:40:36PM -0800, Badhri Jagan Sridharan wrote:
-> > Stub from the spec:
-> > "4.5.2.2.4.2 Exiting from AttachWait.SNK State
-> > A Sink shall transition to Unattached.SNK when the state of both
-> > the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
-> > A DRP shall transition to Unattached.SRC when the state of both
-> > the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
-> >
-> > This change makes TCPM to wait in SNK_DEBOUNCED state until
-> > CC1 and CC2 pins is SNK.Open for at least tPDDebounce. Previously,
-> > TCPM resets the port if vbus is not present in PD_T_PS_SOURCE_ON.
-> > This causes TCPM to loop continuously when connected to a
-> > faulty power source that does not present vbus. Waiting in
-> > SNK_DEBOUNCED also ensures that TCPM is adherant to
-> > "4.5.2.2.4.2 Exiting from AttachWait.SNK State" requirements.
-> >
-> > [ 6169.280751] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
-> > [ 6169.280759] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
-> > [ 6169.280771] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
-> > [ 6169.282427] CC1: 0 -> 0, CC2: 5 -> 5 [state SNK_ATTACH_WAIT, polarity 0, connected]
-> > [ 6169.450825] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
-> > [ 6169.450834] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
-> > [ 6169.930892] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
-> > [ 6169.931296] disable vbus discharge ret:0
-> > [ 6169.931301] Setting usb_comm capable false
-> > [ 6169.932783] Setting voltage/current limit 0 mV 0 mA
-> > [ 6169.932802] polarity 0
-> > [ 6169.933706] Requesting mux state 0, usb-role 0, orientation 0
-> > [ 6169.936689] cc:=0
-> > [ 6169.936812] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
-> > [ 6169.937157] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
-> > [ 6170.036880] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
-> > [ 6170.036890] state change PORT_RESET_WAIT_OFF -> SNK_UNATTACHED [rev2 NONE_AMS]
-> > [ 6170.036896] Start toggling
-> > [ 6170.041412] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0, disconnected]
-> > [ 6170.042973] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
-> > [ 6170.042976] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
-> > [ 6170.042981] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
-> > [ 6170.213014] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
-> > [ 6170.213019] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
-> > [ 6170.693068] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
-> > [ 6170.693304] disable vbus discharge ret:0
-> > [ 6170.693308] Setting usb_comm capable false
-> > [ 6170.695193] Setting voltage/current limit 0 mV 0 mA
-> > [ 6170.695210] polarity 0
-> > [ 6170.695990] Requesting mux state 0, usb-role 0, orientation 0
-> > [ 6170.701896] cc:=0
-> > [ 6170.702181] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
-> > [ 6170.703343] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
-> >
-> > Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
-> > Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-> > ---
-> >  drivers/usb/typec/tcpm/tcpm.c | 4 ----
-> >  1 file changed, 4 deletions(-)
->
->
-> <formletter>
->
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
->
-> </formletter>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.293-31-g052eaf60dbd3d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.293-31-g052eaf60dbd3d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      052eaf60dbd3d77bfccf330c6f6a8b18ed82985f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61a53a23043e8371da18f701
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-3=
+1-g052eaf60dbd3d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-3=
+1-g052eaf60dbd3d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a53a23043e837=
+1da18f707
+        new failure (last pass: v4.4.293-21-gba114a7ef1f9d)
+        2 lines
+
+    2021-11-29T20:37:44.133168  [   19.144622] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-29T20:37:44.183128  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/113
+    2021-11-29T20:37:44.192633  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
