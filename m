@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2CF2463818
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:55:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5293446381A
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:55:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243013AbhK3O6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:58:08 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49908 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243014AbhK3O4H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:56:07 -0500
+        id S243043AbhK3O6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:58:10 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:59726 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243016AbhK3O4M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:56:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31B91B81A31;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 53B79CE1A71;
+        Tue, 30 Nov 2021 14:52:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9234AC53FC1;
         Tue, 30 Nov 2021 14:52:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE191C53FC1;
-        Tue, 30 Nov 2021 14:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283965;
-        bh=MXJM4KECyjKgUXjKamI2pB1K5WxiFoZJwPw+dgV6Dy0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gNsEgF4CFNnwD1uC782iH9GycRqPAOeU8K/OfkN3fz0FUaue65LqpQWKqhDboQ4Dv
-         9gPfBTsK0q3eGtZ5Q09tMxqdLenEzEEwptARayOkeMkb7DigxeyCFR6Ro03NdBFLms
-         uDHrWUwHNhVaQj9q4NRDZFsdF4pByQ69y0VTyV9I9+AOFXRDxAbk2rfUHJERJKOB4u
-         kIxoLbhhLH/E99Buj2fAxbNnY8GYS7yhNhUzES5kxjxLR0J+tORzNCuGdeLwKiHmoV
-         9FsibxOs4eXlNNXXI+a9LSnBt1QJFcdPWJriN1j+GsNBqxsqpdIRzonE0mmvFiGIme
-         EPd1z1fj7Ft/w==
+        s=k20201202; t=1638283968;
+        bh=wT6Yv+elh3txeBLhbEvLBuKm5sBf05O+PvP2/IgNLdg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RW0Z343fnL6kyTPfpuD0H2/ZYkRvycF4isP8bfm7mjwDVwNoi2Yv2/G+ZgUaaQhdt
+         2Ba8xWwmSpkqBvpZfqJMu5HpTxYd3lpKLSpJ77RmU+C72gDZ19gCCK5PDWfma5bQgS
+         +8oMzK51DtBT6iYVZXePklV0dBNITbm0H1N27vqvOwOme0xewAEIWlfO1o3NQrYHYA
+         pUKU6iXZWGoGhf9UbBnmPAmqYgc5S0iTgEx9IDuWt3xEbWBAWpeOBnLFShHfHIqsDq
+         8leCAUP/wH/uMYXA0NpgppN+oc2Kiar1jDPCCYO5a8FpNUNjrTZ6nnyQuW/8oETacs
+         1TpqxNsAbn6Wg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
-        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 01/17] ASoC: mediatek: mt8173-rt5650: Rename Speaker control to Ext Spk
-Date:   Tue, 30 Nov 2021 09:52:25 -0500
-Message-Id: <20211130145243.946407-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, bgoswami@codeaurora.org,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 02/17] ASoC: qdsp6: q6adm: improve error reporting
+Date:   Tue, 30 Nov 2021 09:52:26 -0500
+Message-Id: <20211130145243.946407-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211130145243.946407-1-sashal@kernel.org>
+References: <20211130145243.946407-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,58 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 0a8facac0d1e38dc8b86ade6d3f0d8b33dae7c58 ]
+[ Upstream commit 0a270471d68533f59c5cfd631a3fce31a3b17144 ]
 
-Some RT5645 and RT5650 powered platforms are using "Ext Spk"
-instead of "Speaker", and this is also reflected in alsa-lib
-configurations for the generic RT5645 usecase manager configs.
+reset value for port is -1 so printing an hex would not give us very
+useful debug information, so use %d instead.
 
-Rename the "Speaker" control to "Ext Spk" in order to be able
-to make the userspace reuse/inherit the same configurations also
-for this machine, along with the others.
-
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20211105152013.75252-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20211116114721.12517-5-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/qcom/qdsp6/q6adm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-index 7a89b4aad182f..6cae0e4d33710 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-@@ -30,15 +30,15 @@ static struct mt8173_rt5650_platform_data mt8173_rt5650_priv = {
- };
+diff --git a/sound/soc/qcom/qdsp6/q6adm.c b/sound/soc/qcom/qdsp6/q6adm.c
+index 932c3ebfd2524..dd796afad91e7 100644
+--- a/sound/soc/qcom/qdsp6/q6adm.c
++++ b/sound/soc/qcom/qdsp6/q6adm.c
+@@ -391,7 +391,7 @@ struct q6copp *q6adm_open(struct device *dev, int port_id, int path, int rate,
+ 	int ret = 0;
  
- static const struct snd_soc_dapm_widget mt8173_rt5650_widgets[] = {
--	SND_SOC_DAPM_SPK("Speaker", NULL),
-+	SND_SOC_DAPM_SPK("Ext Spk", NULL),
- 	SND_SOC_DAPM_MIC("Int Mic", NULL),
- 	SND_SOC_DAPM_HP("Headphone", NULL),
- 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
- };
+ 	if (port_id < 0) {
+-		dev_err(dev, "Invalid port_id 0x%x\n", port_id);
++		dev_err(dev, "Invalid port_id %d\n", port_id);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
- static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
--	{"Speaker", NULL, "SPOL"},
--	{"Speaker", NULL, "SPOR"},
-+	{"Ext Spk", NULL, "SPOL"},
-+	{"Ext Spk", NULL, "SPOR"},
- 	{"DMIC L1", NULL, "Int Mic"},
- 	{"DMIC R1", NULL, "Int Mic"},
- 	{"Headphone", NULL, "HPOL"},
-@@ -48,7 +48,7 @@ static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
- };
+@@ -510,7 +510,7 @@ int q6adm_matrix_map(struct device *dev, int path,
+ 		int port_idx = payload_map.port_id[i];
  
- static const struct snd_kcontrol_new mt8173_rt5650_controls[] = {
--	SOC_DAPM_PIN_SWITCH("Speaker"),
-+	SOC_DAPM_PIN_SWITCH("Ext Spk"),
- 	SOC_DAPM_PIN_SWITCH("Int Mic"),
- 	SOC_DAPM_PIN_SWITCH("Headphone"),
- 	SOC_DAPM_PIN_SWITCH("Headset Mic"),
+ 		if (port_idx < 0) {
+-			dev_err(dev, "Invalid port_id 0x%x\n",
++			dev_err(dev, "Invalid port_id %d\n",
+ 				payload_map.port_id[i]);
+ 			kfree(pkt);
+ 			return -EINVAL;
 -- 
 2.33.0
 
