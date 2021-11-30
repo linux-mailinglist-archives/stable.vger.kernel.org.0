@@ -2,135 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33D88462E0D
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 08:57:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DAFC462ED2
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 09:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234736AbhK3IAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 03:00:42 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25445 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234630AbhK3IAm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 03:00:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638259043;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Vih9+HWG0JjvhdVvP7SF0siBMEOxyMaBvam5SAsoIbc=;
-        b=YtPbHrfuhcKFEHbjF+Osmmdk/vMowpQzZnp2mkdi7JaIkf6aZC90ajBphxGgY9kfWRGLsU
-        Gzz6Hq80psrzRfDMj7gl0B64Xwhi4AlaHFzrXXhUWhET8rfjIAkUYkPTN2iWHXN55fzsuD
-        y2YfAqXCDhH3+vb3BBQVzuHp2NZtMIo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-294-Mhqli4DgM8WNJFkFSqWPug-1; Tue, 30 Nov 2021 02:57:21 -0500
-X-MC-Unique: Mhqli4DgM8WNJFkFSqWPug-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S239794AbhK3Iu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 03:50:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59830 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239766AbhK3IuV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 03:50:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654ACC061574;
+        Tue, 30 Nov 2021 00:47:02 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 829DD19251A8;
-        Tue, 30 Nov 2021 07:57:20 +0000 (UTC)
-Received: from starship (unknown [10.40.192.24])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C003760C13;
-        Tue, 30 Nov 2021 07:57:17 +0000 (UTC)
-Message-ID: <a64cb47daef28ab6688ed93329a8119a00ca4f19.camel@redhat.com>
-Subject: Re: [PATCH 2/4] KVM: VMX: prepare sync_pir_to_irr for running with
- APICv disabled
-From:   Maxim Levitsky <mlevitsk@redhat.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     seanjc@google.com, stable@vger.kernel.org
-Date:   Tue, 30 Nov 2021 09:57:16 +0200
-In-Reply-To: <20211123004311.2954158-3-pbonzini@redhat.com>
-References: <20211123004311.2954158-1-pbonzini@redhat.com>
-         <20211123004311.2954158-3-pbonzini@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
+        by sin.source.kernel.org (Postfix) with ESMTPS id B17F9CE1805;
+        Tue, 30 Nov 2021 08:47:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EA27C53FC1;
+        Tue, 30 Nov 2021 08:46:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638262018;
+        bh=IV7CfOvh14lM4qBOoT7nyIPMnQ7INl8FL+DbIr8jUZE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=o2BY48q9b0Ye9pSk35j13Q+j8G0HeZe1QHlM+h7Orbf0jTJ9DJdmIr63oT9heOYXa
+         fSZSz95xEaiCzaKMybcESOR/NOJGhW2Mgkm+lxoPZ8e2nVguY6z/isFukOu9qlzYdL
+         d+ajnwmYvmoh526ziVvV5uj0TVB6KCRjIhvskXiE=
+Date:   Tue, 30 Nov 2021 08:57:46 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Ben Hutchings <benh@debian.org>
+Subject: Re: [PATCH 4.19 088/323] locking/lockdep: Avoid RCU-induced noinstr
+ fail
+Message-ID: <YaXZevLfOkCTzQTV@kroah.com>
+References: <20211124115718.822024889@linuxfoundation.org>
+ <20211124115721.937655496@linuxfoundation.org>
+ <YaNP46ypf6xcTcJH@eldamar.lan>
+ <YaNvGtWfuCRkmWwi@eldamar.lan>
+ <YaNx31QvvjHy2IGh@eldamar.lan>
+ <YaN+1gwQwt0aGKte@kroah.com>
+ <YaN/ZQYSAUfzjq0d@kroah.com>
+ <YaUcRuy050ZrtucJ@eldamar.lan>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YaUcRuy050ZrtucJ@eldamar.lan>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2021-11-22 at 19:43 -0500, Paolo Bonzini wrote:
-> If APICv is disabled for this vCPU, assigned devices may
-> still attempt to post interrupts.  In that case, we need
-> to cancel the vmentry and deliver the interrupt with
-> KVM_REQ_EVENT.  Extend the existing code that handles
-> injection of L1 interrupts into L2 to cover this case
-> as well.
+On Mon, Nov 29, 2021 at 07:30:30PM +0100, Salvatore Bonaccorso wrote:
+> Hi Greg,
 > 
-> vmx_hwapic_irr_update is only called when APICv is active
-> so it would be confusing to add a check for
-> vcpu->arch.apicv_active in there.  Instead, just use
-> vmx_set_rvi directly in vmx_sync_pir_to_irr.
+> (Adding Ben as well)
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/kvm/vmx/vmx.c | 35 +++++++++++++++++++++++------------
->  1 file changed, 23 insertions(+), 12 deletions(-)
+> On Sun, Nov 28, 2021 at 02:08:53PM +0100, Greg Kroah-Hartman wrote:
+> > On Sun, Nov 28, 2021 at 02:06:30PM +0100, Greg Kroah-Hartman wrote:
+> > > On Sun, Nov 28, 2021 at 01:11:11PM +0100, Salvatore Bonaccorso wrote:
+> > > > Hi,
+> > > > 
+> > > > On Sun, Nov 28, 2021 at 12:59:24PM +0100, Salvatore Bonaccorso wrote:
+> > > > > Hi,
+> > > > > 
+> > > > > On Sun, Nov 28, 2021 at 10:46:13AM +0100, Salvatore Bonaccorso wrote:
+> > > > > > Hi,
+> > > > > > 
+> > > > > > On Wed, Nov 24, 2021 at 12:54:38PM +0100, Greg Kroah-Hartman wrote:
+> > > > > > > From: Peter Zijlstra <peterz@infradead.org>
+> > > > > > > 
+> > > > > > > [ Upstream commit ce0b9c805dd66d5e49fd53ec5415ae398f4c56e6 ]
+> > > > > > > 
+> > > > > > > vmlinux.o: warning: objtool: look_up_lock_class()+0xc7: call to rcu_read_lock_any_held() leaves .noinstr.text section
+> > > > > > 
+> > > > > > For 4.19.218 at least this commit seems to cause a build failure for
+> > > > > > cpupower, if warnings are treated as errors, I have not seen the same
+> > > > > > for the 5.10.80 build:
+> > > > > > 
+> > > > > > gcc -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -DVERSION=\"4.19\" -DPACKAGE=\"cpupower\" -DPACKAGE_BUGREPORT=\"Debian\ \(reportbug\ linux-cpupower\)\" -D_GNU_SOURCE -pipe -DNLS -Wall -Wchar-subscripts -Wpointer-arith
+> > > > > >  -Wsign-compare -Wno-pointer-sign -Wdeclaration-after-statement -Wshadow -Os -fomit-frame-pointer -fPIC -o /home/build/linux-4.19.218/debian/build/build-tools/tools/power/cpupower/lib/cpupower.o -c lib/cpupower.c
+> > > > > > In file included from lockdep.c:28:
+> > > > > > ../../../kernel/locking/lockdep.c: In function ‘look_up_lock_class’:
+> > > > > > ../../../kernel/locking/lockdep.c:694:2: error: implicit declaration of function ‘hlist_for_each_entry_rcu_notrace’; did you mean ‘hlist_for_each_entry_continue’? [-Werror=implicit-function-declaration]
+> > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > > >   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > > > >   hlist_for_each_entry_continue
+> > > > > > ../../../kernel/locking/lockdep.c:694:53: error: ‘hash_entry’ undeclared (first use in this function); did you mean ‘hash_ptr’?
+> > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > > >                                                      ^~~~~~~~~~
+> > > > > >                                                      hash_ptr
+> > > > > > ../../../kernel/locking/lockdep.c:694:53: note: each undeclared identifier is reported only once for each function it appears in
+> > > > > > ../../../kernel/locking/lockdep.c:694:64: error: expected ‘;’ before ‘{’ token
+> > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > > >                                                                 ^~
+> > > > > >                                                                 ;
+> > > > > > ../../../kernel/locking/lockdep.c:706:1: warning: control reaches end of non-void function [-Wreturn-type]
+> > > > > >  }
+> > > > > >  ^
+> > > > > > cc1: some warnings being treated as errors
+> > > > > > make[5]: *** [/home/build/linux-4.19.218/tools/build/Makefile.build:97: /home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep/lockdep.o] Error 1
+> > > > > > make[4]: *** [Makefile:121: /home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep/liblockdep-in.o] Error 2
+> > > > > > make[4]: Leaving directory '/home/build/linux-4.19.218/tools/lib/lockdep'
+> > > > > > make[3]: *** [/home/build/linux-4.19.218/debian/rules.d/tools/lib/lockdep/Makefile:16: all] Error 2
+> > > > > > make[3]: Leaving directory '/home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep'
+> > > > > > make[2]: *** [debian/rules.real:795: build-liblockdep] Error 2
+> > > > > > make[2]: *** Waiting for unfinished jobs....
+> > > > > > 
+> > > > > > I was not yet able to look further on it.
+> > > > > 
+> > > > > Might actually be a distro specific issue, needs some further
+> > > > > investigation.
+> > > > 
+> > > > I'm really sorry about the doubled noice, so here is the stance. I can
+> > > > reproduce distro indpeendent, but the initial claim was wrong. It can
+> > > > be reproduced for 4.19.218:
+> > > > 
+> > > > $ LC_ALL=C.UTF-8 V=1 ARCH=x86 make -C tools liblockdep
+> > > > make: Entering directory '/home/build/linux-stable/tools'
+> > > > mkdir -p lib/lockdep && make  subdir=lib/lockdep  -C lib/lockdep 
+> > > > make[1]: Entering directory '/home/build/linux-stable/tools/lib/lockdep'
+> > > > make -f /home/build/linux-stable/tools/build/Makefile.build dir=. obj=fixdep
+> > > >   gcc -Wp,-MD,./.fixdep.o.d -Wp,-MT,fixdep.o  -D"BUILD_STR(s)=#s"   -c -o fixdep.o fixdep.c
+> > > >    ld -r -o fixdep-in.o  fixdep.o
+> > > > gcc  -o fixdep fixdep-in.o
+> > > >   gcc -Wp,-MD,./.common.o.d -Wp,-MT,common.o -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"4.19.218"' -rdynamic -O0 -g -fPIC -Wall -I. -I./uinclude -I./include -I../../include -D"BUILD_STR(s)=#s" -c -o common.o common.c
+> > > >   gcc -Wp,-MD,./.lockdep.o.d -Wp,-MT,lockdep.o -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"4.19.218"' -rdynamic -O0 -g -fPIC -Wall -I. -I./uinclude -I./include -I../../include -D"BUILD_STR(s)=#s" -c -o lockdep.o lockdep.c
+> > > > In file included from lockdep.c:28:
+> > > > ../../../kernel/locking/lockdep.c: In function ‘look_up_lock_class’:
+> > > > ../../../kernel/locking/lockdep.c:692:2: warning: implicit declaration of function ‘hlist_for_each_entry_rcu_notrace’; did you mean ‘hlist_for_each_entry_continue’? [-Wimplicit-function-declaration]
+> > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > >   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > >   hlist_for_each_entry_continue
+> > > > ../../../kernel/locking/lockdep.c:692:53: error: ‘hash_entry’ undeclared (first use in this function); did you mean ‘hash_ptr’?
+> > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > >                                                      ^~~~~~~~~~
+> > > >                                                      hash_ptr
+> > > > ../../../kernel/locking/lockdep.c:692:53: note: each undeclared identifier is reported only once for each function it appears in
+> > > > ../../../kernel/locking/lockdep.c:692:64: error: expected ‘;’ before ‘{’ token
+> > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > >                                                                 ^~
+> > > >                                                                 ;
+> > > > ../../../kernel/locking/lockdep.c:704:1: warning: control reaches end of non-void function [-Wreturn-type]
+> > > >  }
+> > > >  ^
+> > > > make[2]: *** [/home/build/linux-stable/tools/build/Makefile.build:97: lockdep.o] Error 1
+> > > > make[1]: *** [Makefile:121: liblockdep-in.o] Error 2
+> > > > make[1]: Leaving directory '/home/build/linux-stable/tools/lib/lockdep'
+> > > > make: *** [Makefile:66: liblockdep] Error 2
+> > > > make: Leaving directory '/home/build/linux-stable/tools'
+> > > > 
+> > > > Reverting upstream ce0b9c805dd6 ("locking/lockdep: Avoid RCU-induced
+> > > > noinstr fail") on top of 4.19.218 fixes the issue.
+> > > > 
+> > > > So back to square one, and again apologies for the intermediate noise!
+> > > 
+> > > What config/arch is causing this to break?  And if you add rchlist.h to
+> > > the include files for lockdep.c, does that resolve the issue?  I haven't
+> > > seen any other reports of this yet.
+> > 
+> > Ah, it's the tools being built here, sorry, that was confusing.
 > 
-> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-> index ba66c171d951..cccf1eab58ac 100644
-> --- a/arch/x86/kvm/vmx/vmx.c
-> +++ b/arch/x86/kvm/vmx/vmx.c
-> @@ -6264,7 +6264,7 @@ static int vmx_sync_pir_to_irr(struct kvm_vcpu *vcpu)
->  	int max_irr;
->  	bool max_irr_updated;
->  
-> -	if (KVM_BUG_ON(!vcpu->arch.apicv_active, vcpu->kvm))
-> +	if (KVM_BUG_ON(!enable_apicv, vcpu->kvm))
->  		return -EIO;
->  
->  	if (pi_test_on(&vmx->pi_desc)) {
-> @@ -6276,20 +6276,31 @@ static int vmx_sync_pir_to_irr(struct kvm_vcpu *vcpu)
->  		smp_mb__after_atomic();
->  		max_irr_updated =
->  			kvm_apic_update_irr(vcpu, vmx->pi_desc.pir, &max_irr);
-> -
-> -		/*
-> -		 * If we are running L2 and L1 has a new pending interrupt
-> -		 * which can be injected, this may cause a vmexit or it may
-> -		 * be injected into L2.  Either way, this interrupt will be
-> -		 * processed via KVM_REQ_EVENT, not RVI, because we do not use
-> -		 * virtual interrupt delivery to inject L1 interrupts into L2.
-> -		 */
-> -		if (is_guest_mode(vcpu) && max_irr_updated)
-> -			kvm_make_request(KVM_REQ_EVENT, vcpu);
->  	} else {
->  		max_irr = kvm_lapic_find_highest_irr(vcpu);
-> +		max_irr_updated = false;
->  	}
-> -	vmx_hwapic_irr_update(vcpu, max_irr);
-> +
-> +	/*
-> +	 * If virtual interrupt delivery is not in use, the interrupt
-> +	 * will be processed via KVM_REQ_EVENT, not RVI.  This can happen
-> +	 * in two cases:
-> +	 *
-> +	 * 1) If we are running L2 and L1 has a new pending interrupt
-> +	 * which can be injected, this may cause a vmexit or it may
-> +	 * be injected into L2.  We do not use virtual interrupt
-> +	 * delivery to inject L1 interrupts into L2.
-> +	 *
-> +	 * 2) If APICv is disabled for this vCPU, assigned devices may
-> +	 * still attempt to post interrupts.  The posted interrupt
-> +	 * vector will cause a vmexit and the subsequent entry will
-> +	 * call sync_pir_to_irr.
-> +	 */
-> +	if (!is_guest_mode(vcpu) && vcpu->arch.apicv_active)
-> +		vmx_set_rvi(max_irr);
-> +	else if (max_irr_updated)
-> +		kvm_make_request(KVM_REQ_EVENT, vcpu);
-> +
->  	return max_irr;
->  }
->  
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+> Ah yes, sorry this was not clear. It's all about the tools, which some
+> are built as well as packages in Debian accompaning, tools/lib/lockdep
+> is one of those built.
 
-Best regards,
-	Maxim Levitsky
+Ok, fair enough, I'll gladly take a patch that fixes this up for the
+4.19.y releases.
 
+thanks,
+
+greg k-h
