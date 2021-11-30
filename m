@@ -2,131 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAAA4462EB1
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 09:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D29462EC4
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 09:45:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239666AbhK3IqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 03:46:25 -0500
-Received: from mail-co1nam11on2078.outbound.protection.outlook.com ([40.107.220.78]:29057
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        id S234825AbhK3ItJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 03:49:09 -0500
+Received: from mail-ma1ind01olkn0183.outbound.protection.outlook.com ([104.47.100.183]:36416
+        "EHLO IND01-MA1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239698AbhK3IqV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Nov 2021 03:46:21 -0500
+        id S234320AbhK3ItJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Nov 2021 03:49:09 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HWZ4YT1re839II+7vQMesn8ODAAy3NsowwfWNdCL2+L+Bz7Amy4uFwDKrvA62lfzo/Z/GQloxRdZ5VdhcfXzYqmcRPqlrIKZtnOtMI3WsWNSviTqWlcGMLRV6pLzfc94iR9WyZfj03pfzWFStabt1XPs7wAgixIFBnGViQDHYSBPuoiQ9EtOBpU0M20H+bvkA1P4YD99O32rnu7Zd3Ac5/m87WPn/1UcI+ZWuQBEzHQg/Vk+NzBtQQyN8pCOkQF+/49G+uMG86OzOXthZMBz7+2ZDp+aP7x7BiEgB2R0wP1K7jjqT69RjlXpFaciLtWFYERIZWToxntPQQawadRjuw==
+ b=bPWhVFOKdJKWgZ7NeAqJktoEDXqqEVImzNDsmN4cq+JHtuJnWc8y0KYpklKxBklFshr4WhpFdHfxuCfXzwuUEF+VMnpsJLDqXRq3Nxxb3N4sRMKZPBvOEoJRMjI1TyBoSVHbVw4HOgSqQWZpif+LE3U2QhIo0V01h41P2bgRXDvFMYMKn8NcIuoNOmf6BYpnIJ+phI8rkxmcReGGw3quoqAFWfPFctaxrf969UFf62Cdw2vEGuKx1xHaiDcQq6ArNQ2Q4LS0WzAHpA6VrS5V0X/oBjRcg7XA6khfU2sa07yrSXEIsy3btsvZJ/7ra/Ey9UwfuGWd+b2L9KxeXwupRg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/onyrO6G4LyE7igBdw5euIRhY5dCWyfgbkTaB5wqJss=;
- b=iEX0uxDoAgamFLxhG9qwINGRMvENGjltDj4krHmpqgtY+tQvfZmjqCcioZ+PD8xLHygeJA34Nvp6mbm3+Np080Nl/+yqJdF39l9o2QQHhzEObZroYjpp3Q5sopwswfhpOHSHsv4sUR2cuxT0iK2k/ijlNVOU58uzWkav8+iQpGCyE07gDYdLJZ7dhKbSGIqoaie6Z2YUInmGLjMou+ZJoCgIJTTGZzlBVTeRIkVl8ziQiTRm9lD3y92PLMI9qcMEvWwMS60JmLFuJTKG//j5ugY7y+zBNY0TuJFq+RPdhmnhUMcU1+Qu8BG4fOTwCScvCPMl8EX361W9aFr1XwG5yA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.34) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
+ bh=A57IResl8mC2kO1DnaSYlabXCUw3vWFloeZX/B3CFCQ=;
+ b=GDsLlpwoXypZv0qpZUn2gvImiq0FOKSwhgmvJwSNG6LZuitbrrIgt69tImm63zyrW+9qaTJmLgJrM8oRhCuh+hcYVzuj5Yybu3vK7DHKSQzAbjoEqHiIo9UEQMfXj4uvFSKVFwBt5mIgMY2NY/itHwM7RDykYLqe5Kb7SqhOwIIdVUp0E3SusUWj1PVrlGKFioDPP+GslNvdwpxm7qPqGwcL2mBqHfGr0TXaKHOi9DqPzOgpFxG7DmPd70Pet7rFqK62bUWxQWQLn49hX6ZkXnt3VmejZLX94D+8skE9Eris6nSgGXRBo4WNDNPJFULd5Tttm/nmRJQt+Tux9cM2pg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/onyrO6G4LyE7igBdw5euIRhY5dCWyfgbkTaB5wqJss=;
- b=CZnOMXYFY8GntGzXeiX8duVby/A2rjel/ApVaO8hsDseMe5OUp2PlLl8tHYGVWljgnr8f32P8AOIJThjmvKkhJdxdoHc3UaLihuOZDpueK6lnJv7WWtOfkg5wIdT81TU+jsLSVFr6k250URXPpiWnkk9BAyVRhLevBrTbKxpdc6KaN3hlbuAGI/6c3SfHEEjVhgWoII5qaZr+bYpSsn7byOeTlbU84CT2yC4DX5wVd4QpyICiA9HLBoFwkxZj3nc3+JrOtkR/f3S4zswEkh89878WnmzxS/AGm4BpaS05AIr0pqRvr4wlxTKqEnare5JG5k3BqWiVqr/FJIq2ely1Q==
-Received: from DS7PR06CA0031.namprd06.prod.outlook.com (2603:10b6:8:54::11) by
- MWHPR12MB1295.namprd12.prod.outlook.com (2603:10b6:300:11::11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4734.22; Tue, 30 Nov 2021 08:43:01 +0000
-Received: from DM6NAM11FT012.eop-nam11.prod.protection.outlook.com
- (2603:10b6:8:54:cafe::d8) by DS7PR06CA0031.outlook.office365.com
- (2603:10b6:8:54::11) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.21 via Frontend
- Transport; Tue, 30 Nov 2021 08:43:01 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.34; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.34) by
- DM6NAM11FT012.mail.protection.outlook.com (10.13.173.109) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4734.22 via Frontend Transport; Tue, 30 Nov 2021 08:43:00 +0000
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 30 Nov
- 2021 08:43:00 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
- Transport; Tue, 30 Nov 2021 08:43:00 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.10 000/121] 5.10.83-rc1 review
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+ bh=A57IResl8mC2kO1DnaSYlabXCUw3vWFloeZX/B3CFCQ=;
+ b=R2Vqt4tmCx653x+AW9DreqChNOE1UYDHNpbsJsWlyhynbgmFUx/pdIFDdz4PWjSejG/eqQ1QHImh7zDyAHSqxVb8fR9RZNHsc1T86kXjrI1bjZg8b9/AlD5gPTMCfnzj5S1Nz3AKcw7VAN4bD7Sx/DObO669KQrEVC9p2VaESaUO14Beysxdbqs/MZmCMxj5HlTktXU3DEL4/0+iTAHuzXzN0FMAU1QXqfrPUDqqKWdxT0NfEf5oZRF3hFqWBGn/JpvYiBxNgOzXoG/UwWPkIqET9jTDw3D2eUGX/MBVPREYeorPtDytJ8trzQ2QxVvOAzFLEuxu9OS7ymmybCu3hg==
+Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
+ by PNZPR01MB4336.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1c::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Tue, 30 Nov
+ 2021 08:45:44 +0000
+Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::7ca6:9165:19ec:4cd7]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::7ca6:9165:19ec:4cd7%5]) with mapi id 15.20.4734.024; Tue, 30 Nov 2021
+ 08:45:44 +0000
+From:   Aditya Garg <gargaditya08@live.com>
+To:     Marcel Holtmann <marcel@holtmann.org>
+CC:     Greg KH <gregkh@linuxfoundation.org>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Daniel Winkler <danielwinkler@google.com>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v6 2/2] btbcm: disable read tx power for affected Macs
+ with the T2 Security chip
+Thread-Topic: [PATCH v6 2/2] btbcm: disable read tx power for affected Macs
+ with the T2 Security chip
+Thread-Index: AQHX5SmAzZ+x4ZZz8USx8gB+oemfXKwbwv0A
+Date:   Tue, 30 Nov 2021 08:45:44 +0000
+Message-ID: <087A6F82-BC44-41DE-9FE9-05B5932A2911@live.com>
+References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
+ <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
+ <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
+ <20211117124717.12352-1-redecorating@protonmail.com>
+ <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
+ <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
+ <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
+ <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
+ <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
+ <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
+ <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
+ <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
+ <92FBACD6-F4F2-4DE8-9000-2D30852770FC@live.com>
+ <3716D644-CD1B-4A5C-BC96-A51FF360E31D@live.com>
+ <9E6473A2-2ABE-4692-8DCF-D8F06BDEAE29@live.com>
+ <64E15BD0-665E-471F-94D9-991DFB87DEA0@live.com>
+ <75EC7983-3043-41E7-BBC6-BAB56C16E298@live.com>
+In-Reply-To: <75EC7983-3043-41E7-BBC6-BAB56C16E298@live.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-tmn:  [GsOPWDi2qFYZbf14dmc5Y4YrKuKCQ6oGcMypPM3y84C38Cdvm4EX3bCLrOBjLWrN]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: e67706b7-e0fd-4538-5c38-08d9b3ddcc55
+x-ms-traffictypediagnostic: PNZPR01MB4336:
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: HvH59m0emLhqs2B5h0n4oRqrZhJf1hSPYJX5D5R0IwtqXJo3yMtzUa5Za3HS1ZCDLPTwD3NZCsWr+97uCdcNSUba+RAzmm3UTphNc7X6HHzzBlz8ucMarVFpQUFUPmPmSwrIWR9NKR9ChIhx/lP66LV/S4/uym4AyIsD6Elys2mui185cnXWZofmq+90fXGFIrmaFqfZzsj77HBw8904h5VC+xBntmxBqrWf1t+vKuUii08zQg3HYHiYgbTN4FGxb345++AojCnwUyP8hnAJ2M8nj6doE4AkC4OXBbJmqO5V+GfPEfySvFql3HQ2JFIirfx/poOLQ4HozaaM9JZRtXtS2bI6doFkmfka10+S6HzMXSL9x4O2IE3vgWjf1Z2kHMBqJ18+g5lcGXZk6/AqmNz3phWnT675kxrLAG12jXP3nLOZ3OFamOg8WvDYkVeNvCABTkg+r7twEflg1Ssr1D38g/RQtC/527p+dB2wHOX5O7Ry3S7oiemhs9NqqZu0lXXB+p6KIV7hRuaFYW9PJYXREFlZps1jp+aXCp68fWWTKj7WJiJEWB4T+ZziUH9MqsNLVbkAOrmMmN1GpRgumEmKmDkApbWtZsMfr+kGk8ObbW++oJ9Eagtmwf9+CwuP
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: Sre7rId3iSKv7dJMkDbTSu8rA4ItxVSRRdxL1ME/+A0wH6s6zE9JNUCWsAU9zpkOR9IYO2oMpTueNixHBMqnH6iAfEI9dZQME3R7WT+GJQb97BqMdvH1tLUYebE2majnggKGha2fXD4V1RMGidufVlqu/zFj6duBfelJVW8/WyUqszrgQbNPfbE+8/wJzkgMKAZeVOr+MEQEUll4QaiLPiYoy5otWmRFb6HEA/vwOlpKREDgmPMlzRATUUzeKJJWVb0YmAW6ydXUdPBYzvWkazGsHfCd7mqx6BcawsV0JYxkb52tUJMDqNvZ5IkGZ9zIVkaPmEZ8zl+sYUvJ6oxuRueEWulbIEDXCMnWVF2Z2skTv/dFZAOzjiIsmmc1dYfgpUUeVLjmQ7QsmgWgyUuWZnaG++VO9s9SOQZ2F6CK4uTDUbSpRxseEbiPW088SmIT0i/hhTgE71xFYeOcuVL9+t11zyHZF461RLmjwJDjSwzz7Z7m8VXpn8AT0H5FFhUKfCAuBL+qSPV4557+eh1kpSh125KPUpKyWCTM+bUaac6sHkrpa8itomt2xx7GV02cDFmAGAcBC+8jjB5Stfs+gVxa+SdXqwKCjEGD37fH7dSZcQ/+hZYmo9jpac/dAbLGFK/ty8V8LzqYS2itwYwQk18nQWmEmCJOhj7C2uX4O8U8OfCDRSUtmiW4Lzp2rWkH+AA3YS+rRUhFrcgdjaqpB2m0hM4Ek6gCYohqAS/rFALr6n9yz3u1bBh/gXdB06BGoMK+uk5669jpzhTcme3TJA==
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <6C04D3BF4E1DD646AD8D1B56A54DBCB7@INDPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Message-ID: <e01a4face2a640c0bf86c68f15184dc0@HQMAIL107.nvidia.com>
-Date:   Tue, 30 Nov 2021 08:43:00 +0000
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 82aade41-aa10-4918-9cc1-08d9b3dd6abe
-X-MS-TrafficTypeDiagnostic: MWHPR12MB1295:
-X-Microsoft-Antispam-PRVS: <MWHPR12MB12955905444A46B5BE95CF50D9679@MWHPR12MB1295.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: xOOh3GlMd73Dx7a4VVHMIWQ4usSYut3MaXKyrRIAGa7rA2oJEfD6VP1NNmHiqd2GpFXlBT3XNWYsye5Yd7uwqQqL95YGx9iMy12T1dxVat2vEMzqS/dE+iYowxx/7b4TPFLG8vPO5+c6k1q2li5kzgBSsafIL0W70aiw/SdI619XNpvJB/cJyGlfLgOWDf2o00S7GgBlSKoWye42ipEIbnzjzQgwCzkhcOWhPvq8xHqu7NyZfLPI41YXg2YczhJ3FDNf6brS4NpK6wcKchQdKrynRMW/FiAkgOHyMpOvJAOkB5ejEbmmJpz7ijAqX7ZE/gulpcc8pbkqRdGvz9l3CiKnXkTGTxYBNS29F7jdLSnZiZwKtYMBRippyoMrXxk0qA95NfirYHviUw1VxSScvQoCKTDevTogT0H70KbDbecSabhOdU6Gwl9DZfhY76XbiWG73G6SvsXYKvy6noRyhQUt6YvLXI0psdSzpCDmTthO1agqCDvmbk9HICnpIRPzXEfUTslUhm5PrjtyUUzGih5Km1XUhYEe9G+K9GganXA1aKFCUdh+pqYEwTO1GmxZMlVSdi7q8qLMv2kJgtoT9SjaBYc/gi49KSurCQb/XHifQ6xufvqba9AIhVTAbF1wbHYF3EqyG4Fw75ZEhcU5RA5/ewcty9tt8gp7eZR+0CgU2YpnXW7woglT7V2pjH3XjLNn06RlIYdSAsWSMHBld81/DKdCvLYyw8CWfZ6I3pVFdzd1NcRa3ca4cQwyNMI+QVrRRz90vkOgp/bYgX1Pjhvy+996EXjW2XeE4nrgjIs7eZFRg5Ge7i1h4JzAYiUGxemRB9Cc7UviROmQ3QAf1CHqO6JSB4mLZOSUtR6qZ8k=
-X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(40470700001)(5660300002)(336012)(70586007)(6916009)(70206006)(7636003)(26005)(8676002)(966005)(316002)(86362001)(8936002)(47076005)(24736004)(4326008)(7416002)(2906002)(54906003)(108616005)(426003)(356005)(186003)(36860700001)(508600001)(82310400004)(40460700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Nov 2021 08:43:00.8567
+X-OriginatorOrg: sct-15-20-3174-20-msonline-outlook-a1a1a.templateTenant
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: e67706b7-e0fd-4538-5c38-08d9b3ddcc55
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Nov 2021 08:45:44.6209
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 82aade41-aa10-4918-9cc1-08d9b3dd6abe
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT012.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR12MB1295
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PNZPR01MB4336
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Nov 2021 19:17:11 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.83 release.
-> There are 121 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 01 Dec 2021 18:16:51 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.83-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
 
-All tests passing for Tegra ...
 
-Test results for stable-v5.10:
-    10 builds:	10 pass, 0 fail
-    28 boots:	28 pass, 0 fail
-    75 tests:	75 pass, 0 fail
+> On 29-Nov-2021, at 7:30 PM, Aditya Garg <gargaditya08@live.com> wrote:
+>=20
+> From: Aditya Garg <gargaditya08@live.com>
+>=20
+> Some Macs with the T2 security chip had Bluetooth not working.
+> To fix it we add DMI based quirks to disable querying of LE Tx power.
+>=20
+> Signed-off-by: Aditya Garg <gargaditya08@live.com>
+> Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
+> Link:
+> https://lore.kernel.org/r/4970a940-211b-25d6-edab-21a815313954@protonmail=
+.com
+> Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
+> ---
+> drivers/bluetooth/btbcm.c | 40 +++++++++++++++++++++++++++++++++++++++
+> 1 file changed, 40 insertions(+)
+>=20
+> diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+> index e4182acee488c5..40f7c9c5cf0a5a 100644
+> --- a/drivers/bluetooth/btbcm.c
+> +++ b/drivers/bluetooth/btbcm.c
+> @@ -8,6 +8,7 @@
+>=20
+> #include <linux/module.h>
+> #include <linux/firmware.h>
+> +#include <linux/dmi.h>
+> #include <asm/unaligned.h>
+>=20
+> #include <net/bluetooth/bluetooth.h>
+> @@ -343,9 +344,44 @@ static struct sk_buff *btbcm_read_usb_product(struct=
+ hci_dev *hdev)
+> 	return skb;
+> }
+>=20
+> +static const struct dmi_system_id disable_broken_read_transmit_power[] =
+=3D {
+> +	{
+> +		 .matches =3D {
+> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,1"),
+> +		},
+> +	},
+> +	{
+> +		 .matches =3D {
+> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,2"),
+> +		},
+> +	},
+> +	{
+> +		 .matches =3D {
+> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,4"),
+> +		},
+> +	},
+> +	{
+> +		 .matches =3D {
+> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,1"),
+> +		},
+> +	},
+> +	{
+> +		 .matches =3D {
+> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,2"),
+> +		},
+> +	},
+> +	{ }
+> +};
+> +
+> static int btbcm_read_info(struct hci_dev *hdev)
+> {
+> 	struct sk_buff *skb;
+> +	const struct dmi_system_id;
+>=20
+> 	/* Read Verbose Config Version Info */
+> 	skb =3D btbcm_read_verbose_config(hdev);
+> @@ -363,6 +399,10 @@ static int btbcm_read_info(struct hci_dev *hdev)
+> 	bt_dev_info(hdev, "BCM: features 0x%2.2x", skb->data[1]);
+> 	kfree_skb(skb);
+>=20
+> +	/* Read DMI and disable broken Read LE Min/Max Tx Power */
+> +	if (dmi_first_match(disable_broken_read_transmit_power))
+> +		set_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks);
+> +
+> 	return 0;
+> }
+>=20
+May I know whether this is fine or not.
+>=20
 
-Linux version:	5.10.83-rc1-gcd4fd0597d37
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
-                tegra20-ventana, tegra210-p2371-2180,
-                tegra210-p3450-0000, tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
