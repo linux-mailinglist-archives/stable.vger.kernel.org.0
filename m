@@ -2,126 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517DA462F86
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 10:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77027462FB2
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 10:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240157AbhK3J3a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 04:29:30 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:54402 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240131AbhK3J33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 04:29:29 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id D01EF1FD38;
-        Tue, 30 Nov 2021 09:26:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1638264369; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=VrNjR+cKjWqvCru8xHm8bTp+Pkam2GwW/d9esTlcJtc=;
-        b=BfFOigi2kJ+8AzWslJS5oTAivHUGuZ+PqOhsPMTDTow6a27tCNZ4QIsa3ufhfjVWjgvDhp
-        LUPVqEuxM43FHzl9zDq7Fy5lr6z92chjg5kZGfTCQGjTTvLythc+FpLgJCNG5hJjpFe4nF
-        7QIcO/83q1KpC0Z49WinuJ1PUXZvE7A=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1638264369;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=VrNjR+cKjWqvCru8xHm8bTp+Pkam2GwW/d9esTlcJtc=;
-        b=fk/cD1TkwjSJx6gj7NHyGOUo4uahcljTRdShlCy+WchST6fFB2J4NBDKB+h23gp4Ab1x9A
-        WTN1PPpsWK7mugCQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 74F7413C98;
-        Tue, 30 Nov 2021 09:26:09 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id B/DKGTHupWFxFwAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Tue, 30 Nov 2021 09:26:09 +0000
-Date:   Tue, 30 Nov 2021 10:26:08 +0100
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Wolfram Sang <wsa@kernel.org>
-Cc:     Hector Martin <marcan@marcan.st>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] i2c: i801: Safely share SMBus with BIOS/ACPI
-Message-ID: <20211130102608.57e2171d@endymion>
-In-Reply-To: <YaSWx7ldFfbCmrK3@kunai>
-References: <20210626054113.246309-1-marcan@marcan.st>
-        <YaSWx7ldFfbCmrK3@kunai>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S236272AbhK3Jfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 04:35:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42120 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236083AbhK3Jfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 04:35:33 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D68CC061746
+        for <stable@vger.kernel.org>; Tue, 30 Nov 2021 01:32:14 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id l25so83797868eda.11
+        for <stable@vger.kernel.org>; Tue, 30 Nov 2021 01:32:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=xoXOLJWpD0lHUX6hFbdZV58Ab4Q2/gT90EA5saamkEU=;
+        b=D6SapCyyPKCp06PaCKTy+m7XXWQ0waD1v0k39IbTt4l5t/a7TFWxI2IWxmrUjSAhZE
+         mOWpnkm/05w+FW9vwwuAPuAT/tUzql3Y8J+aO+ex6tYsIw/4PlJ6rkCewmSbLggY5/px
+         1AUjAPXNzGOlj+wgCR0sK3xYdDytMhFWSn+hu8ejP9QcaxnQRFNffnT3g2zun1ugblef
+         O6y9R/t2yF97g2mGbo5+5ZKtkMPCIh6rXLpT4WaVahMnKgTCNKTygTvW6W87TitKdwEL
+         FnyA478ZIq09E8/xGpubbyStQuUG2DYgFCXHQ7EU+L76JKOdK+g+AmGnNdSoHeu6gt4V
+         m0uA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=xoXOLJWpD0lHUX6hFbdZV58Ab4Q2/gT90EA5saamkEU=;
+        b=aoZ6ViPbvMihlTW+FP+DTvXig9aaM5vIlXDAJ5I6wES8VncSeGXmYOIy0U0aJ2WeC3
+         JQ2Q6QntYR3krLSnfKGooqxCwsbwfd+kr9iAkHYqeNCTvJOdUgcQMIRiJsJTkJISO6Wv
+         qro3sl34YMu92uhdw0mZohDzKiKe9ovMROmv3P3E38Ty6Z/jzVCZasg7927tjsW7phQh
+         evWWf2G36uFmu6ahcEDqvU8UZvBdpdp+EKtV6afoEXkuGKe9G4kmjSOq+5PhE1J41nXz
+         +HdvbRJ+CDaFtMrTD3ievtvphwAPbtOwrQFzi+sCzGrbCKHb70DAigGy7UVNVfd59rdt
+         QqLQ==
+X-Gm-Message-State: AOAM5307Elv4NOEb/MnFz+UhzYYnTNPfjzWAYg+71eWkisYlWUmKZIQz
+        y050eA9wx/i5pnL92V8NlPabqJQXDDz2ML7ItiwLzw==
+X-Google-Smtp-Source: ABdhPJwVC/Jc+0BLK1FXkRMFbLvZzD456y/TUVHcnDXZ7SKN27TolOtE5iiz9/cnlZ61+U3t8nFD7+BZZzF9v4/J0mU=
+X-Received: by 2002:a05:6402:14f:: with SMTP id s15mr38056725edu.118.1638264732486;
+ Tue, 30 Nov 2021 01:32:12 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 30 Nov 2021 15:02:01 +0530
+Message-ID: <CA+G9fYuQEFsYa-pQBCqu5kFpKHnTODZRZj2agOxFh+XJWagy6A@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/69] 4.19.219-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Nov 2021 10:00:55 +0100, Wolfram Sang wrote:
-> On Sat, Jun 26, 2021 at 02:41:13PM +0900, Hector Martin wrote:
-> > The i801 controller provides a locking mechanism that the OS is supposed
-> > to use to safely share the SMBus with ACPI AML or other firmware.
-> > 
-> > Previously, Linux attempted to get out of the way of ACPI AML entirely,
-> > but left the bus locked if it used it before the first AML access. This
-> > causes AML implementations that *do* attempt to safely share the bus
-> > to time out if Linux uses it first; notably, this regressed ACPI video
-> > backlight controls on 2015 iMacs after 01590f361e started instantiating
-> > SPD EEPROMs on boot.
-> > 
-> > Commit 065b6211a8 fixed the immediate problem of leaving the bus locked,
-> > but we can do better. The controller does have a proper locking mechanism,
-> > so let's use it as intended. Since we can't rely on the BIOS doing this
-> > properly, we implement the following logic:
-> > 
-> > - If ACPI AML uses the bus at all, we make a note and disable power
-> >   management. The latter matches already existing behavior.
-> > - When we want to use the bus, we attempt to lock it first. If the
-> >   locking attempt times out, *and* ACPI hasn't tried to use the bus at
-> >   all yet, we cautiously go ahead and assume the BIOS forgot to unlock
-> >   the bus after boot. This preserves existing behavior.
-> > - We always unlock the bus after a transfer.
-> > - If ACPI AML tries to use the bus (except trying to lock it) while
-> >   we're in the middle of a transfer, or after we've determined
-> >   locking is broken, we know we cannot safely share the bus and give up.
-> > 
-> > Upon first usage of SMBus by ACPI AML, if nothing has gone horribly
-> > wrong so far, users will see:
-> > 
-> > i801_smbus 0000:00:1f.4: SMBus controller is shared with ACPI AML. This seems safe so far.
-> > 
-> > If locking the SMBus times out, users will see:
-> > 
-> > i801_smbus 0000:00:1f.4: BIOS left SMBus locked
-> > 
-> > And if ACPI AML tries to use the bus concurrently with Linux, or it
-> > previously used the bus and we failed to subsequently lock it as
-> > above, the driver will give up and users will get:
-> > 
-> > i801_smbus 0000:00:1f.4: BIOS uses SMBus unsafely
-> > i801_smbus 0000:00:1f.4: Driver SMBus register access inhibited
-> > 
-> > This fixes the regression introduced by 01590f361e, and further allows
-> > safely sharing the SMBus on 2015 iMacs. Tested by running `i2cdump` in a
-> > loop while changing backlight levels via the ACPI video device.
-> > 
-> > Fixes: 01590f361e ("i2c: i801: Instantiate SPD EEPROMs automatically")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Hector Martin <marcan@marcan.st>  
-> 
-> Jean, Heiner, what do we do with this topic?
+On Mon, 29 Nov 2021 at 23:51, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.219 release.
+> There are 69 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 01 Dec 2021 18:16:51 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.219-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I like the idea, I need to give it a try and review the code.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
--- 
-Jean Delvare
-SUSE L3 Support
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 4.19.219-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.19.y
+* git commit: 9697017144726ee73f348d6bb4c549151f92320a
+* git describe: v4.19.218-70-g969701714472
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.218-70-g969701714472
+
+## No regressions (compared to v4.19.217-321-g078e3b8561f3)
+
+## No fixes (compared to v4.19.217-321-g078e3b8561f3)
+
+## Test result summary
+total: 66999, pass: 54132, fail: 570, skip: 10820, xfail: 1477
+
+## Build Summary
+* arm: 130 total, 130 passed, 0 failed
+* arm64: 35 total, 35 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 26 total, 26 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 22 total, 22 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
