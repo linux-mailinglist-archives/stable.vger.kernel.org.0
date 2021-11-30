@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0213B463754
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:49:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AFDE463796
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:51:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242812AbhK3OxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:53:07 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:57272 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242668AbhK3OwW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:52:22 -0500
+        id S242927AbhK3Oyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:54:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60444 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242931AbhK3Ox2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:53:28 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 193AEC0613A5;
+        Tue, 30 Nov 2021 06:49:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2F005CE1A46;
-        Tue, 30 Nov 2021 14:49:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65562C53FCF;
-        Tue, 30 Nov 2021 14:48:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 92088CE1A44;
+        Tue, 30 Nov 2021 14:49:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE51BC53FD0;
+        Tue, 30 Nov 2021 14:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283738;
-        bh=nKYKdxgJTC2Ep/gpwJoreZGZj8wgXv74T6oIsOS8idM=;
+        s=k20201202; t=1638283739;
+        bh=OzFtNvqM7ulxBRhMNN5S2bm1o0/gjzkmnQfVJZNx4Fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqP0N1Jlv/P0nkd46Rfmf6XaxMJF0OFgT8/jn6qv3UIsLUQ1vAoWyQaFoqIAkZlw6
-         wiwdt+tctG4/GN5E1lAzPAOsyhyS78NaW4rSFly267v0/sSyr2GYhdinQj/1cz2ox5
-         YmsYkMn2aPMpgsmmYY7agfGStMT2T6b078oAoT+qLndRXPUKzVhaBNf4NqG4RI/Xy1
-         zqdZl6B5HUhSY/KOR9yUPQE9Hys2hEVq0NobuZpw9/tCBclCqF/de7q5Nh0qSbjZLo
-         xSOUDbojTNK9nRRgFB6zVy46aimq7f90Z4GDBuR2UlDOgUNprGbc8eL1HsLYJyJG9k
-         KlelGIpjuaxcw==
+        b=uev7Bx9GdVa1m0NhONp/6DMH21oS5ws1JTo5a79LlF0ZtFJ2ezK/pI54xKIm3wW/P
+         SDvAzNF3mmuKm8q4y7aozNiFzxKtDhfZUn58lsjfs+cEwEYTN3PqS9fFvDfOLXl0KK
+         3oaKLbEDc0OS/uR3WpKvWBnrb/oMfye+fbPcHH9UIK56AwfJiG+hWybuT92waVusMU
+         aM9tedKRCDfzAlyFWtedloQo6PkHRwIVHR+YPG6iodtLcz/7ePgM40vrh0HB6bZRFf
+         YrkRgZEX1i6cIyFAM+JN1lnGwNovR2Rx0iVQzggitZi6v0BcY8RFOuzTbtTO9uFrPY
+         0CmkHFCBuvxIA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Varun Prakash <varun@chelsio.com>,
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
         Sagi Grimberg <sagi@grimberg.me>,
+        John Meneghini <jmeneghi@redhat.com>,
         Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
         axboe@fb.com, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 43/68] nvme-tcp: validate R2T PDU in nvme_tcp_handle_r2t()
-Date:   Tue, 30 Nov 2021 09:46:39 -0500
-Message-Id: <20211130144707.944580-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 44/68] nvme-tcp: fix memory leak when freeing a queue
+Date:   Tue, 30 Nov 2021 09:46:40 -0500
+Message-Id: <20211130144707.944580-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -49,124 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 1d3ef9c3a39e04be31155c27ebf80342350c3abf ]
+[ Upstream commit a5053c92b3db71c3f7f9f13934ca620632828d06 ]
 
-If maxh2cdata < r2t_length then driver will form multiple
-H2CData PDUs, validate R2T PDU in nvme_tcp_handle_r2t() to
-reuse nvme_tcp_setup_h2c_data_pdu().
+Release the page frag cache when tearing down the io queues
 
-Also set req->state to NVME_TCP_SEND_H2C_PDU in
-nvme_tcp_setup_h2c_data_pdu().
-
-Signed-off-by: Varun Prakash <varun@chelsio.com>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
 Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: John Meneghini <jmeneghi@redhat.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 55 ++++++++++++++++++-----------------------
- 1 file changed, 24 insertions(+), 31 deletions(-)
+ drivers/nvme/host/tcp.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 4ae562d30d2b9..da733749192c6 100644
+index da733749192c6..f7fdf78ec34db 100644
 --- a/drivers/nvme/host/tcp.c
 +++ b/drivers/nvme/host/tcp.c
-@@ -572,7 +572,7 @@ static int nvme_tcp_handle_comp(struct nvme_tcp_queue *queue,
- 	return ret;
- }
+@@ -1225,6 +1225,7 @@ static int nvme_tcp_alloc_async_req(struct nvme_tcp_ctrl *ctrl)
  
--static int nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
-+static void nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
- 		struct nvme_tcp_r2t_pdu *pdu)
+ static void nvme_tcp_free_queue(struct nvme_ctrl *nctrl, int qid)
  {
- 	struct nvme_tcp_data_pdu *data = req->pdu;
-@@ -581,32 +581,11 @@ static int nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
- 	u8 hdgst = nvme_tcp_hdgst_len(queue);
- 	u8 ddgst = nvme_tcp_ddgst_len(queue);
++	struct page *page;
+ 	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
+ 	struct nvme_tcp_queue *queue = &ctrl->queues[qid];
  
-+	req->state = NVME_TCP_SEND_H2C_PDU;
-+	req->offset = 0;
- 	req->pdu_len = le32_to_cpu(pdu->r2t_length);
- 	req->pdu_sent = 0;
+@@ -1234,6 +1235,11 @@ static void nvme_tcp_free_queue(struct nvme_ctrl *nctrl, int qid)
+ 	if (queue->hdr_digest || queue->data_digest)
+ 		nvme_tcp_free_crypto(queue);
  
--	if (unlikely(!req->pdu_len)) {
--		dev_err(queue->ctrl->ctrl.device,
--			"req %d r2t len is %u, probably a bug...\n",
--			rq->tag, req->pdu_len);
--		return -EPROTO;
--	}
--
--	if (unlikely(req->data_sent + req->pdu_len > req->data_len)) {
--		dev_err(queue->ctrl->ctrl.device,
--			"req %d r2t len %u exceeded data len %u (%zu sent)\n",
--			rq->tag, req->pdu_len, req->data_len,
--			req->data_sent);
--		return -EPROTO;
--	}
--
--	if (unlikely(le32_to_cpu(pdu->r2t_offset) < req->data_sent)) {
--		dev_err(queue->ctrl->ctrl.device,
--			"req %d unexpected r2t offset %u (expected %zu)\n",
--			rq->tag, le32_to_cpu(pdu->r2t_offset),
--			req->data_sent);
--		return -EPROTO;
--	}
--
- 	memset(data, 0, sizeof(*data));
- 	data->hdr.type = nvme_tcp_h2c_data;
- 	data->hdr.flags = NVME_TCP_F_DATA_LAST;
-@@ -622,7 +601,6 @@ static int nvme_tcp_setup_h2c_data_pdu(struct nvme_tcp_request *req,
- 	data->command_id = nvme_cid(rq);
- 	data->data_offset = pdu->r2t_offset;
- 	data->data_length = cpu_to_le32(req->pdu_len);
--	return 0;
- }
- 
- static int nvme_tcp_handle_r2t(struct nvme_tcp_queue *queue,
-@@ -630,7 +608,7 @@ static int nvme_tcp_handle_r2t(struct nvme_tcp_queue *queue,
- {
- 	struct nvme_tcp_request *req;
- 	struct request *rq;
--	int ret;
-+	u32 r2t_length = le32_to_cpu(pdu->r2t_length);
- 
- 	rq = nvme_find_rq(nvme_tcp_tagset(queue), pdu->command_id);
- 	if (!rq) {
-@@ -641,13 +619,28 @@ static int nvme_tcp_handle_r2t(struct nvme_tcp_queue *queue,
- 	}
- 	req = blk_mq_rq_to_pdu(rq);
- 
--	ret = nvme_tcp_setup_h2c_data_pdu(req, pdu);
--	if (unlikely(ret))
--		return ret;
-+	if (unlikely(!r2t_length)) {
-+		dev_err(queue->ctrl->ctrl.device,
-+			"req %d r2t len is %u, probably a bug...\n",
-+			rq->tag, r2t_length);
-+		return -EPROTO;
++	if (queue->pf_cache.va) {
++		page = virt_to_head_page(queue->pf_cache.va);
++		__page_frag_cache_drain(page, queue->pf_cache.pagecnt_bias);
++		queue->pf_cache.va = NULL;
 +	}
- 
--	req->state = NVME_TCP_SEND_H2C_PDU;
--	req->offset = 0;
-+	if (unlikely(req->data_sent + r2t_length > req->data_len)) {
-+		dev_err(queue->ctrl->ctrl.device,
-+			"req %d r2t len %u exceeded data len %u (%zu sent)\n",
-+			rq->tag, r2t_length, req->data_len, req->data_sent);
-+		return -EPROTO;
-+	}
-+
-+	if (unlikely(le32_to_cpu(pdu->r2t_offset) < req->data_sent)) {
-+		dev_err(queue->ctrl->ctrl.device,
-+			"req %d unexpected r2t offset %u (expected %zu)\n",
-+			rq->tag, le32_to_cpu(pdu->r2t_offset), req->data_sent);
-+		return -EPROTO;
-+	}
- 
-+	nvme_tcp_setup_h2c_data_pdu(req, pdu);
- 	nvme_tcp_queue_request(req, false, true);
- 
- 	return 0;
+ 	sock_release(queue->sock);
+ 	kfree(queue->pdu);
+ 	mutex_destroy(&queue->send_mutex);
 -- 
 2.33.0
 
