@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4094E4637B5
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:53:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A00463831
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:55:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242535AbhK3Ozg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:55:36 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58132 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242543AbhK3Oxi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:53:38 -0500
+        id S242712AbhK3O6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:58:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60422 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243290AbhK3O4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:56:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 167CBC061A28;
+        Tue, 30 Nov 2021 06:50:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9F583CE1A5B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1F55B81A46;
+        Tue, 30 Nov 2021 14:50:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7366C53FC1;
         Tue, 30 Nov 2021 14:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 847BBC53FCD;
-        Tue, 30 Nov 2021 14:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283817;
-        bh=zxBJljs7e23+XZomIM7RI2roqvd+GMCfR/TzbPr+C60=;
+        s=k20201202; t=1638283818;
+        bh=XlNCV1YNk01FQp+JfDUNxrw5K+G6jZaKB4BxER64LQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAATUUS0rab94SV43r+lk4HMp6vOMBAw/akMFMDsCqw3sSaq/uiZyvFIRefjiEB+l
-         Xlk/OICNF+VhGstrffZw7VsE3uWvhzhrVIha0ZK8gvj/RuGkJ1UxdXqI3JHKsLBi7t
-         ux66vhzXZ1MYDkVbxboqngxyfqVwAU2uqkB1b4AKDy0WQs7TD5bi7Acgdmo5XYB5mD
-         ZsSwIc+Wt+NHnTfKsVpT1az3ujTEc0lWVkmE/DMbsfzs//McH5GZ8dwPMGZ7nageEB
-         wHRXwVzIgIRzqjW3T2bfqJzxGtnQQrs1LCVfoHViAZJtBa0NRJzw8vwQrBYlTxJHJp
-         3V3YKwmDO1KlQ==
+        b=m4NCCgaJ1mkJvH8PZsaO72WyOTIrJZrrWmphpLsNoYy8665A25fmwoqQkceJVUiMp
+         brvOe3Pq0+g6Ig/V2gJsKMk1I1UaUskOt7/n1GGfSR0P6KaqUCsrt3Ld/1zAXeKG9b
+         FGO+g5UBlEpyIclt8oiD/anH3fs/Gf8dJmupB7Dbt48WVMr/FMU6Gdq5mO/0adex7G
+         nmdaJxlp11/hBT3fJ+vAaq2VNBNoPx4zej1DR6rJuYz6doenEsqsG5b2H4nu9eXaOd
+         Z1i6ga+ZTER7gjZG2+4v1IS4JOlzVs2nebrF1oFcW9AeRwbPeWiwryeF+e2kCKdCT1
+         qeR4t3jIrArsg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 67/68] io_uring: Fix undefined-behaviour in io_issue_sqe
-Date:   Tue, 30 Nov 2021 09:47:03 -0500
-Message-Id: <20211130144707.944580-67-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.15 68/68] fs: ntfs: Limit NTFS_RW to page sizes smaller than 64k
+Date:   Tue, 30 Nov 2021 09:47:04 -0500
+Message-Id: <20211130144707.944580-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -46,67 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit f6223ff799666235a80d05f8137b73e5580077b9 ]
+[ Upstream commit 4eec7faf6775263d9e450ae7ee5bc4101d4a0bc9 ]
 
-We got issue as follows:
-================================================================================
-UBSAN: Undefined behaviour in ./include/linux/ktime.h:42:14
-signed integer overflow:
--4966321760114568020 * 1000000000 cannot be represented in type 'long long int'
-CPU: 1 PID: 2186 Comm: syz-executor.2 Not tainted 4.19.90+ #12
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x3f0 arch/arm64/kernel/time.c:78
- show_stack+0x28/0x38 arch/arm64/kernel/traps.c:158
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x170/0x1dc lib/dump_stack.c:118
- ubsan_epilogue+0x18/0xb4 lib/ubsan.c:161
- handle_overflow+0x188/0x1dc lib/ubsan.c:192
- __ubsan_handle_mul_overflow+0x34/0x44 lib/ubsan.c:213
- ktime_set include/linux/ktime.h:42 [inline]
- timespec64_to_ktime include/linux/ktime.h:78 [inline]
- io_timeout fs/io_uring.c:5153 [inline]
- io_issue_sqe+0x42c8/0x4550 fs/io_uring.c:5599
- __io_queue_sqe+0x1b0/0xbc0 fs/io_uring.c:5988
- io_queue_sqe+0x1ac/0x248 fs/io_uring.c:6067
- io_submit_sqe fs/io_uring.c:6137 [inline]
- io_submit_sqes+0xed8/0x1c88 fs/io_uring.c:6331
- __do_sys_io_uring_enter fs/io_uring.c:8170 [inline]
- __se_sys_io_uring_enter fs/io_uring.c:8129 [inline]
- __arm64_sys_io_uring_enter+0x490/0x980 fs/io_uring.c:8129
- invoke_syscall arch/arm64/kernel/syscall.c:53 [inline]
- el0_svc_common+0x374/0x570 arch/arm64/kernel/syscall.c:121
- el0_svc_handler+0x190/0x260 arch/arm64/kernel/syscall.c:190
- el0_svc+0x10/0x218 arch/arm64/kernel/entry.S:1017
-================================================================================
+NTFS_RW code allocates page size dependent arrays on the stack. This
+results in build failures if the page size is 64k or larger.
 
-As ktime_set only judge 'secs' if big than KTIME_SEC_MAX, but if we pass
-negative value maybe lead to overflow.
-To address this issue, we must check if 'sec' is negative.
+  fs/ntfs/aops.c: In function 'ntfs_write_mst_block':
+  fs/ntfs/aops.c:1311:1: error:
+	the frame size of 2240 bytes is larger than 2048 bytes
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20211118015907.844807-1-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Since commit f22969a66041 ("powerpc/64s: Default to 64K pages for 64 bit
+book3s") this affects ppc:allmodconfig builds, but other architectures
+supporting page sizes of 64k or larger are also affected.
+
+Increasing the maximum frame size for affected architectures just to
+silence this error does not really help.  The frame size would have to
+be set to a really large value for 256k pages.  Also, a large frame size
+could potentially result in stack overruns in this code and elsewhere
+and is therefore not desirable.  Make NTFS_RW dependent on page sizes
+smaller than 64k instead.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ntfs/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 365f8b350b7f0..d0933789bf3ce 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6147,6 +6147,9 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	if (get_timespec64(&data->ts, u64_to_user_ptr(sqe->addr)))
- 		return -EFAULT;
- 
-+	if (data->ts.tv_sec < 0 || data->ts.tv_nsec < 0)
-+		return -EINVAL;
-+
- 	data->mode = io_translate_timeout_mode(flags);
- 	hrtimer_init(&data->timer, io_timeout_get_clock(data), data->mode);
+diff --git a/fs/ntfs/Kconfig b/fs/ntfs/Kconfig
+index 1667a7e590d86..f93e69a612833 100644
+--- a/fs/ntfs/Kconfig
++++ b/fs/ntfs/Kconfig
+@@ -52,6 +52,7 @@ config NTFS_DEBUG
+ config NTFS_RW
+ 	bool "NTFS write support"
+ 	depends on NTFS_FS
++	depends on PAGE_SIZE_LESS_THAN_64KB
+ 	help
+ 	  This enables the partial, but safe, write support in the NTFS driver.
  
 -- 
 2.33.0
