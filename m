@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7A7463733
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:49:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40324463757
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:50:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242521AbhK3OwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:52:02 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:56842 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242526AbhK3Ovf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:35 -0500
+        id S242820AbhK3OxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:53:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60018 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242684AbhK3OwW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:52:22 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66608C061763;
+        Tue, 30 Nov 2021 06:48:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4E899CE1A3F;
-        Tue, 30 Nov 2021 14:48:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C48BC53FCD;
-        Tue, 30 Nov 2021 14:48:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B41B4CE1A46;
+        Tue, 30 Nov 2021 14:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29F5C53FD1;
+        Tue, 30 Nov 2021 14:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283692;
-        bh=7Z19BL2g0lP+roN8+RTxjyJLe80jPcP105NpvnikaqQ=;
+        s=k20201202; t=1638283693;
+        bh=+ug5frNLAhWmKn65zvB3H/+90mRBptjXOvLo4yejWA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u38U7bC7YlJEDT55u7Zjj39Lo+2cpFAjMGhYB7/v37PoOKL98lP0q99WNzJHWzAFM
-         kk7gZsfbSquYRhmsW68Kz2Au9xTVqbrv60YWS1cuqQge/vO1fmi8PsBD5QiQvEcSxn
-         jmALjNvm4iRqBkXfSPktSsbfHWqSZW039ojuQZNz/gU31KH6O2b5WCOcX9NaObjAXj
-         r38HGf0sgcx0qI0fTv6C1ML/mupSsEznm88ySbPo708hWcFdmlRILpP9lofm44ZZhH
-         zrzsLjRrrIvpOxNxtYh4tEq95SdufcDyvY2ANQKAmWYVYQlShRkjhYoCkaxfR4LEl5
-         JedQsWLNBBNSA==
+        b=R4min4gvEY62KhFUElcGrINZ1eyQ9Ocn5xx8qmIuQic7PA7RLl6eMyQkf1PmAAtcF
+         s/vPi7Ag09v1h5vP03ZhSsYzj+1/H8nukdr+9vpBuu0eLrjHhU7Or0qVNNHHuWWUmS
+         YDFgb9r4R1b+GtHLOAGKEPbhfjxOgo6jq2Bizj5hzeY5PT0mIW/DNEbrhUSj68SK/t
+         VRWHm8A73PQy7l0a+3e3+cPE3NqFdvF7IbKZuPyT/J9bF/mOSaibHzPgHoH5xthIEv
+         pJNUY/dKyrWc3xwOye/CRaXwN0HVaoP0v3DKHSvBng7kiFj1yosNhw6O0onzOYjt7F
+         5g+c/16ewEXxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Guojin <ye.guojin@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
-        Peter Wang <peter.wang@mediatek.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, stanley.chu@mediatek.com,
-        jejb@linux.ibm.com, matthias.bgg@gmail.com,
-        linux-scsi@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 20/68] scsi: ufs: ufs-mediatek: Add put_device() after of_find_device_by_node()
-Date:   Tue, 30 Nov 2021 09:46:16 -0500
-Message-Id: <20211130144707.944580-20-sashal@kernel.org>
+Cc:     Zekun Shen <bruceshenzk@gmail.com>,
+        Brendan Dolan-Gavitt <brendandg@nyu.edu>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 21/68] atlantic: fix double-free in aq_ring_tx_clean
+Date:   Tue, 30 Nov 2021 09:46:17 -0500
+Message-Id: <20211130144707.944580-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -51,38 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Guojin <ye.guojin@zte.com.cn>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit cc03facb1c4248997592fc683518c00cc257db1a ]
+[ Upstream commit 6a405f6c372d14707b87d3097b361b69899a26c8 ]
 
-This was found by coccicheck:
+We found this bug while fuzzing the device driver. Using and freeing
+the dangling pointer buff->skb would cause use-after-free and
+double-free.
 
-./drivers/scsi/ufs/ufs-mediatek.c, 211, 1-7, ERROR missing put_device;
-call of_find_device_by_node on line 1185, but without a corresponding
-object release within this function.
+This bug is triggerable with compromised/malfunctioning devices. We
+found the bug with QEMU emulation and tested the patch by emulation.
+We did NOT test on a real device.
 
-Link: https://lore.kernel.org/r/20211110105133.150171-1-ye.guojin@zte.com.cn
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Reviewed-by: Peter Wang <peter.wang@mediatek.com>
-Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Attached is the bug report.
+
+BUG: KASAN: double-free or invalid-free in consume_skb+0x6c/0x1c0
+
+Call Trace:
+ dump_stack+0x76/0xa0
+ print_address_description.constprop.0+0x16/0x200
+ ? consume_skb+0x6c/0x1c0
+ kasan_report_invalid_free+0x61/0xa0
+ ? consume_skb+0x6c/0x1c0
+ __kasan_slab_free+0x15e/0x170
+ ? consume_skb+0x6c/0x1c0
+ kfree+0x8c/0x230
+ consume_skb+0x6c/0x1c0
+ aq_ring_tx_clean+0x5c2/0xa80 [atlantic]
+ aq_vec_poll+0x309/0x5d0 [atlantic]
+ ? _sub_I_65535_1+0x20/0x20 [atlantic]
+ ? __next_timer_interrupt+0xba/0xf0
+ net_rx_action+0x363/0xbd0
+ ? call_timer_fn+0x240/0x240
+ ? __switch_to_asm+0x34/0x70
+ ? napi_busy_loop+0x520/0x520
+ ? net_tx_action+0x379/0x720
+ __do_softirq+0x18c/0x634
+ ? takeover_tasklets+0x5f0/0x5f0
+ run_ksoftirqd+0x15/0x20
+ smpboot_thread_fn+0x2f1/0x6b0
+ ? smpboot_unregister_percpu_thread+0x160/0x160
+ ? __kthread_parkme+0x80/0x100
+ ? smpboot_unregister_percpu_thread+0x160/0x160
+ kthread+0x2b5/0x3b0
+ ? kthread_create_on_node+0xd0/0xd0
+ ret_from_fork+0x22/0x40
+
+Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Reviewed-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-mediatek.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
-index 80b3545dd17d6..ecc503171db6b 100644
---- a/drivers/scsi/ufs/ufs-mediatek.c
-+++ b/drivers/scsi/ufs/ufs-mediatek.c
-@@ -1102,6 +1102,7 @@ static int ufs_mtk_probe(struct platform_device *pdev)
- 	}
- 	link = device_link_add(dev, &reset_pdev->dev,
- 		DL_FLAG_AUTOPROBE_CONSUMER);
-+	put_device(&reset_pdev->dev);
- 	if (!link) {
- 		dev_notice(dev, "add reset device_link fail\n");
- 		goto skip_reset;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+index 24122ccda614c..81b3756417ec2 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -298,13 +298,14 @@ bool aq_ring_tx_clean(struct aq_ring_s *self)
+ 			}
+ 		}
+ 
+-		if (unlikely(buff->is_eop)) {
++		if (unlikely(buff->is_eop && buff->skb)) {
+ 			u64_stats_update_begin(&self->stats.tx.syncp);
+ 			++self->stats.tx.packets;
+ 			self->stats.tx.bytes += buff->skb->len;
+ 			u64_stats_update_end(&self->stats.tx.syncp);
+ 
+ 			dev_kfree_skb_any(buff->skb);
++			buff->skb = NULL;
+ 		}
+ 		buff->pa = 0U;
+ 		buff->eop_index = 0xffffU;
 -- 
 2.33.0
 
