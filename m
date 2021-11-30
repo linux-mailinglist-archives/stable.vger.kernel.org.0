@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F794638A2
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF37E4638A4
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245023AbhK3PFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:05:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60838 "EHLO
+        id S245125AbhK3PFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:05:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231248AbhK3O6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:58:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE14BC0698E0;
-        Tue, 30 Nov 2021 06:52:08 -0800 (PST)
+        with ESMTP id S243828AbhK3O6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:58:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB11BC0698E4;
+        Tue, 30 Nov 2021 06:52:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 923D8B81A46;
-        Tue, 30 Nov 2021 14:52:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A738C53FD0;
-        Tue, 30 Nov 2021 14:52:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 33242CE1A68;
+        Tue, 30 Nov 2021 14:52:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1FDCC53FD3;
+        Tue, 30 Nov 2021 14:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283926;
-        bh=yiqQhwE2LM4N5B6zZAnXQGCAEgaSu7bjY+SniMdUyPo=;
+        s=k20201202; t=1638283927;
+        bh=wL3gMLfz8NIciqBIL29Na1AVFG8NtaxdC6fD/JtlC3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sflwqBJhOp5B/u73v5nhKNYRjiCGb/KBDFJhG3TfaEVpzJXSd43wDlFGEcuSA2f9v
-         7FOSvMgSrXiSobf4nZkg45l5WxsB3YT1Ic0TGtvYvK7oscHL351Mk5gnG9WpEfxq32
-         wk3DKiccoPegRa7Ii6MV6eLjyBCeQnWM6cMndRwP5/7LjwOgeBLR0l1VjVPoZ2sxCD
-         JvBcweWNBvS1yzarqA0Ald+1eKAS1wL954eMul1+t9fFgassPaoaIxc/UQ5aUbWOOl
-         59gqZNfDSps7/bkwlR528WCND98PeSfwG7Uz6fzkTFgirTVFdhTIYwKtJrNlhgJ0rD
-         EkxNgsBy5iBkw==
+        b=fv9+uSSOBxxLiaov+JMcLudGZo/OqPo2XZFuoKMHoQtnQA27MEDxYoKme95LTRX3g
+         w96oU2t1rduO8j6h0nCbvr3PXmNfbqOwrA7NybcP+Z59Y+9T5l/DDSjurReVO8ONxl
+         jH98tKQO0m+RxfYGrCO4XvU+7Y8yu6E2kl3V6wpAZkJitXrrmZ68mXIYD6nnFBgsXS
+         NPNopzvTowaEyt0kfl0lYsbQd4Rjv8Jy55O+eLYj0yLnJejCm3XpOu8+5IqAgjQuaZ
+         mW3zUQ0Sq3e+f2t2tWtSpty/2ajl8sa6/ScLUvDJsA/IQwupZrqT6eZvVhdmYMj0zw
+         PRcYAKwKBzhEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.4 04/25] xen/privcmd: make option visible in Kconfig
-Date:   Tue, 30 Nov 2021 09:51:34 -0500
-Message-Id: <20211130145156.946083-4-sashal@kernel.org>
+Cc:     Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, anna.schumaker@netapp.com,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 05/25] NFSv4.1: handle NFS4ERR_NOSPC by CREATE_SESSION
+Date:   Tue, 30 Nov 2021 09:51:35 -0500
+Message-Id: <20211130145156.946083-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145156.946083-1-sashal@kernel.org>
 References: <20211130145156.946083-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,52 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 897919ad8b42eb8222553838ab82414a924694aa ]
+[ Upstream commit ea027cb2e1b59c76582af867b71d5c037fa6bb8e ]
 
-This configuration option provides a misc device as an API to userspace.
-Make this API usable without having to select the module as a transitive
-dependency.
+When the client receives ERR_NOSPC on reply to CREATE_SESSION
+it leads to a client hanging in nfs_wait_client_init_complete().
+Instead, complete and fail the client initiation with an EIO
+error which allows for the mount command to fail instead of
+hanging.
 
-This also fixes an issue where localyesconfig would select
-CONFIG_XEN_PRIVCMD=m because it was not visible and defaulted to
-building as module.
-
-[boris: clarified help message per Jan's suggestion]
-
-Based-on-patch-by: Thomas Weißschuh <linux@weissschuh.net>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20211116143323.18866-1-jgross@suse.com
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/Kconfig | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4state.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
-index a50dadd010933..39edeaae1d7ad 100644
---- a/drivers/xen/Kconfig
-+++ b/drivers/xen/Kconfig
-@@ -231,9 +231,15 @@ config XEN_SCSI_BACKEND
- 	  if guests need generic access to SCSI devices.
- 
- config XEN_PRIVCMD
--	tristate
-+	tristate "Xen hypercall passthrough driver"
- 	depends on XEN
- 	default m
-+	help
-+	  The hypercall passthrough driver allows privileged user programs to
-+	  perform Xen hypercalls. This driver is normally required for systems
-+	  running as Dom0 to perform privileged operations, but in some
-+	  disaggregated Xen setups this driver might be needed for other
-+	  domains, too.
- 
- config XEN_STUB
- 	bool "Xen stub drivers"
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index ea680f619438b..54b6a05d533b7 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -1966,6 +1966,10 @@ static int nfs4_handle_reclaim_lease_error(struct nfs_client *clp, int status)
+ 		dprintk("%s: exit with error %d for server %s\n",
+ 				__func__, -EPROTONOSUPPORT, clp->cl_hostname);
+ 		return -EPROTONOSUPPORT;
++	case -ENOSPC:
++		if (clp->cl_cons_state == NFS_CS_SESSION_INITING)
++			nfs_mark_client_ready(clp, -EIO);
++		return -EIO;
+ 	case -NFS4ERR_NOT_SAME: /* FixMe: implement recovery
+ 				 * in nfs4_exchange_id */
+ 	default:
 -- 
 2.33.0
 
