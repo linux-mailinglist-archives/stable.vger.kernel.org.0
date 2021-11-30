@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3738B4638BA
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDE54638BE
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244336AbhK3PFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:05:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33894 "EHLO
+        id S244405AbhK3PFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:05:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244506AbhK3PCC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:02 -0500
+        with ESMTP id S244516AbhK3PCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BE8C0619DD;
-        Tue, 30 Nov 2021 06:53:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2DE1C0619E2;
+        Tue, 30 Nov 2021 06:53:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 481A0B81A49;
-        Tue, 30 Nov 2021 14:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAE72C53FC7;
-        Tue, 30 Nov 2021 14:53:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B945B81A40;
+        Tue, 30 Nov 2021 14:53:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DC1EC53FC1;
+        Tue, 30 Nov 2021 14:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284000;
-        bh=0+3Ym9+8lvkQFX27bQsSayMoZxPuQ4FYLs8LPgF5CZs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=OvymiwdNah2sXlGx3Jzbt92R66+AuEvF0mRGHk7cJp8DEjG4dRjDZCpgKecEfO9lw
-         LDP85vkqlymQ53JYUKn1Jn6Kpcy2eTsZ2206Q7dLV+sMw+hpdV/9UXktcojTdtw/dT
-         NnnBhoHER1zNWuFtqGB48I5DWtCN1Ct+r1DARI0/IjOpXqC66y/SjBj8oG1P56kRrf
-         pthqnRUXxjRQN7qtRhoWzj67j1OUPEuS0SbbZHj9HWcE9UA9n4woMgMuw1h9Ds1SgV
-         WGJNk6gug11S2sfCf460scszlvf9YvDXoTe1yDIn5CD3WHi0M5zuvYIdIXLR4KHYwS
-         yp9Y/fyfrI30w==
+        s=k20201202; t=1638284001;
+        bh=t0G2cgW1LPpprxJZ/0W2KP52yUnj9+CTZKIZjqqqsrk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jEWQn4UtoqFbfDy31p4WWBSWgJvHkbJOLydnqpN6GvKqHzPP5n+56TKj1h4+Raqu9
+         cVgnQ9EOHXZZlBbcrjS8ZT8aT2TgNiTkCOaBOGSIqojDA/U9mG9aPhtmknvlsT9PaC
+         74QgcVBPq7VTXZzMCsS36DYNI/7WPk8MJuZFPUiG8v73m5z4u1x1O9BF4XjDoJg719
+         +yg3Oi/xz/k1TyhcAavY63L/2+reOdX6u1EsnqG5ZhI7HTIgdIZz5xkdzk/66O/605
+         3bnvS5Kz776rElS79yRuFsNrGYehbbTwAbYbUFtaT+XtAQCAQZAAi7ncGFKquYwg+r
+         1/Uh1+1s4GEtQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
-        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 01/14] ASoC: mediatek: mt8173-rt5650: Rename Speaker control to Ext Spk
-Date:   Tue, 30 Nov 2021 09:53:02 -0500
-Message-Id: <20211130145317.946676-1-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.14 02/14] xen/privcmd: make option visible in Kconfig
+Date:   Tue, 30 Nov 2021 09:53:03 -0500
+Message-Id: <20211130145317.946676-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211130145317.946676-1-sashal@kernel.org>
+References: <20211130145317.946676-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -52,58 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 0a8facac0d1e38dc8b86ade6d3f0d8b33dae7c58 ]
+[ Upstream commit 897919ad8b42eb8222553838ab82414a924694aa ]
 
-Some RT5645 and RT5650 powered platforms are using "Ext Spk"
-instead of "Speaker", and this is also reflected in alsa-lib
-configurations for the generic RT5645 usecase manager configs.
+This configuration option provides a misc device as an API to userspace.
+Make this API usable without having to select the module as a transitive
+dependency.
 
-Rename the "Speaker" control to "Ext Spk" in order to be able
-to make the userspace reuse/inherit the same configurations also
-for this machine, along with the others.
+This also fixes an issue where localyesconfig would select
+CONFIG_XEN_PRIVCMD=m because it was not visible and defaulted to
+building as module.
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20211105152013.75252-1-angelogioacchino.delregno@collabora.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[boris: clarified help message per Jan's suggestion]
+
+Based-on-patch-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20211116143323.18866-1-jgross@suse.com
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Thomas Weißschuh <linux@weissschuh.net>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/xen/Kconfig | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-index e69c141d8ed4c..60a6a83aa772c 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-@@ -38,15 +38,15 @@ static struct mt8173_rt5650_platform_data mt8173_rt5650_priv = {
- };
+diff --git a/drivers/xen/Kconfig b/drivers/xen/Kconfig
+index 30187b86729bb..818e4809c2a54 100644
+--- a/drivers/xen/Kconfig
++++ b/drivers/xen/Kconfig
+@@ -218,9 +218,15 @@ config XEN_SCSI_BACKEND
+ 	  if guests need generic access to SCSI devices.
  
- static const struct snd_soc_dapm_widget mt8173_rt5650_widgets[] = {
--	SND_SOC_DAPM_SPK("Speaker", NULL),
-+	SND_SOC_DAPM_SPK("Ext Spk", NULL),
- 	SND_SOC_DAPM_MIC("Int Mic", NULL),
- 	SND_SOC_DAPM_HP("Headphone", NULL),
- 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
- };
+ config XEN_PRIVCMD
+-	tristate
++	tristate "Xen hypercall passthrough driver"
+ 	depends on XEN
+ 	default m
++	help
++	  The hypercall passthrough driver allows privileged user programs to
++	  perform Xen hypercalls. This driver is normally required for systems
++	  running as Dom0 to perform privileged operations, but in some
++	  disaggregated Xen setups this driver might be needed for other
++	  domains, too.
  
- static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
--	{"Speaker", NULL, "SPOL"},
--	{"Speaker", NULL, "SPOR"},
-+	{"Ext Spk", NULL, "SPOL"},
-+	{"Ext Spk", NULL, "SPOR"},
- 	{"DMIC L1", NULL, "Int Mic"},
- 	{"DMIC R1", NULL, "Int Mic"},
- 	{"Headphone", NULL, "HPOL"},
-@@ -58,7 +58,7 @@ static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
- };
- 
- static const struct snd_kcontrol_new mt8173_rt5650_controls[] = {
--	SOC_DAPM_PIN_SWITCH("Speaker"),
-+	SOC_DAPM_PIN_SWITCH("Ext Spk"),
- 	SOC_DAPM_PIN_SWITCH("Int Mic"),
- 	SOC_DAPM_PIN_SWITCH("Headphone"),
- 	SOC_DAPM_PIN_SWITCH("Headset Mic"),
+ config XEN_STUB
+ 	bool "Xen stub drivers"
 -- 
 2.33.0
 
