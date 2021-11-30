@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB934638C3
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 991814638C6
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244491AbhK3PFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:05:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33502 "EHLO
+        id S244593AbhK3PGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:06:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244555AbhK3PCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:31 -0500
+        with ESMTP id S244561AbhK3PCc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:32 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E3D9C0619F8;
-        Tue, 30 Nov 2021 06:53:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D6E9C0619FF;
+        Tue, 30 Nov 2021 06:53:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 55EB6CE1A7B;
+        by sin.source.kernel.org (Postfix) with ESMTPS id AA66FCE1A81;
+        Tue, 30 Nov 2021 14:53:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55A7FC53FD0;
         Tue, 30 Nov 2021 14:53:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 945B0C53FCF;
-        Tue, 30 Nov 2021 14:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284014;
-        bh=BVEFfntB/jq5JO8ybbq+Gh00U2lXAIUL6PqDDymVjTo=;
+        s=k20201202; t=1638284017;
+        bh=r2+hGVkNf5ayMWDym0CWmxwQAfcI0oZSKo0wah+zbyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGlyif/+MGVgzXOvA0fN/6HejTbKygxHlsdaC55P9Jx40ZTFGEnwTnY/eAESzb/UI
-         cIs2+KZI4GCpnUE5JvVxDWFUzke/Gg3yr2LWZJH/lkKrXXsGMEhqhzLqi55Tguw8jg
-         NY3KDxKU62u8PPr6wReKtvKstAV6ljmsk4pjAEKivpyeWDKDFNqSnR91MZgQEyakwr
-         By7ASfUpUmvsF2N5FVwO9cpn6DzM1kGGVBC34XtoG60NHX+2BCT0adhXVMd0zXXjjm
-         5zv9uHIkWm/+0gnI9MTSo9c/Oh8HU5e3DWIzpDUtpo5yjJqIomtQ7PQZgspIyf0hGk
-         kYbp2j+QDdIcQ==
+        b=lh16bvySDfUKvIf1tUWloILQD2uA4u5NUBc7P/jQ0IA0X2U3kpJ4Xxo3Uo2flig8M
+         64eAxkEJDvW1xyRyjD6Is29Cjye/ZmalEduLEhDzZR3BWFwXEnxXh9JvmOeuK63bIj
+         9G7z0JT+1iZRjXGwLPkV46fidjQnzXWsXzWSUIjTa69o1OfT4mCnFM5/37mWjEO6Cy
+         NBY08Mdjgep0EtZFvbnO42rUBJ/HpJjhhkc0AW8mfBMVaTJFasYChvablxd58j9e9Z
+         r2gD8veBW9c+noIT+lyPxYbokCTtaLzMwJrPps52i1xDpniB1Y1V++0GXOEQA0hBHY
+         t8DiZLoW04Wow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Paulo Alcantara <pc@cjr.nz>, Sasha Levin <sashal@kernel.org>,
-        sfrench@samba.org, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.14 10/14] smb2: clarify rc initialization in smb2_reconnect
-Date:   Tue, 30 Nov 2021 09:53:11 -0500
-Message-Id: <20211130145317.946676-10-sashal@kernel.org>
+Cc:     zhangyue <zhangyue1@kylinos.cn>, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, aelior@marvell.com,
+        manishc@marvell.com, davem@davemloft.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/14] net: qed: fix the array may be out of bound
+Date:   Tue, 30 Nov 2021 09:53:13 -0500
+Message-Id: <20211130145317.946676-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145317.946676-1-sashal@kernel.org>
 References: <20211130145317.946676-1-sashal@kernel.org>
@@ -53,34 +50,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: zhangyue <zhangyue1@kylinos.cn>
 
-[ Upstream commit 350f4a562e1ffc2e4869e3083dc9b0ec4bca6c3a ]
+[ Upstream commit 0435a4d08032c8fba2966cebdac870e22238cacc ]
 
-It is clearer to initialize rc at the beginning of the function.
+If the variable 'p_bit->flags' is always 0,
+the loop condition is always 0.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+The variable 'j' may be greater than or equal to 32.
+
+At this time, the array 'p_aeu->bits[32]' may be out
+of bound.
+
+Signed-off-by: zhangyue <zhangyue1@kylinos.cn>
+Link: https://lore.kernel.org/r/20211125113610.273841-1-zhangyue1@kylinos.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_int.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 77a9aeaf2cb11..ae019210b26a6 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -153,7 +153,7 @@ smb2_hdr_assemble(struct smb2_sync_hdr *shdr, __le16 smb2_cmd,
- static int
- smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon)
- {
--	int rc;
-+	int rc = 0;
- 	struct nls_table *nls_codepage;
- 	struct cifs_ses *ses;
- 	struct TCP_Server_Info *server;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
+index f8d1d02a3cd4a..289101ce0e409 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_int.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
+@@ -865,7 +865,7 @@ static int qed_int_deassertion(struct qed_hwfn  *p_hwfn,
+ 		if (!parities)
+ 			continue;
+ 
+-		for (j = 0, bit_idx = 0; bit_idx < 32; j++) {
++		for (j = 0, bit_idx = 0; bit_idx < 32 && j < 32; j++) {
+ 			struct aeu_invert_reg_bit *p_bit = &p_aeu->bits[j];
+ 
+ 			if (qed_int_is_parity_flag(p_hwfn, p_bit) &&
+@@ -903,7 +903,7 @@ static int qed_int_deassertion(struct qed_hwfn  *p_hwfn,
+ 			 * to current group, making them responsible for the
+ 			 * previous assertion.
+ 			 */
+-			for (j = 0, bit_idx = 0; bit_idx < 32; j++) {
++			for (j = 0, bit_idx = 0; bit_idx < 32 && j < 32; j++) {
+ 				long unsigned int bitmask;
+ 				u8 bit, bit_len;
+ 
+@@ -1201,7 +1201,7 @@ static void qed_int_sb_attn_init(struct qed_hwfn *p_hwfn,
+ 	memset(sb_info->parity_mask, 0, sizeof(u32) * NUM_ATTN_REGS);
+ 	for (i = 0; i < NUM_ATTN_REGS; i++) {
+ 		/* j is array index, k is bit index */
+-		for (j = 0, k = 0; k < 32; j++) {
++		for (j = 0, k = 0; k < 32 && j < 32; j++) {
+ 			struct aeu_invert_reg_bit *p_aeu;
+ 
+ 			p_aeu = &aeu_descs[i].bits[j];
 -- 
 2.33.0
 
