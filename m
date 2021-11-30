@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 390364638A8
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 202F84638AA
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230435AbhK3PFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33414 "EHLO
+        id S244161AbhK3PFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:05:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244202AbhK3PAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:00:30 -0500
+        with ESMTP id S244205AbhK3PAb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:00:31 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F028FC07E5F5;
-        Tue, 30 Nov 2021 06:52:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F59EC08C5CD;
+        Tue, 30 Nov 2021 06:52:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 472E7CE1A72;
-        Tue, 30 Nov 2021 14:52:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F74C8D183;
-        Tue, 30 Nov 2021 14:52:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9D269CE1A50;
+        Tue, 30 Nov 2021 14:52:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB839C8D184;
+        Tue, 30 Nov 2021 14:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283955;
-        bh=2lNfN6gqBj+HB82ICjyKZBy0cFJR3rHodqFLvvA1Ux4=;
+        s=k20201202; t=1638283956;
+        bh=NnAPbCD7mBQ1Qzi/AdkZz0qT1lf82Yd1rb55YQRD8t4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gX5eViLx2EWvd7+rOOzbfyr4PLSiMYUMvAOqel7MoUJmm1hTmOxYPlksRKF9Z0mRP
-         HS38TkQkoNgSG5qsf/rPZfQYrP+ok/W/XNnrhgIwLgH42V/Bg9xCGON92V//fy/cFZ
-         un725ncK4Y6RKb26VfFTc0MKpYy5VwqDL9RqEJIGRDWZpxE+oJ1bn9hDNEKKAuod23
-         zuIH57Itr1wKZc4nMIYMC3sc4+0bv5XNMaWi1KTBUKYtXoZJy+7dhzmabBZuRvWLgo
-         cSFhNgaNbPxQkYpNQh4msPjMKnfBCstpyLqVux1PDNQ0YHUokpb5HCdBoe4rBR0Umt
-         HRB5/GV0NBkQQ==
+        b=Uqj0FKY7KmEfqFbOtieB+BSkUcWE7YGKaZzqXih+GlckLdv3Q6+5zwbDrIXVvgwXE
+         Y9GceiszGtFD+UFXsBDD88hBu5Uo1nhCXdjs3W9V3XixCnUSgv2Fqulv1ETeM//P71
+         7GilUJQ/lk++9avJ+NGkku/uBJd0CAf7oY5E0uvSHi7ocUxEFT6qiL6Md9FWYfuomu
+         g7V+midFv/U/o3zb5fYZqaCw2yYF6+ZtM0BxVrUuQ2rNsR7m8uFNTZSeC+xsX/TCb4
+         22l+jDw0OjdGwCR2McWRsULAQPyhm9xcIzvb/eBDx+FRzYpLK0kyhePwB1rv27jPvK
+         dk1LOYUzBrN8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Klaus Jensen <k.jensen@samsung.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, kbusch@kernel.org,
-        axboe@fb.com, sagi@grimberg.me, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 21/25] nvme: fix write zeroes pi
-Date:   Tue, 30 Nov 2021 09:51:51 -0500
-Message-Id: <20211130145156.946083-21-sashal@kernel.org>
+Cc:     Evan Green <evgreen@chromium.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        pavel@ucw.cz, len.brown@intel.com, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 22/25] PM: hibernate: Fix snapshot partial write lengths
+Date:   Tue, 30 Nov 2021 09:51:52 -0500
+Message-Id: <20211130145156.946083-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145156.946083-1-sashal@kernel.org>
 References: <20211130145156.946083-1-sashal@kernel.org>
@@ -52,52 +51,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Klaus Jensen <k.jensen@samsung.com>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 00b33cf3da726757aef636365bb52e9536434e9a ]
+[ Upstream commit 88a5045f176b78c33a269a30a7b146e99c550bd9 ]
 
-Write Zeroes sets PRACT when block integrity is enabled (as it should),
-but neglects to also set the reftag which is expected by reads. This
-causes protection errors on reads.
+snapshot_write() is inappropriately limiting the amount of data that can
+be written in cases where a partial page has already been written. For
+example, one would expect to be able to write 1 byte, then 4095 bytes to
+the snapshot device, and have both of those complete fully (since now
+we're aligned to a page again). But what ends up happening is we write 1
+byte, then 4094/4095 bytes complete successfully.
 
-Fix this by setting the reftag for type 1 and 2 (for type 3, reads will
-not check the reftag).
+The reason is that simple_write_to_buffer()'s second argument is the
+total size of the buffer, not the size of the buffer minus the offset.
+Since simple_write_to_buffer() accounts for the offset in its
+implementation, snapshot_write() can just pass the full page size
+directly down.
 
-Signed-off-by: Klaus Jensen <k.jensen@samsung.com>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ kernel/power/user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 5fa48d36954ce..45f89a1ebfa69 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -694,10 +694,19 @@ static inline blk_status_t nvme_setup_write_zeroes(struct nvme_ns *ns,
- 		cpu_to_le64(nvme_sect_to_lba(ns, blk_rq_pos(req)));
- 	cmnd->write_zeroes.length =
- 		cpu_to_le16((blk_rq_bytes(req) >> ns->lba_shift) - 1);
--	if (nvme_ns_has_pi(ns))
-+
-+	if (nvme_ns_has_pi(ns)) {
- 		cmnd->write_zeroes.control = cpu_to_le16(NVME_RW_PRINFO_PRACT);
--	else
--		cmnd->write_zeroes.control = 0;
-+
-+		switch (ns->pi_type) {
-+		case NVME_NS_DPS_PI_TYPE1:
-+		case NVME_NS_DPS_PI_TYPE2:
-+			cmnd->write_zeroes.reftag =
-+				cpu_to_le32(t10_pi_ref_tag(req));
-+			break;
-+		}
-+	}
-+
- 	return BLK_STS_OK;
- }
+diff --git a/kernel/power/user.c b/kernel/power/user.c
+index 77438954cc2b0..8f678cd567a62 100644
+--- a/kernel/power/user.c
++++ b/kernel/power/user.c
+@@ -180,7 +180,7 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
+ 		if (res <= 0)
+ 			goto unlock;
+ 	} else {
+-		res = PAGE_SIZE - pg_offp;
++		res = PAGE_SIZE;
+ 	}
  
+ 	if (!data_of(data->handle)) {
 -- 
 2.33.0
 
