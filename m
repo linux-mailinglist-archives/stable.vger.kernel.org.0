@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FFFD4637D3
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:53:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F194646376A
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:50:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243118AbhK3O4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:56:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60416 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243176AbhK3Oyo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:54:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDE24C061379;
-        Tue, 30 Nov 2021 06:49:17 -0800 (PST)
+        id S242566AbhK3Oxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:53:30 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45508 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242564AbhK3Owh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:52:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84498B81A20;
-        Tue, 30 Nov 2021 14:49:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6588CC53FC7;
-        Tue, 30 Nov 2021 14:49:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E0EFB81A2B;
+        Tue, 30 Nov 2021 14:49:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2FE8C53FD1;
+        Tue, 30 Nov 2021 14:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283755;
-        bh=oRuAmpp5REdqeW8iRnEJPu/Vsovl/VI3cLjHZcmwVyw=;
+        s=k20201202; t=1638283756;
+        bh=XAjwUAiM/j8BKJZ3MPSJmE9O/lcstYIzLJvobanl0m4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4rxyShlKx52j5Xnvk/W9k2vEVjbxm/8K8E9LWQXd4eOdBuM2IdgImMiY3w7LDC8/
-         E2gANettHp8ne7JxlRLjzJRS6xg72bOswP0y5j0ucLQHB3HrmejJm9zy0Z7IXZ1nci
-         gjdYdHY6fq+Muo0thL4ERLKuoLIHiKPFbevjt4ZHTq8/Z29pFsmlOpGAT/VbR4U6uH
-         DD0VHv0heMdfrTHwGSCNSLpYiTG1EwhZOby+HmwOtxob3StyxZcUHgO1nGjgQ3fk2t
-         FimxHt/J4J6hPJ2nDrXVYmKmHAGswV1R+I19JkBbOMKK7iCiOkMOetWd5Q/cxLK7NL
-         t8/D83H6humPA==
+        b=uE1uv6JYjkcPsBKRy7xLaEF0adEj+lqBZYQSChZtob/Ne5au2lUksGcq2ssfSg7Jv
+         ggvVPc5Cfc1ZSIiV0fGblj4iZIdvvRE+XRJR6NPNC9Pe40Du9Sx7JJ7AaTHh0xRclM
+         PlbwdwBGytspLPOLmJOvE/ACWdXY3rZ415jPuclUlOtyG8yBHWa6dl8ZIAhvWVEq4N
+         lHEFGBaez49sCNB2QbCTrnsxPBFOCjHwTz+cZ5dMpc0hCs3SGlP6teB8kw/kYsGcBe
+         v0Q+Cn3pkrjhc1wEMgG9eJ+Sth/qmjabm9o6+3hQahwarqcT3qhH6rPCw8ND6a9eIk
+         d3cScjsrNK7iQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Juergen Gross <jgross@suse.com>,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        jirislaby@kernel.org, jbeulich@suse.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.15 50/68] xen: flag hvc_xen to be not essential for system boot
-Date:   Tue, 30 Nov 2021 09:46:46 -0500
-Message-Id: <20211130144707.944580-50-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.15 51/68] xen: flag pvcalls-front to be not essential for system boot
+Date:   Tue, 30 Nov 2021 09:46:47 -0500
+Message-Id: <20211130144707.944580-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -54,32 +49,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 0239143490a9fa1344955dde93527b09f5576dac ]
+[ Upstream commit 03e143b2acebe23c893f22ebed9abc0fe2a7f27e ]
 
-The Xen pv console driver is not essential for boot. Set the respective
+The Xen pvcalls device is not essential for booting. Set the respective
 flag.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20211022064800.14978-4-jgross@suse.com
+Link: https://lore.kernel.org/r/20211022064800.14978-5-jgross@suse.com
 Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_xen.c | 1 +
+ drivers/xen/pvcalls-front.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/hvc/hvc_xen.c b/drivers/tty/hvc/hvc_xen.c
-index f0bf01ea069ae..71e0dd2c0ce5b 100644
---- a/drivers/tty/hvc/hvc_xen.c
-+++ b/drivers/tty/hvc/hvc_xen.c
-@@ -522,6 +522,7 @@ static struct xenbus_driver xencons_driver = {
- 	.remove = xencons_remove,
- 	.resume = xencons_resume,
- 	.otherend_changed = xencons_backend_changed,
+diff --git a/drivers/xen/pvcalls-front.c b/drivers/xen/pvcalls-front.c
+index 7984645b59563..3c9ae156b597f 100644
+--- a/drivers/xen/pvcalls-front.c
++++ b/drivers/xen/pvcalls-front.c
+@@ -1275,6 +1275,7 @@ static struct xenbus_driver pvcalls_front_driver = {
+ 	.probe = pvcalls_front_probe,
+ 	.remove = pvcalls_front_remove,
+ 	.otherend_changed = pvcalls_front_changed,
 +	.not_essential = true,
  };
- #endif /* CONFIG_HVC_XEN_FRONTEND */
  
+ static int __init pvcalls_frontend_init(void)
 -- 
 2.33.0
 
