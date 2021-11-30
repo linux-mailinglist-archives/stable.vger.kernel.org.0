@@ -2,197 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30D29462EC4
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 09:45:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A417462EDC
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 09:48:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234825AbhK3ItJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 03:49:09 -0500
-Received: from mail-ma1ind01olkn0183.outbound.protection.outlook.com ([104.47.100.183]:36416
-        "EHLO IND01-MA1-obe.outbound.protection.outlook.com"
+        id S231942AbhK3Ivc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 03:51:32 -0500
+Received: from mail-mw2nam10on2080.outbound.protection.outlook.com ([40.107.94.80]:60256
+        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S234320AbhK3ItJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Nov 2021 03:49:09 -0500
+        id S232024AbhK3Ivc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Nov 2021 03:51:32 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bPWhVFOKdJKWgZ7NeAqJktoEDXqqEVImzNDsmN4cq+JHtuJnWc8y0KYpklKxBklFshr4WhpFdHfxuCfXzwuUEF+VMnpsJLDqXRq3Nxxb3N4sRMKZPBvOEoJRMjI1TyBoSVHbVw4HOgSqQWZpif+LE3U2QhIo0V01h41P2bgRXDvFMYMKn8NcIuoNOmf6BYpnIJ+phI8rkxmcReGGw3quoqAFWfPFctaxrf969UFf62Cdw2vEGuKx1xHaiDcQq6ArNQ2Q4LS0WzAHpA6VrS5V0X/oBjRcg7XA6khfU2sa07yrSXEIsy3btsvZJ/7ra/Ey9UwfuGWd+b2L9KxeXwupRg==
+ b=kT7MjgBBxKvA+D3EhBK3jikG/o5I1sB8ar1xk2SXK2aVAO7gxYmFpQHawg3JouxdthMhUDpJOzYnzHq2i2fzqbjV1apOI/Qp084o2O1oFY5yXC/QEfN6+ffHcIo20KClw8ug2qzqmyFLJmbgNh3T7C6kkAnumbR73A3AdIRkV/BqzLGUAuKqL650eqV01rmgWeBHzEFVQT4V467U/y++e2CoNUTj/TIWqgRbmh6tanNcmIZVuyTtP5cAziJhGW6HlonhaT5ypsPOVPW9yp72akXH8TWGVelgGTK4M+62hrHkDz/0Zy2gKnA8kVyfXTn7bqtcjp2VFODqp2nDXXy+qg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=A57IResl8mC2kO1DnaSYlabXCUw3vWFloeZX/B3CFCQ=;
- b=GDsLlpwoXypZv0qpZUn2gvImiq0FOKSwhgmvJwSNG6LZuitbrrIgt69tImm63zyrW+9qaTJmLgJrM8oRhCuh+hcYVzuj5Yybu3vK7DHKSQzAbjoEqHiIo9UEQMfXj4uvFSKVFwBt5mIgMY2NY/itHwM7RDykYLqe5Kb7SqhOwIIdVUp0E3SusUWj1PVrlGKFioDPP+GslNvdwpxm7qPqGwcL2mBqHfGr0TXaKHOi9DqPzOgpFxG7DmPd70Pet7rFqK62bUWxQWQLn49hX6ZkXnt3VmejZLX94D+8skE9Eris6nSgGXRBo4WNDNPJFULd5Tttm/nmRJQt+Tux9cM2pg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
+ bh=G/PaEQgDhwpXr7sC5tUc0GxkSNHbpmV1H3Fs0sZVf40=;
+ b=c+bZQH0acUCxtjHO609yDFrpw9iESs9GL51hTlmcinkET/DOz2STiQPpohsJoG0MggqijyDJ0s1nLi8cWG1xvd+nS/2WX3UJDqU2l9c1DarVY/hPj1hFh+q5gUOyB14zcRaHV8ixKy79MTiHvbnPO1uIoZAI7Tg/UuRll4IpGjrfwE701UieYcG9lRoo7/Lqn5V5UlSb1/ous3qQhEcovVcmDQ9H7YdBNfvAC76BDvZTMciQki9X38rai58D8WVtl08Zk+jT4bHu8oJtt92Iz0bGWcUC3LivdRKoQTzXwyOrLoQ324/eMLMQsbI96mXkLSZnKcABmsan3W/ldWyPNg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=A57IResl8mC2kO1DnaSYlabXCUw3vWFloeZX/B3CFCQ=;
- b=R2Vqt4tmCx653x+AW9DreqChNOE1UYDHNpbsJsWlyhynbgmFUx/pdIFDdz4PWjSejG/eqQ1QHImh7zDyAHSqxVb8fR9RZNHsc1T86kXjrI1bjZg8b9/AlD5gPTMCfnzj5S1Nz3AKcw7VAN4bD7Sx/DObO669KQrEVC9p2VaESaUO14Beysxdbqs/MZmCMxj5HlTktXU3DEL4/0+iTAHuzXzN0FMAU1QXqfrPUDqqKWdxT0NfEf5oZRF3hFqWBGn/JpvYiBxNgOzXoG/UwWPkIqET9jTDw3D2eUGX/MBVPREYeorPtDytJ8trzQ2QxVvOAzFLEuxu9OS7ymmybCu3hg==
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
- by PNZPR01MB4336.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1c::11) with
+ bh=G/PaEQgDhwpXr7sC5tUc0GxkSNHbpmV1H3Fs0sZVf40=;
+ b=Q+XhXdmPgf1MFhFjRw16NdSfNmsHEeQmxzzT+E0iOGJMuZ0xiXm4Me9WTkbfeePz16pPO8uQwZMSNEBzF0q16mweV1RvDGXuAGCwjFWsKuEqer2Rsb+jpxeJnVHYpwsfD8wIuF05Uv+HOkrd5MUzG9pi4LWJqT1GuriPRvPyRqXFnLu/NnWXTI8vwX36r2eoOfGExxpDL01NbD3vWX9p+271ungJZ1fstkNOhxm16OcUq02iXOF2yOvdDHQmK6AT+TXQDiCdwqdYSq6KlSgD5FVSMPgw3pWm6RZO39YTN2sqOKsJ91YN8Js2/Z2UUJI7/GhUOBEDcd46uNIeSG5+Bg==
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=nvidia.com;
+Received: from CO6PR12MB5444.namprd12.prod.outlook.com (2603:10b6:5:35e::8) by
+ MW5PR12MB5570.namprd12.prod.outlook.com (2603:10b6:303:190::12) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Tue, 30 Nov
- 2021 08:45:44 +0000
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::7ca6:9165:19ec:4cd7]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::7ca6:9165:19ec:4cd7%5]) with mapi id 15.20.4734.024; Tue, 30 Nov 2021
- 08:45:44 +0000
-From:   Aditya Garg <gargaditya08@live.com>
-To:     Marcel Holtmann <marcel@holtmann.org>
-CC:     Greg KH <gregkh@linuxfoundation.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Daniel Winkler <danielwinkler@google.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v6 2/2] btbcm: disable read tx power for affected Macs
- with the T2 Security chip
-Thread-Topic: [PATCH v6 2/2] btbcm: disable read tx power for affected Macs
- with the T2 Security chip
-Thread-Index: AQHX5SmAzZ+x4ZZz8USx8gB+oemfXKwbwv0A
-Date:   Tue, 30 Nov 2021 08:45:44 +0000
-Message-ID: <087A6F82-BC44-41DE-9FE9-05B5932A2911@live.com>
-References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
- <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
- <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
- <20211117124717.12352-1-redecorating@protonmail.com>
- <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
- <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
- <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
- <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
- <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
- <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
- <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
- <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
- <92FBACD6-F4F2-4DE8-9000-2D30852770FC@live.com>
- <3716D644-CD1B-4A5C-BC96-A51FF360E31D@live.com>
- <9E6473A2-2ABE-4692-8DCF-D8F06BDEAE29@live.com>
- <64E15BD0-665E-471F-94D9-991DFB87DEA0@live.com>
- <75EC7983-3043-41E7-BBC6-BAB56C16E298@live.com>
-In-Reply-To: <75EC7983-3043-41E7-BBC6-BAB56C16E298@live.com>
-Accept-Language: en-US
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4523.14; Tue, 30 Nov
+ 2021 08:48:10 +0000
+Received: from CO6PR12MB5444.namprd12.prod.outlook.com
+ ([fe80::ecac:528f:e36c:39d0]) by CO6PR12MB5444.namprd12.prod.outlook.com
+ ([fe80::ecac:528f:e36c:39d0%4]) with mapi id 15.20.4734.024; Tue, 30 Nov 2021
+ 08:48:10 +0000
+Subject: Re: [PATCH 5.15 000/179] 5.15.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, f.fainelli@gmail.com,
+        stable@vger.kernel.org,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+References: <20211129181718.913038547@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <3210f340-f3a0-2cf1-8b3b-59db6e58e65e@nvidia.com>
+Date:   Tue, 30 Nov 2021 08:48:00 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [GsOPWDi2qFYZbf14dmc5Y4YrKuKCQ6oGcMypPM3y84C38Cdvm4EX3bCLrOBjLWrN]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e67706b7-e0fd-4538-5c38-08d9b3ddcc55
-x-ms-traffictypediagnostic: PNZPR01MB4336:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: HvH59m0emLhqs2B5h0n4oRqrZhJf1hSPYJX5D5R0IwtqXJo3yMtzUa5Za3HS1ZCDLPTwD3NZCsWr+97uCdcNSUba+RAzmm3UTphNc7X6HHzzBlz8ucMarVFpQUFUPmPmSwrIWR9NKR9ChIhx/lP66LV/S4/uym4AyIsD6Elys2mui185cnXWZofmq+90fXGFIrmaFqfZzsj77HBw8904h5VC+xBntmxBqrWf1t+vKuUii08zQg3HYHiYgbTN4FGxb345++AojCnwUyP8hnAJ2M8nj6doE4AkC4OXBbJmqO5V+GfPEfySvFql3HQ2JFIirfx/poOLQ4HozaaM9JZRtXtS2bI6doFkmfka10+S6HzMXSL9x4O2IE3vgWjf1Z2kHMBqJ18+g5lcGXZk6/AqmNz3phWnT675kxrLAG12jXP3nLOZ3OFamOg8WvDYkVeNvCABTkg+r7twEflg1Ssr1D38g/RQtC/527p+dB2wHOX5O7Ry3S7oiemhs9NqqZu0lXXB+p6KIV7hRuaFYW9PJYXREFlZps1jp+aXCp68fWWTKj7WJiJEWB4T+ZziUH9MqsNLVbkAOrmMmN1GpRgumEmKmDkApbWtZsMfr+kGk8ObbW++oJ9Eagtmwf9+CwuP
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: Sre7rId3iSKv7dJMkDbTSu8rA4ItxVSRRdxL1ME/+A0wH6s6zE9JNUCWsAU9zpkOR9IYO2oMpTueNixHBMqnH6iAfEI9dZQME3R7WT+GJQb97BqMdvH1tLUYebE2majnggKGha2fXD4V1RMGidufVlqu/zFj6duBfelJVW8/WyUqszrgQbNPfbE+8/wJzkgMKAZeVOr+MEQEUll4QaiLPiYoy5otWmRFb6HEA/vwOlpKREDgmPMlzRATUUzeKJJWVb0YmAW6ydXUdPBYzvWkazGsHfCd7mqx6BcawsV0JYxkb52tUJMDqNvZ5IkGZ9zIVkaPmEZ8zl+sYUvJ6oxuRueEWulbIEDXCMnWVF2Z2skTv/dFZAOzjiIsmmc1dYfgpUUeVLjmQ7QsmgWgyUuWZnaG++VO9s9SOQZ2F6CK4uTDUbSpRxseEbiPW088SmIT0i/hhTgE71xFYeOcuVL9+t11zyHZF461RLmjwJDjSwzz7Z7m8VXpn8AT0H5FFhUKfCAuBL+qSPV4557+eh1kpSh125KPUpKyWCTM+bUaac6sHkrpa8itomt2xx7GV02cDFmAGAcBC+8jjB5Stfs+gVxa+SdXqwKCjEGD37fH7dSZcQ/+hZYmo9jpac/dAbLGFK/ty8V8LzqYS2itwYwQk18nQWmEmCJOhj7C2uX4O8U8OfCDRSUtmiW4Lzp2rWkH+AA3YS+rRUhFrcgdjaqpB2m0hM4Ek6gCYohqAS/rFALr6n9yz3u1bBh/gXdB06BGoMK+uk5669jpzhTcme3TJA==
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <6C04D3BF4E1DD646AD8D1B56A54DBCB7@INDPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: VI1PR0501CA0005.eurprd05.prod.outlook.com
+ (2603:10a6:800:92::15) To CO6PR12MB5444.namprd12.prod.outlook.com
+ (2603:10b6:5:35e::8)
 MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-3174-20-msonline-outlook-a1a1a.templateTenant
+Received: from [10.26.49.14] (195.110.77.193) by VI1PR0501CA0005.eurprd05.prod.outlook.com (2603:10a6:800:92::15) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23 via Frontend Transport; Tue, 30 Nov 2021 08:48:06 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1fc6801c-8947-4d7f-b937-08d9b3de22cd
+X-MS-TrafficTypeDiagnostic: MW5PR12MB5570:
+X-Microsoft-Antispam-PRVS: <MW5PR12MB55706F6885369FBF35CCE52FD9679@MW5PR12MB5570.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: /mSwgBFzwR3VEO9xawHyedCELI/cC3Rv8BNMVePMs+j0Y9jdo5gFyqXwbVn2d4HGwCOW9WtVG4CK2swjW+CmyhcItkgNHntgLpB+fQiyNOAbs/6zW5WeI1WaEFiMlwHh+3c0+OrQfzcMOFWNlW6DLjomeGKHnqThR3cFo9YqTmfI+l6a6dLuSdS31JIYiB2SKCrBNGMep59u8o1n99ZiSGqqZr4JrAHg+Mk8ADfYgbmFBACO+ibMm/dD10K9olxJOYQTUQU+ExavW6A0iUJwZVe1GuHprZ6fuRuIyFBXE0agFHOVetQ+wdDEPnSQoBjI2+oTYl6L+Zylov2e3QynrifpB/HigpkL8i4OkjuYFe6uAQPSWe4ZwhihVZ7wQBrn/JyRbUP0jE8Z2vPWN5Y7nQlFzU6gVOsHaWvd3e8SOpUNzayGgqpt4pm2lYOt2/vX5zjDtuedKN6BFSLEU6MVbd/iKK2FEtyFVSWbRTnEZD01PXsXBdsvJCp0XZZbQ2xvisGzrjopzjRwPpXLAzWrUM2ZHlHbcTd4Nem6O6DyrrZS4B4MIiATtyQZ/FuHyNuk46wezeiZ1ANsJGnCw9zYOviibqHi5L4kDRh7FNHTabhbdtNVTPHo9/25jN6CUWJk2/3z4e14EGOvSv6Tqlz4AV4I9euU+oGH7kRI3ThFlFVV+4b51hJxvk5jLUpX4MJUFrq6nxTgA5nvzM9H0g1DgcLQe5VDe9pVxuR8fKhJv4bF6ge1o2ZJinH2b/LgLnjUkYXiPNnb4XqKXAWwD9sJ1wRFBJauVRWEh9QwNEnUZmGPY3BcAs/4uUlQndZaxGfzTc3+XnVSVOlVey03ZnKfMw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO6PR12MB5444.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(83380400001)(31696002)(6666004)(26005)(66946007)(2616005)(7416002)(55236004)(38100700002)(956004)(508600001)(8936002)(66476007)(66556008)(316002)(36756003)(6486002)(53546011)(86362001)(8676002)(4326008)(2906002)(966005)(31686004)(16576012)(186003)(5660300002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZXZlbkxDNFY2ZHZqeTUrZmdrWUkwMkdPdkhHUmRpbFlQT3ROT09YbFBETFhG?=
+ =?utf-8?B?eFR4Und5YnoyK0ZZeEMrdzhZUFpwQTlRREFsWG5OWDFJZ28zRlk1RS9HN3d6?=
+ =?utf-8?B?b0oybkQ5TnVITEZSTVlWaC96OGRiQ2JRek5YN3Y5RmVPcjlVTEprR2xYYTRZ?=
+ =?utf-8?B?SnVxMUVIdUVzQWQvdWNNckg3LzQ0b3BhM29vRHR0MWNLenFOYWxmS1crOU9W?=
+ =?utf-8?B?bUN0OVpxbkUzd3FZdzkyQk50VXM5S2FhaHozamlldnNtTk5nanFmWUZkSG1P?=
+ =?utf-8?B?ajNDcVh5ZGFDUUdMT2N5QUEvVUxXRVJuMTNyVXJlSVVOTEZTblJIaTVVYSs5?=
+ =?utf-8?B?a0pDMUtXK0N5aXY1djcrUzVXYU5JSFQyeHgrODR2RWNMR2wwTjVRMHRraVVJ?=
+ =?utf-8?B?bWVPa2lXQ01hZ3FKTUhDcFlBVEpGU3ZkdXZ6dXhaUzkvemVkdWQ3VU9FQlZN?=
+ =?utf-8?B?QmppNlZJcDlkVm1heWdxVDRNL21RTzBVM1UrWCtkYWxZcTA4U2ljdjUyNTk2?=
+ =?utf-8?B?bk9ZSk9PZk40b0Z5OHBoZDAyd0NMSkZ4a0UxaVNhcnF3b2Q5NGJzTGpCRWNn?=
+ =?utf-8?B?SHQ1Y2FsZG5yZ1FsbWx2eERsbXZ1NjNDbmRFaFRZcmxKWndnRzJkcFBVb1F2?=
+ =?utf-8?B?Y1V0NFk0M2hJUWxibUFvRDB5ZU9wak80a2Z3Y09ZeFYvdDd0MXpObysrMDJ0?=
+ =?utf-8?B?dWpYNnQ4eXFwSUJZMFZxVXo3dzJxZ0NXYXVmVWQzNytOS0x0ZFBXOGRhV1JV?=
+ =?utf-8?B?VDNocTA2V0Y3dGdJUUdDQXlIYVdYNDhRRlNDQzk3UEhHajhRWkZ1UkZoeitL?=
+ =?utf-8?B?TjIyVzVRcjJqRC9sYzAzOHNDL1dyMjhuRDVuUWlvNUVpOG42eFZBNld6TGVq?=
+ =?utf-8?B?MmhnMlJaSmI5S21MbW1WYVVNZm9jUmFDV2VrWXRoWFNGaGxjWG92RzZGUkVS?=
+ =?utf-8?B?MGFlSGljRlM5WktuN1ViOUdxTHl0eTBLSlpCd0VnZTJvQ0xkSTdsMk9FZVdL?=
+ =?utf-8?B?VDVDK010MmpPcUFHNkF0eXJXMGQ0VXFIVmRJS3NnMnRwdlFzWUQ1U294cEVR?=
+ =?utf-8?B?cE5LYlV0QTFOdGNFNVNwOE1iSjF5dDN1L2p0eStSYitZUUltUjEwZWJpT0hC?=
+ =?utf-8?B?bzEydE5USVIzL3Bod05XdGVnNWl3NWpJTW9IaUFnMzI0cFprZUd5L2VzYmQz?=
+ =?utf-8?B?c1BJNmxOOG52b2Y5ZTVkZXJVdnp3eFl3MUtkMHpXTXJvSE42bDV3SnFLeE92?=
+ =?utf-8?B?REhsWEZuc3Jnekw1UzBJZkZVR01KbUJRZmRjR242bTlEcDlRNlMyaklQS2c4?=
+ =?utf-8?B?RlpvZk0yRXF1TEwyMm1veVZkVXBKbGV5S0tVTjFIWWd6bWRwVHNiOHlnQmti?=
+ =?utf-8?B?TjFzZTVxTThRTHdmLy9UamhFOGJra2ZKTXB5aUFyRndkWFAyWmVKMHFIK0l1?=
+ =?utf-8?B?ajkxSTUrT3F3YUl5Y0dEbFlFZ2ZwYlV2dEYra0d3bjNNbml2ZFd2ZGkwa0tJ?=
+ =?utf-8?B?SGdaVUEvbnQrUXVqUElMN1JaYzZLcm1yRnF3WEtBaVpxd1BZSjM0OW5yR1I1?=
+ =?utf-8?B?WkZ5b05Zckp5ZStuVTV5Z3FDY08yYjFmT04zanluZlNZbHVYUW9yWEJHdVJo?=
+ =?utf-8?B?NmgzMWtYOWQ2TFRGemNXcVYrR1dMTmF0OXVla2hSeE44blRaL3V3Q0svOGw4?=
+ =?utf-8?B?OEpQOWJ2b3QxN2hGeEJNVitYejVTTTNGcDNsdGRKaGFuSDZ2M2lOeWdwVDVZ?=
+ =?utf-8?Q?0OylSnQUnJRnmEnFtN73qBWHFLu7d6ZUpF/QDfz?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1fc6801c-8947-4d7f-b937-08d9b3de22cd
+X-MS-Exchange-CrossTenant-AuthSource: CO6PR12MB5444.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: e67706b7-e0fd-4538-5c38-08d9b3ddcc55
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Nov 2021 08:45:44.6209
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Nov 2021 08:48:10.3519
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PNZPR01MB4336
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0oqiwLmSiJHDxAHiiKgwG0rhT5S4/nv55h1qeUEH8R0WiTc5yUThEooOQANpjQdaUIz87AiULUZHcR9OCC53qQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW5PR12MB5570
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+On 29/11/2021 18:16, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.6 release.
+> There are 179 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 01 Dec 2021 18:16:51 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-> On 29-Nov-2021, at 7:30 PM, Aditya Garg <gargaditya08@live.com> wrote:
->=20
-> From: Aditya Garg <gargaditya08@live.com>
->=20
-> Some Macs with the T2 security chip had Bluetooth not working.
-> To fix it we add DMI based quirks to disable querying of LE Tx power.
->=20
-> Signed-off-by: Aditya Garg <gargaditya08@live.com>
-> Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
-> Link:
-> https://lore.kernel.org/r/4970a940-211b-25d6-edab-21a815313954@protonmail=
-.com
-> Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
-> ---
-> drivers/bluetooth/btbcm.c | 40 +++++++++++++++++++++++++++++++++++++++
-> 1 file changed, 40 insertions(+)
->=20
-> diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
-> index e4182acee488c5..40f7c9c5cf0a5a 100644
-> --- a/drivers/bluetooth/btbcm.c
-> +++ b/drivers/bluetooth/btbcm.c
-> @@ -8,6 +8,7 @@
->=20
-> #include <linux/module.h>
-> #include <linux/firmware.h>
-> +#include <linux/dmi.h>
-> #include <asm/unaligned.h>
->=20
-> #include <net/bluetooth/bluetooth.h>
-> @@ -343,9 +344,44 @@ static struct sk_buff *btbcm_read_usb_product(struct=
- hci_dev *hdev)
-> 	return skb;
-> }
->=20
-> +static const struct dmi_system_id disable_broken_read_transmit_power[] =
-=3D {
-> +	{
-> +		 .matches =3D {
-> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,1"),
-> +		},
-> +	},
-> +	{
-> +		 .matches =3D {
-> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,2"),
-> +		},
-> +	},
-> +	{
-> +		 .matches =3D {
-> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,4"),
-> +		},
-> +	},
-> +	{
-> +		 .matches =3D {
-> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,1"),
-> +		},
-> +	},
-> +	{
-> +		 .matches =3D {
-> +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,2"),
-> +		},
-> +	},
-> +	{ }
-> +};
-> +
-> static int btbcm_read_info(struct hci_dev *hdev)
-> {
-> 	struct sk_buff *skb;
-> +	const struct dmi_system_id;
->=20
-> 	/* Read Verbose Config Version Info */
-> 	skb =3D btbcm_read_verbose_config(hdev);
-> @@ -363,6 +399,10 @@ static int btbcm_read_info(struct hci_dev *hdev)
-> 	bt_dev_info(hdev, "BCM: features 0x%2.2x", skb->data[1]);
-> 	kfree_skb(skb);
->=20
-> +	/* Read DMI and disable broken Read LE Min/Max Tx Power */
-> +	if (dmi_first_match(disable_broken_read_transmit_power))
-> +		set_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks);
-> +
-> 	return 0;
-> }
->=20
-May I know whether this is fine or not.
->=20
+No new regressions.
 
+Test results for stable-v5.15:
+     10 builds:	10 pass, 0 fail
+     28 boots:	28 pass, 0 fail
+     114 tests:	108 pass, 6 fail
+
+Linux version:	5.15.6-rc1-ga6dab1fb6f7d
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                 tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
+                 tegra20-ventana, tegra210-p2371-2180,
+                 tegra210-p3450-0000, tegra30-cardhu-a04
+
+Test failures:	tegra194-p2972-0000: boot.py
+                 tegra194-p2972-0000: tegra-audio-boot-sanity.sh
+                 tegra194-p2972-0000: tegra-audio-hda-playback.sh
+                 tegra194-p3509-0000+p3668-0000: devices
+                 tegra194-p3509-0000+p3668-0000: tegra-audio-boot-sanity.sh
+                 tegra194-p3509-0000+p3668-0000: tegra-audio-hda-playback.sh
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
+
+-- 
+nvpublic
