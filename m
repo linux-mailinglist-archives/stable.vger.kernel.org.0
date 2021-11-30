@@ -2,176 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DAFC462ED2
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 09:47:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96DE6462E12
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 08:58:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239794AbhK3Iu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 03:50:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59830 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239766AbhK3IuV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 03:50:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654ACC061574;
-        Tue, 30 Nov 2021 00:47:02 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S235272AbhK3IBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 03:01:38 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:25015 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234593AbhK3IBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 03:01:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638259096;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ofQ+mTAvWB+lgCzceqE6eZM4DqOGEYL7WnumgczCy5o=;
+        b=QHj4XHD1IWfLWWxn3kY4kEq8kakorG6YKXQdLoI8/OE9aU9xo/9WSfcFw2wVv0qL8m3z3m
+        y+emExU7EPQv98QHPGlTnvDvmFZtf6nFRq7XGCwRBegmJwofhFY9DQZ9gfMDLIb8WfVCCL
+        w7M+OXr6xC+LP4zUw/4g1TuHCczu23o=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-461-LUw9QfZNPaa6gwh_icSZSg-1; Tue, 30 Nov 2021 02:58:11 -0500
+X-MC-Unique: LUw9QfZNPaa6gwh_icSZSg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B17F9CE1805;
-        Tue, 30 Nov 2021 08:47:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EA27C53FC1;
-        Tue, 30 Nov 2021 08:46:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638262018;
-        bh=IV7CfOvh14lM4qBOoT7nyIPMnQ7INl8FL+DbIr8jUZE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o2BY48q9b0Ye9pSk35j13Q+j8G0HeZe1QHlM+h7Orbf0jTJ9DJdmIr63oT9heOYXa
-         fSZSz95xEaiCzaKMybcESOR/NOJGhW2Mgkm+lxoPZ8e2nVguY6z/isFukOu9qlzYdL
-         d+ajnwmYvmoh526ziVvV5uj0TVB6KCRjIhvskXiE=
-Date:   Tue, 30 Nov 2021 08:57:46 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Ben Hutchings <benh@debian.org>
-Subject: Re: [PATCH 4.19 088/323] locking/lockdep: Avoid RCU-induced noinstr
- fail
-Message-ID: <YaXZevLfOkCTzQTV@kroah.com>
-References: <20211124115718.822024889@linuxfoundation.org>
- <20211124115721.937655496@linuxfoundation.org>
- <YaNP46ypf6xcTcJH@eldamar.lan>
- <YaNvGtWfuCRkmWwi@eldamar.lan>
- <YaNx31QvvjHy2IGh@eldamar.lan>
- <YaN+1gwQwt0aGKte@kroah.com>
- <YaN/ZQYSAUfzjq0d@kroah.com>
- <YaUcRuy050ZrtucJ@eldamar.lan>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3634785EE62;
+        Tue, 30 Nov 2021 07:58:10 +0000 (UTC)
+Received: from starship (unknown [10.40.192.24])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5F2221002388;
+        Tue, 30 Nov 2021 07:58:08 +0000 (UTC)
+Message-ID: <f73c491ce789234d92275e0529b55ebd48f4cfb6.camel@redhat.com>
+Subject: Re: [PATCH 3/4] KVM: x86: check PIR even for vCPUs with disabled
+ APICv
+From:   Maxim Levitsky <mlevitsk@redhat.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     seanjc@google.com, stable@vger.kernel.org
+Date:   Tue, 30 Nov 2021 09:58:07 +0200
+In-Reply-To: <20211123004311.2954158-4-pbonzini@redhat.com>
+References: <20211123004311.2954158-1-pbonzini@redhat.com>
+         <20211123004311.2954158-4-pbonzini@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YaUcRuy050ZrtucJ@eldamar.lan>
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 29, 2021 at 07:30:30PM +0100, Salvatore Bonaccorso wrote:
-> Hi Greg,
+On Mon, 2021-11-22 at 19:43 -0500, Paolo Bonzini wrote:
+> The IRTE for an assigned device can trigger a POSTED_INTR_VECTOR even
+> if APICv is disabled on the vCPU that receives it.  In that case, the
+> interrupt will just cause a vmexit and leave the ON bit set together
+> with the PIR bit corresponding to the interrupt.
 > 
-> (Adding Ben as well)
+> Right now, the interrupt would not be delivered until APICv is re-enabled.
+> However, fixing this is just a matter of always doing the PIR->IRR
+> synchronization, even if the vCPU has temporarily disabled APICv.
 > 
-> On Sun, Nov 28, 2021 at 02:08:53PM +0100, Greg Kroah-Hartman wrote:
-> > On Sun, Nov 28, 2021 at 02:06:30PM +0100, Greg Kroah-Hartman wrote:
-> > > On Sun, Nov 28, 2021 at 01:11:11PM +0100, Salvatore Bonaccorso wrote:
-> > > > Hi,
-> > > > 
-> > > > On Sun, Nov 28, 2021 at 12:59:24PM +0100, Salvatore Bonaccorso wrote:
-> > > > > Hi,
-> > > > > 
-> > > > > On Sun, Nov 28, 2021 at 10:46:13AM +0100, Salvatore Bonaccorso wrote:
-> > > > > > Hi,
-> > > > > > 
-> > > > > > On Wed, Nov 24, 2021 at 12:54:38PM +0100, Greg Kroah-Hartman wrote:
-> > > > > > > From: Peter Zijlstra <peterz@infradead.org>
-> > > > > > > 
-> > > > > > > [ Upstream commit ce0b9c805dd66d5e49fd53ec5415ae398f4c56e6 ]
-> > > > > > > 
-> > > > > > > vmlinux.o: warning: objtool: look_up_lock_class()+0xc7: call to rcu_read_lock_any_held() leaves .noinstr.text section
-> > > > > > 
-> > > > > > For 4.19.218 at least this commit seems to cause a build failure for
-> > > > > > cpupower, if warnings are treated as errors, I have not seen the same
-> > > > > > for the 5.10.80 build:
-> > > > > > 
-> > > > > > gcc -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -DVERSION=\"4.19\" -DPACKAGE=\"cpupower\" -DPACKAGE_BUGREPORT=\"Debian\ \(reportbug\ linux-cpupower\)\" -D_GNU_SOURCE -pipe -DNLS -Wall -Wchar-subscripts -Wpointer-arith
-> > > > > >  -Wsign-compare -Wno-pointer-sign -Wdeclaration-after-statement -Wshadow -Os -fomit-frame-pointer -fPIC -o /home/build/linux-4.19.218/debian/build/build-tools/tools/power/cpupower/lib/cpupower.o -c lib/cpupower.c
-> > > > > > In file included from lockdep.c:28:
-> > > > > > ../../../kernel/locking/lockdep.c: In function ‘look_up_lock_class’:
-> > > > > > ../../../kernel/locking/lockdep.c:694:2: error: implicit declaration of function ‘hlist_for_each_entry_rcu_notrace’; did you mean ‘hlist_for_each_entry_continue’? [-Werror=implicit-function-declaration]
-> > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
-> > > > > >   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > > > > >   hlist_for_each_entry_continue
-> > > > > > ../../../kernel/locking/lockdep.c:694:53: error: ‘hash_entry’ undeclared (first use in this function); did you mean ‘hash_ptr’?
-> > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
-> > > > > >                                                      ^~~~~~~~~~
-> > > > > >                                                      hash_ptr
-> > > > > > ../../../kernel/locking/lockdep.c:694:53: note: each undeclared identifier is reported only once for each function it appears in
-> > > > > > ../../../kernel/locking/lockdep.c:694:64: error: expected ‘;’ before ‘{’ token
-> > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
-> > > > > >                                                                 ^~
-> > > > > >                                                                 ;
-> > > > > > ../../../kernel/locking/lockdep.c:706:1: warning: control reaches end of non-void function [-Wreturn-type]
-> > > > > >  }
-> > > > > >  ^
-> > > > > > cc1: some warnings being treated as errors
-> > > > > > make[5]: *** [/home/build/linux-4.19.218/tools/build/Makefile.build:97: /home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep/lockdep.o] Error 1
-> > > > > > make[4]: *** [Makefile:121: /home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep/liblockdep-in.o] Error 2
-> > > > > > make[4]: Leaving directory '/home/build/linux-4.19.218/tools/lib/lockdep'
-> > > > > > make[3]: *** [/home/build/linux-4.19.218/debian/rules.d/tools/lib/lockdep/Makefile:16: all] Error 2
-> > > > > > make[3]: Leaving directory '/home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep'
-> > > > > > make[2]: *** [debian/rules.real:795: build-liblockdep] Error 2
-> > > > > > make[2]: *** Waiting for unfinished jobs....
-> > > > > > 
-> > > > > > I was not yet able to look further on it.
-> > > > > 
-> > > > > Might actually be a distro specific issue, needs some further
-> > > > > investigation.
-> > > > 
-> > > > I'm really sorry about the doubled noice, so here is the stance. I can
-> > > > reproduce distro indpeendent, but the initial claim was wrong. It can
-> > > > be reproduced for 4.19.218:
-> > > > 
-> > > > $ LC_ALL=C.UTF-8 V=1 ARCH=x86 make -C tools liblockdep
-> > > > make: Entering directory '/home/build/linux-stable/tools'
-> > > > mkdir -p lib/lockdep && make  subdir=lib/lockdep  -C lib/lockdep 
-> > > > make[1]: Entering directory '/home/build/linux-stable/tools/lib/lockdep'
-> > > > make -f /home/build/linux-stable/tools/build/Makefile.build dir=. obj=fixdep
-> > > >   gcc -Wp,-MD,./.fixdep.o.d -Wp,-MT,fixdep.o  -D"BUILD_STR(s)=#s"   -c -o fixdep.o fixdep.c
-> > > >    ld -r -o fixdep-in.o  fixdep.o
-> > > > gcc  -o fixdep fixdep-in.o
-> > > >   gcc -Wp,-MD,./.common.o.d -Wp,-MT,common.o -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"4.19.218"' -rdynamic -O0 -g -fPIC -Wall -I. -I./uinclude -I./include -I../../include -D"BUILD_STR(s)=#s" -c -o common.o common.c
-> > > >   gcc -Wp,-MD,./.lockdep.o.d -Wp,-MT,lockdep.o -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"4.19.218"' -rdynamic -O0 -g -fPIC -Wall -I. -I./uinclude -I./include -I../../include -D"BUILD_STR(s)=#s" -c -o lockdep.o lockdep.c
-> > > > In file included from lockdep.c:28:
-> > > > ../../../kernel/locking/lockdep.c: In function ‘look_up_lock_class’:
-> > > > ../../../kernel/locking/lockdep.c:692:2: warning: implicit declaration of function ‘hlist_for_each_entry_rcu_notrace’; did you mean ‘hlist_for_each_entry_continue’? [-Wimplicit-function-declaration]
-> > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
-> > > >   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > > >   hlist_for_each_entry_continue
-> > > > ../../../kernel/locking/lockdep.c:692:53: error: ‘hash_entry’ undeclared (first use in this function); did you mean ‘hash_ptr’?
-> > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
-> > > >                                                      ^~~~~~~~~~
-> > > >                                                      hash_ptr
-> > > > ../../../kernel/locking/lockdep.c:692:53: note: each undeclared identifier is reported only once for each function it appears in
-> > > > ../../../kernel/locking/lockdep.c:692:64: error: expected ‘;’ before ‘{’ token
-> > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
-> > > >                                                                 ^~
-> > > >                                                                 ;
-> > > > ../../../kernel/locking/lockdep.c:704:1: warning: control reaches end of non-void function [-Wreturn-type]
-> > > >  }
-> > > >  ^
-> > > > make[2]: *** [/home/build/linux-stable/tools/build/Makefile.build:97: lockdep.o] Error 1
-> > > > make[1]: *** [Makefile:121: liblockdep-in.o] Error 2
-> > > > make[1]: Leaving directory '/home/build/linux-stable/tools/lib/lockdep'
-> > > > make: *** [Makefile:66: liblockdep] Error 2
-> > > > make: Leaving directory '/home/build/linux-stable/tools'
-> > > > 
-> > > > Reverting upstream ce0b9c805dd6 ("locking/lockdep: Avoid RCU-induced
-> > > > noinstr fail") on top of 4.19.218 fixes the issue.
-> > > > 
-> > > > So back to square one, and again apologies for the intermediate noise!
-> > > 
-> > > What config/arch is causing this to break?  And if you add rchlist.h to
-> > > the include files for lockdep.c, does that resolve the issue?  I haven't
-> > > seen any other reports of this yet.
-> > 
-> > Ah, it's the tools being built here, sorry, that was confusing.
+> This is not a problem for performance, or if anything it is an
+> improvement.  First, in the common case where vcpu->arch.apicv_active is
+> true, one fewer check has to be performed.  Second, static_call_cond will
+> elide the function call if APICv is not present or disabled.  Finally,
+> in the case for AMD hardware we can remove the sync_pir_to_irr callback:
+> it is only needed for apic_has_interrupt_for_ppr, and that function
+> already has a fallback for !APICv.
 > 
-> Ah yes, sorry this was not clear. It's all about the tools, which some
-> are built as well as packages in Debian accompaning, tools/lib/lockdep
-> is one of those built.
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  arch/x86/kvm/lapic.c   |  2 +-
+>  arch/x86/kvm/svm/svm.c |  1 -
+>  arch/x86/kvm/x86.c     | 18 +++++++++---------
+>  3 files changed, 10 insertions(+), 11 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+> index 759952dd1222..f206fc35deff 100644
+> --- a/arch/x86/kvm/lapic.c
+> +++ b/arch/x86/kvm/lapic.c
+> @@ -707,7 +707,7 @@ static void pv_eoi_clr_pending(struct kvm_vcpu *vcpu)
+>  static int apic_has_interrupt_for_ppr(struct kvm_lapic *apic, u32 ppr)
+>  {
+>  	int highest_irr;
+> -	if (apic->vcpu->arch.apicv_active)
+> +	if (kvm_x86_ops.sync_pir_to_irr)
+>  		highest_irr = static_call(kvm_x86_sync_pir_to_irr)(apic->vcpu);
+>  	else
+>  		highest_irr = apic_find_highest_irr(apic);
+> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+> index 5630c241d5f6..d0f68d11ec70 100644
+> --- a/arch/x86/kvm/svm/svm.c
+> +++ b/arch/x86/kvm/svm/svm.c
+> @@ -4651,7 +4651,6 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
+>  	.load_eoi_exitmap = svm_load_eoi_exitmap,
+>  	.hwapic_irr_update = svm_hwapic_irr_update,
+>  	.hwapic_isr_update = svm_hwapic_isr_update,
+> -	.sync_pir_to_irr = kvm_lapic_find_highest_irr,
+>  	.apicv_post_state_restore = avic_post_state_restore,
+>  
+>  	.set_tss_addr = svm_set_tss_addr,
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 441f4769173e..a8f12c83db4b 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -4448,8 +4448,7 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+>  static int kvm_vcpu_ioctl_get_lapic(struct kvm_vcpu *vcpu,
+>  				    struct kvm_lapic_state *s)
+>  {
+> -	if (vcpu->arch.apicv_active)
+> -		static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +	static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  
+>  	return kvm_apic_get_state(vcpu, s);
+>  }
+> @@ -9528,8 +9527,7 @@ static void vcpu_scan_ioapic(struct kvm_vcpu *vcpu)
+>  	if (irqchip_split(vcpu->kvm))
+>  		kvm_scan_ioapic_routes(vcpu, vcpu->arch.ioapic_handled_vectors);
+>  	else {
+> -		if (vcpu->arch.apicv_active)
+> -			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +		static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  		if (ioapic_in_kernel(vcpu->kvm))
+>  			kvm_ioapic_scan_entry(vcpu, vcpu->arch.ioapic_handled_vectors);
+>  	}
+> @@ -9802,10 +9800,12 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+>  
+>  	/*
+>  	 * This handles the case where a posted interrupt was
+> -	 * notified with kvm_vcpu_kick.
+> +	 * notified with kvm_vcpu_kick.  Assigned devices can
+> +	 * use the POSTED_INTR_VECTOR even if APICv is disabled,
+> +	 * so do it even if APICv is disabled on this vCPU.
+>  	 */
+> -	if (kvm_lapic_enabled(vcpu) && vcpu->arch.apicv_active)
+> -		static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +	if (kvm_lapic_enabled(vcpu))
+> +		static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  
+>  	if (kvm_vcpu_exit_request(vcpu)) {
+>  		vcpu->mode = OUTSIDE_GUEST_MODE;
+> @@ -9849,8 +9849,8 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+>  		if (likely(exit_fastpath != EXIT_FASTPATH_REENTER_GUEST))
+>  			break;
+>  
+> -		if (kvm_lapic_enabled(vcpu) && vcpu->arch.apicv_active)
+> -			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +		if (kvm_lapic_enabled(vcpu))
+> +			static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  
+>  		if (unlikely(kvm_vcpu_exit_request(vcpu))) {
+>  			exit_fastpath = EXIT_FASTPATH_EXIT_HANDLED;
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
 
-Ok, fair enough, I'll gladly take a patch that fixes this up for the
-4.19.y releases.
+Best regards,
+	Maxim Levitsky
 
-thanks,
-
-greg k-h
