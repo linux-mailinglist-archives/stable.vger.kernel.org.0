@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4106046388A
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E29A9463889
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243821AbhK3PFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:05:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51916 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243588AbhK3O5h (ORCPT
+        id S243253AbhK3PE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:04:56 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:60810 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243592AbhK3O5h (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:57:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09EC2B81A21;
-        Tue, 30 Nov 2021 14:54:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB26C53FCF;
-        Tue, 30 Nov 2021 14:54:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DA0D5CE1A88;
+        Tue, 30 Nov 2021 14:54:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E483C53FC7;
+        Tue, 30 Nov 2021 14:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284052;
-        bh=Qqwpqs1P4RB8XLiDq9NEORR5zJ582JHVP48kdWjhepo=;
+        s=k20201202; t=1638284054;
+        bh=kqw4KJl49Bf4gJ9zShLQlSuNASPRd4wGpZoA7EOfaaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dN6Z4Oynk/DR1DXBgzBJE/JHVYtYmJPlVnY3cE38p1q32d9yLE1YL4PLUNDVvfDqv
-         r0a+0snI4WZ+l1n5+vPm+PiHGCixZmPQB34XsXoEYonKBcIk8w8MqkRpTWcwdU3hWX
-         AcdtCYCV4Csxy77ktvS6rdPvkoR9RC8W6OUO5lhEgY1wybUUZif9SrXbaCFwZRuKeu
-         WeFj+JCaQ9fAgeZY3SkjlHCcsAZ1x2V821bW04m96WXkAyYRfViWJuS2xB/Jj3cxGH
-         aTamssI7LIUCbtvYQvhutdzqVltStchAgUPWPygC1G3UxGg85YxLrj4qarhF1LIhyD
-         RxZU1ov2i1Ifg==
+        b=epgl2DJxYRX/umJK+5atOyzqI5XMZUz5xdLXys+BUsgmfqEnirYbZ+i85v+iy5bax
+         pc3Vbr+xNGrNniaI+zKYMJxY1xdp0g5jy3QGMtYg7ZawU8+m4dSmgdAAUS/PwxTu3A
+         L/H6WMZ3cp5fqDs7miqF1LgOeIhZZp6mo9Dldrz3dGBW9KcYoY4vsYNCqp/NqsPiXn
+         hXs+zlgpkigc/7vAy9sA53VQDD7osA9XlAV6mEsj96+6C5AdfbohpOGLI7Pr5rKqzK
+         EvSBHE4WvG3b4YeeAJUkDv6BHxK+EGtjJxbqkrdGhfEPwkHP+QUED9dNeyep479rkz
+         +KELEJWIFxt0w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jon Hunter <jonathanh@nvidia.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        andriy.shevchenko@linux.intel.com, akpm@linux-foundation.org,
-        linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 5/9] mmc: spi: Add device-tree SPI IDs
-Date:   Tue, 30 Nov 2021 09:53:58 -0500
-Message-Id: <20211130145402.947049-5-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Paulo Alcantara <pc@cjr.nz>, Sasha Levin <sashal@kernel.org>,
+        sfrench@samba.org, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.4 6/9] smb2: clarify rc initialization in smb2_reconnect
+Date:   Tue, 30 Nov 2021 09:53:59 -0500
+Message-Id: <20211130145402.947049-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145402.947049-1-sashal@kernel.org>
 References: <20211130145402.947049-1-sashal@kernel.org>
@@ -49,53 +50,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 5f719948b5d43eb39356e94e8d0b462568915381 ]
+[ Upstream commit 350f4a562e1ffc2e4869e3083dc9b0ec4bca6c3a ]
 
-Commit 5fa6863ba692 ("spi: Check we have a spi_device_id for each DT
-compatible") added a test to check that every SPI driver has a
-spi_device_id for each DT compatiable string defined by the driver
-and warns if the spi_device_id is missing. The spi_device_id is
-missing for the MMC SPI driver and the following warning is now seen.
+It is clearer to initialize rc at the beginning of the function.
 
- WARNING KERN SPI driver mmc_spi has no spi_device_id for mmc-spi-slot
-
-Fix this by adding the necessary spi_device_id.
-
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Link: https://lore.kernel.org/r/20211115113813.238044-1-jonathanh@nvidia.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmc_spi.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/cifs/smb2pdu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/mmc_spi.c b/drivers/mmc/host/mmc_spi.c
-index b52489a67097e..a3e049248be8d 100644
---- a/drivers/mmc/host/mmc_spi.c
-+++ b/drivers/mmc/host/mmc_spi.c
-@@ -1523,6 +1523,12 @@ static int mmc_spi_remove(struct spi_device *spi)
- 	return 0;
- }
- 
-+static const struct spi_device_id mmc_spi_dev_ids[] = {
-+	{ "mmc-spi-slot"},
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(spi, mmc_spi_dev_ids);
-+
- static const struct of_device_id mmc_spi_of_match_table[] = {
- 	{ .compatible = "mmc-spi-slot", },
- 	{},
-@@ -1534,6 +1540,7 @@ static struct spi_driver mmc_spi_driver = {
- 		.name =		"mmc_spi",
- 		.of_match_table = mmc_spi_of_match_table,
- 	},
-+	.id_table =	mmc_spi_dev_ids,
- 	.probe =	mmc_spi_probe,
- 	.remove =	mmc_spi_remove,
- };
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 4ffd5e177288e..a8fcaee83d8f3 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -158,7 +158,7 @@ smb2_hdr_assemble(struct smb2_hdr *hdr, __le16 smb2_cmd /* command */ ,
+ static int
+ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon)
+ {
+-	int rc;
++	int rc = 0;
+ 	struct nls_table *nls_codepage;
+ 	struct cifs_ses *ses;
+ 	struct TCP_Server_Info *server;
 -- 
 2.33.0
 
