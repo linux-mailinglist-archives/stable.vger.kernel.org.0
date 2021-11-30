@@ -2,228 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AB8C462C5E
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 06:56:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C636A462D1C
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 07:51:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238365AbhK3F7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 00:59:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49072 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234146AbhK3F7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 00:59:25 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B840C061574
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 21:56:06 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id r11so82045182edd.9
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 21:56:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=mU7mxV2SXHu5Qf3ZpewHyy24d1tNVug9FIKuiJMjO7I=;
-        b=tmSvYuXHDXMWZRcT5pXBmVIQs6oQ+wTUD00nTuiSVzRTyax+25sAlKhB72mqR8wRdp
-         DQl25OpRqkgS2eImsKdRMZeN+uyqOjLydWSffknBKfve7WiItS3TpctrDdLF32Rb4EJH
-         xoSgOvvtlzr0QkHONXAwXr8FRd1wYUl2hYOzr1v3bgIEcROlZn1haO8zvuIdZUVgvpqc
-         h/bZT8nIQoS6SQML/3uKnzxAYz+dCHAqsie2aH0EdmQHNzyFfoLlsIGW28g8PRmIICJg
-         ZtDXQORwHWkOv5t3tz6HlGrEMbunVM7v0yY98kD8J4TsAq+TvnMv/SizOwiV60YY1Hwj
-         K6HQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=mU7mxV2SXHu5Qf3ZpewHyy24d1tNVug9FIKuiJMjO7I=;
-        b=TK94BcLc62na/J38kDgausb+2vUlrMKy/ord53JAf1q0utquLjs9DbjcQnw5FVFQg/
-         2vx1coZYHfYBpkKQv0X8N623o5zBpvfBAixsO8n8ysbvI3HVtKpe450SkwMpntzGepJX
-         R3D4etop5DjgxIp/NzY6VqIg8zsSE42ydUL9Y3D/sbkM2zyw+M9dBmBgJmBVeKuICTIm
-         c82JX8angrVlPvXqCfPowUvgFy9LESebj+mAVQF98SbEQEEolQKkx+0osLD5tS5WaBtU
-         aVJ2liBZl1OIZsYRTEsS0pb46yv87IgBd94pKNgfKhJx0H/ID1XwEsmDDLApxkAru+ed
-         l7hQ==
-X-Gm-Message-State: AOAM532LXugBExZATsnj+UFpcVxbphLZTM/AVQxK6vW22hN2RtGMRdGd
-        OJyGHn+wBbbjXZEZI3k7+bDt/3WtOZGsy5eIXtExlA==
-X-Google-Smtp-Source: ABdhPJyGUvOQUiiLgTrzP8EFun23a7r3DkaGNmq58PHu9rqmsr28Jd+mnwXeOe5ZveU7LyQvHXl+LjxsPef4cZ/EEbM=
-X-Received: by 2002:a05:6402:12d3:: with SMTP id k19mr80462105edx.244.1638251764787;
- Mon, 29 Nov 2021 21:56:04 -0800 (PST)
+        id S238885AbhK3GzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 01:55:09 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:50464 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233165AbhK3GzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 01:55:02 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C4B67CE16B4;
+        Tue, 30 Nov 2021 06:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50335C53FCD;
+        Tue, 30 Nov 2021 06:51:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638255100;
+        bh=OthBuHhfpZ4/HumyxwCHFcZfepI57tWKm7cCN1XPAcM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CFnEY0cPq0R4fUZR6llZkhp1qmSxqaz8Sxu2VW3Brvryg2l+UT6W5S8Nh57QovOet
+         KdFc1wKs/HNeUwcWWjzsHXs7jzzkZMUOvcAissyPMI2bB7U5e3LEQBPwu2OCvaKZP8
+         rtb37/hENcTMR0aDB5njxbnRpwz2CiMm3aMDC3Q8=
+Date:   Tue, 30 Nov 2021 07:51:36 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Evan Green <evgreen@chromium.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux PM <linux-pm@vger.kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] PM / hibernate: Fix snapshot partial write lengths
+Message-ID: <YaXJ+LqbmlKJ21Ja@kroah.com>
+References: <20211029122359.1.I1e23f382fbd8beb19fe1c06d70798b292012c57a@changeid>
+ <CAE=gft4MRvq-VCBW4EX4dGfPi4s7Lco8h6Z_ejRH5A1e-K2-yA@mail.gmail.com>
+ <CAJZ5v0hsGFHxcTb8PUkGSm9oas1wdquB=euofS19zriRc1CXYw@mail.gmail.com>
+ <CAE=gft6CjUhkcrmcjVEOp5S+rgqN1_ZGTKbK0DierTanu0d16A@mail.gmail.com>
+ <CAJZ5v0gamixc4dkBEXJjjw5zQynuz8BkQ9xv8YpbjkTkdMb2TQ@mail.gmail.com>
+ <CAE=gft6o0JxhDgazPA5DVbL6hQ+36D_GkzgN-AuR3YA43NSqaw@mail.gmail.com>
 MIME-Version: 1.0
-References: <20211129181711.642046348@linuxfoundation.org>
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 30 Nov 2021 11:25:53 +0530
-Message-ID: <CA+G9fYtPpcjzkfkTh_RTecLQ+d_2JM7RwODGFH2DDEoUJ5=cqw@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/121] 5.10.83-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAE=gft6o0JxhDgazPA5DVbL6hQ+36D_GkzgN-AuR3YA43NSqaw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 30 Nov 2021 at 00:01, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.83 release.
-> There are 121 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 01 Dec 2021 18:16:51 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.83-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, Nov 29, 2021 at 08:50:06AM -0800, Evan Green wrote:
+> On Wed, Nov 24, 2021 at 4:54 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> >
+> > On Tue, Nov 16, 2021 at 9:22 PM Evan Green <evgreen@chromium.org> wrote:
+> > >
+> > > On Tue, Nov 16, 2021 at 9:54 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > > >
+> > > > On Mon, Nov 15, 2021 at 6:13 PM Evan Green <evgreen@chromium.org> wrote:
+> > > > >
+> > > > > Gentle bump.
+> > > > >
+> > > > >
+> > > > > On Fri, Oct 29, 2021 at 12:24 PM Evan Green <evgreen@chromium.org> wrote:
+> > > > > >
+> > > > > > snapshot_write() is inappropriately limiting the amount of data that can
+> > > > > > be written in cases where a partial page has already been written. For
+> > > > > > example, one would expect to be able to write 1 byte, then 4095 bytes to
+> > > > > > the snapshot device, and have both of those complete fully (since now
+> > > > > > we're aligned to a page again). But what ends up happening is we write 1
+> > > > > > byte, then 4094/4095 bytes complete successfully.
+> > > > > >
+> > > > > > The reason is that simple_write_to_buffer()'s second argument is the
+> > > > > > total size of the buffer, not the size of the buffer minus the offset.
+> > > > > > Since simple_write_to_buffer() accounts for the offset in its
+> > > > > > implementation, snapshot_write() can just pass the full page size
+> > > > > > directly down.
+> > > > > >
+> > > > > > Signed-off-by: Evan Green <evgreen@chromium.org>
+> > > > > > ---
+> > > > > >
+> > > > > >  kernel/power/user.c | 2 +-
+> > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > >
+> > > > > > diff --git a/kernel/power/user.c b/kernel/power/user.c
+> > > > > > index 740723bb388524..ad241b4ff64c58 100644
+> > > > > > --- a/kernel/power/user.c
+> > > > > > +++ b/kernel/power/user.c
+> > > > > > @@ -177,7 +177,7 @@ static ssize_t snapshot_write(struct file *filp, const char __user *buf,
+> > > > > >                 if (res <= 0)
+> > > > > >                         goto unlock;
+> > > > > >         } else {
+> > > > > > -               res = PAGE_SIZE - pg_offp;
+> > > > > > +               res = PAGE_SIZE;
+> > > > > >         }
+> > > > > >
+> > > > > >         if (!data_of(data->handle)) {
+> > > > > > --
+> > > >
+> > > > Do you actually see this problem in practice?
+> > >
+> > > Yes. I may fire up another thread to explain why I'm stuck doing a
+> > > partial page write, and how I might be able to stop doing that in the
+> > > future with some kernel help. But either way, this is a bug.
+> >
+> > OK, patch applied as 5.16-rc material.
+> >
+> > I guess it should go into -stable kernels too?
+> 
+> Yes, putting it into -stable would make sense also. I should have CCed
+> them originally, doing that now.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+<formletter>
 
-## Build
-* kernel: 5.10.83-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: cd4fd0597d3787df6c6771a7b41379d35a8f31b0
-* git describe: v5.10.82-122-gcd4fd0597d37
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.82-122-gcd4fd0597d37
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-## No regressions (compared to v5.10.81-155-gf8f271281cd8)
-
-## No fixes (compared to v5.10.81-155-gf8f271281cd8)
-
-## Test result summary
-total: 86505, pass: 73579, fail: 512, skip: 11613, xfail: 801
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 259 total, 259 passed, 0 failed
-* arm64: 37 total, 37 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 36 total, 36 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 34 total, 34 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 54 total, 46 passed, 8 failed
-* riscv: 24 total, 24 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 20 total, 20 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 37 total, 37 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+</formletter>
