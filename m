@@ -2,102 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E714630DC
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 11:17:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD804630FB
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 11:28:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231517AbhK3KU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 05:20:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52816 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229729AbhK3KU7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 05:20:59 -0500
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FB17C061574
-        for <stable@vger.kernel.org>; Tue, 30 Nov 2021 02:17:40 -0800 (PST)
-Received: by mail-lj1-x22b.google.com with SMTP id i63so40116547lji.3
-        for <stable@vger.kernel.org>; Tue, 30 Nov 2021 02:17:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=//FP34TjOh54WQTyCHnU1I0Mh0H/EWWNbNtPMSeL35I=;
-        b=NdiRqcBxXOmFC7+oJ4Q4v+lNfTO6TpFA75m8LxBidQf+3fT596ensdRPSV6Eu3hoiq
-         gWJxXDfLkVSolPZGOpDGMJxDoZro41qkBr1Ez5R4g3DmT68b3pOUO1zM1mJtfVz8Cfmt
-         FzP5kTktive/3IWetb4crIoD27HZ6/toULDTKn7J9dpXql93RPMmmHP+rKpdeeDcmtvw
-         L7Csbzt/MvUhpTH8z9OuRw96+YRGp4uolowHA9RMsxv/ChBO6b5G4Tnq1l2GgtSgZLAW
-         dWLTSqcm8PAJFr8W8bBi2FN16vAd2ucnX0noVl+EAMfzCNhkQFOcrvk21Mnbsd8G9H88
-         8zcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=//FP34TjOh54WQTyCHnU1I0Mh0H/EWWNbNtPMSeL35I=;
-        b=ElOVWfGYrneiylQIJnhzstcYgc+C3dQ8rBPzyoAMOal6wVQ0Imb32yJDBshZ4dn0xT
-         diu3dUqDWN6QzP8QFOXn/gyFYO01CnflUJ7brcx16NZQ4iNJTPNV6PC/Z+688smZRsJs
-         D0NV3HbasTPVphOCoTpZedVCi8e7Mu2XdNXJbgqmnS+MXmoTa9YLg6x/q70Ot5UxEAC9
-         FyyZWtc4/jWbtqVkl4Y6U72+DvjfHEsFwTWgbgPSJex7wLO8V9c6IaeeVe8T3BMJIub5
-         4rkwwFfjb0KGkKg7eiKB5p2GZfeE2w9qc7+Wr+Bc7DBHUJr3yH824YPknaRpglm1UNQV
-         sEVQ==
-X-Gm-Message-State: AOAM533ijmkABZPjYU+272uccbqtXTjCcZBzGl2LOe8WDPFrLItqNu7g
-        Y+6CnOufLh2ie6L4LPnnN8mVcZmTzs0EwzGatyI=
-X-Google-Smtp-Source: ABdhPJxkSAiTOciVLxePq4RehSswoVimqybCwOMMunUmjGDQSpB/7ICLBAA2xG0rrvgtiGmt+gFyxms9hPze21R98DE=
-X-Received: by 2002:a2e:b894:: with SMTP id r20mr57306010ljp.304.1638267458277;
- Tue, 30 Nov 2021 02:17:38 -0800 (PST)
+        id S232725AbhK3Kbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 05:31:49 -0500
+Received: from mail-0201.mail-europe.com ([51.77.79.158]:52740 "EHLO
+        mail-0201.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232620AbhK3Kbs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 05:31:48 -0500
+Date:   Tue, 30 Nov 2021 10:28:19 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail; t=1638268105;
+        bh=4CxBkUAhjShO6mhtkiCe234FaKXdEmvGEiGyRqiAttw=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=K/+iOcR9yhNWGCqMefwfp1ozhoVP7gVRa350qYOrsqrVM1WEKN0CW+Fklz0ICXfqh
+         9eLTBIesdqHipG3Kpg0MVARurDz09KVL1N68ABvUErr01cRXndnAZfEAKLIb5m5y86
+         YkYYLLQxWLPxHPbycUhAAUIzQmv1OE8vWN09bR1s=
+To:     Aditya Garg <gargaditya08@live.com>
+From:   Orlando Chamberlain <redecorating@protonmail.com>
+Cc:     Marcel Holtmann <marcel@holtmann.org>,
+        Daniel Winkler <danielwinkler@google.com>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Reply-To: Orlando Chamberlain <redecorating@protonmail.com>
+Subject: Re: [PATCH v6 2/2] btbcm: disable read tx power for affected Macs with the T2 Security chip
+Message-ID: <20211130102812.66cddfec@localhost>
+In-Reply-To: <75EC7983-3043-41E7-BBC6-BAB56C16E298@live.com>
+References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com> <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com> <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org> <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com> <92FBACD6-F4F2-4DE8-9000-2D30852770FC@live.com> <3716D644-CD1B-4A5C-BC96-A51FF360E31D@live.com> <9E6473A2-2ABE-4692-8DCF-D8F06BDEAE29@live.com> <64E15BD0-665E-471F-94D9-991DFB87DEA0@live.com> <75EC7983-3043-41E7-BBC6-BAB56C16E298@live.com>
 MIME-Version: 1.0
-Received: by 2002:ab3:648f:0:0:0:0:0 with HTTP; Tue, 30 Nov 2021 02:17:37
- -0800 (PST)
-Reply-To: generaleleanorp3@gmail.com
-From:   General Eleanor <markedwardmanager0@gmail.com>
-Date:   Tue, 30 Nov 2021 02:17:37 -0800
-Message-ID: <CAJUVShCzkPLK-mpe=1c4R=3G8nLL=QeNSAvAz4GvsC5Yx43Xug@mail.gmail.com>
-Subject: STRICTLY AND CONFIDENT.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Beloved.
+On Tue, 30 Nov 2021 01:00:43 +1100
+"Aditya Garg" <gargaditya08@live.com> wrote:
+> From: Aditya Garg <gargaditya08@live.com>
+>=20
+> Some Macs with the T2 security chip had Bluetooth not working.
+> To fix it we add DMI based quirks to disable querying of LE Tx power.
+>=20
+> Signed-off-by: Aditya Garg <gargaditya08@live.com>
+> Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
+> Link:
+> https://lore.kernel.org/r/4970a940-211b-25d6-edab-21a815313954@protonmail=
+.com
+> Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
+> ---
 
-I am General Eleanor from the USA working in the US Army but presently
-in Yemen, for a peacekeeping mission, I sincerely apologize for
-intruding into your privacy. I have something very important to
-discuss with you.
-Some money in various currencies where discovered in barrels at a farm
-house in the middle East during a rescue operation in Iraq War and it
-was agreed by Sergeant Kenneth Buff and myself that some part of these
-money be shared between us, I was given a total of ($13.5 Million US
-Dollars) as my own share , I kept this money in a security company for
-a long while now which i declared and deposit as my personal and
-family treasure and it has been secured and protected for years now
-with the security company.
+It's hard to tell what the differences between versions of this patch
+are. This spot here after the "---" is often used for a change log
+(e.g. "v5->v6: Made change X and change Y"), so it would be useful to
+have that if you can add one in future patches. I think someone may have
+mentioned this earlier.
 
-Now, the WAR in Iraq is over, and all possible problems that could
-have emanated from the shared money has been totally cleaned up and
-all files closed, all what was discovered in the Middle East is no
-more discussed, i am ready to retire from active services by the end
-of next month, but, i need a trustworthy person that can help me take
-possession of this funds and keep it safe while i work on my
-retirement letter to join you so that we could discuss possible
-business partnership together with the money.
-I'll tell you what! No compensation can make up for the risk we are
-taking with our lives.You can confirm the genuineness of the findings
-by clicking on this website.
+>  drivers/bluetooth/btbcm.c | 40
+> +++++++++++++++++++++++++++++++++++++++ 1 file changed, 40
+> insertions(+)
+>=20
+> diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+> index e4182acee488c5..40f7c9c5cf0a5a 100644
+> --- a/drivers/bluetooth/btbcm.c
+> +++ b/drivers/bluetooth/btbcm.c
+> @@ -8,6 +8,7 @@
+>=20
+>  #include <linux/module.h>
+>  #include <linux/firmware.h>
+> +#include <linux/dmi.h>
+>  #include <asm/unaligned.h>
+>=20
+>  #include <net/bluetooth/bluetooth.h>
+> @@ -343,9 +344,44 @@ static struct sk_buff
+> *btbcm_read_usb_product(struct hci_dev *hdev) return skb;
+>  }
+>=20
+> +static const struct dmi_system_id
+> disable_broken_read_transmit_power[] =3D {
+> +=09{
+> +=09=09 .matches =3D {
+> +=09=09=09DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +=09=09=09DMI_MATCH(DMI_PRODUCT_NAME,
+> "MacBookPro16,1"),
+> +=09=09},
+> +=09},
+> +=09{
+> +=09=09 .matches =3D {
+> +=09=09=09DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +=09=09=09DMI_MATCH(DMI_PRODUCT_NAME,
+> "MacBookPro16,2"),
+> +=09=09},
+> +=09},
+> +=09{
+> +=09=09 .matches =3D {
+> +=09=09=09DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +=09=09=09DMI_MATCH(DMI_PRODUCT_NAME,
+> "MacBookPro16,4"),
+> +=09=09},
+> +=09},
+> +=09{
+> +=09=09 .matches =3D {
+> +=09=09=09DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +=09=09=09DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,1"),
+> +=09=09},
+> +=09},
+> +=09{
+> +=09=09 .matches =3D {
+> +=09=09=09DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
+> +=09=09=09DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,2"),
+> +=09=09},
+> +=09},
+> +=09{ }
+> +};
+> +
+>  static int btbcm_read_info(struct hci_dev *hdev)
+>  {
+>  =09struct sk_buff *skb;
+> +=09const struct dmi_system_id;
 
-http://news.bbc.co.uk/2/hi/middle_east/2988455.stm
+This line seems to produce a compiler warning:
 
-I=E2=80=99m seeking your kind assistance to move the sum of US$13.5 Million
-Dollars to you as long as you will assure me that the money will be
-safe in your care until I complete my service here in (Yemen) before
-the end of next month.
-The most important thing is; =E2=80=9CCan I Trust you=E2=80=9D?As an office=
-r on ACTIVE
-DUTY I am not allowed to have access to money, therefore, I have
-declared the content of the consignment as personal and my treasure. I
-would like to deliver to you. You will be rewarded with 30% of this
-funds for your assistance, all that I require is your mutual trust
-between us. Don't betray me when you receive the consignment.
+drivers/bluetooth/btbcm.c: In function =E2=80=98btbcm_read_info=E2=80=99:
+drivers/bluetooth/btbcm.c:384:22: warning: empty declaration with type
+qualifier does not redeclare  tag
+  384 |         const struct dmi_system_id;
+      |                      ^~~~~~~~~~~~~
 
-Sincerely,
-General Eleanor.
+I think Marcel mentioned this line could be removed.
+
+The two patches make Bluetooth work on my MacBookPro16,1, with and without
+that line.
+
+Tested-by: Orlando Chamberlain <redecorating@protonmail.com>
+
+>=20
+>  =09/* Read Verbose Config Version Info */
+>  =09skb =3D btbcm_read_verbose_config(hdev);
+> @@ -363,6 +399,10 @@ static int btbcm_read_info(struct hci_dev *hdev)
+>  =09bt_dev_info(hdev, "BCM: features 0x%2.2x", skb->data[1]);
+>  =09kfree_skb(skb);
+>=20
+> +=09/* Read DMI and disable broken Read LE Min/Max Tx Power */
+> +=09if (dmi_first_match(disable_broken_read_transmit_power))
+> +=09=09set_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER,
+> &hdev->quirks); +
+>  =09return 0;
+>  }
+>=20
+>=20
+
+--=20
+
+Thanks,
+
+Orlando
+
