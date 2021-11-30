@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A982463840
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:55:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B20463847
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:55:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243849AbhK3O65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:58:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50812 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238321AbhK3O5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:57:00 -0500
+        id S243304AbhK3O7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:59:09 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:60420 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243326AbhK3O5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:57:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2A21B81A42;
-        Tue, 30 Nov 2021 14:53:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3E4BC53FC7;
-        Tue, 30 Nov 2021 14:53:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 594BBCE1A6D;
+        Tue, 30 Nov 2021 14:53:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60A4CC53FCD;
+        Tue, 30 Nov 2021 14:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284018;
-        bh=Xo2gsgyROap7QOttu0XsXfMsEq+ZGFwbLGW3XIFrExc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lePRmLYW1els49i4ZYQehK2JTmavy16s3iO9nn7ALrhHcn/bhjEru4I7+3u/9I2D0
-         IVJ7DNQgHcXdjmdLqDm8nxW8u94uwdusrE5JY5TbRpenpuxCDzESt4EVaC+UCQguAn
-         D8MhpRqLovWwVwmlhTDrRllekIDYkxm8s7LzUshGs/sOOtLHSTOr+49+ImeZOaGb7C
-         MRa0FFDVQSxkBilJaIZb2q/WRKmOtigvg7TlxKtzqlJKnPJZx0qYwaKMeWV9Xh8A9T
-         0A1VQCt6m75nv/u43aoBWAjBivyjv4xnL3e72vMaY/CyxN02t1lLMURgi8id4e5Wjr
-         qBKufgvv8+e4Q==
+        s=k20201202; t=1638284024;
+        bh=JWpQU+pdeo6LQiXtbDlI3Oa0FNGZAoWYgx7fgdX1lGc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lxY3cJ1ne8YmclqVQ54lj27ixx8I34vJ63FmQ5VWsTUE2AmhHIviusoSV27EgdCwS
+         2HugSukHpJGmc45dvwNCN84IrzjF9EEI5hPtJ1mh5ESIOmE2hu/tUzNCqG75xE/Y9I
+         IiEmVG+TJZyoH3NhVp5IOGdEXtldxtAe27RGe4Ud6Y2Xcs5exZtvrmVCl7gwNSQrpl
+         INfjYM8ZOb4bRGTX9UFA9MTwkN818QrMvDpiHmPIIx+CThzyPZ0KVMd98SDElLUP9V
+         zcPo5UD9hp5s6/mFkQ2W8T2eelD4lBzW4P7whUYYbuFcdZgWWehuA5t8BicjFmEvl2
+         GjMvzEykTd7Sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 13/14] net: ptp: add a definition for the UDP port for IEEE 1588 general messages
-Date:   Tue, 30 Nov 2021 09:53:14 -0500
-Message-Id: <20211130145317.946676-13-sashal@kernel.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
+        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 01/12] ASoC: mediatek: mt8173-rt5650: Rename Speaker control to Ext Spk
+Date:   Tue, 30 Nov 2021 09:53:29 -0500
+Message-Id: <20211130145341.946891-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211130145317.946676-1-sashal@kernel.org>
-References: <20211130145317.946676-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -48,39 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-[ Upstream commit ec15baec3272bbec576f2ce7ce47765a8e9b7b1c ]
+[ Upstream commit 0a8facac0d1e38dc8b86ade6d3f0d8b33dae7c58 ]
 
-As opposed to event messages (Sync, PdelayReq etc) which require
-timestamping, general messages (Announce, FollowUp etc) do not.
-In PTP they are part of different streams of data.
+Some RT5645 and RT5650 powered platforms are using "Ext Spk"
+instead of "Speaker", and this is also reflected in alsa-lib
+configurations for the generic RT5645 usecase manager configs.
 
-IEEE 1588-2008 Annex D.2 "UDP port numbers" states that the UDP
-destination port assigned by IANA is 319 for event messages, and 320 for
-general messages. Yet the kernel seems to be missing the definition for
-general messages. This patch adds it.
+Rename the "Speaker" control to "Ext Spk" in order to be able
+to make the userspace reuse/inherit the same configurations also
+for this machine, along with the others.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20211105152013.75252-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ptp_classify.h | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/mediatek/mt8173/mt8173-rt5650.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/ptp_classify.h b/include/linux/ptp_classify.h
-index a079656b614cd..c0a02aa7ed9bd 100644
---- a/include/linux/ptp_classify.h
-+++ b/include/linux/ptp_classify.h
-@@ -45,6 +45,7 @@
- #define PTP_CLASS_L4      (PTP_CLASS_IPV4 | PTP_CLASS_IPV6)
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
+index ba65f4157a7e0..eeb7f4c66d47a 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
+@@ -38,15 +38,15 @@ static struct mt8173_rt5650_platform_data mt8173_rt5650_priv = {
+ };
  
- #define PTP_EV_PORT 319
-+#define PTP_GEN_PORT 320
- #define PTP_GEN_BIT 0x08 /* indicates general message, if set in message type */
+ static const struct snd_soc_dapm_widget mt8173_rt5650_widgets[] = {
+-	SND_SOC_DAPM_SPK("Speaker", NULL),
++	SND_SOC_DAPM_SPK("Ext Spk", NULL),
+ 	SND_SOC_DAPM_MIC("Int Mic", NULL),
+ 	SND_SOC_DAPM_HP("Headphone", NULL),
+ 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
+ };
  
- #define OFF_PTP_SOURCE_UUID	22 /* PTPv1 only */
+ static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
+-	{"Speaker", NULL, "SPOL"},
+-	{"Speaker", NULL, "SPOR"},
++	{"Ext Spk", NULL, "SPOL"},
++	{"Ext Spk", NULL, "SPOR"},
+ 	{"DMIC L1", NULL, "Int Mic"},
+ 	{"DMIC R1", NULL, "Int Mic"},
+ 	{"Headphone", NULL, "HPOL"},
+@@ -58,7 +58,7 @@ static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
+ };
+ 
+ static const struct snd_kcontrol_new mt8173_rt5650_controls[] = {
+-	SOC_DAPM_PIN_SWITCH("Speaker"),
++	SOC_DAPM_PIN_SWITCH("Ext Spk"),
+ 	SOC_DAPM_PIN_SWITCH("Int Mic"),
+ 	SOC_DAPM_PIN_SWITCH("Headphone"),
+ 	SOC_DAPM_PIN_SWITCH("Headset Mic"),
 -- 
 2.33.0
 
