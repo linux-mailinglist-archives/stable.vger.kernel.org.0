@@ -2,83 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EACF6462DDE
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 08:50:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C013462DF6
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 08:55:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236821AbhK3HyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 02:54:02 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:23087 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234257AbhK3HyC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 02:54:02 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638258643;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=9RsQxmZyI5Gqgrid0aQxGXidI3U4sKwzoakj0xjP+2Y=;
-        b=NKTREG22zlE4gOA8cHXMHkQQZCWonfQYTn0ugtsK4BKxWfN70aM4iRJ6bbpD/itPbm45rR
-        VNfFAiDk6t7Djc6srlYhdYvigwfFMQ1cKdN48+gPwaxM+1SoT1fcg667mLxHiLPGTPXDGh
-        YXXpo/vlCf9Bq/SWYQX3/xXDTGG1K+U=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-401-3xbcep1nPZix5Clbf0Ll6A-1; Tue, 30 Nov 2021 02:50:39 -0500
-X-MC-Unique: 3xbcep1nPZix5Clbf0Ll6A-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1890E81CCB4;
-        Tue, 30 Nov 2021 07:50:38 +0000 (UTC)
-Received: from starship (unknown [10.40.192.24])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5139E50D3F;
-        Tue, 30 Nov 2021 07:50:36 +0000 (UTC)
-Message-ID: <0e5a281223351f6100a691c4d6157156784c60d1.camel@redhat.com>
-Subject: Re: [PATCH 1/4] KVM: x86: ignore APICv if LAPIC is not enabled
-From:   Maxim Levitsky <mlevitsk@redhat.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     seanjc@google.com, stable@vger.kernel.org
-Date:   Tue, 30 Nov 2021 09:50:35 +0200
-In-Reply-To: <20211123004311.2954158-2-pbonzini@redhat.com>
-References: <20211123004311.2954158-1-pbonzini@redhat.com>
-         <20211123004311.2954158-2-pbonzini@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
+        id S234260AbhK3H7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 02:59:08 -0500
+Received: from mail-pj1-f46.google.com ([209.85.216.46]:38555 "EHLO
+        mail-pj1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239244AbhK3H7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 02:59:06 -0500
+Received: by mail-pj1-f46.google.com with SMTP id p18-20020a17090ad31200b001a78bb52876so17634596pju.3;
+        Mon, 29 Nov 2021 23:55:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=VYPuISL5AV9b4E/5sq8DgKC5OFOrBQe6hWM4JGgFD7o=;
+        b=qNoOGEFgWIZgA4tBDVsZq62otoKejdLUpOuiIKkoyzRNXYTl0KYfifv92sRraIt+EX
+         trgR1zG4w1zkea3rXjCfjB8J3vi0QuRLVc7NPJviKuuzD1iT37GeO66cnXBN5+6K99xw
+         OeAGPLPvoKxB5HQOpi1ELZvpvULuGgt9xbviWbifSbRSJ75PBw0yGGeluqcAb6HyHcsF
+         /qRR9OYPhpaUP+HZ7TJU1yZjtExy/lTAF8saW2md/h5grxYHcgScbIl+AP7leU34Pn2A
+         yTpqVv5xICoEBHFiLEQBOXKJPuriEHDqRolwMRHxCL1696FxeOBfDOVKnQTZXk9yIx7r
+         xdCg==
+X-Gm-Message-State: AOAM533yCIKFaAFZ3ab5CjxEPcCS6xzQ6G9ig8z9nBNzA7kwkiA0QMrW
+        RWjpJG3gGVd+dfgj3h7NG2FVLuBJZW5o3A==
+X-Google-Smtp-Source: ABdhPJz04yNg4GA4sIOYmmtxvpiWBf/F88jQ6hPP605g1rdkloZvN21YQRwYETsFQa6KnRACldUzrg==
+X-Received: by 2002:a17:90a:4414:: with SMTP id s20mr4170745pjg.132.1638258947157;
+        Mon, 29 Nov 2021 23:55:47 -0800 (PST)
+Received: from rocinante ([95.155.85.46])
+        by smtp.gmail.com with ESMTPSA id s38sm13895518pga.40.2021.11.29.23.55.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Nov 2021 23:55:46 -0800 (PST)
+Date:   Tue, 30 Nov 2021 08:55:36 +0100
+From:   Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>
+To:     Rob Herring <robh@kernel.org>
+Cc:     Toan Le <toan@os.amperecomputing.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        =?utf-8?B?U3TDqXBoYW5l?= Graber <stgraber@ubuntu.com>,
+        stable@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI: xgene: Fix IB window setup
+Message-ID: <YaXY+E2Uto4O43c3@rocinante>
+References: <20211129173637.303201-1-robh@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211129173637.303201-1-robh@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2021-11-22 at 19:43 -0500, Paolo Bonzini wrote:
-> Synchronize the condition for the two calls to kvm_x86_sync_pir_to_irr.
-> The one in the reenter-guest fast path invoked the callback
-> unconditionally even if LAPIC is disabled.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/kvm/x86.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 5a403d92833f..441f4769173e 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -9849,7 +9849,7 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
->  		if (likely(exit_fastpath != EXIT_FASTPATH_REENTER_GUEST))
->  			break;
->  
-> -		if (vcpu->arch.apicv_active)
-> +		if (kvm_lapic_enabled(vcpu) && vcpu->arch.apicv_active)
->  			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
->  
->  		if (unlikely(kvm_vcpu_exit_request(vcpu))) {
-Reviewed-by: Maxim Levitsky <mlevitk@redhat.com>
+Hi,
 
-Best regards,
-	Maxim Levitsky
+> Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+> broke PCI support on XGene. The cause is the IB resources are now sorted
+> in address order instead of being in DT dma-ranges order. The result is
+> which inbound registers are used for each region are swapped. I don't
+> know the details about this h/w, but it appears that IB region 0
+> registers can't handle a size greater than 4GB. In any case, limiting
+> the size for region 0 is enough to get back to the original assignment
+> of dma-ranges to regions.
 
+A small nitpick: it would be "X-Gene" in the above as per Applied Micro's
+(or rather MACOM Technology Solutions these days, I suppose) product line
+naming.
+
+> @@ -465,7 +465,7 @@ static int xgene_pcie_select_ib_reg(u8 *ib_reg_mask, u64 size)
+>  		return 1;
+>  	}
+>  
+> -	if ((size > SZ_1K) && (size < SZ_1T) && !(*ib_reg_mask & (1 << 0))) {
+> +	if ((size > SZ_1K) && (size < SZ_4G) && !(*ib_reg_mask & (1 << 0))) {
+>  		*ib_reg_mask |= (1 << 0);
+>  		return 0;
+>  	}
+
+Thank you!
+
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
+
+Also, thank you Stéphane for testing!  Much appreciated!
+
+	Krzysztof
