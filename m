@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB47846384B
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:56:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DE3246384D
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:56:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243900AbhK3O7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:59:13 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:60458 "EHLO
+        id S243346AbhK3O7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:59:14 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:60462 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243369AbhK3O5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:57:09 -0500
+        with ESMTP id S243345AbhK3O5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:57:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C2DF5CE1A78;
-        Tue, 30 Nov 2021 14:53:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A64AC53FCF;
-        Tue, 30 Nov 2021 14:53:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 121F0CE1A7B;
+        Tue, 30 Nov 2021 14:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78A02C53FC7;
+        Tue, 30 Nov 2021 14:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284027;
-        bh=YpBhnxWaTcWZvJTUf22yA0MtqDgiRaofOD3Uy9e7U8g=;
+        s=k20201202; t=1638284028;
+        bh=xmNekxp+A3vErmOByE54PNDSH6nmAIKlZIJkIAXTX0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5ytYnTthbLcK9t3na9ocpbQ66s+Rl3d1HFUoPf0ZgKCobLu0qt/83lZNSsdRj1Di
-         3tpbrJZVw4HmN/2AwwnTX4guvpVZUDl2KVd4btOK7r5vLfVBrjaB9S/1MIYKwOANy2
-         n/BGeXbibrjV8t9F+doWuZZ5OqgCRm4XOBCuAL4Vx4rIfD0Fy7/5/UDaC0g3w7bQGH
-         t4RLmju+qCjyFNCK/RdkVSgmgnLRFfoUhhZWDROvOgyqoiL8/3PRIGz8ynYjIJFyss
-         s39tAoNbhY39SIFs9+cTiqEKUl7ogYrHXRPf+a53Sxarwf8KhLuxylZhrEBDZJpP+u
-         QyJtI7FDtmA9w==
+        b=BsusRRSY/woAsV2DCWaJR3/z2Od46LyQ3KAlL6J1tTUjtd98D6QuJdvmjzpDC3eVj
+         I+FgbKC7waHE8wkSBN1BSCy0tSOMN7QAuGwWWKSQlnR6keQriFKU1li7K9gF4JwrZC
+         2qc4S/tzS3g7sl+TgoRh1NzarU5FueQqcHtvTCrGHKZg1iNZQZBUXCTBqg2LESvV6e
+         lSJ8rRJI/qsFjMqgQqL1PXPAq9j1Fu3NZckD31t3gnIVQylQUBjzSQ51vbOtQgJauu
+         FlEo8YxpVcILNCWbuLiPRvEwV9v+y6hjF5kD9VSRmvOS7omJWVWLyxoig0xbAjBC+K
+         7WJh863jbi29Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>, anna.schumaker@netapp.com,
-        linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 03/12] NFSv4.1: handle NFS4ERR_NOSPC by CREATE_SESSION
-Date:   Tue, 30 Nov 2021 09:53:31 -0500
-Message-Id: <20211130145341.946891-3-sashal@kernel.org>
+Cc:     Ondrej Zary <linux@zary.sk>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/12] HID: multitouch: Fix Iiyama ProLite T1931SAW (0eef:0001 again!)
+Date:   Tue, 30 Nov 2021 09:53:32 -0500
+Message-Id: <20211130145341.946891-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145341.946891-1-sashal@kernel.org>
 References: <20211130145341.946891-1-sashal@kernel.org>
@@ -48,38 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Ondrej Zary <linux@zary.sk>
 
-[ Upstream commit ea027cb2e1b59c76582af867b71d5c037fa6bb8e ]
+[ Upstream commit 32bea35746097985c48cec836d5f557a3b66b60a ]
 
-When the client receives ERR_NOSPC on reply to CREATE_SESSION
-it leads to a client hanging in nfs_wait_client_init_complete().
-Instead, complete and fail the client initiation with an EIO
-error which allows for the mount command to fail instead of
-hanging.
+Iiyama ProLite T1931SAW does not work with Linux - input devices are
+created but cursor does not move.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+It has the infamous 0eef:0001 ID which has been reused for various
+devices before.
+
+It seems to require export_all_inputs = true.
+
+Hopefully there are no HID devices using this ID that will break.
+It should not break non-HID devices (handled by usbtouchscreen).
+
+Signed-off-by: Ondrej Zary <linux@zary.sk>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-multitouch.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 4e63daeef6339..0c11da166cb6e 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -1883,6 +1883,10 @@ static int nfs4_handle_reclaim_lease_error(struct nfs_client *clp, int status)
- 		dprintk("%s: exit with error %d for server %s\n",
- 				__func__, -EPROTONOSUPPORT, clp->cl_hostname);
- 		return -EPROTONOSUPPORT;
-+	case -ENOSPC:
-+		if (clp->cl_cons_state == NFS_CS_SESSION_INITING)
-+			nfs_mark_client_ready(clp, -EIO);
-+		return -EIO;
- 	case -NFS4ERR_NOT_SAME: /* FixMe: implement recovery
- 				 * in nfs4_exchange_id */
- 	default:
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 258a50ec15727..b1853f8f6af4e 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1277,6 +1277,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
+ 			USB_DEVICE_ID_CVTOUCH_SCREEN) },
+ 
++	/* eGalax devices (SAW) */
++	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER) },
++
+ 	/* eGalax devices (resistive) */
+ 	{ .driver_data = MT_CLS_EGALAX,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
 -- 
 2.33.0
 
