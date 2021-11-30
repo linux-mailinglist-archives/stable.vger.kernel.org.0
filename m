@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E09B0463719
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8194E46371B
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242436AbhK3OvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:51:09 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45016 "EHLO
+        id S242396AbhK3OvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:51:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45046 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242360AbhK3OvI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:08 -0500
+        with ESMTP id S236373AbhK3OvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:51:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28AA7B81A2E;
-        Tue, 30 Nov 2021 14:47:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34877C53FC1;
-        Tue, 30 Nov 2021 14:47:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A22E9B81A23;
+        Tue, 30 Nov 2021 14:47:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55990C53FD1;
+        Tue, 30 Nov 2021 14:47:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283666;
-        bh=YCNFjgzl5xSlYsZjUmZ88kzW4sN7GoaC5NxWdWNu+P0=;
+        s=k20201202; t=1638283668;
+        bh=0Krd4E4woD+Cc38qkD/E7iviZwZsDMe3h4W69+poasw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBOi5hzxSsrcv8R27FhpsrNkVFG/v73sxBE/WoBDO7R67MpGhHW6YGWPv+0P18otj
-         PR6DdixYKl98cxZRXVFKNHF3QBsMeOtW3LxF9yEOYJ90tzS+xTtECBJv7OgDcHxmxI
-         kA/q1504v6e3PUJdXv+JffHo7DP4YFB4kYg4RdjqddfHFasqAuqAS9ElOQReBLxafM
-         5C35ehxd+lLlELMjPGcP4kX3IvQ3vaPhTENvCIX4wH1N963vtucTyFXNQcmy4iLtZj
-         73JDGBjHbXkEsZhEw8aoIW+uvZDgutnTkel/ypHh0uv/3dFJ6zkx4KGSCOCRn6QyYt
-         bw+a5/lLiGKEw==
+        b=fOVdSDAjEQRoLFIzdPjbZiw13NX+1jVz9wjh8GAAVW1ZJpDaTOW2LslJ9cPoO4RnO
+         BQFcOehc6PB01I6TACPi8rvrKGREGXHqZQvu5WSXGW5Xib6EQmM4anU+wMizauIInX
+         Ylj+4jpJXoSUfL0lgahgQOgYQkN7QIcTXHHfT6tYkp5gI0XEMih5CFO3MVwzQ/zz1i
+         uAEUtpTaZjVm6JYayymAYRKeseuLtPxeO5ATEU+aK++p3YuIX2wCGVqfX7350QnJCB
+         j8IUx70sXEO3LCESfProQ5Nx2SzwDL+uPraOWrCb2ZY8ChqdLs/HbmS8MAsm0ebdNO
+         rqEtwj35zCz/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gongjun Song <gongjun.song@intel.com>,
-        Libin Yang <libin.yang@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
+Cc:     Derek Fang <derek.fang@realtek.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
-        perex@perex.cz, tiwai@suse.com, kai.vehmanen@linux.intel.com,
-        vamshi.krishna.gopal@intel.com, yong.zhi@intel.com,
+        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 10/68] ASoC: Intel: sof_sdw: Add support for SKU 0B12 product
-Date:   Tue, 30 Nov 2021 09:46:06 -0500
-Message-Id: <20211130144707.944580-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 11/68] ASoC: rt5682: Avoid the unexpected IRQ event during going to suspend
+Date:   Tue, 30 Nov 2021 09:46:07 -0500
+Message-Id: <20211130144707.944580-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -55,46 +49,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gongjun Song <gongjun.song@intel.com>
+From: Derek Fang <derek.fang@realtek.com>
 
-[ Upstream commit f55af7055cd465f6b767a0c1126977d4529c63c8 ]
+[ Upstream commit a3774a2a6544a7a4a85186e768afc07044aa507f ]
 
-This product supports a SoundWire headset codec, SoundWire
-capture from local microphones and two SoundWire amplifiers.
+When the system suspends, the codec driver will set SAR to
+power saving mode if a headset is plugged in.
+There is a chance to generate an unexpected IRQ, and leads to
+issues after resuming such as noise from OMTP type headsets.
 
-Signed-off-by: Libin Yang <libin.yang@intel.com>
-Signed-off-by: Gongjun Song <gongjun.song@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20211105022646.26305-10-yung-chuan.liao@linux.intel.com
+Signed-off-by: Derek Fang <derek.fang@realtek.com>
+Link: https://lore.kernel.org/r/20211109095450.12950-1-derek.fang@realtek.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/codecs/rt5682.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index bfbdda323b877..77219c3f8766c 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -288,6 +288,16 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					RT711_JD2 |
- 					SOF_SDW_FOUR_SPK),
- 	},
-+	{
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0B12")
-+		},
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					RT711_JD2 |
-+					SOF_SDW_FOUR_SPK),
-+	},
- 	{
- 		.callback = sof_sdw_quirk_cb,
- 		.matches = {
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index d550c0705c28b..cfa284855c84e 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -48,6 +48,7 @@ static const struct reg_sequence patch_list[] = {
+ 	{RT5682_SAR_IL_CMD_6, 0x0110},
+ 	{RT5682_CHARGE_PUMP_1, 0x0210},
+ 	{RT5682_HP_LOGIC_CTRL_2, 0x0007},
++	{RT5682_SAR_IL_CMD_2, 0xac00},
+ };
+ 
+ void rt5682_apply_patch_list(struct rt5682_priv *rt5682, struct device *dev)
+@@ -2961,9 +2962,6 @@ static int rt5682_suspend(struct snd_soc_component *component)
+ 	cancel_delayed_work_sync(&rt5682->jack_detect_work);
+ 	cancel_delayed_work_sync(&rt5682->jd_check_work);
+ 	if (rt5682->hs_jack && rt5682->jack_type == SND_JACK_HEADSET) {
+-		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
+-			RT5682_MB1_PATH_MASK | RT5682_MB2_PATH_MASK,
+-			RT5682_CTRL_MB1_REG | RT5682_CTRL_MB2_REG);
+ 		val = snd_soc_component_read(component,
+ 				RT5682_CBJ_CTRL_2) & RT5682_JACK_TYPE_MASK;
+ 
+@@ -2985,10 +2983,15 @@ static int rt5682_suspend(struct snd_soc_component *component)
+ 		/* enter SAR ADC power saving mode */
+ 		snd_soc_component_update_bits(component, RT5682_SAR_IL_CMD_1,
+ 			RT5682_SAR_BUTT_DET_MASK | RT5682_SAR_BUTDET_MODE_MASK |
+-			RT5682_SAR_BUTDET_RST_MASK | RT5682_SAR_SEL_MB1_MB2_MASK, 0);
++			RT5682_SAR_SEL_MB1_MB2_MASK, 0);
++		usleep_range(5000, 6000);
++		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
++			RT5682_MB1_PATH_MASK | RT5682_MB2_PATH_MASK,
++			RT5682_CTRL_MB1_REG | RT5682_CTRL_MB2_REG);
++		usleep_range(10000, 12000);
+ 		snd_soc_component_update_bits(component, RT5682_SAR_IL_CMD_1,
+-			RT5682_SAR_BUTT_DET_MASK | RT5682_SAR_BUTDET_MODE_MASK | RT5682_SAR_BUTDET_RST_MASK,
+-			RT5682_SAR_BUTT_DET_EN | RT5682_SAR_BUTDET_POW_SAV | RT5682_SAR_BUTDET_RST_NORMAL);
++			RT5682_SAR_BUTT_DET_MASK | RT5682_SAR_BUTDET_MODE_MASK,
++			RT5682_SAR_BUTT_DET_EN | RT5682_SAR_BUTDET_POW_SAV);
+ 	}
+ 
+ 	regcache_cache_only(rt5682->regmap, true);
 -- 
 2.33.0
 
