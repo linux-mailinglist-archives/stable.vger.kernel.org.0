@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EA946389D
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F734638A0
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244815AbhK3PFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:05:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33494 "EHLO
+        id S245053AbhK3PFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:05:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243254AbhK3O6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:58:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57E63C061371;
-        Tue, 30 Nov 2021 06:52:02 -0800 (PST)
+        with ESMTP id S243277AbhK3O6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:58:53 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A66C0698DE;
+        Tue, 30 Nov 2021 06:52:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22432B81A31;
-        Tue, 30 Nov 2021 14:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C936C53FC1;
-        Tue, 30 Nov 2021 14:51:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0EA0FCE1A61;
+        Tue, 30 Nov 2021 14:52:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A25C53FD0;
+        Tue, 30 Nov 2021 14:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283919;
-        bh=XnEByuIwJBtjfngOFe85Co/diFmzeN0hQrGIv4hrLQU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=LcW4GCpFQ+e8qP+bZ5RfOxlme7Zjy2I5+QN+FOtMiteFhG9kSbDQI11XWSQ1vdcSr
-         HAfVIOkgewBEDBwd/XXwGofDwlZtpLR8OJcO46fAcBxOLzxq6ZU4gFprRu+vO/epyD
-         74GM/V9fwSF5RA/saL620tP/D73Gyv3bEyNJs9nhs7zUCqvULbSG4T3P5RaPXQKczP
-         qvAd0JXWk+w96F3Q9gV2Ptc2Aymm9iiZB25sB9PyXN8j73jXGJ+baYM0UXDQVZc5Xz
-         Mstq/Hj1xsAjr6gzMBu8VWH77DWJpWBfEsmhnmFtGLYQt/jYIipfCs+VaqWKpFhS8U
-         3v3JnrSROX0mA==
+        s=k20201202; t=1638283922;
+        bh=Fkt5/xZ4N9+Px94m64YFl22fCxXL62+obtMttzrJCsU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ll+BQY0VFJq5lHBP+ragPYbEb3aqmEljlREmZIz/Nzc3rvcBr7OC0PLAGR22uGyTs
+         q5A+aoJ8jxqqN1nu0P/FoZmbdAxHvmn6cXZ9akjTpLnRK6+gUJhmuhcPZNuy0QNrX1
+         ukuy6VeKToUnrYmzdeWdpjS3gT/4SMOHOMWV2ain8zxSSC9nmaAADx6rIQEeuaGObV
+         bwidhfH5z+guwdnRWp9RBF/CmFDbb5RGCjEWsyTjNOWldUwOC3g4Ew4pfJz+/bQLST
+         /61e3+ZQl5eJR3S9rEXwrHtTbgrj2rXf3+8QCFkwebgDd0n2LTSF3vZWHGI/W0AC93
+         5la4r+55gY7sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
-        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 01/25] ASoC: mediatek: mt8173-rt5650: Rename Speaker control to Ext Spk
-Date:   Tue, 30 Nov 2021 09:51:31 -0500
-Message-Id: <20211130145156.946083-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, bgoswami@codeaurora.org,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 02/25] ASoC: qdsp6: q6adm: improve error reporting
+Date:   Tue, 30 Nov 2021 09:51:32 -0500
+Message-Id: <20211130145156.946083-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211130145156.946083-1-sashal@kernel.org>
+References: <20211130145156.946083-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,58 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 0a8facac0d1e38dc8b86ade6d3f0d8b33dae7c58 ]
+[ Upstream commit 0a270471d68533f59c5cfd631a3fce31a3b17144 ]
 
-Some RT5645 and RT5650 powered platforms are using "Ext Spk"
-instead of "Speaker", and this is also reflected in alsa-lib
-configurations for the generic RT5645 usecase manager configs.
+reset value for port is -1 so printing an hex would not give us very
+useful debug information, so use %d instead.
 
-Rename the "Speaker" control to "Ext Spk" in order to be able
-to make the userspace reuse/inherit the same configurations also
-for this machine, along with the others.
-
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20211105152013.75252-1-angelogioacchino.delregno@collabora.com
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20211116114721.12517-5-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-rt5650.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/qcom/qdsp6/q6adm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-index ef6f236752867..de3e3a55de4bf 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-@@ -30,15 +30,15 @@ static struct mt8173_rt5650_platform_data mt8173_rt5650_priv = {
- };
+diff --git a/sound/soc/qcom/qdsp6/q6adm.c b/sound/soc/qcom/qdsp6/q6adm.c
+index da242515e1467..246806d3bcee5 100644
+--- a/sound/soc/qcom/qdsp6/q6adm.c
++++ b/sound/soc/qcom/qdsp6/q6adm.c
+@@ -390,7 +390,7 @@ struct q6copp *q6adm_open(struct device *dev, int port_id, int path, int rate,
+ 	int ret = 0;
  
- static const struct snd_soc_dapm_widget mt8173_rt5650_widgets[] = {
--	SND_SOC_DAPM_SPK("Speaker", NULL),
-+	SND_SOC_DAPM_SPK("Ext Spk", NULL),
- 	SND_SOC_DAPM_MIC("Int Mic", NULL),
- 	SND_SOC_DAPM_HP("Headphone", NULL),
- 	SND_SOC_DAPM_MIC("Headset Mic", NULL),
- };
+ 	if (port_id < 0) {
+-		dev_err(dev, "Invalid port_id 0x%x\n", port_id);
++		dev_err(dev, "Invalid port_id %d\n", port_id);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
- static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
--	{"Speaker", NULL, "SPOL"},
--	{"Speaker", NULL, "SPOR"},
-+	{"Ext Spk", NULL, "SPOL"},
-+	{"Ext Spk", NULL, "SPOR"},
- 	{"DMIC L1", NULL, "Int Mic"},
- 	{"DMIC R1", NULL, "Int Mic"},
- 	{"Headphone", NULL, "HPOL"},
-@@ -48,7 +48,7 @@ static const struct snd_soc_dapm_route mt8173_rt5650_routes[] = {
- };
+@@ -509,7 +509,7 @@ int q6adm_matrix_map(struct device *dev, int path,
+ 		int port_idx = payload_map.port_id[i];
  
- static const struct snd_kcontrol_new mt8173_rt5650_controls[] = {
--	SOC_DAPM_PIN_SWITCH("Speaker"),
-+	SOC_DAPM_PIN_SWITCH("Ext Spk"),
- 	SOC_DAPM_PIN_SWITCH("Int Mic"),
- 	SOC_DAPM_PIN_SWITCH("Headphone"),
- 	SOC_DAPM_PIN_SWITCH("Headset Mic"),
+ 		if (port_idx < 0) {
+-			dev_err(dev, "Invalid port_id 0x%x\n",
++			dev_err(dev, "Invalid port_id %d\n",
+ 				payload_map.port_id[i]);
+ 			kfree(pkt);
+ 			return -EINVAL;
 -- 
 2.33.0
 
