@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2F846310B
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 11:33:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E32C1463115
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 11:34:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233072AbhK3Kgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 05:36:49 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:33808 "EHLO
+        id S233088AbhK3Khg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 05:37:36 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:34070 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232938AbhK3Kgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 05:36:48 -0500
+        with ESMTP id S233339AbhK3Khg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 05:37:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DF714CE1752
-        for <stable@vger.kernel.org>; Tue, 30 Nov 2021 10:33:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EA7DC53FC1;
-        Tue, 30 Nov 2021 10:33:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5AFB3CE1753
+        for <stable@vger.kernel.org>; Tue, 30 Nov 2021 10:34:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08857C53FC7;
+        Tue, 30 Nov 2021 10:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638268407;
-        bh=DnucsCBdo5a8f3aY5NyX5Q/+5/7k7HxyUNgvMWw9G2c=;
+        s=korg; t=1638268454;
+        bh=LGmdby9RfTZX7imGnet5UEMoDDTC1kImjaTKPwOx2g0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jBXcbzhJoNdgrVt25pAcCn3JyMdx3Q2+F5KpsfelnvDnhTG7bq1ruAqT9Dh4IpswM
-         ZY7W1q+u8T6Io7U+qz1CG+VsVP8bJzZXCyJIpxyx4VwX8i3It98DvGUgpO1kCOa5FP
-         J8/QpXs7lWQu5yl34aWgXFIp/zUNEyMK898l53hc=
-Date:   Tue, 30 Nov 2021 11:33:24 +0100
+        b=TXV0CSHvol5kwaOhKgWu87gWbOsAOu2BYSHWAa2TSa/upJqvg41+Vgeuso/umG4EO
+         Y7trBTr/BVQyOXUeucaIP1IWzsA5NEaMBWTXHHQq1hT5kKXBO8hvVarMc8sSpBioqO
+         Y2lW0YRhkimkCGsod8ocZYYsuWePNildXL8mZkww=
+Date:   Tue, 30 Nov 2021 11:34:12 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc:     stable@vger.kernel.org, manfred@colorfullife.com,
+Cc:     Manfred Spraul <manfred@colorfullife.com>, stable@vger.kernel.org,
         "Eric W. Biederman" <ebiederm@xmission.com>,
         Davidlohr Bueso <dave@stgolabs.net>,
         Andrei Vagin <avagin@gmail.com>,
@@ -36,22 +36,58 @@ Cc:     stable@vger.kernel.org, manfred@colorfullife.com,
         Vasily Averin <vvs@virtuozzo.com>
 Subject: Re: [PATCH] shm: extend forced shm destroy to support objects from
  several IPC nses
-Message-ID: <YaX99Dc28F8t6Noo@kroah.com>
-References: <1637583701164207@kroah.com>
- <20211129194914.827672-1-alexander.mikhalitsyn@virtuozzo.com>
+Message-ID: <YaX+JPpOFKDVhdxf@kroah.com>
+References: <163758370064179@kroah.com>
+ <20211129164300.789517-1-alexander.mikhalitsyn@virtuozzo.com>
+ <YaUNb9NyKVio+bQ6@kroah.com>
+ <2b9bf5cd-7e65-a532-afbf-9f94c3ebb45c@colorfullife.com>
+ <20211129232218.216a2dc322685f4516ac980b@virtuozzo.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211129194914.827672-1-alexander.mikhalitsyn@virtuozzo.com>
+In-Reply-To: <20211129232218.216a2dc322685f4516ac980b@virtuozzo.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 29, 2021 at 10:49:14PM +0300, Alexander Mikhalitsyn wrote:
-> For 4.9.y:
+On Mon, Nov 29, 2021 at 11:22:18PM +0300, Alexander Mikhalitsyn wrote:
+> On Mon, 29 Nov 2021 21:12:01 +0100
+> Manfred Spraul <manfred@colorfullife.com> wrote:
 > 
-> Upstream commit 85b6d24646e4 ("shm: extend forced shm destroy to support objects from several IPC nses")
+> > Hello together,
+> 
+> Hello!
+> 
+> > 
+> > On 11/29/21 18:27, Greg KH wrote:
+> > > On Mon, Nov 29, 2021 at 07:43:00PM +0300, Alexander Mikhalitsyn wrote:
+> > >> For 4.4.y:
+> > >>
+> > >> Upstream commit 85b6d24646e4 ("shm: extend forced shm destroy to support objects from several IPC nses")
+> > > We need versions of this for 4.9.y, 4.14.y, and 4.19.y before I can take
+> > > this for 4.4.y.
+> > 
+> > We have tried to be too clever: I had start top down, Alexander bottom 
+> > up, ...
+> > 
+> > 
+> > @Alexander: I've sent 4.19.y around an hour ago. Could you create the 
+> > change for 4.9. and 4.14?
+> 
+> Yeah. I've sent changes for 4.14 and 4.9 about 20 minutes ago ;)
+> 
+> > 
+> > 
+> > For the 4.4.y:
+> > 
+> > Tested: With the patch applied the crash is resolved, no observed 
+> > regressions.
+> 
+> Fantastic. Huge thanks!
 
-Now queued up, thanks.
+Wonderful, all now queued up except for the 4.19 version which I will
+apply after this next round of kernels are released.
+
+thanks,
 
 greg k-h
