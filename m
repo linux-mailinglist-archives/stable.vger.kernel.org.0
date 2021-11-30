@@ -2,90 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED38462A03
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 02:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC6F462A0C
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 02:57:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236961AbhK3B7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 20:59:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52538 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236957AbhK3B7p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 20:59:45 -0500
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBA2EC061574;
-        Mon, 29 Nov 2021 17:56:26 -0800 (PST)
-Received: by mail-pl1-x632.google.com with SMTP id y7so13694343plp.0;
-        Mon, 29 Nov 2021 17:56:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=SJ51wEfyc+XGHm6YzO5SBmA1qZqIR2PGjA14JSi/dFw=;
-        b=Mb1wybldktrwK4FSCUhxLQVWmK2w4mvJJ+716rc72JvNkLx8Hs53hs6epAUbS7FL8u
-         qZJ1zSAq/qFw6i+mdL1tQvqckGGXduZtVLvKlGcLbJdYP74K8LxsOiYBcDjPoC12tWdn
-         cKae0yunSsSb2ROMc5SCainPsvgYHXkivM6TStiljDo+0SHogNMnj+7fqV+N/B/bQUiF
-         OXdk8+xgkVjwMkjXsGhQOFBW3bxh6wiscKLPIW2xkd4yfI8sCV+xb+21SFFuyuz2DeVZ
-         ZTyrV5/n6o5g0lVzTzRDknVXNQvIyXGvsXOpTcDtdF1uhbXh6fDHjP1QtCSAP48bfxfN
-         F+BA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=SJ51wEfyc+XGHm6YzO5SBmA1qZqIR2PGjA14JSi/dFw=;
-        b=kNgN3Pp8Zs7LS10Gjl2a7znWa06bdGcseChN4i4b+2ZnlGwmJjrE1mhFFdjI8YWGSK
-         sJgVajPHFgneDQLYeGDc3Fx7JLukkjmwCx5QDEQ199fbfek9KG50fRrT2PIAS9yfSiFO
-         RjTMsXq/rg6rOTvShT4pBoQ6/ABAm1o4Uzu6E3WhBD5noQ/SzGZFTGTHE/iXde7juL33
-         kukIeHbPIHfIGgVh1HJMziEgDcO6htN5CIHGGQL/oT4+X6CMvZ/87A6ysyFYr4xb7dah
-         +hrXiFq3+YomyeGFjtp120yAcraqoafHhMRHvAVI+t1i/scYQmvlVgTc3BErkTBddedF
-         NdGg==
-X-Gm-Message-State: AOAM532zOxVPys09TsiqyX7jo5z58v1o7jF8wxDk89Hv5NPb1uuoaN0E
-        2OW6VhVpMduFWOLamiEb8fmC3/B1LTlSHrJEhlY=
-X-Google-Smtp-Source: ABdhPJzsgGeQHT3QjkPdc3Sr7T6deItm6yad1I3zQvrjihNNL8LQk0t+F8f//N9YWjrA1cLhkfqlDQ==
-X-Received: by 2002:a17:90a:ec05:: with SMTP id l5mr2306980pjy.68.1638237385963;
-        Mon, 29 Nov 2021 17:56:25 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id s15sm526894pjs.51.2021.11.29.17.56.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Nov 2021 17:56:25 -0800 (PST)
-Message-ID: <61a584c9.1c69fb81.85d90.2708@mx.google.com>
-Date:   Mon, 29 Nov 2021 17:56:25 -0800 (PST)
-X-Google-Original-Date: Tue, 30 Nov 2021 01:56:24 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-Subject: RE: [PATCH 5.15 000/179] 5.15.6-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S233757AbhK3CBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 21:01:09 -0500
+Received: from mout.gmx.net ([212.227.15.18]:42793 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232152AbhK3CBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 21:01:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1638237469;
+        bh=hqg6E5t4awXX3JNLr2yX0h9W3eNMEcDR7674htguDMs=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=TLKp+ftMN+z4+9Ye0TnOU9Ma4wtFh5PLVOPnUBI6kUQaznZXZjuH7sELCOKyTXf+O
+         mEypTrSbiPZgckapwyN/AQPBRitGwgPhTVHThQDa+73oD6eF2OjxSON05pJ6VH2K7J
+         C6LAdw5IlQgApV0yKbFw/7rBSaX0URNcvoDIjCPA=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.34.15]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MoO6M-1mGOzV0qOO-00opUk; Tue, 30
+ Nov 2021 02:57:49 +0100
+Message-ID: <486ef17a-e26c-5191-f76b-941e8e01ced8@gmx.de>
+Date:   Tue, 30 Nov 2021 02:57:48 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 5.15 000/179] 5.15.6-rc1 review
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:l/v65sNoRZ+O9sjB8c3+loU+r25OGFpBdrssXwtr8C4HnCw3kpT
+ XMorhBe54tSOW1m0Ph9XdSo1HogejtEiktG/fLXoDyzXKVr/WFMS6v+nn3UIg0MxpYQOQyM
+ 0n3AQVDS69Pu51x54VVfBjO206w6dK+gC0+Cfkot2/TPMpTvFvRhCZtth/kk9Je/7eXGa5Z
+ 9YFDKguGH9F7VijZqOKsQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:6H3KpLfwxeU=:lXEDhlM0K1QEjAa954RYK5
+ mzhPtGnepmApYyu2jPo2B3jsfHgrtI+8u7KzudMPin6oTEmQhZAPmDp8kGTNp4ptByeuc1Dzz
+ XG5ed1e+19lH6O7FfnLqHg1lMnXzHHU2+5Dlk+kAi44eHK7uvOopvVKBXxYS2JiCPfNPZbrYd
+ s3XplkSTf5z8tz6D7It7kG2iTML+WcBg2VJ7ebf9rGiiA8as1UAgm/OOpPktk2mSc8GxIOMQU
+ YJgn1odEU8XsKAJDP+nsi1tDKhCzQ1k3IEFMNUp6mR7oa+2d0ZcG91K/1z/7cEK86NMp7EnAs
+ GCGTJ46RJ3wM0rfAlzIEFdnBf0Q8R7O1Y7L+MOoybs12HmYESThXDLZ8RWrCSSYGrHjmtQAuu
+ l5BQv9kB3EMDSnY7K6GL5RGVrCC4YJG5+tFjQbsDeG8CDAM8hTkZaBTbvDWOOHbdlDuhkvTVG
+ 9iIN+r2T1ZBFkDpdXFcS6DDwLokEaJtVeTAK0I8DV9O3F0pSpnZ3eUvN+2Nv4ufqi8FpY8mG6
+ nEYCOeX+P384g12uQc2myAqCUkhVIsrJzvzCsdXs5dvcfSDRvgIVHRTIi1alVkqhxI3PAG1uU
+ DP1ZeQvglgdFcs3YfF0PVvpReOzYVDxSFQCDcKl65HJcnyReAemWwb2dDlslMCYmX2h+DrBit
+ 1fMmAOKbX2yHFVuSbcT24TtcdodqvtQ9DOVxr+zoIlVsrilzKnvXUCnnGnOIVmDu21Z1tHui2
+ OMEbwfFOONZDsoW631Nuzh+iroGz8etPxOwuH/7fePoxueGIxtoXfGpOqOLG0rzSgqz6btEsJ
+ to1ZboA3b2Ggsj9JfQJfIkF+K8/POg4tkTqUq6guWCVGphBbrNXaLR7yHR6u/c0M8lnpUX7lW
+ bwbII49s1BoxPd8FuVldQbmlwdTarg2ZIJsvmqQLKNVGMvveeIED4P66XXnWk9uaaMZUsD64r
+ T1DrvbaObDiPTSTs+Vnly2a0ceKOKiCE89+zjWD9xRZ+8/53oItRvipdITygB46Dp0ZLeB3am
+ s5oqzFKFsXjKGayCle9RVdLJwf2/EXJlix5NUc3MgjZduOTpnP3BLUB0Bzm9IilB4dZ0D6Qd0
+ RljT0WXMX6xWUM=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Nov 2021 19:16:34 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.15.6 release.
-> There are 179 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 01 Dec 2021 18:16:51 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.6-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+5.15.6-rc1 successfully compiled, booted and suspended on an x86_64
+(Intel i5-11400)
 
-5.15.6-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+
+thanks
+
+=2D-
+Ronald
 
