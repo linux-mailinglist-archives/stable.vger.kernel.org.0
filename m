@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B77A463824
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E42463826
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 15:55:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243703AbhK3O6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 09:58:21 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58722 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242880AbhK3O4X (ORCPT
+        id S243091AbhK3O6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 09:58:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50186 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242854AbhK3O4X (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 09:56:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 717A2CE1A70;
-        Tue, 30 Nov 2021 14:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42599C53FC7;
-        Tue, 30 Nov 2021 14:52:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9AE2CB81A58;
+        Tue, 30 Nov 2021 14:53:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 685AFC53FD2;
+        Tue, 30 Nov 2021 14:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283980;
-        bh=y8sSD1M0rmRs8aa71ZeIsNb3AxdnPDLqgJeWwCEXq7s=;
+        s=k20201202; t=1638283982;
+        bh=ib52XFchvONNSoSKgsL6Yf1g51I+f0pblkz/im+dhmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q83jGDYnNRXge6TYofA5qtA+/CSZPmkWrR9Qs/niXywqPiPVWOn5ojPFqFVGylq/y
-         6Mv8FQDwWx4RlGHPZD22CLIuMNOFU6l4aoPGGKldfMfMpJu9ZON9NndPhV/76oAEk2
-         09VZYs9HG/Kg2d4scE0b3zzVSPfXcb2V3FvLXKxoNXLguNg4OPD3XVhACFfy7/WYmR
-         HB4NsRrPNdRfjAa+I0ZTYgssSmVQ0Zem4/T2S917758CaLnu5XxT1aN1goTvWlzwLq
-         NqDP4yBUhG5Zn+O5K43C7XFz+53gvLuTr9yejp36DefLVAbBiiBI8Oqmd0T5rIIRPT
-         OM87ScZLGvAuQ==
+        b=KZz/309Fq4ZBhUJABG93GMs2oNAnQIzfM2+sleGmnSqPU00L2YIX9I+cXMjT98lUX
+         UqfzMcNEjOy7j6bq87myibf/J3NdzSQKbKNYaAZeVbtA7eHACzsiOEzaKFhHlueCtY
+         g76tYznDZfcBP+Zt2nvuaX0ebtB7X+ABTMXRUm/iugEcCUtG0piD4HWzHJAOOryudU
+         t6FX3WQopz6lMKX5Ll1GTnex1k4bQyMQ0pTmjcvQNlQWxk4Mv8iTUXVSK63SGaGzAy
+         wKeyz4kwTqTjJ4ya9wcesaNWJnwTW1fiNxRWyhy1wlbqAJhB0AogQvj52DGO37cir7
+         P9hXu9rTUQNgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Zhijian <zhijianx.li@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, jhs@mojatatu.com,
-        xiyou.wangcong@gmail.com, jiri@resnulli.us, shuah@kernel.org,
-        ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org,
-        netdev@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 08/17] selftests/tc-testings: Be compatible with newer tc output
-Date:   Tue, 30 Nov 2021 09:52:32 -0500
-Message-Id: <20211130145243.946407-8-sashal@kernel.org>
+Cc:     George Kennedy <george.kennedy@oracle.com>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 09/17] scsi: scsi_debug: Sanity check block descriptor length in resp_mode_select()
+Date:   Tue, 30 Nov 2021 09:52:33 -0500
+Message-Id: <20211130145243.946407-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145243.946407-1-sashal@kernel.org>
 References: <20211130145243.946407-1-sashal@kernel.org>
@@ -51,44 +50,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zhijian <zhijianx.li@intel.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit ac2944abe4d7732f29a79f063c9cae7df2a3e3cc ]
+[ Upstream commit e0a2c28da11e2c2b963fc01d50acbf03045ac732 ]
 
-old tc(iproute2-5.9.0) output:
- action order 1: bpf action.o:[action-ok] id 60 tag bcf7977d3b93787c jited default-action pipe
-newer tc(iproute2-5.14.0) output:
- action order 1: bpf action.o:[action-ok] id 64 name tag bcf7977d3b93787c jited default-action pipe
+In resp_mode_select() sanity check the block descriptor len to avoid UAF.
 
-It can fix below errors:
- # ok 260 f84a - Add cBPF action with invalid bytecode
- # not ok 261 e939 - Add eBPF action with valid object-file
- #       Could not match regex pattern. Verify command output:
- # total acts 0
- #
- #       action order 1: bpf action.o:[action-ok] id 42 name  tag bcf7977d3b93787c jited default-action pipe
- #        index 667 ref 1 bind 0
+BUG: KASAN: use-after-free in resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+Read of size 1 at addr ffff888026670f50 by task scsicmd/15032
 
-Signed-off-by: Li Zhijian <zhijianx.li@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CPU: 1 PID: 15032 Comm: scsicmd Not tainted 5.15.0-01d0625 #15
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:107
+ print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:257
+ kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:443
+ __asan_report_load1_noabort+0x14/0x20 mm/kasan/report_generic.c:306
+ resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+ schedule_resp+0x4af/0x1a10 drivers/scsi/scsi_debug.c:5483
+ scsi_debug_queuecommand+0x8c9/0x1e70 drivers/scsi/scsi_debug.c:7537
+ scsi_queue_rq+0x16b4/0x2d10 drivers/scsi/scsi_lib.c:1521
+ blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1640
+ __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
+ blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
+ __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1762
+ __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1839
+ blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
+ blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
+ blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:63
+ sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:837
+ sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:775
+ sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:941
+ sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1166
+ __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:52
+ do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:50
+ entry_SYSCALL_64_after_hwframe+0x44/0xae arch/x86/entry/entry_64.S:113
+
+Link: https://lore.kernel.org/r/1637262208-28850-1-git-send-email-george.kennedy@oracle.com
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_debug.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json b/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
-index 1a9b282dd0be2..7590f883d7edf 100644
---- a/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
-+++ b/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
-@@ -66,7 +66,7 @@
-         "cmdUnderTest": "$TC action add action bpf object-file $EBPFDIR/action.o section action-ok index 667",
-         "expExitCode": "0",
-         "verifyCmd": "$TC action get action bpf index 667",
--        "matchPattern": "action order [0-9]*: bpf action.o:\\[action-ok\\] id [0-9]* tag [0-9a-f]{16}( jited)? default-action pipe.*index 667 ref",
-+        "matchPattern": "action order [0-9]*: bpf action.o:\\[action-ok\\] id [0-9].* tag [0-9a-f]{16}( jited)? default-action pipe.*index 667 ref",
-         "matchCount": "1",
-         "teardown": [
-             "$TC action flush action bpf",
+diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
+index d2b045eb72742..4d73a7f67dea9 100644
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -2300,11 +2300,11 @@ static int resp_mode_select(struct scsi_cmnd *scp,
+ 			    __func__, param_len, res);
+ 	md_len = mselect6 ? (arr[0] + 1) : (get_unaligned_be16(arr + 0) + 2);
+ 	bd_len = mselect6 ? arr[3] : get_unaligned_be16(arr + 6);
+-	if (md_len > 2) {
++	off = bd_len + (mselect6 ? 4 : 8);
++	if (md_len > 2 || off >= res) {
+ 		mk_sense_invalid_fld(scp, SDEB_IN_DATA, 0, -1);
+ 		return check_condition_result;
+ 	}
+-	off = bd_len + (mselect6 ? 4 : 8);
+ 	mpage = arr[off] & 0x3f;
+ 	ps = !!(arr[off] & 0x80);
+ 	if (ps) {
 -- 
 2.33.0
 
