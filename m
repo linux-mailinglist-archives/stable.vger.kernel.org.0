@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991814638C6
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 126DC4638C7
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 16:02:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244593AbhK3PGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 10:06:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33520 "EHLO
+        id S243369AbhK3PGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 10:06:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244561AbhK3PCc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:32 -0500
+        with ESMTP id S244563AbhK3PCd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Nov 2021 10:02:33 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D6E9C0619FF;
-        Tue, 30 Nov 2021 06:53:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACD0C061746;
+        Tue, 30 Nov 2021 06:53:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AA66FCE1A81;
-        Tue, 30 Nov 2021 14:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55A7FC53FD0;
-        Tue, 30 Nov 2021 14:53:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 57F2BCE1A6C;
+        Tue, 30 Nov 2021 14:53:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D595AC53FCF;
+        Tue, 30 Nov 2021 14:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638284017;
-        bh=r2+hGVkNf5ayMWDym0CWmxwQAfcI0oZSKo0wah+zbyk=;
+        s=k20201202; t=1638284019;
+        bh=sv6SHN8BiLPKNf1x5CfhepLuwQcvghPgfP6OXk2juBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lh16bvySDfUKvIf1tUWloILQD2uA4u5NUBc7P/jQ0IA0X2U3kpJ4Xxo3Uo2flig8M
-         64eAxkEJDvW1xyRyjD6Is29Cjye/ZmalEduLEhDzZR3BWFwXEnxXh9JvmOeuK63bIj
-         9G7z0JT+1iZRjXGwLPkV46fidjQnzXWsXzWSUIjTa69o1OfT4mCnFM5/37mWjEO6Cy
-         NBY08Mdjgep0EtZFvbnO42rUBJ/HpJjhhkc0AW8mfBMVaTJFasYChvablxd58j9e9Z
-         r2gD8veBW9c+noIT+lyPxYbokCTtaLzMwJrPps52i1xDpniB1Y1V++0GXOEQA0hBHY
-         t8DiZLoW04Wow==
+        b=pwTTsdB8nSxOaERr10r7cHKNLMzFP7PEKJY2/rJW3GQ6ZOQhvVab6RkKGD0ePyQdd
+         PHGobzslbY6v8SNg1DKmKAxinG+MxOl3foBlU4uBKYYQYQK20LJTFfYLmw22aImLH7
+         pGiYbwuJT2nRUQ1L7be13tKY+8VJIK1Y49U1ASrhCuB1VMmQxlPpYs3ZcCj82eXva/
+         KwwDSkHWox2UKBKT0Ha1LnQPdWT6h/4e9tPaHQ9xXZ68UBf4CjCe7p1C9FsWmU2/4h
+         2A84BaaM/Gg6F8jrTQPemeeOdt3b0YsMDNA/aMkVqZB8geAObGt6NB0cca9m0IPe3Q
+         rpJiCm6DbIeBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhangyue <zhangyue1@kylinos.cn>, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, aelior@marvell.com,
-        manishc@marvell.com, davem@davemloft.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/14] net: qed: fix the array may be out of bound
-Date:   Tue, 30 Nov 2021 09:53:13 -0500
-Message-Id: <20211130145317.946676-12-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 14/14] fs: ntfs: Limit NTFS_RW to page sizes smaller than 64k
+Date:   Tue, 30 Nov 2021 09:53:15 -0500
+Message-Id: <20211130145317.946676-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130145317.946676-1-sashal@kernel.org>
 References: <20211130145317.946676-1-sashal@kernel.org>
@@ -50,57 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyue <zhangyue1@kylinos.cn>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 0435a4d08032c8fba2966cebdac870e22238cacc ]
+[ Upstream commit 4eec7faf6775263d9e450ae7ee5bc4101d4a0bc9 ]
 
-If the variable 'p_bit->flags' is always 0,
-the loop condition is always 0.
+NTFS_RW code allocates page size dependent arrays on the stack. This
+results in build failures if the page size is 64k or larger.
 
-The variable 'j' may be greater than or equal to 32.
+  fs/ntfs/aops.c: In function 'ntfs_write_mst_block':
+  fs/ntfs/aops.c:1311:1: error:
+	the frame size of 2240 bytes is larger than 2048 bytes
 
-At this time, the array 'p_aeu->bits[32]' may be out
-of bound.
+Since commit f22969a66041 ("powerpc/64s: Default to 64K pages for 64 bit
+book3s") this affects ppc:allmodconfig builds, but other architectures
+supporting page sizes of 64k or larger are also affected.
 
-Signed-off-by: zhangyue <zhangyue1@kylinos.cn>
-Link: https://lore.kernel.org/r/20211125113610.273841-1-zhangyue1@kylinos.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Increasing the maximum frame size for affected architectures just to
+silence this error does not really help.  The frame size would have to
+be set to a really large value for 256k pages.  Also, a large frame size
+could potentially result in stack overruns in this code and elsewhere
+and is therefore not desirable.  Make NTFS_RW dependent on page sizes
+smaller than 64k instead.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Anton Altaparmakov <anton@tuxera.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_int.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ntfs/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_int.c b/drivers/net/ethernet/qlogic/qed/qed_int.c
-index f8d1d02a3cd4a..289101ce0e409 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_int.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_int.c
-@@ -865,7 +865,7 @@ static int qed_int_deassertion(struct qed_hwfn  *p_hwfn,
- 		if (!parities)
- 			continue;
+diff --git a/fs/ntfs/Kconfig b/fs/ntfs/Kconfig
+index f5a868cc9152e..5b384ec44793f 100644
+--- a/fs/ntfs/Kconfig
++++ b/fs/ntfs/Kconfig
+@@ -51,6 +51,7 @@ config NTFS_DEBUG
+ config NTFS_RW
+ 	bool "NTFS write support"
+ 	depends on NTFS_FS
++	depends on PAGE_SIZE_LESS_THAN_64KB
+ 	help
+ 	  This enables the partial, but safe, write support in the NTFS driver.
  
--		for (j = 0, bit_idx = 0; bit_idx < 32; j++) {
-+		for (j = 0, bit_idx = 0; bit_idx < 32 && j < 32; j++) {
- 			struct aeu_invert_reg_bit *p_bit = &p_aeu->bits[j];
- 
- 			if (qed_int_is_parity_flag(p_hwfn, p_bit) &&
-@@ -903,7 +903,7 @@ static int qed_int_deassertion(struct qed_hwfn  *p_hwfn,
- 			 * to current group, making them responsible for the
- 			 * previous assertion.
- 			 */
--			for (j = 0, bit_idx = 0; bit_idx < 32; j++) {
-+			for (j = 0, bit_idx = 0; bit_idx < 32 && j < 32; j++) {
- 				long unsigned int bitmask;
- 				u8 bit, bit_len;
- 
-@@ -1201,7 +1201,7 @@ static void qed_int_sb_attn_init(struct qed_hwfn *p_hwfn,
- 	memset(sb_info->parity_mask, 0, sizeof(u32) * NUM_ATTN_REGS);
- 	for (i = 0; i < NUM_ATTN_REGS; i++) {
- 		/* j is array index, k is bit index */
--		for (j = 0, k = 0; k < 32; j++) {
-+		for (j = 0, k = 0; k < 32 && j < 32; j++) {
- 			struct aeu_invert_reg_bit *p_aeu;
- 
- 			p_aeu = &aeu_descs[i].bits[j];
 -- 
 2.33.0
 
