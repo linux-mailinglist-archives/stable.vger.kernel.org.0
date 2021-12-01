@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA73464ED2
-	for <lists+stable@lfdr.de>; Wed,  1 Dec 2021 14:32:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85BA0464ED4
+	for <lists+stable@lfdr.de>; Wed,  1 Dec 2021 14:32:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349538AbhLANfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Dec 2021 08:35:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60290 "EHLO
+        id S1349543AbhLANfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Dec 2021 08:35:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349510AbhLANfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 08:35:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBCC4C061748;
-        Wed,  1 Dec 2021 05:32:19 -0800 (PST)
+        with ESMTP id S1349541AbhLANfl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 08:35:41 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A56C061748;
+        Wed,  1 Dec 2021 05:32:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94DD5B81EE5;
-        Wed,  1 Dec 2021 13:32:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F2EC53FCF;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1477BCE1DB6;
+        Wed,  1 Dec 2021 13:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F4FC53FD1;
         Wed,  1 Dec 2021 13:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1638365537;
-        bh=EMNfiMydvF4mhB/qZzPFrK+R0Fcj8elSL0Bwu4kKVlI=;
+        bh=zbIAB0xAPmHrLVaWtGAiUDtaS268VPsxSnRQ1pw/suo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRQgs1gfoXgUTOgNWHewyQNJi7E4o+ei6p2x9v38Fyrws5upYt7OIUTFKZk8rBlxu
-         tv+Oo0jRCvNYwDETYBNRGnrnZ/bRTjG71BBWCLE9Us/r02QS1ey+yuceV1HmXqxIna
-         sZX/X7sH+Xe/A23W+YG9KNJJzTth7YIYP1RtfcJGbI7r9upHHugbjZKBYtIymLfly/
-         3axKNKTBePfWGeIebn7DRIa5j8JFVoXdDFDrkIaU4KlMMw8QzpsSMo6go7WLK+lYDi
-         i3Y4lxKz/GtVGN82G8c8JR8bTAIN/OMkVXPK1HwSTSlMLw+A/71TuI2bzOxbigsnG2
-         gbgkJ5HLze2xA==
+        b=gRbHTxnTCb1a0XCCIt7q5yKJ0gI8CmE6HsDkKKBzjfJtBtZXwpxADr/2lgHPZjKtJ
+         EApK+62hGbiEiR0OYxygV525zebiVIw1Ne9vrAkHS/hxdjYqmhJ3XpkVCGnm7gTuxX
+         ZHUseGqnlTnb5v6HPiCWkCXScfYVcx8Z8HXvIWEMHZ3SZBiqot9s3FVqY8joinEnet
+         3wMgHlX6IK2SLIPdN24th2VjRTVUx+gIG9OfYtLUTWcou9ma3gjUfsrzW/1Y7lQLxs
+         zcO9C7Cs775Qk8Y6goY2dH6SiroOFS8n4HztmOaUEisEaZOtj5DyrNHBIjkAMuAJmp
+         cMFHTy+nD4tZg==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1msPiH-0007ru-T1; Wed, 01 Dec 2021 14:31:57 +0100
+        id 1msPiH-0007ry-VV; Wed, 01 Dec 2021 14:31:58 +0100
 From:   Johan Hovold <johan@kernel.org>
 To:     Gabriel Somlo <somlo@cmu.edu>,
         "Michael S. Tsirkin" <mst@redhat.com>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Kees Cook <keescook@chromium.org>, qemu-devel@nongnu.org,
         linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>
-Subject: [PATCH 1/4] firmware: qemu_fw_cfg: fix NULL-pointer deref on duplicate entries
-Date:   Wed,  1 Dec 2021 14:25:25 +0100
-Message-Id: <20211201132528.30025-2-johan@kernel.org>
+        stable@vger.kernel.org
+Subject: [PATCH 2/4] firmware: qemu_fw_cfg: fix kobject leak in probe error path
+Date:   Wed,  1 Dec 2021 14:25:26 +0100
+Message-Id: <20211201132528.30025-3-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211201132528.30025-1-johan@kernel.org>
 References: <20211201132528.30025-1-johan@kernel.org>
@@ -53,54 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+An initialised kobject must be freed using kobject_put() to avoid
+leaking associated resources (e.g. the object name).
+
 Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
-a kobject leak in the file registration helper by properly calling
-kobject_put() for the entry in case registration of the object fails
-(e.g. due to a name collision).
+the leak in the first error path of the file registration helper but
+left the second one unchanged. This "fix" would however result in a NULL
+pointer dereference due to the release function also removing the never
+added entry from the fw_cfg_entry_cache list. This has now been
+addressed.
 
-This would however result in a NULL pointer dereference when the
-release function tries to remove the never added entry from the
-fw_cfg_entry_cache list.
+Fix the remaining kobject leak by restoring the common error path and
+adding the missing kobject_put().
 
-Fix this by moving the list-removal out of the release function.
-
-Note that the offending commit was one of the benign looking umn.edu
-fixes which was reviewed but not reverted. [1][2]
-
-[1] https://lore.kernel.org/r/202105051005.49BFABCE@keescook
-[2] https://lore.kernel.org/all/YIg7ZOZvS3a8LjSv@kroah.com
-
-Fixes: fe3c60684377 ("firmware: Fix a reference count leak.")
-Cc: stable@vger.kernel.org      # 5.8
-Cc: Qiushi Wu <wu000273@umn.edu>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
+Cc: stable@vger.kernel.org      # 4.6
+Cc: Gabriel Somlo <somlo@cmu.edu>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/firmware/qemu_fw_cfg.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/firmware/qemu_fw_cfg.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/firmware/qemu_fw_cfg.c b/drivers/firmware/qemu_fw_cfg.c
-index 172c751a4f6c..a9c64ebfc49a 100644
+index a9c64ebfc49a..ccb7ed62452f 100644
 --- a/drivers/firmware/qemu_fw_cfg.c
 +++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -388,9 +388,7 @@ static void fw_cfg_sysfs_cache_cleanup(void)
- 	struct fw_cfg_sysfs_entry *entry, *next;
+@@ -603,15 +603,13 @@ static int fw_cfg_register_file(const struct fw_cfg_file *f)
+ 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
+ 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
+ 				   fw_cfg_sel_ko, "%d", entry->select);
+-	if (err) {
+-		kobject_put(&entry->kobj);
+-		return err;
+-	}
++	if (err)
++		goto err_put_entry;
  
- 	list_for_each_entry_safe(entry, next, &fw_cfg_entry_cache, list) {
--		/* will end up invoking fw_cfg_sysfs_cache_delist()
--		 * via each object's release() method (i.e. destructor)
--		 */
-+		fw_cfg_sysfs_cache_delist(entry);
- 		kobject_put(&entry->kobj);
- 	}
- }
-@@ -448,7 +446,6 @@ static void fw_cfg_sysfs_release_entry(struct kobject *kobj)
- {
- 	struct fw_cfg_sysfs_entry *entry = to_entry(kobj);
+ 	/* add raw binary content access */
+ 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
+ 	if (err)
+-		goto err_add_raw;
++		goto err_del_entry;
  
--	fw_cfg_sysfs_cache_delist(entry);
- 	kfree(entry);
+ 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
+ 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->name);
+@@ -620,9 +618,10 @@ static int fw_cfg_register_file(const struct fw_cfg_file *f)
+ 	fw_cfg_sysfs_cache_enlist(entry);
+ 	return 0;
+ 
+-err_add_raw:
++err_del_entry:
+ 	kobject_del(&entry->kobj);
+-	kfree(entry);
++err_put_entry:
++	kobject_put(&entry->kobj);
+ 	return err;
  }
  
 -- 
