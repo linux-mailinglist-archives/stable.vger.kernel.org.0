@@ -2,150 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F934659F0
-	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 00:47:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4BA14659F7
+	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 00:48:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353847AbhLAXu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Dec 2021 18:50:29 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:44080 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353824AbhLAXu2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 18:50:28 -0500
-Date:   Wed, 01 Dec 2021 23:47:04 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1638402425;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UZW5YmBZqJbojMvF/ejvNn2IwF4kXk5VTaNUGceK7FA=;
-        b=1pDTfp+L8DVkhGJzqZTyjAD87ZyZ2ktkHzphUq9hQq14rk7wUU2Sdh4RLqbVNxkHNv3YQ3
-        1jqooiAD7dOG4QZAxQ6B+dLzCopF/9Zwd64zKvkHvAkVQ6RG7MWNpatVB73zkjaOAyXlzr
-        4QpuWqqWrWowr3dIKH50hP7d0xtyHLLeUWjBQqwqW7k1JIm684Mw+aEIZhqpZQYjb79acz
-        1pLik6MZ3HCEm+Z565AGMJiUgP44elcccWf5b0AIWZF29pjNPommyKe4wMvOJMfesddOlU
-        FibZ5eLco4nLYH7g/KJ2W0USyGlhsDmkibWNA3J59GoKYms3vtU14REnSBSHng==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1638402425;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UZW5YmBZqJbojMvF/ejvNn2IwF4kXk5VTaNUGceK7FA=;
-        b=aJqaaxhAfSBKwWdq8lOMevTQzxtygHPiX1sFIR8JXL68rqFlxZAtvyHU4vDB+i/ZyvBB3I
-        Fr2LDxm4hhjoj6BQ==
-From:   "tip-bot2 for Feng Tang" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/tsc: Add a timer to make sure TSC_adjust is
- always checked
-Cc:     Feng Tang <feng.tang@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20211117023751.24190-1-feng.tang@intel.com>
-References: <20211117023751.24190-1-feng.tang@intel.com>
-MIME-Version: 1.0
-Message-ID: <163840242483.11128.8915758153074569974.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        id S1343941AbhLAXvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Dec 2021 18:51:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34206 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353823AbhLAXvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 18:51:50 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B68E9C061574
+        for <stable@vger.kernel.org>; Wed,  1 Dec 2021 15:48:28 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id p18-20020a17090ad31200b001a78bb52876so1000351pju.3
+        for <stable@vger.kernel.org>; Wed, 01 Dec 2021 15:48:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=jiaPGOpmYUW4OUtpuFq3aRJDCn1y6ejE/6QtLzwnJ+Q=;
+        b=FQnBqpRhqLSRxMmo1P4F0lp3CzCgeYTnwU3jTxqK5vc2s/nAYMZ12vrcXZjdQaKHQr
+         ln6bp7zeKXGn02DpGbHafa8BDRMag+jM/2ae04w+XMoFMnYtzXvDkWW8EWUoYOYvpuIB
+         FgI9FzFd3mAk/zGm6E3ho93C6RkhqgZj4WTrfk25a16VxeoRjbpQCmc79SccmiSq/37n
+         JAjnfV7RUb/hj22Qrt7GO/7h9xoQ6xCEuxk3GL+9WakLk3VAfNfGQ23NVknZ+yp0WE6D
+         +VvmgJu4zuUNlWxLv+sZaZN4B71oqsuBDXCHPjdxQVrxu8vBRXPbk5fTbLFYnzDLF6NA
+         e6hw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=jiaPGOpmYUW4OUtpuFq3aRJDCn1y6ejE/6QtLzwnJ+Q=;
+        b=CHBroRfJLr3WbU9jwmSaH5gca4BeQP61YItT3rC57GT5tYFTuQUeESueoP0FGkzZ6a
+         SovTflvdQkTZIqanBy8GE/P3xO7iKr0DpxdYP6ubhRABOVQ0BpLGJ/DOMjMF5gjccwMW
+         qn+BxeLVnPJ28kySgssTnuYuVtdJElHPk3HHOu3y+njA3FhfY5/7RCR28Oz9DmZOBiJa
+         bfNWCunMv4VJ/K6BMe2fhBj8N7e11nPCeeKNPwtLh8fkHVLELCBvafx5oLWxxjCY4Kjl
+         A3KjABYChPmolyB7Te4+y6UXsS9CLyQK5IiQ/EDj/zqJCEYO9mJkzQ2TNejm48yT5LGZ
+         KUEQ==
+X-Gm-Message-State: AOAM530vL3JOADcpexBd4bhAjo//73rKyaewHJr8rPFoPRdsJPI79FQR
+        ltMHCzhnPHpkDRjFoYm4buAJeIxB1KVeTSWP
+X-Google-Smtp-Source: ABdhPJz7Fd9VrZ58b+Ao9JzhBVJT3R7Q5zFMCqQzrunDU/lJYOIyMShuNZGavsy9V1CrN2Qu8ILnzg==
+X-Received: by 2002:a17:902:d4c2:b0:142:76f:3200 with SMTP id o2-20020a170902d4c200b00142076f3200mr11039471plg.53.1638402508128;
+        Wed, 01 Dec 2021 15:48:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 11sm910777pfl.41.2021.12.01.15.48.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Dec 2021 15:48:27 -0800 (PST)
+Message-ID: <61a809cb.1c69fb81.865ac.4390@mx.google.com>
+Date:   Wed, 01 Dec 2021 15:48:27 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.219
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y baseline: 81 runs, 1 regressions (v4.19.219)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+stable-rc/linux-4.19.y baseline: 81 runs, 1 regressions (v4.19.219)
 
-Commit-ID:     c7719e79347803b8e3b6b50da8c6db410a3012b5
-Gitweb:        https://git.kernel.org/tip/c7719e79347803b8e3b6b50da8c6db410a3012b5
-Author:        Feng Tang <feng.tang@intel.com>
-AuthorDate:    Wed, 17 Nov 2021 10:37:50 +08:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 02 Dec 2021 00:40:35 +01:00
+Regressions Summary
+-------------------
 
-x86/tsc: Add a timer to make sure TSC_adjust is always checked
-
-The TSC_ADJUST register is checked every time a CPU enters idle state, but
-Thomas Gleixner mentioned there is still a caveat that a system won't enter
-idle [1], either because it's too busy or configured purposely to not enter
-idle.
-
-Setup a periodic timer (every 10 minutes) to make sure the check is
-happening on a regular base.
-
-[1] https://lore.kernel.org/lkml/875z286xtk.fsf@nanos.tec.linutronix.de/
-
-Fixes: 6e3cd95234dc ("x86/hpet: Use another crystalball to evaluate HPET usability")
-Requested-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Feng Tang <feng.tang@intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211117023751.24190-1-feng.tang@intel.com
-
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- arch/x86/kernel/tsc_sync.c | 41 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/arch/x86/kernel/tsc_sync.c b/arch/x86/kernel/tsc_sync.c
-index 50a4515..9452dc9 100644
---- a/arch/x86/kernel/tsc_sync.c
-+++ b/arch/x86/kernel/tsc_sync.c
-@@ -30,6 +30,7 @@ struct tsc_adjust {
- };
- 
- static DEFINE_PER_CPU(struct tsc_adjust, tsc_adjust);
-+static struct timer_list tsc_sync_check_timer;
- 
- /*
-  * TSC's on different sockets may be reset asynchronously.
-@@ -77,6 +78,46 @@ void tsc_verify_tsc_adjust(bool resume)
- 	}
- }
- 
-+/*
-+ * Normally the tsc_sync will be checked every time system enters idle
-+ * state, but there is still caveat that a system won't enter idle,
-+ * either because it's too busy or configured purposely to not enter
-+ * idle.
-+ *
-+ * So setup a periodic timer (every 10 minutes) to make sure the check
-+ * is always on.
-+ */
-+
-+#define SYNC_CHECK_INTERVAL		(HZ * 600)
-+
-+static void tsc_sync_check_timer_fn(struct timer_list *unused)
-+{
-+	int next_cpu;
-+
-+	tsc_verify_tsc_adjust(false);
-+
-+	/* Run the check for all onlined CPUs in turn */
-+	next_cpu = cpumask_next(raw_smp_processor_id(), cpu_online_mask);
-+	if (next_cpu >= nr_cpu_ids)
-+		next_cpu = cpumask_first(cpu_online_mask);
-+
-+	tsc_sync_check_timer.expires += SYNC_CHECK_INTERVAL;
-+	add_timer_on(&tsc_sync_check_timer, next_cpu);
-+}
-+
-+static int __init start_sync_check_timer(void)
-+{
-+	if (!cpu_feature_enabled(X86_FEATURE_TSC_ADJUST) || tsc_clocksource_reliable)
-+		return 0;
-+
-+	timer_setup(&tsc_sync_check_timer, tsc_sync_check_timer_fn, 0);
-+	tsc_sync_check_timer.expires = jiffies + SYNC_CHECK_INTERVAL;
-+	add_timer(&tsc_sync_check_timer);
-+
-+	return 0;
-+}
-+late_initcall(start_sync_check_timer);
-+
- static void tsc_sanitize_first_cpu(struct tsc_adjust *cur, s64 bootval,
- 				   unsigned int cpu, bool bootcpu)
- {
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.219/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.219
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      24e6b4723c20c874840781dcd31e681502b8adca =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61a7d2177c25022bc01a9489
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+19/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+19/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a7d2177c25022=
+bc01a948c
+        failing since 5 days (last pass: v4.19.217-321-g616d1abb62383, firs=
+t fail: v4.19.218)
+        2 lines
+
+    2021-12-01T19:50:34.480126  <8>[   21.539733] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-12-01T19:50:34.528836  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/102
+    2021-12-01T19:50:34.538261  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
