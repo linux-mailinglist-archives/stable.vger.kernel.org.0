@@ -2,142 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 935AF46543A
-	for <lists+stable@lfdr.de>; Wed,  1 Dec 2021 18:47:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD034655B5
+	for <lists+stable@lfdr.de>; Wed,  1 Dec 2021 19:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236354AbhLARvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Dec 2021 12:51:16 -0500
-Received: from mga14.intel.com ([192.55.52.115]:32421 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232097AbhLARvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Dec 2021 12:51:15 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10185"; a="236739999"
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="236739999"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 09:47:53 -0800
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="512129845"
-Received: from ammonk-mobl.amr.corp.intel.com (HELO vcostago-mobl3) ([10.212.205.220])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 09:47:53 -0800
-From:   Vinicius Costa Gomes <vinicius.gomes@intel.com>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        Stefan Dietrich <roots@gmx.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     Greg KH <greg@kroah.com>, netdev@vger.kernel.org,
-        stable@vger.kernel.org, regressions@lists.linux.dev,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        intel-wired-lan@lists.osuosl.org
-Subject: Re: [REGRESSION] Kernel 5.15 reboots / freezes upon ifup/ifdown
-In-Reply-To: <cd155eaf-8559-b7ad-d9da-818f59f21872@leemhuis.info>
-References: <924175a188159f4e03bd69908a91e606b574139b.camel@gmx.de>
- <YZ3q4OKhU2EPPttE@kroah.com>
- <8119066974f099aa11f08a4dad3653ac0ba32cd6.camel@gmx.de>
- <20211124153449.72c9cfcd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <87a6htm4aj.fsf@intel.com>
- <227af6b0692a0a57f5fb349d4d9c914301753209.camel@gmx.de>
- <cd155eaf-8559-b7ad-d9da-818f59f21872@leemhuis.info>
-Date:   Wed, 01 Dec 2021 09:47:52 -0800
-Message-ID: <87r1awtdx3.fsf@intel.com>
+        id S232734AbhLASoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Dec 2021 13:44:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48364 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352603AbhLASoi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 13:44:38 -0500
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25FDC06174A
+        for <stable@vger.kernel.org>; Wed,  1 Dec 2021 10:41:16 -0800 (PST)
+Received: by mail-yb1-xb41.google.com with SMTP id v138so66238875ybb.8
+        for <stable@vger.kernel.org>; Wed, 01 Dec 2021 10:41:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=t+k1vMicazZQGgJua3VBr5ex8kbXiYjORBm2hnGSMD4=;
+        b=HmYW+Z9suVKAnthVzrdw1v59XjW4mIXelvoLpv3sktJMrbocGUUchWh14Kp9nS/6eE
+         u/gE/v3CWYhXvc1cV9t4qdoXpADzU9T00GNhKS/QCAgneKEiqNbpQYvr1KUScplcjJhe
+         BbvvdGrpqARW25IebanWn/ICSmMhcqoRWSixfAXPFb8Yt62XA1K21hnk4SBMXZYzjNcG
+         cWzgZHfZF3k6aY5Huaj1Hx1ZUavzdL8sKOx1VCnNBILJr13bKW3U3ch8/+NUxFRLDj4g
+         s46XIRrObf1mQS9s401Znxzlpi5ULI2ZR1CxRvVXEEUaPylPM26qLlkMGoRwuYaukOHn
+         /tKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=t+k1vMicazZQGgJua3VBr5ex8kbXiYjORBm2hnGSMD4=;
+        b=4Auwg6tG4/AX9Qty5jPLf8Mh8LJU8Gnlk3/9catQTUswEEXKYy0Osy7xiaBh6wXows
+         undFWuf0Kf2qMfBNMYwJEYYQaB4eDzlklxgzdJMkYtOf0mVOT6yQnOWOjuCzRYMUc+c7
+         v2xo3AUgQPqARg8J0aA22VvWYTcRBVaDa+bfi+Ivve+lwb6xVXWsQyLztxNEZLKRRczF
+         2jM2mcTc7FHqJKD6bklftYx/JY4+eIJhiUxlUPj9TEI0m6IoxqanQ2z4HczvR7kEBFOv
+         oHCFf/7U6JFLDBGutCD0rAIPFWrspH1j0Say2uGDi8dZtN42bXFiMCp8L9t2P6MQzwvh
+         GZ8A==
+X-Gm-Message-State: AOAM533or/W+MD6W7+acEQoEua8pyAPwGzJtkXEuNm2dVVSPivHAhJm/
+        3G8qCiLC2vf4MDiNm7Tfp63bMGlHVRvd7HWBMlW7vcbO2nI=
+X-Google-Smtp-Source: ABdhPJxuuv2BzBxh1NigT5XlG6VmsAM5pf+3QPJ+z3yUVqULuBo5qwi4ZSY//4GcydJmdrl5oU9Vi3YznQj9CW22nLY=
+X-Received: by 2002:a25:8690:: with SMTP id z16mr9798126ybk.435.1638384064914;
+ Wed, 01 Dec 2021 10:41:04 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
+Received: by 2002:a05:7110:1246:b0:100:5ac8:a72 with HTTP; Wed, 1 Dec 2021
+ 10:41:04 -0800 (PST)
+Reply-To: lindajonathan993@gmail.com
+From:   Miss Linda <wu7113546@gmail.com>
+Date:   Wed, 1 Dec 2021 18:41:04 +0000
+Message-ID: <CAO4YxAg3=SYwJ0oqz8+n0K=UMbjuFDdSjGY=Zma_VmyGR_WiOA@mail.gmail.com>
+Subject: Hi my love
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Hey dear
 
-Thorsten Leemhuis <regressions@leemhuis.info> writes:
+Nice to meet you, Am Miss Linda I found your email here in google
+search and I picked
+interest to contact you. I've something very important which I would like
+to discuss with you and I would appreciate if you respond back to me
+through my email address as to tell you more
 
-> Hi, this is your Linux kernel regression tracker speaking.
->
-> On 25.11.21 09:41, Stefan Dietrich wrote:
->> 
->> thanks - this was spot-on: disabling CONFIG_PCIE_PTM resolves the issue
->> for latest 5.15.4 (stable from git) for both manual and network-manager
->> NIC configuration.
->> 
->> Let me know if I may assist in debugging this further.
->
-> What is the status here? There afaics hasn't been any progress since
-> nearly a week.
->
-> Vinicius, do you still have this on your radar? Or was there some progress?
->
-> Or is this really related to another issue, as Jakub suspected? Then it
-> might be solved by the patch here:
->
-> https://bugzilla.kernel.org/show_bug.cgi?id=215129
+about me with my
+photos, my private email as fellows??   lindajonathan993@gmail.com
 
-What I am thinking right now is that we are facing a similar problem as
-the bug above, only in the igc driver. The difference is that it's the
-PCIe PTM messages (from the PCIe root) that are triggering the deadlock
-in the suspend/resume path in igc.
-
-I will produce a patch in a few moments, very similar to the one in the
-bug report, let's see if it helps.
-
->
-> Ciao, Thorsten
->
->> On Wed, 2021-11-24 at 17:07 -0800, Vinicius Costa Gomes wrote:
->>> Hi Stefan,
->>>
->>> Jakub Kicinski <kuba@kernel.org> writes:
->>>
->>>> On Wed, 24 Nov 2021 18:20:40 +0100 Stefan Dietrich wrote:
->>>>> Hi all,
->>>>>
->>>>> six exciting hours and a lot of learning later, here it is.
->>>>> Symptomatically, the critical commit appears for me between
->>>>> 5.14.21-
->>>>> 051421-generic and 5.15.0-051500rc2-generic - I did not find an
->>>>> amd64
->>>>> build for rc1.
->>>>>
->>>>> Please see the git-bisect output below and let me know how I may
->>>>> further assist in debugging!
->>>>
->>>> Well, let's CC those involved, shall we? :)
->>>>
->>>> Thanks for working thru the bisection!
->>>>
->>>>> a90ec84837325df4b9a6798c2cc0df202b5680bd is the first bad commit
->>>>> commit a90ec84837325df4b9a6798c2cc0df202b5680bd
->>>>> Author: Vinicius Costa Gomes <vinicius.gomes@intel.com>
->>>>> Date:   Mon Jul 26 20:36:57 2021 -0700
->>>>>
->>>>>     igc: Add support for PTP getcrosststamp()
->>>
->>> Oh! That's interesting.
->>>
->>> Can you try disabling CONFIG_PCIE_PTM in your kernel config? If it
->>> works, then it's a point in favor that this commit is indeed the
->>> problematic one.
->>>
->>> I am still trying to think of what could be causing the lockup you
->>> are
->>> seeing.
->>>
->>>
->
-> P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
-> on my table. I can only look briefly into most of them. Unfortunately
-> therefore I sometimes will get things wrong or miss something important.
-> I hope that's not the case here; if you think it is, don't hesitate to
-> tell me about it in a public reply. That's in everyone's interest, as
-> what I wrote above might be misleading to everyone reading this; any
-> suggestion I gave they thus might sent someone reading this down the
-> wrong rabbit hole, which none of us wants.
->
-> BTW, I have no personal interest in this issue, which is tracked using
-> regzbot, my Linux kernel regression tracking bot
-> (https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
-> this mail to get things rolling again and hence don't need to be CC on
-> all further activities wrt to this regression.
->
-> #regzbot poke
-
--- 
-Vinicius
+From, Linda
