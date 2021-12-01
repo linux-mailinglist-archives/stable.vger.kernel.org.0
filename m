@@ -2,78 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF996464D20
-	for <lists+stable@lfdr.de>; Wed,  1 Dec 2021 12:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9034464D2B
+	for <lists+stable@lfdr.de>; Wed,  1 Dec 2021 12:45:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237126AbhLALnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Dec 2021 06:43:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34900 "EHLO
+        id S242500AbhLALtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Dec 2021 06:49:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238323AbhLALnD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 06:43:03 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BD3EC06174A
-        for <stable@vger.kernel.org>; Wed,  1 Dec 2021 03:39:42 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id e3so100398276edu.4
-        for <stable@vger.kernel.org>; Wed, 01 Dec 2021 03:39:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=l4J9Z+m4hmgZbWtQHlC70w1zjUmiI7wjClCwm6dHAnY=;
-        b=WkWNYA1m9/noVakLO/6bTdIo5CInt6fksb+oxZvF1IcRzkNXVdONSf4/O/zoWZADEc
-         4STbeUjeMo5zEScNhtnB/2uP9PHff5xafhgQlZubnHOAeGWZaNi7C/juRrfMafZgweTX
-         6XIIKA0V8LSnc3hUi5vOmeLsiTJdkiwDHJSsNw9oefnmBwoCXdeA5uTu1oi8+UmCwsUK
-         /ZyOP4jOea2D5khotduBXF9G/l+wAPldFdsjSm03B4DV/IyZvO0+3ysEKDDFTDNjF3G9
-         5ExqSbHtOrg8MuQOpdX43qfPk6OlcpjQblBEbgM2zqlBBeHjzaQEVCo9wZCESLcBD3Tq
-         WfSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=l4J9Z+m4hmgZbWtQHlC70w1zjUmiI7wjClCwm6dHAnY=;
-        b=6C0JknHeYQKcMrmd7rP61ztd+WwJuiwMIYZPuPxQynYrHN6J9jPsi+E4dR1ytzy4cN
-         SBcFNIfT5KOg20Kltzy9ujOcfqt0qlYn2ONjNDMSPN5mgfP/hLKC/FwVmNocwgmz+u1R
-         kcizq+AeSfqyM0+nf4QyEiP1j6CO0Xq7GacS6RV9ReYh2Pxoxa3nIWKtA9UtNPuiHDnA
-         xYEacCG59hWRtq3VYxP3XGj43WaHfmUORQH0DjNo9exh9PZ699PRuINVwqxoLlyqsgVR
-         DqykfKaByiotlU1YOa9w6owKfy0hZx0w81Waf6ANpE39J18CG5wIMl8vSCrhzujYhyOt
-         /E0Q==
-X-Gm-Message-State: AOAM532SyUdkYimoCZXPIywNnJye6jKvYdio8fCMJbEp9vcO2rZj87Mi
-        cHAZbkgjWC4b5wqbfLjmg0cMNrN0gL01QehT07c=
-X-Google-Smtp-Source: ABdhPJzqqxlGJ8WJDBiFDdVTfq5CxABj8OrVY9yr4j0lWvDEsviOJYTFmxzbdpe05f/dUOZBx2KdJ+R17E1qthGrd6E=
-X-Received: by 2002:a05:6402:3594:: with SMTP id y20mr7585107edc.328.1638358780581;
- Wed, 01 Dec 2021 03:39:40 -0800 (PST)
+        with ESMTP id S229743AbhLALtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 06:49:05 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D14BC061574;
+        Wed,  1 Dec 2021 03:45:44 -0800 (PST)
+Received: from ip4d173d4a.dynamic.kabel-deutschland.de ([77.23.61.74] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1msO3O-00074i-FC; Wed, 01 Dec 2021 12:45:38 +0100
+Message-ID: <cd155eaf-8559-b7ad-d9da-818f59f21872@leemhuis.info>
+Date:   Wed, 1 Dec 2021 12:45:38 +0100
 MIME-Version: 1.0
-Sender: mr.nedum.oudrago@gmail.com
-Received: by 2002:a17:907:162a:0:0:0:0 with HTTP; Wed, 1 Dec 2021 03:39:39
- -0800 (PST)
-From:   "Mrs. Orgil Baatar" <mrs.orgilbaatar21@gmail.com>
-Date:   Wed, 1 Dec 2021 03:39:39 -0800
-X-Google-Sender-Auth: rrfjgklIbqpi-IX0FxdJeSjYb-o
-Message-ID: <CAF3CHus6yz+eMk2eZdz=MCNyo=2sgts22kGXHUehM+Q4-K68vQ@mail.gmail.com>
-Subject: Your long awaited part payment of $2.5.000.00Usd
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Content-Language: en-BS
+To:     Stefan Dietrich <roots@gmx.de>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     Greg KH <greg@kroah.com>, netdev@vger.kernel.org,
+        stable@vger.kernel.org, regressions@lists.linux.dev,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        intel-wired-lan@lists.osuosl.org
+References: <924175a188159f4e03bd69908a91e606b574139b.camel@gmx.de>
+ <YZ3q4OKhU2EPPttE@kroah.com>
+ <8119066974f099aa11f08a4dad3653ac0ba32cd6.camel@gmx.de>
+ <20211124153449.72c9cfcd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <87a6htm4aj.fsf@intel.com>
+ <227af6b0692a0a57f5fb349d4d9c914301753209.camel@gmx.de>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Re: [REGRESSION] Kernel 5.15 reboots / freezes upon ifup/ifdown
+In-Reply-To: <227af6b0692a0a57f5fb349d4d9c914301753209.camel@gmx.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1638359144;a2c7a904;
+X-HE-SMSGID: 1msO3O-00074i-FC
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention: Beneficiary, Your long awaited part payment of
-$2.5.000.00Usd (TWO MILLION FIVE Hundred Thousand United State
-Dollars) is ready for immediate release to you, and it was
-electronically credited into an ATM Visa Card for easy delivery.
+Hi, this is your Linux kernel regression tracker speaking.
 
-Your new Payment Reference No.- 6363836,
-Pin Code No: 1787
-Your Certificate of Merit Payment No: 05872,
+On 25.11.21 09:41, Stefan Dietrich wrote:
+> 
+> thanks - this was spot-on: disabling CONFIG_PCIE_PTM resolves the issue
+> for latest 5.15.4 (stable from git) for both manual and network-manager
+> NIC configuration.
+> 
+> Let me know if I may assist in debugging this further.
 
-Your Names: |
-Address: |
+What is the status here? There afaics hasn't been any progress since
+nearly a week.
 
-Person to Contact:MR KELLY HALL the Director of the International
-Audit unit ATM Payment Center,
+Vinicius, do you still have this on your radar? Or was there some progress?
 
-Email: uba-bf@e-ubabf.com
-TELEPHONE: +226 64865611 You can whatsApp the bank
+Or is this really related to another issue, as Jakub suspected? Then it
+might be solved by the patch here:
 
-Regards.
-Mrs ORGIL BAATAR
+https://bugzilla.kernel.org/show_bug.cgi?id=215129
+
+Ciao, Thorsten
+
+> On Wed, 2021-11-24 at 17:07 -0800, Vinicius Costa Gomes wrote:
+>> Hi Stefan,
+>>
+>> Jakub Kicinski <kuba@kernel.org> writes:
+>>
+>>> On Wed, 24 Nov 2021 18:20:40 +0100 Stefan Dietrich wrote:
+>>>> Hi all,
+>>>>
+>>>> six exciting hours and a lot of learning later, here it is.
+>>>> Symptomatically, the critical commit appears for me between
+>>>> 5.14.21-
+>>>> 051421-generic and 5.15.0-051500rc2-generic - I did not find an
+>>>> amd64
+>>>> build for rc1.
+>>>>
+>>>> Please see the git-bisect output below and let me know how I may
+>>>> further assist in debugging!
+>>>
+>>> Well, let's CC those involved, shall we? :)
+>>>
+>>> Thanks for working thru the bisection!
+>>>
+>>>> a90ec84837325df4b9a6798c2cc0df202b5680bd is the first bad commit
+>>>> commit a90ec84837325df4b9a6798c2cc0df202b5680bd
+>>>> Author: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+>>>> Date:   Mon Jul 26 20:36:57 2021 -0700
+>>>>
+>>>>     igc: Add support for PTP getcrosststamp()
+>>
+>> Oh! That's interesting.
+>>
+>> Can you try disabling CONFIG_PCIE_PTM in your kernel config? If it
+>> works, then it's a point in favor that this commit is indeed the
+>> problematic one.
+>>
+>> I am still trying to think of what could be causing the lockup you
+>> are
+>> seeing.
+>>
+>>
+
+P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
+on my table. I can only look briefly into most of them. Unfortunately
+therefore I sometimes will get things wrong or miss something important.
+I hope that's not the case here; if you think it is, don't hesitate to
+tell me about it in a public reply. That's in everyone's interest, as
+what I wrote above might be misleading to everyone reading this; any
+suggestion I gave they thus might sent someone reading this down the
+wrong rabbit hole, which none of us wants.
+
+BTW, I have no personal interest in this issue, which is tracked using
+regzbot, my Linux kernel regression tracking bot
+(https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
+this mail to get things rolling again and hence don't need to be CC on
+all further activities wrt to this regression.
+
+#regzbot poke
