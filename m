@@ -2,144 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E81465AFA
-	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 01:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0390A465B93
+	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 02:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354550AbhLBAhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Dec 2021 19:37:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45176 "EHLO
+        id S1354263AbhLBB0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Dec 2021 20:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354479AbhLBAhN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 19:37:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07D13C06174A;
-        Wed,  1 Dec 2021 16:33:52 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 55916CE1DC7;
-        Thu,  2 Dec 2021 00:33:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D5EC53FCF;
-        Thu,  2 Dec 2021 00:33:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638405228;
-        bh=5HUVxeq8HcizJpGoPFk7yffUPU/ibyovCpDh3FIdjs4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dU46npYrvQQCBefVbeLl7+zZ6YHB0fe/MJz+kwGCvBe5HmW/kRWFL1XC9S3IDjycF
-         pt1CtenA7cNVtwYQKJ2hxxU0n23+oryS6tUVlCf14rBmnvgnXtJRA9yyNy7U7Q6U8D
-         f+38hmva2f4wx6Uk+XQDbxZhsOd+uf1MbZYqu5nWZEVZIU53Y8GSkdvDlzrk1T/Epq
-         CTrHLuNK/8Jxo4J/zEQZm9ugxsxSjup0YLJGDD42R8uSkN79xrx473Px/GhYgTANtK
-         BFcVbP4SkndwvRbwoQuwasaXwbXNYJwGIYjOkAnJdj6aVp1fxl2qpI1gZ8kJXaxRj8
-         8q1VmqrGq+1kQ==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-        id 3E02D5C1010; Wed,  1 Dec 2021 16:33:48 -0800 (PST)
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     rcu@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, kernel-team@fb.com, mingo@kernel.org,
-        jiangshanlai@gmail.com, akpm@linux-foundation.org,
-        mathieu.desnoyers@efficios.com, josh@joshtriplett.org,
-        tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org,
-        dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com,
-        oleg@redhat.com, joel@joelfernandes.org, Willy Tarreau <w@1wt.eu>,
-        Ammar Faizi <ammar.faizi@students.amikom.ac.id>,
-        stable@vger.kernel.org, "Paul E . McKenney" <paulmck@kernel.org>
-Subject: [PATCH rcu 3/6] tools/nolibc: fix incorrect truncation of exit code
-Date:   Wed,  1 Dec 2021 16:33:43 -0800
-Message-Id: <20211202003346.3129110-3-paulmck@kernel.org>
-X-Mailer: git-send-email 2.31.1.189.g2e36527f23
-In-Reply-To: <20211202003322.GA3128775@paulmck-ThinkPad-P17-Gen-1>
-References: <20211202003322.GA3128775@paulmck-ThinkPad-P17-Gen-1>
+        with ESMTP id S1343896AbhLBB0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 20:26:14 -0500
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 216B8C061574
+        for <stable@vger.kernel.org>; Wed,  1 Dec 2021 17:22:53 -0800 (PST)
+Received: by mail-pg1-x533.google.com with SMTP id s137so25432186pgs.5
+        for <stable@vger.kernel.org>; Wed, 01 Dec 2021 17:22:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JP19uWHnZiDaibt6jqmUgVPqvZVb/ATphBX4xTxJ7e8=;
+        b=K3KOTjyJiu3IOhhINnDCn1sHiK5p9cAkILOTrNjA85iww8elmXU2KHxUmuhkx/OBc9
+         UtiEsv3oNnV2aGWFc3Fe0c380vZRv6PSU1cl8Ts0DPt2bUm5mmiadDbMSEkX8tlYWpcb
+         1rU6BU7wnwsQJpEHD6j4KXhnMGPEyrDt2eCxuJ9JfrEWG/y5YmqZG1TQBgy75Xl8Kccl
+         c1s9MXOg6smiJhedO/MAfe6Hhn2a2c6cUAMQUr61w0IS3STYLIxd6s7gPV76QOK6AhLN
+         fiFkAoF/QNVebYTJuPTPqekxJ8rxmH1W7jdLOoFS8WzSFeIUbVximctDh1BAXJie6tdx
+         a7pA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JP19uWHnZiDaibt6jqmUgVPqvZVb/ATphBX4xTxJ7e8=;
+        b=I58rdLkcyAwiV6rSEueMobTGANvv20q/OOwgSieCVijNYqimJOhE/46Z3W540aMVTM
+         V8lGYwWsM3t1j2QDgFMIXFldDlMceL+TQkp+F3nJHoVcQ2JdA0e3snAuNWG2GOOZ+MyS
+         vIkJ9z9bEEexElk1moTavMybBUAZMecrMinSm83W3vnD4K+AQL4SJddQiyfOPOYv8REk
+         9F1fxHB5wgbmipFYHlo/rh+Yu+WEf0CQFwtbaVuLL/gUikHJLgcOjLEtUDsD6C21pS9A
+         z/nosCkjMRAOhkcW9lScpCj0RFsspii/364AwlvusD91K2u3U6uEzg6+BRO3WQZLQPDC
+         sxtQ==
+X-Gm-Message-State: AOAM533uokzbSEc4QmbHbLyNfgHSQgzfkYqIEYKxrvTpOsRQuwNddXDh
+        smh8CO+7btEYAD2HNuwTcOz9109e3ezbw7NS
+X-Google-Smtp-Source: ABdhPJweTMJ1YtZt+hIOu+l+fdN6YfWRvM8KsrjjCzJTrNwyRxkFWjtTeyk40bq3B72YAVYiwMLBww==
+X-Received: by 2002:a63:854a:: with SMTP id u71mr5876516pgd.66.1638408172526;
+        Wed, 01 Dec 2021 17:22:52 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s19sm1035481pfu.137.2021.12.01.17.22.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Dec 2021 17:22:52 -0800 (PST)
+Message-ID: <61a81fec.1c69fb81.9fc16.4d92@mx.google.com>
+Date:   Wed, 01 Dec 2021 17:22:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.6-12-gece74380b79a3
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 140 runs,
+ 1 regressions (v5.15.6-12-gece74380b79a3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+stable-rc/queue/5.15 baseline: 140 runs, 1 regressions (v5.15.6-12-gece7438=
+0b79a3)
 
-Ammar Faizi reported that our exit code handling is wrong. We truncate
-it to the lowest 8 bits but the syscall itself is expected to take a
-regular 32-bit signed integer, not an unsigned char. It's the kernel
-that later truncates it to the lowest 8 bits. The difference is visible
-in strace, where the program below used to show exit(255) instead of
-exit(-1):
+Regressions Summary
+-------------------
 
-  int main(void)
-  {
-        return -1;
-  }
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
-This patch applies the fix to all archs. x86_64, i386, arm64, armv7 and
-mips were all tested and confirmed to work fine now. Risc-v was not
-tested but the change is trivial and exactly the same as for other archs.
 
-Reported-by: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
-Cc: stable@vger.kernel.org
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
----
- tools/include/nolibc/nolibc.h | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.6-12-gece74380b79a3/plan/baseline/
 
-diff --git a/tools/include/nolibc/nolibc.h b/tools/include/nolibc/nolibc.h
-index 7f300dc379e70..3e2c6f2ed587f 100644
---- a/tools/include/nolibc/nolibc.h
-+++ b/tools/include/nolibc/nolibc.h
-@@ -414,7 +414,7 @@ asm(".section .text\n"
-     "xor %ebp, %ebp\n"          // zero the stack frame
-     "and $-16, %rsp\n"          // x86 ABI : esp must be 16-byte aligned before call
-     "call main\n"               // main() returns the status code, we'll exit with it.
--    "movzb %al, %rdi\n"         // retrieve exit code from 8 lower bits
-+    "mov %eax, %edi\n"          // retrieve exit code (32 bit)
-     "mov $60, %rax\n"           // NR_exit == 60
-     "syscall\n"                 // really exit
-     "hlt\n"                     // ensure it does not return
-@@ -602,9 +602,9 @@ asm(".section .text\n"
-     "push %ebx\n"               // support both regparm and plain stack modes
-     "push %eax\n"
-     "call main\n"               // main() returns the status code in %eax
--    "movzbl %al, %ebx\n"        // retrieve exit code from lower 8 bits
--    "movl   $1, %eax\n"         // NR_exit == 1
--    "int    $0x80\n"            // exit now
-+    "mov %eax, %ebx\n"          // retrieve exit code (32-bit int)
-+    "movl $1, %eax\n"           // NR_exit == 1
-+    "int $0x80\n"               // exit now
-     "hlt\n"                     // ensure it does not
-     "");
- 
-@@ -788,7 +788,6 @@ asm(".section .text\n"
-     "and %r3, %r1, $-8\n"         // AAPCS : sp must be 8-byte aligned in the
-     "mov %sp, %r3\n"              //         callee, an bl doesn't push (lr=pc)
-     "bl main\n"                   // main() returns the status code, we'll exit with it.
--    "and %r0, %r0, $0xff\n"       // limit exit code to 8 bits
-     "movs r7, $1\n"               // NR_exit == 1
-     "svc $0x00\n"
-     "");
-@@ -985,7 +984,6 @@ asm(".section .text\n"
-     "add x2, x2, x1\n"            //           + argv
-     "and sp, x1, -16\n"           // sp must be 16-byte aligned in the callee
-     "bl main\n"                   // main() returns the status code, we'll exit with it.
--    "and x0, x0, 0xff\n"          // limit exit code to 8 bits
-     "mov x8, 93\n"                // NR_exit == 93
-     "svc #0\n"
-     "");
-@@ -1190,7 +1188,7 @@ asm(".section .text\n"
-     "addiu $sp,$sp,-16\n"         // the callee expects to save a0..a3 there!
-     "jal main\n"                  // main() returns the status code, we'll exit with it.
-     "nop\n"                       // delayed slot
--    "and $a0, $v0, 0xff\n"        // limit exit code to 8 bits
-+    "move $a0, $v0\n"             // retrieve 32-bit exit code from v0
-     "li $v0, 4001\n"              // NR_exit == 4001
-     "syscall\n"
-     ".end __start\n"
-@@ -1388,7 +1386,6 @@ asm(".section .text\n"
-     "add   a2,a2,a1\n"           //             + argv
-     "andi  sp,a1,-16\n"          // sp must be 16-byte aligned
-     "call  main\n"               // main() returns the status code, we'll exit with it.
--    "andi  a0, a0, 0xff\n"       // limit exit code to 8 bits
-     "li a7, 93\n"                // NR_exit == 93
-     "ecall\n"
-     "");
--- 
-2.31.1.189.g2e36527f23
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.6-12-gece74380b79a3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ece74380b79a3fb3e39a3537c6c6f45723dbdd5a =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/61a7ec9746bd0aebd51a948e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.6-1=
+2-gece74380b79a3/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.6-1=
+2-gece74380b79a3/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61a7ec9746bd0aebd51a9=
+48f
+        new failure (last pass: v5.15.5-179-gf46e126d61072) =
+
+ =20
