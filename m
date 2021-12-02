@@ -2,133 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4BA14659F7
-	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 00:48:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9DE7465AF9
+	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 01:33:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343941AbhLAXvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Dec 2021 18:51:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34206 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353823AbhLAXvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 18:51:50 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B68E9C061574
-        for <stable@vger.kernel.org>; Wed,  1 Dec 2021 15:48:28 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id p18-20020a17090ad31200b001a78bb52876so1000351pju.3
-        for <stable@vger.kernel.org>; Wed, 01 Dec 2021 15:48:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jiaPGOpmYUW4OUtpuFq3aRJDCn1y6ejE/6QtLzwnJ+Q=;
-        b=FQnBqpRhqLSRxMmo1P4F0lp3CzCgeYTnwU3jTxqK5vc2s/nAYMZ12vrcXZjdQaKHQr
-         ln6bp7zeKXGn02DpGbHafa8BDRMag+jM/2ae04w+XMoFMnYtzXvDkWW8EWUoYOYvpuIB
-         FgI9FzFd3mAk/zGm6E3ho93C6RkhqgZj4WTrfk25a16VxeoRjbpQCmc79SccmiSq/37n
-         JAjnfV7RUb/hj22Qrt7GO/7h9xoQ6xCEuxk3GL+9WakLk3VAfNfGQ23NVknZ+yp0WE6D
-         +VvmgJu4zuUNlWxLv+sZaZN4B71oqsuBDXCHPjdxQVrxu8vBRXPbk5fTbLFYnzDLF6NA
-         e6hw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jiaPGOpmYUW4OUtpuFq3aRJDCn1y6ejE/6QtLzwnJ+Q=;
-        b=CHBroRfJLr3WbU9jwmSaH5gca4BeQP61YItT3rC57GT5tYFTuQUeESueoP0FGkzZ6a
-         SovTflvdQkTZIqanBy8GE/P3xO7iKr0DpxdYP6ubhRABOVQ0BpLGJ/DOMjMF5gjccwMW
-         qn+BxeLVnPJ28kySgssTnuYuVtdJElHPk3HHOu3y+njA3FhfY5/7RCR28Oz9DmZOBiJa
-         bfNWCunMv4VJ/K6BMe2fhBj8N7e11nPCeeKNPwtLh8fkHVLELCBvafx5oLWxxjCY4Kjl
-         A3KjABYChPmolyB7Te4+y6UXsS9CLyQK5IiQ/EDj/zqJCEYO9mJkzQ2TNejm48yT5LGZ
-         KUEQ==
-X-Gm-Message-State: AOAM530vL3JOADcpexBd4bhAjo//73rKyaewHJr8rPFoPRdsJPI79FQR
-        ltMHCzhnPHpkDRjFoYm4buAJeIxB1KVeTSWP
-X-Google-Smtp-Source: ABdhPJz7Fd9VrZ58b+Ao9JzhBVJT3R7Q5zFMCqQzrunDU/lJYOIyMShuNZGavsy9V1CrN2Qu8ILnzg==
-X-Received: by 2002:a17:902:d4c2:b0:142:76f:3200 with SMTP id o2-20020a170902d4c200b00142076f3200mr11039471plg.53.1638402508128;
-        Wed, 01 Dec 2021 15:48:28 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 11sm910777pfl.41.2021.12.01.15.48.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Dec 2021 15:48:27 -0800 (PST)
-Message-ID: <61a809cb.1c69fb81.865ac.4390@mx.google.com>
-Date:   Wed, 01 Dec 2021 15:48:27 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1354541AbhLBAhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Dec 2021 19:37:14 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:54320 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234629AbhLBAhN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Dec 2021 19:37:13 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 37D1ECE2073;
+        Thu,  2 Dec 2021 00:33:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 670ADC00446;
+        Thu,  2 Dec 2021 00:33:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638405228;
+        bh=fK50A5ZEtQ/gc+GzicoES0DTBRVS8nbuJtayBMo2NDs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Oz5wJU82tsToBBShZ/o6FQ+RGFuw6lRYxOl004naxmg+MWnSrpS37rfEUIeP2uzE0
+         514OpLEyoiDJl3MwWe6qElQFed6n8hb4OrzfnLGr1I82mPwfA3ndgwy7swl0NIl19Y
+         roWFkqyCe/07LKMmWu+LXIV/j3yMzLnnk/rvMDFy2yVciJNBnFkxIi6+uFXX4GAiC3
+         BfnFKPLRGYaVo5swRPScr2RU4L8m7IKg7UwFDaCfq3XKYUZn7io0JhoME3HMNbhXz4
+         jid2FIWrz26kgjaFuDTTzJTMozBHXyYalYgG+62DQWwYiy+VL6rJC+HxQxySbI7/s2
+         Z6zHBxsZHonHQ==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id 39A5A5C0FCD; Wed,  1 Dec 2021 16:33:48 -0800 (PST)
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     rcu@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, kernel-team@fb.com, mingo@kernel.org,
+        jiangshanlai@gmail.com, akpm@linux-foundation.org,
+        mathieu.desnoyers@efficios.com, josh@joshtriplett.org,
+        tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org,
+        dhowells@redhat.com, edumazet@google.com, fweisbec@gmail.com,
+        oleg@redhat.com, joel@joelfernandes.org,
+        Ammar Faizi <ammar.faizi@students.amikom.ac.id>,
+        Bedirhan KURT <windowz414@gnuweeb.org>,
+        Louvian Lyndal <louvianlyndal@gmail.com>,
+        Peter Cordes <peter@cordes.ca>, stable@vger.kernel.org,
+        Willy Tarreau <w@1wt.eu>,
+        "Paul E . McKenney" <paulmck@kernel.org>
+Subject: [PATCH rcu 1/6] tools/nolibc: x86-64: Fix startup code bug
+Date:   Wed,  1 Dec 2021 16:33:41 -0800
+Message-Id: <20211202003346.3129110-1-paulmck@kernel.org>
+X-Mailer: git-send-email 2.31.1.189.g2e36527f23
+In-Reply-To: <20211202003322.GA3128775@paulmck-ThinkPad-P17-Gen-1>
+References: <20211202003322.GA3128775@paulmck-ThinkPad-P17-Gen-1>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.219
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 81 runs, 1 regressions (v4.19.219)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 81 runs, 1 regressions (v4.19.219)
+From: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
 
-Regressions Summary
--------------------
+Before this patch, the `_start` function looks like this:
+```
+0000000000001170 <_start>:
+    1170:	pop    %rdi
+    1171:	mov    %rsp,%rsi
+    1174:	lea    0x8(%rsi,%rdi,8),%rdx
+    1179:	and    $0xfffffffffffffff0,%rsp
+    117d:	sub    $0x8,%rsp
+    1181:	call   1000 <main>
+    1186:	movzbq %al,%rdi
+    118a:	mov    $0x3c,%rax
+    1191:	syscall
+    1193:	hlt
+    1194:	data16 cs nopw 0x0(%rax,%rax,1)
+    119f:	nop
+```
+Note the "and" to %rsp with $-16, it makes the %rsp be 16-byte aligned,
+but then there is a "sub" with $0x8 which makes the %rsp no longer
+16-byte aligned, then it calls main. That's the bug!
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+What actually the x86-64 System V ABI mandates is that right before the
+"call", the %rsp must be 16-byte aligned, not after the "call". So the
+"sub" with $0x8 here breaks the alignment. Remove it.
+
+An example where this rule matters is when the callee needs to align
+its stack at 16-byte for aligned move instruction, like `movdqa` and
+`movaps`. If the callee can't align its stack properly, it will result
+in segmentation fault.
+
+x86-64 System V ABI also mandates the deepest stack frame should be
+zero. Just to be safe, let's zero the %rbp on startup as the content
+of %rbp may be unspecified when the program starts. Now it looks like
+this:
+```
+0000000000001170 <_start>:
+    1170:	pop    %rdi
+    1171:	mov    %rsp,%rsi
+    1174:	lea    0x8(%rsi,%rdi,8),%rdx
+    1179:	xor    %ebp,%ebp                # zero the %rbp
+    117b:	and    $0xfffffffffffffff0,%rsp # align the %rsp
+    117f:	call   1000 <main>
+    1184:	movzbq %al,%rdi
+    1188:	mov    $0x3c,%rax
+    118f:	syscall
+    1191:	hlt
+    1192:	data16 cs nopw 0x0(%rax,%rax,1)
+    119d:	nopl   (%rax)
+```
+
+Cc: Bedirhan KURT <windowz414@gnuweeb.org>
+Cc: Louvian Lyndal <louvianlyndal@gmail.com>
+Reported-by: Peter Cordes <peter@cordes.ca>
+Signed-off-by: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
+[wt: I did this on purpose due to a misunderstanding of the spec, other
+     archs will thus have to be rechecked, particularly i386]
+Cc: stable@vger.kernel.org
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ tools/include/nolibc/nolibc.h | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
+diff --git a/tools/include/nolibc/nolibc.h b/tools/include/nolibc/nolibc.h
+index 3430667b0d241..96b6d56acb572 100644
+--- a/tools/include/nolibc/nolibc.h
++++ b/tools/include/nolibc/nolibc.h
+@@ -399,14 +399,20 @@ struct stat {
+ })
+ 
+ /* startup code */
++/*
++ * x86-64 System V ABI mandates:
++ * 1) %rsp must be 16-byte aligned right before the function call.
++ * 2) The deepest stack frame should be zero (the %rbp).
++ *
++ */
+ asm(".section .text\n"
+     ".global _start\n"
+     "_start:\n"
+     "pop %rdi\n"                // argc   (first arg, %rdi)
+     "mov %rsp, %rsi\n"          // argv[] (second arg, %rsi)
+     "lea 8(%rsi,%rdi,8),%rdx\n" // then a NULL then envp (third arg, %rdx)
+-    "and $-16, %rsp\n"          // x86 ABI : esp must be 16-byte aligned when
+-    "sub $8, %rsp\n"            // entering the callee
++    "xor %ebp, %ebp\n"          // zero the stack frame
++    "and $-16, %rsp\n"          // x86 ABI : esp must be 16-byte aligned before call
+     "call main\n"               // main() returns the status code, we'll exit with it.
+     "movzb %al, %rdi\n"         // retrieve exit code from 8 lower bits
+     "mov $60, %rax\n"           // NR_exit == 60
+-- 
+2.31.1.189.g2e36527f23
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.219/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.219
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      24e6b4723c20c874840781dcd31e681502b8adca =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a7d2177c25022bc01a9489
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-19/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-19/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a7d2177c25022=
-bc01a948c
-        failing since 5 days (last pass: v4.19.217-321-g616d1abb62383, firs=
-t fail: v4.19.218)
-        2 lines
-
-    2021-12-01T19:50:34.480126  <8>[   21.539733] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-01T19:50:34.528836  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/102
-    2021-12-01T19:50:34.538261  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
