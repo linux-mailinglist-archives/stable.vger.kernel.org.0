@@ -2,129 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C20BB466689
-	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 16:34:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9B04666A7
+	for <lists+stable@lfdr.de>; Thu,  2 Dec 2021 16:35:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347725AbhLBPhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Dec 2021 10:37:19 -0500
-Received: from 8bytes.org ([81.169.241.247]:37312 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358975AbhLBPhS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Dec 2021 10:37:18 -0500
-Received: from cap.home.8bytes.org (p5b006edb.dip0.t-ipconnect.de [91.0.110.219])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        id S1359053AbhLBPjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Dec 2021 10:39:11 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41510 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359051AbhLBPjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Dec 2021 10:39:11 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id 7975EE41;
-        Thu,  2 Dec 2021 16:33:52 +0100 (CET)
-From:   Joerg Roedel <joro@8bytes.org>
-To:     x86@kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        linux-kernel@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org
-Subject: [PATCH v4 4/4] x86/64/mm: Map all kernel memory into trampoline_pgd
-Date:   Thu,  2 Dec 2021 16:32:26 +0100
-Message-Id: <20211202153226.22946-5-joro@8bytes.org>
-X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211202153226.22946-1-joro@8bytes.org>
-References: <20211202153226.22946-1-joro@8bytes.org>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E242B823B6
+        for <stable@vger.kernel.org>; Thu,  2 Dec 2021 15:35:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D25DBC53FCF;
+        Thu,  2 Dec 2021 15:35:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638459346;
+        bh=D0EJJqHEbvXfvMdFNFTsicc61NiLw2m3FfY5U9qwqgs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tx72Xj2y3W4L67WvBGNqa/paiA4LEECaZ1xQaZmkbVS+AdGNIGDaHHKncfHCSWpUJ
+         SaxiH7jRZG/U5SkLawfAdc4KhMc2tJyY5B5s8CsInp9BqkJjSgm2f7ifO8KBe1olcm
+         OwXQM+tsrSlMMs/L1dOv7k8wjiZ40AZHfml0Yqpg=
+Date:   Thu, 2 Dec 2021 16:35:43 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Oleksij Rempel <o.rempel@pengutronix.de>
+Cc:     stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: Re: [PATCH v1] can: j1939: j1939_tp_cmd_recv(): check the dst
+ address of TP.CM_BAM
+Message-ID: <Yajnz5OhwHyCfFaq@kroah.com>
+References: <20211201102549.3079360-1-o.rempel@pengutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211201102549.3079360-1-o.rempel@pengutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On Wed, Dec 01, 2021 at 11:25:49AM +0100, Oleksij Rempel wrote:
+> From: Zhang Changzhong <zhangchangzhong@huawei.com>
+> 
+> commit 164051a6ab5445bd97f719f50b16db8b32174269 upstream.
+> 
+> The TP.CM_BAM message must be sent to the global address [1], so add a
+> check to drop TP.CM_BAM sent to a non-global address.
+> 
+> Without this patch, the receiver will treat the following packets as
+> normal RTS/CTS transport:
+> 18EC0102#20090002FF002301
+> 18EB0102#0100000000000000
+> 18EB0102#020000FFFFFFFFFF
+> 
+> [1] SAE-J1939-82 2015 A.3.3 Row 1.
+> 
+> Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+> Link: https://lore.kernel.org/all/1635431907-15617-4-git-send-email-zhangchangzhong@huawei.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+> Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> ---
+> changes:
+>  - rebase against v5.10.82
 
-The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
-range of kernel memory (with 4-level paging). This range contains the
-kernels text+data+bss mappings and the module mapping space, but not the
-direct mapping and the vmalloc area.
+Now queued up, thanks!  Can you also do this for 5.4.y?
 
-This is enough to get an application processors out of real-mode, but
-for code that switches back to real-mode the trampoline_pgd is missing
-important parts of the address space. For example, consider this code
-from arch/x86/kernel/reboot.c, function machine_real_restart() for a
-64-bit kernel:
-
-	#ifdef CONFIG_X86_32
-		load_cr3(initial_page_table);
-	#else
-		write_cr3(real_mode_header->trampoline_pgd);
-
-		/* Exiting long mode will fail if CR4.PCIDE is set. */
-		if (boot_cpu_has(X86_FEATURE_PCID))
-			cr4_clear_bits(X86_CR4_PCIDE);
-	#endif
-
-		/* Jump to the identity-mapped low memory code */
-	#ifdef CONFIG_X86_32
-		asm volatile("jmpl *%0" : :
-			     "rm" (real_mode_header->machine_real_restart_asm),
-			     "a" (type));
-	#else
-		asm volatile("ljmpl *%0" : :
-			     "m" (real_mode_header->machine_real_restart_asm),
-			     "D" (type));
-	#endif
-
-The code switches to the trampoline_pgd, which unmaps the direct mapping
-and also the kernel stack. The call to cr4_clear_bits() will find no
-stack and crash the machine. The real_mode_header pointer below points
-into the direct mapping, and dereferencing it also causes a crash.
-
-The reason this does not crash always is only that kernel mappings are
-global and the CR3 switch does not flush those mappings. But if theses
-mappings are not in the TLB already, the above code will crash before it
-can jump to the real-mode stub.
-
-Extend the trampoline_pgd to contain all kernel mappings to prevent
-these crashes and to make code which runs on this page-table more
-robust.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- arch/x86/realmode/init.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 6d98609387ba..c5e29db02a46 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -98,6 +98,7 @@ static void __init setup_real_mode(void)
- #ifdef CONFIG_X86_64
- 	u64 *trampoline_pgd;
- 	u64 efer;
-+	int i;
- #endif
- 
- 	base = (unsigned char *)real_mode_header;
-@@ -154,8 +155,17 @@ static void __init setup_real_mode(void)
- 	trampoline_header->flags = 0;
- 
- 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
-+
-+	/* Map the real mode stub as virtual == physical */
- 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
--	trampoline_pgd[511] = init_top_pgt[511].pgd;
-+
-+	/*
-+	 * Include the entirety of the kernel mapping into the trampoline
-+	 * PGD.  This way, all mappings present in the normal kernel page
-+	 * tables are usable while running on trampoline_pgd.
-+	 */
-+	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
-+		trampoline_pgd[i] = init_top_pgt[i].pgd;
- #endif
- 
- 	sme_sev_setup_real_mode(trampoline_header);
--- 
-2.34.0
-
+greg k-h
