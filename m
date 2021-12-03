@@ -2,193 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE504679A4
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 15:46:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D07D84679C6
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 15:53:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381560AbhLCOtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Dec 2021 09:49:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57346 "EHLO
+        id S1381530AbhLCO4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Dec 2021 09:56:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381548AbhLCOtp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 09:49:45 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6197C061751
-        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 06:46:20 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id p18so2533150wmq.5
-        for <stable@vger.kernel.org>; Fri, 03 Dec 2021 06:46:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=v4VOMillbCsUUfD1LU3KOFh8EAHKlb6MpbuMP36w6ao=;
-        b=inODXxOYsLADIcXKLE2foYW49r3909nrLMuTPkHQN16A2nQy6zeLBh/WhPypLO5avJ
-         RmeOJQ3z7jB0b1j9zzIhYBmMcFHvSppx0QIOIO/dVEh3h27BoESwCdouXZSdF4RnhUxv
-         guYkjIx33yIIaVcApfIG4isd0xhugX3UsyOQDIBhxGkt74eKopjU4BxEztqUjohymV6H
-         RvqxZu8kXgpawYu8OqG2Qe4rPXP39Xc32N5nRTKHZc7SDzIe1+ljOnEqKPHzum0G8uIP
-         11UqHSiCZb5w8eH+HcsnLkgBwvR0I0DQp6RKBHX2QIYd/kgapJ0D6XWIzjxtzVk6OcKX
-         +tDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=v4VOMillbCsUUfD1LU3KOFh8EAHKlb6MpbuMP36w6ao=;
-        b=03cJxBXRMHuZbgFo9FSuQURmCfHRQKi5iQUZXhZ+uCDOCr+FLo/7AuK/VEx3QXUznE
-         Cz8ImpxZIi40DsaDgCKZaBIAU6bd86i98FhZhhJu9vyz2/JzWUkI5wn18LHolXr+bhmP
-         eTYyf8twR1kulpGYYIrMWtjEuxpVk4jHA2+zO8J758sf+YAHuvgb7h6GqWE6Rg7V4siK
-         +3ttJjbHh3sAkUuKW5vbJfmPQcWG+8gDHblsx83WgUcYeJhJR+PExmyFTDF9lhxeTLFd
-         70pomWofELEOQhJ23P0j1h8JV8PoaetKC5MYxPo0wVLCfA/pxtaY3SBiRhgjcdWV8nr+
-         KT/A==
-X-Gm-Message-State: AOAM530LolDax0IUM6/6cai6r6KiODA+YG2bCI0NTza+FVQjrSKdqNn7
-        YwR8rXcjJsjz7sTYpeZeJMDHcg==
-X-Google-Smtp-Source: ABdhPJzxHqETgoDEVRMGwS14ODKhQckKDbC14Nr5NTWkjBLZu5Oc7PUyGjbcnQSzmO06JsWn84ouUw==
-X-Received: by 2002:a1c:770e:: with SMTP id t14mr15217228wmi.173.1638542779194;
-        Fri, 03 Dec 2021 06:46:19 -0800 (PST)
-Received: from google.com ([2.31.167.18])
-        by smtp.gmail.com with ESMTPSA id r8sm3667803wrz.43.2021.12.03.06.46.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Dec 2021 06:46:18 -0800 (PST)
-Date:   Fri, 3 Dec 2021 14:46:16 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
-Cc:     Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
-        "David S. Miller" <davem@davemloft.net>, linux-usb@vger.kernel.org,
+        with ESMTP id S235792AbhLCO4X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 09:56:23 -0500
+Received: from canardo.mork.no (canardo.mork.no [IPv6:2001:4641::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D309C061751;
+        Fri,  3 Dec 2021 06:52:58 -0800 (PST)
+Received: from miraculix.mork.no ([IPv6:2a01:799:c9f:8608:6e64:956a:daea:cf2f])
+        (authenticated bits=0)
+        by canardo.mork.no (8.15.2/8.15.2) with ESMTPSA id 1B3Eqn8e033666
+        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
+        Fri, 3 Dec 2021 15:52:49 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mork.no; s=b;
+        t=1638543169; bh=0cRGgZgMtLbTFNIr5ua2q8OeGBtFQrzP3yDen7RjQKs=;
+        h=From:To:Cc:Subject:References:Date:Message-ID:From;
+        b=VkVnDzMhPxTS8GcsWZjDDBHGV+SMKQtkE1k2EXR6JxOxcxuTDZ+kqpCdXdbe+EMIo
+         ahya8xHVq/YiXHlEBYowVmcojQW8TVgUSaoKiZuV8G5TAe6ymQ3vYgxOfVmhopdoU7
+         50lCk4OFOxpnTx2TXmxnX3ICSzsYLYA+5xzfyD2g=
+Received: from bjorn by miraculix.mork.no with local (Exim 4.94.2)
+        (envelope-from <bjorn@mork.no>)
+        id 1mt9vc-001jj7-T7; Fri, 03 Dec 2021 15:52:48 +0100
+From:   =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oliver Neukum <oliver@neukum.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-usb@vger.kernel.org,
         netdev@vger.kernel.org
 Subject: Re: [PATCH 1/1] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset
  or zero
-Message-ID: <YaotuB5CkQhWHvpQ@google.com>
+Organization: m
 References: <20211202143437.1411410-1-lee.jones@linaro.org>
- <20211202175134.5b463e18@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <87o85yj81l.fsf@miraculix.mork.no>
- <Yan+nvfyS21z7ZUw@google.com>
- <87ilw5kfrm.fsf@miraculix.mork.no>
- <YaoeKfmJrDPhMXWp@google.com>
- <871r2tkb5k.fsf@miraculix.mork.no>
+Date:   Fri, 03 Dec 2021 15:52:48 +0100
+In-Reply-To: <20211202143437.1411410-1-lee.jones@linaro.org> (Lee Jones's
+        message of "Thu, 2 Dec 2021 14:34:37 +0000")
+Message-ID: <87wnklivun.fsf@miraculix.mork.no>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <871r2tkb5k.fsf@miraculix.mork.no>
+Content-Transfer-Encoding: quoted-printable
+X-Virus-Scanned: clamav-milter 0.103.3 at canardo
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 03 Dec 2021, Bjørn Mork wrote:
+Lee Jones <lee.jones@linaro.org> writes:
 
-> Lee Jones <lee.jones@linaro.org> writes:
-> > On Fri, 03 Dec 2021, Bjørn Mork wrote:
-> 
-> >> This I don't understand.  If we have for example
-> >> 
-> >>  new_tx = 0
-> >>  max = 0
-> >>  min = 1514(=datagram) + 8(=ndp) + 2(=1+1) * 4(=dpe) + 12(=nth) = 1542
-> >> 
-> >> then
-> >> 
-> >>  max = max(min, max) = 1542
-> >>  val = clamp_t(u32, new_tx, min, max) = 1542
-> >> 
-> >> so we return 1542 and everything is fine.
-> >
-> > I don't believe so.
-> >
-> > #define clamp_t(type, val, lo, hi) \
-> >               min_t(type, max_t(type, val, lo), hi)
-> >
-> > So:
-> >               min_t(u32, max_t(u32, 0, 1542), 0)
-> 
-> 
-> I don't think so.  If we have:
-> 
->  new_tx = 0
->  max = 0
->  min = 1514(=datagram) + 8(=ndp) + 2(=1+1) * 4(=dpe) + 12(=nth) = 1542
->  max = max(min, max) = 1542
-> 
-> Then we have
-> 
->   min_t(u32, max_t(u32, 0, 1542), 1542)
-> 
-> 
-> If it wasn't clear - My proposal was to change this:
-> 
->   - min = min(min, max);
->   + max = max(min, max);
-> 
-> in the original code.
-
-Oh, I see.  Yes, I missed the reallocation of 'max'.
-
-I thought we were using original values and just changing min() to max().
-
-> But looking further I don't think that's a good idea either.  I searched
-> through old email and found this commit:
-> 
-> commit a6fe67087d7cb916e41b4ad1b3a57c91150edb88
-> Author: Bjørn Mork <bjorn@mork.no>
-> Date:   Fri Nov 1 11:17:01 2013 +0100
-> 
->     net: cdc_ncm: no not set tx_max higher than the device supports
->     
->     There are MBIM devices out there reporting
->     
->       dwNtbInMaxSize=2048 dwNtbOutMaxSize=2048
->     
->     and since the spec require a datagram max size of at least
->     2048, this means that a full sized datagram will never fit.
->     
->     Still, sending larger NTBs than the device supports is not
->     going to help.  We do not have any other options than either
->      a) refusing to bindi, or
->      b) respect the insanely low value.
->     
->     Alternative b will at least make these devices work, so go
->     for it.
->     
->     Cc: Alexey Orishko <alexey.orishko@gmail.com>
->     Signed-off-by: Bjørn Mork <bjorn@mork.no>
->     Signed-off-by: David S. Miller <davem@davemloft.net>
-> 
 > diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
-> index 4531f38fc0e5..11c703337577 100644
+> index 24753a4da7e60..e303b522efb50 100644
 > --- a/drivers/net/usb/cdc_ncm.c
 > +++ b/drivers/net/usb/cdc_ncm.c
-> @@ -159,8 +159,7 @@ static u8 cdc_ncm_setup(struct usbnet *dev)
->         }
->  
->         /* verify maximum size of transmitted NTB in bytes */
-> -       if ((ctx->tx_max < (CDC_NCM_MIN_HDR_SIZE + ctx->max_datagram_size)) ||
-> -           (ctx->tx_max > CDC_NCM_NTB_MAX_SIZE_TX)) {
-> +       if (ctx->tx_max > CDC_NCM_NTB_MAX_SIZE_TX) {
->                 dev_dbg(&dev->intf->dev, "Using default maximum transmit length=%d\n",
->                         CDC_NCM_NTB_MAX_SIZE_TX);
->                 ctx->tx_max = CDC_NCM_NTB_MAX_SIZE_TX;
-> 
-> 
-> 
-> 
-> 
-> So there are real devices depending on a dwNtbOutMaxSize which is too
-> low.  Our calculated minimum for MBIM will not fit.
-> 
-> So let's go back your original test for zero.  It's better than
-> nothing.  I'll just ack that.
+> @@ -181,6 +181,8 @@ static u32 cdc_ncm_check_tx_max(struct usbnet *dev, u=
+32 new_tx)
+>  		min =3D ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb=
+_cdc_ncm_nth32);
+>=20=20
+>  	max =3D min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.d=
+wNtbOutMaxSize));
+> +	if (max =3D=3D 0)
+> +		max =3D CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
+>=20=20
+>  	/* some devices set dwNtbOutMaxSize too low for the above default */
+>  	min =3D min(min, max);
 
-Sure, no problem.
+I believe this is the best possible fix, considering the regressions
+anything stricter might cause.
 
-Thanks for conversing with me.
+We know of at least one MBIM device where dwNtbOutMaxSize is as low as
+2048.
 
-> > Perhaps we should use max_t() here instead of clamp?
-> 
-> No.  That would allow userspace to set an unlimited buffer size.
+According to the MBIM spec, the minimum and default value for
+wMaxSegmentSize is also 2048.  This implies that the calculated "min"
+value is at least 2076, which is why we need that odd looking
 
-Right, I see.
+  min =3D min(min, max);
 
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+So let's just fix this specific zero case without breaking the
+non-conforming devices.
+
+
+Reviewed-by: Bj=C3=B8rn Mork <bjorn@mork.no>
