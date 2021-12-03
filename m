@@ -2,91 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 979DC467F50
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 22:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6260E467F55
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 22:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233581AbhLCVbf convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 3 Dec 2021 16:31:35 -0500
-Received: from coyote.holtmann.net ([212.227.132.17]:37473 "EHLO
-        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239861AbhLCVbe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 16:31:34 -0500
-Received: from smtpclient.apple (p5b3d2e91.dip0.t-ipconnect.de [91.61.46.145])
-        by mail.holtmann.org (Postfix) with ESMTPSA id 78BE2CED21;
-        Fri,  3 Dec 2021 22:28:08 +0100 (CET)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
-Subject: Re: [PATCH v10 1/2] Bluetooth: add quirk disabling LE Read Transmit
- Power
-From:   Marcel Holtmann <marcel@holtmann.org>
-In-Reply-To: <DCEC0C45-D974-4DC7-9E86-8F2D3D8F7E1D@live.com>
-Date:   Fri, 3 Dec 2021 22:28:08 +0100
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Daniel Winkler <danielwinkler@google.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Transfer-Encoding: 8BIT
-Message-Id: <9B2391DD-47B0-4C18-A043-F90E38BB843B@holtmann.org>
-References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
- <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
- <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
- <20211117124717.12352-1-redecorating@protonmail.com>
- <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
- <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
- <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
- <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
- <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
- <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
- <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
- <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
- <92FBACD6-F4F2-4DE8-9000-2D30852770FC@live.com>
- <3716D644-CD1B-4A5C-BC96-A51FF360E31D@live.com>
- <9E6473A2-2ABE-4692-8DCF-D8F06BDEAE29@live.com>
- <64E15BD0-665E-471F-94D9-991DFB87DEA0@live.com>
- <A6DD9616-E669-4382-95A0-B9DBAF46712D@live.com>
- <312202C7-C7BE-497D-8093-218C68176658@live.com>
- <CDAA8BE2-F2B0-4020-AEB3-5C9DD4A6E08C@live.com>
- <3F7CFEF0-10D6-4046-A3AE-33ECF81A2EB3@live.com>
- <DCEC0C45-D974-4DC7-9E86-8F2D3D8F7E1D@live.com>
-To:     Aditya Garg <gargaditya08@live.com>
-X-Mailer: Apple Mail (2.3693.20.0.1.32)
+        id S1353981AbhLCVbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Dec 2021 16:31:42 -0500
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:43010
+        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1354069AbhLCVbl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 16:31:41 -0500
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 37D7C3F1F7
+        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 21:28:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1638566896;
+        bh=aELhFy+TuMmllfjvVWTVSx286LtfBt9wC9Wu3gXO6nI=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=msgFoLKvDpedw7784GseJpRj8WlYoM6wksWdi//NYqrIQn4WXYWHXgH48rZHMWB77
+         WIhvmNjLKbBsMdTVsFJSCW0RETZqUtgbTxm/UV05w7FysoAtHLmq7KeoaKysV8eD3Y
+         DQWNHW3gWApDT80mrVTQuM9fefvLo/TKJJdPezhqaXOrXFSKwmioFfcVyQnuuzyb5M
+         hNEke2UuOoMsJ6TRQ1AIfgBl/HC+eyXJ+O0s2nFq6cOaYnuLzoQGwbHKerRmOTZJRZ
+         iGeINqWSQfUZyLn0I6U/AglxhqeFC3h1wGW+Jb7OYS9Gi3ww6FSWi0gmAQhge6rQI9
+         AWnyIZ6p4NN1g==
+Received: by mail-pj1-f69.google.com with SMTP id lt10-20020a17090b354a00b001a649326aedso4728846pjb.5
+        for <stable@vger.kernel.org>; Fri, 03 Dec 2021 13:28:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=aELhFy+TuMmllfjvVWTVSx286LtfBt9wC9Wu3gXO6nI=;
+        b=cNCVYAb3Smj/CT+8d3IR5lMiZ7P4Y3KxyK8vCjHqoIwqyHZBjOk1rg3Sj8NsJMRmqI
+         ex009TbPRUn59UptI0uJZArgWWOLBq/3V+AzlG0kys20pcnC0RAbK1xn0zP4RhYx6hf3
+         uEH/BxgfSd1Ito4AY63/BRzS2wR2cOze5wlGn6+y/Pi5fey/16UGwJH5bt7cWhwbSu5p
+         HRDAQ6jFYuB20VvXEzzD3EJLe9LA3a+VzmiI/xkuJZPjdYmjk9ifhx8FvqOi25MCEwDn
+         e+qwPa0UQPC1JVxlG5nefAYodq1ZR8qy9PG9gScJ08zIFNF5DDq9ux7QD+mvxPOghpiY
+         unWQ==
+X-Gm-Message-State: AOAM5323AV88v/YBDNWeHwBIrnqJ7mpcKBfJcVGL8ygZYHpvK3yWeIPM
+        I8KExgc1UjAypnpikAQayRVeA7a1aUdY31BgFuaPLu5vNTCqyTBY7Z50bM/amkxB7rzw9q1ZSJ/
+        SpQF794BH6mAJxt5OgnEE44hbrQJ2jbk0VA==
+X-Received: by 2002:a17:903:11c4:b0:141:da55:6158 with SMTP id q4-20020a17090311c400b00141da556158mr25889926plh.7.1638566894833;
+        Fri, 03 Dec 2021 13:28:14 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxhWOWkIFlHTyIJF631Si4ZatnfvOhhJ25S1lchj0OJT43954ClTWLLJtDW/e2sHWw7PicEKA==
+X-Received: by 2002:a17:903:11c4:b0:141:da55:6158 with SMTP id q4-20020a17090311c400b00141da556158mr25889898plh.7.1638566894616;
+        Fri, 03 Dec 2021 13:28:14 -0800 (PST)
+Received: from canonical.com (node-1w7jr9yebujeq5th4a1ypmeui.ipv6.telus.net. [2001:56a:78ed:fb00::5aa])
+        by smtp.gmail.com with ESMTPSA id fw21sm6043587pjb.25.2021.12.03.13.28.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Dec 2021 13:28:14 -0800 (PST)
+From:   Alex Hung <alex.hung@canonical.com>
+To:     alex.hung@canonical.com, hdegoede@redhat.com, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] platform/x86/intel: hid: add quirk to support Surface Go 3
+Date:   Fri,  3 Dec 2021 14:28:10 -0700
+Message-Id: <20211203212810.2666508-1-alex.hung@canonical.com>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Aditya,
+Similar to other systems Surface Go 3 requires a DMI quirk to enable
+5 button array for power and volume buttons.
 
-> Some devices have a bug causing them to not work if they query
-> LE tx power on startup. Thus we add a quirk in order to not query it
-> and default min/max tx power values to HCI_TX_POWER_INVALID.
-> 
-> Signed-off-by: Aditya Garg <gargaditya08@live.com>
-> Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
-> Tested-by: Orlando Chamberlain <redecorating@protonmail.com>
-> Link:
-> https://lore.kernel.org/r/4970a940-211b-25d6-edab-21a815313954@protonmail.com
-> Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
-> Cc: stable@vger.kernel.org
-> ---
-> v7 :- Added Tested-by.
-> v8 :- Fix checkpatch error.
-> v9 :- Remake patch for Bluetooth-next tree and add Cc: stable@vger.kernel.org
-> v10 :- Fix gitlint
-> include/net/bluetooth/hci.h | 9 +++++++++
-> net/bluetooth/hci_sync.c    | 3 ++-
-> 2 files changed, 11 insertions(+), 1 deletion(-)
+Buglink: https://github.com/linux-surface/linux-surface/issues/595
 
-patch has been applied to bluetooth-next tree.
+Cc: stable@vger.kernel.org
+Signed-off-by: Alex Hung <alex.hung@canonical.com>
+---
+ drivers/platform/x86/intel/hid.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Regards
-
-Marcel
+diff --git a/drivers/platform/x86/intel/hid.c b/drivers/platform/x86/intel/hid.c
+index 08598942a6d7..13f8cf70b9ae 100644
+--- a/drivers/platform/x86/intel/hid.c
++++ b/drivers/platform/x86/intel/hid.c
+@@ -99,6 +99,13 @@ static const struct dmi_system_id button_array_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Tablet Gen 2"),
+ 		},
+ 	},
++	{
++		.ident = "Microsoft Surface Go 3",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Surface Go 3"),
++		},
++	},
+ 	{ }
+ };
+ 
+-- 
+2.34.1
 
