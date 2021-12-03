@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D65C467F4F
+	by mail.lfdr.de (Postfix) with ESMTP id 979DC467F50
 	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 22:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240593AbhLCVbd convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 3 Dec 2021 16:31:33 -0500
-Received: from coyote.holtmann.net ([212.227.132.17]:59340 "EHLO
+        id S233581AbhLCVbf convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 3 Dec 2021 16:31:35 -0500
+Received: from coyote.holtmann.net ([212.227.132.17]:37473 "EHLO
         mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233581AbhLCVbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 16:31:33 -0500
+        with ESMTP id S239861AbhLCVbe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 16:31:34 -0500
 Received: from smtpclient.apple (p5b3d2e91.dip0.t-ipconnect.de [91.61.46.145])
-        by mail.holtmann.org (Postfix) with ESMTPSA id 48360CED20;
-        Fri,  3 Dec 2021 22:28:07 +0100 (CET)
+        by mail.holtmann.org (Postfix) with ESMTPSA id 78BE2CED21;
+        Fri,  3 Dec 2021 22:28:08 +0100 (CET)
 Content-Type: text/plain;
         charset=us-ascii
 Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
-Subject: Re: [PATCH v10 2/2] btbcm: disable read tx power for some Macs with
- the T2 Security chip
+Subject: Re: [PATCH v10 1/2] Bluetooth: add quirk disabling LE Read Transmit
+ Power
 From:   Marcel Holtmann <marcel@holtmann.org>
-In-Reply-To: <51575680-E9C3-4962-A3C4-ADCBD6DBCA00@live.com>
-Date:   Fri, 3 Dec 2021 22:28:06 +0100
+In-Reply-To: <DCEC0C45-D974-4DC7-9E86-8F2D3D8F7E1D@live.com>
+Date:   Fri, 3 Dec 2021 22:28:08 +0100
 Cc:     Greg KH <gregkh@linuxfoundation.org>,
         Thorsten Leemhuis <regressions@leemhuis.info>,
         Orlando Chamberlain <redecorating@protonmail.com>,
@@ -34,7 +34,7 @@ Cc:     Greg KH <gregkh@linuxfoundation.org>,
         "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
 Content-Transfer-Encoding: 8BIT
-Message-Id: <BF89065D-FE7B-4E57-BFEF-DEACC67C25AB@holtmann.org>
+Message-Id: <9B2391DD-47B0-4C18-A043-F90E38BB843B@holtmann.org>
 References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
  <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
  <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
@@ -56,7 +56,6 @@ References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
  <CDAA8BE2-F2B0-4020-AEB3-5C9DD4A6E08C@live.com>
  <3F7CFEF0-10D6-4046-A3AE-33ECF81A2EB3@live.com>
  <DCEC0C45-D974-4DC7-9E86-8F2D3D8F7E1D@live.com>
- <51575680-E9C3-4962-A3C4-ADCBD6DBCA00@live.com>
 To:     Aditya Garg <gargaditya08@live.com>
 X-Mailer: Apple Mail (2.3693.20.0.1.32)
 Precedence: bulk
@@ -65,8 +64,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Aditya,
 
-> Some Macs with the T2 security chip had Bluetooth not working.
-> To fix it we add DMI based quirks to disable querying of LE Tx power.
+> Some devices have a bug causing them to not work if they query
+> LE tx power on startup. Thus we add a quirk in order to not query it
+> and default min/max tx power values to HCI_TX_POWER_INVALID.
 > 
 > Signed-off-by: Aditya Garg <gargaditya08@live.com>
 > Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
@@ -76,12 +76,13 @@ Hi Aditya,
 > Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
 > Cc: stable@vger.kernel.org
 > ---
-> v7 :- Removed unused variable and added Tested-by.
-> v8 :- No change.
-> v9 :- Add Cc: stable@vger.kernel.org
+> v7 :- Added Tested-by.
+> v8 :- Fix checkpatch error.
+> v9 :- Remake patch for Bluetooth-next tree and add Cc: stable@vger.kernel.org
 > v10 :- Fix gitlint
-> drivers/bluetooth/btbcm.c | 39 +++++++++++++++++++++++++++++++++++++++
-> 1 file changed, 39 insertions(+)
+> include/net/bluetooth/hci.h | 9 +++++++++
+> net/bluetooth/hci_sync.c    | 3 ++-
+> 2 files changed, 11 insertions(+), 1 deletion(-)
 
 patch has been applied to bluetooth-next tree.
 
