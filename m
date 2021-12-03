@@ -2,76 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09886466F66
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 02:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0508246709E
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 04:17:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234906AbhLCCAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Dec 2021 21:00:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51626 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233642AbhLCCAC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Dec 2021 21:00:02 -0500
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38517C06174A
-        for <stable@vger.kernel.org>; Thu,  2 Dec 2021 17:56:39 -0800 (PST)
-Received: by mail-wr1-x444.google.com with SMTP id u1so2411394wru.13
-        for <stable@vger.kernel.org>; Thu, 02 Dec 2021 17:56:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=qizih0hpoN2Oxuf3ELkFllMeTUJyWQ5Ps+UDNIeWJr4=;
-        b=b+3yRfHEjIagVV7ZuAJcDBGxJlt9an0ERSpD/At3P+P+RDSgFU5prI3eX/Vb+wC6KO
-         8rb5dcUIyJzBCYg/fBEJxGqtYxoT8iKwmBnk4xUJH3PCWeL/c0JjEfKq1XmyCHld28P9
-         O/gMFhRvRTz9hOTlI70HlFUDdsUCcVbDPxQge0Xp6uMG0i/0mX54wsFPAbkp6xavlAv7
-         U2AIGhlNChdpSWta4ekKbohBtS4f2KrpHmROgfdDR9WkZQEPUqaF2orYcbVSwBUMXmgZ
-         LhUUl+ljacs1Cw9AUM5StvQL+pu/qBKI4R5rt7TWRxv4FJkLe/ezz8D+Awu8EgaVVwLz
-         n20Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=qizih0hpoN2Oxuf3ELkFllMeTUJyWQ5Ps+UDNIeWJr4=;
-        b=1hbSZIf866SsVRpA1jpS9Y0U8kJUKydmeIKobPuU5LEhNmDA3lElExnji7M2rItyyI
-         VJ4l3gQ7DMEMUzrUhPBc2UEoJAc2RkGkiicPLzCDK9G2dBVYj+OBlA9KPgXKE4gJGhh1
-         uIK3g7brZctgMNf7ZTIimnBWqDE7uhIp2LyB714+rACIb57aojbKxApjNuK/xaqmu5E+
-         2k11hP4TvhpBmj/8SoPUDMGTqRS779JV6hMw8fnzasOWvgcUND/84yY1+kVc9rM3iPMI
-         PBN7/SIN4XvTfIKmOV1J5QECS1XL6ZBg+6ww0MrLUWCIIAdxKBSfPkGT07WRKdv7rqpd
-         u5zw==
-X-Gm-Message-State: AOAM530MeY0FjPQtLOhTIegKmzdk0BzWJuti4oiakV+ne4IcNMCHzWmS
-        QfBaJE71uG1GBya2nuJJ3o0ZMXtPhgYLWT2qj/M=
-X-Google-Smtp-Source: ABdhPJylIXVcxhj/uFu/kX2onXWaCrlrfi/UtIHdxybyQ6umhhwM355bA4n3tNmcp5p7wsYNAwPZmkAhF3I8NyUIjWQ=
-X-Received: by 2002:adf:bc89:: with SMTP id g9mr18336728wrh.578.1638496597545;
- Thu, 02 Dec 2021 17:56:37 -0800 (PST)
+        id S236569AbhLCDVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Dec 2021 22:21:08 -0500
+Received: from szxga02-in.huawei.com ([45.249.212.188]:27337 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231585AbhLCDVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Dec 2021 22:21:08 -0500
+Received: from dggeml756-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4J4ygK4jvtzbjK4;
+        Fri,  3 Dec 2021 11:17:33 +0800 (CST)
+Received: from huawei.com (10.67.174.191) by dggeml756-chm.china.huawei.com
+ (10.1.199.158) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.20; Fri, 3
+ Dec 2021 11:17:42 +0800
+From:   Li Hua <hucool.lihua@huawei.com>
+To:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+CC:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <hucool.lihua@huawei.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2, RESEND] sched/rt: Try to restart rt period timer when rt runtime exceeded
+Date:   Fri, 3 Dec 2021 03:36:18 +0000
+Message-ID: <20211203033618.11895-1-hucool.lihua@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Received: by 2002:adf:f404:0:0:0:0:0 with HTTP; Thu, 2 Dec 2021 17:56:37 -0800 (PST)
-Reply-To: hamadoufabien2@gmail.com
-From:   "Mr.Hamadou" <dr.youssefbakary1960@gmail.com>
-Date:   Thu, 2 Dec 2021 17:56:37 -0800
-Message-ID: <CAB45cNYrGqn3-p7+shGWcjRxsApZ2aSiP4eNQXUmGr6qbztyiw@mail.gmail.com>
-Subject: STRICTLY AND CONFIDENT.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.191]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggeml756-chm.china.huawei.com (10.1.199.158)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend.
+When rt_runtime is modified from -1 to a valid control value, it may
+cause the task to be throttled all the time. Operations like the following
+will trigger the bug. E.g:
+1. echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+2. Run a FIFO task named A that executes while(1)
+3. echo 950000 > /proc/sys/kernel/sched_rt_runtime_us
 
-My name is Mr.Hamadou Fabien. I am working with one of the prime banks
-in Burkina Faso.
-Here in this bank existed a dormant account for many years, which
-belonged to one of our late foreign customer.
-The amount in this account stands at $13,300,000.00 (Thirteen Million
-Three Hundred Thousand USA Dollars).
+When rt_runtime is -1, The rt period timer will not be activated when task
+A enqueued. And then the task will be throttled after setting rt_runtime to
+950,000. The task will always be throttled because the rt period timer is
+not activated.
 
-I want a foreign account where the bank will transfer this fund. I
-know you would be surprised to read this message,
-especially from someone relatively unknown to you. But do not worry
-yourself so much. This is a genuine risk free and legal business
-transaction.
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+---
+v1->v2:
+  - call do_start_rt_bandwidth to reduce repetitive code.
+  - use raw_spin_lock_irqsave to avoid deadlock on a timer context.
+---
+ kernel/sched/rt.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-Reply back to me urgently, if you are interested. All details shall be
-sent to you once I hear from you.
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index b48baaba2fc2..7b4f4fbbb404 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -52,11 +52,8 @@ void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime)
+ 	rt_b->rt_period_timer.function = sched_rt_period_timer;
+ }
+ 
+-static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
++static inline void do_start_rt_bandwidth(struct rt_bandwidth *rt_b)
+ {
+-	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
+-		return;
+-
+ 	raw_spin_lock(&rt_b->rt_runtime_lock);
+ 	if (!rt_b->rt_period_active) {
+ 		rt_b->rt_period_active = 1;
+@@ -75,6 +72,14 @@ static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
+ 	raw_spin_unlock(&rt_b->rt_runtime_lock);
+ }
+ 
++static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
++{
++	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
++		return;
++
++	do_start_rt_bandwidth(rt_b);
++}
++
+ void init_rt_rq(struct rt_rq *rt_rq)
+ {
+ 	struct rt_prio_array *array;
+@@ -1031,13 +1036,17 @@ static void update_curr_rt(struct rq *rq)
+ 
+ 	for_each_sched_rt_entity(rt_se) {
+ 		struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
++		int exceeded;
+ 
+ 		if (sched_rt_runtime(rt_rq) != RUNTIME_INF) {
+ 			raw_spin_lock(&rt_rq->rt_runtime_lock);
+ 			rt_rq->rt_time += delta_exec;
+-			if (sched_rt_runtime_exceeded(rt_rq))
++			exceeded = sched_rt_runtime_exceeded(rt_rq);
++			if (exceeded)
+ 				resched_curr(rq);
+ 			raw_spin_unlock(&rt_rq->rt_runtime_lock);
++			if (exceeded)
++				do_start_rt_bandwidth(sched_rt_bandwidth(rt_rq));
+ 		}
+ 	}
+ }
+@@ -2911,8 +2920,12 @@ static int sched_rt_global_validate(void)
+ 
+ static void sched_rt_do_global(void)
+ {
++	unsigned long flags;
++
++	raw_spin_lock_irqsave(&def_rt_bandwidth.rt_runtime_lock, flags);
+ 	def_rt_bandwidth.rt_runtime = global_rt_runtime();
+ 	def_rt_bandwidth.rt_period = ns_to_ktime(global_rt_period());
++	raw_spin_unlock_irqrestore(&def_rt_bandwidth.rt_runtime_lock, flags);
+ }
+ 
+ int sched_rt_handler(struct ctl_table *table, int write, void *buffer,
+-- 
+2.17.1
 
-Best regards,
-Mr.Hamadou Fabien.
