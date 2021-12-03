@@ -2,84 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB7D4467521
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 11:31:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 494DC467522
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 11:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380064AbhLCKeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Dec 2021 05:34:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54536 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351513AbhLCKee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 05:34:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED635C06174A
-        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 02:31:10 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 45C34CE2596
-        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 10:31:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E22E9C53FCB;
-        Fri,  3 Dec 2021 10:31:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638527467;
-        bh=2mUf6zyHZyptuotSkRb5u7YuM/ztD3ngU73FQqqj8O8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KaI/S9yM4ws/PP2d4mpwBWHMHlfQ3yxVvzy+gb0yWRMyM9bfjEUtpiJs2X5sk0hu6
-         dcYNcbqaxnTwoDdf+3FzICR7dKzasyVNppiM40DfrG3vAGWZR2otzU2OdNv5zAlJA4
-         MHTxh0rvIojVewh3NLIOE+NWcAZ7mxNl90PWbnh0=
-Date:   Fri, 3 Dec 2021 11:31:04 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Stan Hu <stanhu@gmail.com>
-Cc:     stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
-Subject: Re: Request for cherry-picking overlayfs fixes in 5.10.x stable
-Message-ID: <Yanx6KobwiQoBQfU@kroah.com>
-References: <CAMBWrQ=1MKxnMT_6Jnqp_xxr7psVywPBJc6p1qCy9ENY8RF2Qw@mail.gmail.com>
+        id S232769AbhLCKfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Dec 2021 05:35:40 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:55409 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231630AbhLCKfg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 05:35:36 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id D6C6D5C03E5;
+        Fri,  3 Dec 2021 05:32:12 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 03 Dec 2021 05:32:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=A8v/ZZnWdFM8OAkP8mS/D/fS0Ya
+        VKxSuLHnhgfoaeHs=; b=gFMe824DTquAYFry76RoPkU1m9yP5PXBDVH49kg6uRF
+        Mz1WZa4nNE2cmczgdMjoE6egyQGatNCgCpyMQIzcqd6kC/oH4aLJkVDtG0kSr6LK
+        xyER1G3jWriLhHrQL77C2LvlNnmws8sDPcnIGbO2f4tcypqRR4nhk68wAe5d4bVN
+        ZboCurL9Gm8adB/o0iVFEjV/va5M9jXzyaoIzRBfWkmFFZXoQ0X/NHSfWcKiLTYs
+        RPpGvcl83ilQ5pkkBWhmRZck1PbeYXw3kOeFDFNH2fL9wxJWg17axuWO05CpTwre
+        dUoDp55cth6xngSk9AV07mTpe8HlNCKuCmK9dx1jK4Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=A8v/ZZ
+        nWdFM8OAkP8mS/D/fS0YaVKxSuLHnhgfoaeHs=; b=TL+rpRAY862v6tyQ7jnxRz
+        RgPvql3xg29I05O5xlyxZ5z1Mp0EwEHaBytZEUL0tzI747ysNE9j/wc5lbTmMTg+
+        8NMAt7vdIYPJwcDkFovVsSLFHxKCC3JTj5iJLH8ga7ll1Y1L8OsatjIt84dLUupG
+        2ilF0etqzPhLH7u91zLu4+OFNyKZwHyo2QgrWSNL7j9N7ZnRem5hh0ULzflQaZJC
+        UNq0Vv069qMxgPMPtDQTIiN5E0ABlRZRkvoGdfKVvph+TFuJPhVZtvFXlIVEquMd
+        pFIcFB0BpWeJ3f6q6HMDlFxh9Z8B0uJp5rzrsY4CSU6AX8EwYGf3rJh70L4kH16g
+        ==
+X-ME-Sender: <xms:LPKpYeI6GFAMh3QMBRY4N_Prves2-AjZeX_Pjm0vtd26HEfi4OwnXQ>
+    <xme:LPKpYWI6hmuye27_Od31BiIynMxy4J6V3IkDeu-5NgqDNxO3aiga1vC2qShFuEpE4
+    enuBPOqnUIsIA>
+X-ME-Received: <xmr:LPKpYes_Uyb8q2KZkJrigjr38RRNqtCOSAS2KzRR1hnkuVa0QZ9hfTVN2jKWbvBLvK5LD0IL4jk-8Hl-7edAkP-nd6RqUb1q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrieejgddukecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:LPKpYTbFZhipxvXRs7_JjI6j9-8Ixgc6D3In5XRAP0-9DSvalvZlzQ>
+    <xmx:LPKpYVZA_JZvpGto2cPEG5Xw_sHGv5Ix1CevYTOLRz7gxaunEllxag>
+    <xmx:LPKpYfBEY08YWP6fUASPcxbfLHY0sIy99gyGcNPz7ydPo5y62fD2sA>
+    <xmx:LPKpYaMccqAaSMK7eqGXFDQ6jqdwjiFofOCeBi6O6nWmKSE-Xy0afg>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 3 Dec 2021 05:32:11 -0500 (EST)
+Date:   Fri, 3 Dec 2021 11:32:09 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>
+Subject: Re: [PATCH] can: j1939: j1939_tp_cmd_recv(): check the dst address
+ of TP.CM_BAM
+Message-ID: <YanyKbQL44An1HKH@kroah.com>
+References: <20211202155256.2405492-1-mkl@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMBWrQ=1MKxnMT_6Jnqp_xxr7psVywPBJc6p1qCy9ENY8RF2Qw@mail.gmail.com>
+In-Reply-To: <20211202155256.2405492-1-mkl@pengutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 02, 2021 at 04:29:34PM -0800, Stan Hu wrote:
-> A number of users have reported that under certain conditions using
-> the overlay filesystem, copy_file_range() can unexpectedly create a
-> 0-byte file. [0]
+On Thu, Dec 02, 2021 at 04:52:56PM +0100, Marc Kleine-Budde wrote:
+> From: Zhang Changzhong <zhangchangzhong@huawei.com>
 > 
-> This bug can cause significant problems because applications that copy
-> files expect the target file to match the source immediately after the
-> copy. After upgrading from Linux 5.4 to Linux 5.10, our Docker-based
-> CI tests started failing due to this bug, since Ruby's IO.copy_stream
-> uses this system call. We have worked around the problem by touching
-> the target file before using it, but this shouldn't be necessary.
-> Other projects, such as Rust, have added similar workarounds. [1]
+> commit 164051a6ab5445bd97f719f50b16db8b32174269 upstream.
 > 
-> As discussed in the linux-fsdevel mailing list [2], the bug appears to
-> be present in Linux 5.6 to 5.10, but not in Linux 5.11. We should be
-> able to cherry-pick the following upstream patches to fix this. Could
-> you cherry-pick them to 5.10.x stable? I've confirmed that these
-> patches, applied from top to bottom to that branch, pass the
-> reproduction test [3]:
+> The TP.CM_BAM message must be sent to the global address [1], so add a
+> check to drop TP.CM_BAM sent to a non-global address.
 > 
-> 82a763e61e2b601309d696d4fa514c77d64ee1be
-> 9b91b6b019fda817eb52f728eb9c79b3579760bc
+> Without this patch, the receiver will treat the following packets as
+> normal RTS/CTS transport:
+> 18EC0102#20090002FF002301
+> 18EB0102#0100000000000000
+> 18EB0102#020000FFFFFFFFFF
 > 
-> The diffstat:
+> [1] SAE-J1939-82 2015 A.3.3 Row 1.
 > 
->  fs/overlayfs/file.c | 59
-> +++++++++++++++++++++++++++++++----------------------------
->  1 file changed, 31 insertions(+), 28 deletions(-)
-> 
-> Note that these patches do not pick cleanly into 5.6.x - 5.9.x stable.
-> 
-> [0] https://github.com/docker/for-linux/issues/1015
-> [1] https://github.com/rust-lang/rust/blob/342db70ae4ecc3cd17e4fa6497f0a8d9534ccfeb/library/std/src/sys/unix/kernel_copy.rs#L565-L569
-> [2] https://marc.info/?l=linux-fsdevel&m=163847383311699&w=2
-> [3] https://github.com/docker/for-linux/issues/1015#issuecomment-841915668
+> Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+> Link: https://lore.kernel.org/all/1635431907-15617-4-git-send-email-zhangchangzhong@huawei.com
+> Link: https://lore.kernel.org/all/20211201102549.3079360-1-o.rempel@pengutronix.de
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+> Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> ---
+> changes:
+>  - rebase against v5.4.162
 
-Now queued up, thanks,
+Now queued up, thanks.
 
 greg k-h
-
