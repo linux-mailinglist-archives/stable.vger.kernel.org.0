@@ -2,88 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B46466E7C
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 01:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CC80466F4D
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 02:51:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244390AbhLCAdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Dec 2021 19:33:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60292 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230131AbhLCAdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Dec 2021 19:33:11 -0500
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75232C06174A
-        for <stable@vger.kernel.org>; Thu,  2 Dec 2021 16:29:48 -0800 (PST)
-Received: by mail-lj1-x22c.google.com with SMTP id j18so2830350ljc.12
-        for <stable@vger.kernel.org>; Thu, 02 Dec 2021 16:29:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=O2muo1Ch2KGFYgo2qH1asrLGIwea+ljuD5YO72dacSA=;
-        b=I7qCeZeLdsJXtthxIr2lusNNV0BiGQB2oX8Vgjsubew66BVvVj/qAkm80aGblh6X2l
-         O3YU/2Dja/56a0Z4NeOtbMXTGgSbmgnbTBhcOK1Tv2KI5+iJuvAWEkx8RyM3kICDR0Fw
-         1SVuBc/Ah/bZpNiViZvIWqrNG/Z4AuQXzi8ZjsFW4cqWsGME2vflQXDYeJtTb9ez7+T8
-         2AQTumzIeU8TMC0Yr/nnS/Nw+NXWZz7geD+7Q3okK9gfE/huRLRHgXNBbmhrn/RYBE3J
-         TEryq/HjWcOYFcz0HRbZ5HRZCpKmwfNsIKyNnGSzsvLY5dTPq8MYPnIUNe/ThXUc8yMn
-         us4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=O2muo1Ch2KGFYgo2qH1asrLGIwea+ljuD5YO72dacSA=;
-        b=y3l02OSjtpaTwaNEZ4R9LMPLPMkfWjMXlXmSjDUwP9YE88eqteJBboe2bA5Q/16+pI
-         2octpkzCZ6htfhtIn8z3yR1UW6m8PpdxF18jvSakT4ADZxLXwilENu73m4kxM16Wo3z3
-         43rCunCHXwHzsF46mcUJpiuy84Ubqp088qoPOdEkM7HECaK+3WIBTDgOHcp79+fallPa
-         7/tpzI2XIH6eSJ2o4BBdfAXt63xoWO/zuVEoYSw1nKsJeMY3p84YjqTsxXq+c02KZSai
-         a8Uey6/Qp7n/yve+fWFMciTrm19naq9rPUFSkILekbne7/bvnHjfLG0GwS6SWWppIbSV
-         bAbw==
-X-Gm-Message-State: AOAM530rEswhX14axGL3l6GbGEXJRubC/JOqvoPTifr3CHm50od+6/Kv
-        R5UwPkncqHsG8srtU0CVmmGoO8T5mlz0YKQUQW50nl04TJc=
-X-Google-Smtp-Source: ABdhPJwjIzQ9X1BM1bkUNCyvGRHpS56R/KUE3as5MR4MtKlj2rQ9C8jH+ZkQ3o9HAoAvVL6uOCtm56pfQU3JTVBLVbg=
-X-Received: by 2002:a2e:b894:: with SMTP id r20mr15691386ljp.304.1638491385631;
- Thu, 02 Dec 2021 16:29:45 -0800 (PST)
+        id S242031AbhLCBzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Dec 2021 20:55:00 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51474 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236943AbhLCBzA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Dec 2021 20:55:00 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD91662905;
+        Fri,  3 Dec 2021 01:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F38D6C00446;
+        Fri,  3 Dec 2021 01:51:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638496296;
+        bh=8c4aq1AdxZxDjQt/G6uY3qiBn94axpo7U7Hv78cF/qo=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=L4e0sxUPh5LFvxb1DnC5Z9J+c1ilHchyonJW3i9ecYCK3hkNIxEvSDh4/yq8R3dgP
+         tvq8nHtt1dJkoJ2Qz36dgFmSsIN/zT9q4FBkr4bZAcjNEHOaKDOEFwmBTwIXGI4lFU
+         R7/K26jGw9iprRmpgunkn0FFbyAGe3Af4tCVRJRHYlTdr7PlAZnWOp7YRgTtV/6m3g
+         1FYdQiHF8cNOsp0IjajBMS3dnltPHSypD6ihvEdYpJqdQs+2WNm9BQxw8350u963cK
+         rXjc5avgWyCzzb6ex0TdLgQ+h3IDil6grmbfW+AuDTwlc96vGACOM5XTtrYP/OJc6U
+         JTSj9xC+BHazg==
+Date:   Thu, 2 Dec 2021 17:51:34 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oliver Neukum <oliver@neukum.org>,
+        "David S. Miller" <davem@davemloft.net>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, bjorn@mork.no
+Subject: Re: [PATCH 1/1] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset
+ or zero
+Message-ID: <20211202175134.5b463e18@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20211202143437.1411410-1-lee.jones@linaro.org>
+References: <20211202143437.1411410-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-From:   Stan Hu <stanhu@gmail.com>
-Date:   Thu, 2 Dec 2021 16:29:34 -0800
-Message-ID: <CAMBWrQ=1MKxnMT_6Jnqp_xxr7psVywPBJc6p1qCy9ENY8RF2Qw@mail.gmail.com>
-Subject: Request for cherry-picking overlayfs fixes in 5.10.x stable
-To:     stable@vger.kernel.org
-Cc:     Miklos Szeredi <mszeredi@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A number of users have reported that under certain conditions using
-the overlay filesystem, copy_file_range() can unexpectedly create a
-0-byte file. [0]
+On Thu,  2 Dec 2021 14:34:37 +0000 Lee Jones wrote:
+> Currently, due to the sequential use of min_t() and clamp_t() macros,
+> in cdc_ncm_check_tx_max(), if dwNtbOutMaxSize is not set, the logic
+> sets tx_max to 0.  This is then used to allocate the data area of the
+> SKB requested later in cdc_ncm_fill_tx_frame().
+> 
+> This does not cause an issue presently because when memory is
+> allocated during initialisation phase of SKB creation, more memory
+> (512b) is allocated than is required for the SKB headers alone (320b),
+> leaving some space (512b - 320b = 192b) for CDC data (172b).
+> 
+> However, if more elements (for example 3 x u64 = [24b]) were added to
+> one of the SKB header structs, say 'struct skb_shared_info',
+> increasing its original size (320b [320b aligned]) to something larger
+> (344b [384b aligned]), then suddenly the CDC data (172b) no longer
+> fits in the spare SKB data area (512b - 384b = 128b).
+> 
+> Consequently the SKB bounds checking semantics fails and panics:
+> 
+>   skbuff: skb_over_panic: text:ffffffff830a5b5f len:184 put:172   \
+>      head:ffff888119227c00 data:ffff888119227c00 tail:0xb8 end:0x80 dev:<NULL>
+> 
+>   ------------[ cut here ]------------
+>   kernel BUG at net/core/skbuff.c:110!
+>   RIP: 0010:skb_panic+0x14f/0x160 net/core/skbuff.c:106
+>   <snip>
+>   Call Trace:
+>    <IRQ>
+>    skb_over_panic+0x2c/0x30 net/core/skbuff.c:115
+>    skb_put+0x205/0x210 net/core/skbuff.c:1877
+>    skb_put_zero include/linux/skbuff.h:2270 [inline]
+>    cdc_ncm_ndp16 drivers/net/usb/cdc_ncm.c:1116 [inline]
+>    cdc_ncm_fill_tx_frame+0x127f/0x3d50 drivers/net/usb/cdc_ncm.c:1293
+>    cdc_ncm_tx_fixup+0x98/0xf0 drivers/net/usb/cdc_ncm.c:1514
+> 
+> By overriding the max value with the default CDC_NCM_NTB_MAX_SIZE_TX
+> when not offered through the system provided params, we ensure enough
+> data space is allocated to handle the CDC data, meaning no crash will
+> occur.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Oliver Neukum <oliver@neukum.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: linux-usb@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Fixes: 289507d3364f9 ("net: cdc_ncm: use sysfs for rx/tx aggregation tuning")
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-This bug can cause significant problems because applications that copy
-files expect the target file to match the source immediately after the
-copy. After upgrading from Linux 5.4 to Linux 5.10, our Docker-based
-CI tests started failing due to this bug, since Ruby's IO.copy_stream
-uses this system call. We have worked around the problem by touching
-the target file before using it, but this shouldn't be necessary.
-Other projects, such as Rust, have added similar workarounds. [1]
+CC: bjorn@mork.no
 
-As discussed in the linux-fsdevel mailing list [2], the bug appears to
-be present in Linux 5.6 to 5.10, but not in Linux 5.11. We should be
-able to cherry-pick the following upstream patches to fix this. Could
-you cherry-pick them to 5.10.x stable? I've confirmed that these
-patches, applied from top to bottom to that branch, pass the
-reproduction test [3]:
+Please make sure you CC the authors of all blamed commits as they are
+likely to have the most context.
 
-82a763e61e2b601309d696d4fa514c77d64ee1be
-9b91b6b019fda817eb52f728eb9c79b3579760bc
+> diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+> index 24753a4da7e60..e303b522efb50 100644
+> --- a/drivers/net/usb/cdc_ncm.c
+> +++ b/drivers/net/usb/cdc_ncm.c
+> @@ -181,6 +181,8 @@ static u32 cdc_ncm_check_tx_max(struct usbnet *dev, u32 new_tx)
+>  		min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth32);
+>  
+>  	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
+> +	if (max == 0)
+> +		max = CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
+>  
+>  	/* some devices set dwNtbOutMaxSize too low for the above default */
+>  	min = min(min, max);
 
-The diffstat:
-
- fs/overlayfs/file.c | 59
-+++++++++++++++++++++++++++++++----------------------------
- 1 file changed, 31 insertions(+), 28 deletions(-)
-
-Note that these patches do not pick cleanly into 5.6.x - 5.9.x stable.
-
-[0] https://github.com/docker/for-linux/issues/1015
-[1] https://github.com/rust-lang/rust/blob/342db70ae4ecc3cd17e4fa6497f0a8d9534ccfeb/library/std/src/sys/unix/kernel_copy.rs#L565-L569
-[2] https://marc.info/?l=linux-fsdevel&m=163847383311699&w=2
-[3] https://github.com/docker/for-linux/issues/1015#issuecomment-841915668
