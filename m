@@ -2,84 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DF0467277
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 08:17:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A32467343
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 09:30:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378825AbhLCHVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Dec 2021 02:21:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38964 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378800AbhLCHVJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 02:21:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBCAEC06174A;
-        Thu,  2 Dec 2021 23:17:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1379143AbhLCIdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Dec 2021 03:33:32 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:43908 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244052AbhLCIdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 03:33:31 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B46B62942;
-        Fri,  3 Dec 2021 07:17:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58404C53FC7;
-        Fri,  3 Dec 2021 07:17:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638515864;
-        bh=i0rhTufR5Dba/BowNYQm/wav9bcJqB5wt7mHJZWPIHM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=N2B+u4sxzOHJm99qhNdGH9F0JtekTu5tqzDRdbW0ez1b0i8V0bH1N4ty5wUl8/5ZA
-         rQX3fIq6EQgtDzKmqxy0+Q3pr3EZ1i8a1tOmfEisp7ltnO5oobyHwR8HDaxkEspvDM
-         12XjIK5S53dpCAASYVBkJzwCZDQHwJHE0e/WEg/Y=
-Date:   Fri, 3 Dec 2021 08:17:40 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Li Hua <hucool.lihua@huawei.com>
-Cc:     Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2, RESEND] sched/rt: Try to restart rt period timer when
- rt runtime exceeded
-Message-ID: <YanElPGuGJ8J6UK9@kroah.com>
-References: <20211203033618.11895-1-hucool.lihua@huawei.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id CF2341FD3C;
+        Fri,  3 Dec 2021 08:30:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1638520206; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Paxz2PbJ3ABf+QoTLmxZAgh9n+0xzk9SrTohSl7pwkk=;
+        b=kSucru1oKEfVRiHRu1oP/o1hAlmjYzR6N1aqQkXeKPmOgQxONBO1VjrJZQAHUHF5fE52yK
+        MlZRkecJY7d5lWC5Pj5O8+F2xOTZMG+lFeiTFyBp7s+ZshnszmlL2we/O/jv8uGCjB1+HY
+        YbDQFyl2bgCxEWZ+bbn9RmPUJ+qxu2w=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1638520206;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Paxz2PbJ3ABf+QoTLmxZAgh9n+0xzk9SrTohSl7pwkk=;
+        b=DVfinWFywF5kZKWZWEwp8ExveJDu/qnzWEOkQDaS4mxPYupKcKpenuxvsa0c/qmmgyaU66
+        2teZ3yw2Pff/IBAw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6883B13CF5;
+        Fri,  3 Dec 2021 08:30:06 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Di5XF47VqWGRWQAAMHmgww
+        (envelope-from <jdelvare@suse.de>); Fri, 03 Dec 2021 08:30:06 +0000
+Date:   Fri, 3 Dec 2021 09:30:05 +0100
+From:   Jean Delvare <jdelvare@suse.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        ck+kernelbugzilla@bl4ckb0x.de, stephane.poignant@protonmail.com,
+        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.15 35/68] i2c: i801: Fix interrupt storm from
+ SMB_ALERT signal
+Message-ID: <20211203093005.4337dfde@endymion>
+In-Reply-To: <20211130144707.944580-35-sashal@kernel.org>
+References: <20211130144707.944580-1-sashal@kernel.org>
+        <20211130144707.944580-35-sashal@kernel.org>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211203033618.11895-1-hucool.lihua@huawei.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 03, 2021 at 03:36:18AM +0000, Li Hua wrote:
-> When rt_runtime is modified from -1 to a valid control value, it may
-> cause the task to be throttled all the time. Operations like the following
-> will trigger the bug. E.g:
-> 1. echo -1 > /proc/sys/kernel/sched_rt_runtime_us
-> 2. Run a FIFO task named A that executes while(1)
-> 3. echo 950000 > /proc/sys/kernel/sched_rt_runtime_us
+Hi Sasha,
+
+On Tue, 30 Nov 2021 09:46:31 -0500, Sasha Levin wrote:
+> From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 > 
-> When rt_runtime is -1, The rt period timer will not be activated when task
-> A enqueued. And then the task will be throttled after setting rt_runtime to
-> 950,000. The task will always be throttled because the rt period timer is
-> not activated.
+> [ Upstream commit 03a976c9afb5e3c4f8260c6c08a27d723b279c92 ]
 > 
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Li Hua <hucool.lihua@huawei.com>
-> ---
-> v1->v2:
->   - call do_start_rt_bandwidth to reduce repetitive code.
->   - use raw_spin_lock_irqsave to avoid deadlock on a timer context.
-> ---
->  kernel/sched/rt.c | 23 ++++++++++++++++++-----
->  1 file changed, 18 insertions(+), 5 deletions(-)
+> Currently interrupt storm will occur from i2c-i801 after first
+> transaction if SMB_ALERT signal is enabled and ever asserted. It is
+> enough if the signal is asserted once even before the driver is loaded
+> and does not recover because that interrupt is not acknowledged.
+> 
+> This fix aims to fix it by two ways:
+> - Add acknowledging for the SMB_ALERT interrupt status
+> - Disable the SMB_ALERT interrupt on platforms where possible since the
+>   driver currently does not make use for it
+> 
+> Acknowledging resets the SMB_ALERT interrupt status on all platforms and
+> also should help to avoid interrupt storm on older platforms where the
+> SMB_ALERT interrupt disabling is not available.
+> 
+> For simplicity this fix reuses the host notify feature for disabling and
+> restoring original register value.
+> (...)
 
-<formletter>
+If you are backporting this, then I think you should also include:
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+commit 9b5bf5878138293fb5b14a48a7a17b6ede6bea25
+Author: Jean Delvare
+Date:   Tue Nov 9 16:02:57 2021 +0100
 
-</formletter>
+    i2c: i801: Restore INTREN on unload
+
+which is the first half of the fix for the same bug. Jarkko's patch
+fixes the interrupt storm while the driver is loaded, mine fixes it
+after the driver is unloaded (or when the device is handed over to the
+BIOS, at suspend or reboot).
+
+-- 
+Jean Delvare
+SUSE L3 Support
