@@ -2,152 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F5D467544
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 11:40:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8150446750A
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 11:31:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242495AbhLCKoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Dec 2021 05:44:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56852 "EHLO
+        id S1380005AbhLCKeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Dec 2021 05:34:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235965AbhLCKoO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 05:44:14 -0500
-X-Greylist: delayed 657 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 03 Dec 2021 02:40:50 PST
-Received: from canardo.mork.no (canardo.mork.no [IPv6:2001:4641::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDA9AC06173E;
-        Fri,  3 Dec 2021 02:40:50 -0800 (PST)
-Received: from miraculix.mork.no ([IPv6:2a01:799:c9f:8608:6e64:956a:daea:cf2f])
-        (authenticated bits=0)
-        by canardo.mork.no (8.15.2/8.15.2) with ESMTPSA id 1B3ATQik004949
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Fri, 3 Dec 2021 11:29:27 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mork.no; s=b;
-        t=1638527368; bh=7uIxMTluRMvr3/z2O0SnlcTpQBZG2IIH26NnHiMzPDM=;
-        h=From:To:Cc:Subject:References:Date:Message-ID:From;
-        b=IBpRl5/hbDS84/K4yZpnyIqn/mJvBohOc92m9QvM3FCqlgSZRQJGqLQfIcFhBKWlr
-         J6dVJ4YUm1b0Uzdy910tlu11TSg4Uv3LaCoHCwDpe2GjUzHkzKzrzU11sj/D8J3gYk
-         Isq4Nbsh6akpnz6a1aJ4INm8l6uzX7a+3VptHnyg=
-Received: from bjorn by miraculix.mork.no with local (Exim 4.94.2)
-        (envelope-from <bjorn@mork.no>)
-        id 1mt5ok-001jKr-9W; Fri, 03 Dec 2021 11:29:26 +0100
-From:   =?utf-8?Q?Bj=C3=B8rn_Mork?= <bjorn@mork.no>
-To:     Lee Jones <lee.jones@linaro.org>
-Cc:     Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
-        "David S. Miller" <davem@davemloft.net>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH 1/1] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset
- or zero
-Organization: m
-References: <20211202143437.1411410-1-lee.jones@linaro.org>
-        <20211202175134.5b463e18@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Date:   Fri, 03 Dec 2021 11:29:26 +0100
-In-Reply-To: <20211202175134.5b463e18@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-        (Jakub Kicinski's message of "Thu, 2 Dec 2021 17:51:34 -0800")
-Message-ID: <87o85yj81l.fsf@miraculix.mork.no>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S1379987AbhLCKeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 05:34:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01604C06174A;
+        Fri,  3 Dec 2021 02:30:50 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 684F26294D;
+        Fri,  3 Dec 2021 10:30:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D71C58319;
+        Fri,  3 Dec 2021 10:30:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638527449;
+        bh=RcP5xgutHpVuMEDTVWRPy+67aJdjE6dJ1nDSLasNx/c=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=W+iH1k3C1COL2C6s3ufbZmCN/rV3mlz920873ga9RQ+nDaYynAq7fboLEKoE0F/SR
+         ncxc+cRqnH29+S57+x37i1XfgjPWsBICHcXG1fpOAMft104hfDn9JHTSJkAu3aDooB
+         bEbUkphQq2+FT60lgSkDVzcJrbbAhMCGjmEz4QbeiAOvMHYR61USrTNvoU/DqFrlxI
+         2cpBaQCLMGPLv0g9afv5A/oCfhu28fC0OujMyjK2GTborVwz5kshRopRj2G+qWImlX
+         q010pMTrK5XPFe8uhTc2w85w0lbWf/oUKIdp3omioGH4WpTnGtWyhmGqTLYdx7zkzz
+         Sd5VasHqO2ARA==
+Received: by mail-oi1-f178.google.com with SMTP id bk14so4944674oib.7;
+        Fri, 03 Dec 2021 02:30:49 -0800 (PST)
+X-Gm-Message-State: AOAM531PC8gxLJWE6rbilgoQ+qZDxXsbwkfVv68TkCJAih3Yw+RdlHnS
+        nswvvVZx5KaZoujDUrbdA4O6dWhKPjtSp/ZlbOA=
+X-Google-Smtp-Source: ABdhPJytzC+ann1KB6ekO12wj9Cbt3QWXfD0JkS+I2NnDbz/4AI+D2NUXfy/tm83h/6XocNBZUBH3AXB9BXLZqFrb18=
+X-Received: by 2002:a05:6808:12:: with SMTP id u18mr9337072oic.174.1638527449029;
+ Fri, 03 Dec 2021 02:30:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Virus-Scanned: clamav-milter 0.103.3 at canardo
-X-Virus-Status: Clean
+References: <8afff0c64feb6b96db36112cb865243f4ae280ca.1634922135.git.thomas.lendacky@amd.com>
+ <c997e8a2-b364-2a8e-d247-438e9d937a1e@amd.com> <CAMj1kXGH7aGR==o1L2dnA9U9L==gM0__10UGznnyZwkHrT84sw@mail.gmail.com>
+ <YXmEo8iMNIn1esYC@zn.tnic> <CAMj1kXEZkw99MPssHWFRL_k0okeGF47VYL+o8p72hBWkqW927g@mail.gmail.com>
+ <f939e968-149f-1caf-c1fb-5939eafae31c@amd.com> <15ceb556-0b56-2833-206e-0cf9b9d2cb45@amd.com>
+In-Reply-To: <15ceb556-0b56-2833-206e-0cf9b9d2cb45@amd.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Fri, 3 Dec 2021 11:30:38 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXHKxObuebZJMWQQwg014rYzvoBgWPZxfCYakuf+GSoqhg@mail.gmail.com>
+Message-ID: <CAMj1kXHKxObuebZJMWQQwg014rYzvoBgWPZxfCYakuf+GSoqhg@mail.gmail.com>
+Subject: Re: [PATCH v2] x86/sme: Explicitly map new EFI memmap table as encrypted
+To:     Tom Lendacky <thomas.lendacky@amd.com>
+Cc:     Borislav Petkov <bp@alien8.de>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        platform-driver-x86@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        X86 ML <x86@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Lee!
+On Wed, 1 Dec 2021 at 15:06, Tom Lendacky <thomas.lendacky@amd.com> wrote:
+>
+> On 10/27/21 12:04 PM, Tom Lendacky wrote:
+> >
+> >
+> > On 10/27/21 11:59 AM, Ard Biesheuvel wrote:
+> >> On Wed, 27 Oct 2021 at 18:56, Borislav Petkov <bp@alien8.de> wrote:
+> >>>
+> >>> On Wed, Oct 27, 2021 at 05:14:35PM +0200, Ard Biesheuvel wrote:
+> >>>> I could take it, but since it will ultimately go through -tip anyway,
+> >>>> perhaps better if they just take it directly? (This will change after
+> >>>> the next -rc1 though)
+> >>>>
+> >>>> Boris?
+> >>>
+> >>> Yeah, I'm being told this is not urgent enough to rush in now so you
+> >>> could queue it into your fixes branch for 5.16 once -rc1 is out and send
+> >>> it to Linus then. The stable tag is just so it gets backported to the
+> >>> respective trees.
+> >>>
+> >>> But if you prefer I should take it, then I can queue it after -rc1.
+> >>> It'll boil down to the same thing though.
+> >>>
+> >>
+> >> No, in that case, I can take it myself.
+> >>
+> >> Tom, does that work for you?
+> >
+> > Yup, that works for me. Thanks guys!
+>
+> I don't see this in any tree yet, so just a gentle reminder in case it
+> dropped off the radar.
+>
 
-Jakub Kicinski <kuba@kernel.org> writes:
+Apologies for the delay, I've pushed this out to -next now.
 
-> On Thu,  2 Dec 2021 14:34:37 +0000 Lee Jones wrote:
->> Currently, due to the sequential use of min_t() and clamp_t() macros,
->> in cdc_ncm_check_tx_max(), if dwNtbOutMaxSize is not set, the logic
->> sets tx_max to 0.  This is then used to allocate the data area of the
->> SKB requested later in cdc_ncm_fill_tx_frame().
->>=20
->> This does not cause an issue presently because when memory is
->> allocated during initialisation phase of SKB creation, more memory
->> (512b) is allocated than is required for the SKB headers alone (320b),
->> leaving some space (512b - 320b =3D 192b) for CDC data (172b).
->>=20
->> However, if more elements (for example 3 x u64 =3D [24b]) were added to
->> one of the SKB header structs, say 'struct skb_shared_info',
->> increasing its original size (320b [320b aligned]) to something larger
->> (344b [384b aligned]), then suddenly the CDC data (172b) no longer
->> fits in the spare SKB data area (512b - 384b =3D 128b).
->>=20
->> Consequently the SKB bounds checking semantics fails and panics:
->>=20
->>   skbuff: skb_over_panic: text:ffffffff830a5b5f len:184 put:172   \
->>      head:ffff888119227c00 data:ffff888119227c00 tail:0xb8 end:0x80 dev:=
-<NULL>
->>=20
->>   ------------[ cut here ]------------
->>   kernel BUG at net/core/skbuff.c:110!
->>   RIP: 0010:skb_panic+0x14f/0x160 net/core/skbuff.c:106
->>   <snip>
->>   Call Trace:
->>    <IRQ>
->>    skb_over_panic+0x2c/0x30 net/core/skbuff.c:115
->>    skb_put+0x205/0x210 net/core/skbuff.c:1877
->>    skb_put_zero include/linux/skbuff.h:2270 [inline]
->>    cdc_ncm_ndp16 drivers/net/usb/cdc_ncm.c:1116 [inline]
->>    cdc_ncm_fill_tx_frame+0x127f/0x3d50 drivers/net/usb/cdc_ncm.c:1293
->>    cdc_ncm_tx_fixup+0x98/0xf0 drivers/net/usb/cdc_ncm.c:1514
->>=20
->> By overriding the max value with the default CDC_NCM_NTB_MAX_SIZE_TX
->> when not offered through the system provided params, we ensure enough
->> data space is allocated to handle the CDC data, meaning no crash will
->> occur.
-
-Just out of curiouslity: Is this a real device, or was this the result
-of fuzzing around?
-
-Not that it matters - it's obviously a bug to fix in any case.  Good catch!
-
-(We probably have many more of the same, assuming the device presents
-semi-sane values in the NCM parameter struct)
-
->> diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
->> index 24753a4da7e60..e303b522efb50 100644
->> --- a/drivers/net/usb/cdc_ncm.c
->> +++ b/drivers/net/usb/cdc_ncm.c
->> @@ -181,6 +181,8 @@ static u32 cdc_ncm_check_tx_max(struct usbnet *dev, =
-u32 new_tx)
->>  		min =3D ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct us=
-b_cdc_ncm_nth32);
->>=20=20
->>  	max =3D min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.=
-dwNtbOutMaxSize));
->> +	if (max =3D=3D 0)
->> +		max =3D CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
->>=20=20
->>  	/* some devices set dwNtbOutMaxSize too low for the above default */
->>  	min =3D min(min, max);
-
-It's been a while since I looked at this, so excuse me if I read it
-wrongly.  But I think we need to catch more illegal/impossible values
-than just zero here?  Any buffer size which cannot hold a single
-datagram is pointless.
-
-Trying to figure out what I possible meant to do with that
-
- 	min =3D min(min, max);
-
-I don't think it makes any sense?  Does it?  The "min" value we've
-carefully calculated allow one max sized datagram and headers. I don't
-think we should ever continue with a smaller buffer than that. Or are
-there cases where this is valid?
-
-So that really should haven been catching this bug with a
-
-  max =3D max(min, max)
-
-or maybe more readable
-
-  if (max < min)
-     max =3D min
-
-What do you think?
-
-
-Bj=C3=B8rn
+Before I send it to Linus, can you please confirm (for my peace of
+mind) how this only affects systems that have memory encryption
+available and enabled in the first place?
