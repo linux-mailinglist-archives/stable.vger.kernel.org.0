@@ -2,140 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB1CD467869
-	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 14:32:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 795BC467898
+	for <lists+stable@lfdr.de>; Fri,  3 Dec 2021 14:39:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241102AbhLCNfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Dec 2021 08:35:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54958 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242575AbhLCNfm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 08:35:42 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13D1BB82743
-        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 13:32:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A10C53FC7;
-        Fri,  3 Dec 2021 13:32:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638538335;
-        bh=EH+tJJtocx0utjgOWPfPxTvZYsJL2IsYSu7oH5NCMkw=;
-        h=Subject:To:From:Date:From;
-        b=QHQ1DOEghk3TYzWINEXgg+mNd23l8EUbrZmrSWkOb+Rmr5ul61FRs2JnKzqyUrBp9
-         33AwJPLZTUW/IU8bkUofE2u6jhDSI/J0kHB03xpxUyT25iH8nPs8FJnSnP40/uYGCy
-         dcB/dCK2sSI/3M9tB4KKJhwr/c078sDIHLjphJXw=
-Subject: patch "misc: rtsx: Avoid mangling IRQ during runtime PM" added to char-misc-linus
-To:     kai.heng.feng@canonical.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Dec 2021 14:32:13 +0100
-Message-ID: <16385383332123@kroah.com>
+        id S1381105AbhLCNnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Dec 2021 08:43:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41998 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352489AbhLCNnV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 08:43:21 -0500
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F20C061758
+        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 05:39:57 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id y196so2375583wmc.3
+        for <stable@vger.kernel.org>; Fri, 03 Dec 2021 05:39:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=ohIQaB84LArJ7RMWDRu6/DrUHfyigZQ0XOc04IPMQVk=;
+        b=UBjV1JNjo+S+Dqw5OKdqx8IJXaq/sEdsuodIgLgKBn/FMM/115dr8inkmNRMaFktRx
+         qV/2M+rRnzmZeNF55CRVS/DKFARRRD7rjPycyX6pVVv87nLHWrvjgiSGdBvauwBsxLwQ
+         5PdaphjcFbipsdGa8i8JkULKDRXUusLzAlatusPjyOdYy7Og+oIAg/M0ophB5qLgQSBp
+         SHnEZbJLdn8cgpzDU/tWt8ecxu5M9O/a8oleagBTWHWHpnSLmKg5DmghD+BFj7K0jsya
+         WsbN/TdPHASAKywU0BfQSn1K3qLymyN9QmUZUA7/GlPbGXvRk8Qp0Ic+RvrDlIAGQlUU
+         sshA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=ohIQaB84LArJ7RMWDRu6/DrUHfyigZQ0XOc04IPMQVk=;
+        b=kCEY2Sdg4mEWmVbH1QNcrjm4qiF5JxcLKX1D+GhHnEY2pTOV6lMQhDuNudduMIYIa9
+         mTN21La+GKlohZCt3EKoFspRuo8n8OcaSnNN3Zq1RddqkuFxNDvz+VwEnsZ7pLN1n591
+         1arib+9TkZGozyXMu0utxwzvpMstbWQ5B94yldFR8B5he1O0RSVMM0mBBNuGnBsOJUlQ
+         pRFi3BTjiCx9W/gpz9411XOHeq9N1addCzvOaIgk67uCoLgEfaP0+Emcvtclcx94FTgp
+         RQl2mryp1wSUWkJsaviKWFq5pnoXw2HQhTSyfht+gM5XvTWZ9+G/Nd8hORey0HZT83TW
+         UGjg==
+X-Gm-Message-State: AOAM5322tBE7zfi4mQhekXimlGBPCL4DkXDjnLQ1DF64ke+DtnzOAl+7
+        6mq5ouSu88Te/X1gMde1JcgZEQ==
+X-Google-Smtp-Source: ABdhPJxwZDbDcKhAQgTLmFrplkYEpzZy5KyrNtYNt3ZDhm67WxoFiqVIJTBcXGvHKyIILhAkeAZFww==
+X-Received: by 2002:a1c:a301:: with SMTP id m1mr15235234wme.118.1638538796060;
+        Fri, 03 Dec 2021 05:39:56 -0800 (PST)
+Received: from google.com ([2.31.167.18])
+        by smtp.gmail.com with ESMTPSA id g13sm2601664wmk.37.2021.12.03.05.39.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Dec 2021 05:39:55 -0800 (PST)
+Date:   Fri, 3 Dec 2021 13:39:53 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
+Cc:     Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
+        "David S. Miller" <davem@davemloft.net>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH 1/1] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset
+ or zero
+Message-ID: <YaoeKfmJrDPhMXWp@google.com>
+References: <20211202143437.1411410-1-lee.jones@linaro.org>
+ <20211202175134.5b463e18@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <87o85yj81l.fsf@miraculix.mork.no>
+ <Yan+nvfyS21z7ZUw@google.com>
+ <87ilw5kfrm.fsf@miraculix.mork.no>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <87ilw5kfrm.fsf@miraculix.mork.no>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 03 Dec 2021, Bjørn Mork wrote:
+> >> It's been a while since I looked at this, so excuse me if I read it
+> >> wrongly.  But I think we need to catch more illegal/impossible values
+> >> than just zero here?  Any buffer size which cannot hold a single
+> >> datagram is pointless.
+> >> 
+> >> Trying to figure out what I possible meant to do with that
+> >> 
+> >>  	min = min(min, max);
+> >> 
+> >> I don't think it makes any sense?  Does it?  The "min" value we've
+> >> carefully calculated allow one max sized datagram and headers. I don't
+> >> think we should ever continue with a smaller buffer than that
+> >
+> > I was more confused with the comment you added to that code:
+> >
+> >    /* some devices set dwNtbOutMaxSize too low for the above default */
+> >    min = min(min, max);
+> >
+> > ... which looks as though it should solve the issue of an inadequate
+> > dwNtbOutMaxSize, but it almost does the opposite.
+> 
+> That's what I read too.  I must admit that I cannot remember writing any
+> of this stuff.  But I trust git...
 
-This is a note to let you know that I've just added the patch titled
+In Git we trust!
 
-    misc: rtsx: Avoid mangling IRQ during runtime PM
+> > I initially
+> > changed this segment to use the max() macro instead, but the
+> > subsequent clamp_t() macro simply chooses 'max' (0) value over the now
+> > sane 'min' one.
+> 
+> Yes, but what if we adjust max here instead of min?
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
+That's what my patch does.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+> > Which is why I chose 
+> >> Or are there cases where this is valid?
+> >
+> > I'm not an expert on the SKB code, but in my simple view of the world,
+> > if you wish to use a buffer for any amount of data, you should
+> > allocate space for it.
+> >
+> >> So that really should haven been catching this bug with a
+> >> 
+> >>   max = max(min, max)
+> >
+> > I tried this.  It didn't work either.
+> >
+> > See the subsequent clamp_t() call a few lines down.
+> 
+> This I don't understand.  If we have for example
+> 
+>  new_tx = 0
+>  max = 0
+>  min = 1514(=datagram) + 8(=ndp) + 2(=1+1) * 4(=dpe) + 12(=nth) = 1542
+> 
+> then
+> 
+>  max = max(min, max) = 1542
+>  val = clamp_t(u32, new_tx, min, max) = 1542
+> 
+> so we return 1542 and everything is fine.
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+I don't believe so.
 
-If you have any questions about this process, please let me know.
+#define clamp_t(type, val, lo, hi) \
+              min_t(type, max_t(type, val, lo), hi)
 
+So:
+              min_t(u32, max_t(u32, 0, 1542), 0)
 
-From 0edeb8992db8e7de9b8fe3164ace9a4356b17021 Mon Sep 17 00:00:00 2001
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Date: Fri, 26 Nov 2021 08:32:44 +0800
-Subject: misc: rtsx: Avoid mangling IRQ during runtime PM
+So:
+	      min_t(u32, 1542, 0) = 0
 
-After commit 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM"), when the
-rtsx controller is runtime suspended, bring CPUs offline and back online, the
-runtime resume of the controller will fail:
+So we return 0 and everything is not fine. :)
 
-[   47.319391] smpboot: CPU 1 is now offline
-[   47.414140] x86: Booting SMP configuration:
-[   47.414147] smpboot: Booting Node 0 Processor 1 APIC 0x2
-[   47.571334] smpboot: CPU 2 is now offline
-[   47.686055] smpboot: Booting Node 0 Processor 2 APIC 0x4
-[   47.808174] smpboot: CPU 3 is now offline
-[   47.878146] smpboot: Booting Node 0 Processor 3 APIC 0x6
-[   48.003679] smpboot: CPU 4 is now offline
-[   48.086187] smpboot: Booting Node 0 Processor 4 APIC 0x1
-[   48.239627] smpboot: CPU 5 is now offline
-[   48.326059] smpboot: Booting Node 0 Processor 5 APIC 0x3
-[   48.472193] smpboot: CPU 6 is now offline
-[   48.574181] smpboot: Booting Node 0 Processor 6 APIC 0x5
-[   48.743375] smpboot: CPU 7 is now offline
-[   48.838047] smpboot: Booting Node 0 Processor 7 APIC 0x7
-[   48.965447] __common_interrupt: 1.35 No irq handler for vector
-[   51.174065] mmc0: error -110 doing runtime resume
-[   54.978088] I/O error, dev mmcblk0, sector 21479 op 0x1:(WRITE) flags 0x0 phys_seg 11 prio class 0
-[   54.978108] Buffer I/O error on dev mmcblk0p1, logical block 19431, lost async page write
-[   54.978129] Buffer I/O error on dev mmcblk0p1, logical block 19432, lost async page write
-[   54.978134] Buffer I/O error on dev mmcblk0p1, logical block 19433, lost async page write
-[   54.978137] Buffer I/O error on dev mmcblk0p1, logical block 19434, lost async page write
-[   54.978141] Buffer I/O error on dev mmcblk0p1, logical block 19435, lost async page write
-[   54.978145] Buffer I/O error on dev mmcblk0p1, logical block 19436, lost async page write
-[   54.978148] Buffer I/O error on dev mmcblk0p1, logical block 19437, lost async page write
-[   54.978152] Buffer I/O error on dev mmcblk0p1, logical block 19438, lost async page write
-[   54.978155] Buffer I/O error on dev mmcblk0p1, logical block 19439, lost async page write
-[   54.978160] Buffer I/O error on dev mmcblk0p1, logical block 19440, lost async page write
-[   54.978244] mmc0: card aaaa removed
-[   54.978452] FAT-fs (mmcblk0p1): FAT read failed (blocknr 4257)
+Perhaps we should use max_t() here instead of clamp?
 
-There's interrupt immediately raised on rtsx_pci_write_register() in
-runtime resume routine, but the IRQ handler hasn't registered yet.
+> >> or maybe more readable
+> >> 
+> >>   if (max < min)
+> >>      max = min
+> >> 
+> >> What do you think?
+> >
+> > So the data that is added to the SKB is ctx->max_ndp_size, which is
+> > allocated in cdc_ncm_init().  The code that does it looks like:
+> >
+> >    if (ctx->is_ndp16)                                                                                         
+> >         ctx->max_ndp_size = sizeof(struct usb_cdc_ncm_ndp16) +
+> > 	                    (ctx->tx_max_datagrams + 1) *
+> > 			    sizeof(struct usb_cdc_ncm_dpe16);                                                                                               
+> >     else                                                                                                       
+> >         ctx->max_ndp_size = sizeof(struct usb_cdc_ncm_ndp32) +
+> > 	                    (ctx->tx_max_datagrams + 1) *
+> > 			    sizeof(struct usb_cdc_ncm_dpe32);  
+> >
+> > So this should be the size of the allocation too, right?
+> 
+> This driver doesn't add data to the skb.  It allocates a new buffer and
+> copies one or more skbs into it.  I'm sure that could be improved too..
 
-So we can either move rtsx_pci_write_register() after rtsx_pci_acquire_irq(),
-or just stop mangling IRQ on runtime PM. Choose the latter to save some
-CPU cycles.
+"one or more skbs" == data :)
 
-Fixes: 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-BugLink: https://bugs.launchpad.net/bugs/1951784
-Link: https://lore.kernel.org/r/20211126003246.1068770-1-kai.heng.feng@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/misc/cardreader/rtsx_pcr.c | 4 ----
- 1 file changed, 4 deletions(-)
+Either way, it's asking for more bits to be copied in than there is
+space for.  It's amazing that this worked at all.  We only noticed it
+when we increased the size of one of the SKB headers and some of the
+accidentally allocated memory was eaten up.
 
-diff --git a/drivers/misc/cardreader/rtsx_pcr.c b/drivers/misc/cardreader/rtsx_pcr.c
-index 8c72eb590f79..6ac509c1821c 100644
---- a/drivers/misc/cardreader/rtsx_pcr.c
-+++ b/drivers/misc/cardreader/rtsx_pcr.c
-@@ -1803,8 +1803,6 @@ static int rtsx_pci_runtime_suspend(struct device *device)
- 	mutex_lock(&pcr->pcr_mutex);
- 	rtsx_pci_power_off(pcr, HOST_ENTER_S3);
- 
--	free_irq(pcr->irq, (void *)pcr);
--
- 	mutex_unlock(&pcr->pcr_mutex);
- 
- 	pcr->is_runtime_suspended = true;
-@@ -1825,8 +1823,6 @@ static int rtsx_pci_runtime_resume(struct device *device)
- 	mutex_lock(&pcr->pcr_mutex);
- 
- 	rtsx_pci_write_register(pcr, HOST_SLEEP_STATE, 0x03, 0x00);
--	rtsx_pci_acquire_irq(pcr);
--	synchronize_irq(pcr->irq);
- 
- 	if (pcr->ops->fetch_vendor_settings)
- 		pcr->ops->fetch_vendor_settings(pcr);
+> Without a complete rewrite we need to allocate new skbs large enough to hold
+> 
+> NTH          - frame header
+> NDP x 1      - index table, with minimum two entries (1 datagram + terminator)
+> datagram x 1 - ethernet frame
+> 
+> This gives the minimum "tx_max" value.
+> 
+> The device is supposed to tell us the maximum "tx_max" value in
+> dwNtbOutMaxSize.  In theory.  In practice we cannot trust the device, as
+> you point out.  We know aleady deal with too large values (which are
+> commonly seen in real products), but we also need to deal with too low
+> values.
+> 
+> I believe the "too low" is defined by the calculated minimum value, and
+> the comment indicates that this what I tried to express but failed.
+
+Right, that's how I read it too.
+
+> > Why would the platform ever need to over-ride this?  The platform
+> > can't make the data area smaller since there won't be enough room.  It
+> > could perhaps make it bigger, but the min_t() and clamp_t() macros
+> > will end up choosing the above allocation anyway.
+> >
+> > This leaves me feeling a little perplexed.
+> >
+> > If there isn't a good reason for over-riding then I could simplify
+> > cdc_ncm_check_tx_max() greatly.
+> >
+> > What do *you* think? :)
+> 
+> I also have the feeling that this could and should be simplified. This
+> discussion shows that refactoring is required.
+
+I'm happy to help with the coding, if we agree on a solution.
+
+> git blame makes this all too embarrassing ;-)
+
+:D
+
 -- 
-2.34.1
-
-
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
