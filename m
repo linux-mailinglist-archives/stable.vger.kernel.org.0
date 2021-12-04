@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B180E468414
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D08468415
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:30:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344243AbhLDKdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 05:33:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51152 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343896AbhLDKdw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:33:52 -0500
+        id S1346334AbhLDKeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 05:34:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37906 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343896AbhLDKeB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:34:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1375C061751
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 02:30:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6795B80B08
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:30:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24CB0C341C0;
-        Sat,  4 Dec 2021 10:30:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 836BEB80B08
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:30:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0537C341C2;
+        Sat,  4 Dec 2021 10:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638613824;
-        bh=tC7cUe1SkxyUa7BE0MvfVeyrlYifOpkre2T9da/7lhs=;
+        s=korg; t=1638613833;
+        bh=4Eo0zfbc8/4mgw+R3/DF9jIwCOfX8FJB/1dVfhrcJUA=;
         h=Subject:To:Cc:From:Date:From;
-        b=oSNe6Rpbo2rbuXhS/zzA/1n5HnCj7bOZZ4hWIXk2v9l0fOGGafL4K6pYQXJx91OSu
-         /XZsYn2dUZBZjHDMAKCQ56nPSGcAOA5/bWhuAbfNMY3x1dQIFMpn1qqGmyfvqzgRIf
-         bSG0jmiDQu55Dlfk5FuIaSQRn0ze0nNQofEMT95Q=
-Subject: FAILED: patch "[PATCH] iwlwifi: mvm: retry init flow if failed" failed to apply to 5.10-stable tree
+        b=CXBmA4s1H2YC5eSC8CIMy8aukzgmQUqJnjzDx4eaUNQKR+leeJ5j7KXimxNBmPUHj
+         aRRjC7YoxegVIP+WReujlelA+H4VXHM9M/yqxqazDO+jwwrXzZizAXSa+fjvMn6hUa
+         W9RzHmt6VdpSh7anHeYlxHDXSkrjgw2AeCJPYVic=
+Subject: FAILED: patch "[PATCH] iwlwifi: mvm: retry init flow if failed" failed to apply to 5.4-stable tree
 To:     mordechay.goodstein@intel.com, kvalo@codeaurora.org,
         luciano.coelho@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 04 Dec 2021 11:30:22 +0100
-Message-ID: <1638613822163102@kroah.com>
+Message-ID: <1638613822160117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
