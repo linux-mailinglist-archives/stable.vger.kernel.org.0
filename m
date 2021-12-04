@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C731468442
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:54:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB47246844D
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:57:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384712AbhLDK5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 05:57:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43202 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238880AbhLDK5d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:57:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38ECC061354
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 02:54:07 -0800 (PST)
+        id S231839AbhLDLAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 06:00:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35132 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1384733AbhLDLAv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 06:00:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AB3960DEC
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:54:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D53C341C0;
-        Sat,  4 Dec 2021 10:54:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 007A8B801B8
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:57:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931FDC341C2;
+        Sat,  4 Dec 2021 10:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638615246;
-        bh=IdHIIMZIrARq5ZvZ7qCqwvmLeU8g1JP/cDqTaonDbNw=;
+        s=k20201202; t=1638615443;
+        bh=XsbzKPT5F6wfXCwHdQoo2y3HQPPpKAAakSBmnyR7TvE=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=VNJ3V2VU9gpZ7SZvX/SachPq1wn8gYHCOVQlMqbJbHh0BnD7XkcAV4m2kzrOmbMYa
-         S99Amp1jPwddwKc68OT80NM2VerLKyhwTX6g/mryMc6bKg0G0/RFapchBB2NYhRMFX
-         b8CUjm6Bs2xyFR2oVFvCy08BNWzK9sAyMhgk93HDUljpTceByIFZ2/+aRsh6kO1av7
-         irSh8LcJRad8x0s16SlnmzaJOr1U3AlkT+Ghp6bzs3bwhMXBR+iX7NZO9zK1dYVi19
-         AO9/BzyDQjftI2QpHBAgwsvkmJUimJehh0Ehh2RYovfU0hLBCwwLVaFIdqa/EPuI25
-         1R6ilA7rE7fYg==
-Date:   Sat, 4 Dec 2021 11:54:02 +0100
+        b=Bxs8pWdHaxJy3eV7y65ebVjTX31vloFiAJUnv5PpKVXwymNFn2k7Hqkyu809ylgQo
+         wEaGTBg0WtiwzBawnjA1ktC0J6IXk2TOVFck39KhzSO9f/6omwyJ9TYUWPL1IJfRXq
+         T4+lXCbEUWQXMxGdxK+coo4d/C0Dyi/RQA1dMo97APnjPb0gfJVTCijP9agDNNmVyX
+         POxfb5q6JPhgl2r87uzABQ0w+zW4RBXJuYwoTsy4clTTnhRDgMbQ9EHaRyFDCQwhdD
+         mJC6gqCoPQj8gmMlNrb1nXGK6s2+r3Hho02Mti5N6dABzgB7nx39b0KP+KCXlrBb8n
+         eAgMF9AKNeDQw==
+Date:   Sat, 4 Dec 2021 11:57:19 +0100
 From:   Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>
 To:     <gregkh@linuxfoundation.org>
 Cc:     davem@davemloft.net, <stable@vger.kernel.org>
 Subject: Re: FAILED: patch "[PATCH] net: dsa: mv88e6xxx: Save power by
  disabling SerDes" failed to apply to 5.15-stable tree
-Message-ID: <20211204115402.4d197c42@thinkpad>
+Message-ID: <20211204115719.3315663b@thinkpad>
 In-Reply-To: <16386137159777@kroah.com>
 References: <16386137159777@kroah.com>
 X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
@@ -48,13 +45,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+In fact it was a series of 6 patches, but the 2nd was without fixes tag:
 
-the patch depends on
-  8c3318b4874e2dee867f5ae8f6d38f78e044bf71 net: dsa: mv88e6xxx: Drop
-unnecessary check in mv88e6393x_serdes_erratum_4_6()
-
-Marek
+21635d9203e1cf2b73b67e9a86059a62f62a3563
+8c3318b4874e2dee867f5ae8f6d38f78e044bf71 (without fixes tag)
+7527d66260ac0c603c6baca5146748061fcddbd6 (didnt apply)
+93fd8207bed80ce19aaf59932cbe1c03d418a37d
+163000dbc772c1eae9bdfe7c8fe30155db1efd74
+ede359d8843a2779d232ed30bc36089d4b5962e4
 
 On Sat, 04 Dec 2021 11:28:35 +0100
 <gregkh@linuxfoundation.org> wrote:
