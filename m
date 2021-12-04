@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E48E346848F
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 12:49:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C598468490
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 12:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384822AbhLDLxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 06:53:03 -0500
-Received: from paleale.coelho.fi ([176.9.41.70]:50434 "EHLO
+        id S1384819AbhLDLxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 06:53:22 -0500
+Received: from paleale.coelho.fi ([176.9.41.70]:50436 "EHLO
         farmhouse.coelho.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1384823AbhLDLw2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 06:52:28 -0500
-X-Greylist: delayed 2805 seconds by postgrey-1.27 at vger.kernel.org; Sat, 04 Dec 2021 06:52:28 EST
+        with ESMTP id S229551AbhLDLxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 06:53:05 -0500
 Received: from 91-156-5-105.elisa-laajakaista.fi ([91.156.5.105] helo=kveik.ger.corp.intel.com)
         by farmhouse.coelho.fi with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <luca@coelho.fi>)
-        id 1mtSns-0017QU-EL; Sat, 04 Dec 2021 13:02:05 +0200
+        id 1mtSrM-0017Qq-UN; Sat, 04 Dec 2021 13:05:42 +0200
 From:   Luca Coelho <luca@coelho.fi>
 To:     stable@vger.kernel.org
 Cc:     kvalo@codeaurora.org, luca@coelho.fi, mordechay.goodstein@intel.com
-Date:   Sat,  4 Dec 2021 13:02:02 +0200
-Message-Id: <20211204110202.837370-1-luca@coelho.fi>
+Date:   Sat,  4 Dec 2021 13:05:39 +0200
+Message-Id: <20211204110539.852017-1-luca@coelho.fi>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <1638613822160117@kroah.com>
 References: <1638613822160117@kroah.com>
@@ -31,7 +30,7 @@ X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on farmhouse.coelho.fi
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00,
         TVD_RCVD_IP autolearn=ham autolearn_force=no version=3.4.6
-Subject: [PATCH 5.10] iwlwifi: mvm: retry init flow if failed
+Subject: [PATCH 5.4] iwlwifi: mvm: retry init flow if failed
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -63,10 +62,10 @@ Link: https://lore.kernel.org/r/iwlwifi.20211110150132.57514296ecab.I52a0411774b
  5 files changed, 47 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-index 9dcd2e990c9c..be214f39f52b 100644
+index ff0519ea00a5..e68366f248fe 100644
 --- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
 +++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-@@ -1303,23 +1303,31 @@ _iwl_op_mode_start(struct iwl_drv *drv, struct iwlwifi_opmode_table *op)
+@@ -1276,23 +1276,31 @@ _iwl_op_mode_start(struct iwl_drv *drv, struct iwlwifi_opmode_table *op)
  	const struct iwl_op_mode_ops *ops = op->ops;
  	struct dentry *dbgfs_dir = NULL;
  	struct iwl_op_mode *op_mode = NULL;
@@ -106,10 +105,10 @@ index 9dcd2e990c9c..be214f39f52b 100644
  
  static void _iwl_op_mode_stop(struct iwl_drv *drv)
 diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
-index 8938a6467996..a6e9bc56f7dd 100644
+index 2be30af7bdc3..9663db12b6f3 100644
 --- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
 +++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
-@@ -144,4 +144,7 @@ void iwl_drv_stop(struct iwl_drv *drv);
+@@ -145,4 +145,7 @@ void iwl_drv_stop(struct iwl_drv *drv);
  #define IWL_EXPORT_SYMBOL(sym)
  #endif
  
@@ -118,7 +117,7 @@ index 8938a6467996..a6e9bc56f7dd 100644
 +
  #endif /* __iwl_drv_h__ */
 diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 6f301ac8cce2..81cc85a97eb2 100644
+index 081cbc9ec736..c942255aa1db 100644
 --- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
 +++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
 @@ -71,6 +71,7 @@
@@ -129,7 +128,7 @@ index 6f301ac8cce2..81cc85a97eb2 100644
  #include "iwl-op-mode.h"
  #include "iwl-io.h"
  #include "mvm.h"
-@@ -1163,9 +1164,30 @@ static int iwl_mvm_mac_start(struct ieee80211_hw *hw)
+@@ -1129,9 +1130,30 @@ static int iwl_mvm_mac_start(struct ieee80211_hw *hw)
  {
  	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
  	int ret;
@@ -162,31 +161,31 @@ index 6f301ac8cce2..81cc85a97eb2 100644
  
  	return ret;
 diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-index 7159d1da3e77..64f5a4cb3d3a 100644
+index 5f1ecbb6fb71..b06a9da753ff 100644
 --- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
 +++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -1162,6 +1162,8 @@ struct iwl_mvm {
+@@ -1167,6 +1167,8 @@ struct iwl_mvm {
+  * @IWL_MVM_STATUS_ROC_AUX_RUNNING: AUX remain-on-channel is running
   * @IWL_MVM_STATUS_FIRMWARE_RUNNING: firmware is running
   * @IWL_MVM_STATUS_NEED_FLUSH_P2P: need to flush P2P bcast STA
-  * @IWL_MVM_STATUS_IN_D3: in D3 (or at least about to go into it)
 + * @IWL_MVM_STATUS_STARTING: starting mac,
 + *	used to disable restart flow while in STARTING state
   */
  enum iwl_mvm_status {
  	IWL_MVM_STATUS_HW_RFKILL,
-@@ -1173,6 +1175,7 @@ enum iwl_mvm_status {
+@@ -1177,6 +1179,7 @@ enum iwl_mvm_status {
+ 	IWL_MVM_STATUS_ROC_AUX_RUNNING,
  	IWL_MVM_STATUS_FIRMWARE_RUNNING,
  	IWL_MVM_STATUS_NEED_FLUSH_P2P,
- 	IWL_MVM_STATUS_IN_D3,
 +	IWL_MVM_STATUS_STARTING,
  };
  
  /* Keep track of completed init configuration */
 diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-index 0be8ff30b13e..7c61d179895b 100644
+index a9aab6c690e8..5973eecbc037 100644
 --- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
 +++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -1295,6 +1295,9 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
+@@ -1288,6 +1288,9 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
  	 */
  	if (!mvm->fw_restart && fw_error) {
  		iwl_fw_error_collect(&mvm->fwrt);
