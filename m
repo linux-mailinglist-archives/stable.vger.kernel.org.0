@@ -2,124 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE274687A6
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 22:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA705468807
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 23:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354805AbhLDVfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 16:35:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41556 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231646AbhLDVfh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 16:35:37 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A46CC061751
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 13:32:11 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id d9so13632026wrw.4
-        for <stable@vger.kernel.org>; Sat, 04 Dec 2021 13:32:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=RkY3blJ2Gldzm+0qHRdrD81J+3rGk6mYv8Gy9C8RedM=;
-        b=aqZqdI52CCuOAzXWDjKPlSTeHkT8Hj7N35FGkJQXpRJXcBTbw6LMePty77LTPMmNNL
-         vYkgtDk9ub3H9STsrSWnmqf49LC7f6YoetGg8f6nubRf/GlGzvPzU7kDYXFXds8JVxQj
-         aKCJWivUG4hJ9WyjDtbHoYPMWt5xn3pDSwdMIeuT4MIsIZy1PD/DL4EKKCtsk76arzhq
-         IdF1UG5oo1HFBwe90zGSAu5PxRlSM9ZB66C2aCVfKv9wRyeD6oUCLke/SWuJraXPdalI
-         Of910fz47WNMsHc1Cbq1OcX7NLNcDLeT0Yn6faN5FJ24e2cx/LrSVklwsveiuKsZrXnG
-         0b+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=RkY3blJ2Gldzm+0qHRdrD81J+3rGk6mYv8Gy9C8RedM=;
-        b=IwnrKJTJtjagb+2Onw3KIkme5FbSaAOr39WmrQyOuMR94tjQmMvQe9nIC2nvHGhhPU
-         zYDGzxvB+S5wVBgqCrljDdCK7/T3w/DioNB/MXiIErlAKxvDBVxnRhW0ugTNFLREqYX5
-         U347r9hFxZDJgayIQvvzMJ/lLtzdW2/2dAZ5Iubo6+zC0J19NkxMMhFPl34ndTJKNxHS
-         lOOn1yWPGSDJco/NGwjHxMAclfXHvzhRth5UNp1HYz1dH0NPXrhqhhXLlTRgibwsXGZ0
-         s9Zi7+73ytbMKehhjHYSeOxF65FsrschLTwpi3oUf1v7TftgHZcSjsDkktdHBM2qVwUX
-         hQpQ==
-X-Gm-Message-State: AOAM531gkEvBDmhsX1ADJvIbNszJom4k0DAtbZKc9M3CM0PWo4Y0DOLQ
-        C9SIV7pk1aEZuT6/Am4MSPswjA==
-X-Google-Smtp-Source: ABdhPJySTG4c/z2C68cNyuWV71sWaNj8aQK267LRo47C1gEMe3wfNA9R9GzwZ1O6OlP6rHjs2wFPXA==
-X-Received: by 2002:a05:6000:381:: with SMTP id u1mr32036226wrf.383.1638653529560;
-        Sat, 04 Dec 2021 13:32:09 -0800 (PST)
-Received: from jackdaw.lan (82-65-169-74.subs.proxad.net. [82.65.169.74])
-        by smtp.googlemail.com with ESMTPSA id n184sm8980868wme.2.2021.12.04.13.32.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Dec 2021 13:32:09 -0800 (PST)
-From:   Jerome Brunet <jbrunet@baylibre.com>
+        id S229490AbhLDWOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 17:14:03 -0500
+Received: from mail.mutex.one ([62.77.152.124]:43942 "EHLO mail.mutex.one"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1345204AbhLDWOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 Dec 2021 17:14:02 -0500
+X-Greylist: delayed 1275 seconds by postgrey-1.27 at vger.kernel.org; Sat, 04 Dec 2021 17:14:02 EST
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.mutex.one (Postfix) with ESMTP id F3E0A16C27F2;
+        Sat,  4 Dec 2021 23:49:16 +0200 (EET)
+X-Virus-Scanned: Debian amavisd-new at mail.mutex.one
+Received: from mail.mutex.one ([127.0.0.1])
+        by localhost (mail.mutex.one [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id eMoWQPvIqDML; Sat,  4 Dec 2021 23:49:16 +0200 (EET)
+Received:  [127.0.0.1] (localhost [127.0.0.1])nknown [109.103.89.101])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mutex.one (Postfix) with ESMTPSA id 9D94F16C08F2;
+        Sat,  4 Dec 2021 23:49:15 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mutex.one; s=default;
+        t=1638654556; bh=EVhTg8nYuNCbP3r7ALG6+8NWgoFsT6iIYwfUXSTMBzA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Mz7Lx+o60D1QKd4Ke8Rslyqwui25ukjc13FPs/g2VZZuVW/0ZycSp+s908bnzbcG3
+         On7euWIxjhLt+/shYmapUmW1J8uHvRTmJxkPEs01vyFuitg3uER8hY/0WNUZ6b7Y6F
+         BbFlkF3cwoP7b3pgsbncHABJbTyQnpKg/BcLB/aE=
+From:   Marian Postevca <posteuca@mutex.one>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     Jerome Brunet <jbrunet@baylibre.com>,
-        linux-amlogic@lists.infradead.org, Artem Lapkin <art@khadas.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 5.10] Revert "drm: meson_drv add shutdown function"
-Date:   Sat,  4 Dec 2021 22:31:57 +0100
-Message-Id: <20211204213157.27551-1-jbrunet@baylibre.com>
-X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20210315135545.132503808@linuxfoundation.org>
-References: <20210315135545.132503808@linuxfoundation.org>
+        Felipe Balbi <balbi@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        Marian Postevca <posteuca@mutex.one>, stable@vger.kernel.org
+Subject: [PATCH v2] usb: gadget: u_ether: fix race in setting MAC address in setup phase
+Date:   Sat,  4 Dec 2021 23:49:12 +0200
+Message-Id: <20211204214912.17627-1-posteuca@mutex.one>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit d66083c0d6f5125a4d982aa177dd71ab4cd3d212
-and commit d4ec1ffbdaa8939a208656e9c1440742c457ef16.
+When listening for notifications through netlink of a new interface being
+registered, sporadically, it is possible for the MAC to be read as zero.
+The zero MAC address lasts a short period of time and then switches to a
+valid random MAC address.
 
-On v5.10 stable, reboot gets stuck on gxl and g12a chip family (at least).
-This was tested on the aml-s905x-cc from libretch and the u200 reference
-design.
+This causes problems for netd in Android, which assumes that the interface
+is malfunctioning and will not use it.
 
-Bisecting on the v5.10 stable branch lead to
-commit d4ec1ffbdaa8 ("drm: meson_drv add shutdown function").
+In the good case we get this log:
+InterfaceController::getCfg() ifName usb0
+ hwAddr 92:a8:f0:73:79:5b ipv4Addr 0.0.0.0 flags 0x1002
 
-Reverting it (and a fixes on the it) sloves the problem.
+In the error case we get these logs:
+InterfaceController::getCfg() ifName usb0
+ hwAddr 00:00:00:00:00:00 ipv4Addr 0.0.0.0 flags 0x1002
 
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+netd : interfaceGetCfg("usb0")
+netd : interfaceSetCfg() -> ServiceSpecificException
+ (99, "[Cannot assign requested address] : ioctl() failed")
+
+The reason for the issue is the order in which the interface is setup,
+it is first registered through register_netdev() and after the MAC
+address is set.
+
+Fixed by first setting the MAC address of the net_device and after that
+calling register_netdev().
+
+Signed-off-by: Marian Postevca <posteuca@mutex.one>
+Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values and add setters/getters")
+Cc: stable@vger.kernel.org
 ---
 
-Hi Greg,
+v2: Added Fixes and Cc tags to commit message.
 
-Things are fine on master but it breaks on v5.10-y.
-I did not check v5.14-y yet. I'll try next week.
+ drivers/usb/gadget/function/u_ether.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-
- drivers/gpu/drm/meson/meson_drv.c | 12 ------------
- 1 file changed, 12 deletions(-)
-
-diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-index 2753067c08e6..3d1de9cbb1c8 100644
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -482,17 +482,6 @@ static int meson_probe_remote(struct platform_device *pdev,
- 	return count;
- }
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index e0ad5aed6ac9..6f5d45ef2e39 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -17,6 +17,7 @@
+ #include <linux/etherdevice.h>
+ #include <linux/ethtool.h>
+ #include <linux/if_vlan.h>
++#include <linux/etherdevice.h>
  
--static void meson_drv_shutdown(struct platform_device *pdev)
--{
--	struct meson_drm *priv = dev_get_drvdata(&pdev->dev);
--
--	if (!priv)
--		return;
--
--	drm_kms_helper_poll_fini(priv->drm);
--	drm_atomic_helper_shutdown(priv->drm);
--}
--
- static int meson_drv_probe(struct platform_device *pdev)
+ #include "u_ether.h"
+ 
+@@ -863,19 +864,23 @@ int gether_register_netdev(struct net_device *net)
  {
- 	struct component_match *match = NULL;
-@@ -564,7 +553,6 @@ static const struct dev_pm_ops meson_drv_pm_ops = {
+ 	struct eth_dev *dev;
+ 	struct usb_gadget *g;
+-	struct sockaddr sa;
+ 	int status;
  
- static struct platform_driver meson_drm_platform_driver = {
- 	.probe      = meson_drv_probe,
--	.shutdown   = meson_drv_shutdown,
- 	.driver     = {
- 		.name	= "meson-drm",
- 		.of_match_table = dt_match,
+ 	if (!net->dev.parent)
+ 		return -EINVAL;
+ 	dev = netdev_priv(net);
+ 	g = dev->gadget;
++
++	net->addr_assign_type = NET_ADDR_RANDOM;
++	eth_hw_addr_set(net, dev->dev_mac);
++
+ 	status = register_netdev(net);
+ 	if (status < 0) {
+ 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
+ 		return status;
+ 	} else {
+ 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
++		INFO(dev, "MAC %pM\n", dev->dev_mac);
+ 
+ 		/* two kinds of host-initiated state changes:
+ 		 *  - iff DATA transfer is active, carrier is "on"
+@@ -883,15 +888,6 @@ int gether_register_netdev(struct net_device *net)
+ 		 */
+ 		netif_carrier_off(net);
+ 	}
+-	sa.sa_family = net->type;
+-	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
+-	rtnl_lock();
+-	status = dev_set_mac_address(net, &sa, NULL);
+-	rtnl_unlock();
+-	if (status)
+-		pr_warn("cannot set self ethernet address: %d\n", status);
+-	else
+-		INFO(dev, "MAC %pM\n", dev->dev_mac);
+ 
+ 	return status;
+ }
 -- 
-2.34.0
+2.32.0
 
