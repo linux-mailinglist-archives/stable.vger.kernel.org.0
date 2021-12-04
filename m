@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E007468413
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:30:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B180E468414
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354989AbhLDKdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 05:33:43 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51530 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343896AbhLDKdn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:33:43 -0500
+        id S1344243AbhLDKdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 05:33:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51152 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343896AbhLDKdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:33:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49D7960C00
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C38DC341C0;
-        Sat,  4 Dec 2021 10:30:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6795B80B08
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:30:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24CB0C341C0;
+        Sat,  4 Dec 2021 10:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638613816;
-        bh=I5yxtdKf1JpwIyZ4um02HaHp2tVS1IOQwLAn6gppZNc=;
+        s=korg; t=1638613824;
+        bh=tC7cUe1SkxyUa7BE0MvfVeyrlYifOpkre2T9da/7lhs=;
         h=Subject:To:Cc:From:Date:From;
-        b=G6dp3nszxYJkSVqmSEmGnPPXle1wcNBBzZouLAUy0iQmNRDNJsc7uxhj4Kg0fJWKY
-         MM3tcteYaKX1ZTEr3BjXQoMB6TOjidLt1954r35S/9GSCf6E0LRtpWws6nW4UZI+Ue
-         iGU6rDu/cbB4agdw+uDgQfqgZtePDdkG8gtXHleM=
-Subject: FAILED: patch "[PATCH] cpufreq: Fix get_cpu_device() failure in" failed to apply to 4.19-stable tree
-To:     wangxiongfeng2@huawei.com, rafael.j.wysocki@intel.com,
-        stable@vger.kernel.org, viresh.kumar@linaro.org
+        b=oSNe6Rpbo2rbuXhS/zzA/1n5HnCj7bOZZ4hWIXk2v9l0fOGGafL4K6pYQXJx91OSu
+         /XZsYn2dUZBZjHDMAKCQ56nPSGcAOA5/bWhuAbfNMY3x1dQIFMpn1qqGmyfvqzgRIf
+         bSG0jmiDQu55Dlfk5FuIaSQRn0ze0nNQofEMT95Q=
+Subject: FAILED: patch "[PATCH] iwlwifi: mvm: retry init flow if failed" failed to apply to 5.10-stable tree
+To:     mordechay.goodstein@intel.com, kvalo@codeaurora.org,
+        luciano.coelho@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 04 Dec 2021 11:30:04 +0100
-Message-ID: <1638613804141136@kroah.com>
+Date:   Sat, 04 Dec 2021 11:30:22 +0100
+Message-ID: <1638613822163102@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,75 +51,158 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2c1b5a84669d2477d8fffe9136e86a2cff591729 Mon Sep 17 00:00:00 2001
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Date: Mon, 29 Nov 2021 16:02:48 +0800
-Subject: [PATCH] cpufreq: Fix get_cpu_device() failure in
- add_cpu_dev_symlink()
+From 5283dd677e52af9db6fe6ad11b2f12220d519d0c Mon Sep 17 00:00:00 2001
+From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Date: Wed, 10 Nov 2021 15:01:59 +0200
+Subject: [PATCH] iwlwifi: mvm: retry init flow if failed
 
-When I hot added a CPU, I found 'cpufreq' directory was not created
-below /sys/devices/system/cpu/cpuX/.
+In some very rare cases the init flow may fail.  In many cases, this is
+recoverable, so we can retry.  Implement a loop to retry two more times
+after the first attempt failed.
 
-It is because get_cpu_device() failed in add_cpu_dev_symlink().
+This can happen in two different situations, namely during probe and
+during mac80211 start.  For the first case, a simple loop is enough.
+For the second case, we need to add a flag to prevent mac80211 from
+trying to restart it as well, leaving full control with the driver.
 
-cpufreq_add_dev() is the .add_dev callback of a CPU subsys interface.
-It will be called when the CPU device registered into the system.
-The call chain is as follows:
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20211110150132.57514296ecab.I52a0411774b700bdc7dedb124d8b59bf99456eb2@changeid
 
-  register_cpu()
-  ->device_register()
-   ->device_add()
-    ->bus_probe_device()
-     ->cpufreq_add_dev()
-
-But only after the CPU device has been registered, we can get the
-CPU device by get_cpu_device(), otherwise it will return NULL.
-
-Since we already have the CPU device in cpufreq_add_dev(), pass
-it to add_cpu_dev_symlink().
-
-I noticed that the 'kobj' of the CPU device has been added into
-the system before cpufreq_add_dev().
-
-Fixes: 2f0ba790df51 ("cpufreq: Fix creation of symbolic links to policy directories")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index e338d2f010fe..22aa2793e4d2 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1004,10 +1004,9 @@ static struct kobj_type ktype_cpufreq = {
- 	.release	= cpufreq_sysfs_release,
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+index 36196e07b1a0..5cec467b995b 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -1313,23 +1313,31 @@ _iwl_op_mode_start(struct iwl_drv *drv, struct iwlwifi_opmode_table *op)
+ 	const struct iwl_op_mode_ops *ops = op->ops;
+ 	struct dentry *dbgfs_dir = NULL;
+ 	struct iwl_op_mode *op_mode = NULL;
++	int retry, max_retry = !!iwlwifi_mod_params.fw_restart * IWL_MAX_INIT_RETRY;
++
++	for (retry = 0; retry <= max_retry; retry++) {
+ 
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+-	drv->dbgfs_op_mode = debugfs_create_dir(op->name,
+-						drv->dbgfs_drv);
+-	dbgfs_dir = drv->dbgfs_op_mode;
++		drv->dbgfs_op_mode = debugfs_create_dir(op->name,
++							drv->dbgfs_drv);
++		dbgfs_dir = drv->dbgfs_op_mode;
+ #endif
+ 
+-	op_mode = ops->start(drv->trans, drv->trans->cfg, &drv->fw, dbgfs_dir);
++		op_mode = ops->start(drv->trans, drv->trans->cfg,
++				     &drv->fw, dbgfs_dir);
++
++		if (op_mode)
++			return op_mode;
++
++		IWL_ERR(drv, "retry init count %d\n", retry);
+ 
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+-	if (!op_mode) {
+ 		debugfs_remove_recursive(drv->dbgfs_op_mode);
+ 		drv->dbgfs_op_mode = NULL;
+-	}
+ #endif
++	}
+ 
+-	return op_mode;
++	return NULL;
+ }
+ 
+ static void _iwl_op_mode_stop(struct iwl_drv *drv)
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
+index 2e2d60a58692..0fd009e6d685 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
+@@ -89,4 +89,7 @@ void iwl_drv_stop(struct iwl_drv *drv);
+ #define IWL_EXPORT_SYMBOL(sym)
+ #endif
+ 
++/* max retry for init flow */
++#define IWL_MAX_INIT_RETRY 2
++
+ #endif /* __iwl_drv_h__ */
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 9fb9c7dad314..897e3b91ddb2 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -16,6 +16,7 @@
+ #include <net/ieee80211_radiotap.h>
+ #include <net/tcp.h>
+ 
++#include "iwl-drv.h"
+ #include "iwl-op-mode.h"
+ #include "iwl-io.h"
+ #include "mvm.h"
+@@ -1117,9 +1118,30 @@ static int iwl_mvm_mac_start(struct ieee80211_hw *hw)
+ {
+ 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+ 	int ret;
++	int retry, max_retry = 0;
+ 
+ 	mutex_lock(&mvm->mutex);
+-	ret = __iwl_mvm_mac_start(mvm);
++
++	/* we are starting the mac not in error flow, and restart is enabled */
++	if (!test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) &&
++	    iwlwifi_mod_params.fw_restart) {
++		max_retry = IWL_MAX_INIT_RETRY;
++		/*
++		 * This will prevent mac80211 recovery flows to trigger during
++		 * init failures
++		 */
++		set_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
++	}
++
++	for (retry = 0; retry <= max_retry; retry++) {
++		ret = __iwl_mvm_mac_start(mvm);
++		if (!ret)
++			break;
++
++		IWL_ERR(mvm, "mac start retry %d\n", retry);
++	}
++	clear_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
++
+ 	mutex_unlock(&mvm->mutex);
+ 
+ 	return ret;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+index 2b1dcd60e00f..a72d85086fe3 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+@@ -1123,6 +1123,8 @@ struct iwl_mvm {
+  * @IWL_MVM_STATUS_FIRMWARE_RUNNING: firmware is running
+  * @IWL_MVM_STATUS_NEED_FLUSH_P2P: need to flush P2P bcast STA
+  * @IWL_MVM_STATUS_IN_D3: in D3 (or at least about to go into it)
++ * @IWL_MVM_STATUS_STARTING: starting mac,
++ *	used to disable restart flow while in STARTING state
+  */
+ enum iwl_mvm_status {
+ 	IWL_MVM_STATUS_HW_RFKILL,
+@@ -1134,6 +1136,7 @@ enum iwl_mvm_status {
+ 	IWL_MVM_STATUS_FIRMWARE_RUNNING,
+ 	IWL_MVM_STATUS_NEED_FLUSH_P2P,
+ 	IWL_MVM_STATUS_IN_D3,
++	IWL_MVM_STATUS_STARTING,
  };
  
--static void add_cpu_dev_symlink(struct cpufreq_policy *policy, unsigned int cpu)
-+static void add_cpu_dev_symlink(struct cpufreq_policy *policy, unsigned int cpu,
-+				struct device *dev)
- {
--	struct device *dev = get_cpu_device(cpu);
--
- 	if (unlikely(!dev))
- 		return;
+ /* Keep track of completed init configuration */
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+index 232ad531d612..ce7160670aa7 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+@@ -1600,6 +1600,9 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
+ 	 */
+ 	if (!mvm->fw_restart && fw_error) {
+ 		iwl_fw_error_collect(&mvm->fwrt, false);
++	} else if (test_bit(IWL_MVM_STATUS_STARTING,
++			    &mvm->status)) {
++		IWL_ERR(mvm, "Starting mac, retry will be triggered anyway\n");
+ 	} else if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
+ 		struct iwl_mvm_reprobe *reprobe;
  
-@@ -1391,7 +1390,7 @@ static int cpufreq_online(unsigned int cpu)
- 	if (new_policy) {
- 		for_each_cpu(j, policy->related_cpus) {
- 			per_cpu(cpufreq_cpu_data, j) = policy;
--			add_cpu_dev_symlink(policy, j);
-+			add_cpu_dev_symlink(policy, j, get_cpu_device(j));
- 		}
- 
- 		policy->min_freq_req = kzalloc(2 * sizeof(*policy->min_freq_req),
-@@ -1565,7 +1564,7 @@ static int cpufreq_add_dev(struct device *dev, struct subsys_interface *sif)
- 	/* Create sysfs link on CPU registration */
- 	policy = per_cpu(cpufreq_cpu_data, cpu);
- 	if (policy)
--		add_cpu_dev_symlink(policy, cpu);
-+		add_cpu_dev_symlink(policy, cpu, dev);
- 
- 	return 0;
- }
 
