@@ -2,188 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB47246844D
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:57:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E48E346848F
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 12:49:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231839AbhLDLAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 06:00:51 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35132 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384733AbhLDLAv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 06:00:51 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 007A8B801B8
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931FDC341C2;
-        Sat,  4 Dec 2021 10:57:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638615443;
-        bh=XsbzKPT5F6wfXCwHdQoo2y3HQPPpKAAakSBmnyR7TvE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Bxs8pWdHaxJy3eV7y65ebVjTX31vloFiAJUnv5PpKVXwymNFn2k7Hqkyu809ylgQo
-         wEaGTBg0WtiwzBawnjA1ktC0J6IXk2TOVFck39KhzSO9f/6omwyJ9TYUWPL1IJfRXq
-         T4+lXCbEUWQXMxGdxK+coo4d/C0Dyi/RQA1dMo97APnjPb0gfJVTCijP9agDNNmVyX
-         POxfb5q6JPhgl2r87uzABQ0w+zW4RBXJuYwoTsy4clTTnhRDgMbQ9EHaRyFDCQwhdD
-         mJC6gqCoPQj8gmMlNrb1nXGK6s2+r3Hho02Mti5N6dABzgB7nx39b0KP+KCXlrBb8n
-         eAgMF9AKNeDQw==
-Date:   Sat, 4 Dec 2021 11:57:19 +0100
-From:   Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     davem@davemloft.net, <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] net: dsa: mv88e6xxx: Save power by
- disabling SerDes" failed to apply to 5.15-stable tree
-Message-ID: <20211204115719.3315663b@thinkpad>
-In-Reply-To: <16386137159777@kroah.com>
-References: <16386137159777@kroah.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        id S1384822AbhLDLxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 06:53:03 -0500
+Received: from paleale.coelho.fi ([176.9.41.70]:50434 "EHLO
+        farmhouse.coelho.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1384823AbhLDLw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 06:52:28 -0500
+X-Greylist: delayed 2805 seconds by postgrey-1.27 at vger.kernel.org; Sat, 04 Dec 2021 06:52:28 EST
+Received: from 91-156-5-105.elisa-laajakaista.fi ([91.156.5.105] helo=kveik.ger.corp.intel.com)
+        by farmhouse.coelho.fi with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <luca@coelho.fi>)
+        id 1mtSns-0017QU-EL; Sat, 04 Dec 2021 13:02:05 +0200
+From:   Luca Coelho <luca@coelho.fi>
+To:     stable@vger.kernel.org
+Cc:     kvalo@codeaurora.org, luca@coelho.fi, mordechay.goodstein@intel.com
+Date:   Sat,  4 Dec 2021 13:02:02 +0200
+Message-Id: <20211204110202.837370-1-luca@coelho.fi>
+X-Mailer: git-send-email 2.33.1
+In-Reply-To: <1638613822160117@kroah.com>
+References: <1638613822160117@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on farmhouse.coelho.fi
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00,
+        TVD_RCVD_IP autolearn=ham autolearn_force=no version=3.4.6
+Subject: [PATCH 5.10] iwlwifi: mvm: retry init flow if failed
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In fact it was a series of 6 patches, but the 2nd was without fixes tag:
+From: Mordechay Goodstein <mordechay.goodstein@intel.com>
 
-21635d9203e1cf2b73b67e9a86059a62f62a3563
-8c3318b4874e2dee867f5ae8f6d38f78e044bf71 (without fixes tag)
-7527d66260ac0c603c6baca5146748061fcddbd6 (didnt apply)
-93fd8207bed80ce19aaf59932cbe1c03d418a37d
-163000dbc772c1eae9bdfe7c8fe30155db1efd74
-ede359d8843a2779d232ed30bc36089d4b5962e4
+commit 5283dd677e52af9db6fe6ad11b2f12220d519d0c upstream.
 
-On Sat, 04 Dec 2021 11:28:35 +0100
-<gregkh@linuxfoundation.org> wrote:
+In some very rare cases the init flow may fail.  In many cases, this is
+recoverable, so we can retry.  Implement a loop to retry two more times
+after the first attempt failed.
 
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
->=20
-> thanks,
->=20
-> greg k-h
->=20
-> ------------------ original commit in Linus's tree ------------------
->=20
-> From 7527d66260ac0c603c6baca5146748061fcddbd6 Mon Sep 17 00:00:00 2001
-> From: =3D?UTF-8?q?Marek=3D20Beh=3DC3=3DBAn?=3D <kabel@kernel.org>
-> Date: Tue, 30 Nov 2021 18:01:48 +0100
-> Subject: [PATCH] net: dsa: mv88e6xxx: Save power by disabling SerDes
->  trasmitter and receiver
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=3DUTF-8
-> Content-Transfer-Encoding: 8bit
->=20
-> Save power on 88E6393X by disabling SerDes receiver and transmitter
-> after SerDes is SerDes is disabled.
->=20
-> Signed-off-by: Marek Beh=C3=BAn <kabel@kernel.org>
-> Cc: stable@vger.kernel.org # de776d0d316f ("net: dsa: mv88e6xxx: add supp=
-ort for mv88e6393x family")
-> Signed-off-by: David S. Miller <davem@davemloft.net>
->=20
-> diff --git a/drivers/net/dsa/mv88e6xxx/serdes.c b/drivers/net/dsa/mv88e6x=
-xx/serdes.c
-> index 3a6244596a67..ceb63d7f1f97 100644
-> --- a/drivers/net/dsa/mv88e6xxx/serdes.c
-> +++ b/drivers/net/dsa/mv88e6xxx/serdes.c
-> @@ -1271,6 +1271,28 @@ void mv88e6390_serdes_get_regs(struct mv88e6xxx_ch=
-ip *chip, int port, void *_p)
->  	}
->  }
-> =20
-> +static int mv88e6393x_serdes_power_lane(struct mv88e6xxx_chip *chip, int=
- lane,
-> +					bool on)
-> +{
-> +	u16 reg;
-> +	int err;
-> +
-> +	err =3D mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
-> +				    MV88E6393X_SERDES_CTRL1, &reg);
-> +	if (err)
-> +		return err;
-> +
-> +	if (on)
-> +		reg &=3D ~(MV88E6393X_SERDES_CTRL1_TX_PDOWN |
-> +			 MV88E6393X_SERDES_CTRL1_RX_PDOWN);
-> +	else
-> +		reg |=3D MV88E6393X_SERDES_CTRL1_TX_PDOWN |
-> +		       MV88E6393X_SERDES_CTRL1_RX_PDOWN;
-> +
-> +	return mv88e6390_serdes_write(chip, lane, MDIO_MMD_PHYXS,
-> +				      MV88E6393X_SERDES_CTRL1, reg);
-> +}
-> +
->  static int mv88e6393x_serdes_erratum_4_6(struct mv88e6xxx_chip *chip, in=
-t lane)
->  {
->  	u16 reg;
-> @@ -1297,7 +1319,11 @@ static int mv88e6393x_serdes_erratum_4_6(struct mv=
-88e6xxx_chip *chip, int lane)
->  	if (err)
->  		return err;
-> =20
-> -	return mv88e6390_serdes_power_sgmii(chip, lane, false);
-> +	err =3D mv88e6390_serdes_power_sgmii(chip, lane, false);
-> +	if (err)
-> +		return err;
-> +
-> +	return mv88e6393x_serdes_power_lane(chip, lane, false);
->  }
-> =20
->  int mv88e6393x_serdes_setup_errata(struct mv88e6xxx_chip *chip)
-> @@ -1362,17 +1388,29 @@ int mv88e6393x_serdes_power(struct mv88e6xxx_chip=
- *chip, int port, int lane,
->  		err =3D mv88e6393x_serdes_erratum_4_8(chip, lane);
->  		if (err)
->  			return err;
-> +
-> +		err =3D mv88e6393x_serdes_power_lane(chip, lane, true);
-> +		if (err)
-> +			return err;
->  	}
-> =20
->  	switch (cmode) {
->  	case MV88E6XXX_PORT_STS_CMODE_SGMII:
->  	case MV88E6XXX_PORT_STS_CMODE_1000BASEX:
->  	case MV88E6XXX_PORT_STS_CMODE_2500BASEX:
-> -		return mv88e6390_serdes_power_sgmii(chip, lane, on);
-> +		err =3D mv88e6390_serdes_power_sgmii(chip, lane, on);
-> +		break;
->  	case MV88E6393X_PORT_STS_CMODE_5GBASER:
->  	case MV88E6393X_PORT_STS_CMODE_10GBASER:
-> -		return mv88e6390_serdes_power_10g(chip, lane, on);
-> +		err =3D mv88e6390_serdes_power_10g(chip, lane, on);
-> +		break;
->  	}
-> =20
-> -	return 0;
-> +	if (err)
-> +		return err;
-> +
-> +	if (!on)
-> +		err =3D mv88e6393x_serdes_power_lane(chip, lane, false);
-> +
-> +	return err;
->  }
-> diff --git a/drivers/net/dsa/mv88e6xxx/serdes.h b/drivers/net/dsa/mv88e6x=
-xx/serdes.h
-> index cbb3ba30caea..e9292c8beee4 100644
-> --- a/drivers/net/dsa/mv88e6xxx/serdes.h
-> +++ b/drivers/net/dsa/mv88e6xxx/serdes.h
-> @@ -93,6 +93,9 @@
->  #define MV88E6393X_SERDES_POC_PCS_MASK		0x0007
->  #define MV88E6393X_SERDES_POC_RESET		BIT(15)
->  #define MV88E6393X_SERDES_POC_PDOWN		BIT(5)
-> +#define MV88E6393X_SERDES_CTRL1			0xf003
-> +#define MV88E6393X_SERDES_CTRL1_TX_PDOWN	BIT(9)
-> +#define MV88E6393X_SERDES_CTRL1_RX_PDOWN	BIT(8)
-> =20
->  #define MV88E6393X_ERRATA_4_8_REG		0xF074
->  #define MV88E6393X_ERRATA_4_8_BIT		BIT(14)
->=20
+This can happen in two different situations, namely during probe and
+during mac80211 start.  For the first case, a simple loop is enough.
+For the second case, we need to add a flag to prevent mac80211 from
+trying to restart it as well, leaving full control with the driver.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20211110150132.57514296ecab.I52a0411774b700bdc7dedb124d8b59bf99456eb2@changeid
+---
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c  | 22 +++++++++++------
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.h  |  3 +++
+ .../net/wireless/intel/iwlwifi/mvm/mac80211.c | 24 ++++++++++++++++++-
+ drivers/net/wireless/intel/iwlwifi/mvm/mvm.h  |  3 +++
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c  |  3 +++
+ 5 files changed, 47 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+index 9dcd2e990c9c..be214f39f52b 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -1303,23 +1303,31 @@ _iwl_op_mode_start(struct iwl_drv *drv, struct iwlwifi_opmode_table *op)
+ 	const struct iwl_op_mode_ops *ops = op->ops;
+ 	struct dentry *dbgfs_dir = NULL;
+ 	struct iwl_op_mode *op_mode = NULL;
++	int retry, max_retry = !!iwlwifi_mod_params.fw_restart * IWL_MAX_INIT_RETRY;
++
++	for (retry = 0; retry <= max_retry; retry++) {
+ 
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+-	drv->dbgfs_op_mode = debugfs_create_dir(op->name,
+-						drv->dbgfs_drv);
+-	dbgfs_dir = drv->dbgfs_op_mode;
++		drv->dbgfs_op_mode = debugfs_create_dir(op->name,
++							drv->dbgfs_drv);
++		dbgfs_dir = drv->dbgfs_op_mode;
+ #endif
+ 
+-	op_mode = ops->start(drv->trans, drv->trans->cfg, &drv->fw, dbgfs_dir);
++		op_mode = ops->start(drv->trans, drv->trans->cfg,
++				     &drv->fw, dbgfs_dir);
++
++		if (op_mode)
++			return op_mode;
++
++		IWL_ERR(drv, "retry init count %d\n", retry);
+ 
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+-	if (!op_mode) {
+ 		debugfs_remove_recursive(drv->dbgfs_op_mode);
+ 		drv->dbgfs_op_mode = NULL;
+-	}
+ #endif
++	}
+ 
+-	return op_mode;
++	return NULL;
+ }
+ 
+ static void _iwl_op_mode_stop(struct iwl_drv *drv)
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
+index 8938a6467996..a6e9bc56f7dd 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
+@@ -144,4 +144,7 @@ void iwl_drv_stop(struct iwl_drv *drv);
+ #define IWL_EXPORT_SYMBOL(sym)
+ #endif
+ 
++/* max retry for init flow */
++#define IWL_MAX_INIT_RETRY 2
++
+ #endif /* __iwl_drv_h__ */
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 6f301ac8cce2..81cc85a97eb2 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -71,6 +71,7 @@
+ #include <net/ieee80211_radiotap.h>
+ #include <net/tcp.h>
+ 
++#include "iwl-drv.h"
+ #include "iwl-op-mode.h"
+ #include "iwl-io.h"
+ #include "mvm.h"
+@@ -1163,9 +1164,30 @@ static int iwl_mvm_mac_start(struct ieee80211_hw *hw)
+ {
+ 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+ 	int ret;
++	int retry, max_retry = 0;
+ 
+ 	mutex_lock(&mvm->mutex);
+-	ret = __iwl_mvm_mac_start(mvm);
++
++	/* we are starting the mac not in error flow, and restart is enabled */
++	if (!test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) &&
++	    iwlwifi_mod_params.fw_restart) {
++		max_retry = IWL_MAX_INIT_RETRY;
++		/*
++		 * This will prevent mac80211 recovery flows to trigger during
++		 * init failures
++		 */
++		set_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
++	}
++
++	for (retry = 0; retry <= max_retry; retry++) {
++		ret = __iwl_mvm_mac_start(mvm);
++		if (!ret)
++			break;
++
++		IWL_ERR(mvm, "mac start retry %d\n", retry);
++	}
++	clear_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
++
+ 	mutex_unlock(&mvm->mutex);
+ 
+ 	return ret;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+index 7159d1da3e77..64f5a4cb3d3a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+@@ -1162,6 +1162,8 @@ struct iwl_mvm {
+  * @IWL_MVM_STATUS_FIRMWARE_RUNNING: firmware is running
+  * @IWL_MVM_STATUS_NEED_FLUSH_P2P: need to flush P2P bcast STA
+  * @IWL_MVM_STATUS_IN_D3: in D3 (or at least about to go into it)
++ * @IWL_MVM_STATUS_STARTING: starting mac,
++ *	used to disable restart flow while in STARTING state
+  */
+ enum iwl_mvm_status {
+ 	IWL_MVM_STATUS_HW_RFKILL,
+@@ -1173,6 +1175,7 @@ enum iwl_mvm_status {
+ 	IWL_MVM_STATUS_FIRMWARE_RUNNING,
+ 	IWL_MVM_STATUS_NEED_FLUSH_P2P,
+ 	IWL_MVM_STATUS_IN_D3,
++	IWL_MVM_STATUS_STARTING,
+ };
+ 
+ /* Keep track of completed init configuration */
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+index 0be8ff30b13e..7c61d179895b 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+@@ -1295,6 +1295,9 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
+ 	 */
+ 	if (!mvm->fw_restart && fw_error) {
+ 		iwl_fw_error_collect(&mvm->fwrt);
++	} else if (test_bit(IWL_MVM_STATUS_STARTING,
++			    &mvm->status)) {
++		IWL_ERR(mvm, "Starting mac, retry will be triggered anyway\n");
+ 	} else if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
+ 		struct iwl_mvm_reprobe *reprobe;
+ 
+-- 
+2.33.1
 
