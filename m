@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBD146830D
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 08:02:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF775468312
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 08:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244447AbhLDHGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 02:06:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49144 "EHLO
+        id S1344275AbhLDHMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 02:12:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243085AbhLDHGP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 02:06:15 -0500
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C19D0C061751
-        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 23:02:50 -0800 (PST)
-Received: by mail-pg1-x52a.google.com with SMTP id s137so5294598pgs.5
-        for <stable@vger.kernel.org>; Fri, 03 Dec 2021 23:02:50 -0800 (PST)
+        with ESMTP id S243085AbhLDHMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 02:12:36 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADCACC061751
+        for <stable@vger.kernel.org>; Fri,  3 Dec 2021 23:09:11 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id u80so5045360pfc.9
+        for <stable@vger.kernel.org>; Fri, 03 Dec 2021 23:09:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=SE+mB8iaM/QhXNv/tHQN8cu7s5HN6xBEYjIYar2U6Y8=;
-        b=6g63tkM8TT48rJ7yxPbpk01KACKMaR1vqHMjLxzG02hhvv7z8OWY7nuyUEPVfysvFV
-         C3ZJhWz8KiGoO91VcLL2OxoK9tzeSTlknEHLj9Rt06U+i/NQSZKlyevuWAwQeb+7OpQF
-         AF9hoBN/OSdNnM3sjNGY9vq82DJ6D3eWzmiyt8UB3Ysbxwa7PHdtRNWh46r/j+cGjMZS
-         jgcqEi2J+7ZMLOkLosvuXWV4wNxXY+/8Mfz6c+Z/8oK121qCLrjv1q6LY8hFAfrUmKvt
-         q5vUYjraGO4VAcZ8rFXzw+e9T7bPg/Th9UHfPuAZQgDFctcFEat7OIUwoGjsFODhkIpd
-         jIfw==
+        bh=6TD3N7tFt5bD2Oipo9eHiT8zyfIlb24S5IlIttG/YBc=;
+        b=Crjv2KF7py82PZ2PSBfDbkr/NUb8lvLItBdoGZpYqFxkVJSSL8epqhcieE/qL11nDy
+         JCS1eLIyNUil2FLZ/v8SlGWmajfNFaHaSuxbocQ/tcDK0udnqPTNL5PRr0DokeYrrdVM
+         F5n+rlG/rVTqoo514TJh/41gLvDVh0+IjNg8rPa5mGEJczDr9cZNYFV0+FGt5rO9pdDJ
+         HN19OQpxKSdGWxBLG5wABbXOxVTHS8ZgkiSPxHw1qfWmVmweQVpzpVvGhskrRKaunFGl
+         sfLUozbWAaEhBnVj0py7oqWK+VVjYP02jME3HKw9y4oOWYQTeYwV3I18MgvlrRdsknxo
+         X6qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=SE+mB8iaM/QhXNv/tHQN8cu7s5HN6xBEYjIYar2U6Y8=;
-        b=SDX3LQ/qlNK9xSuQ8jfamuALT1d/W8bAtIRw5M0NB8Lnc5Zmz3L4vbvnfR34Hsyvm1
-         cMO+EFg3kkwR88cVoF1Bcv2RTejLjCqlnkg30AokETaEFE/EUJZHSxyVCAuHsNLAJeKZ
-         vw80eaDMgLfw+AX9GsTOkzZRWUU75W49BkZzjvOAUXXsCf2vuoZnqViG97DF49k8qU5t
-         d78nj32vu4wQUeGAYyLKcQu2LJPiB19wMAFUw8uGN4IX6EOPqvciGRhMrWO2EIMuqSeP
-         ayvYUl3fnsGmdEKWhI8YpXaoIYfyTSmZRQHVEpwQRKg0mTd5fVEdD/QeO7mWJzlClyof
-         997g==
-X-Gm-Message-State: AOAM5339JoE3CZUB/CkLTAYXxT2PxkIqHrMob0J4a1GB1tazxqalrjP5
-        RcgSwMZfya0CNx6LFg+gmsifT8rJXzgkhZPi
-X-Google-Smtp-Source: ABdhPJw0USJtPWej3ZKznuud1eXTgZqsD66qcEXGkfD1ARSQHbrDvFjUb0iX5rpahXm57S39+OQ1Xg==
-X-Received: by 2002:a63:ec56:: with SMTP id r22mr8240307pgj.175.1638601369240;
-        Fri, 03 Dec 2021 23:02:49 -0800 (PST)
+        bh=6TD3N7tFt5bD2Oipo9eHiT8zyfIlb24S5IlIttG/YBc=;
+        b=2TdDH+BByJ9QeTjSgIeKB3z5KqSXC93vB1GloDG3CTnLIhQ1g0t7ym4y/8efribpb2
+         lZ0fwFqUQAhOmAcaQz3E4VG1CpX78DnQkbmwEh8XpBI3uHOPXSUnNfqBINKH50TGCQqL
+         on5TCRnPruFkjVaL4Pv750P24rv+oVOKNVk0mQ4SyJLezpiYZiLf6q1XjNl7K/uwZLXW
+         cfFH8+KsGFPpnvFEXP1xj5Fx/IVftOO/yQ6xKzy+u14MqzuZuvzDqRi4QC1JFvHgj5SC
+         8Og1zVFv67A6sPdZXTnzo9+bMLQMA9vj1tevn9jDPr6ktD8NdANA01rNrhHgYaJ387co
+         IykQ==
+X-Gm-Message-State: AOAM530sZS6Ku+Qaq/l7M44wY2U90vMDi+TE+yp2DhDIR5O6ydpS8uC+
+        NJdoFLXUPg7W9lBPU39Lfavw2W465JI79pjY
+X-Google-Smtp-Source: ABdhPJz+goBqJ9aB/ORxDQYAlKzBCwsk4vkyJ1avXgsKd8qE0KohrxIsDeBpstr3sFe4PCWleMyt9w==
+X-Received: by 2002:a62:1b51:0:b0:49f:a8d8:84b with SMTP id b78-20020a621b51000000b0049fa8d8084bmr23977608pfb.31.1638601750510;
+        Fri, 03 Dec 2021 23:09:10 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d1sm5400986pfv.194.2021.12.03.23.02.48
+        by smtp.gmail.com with ESMTPSA id mu4sm8244629pjb.8.2021.12.03.23.09.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Dec 2021 23:02:48 -0800 (PST)
-Message-ID: <61ab1298.1c69fb81.4122d.0d8b@mx.google.com>
-Date:   Fri, 03 Dec 2021 23:02:48 -0800 (PST)
+        Fri, 03 Dec 2021 23:09:10 -0800 (PST)
+Message-ID: <61ab1416.1c69fb81.ac3c7.722d@mx.google.com>
+Date:   Fri, 03 Dec 2021 23:09:10 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.10.83-32-g1c369d7bf2a2e
-X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.15.6-51-ga8615847f1af9
+X-Kernelci-Branch: queue/5.15
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 build: 182 builds: 24 failed, 158 passed,
- 25 errors, 30 warnings (v5.10.83-32-g1c369d7bf2a2e)
+Subject: stable-rc/queue/5.15 build: 157 builds: 4 failed, 153 passed,
+ 13 errors, 3 warnings (v5.15.6-51-ga8615847f1af9)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,121 +65,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 build: 182 builds: 24 failed, 158 passed, 25 errors, 3=
-0 warnings (v5.10.83-32-g1c369d7bf2a2e)
+stable-rc/queue/5.15 build: 157 builds: 4 failed, 153 passed, 13 errors, 3 =
+warnings (v5.15.6-51-ga8615847f1af9)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-0/kernel/v5.10.83-32-g1c369d7bf2a2e/
+5/kernel/v5.15.6-51-ga8615847f1af9/
 
 Tree: stable-rc
-Branch: queue/5.10
-Git Describe: v5.10.83-32-g1c369d7bf2a2e
-Git Commit: 1c369d7bf2a2e50b0167a60ee40968d7efca89ea
+Branch: queue/5.15
+Git Describe: v5.15.6-51-ga8615847f1af9
+Git Commit: a8615847f1af91df8c94f9edb1a3e28069349b72
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 7 unique architectures
+Built: 6 unique architectures
 
 Build Failures Detected:
 
-arm64:
-    defconfig: (gcc-10) FAIL
-
 arm:
-    davinci_all_defconfig: (gcc-10) FAIL
-    exynos_defconfig: (gcc-10) FAIL
-    hisi_defconfig: (gcc-10) FAIL
-    imx_v6_v7_defconfig: (gcc-10) FAIL
-    multi_v5_defconfig: (gcc-10) FAIL
-    multi_v7_defconfig: (gcc-10) FAIL
-    mvebu_v5_defconfig: (gcc-10) FAIL
-    mvebu_v7_defconfig: (gcc-10) FAIL
-    omap2plus_defconfig: (gcc-10) FAIL
-    pxa_defconfig: (gcc-10) FAIL
-    qcom_defconfig: (gcc-10) FAIL
     rpc_defconfig: (gcc-10) FAIL
-    spear13xx_defconfig: (gcc-10) FAIL
-    sunxi_defconfig: (gcc-10) FAIL
-    tegra_defconfig: (gcc-10) FAIL
-
-i386:
-    i386_defconfig: (gcc-10) FAIL
 
 mips:
-    32r2el_defconfig: (gcc-10) FAIL
-    cavium_octeon_defconfig: (gcc-10) FAIL
+    decstation_64_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
-    loongson3_defconfig: (gcc-10) FAIL
-    nlm_xlp_defconfig: (gcc-10) FAIL
-
-x86_64:
-    x86_64_defconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
 arc:
-
-arm64:
-    defconfig (gcc-10): 1 error, 1 warning
+    tinyconfig (gcc-10): 1 warning
 
 arm:
-    davinci_all_defconfig (gcc-10): 1 error, 1 warning
-    exynos_defconfig (gcc-10): 1 error, 1 warning
-    hisi_defconfig (gcc-10): 1 error, 1 warning
-    imx_v6_v7_defconfig (gcc-10): 1 error, 1 warning
-    multi_v5_defconfig (gcc-10): 1 error, 1 warning
-    multi_v7_defconfig (gcc-10): 1 error, 1 warning
-    mvebu_v5_defconfig (gcc-10): 1 error, 1 warning
-    mvebu_v7_defconfig (gcc-10): 1 error, 1 warning
-    omap2plus_defconfig (gcc-10): 1 error, 1 warning
-    pxa_defconfig (gcc-10): 1 error, 1 warning
-    qcom_defconfig (gcc-10): 1 error, 1 warning
     rpc_defconfig (gcc-10): 4 errors
-    spear13xx_defconfig (gcc-10): 1 error, 1 warning
-    sunxi_defconfig (gcc-10): 1 error, 1 warning
-    tegra_defconfig (gcc-10): 1 error, 1 warning
 
 i386:
-    i386_defconfig (gcc-10): 1 error, 1 warning
 
 mips:
-    32r2el_defconfig (gcc-10): 1 error, 1 warning
-    cavium_octeon_defconfig (gcc-10): 1 error, 1 warning
-    decstation_64_defconfig (gcc-10): 1 warning
-    decstation_defconfig (gcc-10): 1 warning
-    decstation_r4k_defconfig (gcc-10): 1 warning
-    lemote2f_defconfig (gcc-10): 1 warning
-    loongson3_defconfig (gcc-10): 1 error, 1 warning
-    nlm_xlp_defconfig (gcc-10): 1 error, 1 warning
-    rm200_defconfig (gcc-10): 1 warning
+    32r2el_defconfig (gcc-10): 1 warning
+    bigsur_defconfig (gcc-10): 1 error
+    cavium_octeon_defconfig (gcc-10): 1 error
+    decstation_64_defconfig (gcc-10): 1 error
+    fuloong2e_defconfig (gcc-10): 1 error
+    ip32_defconfig (gcc-10): 1 error
+    loongson2k_defconfig (gcc-10): 1 error, 1 warning
+    loongson3_defconfig (gcc-10): 1 error
+    nlm_xlp_defconfig (gcc-10): 1 error
+    sb1250_swarm_defconfig (gcc-10): 1 error
 
 riscv:
-    rv32_defconfig (gcc-10): 4 warnings
 
 x86_64:
-    x86_64_defconfig (gcc-10): 1 error, 1 warning
 
 Errors summary:
 
-    21   drivers/ata/libahci.c:2332:6: error: implicit declaration of funct=
-ion =E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declarat=
-ion]
+    9    expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
+0=E2=80=99
     2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
     2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
 
 Warnings summary:
 
-    21   cc1: some warnings being treated as errors
-    3    kernel/rcu/tasks.h:707:13: warning: =E2=80=98show_rcu_tasks_rude_g=
-p_kthread=E2=80=99 defined but not used [-Wunused-function]
-    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
-    1    net/mac80211/mlme.c:4328:1: warning: the frame size of 1040 bytes =
+    1    net/mac80211/mlme.c:4345:1: warning: the frame size of 1200 bytes =
 is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
+e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
+ted "0,0"
+    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
+s unknown, fallback to ''
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -190,25 +142,23 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
 
 Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
+): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
+0,0"
 
 ---------------------------------------------------------------------------=
 -----
 allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -239,16 +189,6 @@ ection mismatches
 -----
 assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -292,8 +232,12 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -312,15 +256,12 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, =
-0 section mismatches
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
+ 0 section mismatches
 
 Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -374,15 +315,8 @@ cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -391,47 +325,17 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning,=
+decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
  0 section mismatches
 
-Warnings:
-    kernel/rcu/tasks.h:707:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:707:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    kernel/rcu/tasks.h:707:13: warning: =E2=80=98show_rcu_tasks_rude_gp_kth=
-read=E2=80=99 defined but not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
-matches
-
 Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
-Warnings:
-    cc1: some warnings being treated as errors
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -445,35 +349,13 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -487,8 +369,12 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -532,15 +418,8 @@ haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
-hisi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -549,15 +428,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-i386_defconfig (i386, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -571,15 +443,13 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -603,8 +473,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -615,11 +489,6 @@ ion mismatches
 -----
 jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -638,34 +507,30 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/mac80211/mlme.c:4328:1: warning: the frame size of 1040 bytes is la=
-rger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
 loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 1 warning, 0 s=
+ection mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
+
+Warnings:
+    net/mac80211/mlme.c:4345:1: warning: the frame size of 1200 bytes is la=
+rger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
-ction mismatches
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
+ection mismatches
 
 Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -676,11 +541,6 @@ tion mismatches
 -----
 lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -699,18 +559,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
 malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -720,11 +570,6 @@ gs, 0 section mismatches
 ---------------------------------------------------------------------------=
 -----
 maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -784,51 +629,23 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -852,15 +669,12 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sec=
+tion mismatches
 
 Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -874,6 +688,11 @@ nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 
 ---------------------------------------------------------------------------=
 -----
+nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
+nings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
 nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
 
@@ -884,20 +703,8 @@ s, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -931,28 +738,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
 pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -966,27 +753,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1010,14 +778,6 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-
----------------------------------------------------------------------------=
------
 rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
  mismatches
 
@@ -1031,26 +791,13 @@ Errors:
 
 ---------------------------------------------------------------------------=
 -----
-rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
 rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sect=
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1074,13 +821,17 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
+0 section mismatches
+
+Errors:
+    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
+=80=99
 
 ---------------------------------------------------------------------------=
 -----
@@ -1099,15 +850,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1126,25 +870,8 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1168,25 +895,8 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tegra_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1195,13 +905,22 @@ tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
+nown, fallback to ''
 
 ---------------------------------------------------------------------------=
 -----
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1255,30 +974,13 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    drivers/ata/libahci.c:2332:6: error: implicit declaration of function =
-=E2=80=98acpi_storage_d3=E2=80=99 [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
 xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
 
 ---
 For more info write to <info@kernelci.org>
