@@ -2,183 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9C7B4685C2
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 15:46:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E80814685CB
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 15:57:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235484AbhLDOuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 09:50:15 -0500
-Received: from mail-eopbgr60047.outbound.protection.outlook.com ([40.107.6.47]:47618
-        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232056AbhLDOuP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 Dec 2021 09:50:15 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KlHUJtDprDVgaRWmHqQnGJHuVCD274nxXO6TVae2s3ry4Gxma1NtTY1Wj7N8diI8rHmxpLXGMT5k2ioFMpLimF6tv4x3z8ZS/FzCdt9+1hfeRDizwfcPqfzn99hHIIb+m6mb3+UraHwo7A3z+mXv3j6Lx+wVCVTHXIVPSRdFzi1Inf/5n+AxTQS0FUi2KbuTTfRKDfbXgLex9ELE6tSrIEesBJrBqZx+6g/HQ6UzyruvzLaQPScPmtmtm3Cuho+Gw72EhxiiERGDINWmYls6b/mhNSTt9e4X1JB156Htt82fuTelWoHefhzyoXZAeyscu+AlZpO5PATo5hetLHe3Kw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=t3iCtDAELpRvhbdECVU7y2YEAYBGlup27Fbxj9reSGw=;
- b=nj0TivtfFatR3c16PdcfgZ9/fG5h+KocpI/cz2W+Oxr5dTofPWyhaHjMw7+7lIIV4+tflWlRx/cDWK8meLv0AMsmiV6nYDFaTUWQsbYD1XOLMj29NbWpG8euxRbD6oJD5zALysYP6RdKTsWzHsKLlWG5nkm5xAVjx0lP/1dS4OZHu1b8UTzZq4jRooJjh7dGuYjjWy/4IExzgwQa4c8Ph5+92s4qQ+U7Apb6+hJpi4xcRvBKKB9o20bc+6sisK1Cb3A4unXOzK2v/CSRGCVaduKzQ3ZLYGU4ChtCYEcctpaNaYzgkKUxef3EDTcuHNF5PDFQUniN1eu4224cr6k/wg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=t3iCtDAELpRvhbdECVU7y2YEAYBGlup27Fbxj9reSGw=;
- b=CreIH179xI2U6he/0BOZM/CkPPzhRnoacqEuuVb6gLZPh8xNETM0LQgP23AqQ+OsMsK3ReY7+TEE2idF2qdt5NbzbfezuETcIP7oo7LnCXQEho4+v8ZLmICgZx4Rt3MNRWPrdUN/gcFLZME+xll1m0qHGAoM2b9ibs4LhQXxqB8=
-Received: from VI1PR04MB5136.eurprd04.prod.outlook.com (2603:10a6:803:55::19)
- by VI1PR04MB3197.eurprd04.prod.outlook.com (2603:10a6:802:b::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Sat, 4 Dec
- 2021 14:46:47 +0000
-Received: from VI1PR04MB5136.eurprd04.prod.outlook.com
- ([fe80::796e:38c:5706:b802]) by VI1PR04MB5136.eurprd04.prod.outlook.com
- ([fe80::796e:38c:5706:b802%3]) with mapi id 15.20.4755.020; Sat, 4 Dec 2021
- 14:46:47 +0000
-From:   Vladimir Oltean <vladimir.oltean@nxp.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>,
-        "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.15 65/68] net: mscc: ocelot: create a function
- that replaces an existing VCAP filter
-Thread-Topic: [PATCH AUTOSEL 5.15 65/68] net: mscc: ocelot: create a function
- that replaces an existing VCAP filter
-Thread-Index: AQHX5fmW9Dfcuyisnkyc81Pq9Pldoqwib5IA
-Date:   Sat, 4 Dec 2021 14:46:47 +0000
-Message-ID: <20211204144646.jmuoxrfmxyn6jknm@skbuf>
-References: <20211130144707.944580-1-sashal@kernel.org>
- <20211130144707.944580-65-sashal@kernel.org>
-In-Reply-To: <20211130144707.944580-65-sashal@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ee40caa3-36cf-4524-ec50-08d9b734e623
-x-ms-traffictypediagnostic: VI1PR04MB3197:
-x-microsoft-antispam-prvs: <VI1PR04MB31970D52673BC4028A12914FE06B9@VI1PR04MB3197.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2043;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: HYt5lnM4UsIM04/slD72bsLKhc+b089EKWGs6vaKR/qiSJDS/cQJUpoyYnXvkkTYcYTvRxJK/uT4VkKVe9UEiPCPHOuSlPkfSavKEw91IvCaGqCbOOjugzzijnRWsJDqwXKyFGMpcyiJvhJ+ObAW/yBjQBYkno2tm6xUnz7oT/KBh7MMox5/TnYjrx82L0gMfNdwamqnrW/p0w6dkWONGCjVBF3Y/fU7Ndhwp/AQ9i5ydzyLW/jKQ958bWIlEJOGrekCFkk3HIxULQ/xoKq+eU3/HOJ7AOmthIUPHJOOzD8h6+SCZ1Rl9e1AjCS4VZZ/eS2VtgnrHmHonNQi4mv1x1qltxPArfq3RG2j3Ku1XRyOJLGKqBarSS4/LAPcyBv/+LlN7nSbfYT6nkm2T24+QT0O+Io9sBn6sHX/lyJdZuboFsJ+VngzOeB7HkQB03C5qmw6njzgtv4zQ+q2jSRj8I/Gt3tHXFHyycsiOEerok+iUV92ZYUdnMBITIX9YzCBGjU8DfQ2leq5ID5ijF81V9Ht+4ArXB0Cnfv1UaZK19mjHUhBLOLiJ1u64ytBeKHY7sdezhokrWdnFZwwn1Vt6VMd0HixuFg6K7tEbVkcXzhWBFj96Yema/kUWDcFyOvIMCW2CNscPExtycB+pEQGqCLSDEclic88WbJ4sZUOE3cW+eBWo391fnkeu+W47bKLvf2GaF6bJhoVXhaRZvVT7ZEwEn3qKaxzJoVnzHNYfXpBikPXOmlTy2tX9W53GbZeP6m2J5PlhvGxQr09tP86LSjh8n+jHT6a72erEWNd5HI=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5136.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(7916004)(4636009)(366004)(8676002)(6486002)(33716001)(38100700002)(86362001)(508600001)(71200400001)(9686003)(6512007)(122000001)(8936002)(316002)(2906002)(83380400001)(38070700005)(4326008)(5660300002)(6506007)(54906003)(66946007)(966005)(66476007)(64756008)(66556008)(66446008)(91956017)(6916009)(76116006)(44832011)(1076003)(26005)(186003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?S6peWflFSOEeaox9MgUDFceIMvspdXGgfIxMd4sa4t6KFYIb1tm8uCzBWC9t?=
- =?us-ascii?Q?JUPWtMnt4PenDRNL2BKhuvzlNLljvMRvrTZy3OU5bQci9sGDqyBjGSgwGjeB?=
- =?us-ascii?Q?XHGF8a0W/SH0KZgZI1f3i8wR+YWfGy+35bWeu5mQNK/zLWEN9A3bAuV2EK6h?=
- =?us-ascii?Q?zqRTVYCdS8ZQVBGM3mCcAGi7GPc4CUyJX7y+XT94dVGZE6W3NQqzgAKz9RM6?=
- =?us-ascii?Q?h01jM8e46D2hQiAsRlbs7qem9LScPZtJA/6J9/yD4UOV1asc8uatfxh5osZA?=
- =?us-ascii?Q?8SLWCc2Ac4boef7N0yOjXkWhLNRn/qKx9Ij8vt0SgT9D/v45/okkjx7T5oR4?=
- =?us-ascii?Q?PDiXlWdaKbhL8tlK0CUKpvP4v3GR2vcizU7mQDYgnl/7RynKIiw+tuLD/TaB?=
- =?us-ascii?Q?iZwfSxf2rwATDu1ZfeJaNoF4OuSc5fYYaPPkh80Wp5uPmxbuOTictI6kmv0j?=
- =?us-ascii?Q?enUqlO3Cg89YiHRyVkbLQYMDGZ8RpaSGsviotqjs3VX0acObeWiP9nO+eq8b?=
- =?us-ascii?Q?gTST45roqYvG0JJU1yhC5KYzyfXs6/pJhfC0AUOuSxhpDODaygWwK4WfiRuX?=
- =?us-ascii?Q?y1RVYyRSt+8ixfrJfCYEMq02kaWkjRtN2ebFAgZ233r+MWZv5FKTORFs1WbN?=
- =?us-ascii?Q?5bh1KnvdDYcoilDzKrYo/5ubrvCbmO1//cNq3wZFXlzQR2KC5cL/lkKv4cfJ?=
- =?us-ascii?Q?Wl4Yeos+I3Hb81gGvyRsDkHVK3WoFv/9NssnOfe2sesj88Mtc/c0kNGLdGLT?=
- =?us-ascii?Q?wTzV6qKQ7szsxnV22uFui+/7UQ2SwCcYe66gogGRA/1Bd/HrsOqhkCTTDrKR?=
- =?us-ascii?Q?gw5/kd48/BoR2yPB33U+X9LkpGce0IVBNK5uhmqjSduP4wajO/9dq82WHuae?=
- =?us-ascii?Q?1ZwVLNGzyIyIYqrkEiFQWZxtqCJujxm5MkreoIdOs4vIXKYF6EYjgHmNcbhf?=
- =?us-ascii?Q?po2Rgi8sf/z1moqvVQAhG5t/qHZMnDMPGWkoald6ukEJBkPPtW1HZsnXI3bu?=
- =?us-ascii?Q?duexKe6x+TNfU/GHrsAEVCNejY9rWX1/wsq7lYK0KuODoEOnN/ShDkj5fSO4?=
- =?us-ascii?Q?mE4IdlR9+sQobwQpiZItViBgLfR40uOwfITUNaDlAmI8ptG6K1QBKYS4DDJH?=
- =?us-ascii?Q?k96arTVvuMWGxPK8yC6NoT47gw8xJm+/su0Uai5//qRLgn9Lz1KXv79oQXAC?=
- =?us-ascii?Q?FVhJxe538hh1cCoJ7ZK7wvMTYDKqequ+/rwnTzW43quTZcOVuuvw/84nWe0D?=
- =?us-ascii?Q?TFRv0hYCD+aP4O0iCIoNu8FMH8Z/2MXPgWrJ1+FWoTsc8a17+Aj4arix1zd5?=
- =?us-ascii?Q?m2KpWQvvLVzAEa5aXVUYeeqzp1To8Uc7dl00ZWZy8b9TJGJ9rGL2DzarcajK?=
- =?us-ascii?Q?OP3s7hxaiK+2EfV6WETMRQH1zXI1U8ldSJQIHsaKJf3WIlcCnjFY0WS9JjeV?=
- =?us-ascii?Q?MN7Wp30KPgRbqS/czT+uHRQPK/8tpu11mTTvklHtSAGhGMT5ncfiHYad1YxE?=
- =?us-ascii?Q?oEdzBybMqO3o4o49ZQl4aYFrXWQx6FaIpA9m/IQ34ZozKJVKgShYLuO0SyUn?=
- =?us-ascii?Q?jwP8L+wypaveyKA6goZ52WvDPeT975xciSvupUFK1ZHOwcH7AnwdPBbMayJU?=
- =?us-ascii?Q?hxcmoDjrN4iFkNeg/vsjFds=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <11C22F293524D9428C6A2A65A3770256@eurprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S235994AbhLDPAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 10:00:55 -0500
+Received: from mout.gmx.net ([212.227.15.19]:50665 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229866AbhLDPAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 4 Dec 2021 10:00:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1638629837;
+        bh=+S58f8eVPWQBogPxi9fZe55JnxEmNgBER82cHfGBLK4=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=RreADAhKH+4ljBQdbMTUygQqtLF7cDoYmaYfXAbee/qIiOJq0nkKD+LH7VLgd5mym
+         xTDQu5oMEEmTtOzenCyOLqUj2BJ3S6P59XJ58OZfplUnoMnvyy0fIOrA5AifTRGT+5
+         8EJIQ0BB0pAWsLc2eK+xwfzY9XTz6yHjggTm2FHg=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.20.60] ([92.116.151.242]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MY6Cl-1n5TlJ3rBN-00YOH1; Sat, 04
+ Dec 2021 15:57:16 +0100
+Message-ID: <46b2abb0-ee45-88de-c920-eab37df813f2@gmx.de>
+Date:   Sat, 4 Dec 2021 15:57:06 +0100
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5136.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ee40caa3-36cf-4524-ec50-08d9b734e623
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Dec 2021 14:46:47.6463
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: NbMMVgVsrpMgtwD2TuWMcQrGocHSI3OfI4XBMYbbtE2LVbVmBTMa1hf1+xaVno4K/UM//+BEPDRw0InMpha/bg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB3197
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH AUTOSEL 4.4 4/9] parisc: Provide an extru_safe() macro to
+ extract unsigned bits
+Content-Language: en-US
+To:     Pavel Machek <pavel@denx.de>, Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        John David Anglin <dave.anglin@bell.net>,
+        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
+        linux-parisc@vger.kernel.org
+References: <20211130145402.947049-1-sashal@kernel.org>
+ <20211130145402.947049-4-sashal@kernel.org>
+ <20211204121553.GA14855@duo.ucw.cz>
+From:   Helge Deller <deller@gmx.de>
+In-Reply-To: <20211204121553.GA14855@duo.ucw.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:pgqSzOhrAoInXu/Hj8Bft2T7pWMCSrMfzO9P7k+oG2ApFmdiv5m
+ yAbewc/m5xV9HgIKm2jnXAXNSqVfaDG0bUL1IRVOBNI6lb+aYRjogtJFzBnmoRGY8v+a8sn
+ ItMojriUglg4VsBEWuGqSOJH1uaBYSRU0GOI5dHy3L3YZiDzhGu1lcy6bsytzhQgryy3km8
+ k91Wki05S+m9RUmTb9TtQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:25R0L5skEKM=:eTH0JGUo1lCGuXk/eWuvxa
+ VynY/Q4yTr7+iCEwNpQxxrFq1kBkWKDER0u88J5DWTlwu+2KWyCmO8NHyb91SGU3IC5BAyLi9
+ Eu+9+wipuSOAO7HqCIR5NNTVlY7zfybjgb3oG4LvAPJbyK3Bmdrc6Kzu/GepZ9YBYnTo5+bua
+ 8PDz0F6fKNEdbxvao9D5PHNaey1rA4jOVeSNROMccBqKrHpIIAFbl9VeRd/Y6/h0Tjqex7cDu
+ bvUsLZjzmi6N95aGexxd6lU02Pz6I81Ue6huUPcThFjFRc9sfdQbnaFQGtAqscYwQSv4yNGmZ
+ 5qnzNO3tc0JqZPHQuduqk1LWQqb6YaHXUYkXfxVgUWO0q+uHdqwVEvyLF/2XMUWDBfGjjJCEQ
+ lrC4K0Vvenrypygy7AUfS3is+j4bRwonFaH+xUnxHfL6MW2KekHF3Ubeujn/tEDwPsjiiGmMQ
+ ZTiTsnmtUgUKX6abDkVdu9Ab8ThhZMf6Vv4DWLaFb/EFMZkm3QV9OcgQnFReCEac74zFCcWwn
+ 7W/9aXillR6l0AXsLuVKrQk8XH3kL70zLSSlEgLv1kJJvKhEeX2o3qeK/0Wqqxo1+0Yw6XahF
+ AgTVZeirEgrEmsd2hVi7cfvW1iRJrtSSgrfenUTqklLoWQiI8WyjoSUPlhhmcP/aSv7tKzC8e
+ TkDEnSDzD/eFCEYYZ45c0zthSacIbzRBmpeKyqM3qg6BPESdSDMC3sDyH7OcBpoaR+AdzxRnK
+ n0qtRXw/WvIR/pVlj8ROBs3Ze3otGsgZ4we2BDE2xr0wuiNlzp/4ag9lc6tXiwcnXzofH/ybV
+ d/pHCgMxYZ4D/kq0PDrjaIDx3b8qJvrtClQXAui/++U+nsY2X1Ib2DyomPGEiImdVFV76KUID
+ fEM3vrEpP4ua1aRmpNZmSpzMvvpA5PbwFf2kU+zyoRgPnUclPFL6Hd9w+tKprglo9Uvkj6ehK
+ pjG+KaX2dZxc+T5jNuzPYC7hPSDiQZBZjGPy1iPo0K7gA4vdegoBc4cHkFjPEzBw8BTRIYEfb
+ Plvn0r0y2SVJTY9ORtQs6nXNK9hRapJ3Ef/iR6a0U5Agq0THZ/91ZyWutRNxb8hN64Mfu4Ej6
+ qGgPPBle0D3wzA=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+On 12/4/21 13:15, Pavel Machek wrote:
+> Hi!
+>
+>> From: Helge Deller <deller@gmx.de>
+>>
+>> [ Upstream commit 169d1a4a2adb2c246396c56aa2f9eec3868546f1 ]
+>>
+>> The extru instruction leaves the most significant 32 bits of the
+>> target register in an undefined state on PA 2.0 systems.
+>> Provide a macro to safely use extru on 32- and 64-bit machines.
+>
+> As the macro is not used by subsequent 4.4 patches,
 
-On Tue, Nov 30, 2021 at 09:47:01AM -0500, Sasha Levin wrote:
-> From: Vladimir Oltean <vladimir.oltean@nxp.com>
->=20
-> [ Upstream commit 95706be13b9f755d93b5b82bdc782af439f1ec22 ]
->=20
-> VCAP (Versatile Content Aware Processor) is the TCAM-based engine behind
-> tc flower offload on ocelot, among other things. The ingress port mask
-> on which VCAP rules match is present as a bit field in the actual key of
-> the rule. This means that it is possible for a rule to be shared among
-> multiple source ports. When the rule is added one by one on each desired
-> port, that the ingress port mask of the key must be edited and rewritten
-> to hardware.
->=20
-> But the API in ocelot_vcap.c does not allow for this. For one thing,
-> ocelot_vcap_filter_add() and ocelot_vcap_filter_del() are not symmetric,
-> because ocelot_vcap_filter_add() works with a preallocated and
-> prepopulated filter and programs it to hardware, and
-> ocelot_vcap_filter_del() does both the job of removing the specified
-> filter from hardware, as well as kfreeing it. That is to say, the only
-> option of editing a filter in place, which is to delete it, modify the
-> structure and add it back, does not work because it results in
-> use-after-free.
->=20
-> This patch introduces ocelot_vcap_filter_replace, which trivially
-> reprograms a VCAP entry to hardware, at the exact same index at which it
-> existed before, without modifying any list or allocating any memory.
->=20
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-> Acked-by: Richard Cochran <richardcochran@gmail.com>
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
+That's basically true, but in case we backport some patches later on,
+it's handy if it's already in.
 
-It looks like something happened and the essence of this series, aka
-this patch:
-https://patchwork.kernel.org/project/netdevbpf/patch/20211126172845.3149260=
--5-vladimir.oltean@nxp.com/
-did not or could not be backported.
+> I don't believe this is suitable for -stable.
 
-In this case I am afraid that all the patches below are useless and can
-be dropped:
+Please note that I didn't added a backport-request in my original commit.
+I'm fine with any decision if it's either dropped or kept.
 
-[PATCH AUTOSEL 4.4 8/9] net: ptp: add a definition for the UDP port for IEE=
-E 1588 general messages
-[PATCH AUTOSEL 4.9 11/12] net: ptp: add a definition for the UDP port for I=
-EEE 1588 general messages
-[PATCH AUTOSEL 4.14 13/14] net: ptp: add a definition for the UDP port for =
-IEEE 1588 general messages
-[PATCH AUTOSEL 4.19 16/17] net: ptp: add a definition for the UDP port for =
-IEEE 1588 general messages
-[PATCH AUTOSEL 5.4 24/25] net: ptp: add a definition for the UDP port for I=
-EEE 1588 general messages
-[PATCH AUTOSEL 5.10 42/43] net: ptp: add a definition for the UDP port for =
-IEEE 1588 general messages
-[PATCH AUTOSEL 5.15 66/68] net: ptp: add a definition for the UDP port for =
-IEEE 1588 general messages
-[PATCH AUTOSEL 5.15 65/68] net: mscc: ocelot: create a function that replac=
-es an existing VCAP filter
-
-Thanks.=
+Helge
