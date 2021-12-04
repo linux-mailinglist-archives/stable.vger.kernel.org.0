@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7B0468404
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D9A468405
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:27:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354159AbhLDKao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 05:30:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37158 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234334AbhLDKao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:30:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E89C061751
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 02:27:19 -0800 (PST)
+        id S1343696AbhLDKa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 05:30:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49732 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234334AbhLDKaz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:30:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE86F60BFE
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:27:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96FD8C341C2;
-        Sat,  4 Dec 2021 10:27:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A1E5B8098F
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD87C341C2;
+        Sat,  4 Dec 2021 10:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638613638;
-        bh=IwBo3NC7sg6TY+9e8Hfpj8IozB5vdCU5OomhXcRTb4E=;
+        s=korg; t=1638613648;
+        bh=nn+T9w6KHEEOo2XIh7Wc+sKqXKj/9gOTqXAe2zyabXA=;
         h=Subject:To:Cc:From:Date:From;
-        b=0wRdyGIqP1n/xx+Zq3afipkY+bCHT2rrwdlm+0hd5KC5olZaJRjBAGn8FfFWFo8p1
-         tLhb9Ebfy0YxzyCdwKjOYKFAq8Dkem4IJIIDEhLnXVybEq6O3haCG6faH1A7ac873W
-         uD70wT3MQlvledG6/eADdaFWHtx1JAO+gqibrYAs=
-Subject: FAILED: patch "[PATCH] net/tls: Fix authentication failure in CCM mode" failed to apply to 5.10-stable tree
+        b=ZgK8ers8Jv/1OPsHDZQovMkx7ar8E/o5CQXUbn/qCB9Rtvu6bAhdqN8v8wIDOz17w
+         Uj8MRS3MCKM4fHfm3d8umqjiUoJFYKt0GqEF4UeYAg34SmHWzl5xym3v9Rbh2d6V6M
+         j8XIiAnx2X17vroA2EebcxGbvJ7UIEge6xK5Np7k=
+Subject: FAILED: patch "[PATCH] net/tls: Fix authentication failure in CCM mode" failed to apply to 5.4-stable tree
 To:     tianjia.zhang@linux.alibaba.com, davem@davemloft.net,
         vakul.garg@nxp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 04 Dec 2021 11:27:15 +0100
-Message-ID: <163861363511932@kroah.com>
+Date:   Sat, 04 Dec 2021 11:27:17 +0100
+Message-ID: <163861363776188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
