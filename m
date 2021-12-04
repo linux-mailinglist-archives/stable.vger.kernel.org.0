@@ -2,215 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B25C4683C6
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 10:52:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D7B0468404
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384544AbhLDJ4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 04:56:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57726 "EHLO
+        id S1354159AbhLDKao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 05:30:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384541AbhLDJ4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 04:56:03 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8059BC061751
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 01:52:38 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id u17so3769846plg.9
-        for <stable@vger.kernel.org>; Sat, 04 Dec 2021 01:52:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=v7LJ6u0GLLh9NIhq38LgdA5ckwVXWdQCiN/m1GIaQWI=;
-        b=VgLDPnfg6oqtxJgreJk1yARCFPtlQeDkd3fCX1mpPQxC2bR8GLfVQKoLggJTr40/Dk
-         PfBru8ejVCisdZn0JPkbZkANnV/bRsf1dTf++LMOm0F8pO3+A6zYGGC/fyUl6ofEJlgt
-         PqjtNZa4wdw0psyL5gerLfaK97mB/mOAHgSotjeZtxhI1sh2NWHGc8Q9H062flwLoi1S
-         p+ddGanlEXmM0UAl3V528vR4dhMg4v4w2WmmfVan2OtRbZeCppU/7YnUp341CWa/+WqY
-         bVxGM64yZhDT2po8dmuuQtQDRc5U+9P/UTQKw5WI357U5dYhh766KbLsy5jJYfU4hXq0
-         5ftA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=v7LJ6u0GLLh9NIhq38LgdA5ckwVXWdQCiN/m1GIaQWI=;
-        b=jUOSasVS8xVPayeZMaT38MFi/bA4MFozx4ApQXc87wopA2W/xJCJxwGytQ6N8OrADl
-         TY4NEF/89zOK2mlhVflJK1371wCqsS3TaoIVrK7Q8upwqKWLLiDVgaRCsy5a5DsnviAw
-         xURe8Kao0GKqNzov2xGurCrBaGSYqZWd8Wf/gCtOnEngXKp3PBqT4rFFt7SDT+7T4JLL
-         T5eUZtkFuUlNhpBISOR2gyF/Cwwm/IGdbR2Pu913xqEmahfYSx637keRKRwwzmoBNZXn
-         r/fQGm5XNLwbMXouipgHtQERXsxwQDFxU64sZAboQ2SL5X2r9v3nklGir4z5+mnT+SuZ
-         P1BA==
-X-Gm-Message-State: AOAM5301RUrnoEGT1PPbRcdFiWiRCchbbMaE66SGkyua9v+Z7hNhnr7j
-        Z6ZjZU85XZgePnqxNBGkK2tiX+tDZhWptIAy
-X-Google-Smtp-Source: ABdhPJxI0Vc2Kwi1sHhQ6LnULhqsr/1A3PXiGKbVUlUx57Lxa/hMz28VK2JV53Y751tFe0n1UGqBgw==
-X-Received: by 2002:a17:90b:3b4c:: with SMTP id ot12mr21233419pjb.196.1638611557779;
-        Sat, 04 Dec 2021 01:52:37 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p16sm6436174pfh.97.2021.12.04.01.52.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Dec 2021 01:52:37 -0800 (PST)
-Message-ID: <61ab3a65.1c69fb81.5db29.2c08@mx.google.com>
-Date:   Sat, 04 Dec 2021 01:52:37 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S234334AbhLDKao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:30:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E89C061751
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 02:27:19 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE86F60BFE
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:27:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96FD8C341C2;
+        Sat,  4 Dec 2021 10:27:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638613638;
+        bh=IwBo3NC7sg6TY+9e8Hfpj8IozB5vdCU5OomhXcRTb4E=;
+        h=Subject:To:Cc:From:Date:From;
+        b=0wRdyGIqP1n/xx+Zq3afipkY+bCHT2rrwdlm+0hd5KC5olZaJRjBAGn8FfFWFo8p1
+         tLhb9Ebfy0YxzyCdwKjOYKFAq8Dkem4IJIIDEhLnXVybEq6O3haCG6faH1A7ac873W
+         uD70wT3MQlvledG6/eADdaFWHtx1JAO+gqibrYAs=
+Subject: FAILED: patch "[PATCH] net/tls: Fix authentication failure in CCM mode" failed to apply to 5.10-stable tree
+To:     tianjia.zhang@linux.alibaba.com, davem@davemloft.net,
+        vakul.garg@nxp.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 04 Dec 2021 11:27:15 +0100
+Message-ID: <163861363511932@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.293-40-gdfee1c23c5f0d
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.4 baseline: 91 runs,
- 3 regressions (v4.4.293-40-gdfee1c23c5f0d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 91 runs, 3 regressions (v4.4.293-40-gdfee1c23=
-c5f0d)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 2      =
-    =
+thanks,
 
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.293-40-gdfee1c23c5f0d/plan/baseline/
+From 5961060692f8b17cd2080620a3d27b95d2ae05ca Mon Sep 17 00:00:00 2001
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Date: Mon, 29 Nov 2021 17:32:12 +0800
+Subject: [PATCH] net/tls: Fix authentication failure in CCM mode
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.293-40-gdfee1c23c5f0d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dfee1c23c5f0d209911a196e2418317412cb50f2 =
+When the TLS cipher suite uses CCM mode, including AES CCM and
+SM4 CCM, the first byte of the B0 block is flags, and the real
+IV starts from the second byte. The XOR operation of the IV and
+rec_seq should be skip this byte, that is, add the iv_offset.
 
+Fixes: f295b3ae9f59 ("net/tls: Add support of AES128-CCM based ciphers")
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Cc: Vakul Garg <vakul.garg@nxp.com>
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index d3e7ff90889e..dfe623a4e72f 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -521,7 +521,7 @@ static int tls_do_encryption(struct sock *sk,
+ 	memcpy(&rec->iv_data[iv_offset], tls_ctx->tx.iv,
+ 	       prot->iv_size + prot->salt_size);
+ 
+-	xor_iv_with_seq(prot, rec->iv_data, tls_ctx->tx.rec_seq);
++	xor_iv_with_seq(prot, rec->iv_data + iv_offset, tls_ctx->tx.rec_seq);
+ 
+ 	sge->offset += prot->prepend_size;
+ 	sge->length -= prot->prepend_size;
+@@ -1499,7 +1499,7 @@ static int decrypt_internal(struct sock *sk, struct sk_buff *skb,
+ 	else
+ 		memcpy(iv + iv_offset, tls_ctx->rx.iv, prot->salt_size);
+ 
+-	xor_iv_with_seq(prot, iv, tls_ctx->rx.rec_seq);
++	xor_iv_with_seq(prot, iv + iv_offset, tls_ctx->rx.rec_seq);
+ 
+ 	/* Prepare AAD */
+ 	tls_make_aad(aad, rxm->full_len - prot->overhead_size +
 
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 2      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ab04af544c67fbdd1a94bc
-
-  Results:     3 PASS, 2 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-4=
-0-gdfee1c23c5f0d/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-4=
-0-gdfee1c23c5f0d/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/61ab04af544c67fb=
-dd1a94bf
-        new failure (last pass: v4.4.293-34-g00012cc3b7090)
-        1 lines
-
-    2021-12-04T06:03:08.949491  / # =
-
-    2021-12-04T06:03:08.950155  #
-    2021-12-04T06:03:09.053409  / # #
-    2021-12-04T06:03:09.053987  =
-
-    2021-12-04T06:03:09.155127  / # #export SHELL=3D/bin/sh
-    2021-12-04T06:03:09.155574  =
-
-    2021-12-04T06:03:09.256760  / # export SHELL=3D/bin/sh. /lava-1187895/e=
-nvironment
-    2021-12-04T06:03:09.257217  =
-
-    2021-12-04T06:03:09.358410  / # . /lava-1187895/environment/lava-118789=
-5/bin/lava-test-runner /lava-1187895/0
-    2021-12-04T06:03:09.359556   =
-
-    ... (9 line(s) more)  =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ab04af544c67f=
-bdd1a94c1
-        new failure (last pass: v4.4.293-34-g00012cc3b7090)
-        29 lines
-
-    2021-12-04T06:03:09.721027  [   49.220001] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-04T06:03:09.786452  kern  :emerg : Internal error: Oops - BUG: =
-0 [#1] SMP ARM
-    2021-12-04T06:03:09.792472  kern  :emerg : Process udevd (pid: 105, sta=
-ck limit =3D 0xcb8da218)
-    2021-12-04T06:03:09.796840  kern  :emerg : Stack: (0xcb8dbcf8 to 0xcb8d=
-c000)
-    2021-12-04T06:03:09.805078  kern  :emerg : bce0:                       =
-                                bf02bdc4 60000013
-    2021-12-04T06:03:09.812974  kern  :emerg : bd00: bf02bdc8 c06a384c 0000=
-0001 00000000 bf010250 00000002 60000093 00000002
-    2021-12-04T06:03:09.823504  kern  :emerg : bd20:[   49.319580] <LAVA_SI=
-GNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=
-=3D29>   =
-
- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ab04bf1bba97b0161a94a6
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-4=
-0-gdfee1c23c5f0d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-4=
-0-gdfee1c23c5f0d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ab04bf1bba97b=
-0161a94a9
-        failing since 2 days (last pass: v4.4.293-33-g845bf34b777ca, first =
-fail: v4.4.293-33-gfe2c5280cbbe0)
-        2 lines
-
-    2021-12-04T06:03:21.833729  [   19.440460] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-04T06:03:21.883399  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/110
-    2021-12-04T06:03:21.892854  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
