@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19EE5468133
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 01:23:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDD3D46812E
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 01:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354363AbhLDA1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Dec 2021 19:27:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47272 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354282AbhLDA07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 19:26:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940D8C061353;
-        Fri,  3 Dec 2021 16:23:33 -0800 (PST)
+        id S233617AbhLDA05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Dec 2021 19:26:57 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50824 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233113AbhLDA05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Dec 2021 19:26:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 666E4B829C0;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3188B62D30;
         Sat,  4 Dec 2021 00:23:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C952AC341C0;
-        Sat,  4 Dec 2021 00:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A55EC341C3;
+        Sat,  4 Dec 2021 00:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1638577411;
-        bh=5Ubfy5qLXjhCeuRKa9utt/2JcFrlgDPKmQcajB2MFAA=;
+        bh=Xl/m6arGuXEXZBudPQZQMrVA4rXHK9NUDTwVAGLzwV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHz01nIbdJuxCAUlgDBu8nSaMNqXz0YthU2DF2ErJls74BbvL/OCwvjBna/LJc8zf
-         a/Fba4Y2U5h6mIrf0vgD8nLdpMKdUV8wX8J86ZiAmVkdJfUcHSck0DHIrVSudVz3Gn
-         jcRCC8ChBjZ4JqDfcgyQZqsalhd08CgOBmF+MoQLa9JfB/RFx7EFlHyjrj5CaeMimr
-         yy+mpicn2TlnMq6qnbPcewSZ9GbuKND6mkb8jEEgeBePPnZQzYP5vOi+9e3yATkhuY
-         /g1eC5oHP8Mg66yMOHr7q3kWzCAjogV3XHpRd8Jqt4xcDfSZJ+JwJfMnSQR3nA3f3H
-         XAanNa1XUrYaA==
+        b=NwWyCnNsy8GaN9n0/5dR/04986Zph9oJLXU54r/ZQggYv3tGLg+Nwm4xzCXOoFclY
+         rKAajPt4EvSU2pUuKnr7pW5E2EQuo7wWszWTQ79GoHhc7jME5G4IJQniXgu2FF2juR
+         gU3LPPSlfT2oCO7kHIe9ms4ZaA9qi4l+oN2FTmA8/ExuHACKLexRENrZDA4ZBO9RW8
+         BFNyBbdXWxTS2H0ysXCd/uu8/xf6RHwB2mW9nhxU859RwFIwESVnkYJE1/sDcQCkcw
+         RD8SLgn0Ygdg0xg7wHU+STmMUj5/Yhr7dNxOJYum/d5rzYwEkvU2rdlzG3Yym3w9Se
+         C8YmX0yR00oYg==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     Alexander Viro <viro@zeniv.linux.org.uk>,
         Benjamin LaHaise <bcrl@kvack.org>
@@ -40,9 +37,9 @@ Cc:     linux-aio@kvack.org, linux-fsdevel@vger.kernel.org,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] aio: keep poll requests on waitqueue until completed
-Date:   Fri,  3 Dec 2021 16:23:00 -0800
-Message-Id: <20211204002301.116139-2-ebiggers@kernel.org>
+Subject: [PATCH 2/2] aio: fix use-after-free due to missing POLLFREE handling
+Date:   Fri,  3 Dec 2021 16:23:01 -0800
+Message-Id: <20211204002301.116139-3-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211204002301.116139-1-ebiggers@kernel.org>
 References: <20211204002301.116139-1-ebiggers@kernel.org>
@@ -54,167 +51,209 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-Currently, aio_poll_wake() will always remove the poll request from the
-waitqueue.  Then, if aio_poll_complete_work() sees that none of the
-polled events are ready and the request isn't cancelled, it re-adds the
-request to the waitqueue.  (This can easily happen when polling a file
-that doesn't pass an event mask when waking up its waitqueue.)
+signalfd_poll() and binder_poll() are special in that they use a
+waitqueue whose lifetime is the current task, rather than the struct
+file as is normally the case.  This is okay for blocking polls, since a
+blocking poll occurs within one task; however, non-blocking polls
+require another solution.  This solution is for the queue to be cleared
+before it is freed, using 'wake_up_poll(wq, EPOLLHUP | POLLFREE);'.
 
-This is fundamentally broken for two reasons:
+Unfortunately, only eventpoll handles POLLFREE.  A second type of
+non-blocking poll, aio poll, was added in kernel v4.18, and it doesn't
+handle POLLFREE.  This allows a use-after-free to occur if a signalfd or
+binder fd is polled with aio poll, and the waitqueue gets freed.
 
-  1. If a wakeup occurs between vfs_poll() and the request being
-     re-added to the waitqueue, it will be missed because the request
-     wasn't on the waitqueue at the time.  Therefore, IOCB_CMD_POLL
-     might never complete even if the polled file is ready.
+Fix this by making aio poll handle POLLFREE.
 
-  2. When the request isn't on the waitqueue, there is no way to be
-     notified that the waitqueue is being freed (which happens when its
-     lifetime is shorter than the struct file's).  This is supposed to
-     happen via the waitqueue entries being woken up with POLLFREE.
+A patch by Ramji Jiyani <ramjiyani@google.com>
+(https://lore.kernel.org/r/20211027011834.2497484-1-ramjiyani@google.com)
+tried to do this by making aio_poll_wake() always complete the request
+inline if POLLFREE is seen.  However, that solution had two bugs.
+First, it introduced a deadlock, as it unconditionally locked the aio
+context while holding the waitqueue lock, which inverts the normal
+locking order.  Second, it didn't consider that POLLFREE notifications
+are missed while the request has been temporarily de-queued.
 
-Therefore, leave the requests on the waitqueue until they are actually
-completed or cancelled.  To keep track of when aio_poll_complete_work
-needs to be scheduled, use new fields in struct poll_iocb.  Remove the
-'done' field which is now redundant.
-
-Note that this is consistent with how sys_poll() and eventpoll work;
-their wakeup functions do *not* remove the waitqueue entries.
+The second problem was solved by my previous patch.  This patch then
+properly fixes the use-after-free by handling POLLFREE in a
+deadlock-free way.  It does this by taking advantage of the fact that
+freeing of the waitqueue is RCU-delayed, similar to what eventpoll does.
 
 Fixes: 2c14fa838cbe ("aio: implement IOCB_CMD_POLL")
 Cc: <stable@vger.kernel.org> # v4.18+
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- fs/aio.c | 60 +++++++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 44 insertions(+), 16 deletions(-)
+ fs/aio.c                        | 102 ++++++++++++++++++++++++--------
+ include/uapi/asm-generic/poll.h |   2 +-
+ 2 files changed, 79 insertions(+), 25 deletions(-)
 
 diff --git a/fs/aio.c b/fs/aio.c
-index 9c81cf611d659..b72beeaed0631 100644
+index b72beeaed0631..8daafb95b6801 100644
 --- a/fs/aio.c
 +++ b/fs/aio.c
-@@ -181,8 +181,9 @@ struct poll_iocb {
- 	struct file		*file;
- 	struct wait_queue_head	*head;
- 	__poll_t		events;
--	bool			done;
- 	bool			cancelled;
-+	bool			work_scheduled;
-+	bool			work_need_resched;
- 	struct wait_queue_entry	wait;
- 	struct work_struct	work;
- };
-@@ -1638,14 +1639,23 @@ static void aio_poll_complete_work(struct work_struct *work)
+@@ -1620,6 +1620,50 @@ static void aio_poll_put_work(struct work_struct *work)
+ 	iocb_put(iocb);
+ }
+ 
++/*
++ * Safely lock the waitqueue which the request is on, taking into account the
++ * fact that the waitqueue may be freed at any time before the lock is taken.
++ *
++ * Returns true on success, meaning that req->head->lock was locked and
++ * req->wait is on req->head.  Returns false if the request has already been
++ * removed from its waitqueue (which might no longer exist).
++ */
++static bool poll_iocb_lock_wq(struct poll_iocb *req)
++{
++	/*
++	 * Holding req->head->lock prevents req->wait being removed from the
++	 * waitqueue, and thus prevents the waitqueue from being freed
++	 * (POLLFREE) in the rare cases of ->poll() implementations where the
++	 * waitqueue may not live as long as the struct file.  However, taking
++	 * req->head->lock in the first place can race with POLLFREE.
++	 *
++	 * We solve this in a similar way as eventpoll does: by taking advantage
++	 * of the fact that all users of POLLFREE will RCU-delay the actual
++	 * free.  If we enter rcu_read_lock() and check that req->wait isn't
++	 * already removed, then req->head is guaranteed to be accessible until
++	 * rcu_read_unlock().  We can then lock req->head->lock and re-check
++	 * whether req->wait has been removed or not.
++	 */
++	rcu_read_lock();
++	if (list_empty_careful(&req->wait.entry)) {
++		rcu_read_unlock();
++		return false;
++	}
++	spin_lock(&req->head->lock);
++	if (list_empty(&req->wait.entry)) {
++		spin_unlock(&req->head->lock);
++		rcu_read_unlock();
++		return false;
++	}
++	rcu_read_unlock();
++	return true;
++}
++
++static void poll_iocb_unlock_wq(struct poll_iocb *req)
++{
++	spin_unlock(&req->head->lock);
++}
++
+ static void aio_poll_complete_work(struct work_struct *work)
+ {
+ 	struct poll_iocb *req = container_of(work, struct poll_iocb, work);
+@@ -1639,21 +1683,22 @@ static void aio_poll_complete_work(struct work_struct *work)
  	 * avoid further branches in the fast path.
  	 */
  	spin_lock_irq(&ctx->ctx_lock);
-+	spin_lock(&req->head->lock);
- 	if (!mask && !READ_ONCE(req->cancelled)) {
--		add_wait_queue(req->head, &req->wait);
-+		/* Reschedule completion if another wakeup came in. */
-+		if (req->work_need_resched) {
-+			schedule_work(&req->work);
-+			req->work_need_resched = false;
-+		} else {
-+			req->work_scheduled = false;
-+		}
-+		spin_unlock(&req->head->lock);
- 		spin_unlock_irq(&ctx->ctx_lock);
- 		return;
- 	}
-+	list_del_init(&req->wait.entry);
-+	spin_unlock(&req->head->lock);
+-	spin_lock(&req->head->lock);
+-	if (!mask && !READ_ONCE(req->cancelled)) {
+-		/* Reschedule completion if another wakeup came in. */
+-		if (req->work_need_resched) {
+-			schedule_work(&req->work);
+-			req->work_need_resched = false;
+-		} else {
+-			req->work_scheduled = false;
++	if (poll_iocb_lock_wq(req)) {
++		if (!mask && !READ_ONCE(req->cancelled)) {
++			/* Reschedule completion if another wakeup came in. */
++			if (req->work_need_resched) {
++				schedule_work(&req->work);
++				req->work_need_resched = false;
++			} else {
++				req->work_scheduled = false;
++			}
++			poll_iocb_unlock_wq(req);
++			spin_unlock_irq(&ctx->ctx_lock);
++			return;
+ 		}
+-		spin_unlock(&req->head->lock);
+-		spin_unlock_irq(&ctx->ctx_lock);
+-		return;
+-	}
+-	list_del_init(&req->wait.entry);
+-	spin_unlock(&req->head->lock);
++		list_del_init(&req->wait.entry);
++		poll_iocb_unlock_wq(req);
++	} /* else, POLLFREE has freed the waitqueue, so we must complete */
  	list_del_init(&iocb->ki_list);
  	iocb->ki_res.res = mangle_poll(mask);
--	req->done = true;
  	spin_unlock_irq(&ctx->ctx_lock);
+@@ -1667,13 +1712,12 @@ static int aio_poll_cancel(struct kiocb *iocb)
+ 	struct aio_kiocb *aiocb = container_of(iocb, struct aio_kiocb, rw);
+ 	struct poll_iocb *req = &aiocb->poll;
  
- 	iocb_put(iocb);
-@@ -1680,20 +1690,24 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 	if (mask && !(mask & req->events))
- 		return 0;
+-	spin_lock(&req->head->lock);
+-	WRITE_ONCE(req->cancelled, true);
+-	if (!list_empty(&req->wait.entry)) {
++	if (poll_iocb_lock_wq(req)) {
++		WRITE_ONCE(req->cancelled, true);
+ 		list_del_init(&req->wait.entry);
+-		schedule_work(&aiocb->poll.work);
+-	}
+-	spin_unlock(&req->head->lock);
++		schedule_work(&req->work);
++		poll_iocb_unlock_wq(req);
++	} /* else, the request was force-cancelled by POLLFREE already */
  
--	list_del_init(&req->wait.entry);
--
-+	/*
-+	 * Complete the iocb inline if possible.  This requires that two
-+	 * conditions be met:
-+	 *   1. The event mask must have been passed.  If a regular wakeup was
-+	 *	done instead, then mask == 0 and we have to call vfs_poll() to
-+	 *	get the events, so inline completion isn't possible.
-+	 *   2. ctx_lock must not be busy.  We have to use trylock because we
-+	 *      already hold the waitqueue lock, so this inverts the normal
-+	 *      locking order.  Use irqsave/irqrestore because not all
-+	 *      filesystems (e.g. fuse) call this function with IRQs disabled,
-+	 *      yet IRQs have to be disabled before ctx_lock is obtained.
-+	 */
- 	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
- 		struct kioctx *ctx = iocb->ki_ctx;
- 
--		/*
--		 * Try to complete the iocb inline if we can. Use
--		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
--		 * call this function with IRQs disabled and because IRQs
--		 * have to be disabled before ctx_lock is obtained.
--		 */
-+		list_del_init(&req->wait.entry);
- 		list_del(&iocb->ki_list);
- 		iocb->ki_res.res = mangle_poll(mask);
--		req->done = true;
- 		if (iocb->ki_eventfd && eventfd_signal_allowed()) {
- 			iocb = NULL;
- 			INIT_WORK(&req->work, aio_poll_put_work);
-@@ -1703,7 +1717,16 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 	return 0;
+ }
+@@ -1717,6 +1761,14 @@ static int aio_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
  		if (iocb)
  			iocb_put(iocb);
  	} else {
--		schedule_work(&req->work);
-+		/*
-+		 * Schedule the completion work if needed.  If it was already
-+		 * scheduled, record that another wakeup came in.
-+		 */
-+		if (req->work_scheduled) {
-+			req->work_need_resched = true;
-+		} else {
-+			schedule_work(&req->work);
-+			req->work_scheduled = true;
++		if (mask & POLLFREE) {
++			/*
++			 * The waitqueue is going to be freed, so remove the
++			 * request from the waitqueue and mark it as cancelled.
++			 */
++			list_del_init(&req->wait.entry);
++			WRITE_ONCE(req->cancelled, true);
 +		}
- 	}
- 	return 1;
- }
-@@ -1750,8 +1773,9 @@ static int aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
- 	req->events = demangle_poll(iocb->aio_buf) | EPOLLERR | EPOLLHUP;
- 
- 	req->head = NULL;
--	req->done = false;
- 	req->cancelled = false;
-+	req->work_scheduled = false;
-+	req->work_need_resched = false;
- 
- 	apt.pt._qproc = aio_poll_queue_proc;
- 	apt.pt._key = req->events;
-@@ -1766,17 +1790,21 @@ static int aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
+ 		/*
+ 		 * Schedule the completion work if needed.  If it was already
+ 		 * scheduled, record that another wakeup came in.
+@@ -1789,8 +1841,9 @@ static int aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
+ 	mask = vfs_poll(req->file, &apt.pt) & req->events;
  	spin_lock_irq(&ctx->ctx_lock);
  	if (likely(req->head)) {
- 		spin_lock(&req->head->lock);
--		if (unlikely(list_empty(&req->wait.entry))) {
-+		if (req->work_scheduled) {
-+			/* async completion work was already scheduled */
+-		spin_lock(&req->head->lock);
+-		if (req->work_scheduled) {
++		bool on_queue = poll_iocb_lock_wq(req);
++
++		if (!on_queue || req->work_scheduled) {
+ 			/* async completion work was already scheduled */
  			if (apt.error)
  				cancel = true;
- 			apt.error = 0;
- 			mask = 0;
- 		}
- 		if (mask || apt.error) {
-+			/* steal to complete synchronously */
- 			list_del_init(&req->wait.entry);
+@@ -1803,12 +1856,13 @@ static int aio_poll(struct aio_kiocb *aiocb, const struct iocb *iocb)
  		} else if (cancel) {
-+			/* cancel if possible (may be too late though) */
+ 			/* cancel if possible (may be too late though) */
  			WRITE_ONCE(req->cancelled, true);
--		} else if (!req->done) { /* actually waiting for an event */
-+		} else if (!list_empty(&req->wait.entry)) {
-+			/* actually waiting for an event */
+-		} else if (!list_empty(&req->wait.entry)) {
++		} else if (on_queue) {
+ 			/* actually waiting for an event */
  			list_add_tail(&aiocb->ki_list, &ctx->active_reqs);
  			aiocb->ki_cancel = aio_poll_cancel;
  		}
+-		spin_unlock(&req->head->lock);
++		if (on_queue)
++			poll_iocb_unlock_wq(req);
+ 	}
+ 	if (mask) { /* no async, we'd stolen it */
+ 		aiocb->ki_res.res = mangle_poll(mask);
+diff --git a/include/uapi/asm-generic/poll.h b/include/uapi/asm-generic/poll.h
+index 41b509f410bf9..f9c520ce4bf4e 100644
+--- a/include/uapi/asm-generic/poll.h
++++ b/include/uapi/asm-generic/poll.h
+@@ -29,7 +29,7 @@
+ #define POLLRDHUP       0x2000
+ #endif
+ 
+-#define POLLFREE	(__force __poll_t)0x4000	/* currently only for epoll */
++#define POLLFREE	(__force __poll_t)0x4000
+ 
+ #define POLL_BUSY_LOOP	(__force __poll_t)0x8000
+ 
 -- 
 2.34.1
 
