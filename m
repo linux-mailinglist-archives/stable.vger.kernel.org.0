@@ -2,138 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA705468807
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 23:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E3B1468836
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 00:16:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229490AbhLDWOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 17:14:03 -0500
-Received: from mail.mutex.one ([62.77.152.124]:43942 "EHLO mail.mutex.one"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345204AbhLDWOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 Dec 2021 17:14:02 -0500
-X-Greylist: delayed 1275 seconds by postgrey-1.27 at vger.kernel.org; Sat, 04 Dec 2021 17:14:02 EST
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.mutex.one (Postfix) with ESMTP id F3E0A16C27F2;
-        Sat,  4 Dec 2021 23:49:16 +0200 (EET)
-X-Virus-Scanned: Debian amavisd-new at mail.mutex.one
-Received: from mail.mutex.one ([127.0.0.1])
-        by localhost (mail.mutex.one [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id eMoWQPvIqDML; Sat,  4 Dec 2021 23:49:16 +0200 (EET)
-Received:  [127.0.0.1] (localhost [127.0.0.1])nknown [109.103.89.101])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.mutex.one (Postfix) with ESMTPSA id 9D94F16C08F2;
-        Sat,  4 Dec 2021 23:49:15 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mutex.one; s=default;
-        t=1638654556; bh=EVhTg8nYuNCbP3r7ALG6+8NWgoFsT6iIYwfUXSTMBzA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Mz7Lx+o60D1QKd4Ke8Rslyqwui25ukjc13FPs/g2VZZuVW/0ZycSp+s908bnzbcG3
-         On7euWIxjhLt+/shYmapUmW1J8uHvRTmJxkPEs01vyFuitg3uER8hY/0WNUZ6b7Y6F
-         BbFlkF3cwoP7b3pgsbncHABJbTyQnpKg/BcLB/aE=
-From:   Marian Postevca <posteuca@mutex.one>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Felipe Balbi <balbi@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        Marian Postevca <posteuca@mutex.one>, stable@vger.kernel.org
-Subject: [PATCH v2] usb: gadget: u_ether: fix race in setting MAC address in setup phase
-Date:   Sat,  4 Dec 2021 23:49:12 +0200
-Message-Id: <20211204214912.17627-1-posteuca@mutex.one>
+        id S234160AbhLDXUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 18:20:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234021AbhLDXUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 18:20:15 -0500
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7AEC061751
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 15:16:49 -0800 (PST)
+Received: by mail-lj1-x22c.google.com with SMTP id 207so13448526ljf.10
+        for <stable@vger.kernel.org>; Sat, 04 Dec 2021 15:16:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=xJVMownzvvYswLJJlKOnygxeQORblXY4sMHJZXmtZ0c=;
+        b=aaqD0VkVCm6cbJSiRJF3AF0mbszyJBgpH77uqGpbmd8i4O1JdpWS8aAOURVpPx/KoI
+         pT6ph7cG5Oc6EVEBvLlhauO/rHw4x3BcJnf4dzXOhWr9XehIiN5H4KmqucgDNYdr8NlD
+         j7VYPX+UpVnGFG94X6AuKnG19nRVNpahC4uSYojgxAZatP53ta6b6rrZkG3nVp6cS+v3
+         AgNSLiHcGmaUr2Rk28giVxTMvT85DOU8JyV1S/OgCWdt5dTrlqtjtTLuUQOj9Qk+ReN0
+         XdCHZQxLiWi2LzhIjx3/2hwHz5d9eqfoglKwt2MN8FJn9oo7IZj1tVbUKGcV0PU+mkPL
+         bG4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=xJVMownzvvYswLJJlKOnygxeQORblXY4sMHJZXmtZ0c=;
+        b=GPipLGj3IAtTruC4jmha0IgDHkqPaS4KhxAGwd/kpwobY4f1vn+KOfX2W72tEVJH37
+         Bn1RmRvK0A3DAnK88qjQPYYre9TzNfwc86hLbTESBQRNziS1LKSBdgF7W9sOSUVYtPKZ
+         YIp1Fv1tDRgJzoQW6c/AkSRGciHJp4n6KsjH8aCYMMD7zt2LRUNYLFaVN1kxCZReHzjx
+         NKPYBJW0qg6o8BSsd/g0nZaZSnUgDbI4RMvDzgbuFcd6hkLH7M+J2c55prdu/d0HhpY9
+         SAzaeInHKOcRBxWMbuhQFYuD8fp6VWAVdsrkn+ni5XIWepXFUyws+L/K2+pIBMrejp5w
+         3JnA==
+X-Gm-Message-State: AOAM531t0vbigKWlqCvZPZ3JOPwawHpps7fGxMcorTgFkfeYPZo0PhmA
+        KN3s1TCy/SQKLDhzJXcdHAEEzA8gHkVVd8fTXMQ=
+X-Google-Smtp-Source: ABdhPJyX6vTm9515HFm1MKg/QjCxPgz+R/kofIKECvjKfjdKkPh3wg+ZbUr9hFRcO4v1G2lFG/keNbd9O8tSUXYk1W0=
+X-Received: by 2002:a2e:e09:: with SMTP id 9mr26200649ljo.172.1638659807666;
+ Sat, 04 Dec 2021 15:16:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:651c:1506:0:0:0:0 with HTTP; Sat, 4 Dec 2021 15:16:46
+ -0800 (PST)
+Reply-To: mrs.bill.chantalone01@gmail.com
+From:   Mrs B Chantal <suahmad419@gmail.com>
+Date:   Sun, 5 Dec 2021 00:16:46 +0100
+Message-ID: <CAB6P93_ynmK4b=VgqSm-gWjzfrVR=7b9YWJXQxO4cy_+S4ARbQ@mail.gmail.com>
+Subject: hello....
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When listening for notifications through netlink of a new interface being
-registered, sporadically, it is possible for the MAC to be read as zero.
-The zero MAC address lasts a short period of time and then switches to a
-valid random MAC address.
+You have been compensated with the sum of 5 million dollars in this
+united nation the payment will be issue into atm visa  card and send
+to you from the santander bank we need your address and your
+Whatsapp number  + 1 6465853907  this my email.ID
+( mrs.bill.chantal.roland@gmail.com )  contact  me
 
-This causes problems for netd in Android, which assumes that the interface
-is malfunctioning and will not use it.
+Thanks my
 
-In the good case we get this log:
-InterfaceController::getCfg() ifName usb0
- hwAddr 92:a8:f0:73:79:5b ipv4Addr 0.0.0.0 flags 0x1002
-
-In the error case we get these logs:
-InterfaceController::getCfg() ifName usb0
- hwAddr 00:00:00:00:00:00 ipv4Addr 0.0.0.0 flags 0x1002
-
-netd : interfaceGetCfg("usb0")
-netd : interfaceSetCfg() -> ServiceSpecificException
- (99, "[Cannot assign requested address] : ioctl() failed")
-
-The reason for the issue is the order in which the interface is setup,
-it is first registered through register_netdev() and after the MAC
-address is set.
-
-Fixed by first setting the MAC address of the net_device and after that
-calling register_netdev().
-
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
-Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values and add setters/getters")
-Cc: stable@vger.kernel.org
----
-
-v2: Added Fixes and Cc tags to commit message.
-
- drivers/usb/gadget/function/u_ether.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index e0ad5aed6ac9..6f5d45ef2e39 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -17,6 +17,7 @@
- #include <linux/etherdevice.h>
- #include <linux/ethtool.h>
- #include <linux/if_vlan.h>
-+#include <linux/etherdevice.h>
- 
- #include "u_ether.h"
- 
-@@ -863,19 +864,23 @@ int gether_register_netdev(struct net_device *net)
- {
- 	struct eth_dev *dev;
- 	struct usb_gadget *g;
--	struct sockaddr sa;
- 	int status;
- 
- 	if (!net->dev.parent)
- 		return -EINVAL;
- 	dev = netdev_priv(net);
- 	g = dev->gadget;
-+
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+	eth_hw_addr_set(net, dev->dev_mac);
-+
- 	status = register_netdev(net);
- 	if (status < 0) {
- 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
- 		return status;
- 	} else {
- 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
-+		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 		/* two kinds of host-initiated state changes:
- 		 *  - iff DATA transfer is active, carrier is "on"
-@@ -883,15 +888,6 @@ int gether_register_netdev(struct net_device *net)
- 		 */
- 		netif_carrier_off(net);
- 	}
--	sa.sa_family = net->type;
--	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
--	rtnl_lock();
--	status = dev_set_mac_address(net, &sa, NULL);
--	rtnl_unlock();
--	if (status)
--		pr_warn("cannot set self ethernet address: %d\n", status);
--	else
--		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 	return status;
- }
--- 
-2.32.0
-
+mrs bill chantal
