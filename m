@@ -2,210 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D08468415
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9983F468416
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346334AbhLDKeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 05:34:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37906 "EHLO
+        id S1344191AbhLDKeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 05:34:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343896AbhLDKeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:34:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1375C061751
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 02:30:35 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 836BEB80B08
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:30:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0537C341C2;
-        Sat,  4 Dec 2021 10:30:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638613833;
-        bh=4Eo0zfbc8/4mgw+R3/DF9jIwCOfX8FJB/1dVfhrcJUA=;
-        h=Subject:To:Cc:From:Date:From;
-        b=CXBmA4s1H2YC5eSC8CIMy8aukzgmQUqJnjzDx4eaUNQKR+leeJ5j7KXimxNBmPUHj
-         aRRjC7YoxegVIP+WReujlelA+H4VXHM9M/yqxqazDO+jwwrXzZizAXSa+fjvMn6hUa
-         W9RzHmt6VdpSh7anHeYlxHDXSkrjgw2AeCJPYVic=
-Subject: FAILED: patch "[PATCH] iwlwifi: mvm: retry init flow if failed" failed to apply to 5.4-stable tree
-To:     mordechay.goodstein@intel.com, kvalo@codeaurora.org,
-        luciano.coelho@intel.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 04 Dec 2021 11:30:22 +0100
-Message-ID: <1638613822160117@kroah.com>
+        with ESMTP id S1343896AbhLDKeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:34:11 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEDD9C061751;
+        Sat,  4 Dec 2021 02:30:45 -0800 (PST)
+Received: by mail-wr1-x42b.google.com with SMTP id d24so11368386wra.0;
+        Sat, 04 Dec 2021 02:30:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=X13VE/Fj6zRDrJGoTpK/w6yBjL0oISAqwSxbUBddfsw=;
+        b=XVVQD+mmVTwrfFJ9yLL1OBwpJ02ihxxzS+bU2bwjoPEEnzWfRYG9DQzw2J++g0VxIK
+         pr9RJLQDeDW76KXaG6tG5Ght2MzB4goiju+ejMgRLc4Sn+Udz3d4Y+TiUlT8rU+VK47+
+         mXEvxVYXtyW7lVihyU3fE+pxXZhfTn+xCLx+hW3prhQh6tLHYIOp0v2qg340MRYCoQUf
+         K1mqp4uGHC1vGGf8rDpm7N+yTDfautH5y2zWle0hsxN9OxkVdIAIGEu5zx0epqWIBmU4
+         Fihd4BMVUWj5DAx4CuYCVSsDCDfzZeFBdX351Shc9jdwkjbQoCX4hvllyA0bkeCgQ1v0
+         WOjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to;
+        bh=X13VE/Fj6zRDrJGoTpK/w6yBjL0oISAqwSxbUBddfsw=;
+        b=FZiiBolk7ck3y1Ehu5SeUeqDBiEZ8GVBqvA3cALDiBaBYp8AB51/4mAlu2620rsjjj
+         r2/JqQd9StOuM23fZ52FChDtgP17sae4NHmEPPwI8ToTN26WWHdslSk7meGRkujWQ/H6
+         wi1G99iVfS5HePByn+B76jwNUFC0wvCtOL5zFvrMQebH41Mc0Qyiay0Ty3Ji5T8JTd5X
+         5RbluJyCuOid4ong0UtfphelkeoROTRtqmI2LEPpQ8vQBJ+7Sxed6bqxm3jetq3yksnh
+         BMk6IENk3FHL19kwoi4e5gdhnhwBvJGBxZNwEfE13VU8F1a0diO5EQvW4QxtkHrSIo3f
+         h5gg==
+X-Gm-Message-State: AOAM533WzH7XDiXzeJBTuxeT52QETPo2EREFeJWD4sLjnYKWQ9kA6q4I
+        A6XpjyJA/pE+LfHDxsRR9qQ=
+X-Google-Smtp-Source: ABdhPJyjoYln/8Qoq2zRkKTqcVjEoFQs8FM8/Gu+UXFk6/1+XqmzTSGYULoM5GzFAYoNlxfq4/hrNQ==
+X-Received: by 2002:a05:6000:1a88:: with SMTP id f8mr28096654wry.54.1638613844526;
+        Sat, 04 Dec 2021 02:30:44 -0800 (PST)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id t8sm5279066wrv.30.2021.12.04.02.30.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Dec 2021 02:30:44 -0800 (PST)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Sat, 4 Dec 2021 11:30:43 +0100
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Ben Hutchings <benh@debian.org>
+Subject: Re: [PATCH 4.19 088/323] locking/lockdep: Avoid RCU-induced noinstr
+ fail
+Message-ID: <YatDUwWn7OznbcIP@eldamar.lan>
+References: <20211124115718.822024889@linuxfoundation.org>
+ <20211124115721.937655496@linuxfoundation.org>
+ <YaNP46ypf6xcTcJH@eldamar.lan>
+ <YaNvGtWfuCRkmWwi@eldamar.lan>
+ <YaNx31QvvjHy2IGh@eldamar.lan>
+ <YaN+1gwQwt0aGKte@kroah.com>
+ <YaN/ZQYSAUfzjq0d@kroah.com>
+ <YaUcRuy050ZrtucJ@eldamar.lan>
+ <YaXZevLfOkCTzQTV@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <YaXZevLfOkCTzQTV@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Tue, Nov 30, 2021 at 08:57:46AM +0100, Greg Kroah-Hartman wrote:
+> On Mon, Nov 29, 2021 at 07:30:30PM +0100, Salvatore Bonaccorso wrote:
+> > Hi Greg,
+> > 
+> > (Adding Ben as well)
+> > 
+> > On Sun, Nov 28, 2021 at 02:08:53PM +0100, Greg Kroah-Hartman wrote:
+> > > On Sun, Nov 28, 2021 at 02:06:30PM +0100, Greg Kroah-Hartman wrote:
+> > > > On Sun, Nov 28, 2021 at 01:11:11PM +0100, Salvatore Bonaccorso wrote:
+> > > > > Hi,
+> > > > > 
+> > > > > On Sun, Nov 28, 2021 at 12:59:24PM +0100, Salvatore Bonaccorso wrote:
+> > > > > > Hi,
+> > > > > > 
+> > > > > > On Sun, Nov 28, 2021 at 10:46:13AM +0100, Salvatore Bonaccorso wrote:
+> > > > > > > Hi,
+> > > > > > > 
+> > > > > > > On Wed, Nov 24, 2021 at 12:54:38PM +0100, Greg Kroah-Hartman wrote:
+> > > > > > > > From: Peter Zijlstra <peterz@infradead.org>
+> > > > > > > > 
+> > > > > > > > [ Upstream commit ce0b9c805dd66d5e49fd53ec5415ae398f4c56e6 ]
+> > > > > > > > 
+> > > > > > > > vmlinux.o: warning: objtool: look_up_lock_class()+0xc7: call to rcu_read_lock_any_held() leaves .noinstr.text section
+> > > > > > > 
+> > > > > > > For 4.19.218 at least this commit seems to cause a build failure for
+> > > > > > > cpupower, if warnings are treated as errors, I have not seen the same
+> > > > > > > for the 5.10.80 build:
+> > > > > > > 
+> > > > > > > gcc -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -DVERSION=\"4.19\" -DPACKAGE=\"cpupower\" -DPACKAGE_BUGREPORT=\"Debian\ \(reportbug\ linux-cpupower\)\" -D_GNU_SOURCE -pipe -DNLS -Wall -Wchar-subscripts -Wpointer-arith
+> > > > > > >  -Wsign-compare -Wno-pointer-sign -Wdeclaration-after-statement -Wshadow -Os -fomit-frame-pointer -fPIC -o /home/build/linux-4.19.218/debian/build/build-tools/tools/power/cpupower/lib/cpupower.o -c lib/cpupower.c
+> > > > > > > In file included from lockdep.c:28:
+> > > > > > > ../../../kernel/locking/lockdep.c: In function ‘look_up_lock_class’:
+> > > > > > > ../../../kernel/locking/lockdep.c:694:2: error: implicit declaration of function ‘hlist_for_each_entry_rcu_notrace’; did you mean ‘hlist_for_each_entry_continue’? [-Werror=implicit-function-declaration]
+> > > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > > > >   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > > > > >   hlist_for_each_entry_continue
+> > > > > > > ../../../kernel/locking/lockdep.c:694:53: error: ‘hash_entry’ undeclared (first use in this function); did you mean ‘hash_ptr’?
+> > > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > > > >                                                      ^~~~~~~~~~
+> > > > > > >                                                      hash_ptr
+> > > > > > > ../../../kernel/locking/lockdep.c:694:53: note: each undeclared identifier is reported only once for each function it appears in
+> > > > > > > ../../../kernel/locking/lockdep.c:694:64: error: expected ‘;’ before ‘{’ token
+> > > > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > > > >                                                                 ^~
+> > > > > > >                                                                 ;
+> > > > > > > ../../../kernel/locking/lockdep.c:706:1: warning: control reaches end of non-void function [-Wreturn-type]
+> > > > > > >  }
+> > > > > > >  ^
+> > > > > > > cc1: some warnings being treated as errors
+> > > > > > > make[5]: *** [/home/build/linux-4.19.218/tools/build/Makefile.build:97: /home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep/lockdep.o] Error 1
+> > > > > > > make[4]: *** [Makefile:121: /home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep/liblockdep-in.o] Error 2
+> > > > > > > make[4]: Leaving directory '/home/build/linux-4.19.218/tools/lib/lockdep'
+> > > > > > > make[3]: *** [/home/build/linux-4.19.218/debian/rules.d/tools/lib/lockdep/Makefile:16: all] Error 2
+> > > > > > > make[3]: Leaving directory '/home/build/linux-4.19.218/debian/build/build-tools/tools/lib/lockdep'
+> > > > > > > make[2]: *** [debian/rules.real:795: build-liblockdep] Error 2
+> > > > > > > make[2]: *** Waiting for unfinished jobs....
+> > > > > > > 
+> > > > > > > I was not yet able to look further on it.
+> > > > > > 
+> > > > > > Might actually be a distro specific issue, needs some further
+> > > > > > investigation.
+> > > > > 
+> > > > > I'm really sorry about the doubled noice, so here is the stance. I can
+> > > > > reproduce distro indpeendent, but the initial claim was wrong. It can
+> > > > > be reproduced for 4.19.218:
+> > > > > 
+> > > > > $ LC_ALL=C.UTF-8 V=1 ARCH=x86 make -C tools liblockdep
+> > > > > make: Entering directory '/home/build/linux-stable/tools'
+> > > > > mkdir -p lib/lockdep && make  subdir=lib/lockdep  -C lib/lockdep 
+> > > > > make[1]: Entering directory '/home/build/linux-stable/tools/lib/lockdep'
+> > > > > make -f /home/build/linux-stable/tools/build/Makefile.build dir=. obj=fixdep
+> > > > >   gcc -Wp,-MD,./.fixdep.o.d -Wp,-MT,fixdep.o  -D"BUILD_STR(s)=#s"   -c -o fixdep.o fixdep.c
+> > > > >    ld -r -o fixdep-in.o  fixdep.o
+> > > > > gcc  -o fixdep fixdep-in.o
+> > > > >   gcc -Wp,-MD,./.common.o.d -Wp,-MT,common.o -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"4.19.218"' -rdynamic -O0 -g -fPIC -Wall -I. -I./uinclude -I./include -I../../include -D"BUILD_STR(s)=#s" -c -o common.o common.c
+> > > > >   gcc -Wp,-MD,./.lockdep.o.d -Wp,-MT,lockdep.o -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"4.19.218"' -rdynamic -O0 -g -fPIC -Wall -I. -I./uinclude -I./include -I../../include -D"BUILD_STR(s)=#s" -c -o lockdep.o lockdep.c
+> > > > > In file included from lockdep.c:28:
+> > > > > ../../../kernel/locking/lockdep.c: In function ‘look_up_lock_class’:
+> > > > > ../../../kernel/locking/lockdep.c:692:2: warning: implicit declaration of function ‘hlist_for_each_entry_rcu_notrace’; did you mean ‘hlist_for_each_entry_continue’? [-Wimplicit-function-declaration]
+> > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > >   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > > > >   hlist_for_each_entry_continue
+> > > > > ../../../kernel/locking/lockdep.c:692:53: error: ‘hash_entry’ undeclared (first use in this function); did you mean ‘hash_ptr’?
+> > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > >                                                      ^~~~~~~~~~
+> > > > >                                                      hash_ptr
+> > > > > ../../../kernel/locking/lockdep.c:692:53: note: each undeclared identifier is reported only once for each function it appears in
+> > > > > ../../../kernel/locking/lockdep.c:692:64: error: expected ‘;’ before ‘{’ token
+> > > > >   hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+> > > > >                                                                 ^~
+> > > > >                                                                 ;
+> > > > > ../../../kernel/locking/lockdep.c:704:1: warning: control reaches end of non-void function [-Wreturn-type]
+> > > > >  }
+> > > > >  ^
+> > > > > make[2]: *** [/home/build/linux-stable/tools/build/Makefile.build:97: lockdep.o] Error 1
+> > > > > make[1]: *** [Makefile:121: liblockdep-in.o] Error 2
+> > > > > make[1]: Leaving directory '/home/build/linux-stable/tools/lib/lockdep'
+> > > > > make: *** [Makefile:66: liblockdep] Error 2
+> > > > > make: Leaving directory '/home/build/linux-stable/tools'
+> > > > > 
+> > > > > Reverting upstream ce0b9c805dd6 ("locking/lockdep: Avoid RCU-induced
+> > > > > noinstr fail") on top of 4.19.218 fixes the issue.
+> > > > > 
+> > > > > So back to square one, and again apologies for the intermediate noise!
+> > > > 
+> > > > What config/arch is causing this to break?  And if you add rchlist.h to
+> > > > the include files for lockdep.c, does that resolve the issue?  I haven't
+> > > > seen any other reports of this yet.
+> > > 
+> > > Ah, it's the tools being built here, sorry, that was confusing.
+> > 
+> > Ah yes, sorry this was not clear. It's all about the tools, which some
+> > are built as well as packages in Debian accompaning, tools/lib/lockdep
+> > is one of those built.
+> 
+> Ok, fair enough, I'll gladly take a patch that fixes this up for the
+> 4.19.y releases.
 
-thanks,
+We (speaking as for Debian) will probably drop the ball here as well,
+and drop building the lockdep tool packages in the next upload. It was
+probabably anyway not a good idea to have them built in the first
+place.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 5283dd677e52af9db6fe6ad11b2f12220d519d0c Mon Sep 17 00:00:00 2001
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Date: Wed, 10 Nov 2021 15:01:59 +0200
-Subject: [PATCH] iwlwifi: mvm: retry init flow if failed
-
-In some very rare cases the init flow may fail.  In many cases, this is
-recoverable, so we can retry.  Implement a loop to retry two more times
-after the first attempt failed.
-
-This can happen in two different situations, namely during probe and
-during mac80211 start.  For the first case, a simple loop is enough.
-For the second case, we need to add a flag to prevent mac80211 from
-trying to restart it as well, leaving full control with the driver.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20211110150132.57514296ecab.I52a0411774b700bdc7dedb124d8b59bf99456eb2@changeid
-
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-index 36196e07b1a0..5cec467b995b 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-@@ -1313,23 +1313,31 @@ _iwl_op_mode_start(struct iwl_drv *drv, struct iwlwifi_opmode_table *op)
- 	const struct iwl_op_mode_ops *ops = op->ops;
- 	struct dentry *dbgfs_dir = NULL;
- 	struct iwl_op_mode *op_mode = NULL;
-+	int retry, max_retry = !!iwlwifi_mod_params.fw_restart * IWL_MAX_INIT_RETRY;
-+
-+	for (retry = 0; retry <= max_retry; retry++) {
- 
- #ifdef CONFIG_IWLWIFI_DEBUGFS
--	drv->dbgfs_op_mode = debugfs_create_dir(op->name,
--						drv->dbgfs_drv);
--	dbgfs_dir = drv->dbgfs_op_mode;
-+		drv->dbgfs_op_mode = debugfs_create_dir(op->name,
-+							drv->dbgfs_drv);
-+		dbgfs_dir = drv->dbgfs_op_mode;
- #endif
- 
--	op_mode = ops->start(drv->trans, drv->trans->cfg, &drv->fw, dbgfs_dir);
-+		op_mode = ops->start(drv->trans, drv->trans->cfg,
-+				     &drv->fw, dbgfs_dir);
-+
-+		if (op_mode)
-+			return op_mode;
-+
-+		IWL_ERR(drv, "retry init count %d\n", retry);
- 
- #ifdef CONFIG_IWLWIFI_DEBUGFS
--	if (!op_mode) {
- 		debugfs_remove_recursive(drv->dbgfs_op_mode);
- 		drv->dbgfs_op_mode = NULL;
--	}
- #endif
-+	}
- 
--	return op_mode;
-+	return NULL;
- }
- 
- static void _iwl_op_mode_stop(struct iwl_drv *drv)
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
-index 2e2d60a58692..0fd009e6d685 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
-@@ -89,4 +89,7 @@ void iwl_drv_stop(struct iwl_drv *drv);
- #define IWL_EXPORT_SYMBOL(sym)
- #endif
- 
-+/* max retry for init flow */
-+#define IWL_MAX_INIT_RETRY 2
-+
- #endif /* __iwl_drv_h__ */
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 9fb9c7dad314..897e3b91ddb2 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -16,6 +16,7 @@
- #include <net/ieee80211_radiotap.h>
- #include <net/tcp.h>
- 
-+#include "iwl-drv.h"
- #include "iwl-op-mode.h"
- #include "iwl-io.h"
- #include "mvm.h"
-@@ -1117,9 +1118,30 @@ static int iwl_mvm_mac_start(struct ieee80211_hw *hw)
- {
- 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
- 	int ret;
-+	int retry, max_retry = 0;
- 
- 	mutex_lock(&mvm->mutex);
--	ret = __iwl_mvm_mac_start(mvm);
-+
-+	/* we are starting the mac not in error flow, and restart is enabled */
-+	if (!test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) &&
-+	    iwlwifi_mod_params.fw_restart) {
-+		max_retry = IWL_MAX_INIT_RETRY;
-+		/*
-+		 * This will prevent mac80211 recovery flows to trigger during
-+		 * init failures
-+		 */
-+		set_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
-+	}
-+
-+	for (retry = 0; retry <= max_retry; retry++) {
-+		ret = __iwl_mvm_mac_start(mvm);
-+		if (!ret)
-+			break;
-+
-+		IWL_ERR(mvm, "mac start retry %d\n", retry);
-+	}
-+	clear_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
-+
- 	mutex_unlock(&mvm->mutex);
- 
- 	return ret;
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-index 2b1dcd60e00f..a72d85086fe3 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -1123,6 +1123,8 @@ struct iwl_mvm {
-  * @IWL_MVM_STATUS_FIRMWARE_RUNNING: firmware is running
-  * @IWL_MVM_STATUS_NEED_FLUSH_P2P: need to flush P2P bcast STA
-  * @IWL_MVM_STATUS_IN_D3: in D3 (or at least about to go into it)
-+ * @IWL_MVM_STATUS_STARTING: starting mac,
-+ *	used to disable restart flow while in STARTING state
-  */
- enum iwl_mvm_status {
- 	IWL_MVM_STATUS_HW_RFKILL,
-@@ -1134,6 +1136,7 @@ enum iwl_mvm_status {
- 	IWL_MVM_STATUS_FIRMWARE_RUNNING,
- 	IWL_MVM_STATUS_NEED_FLUSH_P2P,
- 	IWL_MVM_STATUS_IN_D3,
-+	IWL_MVM_STATUS_STARTING,
- };
- 
- /* Keep track of completed init configuration */
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-index 232ad531d612..ce7160670aa7 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -1600,6 +1600,9 @@ void iwl_mvm_nic_restart(struct iwl_mvm *mvm, bool fw_error)
- 	 */
- 	if (!mvm->fw_restart && fw_error) {
- 		iwl_fw_error_collect(&mvm->fwrt, false);
-+	} else if (test_bit(IWL_MVM_STATUS_STARTING,
-+			    &mvm->status)) {
-+		IWL_ERR(mvm, "Starting mac, retry will be triggered anyway\n");
- 	} else if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
- 		struct iwl_mvm_reprobe *reprobe;
- 
-
+Regards,
+Salvatore
