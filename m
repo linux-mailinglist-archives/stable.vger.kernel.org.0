@@ -2,74 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F7D4684B6
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 13:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4684684BD
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 13:18:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384889AbhLDMTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 07:19:21 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59078 "EHLO
+        id S1384915AbhLDMWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 07:22:15 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59370 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236691AbhLDMTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 07:19:21 -0500
+        with ESMTP id S1384912AbhLDMWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 07:22:15 -0500
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 7E8E11C0BA4; Sat,  4 Dec 2021 13:15:54 +0100 (CET)
-Date:   Sat, 4 Dec 2021 13:15:53 +0100
+        id D29791C0BB0; Sat,  4 Dec 2021 13:18:48 +0100 (CET)
+Date:   Sat, 4 Dec 2021 13:18:47 +0100
 From:   Pavel Machek <pavel@denx.de>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Helge Deller <deller@gmx.de>,
-        John David Anglin <dave.anglin@bell.net>,
-        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
-        linux-parisc@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.4 4/9] parisc: Provide an extru_safe() macro to
- extract unsigned bits
-Message-ID: <20211204121553.GA14855@duo.ucw.cz>
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.4 8/9] net: ptp: add a definition for the UDP
+ port for IEEE 1588 general messages
+Message-ID: <20211204121847.GA15934@duo.ucw.cz>
 References: <20211130145402.947049-1-sashal@kernel.org>
- <20211130145402.947049-4-sashal@kernel.org>
+ <20211130145402.947049-8-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
+        protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
 Content-Disposition: inline
-In-Reply-To: <20211130145402.947049-4-sashal@kernel.org>
+In-Reply-To: <20211130145402.947049-8-sashal@kernel.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---SLDf9lqlvOQaIe6s
+--ZGiS0Q5IWpPtfppv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Helge Deller <deller@gmx.de>
+> [ Upstream commit ec15baec3272bbec576f2ce7ce47765a8e9b7b1c ]
 >=20
-> [ Upstream commit 169d1a4a2adb2c246396c56aa2f9eec3868546f1 ]
+> As opposed to event messages (Sync, PdelayReq etc) which require
+> timestamping, general messages (Announce, FollowUp etc) do not.
+> In PTP they are part of different streams of data.
 >=20
-> The extru instruction leaves the most significant 32 bits of the
-> target register in an undefined state on PA 2.0 systems.
-> Provide a macro to safely use extru on 32- and 64-bit machines.
+> IEEE 1588-2008 Annex D.2 "UDP port numbers" states that the UDP
+> destination port assigned by IANA is 319 for event messages, and 320 for
+> general messages. Yet the kernel seems to be missing the definition for
+> general messages. This patch adds it.
 
-As the macro is not used by subsequent 4.4 patches, I don't believe
-this is suitable for -stable.
+This does not fix any bug in 4.4, right? We do not need it in stable.
 
 Best regards,
 								Pavel
 --=20
- 'DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk'
- 'HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany'
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-
---SLDf9lqlvOQaIe6s
+--ZGiS0Q5IWpPtfppv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYatb+QAKCRAw5/Bqldv6
-8vZgAJwNJfS0alYMDuhThPe/0GSNC3mCqQCfekVNPzFj9sq4DMHvmkIQFmBgrsI=
-=2sbg
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYatcpwAKCRAw5/Bqldv6
+8nNqAJ4th/eq5qbrpyI5Vf+tYwt3sW0y7QCgs6P2w9SCJGBpCPa2y5xg/0g2jPM=
+=pwrG
 -----END PGP SIGNATURE-----
 
---SLDf9lqlvOQaIe6s--
+--ZGiS0Q5IWpPtfppv--
