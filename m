@@ -2,136 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E11468431
-	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:46:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C731468442
+	for <lists+stable@lfdr.de>; Sat,  4 Dec 2021 11:54:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344712AbhLDKuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 05:50:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41474 "EHLO
+        id S1384712AbhLDK5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 05:57:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346511AbhLDKt6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:49:58 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD78C061751
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 02:46:32 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id v23so4219269pjr.5
-        for <stable@vger.kernel.org>; Sat, 04 Dec 2021 02:46:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=k14K7EfVq4C5bFSlzyj/rT1IrAtXpHzzUpPR0vf+XRA=;
-        b=Kr0ZqLOYkZglkTfFXHc6v1J63LbxSJ6dP2vJwMwU8HN8F8Fu7CQSgyQR1uX+1nh9WE
-         WUYsSlLflQZeMl3JhFnZq9G+LqBUuUXDEbLaeRRz/SRCgnOgRR1xyTjO9M8SqV4UiZUv
-         SslEyGe0/pwd1mWtjCZyaFu6vV6WUSVXH7vOwWpUPv/cX/0rGSzxtudGivhm+a6D4g+c
-         WOA6qKzk9w+ch+ek6f4hLN1ySzUhLiaD+paw0A+ffMVna1SbmB+Es3T7LM8n4+/be1Jh
-         0J0CfeNZuHlcMJ9E6PBDRzV1lu3Z9iEeuGOMJE9Lgtk4FyrgeaIqpSIYumX3++WbyqEe
-         t8ZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=k14K7EfVq4C5bFSlzyj/rT1IrAtXpHzzUpPR0vf+XRA=;
-        b=J237J5mYj9evagoMmPWjOFzZNp4dH8WHjmGWKwGzzcLUP72hIPnh/vQpEYdycjry+D
-         83VcFcJfxaxrfjPm9ex8eDdGZ1yxVX5+bovm4ifAJnv/hCqjZRZ/5sIUuyHH4TBrOb1w
-         1UuoaCCVosF5bSbmmHiWTiLDZvEv0ufIDA9MR7SuSRV2ahzzppKlOwIl+UOw2LUsO8zY
-         N6hU8csM1nFMunoAcxjnE+yFnykTK6m2ryHMJwuTgV+j1ozTdgrHKBxRQX8OcKU4pqva
-         yPO/kTIVrbk7xYnNNc8C9xLwde8is1E21REnK+u8Fn60C2PGUyTCvGSawnt2AxxEaU80
-         D2Rg==
-X-Gm-Message-State: AOAM530MMG2Vn4yvMAlWDfbkwNh2NQWEFb7l+FgN3AbW0BGXp02eXC3D
-        Cx/vezAsX39Ullu/8o7fOn2GF+qc8bJ8STbV
-X-Google-Smtp-Source: ABdhPJz82F09XD/DR+nEy/qQxGK/uAIPZYwhGYBtFyMjLVsXdEDr0nEo31WvYXkCg4Z3VpBygBEkmQ==
-X-Received: by 2002:a17:90b:1d0b:: with SMTP id on11mr20780335pjb.163.1638614792180;
-        Sat, 04 Dec 2021 02:46:32 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u22sm6374986pfi.187.2021.12.04.02.46.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Dec 2021 02:46:31 -0800 (PST)
-Message-ID: <61ab4707.1c69fb81.1cc1f.2ad2@mx.google.com>
-Date:   Sat, 04 Dec 2021 02:46:31 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S238880AbhLDK5d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 05:57:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38ECC061354
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 02:54:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AB3960DEC
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 10:54:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D53C341C0;
+        Sat,  4 Dec 2021 10:54:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638615246;
+        bh=IdHIIMZIrARq5ZvZ7qCqwvmLeU8g1JP/cDqTaonDbNw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=VNJ3V2VU9gpZ7SZvX/SachPq1wn8gYHCOVQlMqbJbHh0BnD7XkcAV4m2kzrOmbMYa
+         S99Amp1jPwddwKc68OT80NM2VerLKyhwTX6g/mryMc6bKg0G0/RFapchBB2NYhRMFX
+         b8CUjm6Bs2xyFR2oVFvCy08BNWzK9sAyMhgk93HDUljpTceByIFZ2/+aRsh6kO1av7
+         irSh8LcJRad8x0s16SlnmzaJOr1U3AlkT+Ghp6bzs3bwhMXBR+iX7NZO9zK1dYVi19
+         AO9/BzyDQjftI2QpHBAgwsvkmJUimJehh0Ehh2RYovfU0hLBCwwLVaFIdqa/EPuI25
+         1R6ilA7rE7fYg==
+Date:   Sat, 4 Dec 2021 11:54:02 +0100
+From:   Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>
+To:     <gregkh@linuxfoundation.org>
+Cc:     davem@davemloft.net, <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] net: dsa: mv88e6xxx: Save power by
+ disabling SerDes" failed to apply to 5.15-stable tree
+Message-ID: <20211204115402.4d197c42@thinkpad>
+In-Reply-To: <16386137159777@kroah.com>
+References: <16386137159777@kroah.com>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.256-83-ga02dd07707e4d
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 baseline: 120 runs,
- 1 regressions (v4.14.256-83-ga02dd07707e4d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 120 runs, 1 regressions (v4.14.256-83-ga02dd=
-07707e4d)
+Hi Greg,
 
-Regressions Summary
--------------------
+the patch depends on
+  8c3318b4874e2dee867f5ae8f6d38f78e044bf71 net: dsa: mv88e6xxx: Drop
+unnecessary check in mv88e6393x_serdes_erratum_4_6()
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Marek
 
+On Sat, 04 Dec 2021 11:28:35 +0100
+<gregkh@linuxfoundation.org> wrote:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.256-83-ga02dd07707e4d/plan/baseline/
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>=20
+> thanks,
+>=20
+> greg k-h
+>=20
+> ------------------ original commit in Linus's tree ------------------
+>=20
+> From 7527d66260ac0c603c6baca5146748061fcddbd6 Mon Sep 17 00:00:00 2001
+> From: =3D?UTF-8?q?Marek=3D20Beh=3DC3=3DBAn?=3D <kabel@kernel.org>
+> Date: Tue, 30 Nov 2021 18:01:48 +0100
+> Subject: [PATCH] net: dsa: mv88e6xxx: Save power by disabling SerDes
+>  trasmitter and receiver
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=3DUTF-8
+> Content-Transfer-Encoding: 8bit
+>=20
+> Save power on 88E6393X by disabling SerDes receiver and transmitter
+> after SerDes is SerDes is disabled.
+>=20
+> Signed-off-by: Marek Beh=C3=BAn <kabel@kernel.org>
+> Cc: stable@vger.kernel.org # de776d0d316f ("net: dsa: mv88e6xxx: add supp=
+ort for mv88e6393x family")
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+>=20
+> diff --git a/drivers/net/dsa/mv88e6xxx/serdes.c b/drivers/net/dsa/mv88e6x=
+xx/serdes.c
+> index 3a6244596a67..ceb63d7f1f97 100644
+> --- a/drivers/net/dsa/mv88e6xxx/serdes.c
+> +++ b/drivers/net/dsa/mv88e6xxx/serdes.c
+> @@ -1271,6 +1271,28 @@ void mv88e6390_serdes_get_regs(struct mv88e6xxx_ch=
+ip *chip, int port, void *_p)
+>  	}
+>  }
+> =20
+> +static int mv88e6393x_serdes_power_lane(struct mv88e6xxx_chip *chip, int=
+ lane,
+> +					bool on)
+> +{
+> +	u16 reg;
+> +	int err;
+> +
+> +	err =3D mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
+> +				    MV88E6393X_SERDES_CTRL1, &reg);
+> +	if (err)
+> +		return err;
+> +
+> +	if (on)
+> +		reg &=3D ~(MV88E6393X_SERDES_CTRL1_TX_PDOWN |
+> +			 MV88E6393X_SERDES_CTRL1_RX_PDOWN);
+> +	else
+> +		reg |=3D MV88E6393X_SERDES_CTRL1_TX_PDOWN |
+> +		       MV88E6393X_SERDES_CTRL1_RX_PDOWN;
+> +
+> +	return mv88e6390_serdes_write(chip, lane, MDIO_MMD_PHYXS,
+> +				      MV88E6393X_SERDES_CTRL1, reg);
+> +}
+> +
+>  static int mv88e6393x_serdes_erratum_4_6(struct mv88e6xxx_chip *chip, in=
+t lane)
+>  {
+>  	u16 reg;
+> @@ -1297,7 +1319,11 @@ static int mv88e6393x_serdes_erratum_4_6(struct mv=
+88e6xxx_chip *chip, int lane)
+>  	if (err)
+>  		return err;
+> =20
+> -	return mv88e6390_serdes_power_sgmii(chip, lane, false);
+> +	err =3D mv88e6390_serdes_power_sgmii(chip, lane, false);
+> +	if (err)
+> +		return err;
+> +
+> +	return mv88e6393x_serdes_power_lane(chip, lane, false);
+>  }
+> =20
+>  int mv88e6393x_serdes_setup_errata(struct mv88e6xxx_chip *chip)
+> @@ -1362,17 +1388,29 @@ int mv88e6393x_serdes_power(struct mv88e6xxx_chip=
+ *chip, int port, int lane,
+>  		err =3D mv88e6393x_serdes_erratum_4_8(chip, lane);
+>  		if (err)
+>  			return err;
+> +
+> +		err =3D mv88e6393x_serdes_power_lane(chip, lane, true);
+> +		if (err)
+> +			return err;
+>  	}
+> =20
+>  	switch (cmode) {
+>  	case MV88E6XXX_PORT_STS_CMODE_SGMII:
+>  	case MV88E6XXX_PORT_STS_CMODE_1000BASEX:
+>  	case MV88E6XXX_PORT_STS_CMODE_2500BASEX:
+> -		return mv88e6390_serdes_power_sgmii(chip, lane, on);
+> +		err =3D mv88e6390_serdes_power_sgmii(chip, lane, on);
+> +		break;
+>  	case MV88E6393X_PORT_STS_CMODE_5GBASER:
+>  	case MV88E6393X_PORT_STS_CMODE_10GBASER:
+> -		return mv88e6390_serdes_power_10g(chip, lane, on);
+> +		err =3D mv88e6390_serdes_power_10g(chip, lane, on);
+> +		break;
+>  	}
+> =20
+> -	return 0;
+> +	if (err)
+> +		return err;
+> +
+> +	if (!on)
+> +		err =3D mv88e6393x_serdes_power_lane(chip, lane, false);
+> +
+> +	return err;
+>  }
+> diff --git a/drivers/net/dsa/mv88e6xxx/serdes.h b/drivers/net/dsa/mv88e6x=
+xx/serdes.h
+> index cbb3ba30caea..e9292c8beee4 100644
+> --- a/drivers/net/dsa/mv88e6xxx/serdes.h
+> +++ b/drivers/net/dsa/mv88e6xxx/serdes.h
+> @@ -93,6 +93,9 @@
+>  #define MV88E6393X_SERDES_POC_PCS_MASK		0x0007
+>  #define MV88E6393X_SERDES_POC_RESET		BIT(15)
+>  #define MV88E6393X_SERDES_POC_PDOWN		BIT(5)
+> +#define MV88E6393X_SERDES_CTRL1			0xf003
+> +#define MV88E6393X_SERDES_CTRL1_TX_PDOWN	BIT(9)
+> +#define MV88E6393X_SERDES_CTRL1_RX_PDOWN	BIT(8)
+> =20
+>  #define MV88E6393X_ERRATA_4_8_REG		0xF074
+>  #define MV88E6393X_ERRATA_4_8_BIT		BIT(14)
+>=20
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.256-83-ga02dd07707e4d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a02dd07707e4dc42c1a2f942baa6956561dec52d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ab13d94a2d4732ed1a94a4
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--83-ga02dd07707e4d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--83-ga02dd07707e4d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ab13d94a2d473=
-2ed1a94a7
-        new failure (last pass: v4.14.256-72-g83c23c6a513a4)
-        2 lines
-
-    2021-12-04T07:07:58.883500  [   20.334472] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-04T07:07:58.927757  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/105
-    2021-12-04T07:07:58.937512  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
