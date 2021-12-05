@@ -2,63 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD103468AD8
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83377468AD9
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233733AbhLEMol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 07:44:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39894 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233720AbhLEMol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:44:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AEBDC061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:41:14 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E40460F72
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:41:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599FFC341C1;
-        Sun,  5 Dec 2021 12:41:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638708073;
-        bh=oUc37WDoU/KdVHcWAmy1GbkYo4GdnLMGxg8jjF0DQC8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oux+KZG9TwqTeVr46DwRS9uB9f4nQLzHRedYQDYiMLDhzsHI1uY2YRO3uWrsWeESf
-         ZvZmaxmd9/1BaX7ll5Imj65VUUaXm9h2h43+ryWgkh7BCkvKYSUonXhX6Rl51sanx2
-         o47j2MIIUL1sfbJhzxdTVfGmCoprR6HkMIVlIfp8=
-Date:   Sun, 5 Dec 2021 13:41:09 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>
-Cc:     davem@davemloft.net, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] net: dsa: mv88e6xxx: Save power by
- disabling SerDes" failed to apply to 5.15-stable tree
-Message-ID: <YayzZex0zXvDxg2V@kroah.com>
-References: <16386137159777@kroah.com>
- <20211204115719.3315663b@thinkpad>
+        id S233734AbhLEMqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 07:46:23 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51671 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233720AbhLEMqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:46:20 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 840255C008E;
+        Sun,  5 Dec 2021 07:42:53 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 05 Dec 2021 07:42:53 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=iecYnGYiVPdit3vXcQPO6CB22Tq
+        HffOdq/OYjkikbtw=; b=cLqu/zDlF56P5/Fqyi1Sxn3zBm5C1lUpEJXP6kThckD
+        cUnEhsAqdv5usuF5vhPOoxLeflCrFTuXkykQ4pEncbycLR5hlipfhWVK4stjSEeI
+        EPiWfqct4RHJYeDVPx+pwvGp1jpGPVkdg2PHXIyNm5zNJTm+rMlUoRVGU0pHBCPo
+        2iTzqKQc+O+O+ddljMALpxrrXbx7JM+7wE7csou+AIM0Y71BTK9+52GuwwvlU1Hc
+        +axGT5xSkzBDT/tGxBRfVvWr0ptoFelUGewbV2ENyInYauPYXY+UoQVaq72FDfgx
+        qFsZJ1AOhX84pLF4ou4mqS9BPjsg2a7dBbgZllxPYpw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iecYnG
+        YiVPdit3vXcQPO6CB22TqHffOdq/OYjkikbtw=; b=SdwzJkx6C2zVwSF5nBoBI2
+        6H2Mz6E71eG+2svTWEq4/J3fU28rQbmm+naooJan5cMfJo8iVMDVZyYcPiBshlz/
+        37BwvNAFctLa28xsivsQioM/Z1XBkzLa2RgfrwyPj0Z+1r7WyDjz3FoixGBma0ok
+        kmPks3xxq0n2d3MNu98x85vk9iZeAxzBikDljDBNM534adOw+ZSdTmHQKnqK0+Xn
+        6TC5GrzFIgzzRkJGqzCh+14wgbKoa60WBD3Za1PSyEYF72Q/7RebaAD8b/Zw10fL
+        MRnf6+NiY4DH2Nksa9l84ZySWVFavqvVrg3LcC1AcSt0O1MigPPS1/X2kQFNKdtw
+        ==
+X-ME-Sender: <xms:zLOsYfiSnbxB2OPR6kuQ5xlxyKFbCXePl38RkpXjyYtuViE-n-kkMg>
+    <xme:zLOsYcB_uLU9wStj1IlX-pUFQJXzoSHbcyQvmnnUq9pkFBNmn3AKZbEUelScwCcJe
+    jSOUsYUGcLRfQ>
+X-ME-Received: <xmr:zLOsYfE8tV6dyZWabcCZrzoUpDnvO2mxGWddqfxQdStQnWqL5qFQiy-yIv-0-bXllNLsvwZ3gwNc032nDrQhOVWnTSfOHFwE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrjedugdegvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:zLOsYcTk-phMs8B70-dx4YCf_6eJ0rBpMt7mLZqPDh0aZfhw_G3zgg>
+    <xmx:zLOsYcxDT6Uz9V56LN4rTnYFQglZ7VmEvm8FZXBfHO39gyVMDnHa-w>
+    <xmx:zLOsYS7Cn4JeliLbHgsyzHbxLBlifVPI4naK2VKRkm7vGpl0ViEc4g>
+    <xmx:zbOsYblDYauFfZZCdLj_VQtYGe1ki0ndU0DBGcunaF0hBn_sKKJXeQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 5 Dec 2021 07:42:52 -0500 (EST)
+Date:   Sun, 5 Dec 2021 13:42:50 +0100
+From:   Greg KH <greg@kroah.com>
+To:     James Zhu <James.Zhu@amd.com>
+Cc:     stable@vger.kernel.org, jzhums@gmail.com,
+        alexander.deucher@amd.com, kolAflash@kolahilft.de
+Subject: Re: [PATCH 0/5] Bug:211277 fix backport for 5.10, 5.12 stable
+Message-ID: <YayzyuulcNyx3O56@kroah.com>
+References: <1638552452-4198-1-git-send-email-James.Zhu@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211204115719.3315663b@thinkpad>
+In-Reply-To: <1638552452-4198-1-git-send-email-James.Zhu@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Dec 04, 2021 at 11:57:19AM +0100, Marek Behún wrote:
-> In fact it was a series of 6 patches, but the 2nd was without fixes tag:
-> 
-> 21635d9203e1cf2b73b67e9a86059a62f62a3563
-> 8c3318b4874e2dee867f5ae8f6d38f78e044bf71 (without fixes tag)
-> 7527d66260ac0c603c6baca5146748061fcddbd6 (didnt apply)
-> 93fd8207bed80ce19aaf59932cbe1c03d418a37d
-> 163000dbc772c1eae9bdfe7c8fe30155db1efd74
-> ede359d8843a2779d232ed30bc36089d4b5962e4
+On Fri, Dec 03, 2021 at 12:27:27PM -0500, James Zhu wrote:
+> These patches are back port for 5.10 and 5.12 stable.
 
-So what am I supposed to do here?  Apply all of them?  3 of them?  None
-of them?
+5.12 is way long end-of-life, why would we need them for that specific
+kernel?
 
-confused,
+I'll go queue these up for 5.10, thanks.
 
 greg k-h
