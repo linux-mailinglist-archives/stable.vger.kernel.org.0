@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B311C468ACB
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:36:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9F6468ACC
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230230AbhLEMjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 07:39:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229852AbhLEMjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:39:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30511C061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:36:04 -0800 (PST)
+        id S232493AbhLEMjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 07:39:33 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60980 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229852AbhLEMjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:39:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E94C0B80E2A
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:36:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C4CC341C1;
-        Sun,  5 Dec 2021 12:36:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9749660FBA
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:36:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DC0C341C5;
+        Sun,  5 Dec 2021 12:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638707761;
-        bh=wcRGWqjESEjYsUdvG/4wct2hJOIr1bvrTa0/AmuaZac=;
+        s=korg; t=1638707765;
+        bh=dCQUNtty3m/+qn9QK41+K65txijAk6UlJTykBNKiJN0=;
         h=Subject:To:Cc:From:Date:From;
-        b=KoHhfn3Y9Okw9hKUxEeq7ueIhFpMC952C7uLclydvy9As394G28mjg3QJyiOIo2ro
-         NqBdZq3v3QYPLggo36cGmKXw2FZR9FpqgtA7bdOEHwdH6m3tvY5pbTNF7fZ0oiMrPV
-         J15FJmce+al1BGhrD9GF/wPVYVvLoSqcOHpUgSn8=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Emulate guest TLB flush on nested VM-Enter with" failed to apply to 4.4-stable tree
+        b=NIlTC6G/Qnf6ksCuAUOm6+V2bunAYVZH7Anpy91kHYyaoKFJsyAmTrQFalfMrSXRZ
+         IC54t6M6tGwBfa1S9BeBzAPCyu6uOYgFViGbHathRIw30QUwbkK2SHYuxEHt33Qjt7
+         o/JPeEVPVv1F001ORnWHSesNG6l/eLKNSVaItPfI=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Emulate guest TLB flush on nested VM-Enter with" failed to apply to 4.9-stable tree
 To:     seanjc@google.com, jiangshanlai+lkml@gmail.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 13:35:58 +0100
-Message-ID: <1638707758176161@kroah.com>
+Date:   Sun, 05 Dec 2021 13:35:59 +0100
+Message-ID: <163870775983152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
