@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BE2A468AB8
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A066468ABA
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233587AbhLEMOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 07:14:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33382 "EHLO
+        id S233594AbhLEMOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 07:14:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233585AbhLEMOS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:14:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27CF2C061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:10:51 -0800 (PST)
+        with ESMTP id S233585AbhLEMOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:14:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A20DBC061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:11:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6ED4B80E1D
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C318C341C1;
-        Sun,  5 Dec 2021 12:10:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC7560AD4
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:11:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 162ADC341C5;
+        Sun,  5 Dec 2021 12:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638706248;
-        bh=BcgZmHGgswyXg3Zetlrp/JsMidMxZmTc2nIODYjdgfY=;
+        s=korg; t=1638706275;
+        bh=4cLJzQbQVfwIHVMsppgBi6mDJwHu/0pjMB1Spysm/CU=;
         h=Subject:To:Cc:From:Date:From;
-        b=m722ARoSAS+k+szugSjeBMg/WbfDyUXGUIcm0Es6ttQdacYaqDF6I7VqEpT2c8WFl
-         cBIM5MDUZlOBZ5LnM0h0GhTN2Cac9XqsSWqIiXEqdj8S5mKQeh/FbSJgSGLA7a4kcC
-         kPnW8eYp5MZWdEhWAElMA5tSYlzERVc2sj5SKOpg=
-Subject: FAILED: patch "[PATCH] KVM: fix avic_set_running for preemptable kernels" failed to apply to 5.4-stable tree
-To:     pbonzini@redhat.com, mlevitsk@redhat.com, seanjc@google.com
+        b=b5yPPVpiCcF+G27rEWnDHTA6f6icLfnEHMn82jAsHXEkZpjQYuZqLdgjNjX9OB0CZ
+         cmTNr8U5aeuu1MngPwJpKZ6NPYeAHAonmRfSUy8ebVjQ1L50usQ6HHSE1xBOP6bd0B
+         5yifehegXW5mnFZ1E0Cr6y7JIK3Zqz0UxemQkgkQ=
+Subject: FAILED: patch "[PATCH] KVM: Disallow user memslot with size that exceeds "unsigned" failed to apply to 4.4-stable tree
+To:     seanjc@google.com, maciej.szmigiero@oracle.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 13:10:29 +0100
-Message-ID: <1638706229982@kroah.com>
+Date:   Sun, 05 Dec 2021 13:11:12 +0100
+Message-ID: <163870627251106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,51 +53,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7cfc5c653b07782e7059527df8dc1e3143a7591e Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Tue, 30 Nov 2021 03:46:07 -0500
-Subject: [PATCH] KVM: fix avic_set_running for preemptable kernels
+From 6b285a5587506bae084cf9a3ed5aa491d623b91b Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Thu, 4 Nov 2021 00:25:03 +0000
+Subject: [PATCH] KVM: Disallow user memslot with size that exceeds "unsigned
+ long"
 
-avic_set_running() passes the current CPU to avic_vcpu_load(), albeit
-via vcpu->cpu rather than smp_processor_id().  If the thread is migrated
-while avic_set_running runs, the call to avic_vcpu_load() can use a stale
-value for the processor id.  Avoid this by blocking preemption over the
-entire execution of avic_set_running().
+Reject userspace memslots whose size exceeds the storage capacity of an
+"unsigned long".  KVM's uAPI takes the size as u64 to support large slots
+on 64-bit hosts, but does not account for the size being truncated on
+32-bit hosts in various flows.  The access_ok() check on the userspace
+virtual address in particular casts the size to "unsigned long" and will
+check the wrong number of bytes.
 
-Reported-by: Sean Christopherson <seanjc@google.com>
-Fixes: 8221c1370056 ("svm: Manage vcpu load/unload when enable AVIC")
+KVM doesn't actually support slots whose size doesn't fit in an "unsigned
+long", e.g. KVM's internal kvm_memory_slot.npages is an "unsigned long",
+not a "u64", and misc arch specific code follows that behavior.
+
+Fixes: fa3d315a4ce2 ("KVM: Validate userspace_addr of memslot when registered")
 Cc: stable@vger.kernel.org
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maciej S. Szmigiero <maciej.szmigiero@oracle.com>
+Message-Id: <20211104002531.1176691-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/svm/avic.c b/arch/x86/kvm/svm/avic.c
-index affc0ea98d30..9d6066eb7c10 100644
---- a/arch/x86/kvm/svm/avic.c
-+++ b/arch/x86/kvm/svm/avic.c
-@@ -989,16 +989,18 @@ void avic_vcpu_put(struct kvm_vcpu *vcpu)
- static void avic_set_running(struct kvm_vcpu *vcpu, bool is_run)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
-+	int cpu = get_cpu();
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 2104fc29cdd2..6c5083f2eb50 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1689,7 +1689,8 @@ int __kvm_set_memory_region(struct kvm *kvm,
+ 	id = (u16)mem->slot;
  
-+	WARN_ON(cpu != vcpu->cpu);
- 	svm->avic_is_running = is_run;
- 
--	if (!kvm_vcpu_apicv_active(vcpu))
--		return;
--
--	if (is_run)
--		avic_vcpu_load(vcpu, vcpu->cpu);
--	else
--		avic_vcpu_put(vcpu);
-+	if (kvm_vcpu_apicv_active(vcpu)) {
-+		if (is_run)
-+			avic_vcpu_load(vcpu, cpu);
-+		else
-+			avic_vcpu_put(vcpu);
-+	}
-+	put_cpu();
- }
- 
- void svm_vcpu_blocking(struct kvm_vcpu *vcpu)
+ 	/* General sanity checks */
+-	if (mem->memory_size & (PAGE_SIZE - 1))
++	if ((mem->memory_size & (PAGE_SIZE - 1)) ||
++	    (mem->memory_size != (unsigned long)mem->memory_size))
+ 		return -EINVAL;
+ 	if (mem->guest_phys_addr & (PAGE_SIZE - 1))
+ 		return -EINVAL;
 
