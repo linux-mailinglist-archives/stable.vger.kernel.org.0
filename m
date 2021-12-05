@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B379468AE8
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 536C5468AE9
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233947AbhLENEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 08:04:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44278 "EHLO
+        id S233944AbhLENGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 08:06:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231230AbhLENEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:04:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672E9C061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 05:01:17 -0800 (PST)
+        with ESMTP id S231230AbhLENGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:06:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28BDCC061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 05:02:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31DE2B80E3C
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:01:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B4E5C341C5;
-        Sun,  5 Dec 2021 13:01:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B894A60FDE
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:02:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B47AC341C8;
+        Sun,  5 Dec 2021 13:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638709275;
-        bh=IBqyVbVl+xcM7laWHxIKTKOxqko2rePADRb3rnoDITs=;
+        s=korg; t=1638709359;
+        bh=fmA2tPaOuBaYPe0KaAKqTijQD448oA9gafopC8W1vWk=;
         h=Subject:To:Cc:From:Date:From;
-        b=BJNtuMFfB5h4nNshEmd0r5JMIdn2wzEQ+4T3BjZZzg/tNbor1J03AHOOKo82M5X6o
-         rX32PbwbxqUdbKbMeKQrkPLYTCFFD2QN01hMH5iJa82pAWo27AVyELmMKNNw9XT5Iz
-         0F8y8gQcUiGCY4i4AlGOsdh4JVPdYto1rO45rc04=
-Subject: FAILED: patch "[PATCH] i2c: stm32f7: recover the bus on access timeout" failed to apply to 4.14-stable tree
-To:     alain.volmat@foss.st.com, pierre-yves.mordret@foss.st.com,
-        wsa@kernel.org
+        b=yAbxpI+8/2frEPhbV62skJ4dP9R4fpO8OgvhiwtoGQ/Wq5Mm2I7r5n16V/xrZYoG/
+         1NyNk5y3cwJGk4XTzQNFRe6WyRpGsfQIBX05pbUCKWibRAQAmMKJQsB6OUsU+CHS5c
+         Rx7zp+P00hJoy8UW/+VKGVBddeJfMFrD2RdP5ylI=
+Subject: FAILED: patch "[PATCH] tcp: fix page frag corruption on page fault" failed to apply to 4.4-stable tree
+To:     pabeni@redhat.com, davem@davemloft.net, edumazet@google.com,
+        sfroemer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 14:01:12 +0100
-Message-ID: <16387092725043@kroah.com>
+Date:   Sun, 05 Dec 2021 14:02:36 +0100
+Message-ID: <1638709356203150@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,37 +54,105 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b933d1faf8fa30d16171bcff404e39c41b2a7c84 Mon Sep 17 00:00:00 2001
-From: Alain Volmat <alain.volmat@foss.st.com>
-Date: Mon, 20 Sep 2021 17:21:30 +0200
-Subject: [PATCH] i2c: stm32f7: recover the bus on access timeout
+From dacb5d8875cc6cd3a553363b4d6f06760fcbe70c Mon Sep 17 00:00:00 2001
+From: Paolo Abeni <pabeni@redhat.com>
+Date: Fri, 26 Nov 2021 19:34:21 +0100
+Subject: [PATCH] tcp: fix page frag corruption on page fault
 
-When getting an access timeout, ensure that the bus is in a proper
-state prior to returning the error.
+Steffen reported a TCP stream corruption for HTTP requests
+served by the apache web-server using a cifs mount-point
+and memory mapping the relevant file.
 
-Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+The root cause is quite similar to the one addressed by
+commit 20eb4f29b602 ("net: fix sk_page_frag() recursion from
+memory reclaim"). Here the nested access to the task page frag
+is caused by a page fault on the (mmapped) user-space memory
+buffer coming from the cifs file.
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index ed977b6f7ab6..ad3459a3bc5e 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1712,6 +1712,7 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
- 			i2c_dev->msg->addr);
- 		if (i2c_dev->use_dma)
- 			dmaengine_terminate_all(dma->chan_using);
-+		stm32f7_i2c_wait_free_bus(i2c_dev);
- 		ret = -ETIMEDOUT;
- 	}
+The page fault handler performs an smb transaction on a different
+socket, inside the same process context. Since sk->sk_allaction
+for such socket does not prevent the usage for the task_frag,
+the nested allocation modify "under the hood" the page frag
+in use by the outer sendmsg call, corrupting the stream.
+
+The overall relevant stack trace looks like the following:
+
+httpd 78268 [001] 3461630.850950:      probe:tcp_sendmsg_locked:
+        ffffffff91461d91 tcp_sendmsg_locked+0x1
+        ffffffff91462b57 tcp_sendmsg+0x27
+        ffffffff9139814e sock_sendmsg+0x3e
+        ffffffffc06dfe1d smb_send_kvec+0x28
+        [...]
+        ffffffffc06cfaf8 cifs_readpages+0x213
+        ffffffff90e83c4b read_pages+0x6b
+        ffffffff90e83f31 __do_page_cache_readahead+0x1c1
+        ffffffff90e79e98 filemap_fault+0x788
+        ffffffff90eb0458 __do_fault+0x38
+        ffffffff90eb5280 do_fault+0x1a0
+        ffffffff90eb7c84 __handle_mm_fault+0x4d4
+        ffffffff90eb8093 handle_mm_fault+0xc3
+        ffffffff90c74f6d __do_page_fault+0x1ed
+        ffffffff90c75277 do_page_fault+0x37
+        ffffffff9160111e page_fault+0x1e
+        ffffffff9109e7b5 copyin+0x25
+        ffffffff9109eb40 _copy_from_iter_full+0xe0
+        ffffffff91462370 tcp_sendmsg_locked+0x5e0
+        ffffffff91462370 tcp_sendmsg_locked+0x5e0
+        ffffffff91462b57 tcp_sendmsg+0x27
+        ffffffff9139815c sock_sendmsg+0x4c
+        ffffffff913981f7 sock_write_iter+0x97
+        ffffffff90f2cc56 do_iter_readv_writev+0x156
+        ffffffff90f2dff0 do_iter_write+0x80
+        ffffffff90f2e1c3 vfs_writev+0xa3
+        ffffffff90f2e27c do_writev+0x5c
+        ffffffff90c042bb do_syscall_64+0x5b
+        ffffffff916000ad entry_SYSCALL_64_after_hwframe+0x65
+
+The cifs filesystem rightfully sets sk_allocations to GFP_NOFS,
+we can avoid the nesting using the sk page frag for allocation
+lacking the __GFP_FS flag. Do not define an additional mm-helper
+for that, as this is strictly tied to the sk page frag usage.
+
+v1 -> v2:
+ - use a stricted sk_page_frag() check instead of reordering the
+   code (Eric)
+
+Reported-by: Steffen Froemer <sfroemer@redhat.com>
+Fixes: 5640f7685831 ("net: use a per task frag allocator")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/include/net/sock.h b/include/net/sock.h
+index b32906e1ab55..715cdb4b2b79 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2430,19 +2430,22 @@ static inline void sk_stream_moderate_sndbuf(struct sock *sk)
+  * @sk: socket
+  *
+  * Use the per task page_frag instead of the per socket one for
+- * optimization when we know that we're in the normal context and owns
++ * optimization when we know that we're in process context and own
+  * everything that's associated with %current.
+  *
+- * gfpflags_allow_blocking() isn't enough here as direct reclaim may nest
+- * inside other socket operations and end up recursing into sk_page_frag()
+- * while it's already in use.
++ * Both direct reclaim and page faults can nest inside other
++ * socket operations and end up recursing into sk_page_frag()
++ * while it's already in use: explicitly avoid task page_frag
++ * usage if the caller is potentially doing any of them.
++ * This assumes that page fault handlers use the GFP_NOFS flags.
+  *
+  * Return: a per task page_frag if context allows that,
+  * otherwise a per socket one.
+  */
+ static inline struct page_frag *sk_page_frag(struct sock *sk)
+ {
+-	if (gfpflags_normal_context(sk->sk_allocation))
++	if ((sk->sk_allocation & (__GFP_DIRECT_RECLAIM | __GFP_MEMALLOC | __GFP_FS)) ==
++	    (__GFP_DIRECT_RECLAIM | __GFP_FS))
+ 		return &current->task_frag;
  
-@@ -1769,6 +1770,7 @@ static int stm32f7_i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- 		dev_dbg(dev, "Access to slave 0x%x timed out\n", f7_msg->addr);
- 		if (i2c_dev->use_dma)
- 			dmaengine_terminate_all(dma->chan_using);
-+		stm32f7_i2c_wait_free_bus(i2c_dev);
- 		ret = -ETIMEDOUT;
- 		goto pm_free;
- 	}
+ 	return &sk->sk_frag;
 
