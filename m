@@ -2,76 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0804F468ADF
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:53:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D11468AE7
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233843AbhLEM4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 07:56:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42488 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233841AbhLEM4e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:56:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D564CC061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:53:07 -0800 (PST)
+        id S233943AbhLENEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 08:04:34 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41622 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231230AbhLENEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:04:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73FCC60F72
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:53:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A092C341C1;
-        Sun,  5 Dec 2021 12:53:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0558D60FDB
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:01:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6B9C341C5;
+        Sun,  5 Dec 2021 13:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638708786;
-        bh=fijX4dPrz+X6oXkXkvOn1z4S6ET48e9YaKIxeQ6S9Io=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qWP8Mu+7kF4SeIYdWZcH7n2hwq/Z5Y9OPm5bt7VvXalwMdAVmbjnOr1OAEcdTPMaJ
-         iPKueedNKg47Jq1oSJzIs6uwGzskNkJjHYQWlgJRgodUz0YosxcHX2zBRl97xLyhp4
-         7YlToGXhBx3IX6quPbbr0W/399geezyZejdvw12s=
-Date:   Sun, 5 Dec 2021 13:53:03 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>
-Cc:     davem@davemloft.net, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] net: dsa: mv88e6xxx: Save power by
- disabling SerDes" failed to apply to 5.15-stable tree
-Message-ID: <Yay2LzNEkyFEjQfZ@kroah.com>
-References: <16386137159777@kroah.com>
- <20211204115719.3315663b@thinkpad>
- <YayzZex0zXvDxg2V@kroah.com>
- <20211205134916.4fb5f8ca@thinkpad>
+        s=korg; t=1638709266;
+        bh=WU/xmm6c5sooUONWUPiUlwEDVn21IhYcoaMRg6Knmek=;
+        h=Subject:To:Cc:From:Date:From;
+        b=wZJ0kcafa5SSm9Az9WgIANqlpZ2KfLtpVrPZLO1CGrUN4Zb+FeNfHmrtevwff9gEH
+         ENhTyY+ZZk/4tIoebBkk/x8caMbY9Tj5uTtWI6Ec9avsbz7usg981N9DyUWdqzbVHx
+         JXHTckAjwXu1oUAK5a+XrS8FlyROBIKb9LKvrn64=
+Subject: FAILED: patch "[PATCH] i2c: stm32f7: flush TX FIFO upon transfer errors" failed to apply to 4.19-stable tree
+To:     alain.volmat@foss.st.com, pierre-yves.mordret@foss.st.com,
+        wsa@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 05 Dec 2021 14:00:55 +0100
+Message-ID: <163870925569146@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211205134916.4fb5f8ca@thinkpad>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 05, 2021 at 01:49:16PM +0100, Marek Behún wrote:
-> On Sun, 5 Dec 2021 13:41:09 +0100
-> Greg KH <gregkh@linuxfoundation.org> wrote:
-> 
-> > On Sat, Dec 04, 2021 at 11:57:19AM +0100, Marek Behún wrote:
-> > > In fact it was a series of 6 patches, but the 2nd was without fixes tag:
-> > > 
-> > > 21635d9203e1cf2b73b67e9a86059a62f62a3563
-> > > 8c3318b4874e2dee867f5ae8f6d38f78e044bf71 (without fixes tag)
-> > > 7527d66260ac0c603c6baca5146748061fcddbd6 (didnt apply)
-> > > 93fd8207bed80ce19aaf59932cbe1c03d418a37d
-> > > 163000dbc772c1eae9bdfe7c8fe30155db1efd74
-> > > ede359d8843a2779d232ed30bc36089d4b5962e4  
-> > 
-> > So what am I supposed to do here?  Apply all of them?  3 of them?  None
-> > of them?
-> 
-> Sorry. All of them should be applied.
-> 
-> All but second have fixes tags. And second needs to be applied becaues
-> third depends on it.
-> 
-> They also should be applies in that order.
 
-That worked, all now queued up, thanks.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 0c21d02ca469574d2082379db52d1a27b99eed0c Mon Sep 17 00:00:00 2001
+From: Alain Volmat <alain.volmat@foss.st.com>
+Date: Mon, 20 Sep 2021 17:21:29 +0200
+Subject: [PATCH] i2c: stm32f7: flush TX FIFO upon transfer errors
+
+While handling an error during transfer (ex: NACK), it could
+happen that the driver has already written data into TXDR
+before the transfer get stopped.
+This commit add TXDR Flush after end of transfer in case of error to
+avoid sending a wrong data on any other slave upon next transfer.
+
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index b9b19a2a2ffa..ed977b6f7ab6 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1696,6 +1696,16 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	time_left = wait_for_completion_timeout(&i2c_dev->complete,
+ 						i2c_dev->adap.timeout);
+ 	ret = f7_msg->result;
++	if (ret) {
++		/*
++		 * It is possible that some unsent data have already been
++		 * written into TXDR. To avoid sending old data in a
++		 * further transfer, flush TXDR in case of any error
++		 */
++		writel_relaxed(STM32F7_I2C_ISR_TXE,
++			       i2c_dev->base + STM32F7_I2C_ISR);
++		goto pm_free;
++	}
+ 
+ 	if (!time_left) {
+ 		dev_dbg(i2c_dev->dev, "Access to slave 0x%x timed out\n",
+@@ -1744,8 +1754,16 @@ static int stm32f7_i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 	timeout = wait_for_completion_timeout(&i2c_dev->complete,
+ 					      i2c_dev->adap.timeout);
+ 	ret = f7_msg->result;
+-	if (ret)
++	if (ret) {
++		/*
++		 * It is possible that some unsent data have already been
++		 * written into TXDR. To avoid sending old data in a
++		 * further transfer, flush TXDR in case of any error
++		 */
++		writel_relaxed(STM32F7_I2C_ISR_TXE,
++			       i2c_dev->base + STM32F7_I2C_ISR);
+ 		goto pm_free;
++	}
+ 
+ 	if (!timeout) {
+ 		dev_dbg(dev, "Access to slave 0x%x timed out\n", f7_msg->addr);
+
