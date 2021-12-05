@@ -2,136 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D574688E6
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 02:40:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22399468AB2
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230523AbhLEBnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 20:43:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39324 "EHLO
+        id S233481AbhLEMMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 07:12:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230204AbhLEBnu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 20:43:50 -0500
-Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B1FC061751
-        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 17:40:24 -0800 (PST)
-Received: by mail-il1-x136.google.com with SMTP id m5so6610375ilh.11
-        for <stable@vger.kernel.org>; Sat, 04 Dec 2021 17:40:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3P6ZX2WPGBZUGrwX1sNIx6IAkSPjFdUxOLTdoRj9Dmo=;
-        b=kfGd0Jpzo6Fd7lE7mHGoL11lT6QSFySbtiGKp3riIN2EwI1KDN8I8URMvZsNASeEVn
-         FesP98muuzb4GTtjN2HP5iiigpRTjSnKwr3VfM9T+DsLDBl0X09/VcZZ99PwLtCVv1ds
-         Nprnmk3qobq1fP9ggJBMWqKTmm8dewLPyNhe1B4u+o2LOV/nuYE/87BscIELHVI8/AdR
-         r48d35LHznOn9QCJ7aqQNYTS26NtHf2QlcFoo5mcsYkE/QZ33Gh+aKhNLjGNFemf9TKk
-         H7j4CjE0WBzUQrvKW6UdnYReKIewM2hQHHWu7tv1NmJiPsh/EN44CawWtpDb0FqvuUk5
-         iDDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3P6ZX2WPGBZUGrwX1sNIx6IAkSPjFdUxOLTdoRj9Dmo=;
-        b=z5eVsqmzrZzKgQsYCMXdzVCbK+k4eVn5Lkk+h713FE3aXORoRymbR+EpEJfo3uDUAH
-         8wp598BkZ8FUP0w0+TPE929dV6V9DUXhG3dPZxllR8ETKVlBRxzajVL1elV6kZIIgNny
-         7MKMLrKFahRASwRfozxM/CXgaHVucmZncETep0RJgcR/9x51DA0wtH4pdkbmqfc8fuEe
-         NeRj6U/3i438rhvXVEvcYmNO5E2UfQyhUHQ54oc5f7Xc1A+K2TraemQge9JqhlEd0uzS
-         MSx2t+pSoiEcs4Oqu1hQVJ4C29IG6EcXBggGlz+SHmmWfRWRY6ZOu6nFuQjGuQTA8uim
-         QL9w==
-X-Gm-Message-State: AOAM533UmHqcdgbVAG4Rce7+vApg19d7xTSuEUZJQ4O/w97GZMpP1tO6
-        u6Du9Y4gpYuXemZ2HOPwdAPDX2t+4BtqWPJHIPY1jY94P1RVVA==
-X-Google-Smtp-Source: ABdhPJywRHsvboNCZFXyNJZ6yyLHwQxzUnZwqly9zRIXu+bOfV0AQOfJ+rvWiU5wcJhNhOg2w1OLr46aH1KeiPasVxs=
-X-Received: by 2002:a05:6e02:20ca:: with SMTP id 10mr26576405ilq.246.1638668423547;
- Sat, 04 Dec 2021 17:40:23 -0800 (PST)
+        with ESMTP id S232391AbhLEMMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:12:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC693C061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:08:35 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 612C1B80E1D
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 672AEC341C1;
+        Sun,  5 Dec 2021 12:08:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638706113;
+        bh=hOzYdWDBymMFyLTnpXC7z3iCc+PLdBRfrXCQ9+Am/gA=;
+        h=Subject:To:Cc:From:Date:From;
+        b=OXSZ+0Q31E2h/f5ZaeStE4qCv8DWzUV2kV9vO9R2CkR91PBVfdwuQGy8xvF0yhZFS
+         rZcSlf8tadBEQxH/DbHdFY9Ns1gAhboIq8I31x52rbugrjmBePpl9oDZiOvEqGGBig
+         czcFem0LAePHHFDbimLflFSNFZbmnk6U6sBPDOb8=
+Subject: FAILED: patch "[PATCH] ipv6: fix memory leak in fib6_rule_suppress" failed to apply to 5.4-stable tree
+To:     msizanoen@qtmlabs.xyz, Jason@zx2c4.com, davem@davemloft.net
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 05 Dec 2021 13:08:30 +0100
+Message-ID: <1638706110213156@kroah.com>
 MIME-Version: 1.0
-References: <20210315135545.132503808@linuxfoundation.org> <61abde5e.1c69fb81.474b3.97fbSMTPIN_ADDED_BROKEN@mx.google.com>
-In-Reply-To: <61abde5e.1c69fb81.474b3.97fbSMTPIN_ADDED_BROKEN@mx.google.com>
-From:   Art Nikpal <email2tema@gmail.com>
-Date:   Sun, 5 Dec 2021 09:40:13 +0800
-Message-ID: <CAKaHn9J+vhMcxwYxV0L2edZ9sFT11LEokDCvM6j_ccMuqo-__Q@mail.gmail.com>
-Subject: Re: [PATCH 5.10] Revert "drm: meson_drv add shutdown function"
-To:     Jerome Brunet <jbrunet@baylibre.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
-        Artem Lapkin <art@khadas.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hi all
 
-i have test it on (VIM1 VIM2 VIM3 VIM3L) its works on my side
-+ 5.10.11
-+ 5.11.x
-+ 5.13.x
-+ 5.14.x
-+ 5.15.x
-+ 5.16.x
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-can u share your kernel config (i know for some kernel configuration
-drivers still have problem with reboot )
+thanks,
 
+greg k-h
 
-On Sun, Dec 5, 2021 at 5:32 AM Jerome Brunet <jbrunet@baylibre.com> wrote:
->
-> This reverts commit d66083c0d6f5125a4d982aa177dd71ab4cd3d212
-> and commit d4ec1ffbdaa8939a208656e9c1440742c457ef16.
->
-> On v5.10 stable, reboot gets stuck on gxl and g12a chip family (at least).
-> This was tested on the aml-s905x-cc from libretch and the u200 reference
-> design.
->
-> Bisecting on the v5.10 stable branch lead to
-> commit d4ec1ffbdaa8 ("drm: meson_drv add shutdown function").
->
-> Reverting it (and a fixes on the it) sloves the problem.
->
-> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-> ---
->
-> Hi Greg,
->
-> Things are fine on master but it breaks on v5.10-y.
-> I did not check v5.14-y yet. I'll try next week.
->
->
->  drivers/gpu/drm/meson/meson_drv.c | 12 ------------
->  1 file changed, 12 deletions(-)
->
-> diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
-> index 2753067c08e6..3d1de9cbb1c8 100644
-> --- a/drivers/gpu/drm/meson/meson_drv.c
-> +++ b/drivers/gpu/drm/meson/meson_drv.c
-> @@ -482,17 +482,6 @@ static int meson_probe_remote(struct platform_device *pdev,
->         return count;
->  }
->
-> -static void meson_drv_shutdown(struct platform_device *pdev)
-> -{
-> -       struct meson_drm *priv = dev_get_drvdata(&pdev->dev);
-> -
-> -       if (!priv)
-> -               return;
-> -
-> -       drm_kms_helper_poll_fini(priv->drm);
-> -       drm_atomic_helper_shutdown(priv->drm);
-> -}
-> -
->  static int meson_drv_probe(struct platform_device *pdev)
->  {
->         struct component_match *match = NULL;
-> @@ -564,7 +553,6 @@ static const struct dev_pm_ops meson_drv_pm_ops = {
->
->  static struct platform_driver meson_drm_platform_driver = {
->         .probe      = meson_drv_probe,
-> -       .shutdown   = meson_drv_shutdown,
->         .driver     = {
->                 .name   = "meson-drm",
->                 .of_match_table = dt_match,
-> --
-> 2.34.0
->
+------------------ original commit in Linus's tree ------------------
+
+From cdef485217d30382f3bf6448c54b4401648fe3f1 Mon Sep 17 00:00:00 2001
+From: msizanoen1 <msizanoen@qtmlabs.xyz>
+Date: Tue, 23 Nov 2021 13:48:32 +0100
+Subject: [PATCH] ipv6: fix memory leak in fib6_rule_suppress
+
+The kernel leaks memory when a `fib` rule is present in IPv6 nftables
+firewall rules and a suppress_prefix rule is present in the IPv6 routing
+rules (used by certain tools such as wg-quick). In such scenarios, every
+incoming packet will leak an allocation in `ip6_dst_cache` slab cache.
+
+After some hours of `bpftrace`-ing and source code reading, I tracked
+down the issue to ca7a03c41753 ("ipv6: do not free rt if
+FIB_LOOKUP_NOREF is set on suppress rule").
+
+The problem with that change is that the generic `args->flags` always have
+`FIB_LOOKUP_NOREF` set[1][2] but the IPv6-specific flag
+`RT6_LOOKUP_F_DST_NOREF` might not be, leading to `fib6_rule_suppress` not
+decreasing the refcount when needed.
+
+How to reproduce:
+ - Add the following nftables rule to a prerouting chain:
+     meta nfproto ipv6 fib saddr . mark . iif oif missing drop
+   This can be done with:
+     sudo nft create table inet test
+     sudo nft create chain inet test test_chain '{ type filter hook prerouting priority filter + 10; policy accept; }'
+     sudo nft add rule inet test test_chain meta nfproto ipv6 fib saddr . mark . iif oif missing drop
+ - Run:
+     sudo ip -6 rule add table main suppress_prefixlength 0
+ - Watch `sudo slabtop -o | grep ip6_dst_cache` to see memory usage increase
+   with every incoming ipv6 packet.
+
+This patch exposes the protocol-specific flags to the protocol
+specific `suppress` function, and check the protocol-specific `flags`
+argument for RT6_LOOKUP_F_DST_NOREF instead of the generic
+FIB_LOOKUP_NOREF when decreasing the refcount, like this.
+
+[1]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L71
+[2]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L99
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215105
+Fixes: ca7a03c41753 ("ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/include/net/fib_rules.h b/include/net/fib_rules.h
+index 4b10676c69d1..bd07484ab9dd 100644
+--- a/include/net/fib_rules.h
++++ b/include/net/fib_rules.h
+@@ -69,7 +69,7 @@ struct fib_rules_ops {
+ 	int			(*action)(struct fib_rule *,
+ 					  struct flowi *, int,
+ 					  struct fib_lookup_arg *);
+-	bool			(*suppress)(struct fib_rule *,
++	bool			(*suppress)(struct fib_rule *, int,
+ 					    struct fib_lookup_arg *);
+ 	int			(*match)(struct fib_rule *,
+ 					 struct flowi *, int);
+@@ -218,7 +218,9 @@ INDIRECT_CALLABLE_DECLARE(int fib4_rule_action(struct fib_rule *rule,
+ 			    struct fib_lookup_arg *arg));
+ 
+ INDIRECT_CALLABLE_DECLARE(bool fib6_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg));
+ INDIRECT_CALLABLE_DECLARE(bool fib4_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg));
+ #endif
+diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
+index 79df7cd9dbc1..1bb567a3b329 100644
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -323,7 +323,7 @@ int fib_rules_lookup(struct fib_rules_ops *ops, struct flowi *fl,
+ 		if (!err && ops->suppress && INDIRECT_CALL_MT(ops->suppress,
+ 							      fib6_rule_suppress,
+ 							      fib4_rule_suppress,
+-							      rule, arg))
++							      rule, flags, arg))
+ 			continue;
+ 
+ 		if (err != -EAGAIN) {
+diff --git a/net/ipv4/fib_rules.c b/net/ipv4/fib_rules.c
+index ce54a30c2ef1..364ad3446b2f 100644
+--- a/net/ipv4/fib_rules.c
++++ b/net/ipv4/fib_rules.c
+@@ -141,6 +141,7 @@ INDIRECT_CALLABLE_SCOPE int fib4_rule_action(struct fib_rule *rule,
+ }
+ 
+ INDIRECT_CALLABLE_SCOPE bool fib4_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg)
+ {
+ 	struct fib_result *result = (struct fib_result *) arg->result;
+diff --git a/net/ipv6/fib6_rules.c b/net/ipv6/fib6_rules.c
+index 40f3e4f9f33a..dcedfe29d9d9 100644
+--- a/net/ipv6/fib6_rules.c
++++ b/net/ipv6/fib6_rules.c
+@@ -267,6 +267,7 @@ INDIRECT_CALLABLE_SCOPE int fib6_rule_action(struct fib_rule *rule,
+ }
+ 
+ INDIRECT_CALLABLE_SCOPE bool fib6_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg)
+ {
+ 	struct fib6_result *res = arg->result;
+@@ -294,8 +295,7 @@ INDIRECT_CALLABLE_SCOPE bool fib6_rule_suppress(struct fib_rule *rule,
+ 	return false;
+ 
+ suppress_route:
+-	if (!(arg->flags & FIB_LOOKUP_NOREF))
+-		ip6_rt_put(rt);
++	ip6_rt_put_flags(rt, flags);
+ 	return true;
+ }
+ 
+
