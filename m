@@ -2,188 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE3E468863
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 00:49:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D574688E6
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 02:40:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237432AbhLDXxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Dec 2021 18:53:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
+        id S230523AbhLEBnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Dec 2021 20:43:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237288AbhLDXxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 18:53:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D398C061751;
-        Sat,  4 Dec 2021 15:49:39 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4EB2B80176;
-        Sat,  4 Dec 2021 23:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B7DC341C2;
-        Sat,  4 Dec 2021 23:49:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638661776;
-        bh=voKfHJbeasmLadd3q3Do+PxfFvNASFpZELRln6ClKCg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZuVYcJNVztR3W9xfhw46U3MRUX7MAjL++k3Wp4KsKyke7UFPYU/SMykPrBMzZ6oTN
-         Gjdu7JWNNEa7tVr6ocPelVmDfqwKQZOgWFOkcDnPeVu2HMZkwxpgOwJW3Gx2V4gwas
-         Zavd6QuYM5JBfLfGttRm7jpoI3030CsTnvpAWT7OjEM39YExDvVrwS012i/uA2Sszu
-         TE+ppLHL71DbVGFOG2fMs7kjAJmPuR0UKDWQkmG88EN58NqeqQJhSfGFIC9yIC3ST4
-         zWFUNfriEqXoqVLmKAGA6wW2ZK3earpGu06spzCXQF1MGz4qyEk0cXfjq6xbWMZ8CD
-         89FgXTKjGCaXg==
-Date:   Sun, 5 Dec 2021 01:49:32 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jethro Beekman <jethro@fortanix.com>
-Cc:     reinette.chatre@intel.com, tony.luck@intel.com,
-        nathaniel@profian.com, stable@vger.kernel.org,
-        Borislav Petkov <bp@suse.de>, linux-sgx@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] x86/sgx: Free backing memory after faulting the
- enclave page
-Message-ID: <Yav+jLMu5aFRqWxJ@iki.fi>
-References: <20211111174401.865493-1-jarkko@kernel.org>
+        with ESMTP id S230204AbhLEBnu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Dec 2021 20:43:50 -0500
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B1FC061751
+        for <stable@vger.kernel.org>; Sat,  4 Dec 2021 17:40:24 -0800 (PST)
+Received: by mail-il1-x136.google.com with SMTP id m5so6610375ilh.11
+        for <stable@vger.kernel.org>; Sat, 04 Dec 2021 17:40:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3P6ZX2WPGBZUGrwX1sNIx6IAkSPjFdUxOLTdoRj9Dmo=;
+        b=kfGd0Jpzo6Fd7lE7mHGoL11lT6QSFySbtiGKp3riIN2EwI1KDN8I8URMvZsNASeEVn
+         FesP98muuzb4GTtjN2HP5iiigpRTjSnKwr3VfM9T+DsLDBl0X09/VcZZ99PwLtCVv1ds
+         Nprnmk3qobq1fP9ggJBMWqKTmm8dewLPyNhe1B4u+o2LOV/nuYE/87BscIELHVI8/AdR
+         r48d35LHznOn9QCJ7aqQNYTS26NtHf2QlcFoo5mcsYkE/QZ33Gh+aKhNLjGNFemf9TKk
+         H7j4CjE0WBzUQrvKW6UdnYReKIewM2hQHHWu7tv1NmJiPsh/EN44CawWtpDb0FqvuUk5
+         iDDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3P6ZX2WPGBZUGrwX1sNIx6IAkSPjFdUxOLTdoRj9Dmo=;
+        b=z5eVsqmzrZzKgQsYCMXdzVCbK+k4eVn5Lkk+h713FE3aXORoRymbR+EpEJfo3uDUAH
+         8wp598BkZ8FUP0w0+TPE929dV6V9DUXhG3dPZxllR8ETKVlBRxzajVL1elV6kZIIgNny
+         7MKMLrKFahRASwRfozxM/CXgaHVucmZncETep0RJgcR/9x51DA0wtH4pdkbmqfc8fuEe
+         NeRj6U/3i438rhvXVEvcYmNO5E2UfQyhUHQ54oc5f7Xc1A+K2TraemQge9JqhlEd0uzS
+         MSx2t+pSoiEcs4Oqu1hQVJ4C29IG6EcXBggGlz+SHmmWfRWRY6ZOu6nFuQjGuQTA8uim
+         QL9w==
+X-Gm-Message-State: AOAM533UmHqcdgbVAG4Rce7+vApg19d7xTSuEUZJQ4O/w97GZMpP1tO6
+        u6Du9Y4gpYuXemZ2HOPwdAPDX2t+4BtqWPJHIPY1jY94P1RVVA==
+X-Google-Smtp-Source: ABdhPJywRHsvboNCZFXyNJZ6yyLHwQxzUnZwqly9zRIXu+bOfV0AQOfJ+rvWiU5wcJhNhOg2w1OLr46aH1KeiPasVxs=
+X-Received: by 2002:a05:6e02:20ca:: with SMTP id 10mr26576405ilq.246.1638668423547;
+ Sat, 04 Dec 2021 17:40:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211111174401.865493-1-jarkko@kernel.org>
+References: <20210315135545.132503808@linuxfoundation.org> <61abde5e.1c69fb81.474b3.97fbSMTPIN_ADDED_BROKEN@mx.google.com>
+In-Reply-To: <61abde5e.1c69fb81.474b3.97fbSMTPIN_ADDED_BROKEN@mx.google.com>
+From:   Art Nikpal <email2tema@gmail.com>
+Date:   Sun, 5 Dec 2021 09:40:13 +0800
+Message-ID: <CAKaHn9J+vhMcxwYxV0L2edZ9sFT11LEokDCvM6j_ccMuqo-__Q@mail.gmail.com>
+Subject: Re: [PATCH 5.10] Revert "drm: meson_drv add shutdown function"
+To:     Jerome Brunet <jbrunet@baylibre.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        "open list:ARM/Amlogic Meson..." <linux-amlogic@lists.infradead.org>,
+        Artem Lapkin <art@khadas.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Neil Armstrong <narmstrong@baylibre.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 11, 2021 at 07:44:01PM +0200, Jarkko Sakkinen wrote:
-> There is a limited amount of SGX memory (EPC) on each system.  When that
-> memory is used up, SGX has its own swapping mechanism which is similar
-> in concept but totally separate from the core mm/* code.  Instead of
-> swapping to disk, SGX swaps from EPC to normal RAM.  That normal RAM
-> comes from a shared memory pseudo-file and can itself be swapped by the
-> core mm code.  There is a hierarchy like this:
-> 
-> 	EPC <-> shmem <-> disk
-> 
-> After data is swapped back in from shmem to EPC, the shmem backing
-> storage needs to be freed.  Currently, the backing shmem is not freed.
-> This effectively wastes the shmem while the enclave is running.  The
-> memory is recovered when the enclave is destroyed and the backing
-> storage freed.
-> 
-> Sort this out by freeing memory with shmem_truncate_range(), as soon as
-> a page is faulted back to the EPC.  In addition, free the memory for
-> PCMD pages as soon as all PCMD's in a page have been marked as unused
-> by zeroing its contents.
-> 
-> Reported-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
-> Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+hi all
+
+i have test it on (VIM1 VIM2 VIM3 VIM3L) its works on my side
++ 5.10.11
++ 5.11.x
++ 5.13.x
++ 5.14.x
++ 5.15.x
++ 5.16.x
+
+can u share your kernel config (i know for some kernel configuration
+drivers still have problem with reboot )
+
+
+On Sun, Dec 5, 2021 at 5:32 AM Jerome Brunet <jbrunet@baylibre.com> wrote:
+>
+> This reverts commit d66083c0d6f5125a4d982aa177dd71ab4cd3d212
+> and commit d4ec1ffbdaa8939a208656e9c1440742c457ef16.
+>
+> On v5.10 stable, reboot gets stuck on gxl and g12a chip family (at least).
+> This was tested on the aml-s905x-cc from libretch and the u200 reference
+> design.
+>
+> Bisecting on the v5.10 stable branch lead to
+> commit d4ec1ffbdaa8 ("drm: meson_drv add shutdown function").
+>
+> Reverting it (and a fixes on the it) sloves the problem.
+>
+> Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 > ---
-> v2:
-> * Rewrite commit message as proposed by Dave.
-> * Truncate PCMD pages (Dave).
-> ---
->  arch/x86/kernel/cpu/sgx/encl.c | 48 +++++++++++++++++++++++++++++++---
->  1 file changed, 44 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-> index 001808e3901c..ea43c10e5458 100644
-> --- a/arch/x86/kernel/cpu/sgx/encl.c
-> +++ b/arch/x86/kernel/cpu/sgx/encl.c
-> @@ -12,6 +12,27 @@
->  #include "encls.h"
->  #include "sgx.h"
->  
-> +
-> +/*
-> + * Get the page number of the page in the backing storage, which stores the PCMD
-> + * of the enclave page in the given page index.  PCMD pages are located after
-> + * the backing storage for the visible enclave pages and SECS.
-> + */
-> +static inline pgoff_t sgx_encl_get_backing_pcmd_nr(struct sgx_encl *encl, pgoff_t index)
-> +{
-> +	return PFN_DOWN(encl->size) + 1 + (index / sizeof(struct sgx_pcmd));
-> +}
-> +
-> +/*
-> + * Free a page from the backing storage in the given page index.
-> + */
-> +static inline void sgx_encl_truncate_backing_page(struct sgx_encl *encl, pgoff_t index)
-> +{
-> +	struct inode *inode = file_inode(encl->backing);
-> +
-> +	shmem_truncate_range(inode, PFN_PHYS(index), PFN_PHYS(index) + PAGE_SIZE - 1);
-> +}
-> +
->  /*
->   * ELDU: Load an EPC page as unblocked. For more info, see "OS Management of EPC
->   * Pages" in the SDM.
-> @@ -24,7 +45,10 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  	struct sgx_encl *encl = encl_page->encl;
->  	struct sgx_pageinfo pginfo;
->  	struct sgx_backing b;
-> +	bool pcmd_page_empty;
->  	pgoff_t page_index;
-> +	pgoff_t pcmd_index;
-> +	u8 *pcmd_page;
->  	int ret;
->  
->  	if (secs_page)
-> @@ -38,8 +62,8 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  
->  	pginfo.addr = encl_page->desc & PAGE_MASK;
->  	pginfo.contents = (unsigned long)kmap_atomic(b.contents);
-> -	pginfo.metadata = (unsigned long)kmap_atomic(b.pcmd) +
-> -			  b.pcmd_offset;
-> +	pcmd_page = kmap_atomic(b.pcmd);
-> +	pginfo.metadata = (unsigned long)pcmd_page + b.pcmd_offset;
->  
->  	if (secs_page)
->  		pginfo.secs = (u64)sgx_get_epc_virt_addr(secs_page);
-> @@ -55,11 +79,27 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  		ret = -EFAULT;
->  	}
->  
-> -	kunmap_atomic((void *)(unsigned long)(pginfo.metadata - b.pcmd_offset));
-> +	memset(pcmd_page + b.pcmd_offset, 0, sizeof(struct sgx_pcmd));
-> +
-> +	/*
-> +	 * The area for the PCMD in the page was zeroed above.  Check if the
-> +	 * whole page is now empty meaning that all PCMD's have been zeroed:
-> +	 */
-> +	pcmd_page_empty = !memchr_inv(pcmd_page, 0, PAGE_SIZE);
-> +
-> +	kunmap_atomic(pcmd_page);
->  	kunmap_atomic((void *)(unsigned long)pginfo.contents);
->  
->  	sgx_encl_put_backing(&b, false);
->  
-> +	/* Free the backing memory. */
-> +	sgx_encl_truncate_backing_page(encl, page_index);
-> +
-> +	if (pcmd_page_empty) {
-> +		pcmd_index = sgx_encl_get_backing_pcmd_nr(encl, page_index);
-> +		sgx_encl_truncate_backing_page(encl, pcmd_index);
-> +	}
-> +
->  	return ret;
+>
+> Hi Greg,
+>
+> Things are fine on master but it breaks on v5.10-y.
+> I did not check v5.14-y yet. I'll try next week.
+>
+>
+>  drivers/gpu/drm/meson/meson_drv.c | 12 ------------
+>  1 file changed, 12 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+> index 2753067c08e6..3d1de9cbb1c8 100644
+> --- a/drivers/gpu/drm/meson/meson_drv.c
+> +++ b/drivers/gpu/drm/meson/meson_drv.c
+> @@ -482,17 +482,6 @@ static int meson_probe_remote(struct platform_device *pdev,
+>         return count;
 >  }
->  
-> @@ -577,7 +617,7 @@ static struct page *sgx_encl_get_backing_page(struct sgx_encl *encl,
->  int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
->  			 struct sgx_backing *backing)
+>
+> -static void meson_drv_shutdown(struct platform_device *pdev)
+> -{
+> -       struct meson_drm *priv = dev_get_drvdata(&pdev->dev);
+> -
+> -       if (!priv)
+> -               return;
+> -
+> -       drm_kms_helper_poll_fini(priv->drm);
+> -       drm_atomic_helper_shutdown(priv->drm);
+> -}
+> -
+>  static int meson_drv_probe(struct platform_device *pdev)
 >  {
-> -	pgoff_t pcmd_index = PFN_DOWN(encl->size) + 1 + (page_index >> 5);
-> +	pgoff_t pcmd_index = sgx_encl_get_backing_pcmd_nr(encl, page_index);
->  	struct page *contents;
->  	struct page *pcmd;
->  
-> -- 
-> 2.32.0
-> 
-
-Just a friendly remainder.
-
-/Jarkko
+>         struct component_match *match = NULL;
+> @@ -564,7 +553,6 @@ static const struct dev_pm_ops meson_drv_pm_ops = {
+>
+>  static struct platform_driver meson_drm_platform_driver = {
+>         .probe      = meson_drv_probe,
+> -       .shutdown   = meson_drv_shutdown,
+>         .driver     = {
+>                 .name   = "meson-drm",
+>                 .of_match_table = dt_match,
+> --
+> 2.34.0
+>
