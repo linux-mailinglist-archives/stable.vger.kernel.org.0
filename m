@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCA85468AEC
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:02:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D087468AED
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233959AbhLENGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 08:06:17 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42340 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231230AbhLENGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:06:16 -0500
+        id S233960AbhLENGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 08:06:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44628 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231230AbhLENGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:06:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86A63C061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 05:02:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C703560FDF
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:02:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85C6C341C8;
-        Sun,  5 Dec 2021 13:02:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2696460F50
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2738C341CB;
+        Sun,  5 Dec 2021 13:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638709369;
-        bh=/Wv7Q2oW5B+mAefirko4r/uXLRQGdrBlwzYx+wG3KLc=;
+        s=korg; t=1638709372;
+        bh=soYQJohesNJ6G03VKLwuS+nUeu3JtONoTD1cEREKMEY=;
         h=Subject:To:Cc:From:Date:From;
-        b=w44abvgWGcxId1sPYu7zNPNIOaAJK3cnpVT76wWy1iM15liXDkzGR8eLon7lGajN8
-         q9RnXW20GLOBqY32WNn56Ab0XXF6DwbR/JDwagl/BcMj+pZ618LRCYQqrof2JF7+eL
-         f/nWm5JzTWAvX2EqhGQEdal+eHJuu9+ODgF7ICS4=
-Subject: FAILED: patch "[PATCH] tcp: fix page frag corruption on page fault" failed to apply to 4.19-stable tree
+        b=UIHbzKzRwpIQOIW/nlsaHFSIoC7mZMlk8bu1G2SOMgec8w7Q0mf7cyuS1a7NKegu4
+         zVQlZBB1rAbeLlJS/HorTY2K43qGoeP+tQcrz111J593noD4Tpc0+W86R7CSMOSJV3
+         tl0qTM8zcQ409/YM+cgHD5fNEsf+aA5I+JRoSOTQ=
+Subject: FAILED: patch "[PATCH] tcp: fix page frag corruption on page fault" failed to apply to 5.4-stable tree
 To:     pabeni@redhat.com, davem@davemloft.net, edumazet@google.com,
         sfroemer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 14:02:40 +0100
-Message-ID: <163870936045106@kroah.com>
+Date:   Sun, 05 Dec 2021 14:02:41 +0100
+Message-ID: <1638709361612@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
