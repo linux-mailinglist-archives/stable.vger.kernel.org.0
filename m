@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82543468ABD
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C6E468ABE
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233585AbhLEMO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 07:14:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33542 "EHLO
+        id S233601AbhLEMPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 07:15:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233626AbhLEMO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:14:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 622E8C061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:11:32 -0800 (PST)
+        with ESMTP id S233603AbhLEMPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:15:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 227FEC061751
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:11:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D5FAB80E1D
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:11:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2C4BC341C1;
-        Sun,  5 Dec 2021 12:11:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B887960FC5
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B528C341C5;
+        Sun,  5 Dec 2021 12:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638706290;
-        bh=pbz/pmsWl6mVVdF7BoF1FBB1JpkNZ4/L36UJ6C22ikY=;
+        s=korg; t=1638706293;
+        bh=oPk8rdtnm6lsyURu5q+AKn5DahWQUPYGktLMViyf0dY=;
         h=Subject:To:Cc:From:Date:From;
-        b=YdR7ufXY5GAzJulcdjZMJIk6Acq26TqlontOPls/jhkVW6Ki8MDxCSLjZEYzjpeCU
-         1RSblNuciVC4Sukfyl7er/Pxm37lHm7xCU1IcZIB9BtiEE83MoAl7pJWO69aOwaTvG
-         MZYCRzcKaHNgJ657QLFQCpQ+/c1pfE+9D5RrpLog=
-Subject: FAILED: patch "[PATCH] KVM: Disallow user memslot with size that exceeds "unsigned" failed to apply to 4.14-stable tree
+        b=YAvIRGIAOFe7+ei+TaXsPhBqXp3hqtQK4GV9Nf9UVllrre9tIolSk+CeJAWge9e3P
+         ZO1yxFfTp2GFDK3HZTXlTJa6N8msS0JbmxT4qvKXHgvmF3ZBT1cRmvsHwN+GX4RQyn
+         eK0pZ4zODL6Q9sgVKHkAJkkTkpI0b3JvIpevoMus=
+Subject: FAILED: patch "[PATCH] KVM: Disallow user memslot with size that exceeds "unsigned" failed to apply to 5.4-stable tree
 To:     seanjc@google.com, maciej.szmigiero@oracle.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 13:11:14 +0100
-Message-ID: <163870627419171@kroah.com>
+Date:   Sun, 05 Dec 2021 13:11:15 +0100
+Message-ID: <163870627525333@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
