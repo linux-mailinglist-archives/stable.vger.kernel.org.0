@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7895F468AB5
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E70468AB6
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:10:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233580AbhLEMOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 07:14:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33340 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232391AbhLEMOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:14:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06930C061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:10:40 -0800 (PST)
+        id S233582AbhLEMOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 07:14:09 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51646 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232391AbhLEMOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:14:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90A8C60F5B
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:10:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B232C341C5;
-        Sun,  5 Dec 2021 12:10:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FAA060F5B
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:10:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640B4C341C5;
+        Sun,  5 Dec 2021 12:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638706239;
-        bh=lWJhtCWjMBsxlqPkSaQEYdprx+U40vcOxXMVVUHBLwY=;
+        s=korg; t=1638706242;
+        bh=ABv1yirCYyzKmIS7zbXuMqn9akzpUum0BrOseVu9Og4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Y+k2BS43/1F3biDplyZuCvzxLi5euyp9bciD28sTVa1A1iwbQe5N/QOwj4KctqLF9
-         aVONmn12TiLaz6MeYGM5szb/FxuZDZTuc79ZYZRJY5LEK5lc079zykYoh5htesC88a
-         bTbT9Ie+rh/ZAYSafsLBIA9eOptZhtehEt3xx5K4=
-Subject: FAILED: patch "[PATCH] KVM: fix avic_set_running for preemptable kernels" failed to apply to 4.19-stable tree
+        b=x/252553yeIC1GZaJbA+leH9FVjowTL119zMg3Yf1uxjEUKj3Z/MJy11dWEumO/TN
+         6ntqTdRgWRFQgREdReLze3BvpwwZyxB6b21z+BvFLwxuJEzpbeUcN8YXHAa+ewumLD
+         pqJ8BWL2FDs5yMWrqObGj53j9VIViks6lBbugaMg=
+Subject: FAILED: patch "[PATCH] KVM: fix avic_set_running for preemptable kernels" failed to apply to 4.14-stable tree
 To:     pbonzini@redhat.com, mlevitsk@redhat.com, seanjc@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 05 Dec 2021 13:10:28 +0100
-Message-ID: <16387062282812@kroah.com>
+Message-ID: <163870622890142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
