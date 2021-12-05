@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE721468AC8
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:31:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B311C468ACB
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 13:36:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233668AbhLEMee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 07:34:34 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37610 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230230AbhLEMee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:34:34 -0500
+        id S230230AbhLEMjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 07:39:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38762 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229852AbhLEMjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 07:39:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30511C061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 04:36:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 208A3B80E2A
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:31:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AAC6C341C1;
-        Sun,  5 Dec 2021 12:31:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E94C0B80E2A
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 12:36:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C4CC341C1;
+        Sun,  5 Dec 2021 12:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638707464;
-        bh=OwmmvpQFumdFut/XO7yS90RiUomrJmHLwG7HfrwjeeI=;
+        s=korg; t=1638707761;
+        bh=wcRGWqjESEjYsUdvG/4wct2hJOIr1bvrTa0/AmuaZac=;
         h=Subject:To:Cc:From:Date:From;
-        b=pDqB5RhN3BmLu6W5AiU2P4Tm0b1QVo0uu896+qFassSS4BFfGHw64sBQWznXxSrcG
-         TkaNmhJBmft6yczwIABZ5y7kB0yzflEQ0uXgWglZJ8IMa6K3hM2WexEUKta9u4Tdgu
-         2Rw1JlS1SwZfcE5hyJBX5fyGR8a3GgChVkmOHpgw=
-Subject: FAILED: patch "[PATCH] drm/i915: Add support for panels with VESA backlights with" failed to apply to 5.15-stable tree
-To:     lyude@redhat.com, rodrigo.vivi@intel.com, stable@vger.kernel.org,
-        ville.syrjala@linux.intel.com
+        b=KoHhfn3Y9Okw9hKUxEeq7ueIhFpMC952C7uLclydvy9As394G28mjg3QJyiOIo2ro
+         NqBdZq3v3QYPLggo36cGmKXw2FZR9FpqgtA7bdOEHwdH6m3tvY5pbTNF7fZ0oiMrPV
+         J15FJmce+al1BGhrD9GF/wPVYVvLoSqcOHpUgSn8=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Emulate guest TLB flush on nested VM-Enter with" failed to apply to 4.4-stable tree
+To:     seanjc@google.com, jiangshanlai+lkml@gmail.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 13:31:01 +0100
-Message-ID: <16387074612176@kroah.com>
+Date:   Sun, 05 Dec 2021 13:35:58 +0100
+Message-ID: <1638707758176161@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,95 +53,81 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 61e29a0956bdb09eac8aca7d9add9f902baff08b Mon Sep 17 00:00:00 2001
-From: Lyude Paul <lyude@redhat.com>
-Date: Fri, 5 Nov 2021 14:33:38 -0400
-Subject: [PATCH] drm/i915: Add support for panels with VESA backlights with
- PWM enable/disable
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 712494de96f35f3e146b36b752c2afe0fdc0f0cc Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Thu, 25 Nov 2021 01:49:44 +0000
+Subject: [PATCH] KVM: nVMX: Emulate guest TLB flush on nested VM-Enter with
+ new vpid12
 
-This simply adds proper support for panel backlights that can be controlled
-via VESA's backlight control protocol, but which also require that we
-enable and disable the backlight via PWM instead of via the DPCD interface.
-We also enable this by default, in order to fix some people's backlights
-that were broken by not having this enabled.
+Fully emulate a guest TLB flush on nested VM-Enter which changes vpid12,
+i.e. L2's VPID, instead of simply doing INVVPID to flush real hardware's
+TLB entries for vpid02.  From L1's perspective, changing L2's VPID is
+effectively a TLB flush unless "hardware" has previously cached entries
+for the new vpid12.  Because KVM tracks only a single vpid12, KVM doesn't
+know if the new vpid12 has been used in the past and so must treat it as
+a brand new, never been used VPID, i.e. must assume that the new vpid12
+represents a TLB flush from L1's perspective.
 
-For reference, backlights that require this and use VESA's backlight
-interface tend to be laptops with hybrid GPUs, but this very well may
-change in the future.
+For example, if L1 and L2 share a CR3, the first VM-Enter to L2 (with a
+VPID) is effectively a TLB flush as hardware/KVM has never seen vpid12
+and thus can't have cached entries in the TLB for vpid12.
 
-v4:
-* Make sure that we call intel_backlight_level_to_pwm() in
-  intel_dp_aux_vesa_enable_backlight() - vsyrjala
+Reported-by: Lai Jiangshan <jiangshanlai+lkml@gmail.com>
+Fixes: 5c614b3583e7 ("KVM: nVMX: nested VPID emulation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211125014944.536398-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://gitlab.freedesktop.org/drm/intel/-/issues/3680
-Fixes: fe7d52bccab6 ("drm/i915/dp: Don't use DPCD backlights that need PWM enable/disable")
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.12+
-Link: https://patchwork.freedesktop.org/patch/msgid/20211105183342.130810-2-lyude@redhat.com
-(cherry picked from commit 04f0d6cc62cc1eaf9242c081520c024a17ba86a3)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-index 569d17b4d00f..f05b71c01b8e 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-@@ -293,6 +293,13 @@ intel_dp_aux_vesa_enable_backlight(const struct intel_crtc_state *crtc_state,
- 	struct intel_panel *panel = &connector->panel;
- 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 8e55aaef33ee..64f2828035c2 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -1162,29 +1162,26 @@ static void nested_vmx_transition_tlb_flush(struct kvm_vcpu *vcpu,
+ 	WARN_ON(!enable_vpid);
  
-+	if (!panel->backlight.edp.vesa.info.aux_enable) {
-+		u32 pwm_level = intel_backlight_invert_pwm_level(connector,
-+								 panel->backlight.pwm_level_max);
-+
-+		panel->backlight.pwm_funcs->enable(crtc_state, conn_state, pwm_level);
-+	}
-+
- 	drm_edp_backlight_enable(&intel_dp->aux, &panel->backlight.edp.vesa.info, level);
- }
- 
-@@ -304,6 +311,10 @@ static void intel_dp_aux_vesa_disable_backlight(const struct drm_connector_state
- 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
- 
- 	drm_edp_backlight_disable(&intel_dp->aux, &panel->backlight.edp.vesa.info);
-+
-+	if (!panel->backlight.edp.vesa.info.aux_enable)
-+		panel->backlight.pwm_funcs->disable(old_conn_state,
-+						    intel_backlight_invert_pwm_level(connector, 0));
- }
- 
- static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector, enum pipe pipe)
-@@ -321,6 +332,15 @@ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector,
- 	if (ret < 0)
- 		return ret;
- 
-+	if (!panel->backlight.edp.vesa.info.aux_enable) {
-+		ret = panel->backlight.pwm_funcs->setup(connector, pipe);
-+		if (ret < 0) {
-+			drm_err(&i915->drm,
-+				"Failed to setup PWM backlight controls for eDP backlight: %d\n",
-+				ret);
-+			return ret;
-+		}
-+	}
- 	panel->backlight.max = panel->backlight.edp.vesa.info.max;
- 	panel->backlight.min = 0;
- 	if (current_mode == DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD) {
-@@ -340,12 +360,7 @@ intel_dp_aux_supports_vesa_backlight(struct intel_connector *connector)
- 	struct intel_dp *intel_dp = intel_attached_dp(connector);
- 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
- 
--	/* TODO: We currently only support AUX only backlight configurations, not backlights which
--	 * require a mix of PWM and AUX controls to work. In the mean time, these machines typically
--	 * work just fine using normal PWM controls anyway.
--	 */
--	if ((intel_dp->edp_dpcd[1] & DP_EDP_BACKLIGHT_AUX_ENABLE_CAP) &&
--	    drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
-+	if (drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
- 		drm_dbg_kms(&i915->drm, "AUX Backlight Control Supported!\n");
- 		return true;
+ 	/*
+-	 * If VPID is enabled and used by vmc12, but L2 does not have a unique
+-	 * TLB tag (ASID), i.e. EPT is disabled and KVM was unable to allocate
+-	 * a VPID for L2, flush the current context as the effective ASID is
+-	 * common to both L1 and L2.
+-	 *
+-	 * Defer the flush so that it runs after vmcs02.EPTP has been set by
+-	 * KVM_REQ_LOAD_MMU_PGD (if nested EPT is enabled) and to avoid
+-	 * redundant flushes further down the nested pipeline.
+-	 *
+-	 * If a TLB flush isn't required due to any of the above, and vpid12 is
+-	 * changing then the new "virtual" VPID (vpid12) will reuse the same
+-	 * "real" VPID (vpid02), and so needs to be flushed.  There's no direct
+-	 * mapping between vpid02 and vpid12, vpid02 is per-vCPU and reused for
+-	 * all nested vCPUs.  Remember, a flush on VM-Enter does not invalidate
+-	 * guest-physical mappings, so there is no need to sync the nEPT MMU.
++	 * VPID is enabled and in use by vmcs12.  If vpid12 is changing, then
++	 * emulate a guest TLB flush as KVM does not track vpid12 history nor
++	 * is the VPID incorporated into the MMU context.  I.e. KVM must assume
++	 * that the new vpid12 has never been used and thus represents a new
++	 * guest ASID that cannot have entries in the TLB.
+ 	 */
+-	if (!nested_has_guest_tlb_tag(vcpu)) {
+-		kvm_make_request(KVM_REQ_TLB_FLUSH_CURRENT, vcpu);
+-	} else if (is_vmenter &&
+-		   vmcs12->virtual_processor_id != vmx->nested.last_vpid) {
++	if (is_vmenter && vmcs12->virtual_processor_id != vmx->nested.last_vpid) {
+ 		vmx->nested.last_vpid = vmcs12->virtual_processor_id;
+-		vpid_sync_context(nested_get_vpid02(vcpu));
++		kvm_make_request(KVM_REQ_TLB_FLUSH_GUEST, vcpu);
++		return;
  	}
++
++	/*
++	 * If VPID is enabled, used by vmc12, and vpid12 is not changing but
++	 * does not have a unique TLB tag (ASID), i.e. EPT is disabled and
++	 * KVM was unable to allocate a VPID for L2, flush the current context
++	 * as the effective ASID is common to both L1 and L2.
++	 */
++	if (!nested_has_guest_tlb_tag(vcpu))
++		kvm_make_request(KVM_REQ_TLB_FLUSH_CURRENT, vcpu);
+ }
+ 
+ static bool is_bitwise_subset(u64 superset, u64 subset, u64 mask)
 
