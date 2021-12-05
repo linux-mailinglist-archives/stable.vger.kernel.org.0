@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B371468AEE
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:03:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39CE7468AEF
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233961AbhLENG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 08:06:57 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42614 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231230AbhLENG5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:06:57 -0500
+        id S231230AbhLENHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 08:07:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233965AbhLENHG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:07:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC8BFC061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 05:03:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34EC960F50
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18474C341C1;
-        Sun,  5 Dec 2021 13:03:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C49C60F50
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:03:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3306EC341C7;
+        Sun,  5 Dec 2021 13:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638709409;
-        bh=GY/e4bOQy27rJTlNqKPP0Qm4ncqXjub5PD2dwT3WLgE=;
+        s=korg; t=1638709418;
+        bh=WqKgP/M8L+GnUXPhjesWzEEXvkVnQWytf/jCYxMsXmM=;
         h=Subject:To:Cc:From:Date:From;
-        b=wQEq/V17ia4Ag5KoDQaQibYR5W8YIG1qFsX6H5O4BcS0lpaJX/qv5pajYp6538PCL
-         G1yYsy92j0E/JxdhUj5ooPMouTSlDRRnCIg7Z9gGgNc8Np5NWu6gYEf9Av/LEe/Kbq
-         p7Kn7NTEKKJVCuAna1fqKmFN7uRmp6px4JstsQd0=
-Subject: FAILED: patch "[PATCH] net: mpls: Fix notifications when deleting a device" failed to apply to 4.4-stable tree
+        b=KVLBnlG37cP1dOhEuEj1ML5pzj1ojFzb8ikTHQW8wZphhRTYeO11B4KrCI8W/voc+
+         oeldeVdmq3yi5zMcQK93IB2OsO7fo9O9ivaecJqojHrrurnVYcKAqXvjX1aAfxDHi0
+         DvdqD+xezA5OobdemvRaI3hRcT/iyJyR5y6KvJSM=
+Subject: FAILED: patch "[PATCH] net: mpls: Fix notifications when deleting a device" failed to apply to 4.9-stable tree
 To:     bpoirier@nvidia.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 05 Dec 2021 14:03:27 +0100
-Message-ID: <1638709407226195@kroah.com>
+Message-ID: <163870940776158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
