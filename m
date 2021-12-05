@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F5B7468B1F
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:41:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CEC8468B20
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:41:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234203AbhLENoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 08:44:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52968 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234201AbhLENoe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:44:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BAF1C061714
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 05:41:07 -0800 (PST)
+        id S234201AbhLENoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 08:44:37 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56328 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229768AbhLENoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:44:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29C0860FEF
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:41:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFA5C341C5;
-        Sun,  5 Dec 2021 13:41:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 351DC60FD8
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:41:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 104D1C341C7;
+        Sun,  5 Dec 2021 13:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638711666;
-        bh=H+70nSPCq0h7dHbw/8AKW8izpFiUMjki9ANkF8WqQ1U=;
+        s=korg; t=1638711669;
+        bh=ivXDNVdBU4CgF7ID4YV2AzLOSjiuM8amTwwhSXRlaNY=;
         h=Subject:To:Cc:From:Date:From;
-        b=qrNfTypvCbUp12ORWADhmuZXcOqjEJXSCVIZm3p17zOCXNJ3/mTNv3TSYMoE1pGWM
-         opdW9Ra4hTPzKV86Q77OrauE9UDt6qvfYRnW3ka/EM8Rz79d/Zb63YZPrYXPMo+8e7
-         KrUAkF8SXHnKDhm+bmSBG7EEp4UJoPAhf/L84Em0=
-Subject: FAILED: patch "[PATCH] net: annotate data-races on txq->xmit_lock_owner" failed to apply to 4.9-stable tree
+        b=tHnyMfTqbeNHhQBk42r3NrHqg6uqcoWwsLHM2p314lYFatcrDdLtxuJfXtHme954R
+         +1JLlH3YfGGegxS8+7AEywiZxU389pb/8AQxc9EOPdGbVpd2eIejcV10tl7KTl4RWG
+         4wQc0SfSepc3z4rLEROsS0tvxeKPmB0Q96TEL5G0=
+Subject: FAILED: patch "[PATCH] net: annotate data-races on txq->xmit_lock_owner" failed to apply to 4.14-stable tree
 To:     edumazet@google.com, kuba@kernel.org, syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 14:41:01 +0100
-Message-ID: <1638711661163152@kroah.com>
+Date:   Sun, 05 Dec 2021 14:41:03 +0100
+Message-ID: <163871166322284@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
