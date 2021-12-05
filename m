@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D11468AE7
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:01:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB55D468AE6
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:01:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233943AbhLENEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 08:04:34 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41622 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231230AbhLENEe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:04:34 -0500
+        id S233940AbhLENE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 08:04:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44208 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231230AbhLENE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:04:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24CC9C061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 05:00:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0558D60FDB
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:01:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB6B9C341C5;
-        Sun,  5 Dec 2021 13:01:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B58060FDD
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:00:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5105FC341C5;
+        Sun,  5 Dec 2021 13:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638709266;
-        bh=WU/xmm6c5sooUONWUPiUlwEDVn21IhYcoaMRg6Knmek=;
+        s=korg; t=1638709257;
+        bh=1/YXO7yq57BGzEfZsHNLIPM1uYRJ+i9w9EErqB1cVK4=;
         h=Subject:To:Cc:From:Date:From;
-        b=wZJ0kcafa5SSm9Az9WgIANqlpZ2KfLtpVrPZLO1CGrUN4Zb+FeNfHmrtevwff9gEH
-         ENhTyY+ZZk/4tIoebBkk/x8caMbY9Tj5uTtWI6Ec9avsbz7usg981N9DyUWdqzbVHx
-         JXHTckAjwXu1oUAK5a+XrS8FlyROBIKb9LKvrn64=
-Subject: FAILED: patch "[PATCH] i2c: stm32f7: flush TX FIFO upon transfer errors" failed to apply to 4.19-stable tree
+        b=pjvnFx0/R/n9Xx2HwgdROhNmDR83kLWjo3sPhlbGrb3S0P6mfBm0CJ5aj4ljewnTQ
+         bQmpZdwLYvf4+wMTBbf/x1p3FLLh/4AeV2isliX+3Gi/v0PcpbzqrJNp6ldUGHNnxy
+         Bt9uEzrxmC61w6Xcqg9UwrsUOsxQofjHd1J0QAgo=
+Subject: FAILED: patch "[PATCH] i2c: stm32f7: flush TX FIFO upon transfer errors" failed to apply to 4.14-stable tree
 To:     alain.volmat@foss.st.com, pierre-yves.mordret@foss.st.com,
         wsa@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 05 Dec 2021 14:00:55 +0100
-Message-ID: <163870925569146@kroah.com>
+Message-ID: <16387092551132@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
