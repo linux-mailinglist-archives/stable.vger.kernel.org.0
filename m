@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5799468B16
-	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:35:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ADA8468B17
+	for <lists+stable@lfdr.de>; Sun,  5 Dec 2021 14:35:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234159AbhLENiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Dec 2021 08:38:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37250 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229768AbhLENiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:38:52 -0500
+        id S234161AbhLENjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Dec 2021 08:39:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51752 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229768AbhLENi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Dec 2021 08:38:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25387C061714
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 05:35:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA6B0B80DBD
-        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6DDEC341C5;
-        Sun,  5 Dec 2021 13:35:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6111B80DBD
+        for <stable@vger.kernel.org>; Sun,  5 Dec 2021 13:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00D60C341C7;
+        Sun,  5 Dec 2021 13:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638711323;
-        bh=LOYONJL3PmaUtxJ1eQOsct0SejXCmMkmjvDloO5pfuw=;
+        s=korg; t=1638711329;
+        bh=mZPos6SoCxaQdDsipOs2uERvDIM3LnRw0PnVOt29t5w=;
         h=Subject:To:Cc:From:Date:From;
-        b=ASpgkwCwwrvepOF6G54ZBLy+hqGyHbXn3vSoVXiyUvZ8MZWF2Dkh7Z7nHxPqh8fLv
-         nuHMu2ML7PaZZOtJ3gqCojRunhLotrRPRzWm3nfG6OGJBMuaZNV7biftn+9c2MSyYX
-         lGY+phMdRSTqKKdqo8IxLV7xxPKAhZwtByVYrf0w=
-Subject: FAILED: patch "[PATCH] net/mlx5e: Sync TIR params updates against concurrent" failed to apply to 5.10-stable tree
+        b=QSmD8eql/GtaRl5d1ztqXyDHC7o5Fjl2juuZTlP2Rasl3Zw0t3EN1GaygAMICOaRW
+         enJehA2qGT/FQA/hXDKaJ5omdCJZH/tdxIFUQtEkAkI2VmAgNTaBMkN9JO415cctgh
+         6g+dycqjgtGduI8hhE24PHUfGGYuPTUhkxPlzUUc=
+Subject: FAILED: patch "[PATCH] net/mlx5e: Sync TIR params updates against concurrent" failed to apply to 5.15-stable tree
 To:     tariqt@nvidia.com, maximmi@nvidia.com, moshe@nvidia.com,
         saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 05 Dec 2021 14:35:20 +0100
-Message-ID: <163871132082146@kroah.com>
+Date:   Sun, 05 Dec 2021 14:35:21 +0100
+Message-ID: <1638711321227200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
