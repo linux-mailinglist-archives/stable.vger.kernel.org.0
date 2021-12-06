@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8D5F469BAA
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6685469A99
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:05:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356271AbhLFPSK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:10 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35798 "EHLO
+        id S1346588AbhLFPJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:09:05 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56692 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357852AbhLFPQS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:18 -0500
+        with ESMTP id S1345749AbhLFPHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:07:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A0CA612EB;
-        Mon,  6 Dec 2021 15:12:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EA27C341C1;
-        Mon,  6 Dec 2021 15:12:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1A0F61323;
+        Mon,  6 Dec 2021 15:03:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0985C341C1;
+        Mon,  6 Dec 2021 15:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803568;
-        bh=0A1VHDD1sRT2Of2kyBqB2HBZMG1y3YNpfF+7e6qaA2U=;
+        s=korg; t=1638803014;
+        bh=OYqfNBoNz+tZBWD6foSarOP8L+1GQ5g3AKkbZjbzlHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rF06l3ZUN79CmpfgGmV0jkGcEQW2KCKZwdmr0hcFJRnuFRy6KwEky6RtEuvkNTEaJ
-         fATJaJLjoo8n+aTf+PLYGFs7SHWMIAbc48UnYMja0P2WrznTTVllLjQrQieWX7ereI
-         UzaZTj/W9adKJHn0wtxCybzgxSx8gTU/y1lIYEaQ=
+        b=CCKguY4KWRXYkLMeMFjH3HrbKfuGI7bUm1yf2ZF6QESDcQjMh8Un2ZwPQrhfRrbBt
+         g611s3cgHwNSpsl3vCIYAHODCpuTcEiULPCrlUjk9tInzFmpw6NsZJXhrvqVrFLj6v
+         9OnkAb2G/JDDE5jDtE39YFLKbTTNdCprAVAoWpuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 40/70] net/mlx4_en: Fix an use-after-free bug in mlx4_en_try_alloc_resources()
+        stable@vger.kernel.org, Pierre Gondois <Pierre.Gondois@arm.com>
+Subject: [PATCH 4.9 61/62] serial: pl011: Add ACPI SBSA UART match id
 Date:   Mon,  6 Dec 2021 15:56:44 +0100
-Message-Id: <20211206145553.318354388@linuxfoundation.org>
+Message-Id: <20211206145551.320977315@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Pierre Gondois <Pierre.Gondois@arm.com>
 
-commit addad7643142f500080417dd7272f49b7a185570 upstream.
+commit ac442a077acf9a6bf1db4320ec0c3f303be092b3 upstream.
 
-In mlx4_en_try_alloc_resources(), mlx4_en_copy_priv() is called and
-tmp->tx_cq will be freed on the error path of mlx4_en_copy_priv().
-After that mlx4_en_alloc_resources() is called and there is a dereference
-of &tmp->tx_cq[t][i] in mlx4_en_alloc_resources(), which could lead to
-a use after free problem on failure of mlx4_en_copy_priv().
+The document 'ACPI for Arm Components 1.0' defines the following
+_HID mappings:
+-'Prime cell UART (PL011)': ARMH0011
+-'SBSA UART': ARMHB000
 
-Fix this bug by adding a check of mlx4_en_copy_priv()
+Use the sbsa-uart driver when a device is described with
+the 'ARMHB000' _HID.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+Note:
+PL011 devices currently use the sbsa-uart driver instead of the
+uart-pl011 driver. Indeed, PL011 devices are not bound to a clock
+in ACPI. It is not possible to change their baudrate.
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_MLX4_EN=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: ec25bc04ed8e ("net/mlx4_en: Add resilience in low memory systems")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20211130164438.190591-1-zhou1615@umn.edu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pierre Gondois <Pierre.Gondois@arm.com>
+Link: https://lore.kernel.org/r/20211109172248.19061-1-Pierre.Gondois@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/tty/serial/amba-pl011.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -2281,9 +2281,14 @@ int mlx4_en_try_alloc_resources(struct m
- 				bool carry_xdp_prog)
- {
- 	struct bpf_prog *xdp_prog;
--	int i, t;
-+	int i, t, ret;
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -2702,6 +2702,7 @@ MODULE_DEVICE_TABLE(of, sbsa_uart_of_mat
  
--	mlx4_en_copy_priv(tmp, priv, prof);
-+	ret = mlx4_en_copy_priv(tmp, priv, prof);
-+	if (ret) {
-+		en_warn(priv, "%s: mlx4_en_copy_priv() failed, return\n",
-+			__func__);
-+		return ret;
-+	}
- 
- 	if (mlx4_en_alloc_resources(tmp)) {
- 		en_warn(priv,
+ static const struct acpi_device_id sbsa_uart_acpi_match[] = {
+ 	{ "ARMH0011", 0 },
++	{ "ARMHB000", 0 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(acpi, sbsa_uart_acpi_match);
 
 
