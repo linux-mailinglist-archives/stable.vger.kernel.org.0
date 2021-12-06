@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03B97469B4D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32EF2469CAF
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:21:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347345AbhLFPOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:14:40 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44816 "EHLO
+        id S1359269AbhLFPYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:24:34 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55588 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347890AbhLFPMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:39 -0500
+        with ESMTP id S1349288AbhLFPWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:22:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 571CEB81123;
-        Mon,  6 Dec 2021 15:09:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 782EDC341C2;
-        Mon,  6 Dec 2021 15:09:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBC04B81132;
+        Mon,  6 Dec 2021 15:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC4BC341C2;
+        Mon,  6 Dec 2021 15:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803348;
-        bh=D6YlDbXDV9QyhA7hVPbR93FDDp0n1BRxJDJz+Qb9WJg=;
+        s=korg; t=1638803942;
+        bh=OL7TRCzk6Huu7qm2gjwwIZOhQJizv2+oO065KTxFCQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyz+p1ltRkOrxXDdZFCTK9fmM/wnbE0uaHHybt7LKRO0r+ym6gPoLVr2drBQkO+1i
-         wmxQejWFTjDUB6vWnAWftbsHp8dOpObiPgyOE3L+GoyM3D3oZhUMR+lLUpBwwUnqHZ
-         02EPLpvyGlMuj4fG6PtePjVn5iCEEyPazx2NKvmA=
+        b=0KjOH2BKZ0y5uNvL75MvM5wcyMe7z57sDjVblVN6Jb2wYfBlpnP2Q1xO9AzweeTGw
+         M70Zw4n09/uKY+L9j7FfxOHGf7jyHZhY2Vgh/+qTfaHY/a3VwbQgBVkuBfSq3vKL6G
+         FhExNUTOkbmWEXQ/TAgNlKh2OcxUKWL/irQijBfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
-        Thara Gopinath <thara.gopinath@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/48] thermal: core: Reset previous low and high trip during thermal zone init
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Brown <broonie@kernel.org>, Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 070/130] arm64: ftrace: add missing BTIs
 Date:   Mon,  6 Dec 2021 15:56:27 +0100
-Message-Id: <20211206145549.207603969@linuxfoundation.org>
+Message-Id: <20211206145602.093047189@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 99b63316c39988039965693f5f43d8b4ccb1c86c ]
+commit 35b6b28e69985eafb20b3b2c7bd6eca452b56b53 upstream.
 
-During the suspend is in process, thermal_zone_device_update bails out
-thermal zone re-evaluation for any sensor trip violation without
-setting next valid trip to that sensor. It assumes during resume
-it will re-evaluate same thermal zone and update trip. But when it is
-in suspend temperature goes down and on resume path while updating
-thermal zone if temperature is less than previously violated trip,
-thermal zone set trip function evaluates the same previous high and
-previous low trip as new high and low trip. Since there is no change
-in high/low trip, it bails out from thermal zone set trip API without
-setting any trip. It leads to a case where sensor high trip or low
-trip is disabled forever even though thermal zone has a valid high
-or low trip.
+When branch target identifiers are in use, code reachable via an
+indirect branch requires a BTI landing pad at the branch target site.
 
-During thermal zone device init, reset thermal zone previous high
-and low trip. It resolves above mentioned scenario.
+When building FTRACE_WITH_REGS atop patchable-function-entry, we miss
+BTIs at the start start of the `ftrace_caller` and `ftrace_regs_caller`
+trampolines, and when these are called from a module via a PLT (which
+will use a `BR X16`), we will encounter a BTI failure, e.g.
 
-Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
-Reviewed-by: Thara Gopinath <thara.gopinath@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+| # insmod lkdtm.ko
+| lkdtm: No crash points registered, enable through debugfs
+| # echo function_graph > /sys/kernel/debug/tracing/current_tracer
+| # cat /sys/kernel/debug/provoke-crash/DIRECT
+| Unhandled 64-bit el1h sync exception on CPU0, ESR 0x34000001 -- BTI
+| CPU: 0 PID: 174 Comm: cat Not tainted 5.16.0-rc2-dirty #3
+| Hardware name: linux,dummy-virt (DT)
+| pstate: 60400405 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=jc)
+| pc : ftrace_caller+0x0/0x3c
+| lr : lkdtm_debugfs_open+0xc/0x20 [lkdtm]
+| sp : ffff800012e43b00
+| x29: ffff800012e43b00 x28: 0000000000000000 x27: ffff800012e43c88
+| x26: 0000000000000000 x25: 0000000000000000 x24: ffff0000c171f200
+| x23: ffff0000c27b1e00 x22: ffff0000c2265240 x21: ffff0000c23c8c30
+| x20: ffff8000090ba380 x19: 0000000000000000 x18: 0000000000000000
+| x17: 0000000000000000 x16: ffff80001002bb4c x15: 0000000000000000
+| x14: 0000000000000000 x13: 0000000000000000 x12: 0000000000900ff0
+| x11: ffff0000c4166310 x10: ffff800012e43b00 x9 : ffff8000104f2384
+| x8 : 0000000000000001 x7 : 0000000000000000 x6 : 000000000000003f
+| x5 : 0000000000000040 x4 : ffff800012e43af0 x3 : 0000000000000001
+| x2 : ffff8000090b0000 x1 : ffff0000c171f200 x0 : ffff0000c23c8c30
+| Kernel panic - not syncing: Unhandled exception
+| CPU: 0 PID: 174 Comm: cat Not tainted 5.16.0-rc2-dirty #3
+| Hardware name: linux,dummy-virt (DT)
+| Call trace:
+|  dump_backtrace+0x0/0x1a4
+|  show_stack+0x24/0x30
+|  dump_stack_lvl+0x68/0x84
+|  dump_stack+0x1c/0x38
+|  panic+0x168/0x360
+|  arm64_exit_nmi.isra.0+0x0/0x80
+|  el1h_64_sync_handler+0x68/0xd4
+|  el1h_64_sync+0x78/0x7c
+|  ftrace_caller+0x0/0x3c
+|  do_dentry_open+0x134/0x3b0
+|  vfs_open+0x38/0x44
+|  path_openat+0x89c/0xe40
+|  do_filp_open+0x8c/0x13c
+|  do_sys_openat2+0xbc/0x174
+|  __arm64_sys_openat+0x6c/0xbc
+|  invoke_syscall+0x50/0x120
+|  el0_svc_common.constprop.0+0xdc/0x100
+|  do_el0_svc+0x84/0xa0
+|  el0_svc+0x28/0x80
+|  el0t_64_sync_handler+0xa8/0x130
+|  el0t_64_sync+0x1a0/0x1a4
+| SMP: stopping secondary CPUs
+| Kernel Offset: disabled
+| CPU features: 0x0,00000f42,da660c5f
+| Memory Limit: none
+| ---[ end Kernel panic - not syncing: Unhandled exception ]---
+
+Fix this by adding the required `BTI C`, as we only require these to be
+reachable via BL for direct calls or BR X16/X17 for PLTs. For now, these
+are open-coded in the function prologue, matching the style of the
+`__hwasan_tag_mismatch` trampoline.
+
+In future we may wish to consider adding a new SYM_CODE_START_*()
+variant which has an implicit BTI.
+
+When ftrace is built atop mcount, the trampolines are marked with
+SYM_FUNC_START(), and so get an implicit BTI. We may need to change
+these over to SYM_CODE_START() in future for RELIABLE_STACKTRACE, in
+case we need to apply special care aroud the return address being
+rewritten.
+
+Fixes: 97fed779f2a6 ("arm64: bti: Provide Kconfig for kernel mode BTI")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211129135709.2274019-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/thermal_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kernel/entry-ftrace.S |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index ae60599c462b9..6c7825c581b5f 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -454,6 +454,8 @@ static void thermal_zone_device_init(struct thermal_zone_device *tz)
- {
- 	struct thermal_instance *pos;
- 	tz->temperature = THERMAL_TEMP_INVALID;
-+	tz->prev_low_trip = -INT_MAX;
-+	tz->prev_high_trip = INT_MAX;
- 	list_for_each_entry(pos, &tz->thermal_instances, tz_node)
- 		pos->initialized = false;
- }
--- 
-2.33.0
-
+--- a/arch/arm64/kernel/entry-ftrace.S
++++ b/arch/arm64/kernel/entry-ftrace.S
+@@ -77,11 +77,17 @@
+ 	.endm
+ 
+ SYM_CODE_START(ftrace_regs_caller)
++#ifdef BTI_C
++	BTI_C
++#endif
+ 	ftrace_regs_entry	1
+ 	b	ftrace_common
+ SYM_CODE_END(ftrace_regs_caller)
+ 
+ SYM_CODE_START(ftrace_caller)
++#ifdef BTI_C
++	BTI_C
++#endif
+ 	ftrace_regs_entry	0
+ 	b	ftrace_common
+ SYM_CODE_END(ftrace_caller)
 
 
