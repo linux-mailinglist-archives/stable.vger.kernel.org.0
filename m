@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9658E469BFA
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25522469A0A
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345468AbhLFPTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:19:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55516 "EHLO
+        id S1344939AbhLFPFS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:05:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358480AbhLFPQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0017AC061D5E;
-        Mon,  6 Dec 2021 07:09:15 -0800 (PST)
+        with ESMTP id S1345081AbhLFPEe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4CABC0698D6;
+        Mon,  6 Dec 2021 07:01:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF64CB8111F;
-        Mon,  6 Dec 2021 15:09:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14451C341C1;
-        Mon,  6 Dec 2021 15:09:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53CD4612C0;
+        Mon,  6 Dec 2021 15:01:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356D8C341C2;
+        Mon,  6 Dec 2021 15:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803353;
-        bh=Y/aMfI/u6HPzLgwpCSxDxrK5kYFbVC6ohyEyOEWm0zE=;
+        s=korg; t=1638802864;
+        bh=NiMgmZapyvAJxXSAyJ1CzEO4e1p2ngj4A/3ZvHAp5YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3ruBxZWOX4w9U7Z7QWufDxixAd/8pczYLLtkW16tIOUWansDDfz/kJ5/b60Y/Lxo
-         g6dtXBk1QUDczDzI+AusS055xUFgVkZltw968Jdwk1WuQfWvxtW797ZmQS0+UbgF/z
-         xZds+vomC7h5lz3mNVW5zbgX+NRz+osZfOmXgVNY=
+        b=LfT7NSxZ98OvLayw1SME+j1sqJj8vVabEJCC3555dyOJ0JHqxgM/YMJvkLvoxDOyS
+         cYFT94y0eK4xpMJJgqbOwaWg5+Fccl+aht2pQC6O+4ZQSBtyQ/yLygXZc9MkTMYqrl
+         DTa7c4/MF5hAyGQIIWHhkSOGifxXLdlPSyZstp48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/48] ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jann Horn <jannh@google.com>
+Subject: [PATCH 4.4 45/52] fget: check that the fd still exists after getting a ref to it
 Date:   Mon,  6 Dec 2021 15:56:29 +0100
-Message-Id: <20211206145549.272503744@linuxfoundation.org>
+Message-Id: <20211206145549.440144845@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
+References: <20211206145547.892668902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,42 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 1527f69204fe35f341cb599f1cb01bd02daf4374 ]
+commit 054aa8d439b9185d4f5eb9a90282d1ce74772969 upstream.
 
-AMD requires that the SATA controller be configured for devsleep in order
-for S0i3 entry to work properly.
+Jann Horn points out that there is another possible race wrt Unix domain
+socket garbage collection, somewhat reminiscent of the one fixed in
+commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK").
 
-commit b1a9585cc396 ("ata: ahci: Enable DEVSLP by default on x86 with
-SLP_S0") sets up a kernel policy to enable devsleep on Intel mobile
-platforms that are using s0ix.  Add the PCI ID for the SATA controller in
-Green Sardine platforms to extend this policy by default for AMD based
-systems using s0i3 as well.
+See the extended comment about the garbage collection requirements added
+to unix_peek_fds() by that commit for details.
 
-Cc: Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214091
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The race comes from how we can locklessly look up a file descriptor just
+as it is in the process of being closed, and with the right artificial
+timing (Jann added a few strategic 'mdelay(500)' calls to do that), the
+Unix domain socket garbage collector could see the reference count
+decrement of the close() happen before fget() took its reference to the
+file and the file was attached onto a new file descriptor.
+
+This is all (intentionally) correct on the 'struct file *' side, with
+RCU lookups and lockless reference counting very much part of the
+design.  Getting that reference count out of order isn't a problem per
+se.
+
+But the garbage collector can get confused by seeing this situation of
+having seen a file not having any remaining external references and then
+seeing it being attached to an fd.
+
+In commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK") the
+fix was to serialize the file descriptor install with the garbage
+collector by taking and releasing the unix_gc_lock.
+
+That's not really an option here, but since this all happens when we are
+in the process of looking up a file descriptor, we can instead simply
+just re-check that the file hasn't been closed in the meantime, and just
+re-do the lookup if we raced with a concurrent close() of the same file
+descriptor.
+
+Reported-and-tested-by: Jann Horn <jannh@google.com>
+Acked-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/file.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 8df0ec85cc7b9..505920d4530f8 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -436,6 +436,7 @@ static const struct pci_device_id ahci_pci_tbl[] = {
- 	/* AMD */
- 	{ PCI_VDEVICE(AMD, 0x7800), board_ahci }, /* AMD Hudson-2 */
- 	{ PCI_VDEVICE(AMD, 0x7900), board_ahci }, /* AMD CZ */
-+	{ PCI_VDEVICE(AMD, 0x7901), board_ahci_mobile }, /* AMD Green Sardine */
- 	/* AMD is using RAID class only for ahci controllers */
- 	{ PCI_VENDOR_ID_AMD, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
- 	  PCI_CLASS_STORAGE_RAID << 8, 0xffffff, board_ahci },
--- 
-2.33.0
-
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -708,6 +708,10 @@ loop:
+ 			file = NULL;
+ 		else if (!get_file_rcu_many(file, refs))
+ 			goto loop;
++		else if (__fcheck_files(files, fd) != file) {
++			fput_many(file, refs);
++			goto loop;
++		}
+ 	}
+ 	rcu_read_unlock();
+ 
 
 
