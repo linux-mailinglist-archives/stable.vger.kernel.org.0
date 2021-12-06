@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7913469B88
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9647469C8D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232548AbhLFPRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348502AbhLFPPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300EAC0698DB;
-        Mon,  6 Dec 2021 07:07:48 -0800 (PST)
+        id S1356017AbhLFPX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54540 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348424AbhLFPV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2C496135A;
-        Mon,  6 Dec 2021 15:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6985C341CE;
-        Mon,  6 Dec 2021 15:07:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98EC8B81125;
+        Mon,  6 Dec 2021 15:17:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DED38C341C2;
+        Mon,  6 Dec 2021 15:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803267;
-        bh=KP2oJgzp/rxau9Ayf6HqTEquj2R/Tzz+wRpP0W5CWnM=;
+        s=korg; t=1638803877;
+        bh=gtyRb6grQfcrfcwGRygAlcKnBkYXk8ypZC/KFOCV830=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHtIUQtbTV1kqul92wWKKjQQVm2xZxARNDzLiVe8lBSBPWk1j6jb9rtZzeJBSYrUA
-         qmsNVtnlC27GEuXliwS0YD5wBu4JKqz/j9QnmnN8k9Hem3Hvd5dLCKJO73EKCVjBVB
-         Pw6r3Xg7/Ii6uf4f7aut5bVqA42ceIbubztj6hJA=
+        b=wBOY+30Uw2EvhyIVvsljSDSgYv0sH4E9Xq20uN2hngWWvd7ksY5e3vspMOepOQKSV
+         /l2waXBo2B9qDW2m/t8MbnVNH5kwSQ2BUzBdYR3VQAr0WPH8FhdaIdxrUl9uQroUmf
+         efNbWcv5ZUcxV8AY3nEsnF90Ae6DB/rUMJu8nSpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 4.14 088/106] fget: check that the fd still exists after getting a ref to it
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Mark Brown <broonie@kernel.org>,
+        Sameer Pujar <spujar@nvidia.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 079/130] ASoC: tegra: Fix kcontrol put callback in I2S
 Date:   Mon,  6 Dec 2021 15:56:36 +0100
-Message-Id: <20211206145558.567556547@linuxfoundation.org>
+Message-Id: <20211206145602.402636144@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +45,379 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Sameer Pujar <spujar@nvidia.com>
 
-commit 054aa8d439b9185d4f5eb9a90282d1ce74772969 upstream.
+commit f21a9df3f7cb0005947679d7b9237c90574e229a upstream.
 
-Jann Horn points out that there is another possible race wrt Unix domain
-socket garbage collection, somewhat reminiscent of the one fixed in
-commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK").
+The kcontrol put callback is expected to return 1 when there is change
+in HW or when the update is acknowledged by driver. This would ensure
+that change notifications are sent to subscribed applications. Update
+the I2S driver accordingly.
 
-See the extended comment about the garbage collection requirements added
-to unix_peek_fds() by that commit for details.
-
-The race comes from how we can locklessly look up a file descriptor just
-as it is in the process of being closed, and with the right artificial
-timing (Jann added a few strategic 'mdelay(500)' calls to do that), the
-Unix domain socket garbage collector could see the reference count
-decrement of the close() happen before fget() took its reference to the
-file and the file was attached onto a new file descriptor.
-
-This is all (intentionally) correct on the 'struct file *' side, with
-RCU lookups and lockless reference counting very much part of the
-design.  Getting that reference count out of order isn't a problem per
-se.
-
-But the garbage collector can get confused by seeing this situation of
-having seen a file not having any remaining external references and then
-seeing it being attached to an fd.
-
-In commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK") the
-fix was to serialize the file descriptor install with the garbage
-collector by taking and releasing the unix_gc_lock.
-
-That's not really an option here, but since this all happens when we are
-in the process of looking up a file descriptor, we can instead simply
-just re-check that the file hasn't been closed in the meantime, and just
-re-do the lookup if we raced with a concurrent close() of the same file
-descriptor.
-
-Reported-and-tested-by: Jann Horn <jannh@google.com>
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c0bfa98349d1 ("ASoC: tegra: Add Tegra210 based I2S driver")
+Suggested-by: Jaroslav Kysela <perex@perex.cz>
+Suggested-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/1637219231-406-9-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/file.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/tegra/tegra210_i2s.c |  322 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 236 insertions(+), 86 deletions(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -696,6 +696,10 @@ loop:
- 			file = NULL;
- 		else if (!get_file_rcu_many(file, refs))
- 			goto loop;
-+		else if (__fcheck_files(files, fd) != file) {
-+			fput_many(file, refs);
-+			goto loop;
-+		}
- 	}
- 	rcu_read_unlock();
+--- a/sound/soc/tegra/tegra210_i2s.c
++++ b/sound/soc/tegra/tegra210_i2s.c
+@@ -302,91 +302,235 @@ static int tegra210_i2s_set_tdm_slot(str
+ 	return 0;
+ }
  
+-static int tegra210_i2s_set_dai_bclk_ratio(struct snd_soc_dai *dai,
+-					   unsigned int ratio)
++static int tegra210_i2s_get_loopback(struct snd_kcontrol *kcontrol,
++				     struct snd_ctl_elem_value *ucontrol)
+ {
+-	struct tegra210_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
+ 
+-	i2s->bclk_ratio = ratio;
++	ucontrol->value.integer.value[0] = i2s->loopback;
+ 
+ 	return 0;
+ }
+ 
+-static int tegra210_i2s_get_control(struct snd_kcontrol *kcontrol,
+-				    struct snd_ctl_elem_value *ucontrol)
++static int tegra210_i2s_put_loopback(struct snd_kcontrol *kcontrol,
++				     struct snd_ctl_elem_value *ucontrol)
+ {
+ 	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	int value = ucontrol->value.integer.value[0];
+ 
+-	if (strstr(kcontrol->id.name, "Loopback"))
+-		ucontrol->value.integer.value[0] = i2s->loopback;
+-	else if (strstr(kcontrol->id.name, "FSYNC Width"))
+-		ucontrol->value.integer.value[0] = i2s->fsync_width;
+-	else if (strstr(kcontrol->id.name, "Capture Stereo To Mono"))
+-		ucontrol->value.enumerated.item[0] =
+-			i2s->stereo_to_mono[I2S_TX_PATH];
+-	else if (strstr(kcontrol->id.name, "Capture Mono To Stereo"))
+-		ucontrol->value.enumerated.item[0] =
+-			i2s->mono_to_stereo[I2S_TX_PATH];
+-	else if (strstr(kcontrol->id.name, "Playback Stereo To Mono"))
+-		ucontrol->value.enumerated.item[0] =
+-			i2s->stereo_to_mono[I2S_RX_PATH];
+-	else if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+-		ucontrol->value.enumerated.item[0] =
+-			i2s->mono_to_stereo[I2S_RX_PATH];
+-	else if (strstr(kcontrol->id.name, "Playback FIFO Threshold"))
+-		ucontrol->value.integer.value[0] = i2s->rx_fifo_th;
+-	else if (strstr(kcontrol->id.name, "BCLK Ratio"))
+-		ucontrol->value.integer.value[0] = i2s->bclk_ratio;
+-
+-	return 0;
+-}
+-
+-static int tegra210_i2s_put_control(struct snd_kcontrol *kcontrol,
+-				    struct snd_ctl_elem_value *ucontrol)
+-{
+-	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
+-	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
+-
+-	if (strstr(kcontrol->id.name, "Loopback")) {
+-		i2s->loopback = ucontrol->value.integer.value[0];
+-
+-		regmap_update_bits(i2s->regmap, TEGRA210_I2S_CTRL,
+-				   I2S_CTRL_LPBK_MASK,
+-				   i2s->loopback << I2S_CTRL_LPBK_SHIFT);
+-
+-	} else if (strstr(kcontrol->id.name, "FSYNC Width")) {
+-		/*
+-		 * Frame sync width is used only for FSYNC modes and not
+-		 * applicable for LRCK modes. Reset value for this field is "0",
+-		 * which means the width is one bit clock wide.
+-		 * The width requirement may depend on the codec and in such
+-		 * cases mixer control is used to update custom values. A value
+-		 * of "N" here means, width is "N + 1" bit clock wide.
+-		 */
+-		i2s->fsync_width = ucontrol->value.integer.value[0];
+-
+-		regmap_update_bits(i2s->regmap, TEGRA210_I2S_CTRL,
+-				   I2S_CTRL_FSYNC_WIDTH_MASK,
+-				   i2s->fsync_width << I2S_FSYNC_WIDTH_SHIFT);
+-
+-	} else if (strstr(kcontrol->id.name, "Capture Stereo To Mono")) {
+-		i2s->stereo_to_mono[I2S_TX_PATH] =
+-			ucontrol->value.enumerated.item[0];
+-	} else if (strstr(kcontrol->id.name, "Capture Mono To Stereo")) {
+-		i2s->mono_to_stereo[I2S_TX_PATH] =
+-			ucontrol->value.enumerated.item[0];
+-	} else if (strstr(kcontrol->id.name, "Playback Stereo To Mono")) {
+-		i2s->stereo_to_mono[I2S_RX_PATH] =
+-			ucontrol->value.enumerated.item[0];
+-	} else if (strstr(kcontrol->id.name, "Playback Mono To Stereo")) {
+-		i2s->mono_to_stereo[I2S_RX_PATH] =
+-			ucontrol->value.enumerated.item[0];
+-	} else if (strstr(kcontrol->id.name, "Playback FIFO Threshold")) {
+-		i2s->rx_fifo_th = ucontrol->value.integer.value[0];
+-	} else if (strstr(kcontrol->id.name, "BCLK Ratio")) {
+-		i2s->bclk_ratio = ucontrol->value.integer.value[0];
+-	}
++	if (value == i2s->loopback)
++		return 0;
++
++	i2s->loopback = value;
++
++	regmap_update_bits(i2s->regmap, TEGRA210_I2S_CTRL, I2S_CTRL_LPBK_MASK,
++			   i2s->loopback << I2S_CTRL_LPBK_SHIFT);
++
++	return 1;
++}
++
++static int tegra210_i2s_get_fsync_width(struct snd_kcontrol *kcontrol,
++					struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++
++	ucontrol->value.integer.value[0] = i2s->fsync_width;
++
++	return 0;
++}
++
++static int tegra210_i2s_put_fsync_width(struct snd_kcontrol *kcontrol,
++					struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	int value = ucontrol->value.integer.value[0];
++
++	if (value == i2s->fsync_width)
++		return 0;
++
++	i2s->fsync_width = value;
++
++	/*
++	 * Frame sync width is used only for FSYNC modes and not
++	 * applicable for LRCK modes. Reset value for this field is "0",
++	 * which means the width is one bit clock wide.
++	 * The width requirement may depend on the codec and in such
++	 * cases mixer control is used to update custom values. A value
++	 * of "N" here means, width is "N + 1" bit clock wide.
++	 */
++	regmap_update_bits(i2s->regmap, TEGRA210_I2S_CTRL,
++			   I2S_CTRL_FSYNC_WIDTH_MASK,
++			   i2s->fsync_width << I2S_FSYNC_WIDTH_SHIFT);
++
++	return 1;
++}
++
++static int tegra210_i2s_cget_stereo_to_mono(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++
++	ucontrol->value.enumerated.item[0] = i2s->stereo_to_mono[I2S_TX_PATH];
++
++	return 0;
++}
++
++static int tegra210_i2s_cput_stereo_to_mono(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == i2s->stereo_to_mono[I2S_TX_PATH])
++		return 0;
++
++	i2s->stereo_to_mono[I2S_TX_PATH] = value;
++
++	return 1;
++}
++
++static int tegra210_i2s_cget_mono_to_stereo(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++
++	ucontrol->value.enumerated.item[0] = i2s->mono_to_stereo[I2S_TX_PATH];
++
++	return 0;
++}
++
++static int tegra210_i2s_cput_mono_to_stereo(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == i2s->mono_to_stereo[I2S_TX_PATH])
++		return 0;
++
++	i2s->mono_to_stereo[I2S_TX_PATH] = value;
++
++	return 1;
++}
++
++static int tegra210_i2s_pget_stereo_to_mono(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++
++	ucontrol->value.enumerated.item[0] = i2s->stereo_to_mono[I2S_RX_PATH];
++
++	return 0;
++}
++
++static int tegra210_i2s_pput_stereo_to_mono(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == i2s->stereo_to_mono[I2S_RX_PATH])
++		return 0;
++
++	i2s->stereo_to_mono[I2S_RX_PATH] = value;
++
++	return 1;
++}
++
++static int tegra210_i2s_pget_mono_to_stereo(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++
++	ucontrol->value.enumerated.item[0] = i2s->mono_to_stereo[I2S_RX_PATH];
++
++	return 0;
++}
++
++static int tegra210_i2s_pput_mono_to_stereo(struct snd_kcontrol *kcontrol,
++					    struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == i2s->mono_to_stereo[I2S_RX_PATH])
++		return 0;
++
++	i2s->mono_to_stereo[I2S_RX_PATH] = value;
++
++	return 1;
++}
++
++static int tegra210_i2s_pget_fifo_th(struct snd_kcontrol *kcontrol,
++				     struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++
++	ucontrol->value.integer.value[0] = i2s->rx_fifo_th;
++
++	return 0;
++}
++
++static int tegra210_i2s_pput_fifo_th(struct snd_kcontrol *kcontrol,
++				     struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	int value = ucontrol->value.integer.value[0];
++
++	if (value == i2s->rx_fifo_th)
++		return 0;
++
++	i2s->rx_fifo_th = value;
++
++	return 1;
++}
++
++static int tegra210_i2s_get_bclk_ratio(struct snd_kcontrol *kcontrol,
++				       struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++
++	ucontrol->value.integer.value[0] = i2s->bclk_ratio;
++
++	return 0;
++}
++
++static int tegra210_i2s_put_bclk_ratio(struct snd_kcontrol *kcontrol,
++				       struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
++	int value = ucontrol->value.integer.value[0];
++
++	if (value == i2s->bclk_ratio)
++		return 0;
++
++	i2s->bclk_ratio = value;
++
++	return 1;
++}
++
++static int tegra210_i2s_set_dai_bclk_ratio(struct snd_soc_dai *dai,
++					   unsigned int ratio)
++{
++	struct tegra210_i2s *i2s = snd_soc_dai_get_drvdata(dai);
++
++	i2s->bclk_ratio = ratio;
+ 
+ 	return 0;
+ }
+@@ -604,22 +748,28 @@ static const struct soc_enum tegra210_i2
+ 			tegra210_i2s_stereo_conv_text);
+ 
+ static const struct snd_kcontrol_new tegra210_i2s_controls[] = {
+-	SOC_SINGLE_EXT("Loopback", 0, 0, 1, 0, tegra210_i2s_get_control,
+-		       tegra210_i2s_put_control),
+-	SOC_SINGLE_EXT("FSYNC Width", 0, 0, 255, 0, tegra210_i2s_get_control,
+-		       tegra210_i2s_put_control),
++	SOC_SINGLE_EXT("Loopback", 0, 0, 1, 0, tegra210_i2s_get_loopback,
++		       tegra210_i2s_put_loopback),
++	SOC_SINGLE_EXT("FSYNC Width", 0, 0, 255, 0,
++		       tegra210_i2s_get_fsync_width,
++		       tegra210_i2s_put_fsync_width),
+ 	SOC_ENUM_EXT("Capture Stereo To Mono", tegra210_i2s_stereo_conv_enum,
+-		     tegra210_i2s_get_control, tegra210_i2s_put_control),
++		     tegra210_i2s_cget_stereo_to_mono,
++		     tegra210_i2s_cput_stereo_to_mono),
+ 	SOC_ENUM_EXT("Capture Mono To Stereo", tegra210_i2s_mono_conv_enum,
+-		     tegra210_i2s_get_control, tegra210_i2s_put_control),
++		     tegra210_i2s_cget_mono_to_stereo,
++		     tegra210_i2s_cput_mono_to_stereo),
+ 	SOC_ENUM_EXT("Playback Stereo To Mono", tegra210_i2s_stereo_conv_enum,
+-		     tegra210_i2s_get_control, tegra210_i2s_put_control),
++		     tegra210_i2s_pget_mono_to_stereo,
++		     tegra210_i2s_pput_mono_to_stereo),
+ 	SOC_ENUM_EXT("Playback Mono To Stereo", tegra210_i2s_mono_conv_enum,
+-		     tegra210_i2s_get_control, tegra210_i2s_put_control),
++		     tegra210_i2s_pget_stereo_to_mono,
++		     tegra210_i2s_pput_stereo_to_mono),
+ 	SOC_SINGLE_EXT("Playback FIFO Threshold", 0, 0, I2S_RX_FIFO_DEPTH - 1,
+-		       0, tegra210_i2s_get_control, tegra210_i2s_put_control),
+-	SOC_SINGLE_EXT("BCLK Ratio", 0, 0, INT_MAX, 0, tegra210_i2s_get_control,
+-		       tegra210_i2s_put_control),
++		       0, tegra210_i2s_pget_fifo_th, tegra210_i2s_pput_fifo_th),
++	SOC_SINGLE_EXT("BCLK Ratio", 0, 0, INT_MAX, 0,
++		       tegra210_i2s_get_bclk_ratio,
++		       tegra210_i2s_put_bclk_ratio),
+ };
+ 
+ static const struct snd_soc_dapm_widget tegra210_i2s_widgets[] = {
 
 
