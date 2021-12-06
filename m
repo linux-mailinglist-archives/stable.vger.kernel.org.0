@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1172B469C22
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E999469EF6
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347333AbhLFPVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:21:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36936 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357590AbhLFPR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:56 -0500
+        id S1359161AbhLFPo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390732AbhLFPmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B12BC07E5DD;
+        Mon,  6 Dec 2021 07:30:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E88C6133D;
-        Mon,  6 Dec 2021 15:14:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26FBDC341C1;
-        Mon,  6 Dec 2021 15:14:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4145CB81123;
+        Mon,  6 Dec 2021 15:30:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE40C34901;
+        Mon,  6 Dec 2021 15:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803666;
-        bh=f5jn4Mw2tfC7qY0Ro02sm2n4qtXnx5isnSSf8JbTxII=;
+        s=korg; t=1638804610;
+        bh=zgKNIIkxEue0rAgadGy/CCj7/3ZhbOjqTlLbdU8Bexg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6FR+xnJKPM2L+3wl9di2lehh2cRHEtLWHIv768Oy74rGOf8mF+Zp0Hr0MaTd/ZJu
-         uDRFpfjbxWhgZGA9SYbc4j3D/spFVaYmgeoeO07hj/QH3wBDLloBR7kmKf87XZ8v9f
-         WFWnzccQK7TEUMxFniNJC673+c2Wq1DGAL3IAQ8E=
+        b=Zc8H9mcvhjJWuk0zuNe7AlmoP8BaQbSvCa8V2IyFujS6d6ug1dEjn+1Q/CwPCFTui
+         /HqWyKyxcQulEkikUltWZc5A1j6vjOAjhN5+NnQ2LIFyFtxqSDXi3MyZZtL9nWA4QR
+         D9r2u7bPrs/wjeriIWfFAS9CpCntQ0O8nwwICb94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Dolan <jay.dolan@accesio.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.4 66/70] serial: 8250_pci: rewrite pericom_do_set_divisor()
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Andrew Halaney <ahalaney@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 176/207] preempt/dynamic: Fix setup_preempt_mode() return value
 Date:   Mon,  6 Dec 2021 15:57:10 +0100
-Message-Id: <20211206145554.212061966@linuxfoundation.org>
+Message-Id: <20211206145616.355012600@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Dolan <jay.dolan@accesio.com>
+From: Andrew Halaney <ahalaney@redhat.com>
 
-commit bb1201d4b38ec67bd9a871cf86b0cc10f28b15b5 upstream.
+[ Upstream commit 9ed20bafc85806ca6c97c9128cec46c3ef80ae86 ]
 
-Have pericom_do_set_divisor() use the uartclk instead of a hard coded
-value to work with different speed crystals. Tested with 14.7456 and 24
-MHz crystals.
+__setup() callbacks expect 1 for success and 0 for failure. Correct the
+usage here to reflect that.
 
-Have pericom_do_set_divisor() always calculate the divisor rather than
-call serial8250_do_set_divisor() for rates below baud_base.
-
-Do not write registers or call serial8250_do_set_divisor() if valid
-divisors could not be found.
-
-Fixes: 6bf4e42f1d19 ("serial: 8250: Add support for higher baud rates to Pericom chips")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211122120604.3909-3-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 826bfeb37bb4 ("preempt/dynamic: Support dynamic preempt with preempt= boot option")
+Reported-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Andrew Halaney <ahalaney@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211203233203.133581-1-ahalaney@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_pci.c |   30 +++++++++++++++++-------------
- 1 file changed, 17 insertions(+), 13 deletions(-)
+ kernel/sched/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -1351,29 +1351,33 @@ pericom_do_set_divisor(struct uart_port
- {
- 	int scr;
- 	int lcr;
--	int actual_baud;
--	int tolerance;
- 
--	for (scr = 5 ; scr <= 15 ; scr++) {
--		actual_baud = 921600 * 16 / scr;
--		tolerance = actual_baud / 50;
-+	for (scr = 16; scr > 4; scr--) {
-+		unsigned int maxrate = port->uartclk / scr;
-+		unsigned int divisor = max(maxrate / baud, 1U);
-+		int delta = maxrate / divisor - baud;
- 
--		if ((baud < actual_baud + tolerance) &&
--			(baud > actual_baud - tolerance)) {
-+		if (baud > maxrate + baud / 50)
-+			continue;
- 
-+		if (delta > baud / 50)
-+			divisor++;
-+
-+		if (divisor > 0xffff)
-+			continue;
-+
-+		/* Update delta due to possible divisor change */
-+		delta = maxrate / divisor - baud;
-+		if (abs(delta) < baud / 50) {
- 			lcr = serial_port_in(port, UART_LCR);
- 			serial_port_out(port, UART_LCR, lcr | 0x80);
--
--			serial_port_out(port, UART_DLL, 1);
--			serial_port_out(port, UART_DLM, 0);
-+			serial_port_out(port, UART_DLL, divisor & 0xff);
-+			serial_port_out(port, UART_DLM, divisor >> 8 & 0xff);
- 			serial_port_out(port, 2, 16 - scr);
- 			serial_port_out(port, UART_LCR, lcr);
- 			return;
--		} else if (baud > actual_baud) {
--			break;
- 		}
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 6f4625f8276f1..4170ec15926ee 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6660,11 +6660,11 @@ static int __init setup_preempt_mode(char *str)
+ 	int mode = sched_dynamic_mode(str);
+ 	if (mode < 0) {
+ 		pr_warn("Dynamic Preempt: unsupported mode: %s\n", str);
+-		return 1;
++		return 0;
  	}
--	serial8250_do_set_divisor(port, baud, quot, quot_frac);
+ 
+ 	sched_dynamic_update(mode);
+-	return 0;
++	return 1;
  }
- static int pci_pericom_setup(struct serial_private *priv,
- 		  const struct pciserial_board *board,
+ __setup("preempt=", setup_preempt_mode);
+ 
+-- 
+2.33.0
+
 
 
