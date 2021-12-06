@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E32E469D77
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15EB7469F0A
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386046AbhLFP3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:29:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56894 "EHLO
+        id S1391301AbhLFPpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386662AbhLFP0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:50 -0500
+        with ESMTP id S1390451AbhLFPmZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986D9C0613F8;
-        Mon,  6 Dec 2021 07:17:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84114C0A8863;
+        Mon,  6 Dec 2021 07:26:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DA7FB8111D;
-        Mon,  6 Dec 2021 15:17:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8210AC341C1;
-        Mon,  6 Dec 2021 15:17:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49E59B81125;
+        Mon,  6 Dec 2021 15:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71B0BC34902;
+        Mon,  6 Dec 2021 15:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803838;
-        bh=1DlwUNuplRc6+5FPq6tN9SP/3Jp/hV+Amu255hOEkeA=;
+        s=korg; t=1638804381;
+        bh=NPL2biXWIFO2hsfzQxy97aAQd7Y3H85eGxpq0DxIFhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ho5HVf59gUPhoWkH8R7G5BsBmLUe/u9G9jjTDeiuX8XvoNJROV194kNeFkh9kyvsw
-         2NKyDLJjizYoYaZYglYDsG4loG9WrJvWXnQFrx1rQYaCbaSfrVUKb+ijaXGqGELI19
-         shG15Lh/AEu95D7z+AoQs4LbheuafKJEazyMAqgs=
+        b=sCx+hvlxW2Oyl3Q7Gtm9t03FoZZXFewDsjLorE/z7aa2UtyWdRj1WB9qTCI4qhhHz
+         YrOUGXurl77SFcjzIGNjWJsTR0XGH898gy83gNZzuzAu96WJ+61tO9anLfhdOXbHrS
+         U/tOoLij1yOePD5NQ/w66jNRZ2SOSQr5Ek5fw1qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 063/130] i2c: stm32f7: stop dma transfer in case of NACK
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 126/207] ALSA: intel-dsp-config: add quirk for CML devices based on ES8336 codec
 Date:   Mon,  6 Dec 2021 15:56:20 +0100
-Message-Id: <20211206145601.855919516@linuxfoundation.org>
+Message-Id: <20211206145614.606653080@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 31b90a95ccbbb4b628578ac17e3b3cc8eeacfe31 upstream.
+commit ae26c08e6c8071ba8febb0c7c0829da96c75248c upstream.
 
-In case of receiving a NACK, the dma transfer should be stopped
-to avoid feeding data into the FIFO.
-Also ensure to properly return the proper error code and avoid
-waiting for the end of the dma completion in case of
-error happening during the transmission.
+We've added quirks for ESS8336 but missed CML, add quirks for both LP
+and H versions.
 
-Fixes: 7ecc8cfde553 ("i2c: i2c-stm32f7: Add DMA support")
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+BugLink: https://github.com/thesofproject/linux/issues/3248
+Fixes: 9d36ceab9415 ("ALSA: intel-dsp-config: add quirk for APL/GLK/TGL devices based on ES8336 codec")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20211122232254.23362-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ sound/hda/intel-dsp-config.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1472,6 +1472,7 @@ static irqreturn_t stm32f7_i2c_isr_event
- {
- 	struct stm32f7_i2c_dev *i2c_dev = data;
- 	struct stm32f7_i2c_msg *f7_msg = &i2c_dev->f7_msg;
-+	struct stm32_i2c_dma *dma = i2c_dev->dma;
- 	void __iomem *base = i2c_dev->base;
- 	u32 status, mask;
- 	int ret = IRQ_HANDLED;
-@@ -1497,6 +1498,10 @@ static irqreturn_t stm32f7_i2c_isr_event
- 		dev_dbg(i2c_dev->dev, "<%s>: Receive NACK (addr %x)\n",
- 			__func__, f7_msg->addr);
- 		writel_relaxed(STM32F7_I2C_ICR_NACKCF, base + STM32F7_I2C_ICR);
-+		if (i2c_dev->use_dma) {
-+			stm32f7_i2c_disable_dma_req(i2c_dev);
-+			dmaengine_terminate_all(dma->chan_using);
-+		}
- 		f7_msg->result = -ENXIO;
- 	}
+--- a/sound/hda/intel-dsp-config.c
++++ b/sound/hda/intel-dsp-config.c
+@@ -252,6 +252,11 @@ static const struct config_entry config_
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+ 		.device = 0x02c8,
+ 	},
++	{
++		.flags = FLAG_SOF,
++		.device = 0x02c8,
++		.codec_hid = "ESSX8336",
++	},
+ /* Cometlake-H */
+ 	{
+ 		.flags = FLAG_SOF,
+@@ -276,6 +281,11 @@ static const struct config_entry config_
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+ 		.device = 0x06c8,
+ 	},
++		{
++		.flags = FLAG_SOF,
++		.device = 0x06c8,
++		.codec_hid = "ESSX8336",
++	},
+ #endif
  
-@@ -1512,7 +1517,7 @@ static irqreturn_t stm32f7_i2c_isr_event
- 		/* Clear STOP flag */
- 		writel_relaxed(STM32F7_I2C_ICR_STOPCF, base + STM32F7_I2C_ICR);
- 
--		if (i2c_dev->use_dma) {
-+		if (i2c_dev->use_dma && !f7_msg->result) {
- 			ret = IRQ_WAKE_THREAD;
- 		} else {
- 			i2c_dev->master_mode = false;
-@@ -1525,7 +1530,7 @@ static irqreturn_t stm32f7_i2c_isr_event
- 		if (f7_msg->stop) {
- 			mask = STM32F7_I2C_CR2_STOP;
- 			stm32f7_i2c_set_bits(base + STM32F7_I2C_CR2, mask);
--		} else if (i2c_dev->use_dma) {
-+		} else if (i2c_dev->use_dma && !f7_msg->result) {
- 			ret = IRQ_WAKE_THREAD;
- 		} else if (f7_msg->smbus) {
- 			stm32f7_i2c_smbus_rep_start(i2c_dev);
+ /* Icelake */
 
 
