@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 852E2469A5C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43FC3469B82
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345893AbhLFPHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:07:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53150 "EHLO
+        id S1355986AbhLFPRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345794AbhLFPGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:06:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF269C0698D2;
-        Mon,  6 Dec 2021 07:02:38 -0800 (PST)
+        with ESMTP id S1347455AbhLFPOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2358C0698D4;
+        Mon,  6 Dec 2021 07:07:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6522961309;
-        Mon,  6 Dec 2021 15:02:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46574C341C1;
-        Mon,  6 Dec 2021 15:02:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89CDBB81118;
+        Mon,  6 Dec 2021 15:07:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9C7DC341C5;
+        Mon,  6 Dec 2021 15:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802957;
-        bh=7JpP0lptwNPN8vq+tqsvdM2mu8FUPmre0t1PtyJFCKM=;
+        s=korg; t=1638803250;
+        bh=3sGi25Tks5bKBG7TFlNDAZAhN9Mrjx5yeaWyey6eIOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ezs4fRrQEUlqYvBoHgpm6M76x5u+cjAezfvv6qU34d/aO4DB6ZnUi9UySZufq3f7C
-         EMPGZaUuGCviuZesH/lBkx0bIX9VbrSgOiWeu3YAZkZh7Sjrv2IamjnOnzbu3VpVEq
-         Ef/uYSmyB+spPRldQFSnTgeNbp+8j0wzTJaHCJEk=
+        b=ZyCc8XzvNh22l0csJV5wdzF9iCn56+1uGIueOS5BZighqcENXmEzgQFGKnfvEIKqe
+         xQ9OVevk+EKiLWxW1N0lMz7KQlPEEMS0jPw2zggsqvEBS5CTX+5KWRnl9rTvATr73D
+         7vkfT0jaulsLlMeVV0iWwP4z940YmV4Q6FZc/XAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Michal Hocko <mhocko@kernel.org>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.9 39/62] hugetlb: take PMD sharing into account when flushing tlb/caches
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 074/106] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
 Date:   Mon,  6 Dec 2021 15:56:22 +0100
-Message-Id: <20211206145550.542537902@linuxfoundation.org>
+Message-Id: <20211206145558.050232688@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,139 +48,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit dff11abe280b47c21b804a8ace318e0638bb9a49 upstream.
+[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
 
-When fixing an issue with PMD sharing and migration, it was discovered via
-code inspection that other callers of huge_pmd_unshare potentially have an
-issue with cache and tlb flushing.
+When WWAN device wake from S3 deep, under thinkpad platform,
+WWAN would be disabled. This disable status could be checked
+by command 'nmcli r wwan' or 'rfkill list'.
 
-Use the routine adjust_range_if_pmd_sharing_possible() to calculate worst
-case ranges for mmu notifiers.  Ensure that this range is flushed if
-huge_pmd_unshare succeeds and unmaps a PUD_SUZE area.
+Issue analysis as below:
+  When host resume from S3 deep, thinkpad_acpi driver would
+call hotkey_resume() function. Finnaly, it will use
+wan_get_status to check the current status of WWAN device.
+During this resume progress, wan_get_status would always
+return off even WWAN boot up completely.
+  In patch V2, Hans said 'sw_state should be unchanged
+after a suspend/resume. It's better to drop the
+tpacpi_rfk_update_swstate call all together from the
+resume path'.
+  And it's confimed by Lenovo that GWAN is no longer
+ available from WHL generation because the design does not
+ match with current pin control.
 
-Link: http://lkml.kernel.org/r/20180823205917.16297-3-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |   53 +++++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 43 insertions(+), 10 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3393,8 +3393,8 @@ void __unmap_hugepage_range(struct mmu_g
- 	struct page *page;
- 	struct hstate *h = hstate_vma(vma);
- 	unsigned long sz = huge_page_size(h);
--	const unsigned long mmun_start = start;	/* For mmu_notifiers */
--	const unsigned long mmun_end   = end;	/* For mmu_notifiers */
-+	unsigned long mmun_start = start;	/* For mmu_notifiers */
-+	unsigned long mmun_end   = end;		/* For mmu_notifiers */
- 	bool force_flush = false;
- 
- 	WARN_ON(!is_vm_hugetlb_page(vma));
-@@ -3402,6 +3402,11 @@ void __unmap_hugepage_range(struct mmu_g
- 	BUG_ON(end & ~huge_page_mask(h));
- 
- 	tlb_start_vma(tlb, vma);
-+
-+	/*
-+	 * If sharing possible, alert mmu notifiers of worst case.
-+	 */
-+	adjust_range_if_pmd_sharing_possible(vma, &mmun_start, &mmun_end);
- 	mmu_notifier_invalidate_range_start(mm, mmun_start, mmun_end);
- 	address = start;
- 	for (; address < end; address += sz) {
-@@ -3512,12 +3517,23 @@ void unmap_hugepage_range(struct vm_area
- {
- 	struct mm_struct *mm;
- 	struct mmu_gather tlb;
-+	unsigned long tlb_start = start;
-+	unsigned long tlb_end = end;
-+
-+	/*
-+	 * If shared PMDs were possibly used within this vma range, adjust
-+	 * start/end for worst case tlb flushing.
-+	 * Note that we can not be sure if PMDs are shared until we try to
-+	 * unmap pages.  However, we want to make sure TLB flushing covers
-+	 * the largest possible range.
-+	 */
-+	adjust_range_if_pmd_sharing_possible(vma, &tlb_start, &tlb_end);
- 
- 	mm = vma->vm_mm;
- 
--	tlb_gather_mmu(&tlb, mm, start, end);
-+	tlb_gather_mmu(&tlb, mm, tlb_start, tlb_end);
- 	__unmap_hugepage_range(&tlb, vma, start, end, ref_page);
--	tlb_finish_mmu(&tlb, start, end);
-+	tlb_finish_mmu(&tlb, tlb_start, tlb_end);
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 9d836d779d475..05b3e0f724fcf 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -1180,15 +1180,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
+ 	return status;
  }
  
+-/* Query FW and update rfkill sw state for all rfkill switches */
+-static void tpacpi_rfk_update_swstate_all(void)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
+-		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
+-}
+-
  /*
-@@ -4205,11 +4221,21 @@ unsigned long hugetlb_change_protection(
- 	pte_t pte;
- 	struct hstate *h = hstate_vma(vma);
- 	unsigned long pages = 0;
-+	unsigned long f_start = start;
-+	unsigned long f_end = end;
-+	bool shared_pmd = false;
-+
-+	/*
-+	 * In the case of shared PMDs, the area to flush could be beyond
-+	 * start/end.  Set f_start/f_end to cover the maximum possible
-+	 * range if PMD sharing is possible.
-+	 */
-+	adjust_range_if_pmd_sharing_possible(vma, &f_start, &f_end);
+  * Sync the HW-blocking state of all rfkill switches,
+  * do notice it causes the rfkill core to schedule uevents
+@@ -3025,9 +3016,6 @@ static void tpacpi_send_radiosw_update(void)
+ 	if (wlsw == TPACPI_RFK_RADIO_OFF)
+ 		tpacpi_rfk_update_hwblock_state(true);
  
- 	BUG_ON(address >= end);
--	flush_cache_range(vma, address, end);
-+	flush_cache_range(vma, f_start, f_end);
- 
--	mmu_notifier_invalidate_range_start(mm, start, end);
-+	mmu_notifier_invalidate_range_start(mm, f_start, f_end);
- 	i_mmap_lock_write(vma->vm_file->f_mapping);
- 	for (; address < end; address += huge_page_size(h)) {
- 		spinlock_t *ptl;
-@@ -4220,6 +4246,7 @@ unsigned long hugetlb_change_protection(
- 		if (huge_pmd_unshare(mm, &address, ptep)) {
- 			pages++;
- 			spin_unlock(ptl);
-+			shared_pmd = true;
- 			continue;
- 		}
- 		pte = huge_ptep_get(ptep);
-@@ -4254,12 +4281,18 @@ unsigned long hugetlb_change_protection(
- 	 * Must flush TLB before releasing i_mmap_rwsem: x86's huge_pmd_unshare
- 	 * may have cleared our pud entry and done put_page on the page table:
- 	 * once we release i_mmap_rwsem, another task can do the final put_page
--	 * and that page table be reused and filled with junk.
-+	 * and that page table be reused and filled with junk.  If we actually
-+	 * did unshare a page of pmds, flush the range corresponding to the pud.
- 	 */
--	flush_hugetlb_tlb_range(vma, start, end);
--	mmu_notifier_invalidate_range(mm, start, end);
-+	if (shared_pmd) {
-+		flush_hugetlb_tlb_range(vma, f_start, f_end);
-+		mmu_notifier_invalidate_range(mm, f_start, f_end);
-+	} else {
-+		flush_hugetlb_tlb_range(vma, start, end);
-+		mmu_notifier_invalidate_range(mm, start, end);
-+	}
- 	i_mmap_unlock_write(vma->vm_file->f_mapping);
--	mmu_notifier_invalidate_range_end(mm, start, end);
-+	mmu_notifier_invalidate_range_end(mm, f_start, f_end);
- 
- 	return pages << h->order;
- }
+-	/* Sync sw blocking state */
+-	tpacpi_rfk_update_swstate_all();
+-
+ 	/* Sync hw blocking state last if it is hw-unblocked */
+ 	if (wlsw == TPACPI_RFK_RADIO_ON)
+ 		tpacpi_rfk_update_hwblock_state(false);
+-- 
+2.33.0
+
 
 
