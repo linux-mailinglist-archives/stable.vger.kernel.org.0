@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E84C0469BBF
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50182469BA6
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347610AbhLFPS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:27 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36024 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358633AbhLFPQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:43 -0500
+        id S1356658AbhLFPSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54436 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357486AbhLFPQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728A2C061359;
+        Mon,  6 Dec 2021 07:08:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC6E36131B;
-        Mon,  6 Dec 2021 15:13:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F23FC341C5;
-        Mon,  6 Dec 2021 15:13:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 10E5161326;
+        Mon,  6 Dec 2021 15:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5EA8C341C1;
+        Mon,  6 Dec 2021 15:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803594;
-        bh=87huGYT6ZRyW4Ks1/jHy46Dc5usVHgQgTTvk8U2HRtw=;
+        s=korg; t=1638803317;
+        bh=s0Vi7y0TSaLcthPn/wSetayBwUHBdG/Qy0jzf3kmASY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNPMcfnfz7xpAOsOP/YdpBAVlM42YYtRctfP6aJ4n0VY1Srw9KUeY/1oPiQs8zs2x
-         UnMV2/zo+L4sblEXiL7tZTjjQ+HDivqTb4SOVyolnWCgdYl9BcI1Ql5aflWM0xzntp
-         BMyAf7v/MMXU2wW29e42H51ZGCJtaLVu/+fNI1bc=
+        b=k9V+FcDew2/T6sEPnicA++BPRnQOVEb9mVw9igEVPqSE/2lmXnWMGMqUWZlAhIbzQ
+         YF86RmlXXXj/TAHYLRIjd+6JS7Bp4MQLLkGHJzN8yyRwU86zHWGU+uWBPalCLAzhXI
+         zXpk9IfTiMaz+H8yowfDgLd9PMUMmihauZSLr1PM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 48/70] net/smc: Keep smc_close_final rc during active close
+        stable@vger.kernel.org, Pierre Gondois <Pierre.Gondois@arm.com>
+Subject: [PATCH 4.14 104/106] serial: pl011: Add ACPI SBSA UART match id
 Date:   Mon,  6 Dec 2021 15:56:52 +0100
-Message-Id: <20211206145553.578718155@linuxfoundation.org>
+Message-Id: <20211206145559.153342645@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+From: Pierre Gondois <Pierre.Gondois@arm.com>
 
-commit 00e158fb91dfaff3f94746f260d11f1a4853506e upstream.
+commit ac442a077acf9a6bf1db4320ec0c3f303be092b3 upstream.
 
-When smc_close_final() returns error, the return code overwrites by
-kernel_sock_shutdown() in smc_close_active(). The return code of
-smc_close_final() is more important than kernel_sock_shutdown(), and it
-will pass to userspace directly.
+The document 'ACPI for Arm Components 1.0' defines the following
+_HID mappings:
+-'Prime cell UART (PL011)': ARMH0011
+-'SBSA UART': ARMHB000
 
-Fix it by keeping both return codes, if smc_close_final() raises an
-error, return it or kernel_sock_shutdown()'s.
+Use the sbsa-uart driver when a device is described with
+the 'ARMHB000' _HID.
 
-Link: https://lore.kernel.org/linux-s390/1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com/
-Fixes: 606a63c9783a ("net/smc: Ensure the active closing peer first closes clcsock")
-Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Note:
+PL011 devices currently use the sbsa-uart driver instead of the
+uart-pl011 driver. Indeed, PL011 devices are not bound to a clock
+in ACPI. It is not possible to change their baudrate.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pierre Gondois <Pierre.Gondois@arm.com>
+Link: https://lore.kernel.org/r/20211109172248.19061-1-Pierre.Gondois@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/smc_close.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/tty/serial/amba-pl011.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -183,6 +183,7 @@ int smc_close_active(struct smc_sock *sm
- 	int old_state;
- 	long timeout;
- 	int rc = 0;
-+	int rc1 = 0;
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -2790,6 +2790,7 @@ MODULE_DEVICE_TABLE(of, sbsa_uart_of_mat
  
- 	timeout = current->flags & PF_EXITING ?
- 		  0 : sock_flag(sk, SOCK_LINGER) ?
-@@ -222,8 +223,11 @@ again:
- 			/* actively shutdown clcsock before peer close it,
- 			 * prevent peer from entering TIME_WAIT state.
- 			 */
--			if (smc->clcsock && smc->clcsock->sk)
--				rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
-+			if (smc->clcsock && smc->clcsock->sk) {
-+				rc1 = kernel_sock_shutdown(smc->clcsock,
-+							   SHUT_RDWR);
-+				rc = rc ? rc : rc1;
-+			}
- 		} else {
- 			/* peer event has changed the state */
- 			goto again;
+ static const struct acpi_device_id sbsa_uart_acpi_match[] = {
+ 	{ "ARMH0011", 0 },
++	{ "ARMHB000", 0 },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(acpi, sbsa_uart_acpi_match);
 
 
