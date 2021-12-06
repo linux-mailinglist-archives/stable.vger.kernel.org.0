@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC342469D13
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 102C2469D16
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356995AbhLFP2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41442 "EHLO
+        id S1355888AbhLFP2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:08 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41510 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358240AbhLFPXJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:09 -0500
+        with ESMTP id S243761AbhLFPXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D42D461320;
-        Mon,  6 Dec 2021 15:19:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC065C341C5;
-        Mon,  6 Dec 2021 15:19:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAFBD6134C;
+        Mon,  6 Dec 2021 15:19:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BBC2C341C2;
+        Mon,  6 Dec 2021 15:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803979;
-        bh=Ore5wlezD3yV5BIeDNVWyozbTsqKcJmLOke6XWdvMf0=;
+        s=korg; t=1638803982;
+        bh=Z/y5FqKn8NWA7ZnYOB1l9GfqHB0vXRPCIkRWS6Zrrgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ML1h/IVIoTApVP6G4GCandAUmzARDcG/0nUSeQhBT+zTIqYl4zNlflGPv8E27pun6
-         3zON8f7H291esAoSYGMyk6+yoH4fg2/g5wqf8ca8b5ukef87HBUtyPRPSkXb4pYUXT
-         jPKB5bN5Qs0j5UsgFMV6I+wLkWFT2zbCJNIfxVpk=
+        b=h2760ibW3oL4zJMiXAdrH1g0WZ2QQH7ibHST6SRlEl/EVw3pI0VIahN25c6hbm8fg
+         3pXIZCb2zpZwgG998zkFvkL2wdICBGJnTk9tZA7cfLFKR0TJFRVOMkQk3Fma1xB8Sg
+         gsRDhCPeYO8x5Nkq40hcNW2rMg2lCM/4CKCERcns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ole Ernst <olebowle@gmx.com>
-Subject: [PATCH 5.10 115/130] USB: NO_LPM quirk Lenovo Powered USB-C Travel Hub
-Date:   Mon,  6 Dec 2021 15:57:12 +0100
-Message-Id: <20211206145603.623516117@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>
+Subject: [PATCH 5.10 116/130] usb: typec: tcpm: Wait in SNK_DEBOUNCED until disconnect
+Date:   Mon,  6 Dec 2021 15:57:13 +0100
+Message-Id: <20211206145603.656982978@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
 References: <20211206145559.607158688@linuxfoundation.org>
@@ -43,34 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ole Ernst <olebowle@gmx.com>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-commit d2a004037c3c6afd36d40c384d2905f47cd51c57 upstream.
+commit fbcd13df1e78eb2ba83a3c160eefe2d6f574beaf upstream.
 
-This is another branded 8153 device that doesn't work well with LPM:
-r8152 2-2.1:1.0 enp0s13f0u2u1: Stop submitting intr, status -71
+Stub from the spec:
+"4.5.2.2.4.2 Exiting from AttachWait.SNK State
+A Sink shall transition to Unattached.SNK when the state of both
+the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
+A DRP shall transition to Unattached.SRC when the state of both
+the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
 
-Disable LPM to resolve the issue.
+This change makes TCPM to wait in SNK_DEBOUNCED state until
+CC1 and CC2 pins is SNK.Open for at least tPDDebounce. Previously,
+TCPM resets the port if vbus is not present in PD_T_PS_SOURCE_ON.
+This causes TCPM to loop continuously when connected to a
+faulty power source that does not present vbus. Waiting in
+SNK_DEBOUNCED also ensures that TCPM is adherant to
+"4.5.2.2.4.2 Exiting from AttachWait.SNK State" requirements.
 
-Signed-off-by: Ole Ernst <olebowle@gmx.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211127090546.52072-1-olebowle@gmx.com
+[ 6169.280751] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
+[ 6169.280759] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
+[ 6169.280771] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
+[ 6169.282427] CC1: 0 -> 0, CC2: 5 -> 5 [state SNK_ATTACH_WAIT, polarity 0, connected]
+[ 6169.450825] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
+[ 6169.450834] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
+[ 6169.930892] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
+[ 6169.931296] disable vbus discharge ret:0
+[ 6169.931301] Setting usb_comm capable false
+[ 6169.932783] Setting voltage/current limit 0 mV 0 mA
+[ 6169.932802] polarity 0
+[ 6169.933706] Requesting mux state 0, usb-role 0, orientation 0
+[ 6169.936689] cc:=0
+[ 6169.936812] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
+[ 6169.937157] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
+[ 6170.036880] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
+[ 6170.036890] state change PORT_RESET_WAIT_OFF -> SNK_UNATTACHED [rev2 NONE_AMS]
+[ 6170.036896] Start toggling
+[ 6170.041412] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0, disconnected]
+[ 6170.042973] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
+[ 6170.042976] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
+[ 6170.042981] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
+[ 6170.213014] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
+[ 6170.213019] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
+[ 6170.693068] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
+[ 6170.693304] disable vbus discharge ret:0
+[ 6170.693308] Setting usb_comm capable false
+[ 6170.695193] Setting voltage/current limit 0 mV 0 mA
+[ 6170.695210] polarity 0
+[ 6170.695990] Requesting mux state 0, usb-role 0, orientation 0
+[ 6170.701896] cc:=0
+[ 6170.702181] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
+[ 6170.703343] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
+
+Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Link: https://lore.kernel.org/r/20211130001825.3142830-1-badhri@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/typec/tcpm/tcpm.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -435,6 +435,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
- 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
- 
-+	/* Lenovo Powered USB-C Travel Hub (4X90S92381, RTL8153 GigE) */
-+	{ USB_DEVICE(0x17ef, 0x721e), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* Lenovo ThinkCenter A630Z TI024Gen3 usb-audio */
- 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
- 			USB_QUIRK_DISCONNECT_SUSPEND },
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -3293,11 +3293,7 @@ static void run_state_machine(struct tcp
+ 				       tcpm_try_src(port) ? SRC_TRY
+ 							  : SNK_ATTACHED,
+ 				       0);
+-		else
+-			/* Wait for VBUS, but not forever */
+-			tcpm_set_state(port, PORT_RESET, PD_T_PS_SOURCE_ON);
+ 		break;
+-
+ 	case SRC_TRY:
+ 		port->try_src_count++;
+ 		tcpm_set_cc(port, tcpm_rp_cc(port));
 
 
