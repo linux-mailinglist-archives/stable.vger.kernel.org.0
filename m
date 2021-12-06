@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D52469D3B
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCCF469BD5
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244402AbhLFP2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42376 "EHLO
+        id S1359116AbhLFPRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:01 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34344 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359134AbhLFPYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:18 -0500
+        with ESMTP id S1350729AbhLFPOF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 734C36133C;
-        Mon,  6 Dec 2021 15:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52D03C341C2;
-        Mon,  6 Dec 2021 15:20:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BF6E61319;
+        Mon,  6 Dec 2021 15:10:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EEBC341C1;
+        Mon,  6 Dec 2021 15:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804046;
-        bh=RLPrFAp3DVZ6ThzxUXhWMGaAznPUo5CPpjnjLqs8W7M=;
+        s=korg; t=1638803434;
+        bh=p6LYL8+1mm261afjJwqkm3hpF347y2q+hRVR1I3Inyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLF7g30IbNQ4B9YEAfgQ5Tav60aww6b/D9G0QpOnU3/ybbd4qplzufYZfT9NoNsuf
-         XFk+SsRm3u+ptfS3uI5XYk7rFGfgJTtjuv/gLpIqFCHkFsin7WTi5pRlq7X9vV/E7S
-         v5LPTC9vHug77fIKT0xfpumiV/RjM5vk7wG7eFC8=
+        b=R5+5LrffhOcFmkmG00E6KMueR47xfN4tsNdqeE+2HJE7+kR49Un5JEujgnxI269Xu
+         bqPgRjzsLtnd8q6o3Zm9Ms6aB1MEMAB7xvavUtFADarIMsEA+zIYMUmi3Ul/4lMt1U
+         006Ho/Sq3kJ2z+55DdE8MJESm0VJXVHo3+KLd+HY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikita Danilov <ndanilov@aquantia.com>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 099/130] atlantic: Add missing DIDs and fix 115c.
-Date:   Mon,  6 Dec 2021 15:56:56 +0100
-Message-Id: <20211206145603.070909853@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 40/48] xhci: Fix commad ring abort, write all 64 bits to CRCR register.
+Date:   Mon,  6 Dec 2021 15:56:57 +0100
+Message-Id: <20211206145550.207939735@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,101 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Danilov <ndanilov@aquantia.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 413d5e09caa5a11da9c7d72401ba0588466a04c0 upstream.
+commit 09f736aa95476631227d2dc0e6b9aeee1ad7ed58 upstream.
 
-At the late production stages new dev ids were introduced. These are
-now in production, so its important for the driver to recognize these.
-And also fix the board caps for AQC115C adapter.
+Turns out some xHC controllers require all 64 bits in the CRCR register
+to be written to execute a command abort.
 
-Fixes: b3f0c79cba206 ("net: atlantic: A2 hw_ops skeleton")
-Signed-off-by: Nikita Danilov <ndanilov@aquantia.com>
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The lower 32 bits containing the command abort bit is written first.
+In case the command ring stops before we write the upper 32 bits then
+hardware may use these upper bits to set the commnd ring dequeue pointer.
+
+Solve this by making sure the upper 32 bits contain a valid command
+ring dequeue pointer.
+
+The original patch that only wrote the first 32 to stop the ring went
+to stable, so this fix should go there as well.
+
+Fixes: ff0e50d3564f ("xhci: Fix command ring pointer corruption while aborting a command")
+Cc: stable@vger.kernel.org
+Tested-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211126122340.1193239-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_common.h       |    2 +
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c     |    7 +++++-
- drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c |   17 +++++++++++++++
- drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h |    2 +
- 4 files changed, 27 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-ring.c |   21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_common.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_common.h
-@@ -40,10 +40,12 @@
- 
- #define AQ_DEVICE_ID_AQC113DEV	0x00C0
- #define AQ_DEVICE_ID_AQC113CS	0x94C0
-+#define AQ_DEVICE_ID_AQC113CA	0x34C0
- #define AQ_DEVICE_ID_AQC114CS	0x93C0
- #define AQ_DEVICE_ID_AQC113	0x04C0
- #define AQ_DEVICE_ID_AQC113C	0x14C0
- #define AQ_DEVICE_ID_AQC115C	0x12C0
-+#define AQ_DEVICE_ID_AQC116C	0x11C0
- 
- #define HW_ATL_NIC_NAME "Marvell (aQuantia) AQtion 10Gbit Network Adapter"
- 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -49,6 +49,8 @@ static const struct pci_device_id aq_pci
- 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113), },
- 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113C), },
- 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC115C), },
-+	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113CA), },
-+	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC116C), },
- 
- 	{}
- };
-@@ -85,7 +87,10 @@ static const struct aq_board_revision_s
- 	{ AQ_DEVICE_ID_AQC113CS,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
- 	{ AQ_DEVICE_ID_AQC114CS,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
- 	{ AQ_DEVICE_ID_AQC113C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
--	{ AQ_DEVICE_ID_AQC115C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
-+	{ AQ_DEVICE_ID_AQC115C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc115c, },
-+	{ AQ_DEVICE_ID_AQC113CA,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
-+	{ AQ_DEVICE_ID_AQC116C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc116c, },
-+
- };
- 
- MODULE_DEVICE_TABLE(pci, aq_pci_tbl);
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
-@@ -72,6 +72,23 @@ const struct aq_hw_caps_s hw_atl2_caps_a
- 			  AQ_NIC_RATE_10M_HALF,
- };
- 
-+const struct aq_hw_caps_s hw_atl2_caps_aqc115c = {
-+	DEFAULT_BOARD_BASIC_CAPABILITIES,
-+	.media_type = AQ_HW_MEDIA_TYPE_TP,
-+	.link_speed_msk = AQ_NIC_RATE_2G5 |
-+			  AQ_NIC_RATE_1G  |
-+			  AQ_NIC_RATE_100M      |
-+			  AQ_NIC_RATE_10M,
-+};
-+
-+const struct aq_hw_caps_s hw_atl2_caps_aqc116c = {
-+	DEFAULT_BOARD_BASIC_CAPABILITIES,
-+	.media_type = AQ_HW_MEDIA_TYPE_TP,
-+	.link_speed_msk = AQ_NIC_RATE_1G  |
-+			  AQ_NIC_RATE_100M      |
-+			  AQ_NIC_RATE_10M,
-+};
-+
- static u32 hw_atl2_sem_act_rslvr_get(struct aq_hw_s *self)
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -339,7 +339,9 @@ static void xhci_handle_stopped_cmd_ring
+ /* Must be called with xhci->lock held, releases and aquires lock back */
+ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
  {
- 	return hw_atl_reg_glb_cpu_sem_get(self, HW_ATL2_FW_SM_ACT_RSLVR);
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h
-@@ -9,6 +9,8 @@
- #include "aq_common.h"
+-	u32 temp_32;
++	struct xhci_segment *new_seg	= xhci->cmd_ring->deq_seg;
++	union xhci_trb *new_deq		= xhci->cmd_ring->dequeue;
++	u64 crcr;
+ 	int ret;
  
- extern const struct aq_hw_caps_s hw_atl2_caps_aqc113;
-+extern const struct aq_hw_caps_s hw_atl2_caps_aqc115c;
-+extern const struct aq_hw_caps_s hw_atl2_caps_aqc116c;
- extern const struct aq_hw_ops hw_atl2_ops;
+ 	xhci_dbg(xhci, "Abort command ring\n");
+@@ -348,13 +350,18 @@ static int xhci_abort_cmd_ring(struct xh
  
- #endif /* HW_ATL2_H */
+ 	/*
+ 	 * The control bits like command stop, abort are located in lower
+-	 * dword of the command ring control register. Limit the write
+-	 * to the lower dword to avoid corrupting the command ring pointer
+-	 * in case if the command ring is stopped by the time upper dword
+-	 * is written.
++	 * dword of the command ring control register.
++	 * Some controllers require all 64 bits to be written to abort the ring.
++	 * Make sure the upper dword is valid, pointing to the next command,
++	 * avoiding corrupting the command ring pointer in case the command ring
++	 * is stopped by the time the upper dword is written.
+ 	 */
+-	temp_32 = readl(&xhci->op_regs->cmd_ring);
+-	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
++	next_trb(xhci, NULL, &new_seg, &new_deq);
++	if (trb_is_link(new_deq))
++		next_trb(xhci, NULL, &new_seg, &new_deq);
++
++	crcr = xhci_trb_virt_to_dma(new_seg, new_deq);
++	xhci_write_64(xhci, crcr | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
+ 
+ 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
+ 	 * completion of the Command Abort operation. If CRR is not negated in 5
 
 
