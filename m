@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF541469E1D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8ED469B27
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:09:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350649AbhLFPgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:36:20 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48156 "EHLO
+        id S1346589AbhLFPNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:13:16 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60014 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387877AbhLFPcB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:01 -0500
+        with ESMTP id S1346274AbhLFPLN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C965D6132A;
-        Mon,  6 Dec 2021 15:28:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB0DC34901;
-        Mon,  6 Dec 2021 15:28:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E92A56131E;
+        Mon,  6 Dec 2021 15:07:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D195BC341C5;
+        Mon,  6 Dec 2021 15:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804512;
-        bh=2ShyBfhNKhTojNtGZoMi+Kkr4HOEAiks/BUaYV0mTgQ=;
+        s=korg; t=1638803264;
+        bh=HcNbF3fnbk/eJN8AY/sxa+5BokSDwd9fmPjASQs4nUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZClk8nS1r5huO3q7Qt2GlvqlHcEcStMi+7TxJS4Nymhr2hLMpbjVz5evUb91U/Re2
-         W1g5wgERO3KHNNmNIFmwo3A/ytt69F32e6mrDC3hHq3OeEqyaNc+zidR6dpUwkbrAm
-         Eg7zTDsj97Rvbq9vF/j3VAjzN9wCzfTlLP55hFGc=
+        b=WYYHgpHaU65ikMzpA0zTzBICuY3FNTfRfpfY4rtFWwFIqhdjm3AuklAZ2Y8NvWFzm
+         z8X5zlrSeYB8tAo49UmGYqQnyRpAwoKIzeVNERJXfhVNCn6DheoVtfExfVtFdZDBlH
+         pDKLfmz5ehIRZlvLppLt9BOHeL26DmAPvUFTi0TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Jian-Hong Pan <jhp@endlessos.org>
-Subject: [PATCH 5.15 141/207] drm/vc4: kms: Add missing drm_crtc_commit_put
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 087/106] fs: add fget_many() and fput_many()
 Date:   Mon,  6 Dec 2021 15:56:35 +0100
-Message-Id: <20211206145615.114552684@linuxfoundation.org>
+Message-Id: <20211206145558.525646517@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 049cfff8d53a30cae3349ff71a4c01b7d9981bc2 upstream.
+commit 091141a42e15fe47ada737f3996b317072afcefb upstream.
 
-Commit 9ec03d7f1ed3 ("drm/vc4: kms: Wait on previous FIFO users before a
-commit") introduced a global state for the HVS, with each FIFO storing
-the current CRTC commit so that we can properly synchronize commits.
+Some uses cases repeatedly get and put references to the same file, but
+the only exposed interface is doing these one at the time. As each of
+these entail an atomic inc or dec on a shared structure, that cost can
+add up.
 
-However, the refcounting was off and we thus ended up leaking the
-drm_crtc_commit structure every commit. Add a drm_crtc_commit_put to
-prevent the leakage.
+Add fget_many(), which works just like fget(), except it takes an
+argument for how many references to get on the file. Ditto fput_many(),
+which can drop an arbitrary number of references to a file.
 
-Fixes: 9ec03d7f1ed3 ("drm/vc4: kms: Wait on previous FIFO users before a commit")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Tested-by: Jian-Hong Pan <jhp@endlessos.org>
-Link: https://lore.kernel.org/r/20211117094527.146275-4-maxime@cerno.tech
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_kms.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/file.c            |   15 ++++++++++-----
+ fs/file_table.c      |    9 +++++++--
+ include/linux/file.h |    2 ++
+ include/linux/fs.h   |    4 +++-
+ 4 files changed, 22 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/vc4/vc4_kms.c
-+++ b/drivers/gpu/drm/vc4/vc4_kms.c
-@@ -361,6 +361,7 @@ static void vc4_atomic_commit_tail(struc
- 		struct vc4_crtc_state *vc4_crtc_state =
- 			to_vc4_crtc_state(old_crtc_state);
- 		unsigned int channel = vc4_crtc_state->assigned_channel;
-+		struct drm_crtc_commit *commit;
- 		int ret;
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -679,7 +679,7 @@ void do_close_on_exec(struct files_struc
+ 	spin_unlock(&files->file_lock);
+ }
  
- 		if (channel == VC4_HVS_CHANNEL_DISABLED)
-@@ -369,9 +370,15 @@ static void vc4_atomic_commit_tail(struc
- 		if (!old_hvs_state->fifo_state[channel].in_use)
- 			continue;
- 
--		ret = drm_crtc_commit_wait(old_hvs_state->fifo_state[channel].pending_commit);
-+		commit = old_hvs_state->fifo_state[channel].pending_commit;
-+		if (!commit)
-+			continue;
-+
-+		ret = drm_crtc_commit_wait(commit);
- 		if (ret)
- 			drm_err(dev, "Timed out waiting for commit\n");
-+
-+		drm_crtc_commit_put(commit);
+-static struct file *__fget(unsigned int fd, fmode_t mask)
++static struct file *__fget(unsigned int fd, fmode_t mask, unsigned int refs)
+ {
+ 	struct files_struct *files = current->files;
+ 	struct file *file;
+@@ -694,7 +694,7 @@ loop:
+ 		 */
+ 		if (file->f_mode & mask)
+ 			file = NULL;
+-		else if (!get_file_rcu(file))
++		else if (!get_file_rcu_many(file, refs))
+ 			goto loop;
  	}
+ 	rcu_read_unlock();
+@@ -702,15 +702,20 @@ loop:
+ 	return file;
+ }
  
- 	if (vc4->hvs->hvs5)
++struct file *fget_many(unsigned int fd, unsigned int refs)
++{
++	return __fget(fd, FMODE_PATH, refs);
++}
++
+ struct file *fget(unsigned int fd)
+ {
+-	return __fget(fd, FMODE_PATH);
++	return __fget(fd, FMODE_PATH, 1);
+ }
+ EXPORT_SYMBOL(fget);
+ 
+ struct file *fget_raw(unsigned int fd)
+ {
+-	return __fget(fd, 0);
++	return __fget(fd, 0, 1);
+ }
+ EXPORT_SYMBOL(fget_raw);
+ 
+@@ -741,7 +746,7 @@ static unsigned long __fget_light(unsign
+ 			return 0;
+ 		return (unsigned long)file;
+ 	} else {
+-		file = __fget(fd, mask);
++		file = __fget(fd, mask, 1);
+ 		if (!file)
+ 			return 0;
+ 		return FDPUT_FPUT | (unsigned long)file;
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -261,9 +261,9 @@ void flush_delayed_fput(void)
+ 
+ static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
+ 
+-void fput(struct file *file)
++void fput_many(struct file *file, unsigned int refs)
+ {
+-	if (atomic_long_dec_and_test(&file->f_count)) {
++	if (atomic_long_sub_and_test(refs, &file->f_count)) {
+ 		struct task_struct *task = current;
+ 
+ 		if (likely(!in_interrupt() && !(task->flags & PF_KTHREAD))) {
+@@ -282,6 +282,11 @@ void fput(struct file *file)
+ 	}
+ }
+ 
++void fput(struct file *file)
++{
++	fput_many(file, 1);
++}
++
+ /*
+  * synchronous analog of fput(); for kernel threads that might be needed
+  * in some umount() (and thus can't use flush_delayed_fput() without
+--- a/include/linux/file.h
++++ b/include/linux/file.h
+@@ -13,6 +13,7 @@
+ struct file;
+ 
+ extern void fput(struct file *);
++extern void fput_many(struct file *, unsigned int);
+ 
+ struct file_operations;
+ struct vfsmount;
+@@ -41,6 +42,7 @@ static inline void fdput(struct fd fd)
+ }
+ 
+ extern struct file *fget(unsigned int fd);
++extern struct file *fget_many(unsigned int fd, unsigned int refs);
+ extern struct file *fget_raw(unsigned int fd);
+ extern unsigned long __fdget(unsigned int fd);
+ extern unsigned long __fdget_raw(unsigned int fd);
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -908,7 +908,9 @@ static inline struct file *get_file(stru
+ 	atomic_long_inc(&f->f_count);
+ 	return f;
+ }
+-#define get_file_rcu(x) atomic_long_inc_not_zero(&(x)->f_count)
++#define get_file_rcu_many(x, cnt)	\
++	atomic_long_add_unless(&(x)->f_count, (cnt), 0)
++#define get_file_rcu(x) get_file_rcu_many((x), 1)
+ #define fput_atomic(x)	atomic_long_add_unless(&(x)->f_count, -1, 1)
+ #define file_count(x)	atomic_long_read(&(x)->f_count)
+ 
 
 
