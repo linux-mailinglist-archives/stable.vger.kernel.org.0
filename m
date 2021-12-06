@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 461EE469D1D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFEB6469EE9
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358947AbhLFP2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56322 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229503AbhLFPXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:25 -0500
+        id S1391086AbhLFPot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:44:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33314 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390594AbhLFPme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE6A6C0698DB;
+        Mon,  6 Dec 2021 07:28:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90E63B81135;
-        Mon,  6 Dec 2021 15:19:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE638C341C2;
-        Mon,  6 Dec 2021 15:19:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9E3FB8111C;
+        Mon,  6 Dec 2021 15:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF78CC34901;
+        Mon,  6 Dec 2021 15:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803993;
-        bh=Ul9Qe6+tggWdujLWSEDcT5P3VY1FnHHHw3agiexi3bs=;
+        s=korg; t=1638804537;
+        bh=C5h0RPN7545FvbEoQTbUiST4jp/vC7Xw2kpsKRyvHj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AM5IEybjKyc7cDO2cF/ji3oHQpzLJxNCA0sV7Igd9YCr/LpPa5eAUulDiIHtPCWxA
-         CpBDEl2bQixFjjYIdEbyoF4twzkse+Reqp035AdsOF3JjT2GCWhteF+6VjX9qle/FY
-         gYhJeSmL0Ng2j+byjG5zTMTl1GlrnrihRvX8lAaM=
+        b=yGD/U2RLpuWBHDONyv3mLPDDxA8iwxrNwcWUkV+WMVXj3YV88zWg0R2G6heQO/QCZ
+         mYK03gMV62XkJ0a8ojHwU/aLvt1k2A8/Cuco8ZSlFIFbQIXl43Uv32YEiFBGrCTydy
+         RE2+6bZa1t/ziXgHugV1hoFvuh8Y9kC+Z32PvNHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 119/130] x86/64/mm: Map all kernel memory into trampoline_pgd
-Date:   Mon,  6 Dec 2021 15:57:16 +0100
-Message-Id: <20211206145603.767001070@linuxfoundation.org>
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 183/207] net/mlx5e: Sync TIR params updates against concurrent create/modify
+Date:   Mon,  6 Dec 2021 15:57:17 +0100
+Message-Id: <20211206145616.612181939@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +50,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-commit 51523ed1c26758de1af7e58730a656875f72f783 upstream.
+[ Upstream commit 4cce2ccf08fbc27ae34ce0e72db15166e7b5f6a7 ]
 
-The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
-range of kernel memory (with 4-level paging). This range contains the
-kernel's text+data+bss mappings and the module mapping space but not the
-direct mapping and the vmalloc area.
+Transport Interface Receive (TIR) objects perform the packet processing and
+reassembly and is also responsible for demultiplexing the packets into the
+different RQs.
 
-This is enough to get the application processors out of real-mode, but
-for code that switches back to real-mode the trampoline_pgd is missing
-important parts of the address space. For example, consider this code
-from arch/x86/kernel/reboot.c, function machine_real_restart() for a
-64-bit kernel:
+There are certain TIR context attributes that propagate to the pointed RQs
+and applied to them (like packet_merge offloads (LRO/SHAMPO) and
+tunneled_offload_en).  When TIRs do not agree on attributes values, a "last
+one wins" policy is applied.  Hence, if not synced properly, a race between
+TIR params update and a concurrent TIR create/modify operation might yield
+to a mismatch between the shadow parameters in SW and the actual applied
+state of the RQs in HW.
 
-  #ifdef CONFIG_X86_32
-  	load_cr3(initial_page_table);
-  #else
-  	write_cr3(real_mode_header->trampoline_pgd);
+tunneled_offload_en is a fixed attribute per profile, while packet merge
+offload state might be toggled and get out-of-sync. When this happens,
+packet_merge offload might be working although not requested, or the
+opposite.
 
-  	/* Exiting long mode will fail if CR4.PCIDE is set. */
-  	if (boot_cpu_has(X86_FEATURE_PCID))
-  		cr4_clear_bits(X86_CR4_PCIDE);
-  #endif
+All updates to packet_merge state and all create/modify operations of
+regular redirection/steering TIRs are done under the same priv->state_lock,
+so they do not run in parallel, and no race is possible.
 
-  	/* Jump to the identity-mapped low memory code */
-  #ifdef CONFIG_X86_32
-  	asm volatile("jmpl *%0" : :
-  		     "rm" (real_mode_header->machine_real_restart_asm),
-  		     "a" (type));
-  #else
-  	asm volatile("ljmpl *%0" : :
-  		     "m" (real_mode_header->machine_real_restart_asm),
-  		     "D" (type));
-  #endif
+However, there are other kind of TIRs (acceleration offloads TIRs, like TLS
+TIRs) which are created on demand for each new connection without holding
+the coarse priv->state_lock, hence might race.
 
-The code switches to the trampoline_pgd, which unmaps the direct mapping
-and also the kernel stack. The call to cr4_clear_bits() will find no
-stack and crash the machine. The real_mode_header pointer below points
-into the direct mapping, and dereferencing it also causes a crash.
+Fix this by synchronizing all packet_merge state reads and writes against
+all TIR create/modify operations. Include the modify operations of the
+regular redirection steering TIRs under the new lock, for better code
+layering and division of responsibilities.
 
-The reason this does not crash always is only that kernel mappings are
-global and the CR3 switch does not flush those mappings. But if theses
-mappings are not in the TLB already, the above code will crash before it
-can jump to the real-mode stub.
-
-Extend the trampoline_pgd to contain all kernel mappings to prevent
-these crashes and to make code which runs on this page-table more
-robust.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211202153226.22946-5-joro@8bytes.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1182f3659357 ("net/mlx5e: kTLS, Add kTLS RX HW offload support")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/realmode/init.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ .../ethernet/mellanox/mlx5/core/en/rx_res.c   | 41 ++++++++++++++++++-
+ .../ethernet/mellanox/mlx5/core/en/rx_res.h   |  6 +--
+ .../mellanox/mlx5/core/en_accel/ktls_rx.c     | 24 +----------
+ 3 files changed, 44 insertions(+), 27 deletions(-)
 
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -70,6 +70,7 @@ static void __init setup_real_mode(void)
- #ifdef CONFIG_X86_64
- 	u64 *trampoline_pgd;
- 	u64 efer;
-+	int i;
- #endif
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c
+index 1429538479960..0015a81eb9a17 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c
+@@ -13,6 +13,9 @@ struct mlx5e_rx_res {
+ 	unsigned int max_nch;
+ 	u32 drop_rqn;
  
- 	base = (unsigned char *)real_mode_header;
-@@ -126,8 +127,17 @@ static void __init setup_real_mode(void)
- 	trampoline_header->flags = 0;
- 
- 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
++	struct mlx5e_packet_merge_param pkt_merge_param;
++	struct rw_semaphore pkt_merge_param_sem;
 +
-+	/* Map the real mode stub as virtual == physical */
- 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
--	trampoline_pgd[511] = init_top_pgt[511].pgd;
-+
-+	/*
-+	 * Include the entirety of the kernel mapping into the trampoline
-+	 * PGD.  This way, all mappings present in the normal kernel page
-+	 * tables are usable while running on trampoline_pgd.
-+	 */
-+	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
-+		trampoline_pgd[i] = init_top_pgt[i].pgd;
- #endif
+ 	struct mlx5e_rss *rss[MLX5E_MAX_NUM_RSS];
+ 	bool rss_active;
+ 	u32 rss_rqns[MLX5E_INDIR_RQT_SIZE];
+@@ -392,6 +395,7 @@ static int mlx5e_rx_res_ptp_init(struct mlx5e_rx_res *res)
+ 	if (err)
+ 		goto out;
  
- 	sme_sev_setup_real_mode(trampoline_header);
++	/* Separated from the channels RQs, does not share pkt_merge state with them */
+ 	mlx5e_tir_builder_build_rqt(builder, res->mdev->mlx5e_res.hw_objs.td.tdn,
+ 				    mlx5e_rqt_get_rqtn(&res->ptp.rqt),
+ 				    inner_ft_support);
+@@ -447,6 +451,9 @@ int mlx5e_rx_res_init(struct mlx5e_rx_res *res, struct mlx5_core_dev *mdev,
+ 	res->max_nch = max_nch;
+ 	res->drop_rqn = drop_rqn;
+ 
++	res->pkt_merge_param = *init_pkt_merge_param;
++	init_rwsem(&res->pkt_merge_param_sem);
++
+ 	err = mlx5e_rx_res_rss_init_def(res, init_pkt_merge_param, init_nch);
+ 	if (err)
+ 		goto err_out;
+@@ -513,7 +520,7 @@ u32 mlx5e_rx_res_get_tirn_ptp(struct mlx5e_rx_res *res)
+ 	return mlx5e_tir_get_tirn(&res->ptp.tir);
+ }
+ 
+-u32 mlx5e_rx_res_get_rqtn_direct(struct mlx5e_rx_res *res, unsigned int ix)
++static u32 mlx5e_rx_res_get_rqtn_direct(struct mlx5e_rx_res *res, unsigned int ix)
+ {
+ 	return mlx5e_rqt_get_rqtn(&res->channels[ix].direct_rqt);
+ }
+@@ -656,6 +663,9 @@ int mlx5e_rx_res_packet_merge_set_param(struct mlx5e_rx_res *res,
+ 	if (!builder)
+ 		return -ENOMEM;
+ 
++	down_write(&res->pkt_merge_param_sem);
++	res->pkt_merge_param = *pkt_merge_param;
++
+ 	mlx5e_tir_builder_build_packet_merge(builder, pkt_merge_param);
+ 
+ 	final_err = 0;
+@@ -681,6 +691,7 @@ int mlx5e_rx_res_packet_merge_set_param(struct mlx5e_rx_res *res,
+ 		}
+ 	}
+ 
++	up_write(&res->pkt_merge_param_sem);
+ 	mlx5e_tir_builder_free(builder);
+ 	return final_err;
+ }
+@@ -689,3 +700,31 @@ struct mlx5e_rss_params_hash mlx5e_rx_res_get_current_hash(struct mlx5e_rx_res *
+ {
+ 	return mlx5e_rss_get_hash(res->rss[0]);
+ }
++
++int mlx5e_rx_res_tls_tir_create(struct mlx5e_rx_res *res, unsigned int rxq,
++				struct mlx5e_tir *tir)
++{
++	bool inner_ft_support = res->features & MLX5E_RX_RES_FEATURE_INNER_FT;
++	struct mlx5e_tir_builder *builder;
++	u32 rqtn;
++	int err;
++
++	builder = mlx5e_tir_builder_alloc(false);
++	if (!builder)
++		return -ENOMEM;
++
++	rqtn = mlx5e_rx_res_get_rqtn_direct(res, rxq);
++
++	mlx5e_tir_builder_build_rqt(builder, res->mdev->mlx5e_res.hw_objs.td.tdn, rqtn,
++				    inner_ft_support);
++	mlx5e_tir_builder_build_direct(builder);
++	mlx5e_tir_builder_build_tls(builder);
++	down_read(&res->pkt_merge_param_sem);
++	mlx5e_tir_builder_build_packet_merge(builder, &res->pkt_merge_param);
++	err = mlx5e_tir_init(tir, builder, res->mdev, false);
++	up_read(&res->pkt_merge_param_sem);
++
++	mlx5e_tir_builder_free(builder);
++
++	return err;
++}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h
+index d09f7d174a518..b39b20a720e0f 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h
+@@ -37,9 +37,6 @@ u32 mlx5e_rx_res_get_tirn_rss(struct mlx5e_rx_res *res, enum mlx5_traffic_types
+ u32 mlx5e_rx_res_get_tirn_rss_inner(struct mlx5e_rx_res *res, enum mlx5_traffic_types tt);
+ u32 mlx5e_rx_res_get_tirn_ptp(struct mlx5e_rx_res *res);
+ 
+-/* RQTN getters for modules that create their own TIRs */
+-u32 mlx5e_rx_res_get_rqtn_direct(struct mlx5e_rx_res *res, unsigned int ix);
+-
+ /* Activate/deactivate API */
+ void mlx5e_rx_res_channels_activate(struct mlx5e_rx_res *res, struct mlx5e_channels *chs);
+ void mlx5e_rx_res_channels_deactivate(struct mlx5e_rx_res *res);
+@@ -69,4 +66,7 @@ struct mlx5e_rss *mlx5e_rx_res_rss_get(struct mlx5e_rx_res *res, u32 rss_idx);
+ /* Workaround for hairpin */
+ struct mlx5e_rss_params_hash mlx5e_rx_res_get_current_hash(struct mlx5e_rx_res *res);
+ 
++/* Accel TIRs */
++int mlx5e_rx_res_tls_tir_create(struct mlx5e_rx_res *res, unsigned int rxq,
++				struct mlx5e_tir *tir);
+ #endif /* __MLX5_EN_RX_RES_H__ */
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
+index a2a9f68579dd8..15711814d2d28 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
+@@ -100,25 +100,6 @@ mlx5e_ktls_rx_resync_create_resp_list(void)
+ 	return resp_list;
+ }
+ 
+-static int mlx5e_ktls_create_tir(struct mlx5_core_dev *mdev, struct mlx5e_tir *tir, u32 rqtn)
+-{
+-	struct mlx5e_tir_builder *builder;
+-	int err;
+-
+-	builder = mlx5e_tir_builder_alloc(false);
+-	if (!builder)
+-		return -ENOMEM;
+-
+-	mlx5e_tir_builder_build_rqt(builder, mdev->mlx5e_res.hw_objs.td.tdn, rqtn, false);
+-	mlx5e_tir_builder_build_direct(builder);
+-	mlx5e_tir_builder_build_tls(builder);
+-	err = mlx5e_tir_init(tir, builder, mdev, false);
+-
+-	mlx5e_tir_builder_free(builder);
+-
+-	return err;
+-}
+-
+ static void accel_rule_handle_work(struct work_struct *work)
+ {
+ 	struct mlx5e_ktls_offload_context_rx *priv_rx;
+@@ -609,7 +590,6 @@ int mlx5e_ktls_add_rx(struct net_device *netdev, struct sock *sk,
+ 	struct mlx5_core_dev *mdev;
+ 	struct mlx5e_priv *priv;
+ 	int rxq, err;
+-	u32 rqtn;
+ 
+ 	tls_ctx = tls_get_ctx(sk);
+ 	priv = netdev_priv(netdev);
+@@ -635,9 +615,7 @@ int mlx5e_ktls_add_rx(struct net_device *netdev, struct sock *sk,
+ 	priv_rx->sw_stats = &priv->tls->sw_stats;
+ 	mlx5e_set_ktls_rx_priv_ctx(tls_ctx, priv_rx);
+ 
+-	rqtn = mlx5e_rx_res_get_rqtn_direct(priv->rx_res, rxq);
+-
+-	err = mlx5e_ktls_create_tir(mdev, &priv_rx->tir, rqtn);
++	err = mlx5e_rx_res_tls_tir_create(priv->rx_res, rxq, &priv_rx->tir);
+ 	if (err)
+ 		goto err_create_tir;
+ 
+-- 
+2.33.0
+
 
 
