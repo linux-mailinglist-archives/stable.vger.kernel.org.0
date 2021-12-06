@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F233F469B85
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6447469BED
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358271AbhLFPRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347453AbhLFPOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5338EC0698D5;
-        Mon,  6 Dec 2021 07:07:38 -0800 (PST)
+        id S1346750AbhLFPRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33372 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355852AbhLFPMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F179B810E7;
-        Mon,  6 Dec 2021 15:07:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6690EC341C1;
-        Mon,  6 Dec 2021 15:07:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A59361316;
+        Mon,  6 Dec 2021 15:09:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B3AAC341C1;
+        Mon,  6 Dec 2021 15:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803256;
-        bh=qHA3pse0aJpPJ8bg2NKqEmnqjVvguuq1LWSl+GxzR1A=;
+        s=korg; t=1638803362;
+        bh=Ax+mzh3O/LR+EVqEKIJkihsoy88c801hBicX0PEHIjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vkidqR15FQDPdE215CnL6HK8TR4eN7EDjqOZaM0fmbPjDOPdVakSkJ5IYMa+DcQeh
-         FvmHZLfowYNMef+bLkGyPZTjwbLTYGEWiP3qoVoZQ6vB/Aqz6ISQXAPSfQ87CDzVXC
-         Lr3Wr0GrHTyzUSWKlzGqzMRVQ9ejUCLICxIoR9W4=
+        b=UlqM3bFi8/sfJi3efPFJlQfssPDbN6AaBNMNMBpaMoyJtP9AydBxTvkVmuLfKYp7B
+         6Je35iHSYAeeHOK6vsDkKEz8WJ9q6SiyP7oI2MZO1QXBwupRbLiUuPl1es5YfOHK4e
+         hF6vmjH2HumPjKTppJpVqNOClpPhEEQvNMejFqf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhangyue <zhangyue1@kylinos.cn>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 084/106] kprobes: Limit max data_size of the kretprobe instances
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Teng Qi <starmiku1207184332@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 15/48] net: ethernet: dec: tulip: de4x5: fix possible array overflows in type3_infoblock()
 Date:   Mon,  6 Dec 2021 15:56:32 +0100
-Message-Id: <20211206145558.419381527@linuxfoundation.org>
+Message-Id: <20211206145549.375368069@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Teng Qi <starmiku1207184332@gmail.com>
 
-commit 6bbfa44116689469267f1a6e3d233b52114139d2 upstream.
+[ Upstream commit 0fa68da72c3be09e06dd833258ee89c33374195f ]
 
-The 'kprobe::data_size' is unsigned, thus it can not be negative.  But if
-user sets it enough big number (e.g. (size_t)-8), the result of 'data_size
-+ sizeof(struct kretprobe_instance)' becomes smaller than sizeof(struct
-kretprobe_instance) or zero. In result, the kretprobe_instance are
-allocated without enough memory, and kretprobe accesses outside of
-allocated memory.
+The definition of macro MOTO_SROM_BUG is:
+  #define MOTO_SROM_BUG    (lp->active == 8 && (get_unaligned_le32(
+  dev->dev_addr) & 0x00ffffff) == 0x3e0008)
 
-To avoid this issue, introduce a max limitation of the
-kretprobe::data_size. 4KB per instance should be OK.
+and the if statement
+  if (MOTO_SROM_BUG) lp->active = 0;
 
-Link: https://lkml.kernel.org/r/163836995040.432120.10322772773821182925.stgit@devnote2
+using this macro indicates lp->active could be 8. If lp->active is 8 and
+the second comparison of this macro is false. lp->active will remain 8 in:
+  lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
+  lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
+  lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
+  lp->phy[lp->active].ana = get_unaligned_le16(p); p += 2;
+  lp->phy[lp->active].fdx = get_unaligned_le16(p); p += 2;
+  lp->phy[lp->active].ttm = get_unaligned_le16(p); p += 2;
+  lp->phy[lp->active].mci = *p;
 
-Cc: stable@vger.kernel.org
-Fixes: f47cd9b553aa ("kprobes: kretprobe user entry-handler")
-Reported-by: zhangyue <zhangyue1@kylinos.cn>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, the length of array lp->phy is 8, so array overflows can occur.
+To fix these possible array overflows, we first check lp->active and then
+return -EINVAL if it is greater or equal to ARRAY_SIZE(lp->phy) (i.e. 8).
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kprobes.h |    2 ++
- kernel/kprobes.c        |    3 +++
- 2 files changed, 5 insertions(+)
+ drivers/net/ethernet/dec/tulip/de4x5.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -193,6 +193,8 @@ struct kretprobe {
- 	raw_spinlock_t lock;
- };
- 
-+#define KRETPROBE_MAX_DATA_SIZE	4096
-+
- struct kretprobe_instance {
- 	struct hlist_node hlist;
- 	struct kretprobe *rp;
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -2004,6 +2004,9 @@ int register_kretprobe(struct kretprobe
- 		}
- 	}
- 
-+	if (rp->data_size > KRETPROBE_MAX_DATA_SIZE)
-+		return -E2BIG;
-+
- 	rp->kp.pre_handler = pre_handler_kretprobe;
- 	rp->kp.post_handler = NULL;
- 	rp->kp.fault_handler = NULL;
+diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
+index a80252973171f..c97fc0e384ca6 100644
+--- a/drivers/net/ethernet/dec/tulip/de4x5.c
++++ b/drivers/net/ethernet/dec/tulip/de4x5.c
+@@ -4708,6 +4708,10 @@ type3_infoblock(struct net_device *dev, u_char count, u_char *p)
+         lp->ibn = 3;
+         lp->active = *p++;
+ 	if (MOTO_SROM_BUG) lp->active = 0;
++	/* if (MOTO_SROM_BUG) statement indicates lp->active could
++	 * be 8 (i.e. the size of array lp->phy) */
++	if (WARN_ON(lp->active >= ARRAY_SIZE(lp->phy)))
++		return -EINVAL;
+ 	lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
+ 	lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
+ 	lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
+-- 
+2.33.0
+
 
 
