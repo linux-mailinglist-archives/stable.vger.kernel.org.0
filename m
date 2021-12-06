@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EAFD469BB9
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F233F469B85
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356992AbhLFPSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35902 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358297AbhLFPQc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:32 -0500
+        id S1358271AbhLFPRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347453AbhLFPOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5338EC0698D5;
+        Mon,  6 Dec 2021 07:07:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 757A761309;
-        Mon,  6 Dec 2021 15:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D7D9C341C2;
-        Mon,  6 Dec 2021 15:13:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F179B810E7;
+        Mon,  6 Dec 2021 15:07:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6690EC341C1;
+        Mon,  6 Dec 2021 15:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803582;
-        bh=1XE0mcc/tmYyynTxn2n0wMzyC4wO2YrdfxfsU9Cv+C8=;
+        s=korg; t=1638803256;
+        bh=qHA3pse0aJpPJ8bg2NKqEmnqjVvguuq1LWSl+GxzR1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d54ys2G5jnMXRCLMLFT1Z8QNLTPHd6IFGWqMN2pWhURQ9T+Ygfljz2uZxZNtwig6I
-         /aRNTj3hTMmEDEfIxxV0Dhm9xaLdcyP89kTV/52ir/MarjpEy23wMRzjBFD9VA37+c
-         qzcGtxE5jYkiF/ZoIAJQzKpz2T1xxNAMxnsLIu0c=
+        b=vkidqR15FQDPdE215CnL6HK8TR4eN7EDjqOZaM0fmbPjDOPdVakSkJ5IYMa+DcQeh
+         FvmHZLfowYNMef+bLkGyPZTjwbLTYGEWiP3qoVoZQ6vB/Aqz6ISQXAPSfQ87CDzVXC
+         Lr3Wr0GrHTyzUSWKlzGqzMRVQ9ejUCLICxIoR9W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 27/70] cpufreq: Fix get_cpu_device() failure in add_cpu_dev_symlink()
-Date:   Mon,  6 Dec 2021 15:56:31 +0100
-Message-Id: <20211206145552.855681307@linuxfoundation.org>
+        stable@vger.kernel.org, zhangyue <zhangyue1@kylinos.cn>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 084/106] kprobes: Limit max data_size of the kretprobe instances
+Date:   Mon,  6 Dec 2021 15:56:32 +0100
+Message-Id: <20211206145558.419381527@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 2c1b5a84669d2477d8fffe9136e86a2cff591729 upstream.
+commit 6bbfa44116689469267f1a6e3d233b52114139d2 upstream.
 
-When I hot added a CPU, I found 'cpufreq' directory was not created
-below /sys/devices/system/cpu/cpuX/.
+The 'kprobe::data_size' is unsigned, thus it can not be negative.  But if
+user sets it enough big number (e.g. (size_t)-8), the result of 'data_size
++ sizeof(struct kretprobe_instance)' becomes smaller than sizeof(struct
+kretprobe_instance) or zero. In result, the kretprobe_instance are
+allocated without enough memory, and kretprobe accesses outside of
+allocated memory.
 
-It is because get_cpu_device() failed in add_cpu_dev_symlink().
+To avoid this issue, introduce a max limitation of the
+kretprobe::data_size. 4KB per instance should be OK.
 
-cpufreq_add_dev() is the .add_dev callback of a CPU subsys interface.
-It will be called when the CPU device registered into the system.
-The call chain is as follows:
+Link: https://lkml.kernel.org/r/163836995040.432120.10322772773821182925.stgit@devnote2
 
-  register_cpu()
-  ->device_register()
-   ->device_add()
-    ->bus_probe_device()
-     ->cpufreq_add_dev()
-
-But only after the CPU device has been registered, we can get the
-CPU device by get_cpu_device(), otherwise it will return NULL.
-
-Since we already have the CPU device in cpufreq_add_dev(), pass
-it to add_cpu_dev_symlink().
-
-I noticed that the 'kobj' of the CPU device has been added into
-the system before cpufreq_add_dev().
-
-Fixes: 2f0ba790df51 ("cpufreq: Fix creation of symbolic links to policy directories")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: f47cd9b553aa ("kprobes: kretprobe user entry-handler")
+Reported-by: zhangyue <zhangyue1@kylinos.cn>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/cpufreq.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ include/linux/kprobes.h |    2 ++
+ kernel/kprobes.c        |    3 +++
+ 2 files changed, 5 insertions(+)
 
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -995,10 +995,9 @@ static struct kobj_type ktype_cpufreq =
- 	.release	= cpufreq_sysfs_release,
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -193,6 +193,8 @@ struct kretprobe {
+ 	raw_spinlock_t lock;
  };
  
--static void add_cpu_dev_symlink(struct cpufreq_policy *policy, unsigned int cpu)
-+static void add_cpu_dev_symlink(struct cpufreq_policy *policy, unsigned int cpu,
-+				struct device *dev)
- {
--	struct device *dev = get_cpu_device(cpu);
--
- 	if (unlikely(!dev))
- 		return;
- 
-@@ -1384,7 +1383,7 @@ static int cpufreq_online(unsigned int c
- 	if (new_policy) {
- 		for_each_cpu(j, policy->related_cpus) {
- 			per_cpu(cpufreq_cpu_data, j) = policy;
--			add_cpu_dev_symlink(policy, j);
-+			add_cpu_dev_symlink(policy, j, get_cpu_device(j));
++#define KRETPROBE_MAX_DATA_SIZE	4096
++
+ struct kretprobe_instance {
+ 	struct hlist_node hlist;
+ 	struct kretprobe *rp;
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2004,6 +2004,9 @@ int register_kretprobe(struct kretprobe
  		}
+ 	}
  
- 		policy->min_freq_req = kzalloc(2 * sizeof(*policy->min_freq_req),
-@@ -1547,7 +1546,7 @@ static int cpufreq_add_dev(struct device
- 	/* Create sysfs link on CPU registration */
- 	policy = per_cpu(cpufreq_cpu_data, cpu);
- 	if (policy)
--		add_cpu_dev_symlink(policy, cpu);
-+		add_cpu_dev_symlink(policy, cpu, dev);
- 
- 	return 0;
- }
++	if (rp->data_size > KRETPROBE_MAX_DATA_SIZE)
++		return -E2BIG;
++
+ 	rp->kp.pre_handler = pre_handler_kretprobe;
+ 	rp->kp.post_handler = NULL;
+ 	rp->kp.fault_handler = NULL;
 
 
