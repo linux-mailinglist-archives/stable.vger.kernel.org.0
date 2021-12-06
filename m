@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 916AB46A95D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8372146A968
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:14:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350241AbhLFVRY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:17:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52034 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350377AbhLFVRF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:17:05 -0500
+        id S1350534AbhLFVRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:17:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58498 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350452AbhLFVRT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:17:19 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 249ADC0611F7;
+        Mon,  6 Dec 2021 13:13:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B96F9B8110F;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 32587CE17E3;
+        Mon,  6 Dec 2021 21:13:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A94C341C6;
         Mon,  6 Dec 2021 21:13:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3EFEC341C7;
-        Mon,  6 Dec 2021 21:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825213;
-        bh=gG5974s/tIrHmn1xoPlo+42fR1hB2+r/ON3rWhyASRk=;
+        s=k20201202; t=1638825216;
+        bh=01A2+zIPO4o+Dmgp8Q9y/Jlu4dUUNtnMB0nQdN71ZZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EF+0P0zpcWM/649/JOmMkiaZJD1oFyAufS+eLGsaWZ4l+1c/FNwcMJls/x3qFdzzc
-         B8mpdQjCMkm66frkIYht5mit6TkjeCUH32/TNLf4qfnom5Mcn9z3VALFe3yDVIeHAw
-         MJ6/Qp3weJBda8Bl6FvrYM6wuv1eH4Ww4JrUaQgw4lFFQLsuLY2xzlgplMWeeqeqyE
-         G7XUtTLLtvysJAFfWu52rrrr394X1snRuT/549XgPvVWlBYQX3n6ydIqTZdnpunDyv
-         S2XigKXUi21AUA5zjL5dPQmC/TvqA+Kkvr9mSi6ViOC6UFoqu3osr8MZt6mo2AI49r
-         N1E8F0nn7/QEA==
+        b=AK6K6BZwQ8g4dLb1A94ZZzYJQVaJf/c/SqmimgAz/tdIB0kwv4pA7/db3WL1g4k1c
+         M8zN+0dhOnaGckMjO0+2h6Wb5Y2gNk5z7e0WxgK4LWaf0lmh5x552pHev2ueYqN7Ud
+         9T+FEGE2HmpzoQZkD8RGD2We2ogZC2bNtflwFtZURvcSQj9Wd+kTuOhaYIZ0IBv1e3
+         7pnRo5wrxOOZsecncoH9iDc/u++k2jv6Gdaa/SHesvbuBoxAw5yvPImY98a1qEkh3c
+         5+XGQQ7yl4hHSAXbsofiTH2asDz4+0yckRNY4oTrqe0waaGSmDsjf5PvGz/AcQRq4v
+         MnFMU+d8K9W2g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ole Ernst <olebowle@gmx.com>,
+Cc:     Erik Ekman <erik@kryo.se>,
+        Michael Stapelberg <michael@stapelberg.ch>,
+        Tariq Toukan <tariqt@nvidia.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        vpalatin@chromium.org, chris.chiu@canonical.com,
-        stern@rowland.harvard.edu, stefan.ursella@wolfvision.net,
-        kai.heng.feng@canonical.com, oneukum@suse.com, johan@kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 08/24] USB: NO_LPM quirk Lenovo Powered USB-C Travel Hub
-Date:   Mon,  6 Dec 2021 16:12:13 -0500
-Message-Id: <20211206211230.1660072-8-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        netdev@vger.kernel.org, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 09/24] net/mlx4_en: Update reported link modes for 1/10G
+Date:   Mon,  6 Dec 2021 16:12:14 -0500
+Message-Id: <20211206211230.1660072-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211206211230.1660072-1-sashal@kernel.org>
 References: <20211206211230.1660072-1-sashal@kernel.org>
@@ -51,36 +53,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ole Ernst <olebowle@gmx.com>
+From: Erik Ekman <erik@kryo.se>
 
-[ Upstream commit 49989adc38f8693fb6e9f019904dd00c1d1db5ac ]
+[ Upstream commit 2191b1dfef7d45f44b5008d2148676d9f2c82874 ]
 
-This is another branded 8153 device that doesn't work well with LPM:
-r8152 2-2.1:1.0 enp0s13f0u2u1: Stop submitting intr, status -71
+When link modes were initially added in commit 2c762679435dc
+("net/mlx4_en: Use PTYS register to query ethtool settings") and
+later updated for the new ethtool API in commit 3d8f7cc78d0eb
+("net: mlx4: use new ETHTOOL_G/SSETTINGS API") the only 1/10G non-baseT
+link modes configured were 1000baseKX, 10000baseKX4 and 10000baseKR.
+It looks like these got picked to represent other modes since nothing
+better was available.
 
-Disable LPM to resolve the issue.
+Switch to using more specific link modes added in commit 5711a98221443
+("net: ethtool: add support for 1000BaseX and missing 10G link modes").
 
-Signed-off-by: Ole Ernst <olebowle@gmx.com>
+Tested with MCX311A-XCAT connected via DAC.
+Before:
+
+% sudo ethtool enp3s0
+Settings for enp3s0:
+	Supported ports: [ FIBRE ]
+	Supported link modes:   1000baseKX/Full
+	                        10000baseKR/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: No
+	Supported FEC modes: Not reported
+	Advertised link modes:  1000baseKX/Full
+	                        10000baseKR/Full
+	Advertised pause frame use: Symmetric
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: 10000Mb/s
+	Duplex: Full
+	Auto-negotiation: off
+	Port: Direct Attach Copper
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: d
+	Wake-on: d
+        Current message level: 0x00000014 (20)
+                               link ifdown
+	Link detected: yes
+
+With this change:
+
+% sudo ethtool enp3s0
+	Settings for enp3s0:
+	Supported ports: [ FIBRE ]
+	Supported link modes:   1000baseX/Full
+	                        10000baseCR/Full
+ 	                        10000baseSR/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: No
+	Supported FEC modes: Not reported
+	Advertised link modes:  1000baseX/Full
+ 	                        10000baseCR/Full
+ 	                        10000baseSR/Full
+	Advertised pause frame use: Symmetric
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: 10000Mb/s
+	Duplex: Full
+	Auto-negotiation: off
+	Port: Direct Attach Copper
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: d
+	Wake-on: d
+        Current message level: 0x00000014 (20)
+                               link ifdown
+	Link detected: yes
+
+Tested-by: Michael Stapelberg <michael@stapelberg.ch>
+Signed-off-by: Erik Ekman <erik@kryo.se>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 8239fe7129dd7..019351c0b52cf 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -434,6 +434,9 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
- 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
- 
-+	/* Lenovo Powered USB-C Travel Hub (4X90S92381, RTL8153 GigE) */
-+	{ USB_DEVICE(0x17ef, 0x721e), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* Lenovo ThinkCenter A630Z TI024Gen3 usb-audio */
- 	{ USB_DEVICE(0x17ef, 0xa012), .driver_info =
- 			USB_QUIRK_DISCONNECT_SUSPEND },
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+index ef518b1040f72..fde521b1eecad 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+@@ -663,7 +663,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
+ 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
+-				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
++				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
+ 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
+@@ -675,9 +675,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
+ 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
+-				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
++				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
+-				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
++				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
+ 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
+ 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
 -- 
 2.33.0
 
