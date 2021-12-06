@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D145469B91
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E32E469D77
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347931AbhLFPRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48398 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356157AbhLFPPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:20 -0500
+        id S1386046AbhLFP3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:29:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56894 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1386662AbhLFP0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 986D9C0613F8;
+        Mon,  6 Dec 2021 07:17:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 698ADB8111A;
-        Mon,  6 Dec 2021 15:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AA67C341C1;
-        Mon,  6 Dec 2021 15:11:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DA7FB8111D;
+        Mon,  6 Dec 2021 15:17:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8210AC341C1;
+        Mon,  6 Dec 2021 15:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803502;
-        bh=TUTJvnF4QyGr5TJwtZsUXH6nSvmCGZ4wTVONDSK+NZw=;
+        s=korg; t=1638803838;
+        bh=1DlwUNuplRc6+5FPq6tN9SP/3Jp/hV+Amu255hOEkeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxTIp2Xo2OVkBg1V9AcAyJgA2eHVmb3/3RgrZJk1lP2qS+JOF+zKwYUXcGignAiKO
-         5H1nvXP61U7EWgIsDcILh5QCPp9tAG2akOvIqI5Sypz7/sfxlEio7tcrE9CZ3Nhsbw
-         xwOHjrzuTwbUGNH+yEcUqRzwuwoKVi+tNxSI1T7w=
+        b=Ho5HVf59gUPhoWkH8R7G5BsBmLUe/u9G9jjTDeiuX8XvoNJROV194kNeFkh9kyvsw
+         2NKyDLJjizYoYaZYglYDsG4loG9WrJvWXnQFrx1rQYaCbaSfrVUKb+ijaXGqGELI19
+         shG15Lh/AEu95D7z+AoQs4LbheuafKJEazyMAqgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/70] ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.10 063/130] i2c: stm32f7: stop dma transfer in case of NACK
 Date:   Mon,  6 Dec 2021 15:56:20 +0100
-Message-Id: <20211206145552.472106152@linuxfoundation.org>
+Message-Id: <20211206145601.855919516@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit 1527f69204fe35f341cb599f1cb01bd02daf4374 ]
+commit 31b90a95ccbbb4b628578ac17e3b3cc8eeacfe31 upstream.
 
-AMD requires that the SATA controller be configured for devsleep in order
-for S0i3 entry to work properly.
+In case of receiving a NACK, the dma transfer should be stopped
+to avoid feeding data into the FIFO.
+Also ensure to properly return the proper error code and avoid
+waiting for the end of the dma completion in case of
+error happening during the transmission.
 
-commit b1a9585cc396 ("ata: ahci: Enable DEVSLP by default on x86 with
-SLP_S0") sets up a kernel policy to enable devsleep on Intel mobile
-platforms that are using s0ix.  Add the PCI ID for the SATA controller in
-Green Sardine platforms to extend this policy by default for AMD based
-systems using s0i3 as well.
-
-Cc: Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214091
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7ecc8cfde553 ("i2c: i2c-stm32f7: Add DMA support")
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-stm32f7.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 8beb418ce167b..6f572967b5552 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -420,6 +420,7 @@ static const struct pci_device_id ahci_pci_tbl[] = {
- 	/* AMD */
- 	{ PCI_VDEVICE(AMD, 0x7800), board_ahci }, /* AMD Hudson-2 */
- 	{ PCI_VDEVICE(AMD, 0x7900), board_ahci }, /* AMD CZ */
-+	{ PCI_VDEVICE(AMD, 0x7901), board_ahci_mobile }, /* AMD Green Sardine */
- 	/* AMD is using RAID class only for ahci controllers */
- 	{ PCI_VENDOR_ID_AMD, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
- 	  PCI_CLASS_STORAGE_RAID << 8, 0xffffff, board_ahci },
--- 
-2.33.0
-
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1472,6 +1472,7 @@ static irqreturn_t stm32f7_i2c_isr_event
+ {
+ 	struct stm32f7_i2c_dev *i2c_dev = data;
+ 	struct stm32f7_i2c_msg *f7_msg = &i2c_dev->f7_msg;
++	struct stm32_i2c_dma *dma = i2c_dev->dma;
+ 	void __iomem *base = i2c_dev->base;
+ 	u32 status, mask;
+ 	int ret = IRQ_HANDLED;
+@@ -1497,6 +1498,10 @@ static irqreturn_t stm32f7_i2c_isr_event
+ 		dev_dbg(i2c_dev->dev, "<%s>: Receive NACK (addr %x)\n",
+ 			__func__, f7_msg->addr);
+ 		writel_relaxed(STM32F7_I2C_ICR_NACKCF, base + STM32F7_I2C_ICR);
++		if (i2c_dev->use_dma) {
++			stm32f7_i2c_disable_dma_req(i2c_dev);
++			dmaengine_terminate_all(dma->chan_using);
++		}
+ 		f7_msg->result = -ENXIO;
+ 	}
+ 
+@@ -1512,7 +1517,7 @@ static irqreturn_t stm32f7_i2c_isr_event
+ 		/* Clear STOP flag */
+ 		writel_relaxed(STM32F7_I2C_ICR_STOPCF, base + STM32F7_I2C_ICR);
+ 
+-		if (i2c_dev->use_dma) {
++		if (i2c_dev->use_dma && !f7_msg->result) {
+ 			ret = IRQ_WAKE_THREAD;
+ 		} else {
+ 			i2c_dev->master_mode = false;
+@@ -1525,7 +1530,7 @@ static irqreturn_t stm32f7_i2c_isr_event
+ 		if (f7_msg->stop) {
+ 			mask = STM32F7_I2C_CR2_STOP;
+ 			stm32f7_i2c_set_bits(base + STM32F7_I2C_CR2, mask);
+-		} else if (i2c_dev->use_dma) {
++		} else if (i2c_dev->use_dma && !f7_msg->result) {
+ 			ret = IRQ_WAKE_THREAD;
+ 		} else if (f7_msg->smbus) {
+ 			stm32f7_i2c_smbus_rep_start(i2c_dev);
 
 
