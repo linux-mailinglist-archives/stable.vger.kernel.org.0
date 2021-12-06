@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1C1469DD2
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:34:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1FEB469AE2
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359208AbhLFPdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:33:20 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34158 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357179AbhLFP2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:28:31 -0500
+        id S1346562AbhLFPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:39 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59270 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346891AbhLFPJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CBF8B8101C;
-        Mon,  6 Dec 2021 15:24:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB31EC34900;
-        Mon,  6 Dec 2021 15:24:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A26D461327;
+        Mon,  6 Dec 2021 15:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8685BC341C1;
+        Mon,  6 Dec 2021 15:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804297;
-        bh=r1fLnjSkFDFMM8K9EWPXdy5Sjw6FO2poZifXfJq0aCM=;
+        s=korg; t=1638803186;
+        bh=u0CHkqgKsukOjOI54p+nHDYELU0M51iGmTWjCx21O58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8oI181HWiiY9+5oxhDeJcHiD3QZBRPI7+r3tzjUqUNFz1fDd+H8/XGhe8zQFvHWq
-         c9yKFSmmXJLVOwiiyTSLDJsZWUwcjmomlhXhRIBU9x32GzndKWD535ybPAye0EMkp2
-         rCcUigwV6/gkt9yIkLEEKRCVzqv4Tffvj/jwzAgo=
+        b=sAV4pdi1aQKKkQ0AgTOsKqn8oed/sA00yzLILUjqI+fICp0cQCB5K8NsT9zr8iJwq
+         9uqmo4hWtzaR09LBw7/Z+3UIfn4QJPemCz85g/K3cNlpV9+B2WH0lPFNrz9x+KNNZ5
+         vJGu2WzcTDy/W1JXAdGCF12TQc1fUgjsjl7kb/SE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Xiumei Mu <xmu@redhat.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 095/207] wireguard: device: reset peer src endpoint when netns exits
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.14 041/106] PCI: aardvark: Dont touch PCIe registers if no card connected
 Date:   Mon,  6 Dec 2021 15:55:49 +0100
-Message-Id: <20211206145613.525364103@linuxfoundation.org>
+Message-Id: <20211206145556.800354579@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,162 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 20ae1d6aa159eb91a9bf09ff92ccaa94dbea92c2 upstream.
+commit 70e380250c3621c55ff218cbaf2272830d9dbb1d upstream.
 
-Each peer's endpoint contains a dst_cache entry that takes a reference
-to another netdev. When the containing namespace exits, we take down the
-socket and prevent future sockets from being created (by setting
-creating_net to NULL), which removes that potential reference on the
-netns. However, it doesn't release references to the netns that a netdev
-cached in dst_cache might be taking, so the netns still might fail to
-exit. Since the socket is gimped anyway, we can simply clear all the
-dst_caches (by way of clearing the endpoint src), which will release all
-references.
+When there is no PCIe card connected and advk_pcie_rd_conf() or
+advk_pcie_wr_conf() is called for PCI bus which doesn't belong to emulated
+root bridge, the aardvark driver throws the following error message:
 
-However, the current dst_cache_reset function only releases those
-references lazily. But it turns out that all of our usages of
-wg_socket_clear_peer_endpoint_src are called from contexts that are not
-exactly high-speed or bottle-necked. For example, when there's
-connection difficulty, or when userspace is reconfiguring the interface.
-And in particular for this patch, when the netns is exiting. So for
-those cases, it makes more sense to call dst_release immediately. For
-that, we add a small helper function to dst_cache.
+  advk-pcie d0070000.pcie: config read/write timed out
 
-This patch also adds a test to netns.sh from Hangbin Liu to ensure this
-doesn't regress.
+Obviously accessing PCIe registers of disconnected card is not possible.
 
-Tested-by: Hangbin Liu <liuhangbin@gmail.com>
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Cc: Toke Høiland-Jørgensen <toke@redhat.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Fixes: 900575aa33a3 ("wireguard: device: avoid circular netns references")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Extend check in advk_pcie_valid_device() function for validating
+availability of PCIe bus. If PCIe link is down, then the device is marked
+as Not Found and the driver does not try to access these registers.
+
+This is just an optimization to prevent accessing PCIe registers when card
+is disconnected. Trying to access PCIe registers of disconnected card does
+not cause any crash, kernel just needs to wait for a timeout. So if card
+disappear immediately after checking for PCIe link (before accessing PCIe
+registers), it does not cause any problems.
+
+Link: https://lore.kernel.org/r/20200702083036.12230-1-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/device.c             |    3 +++
- drivers/net/wireguard/socket.c             |    2 +-
- include/net/dst_cache.h                    |   11 +++++++++++
- net/core/dst_cache.c                       |   19 +++++++++++++++++++
- tools/testing/selftests/wireguard/netns.sh |   24 +++++++++++++++++++++++-
- 5 files changed, 57 insertions(+), 2 deletions(-)
+ drivers/pci/host/pci-aardvark.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/net/wireguard/device.c
-+++ b/drivers/net/wireguard/device.c
-@@ -398,6 +398,7 @@ static struct rtnl_link_ops link_ops __r
- static void wg_netns_pre_exit(struct net *net)
- {
- 	struct wg_device *wg;
-+	struct wg_peer *peer;
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -598,6 +598,13 @@ static bool advk_pcie_valid_device(struc
+ 	if ((bus->number == pcie->root_bus_nr) && PCI_SLOT(devfn) != 0)
+ 		return false;
  
- 	rtnl_lock();
- 	list_for_each_entry(wg, &device_list, device_list) {
-@@ -407,6 +408,8 @@ static void wg_netns_pre_exit(struct net
- 			mutex_lock(&wg->device_update_lock);
- 			rcu_assign_pointer(wg->creating_net, NULL);
- 			wg_socket_reinit(wg, NULL, NULL);
-+			list_for_each_entry(peer, &wg->peer_list, peer_list)
-+				wg_socket_clear_peer_endpoint_src(peer);
- 			mutex_unlock(&wg->device_update_lock);
- 		}
- 	}
---- a/drivers/net/wireguard/socket.c
-+++ b/drivers/net/wireguard/socket.c
-@@ -308,7 +308,7 @@ void wg_socket_clear_peer_endpoint_src(s
- {
- 	write_lock_bh(&peer->endpoint_lock);
- 	memset(&peer->endpoint.src6, 0, sizeof(peer->endpoint.src6));
--	dst_cache_reset(&peer->endpoint_cache);
-+	dst_cache_reset_now(&peer->endpoint_cache);
- 	write_unlock_bh(&peer->endpoint_lock);
++	/*
++	 * If the link goes down after we check for link-up, nothing bad
++	 * happens but the config access times out.
++	 */
++	if (bus->number != pcie->root_bus_nr && !advk_pcie_link_up(pcie))
++		return false;
++
+ 	return true;
  }
  
---- a/include/net/dst_cache.h
-+++ b/include/net/dst_cache.h
-@@ -80,6 +80,17 @@ static inline void dst_cache_reset(struc
- }
- 
- /**
-+ *	dst_cache_reset_now - invalidate the cache contents immediately
-+ *	@dst_cache: the cache
-+ *
-+ *	The caller must be sure there are no concurrent users, as this frees
-+ *	all dst_cache users immediately, rather than waiting for the next
-+ *	per-cpu usage like dst_cache_reset does. Most callers should use the
-+ *	higher speed lazily-freed dst_cache_reset function instead.
-+ */
-+void dst_cache_reset_now(struct dst_cache *dst_cache);
-+
-+/**
-  *	dst_cache_init - initialize the cache, allocating the required storage
-  *	@dst_cache: the cache
-  *	@gfp: allocation flags
---- a/net/core/dst_cache.c
-+++ b/net/core/dst_cache.c
-@@ -162,3 +162,22 @@ void dst_cache_destroy(struct dst_cache
- 	free_percpu(dst_cache->cache);
- }
- EXPORT_SYMBOL_GPL(dst_cache_destroy);
-+
-+void dst_cache_reset_now(struct dst_cache *dst_cache)
-+{
-+	int i;
-+
-+	if (!dst_cache->cache)
-+		return;
-+
-+	dst_cache->reset_ts = jiffies;
-+	for_each_possible_cpu(i) {
-+		struct dst_cache_pcpu *idst = per_cpu_ptr(dst_cache->cache, i);
-+		struct dst_entry *dst = idst->dst;
-+
-+		idst->cookie = 0;
-+		idst->dst = NULL;
-+		dst_release(dst);
-+	}
-+}
-+EXPORT_SYMBOL_GPL(dst_cache_reset_now);
---- a/tools/testing/selftests/wireguard/netns.sh
-+++ b/tools/testing/selftests/wireguard/netns.sh
-@@ -613,6 +613,28 @@ ip0 link set wg0 up
- kill $ncat_pid
- ip0 link del wg0
- 
-+# Ensure that dst_cache references don't outlive netns lifetime
-+ip1 link add dev wg0 type wireguard
-+ip2 link add dev wg0 type wireguard
-+configure_peers
-+ip1 link add veth1 type veth peer name veth2
-+ip1 link set veth2 netns $netns2
-+ip1 addr add fd00:aa::1/64 dev veth1
-+ip2 addr add fd00:aa::2/64 dev veth2
-+ip1 link set veth1 up
-+ip2 link set veth2 up
-+waitiface $netns1 veth1
-+waitiface $netns2 veth2
-+ip1 -6 route add default dev veth1 via fd00:aa::2
-+ip2 -6 route add default dev veth2 via fd00:aa::1
-+n1 wg set wg0 peer "$pub2" endpoint [fd00:aa::2]:2
-+n2 wg set wg0 peer "$pub1" endpoint [fd00:aa::1]:1
-+n1 ping6 -c 1 fd00::2
-+pp ip netns delete $netns1
-+pp ip netns delete $netns2
-+pp ip netns add $netns1
-+pp ip netns add $netns2
-+
- # Ensure there aren't circular reference loops
- ip1 link add wg1 type wireguard
- ip2 link add wg2 type wireguard
-@@ -631,7 +653,7 @@ while read -t 0.1 -r line 2>/dev/null ||
- done < /dev/kmsg
- alldeleted=1
- for object in "${!objects[@]}"; do
--	if [[ ${objects["$object"]} != *createddestroyed ]]; then
-+	if [[ ${objects["$object"]} != *createddestroyed && ${objects["$object"]} != *createdcreateddestroyeddestroyed ]]; then
- 		echo "Error: $object: merely ${objects["$object"]}" >&3
- 		alldeleted=0
- 	fi
 
 
