@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DD8469B39
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:10:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DF96469DE4
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348949AbhLFPNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:13:50 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43996 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348558AbhLFPLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:49 -0500
+        id S1376570AbhLFPeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58488 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1387156AbhLFPas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:30:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CC3C08EE1B;
+        Mon,  6 Dec 2021 07:18:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5372BB8111D;
-        Mon,  6 Dec 2021 15:08:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73022C341C5;
-        Mon,  6 Dec 2021 15:08:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B88BB8101B;
+        Mon,  6 Dec 2021 15:18:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A602C341C1;
+        Mon,  6 Dec 2021 15:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803295;
-        bh=4GGXR8wK70ZravjoS71SnY+VtXZZ4oVVlOBySCYEqao=;
+        s=korg; t=1638803905;
+        bh=k4TnQy9WT+XjXoUhNAoZFOz2DcHOWdK4HcA31fdqCOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmvW9KZ5iL2fH2ngcvIrQX2JcQDw4NAh+oHQ6riacNf7kE5YYMgMpnyXLO0H29TUB
-         MJhcVm9AUZUWPAv+FKE9VRwoydPLeFveixqMAmQ3HRKi9iKmPbFiqWGxI43WxNQdY9
-         cNWW0sm7Zby69B+8BtSQKhJufxA8HumAhDNKY53Q=
+        b=uk4NR0p91ndRJqLXTBo8Ex4faVR69P1ycu6jbP4UWVW5r0+PpIPk/Q0VtMH3GI1ao
+         dkGxtFXf/4Po/GOzbievuWIm8PNBqtwGAGWK9Hc8vl43PdqEJERvWuY6HRv2A/meZb
+         P9WfXXfjvhMyo3qtOqas1Sr/1KyNfsRC9ZMnYWWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 097/106] parisc: Fix KBUILD_IMAGE for self-extracting kernel
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 088/130] dpaa2-eth: destroy workqueue at the end of remove function
 Date:   Mon,  6 Dec 2021 15:56:45 +0100
-Message-Id: <20211206145558.899150085@linuxfoundation.org>
+Message-Id: <20211206145602.702777267@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 1d7c29b77725d05faff6754d2f5e7c147aedcf93 upstream.
+commit f4a8adbfe4841491b60c14fe610571e1422359f9 upstream.
 
-Default KBUILD_IMAGE to $(boot)/bzImage if a self-extracting
-(CONFIG_PARISC_SELF_EXTRACT=y) kernel is to be built.
-This fixes the bindeb-pkg make target.
+The commit c55211892f46 ("dpaa2-eth: support PTP Sync packet one-step
+timestamping") forgets to destroy workqueue at the end of remove
+function.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v4.14+
+Fix this by adding destroy_workqueue before fsl_mc_portal_free and
+free_netdev.
+
+Fixes: c55211892f46 ("dpaa2-eth: support PTP Sync packet one-step timestamping")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/Makefile |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/parisc/Makefile
-+++ b/arch/parisc/Makefile
-@@ -17,7 +17,12 @@
- # Mike Shaver, Helge Deller and Martin K. Petersen
- #
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -4432,6 +4432,8 @@ static int dpaa2_eth_remove(struct fsl_m
  
-+ifdef CONFIG_PARISC_SELF_EXTRACT
-+boot := arch/parisc/boot
-+KBUILD_IMAGE := $(boot)/bzImage
-+else
- KBUILD_IMAGE := vmlinuz
-+endif
+ 	fsl_mc_portal_free(priv->mc_io);
  
- KBUILD_DEFCONFIG := default_defconfig
++	destroy_workqueue(priv->dpaa2_ptp_wq);
++
+ 	dev_dbg(net_dev->dev.parent, "Removed interface %s\n", net_dev->name);
  
+ 	free_netdev(net_dev);
 
 
