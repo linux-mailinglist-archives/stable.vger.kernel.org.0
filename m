@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0469D4699FD
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 846FE469B86
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345435AbhLFPEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52494 "EHLO
+        id S1346633AbhLFPRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345260AbhLFPEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3329CC0698C8;
-        Mon,  6 Dec 2021 07:00:30 -0800 (PST)
+        with ESMTP id S1346773AbhLFPNf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:13:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6165CC08EB1F;
+        Mon,  6 Dec 2021 07:06:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F18C1B8110B;
-        Mon,  6 Dec 2021 15:00:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24CB6C341C2;
-        Mon,  6 Dec 2021 15:00:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F281261310;
+        Mon,  6 Dec 2021 15:06:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FA7C341C1;
+        Mon,  6 Dec 2021 15:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802827;
-        bh=wLfB4vVvdp+48s32KDlvXqV7pY6b374i+XhzZfsZRt0=;
+        s=korg; t=1638803166;
+        bh=4ve9A+5uIirQqqDHs00S2YT9mzjSLeHcEE6IEQxlRwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/WYLH8PJAnjjOvLXep0zPFO14GdgOKcnVApPx9ARmhfEI4ymvTha1rN1jGz47SCz
-         /Cw13X56T370hBPtqL+8Nh/hh+MtaW6RCQF5dIPN529KMt6r6Rq5TikrNQsRgU4et+
-         7mMTZnjU0okU3cpBLRHXfRPu7BpfiSd8PjQH+h+I=
+        b=O8pz1U8aZg+RnHTbT+tdTZ6eURgr+u4ZQnvWbp89tpvhad5mKNT/AuggdJvFO0Z/p
+         fAsd2bjS6UwM/UjEia1azzcnUM6EipVfg9KkjL6h1/HpWHUIQUgN1rltl6AqkQgSYF
+         1Zg/XDS33y8/GmEJRkVvkJnhsrqT7z3j08yeF3Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 16/52] scsi: mpt3sas: Fix kernel panic during drive powercycle test
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.14 052/106] pinctrl: armada-37xx: add missing pin: PCIe1 Wakeup
 Date:   Mon,  6 Dec 2021 15:56:00 +0100
-Message-Id: <20211206145548.455879135@linuxfoundation.org>
+Message-Id: <20211206145557.231607944@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +50,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-[ Upstream commit 0ee4ba13e09c9d9c1cb6abb59da8295d9952328b ]
+commit 4d98fbaacd79a82f408febb66a9c42fe42361b16 upstream.
 
-While looping over shost's sdev list it is possible that one
-of the drives is getting removed and its sas_target object is
-freed but its sdev object remains intact.
+Declare the PCIe1 Wakeup which was initially missing.
 
-Consequently, a kernel panic can occur while the driver is trying to access
-the sas_address field of sas_target object without also checking the
-sas_target object for NULL.
-
-Link: https://lore.kernel.org/r/20211117104909.2069-1-sreekanth.reddy@broadcom.com
-Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Tested-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index 49b751a8f5f3b..0e39bb1489ac7 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -2904,7 +2904,7 @@ _scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc, u64 sas_address)
- 
- 	shost_for_each_device(sdev, ioc->shost) {
- 		sas_device_priv_data = sdev->hostdata;
--		if (!sas_device_priv_data)
-+		if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
- 			continue;
- 		if (sas_device_priv_data->sas_target->sas_address
- 		    != sas_address)
--- 
-2.33.0
-
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -185,6 +185,7 @@ static struct armada_37xx_pin_group arma
+ 	PIN_GRP_GPIO("smi", 18, 2, BIT(4), "smi"),
+ 	PIN_GRP_GPIO("pcie1", 3, 1, BIT(5), "pcie"),
+ 	PIN_GRP_GPIO("pcie1_clkreq", 4, 1, BIT(9), "pcie"),
++	PIN_GRP_GPIO("pcie1_wakeup", 5, 1, BIT(10), "pcie"),
+ 	PIN_GRP_GPIO("ptp", 20, 3, BIT(11) | BIT(12) | BIT(13), "ptp"),
+ 	PIN_GRP("ptp_clk", 21, 1, BIT(6), "ptp", "mii"),
+ 	PIN_GRP("ptp_trig", 22, 1, BIT(7), "ptp", "mii"),
 
 
