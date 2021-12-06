@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CD5469D29
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:25:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79403469F2C
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245046AbhLFP2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57778 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359206AbhLFPX7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:59 -0500
+        id S1391496AbhLFPpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32922 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390698AbhLFPmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8ACEC0698E6;
+        Mon,  6 Dec 2021 07:29:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40825B810E7;
-        Mon,  6 Dec 2021 15:20:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 897EDC341C1;
-        Mon,  6 Dec 2021 15:20:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79B6361327;
+        Mon,  6 Dec 2021 15:29:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58AE4C34901;
+        Mon,  6 Dec 2021 15:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804027;
-        bh=CGVZuP9OseeWhUDiKnbmprsqxVzz2zue0tFNNfoZcDI=;
+        s=korg; t=1638804570;
+        bh=cwI1ZwbZE7VKKji52lZh54wwQGyBEHxScIYPIyWCq94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRo6hDLAzxHnv4HT77udWKrmmONY3DoUhAqqXIgzLCjU9514eS5RFo88pTYoNsf4Q
-         +evBxZKOLJMIwHqjyvHKfshW2yDYbq9b9BZ9+Wy3wXlJ24SuqUrten0mNURiLjPe+Q
-         TXIF8Rgp90Dh6BwmKArMFeLzHruZWcW6CR0E8VFM=
+        b=Cat3vuyZdB/+FsGaDWP1nhIZhLXSQdvI+xr7ZFucqP+3ei9rquaw1tz0JH01cRRSH
+         aCptLC7b7vKH1Qdl1HD/krNw19kS9vHjHlvCvuJH9W7bX57lxGuyMTlGSaDP+IFNfZ
+         H/OM/xzSlTWkPBKRL+SRQBDnpEXmrBnNLEEQuGVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.10 130/130] ipmi: msghandler: Make symbol remove_work_wq static
-Date:   Mon,  6 Dec 2021 15:57:27 +0100
-Message-Id: <20211206145604.155775188@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Feng Tang <feng.tang@intel.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.15 194/207] x86/tsc: Add a timer to make sure TSC_adjust is always checked
+Date:   Mon,  6 Dec 2021 15:57:28 +0100
+Message-Id: <20211206145616.997296191@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +48,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Feng Tang <feng.tang@intel.com>
 
-commit 5a3ba99b62d8486de0316334e72ac620d4b94fdd upstream.
+commit c7719e79347803b8e3b6b50da8c6db410a3012b5 upstream.
 
-The sparse tool complains as follows:
+The TSC_ADJUST register is checked every time a CPU enters idle state, but
+Thomas Gleixner mentioned there is still a caveat that a system won't enter
+idle [1], either because it's too busy or configured purposely to not enter
+idle.
 
-drivers/char/ipmi/ipmi_msghandler.c:194:25: warning:
- symbol 'remove_work_wq' was not declared. Should it be static?
+Setup a periodic timer (every 10 minutes) to make sure the check is
+happening on a regular base.
 
-This symbol is not used outside of ipmi_msghandler.c, so
-marks it static.
+[1] https://lore.kernel.org/lkml/875z286xtk.fsf@nanos.tec.linutronix.de/
 
-Fixes: 1d49eb91e86e ("ipmi: Move remove_work to dedicated workqueue")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Message-Id: <20211123083618.2366808-1-weiyongjun1@huawei.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 6e3cd95234dc ("x86/hpet: Use another crystalball to evaluate HPET usability")
+Requested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211117023751.24190-1-feng.tang@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/tsc_sync.c |   41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -203,7 +203,7 @@ struct ipmi_user {
- 	struct work_struct remove_work;
+--- a/arch/x86/kernel/tsc_sync.c
++++ b/arch/x86/kernel/tsc_sync.c
+@@ -30,6 +30,7 @@ struct tsc_adjust {
  };
  
--struct workqueue_struct *remove_work_wq;
-+static struct workqueue_struct *remove_work_wq;
+ static DEFINE_PER_CPU(struct tsc_adjust, tsc_adjust);
++static struct timer_list tsc_sync_check_timer;
  
- static struct ipmi_user *acquire_ipmi_user(struct ipmi_user *user, int *index)
- 	__acquires(user->release_barrier)
+ /*
+  * TSC's on different sockets may be reset asynchronously.
+@@ -77,6 +78,46 @@ void tsc_verify_tsc_adjust(bool resume)
+ 	}
+ }
+ 
++/*
++ * Normally the tsc_sync will be checked every time system enters idle
++ * state, but there is still caveat that a system won't enter idle,
++ * either because it's too busy or configured purposely to not enter
++ * idle.
++ *
++ * So setup a periodic timer (every 10 minutes) to make sure the check
++ * is always on.
++ */
++
++#define SYNC_CHECK_INTERVAL		(HZ * 600)
++
++static void tsc_sync_check_timer_fn(struct timer_list *unused)
++{
++	int next_cpu;
++
++	tsc_verify_tsc_adjust(false);
++
++	/* Run the check for all onlined CPUs in turn */
++	next_cpu = cpumask_next(raw_smp_processor_id(), cpu_online_mask);
++	if (next_cpu >= nr_cpu_ids)
++		next_cpu = cpumask_first(cpu_online_mask);
++
++	tsc_sync_check_timer.expires += SYNC_CHECK_INTERVAL;
++	add_timer_on(&tsc_sync_check_timer, next_cpu);
++}
++
++static int __init start_sync_check_timer(void)
++{
++	if (!cpu_feature_enabled(X86_FEATURE_TSC_ADJUST) || tsc_clocksource_reliable)
++		return 0;
++
++	timer_setup(&tsc_sync_check_timer, tsc_sync_check_timer_fn, 0);
++	tsc_sync_check_timer.expires = jiffies + SYNC_CHECK_INTERVAL;
++	add_timer(&tsc_sync_check_timer);
++
++	return 0;
++}
++late_initcall(start_sync_check_timer);
++
+ static void tsc_sanitize_first_cpu(struct tsc_adjust *cur, s64 bootval,
+ 				   unsigned int cpu, bool bootcpu)
+ {
 
 
