@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAD3B469ED1
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B0C4699D2
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391050AbhLFPoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:44:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390431AbhLFPmY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91659C0A885C;
-        Mon,  6 Dec 2021 07:26:20 -0800 (PST)
+        id S1345214AbhLFPEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:04:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53760 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345064AbhLFPDX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F465B81138;
-        Mon,  6 Dec 2021 15:26:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A44B1C34902;
-        Mon,  6 Dec 2021 15:26:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA26161318;
+        Mon,  6 Dec 2021 14:59:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC16BC341C1;
+        Mon,  6 Dec 2021 14:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804378;
-        bh=2IqzMPuwz65FUzblmUGeYgOYGVyBQvH/aDNHAgMUgLc=;
+        s=korg; t=1638802794;
+        bh=PeflhP5R7jplL0vPsZLLoMB5jXRX9vaiMqsKOmG+7Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNiOEt0UWW8Wjtj3xSx6ht1AH7PXc+aaFzdCAcnk76JSN7SudB5A1wGXt5xNVJlMo
-         iqZpxyAti1kmh0nrTe6GmK/JhXEGrI5QTslaa3RvSb/+ljktVQ7Ct84fdbraE5GRtM
-         LzcLSH4Yz5JTOQigYHEGzmvmjUOhx5VUzZx7+3Hc=
+        b=AgdZ5R55dLhwcTTDxj5vIFpkSXxXCVg3YmxVfI+ORkprlvOEAW508r/aNTAibfdXD
+         VdZJEJNkODzRTPcPncre9m4b9TNWNKN/WTkMPb1YePosN/3s5e1pF0/6Px7cqB4RYu
+         XF1oSYXfhqUu51p50twbadQVuQ6P0xqELf1jBmr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org
-Subject: [PATCH 5.15 125/207] rxrpc: Fix rxrpc_local leak in rxrpc_lookup_peer()
+        stable@vger.kernel.org, liuguoqiang <liuguoqiang@uniontech.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 35/52] net: return correct error code
 Date:   Mon,  6 Dec 2021 15:56:19 +0100
-Message-Id: <20211206145614.570394070@linuxfoundation.org>
+Message-Id: <20211206145549.094672466@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
+References: <20211206145547.892668902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,69 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+From: liuguoqiang <liuguoqiang@uniontech.com>
 
-commit beacff50edbd6c9659a6f15fc7f6126909fade29 upstream.
+[ Upstream commit 6def480181f15f6d9ec812bca8cbc62451ba314c ]
 
-Need to call rxrpc_put_local() for peer candidate before kfree() as it
-holds a ref to rxrpc_local.
+When kmemdup called failed and register_net_sysctl return NULL, should
+return ENOMEM instead of ENOBUFS
 
-[DH: v2: Changed to abstract the peer freeing code out into a function]
-
-Fixes: 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/all/20211121041608.133740-2-eiichi.tsukata@nutanix.com/ # v1
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: liuguoqiang <liuguoqiang@uniontech.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/peer_object.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ net/ipv4/devinet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -299,6 +299,12 @@ static struct rxrpc_peer *rxrpc_create_p
- 	return peer;
+diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
+index 2cb8612e7821e..35961ae1d120c 100644
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -2237,7 +2237,7 @@ static int __devinet_sysctl_register(struct net *net, char *dev_name,
+ free:
+ 	kfree(t);
+ out:
+-	return -ENOBUFS;
++	return -ENOMEM;
  }
  
-+static void rxrpc_free_peer(struct rxrpc_peer *peer)
-+{
-+	rxrpc_put_local(peer->local);
-+	kfree_rcu(peer, rcu);
-+}
-+
- /*
-  * Set up a new incoming peer.  There shouldn't be any other matching peers
-  * since we've already done a search in the list from the non-reentrant context
-@@ -365,7 +371,7 @@ struct rxrpc_peer *rxrpc_lookup_peer(str
- 		spin_unlock_bh(&rxnet->peer_hash_lock);
- 
- 		if (peer)
--			kfree(candidate);
-+			rxrpc_free_peer(candidate);
- 		else
- 			peer = candidate;
- 	}
-@@ -420,8 +426,7 @@ static void __rxrpc_put_peer(struct rxrp
- 	list_del_init(&peer->keepalive_link);
- 	spin_unlock_bh(&rxnet->peer_hash_lock);
- 
--	rxrpc_put_local(peer->local);
--	kfree_rcu(peer, rcu);
-+	rxrpc_free_peer(peer);
- }
- 
- /*
-@@ -457,8 +462,7 @@ void rxrpc_put_peer_locked(struct rxrpc_
- 	if (n == 0) {
- 		hash_del_rcu(&peer->hash_link);
- 		list_del_init(&peer->keepalive_link);
--		rxrpc_put_local(peer->local);
--		kfree_rcu(peer, rcu);
-+		rxrpc_free_peer(peer);
- 	}
- }
- 
+ static void __devinet_sysctl_unregister(struct ipv4_devconf *cnf)
+-- 
+2.33.0
+
 
 
