@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799DA469A20
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E88469AE3
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345769AbhLFPFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:05:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52796 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345314AbhLFPFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:05:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77CDFC061D7F;
-        Mon,  6 Dec 2021 07:01:52 -0800 (PST)
+        id S1346450AbhLFPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42714 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348138AbhLFPJ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32D34B8101B;
-        Mon,  6 Dec 2021 15:01:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F736C341C1;
-        Mon,  6 Dec 2021 15:01:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D5E2B81018;
+        Mon,  6 Dec 2021 15:06:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E729C341C5;
+        Mon,  6 Dec 2021 15:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802910;
-        bh=pqqohXWjfRpJoxA2I/WMStjCg8JwHAt7yLuJU9BMLiM=;
+        s=korg; t=1638803188;
+        bh=PEGXhL5qfFKnVDDlay7Ex09mky0Suuspn5tDD76YoPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BELlz+MV4p/lD2xDYAO/M4eFg3AJrswB0fACFuhfkXDjCymHnbK0I7s9vk9Ad065
-         TVS6M9br1dvf1TYsxTZ84HeR5ez3zUISWVmPUOp+NWbos1IQdO5WS80Qsj/mUmOX6/
-         oHt+Cog6DfYWySzz0wOZozkX3CIeWOzmX16rGPsU=
+        b=gBQhph88FjX+gWW4lrTjq+CXMo+KRp6qA6IESRJFpgms/TTq0RL6ZXF4XKUy4J8DS
+         uOrpaNomEpxRwFJ7hUTFh5cn/GYcgfl8BJg6fGYF4Nre3Oo8n7wCffX9H1xU9iGkEF
+         7ScFSRvMYyF2AiNr1HP6BhwwcktS/P303MuN/k20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH 4.9 24/62] vhost/vsock: fix incorrect used length reported to the guest
+        stable@vger.kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.14 059/106] fuse: release pipe buf after last use
 Date:   Mon,  6 Dec 2021 15:56:07 +0100
-Message-Id: <20211206145550.017273148@linuxfoundation.org>
+Message-Id: <20211206145557.470227027@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,42 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 49d8c5ffad07ca014cfae72a1b9b8c52b6ad9cb8 upstream.
+commit 473441720c8616dfaf4451f9c7ea14f0eb5e5d65 upstream.
 
-The "used length" reported by calling vhost_add_used() must be the
-number of bytes written by the device (using "in" buffers).
+Checking buf->flags should be done before the pipe_buf_release() is called
+on the pipe buffer, since releasing the buffer might modify the flags.
 
-In vhost_vsock_handle_tx_kick() the device only reads the guest
-buffers (they are all "out" buffers), without writing anything,
-so we must pass 0 as "used length" to comply virtio spec.
+This is exactly what page_cache_pipe_buf_release() does, and which results
+in the same VM_BUG_ON_PAGE(PageLRU(page)) that the original patch was
+trying to fix.
 
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: stable@vger.kernel.org
-Reported-by: Halil Pasic <pasic@linux.ibm.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20211122163525.294024-2-sgarzare@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Justin Forbes <jmforbes@linuxtx.org>
+Fixes: 712a951025c0 ("fuse: fix page stealing")
+Cc: <stable@vger.kernel.org> # v2.6.35
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/vhost/vsock.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/dev.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -406,7 +406,7 @@ static void vhost_vsock_handle_tx_kick(s
- 		else
- 			virtio_transport_free_pkt(pkt);
- 
--		vhost_add_used(vq, head, sizeof(pkt->hdr) + len);
-+		vhost_add_used(vq, head, 0);
- 		added = true;
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -897,17 +897,17 @@ static int fuse_try_move_page(struct fus
+ 		goto out_put_old;
  	}
  
++	get_page(newpage);
++
++	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
++		lru_cache_add_file(newpage);
++
+ 	/*
+ 	 * Release while we have extra ref on stolen page.  Otherwise
+ 	 * anon_pipe_buf_release() might think the page can be reused.
+ 	 */
+ 	pipe_buf_release(cs->pipe, buf);
+ 
+-	get_page(newpage);
+-
+-	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
+-		lru_cache_add_file(newpage);
+-
+ 	err = 0;
+ 	spin_lock(&cs->req->waitq.lock);
+ 	if (test_bit(FR_ABORTED, &cs->req->flags))
 
 
