@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F543469C4D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB8474699E2
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243093AbhLFPVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:21:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55660 "EHLO
+        id S1345489AbhLFPEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:04:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357242AbhLFPSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D80C08E848;
-        Mon,  6 Dec 2021 07:11:45 -0800 (PST)
+        with ESMTP id S1344979AbhLFPDq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52729C0698DC;
+        Mon,  6 Dec 2021 07:00:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84F1861316;
-        Mon,  6 Dec 2021 15:11:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD4AC341C2;
-        Mon,  6 Dec 2021 15:11:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AB36B81018;
+        Mon,  6 Dec 2021 15:00:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EF0EC341C5;
+        Mon,  6 Dec 2021 14:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803505;
-        bh=jQPu9rhvGIraQsQ6jlWHUTdOCeN+CBV12qqiq1oMJNk=;
+        s=korg; t=1638802799;
+        bh=uqawlr9zy7pGfMRipHFNWdvMwmCbYY28igxknANgURg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2GeVnAqbR6Qm8+2gSOA959xoCqMegrEjR2Rr0U2kVvvDL0lpGTehxUzvmHsIRaBct
-         8CIaBoGXEhhV4KNA0vrZ9Dtk6azog1jMtZW5eQYA37DNXjZkvKaM3yPXTab6b9bcxq
-         ZH5S1Ds0u8X3x0YtJ2TCeSMHnjVV/BrYc54j+J4Y=
+        b=X6AVrD+lL6+qusc1AU1ItLLPDqM+I4h04TXG7Zt2ksKa21sYIihDoObizsu4byS++
+         XYPXWNrUscj9y7QqFJFeR2Aux3OC65RvekY3cRdXWTleiU/QK2hFchLmUaA88I0OQO
+         cU/U5HPXmmYgii4f319TXau170oikYfbxzdcs0DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Teng Qi <starmiku1207184332@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/70] ethernet: hisilicon: hns: hns_dsaf_misc: fix a possible array overflow in hns_dsaf_ge_srst_by_port()
+Subject: [PATCH 4.4 37/52] s390/setup: avoid using memblock_enforce_memory_limit
 Date:   Mon,  6 Dec 2021 15:56:21 +0100
-Message-Id: <20211206145552.509763912@linuxfoundation.org>
+Message-Id: <20211206145549.164636756@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
+References: <20211206145547.892668902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,46 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teng Qi <starmiku1207184332@gmail.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit a66998e0fbf213d47d02813b9679426129d0d114 ]
+[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
 
-The if statement:
-  if (port >= DSAF_GE_NUM)
-        return;
+There is a difference in how architectures treat "mem=" option. For some
+that is an amount of online memory, for s390 and x86 this is the limiting
+max address. Some memblock api like memblock_enforce_memory_limit()
+take limit argument and explicitly treat it as the size of online memory,
+and use __find_max_addr to convert it to an actual max address. Current
+s390 usage:
 
-limits the value of port less than DSAF_GE_NUM (i.e., 8).
-However, if the value of port is 6 or 7, an array overflow could occur:
-  port_rst_off = dsaf_dev->mac_cb[port]->port_rst_off;
+memblock_enforce_memory_limit(memblock_end_of_DRAM());
 
-because the length of dsaf_dev->mac_cb is DSAF_MAX_PORT_NUM (i.e., 6).
+yields different results depending on presence of memory holes (offline
+memory blocks in between online memory). If there are no memory holes
+limit == max_addr in memblock_enforce_memory_limit() and it does trim
+online memory and reserved memory regions. With memory holes present it
+actually does nothing.
 
-To fix this possible array overflow, we first check port and if it is
-greater than or equal to DSAF_MAX_PORT_NUM, the function returns.
+Since we already use memblock_remove() explicitly to trim online memory
+regions to potential limit (think mem=, kdump, addressing limits, etc.)
+drop the usage of memblock_enforce_memory_limit() altogether. Trimming
+reserved regions should not be required, since we now use
+memblock_set_current_limit() to limit allocations and any explicit memory
+reservations above the limit is an actual problem we should not hide.
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/kernel/setup.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
-index ed3829ae4ef1b..580199fdd0c22 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
-@@ -398,6 +398,10 @@ static void hns_dsaf_ge_srst_by_port(struct dsaf_device *dsaf_dev, u32 port,
- 		return;
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index fdc5e76e1f6b0..a765b4936c10c 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -687,9 +687,6 @@ static void __init setup_memory(void)
+ 		storage_key_init_range(reg->base, reg->base + reg->size);
+ 	}
+ 	psw_set_key(PAGE_DEFAULT_KEY);
+-
+-	/* Only cosmetics */
+-	memblock_enforce_memory_limit(memblock_end_of_DRAM());
+ }
  
- 	if (!HNS_DSAF_IS_DEBUG(dsaf_dev)) {
-+		/* DSAF_MAX_PORT_NUM is 6, but DSAF_GE_NUM is 8.
-+		   We need check to prevent array overflow */
-+		if (port >= DSAF_MAX_PORT_NUM)
-+			return;
- 		reg_val_1  = 0x1 << port;
- 		port_rst_off = dsaf_dev->mac_cb[port]->port_rst_off;
- 		/* there is difference between V1 and V2 in register.*/
+ /*
 -- 
 2.33.0
 
