@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ABA7469B70
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F76469B99
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349592AbhLFPR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54684 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358055AbhLFPQZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E351C08EC38;
-        Mon,  6 Dec 2021 07:08:56 -0800 (PST)
+        id S1356506AbhLFPR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43288 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355445AbhLFPMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56765B81126;
-        Mon,  6 Dec 2021 15:08:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DD3EC341C5;
-        Mon,  6 Dec 2021 15:08:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 209B8B8111C;
+        Mon,  6 Dec 2021 15:09:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AAE2C341D7;
+        Mon,  6 Dec 2021 15:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803334;
-        bh=rLs9+i102tfl+rMpfib+Hclr2z2BuKojHu4qAKcEj/0=;
+        s=korg; t=1638803350;
+        bh=Wf9khUgkXJTef0QaH9bBZWdQSyqarpW9Xaq30MmdVw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mCKsHP6X+yTpjlcFwEpeoZXcuIt9yRNJvahl0d+mFjdpt/wySXulaO0We7N/QJ7Fx
-         HIgZ5hy8mmFJV3DBwoLNsSEX99JpwkHYNgv2p0bAP585uRiefRg8hh1AJpAO26W/EE
-         +/L4QQznZ/9hlxWI1Ti6oR1EnbHPIksx/cdIqJLQ=
+        b=YUWVleu0AgSzJeoQK9tvAvG+jFn+AkYXbE6CVIvSLoN4SBgMAuJ2SNYD9OYvy/IEC
+         200x0TRIMA2U305kf0HEDdd+98IhmpVPrV3FKrag+VW1EcqbVac2Xir/4tdYV5yoH9
+         jX+rdvQ0ZJtLXjizvZpmAJ9kNMIOBq+wtDbZGty0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhangyue <zhangyue1@kylinos.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/106] net: tulip: de4x5: fix the problem that the array lp->phy[8] may be out of bound
+Subject: [PATCH 4.19 11/48] scsi: iscsi: Unblock session then wake up error handler
 Date:   Mon,  6 Dec 2021 15:56:28 +0100
-Message-Id: <20211206145558.263254704@linuxfoundation.org>
+Message-Id: <20211206145549.241229158@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyue <zhangyue1@kylinos.cn>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 61217be886b5f7402843677e4be7e7e83de9cb41 ]
+[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
 
-In line 5001, if all id in the array 'lp->phy[8]' is not 0, when the
-'for' end, the 'k' is 8.
+We can race where iscsi_session_recovery_timedout() has woken up the error
+handler thread and it's now setting the devices to offline, and
+session_recovery_timedout()'s call to scsi_target_unblock() is also trying
+to set the device's state to transport-offline. We can then get a mix of
+states.
 
-At this time, the array 'lp->phy[8]' may be out of bound.
+For the case where we can't relogin we want the devices to be in
+transport-offline so when we have repaired the connection
+__iscsi_unblock_session() can set the state back to running.
 
-Signed-off-by: zhangyue <zhangyue1@kylinos.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Set the device state then call into libiscsi to wake up the error handler.
+
+Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/dec/tulip/de4x5.c | 30 +++++++++++++++-----------
- 1 file changed, 17 insertions(+), 13 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
-index 8f108a30cba66..84cf7b4582f3e 100644
---- a/drivers/net/ethernet/dec/tulip/de4x5.c
-+++ b/drivers/net/ethernet/dec/tulip/de4x5.c
-@@ -4994,19 +4994,23 @@ mii_get_phy(struct net_device *dev)
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index c06e648a415b5..79581771e6f61 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -1892,12 +1892,12 @@ static void session_recovery_timedout(struct work_struct *work)
  	}
- 	if ((j == limit) && (i < DE4X5_MAX_MII)) {
- 	    for (k=0; k < DE4X5_MAX_PHY && lp->phy[k].id; k++);
--	    lp->phy[k].addr = i;
--	    lp->phy[k].id = id;
--	    lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
--	    lp->phy[k].spd.mask = GENERIC_MASK;    /* 100Mb/s technologies   */
--	    lp->phy[k].spd.value = GENERIC_VALUE;  /* TX & T4, H/F Duplex    */
--	    lp->mii_cnt++;
--	    lp->active++;
--	    printk("%s: Using generic MII device control. If the board doesn't operate,\nplease mail the following dump to the author:\n", dev->name);
--	    j = de4x5_debug;
--	    de4x5_debug |= DEBUG_MII;
--	    de4x5_dbg_mii(dev, k);
--	    de4x5_debug = j;
--	    printk("\n");
-+	    if (k < DE4X5_MAX_PHY) {
-+		lp->phy[k].addr = i;
-+		lp->phy[k].id = id;
-+		lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
-+		lp->phy[k].spd.mask = GENERIC_MASK;    /* 100Mb/s technologies   */
-+		lp->phy[k].spd.value = GENERIC_VALUE;  /* TX & T4, H/F Duplex    */
-+		lp->mii_cnt++;
-+		lp->active++;
-+		printk("%s: Using generic MII device control. If the board doesn't operate,\nplease mail the following dump to the author:\n", dev->name);
-+		j = de4x5_debug;
-+		de4x5_debug |= DEBUG_MII;
-+		de4x5_dbg_mii(dev, k);
-+		de4x5_debug = j;
-+		printk("\n");
-+	    } else {
-+		goto purgatory;
-+	    }
- 	}
-     }
-   purgatory:
+ 	spin_unlock_irqrestore(&session->lock, flags);
+ 
+-	if (session->transport->session_recovery_timedout)
+-		session->transport->session_recovery_timedout(session);
+-
+ 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
+ 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
+ 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
++
++	if (session->transport->session_recovery_timedout)
++		session->transport->session_recovery_timedout(session);
+ }
+ 
+ static void __iscsi_unblock_session(struct work_struct *work)
 -- 
 2.33.0
 
