@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23EDA469D27
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:25:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88509469FDB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:54:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232821AbhLFP21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56856 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376432AbhLFPXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44D2DC08EAE0;
-        Mon,  6 Dec 2021 07:15:18 -0800 (PST)
+        id S1387841AbhLFPyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:54:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55386 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1392397AbhLFPv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:51:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5EFA6132B;
-        Mon,  6 Dec 2021 15:15:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5ECAC341C2;
-        Mon,  6 Dec 2021 15:15:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 994D3B81018;
+        Mon,  6 Dec 2021 15:47:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C919FC34902;
+        Mon,  6 Dec 2021 15:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803717;
-        bh=TRl5ES+ctB8KaUS9A7hDwPSiYaR4V6+QNvLL2WFt7wk=;
+        s=korg; t=1638805676;
+        bh=StwSQ/ixdmlyaHNpzLmIWNf2DQBv+rVnwKA9+3gkeEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcZg5mDi2rgHuNbH4LTjyuvqC6rYGPxxSUc3iAsEr8mJAqX+4pRB5JxTdhcC0/G0g
-         1bl70fwtCRd1SGBhuOPLY/DIA1KGIPxIUghmBst+wTBb0Ut4bljX5uYhp3h2gjIqTF
-         cxiriXPU+hEwPqFnhKBRYl2yze77xFe7cbkJCUA4=
+        b=IlRRjyW5XaIoHE2C+6pvw+M5Vdz3KTH6W57UM4mTNSxLKgmIg9aGbK4/zQ4zF2A48
+         EMGqq6CpRdgQCI5Tk9FheFbU4P3WM/uzK33bTYjPMPmv2zJAOYGWutQN72sAL9UhBb
+         3uimk20+2h2jgRvahu9eWmZr02964gx24dWdv/ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 021/130] ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile
+        stable@vger.kernel.org, stable@vgerk.kernel.org,
+        Tom Zanussi <zanussi@kernel.org>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 084/207] tracing/histograms: String compares should not care about signed values
 Date:   Mon,  6 Dec 2021 15:55:38 +0100
-Message-Id: <20211206145600.364878056@linuxfoundation.org>
+Message-Id: <20211206145613.150086990@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,42 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 1527f69204fe35f341cb599f1cb01bd02daf4374 ]
+commit 450fec13d9170127678f991698ac1a5b05c02e2f upstream.
 
-AMD requires that the SATA controller be configured for devsleep in order
-for S0i3 entry to work properly.
+When comparing two strings for the "onmatch" histogram trigger, fields
+that are strings use string comparisons, which do not care about being
+signed or not.
 
-commit b1a9585cc396 ("ata: ahci: Enable DEVSLP by default on x86 with
-SLP_S0") sets up a kernel policy to enable devsleep on Intel mobile
-platforms that are using s0ix.  Add the PCI ID for the SATA controller in
-Green Sardine platforms to extend this policy by default for AMD based
-systems using s0i3 as well.
+Do not fail to match two string fields if one is unsigned char array and
+the other is a signed char array.
 
-Cc: Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214091
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/all/20211129123043.5cfd687a@gandalf.local.home/
+
+Cc: stable@vgerk.kernel.org
+Cc: Tom Zanussi <zanussi@kernel.org>
+Cc: Yafang Shao <laoar.shao@gmail.com>
+Fixes: b05e89ae7cf3b ("tracing: Accept different type for synthetic event fields")
+Reviewed-by: Masami Hiramatsu <mhiramatsu@kernel.org>
+Reported-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/ahci.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/trace_events_hist.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 33192a8f687d6..ff2add0101fe5 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -442,6 +442,7 @@ static const struct pci_device_id ahci_pci_tbl[] = {
- 	/* AMD */
- 	{ PCI_VDEVICE(AMD, 0x7800), board_ahci }, /* AMD Hudson-2 */
- 	{ PCI_VDEVICE(AMD, 0x7900), board_ahci }, /* AMD CZ */
-+	{ PCI_VDEVICE(AMD, 0x7901), board_ahci_mobile }, /* AMD Green Sardine */
- 	/* AMD is using RAID class only for ahci controllers */
- 	{ PCI_VENDOR_ID_AMD, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
- 	  PCI_CLASS_STORAGE_RAID << 8, 0xffffff, board_ahci },
--- 
-2.33.0
-
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -3419,7 +3419,7 @@ static int check_synth_field(struct synt
+ 
+ 	if (strcmp(field->type, hist_field->type) != 0) {
+ 		if (field->size != hist_field->size ||
+-		    field->is_signed != hist_field->is_signed)
++		    (!field->is_string && field->is_signed != hist_field->is_signed))
+ 			return -EINVAL;
+ 	}
+ 
 
 
