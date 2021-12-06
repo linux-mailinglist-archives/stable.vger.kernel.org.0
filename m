@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D42E4469F13
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5E3469C50
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391343AbhLFPp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33156 "EHLO
+        id S1345032AbhLFPVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390517AbhLFPm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:28 -0500
+        with ESMTP id S1357784AbhLFPTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36F0C061A83;
-        Mon,  6 Dec 2021 07:27:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF76AC0698C2;
+        Mon,  6 Dec 2021 07:12:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE381B8101C;
-        Mon,  6 Dec 2021 15:27:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02A4BC34900;
-        Mon,  6 Dec 2021 15:27:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89D3FB810AC;
+        Mon,  6 Dec 2021 15:12:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0D1C341C2;
+        Mon,  6 Dec 2021 15:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804439;
-        bh=RLPrFAp3DVZ6ThzxUXhWMGaAznPUo5CPpjnjLqs8W7M=;
+        s=korg; t=1638803563;
+        bh=IYDdAmvGqExe/oltYIRZBf2Au7i0g4nuxL6WGc/Nr4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rn7OS/i4n3YENYiFa+FaxhBXikBtIEgOk7Wxfw6KWRqnbIwMideUyf/ExNIzlzvvV
-         sqO5OW6239S2NAtMFLamjz741hxrBykhaai9WmJSNT47p0QP872t73/ZgTTg8z4kV6
-         aQuUrabP2OWxK2Q9QK8ry71FYYzEQ6c0r5TaJ9UY=
+        b=bSini7M7aLB2eGkA6FN5f8UTWAgNRwy/zYW3PHwNdDrAwwc1A+HLkugwAgv+gKbKl
+         +QclKm7of5pTBvM05UP193WjsxsnchIrHMBCWzwfkoXtcCbVogK7bYZdeeKxVgudTO
+         LtxSxCD7mY4e/XFjk3oiZvjBHK/wq/XswbouJbNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikita Danilov <ndanilov@aquantia.com>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
+        stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 148/207] atlantic: Add missing DIDs and fix 115c.
+Subject: [PATCH 5.4 38/70] net: mpls: Fix notifications when deleting a device
 Date:   Mon,  6 Dec 2021 15:56:42 +0100
-Message-Id: <20211206145615.357926281@linuxfoundation.org>
+Message-Id: <20211206145553.243712432@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,101 +47,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Danilov <ndanilov@aquantia.com>
+From: Benjamin Poirier <bpoirier@nvidia.com>
 
-commit 413d5e09caa5a11da9c7d72401ba0588466a04c0 upstream.
+commit 7d4741eacdefa5f0475431645b56baf00784df1f upstream.
 
-At the late production stages new dev ids were introduced. These are
-now in production, so its important for the driver to recognize these.
-And also fix the board caps for AQC115C adapter.
+There are various problems related to netlink notifications for mpls route
+changes in response to interfaces being deleted:
+* delete interface of only nexthop
+	DELROUTE notification is missing RTA_OIF attribute
+* delete interface of non-last nexthop
+	NEWROUTE notification is missing entirely
+* delete interface of last nexthop
+	DELROUTE notification is missing nexthop
 
-Fixes: b3f0c79cba206 ("net: atlantic: A2 hw_ops skeleton")
-Signed-off-by: Nikita Danilov <ndanilov@aquantia.com>
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+All of these problems stem from the fact that existing routes are modified
+in-place before sending a notification. Restructure mpls_ifdown() to avoid
+changing the route in the DELROUTE cases and to create a copy in the
+NEWROUTE case.
+
+Fixes: f8efb73c97e2 ("mpls: multipath route support")
+Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_common.h       |    2 +
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c     |    7 +++++-
- drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c |   17 +++++++++++++++
- drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h |    2 +
- 4 files changed, 27 insertions(+), 1 deletion(-)
+ net/mpls/af_mpls.c |   68 ++++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 52 insertions(+), 16 deletions(-)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_common.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_common.h
-@@ -40,10 +40,12 @@
+--- a/net/mpls/af_mpls.c
++++ b/net/mpls/af_mpls.c
+@@ -1491,22 +1491,52 @@ static void mpls_dev_destroy_rcu(struct
+ 	kfree(mdev);
+ }
  
- #define AQ_DEVICE_ID_AQC113DEV	0x00C0
- #define AQ_DEVICE_ID_AQC113CS	0x94C0
-+#define AQ_DEVICE_ID_AQC113CA	0x34C0
- #define AQ_DEVICE_ID_AQC114CS	0x93C0
- #define AQ_DEVICE_ID_AQC113	0x04C0
- #define AQ_DEVICE_ID_AQC113C	0x14C0
- #define AQ_DEVICE_ID_AQC115C	0x12C0
-+#define AQ_DEVICE_ID_AQC116C	0x11C0
- 
- #define HW_ATL_NIC_NAME "Marvell (aQuantia) AQtion 10Gbit Network Adapter"
- 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -49,6 +49,8 @@ static const struct pci_device_id aq_pci
- 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113), },
- 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113C), },
- 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC115C), },
-+	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113CA), },
-+	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC116C), },
- 
- 	{}
- };
-@@ -85,7 +87,10 @@ static const struct aq_board_revision_s
- 	{ AQ_DEVICE_ID_AQC113CS,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
- 	{ AQ_DEVICE_ID_AQC114CS,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
- 	{ AQ_DEVICE_ID_AQC113C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
--	{ AQ_DEVICE_ID_AQC115C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
-+	{ AQ_DEVICE_ID_AQC115C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc115c, },
-+	{ AQ_DEVICE_ID_AQC113CA,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
-+	{ AQ_DEVICE_ID_AQC116C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc116c, },
-+
- };
- 
- MODULE_DEVICE_TABLE(pci, aq_pci_tbl);
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
-@@ -72,6 +72,23 @@ const struct aq_hw_caps_s hw_atl2_caps_a
- 			  AQ_NIC_RATE_10M_HALF,
- };
- 
-+const struct aq_hw_caps_s hw_atl2_caps_aqc115c = {
-+	DEFAULT_BOARD_BASIC_CAPABILITIES,
-+	.media_type = AQ_HW_MEDIA_TYPE_TP,
-+	.link_speed_msk = AQ_NIC_RATE_2G5 |
-+			  AQ_NIC_RATE_1G  |
-+			  AQ_NIC_RATE_100M      |
-+			  AQ_NIC_RATE_10M,
-+};
-+
-+const struct aq_hw_caps_s hw_atl2_caps_aqc116c = {
-+	DEFAULT_BOARD_BASIC_CAPABILITIES,
-+	.media_type = AQ_HW_MEDIA_TYPE_TP,
-+	.link_speed_msk = AQ_NIC_RATE_1G  |
-+			  AQ_NIC_RATE_100M      |
-+			  AQ_NIC_RATE_10M,
-+};
-+
- static u32 hw_atl2_sem_act_rslvr_get(struct aq_hw_s *self)
+-static void mpls_ifdown(struct net_device *dev, int event)
++static int mpls_ifdown(struct net_device *dev, int event)
  {
- 	return hw_atl_reg_glb_cpu_sem_get(self, HW_ATL2_FW_SM_ACT_RSLVR);
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h
-@@ -9,6 +9,8 @@
- #include "aq_common.h"
+ 	struct mpls_route __rcu **platform_label;
+ 	struct net *net = dev_net(dev);
+-	u8 alive, deleted;
+ 	unsigned index;
  
- extern const struct aq_hw_caps_s hw_atl2_caps_aqc113;
-+extern const struct aq_hw_caps_s hw_atl2_caps_aqc115c;
-+extern const struct aq_hw_caps_s hw_atl2_caps_aqc116c;
- extern const struct aq_hw_ops hw_atl2_ops;
+ 	platform_label = rtnl_dereference(net->mpls.platform_label);
+ 	for (index = 0; index < net->mpls.platform_labels; index++) {
+ 		struct mpls_route *rt = rtnl_dereference(platform_label[index]);
++		bool nh_del = false;
++		u8 alive = 0;
  
- #endif /* HW_ATL2_H */
+ 		if (!rt)
+ 			continue;
+ 
+-		alive = 0;
+-		deleted = 0;
++		if (event == NETDEV_UNREGISTER) {
++			u8 deleted = 0;
++
++			for_nexthops(rt) {
++				struct net_device *nh_dev =
++					rtnl_dereference(nh->nh_dev);
++
++				if (!nh_dev || nh_dev == dev)
++					deleted++;
++				if (nh_dev == dev)
++					nh_del = true;
++			} endfor_nexthops(rt);
++
++			/* if there are no more nexthops, delete the route */
++			if (deleted == rt->rt_nhn) {
++				mpls_route_update(net, index, NULL, NULL);
++				continue;
++			}
++
++			if (nh_del) {
++				size_t size = sizeof(*rt) + rt->rt_nhn *
++					rt->rt_nh_size;
++				struct mpls_route *orig = rt;
++
++				rt = kmalloc(size, GFP_KERNEL);
++				if (!rt)
++					return -ENOMEM;
++				memcpy(rt, orig, size);
++			}
++		}
++
+ 		change_nexthops(rt) {
+ 			unsigned int nh_flags = nh->nh_flags;
+ 
+@@ -1530,16 +1560,15 @@ static void mpls_ifdown(struct net_devic
+ next:
+ 			if (!(nh_flags & (RTNH_F_DEAD | RTNH_F_LINKDOWN)))
+ 				alive++;
+-			if (!rtnl_dereference(nh->nh_dev))
+-				deleted++;
+ 		} endfor_nexthops(rt);
+ 
+ 		WRITE_ONCE(rt->rt_nhn_alive, alive);
+ 
+-		/* if there are no more nexthops, delete the route */
+-		if (event == NETDEV_UNREGISTER && deleted == rt->rt_nhn)
+-			mpls_route_update(net, index, NULL, NULL);
++		if (nh_del)
++			mpls_route_update(net, index, rt, NULL);
+ 	}
++
++	return 0;
+ }
+ 
+ static void mpls_ifup(struct net_device *dev, unsigned int flags)
+@@ -1607,8 +1636,12 @@ static int mpls_dev_notify(struct notifi
+ 		return NOTIFY_OK;
+ 
+ 	switch (event) {
++		int err;
++
+ 	case NETDEV_DOWN:
+-		mpls_ifdown(dev, event);
++		err = mpls_ifdown(dev, event);
++		if (err)
++			return notifier_from_errno(err);
+ 		break;
+ 	case NETDEV_UP:
+ 		flags = dev_get_flags(dev);
+@@ -1619,13 +1652,18 @@ static int mpls_dev_notify(struct notifi
+ 		break;
+ 	case NETDEV_CHANGE:
+ 		flags = dev_get_flags(dev);
+-		if (flags & (IFF_RUNNING | IFF_LOWER_UP))
++		if (flags & (IFF_RUNNING | IFF_LOWER_UP)) {
+ 			mpls_ifup(dev, RTNH_F_DEAD | RTNH_F_LINKDOWN);
+-		else
+-			mpls_ifdown(dev, event);
++		} else {
++			err = mpls_ifdown(dev, event);
++			if (err)
++				return notifier_from_errno(err);
++		}
+ 		break;
+ 	case NETDEV_UNREGISTER:
+-		mpls_ifdown(dev, event);
++		err = mpls_ifdown(dev, event);
++		if (err)
++			return notifier_from_errno(err);
+ 		mdev = mpls_dev_get(dev);
+ 		if (mdev) {
+ 			mpls_dev_sysctl_unregister(dev, mdev);
+@@ -1636,8 +1674,6 @@ static int mpls_dev_notify(struct notifi
+ 	case NETDEV_CHANGENAME:
+ 		mdev = mpls_dev_get(dev);
+ 		if (mdev) {
+-			int err;
+-
+ 			mpls_dev_sysctl_unregister(dev, mdev);
+ 			err = mpls_dev_sysctl_register(dev, mdev);
+ 			if (err)
 
 
