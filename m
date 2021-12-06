@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3245469E29
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D155B469C8E
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356412AbhLFPgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:36:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58532 "EHLO
+        id S1358768AbhLFPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388248AbhLFPca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21B63C09B06F;
-        Mon,  6 Dec 2021 07:19:33 -0800 (PST)
+        with ESMTP id S1350095AbhLFPVa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFEF3C08E883;
+        Mon,  6 Dec 2021 07:14:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE5D4B81118;
-        Mon,  6 Dec 2021 15:19:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D938C341C1;
-        Mon,  6 Dec 2021 15:19:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DBEC61320;
+        Mon,  6 Dec 2021 15:14:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EDC9C341C1;
+        Mon,  6 Dec 2021 15:14:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803970;
-        bh=jvzNmJK63+tjJYtDhzEY6ibaTayFSQtHZM1E31RcI/w=;
+        s=korg; t=1638803663;
+        bh=dtLroQ0gdgq8IK1tSicOJbJRtKJzEjhs2p4tRU0/WDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojPA3SKQvuq3oKt9jP45mTe+kOu8TN5n4jfcVsPrBvAc8QmzRO2zcp+X1xj7nPIvk
-         WbvqZRffxMZE1GPsCiK7acmdrUM+4m4L+3craGh1uMGPzJXZT6idn3SCG5z3McXeNj
-         vM3z0xpp2yaySYKRv0c/cPu1kpVHkCwPVId/+Bow=
+        b=f+ozduXBDsdy3E5rZlazejY6x0jWzxjOsJiS66MG6V59p/JFmtM6T5vM8paQD61ca
+         ObHsWcL6SV68mX99DeqTeXzQAmqd4laTFnn9apCFadEttY0si8JI9Qj0NDr4rq5y+U
+         Gtqkc3/nN0HUeg3rK63wNGyIOVS9MOcR4jRIBZGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 112/130] parisc: Fix "make install" on newer debian releases
+        stable@vger.kernel.org, Jay Dolan <jay.dolan@accesio.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 65/70] serial: 8250_pci: Fix ACCES entries in pci_serial_quirks array
 Date:   Mon,  6 Dec 2021 15:57:09 +0100
-Message-Id: <20211206145603.510167968@linuxfoundation.org>
+Message-Id: <20211206145554.179151530@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,30 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Jay Dolan <jay.dolan@accesio.com>
 
-commit 0f9fee4cdebfbe695c297e5b603a275e2557c1cc upstream.
+commit c525c5d2437f93520388920baac6d9340c65d239 upstream.
 
-On newer debian releases the debian-provided "installkernel" script is
-installed in /usr/sbin. Fix the kernel install.sh script to look for the
-script in this directory as well.
+Fix error in table for PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4S that caused it
+and PCI_DEVICE_ID_ACCESIO_PCIE_ICM232_4 to be missing their fourth port.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v3.13+
+Fixes: 78d3820b9bd3 ("serial: 8250_pci: Have ACCES cards that use the four port Pericom PI7C9X7954 chip use the pci_pericom_setup()")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211122120604.3909-2-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/install.sh |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/8250/8250_pci.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/arch/parisc/install.sh
-+++ b/arch/parisc/install.sh
-@@ -39,6 +39,7 @@ verify "$3"
- if [ -n "${INSTALLKERNEL}" ]; then
-   if [ -x ~/bin/${INSTALLKERNEL} ]; then exec ~/bin/${INSTALLKERNEL} "$@"; fi
-   if [ -x /sbin/${INSTALLKERNEL} ]; then exec /sbin/${INSTALLKERNEL} "$@"; fi
-+  if [ -x /usr/sbin/${INSTALLKERNEL} ]; then exec /usr/sbin/${INSTALLKERNEL} "$@"; fi
- fi
- 
- # Default install
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -2285,11 +2285,18 @@ static struct pci_serial_quirk pci_seria
+ 		.setup      = pci_pericom_setup_four_at_eight,
+ 	},
+ 	{
+-		.vendor     = PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4S,
++		.vendor     = PCI_VENDOR_ID_ACCESIO,
+ 		.device     = PCI_DEVICE_ID_ACCESIO_PCIE_ICM232_4,
+ 		.subvendor  = PCI_ANY_ID,
+ 		.subdevice  = PCI_ANY_ID,
+ 		.setup      = pci_pericom_setup_four_at_eight,
++	},
++	{
++		.vendor     = PCI_VENDOR_ID_ACCESIO,
++		.device     = PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4S,
++		.subvendor  = PCI_ANY_ID,
++		.subdevice  = PCI_ANY_ID,
++		.setup      = pci_pericom_setup_four_at_eight,
+ 	},
+ 	{
+ 		.vendor     = PCI_VENDOR_ID_ACCESIO,
 
 
