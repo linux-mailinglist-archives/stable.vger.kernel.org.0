@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B09B6469E33
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2DE469C17
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:17:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243175AbhLFPgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:36:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47520 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387140AbhLFPaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:30:46 -0500
+        id S1348704AbhLFPTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:19:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55448 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356969AbhLFPRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 163AAC08C5F1;
+        Mon,  6 Dec 2021 07:11:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56B9761310;
-        Mon,  6 Dec 2021 15:27:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 388F8C34901;
-        Mon,  6 Dec 2021 15:27:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D50F6B8101B;
+        Mon,  6 Dec 2021 15:11:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224F3C341C1;
+        Mon,  6 Dec 2021 15:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804436;
-        bh=KTCtJMeFMBN3q2EGNe/+FDI/POUAygWGJoTQBv/la8s=;
+        s=korg; t=1638803465;
+        bh=2yWaAFxMSLg35aI8p7FviFAVESTm/q2FE9wIF1audfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFzFgDwHT7k75Yqgz3ZDHrXznUIQiqKUi25MDiKNbUB0XAuzsCW18z/jLp5OgZvT0
-         NFgU+GKFwDYWH33mTUGi5+R89x9EvtmJI7/9eXzq2ibdWUNUJ9wj6/DWsqgJEOA+gS
-         hOMOCSxQl3gY9Yrdq3lUYHSjbbeg/F9Xq49H2Mhs=
+        b=eC1D0tMaGNnPU69D4xzCISp/d7oyNM+pk97fYjXQC/uMoARH8vSMwSmizxvaP6a2k
+         gebVBaJvX7xIGP7bxsAm1IgcAtEL6uEjTzgKjdzS/31D+8tdFdxQksMsIOHO0IpTxh
+         sCJHss9q25Eo8dDlpDRMe1DxVDC64VBFtNUudcKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Saurabh <ssaurabh@marvell.com>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 147/207] atlantic: Fix to display FW bundle version instead of FW mac version.
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 24/48] i2c: stm32f7: recover the bus on access timeout
 Date:   Mon,  6 Dec 2021 15:56:41 +0100
-Message-Id: <20211206145615.325883600@linuxfoundation.org>
+Message-Id: <20211206145549.678374362@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Saurabh <ssaurabh@marvell.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-commit 2465c802232bc8d2b5bd83b55b08d05c11808704 upstream.
+commit b933d1faf8fa30d16171bcff404e39c41b2a7c84 upstream.
 
-The correct way to reflect firmware version is to use bundle version.
-Hence populating the same instead of MAC fw version.
+When getting an access timeout, ensure that the bus is in a proper
+state prior to returning the error.
 
-Fixes: c1be0bf092bd2 ("net: atlantic: common functions needed for basic A2 init/deinit hw_ops")
-Signed-off-by: Sameer Saurabh <ssaurabh@marvell.com>
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c
-@@ -500,9 +500,9 @@ u32 hw_atl2_utils_get_fw_version(struct
- 	hw_atl2_shared_buffer_read_safe(self, version, &version);
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1579,6 +1579,7 @@ static int stm32f7_i2c_xfer(struct i2c_a
+ 			i2c_dev->msg->addr);
+ 		if (i2c_dev->use_dma)
+ 			dmaengine_terminate_all(dma->chan_using);
++		stm32f7_i2c_wait_free_bus(i2c_dev);
+ 		ret = -ETIMEDOUT;
+ 	}
  
- 	/* A2 FW version is stored in reverse order */
--	return version.mac.major << 24 |
--	       version.mac.minor << 16 |
--	       version.mac.build;
-+	return version.bundle.major << 24 |
-+	       version.bundle.minor << 16 |
-+	       version.bundle.build;
- }
- 
- int hw_atl2_utils_get_action_resolve_table_caps(struct aq_hw_s *self,
+@@ -1629,6 +1630,7 @@ static int stm32f7_i2c_smbus_xfer(struct
+ 		dev_dbg(dev, "Access to slave 0x%x timed out\n", f7_msg->addr);
+ 		if (i2c_dev->use_dma)
+ 			dmaengine_terminate_all(dma->chan_using);
++		stm32f7_i2c_wait_free_bus(i2c_dev);
+ 		ret = -ETIMEDOUT;
+ 		goto clk_free;
+ 	}
 
 
