@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84377469B6A
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78927469CA9
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:21:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349531AbhLFPRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55504 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357351AbhLFPQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 706F0C08EA6F;
-        Mon,  6 Dec 2021 07:08:31 -0800 (PST)
+        id S1358931AbhLFPYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:24:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38978 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356501AbhLFPWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:22:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 382ADB8111A;
-        Mon,  6 Dec 2021 15:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90714C341C6;
-        Mon,  6 Dec 2021 15:08:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 422AD61309;
+        Mon,  6 Dec 2021 15:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2051AC341C2;
+        Mon,  6 Dec 2021 15:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803309;
-        bh=434e/ZxPGuSeDs72kU1ycrzQwAILHH9wzZC+DTBt+wY=;
+        s=korg; t=1638803922;
+        bh=WcScSF7kddzukuf+3Gs4FU1f4IK0BYp1yQDTQh7CJ/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reVWBj4dilAZWYqEmbJcbtCKTRnrgIrbJflpD0EcRjo1xb6tXte9UnnRszcNARjFZ
-         I+jeHB3yepoig82Xzax6/ojAdtsWdQamhCb3qRgREc9lGoOD2lGo//BKZewZHCwwWS
-         k4G3CiEL4zP4rGTEKFC1namQyoa1EcSUUuwcdg1o=
+        b=XAIPJ+CHVz4mCnK7zViqLNYPA1+o6JFZIMge2M4NOVcT8hAt7rjoWawhM+FGHOa9M
+         Hl5ok5I0/iJwXg6YCmg66DtvELImWOK7TRA3B438+N7O70Mk/9ba04TSXdwZZBvOpU
+         Sk0r3/wlj3ODuUPfKaFlEXE+DUhY1g8gmPZjViGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.14 102/106] x86/64/mm: Map all kernel memory into trampoline_pgd
-Date:   Mon,  6 Dec 2021 15:56:50 +0100
-Message-Id: <20211206145559.082609642@linuxfoundation.org>
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.10 094/130] drm/msm/a6xx: Allocate enough space for GMU registers
+Date:   Mon,  6 Dec 2021 15:56:51 +0100
+Message-Id: <20211206145602.900466601@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,93 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 51523ed1c26758de1af7e58730a656875f72f783 upstream.
+commit b4d25abf9720b69a03465b09d0d62d1998ed6708 upstream.
 
-The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
-range of kernel memory (with 4-level paging). This range contains the
-kernel's text+data+bss mappings and the module mapping space but not the
-direct mapping and the vmalloc area.
+In commit 142639a52a01 ("drm/msm/a6xx: fix crashstate capture for
+A650") we changed a6xx_get_gmu_registers() to read 3 sets of
+registers. Unfortunately, we didn't change the memory allocation for
+the array. That leads to a KASAN warning (this was on the chromeos-5.4
+kernel, which has the problematic commit backported to it):
 
-This is enough to get the application processors out of real-mode, but
-for code that switches back to real-mode the trampoline_pgd is missing
-important parts of the address space. For example, consider this code
-from arch/x86/kernel/reboot.c, function machine_real_restart() for a
-64-bit kernel:
+  BUG: KASAN: slab-out-of-bounds in _a6xx_get_gmu_registers+0x144/0x430
+  Write of size 8 at addr ffffff80c89432b0 by task A618-worker/209
+  CPU: 5 PID: 209 Comm: A618-worker Tainted: G        W         5.4.156-lockdep #22
+  Hardware name: Google Lazor Limozeen without Touchscreen (rev5 - rev8) (DT)
+  Call trace:
+   dump_backtrace+0x0/0x248
+   show_stack+0x20/0x2c
+   dump_stack+0x128/0x1ec
+   print_address_description+0x88/0x4a0
+   __kasan_report+0xfc/0x120
+   kasan_report+0x10/0x18
+   __asan_report_store8_noabort+0x1c/0x24
+   _a6xx_get_gmu_registers+0x144/0x430
+   a6xx_gpu_state_get+0x330/0x25d4
+   msm_gpu_crashstate_capture+0xa0/0x84c
+   recover_worker+0x328/0x838
+   kthread_worker_fn+0x32c/0x574
+   kthread+0x2dc/0x39c
+   ret_from_fork+0x10/0x18
 
-  #ifdef CONFIG_X86_32
-  	load_cr3(initial_page_table);
-  #else
-  	write_cr3(real_mode_header->trampoline_pgd);
+  Allocated by task 209:
+   __kasan_kmalloc+0xfc/0x1c4
+   kasan_kmalloc+0xc/0x14
+   kmem_cache_alloc_trace+0x1f0/0x2a0
+   a6xx_gpu_state_get+0x164/0x25d4
+   msm_gpu_crashstate_capture+0xa0/0x84c
+   recover_worker+0x328/0x838
+   kthread_worker_fn+0x32c/0x574
+   kthread+0x2dc/0x39c
+   ret_from_fork+0x10/0x18
 
-  	/* Exiting long mode will fail if CR4.PCIDE is set. */
-  	if (boot_cpu_has(X86_FEATURE_PCID))
-  		cr4_clear_bits(X86_CR4_PCIDE);
-  #endif
-
-  	/* Jump to the identity-mapped low memory code */
-  #ifdef CONFIG_X86_32
-  	asm volatile("jmpl *%0" : :
-  		     "rm" (real_mode_header->machine_real_restart_asm),
-  		     "a" (type));
-  #else
-  	asm volatile("ljmpl *%0" : :
-  		     "m" (real_mode_header->machine_real_restart_asm),
-  		     "D" (type));
-  #endif
-
-The code switches to the trampoline_pgd, which unmaps the direct mapping
-and also the kernel stack. The call to cr4_clear_bits() will find no
-stack and crash the machine. The real_mode_header pointer below points
-into the direct mapping, and dereferencing it also causes a crash.
-
-The reason this does not crash always is only that kernel mappings are
-global and the CR3 switch does not flush those mappings. But if theses
-mappings are not in the TLB already, the above code will crash before it
-can jump to the real-mode stub.
-
-Extend the trampoline_pgd to contain all kernel mappings to prevent
-these crashes and to make code which runs on this page-table more
-robust.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211202153226.22946-5-joro@8bytes.org
+Fixes: 142639a52a01 ("drm/msm/a6xx: fix crashstate capture for A650")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20211103153049.1.Idfa574ccb529d17b69db3a1852e49b580132035c@changeid
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/realmode/init.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -57,6 +57,7 @@ static void __init setup_real_mode(void)
- #ifdef CONFIG_X86_64
- 	u64 *trampoline_pgd;
- 	u64 efer;
-+	int i;
- #endif
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
+@@ -777,12 +777,12 @@ static void a6xx_get_gmu_registers(struc
+ 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
  
- 	base = (unsigned char *)real_mode_header;
-@@ -114,8 +115,17 @@ static void __init setup_real_mode(void)
- 		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
+ 	a6xx_state->gmu_registers = state_kcalloc(a6xx_state,
+-		2, sizeof(*a6xx_state->gmu_registers));
++		3, sizeof(*a6xx_state->gmu_registers));
  
- 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
-+
-+	/* Map the real mode stub as virtual == physical */
- 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
--	trampoline_pgd[511] = init_top_pgt[511].pgd;
-+
-+	/*
-+	 * Include the entirety of the kernel mapping into the trampoline
-+	 * PGD.  This way, all mappings present in the normal kernel page
-+	 * tables are usable while running on trampoline_pgd.
-+	 */
-+	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
-+		trampoline_pgd[i] = init_top_pgt[i].pgd;
- #endif
- }
+ 	if (!a6xx_state->gmu_registers)
+ 		return;
  
+-	a6xx_state->nr_gmu_registers = 2;
++	a6xx_state->nr_gmu_registers = 3;
+ 
+ 	/* Get the CX GMU registers from AHB */
+ 	_a6xx_get_gmu_registers(gpu, a6xx_state, &a6xx_gmu_reglist[0],
 
 
