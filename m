@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F76469B99
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C2F469DF1
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356506AbhLFPR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:59 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43288 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355445AbhLFPMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:41 -0500
+        id S1387197AbhLFPet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:34:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45642 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1386890AbhLFPaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:30:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 209B8B8111C;
-        Mon,  6 Dec 2021 15:09:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AAE2C341D7;
-        Mon,  6 Dec 2021 15:09:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C78C5612D7;
+        Mon,  6 Dec 2021 15:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A4AC34900;
+        Mon,  6 Dec 2021 15:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803350;
-        bh=Wf9khUgkXJTef0QaH9bBZWdQSyqarpW9Xaq30MmdVw4=;
+        s=korg; t=1638804406;
+        bh=XKvYX0H11SmBZNnOVKV1+t8NKlH1t9c6kY4DkEVc270=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUWVleu0AgSzJeoQK9tvAvG+jFn+AkYXbE6CVIvSLoN4SBgMAuJ2SNYD9OYvy/IEC
-         200x0TRIMA2U305kf0HEDdd+98IhmpVPrV3FKrag+VW1EcqbVac2Xir/4tdYV5yoH9
-         jX+rdvQ0ZJtLXjizvZpmAJ9kNMIOBq+wtDbZGty0=
+        b=xTyHE7FLv3hvmNycPBl2JxT+L8VY6ZSCAS8Q8AnhUNxwxCIYTHj8Y7yZ2i0MQcWUR
+         XVqzAadUl13rOyg3BRK0r6JrPydbyVLOHfNbTIqmA9oz9NIGtu6Nj/S89kGrq2g1ff
+         pyhSiwY9i6GZRk7c9lvnmf6W8WQGMfVn+BzvDyPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/48] scsi: iscsi: Unblock session then wake up error handler
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 134/207] net/smc: fix wrong list_del in smc_lgr_cleanup_early
 Date:   Mon,  6 Dec 2021 15:56:28 +0100
-Message-Id: <20211206145549.241229158@linuxfoundation.org>
+Message-Id: <20211206145614.867160905@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
+commit 789b6cc2a5f9123b9c549b886fdc47c865cfe0ba upstream.
 
-We can race where iscsi_session_recovery_timedout() has woken up the error
-handler thread and it's now setting the devices to offline, and
-session_recovery_timedout()'s call to scsi_target_unblock() is also trying
-to set the device's state to transport-offline. We can then get a mix of
-states.
+smc_lgr_cleanup_early() meant to delete the link
+group from the link group list, but it deleted
+the list head by mistake.
 
-For the case where we can't relogin we want the devices to be in
-transport-offline so when we have repaired the connection
-__iscsi_unblock_session() can set the state back to running.
+This may cause memory corruption since we didn't
+remove the real link group from the list and later
+memseted the link group structure.
+We got a list corruption panic when testing:
 
-Set the device state then call into libiscsi to wake up the error handler.
+[  231.277259] list_del corruption. prev->next should be ffff8881398a8000, but was 0000000000000000
+[  231.278222] ------------[ cut here ]------------
+[  231.278726] kernel BUG at lib/list_debug.c:53!
+[  231.279326] invalid opcode: 0000 [#1] SMP NOPTI
+[  231.279803] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.10.46+ #435
+[  231.280466] Hardware name: Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
+[  231.281248] Workqueue: events smc_link_down_work
+[  231.281732] RIP: 0010:__list_del_entry_valid+0x70/0x90
+[  231.282258] Code: 4c 60 82 e8 7d cc 6a 00 0f 0b 48 89 fe 48 c7 c7 88 4c
+60 82 e8 6c cc 6a 00 0f 0b 48 89 fe 48 c7 c7 c0 4c 60 82 e8 5b cc 6a 00 <0f>
+0b 48 89 fe 48 c7 c7 00 4d 60 82 e8 4a cc 6a 00 0f 0b cc cc cc
+[  231.284146] RSP: 0018:ffffc90000033d58 EFLAGS: 00010292
+[  231.284685] RAX: 0000000000000054 RBX: ffff8881398a8000 RCX: 0000000000000000
+[  231.285415] RDX: 0000000000000001 RSI: ffff88813bc18040 RDI: ffff88813bc18040
+[  231.286141] RBP: ffffffff8305ad40 R08: 0000000000000003 R09: 0000000000000001
+[  231.286873] R10: ffffffff82803da0 R11: ffffc90000033b90 R12: 0000000000000001
+[  231.287606] R13: 0000000000000000 R14: ffff8881398a8000 R15: 0000000000000003
+[  231.288337] FS:  0000000000000000(0000) GS:ffff88813bc00000(0000) knlGS:0000000000000000
+[  231.289160] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  231.289754] CR2: 0000000000e72058 CR3: 000000010fa96006 CR4: 00000000003706f0
+[  231.290485] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  231.291211] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  231.291940] Call Trace:
+[  231.292211]  smc_lgr_terminate_sched+0x53/0xa0
+[  231.292677]  smc_switch_conns+0x75/0x6b0
+[  231.293085]  ? update_load_avg+0x1a6/0x590
+[  231.293517]  ? ttwu_do_wakeup+0x17/0x150
+[  231.293907]  ? update_load_avg+0x1a6/0x590
+[  231.294317]  ? newidle_balance+0xca/0x3d0
+[  231.294716]  smcr_link_down+0x50/0x1a0
+[  231.295090]  ? __wake_up_common_lock+0x77/0x90
+[  231.295534]  smc_link_down_work+0x46/0x60
+[  231.295933]  process_one_work+0x18b/0x350
 
-Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a0a62ee15a829 ("net/smc: separate locks for SMCD and SMCR link group lists")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/smc/smc_core.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index c06e648a415b5..79581771e6f61 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -1892,12 +1892,12 @@ static void session_recovery_timedout(struct work_struct *work)
- 	}
- 	spin_unlock_irqrestore(&session->lock, flags);
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -582,18 +582,17 @@ int smcd_nl_get_lgr(struct sk_buff *skb,
+ void smc_lgr_cleanup_early(struct smc_connection *conn)
+ {
+ 	struct smc_link_group *lgr = conn->lgr;
+-	struct list_head *lgr_list;
+ 	spinlock_t *lgr_lock;
  
--	if (session->transport->session_recovery_timedout)
--		session->transport->session_recovery_timedout(session);
--
- 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
- 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
- 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
-+
-+	if (session->transport->session_recovery_timedout)
-+		session->transport->session_recovery_timedout(session);
+ 	if (!lgr)
+ 		return;
+ 
+ 	smc_conn_free(conn);
+-	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
++	smc_lgr_list_head(lgr, &lgr_lock);
+ 	spin_lock_bh(lgr_lock);
+ 	/* do not use this link group for new connections */
+-	if (!list_empty(lgr_list))
+-		list_del_init(lgr_list);
++	if (!list_empty(&lgr->list))
++		list_del_init(&lgr->list);
+ 	spin_unlock_bh(lgr_lock);
+ 	__smc_lgr_terminate(lgr, true);
  }
- 
- static void __iscsi_unblock_session(struct work_struct *work)
--- 
-2.33.0
-
 
 
