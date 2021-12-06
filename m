@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B211469A06
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48582469B5B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345424AbhLFPFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:05:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52164 "EHLO
+        id S1357471AbhLFPQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:16:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345303AbhLFPEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E975C07E5C5;
-        Mon,  6 Dec 2021 07:00:37 -0800 (PST)
+        with ESMTP id S1348184AbhLFPNn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:13:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F5AC0698C1;
+        Mon,  6 Dec 2021 07:06:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C223F612A5;
-        Mon,  6 Dec 2021 15:00:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F5FC341C5;
-        Mon,  6 Dec 2021 15:00:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3B0AB81123;
+        Mon,  6 Dec 2021 15:06:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FBCC341C2;
+        Mon,  6 Dec 2021 15:06:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802836;
-        bh=dV5YfUIrpF97d1WxsmcU/9RanFNhNw3i4waL1u+RIcM=;
+        s=korg; t=1638803174;
+        bh=i8cQwdkGZUW6x7bL5Dx0geQRO3RgfMPn0pPzNOBevBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKbjHsrVJotMjAnhg2mkLUzxcmhjzz1R0BnQZOSlTdm4B6dAYQE0oSInSkMfRjGZD
-         38eDcgNjXuqTMeUi5FcmfjFweupx0ehedMhIRoVVc2zFhZ5AZEGKM1TKu/hczmcie0
-         UcGlScuarbeyhdQnQHAILt1rNqKOJbs41cN9tbzA=
+        b=zia+J5lO4zHubMdCTJ7smQOzEZiVU56y0MvYRhJWqx3uW5F8U878rvTcaQe57niWx
+         TyWGzzdEgQurNEaEroqjFkl9s3Hxc1iQswBUnyzpQHSsgB0ASNThAcLk9rqL0uCGIL
+         Zth4WymfB0EX/BH3lc+dMhsduiozbC+U3xKnnGvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
-        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 19/52] hugetlbfs: flush TLBs correctly after huge_pmd_unshare
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Remi Pommarel <repk@triplefau.lt>,
+        Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.14 055/106] arm64: dts: marvell: armada-37xx: Set pcie_reset_pin to gpio function
 Date:   Mon,  6 Dec 2021 15:56:03 +0100
-Message-Id: <20211206145548.546472716@linuxfoundation.org>
+Message-Id: <20211206145557.333121497@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,173 +52,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Marek Behún <marek.behun@nic.cz>
 
-commit a4a118f2eead1d6c49e00765de89878288d4b890 upstream.
+commit 715878016984b2617f6c1f177c50039e12e7bd5b upstream.
 
-When __unmap_hugepage_range() calls to huge_pmd_unshare() succeed, a TLB
-flush is missing.  This TLB flush must be performed before releasing the
-i_mmap_rwsem, in order to prevent an unshared PMDs page from being
-released and reused before the TLB flush took place.
+We found out that we are unable to control the PERST# signal via the
+default pin dedicated to be PERST# pin (GPIO2[3] pin) on A3700 SOC when
+this pin is in EP_PCIE1_Resetn mode. There is a register in the PCIe
+register space called PERSTN_GPIO_EN (D0088004[3]), but changing the
+value of this register does not change the pin output when measuring
+with voltmeter.
 
-Arguably, a comprehensive solution would use mmu_gather interface to
-batch the TLB flushes and the PMDs page release, however it is not an
-easy solution: (1) try_to_unmap_one() and try_to_migrate_one() also call
-huge_pmd_unshare() and they cannot use the mmu_gather interface; and (2)
-deferring the release of the page reference for the PMDs page until
-after i_mmap_rwsem is dropeed can confuse huge_pmd_unshare() into
-thinking PMDs are shared when they are not.
+We do not know if this is a bug in the SOC, or if it works only when
+PCIe controller is in a certain state.
 
-Fix __unmap_hugepage_range() by adding the missing TLB flush, and
-forcing a flush when unshare is successful.
+Commit f4c7d053d7f7 ("PCI: aardvark: Wait for endpoint to be ready
+before training link") says that when this pin changes pinctrl mode
+from EP_PCIE1_Resetn to GPIO, the PERST# signal is asserted for a brief
+moment.
 
-Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary linked list for accumulating pages)" # 3.6
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+So currently the situation is that on A3700 boards the PERST# signal is
+asserted in U-Boot (because the code in U-Boot issues reset via this pin
+via GPIO mode), and then in Linux by the obscure and undocumented
+mechanism described by the above mentioned commit.
+
+We want to issue PERST# signal in a known way, therefore this patch
+changes the pcie_reset_pin function from "pcie" to "gpio" and adds the
+reset-gpios property to the PCIe node in device tree files of
+EspressoBin and Armada 3720 Dev Board (Turris Mox device tree already
+has this property and uDPU does not have a PCIe port).
+
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Cc: Remi Pommarel <repk@triplefau.lt>
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm/include/asm/tlb.h  |    8 ++++++++
- arch/ia64/include/asm/tlb.h |   10 ++++++++++
- arch/s390/include/asm/tlb.h |   13 +++++++++++++
- arch/sh/include/asm/tlb.h   |   10 ++++++++++
- arch/um/include/asm/tlb.h   |   12 ++++++++++++
- include/asm-generic/tlb.h   |    7 +++++++
- mm/hugetlb.c                |    5 ++++-
- 7 files changed, 64 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/marvell/armada-3720-db.dts          |    3 +++
+ arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts |    3 +++
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi            |    2 +-
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
---- a/arch/arm/include/asm/tlb.h
-+++ b/arch/arm/include/asm/tlb.h
-@@ -257,6 +257,14 @@ tlb_remove_pmd_tlb_entry(struct mmu_gath
- 	tlb_add_flush(tlb, addr);
- }
+--- a/arch/arm64/boot/dts/marvell/armada-3720-db.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
+@@ -155,6 +155,9 @@
  
-+static inline void
-+tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-+		    unsigned long size)
-+{
-+	tlb_add_flush(tlb, address);
-+	tlb_add_flush(tlb, address + size - PMD_SIZE);
-+}
-+
- #define pte_free_tlb(tlb, ptep, addr)	__pte_free_tlb(tlb, ptep, addr)
- #define pmd_free_tlb(tlb, pmdp, addr)	__pmd_free_tlb(tlb, pmdp, addr)
- #define pud_free_tlb(tlb, pudp, addr)	pud_free((tlb)->mm, pudp)
---- a/arch/ia64/include/asm/tlb.h
-+++ b/arch/ia64/include/asm/tlb.h
-@@ -251,6 +251,16 @@ __tlb_remove_tlb_entry (struct mmu_gathe
- 	tlb->end_addr = address + PAGE_SIZE;
- }
+ /* CON15(V2.0)/CON17(V1.4) : PCIe / CON15(V2.0)/CON12(V1.4) :mini-PCIe */
+ &pcie0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
++	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
  
-+static inline void
-+tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-+		    unsigned long size)
-+{
-+	if (tlb->start_addr > address)
-+		tlb->start_addr = address;
-+	if (tlb->end_addr < address + size)
-+		tlb->end_addr = address + size;
-+}
-+
- #define tlb_migrate_finish(mm)	platform_tlb_migrate_finish(mm)
+--- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
+@@ -82,6 +82,9 @@
  
- #define tlb_start_vma(tlb, vma)			do { } while (0)
---- a/arch/s390/include/asm/tlb.h
-+++ b/arch/s390/include/asm/tlb.h
-@@ -97,6 +97,19 @@ static inline void tlb_remove_page(struc
- {
- 	free_page_and_swap_cache(page);
- }
-+static inline void tlb_flush_pmd_range(struct mmu_gather *tlb,
-+				unsigned long address, unsigned long size)
-+{
-+	/*
-+	 * the range might exceed the original range that was provided to
-+	 * tlb_gather_mmu(), so we need to update it despite the fact it is
-+	 * usually not updated.
-+	 */
-+	if (tlb->start > address)
-+		tlb->start = address;
-+	if (tlb->end < address + size)
-+		tlb->end = address + size;
-+}
+ /* J9 */
+ &pcie0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
++	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
  
- /*
-  * pte_free_tlb frees a pte table and clears the CRSTE for the
---- a/arch/sh/include/asm/tlb.h
-+++ b/arch/sh/include/asm/tlb.h
-@@ -65,6 +65,16 @@ tlb_remove_tlb_entry(struct mmu_gather *
- 		tlb->end = address + PAGE_SIZE;
- }
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -241,7 +241,7 @@
  
-+static inline void
-+tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-+		    unsigned long size)
-+{
-+	if (tlb->start > address)
-+		tlb->start = address;
-+	if (tlb->end < address + size)
-+		tlb->end = address + size;
-+}
-+
- /*
-  * In the case of tlb vma handling, we can optimise these away in the
-  * case where we're doing a full MM flush.  When we're doing a munmap,
---- a/arch/um/include/asm/tlb.h
-+++ b/arch/um/include/asm/tlb.h
-@@ -110,6 +110,18 @@ static inline void tlb_remove_page(struc
- 	__tlb_remove_page(tlb, page);
- }
+ 				pcie_reset_pins: pcie-reset-pins {
+ 					groups = "pcie1";
+-					function = "pcie";
++					function = "gpio";
+ 				};
  
-+static inline void
-+tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
-+		    unsigned long size)
-+{
-+	tlb->need_flush = 1;
-+
-+	if (tlb->start > address)
-+		tlb->start = address;
-+	if (tlb->end < address + size)
-+		tlb->end = address + size;
-+}
-+
- /**
-  * tlb_remove_tlb_entry - remember a pte unmapping for later tlb invalidation.
-  *
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -165,6 +165,13 @@ static inline void __tlb_reset_range(str
- #define tlb_end_vma	__tlb_end_vma
- #endif
- 
-+static inline void tlb_flush_pmd_range(struct mmu_gather *tlb,
-+				unsigned long address, unsigned long size)
-+{
-+	tlb->start = min(tlb->start, address);
-+	tlb->end = max(tlb->end, address + size);
-+}
-+
- #ifndef __tlb_remove_tlb_entry
- #define __tlb_remove_tlb_entry(tlb, ptep, address) do { } while (0)
- #endif
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3290,8 +3290,11 @@ again:
- 			continue;
- 
- 		ptl = huge_pte_lock(h, mm, ptep);
--		if (huge_pmd_unshare(mm, &address, ptep))
-+		if (huge_pmd_unshare(mm, &address, ptep)) {
-+			tlb_flush_pmd_range(tlb, address & PUD_MASK, PUD_SIZE);
-+			force_flush = 1;
- 			goto unlock;
-+		}
- 
- 		pte = huge_ptep_get(ptep);
- 		if (huge_pte_none(pte))
+ 				pcie_clkreq_pins: pcie-clkreq-pins {
 
 
