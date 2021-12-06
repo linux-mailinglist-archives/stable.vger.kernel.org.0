@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F42E469D2D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92720469BFD
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357595AbhLFP2h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:37 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42214 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377101AbhLFPYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:07 -0500
+        id S1357775AbhLFPTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:19:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49860 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346287AbhLFPRP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 305C86132F;
-        Mon,  6 Dec 2021 15:20:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C973C341C1;
-        Mon,  6 Dec 2021 15:20:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD8CBB8101B;
+        Mon,  6 Dec 2021 15:13:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26152C341C2;
+        Mon,  6 Dec 2021 15:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804035;
-        bh=0vgoO1MLHJmXDBbQnUb7UINClf/VQYO0APT8SWOv3VM=;
+        s=korg; t=1638803624;
+        bh=lw6qGB36BEkIyQ3oOD9ifrGWYFuzGxkvN8Q5tj6AXvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vE8MsLdjmHVsW2Jk8nMyZsL8K52XltVy8jfkWRL3kGpyzuJskpx+Vscdf0py2NJh5
-         r83FHLcM85SFZsCR+TAPzq6UWOqICYJHwmGwV0QQTX6v7JFTXyitGpqx5WDoLu48B5
-         wDa8p2q/0vgGpdjCAaQR1mxa96XcvnNPS2XudWIU=
+        b=zDmllINmssUb7g4l1DpFWf8Hauc3POf2HSl05nwtD03z5oKQrnnpaKLiLKp7JcRf4
+         gccmZCpzI0WIZhR667tL/IG+YROq5fbmQ49Kr7l7sD7zYsnRsOBRS5U0QoPbNSfanf
+         Yx4K34Op8p36i9GGRRXJcA8tfCQ/4ykQNk+6IguE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Sterritt <sterritt@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Orr <marcorr@google.com>, Peter Gonda <pgonda@google.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 105/130] x86/sev: Fix SEV-ES INS/OUTS instructions for word, dword, and qword
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>
+Subject: [PATCH 5.4 58/70] usb: typec: tcpm: Wait in SNK_DEBOUNCED until disconnect
 Date:   Mon,  6 Dec 2021 15:57:02 +0100
-Message-Id: <20211206145603.266952839@linuxfoundation.org>
+Message-Id: <20211206145553.930700967@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,157 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Sterritt <sterritt@google.com>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-[ Upstream commit 1d5379d0475419085d3575bd9155f2e558e96390 ]
+commit fbcd13df1e78eb2ba83a3c160eefe2d6f574beaf upstream.
 
-Properly type the operands being passed to __put_user()/__get_user().
-Otherwise, these routines truncate data for dependent instructions
-(e.g., INSW) and only read/write one byte.
+Stub from the spec:
+"4.5.2.2.4.2 Exiting from AttachWait.SNK State
+A Sink shall transition to Unattached.SNK when the state of both
+the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
+A DRP shall transition to Unattached.SRC when the state of both
+the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
 
-This has been tested by sending a string with REP OUTSW to a port and
-then reading it back in with REP INSW on the same port.
+This change makes TCPM to wait in SNK_DEBOUNCED state until
+CC1 and CC2 pins is SNK.Open for at least tPDDebounce. Previously,
+TCPM resets the port if vbus is not present in PD_T_PS_SOURCE_ON.
+This causes TCPM to loop continuously when connected to a
+faulty power source that does not present vbus. Waiting in
+SNK_DEBOUNCED also ensures that TCPM is adherant to
+"4.5.2.2.4.2 Exiting from AttachWait.SNK State" requirements.
 
-Previous behavior was to only send and receive the first char of the
-size. For example, word operations for "abcd" would only read/write
-"ac". With change, the full string is now written and read back.
+[ 6169.280751] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
+[ 6169.280759] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
+[ 6169.280771] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
+[ 6169.282427] CC1: 0 -> 0, CC2: 5 -> 5 [state SNK_ATTACH_WAIT, polarity 0, connected]
+[ 6169.450825] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
+[ 6169.450834] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
+[ 6169.930892] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
+[ 6169.931296] disable vbus discharge ret:0
+[ 6169.931301] Setting usb_comm capable false
+[ 6169.932783] Setting voltage/current limit 0 mV 0 mA
+[ 6169.932802] polarity 0
+[ 6169.933706] Requesting mux state 0, usb-role 0, orientation 0
+[ 6169.936689] cc:=0
+[ 6169.936812] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
+[ 6169.937157] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
+[ 6170.036880] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
+[ 6170.036890] state change PORT_RESET_WAIT_OFF -> SNK_UNATTACHED [rev2 NONE_AMS]
+[ 6170.036896] Start toggling
+[ 6170.041412] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0, disconnected]
+[ 6170.042973] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
+[ 6170.042976] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
+[ 6170.042981] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
+[ 6170.213014] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
+[ 6170.213019] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
+[ 6170.693068] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
+[ 6170.693304] disable vbus discharge ret:0
+[ 6170.693308] Setting usb_comm capable false
+[ 6170.695193] Setting voltage/current limit 0 mV 0 mA
+[ 6170.695210] polarity 0
+[ 6170.695990] Requesting mux state 0, usb-role 0, orientation 0
+[ 6170.701896] cc:=0
+[ 6170.702181] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
+[ 6170.703343] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
 
-Fixes: f980f9c31a923 (x86/sev-es: Compile early handler code into kernel image)
-Signed-off-by: Michael Sterritt <sterritt@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Reviewed-by: Peter Gonda <pgonda@google.com>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lkml.kernel.org/r/20211119232757.176201-1-sterritt@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Link: https://lore.kernel.org/r/20211130001825.3142830-1-badhri@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/sev-es.c | 57 +++++++++++++++++++++++++++-------------
- 1 file changed, 39 insertions(+), 18 deletions(-)
+ drivers/usb/typec/tcpm/tcpm.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 865e234ea24bd..c222fab112cbd 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -260,11 +260,6 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
- 				   char *dst, char *buf, size_t size)
- {
- 	unsigned long error_code = X86_PF_PROT | X86_PF_WRITE;
--	char __user *target = (char __user *)dst;
--	u64 d8;
--	u32 d4;
--	u16 d2;
--	u8  d1;
- 
- 	/*
- 	 * This function uses __put_user() independent of whether kernel or user
-@@ -286,26 +281,42 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
- 	 * instructions here would cause infinite nesting.
- 	 */
- 	switch (size) {
--	case 1:
-+	case 1: {
-+		u8 d1;
-+		u8 __user *target = (u8 __user *)dst;
-+
- 		memcpy(&d1, buf, 1);
- 		if (__put_user(d1, target))
- 			goto fault;
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -3118,11 +3118,7 @@ static void run_state_machine(struct tcp
+ 				       tcpm_try_src(port) ? SRC_TRY
+ 							  : SNK_ATTACHED,
+ 				       0);
+-		else
+-			/* Wait for VBUS, but not forever */
+-			tcpm_set_state(port, PORT_RESET, PD_T_PS_SOURCE_ON);
  		break;
--	case 2:
-+	}
-+	case 2: {
-+		u16 d2;
-+		u16 __user *target = (u16 __user *)dst;
-+
- 		memcpy(&d2, buf, 2);
- 		if (__put_user(d2, target))
- 			goto fault;
- 		break;
--	case 4:
-+	}
-+	case 4: {
-+		u32 d4;
-+		u32 __user *target = (u32 __user *)dst;
-+
- 		memcpy(&d4, buf, 4);
- 		if (__put_user(d4, target))
- 			goto fault;
- 		break;
--	case 8:
-+	}
-+	case 8: {
-+		u64 d8;
-+		u64 __user *target = (u64 __user *)dst;
-+
- 		memcpy(&d8, buf, 8);
- 		if (__put_user(d8, target))
- 			goto fault;
- 		break;
-+	}
- 	default:
- 		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
- 		return ES_UNSUPPORTED;
-@@ -328,11 +339,6 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 				  char *src, char *buf, size_t size)
- {
- 	unsigned long error_code = X86_PF_PROT;
--	char __user *s = (char __user *)src;
--	u64 d8;
--	u32 d4;
--	u16 d2;
--	u8  d1;
- 
- 	/*
- 	 * This function uses __get_user() independent of whether kernel or user
-@@ -354,26 +360,41 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 	 * instructions here would cause infinite nesting.
- 	 */
- 	switch (size) {
--	case 1:
-+	case 1: {
-+		u8 d1;
-+		u8 __user *s = (u8 __user *)src;
-+
- 		if (__get_user(d1, s))
- 			goto fault;
- 		memcpy(buf, &d1, 1);
- 		break;
--	case 2:
-+	}
-+	case 2: {
-+		u16 d2;
-+		u16 __user *s = (u16 __user *)src;
-+
- 		if (__get_user(d2, s))
- 			goto fault;
- 		memcpy(buf, &d2, 2);
- 		break;
--	case 4:
-+	}
-+	case 4: {
-+		u32 d4;
-+		u32 __user *s = (u32 __user *)src;
-+
- 		if (__get_user(d4, s))
- 			goto fault;
- 		memcpy(buf, &d4, 4);
- 		break;
--	case 8:
-+	}
-+	case 8: {
-+		u64 d8;
-+		u64 __user *s = (u64 __user *)src;
- 		if (__get_user(d8, s))
- 			goto fault;
- 		memcpy(buf, &d8, 8);
- 		break;
-+	}
- 	default:
- 		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
- 		return ES_UNSUPPORTED;
--- 
-2.33.0
-
+-
+ 	case SRC_TRY:
+ 		port->try_src_count++;
+ 		tcpm_set_cc(port, tcpm_rp_cc(port));
 
 
