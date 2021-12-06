@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EA14699DB
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E1E469C4F
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345340AbhLFPEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52386 "EHLO
+        id S1347532AbhLFPVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344997AbhLFPDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:46 -0500
+        with ESMTP id S1357223AbhLFPSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8997C0698D9;
-        Mon,  6 Dec 2021 06:59:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 213BEC08E846;
+        Mon,  6 Dec 2021 07:11:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F9B3B81017;
-        Mon,  6 Dec 2021 14:59:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4663C341C1;
-        Mon,  6 Dec 2021 14:59:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6B0EB8111C;
+        Mon,  6 Dec 2021 15:11:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00BAEC341C2;
+        Mon,  6 Dec 2021 15:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802791;
-        bh=i6mk2cb0j5CfxIBorCVhnBTjAaFjzpNUCdJwXN8jegY=;
+        s=korg; t=1638803496;
+        bh=tB//n0tYS1KCTrFcXku2NlsdtCOW+4IRGkpsk+eUch8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/Chje6emewVW+7tklHo2pOuLTMelzsFiEil2m7OwYJcrwzobofGgFfzSRzwQj1AC
-         g53b4YeewTizBFAMTymKhsCUC4J/5VAv9ZRREDUYN4oKBEwqrRzmuvfff480omp6bi
-         GpbM2mxPebH29V3alPDIKpv2BonvO3/PRbXM0VYY=
+        b=rpiRFuGU3O+1VG4YCApmVIFkUIFmTl+OxUkfO96QPcVuzNQOUd3OFwLVAiSnOWElf
+         U9mvxwtfBM99JwhjCY5l8SftD5LYsLOBC0dUYORcosYGgDCxaONLa+42dZ7ZUdZxHD
+         Hk8f/wHuS0fO2l9LEsjDkCIig4ZRWH1DUsvDjgwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Michal Hocko <mhocko@kernel.org>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.4 34/52] hugetlb: take PMD sharing into account when flushing tlb/caches
+        stable@vger.kernel.org,
+        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
+        Thara Gopinath <thara.gopinath@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 14/70] thermal: core: Reset previous low and high trip during thermal zone init
 Date:   Mon,  6 Dec 2021 15:56:18 +0100
-Message-Id: <20211206145549.058512955@linuxfoundation.org>
+Message-Id: <20211206145552.398435988@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,138 +50,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
 
-commit dff11abe280b47c21b804a8ace318e0638bb9a49 upstream.
+[ Upstream commit 99b63316c39988039965693f5f43d8b4ccb1c86c ]
 
-When fixing an issue with PMD sharing and migration, it was discovered via
-code inspection that other callers of huge_pmd_unshare potentially have an
-issue with cache and tlb flushing.
+During the suspend is in process, thermal_zone_device_update bails out
+thermal zone re-evaluation for any sensor trip violation without
+setting next valid trip to that sensor. It assumes during resume
+it will re-evaluate same thermal zone and update trip. But when it is
+in suspend temperature goes down and on resume path while updating
+thermal zone if temperature is less than previously violated trip,
+thermal zone set trip function evaluates the same previous high and
+previous low trip as new high and low trip. Since there is no change
+in high/low trip, it bails out from thermal zone set trip API without
+setting any trip. It leads to a case where sensor high trip or low
+trip is disabled forever even though thermal zone has a valid high
+or low trip.
 
-Use the routine adjust_range_if_pmd_sharing_possible() to calculate worst
-case ranges for mmu notifiers.  Ensure that this range is flushed if
-huge_pmd_unshare succeeds and unmaps a PUD_SUZE area.
+During thermal zone device init, reset thermal zone previous high
+and low trip. It resolves above mentioned scenario.
 
-Link: http://lkml.kernel.org/r/20180823205917.16297-3-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+Reviewed-by: Thara Gopinath <thara.gopinath@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |   53 +++++++++++++++++++++++++++++++++++++++++++----------
- 1 file changed, 43 insertions(+), 10 deletions(-)
+ drivers/thermal/thermal_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3273,14 +3273,19 @@ void __unmap_hugepage_range(struct mmu_g
- 	struct page *page;
- 	struct hstate *h = hstate_vma(vma);
- 	unsigned long sz = huge_page_size(h);
--	const unsigned long mmun_start = start;	/* For mmu_notifiers */
--	const unsigned long mmun_end   = end;	/* For mmu_notifiers */
-+	unsigned long mmun_start = start;	/* For mmu_notifiers */
-+	unsigned long mmun_end   = end;		/* For mmu_notifiers */
- 
- 	WARN_ON(!is_vm_hugetlb_page(vma));
- 	BUG_ON(start & ~huge_page_mask(h));
- 	BUG_ON(end & ~huge_page_mask(h));
- 
- 	tlb_start_vma(tlb, vma);
-+
-+	/*
-+	 * If sharing possible, alert mmu notifiers of worst case.
-+	 */
-+	adjust_range_if_pmd_sharing_possible(vma, &mmun_start, &mmun_end);
- 	mmu_notifier_invalidate_range_start(mm, mmun_start, mmun_end);
- 	address = start;
- again:
-@@ -3387,12 +3392,23 @@ void unmap_hugepage_range(struct vm_area
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index 20eab56b02cb9..f4490b8120176 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -460,6 +460,8 @@ static void thermal_zone_device_init(struct thermal_zone_device *tz)
  {
- 	struct mm_struct *mm;
- 	struct mmu_gather tlb;
-+	unsigned long tlb_start = start;
-+	unsigned long tlb_end = end;
-+
-+	/*
-+	 * If shared PMDs were possibly used within this vma range, adjust
-+	 * start/end for worst case tlb flushing.
-+	 * Note that we can not be sure if PMDs are shared until we try to
-+	 * unmap pages.  However, we want to make sure TLB flushing covers
-+	 * the largest possible range.
-+	 */
-+	adjust_range_if_pmd_sharing_possible(vma, &tlb_start, &tlb_end);
- 
- 	mm = vma->vm_mm;
- 
--	tlb_gather_mmu(&tlb, mm, start, end);
-+	tlb_gather_mmu(&tlb, mm, tlb_start, tlb_end);
- 	__unmap_hugepage_range(&tlb, vma, start, end, ref_page);
--	tlb_finish_mmu(&tlb, start, end);
-+	tlb_finish_mmu(&tlb, tlb_start, tlb_end);
+ 	struct thermal_instance *pos;
+ 	tz->temperature = THERMAL_TEMP_INVALID;
++	tz->prev_low_trip = -INT_MAX;
++	tz->prev_high_trip = INT_MAX;
+ 	list_for_each_entry(pos, &tz->thermal_instances, tz_node)
+ 		pos->initialized = false;
  }
- 
- /*
-@@ -4068,11 +4084,21 @@ unsigned long hugetlb_change_protection(
- 	pte_t pte;
- 	struct hstate *h = hstate_vma(vma);
- 	unsigned long pages = 0;
-+	unsigned long f_start = start;
-+	unsigned long f_end = end;
-+	bool shared_pmd = false;
-+
-+	/*
-+	 * In the case of shared PMDs, the area to flush could be beyond
-+	 * start/end.  Set f_start/f_end to cover the maximum possible
-+	 * range if PMD sharing is possible.
-+	 */
-+	adjust_range_if_pmd_sharing_possible(vma, &f_start, &f_end);
- 
- 	BUG_ON(address >= end);
--	flush_cache_range(vma, address, end);
-+	flush_cache_range(vma, f_start, f_end);
- 
--	mmu_notifier_invalidate_range_start(mm, start, end);
-+	mmu_notifier_invalidate_range_start(mm, f_start, f_end);
- 	i_mmap_lock_write(vma->vm_file->f_mapping);
- 	for (; address < end; address += huge_page_size(h)) {
- 		spinlock_t *ptl;
-@@ -4083,6 +4109,7 @@ unsigned long hugetlb_change_protection(
- 		if (huge_pmd_unshare(mm, &address, ptep)) {
- 			pages++;
- 			spin_unlock(ptl);
-+			shared_pmd = true;
- 			continue;
- 		}
- 		pte = huge_ptep_get(ptep);
-@@ -4117,12 +4144,18 @@ unsigned long hugetlb_change_protection(
- 	 * Must flush TLB before releasing i_mmap_rwsem: x86's huge_pmd_unshare
- 	 * may have cleared our pud entry and done put_page on the page table:
- 	 * once we release i_mmap_rwsem, another task can do the final put_page
--	 * and that page table be reused and filled with junk.
-+	 * and that page table be reused and filled with junk.  If we actually
-+	 * did unshare a page of pmds, flush the range corresponding to the pud.
- 	 */
--	flush_tlb_range(vma, start, end);
--	mmu_notifier_invalidate_range(mm, start, end);
-+	if (shared_pmd) {
-+		flush_tlb_range(vma, f_start, f_end);
-+		mmu_notifier_invalidate_range(mm, f_start, f_end);
-+	} else {
-+		flush_tlb_range(vma, start, end);
-+		mmu_notifier_invalidate_range(mm, start, end);
-+	}
- 	i_mmap_unlock_write(vma->vm_file->f_mapping);
--	mmu_notifier_invalidate_range_end(mm, start, end);
-+	mmu_notifier_invalidate_range_end(mm, f_start, f_end);
- 
- 	return pages << h->order;
- }
+-- 
+2.33.0
+
 
 
