@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 074C9469AE6
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 120FD469C9D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244189AbhLFPLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:11:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57558 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347070AbhLFPID (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:08:03 -0500
+        id S1346493AbhLFPX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356186AbhLFPV5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F30E1C08E9B3;
+        Mon,  6 Dec 2021 07:14:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEF4D612D3;
-        Mon,  6 Dec 2021 15:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4D4C341C1;
-        Mon,  6 Dec 2021 15:04:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC71EB8111B;
+        Mon,  6 Dec 2021 15:14:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07748C341C1;
+        Mon,  6 Dec 2021 15:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803073;
-        bh=vGKg4XJnlC2rLqxy6AMLtQpcsXf2Ig9OjiDXLA84ljk=;
+        s=korg; t=1638803683;
+        bh=6QVG78zX7TohphJpQVKqzq6rsRPyZcAEn/GjEwF5P/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcrcMmNghK4NboJRkiB4nVkuE08YwSukJCcUazgDTmQvuh9pPQgne9ugaUR7JVEYY
-         a7AQt3xxbrzB1XfjSBUMmBk7QPX4C2MYzpYM2Z7NRQ5Qr1IfiDXQnEabR9lcZ1OhP8
-         x1ckkEmNeSgwvpYmi154X9ND6UWtm7Py/57/EfSw=
+        b=RWTJNAXY3Q/tj+ILWx7DLYZOxJ2/6H4us0++eojHkryi4oNW4nFoWfNv2+wB8B3Mc
+         9fNywP6Hb6zGhQo50Bk8fbJCuiaxDXNnJMvMkWzix36z3o7pBI+oz1tFhC7Sc7RbDB
+         M92ho8gdHZG9M8Wc7PBAtDjCmBamYaE87Fg7q1+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 019/106] NFSv42: Dont fail clone() unless the OP_CLONE operation failed
+Subject: [PATCH 5.10 010/130] net/smc: Transfer remaining wait queue entries during fallback
 Date:   Mon,  6 Dec 2021 15:55:27 +0100
-Message-Id: <20211206145556.038875706@linuxfoundation.org>
+Message-Id: <20211206145559.976857332@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +49,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Wen Gu <guwen@linux.alibaba.com>
 
-[ Upstream commit d3c45824ad65aebf765fcf51366d317a29538820 ]
+[ Upstream commit 2153bd1e3d3dbf6a3403572084ef6ed31c53c5f0 ]
 
-The failure to retrieve post-op attributes has no bearing on whether or
-not the clone operation itself was successful. We must therefore ignore
-the return value of decode_getfattr() when looking at the success or
-failure of nfs4_xdr_dec_clone().
+The SMC fallback is incomplete currently. There may be some
+wait queue entries remaining in smc socket->wq, which should
+be removed to clcsocket->wq during the fallback.
 
-Fixes: 36022770de6c ("nfs42: add CLONE xdr functions")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+For example, in nginx/wrk benchmark, this issue causes an
+all-zeros test result:
+
+server: nginx -g 'daemon off;'
+client: smc_run wrk -c 1 -t 1 -d 5 http://11.200.15.93/index.html
+
+  Running 5s test @ http://11.200.15.93/index.html
+     1 threads and 1 connections
+     Thread Stats   Avg      Stdev     Max   ± Stdev
+     	Latency     0.00us    0.00us   0.00us    -nan%
+	Req/Sec     0.00      0.00     0.00      -nan%
+	0 requests in 5.00s, 0.00B read
+     Requests/sec:      0.00
+     Transfer/sec:       0.00B
+
+The reason for this all-zeros result is that when wrk used SMC
+to replace TCP, it added an eppoll_entry into smc socket->wq
+and expected to be notified if epoll events like EPOLL_IN/
+EPOLL_OUT occurred on the smc socket.
+
+However, once a fallback occurred, wrk switches to use clcsocket.
+Now it is clcsocket->wq instead of smc socket->wq which will
+be woken up. The eppoll_entry remaining in smc socket->wq does
+not work anymore and wrk stops the test.
+
+This patch fixes this issue by removing remaining wait queue
+entries from smc socket->wq to clcsocket->wq during the fallback.
+
+Link: https://www.spinics.net/lists/netdev/msg779769.html
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42xdr.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/smc/af_smc.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/fs/nfs/nfs42xdr.c b/fs/nfs/nfs42xdr.c
-index 5966e1e7b1f51..09c683402f950 100644
---- a/fs/nfs/nfs42xdr.c
-+++ b/fs/nfs/nfs42xdr.c
-@@ -625,8 +625,7 @@ static int nfs4_xdr_dec_clone(struct rpc_rqst *rqstp,
- 	status = decode_clone(xdr);
- 	if (status)
- 		goto out;
--	status = decode_getfattr(xdr, res->dst_fattr, res->server);
--
-+	decode_getfattr(xdr, res->dst_fattr, res->server);
- out:
- 	res->rpc_status = status;
- 	return status;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index ac8265e35b2d2..04bf8088872a9 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -513,12 +513,26 @@ static void smc_link_save_peer_info(struct smc_link *link,
+ 
+ static void smc_switch_to_fallback(struct smc_sock *smc)
+ {
++	wait_queue_head_t *smc_wait = sk_sleep(&smc->sk);
++	wait_queue_head_t *clc_wait = sk_sleep(smc->clcsock->sk);
++	unsigned long flags;
++
+ 	smc->use_fallback = true;
+ 	if (smc->sk.sk_socket && smc->sk.sk_socket->file) {
+ 		smc->clcsock->file = smc->sk.sk_socket->file;
+ 		smc->clcsock->file->private_data = smc->clcsock;
+ 		smc->clcsock->wq.fasync_list =
+ 			smc->sk.sk_socket->wq.fasync_list;
++
++		/* There may be some entries remaining in
++		 * smc socket->wq, which should be removed
++		 * to clcsocket->wq during the fallback.
++		 */
++		spin_lock_irqsave(&smc_wait->lock, flags);
++		spin_lock(&clc_wait->lock);
++		list_splice_init(&smc_wait->head, &clc_wait->head);
++		spin_unlock(&clc_wait->lock);
++		spin_unlock_irqrestore(&smc_wait->lock, flags);
+ 	}
+ }
+ 
 -- 
 2.33.0
 
