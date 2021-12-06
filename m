@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF90469BBD
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 922104699D3
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345297AbhLFPSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358704AbhLFPQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AE6C08EC8B;
-        Mon,  6 Dec 2021 07:09:34 -0800 (PST)
+        id S242129AbhLFPEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:04:07 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:36302 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344364AbhLFPD2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E988961328;
-        Mon,  6 Dec 2021 15:09:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBBD3C341C2;
-        Mon,  6 Dec 2021 15:09:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B83AB81017;
+        Mon,  6 Dec 2021 14:59:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DB51C341C2;
+        Mon,  6 Dec 2021 14:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803373;
-        bh=GCTKWypXTdlnMDCefqNAmhunxgQiu/ZvnAzpYcz5+Xs=;
+        s=korg; t=1638802797;
+        bh=f3EGS0VFEjwTZS8NIxcdkvJAF1WJeXU+e4r9fD9mAS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsJIvK3L6RKX0kbQeohA4lkSD274ggBPfvC1KX55ILNfP7X2OaeMMsVCUiQ3CXVfu
-         w8XpejGMNo9cPxAL/cxbv7BtNOvfEI3DPteOFay/gz/InHWUg+FVTsSH7aswBvFAv0
-         W54eqZq/o9FCk8jesEqz9n2noy0Vov8IclwXvur8=
+        b=Zssorr96Diog/GkhBKkMlg2bHbKQk2XJ4g1yY2r7pPflCL6kS2SgzPkO0+0Tt8Z0N
+         ETCR8rAQov8jHve5WxRgZjWGVN51i0dlOVQfMO9s/PbKn/14t0plPqj5o4tN83qfTQ
+         iIEkFXrQ8QJJt8K8UERLhYMRjGW5x48NFh2NspHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.19 02/48] NFSv42: Fix pagecache invalidation after COPY/CLONE
-Date:   Mon,  6 Dec 2021 15:56:19 +0100
-Message-Id: <20211206145548.941941299@linuxfoundation.org>
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 36/52] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
+Date:   Mon,  6 Dec 2021 15:56:20 +0100
+Message-Id: <20211206145549.131949390@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
+References: <20211206145547.892668902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit 3f015d89a47cd8855cd92f71fff770095bd885a1 upstream.
+[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
 
-The mechanism in use to allow the client to see the results of COPY/CLONE
-is to drop those pages from the pagecache.  This forces the client to read
-those pages once more from the server.  However, truncate_pagecache_range()
-zeros out partial pages instead of dropping them.  Let us instead use
-invalidate_inode_pages2_range() with full-page offsets to ensure the client
-properly sees the results of COPY/CLONE operations.
+When WWAN device wake from S3 deep, under thinkpad platform,
+WWAN would be disabled. This disable status could be checked
+by command 'nmcli r wwan' or 'rfkill list'.
 
-Cc: <stable@vger.kernel.org> # v4.7+
-Fixes: 2e72448b07dc ("NFS: Add COPY nfs operation")
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Issue analysis as below:
+  When host resume from S3 deep, thinkpad_acpi driver would
+call hotkey_resume() function. Finnaly, it will use
+wan_get_status to check the current status of WWAN device.
+During this resume progress, wan_get_status would always
+return off even WWAN boot up completely.
+  In patch V2, Hans said 'sw_state should be unchanged
+after a suspend/resume. It's better to drop the
+tpacpi_rfk_update_swstate call all together from the
+resume path'.
+  And it's confimed by Lenovo that GWAN is no longer
+ available from WHL generation because the design does not
+ match with current pin control.
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42proc.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -295,8 +295,9 @@ static ssize_t _nfs42_proc_copy(struct f
- 			goto out;
- 	}
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index f3954af14f52f..466a0d0162c3d 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -1168,15 +1168,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
+ 	return status;
+ }
  
--	truncate_pagecache_range(dst_inode, pos_dst,
--				 pos_dst + res->write_res.count);
-+	WARN_ON_ONCE(invalidate_inode_pages2_range(dst_inode->i_mapping,
-+					pos_dst >> PAGE_SHIFT,
-+					(pos_dst + res->write_res.count - 1) >> PAGE_SHIFT));
+-/* Query FW and update rfkill sw state for all rfkill switches */
+-static void tpacpi_rfk_update_swstate_all(void)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
+-		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
+-}
+-
+ /*
+  * Sync the HW-blocking state of all rfkill switches,
+  * do notice it causes the rfkill core to schedule uevents
+@@ -3015,9 +3006,6 @@ static void tpacpi_send_radiosw_update(void)
+ 	if (wlsw == TPACPI_RFK_RADIO_OFF)
+ 		tpacpi_rfk_update_hwblock_state(true);
  
- 	status = res->write_res.count;
- out:
+-	/* Sync sw blocking state */
+-	tpacpi_rfk_update_swstate_all();
+-
+ 	/* Sync hw blocking state last if it is hw-unblocked */
+ 	if (wlsw == TPACPI_RFK_RADIO_ON)
+ 		tpacpi_rfk_update_hwblock_state(false);
+-- 
+2.33.0
+
 
 
