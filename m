@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0D9469DE8
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE53469EF9
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243611AbhLFPeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:34:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34978 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387384AbhLFPbK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:31:10 -0500
+        id S1391147AbhLFPpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1388108AbhLFPcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B447C08E84A;
+        Mon,  6 Dec 2021 07:19:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98A2CB81018;
-        Mon,  6 Dec 2021 15:27:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57E2C34901;
-        Mon,  6 Dec 2021 15:27:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB5AFB81118;
+        Mon,  6 Dec 2021 15:19:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29E67C341C8;
+        Mon,  6 Dec 2021 15:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804459;
-        bh=WcScSF7kddzukuf+3Gs4FU1f4IK0BYp1yQDTQh7CJ/o=;
+        s=korg; t=1638803953;
+        bh=9velEWGf7XRota4AW/ofgutwRM87Lj20P6uIf/1mCbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iai2LMeVovbi+nF0AK/W6LzDnDmZ4doUXeMKpSAyWRVrC779YlBedWQijZRjiBzoX
-         9Oqp1LU6XXn7RMXOca7qjyCHpXgSyRuMWsntUNwb7r8ML9PgmiDN1DMc6Anz8rsk44
-         JEr3gda6o9StjIVjmBdTj40ZIWnvr0LFlR7IF3hQ=
+        b=e+23TlH9wwF3cJHtspnj1omGxZ4IVVRtPWVe96pCa9CPyCrj2bfV2eECoPFSgDR19
+         OsYLOzG+XqxwjSHcVErzanPGhwejYIJ+144y9Uf5vyJU57phtKCj3co6SONpCjcULS
+         PyZAQi/X/itWhffddcQUy2/V+tNeZWXQLoS7aU/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.15 137/207] drm/msm/a6xx: Allocate enough space for GMU registers
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 074/130] ASoC: tegra: Fix wrong value type in ADMAIF
 Date:   Mon,  6 Dec 2021 15:56:31 +0100
-Message-Id: <20211206145614.970389346@linuxfoundation.org>
+Message-Id: <20211206145602.232853500@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Sameer Pujar <spujar@nvidia.com>
 
-commit b4d25abf9720b69a03465b09d0d62d1998ed6708 upstream.
+commit 884c6cb3b7030f75c46e55b9e625d2372708c306 upstream.
 
-In commit 142639a52a01 ("drm/msm/a6xx: fix crashstate capture for
-A650") we changed a6xx_get_gmu_registers() to read 3 sets of
-registers. Unfortunately, we didn't change the memory allocation for
-the array. That leads to a KASAN warning (this was on the chromeos-5.4
-kernel, which has the problematic commit backported to it):
+The enum controls are expected to use enumerated value type.
+Update relevant references in control get/put callbacks.
 
-  BUG: KASAN: slab-out-of-bounds in _a6xx_get_gmu_registers+0x144/0x430
-  Write of size 8 at addr ffffff80c89432b0 by task A618-worker/209
-  CPU: 5 PID: 209 Comm: A618-worker Tainted: G        W         5.4.156-lockdep #22
-  Hardware name: Google Lazor Limozeen without Touchscreen (rev5 - rev8) (DT)
-  Call trace:
-   dump_backtrace+0x0/0x248
-   show_stack+0x20/0x2c
-   dump_stack+0x128/0x1ec
-   print_address_description+0x88/0x4a0
-   __kasan_report+0xfc/0x120
-   kasan_report+0x10/0x18
-   __asan_report_store8_noabort+0x1c/0x24
-   _a6xx_get_gmu_registers+0x144/0x430
-   a6xx_gpu_state_get+0x330/0x25d4
-   msm_gpu_crashstate_capture+0xa0/0x84c
-   recover_worker+0x328/0x838
-   kthread_worker_fn+0x32c/0x574
-   kthread+0x2dc/0x39c
-   ret_from_fork+0x10/0x18
-
-  Allocated by task 209:
-   __kasan_kmalloc+0xfc/0x1c4
-   kasan_kmalloc+0xc/0x14
-   kmem_cache_alloc_trace+0x1f0/0x2a0
-   a6xx_gpu_state_get+0x164/0x25d4
-   msm_gpu_crashstate_capture+0xa0/0x84c
-   recover_worker+0x328/0x838
-   kthread_worker_fn+0x32c/0x574
-   kthread+0x2dc/0x39c
-   ret_from_fork+0x10/0x18
-
-Fixes: 142639a52a01 ("drm/msm/a6xx: fix crashstate capture for A650")
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20211103153049.1.Idfa574ccb529d17b69db3a1852e49b580132035c@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: f74028e159bb ("ASoC: tegra: Add Tegra210 based ADMAIF driver")
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/1637219231-406-2-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c |    4 ++--
+ sound/soc/tegra/tegra210_admaif.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
-@@ -777,12 +777,12 @@ static void a6xx_get_gmu_registers(struc
- 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
+--- a/sound/soc/tegra/tegra210_admaif.c
++++ b/sound/soc/tegra/tegra210_admaif.c
+@@ -430,7 +430,7 @@ static int tegra_admaif_get_control(stru
+ 	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
+ 	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+-	long *uctl_val = &ucontrol->value.integer.value[0];
++	unsigned int *uctl_val = &ucontrol->value.enumerated.item[0];
  
- 	a6xx_state->gmu_registers = state_kcalloc(a6xx_state,
--		2, sizeof(*a6xx_state->gmu_registers));
-+		3, sizeof(*a6xx_state->gmu_registers));
+ 	if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+ 		*uctl_val = admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg];
+@@ -450,7 +450,7 @@ static int tegra_admaif_put_control(stru
+ 	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
+ 	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+-	int value = ucontrol->value.integer.value[0];
++	unsigned int value = ucontrol->value.enumerated.item[0];
  
- 	if (!a6xx_state->gmu_registers)
- 		return;
- 
--	a6xx_state->nr_gmu_registers = 2;
-+	a6xx_state->nr_gmu_registers = 3;
- 
- 	/* Get the CX GMU registers from AHB */
- 	_a6xx_get_gmu_registers(gpu, a6xx_state, &a6xx_gmu_reglist[0],
+ 	if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+ 		admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg] = value;
 
 
