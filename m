@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0C7469E09
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ABC0469D57
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388543AbhLFPeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:34:14 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:45166 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346005AbhLFP1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:27:53 -0500
+        id S240558AbhLFP3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:29:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1385673AbhLFPZf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:25:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E0EC08EB53;
+        Mon,  6 Dec 2021 07:15:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55FBA612C1;
-        Mon,  6 Dec 2021 15:24:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 378C0C341C5;
-        Mon,  6 Dec 2021 15:24:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41AE3B81129;
+        Mon,  6 Dec 2021 15:15:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B50CC341C7;
+        Mon,  6 Dec 2021 15:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804263;
-        bh=AcWqf8Sr5sS+4ubAhf4K4K1XoLCCwdFFc3Ulx2YA1TU=;
+        s=korg; t=1638803744;
+        bh=rPlkrD5SPa1KlLDoeSe54Q8Pzd6Ufr6HwxgoaQwYB/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLHzy+NNCimv8b6L4qLkMu3XeijeTGNgD1PUfMkhc+YqwXXc9xGFsBpCHBlb2fwBp
-         H60fVSG42dAYGO+wtrKEqNlLEvoRLimn/WPNZych/bKiNliG2TZ6uQ92jyDI0YsEi+
-         DEF4SufkEGt47GozWqwEPExSZ6NhSfkC90UI5tU8=
+        b=aG52PJeUp3KxgKh3b7X/iJrUMNbARM+ylefD0F2UGpLYI6R804RTvQ+jgQziJB3EK
+         2lomFztHKQcMmR9Nvzb6sNenF8mw7XCt87xgRXimwPm6pftQzA2jwkTQsNs+akA0jX
+         Lu5qE6hiU+fQxUjPFnNuVoB23vOfo5kl7wcpXhrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 067/207] ipv6: fix memory leak in fib6_rule_suppress
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Stan Hu <stanhu@gmail.com>,
+        syzbot+579885d1a9a833336209@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 004/130] ovl: fix deadlock in splice write
 Date:   Mon,  6 Dec 2021 15:55:21 +0100
-Message-Id: <20211206145612.555609557@linuxfoundation.org>
+Message-Id: <20211206145559.762796965@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,118 +48,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: msizanoen1 <msizanoen@qtmlabs.xyz>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit cdef485217d30382f3bf6448c54b4401648fe3f1 upstream.
+commit 9b91b6b019fda817eb52f728eb9c79b3579760bc upstream.
 
-The kernel leaks memory when a `fib` rule is present in IPv6 nftables
-firewall rules and a suppress_prefix rule is present in the IPv6 routing
-rules (used by certain tools such as wg-quick). In such scenarios, every
-incoming packet will leak an allocation in `ip6_dst_cache` slab cache.
+There's possibility of an ABBA deadlock in case of a splice write to an
+overlayfs file and a concurrent splice write to a corresponding real file.
 
-After some hours of `bpftrace`-ing and source code reading, I tracked
-down the issue to ca7a03c41753 ("ipv6: do not free rt if
-FIB_LOOKUP_NOREF is set on suppress rule").
+The call chain for splice to an overlay file:
 
-The problem with that change is that the generic `args->flags` always have
-`FIB_LOOKUP_NOREF` set[1][2] but the IPv6-specific flag
-`RT6_LOOKUP_F_DST_NOREF` might not be, leading to `fib6_rule_suppress` not
-decreasing the refcount when needed.
+ -> do_splice                     [takes sb_writers on overlay file]
+   -> do_splice_from
+     -> iter_file_splice_write    [takes pipe->mutex]
+       -> vfs_iter_write
+         ...
+         -> ovl_write_iter        [takes sb_writers on real file]
 
-How to reproduce:
- - Add the following nftables rule to a prerouting chain:
-     meta nfproto ipv6 fib saddr . mark . iif oif missing drop
-   This can be done with:
-     sudo nft create table inet test
-     sudo nft create chain inet test test_chain '{ type filter hook prerouting priority filter + 10; policy accept; }'
-     sudo nft add rule inet test test_chain meta nfproto ipv6 fib saddr . mark . iif oif missing drop
- - Run:
-     sudo ip -6 rule add table main suppress_prefixlength 0
- - Watch `sudo slabtop -o | grep ip6_dst_cache` to see memory usage increase
-   with every incoming ipv6 packet.
+And the call chain for splice to a real file:
 
-This patch exposes the protocol-specific flags to the protocol
-specific `suppress` function, and check the protocol-specific `flags`
-argument for RT6_LOOKUP_F_DST_NOREF instead of the generic
-FIB_LOOKUP_NOREF when decreasing the refcount, like this.
+ -> do_splice                     [takes sb_writers on real file]
+   -> do_splice_from
+     -> iter_file_splice_write    [takes pipe->mutex]
 
-[1]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L71
-[2]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L99
+Syzbot successfully bisected this to commit 82a763e61e2b ("ovl: simplify
+file splice").
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215105
-Fixes: ca7a03c41753 ("ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix by reverting the write part of the above commit and by adding missing
+bits from ovl_write_iter() into ovl_splice_write().
+
+Fixes: 82a763e61e2b ("ovl: simplify file splice")
+Reported-and-tested-by: syzbot+579885d1a9a833336209@syzkaller.appspotmail.com
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Cc: Stan Hu <stanhu@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/fib_rules.h |    4 +++-
- net/core/fib_rules.c    |    2 +-
- net/ipv4/fib_rules.c    |    1 +
- net/ipv6/fib6_rules.c   |    4 ++--
- 4 files changed, 7 insertions(+), 4 deletions(-)
+ fs/overlayfs/file.c |   47 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 46 insertions(+), 1 deletion(-)
 
---- a/include/net/fib_rules.h
-+++ b/include/net/fib_rules.h
-@@ -69,7 +69,7 @@ struct fib_rules_ops {
- 	int			(*action)(struct fib_rule *,
- 					  struct flowi *, int,
- 					  struct fib_lookup_arg *);
--	bool			(*suppress)(struct fib_rule *,
-+	bool			(*suppress)(struct fib_rule *, int,
- 					    struct fib_lookup_arg *);
- 	int			(*match)(struct fib_rule *,
- 					 struct flowi *, int);
-@@ -218,7 +218,9 @@ INDIRECT_CALLABLE_DECLARE(int fib4_rule_
- 			    struct fib_lookup_arg *arg));
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -422,6 +422,51 @@ out_unlock:
+ 	return ret;
+ }
  
- INDIRECT_CALLABLE_DECLARE(bool fib6_rule_suppress(struct fib_rule *rule,
-+						int flags,
- 						struct fib_lookup_arg *arg));
- INDIRECT_CALLABLE_DECLARE(bool fib4_rule_suppress(struct fib_rule *rule,
-+						int flags,
- 						struct fib_lookup_arg *arg));
++/*
++ * Calling iter_file_splice_write() directly from overlay's f_op may deadlock
++ * due to lock order inversion between pipe->mutex in iter_file_splice_write()
++ * and file_start_write(real.file) in ovl_write_iter().
++ *
++ * So do everything ovl_write_iter() does and call iter_file_splice_write() on
++ * the real file.
++ */
++static ssize_t ovl_splice_write(struct pipe_inode_info *pipe, struct file *out,
++				loff_t *ppos, size_t len, unsigned int flags)
++{
++	struct fd real;
++	const struct cred *old_cred;
++	struct inode *inode = file_inode(out);
++	struct inode *realinode = ovl_inode_real(inode);
++	ssize_t ret;
++
++	inode_lock(inode);
++	/* Update mode */
++	ovl_copyattr(realinode, inode);
++	ret = file_remove_privs(out);
++	if (ret)
++		goto out_unlock;
++
++	ret = ovl_real_fdget(out, &real);
++	if (ret)
++		goto out_unlock;
++
++	old_cred = ovl_override_creds(inode->i_sb);
++	file_start_write(real.file);
++
++	ret = iter_file_splice_write(pipe, real.file, ppos, len, flags);
++
++	file_end_write(real.file);
++	/* Update size */
++	ovl_copyattr(realinode, inode);
++	revert_creds(old_cred);
++	fdput(real);
++
++out_unlock:
++	inode_unlock(inode);
++
++	return ret;
++}
++
+ static int ovl_fsync(struct file *file, loff_t start, loff_t end, int datasync)
+ {
+ 	struct fd real;
+@@ -731,7 +776,7 @@ const struct file_operations ovl_file_op
+ 	.compat_ioctl	= ovl_compat_ioctl,
  #endif
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -323,7 +323,7 @@ jumped:
- 		if (!err && ops->suppress && INDIRECT_CALL_MT(ops->suppress,
- 							      fib6_rule_suppress,
- 							      fib4_rule_suppress,
--							      rule, arg))
-+							      rule, flags, arg))
- 			continue;
+ 	.splice_read    = generic_file_splice_read,
+-	.splice_write   = iter_file_splice_write,
++	.splice_write   = ovl_splice_write,
  
- 		if (err != -EAGAIN) {
---- a/net/ipv4/fib_rules.c
-+++ b/net/ipv4/fib_rules.c
-@@ -141,6 +141,7 @@ INDIRECT_CALLABLE_SCOPE int fib4_rule_ac
- }
- 
- INDIRECT_CALLABLE_SCOPE bool fib4_rule_suppress(struct fib_rule *rule,
-+						int flags,
- 						struct fib_lookup_arg *arg)
- {
- 	struct fib_result *result = (struct fib_result *) arg->result;
---- a/net/ipv6/fib6_rules.c
-+++ b/net/ipv6/fib6_rules.c
-@@ -267,6 +267,7 @@ INDIRECT_CALLABLE_SCOPE int fib6_rule_ac
- }
- 
- INDIRECT_CALLABLE_SCOPE bool fib6_rule_suppress(struct fib_rule *rule,
-+						int flags,
- 						struct fib_lookup_arg *arg)
- {
- 	struct fib6_result *res = arg->result;
-@@ -294,8 +295,7 @@ INDIRECT_CALLABLE_SCOPE bool fib6_rule_s
- 	return false;
- 
- suppress_route:
--	if (!(arg->flags & FIB_LOOKUP_NOREF))
--		ip6_rt_put(rt);
-+	ip6_rt_put_flags(rt, flags);
- 	return true;
- }
- 
+ 	.copy_file_range	= ovl_copy_file_range,
+ 	.remap_file_range	= ovl_remap_file_range,
 
 
