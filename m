@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82768469BC1
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1A6469D08
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356827AbhLFPS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:29 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49186 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358846AbhLFPQu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:50 -0500
+        id S1356140AbhLFP16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:27:58 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40678 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356569AbhLFPWX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:22:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0377B81018;
-        Mon,  6 Dec 2021 15:13:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AFFC341C2;
-        Mon,  6 Dec 2021 15:13:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CB0A612DB;
+        Mon,  6 Dec 2021 15:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7026EC341C2;
+        Mon,  6 Dec 2021 15:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803599;
-        bh=0QcBUqjL7DISFx5P3SLGtewpQyu+P8G29gHlaNr4qXA=;
+        s=korg; t=1638803934;
+        bh=L1qaNGXU6bejk8ImdcDhO7c6jEDjEEWi7YqN7a9ocl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TO2YcV2IfTtQw0BCRlnyByTBQaeuUaS62yaBSZXYH1VONGtheV4IsH9rVnE24wD18
-         RqhPCLFMTRt6wph3Y8znAbPNd6uaaA37mRayJUY+yBAV6qgLkuGNd81yhNBt2kcJmg
-         1gm3IAo367i3LlbdfSgb2qHCS+YiFchRbGG1j54g=
+        b=UjZViyTePAeYilxeZqnZhylOAi+Ldlh3qw+jJa7Ov6vJ73PH4vwAQeGcpx69PsZa/
+         AOD011OWtS4IJDGYoHQdy00kFjktBKVyRtOm+nfkXo1ipazXWnokMrfnthR4+VmUlG
+         TtbjpZsDi4WiCWQHR7KW6eesXi7Dbq9gRGhmSqxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, Nikita Danilov <ndanilov@aquantia.com>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 50/70] ipv6: fix memory leak in fib6_rule_suppress
+Subject: [PATCH 5.10 097/130] atlatnic: enable Nbase-t speeds with base-t
 Date:   Mon,  6 Dec 2021 15:56:54 +0100
-Message-Id: <20211206145553.654660102@linuxfoundation.org>
+Message-Id: <20211206145603.008506128@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,111 +46,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: msizanoen1 <msizanoen@qtmlabs.xyz>
+From: Nikita Danilov <ndanilov@aquantia.com>
 
-commit cdef485217d30382f3bf6448c54b4401648fe3f1 upstream.
+commit aa685acd98eae25d5351e30288d6cfb65b9c80a5 upstream.
 
-The kernel leaks memory when a `fib` rule is present in IPv6 nftables
-firewall rules and a suppress_prefix rule is present in the IPv6 routing
-rules (used by certain tools such as wg-quick). In such scenarios, every
-incoming packet will leak an allocation in `ip6_dst_cache` slab cache.
+When 2.5G is advertised, N-Base should be advertised against the T-base
+caps. N5G is out of use in baseline code and driver should treat both 5G
+and N5G (and also 2.5G and N2.5G) equally from user perspective.
 
-After some hours of `bpftrace`-ing and source code reading, I tracked
-down the issue to ca7a03c41753 ("ipv6: do not free rt if
-FIB_LOOKUP_NOREF is set on suppress rule").
-
-The problem with that change is that the generic `args->flags` always have
-`FIB_LOOKUP_NOREF` set[1][2] but the IPv6-specific flag
-`RT6_LOOKUP_F_DST_NOREF` might not be, leading to `fib6_rule_suppress` not
-decreasing the refcount when needed.
-
-How to reproduce:
- - Add the following nftables rule to a prerouting chain:
-     meta nfproto ipv6 fib saddr . mark . iif oif missing drop
-   This can be done with:
-     sudo nft create table inet test
-     sudo nft create chain inet test test_chain '{ type filter hook prerouting priority filter + 10; policy accept; }'
-     sudo nft add rule inet test test_chain meta nfproto ipv6 fib saddr . mark . iif oif missing drop
- - Run:
-     sudo ip -6 rule add table main suppress_prefixlength 0
- - Watch `sudo slabtop -o | grep ip6_dst_cache` to see memory usage increase
-   with every incoming ipv6 packet.
-
-This patch exposes the protocol-specific flags to the protocol
-specific `suppress` function, and check the protocol-specific `flags`
-argument for RT6_LOOKUP_F_DST_NOREF instead of the generic
-FIB_LOOKUP_NOREF when decreasing the refcount, like this.
-
-[1]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L71
-[2]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L99
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215105
-Fixes: ca7a03c41753 ("ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 5cfd54d7dc186 ("net: atlantic: minimal A2 fw_ops")
+Signed-off-by: Nikita Danilov <ndanilov@aquantia.com>
+Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/net/fib_rules.h |    2 +-
- net/core/fib_rules.c    |    2 +-
- net/ipv4/fib_rules.c    |    2 +-
- net/ipv6/fib6_rules.c   |    5 ++---
- 4 files changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_common.h                |   25 ++++------
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c |    3 -
+ drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c |    4 -
+ 3 files changed, 13 insertions(+), 19 deletions(-)
 
---- a/include/net/fib_rules.h
-+++ b/include/net/fib_rules.h
-@@ -68,7 +68,7 @@ struct fib_rules_ops {
- 	int			(*action)(struct fib_rule *,
- 					  struct flowi *, int,
- 					  struct fib_lookup_arg *);
--	bool			(*suppress)(struct fib_rule *,
-+	bool			(*suppress)(struct fib_rule *, int,
- 					    struct fib_lookup_arg *);
- 	int			(*match)(struct fib_rule *,
- 					 struct flowi *, int);
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -300,7 +300,7 @@ jumped:
- 		else
- 			err = ops->action(rule, fl, flags, arg);
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_common.h
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_common.h
+@@ -53,20 +53,19 @@
  
--		if (!err && ops->suppress && ops->suppress(rule, arg))
-+		if (!err && ops->suppress && ops->suppress(rule, flags, arg))
- 			continue;
+ #define AQ_NIC_RATE_10G		BIT(0)
+ #define AQ_NIC_RATE_5G		BIT(1)
+-#define AQ_NIC_RATE_5GSR	BIT(2)
+-#define AQ_NIC_RATE_2G5		BIT(3)
+-#define AQ_NIC_RATE_1G		BIT(4)
+-#define AQ_NIC_RATE_100M	BIT(5)
+-#define AQ_NIC_RATE_10M		BIT(6)
+-#define AQ_NIC_RATE_1G_HALF	BIT(7)
+-#define AQ_NIC_RATE_100M_HALF	BIT(8)
+-#define AQ_NIC_RATE_10M_HALF	BIT(9)
++#define AQ_NIC_RATE_2G5		BIT(2)
++#define AQ_NIC_RATE_1G		BIT(3)
++#define AQ_NIC_RATE_100M	BIT(4)
++#define AQ_NIC_RATE_10M		BIT(5)
++#define AQ_NIC_RATE_1G_HALF	BIT(6)
++#define AQ_NIC_RATE_100M_HALF	BIT(7)
++#define AQ_NIC_RATE_10M_HALF	BIT(8)
  
- 		if (err != -EAGAIN) {
---- a/net/ipv4/fib_rules.c
-+++ b/net/ipv4/fib_rules.c
-@@ -137,7 +137,7 @@ static int fib4_rule_action(struct fib_r
- 	return err;
- }
+-#define AQ_NIC_RATE_EEE_10G	BIT(10)
+-#define AQ_NIC_RATE_EEE_5G	BIT(11)
+-#define AQ_NIC_RATE_EEE_2G5	BIT(12)
+-#define AQ_NIC_RATE_EEE_1G	BIT(13)
+-#define AQ_NIC_RATE_EEE_100M	BIT(14)
++#define AQ_NIC_RATE_EEE_10G	BIT(9)
++#define AQ_NIC_RATE_EEE_5G	BIT(10)
++#define AQ_NIC_RATE_EEE_2G5	BIT(11)
++#define AQ_NIC_RATE_EEE_1G	BIT(12)
++#define AQ_NIC_RATE_EEE_100M	BIT(13)
+ #define AQ_NIC_RATE_EEE_MSK     (AQ_NIC_RATE_EEE_10G |\
+ 				 AQ_NIC_RATE_EEE_5G |\
+ 				 AQ_NIC_RATE_EEE_2G5 |\
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c
+@@ -132,9 +132,6 @@ static enum hw_atl_fw2x_rate link_speed_
+ 	if (speed & AQ_NIC_RATE_5G)
+ 		rate |= FW2X_RATE_5G;
  
--static bool fib4_rule_suppress(struct fib_rule *rule, struct fib_lookup_arg *arg)
-+static bool fib4_rule_suppress(struct fib_rule *rule, int flags, struct fib_lookup_arg *arg)
+-	if (speed & AQ_NIC_RATE_5GSR)
+-		rate |= FW2X_RATE_5G;
+-
+ 	if (speed & AQ_NIC_RATE_2G5)
+ 		rate |= FW2X_RATE_2G5;
+ 
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c
+@@ -154,7 +154,7 @@ static void a2_link_speed_mask2fw(u32 sp
  {
- 	struct fib_result *result = (struct fib_result *) arg->result;
- 	struct net_device *dev = NULL;
---- a/net/ipv6/fib6_rules.c
-+++ b/net/ipv6/fib6_rules.c
-@@ -260,7 +260,7 @@ static int fib6_rule_action(struct fib_r
- 	return __fib6_rule_action(rule, flp, flags, arg);
- }
- 
--static bool fib6_rule_suppress(struct fib_rule *rule, struct fib_lookup_arg *arg)
-+static bool fib6_rule_suppress(struct fib_rule *rule, int flags, struct fib_lookup_arg *arg)
- {
- 	struct fib6_result *res = arg->result;
- 	struct rt6_info *rt = res->rt6;
-@@ -287,8 +287,7 @@ static bool fib6_rule_suppress(struct fi
- 	return false;
- 
- suppress_route:
--	if (!(arg->flags & FIB_LOOKUP_NOREF))
--		ip6_rt_put(rt);
-+	ip6_rt_put_flags(rt, flags);
- 	return true;
- }
- 
+ 	link_options->rate_10G = !!(speed & AQ_NIC_RATE_10G);
+ 	link_options->rate_5G = !!(speed & AQ_NIC_RATE_5G);
+-	link_options->rate_N5G = !!(speed & AQ_NIC_RATE_5GSR);
++	link_options->rate_N5G = link_options->rate_5G;
+ 	link_options->rate_2P5G = !!(speed & AQ_NIC_RATE_2G5);
+ 	link_options->rate_N2P5G = link_options->rate_2P5G;
+ 	link_options->rate_1G = !!(speed & AQ_NIC_RATE_1G);
+@@ -192,8 +192,6 @@ static u32 a2_fw_lkp_to_mask(struct lkp_
+ 		rate |= AQ_NIC_RATE_10G;
+ 	if (lkp_link_caps->rate_5G)
+ 		rate |= AQ_NIC_RATE_5G;
+-	if (lkp_link_caps->rate_N5G)
+-		rate |= AQ_NIC_RATE_5GSR;
+ 	if (lkp_link_caps->rate_2P5G)
+ 		rate |= AQ_NIC_RATE_2G5;
+ 	if (lkp_link_caps->rate_1G)
 
 
