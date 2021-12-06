@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A281F469D71
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2619C469ACB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358153AbhLFP3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:29:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43970 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386525AbhLFP0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:42 -0500
+        id S1347051AbhLFPLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41388 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347164AbhLFPIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:08:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A75C561316;
-        Mon,  6 Dec 2021 15:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88408C341C2;
-        Mon,  6 Dec 2021 15:23:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF05EB8101B;
+        Mon,  6 Dec 2021 15:04:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2500C341C1;
+        Mon,  6 Dec 2021 15:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804192;
-        bh=+pI/xnlfgwlltNovauDbqv0dFISbXRO1a9+9PtvXV4U=;
+        s=korg; t=1638803087;
+        bh=ZD2mWSV3ePzau/4DyXKXKwtar36HxC0s/POOFGwy+uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/YG75gtf6LvGoVB92ZCNS3vI+dgcHAIZb9Aidifj0lGDzX3y+PoI8vy71YUYf1RC
-         AMHPf3yc5r+CRX+Fh6kEk+DlZxuaR7UB7rWZ34PnkexXDHYGa0pZtMYZp2Rjo1Zjj5
-         8gb5kkMGjYxkNELyeEzT8yPyuKL61cKu2Kd/DHys=
+        b=b9GTm7/Z7izqp6PyC85BXlrJN1zLkDE/y3I36+/lJHNYA1DDeWWJbPx+uPMR2MZGe
+         tDBricxmr7R5+tb/vF48xcSCOU2UJf3ty2sFAp2BCi4lBjjW46c+5XrXuNOmrcNaho
+         YGI+iSIwLfXeMuMDEAdN2PR0ioKhRSUHZE0sZRaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.15 059/207] iwlwifi: mvm: retry init flow if failed
-Date:   Mon,  6 Dec 2021 15:55:13 +0100
-Message-Id: <20211206145612.286608014@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 006/106] ALSA: ctxfi: Fix out-of-range access
+Date:   Mon,  6 Dec 2021 15:55:14 +0100
+Message-Id: <20211206145555.612588947@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,156 +43,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5283dd677e52af9db6fe6ad11b2f12220d519d0c upstream.
+commit 76c47183224c86e4011048b80f0e2d0d166f01c2 upstream.
 
-In some very rare cases the init flow may fail.  In many cases, this is
-recoverable, so we can retry.  Implement a loop to retry two more times
-after the first attempt failed.
+The master and next_conj of rcs_ops are used for iterating the
+resource list entries, and currently those are supposed to return the
+current value.  The problem is that next_conf may go over the last
+entry before the loop abort condition is evaluated, and it may return
+the "current" value that is beyond the array size.  It was caught
+recently as a GPF, for example.
 
-This can happen in two different situations, namely during probe and
-during mac80211 start.  For the first case, a simple loop is enough.
-For the second case, we need to add a flag to prevent mac80211 from
-trying to restart it as well, leaving full control with the driver.
+Those return values are, however, never actually evaluated, hence
+basically we don't have to consider the current value as the return at
+all.  By dropping those return values, the potential out-of-range
+access above is also fixed automatically.
 
+This patch changes the return type of master and next_conj callbacks
+to void and drop the superfluous code accordingly.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214985
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20211110150132.57514296ecab.I52a0411774b700bdc7dedb124d8b59bf99456eb2@changeid
+Link: https://lore.kernel.org/r/20211118215729.26257-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-drv.c      |   22 +++++++++++++-------
- drivers/net/wireless/intel/iwlwifi/iwl-drv.h      |    3 ++
- drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c |   24 +++++++++++++++++++++-
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      |    3 ++
- drivers/net/wireless/intel/iwlwifi/mvm/ops.c      |    3 ++
- 5 files changed, 47 insertions(+), 8 deletions(-)
+ sound/pci/ctxfi/ctamixer.c   |   14 ++++++--------
+ sound/pci/ctxfi/ctdaio.c     |   16 ++++++++--------
+ sound/pci/ctxfi/ctresource.c |    7 +++----
+ sound/pci/ctxfi/ctresource.h |    4 ++--
+ sound/pci/ctxfi/ctsrc.c      |    7 +++----
+ 5 files changed, 22 insertions(+), 26 deletions(-)
 
---- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-@@ -1271,23 +1271,31 @@ _iwl_op_mode_start(struct iwl_drv *drv,
- 	const struct iwl_op_mode_ops *ops = op->ops;
- 	struct dentry *dbgfs_dir = NULL;
- 	struct iwl_op_mode *op_mode = NULL;
-+	int retry, max_retry = !!iwlwifi_mod_params.fw_restart * IWL_MAX_INIT_RETRY;
-+
-+	for (retry = 0; retry <= max_retry; retry++) {
+--- a/sound/pci/ctxfi/ctamixer.c
++++ b/sound/pci/ctxfi/ctamixer.c
+@@ -27,16 +27,15 @@
  
- #ifdef CONFIG_IWLWIFI_DEBUGFS
--	drv->dbgfs_op_mode = debugfs_create_dir(op->name,
--						drv->dbgfs_drv);
--	dbgfs_dir = drv->dbgfs_op_mode;
-+		drv->dbgfs_op_mode = debugfs_create_dir(op->name,
-+							drv->dbgfs_drv);
-+		dbgfs_dir = drv->dbgfs_op_mode;
- #endif
+ #define BLANK_SLOT		4094
  
--	op_mode = ops->start(drv->trans, drv->trans->cfg, &drv->fw, dbgfs_dir);
-+		op_mode = ops->start(drv->trans, drv->trans->cfg,
-+				     &drv->fw, dbgfs_dir);
-+
-+		if (op_mode)
-+			return op_mode;
-+
-+		IWL_ERR(drv, "retry init count %d\n", retry);
- 
- #ifdef CONFIG_IWLWIFI_DEBUGFS
--	if (!op_mode) {
- 		debugfs_remove_recursive(drv->dbgfs_op_mode);
- 		drv->dbgfs_op_mode = NULL;
--	}
- #endif
-+	}
- 
--	return op_mode;
-+	return NULL;
+-static int amixer_master(struct rsc *rsc)
++static void amixer_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
  }
  
- static void _iwl_op_mode_stop(struct iwl_drv *drv)
---- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
-@@ -90,4 +90,7 @@ void iwl_drv_stop(struct iwl_drv *drv);
- #define IWL_EXPORT_SYMBOL(sym)
- #endif
- 
-+/* max retry for init flow */
-+#define IWL_MAX_INIT_RETRY 2
-+
- #endif /* __iwl_drv_h__ */
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -16,6 +16,7 @@
- #include <net/ieee80211_radiotap.h>
- #include <net/tcp.h>
- 
-+#include "iwl-drv.h"
- #include "iwl-op-mode.h"
- #include "iwl-io.h"
- #include "mvm.h"
-@@ -1116,9 +1117,30 @@ static int iwl_mvm_mac_start(struct ieee
+-static int amixer_next_conj(struct rsc *rsc)
++static void amixer_next_conj(struct rsc *rsc)
  {
- 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
- 	int ret;
-+	int retry, max_retry = 0;
+ 	rsc->conj++;
+-	return container_of(rsc, struct amixer, rsc)->idx[rsc->conj];
+ }
  
- 	mutex_lock(&mvm->mutex);
--	ret = __iwl_mvm_mac_start(mvm);
-+
-+	/* we are starting the mac not in error flow, and restart is enabled */
-+	if (!test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) &&
-+	    iwlwifi_mod_params.fw_restart) {
-+		max_retry = IWL_MAX_INIT_RETRY;
-+		/*
-+		 * This will prevent mac80211 recovery flows to trigger during
-+		 * init failures
-+		 */
-+		set_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
-+	}
-+
-+	for (retry = 0; retry <= max_retry; retry++) {
-+		ret = __iwl_mvm_mac_start(mvm);
-+		if (!ret)
-+			break;
-+
-+		IWL_ERR(mvm, "mac start retry %d\n", retry);
-+	}
-+	clear_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
-+
- 	mutex_unlock(&mvm->mutex);
+ static int amixer_index(const struct rsc *rsc)
+@@ -335,16 +334,15 @@ int amixer_mgr_destroy(struct amixer_mgr
  
- 	return ret;
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -1121,6 +1121,8 @@ struct iwl_mvm {
-  * @IWL_MVM_STATUS_FIRMWARE_RUNNING: firmware is running
-  * @IWL_MVM_STATUS_NEED_FLUSH_P2P: need to flush P2P bcast STA
-  * @IWL_MVM_STATUS_IN_D3: in D3 (or at least about to go into it)
-+ * @IWL_MVM_STATUS_STARTING: starting mac,
-+ *	used to disable restart flow while in STARTING state
-  */
- enum iwl_mvm_status {
- 	IWL_MVM_STATUS_HW_RFKILL,
-@@ -1132,6 +1134,7 @@ enum iwl_mvm_status {
- 	IWL_MVM_STATUS_FIRMWARE_RUNNING,
- 	IWL_MVM_STATUS_NEED_FLUSH_P2P,
- 	IWL_MVM_STATUS_IN_D3,
-+	IWL_MVM_STATUS_STARTING,
+ /* SUM resource management */
+ 
+-static int sum_master(struct rsc *rsc)
++static void sum_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
+ }
+ 
+-static int sum_next_conj(struct rsc *rsc)
++static void sum_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct sum, rsc)->idx[rsc->conj];
+ }
+ 
+ static int sum_index(const struct rsc *rsc)
+--- a/sound/pci/ctxfi/ctdaio.c
++++ b/sound/pci/ctxfi/ctdaio.c
+@@ -55,12 +55,12 @@ static struct daio_rsc_idx idx_20k2[NUM_
+ 	[SPDIFIO] = {.left = 0x05, .right = 0x85},
  };
  
- /* Keep track of completed init configuration */
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
-@@ -1424,6 +1424,9 @@ void iwl_mvm_nic_restart(struct iwl_mvm
- 	 */
- 	if (!mvm->fw_restart && fw_error) {
- 		iwl_fw_error_collect(&mvm->fwrt, false);
-+	} else if (test_bit(IWL_MVM_STATUS_STARTING,
-+			    &mvm->status)) {
-+		IWL_ERR(mvm, "Starting mac, retry will be triggered anyway\n");
- 	} else if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
- 		struct iwl_mvm_reprobe *reprobe;
+-static int daio_master(struct rsc *rsc)
++static void daio_master(struct rsc *rsc)
+ {
+ 	/* Actually, this is not the resource index of DAIO.
+ 	 * For DAO, it is the input mapper index. And, for DAI,
+ 	 * it is the output time-slot index. */
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
  
+ static int daio_index(const struct rsc *rsc)
+@@ -68,19 +68,19 @@ static int daio_index(const struct rsc *
+ 	return rsc->conj;
+ }
+ 
+-static int daio_out_next_conj(struct rsc *rsc)
++static void daio_out_next_conj(struct rsc *rsc)
+ {
+-	return rsc->conj += 2;
++	rsc->conj += 2;
+ }
+ 
+-static int daio_in_next_conj_20k1(struct rsc *rsc)
++static void daio_in_next_conj_20k1(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x200;
++	rsc->conj += 0x200;
+ }
+ 
+-static int daio_in_next_conj_20k2(struct rsc *rsc)
++static void daio_in_next_conj_20k2(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x100;
++	rsc->conj += 0x100;
+ }
+ 
+ static const struct rsc_ops daio_out_rsc_ops = {
+--- a/sound/pci/ctxfi/ctresource.c
++++ b/sound/pci/ctxfi/ctresource.c
+@@ -113,18 +113,17 @@ static int audio_ring_slot(const struct
+     return (rsc->conj << 4) + offset_in_audio_slot_block[rsc->type];
+ }
+ 
+-static int rsc_next_conj(struct rsc *rsc)
++static void rsc_next_conj(struct rsc *rsc)
+ {
+ 	unsigned int i;
+ 	for (i = 0; (i < 8) && (!(rsc->msr & (0x1 << i))); )
+ 		i++;
+ 	rsc->conj += (AUDIO_SLOT_BLOCK_NUM >> i);
+-	return rsc->conj;
+ }
+ 
+-static int rsc_master(struct rsc *rsc)
++static void rsc_master(struct rsc *rsc)
+ {
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static const struct rsc_ops rsc_generic_ops = {
+--- a/sound/pci/ctxfi/ctresource.h
++++ b/sound/pci/ctxfi/ctresource.h
+@@ -43,8 +43,8 @@ struct rsc {
+ };
+ 
+ struct rsc_ops {
+-	int (*master)(struct rsc *rsc);	/* Move to master resource */
+-	int (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
++	void (*master)(struct rsc *rsc); /* Move to master resource */
++	void (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
+ 	int (*index)(const struct rsc *rsc); /* Return the index of resource */
+ 	/* Return the output slot number */
+ 	int (*output_slot)(const struct rsc *rsc);
+--- a/sound/pci/ctxfi/ctsrc.c
++++ b/sound/pci/ctxfi/ctsrc.c
+@@ -594,16 +594,15 @@ int src_mgr_destroy(struct src_mgr *src_
+ 
+ /* SRCIMP resource manager operations */
+ 
+-static int srcimp_master(struct rsc *rsc)
++static void srcimp_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
+ }
+ 
+-static int srcimp_next_conj(struct rsc *rsc)
++static void srcimp_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct srcimp, rsc)->idx[rsc->conj];
+ }
+ 
+ static int srcimp_index(const struct rsc *rsc)
 
 
