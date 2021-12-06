@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4CBC469BEA
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E72469BEE
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347198AbhLFPRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1347525AbhLFPRR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 6 Dec 2021 10:17:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47452 "EHLO
+Received: from ams.source.kernel.org ([145.40.68.75]:48820 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356809AbhLFPPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:46 -0500
+        with ESMTP id S1356890AbhLFPPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A83DBB810E7;
-        Mon,  6 Dec 2021 15:12:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0869C341C2;
-        Mon,  6 Dec 2021 15:12:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49419B8101C;
+        Mon,  6 Dec 2021 15:12:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 941DBC341C2;
+        Mon,  6 Dec 2021 15:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803535;
-        bh=5TwPh6Xbe+N736CO1QPweO1XgFLhSjELyl+FGv8OlDE=;
+        s=korg; t=1638803538;
+        bh=8w0m37tGQJigkgi7EqMfOZuXWaYJzFpEyI1NrXGnru8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YpCque7GUIr3BS5MUHr/p+nAd2jePEvHbJDii9x9lK1G/VCYAMToclX5xysQfuF2K
-         cmAzA3PBbBrwAf7dGzOBxyy6z++QGa8XDOP7mgK3k4SXe3OesvnIl2ufVfKwiIAJt1
-         tHT3PmPeOwtetmgaHKTknDPXsCeHYbj0rpkhmTfw=
+        b=PNVnl5dJlCAvGxHV1bkd+sFpz1yYxF2WODoGOdf1BqTemf93D9Kd6g8sGBfBdYfww
+         w7F9egIm0I3C7pfPwrZyJ1vAEDKpL2bab7K9acO3QTlekItPu8lpfw3Sr/pbN+B8FW
+         9Tk4auqpKohNrn0Q25HJ3Ep8/6zOzupjE3g5f4Ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/70] gfs2: Fix length of holes reported at end-of-file
-Date:   Mon,  6 Dec 2021 15:56:09 +0100
-Message-Id: <20211206145552.093880966@linuxfoundation.org>
+Subject: [PATCH 5.4 06/70] drm/sun4i: fix unmet dependency on RESET_CONTROLLER for PHY_SUN6I_MIPI_DPHY
+Date:   Mon,  6 Dec 2021 15:56:10 +0100
+Message-Id: <20211206145552.127287797@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
 References: <20211206145551.909846023@linuxfoundation.org>
@@ -44,38 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit f3506eee81d1f700d9ee2d2f4a88fddb669ec032 ]
+[ Upstream commit bb162bb2b4394108c8f055d1b115735331205e28 ]
 
-Fix the length of holes reported at the end of a file: the length is
-relative to the beginning of the extent, not the seek position which is
-rounded down to the filesystem block size.
+When PHY_SUN6I_MIPI_DPHY is selected, and RESET_CONTROLLER
+is not selected, Kbuild gives the following warning:
 
-This bug went unnoticed for some time, but is now caught by the
-following assertion in iomap_iter_done():
+WARNING: unmet direct dependencies detected for PHY_SUN6I_MIPI_DPHY
+  Depends on [n]: (ARCH_SUNXI [=n] || COMPILE_TEST [=y]) && HAS_IOMEM [=y] && COMMON_CLK [=y] && RESET_CONTROLLER [=n]
+  Selected by [y]:
+  - DRM_SUN6I_DSI [=y] && HAS_IOMEM [=y] && DRM_SUN4I [=y]
 
-  WARN_ON_ONCE(iter->iomap.offset + iter->iomap.length <= iter->pos)
+This is because DRM_SUN6I_DSI selects PHY_SUN6I_MIPI_DPHY
+without selecting or depending on RESET_CONTROLLER, despite
+PHY_SUN6I_MIPI_DPHY depending on RESET_CONTROLLER.
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+These unmet dependency bugs were detected by Kismet,
+a static analysis tool for Kconfig. Please advise if this
+is not the appropriate solution.
+
+v2:
+Fixed indentation to match the rest of the file.
+
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211109032351.43322-1-julianbraha@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/bmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/sun4i/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
-index aaec3c5b02028..dec5285a02e9d 100644
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -940,7 +940,7 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
- 		else if (height == ip->i_height)
- 			ret = gfs2_hole_size(inode, lblock, len, mp, iomap);
- 		else
--			iomap->length = size - pos;
-+			iomap->length = size - iomap->offset;
- 	} else if (flags & IOMAP_WRITE) {
- 		u64 alloc_size;
- 
+diff --git a/drivers/gpu/drm/sun4i/Kconfig b/drivers/gpu/drm/sun4i/Kconfig
+index 37e90e42943f6..0e2d304f0d83f 100644
+--- a/drivers/gpu/drm/sun4i/Kconfig
++++ b/drivers/gpu/drm/sun4i/Kconfig
+@@ -46,6 +46,7 @@ config DRM_SUN6I_DSI
+ 	default MACH_SUN8I
+ 	select CRC_CCITT
+ 	select DRM_MIPI_DSI
++	select RESET_CONTROLLER
+ 	select PHY_SUN6I_MIPI_DPHY
+ 	help
+ 	  Choose this option if you want have an Allwinner SoC with
 -- 
 2.33.0
 
