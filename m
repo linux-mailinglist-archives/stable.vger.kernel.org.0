@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A35469B7F
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C32D6469A92
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:05:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347167AbhLFPRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
+        id S1347526AbhLFPIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:08:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346110AbhLFPOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FDA7C0698D1;
-        Mon,  6 Dec 2021 07:07:14 -0800 (PST)
+        with ESMTP id S1346692AbhLFPG6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:06:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47892C07E5F7;
+        Mon,  6 Dec 2021 07:03:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09A6C6130A;
-        Mon,  6 Dec 2021 15:07:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E9EC341C5;
-        Mon,  6 Dec 2021 15:07:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08E88B81018;
+        Mon,  6 Dec 2021 15:03:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47590C341C5;
+        Mon,  6 Dec 2021 15:03:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803233;
-        bh=IRstLAuE6t12gtE6UTKWDknCPN7GaJsooE7HwrDyvwY=;
+        s=korg; t=1638802988;
+        bh=hKuToEGQdkelpbyquX+wm/ISvQPDg6rdgOlJly+IrOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hT7MbgNAGxCIBhNEKqVdNCYd5S9e+ySCZeVCQO/MFpDfghkrv6BFsrdG+Ckjo/3b
-         CB23lGmkYxFhLZhfoRzUZ/VVNXmQO0R/v7B8l4oOb2FGgroYc+qvCnCLGVOeSRqyTG
-         sYt8kNvhb0m6YL+UNG4YdetRpriI4V3FzzH6vb6s=
+        b=sih2tVmx17ohEuTXw/FBXJ4S0TWnpjKMv+2yiM6q6qfXPCOTCiXEvW9pr6HYKKT6c
+         YVDzgXs/idg/++NEzAATVqQKqXvaIGOKSoYOxc0c7cUoxiNPfDqKqd/R/jc8KdaFmj
+         pp9G5UVJuG3toHV1PDa32cc6EeEEL0XsQYd8SsKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 4.14 044/106] PCI: aardvark: Update comment about disabling link training
+        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.9 09/62] fuse: fix page stealing
 Date:   Mon,  6 Dec 2021 15:55:52 +0100
-Message-Id: <20211206145556.922347666@linuxfoundation.org>
+Message-Id: <20211206145549.480110780@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 1d1cd163d0de22a4041a6f1aeabcf78f80076539 upstream.
+commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
 
-According to PCI Express Base Specifications (rev 4.0, 6.6.1
-"Conventional reset"), after fundamental reset a 100ms delay is needed
-prior to enabling link training.
+It is possible to trigger a crash by splicing anon pipe bufs to the fuse
+device.
 
-Update comment in code to reflect this requirement.
+The reason for this is that anon_pipe_buf_release() will reuse buf->page if
+the refcount is 1, but that page might have already been stolen and its
+flags modified (e.g. PG_lru added).
 
-Link: https://lore.kernel.org/r/20201202184659.3795-1-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+This happens in the unlikely case of fuse_dev_splice_write() getting around
+to calling pipe_buf_release() after a page has been stolen, added to the
+page cache and removed from the page cache.
+
+Fix by calling pipe_buf_release() right after the page was inserted into
+the page cache.  In this case the page has an elevated refcount so any
+release function will know that the page isn't reusable.
+
+Reported-by: Frank Dinoff <fdinoff@google.com>
+Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
+Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
+Cc: <stable@vger.kernel.org> # v2.6.35
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/host/pci-aardvark.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/fuse/dev.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -275,7 +275,14 @@ static void advk_pcie_issue_perst(struct
- 	if (!pcie->reset_gpio)
- 		return;
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -898,6 +898,12 @@ static int fuse_try_move_page(struct fus
+ 		goto out_put_old;
+ 	}
  
--	/* PERST does not work for some cards when link training is enabled */
 +	/*
-+	 * As required by PCI Express spec (PCI Express Base Specification, REV.
-+	 * 4.0 PCI Express, February 19 2014, 6.6.1 Conventional Reset) a delay
-+	 * for at least 100ms after de-asserting PERST# signal is needed before
-+	 * link training is enabled. So ensure that link training is disabled
-+	 * prior de-asserting PERST# signal to fulfill that PCI Express spec
-+	 * requirement.
++	 * Release while we have extra ref on stolen page.  Otherwise
++	 * anon_pipe_buf_release() might think the page can be reused.
 +	 */
- 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
- 	reg &= ~LINK_TRAINING_EN;
- 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
++	pipe_buf_release(cs->pipe, buf);
++
+ 	get_page(newpage);
+ 
+ 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
+@@ -2040,8 +2046,12 @@ static ssize_t fuse_dev_splice_write(str
+ 
+ 	pipe_lock(pipe);
+ out_free:
+-	for (idx = 0; idx < nbuf; idx++)
+-		pipe_buf_release(pipe, &bufs[idx]);
++	for (idx = 0; idx < nbuf; idx++) {
++		struct pipe_buffer *buf = &bufs[idx];
++
++		if (buf->ops)
++			pipe_buf_release(pipe, buf);
++	}
+ 	pipe_unlock(pipe);
+ 
+ 	kfree(bufs);
 
 
