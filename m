@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F92D469BC4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C491D469AA4
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357080AbhLFPSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:30 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49766 "EHLO
+        id S1346275AbhLFPJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:09:24 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40458 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359196AbhLFPRE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:04 -0500
+        with ESMTP id S1346773AbhLFPHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:07:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7589B8101C;
-        Mon,  6 Dec 2021 15:13:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 030A5C341C2;
-        Mon,  6 Dec 2021 15:13:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B78BB8111A;
+        Mon,  6 Dec 2021 15:03:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF81C341C1;
+        Mon,  6 Dec 2021 15:03:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803613;
-        bh=lgazTf/KmclGBV+oVKueKG8F65kkA0ahysymL142Ne0=;
+        s=korg; t=1638803028;
+        bh=8i0G+mKv+8hK5jKrWdU1ehMSo8gzobZK8Hcj50uckMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIUC8g9BUG1zbYvuaGzICkJKF0f4/Gz8+LL7M4V+jmLi4gPArDcoPfsr8I5eM/L1b
-         maNzMjMwyik1ZL2PBiJsRzNwf2jqPHkNIjtjRnH2D6/zF6jb3Shf8dKeFDVb0Dv5Df
-         COhZVPImevdfb99fGOOJYmKQPY9a1dmF9PrHOjD8=
+        b=MCT2Uq01F9DFZJpKArU6WcYD2qLRzyupAA9F2BcuCVrzpsCiyPmDvypPP4JwLE5il
+         Q9FftcDZrCXBKjV0Re3xfOzii8igtinX78p9XLhkRJdN6Bx9vXMVD25z9svql+ajHY
+         lvyg4fDwwKLUedgPeLufgBuWm5zZ45D8szQT+vT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.4 28/70] s390/pci: move pseudo-MMIO to prevent MIO overlap
+        stable@vger.kernel.org, zhangyue <zhangyue1@kylinos.cn>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 49/62] kprobes: Limit max data_size of the kretprobe instances
 Date:   Mon,  6 Dec 2021 15:56:32 +0100
-Message-Id: <20211206145552.886764405@linuxfoundation.org>
+Message-Id: <20211206145550.902607157@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 52d04d408185b7aa47628d2339c28ec70074e0ae upstream.
+commit 6bbfa44116689469267f1a6e3d233b52114139d2 upstream.
 
-When running without MIO support, with pci=nomio or for devices which
-are not MIO-capable the zPCI subsystem generates pseudo-MMIO addresses
-to allow access to PCI BARs via MMIO based Linux APIs even though the
-platform uses function handles and BAR numbers.
+The 'kprobe::data_size' is unsigned, thus it can not be negative.  But if
+user sets it enough big number (e.g. (size_t)-8), the result of 'data_size
++ sizeof(struct kretprobe_instance)' becomes smaller than sizeof(struct
+kretprobe_instance) or zero. In result, the kretprobe_instance are
+allocated without enough memory, and kretprobe accesses outside of
+allocated memory.
 
-This is done by stashing an index into our global IOMAP array which
-contains the function handle in the 16 most significant bits of the
-addresses returned by ioremap() always setting the most significant bit.
+To avoid this issue, introduce a max limitation of the
+kretprobe::data_size. 4KB per instance should be OK.
 
-On the other hand the MIO addresses assigned by the platform for use,
-while requiring special instructions, allow PCI access with virtually
-mapped physical addresses. Now the problem is that these MIO addresses
-and our own pseudo-MMIO addresses may overlap, while functionally this
-would not be a problem by itself this overlap is detected by common code
-as both address types are added as resources in the iomem_resource tree.
-This leads to the overlapping resource claim of either the MIO capable
-or non-MIO capable devices with being rejected.
+Link: https://lkml.kernel.org/r/163836995040.432120.10322772773821182925.stgit@devnote2
 
-Since PCI is tightly coupled to the use of the iomem_resource tree, see
-for example the code for request_mem_region(), we can't reasonably get
-rid of the overlap being detected by keeping our pseudo-MMIO addresses
-out of the iomem_resource tree.
-
-Instead let's move the range used by our own pseudo-MMIO addresses by
-starting at (1UL << 62) and only using addresses below (1UL << 63) thus
-avoiding the range currently used for MIO addresses.
-
-Fixes: c7ff0e918a7c ("s390/pci: deal with devices that have no support for MIO instructions")
-Cc: stable@vger.kernel.org # 5.3+
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: f47cd9b553aa ("kprobes: kretprobe user entry-handler")
+Reported-by: zhangyue <zhangyue1@kylinos.cn>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/pci_io.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ include/linux/kprobes.h |    2 ++
+ kernel/kprobes.c        |    3 +++
+ 2 files changed, 5 insertions(+)
 
---- a/arch/s390/include/asm/pci_io.h
-+++ b/arch/s390/include/asm/pci_io.h
-@@ -14,12 +14,13 @@
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -192,6 +192,8 @@ struct kretprobe {
+ 	raw_spinlock_t lock;
+ };
  
- /* I/O Map */
- #define ZPCI_IOMAP_SHIFT		48
--#define ZPCI_IOMAP_ADDR_BASE		0x8000000000000000UL
-+#define ZPCI_IOMAP_ADDR_SHIFT		62
-+#define ZPCI_IOMAP_ADDR_BASE		(1UL << ZPCI_IOMAP_ADDR_SHIFT)
- #define ZPCI_IOMAP_ADDR_OFF_MASK	((1UL << ZPCI_IOMAP_SHIFT) - 1)
- #define ZPCI_IOMAP_MAX_ENTRIES							\
--	((ULONG_MAX - ZPCI_IOMAP_ADDR_BASE + 1) / (1UL << ZPCI_IOMAP_SHIFT))
-+	(1UL << (ZPCI_IOMAP_ADDR_SHIFT - ZPCI_IOMAP_SHIFT))
- #define ZPCI_IOMAP_ADDR_IDX_MASK						\
--	(~ZPCI_IOMAP_ADDR_OFF_MASK - ZPCI_IOMAP_ADDR_BASE)
-+	((ZPCI_IOMAP_ADDR_BASE - 1) & ~ZPCI_IOMAP_ADDR_OFF_MASK)
++#define KRETPROBE_MAX_DATA_SIZE	4096
++
+ struct kretprobe_instance {
+ 	struct hlist_node hlist;
+ 	struct kretprobe *rp;
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1899,6 +1899,9 @@ int register_kretprobe(struct kretprobe
+ 		}
+ 	}
  
- struct zpci_iomap_entry {
- 	u32 fh;
++	if (rp->data_size > KRETPROBE_MAX_DATA_SIZE)
++		return -E2BIG;
++
+ 	rp->kp.pre_handler = pre_handler_kretprobe;
+ 	rp->kp.post_handler = NULL;
+ 	rp->kp.fault_handler = NULL;
 
 
