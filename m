@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DEDA4699E4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 540A8469F0D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345521AbhLFPES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:18 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54090 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345427AbhLFPDy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:54 -0500
+        id S1391313AbhLFPp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33110 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390497AbhLFPm1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89411C0A8873;
+        Mon,  6 Dec 2021 07:26:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64AF761319;
-        Mon,  6 Dec 2021 15:00:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49D71C341C1;
-        Mon,  6 Dec 2021 15:00:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2705A61310;
+        Mon,  6 Dec 2021 15:26:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF4AC34901;
+        Mon,  6 Dec 2021 15:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802824;
-        bh=dGZ+aeRUEVUU05MXRfDYMHAomsv3n0+3INXDhZ1iz0c=;
+        s=korg; t=1638804411;
+        bh=sPUgnVJg+niLjeeTm+Cog6UZZi7GL8nk5cg40Ylhr4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YozdksmL58aNtPBNWHNtUJbWWu6hxccCwQQSxczsl74TH4WEDDS9JEO0UFbBY7Fi/
-         ycVAE8zqlvpzjhWfTt1JBVxwN1jw/lC0Sm9rusiaFvS4wKokHcS79u9zAfIhmL9Ui8
-         hTxamLG/kbDRSgHEBR4y2YXlZRhkI2xXqBJ0fB+A=
+        b=L21IxO+4vRPfpvOxeqLbPxWIMXhndNxIldDD9RvA9YhChLk6WMMa0rjlTUxSULACx
+         f/AHp9UYW017CDN+Sjw7MHJe0ZhSfkBwOSsUbBuKGAFK+yBOa6RM9DwqbQ7arVW7o6
+         asdbG6d65glUr7vNnnUuAeFoDE5czMW+V0y1Xbe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 15/52] ARM: socfpga: Fix crash with CONFIG_FORTIRY_SOURCE
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 105/207] net: qlogic: qlcnic: Fix a NULL pointer dereference in qlcnic_83xx_add_rings()
 Date:   Mon,  6 Dec 2021 15:55:59 +0100
-Message-Id: <20211206145548.424698947@linuxfoundation.org>
+Message-Id: <20211206145613.883158492@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,81 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 187bea472600dcc8d2eb714335053264dd437172 ]
+commit e2dabc4f7e7b60299c20a36d6a7b24ed9bf8e572 upstream.
 
-When CONFIG_FORTIFY_SOURCE is set, memcpy() checks the potential
-buffer overflow and panics.  The code in sofcpga bootstrapping
-contains the memcpy() calls are mistakenly translated as the shorter
-size, hence it triggers a panic as if it were overflowing.
+In qlcnic_83xx_add_rings(), the indirect function of
+ahw->hw_ops->alloc_mbx_args will be called to allocate memory for
+cmd.req.arg, and there is a dereference of it in qlcnic_83xx_add_rings(),
+which could lead to a NULL pointer dereference on failure of the
+indirect function like qlcnic_83xx_alloc_mbx_args().
 
-This patch changes the secondary_trampoline and *_end definitions
-to arrays for avoiding the false-positive crash above.
+Fix this bug by adding a check of alloc_mbx_args(), this patch
+imitates the logic of mbx_cmd()'s failure handling.
 
-Fixes: 9c4566a117a6 ("ARM: socfpga: Enable SMP for socfpga")
-Suggested-by: Kees Cook <keescook@chromium.org>
-Buglink: https://bugzilla.suse.com/show_bug.cgi?id=1192473
-Link: https://lore.kernel.org/r/20211117193244.31162-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
+
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_QLCNIC=m show no new warnings, and our
+static analyzer no longer warns about this code.
+
+Fixes: 7f9664525f9c ("qlcnic: 83xx memory map and HW access routine")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Link: https://lore.kernel.org/r/20211130110848.109026-1-zhou1615@umn.edu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-socfpga/core.h    | 2 +-
- arch/arm/mach-socfpga/platsmp.c | 8 ++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mach-socfpga/core.h b/arch/arm/mach-socfpga/core.h
-index 5bc6ea87cdf74..1b41e23db98ef 100644
---- a/arch/arm/mach-socfpga/core.h
-+++ b/arch/arm/mach-socfpga/core.h
-@@ -44,7 +44,7 @@ extern void __iomem *sdr_ctl_base_addr;
- u32 socfpga_sdram_self_refresh(u32 sdr_base);
- extern unsigned int socfpga_sdram_self_refresh_sz;
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+@@ -1077,8 +1077,14 @@ static int qlcnic_83xx_add_rings(struct
+ 	sds_mbx_size = sizeof(struct qlcnic_sds_mbx);
+ 	context_id = recv_ctx->context_id;
+ 	num_sds = adapter->drv_sds_rings - QLCNIC_MAX_SDS_RINGS;
+-	ahw->hw_ops->alloc_mbx_args(&cmd, adapter,
+-				    QLCNIC_CMD_ADD_RCV_RINGS);
++	err = ahw->hw_ops->alloc_mbx_args(&cmd, adapter,
++					QLCNIC_CMD_ADD_RCV_RINGS);
++	if (err) {
++		dev_err(&adapter->pdev->dev,
++			"Failed to alloc mbx args %d\n", err);
++		return err;
++	}
++
+ 	cmd.req.arg[1] = 0 | (num_sds << 8) | (context_id << 16);
  
--extern char secondary_trampoline, secondary_trampoline_end;
-+extern char secondary_trampoline[], secondary_trampoline_end[];
- 
- extern unsigned long socfpga_cpu1start_addr;
- 
-diff --git a/arch/arm/mach-socfpga/platsmp.c b/arch/arm/mach-socfpga/platsmp.c
-index 15c8ce8965f43..ff1d13d3ef72e 100644
---- a/arch/arm/mach-socfpga/platsmp.c
-+++ b/arch/arm/mach-socfpga/platsmp.c
-@@ -31,14 +31,14 @@
- 
- static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
- {
--	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
-+	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
- 
- 	if (socfpga_cpu1start_addr) {
- 		/* This will put CPU #1 into reset. */
- 		writel(RSTMGR_MPUMODRST_CPU1,
- 		       rst_manager_base_addr + SOCFPGA_RSTMGR_MODMPURST);
- 
--		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
-+		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
- 
- 		writel(virt_to_phys(secondary_startup),
- 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x000000ff));
-@@ -56,12 +56,12 @@ static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
- 
- static int socfpga_a10_boot_secondary(unsigned int cpu, struct task_struct *idle)
- {
--	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
-+	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
- 
- 	if (socfpga_cpu1start_addr) {
- 		writel(RSTMGR_MPUMODRST_CPU1, rst_manager_base_addr +
- 		       SOCFPGA_A10_RSTMGR_MODMPURST);
--		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
-+		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
- 
- 		writel(virt_to_phys(secondary_startup),
- 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x00000fff));
--- 
-2.33.0
-
+ 	/* set up status rings, mbx 2-81 */
 
 
