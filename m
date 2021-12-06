@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A19469EC3
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A3D2469C3D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354377AbhLFPoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:44:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385561AbhLFPis (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:38:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A19C0C08EB48;
-        Mon,  6 Dec 2021 07:24:41 -0800 (PST)
+        id S1346842AbhLFPV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:27 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37916 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345843AbhLFPTG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BA9861344;
-        Mon,  6 Dec 2021 15:24:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F9F6C34901;
-        Mon,  6 Dec 2021 15:24:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30F7E6130D;
+        Mon,  6 Dec 2021 15:15:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BE79C341C1;
+        Mon,  6 Dec 2021 15:15:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804280;
-        bh=reN+dNueUHkFjlhNO9CMyFtMhrkiLSL/IAujyZSoScM=;
+        s=korg; t=1638803736;
+        bh=uyHjeqVGdSnFGny2L9uSilrTJtV1Hkq8Oi8TQNt2mus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J20IIVCxJbSM3czQJ+hZ9GGGISl+TlgNXxqRJMPqPYnJdpwT3viH6OAmN0/0bS2+p
-         qgZ76+19qDDgmH/7KgakoKr1CFcOdfmPmANLpHw2wydp7GWyH9FfyvLtdPwSIhHJU7
-         3GnhRh2ccHij738au3dIh7Xh30lXurmDRtE554Bs=
+        b=ldK49gIUSeOdmGeyopWQ1vt2NqnqCMKE24I62nn1jXOXitByw9rBwMeAgM+uQT6NE
+         l/1Hr2lSJkkZwmxlWTkavZ5MHvztzjuB+OIiVSepDWBq/s+BIPWtlfM8H6ZNZwUTdK
+         crTYbCw3PuvgBkLmcCwCsXDr7R1K7KY6/Q7T/Sp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 090/207] net: dsa: mv88e6xxx: Link in pcs_get_state() if AN is bypassed
-Date:   Mon,  6 Dec 2021 15:55:44 +0100
-Message-Id: <20211206145613.347282418@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 028/130] perf report: Fix memory leaks around perf_tip()
+Date:   Mon,  6 Dec 2021 15:55:45 +0100
+Message-Id: <20211206145600.613797456@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,130 +51,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Ian Rogers <irogers@google.com>
 
-commit ede359d8843a2779d232ed30bc36089d4b5962e4 upstream.
+[ Upstream commit d9fc706108c15f8bc2d4ccccf8e50f74830fabd9 ]
 
-Function mv88e6xxx_serdes_pcs_get_state() currently does not report link
-up if AN is enabled, Link bit is set, but Speed and Duplex Resolved bit
-is not set, which testing shows is the case for when auto-negotiation
-was bypassed (we have AN enabled but link partner does not).
+perf_tip() may allocate memory or use a literal, this means memory
+wasn't freed if allocated. Change the API so that literals aren't used.
 
-An example of such link partner is Marvell 88X3310 PHY, when put into
-the mode where host interface changes between 10gbase-r, 5gbase-r,
-2500base-x and sgmii according to copper speed. The 88X3310 does not
-enable AN in 2500base-x, and so SerDes on mv88e6xxx currently does not
-link with it.
+At the same time add missing frees for system_path. These issues were
+spotted using leak sanitizer.
 
-Fix this.
-
-Fixes: a5a6858b793f ("net: dsa: mv88e6xxx: extend phylink to Serdes PHYs")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20211118073804.2149974-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/serdes.c |   48 ++++++++++++++++++++++++++++++++-----
- 1 file changed, 42 insertions(+), 6 deletions(-)
+ tools/perf/builtin-report.c | 15 +++++++++------
+ tools/perf/util/util.c      | 14 +++++++-------
+ tools/perf/util/util.h      |  2 +-
+ 3 files changed, 17 insertions(+), 14 deletions(-)
 
---- a/drivers/net/dsa/mv88e6xxx/serdes.c
-+++ b/drivers/net/dsa/mv88e6xxx/serdes.c
-@@ -50,11 +50,22 @@ static int mv88e6390_serdes_write(struct
+diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
+index 5824aa24acfcc..91cab5cdfbc16 100644
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -610,14 +610,17 @@ static int report__browse_hists(struct report *rep)
+ 	int ret;
+ 	struct perf_session *session = rep->session;
+ 	struct evlist *evlist = session->evlist;
+-	const char *help = perf_tip(system_path(TIPDIR));
++	char *help = NULL, *path = NULL;
+ 
+-	if (help == NULL) {
++	path = system_path(TIPDIR);
++	if (perf_tip(&help, path) || help == NULL) {
+ 		/* fallback for people who don't install perf ;-) */
+-		help = perf_tip(DOCDIR);
+-		if (help == NULL)
+-			help = "Cannot load tips.txt file, please install perf!";
++		free(path);
++		path = system_path(DOCDIR);
++		if (perf_tip(&help, path) || help == NULL)
++			help = strdup("Cannot load tips.txt file, please install perf!");
+ 	}
++	free(path);
+ 
+ 	switch (use_browser) {
+ 	case 1:
+@@ -644,7 +647,7 @@ static int report__browse_hists(struct report *rep)
+ 		ret = perf_evlist__tty_browse_hists(evlist, rep, help);
+ 		break;
+ 	}
+-
++	free(help);
+ 	return ret;
  }
  
- static int mv88e6xxx_serdes_pcs_get_state(struct mv88e6xxx_chip *chip,
--					  u16 status, u16 lpa,
-+					  u16 ctrl, u16 status, u16 lpa,
- 					  struct phylink_link_state *state)
- {
-+	state->link = !!(status & MV88E6390_SGMII_PHY_STATUS_LINK);
-+
- 	if (status & MV88E6390_SGMII_PHY_STATUS_SPD_DPL_VALID) {
--		state->link = !!(status & MV88E6390_SGMII_PHY_STATUS_LINK);
-+		/* The Spped and Duplex Resolved register is 1 if AN is enabled
-+		 * and complete, or if AN is disabled. So with disabled AN we
-+		 * still get here on link up. But we want to set an_complete
-+		 * only if AN was enabled, thus we look at BMCR_ANENABLE.
-+		 * (According to 802.3-2008 section 22.2.4.2.10, we should be
-+		 *  able to get this same value from BMSR_ANEGCAPABLE, but tests
-+		 *  show that these Marvell PHYs don't conform to this part of
-+		 *  the specificaion - BMSR_ANEGCAPABLE is simply always 1.)
-+		 */
-+		state->an_complete = !!(ctrl & BMCR_ANENABLE);
- 		state->duplex = status &
- 				MV88E6390_SGMII_PHY_STATUS_DUPLEX_FULL ?
- 			                         DUPLEX_FULL : DUPLEX_HALF;
-@@ -81,6 +92,18 @@ static int mv88e6xxx_serdes_pcs_get_stat
- 			dev_err(chip->dev, "invalid PHY speed\n");
- 			return -EINVAL;
- 		}
-+	} else if (state->link &&
-+		   state->interface != PHY_INTERFACE_MODE_SGMII) {
-+		/* If Speed and Duplex Resolved register is 0 and link is up, it
-+		 * means that AN was enabled, but link partner had it disabled
-+		 * and the PHY invoked the Auto-Negotiation Bypass feature and
-+		 * linked anyway.
-+		 */
-+		state->duplex = DUPLEX_FULL;
-+		if (state->interface == PHY_INTERFACE_MODE_2500BASEX)
-+			state->speed = SPEED_2500;
-+		else
-+			state->speed = SPEED_1000;
- 	} else {
- 		state->link = false;
- 	}
-@@ -168,9 +191,15 @@ int mv88e6352_serdes_pcs_config(struct m
- int mv88e6352_serdes_pcs_get_state(struct mv88e6xxx_chip *chip, int port,
- 				   int lane, struct phylink_link_state *state)
- {
--	u16 lpa, status;
-+	u16 lpa, status, ctrl;
- 	int err;
- 
-+	err = mv88e6352_serdes_read(chip, MII_BMCR, &ctrl);
-+	if (err) {
-+		dev_err(chip->dev, "can't read Serdes PHY control: %d\n", err);
-+		return err;
-+	}
-+
- 	err = mv88e6352_serdes_read(chip, 0x11, &status);
- 	if (err) {
- 		dev_err(chip->dev, "can't read Serdes PHY status: %d\n", err);
-@@ -183,7 +212,7 @@ int mv88e6352_serdes_pcs_get_state(struc
- 		return err;
- 	}
- 
--	return mv88e6xxx_serdes_pcs_get_state(chip, status, lpa, state);
-+	return mv88e6xxx_serdes_pcs_get_state(chip, ctrl, status, lpa, state);
+diff --git a/tools/perf/util/util.c b/tools/perf/util/util.c
+index 37a9492edb3eb..df3c4671be72a 100644
+--- a/tools/perf/util/util.c
++++ b/tools/perf/util/util.c
+@@ -379,32 +379,32 @@ fetch_kernel_version(unsigned int *puint, char *str,
+ 	return 0;
  }
  
- int mv88e6352_serdes_pcs_an_restart(struct mv88e6xxx_chip *chip, int port,
-@@ -883,10 +912,17 @@ int mv88e6390_serdes_pcs_config(struct m
- static int mv88e6390_serdes_pcs_get_state_sgmii(struct mv88e6xxx_chip *chip,
- 	int port, int lane, struct phylink_link_state *state)
+-const char *perf_tip(const char *dirpath)
++int perf_tip(char **strp, const char *dirpath)
  {
--	u16 lpa, status;
-+	u16 lpa, status, ctrl;
- 	int err;
+ 	struct strlist *tips;
+ 	struct str_node *node;
+-	char *tip = NULL;
+ 	struct strlist_config conf = {
+ 		.dirname = dirpath,
+ 		.file_only = true,
+ 	};
++	int ret = 0;
  
- 	err = mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
-+				    MV88E6390_SGMII_BMCR, &ctrl);
-+	if (err) {
-+		dev_err(chip->dev, "can't read Serdes PHY control: %d\n", err);
-+		return err;
-+	}
-+
-+	err = mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
- 				    MV88E6390_SGMII_PHY_STATUS, &status);
- 	if (err) {
- 		dev_err(chip->dev, "can't read Serdes PHY status: %d\n", err);
-@@ -900,7 +936,7 @@ static int mv88e6390_serdes_pcs_get_stat
- 		return err;
- 	}
++	*strp = NULL;
+ 	tips = strlist__new("tips.txt", &conf);
+ 	if (tips == NULL)
+-		return errno == ENOENT ? NULL :
+-			"Tip: check path of tips.txt or get more memory! ;-p";
++		return -errno;
  
--	return mv88e6xxx_serdes_pcs_get_state(chip, status, lpa, state);
-+	return mv88e6xxx_serdes_pcs_get_state(chip, ctrl, status, lpa, state);
+ 	if (strlist__nr_entries(tips) == 0)
+ 		goto out;
+ 
+ 	node = strlist__entry(tips, random() % strlist__nr_entries(tips));
+-	if (asprintf(&tip, "Tip: %s", node->s) < 0)
+-		tip = (char *)"Tip: get more memory! ;-)";
++	if (asprintf(strp, "Tip: %s", node->s) < 0)
++		ret = -ENOMEM;
+ 
+ out:
+ 	strlist__delete(tips);
+ 
+-	return tip;
++	return ret;
  }
  
- static int mv88e6390_serdes_pcs_get_state_10g(struct mv88e6xxx_chip *chip,
+ char *perf_exe(char *buf, int len)
+diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
+index ad737052e5977..9f0d36ba77f2d 100644
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -39,7 +39,7 @@ int fetch_kernel_version(unsigned int *puint,
+ #define KVER_FMT	"%d.%d.%d"
+ #define KVER_PARAM(x)	KVER_VERSION(x), KVER_PATCHLEVEL(x), KVER_SUBLEVEL(x)
+ 
+-const char *perf_tip(const char *dirpath);
++int perf_tip(char **strp, const char *dirpath);
+ 
+ #ifndef HAVE_SCHED_GETCPU_SUPPORT
+ int sched_getcpu(void);
+-- 
+2.33.0
+
 
 
