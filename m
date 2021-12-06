@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8106469F2D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52695469E32
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391483AbhLFPps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
+        id S1348247AbhLFPg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:36:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390608AbhLFPmf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:35 -0500
+        with ESMTP id S1388625AbhLFPeZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:34:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01505C0698DF;
-        Mon,  6 Dec 2021 07:29:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9E7C08E88C;
+        Mon,  6 Dec 2021 07:20:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3218B81129;
-        Mon,  6 Dec 2021 15:29:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 097C5C34901;
-        Mon,  6 Dec 2021 15:29:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59E76B81126;
+        Mon,  6 Dec 2021 15:20:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB28C341C1;
+        Mon,  6 Dec 2021 15:20:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804548;
-        bh=TUIZe1yzd7NvaTmTZH5Px/JuVGPfPK5s0zQJwnkQMFQ=;
+        s=korg; t=1638804010;
+        bh=b9hSnik2Nr6mPn2zRPr+Twdy9HcRDoOkiTuSNVZv4AA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWQyONiHOw1FQZVhh8N0/oUoiWeGPLdPE2TKcecWUqJ8B4ODq2cKmNVnVl9QRS/My
-         GGo/4+XHaWKQCJTZemliI+gzjkCEZBfa25E/eLrjcf0mKBs/4M9wvn9xXNnjnOS3KZ
-         ywxTPlOBrfQyVO2pj9jf9Rca1NUsY89muymPADZM=
+        b=cVJ+XMgC7Lnusft5OLMYlbFhiMBtab2LrbVqChmClEiVOVV9duEWcykPwYLK/52Lg
+         91TXIwZgesqgZ8vVImxvbwn3rEkwgn+EmHTWq77v1SBPc1/Hi6ht6mactQVm8oeOzr
+         bwtGb2ufSjwrxtY1Fuci1wnS2+h+A5mOMdcI8Iy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 187/207] parisc: Mark cr16 CPU clocksource unstable on all SMP machines
-Date:   Mon,  6 Dec 2021 15:57:21 +0100
-Message-Id: <20211206145616.751337683@linuxfoundation.org>
+        stable@vger.kernel.org, Jay Dolan <jay.dolan@accesio.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.10 125/130] serial: 8250_pci: rewrite pericom_do_set_divisor()
+Date:   Mon,  6 Dec 2021 15:57:22 +0100
+Message-Id: <20211206145603.980945379@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Jay Dolan <jay.dolan@accesio.com>
 
-commit afdb4a5b1d340e4afffc65daa21cc71890d7d589 upstream.
+commit bb1201d4b38ec67bd9a871cf86b0cc10f28b15b5 upstream.
 
-In commit c8c3735997a3 ("parisc: Enhance detection of synchronous cr16
-clocksources") I assumed that CPUs on the same physical core are syncronous.
-While booting up the kernel on two different C8000 machines, one with a
-dual-core PA8800 and one with a dual-core PA8900 CPU, this turned out to be
-wrong. The symptom was that I saw a jump in the internal clocks printed to the
-syslog and strange overall behaviour.  On machines which have 4 cores (2
-dual-cores) the problem isn't visible, because the current logic already marked
-the cr16 clocksource unstable in this case.
+Have pericom_do_set_divisor() use the uartclk instead of a hard coded
+value to work with different speed crystals. Tested with 14.7456 and 24
+MHz crystals.
 
-This patch now marks the cr16 interval timers unstable if we have more than one
-CPU in the system, and it fixes this issue.
+Have pericom_do_set_divisor() always calculate the divisor rather than
+call serial8250_do_set_divisor() for rates below baud_base.
 
-Fixes: c8c3735997a3 ("parisc: Enhance detection of synchronous cr16 clocksources")
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.15+
+Do not write registers or call serial8250_do_set_divisor() if valid
+divisors could not be found.
+
+Fixes: 6bf4e42f1d19 ("serial: 8250: Add support for higher baud rates to Pericom chips")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211122120604.3909-3-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/time.c |   28 +++++++---------------------
- 1 file changed, 7 insertions(+), 21 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c |   30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
---- a/arch/parisc/kernel/time.c
-+++ b/arch/parisc/kernel/time.c
-@@ -249,30 +249,16 @@ void __init time_init(void)
- static int __init init_cr16_clocksource(void)
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -1349,29 +1349,33 @@ pericom_do_set_divisor(struct uart_port
  {
- 	/*
--	 * The cr16 interval timers are not syncronized across CPUs on
--	 * different sockets, so mark them unstable and lower rating on
--	 * multi-socket SMP systems.
-+	 * The cr16 interval timers are not syncronized across CPUs, even if
-+	 * they share the same socket.
- 	 */
- 	if (num_online_cpus() > 1 && !running_on_qemu) {
--		int cpu;
--		unsigned long cpu0_loc;
--		cpu0_loc = per_cpu(cpu_data, 0).cpu_loc;
-+		/* mark sched_clock unstable */
-+		clear_sched_clock_stable();
+ 	int scr;
+ 	int lcr;
+-	int actual_baud;
+-	int tolerance;
  
--		for_each_online_cpu(cpu) {
--			if (cpu == 0)
--				continue;
--			if ((cpu0_loc != 0) &&
--			    (cpu0_loc == per_cpu(cpu_data, cpu).cpu_loc))
--				continue;
+-	for (scr = 5 ; scr <= 15 ; scr++) {
+-		actual_baud = 921600 * 16 / scr;
+-		tolerance = actual_baud / 50;
++	for (scr = 16; scr > 4; scr--) {
++		unsigned int maxrate = port->uartclk / scr;
++		unsigned int divisor = max(maxrate / baud, 1U);
++		int delta = maxrate / divisor - baud;
+ 
+-		if ((baud < actual_baud + tolerance) &&
+-			(baud > actual_baud - tolerance)) {
++		if (baud > maxrate + baud / 50)
++			continue;
+ 
++		if (delta > baud / 50)
++			divisor++;
++
++		if (divisor > 0xffff)
++			continue;
++
++		/* Update delta due to possible divisor change */
++		delta = maxrate / divisor - baud;
++		if (abs(delta) < baud / 50) {
+ 			lcr = serial_port_in(port, UART_LCR);
+ 			serial_port_out(port, UART_LCR, lcr | 0x80);
 -
--			/* mark sched_clock unstable */
--			clear_sched_clock_stable();
--
--			clocksource_cr16.name = "cr16_unstable";
--			clocksource_cr16.flags = CLOCK_SOURCE_UNSTABLE;
--			clocksource_cr16.rating = 0;
+-			serial_port_out(port, UART_DLL, 1);
+-			serial_port_out(port, UART_DLM, 0);
++			serial_port_out(port, UART_DLL, divisor & 0xff);
++			serial_port_out(port, UART_DLM, divisor >> 8 & 0xff);
+ 			serial_port_out(port, 2, 16 - scr);
+ 			serial_port_out(port, UART_LCR, lcr);
+ 			return;
+-		} else if (baud > actual_baud) {
 -			break;
--		}
-+		clocksource_cr16.name = "cr16_unstable";
-+		clocksource_cr16.flags = CLOCK_SOURCE_UNSTABLE;
-+		clocksource_cr16.rating = 0;
+ 		}
  	}
- 
- 	/* register at clocksource framework */
+-	serial8250_do_set_divisor(port, baud, quot, quot_frac);
+ }
+ static int pci_pericom_setup(struct serial_private *priv,
+ 		  const struct pciserial_board *board,
 
 
