@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51190469E2F
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A929469D10
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356387AbhLFPgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:36:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38762 "EHLO
+        id S244338AbhLFP2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:03 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55986 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350738AbhLFPdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:33:39 -0500
+        with ESMTP id S1358111AbhLFPXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DC5DB8101C;
-        Mon,  6 Dec 2021 15:30:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADA3CC34900;
-        Mon,  6 Dec 2021 15:30:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3DC4B81018;
+        Mon,  6 Dec 2021 15:19:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B17CC341C6;
+        Mon,  6 Dec 2021 15:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804607;
-        bh=Amyc0FeUkpJclOhMjqGuCyVIqYqjfgbaxjOm7B90t6k=;
+        s=korg; t=1638803973;
+        bh=Wtyv9B/EzQ4/3BqBfvqzTd+JS0pyb8Wx8MsRVgC1Z0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zzghYxzqqrGJVUD4VtP8nxL9rb43v1dAtzR7jYEIBDHA1X1iotDcppU5mncCLCvNX
-         /TIHRVbsx0k0mRrsc87nrzH2giDNK44QbboKc3gOTD/bi0DpoPYawLWeAKePRitC7X
-         7i8uolBcsHsuanCyUkVnXr0ufBk+w+gdpgWeaYEw=
+        b=SNgVNRJ94vLjFAduSBFE1i73HBXQeuvB9rpsYBaICGPZAHRmw6/mJe/nKX4tGBqUh
+         ECSNz8KtFi3Va+yqM6toMzc0kXTJLC99cG0YLu09YDwGSvs0J4oVIutiLcALM4qgaj
+         NMxJXV6bgoajaozE4tDDirjJP4gLSwicp/iiJaNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
-        Borislav Petkov <bp@suse.de>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 175/207] x86/xen: Add xenpv_restore_regs_and_return_to_usermode()
-Date:   Mon,  6 Dec 2021 15:57:09 +0100
-Message-Id: <20211206145616.321756559@linuxfoundation.org>
+        stable@vger.kernel.org, Wim Osterholt <wim@djo.tudelft.nl>,
+        "Pavel V. Panteleev" <panteleev_p@mcst.ru>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>
+Subject: [PATCH 5.10 113/130] vgacon: Propagate console boot parameters before calling `vc_resize
+Date:   Mon,  6 Dec 2021 15:57:10 +0100
+Message-Id: <20211206145603.550152143@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,95 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <laijs@linux.alibaba.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 5c8f6a2e316efebb3ba93d8c1af258155dcf5632 ]
+commit 3dfac26e2ef29ff2abc2a75aa4cd48fce25a2c4b upstream.
 
-In the native case, PER_CPU_VAR(cpu_tss_rw + TSS_sp0) is the
-trampoline stack. But XEN pv doesn't use trampoline stack, so
-PER_CPU_VAR(cpu_tss_rw + TSS_sp0) is also the kernel stack.
+Fix a division by zero in `vgacon_resize' with a backtrace like:
 
-In that case, source and destination stacks are identical, which means
-that reusing swapgs_restore_regs_and_return_to_usermode() in XEN pv
-would cause %rsp to move up to the top of the kernel stack and leave the
-IRET frame below %rsp.
+vgacon_resize
+vc_do_resize
+vgacon_init
+do_bind_con_driver
+do_unbind_con_driver
+fbcon_fb_unbind
+do_unregister_framebuffer
+do_register_framebuffer
+register_framebuffer
+__drm_fb_helper_initial_config_and_unlock
+drm_helper_hpd_irq_event
+dw_hdmi_irq
+irq_thread
+kthread
 
-This is dangerous as it can be corrupted if #NMI / #MC hit as either of
-these events occurring in the middle of the stack pushing would clobber
-data on the (original) stack.
+caused by `c->vc_cell_height' not having been initialized.  This has
+only started to trigger with commit 860dafa90259 ("vt: Fix character
+height handling with VT_RESIZEX"), however the ultimate offender is
+commit 50ec42edd978 ("[PATCH] Detaching fbcon: fix vgacon to allow
+retaking of the console").
 
-And, with  XEN pv, swapgs_restore_regs_and_return_to_usermode() pushing
-the IRET frame on to the original address is useless and error-prone
-when there is any future attempt to modify the code.
+Said commit has added a call to `vc_resize' whenever `vgacon_init' is
+called with the `init' argument set to 0, which did not happen before.
+And the call is made before a key vgacon boot parameter retrieved in
+`vgacon_startup' has been propagated in `vgacon_init' for `vc_resize' to
+use to the console structure being worked on.  Previously the parameter
+was `c->vc_font.height' and now it is `c->vc_cell_height'.
 
- [ bp: Massage commit message. ]
+In this particular scenario the registration of fbcon has failed and vt
+resorts to vgacon.  Now fbcon does have initialized `c->vc_font.height'
+somehow, unlike `c->vc_cell_height', which is why this code did not
+crash before, but either way the boot parameters should have been copied
+to the console structure ahead of the call to `vc_resize' rather than
+afterwards, so that first the call has a chance to use them and second
+they do not change the console structure to something possibly different
+from what was used by `vc_resize'.
 
-Fixes: 7f2590a110b8 ("x86/entry/64: Use a per-CPU trampoline stack for IDT entries")
-Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lkml.kernel.org/r/20211126101209.8613-4-jiangshanlai@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Move the propagation of the vgacon boot parameters ahead of the call to
+`vc_resize' then.  Adjust the comment accordingly.
+
+Fixes: 50ec42edd978 ("[PATCH] Detaching fbcon: fix vgacon to allow retaking of the console")
+Cc: stable@vger.kernel.org # v2.6.18+
+Reported-by: Wim Osterholt <wim@djo.tudelft.nl>
+Reported-by: Pavel V. Panteleev <panteleev_p@mcst.ru>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2110252317110.58149@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/entry_64.S |  4 ++++
- arch/x86/xen/xen-asm.S    | 20 ++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ drivers/video/console/vgacon.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index f9e1c06a1c329..97b1f84bb53f8 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -574,6 +574,10 @@ SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
- 	ud2
- 1:
- #endif
-+#ifdef CONFIG_XEN_PV
-+	ALTERNATIVE "", "jmp xenpv_restore_regs_and_return_to_usermode", X86_FEATURE_XENPV
-+#endif
-+
- 	POP_REGS pop_rdi=0
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -370,11 +370,17 @@ static void vgacon_init(struct vc_data *
+ 	struct uni_pagedir *p;
  
  	/*
-diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
-index 1e626444712be..3bebf66569b48 100644
---- a/arch/x86/xen/xen-asm.S
-+++ b/arch/x86/xen/xen-asm.S
-@@ -20,6 +20,7 @@
+-	 * We cannot be loaded as a module, therefore init is always 1,
+-	 * but vgacon_init can be called more than once, and init will
+-	 * not be 1.
++	 * We cannot be loaded as a module, therefore init will be 1
++	 * if we are the default console, however if we are a fallback
++	 * console, for example if fbcon has failed registration, then
++	 * init will be 0, so we need to make sure our boot parameters
++	 * have been copied to the console structure for vgacon_resize
++	 * ultimately called by vc_resize.  Any subsequent calls to
++	 * vgacon_init init will have init set to 0 too.
+ 	 */
+ 	c->vc_can_do_color = vga_can_do_color;
++	c->vc_scan_lines = vga_scan_lines;
++	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
  
- #include <linux/init.h>
- #include <linux/linkage.h>
-+#include <../entry/calling.h>
+ 	/* set dimensions manually if init != 0 since vc_resize() will fail */
+ 	if (init) {
+@@ -383,8 +389,6 @@ static void vgacon_init(struct vc_data *
+ 	} else
+ 		vc_resize(c, vga_video_num_columns, vga_video_num_lines);
  
- /*
-  * Enable events.  This clears the event mask and tests the pending
-@@ -191,6 +192,25 @@ SYM_CODE_START(xen_iret)
- 	jmp hypercall_iret
- SYM_CODE_END(xen_iret)
- 
-+/*
-+ * XEN pv doesn't use trampoline stack, PER_CPU_VAR(cpu_tss_rw + TSS_sp0) is
-+ * also the kernel stack.  Reusing swapgs_restore_regs_and_return_to_usermode()
-+ * in XEN pv would cause %rsp to move up to the top of the kernel stack and
-+ * leave the IRET frame below %rsp, which is dangerous to be corrupted if #NMI
-+ * interrupts. And swapgs_restore_regs_and_return_to_usermode() pushing the IRET
-+ * frame at the same address is useless.
-+ */
-+SYM_CODE_START(xenpv_restore_regs_and_return_to_usermode)
-+	UNWIND_HINT_REGS
-+	POP_REGS
-+
-+	/* stackleak_erase() can work safely on the kernel stack. */
-+	STACKLEAK_ERASE_NOCLOBBER
-+
-+	addq	$8, %rsp	/* skip regs->orig_ax */
-+	jmp xen_iret
-+SYM_CODE_END(xenpv_restore_regs_and_return_to_usermode)
-+
- /*
-  * Xen handles syscall callbacks much like ordinary exceptions, which
-  * means we have:
--- 
-2.33.0
-
+-	c->vc_scan_lines = vga_scan_lines;
+-	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
+ 	c->vc_complement_mask = 0x7700;
+ 	if (vga_512_chars)
+ 		c->vc_hi_font_mask = 0x0800;
 
 
