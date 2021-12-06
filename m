@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E080F469ADE
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A90F469C62
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347277AbhLFPLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:11:35 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42454 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345885AbhLFPJk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:40 -0500
+        id S236791AbhLFPV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:59 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38822 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356533AbhLFPTs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D61AB8111A;
-        Mon,  6 Dec 2021 15:06:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA70CC341C2;
-        Mon,  6 Dec 2021 15:06:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32E196131B;
+        Mon,  6 Dec 2021 15:16:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14534C341C1;
+        Mon,  6 Dec 2021 15:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803169;
-        bh=4DAPYaE3QzWVTGxK5BZ9VharGhkXbjbRKxIDupCGNeI=;
+        s=korg; t=1638803778;
+        bh=zPRGrHeN9UusWfqbPc/BfXjaBey6xO+sOuu6Dqb8wDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkVzP7mtFM1z3WLB0ko4Mi5uFSbe/kV+2F2t1vjXA8hIZ83oUgrAv+I8/ysaDv5nn
-         VyQ4txk7X11OvrwqvxGAOJPFwa+4/G7eX6DCR4AXK6H7j678l5Uq3QLBsd3hnnvoX5
-         XM8Zjy8sx6v0knlaZOJWjcQ2i0KXiZLD4me6kuno=
+        b=tAe9kLWzLdyukoSz2qyxL1v3eG3oTS1131jEnSf6aspACTVAgkAKF/h0fdY2ZHOxm
+         tfxY5KgGdVF+ANocFjxqQro/4HmKZGu+aHk4Rf0s8aSNsBgd77eXrVz5nnHi/VC7fz
+         hQi76eLOYmoId0SNkkq4+VpW8eCIBJXYb291/sAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 053/106] pinctrl: armada-37xx: Correct PWM pins definitions
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 044/130] KVM: x86: Use a stable condition around all VT-d PI paths
 Date:   Mon,  6 Dec 2021 15:56:01 +0100
-Message-Id: <20211206145557.266387595@linuxfoundation.org>
+Message-Id: <20211206145601.198656060@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,98 +46,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Marek Beh�n" <kabel@kernel.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit baf8d6899b1e8906dc076ef26cc633e96a8bb0c3 upstream.
+commit 53b7ca1a359389276c76fbc9e1009d8626a17e40 upstream.
 
-The PWM pins on North Bridge on Armada 37xx can be configured into PWM
-or GPIO functions. When in PWM function, each pin can also be configured
-to drive low on 0 and tri-state on 1 (LED mode).
+Currently, checks for whether VT-d PI can be used refer to the current
+status of the feature in the current vCPU; or they more or less pick
+vCPU 0 in case a specific vCPU is not available.
 
-The current definitions handle this by declaring two pin groups for each
-pin:
-- group "pwmN" with functions "pwm" and "gpio"
-- group "ledN_od" ("od" for open drain) with functions "led" and "gpio"
+However, these checks do not attempt to synchronize with changes to
+the IRTE.  In particular, there is no path that updates the IRTE when
+APICv is re-activated on vCPU 0; and there is no path to wakeup a CPU
+that has APICv disabled, if the wakeup occurs because of an IRTE
+that points to a posted interrupt.
 
-This is semantically incorrect. The correct definition for each pin
-should be one group with three functions: "pwm", "led" and "gpio".
+To fix this, always go through the VT-d PI path as long as there are
+assigned devices and APICv is available on both the host and the VM side.
+Since the relevant condition was copied over three times, take the hint
+and factor it into a separate function.
 
-Change the "pwmN" groups to support "led" function.
-
-Remove "ledN_od" groups. This cannot break backwards compatibility with
-older device trees: no device tree uses it since there is no PWM driver
-for this SOC yet. Also "ledN_od" groups are not even documented.
-
-Fixes: b835d6953009 ("pinctrl: armada-37xx: swap polarity on LED group")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20210719112938.27594-1-kabel@kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Reviewed-by: David Matlack <dmatlack@google.com>
+Message-Id: <20211123004311.2954158-5-pbonzini@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt |    8 ++--
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c                               |   17 ++++------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+ arch/x86/kvm/vmx/posted_intr.c |   20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
---- a/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
-+++ b/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
-@@ -43,19 +43,19 @@ group emmc_nb
+--- a/arch/x86/kvm/vmx/posted_intr.c
++++ b/arch/x86/kvm/vmx/posted_intr.c
+@@ -5,6 +5,7 @@
+ #include <asm/cpu.h>
  
- group pwm0
-  - pin 11 (GPIO1-11)
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
+ #include "lapic.h"
++#include "irq.h"
+ #include "posted_intr.h"
+ #include "trace.h"
+ #include "vmx.h"
+@@ -77,13 +78,18 @@ after_clear_sn:
+ 		pi_set_on(pi_desc);
+ }
  
- group pwm1
-  - pin 12
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
++static bool vmx_can_use_vtd_pi(struct kvm *kvm)
++{
++	return irqchip_in_kernel(kvm) && enable_apicv &&
++		kvm_arch_has_assigned_device(kvm) &&
++		irq_remapping_cap(IRQ_POSTING_CAP);
++}
++
+ void vmx_vcpu_pi_put(struct kvm_vcpu *vcpu)
+ {
+ 	struct pi_desc *pi_desc = vcpu_to_pi_desc(vcpu);
  
- group pwm2
-  - pin 13
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
+-	if (!kvm_arch_has_assigned_device(vcpu->kvm) ||
+-		!irq_remapping_cap(IRQ_POSTING_CAP)  ||
+-		!kvm_vcpu_apicv_active(vcpu))
++	if (!vmx_can_use_vtd_pi(vcpu->kvm))
+ 		return;
  
- group pwm3
-  - pin 14
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
+ 	/* Set SN when the vCPU is preempted */
+@@ -141,9 +147,7 @@ int pi_pre_block(struct kvm_vcpu *vcpu)
+ 	struct pi_desc old, new;
+ 	struct pi_desc *pi_desc = vcpu_to_pi_desc(vcpu);
  
- group pmic1
-  - pin 7
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -153,10 +153,14 @@ static struct armada_37xx_pin_group arma
- 	PIN_GRP_GPIO("jtag", 20, 5, BIT(0), "jtag"),
- 	PIN_GRP_GPIO("sdio0", 8, 3, BIT(1), "sdio"),
- 	PIN_GRP_GPIO("emmc_nb", 27, 9, BIT(2), "emmc"),
--	PIN_GRP_GPIO("pwm0", 11, 1, BIT(3), "pwm"),
--	PIN_GRP_GPIO("pwm1", 12, 1, BIT(4), "pwm"),
--	PIN_GRP_GPIO("pwm2", 13, 1, BIT(5), "pwm"),
--	PIN_GRP_GPIO("pwm3", 14, 1, BIT(6), "pwm"),
-+	PIN_GRP_GPIO_3("pwm0", 11, 1, BIT(3) | BIT(20), 0, BIT(20), BIT(3),
-+		       "pwm", "led"),
-+	PIN_GRP_GPIO_3("pwm1", 12, 1, BIT(4) | BIT(21), 0, BIT(21), BIT(4),
-+		       "pwm", "led"),
-+	PIN_GRP_GPIO_3("pwm2", 13, 1, BIT(5) | BIT(22), 0, BIT(22), BIT(5),
-+		       "pwm", "led"),
-+	PIN_GRP_GPIO_3("pwm3", 14, 1, BIT(6) | BIT(23), 0, BIT(23), BIT(6),
-+		       "pwm", "led"),
- 	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
- 	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
- 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
-@@ -170,11 +174,6 @@ static struct armada_37xx_pin_group arma
- 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
- 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
- 		      18, 2, "gpio", "uart"),
--	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
--	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
--	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
--	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
--
- };
+-	if (!kvm_arch_has_assigned_device(vcpu->kvm) ||
+-		!irq_remapping_cap(IRQ_POSTING_CAP)  ||
+-		!kvm_vcpu_apicv_active(vcpu))
++	if (!vmx_can_use_vtd_pi(vcpu->kvm))
+ 		return 0;
  
- static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
+ 	WARN_ON(irqs_disabled());
+@@ -256,9 +260,7 @@ int pi_update_irte(struct kvm *kvm, unsi
+ 	struct vcpu_data vcpu_info;
+ 	int idx, ret = 0;
+ 
+-	if (!kvm_arch_has_assigned_device(kvm) ||
+-	    !irq_remapping_cap(IRQ_POSTING_CAP) ||
+-	    !kvm_vcpu_apicv_active(kvm->vcpus[0]))
++	if (!vmx_can_use_vtd_pi(kvm))
+ 		return 0;
+ 
+ 	idx = srcu_read_lock(&kvm->irq_srcu);
 
 
