@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40405469C08
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4104469F1F
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237532AbhLFPTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:19:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55910 "EHLO
+        id S1391421AbhLFPpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356707AbhLFPRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:42 -0500
+        with ESMTP id S1390549AbhLFPmb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20039C08ED3D;
-        Mon,  6 Dec 2021 07:10:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A35C0698D7;
+        Mon,  6 Dec 2021 07:28:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0489B81129;
-        Mon,  6 Dec 2021 15:10:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58DB9C341C1;
-        Mon,  6 Dec 2021 15:10:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F4091B8111C;
+        Mon,  6 Dec 2021 15:28:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4290CC34900;
+        Mon,  6 Dec 2021 15:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803451;
-        bh=TszRsrTYXZHqJvxv3mmouyRPoMeejjv77zaWwI9RLoM=;
+        s=korg; t=1638804503;
+        bh=EixqWfw/xv1siXi7kj5OHxa7sRjTqKUbRtjbhNJnhtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyK0EhkLQhLBYguv8yLdhfClkYTvkdqXLciyOUpH1e/FyRW3JmGloRzNwoKQp0knL
-         l3BGh7C9yweTVfyA0ZKHGZP+fIpU30pdBLZsN06+ahBEtDuYjsMqvz7pACTDectFr8
-         V0A+EoWI96LmEQo9nIVGExzDKyrV0XZk+5nIU4dU=
+        b=dqqQ2lVrCp96K3JeF53uC9fgzQSmGUW0x5/1cSt0DIh5hkUEPonklkgg4Pvr162nY
+         CBWRqUv87eKuKuTuS/jNTImBmiXBQp1vVNC50qT4OQZY5SDLTYAY9//L33vqkiTKYn
+         rc3sNrIoATCQVMeW8Cr2bqjy+S948Z4/UitfwZsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 46/48] serial: core: fix transmit-buffer reset and memleak
+        stable@vger.kernel.org, Matt Johnston <matt@codeconstruct.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 169/207] mctp: Dont let RTM_DELROUTE delete local routes
 Date:   Mon,  6 Dec 2021 15:57:03 +0100
-Message-Id: <20211206145550.435033460@linuxfoundation.org>
+Message-Id: <20211206145616.122165208@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,74 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Matt Johnston <matt@codeconstruct.com.au>
 
-commit 00de977f9e0aa9760d9a79d1e41ff780f74e3424 upstream.
+[ Upstream commit 76d001603c509562181f3787a7065b8e163bc7b9 ]
 
-Commit 761ed4a94582 ("tty: serial_core: convert uart_close to use
-tty_port_close") converted serial core to use tty_port_close() but
-failed to notice that the transmit buffer still needs to be freed on
-final close.
+We need to test against the existing route type, not
+the rtm_type in the netlink request.
 
-Not freeing the transmit buffer means that the buffer is no longer
-cleared on next open so that any ioctl() waiting for the buffer to drain
-might wait indefinitely (e.g. on termios changes) or that stale data can
-end up being transmitted in case tx is restarted.
-
-Furthermore, the buffer of any port that has been opened would leak on
-driver unbind.
-
-Note that the port lock is held when clearing the buffer pointer due to
-the ldisc race worked around by commit a5ba1d95e46e ("uart: fix race
-between uart_put_char() and uart_shutdown()").
-
-Also note that the tty-port shutdown() callback is not called for
-console ports so it is not strictly necessary to free the buffer page
-after releasing the lock (cf. d72402145ace ("tty/serial: do not free
-trasnmit buffer page under port lock")).
-
-Link: https://lore.kernel.org/r/319321886d97c456203d5c6a576a5480d07c3478.1635781688.git.baruch@tkos.co.il
-Fixes: 761ed4a94582 ("tty: serial_core: convert uart_close to use tty_port_close")
-Cc: stable@vger.kernel.org      # 4.9
-Cc: Rob Herring <robh@kernel.org>
-Reported-by: Baruch Siach <baruch@tkos.co.il>
-Tested-by: Baruch Siach <baruch@tkos.co.il>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211108085431.12637-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 83f0a0b7285b ("mctp: Specify route types, require rtm_type in RTM_*ROUTE messages")
+Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ net/mctp/route.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1527,6 +1527,7 @@ static void uart_tty_port_shutdown(struc
- {
- 	struct uart_state *state = container_of(port, struct uart_state, port);
- 	struct uart_port *uport = uart_port_check(state);
-+	char *buf;
- 
- 	/*
- 	 * At this point, we stop accepting input.  To do this, we
-@@ -1548,8 +1549,18 @@ static void uart_tty_port_shutdown(struc
- 	 */
- 	tty_port_set_suspended(port, 0);
- 
--	uart_change_pm(state, UART_PM_STATE_OFF);
-+	/*
-+	 * Free the transmit buffer.
-+	 */
-+	spin_lock_irq(&uport->lock);
-+	buf = state->xmit.buf;
-+	state->xmit.buf = NULL;
-+	spin_unlock_irq(&uport->lock);
-+
-+	if (buf)
-+		free_page((unsigned long)buf);
- 
-+	uart_change_pm(state, UART_PM_STATE_OFF);
+diff --git a/net/mctp/route.c b/net/mctp/route.c
+index 5ca186d53cb0f..fb1bf4ec85296 100644
+--- a/net/mctp/route.c
++++ b/net/mctp/route.c
+@@ -760,7 +760,7 @@ static int mctp_route_add(struct mctp_dev *mdev, mctp_eid_t daddr_start,
  }
  
- static void uart_wait_until_sent(struct tty_struct *tty, int timeout)
+ static int mctp_route_remove(struct mctp_dev *mdev, mctp_eid_t daddr_start,
+-			     unsigned int daddr_extent)
++			     unsigned int daddr_extent, unsigned char type)
+ {
+ 	struct net *net = dev_net(mdev->dev);
+ 	struct mctp_route *rt, *tmp;
+@@ -777,7 +777,8 @@ static int mctp_route_remove(struct mctp_dev *mdev, mctp_eid_t daddr_start,
+ 
+ 	list_for_each_entry_safe(rt, tmp, &net->mctp.routes, list) {
+ 		if (rt->dev == mdev &&
+-		    rt->min == daddr_start && rt->max == daddr_end) {
++		    rt->min == daddr_start && rt->max == daddr_end &&
++		    rt->type == type) {
+ 			list_del_rcu(&rt->list);
+ 			/* TODO: immediate RTM_DELROUTE */
+ 			mctp_route_release(rt);
+@@ -795,7 +796,7 @@ int mctp_route_add_local(struct mctp_dev *mdev, mctp_eid_t addr)
+ 
+ int mctp_route_remove_local(struct mctp_dev *mdev, mctp_eid_t addr)
+ {
+-	return mctp_route_remove(mdev, addr, 0);
++	return mctp_route_remove(mdev, addr, 0, RTN_LOCAL);
+ }
+ 
+ /* removes all entries for a given device */
+@@ -975,7 +976,7 @@ static int mctp_delroute(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	if (rtm->rtm_type != RTN_UNICAST)
+ 		return -EINVAL;
+ 
+-	rc = mctp_route_remove(mdev, daddr_start, rtm->rtm_dst_len);
++	rc = mctp_route_remove(mdev, daddr_start, rtm->rtm_dst_len, RTN_UNICAST);
+ 	return rc;
+ }
+ 
+-- 
+2.33.0
+
 
 
