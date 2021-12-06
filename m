@@ -2,209 +2,341 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04EB6469EC1
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27D73469A58
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:04:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385566AbhLFPoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:44:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59926 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385538AbhLFPir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:38:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17816C034029;
-        Mon,  6 Dec 2021 07:24:40 -0800 (PST)
+        id S1345533AbhLFPHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:07:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37666 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345753AbhLFPFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:05:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE136B8111C;
-        Mon,  6 Dec 2021 15:24:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F13C34900;
-        Mon,  6 Dec 2021 15:24:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 708CAB8111A;
+        Mon,  6 Dec 2021 15:01:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DCBDC341C2;
+        Mon,  6 Dec 2021 15:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804277;
-        bh=8wYwYFuPefN885NMekF7IHdDdJYo1e4nts20Bkr+ueQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klgBn3in1nx7oQwf5YODqkUz+ryb2SdS3kAkEGFsTWS9vLqb+0uh9e6eYHCzFF4Ik
-         9g+Cpb/HJ4kaPp7wSCd2EH/5gSmY9Br+COFJAJNZcX3Pbe8eqkkOW1H+8l5hG+ijRx
-         ur/gH8DXATtRI9zRjF//2crAWvLlZ+Ei8AGO5YZk=
+        s=korg; t=1638802890;
+        bh=k0jOFn6iUEFBasrAcYM5fpX2ztJgVGk9MdECo3o/6mc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=EMnhSR/aJ9QJoOa24cWDzL6Dif0miBYEOmTgW32XYd/DR5T49YgT3bt1JnAn571B8
+         UJb66KcR8Z9mc2dtU8e9WtPIZNS1Ph9QXqGCHi4nexoFOt79ppi4umOKxAdO6lfc8T
+         /aveEbY3RpinWM4uHixmIaCc314k5+uF2LXV57Q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 089/207] net: dsa: mv88e6xxx: Fix inband AN for 2500base-x on 88E6393X family
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.9 00/62] 4.9.292-rc1 review
 Date:   Mon,  6 Dec 2021 15:55:43 +0100
-Message-Id: <20211206145613.314182236@linuxfoundation.org>
+Message-Id: <20211206145549.155163074@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.292-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.292-rc1
+X-KernelTest-Deadline: 2021-12-08T14:55+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+This is the start of the stable review cycle for the 4.9.292 release.
+There are 62 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 163000dbc772c1eae9bdfe7c8fe30155db1efd74 upstream.
+Responses should be made by Wed, 08 Dec 2021 14:55:37 +0000.
+Anything received after that time might be too late.
 
-Inband AN is broken on Amethyst in 2500base-x mode when set by standard
-mechanism (via cmode).
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.292-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-(There probably is some weird setting done by default in the switch for
- this mode that make it cycle in some state or something, because when
- the peer is the mvneta controller, it receives link change interrupts
- every ~0.3ms, but the link is always down.)
+thanks,
 
-Get around this by configuring the PCS mode to 1000base-x (where inband
-AN works), and then changing the SerDes frequency while SerDes
-transmitter and receiver are disabled, before enabling SerDes PHY. After
-disabling SerDes PHY, change the PCS mode back to 2500base-x, to avoid
-confusing the device (if we leave it at 1000base-x PCS mode but with
-different frequency, and then change cmode to sgmii, the device won't
-change the frequency because it thinks it already has the correct one).
+greg k-h
 
-The register which changes the frequency is undocumented. I discovered
-it by going through all registers in the ranges 4.f000-4.f100 and
-1e.8000-1e.8200 for all SerDes cmodes (sgmii, 1000base-x, 2500base-x,
-5gbase-r, 10gbase-r, usxgmii) and filtering out registers that didn't
-make sense (the value was the same for modes which have different
-frequency). The result of this was:
+-------------
+Pseudo-Shortlog of commits:
 
-    reg   sgmii 1000base-x 2500base-x 5gbase-r 10gbase-r usxgmii
-  04.f002  005b       0058       0059     005c      005d    005f
-  04.f076  3000       0000       1000     4000      5000    7000
-  04.f07c  0950       0950       1850     0550      0150    0150
-  1e.8000  0059       0059       0058     0055      0051    0051
-  1e.8140  0e20       0e20       0e28     0e21      0e42    0e42
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.292-rc1
 
-Register 04.f002 is the documented Port Operational Confiuration
-register, it's last 3 bits select PCS type, so changing this register
-also changes the frequency to the appropriate value.
+Johan Hovold <johan@kernel.org>
+    serial: core: fix transmit-buffer reset and memleak
 
-Registers 04.f076 and 04.f07c are not writable.
+Pierre Gondois <Pierre.Gondois@arm.com>
+    serial: pl011: Add ACPI SBSA UART match id
 
-Undocumented register 1e.8000 was the one: changing bits 3:0 from 9 to 8
-changed SerDes frequency to 3.125 GHz, while leaving the value of PCS
-mode in register 04.f002.2:0 at 1000base-x. Inband autonegotiation
-started working correctly.
+Sven Eckelmann <sven@narfation.org>
+    tty: serial: msm_serial: Deactivate RX DMA for polling support
 
-(I didn't try anything with register 1e.8140 since 1e.8000 solved the
- problem.)
+Maciej W. Rozycki <macro@orcam.me.uk>
+    vgacon: Propagate console boot parameters before calling `vc_resize'
 
-Since I don't have documentation for this register 1e.8000.3:0, I am
-using the constants without names, but my hypothesis is that this
-register selects PHY frequency. If in the future I have access to an
-oscilloscope able to handle these frequencies, I will try to test this
-hypothesis.
+Helge Deller <deller@gmx.de>
+    parisc: Fix "make install" on newer debian releases
 
-Fixes: de776d0d316f ("net: dsa: mv88e6xxx: add support for mv88e6393x family")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/mv88e6xxx/serdes.c |   61 ++++++++++++++++++++++++++++++++++++-
- drivers/net/dsa/mv88e6xxx/serdes.h |    1 
- 2 files changed, 61 insertions(+), 1 deletion(-)
+William Kucharski <william.kucharski@oracle.com>
+    net/rds: correct socket tunable error in rds_tcp_tune()
 
---- a/drivers/net/dsa/mv88e6xxx/serdes.c
-+++ b/drivers/net/dsa/mv88e6xxx/serdes.c
-@@ -1419,6 +1419,54 @@ static int mv88e6393x_serdes_erratum_5_2
- 	return 0;
- }
- 
-+static int mv88e6393x_serdes_fix_2500basex_an(struct mv88e6xxx_chip *chip,
-+					      int lane, u8 cmode, bool on)
-+{
-+	u16 reg;
-+	int err;
-+
-+	if (cmode != MV88E6XXX_PORT_STS_CMODE_2500BASEX)
-+		return 0;
-+
-+	/* Inband AN is broken on Amethyst in 2500base-x mode when set by
-+	 * standard mechanism (via cmode).
-+	 * We can get around this by configuring the PCS mode to 1000base-x
-+	 * and then writing value 0x58 to register 1e.8000. (This must be done
-+	 * while SerDes receiver and transmitter are disabled, which is, when
-+	 * this function is called.)
-+	 * It seem that when we do this configuration to 2500base-x mode (by
-+	 * changing PCS mode to 1000base-x and frequency to 3.125 GHz from
-+	 * 1.25 GHz) and then configure to sgmii or 1000base-x, the device
-+	 * thinks that it already has SerDes at 1.25 GHz and does not change
-+	 * the 1e.8000 register, leaving SerDes at 3.125 GHz.
-+	 * To avoid this, change PCS mode back to 2500base-x when disabling
-+	 * SerDes from 2500base-x mode.
-+	 */
-+	err = mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
-+				    MV88E6393X_SERDES_POC, &reg);
-+	if (err)
-+		return err;
-+
-+	reg &= ~(MV88E6393X_SERDES_POC_PCS_MASK | MV88E6393X_SERDES_POC_AN);
-+	if (on)
-+		reg |= MV88E6393X_SERDES_POC_PCS_1000BASEX |
-+		       MV88E6393X_SERDES_POC_AN;
-+	else
-+		reg |= MV88E6393X_SERDES_POC_PCS_2500BASEX;
-+	reg |= MV88E6393X_SERDES_POC_RESET;
-+
-+	err = mv88e6390_serdes_write(chip, lane, MDIO_MMD_PHYXS,
-+				     MV88E6393X_SERDES_POC, reg);
-+	if (err)
-+		return err;
-+
-+	err = mv88e6390_serdes_write(chip, lane, MDIO_MMD_VEND1, 0x8000, 0x58);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
- int mv88e6393x_serdes_power(struct mv88e6xxx_chip *chip, int port, int lane,
- 			    bool on)
- {
-@@ -1437,6 +1485,11 @@ int mv88e6393x_serdes_power(struct mv88e
- 		if (err)
- 			return err;
- 
-+		err = mv88e6393x_serdes_fix_2500basex_an(chip, lane, cmode,
-+							 true);
-+		if (err)
-+			return err;
-+
- 		err = mv88e6393x_serdes_power_lane(chip, lane, true);
- 		if (err)
- 			return err;
-@@ -1457,8 +1510,14 @@ int mv88e6393x_serdes_power(struct mv88e
- 	if (err)
- 		return err;
- 
--	if (!on)
-+	if (!on) {
- 		err = mv88e6393x_serdes_power_lane(chip, lane, false);
-+		if (err)
-+			return err;
-+
-+		err = mv88e6393x_serdes_fix_2500basex_an(chip, lane, cmode,
-+							 false);
-+	}
- 
- 	return err;
- }
---- a/drivers/net/dsa/mv88e6xxx/serdes.h
-+++ b/drivers/net/dsa/mv88e6xxx/serdes.h
-@@ -93,6 +93,7 @@
- #define MV88E6393X_SERDES_POC_PCS_MASK		0x0007
- #define MV88E6393X_SERDES_POC_RESET		BIT(15)
- #define MV88E6393X_SERDES_POC_PDOWN		BIT(5)
-+#define MV88E6393X_SERDES_POC_AN		BIT(3)
- #define MV88E6393X_SERDES_CTRL1			0xf003
- #define MV88E6393X_SERDES_CTRL1_TX_PDOWN	BIT(9)
- #define MV88E6393X_SERDES_CTRL1_RX_PDOWN	BIT(8)
+Arnd Bergmann <arnd@arndb.de>
+    siphash: use _unaligned version by default
+
+Zhou Qingyang <zhou1615@umn.edu>
+    net: qlogic: qlcnic: Fix a NULL pointer dereference in qlcnic_83xx_add_rings()
+
+Randy Dunlap <rdunlap@infradead.org>
+    natsemi: xtensa: fix section mismatch warnings
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    fget: check that the fd still exists after getting a ref to it
+
+Jens Axboe <axboe@kernel.dk>
+    fs: add fget_many() and fput_many()
+
+Baokun Li <libaokun1@huawei.com>
+    sata_fsl: fix warning in remove_proc_entry when rmmod sata_fsl
+
+Baokun Li <libaokun1@huawei.com>
+    sata_fsl: fix UAF in sata_fsl_port_stop when rmmod sata_fsl
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    kprobes: Limit max data_size of the kretprobe instances
+
+Stephen Suryaputra <ssuryaextr@gmail.com>
+    vrf: Reset IPCB/IP6CB when processing outbound pkts in vrf dev xmit
+
+Teng Qi <starmiku1207184332@gmail.com>
+    net: ethernet: dec: tulip: de4x5: fix possible array overflows in type3_infoblock()
+
+zhangyue <zhangyue1@kylinos.cn>
+    net: tulip: de4x5: fix the problem that the array 'lp->phy[8]' may be out of bound
+
+Teng Qi <starmiku1207184332@gmail.com>
+    ethernet: hisilicon: hns: hns_dsaf_misc: fix a possible array overflow in hns_dsaf_ge_srst_by_port()
+
+Mike Christie <michael.christie@oracle.com>
+    scsi: iscsi: Unblock session then wake up error handler
+
+Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+    thermal: core: Reset previous low and high trip during thermal zone init
+
+Vasily Gorbik <gor@linux.ibm.com>
+    s390/setup: avoid using memblock_enforce_memory_limit
+
+Slark Xiao <slark_xiao@163.com>
+    platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
+
+liuguoqiang <liuguoqiang@uniontech.com>
+    net: return correct error code
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    hugetlb: take PMD sharing into account when flushing tlb/caches
+
+Benjamin Coddington <bcodding@redhat.com>
+    NFSv42: Fix pagecache invalidation after COPY/CLONE
+
+Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+    shm: extend forced shm destroy to support objects from several IPC nses
+
+Juergen Gross <jgross@suse.com>
+    tty: hvc: replace BUG_ON() with negative return value
+
+Juergen Gross <jgross@suse.com>
+    xen/netfront: don't trust the backend response data blindly
+
+Juergen Gross <jgross@suse.com>
+    xen/netfront: disentangle tx_skb_freelist
+
+Juergen Gross <jgross@suse.com>
+    xen/netfront: don't read data from request on the ring page
+
+Juergen Gross <jgross@suse.com>
+    xen/netfront: read response from backend only once
+
+Juergen Gross <jgross@suse.com>
+    xen/blkfront: don't trust the backend response data blindly
+
+Juergen Gross <jgross@suse.com>
+    xen/blkfront: don't take local copy of a request from the ring page
+
+Juergen Gross <jgross@suse.com>
+    xen/blkfront: read response from backend only once
+
+Juergen Gross <jgross@suse.com>
+    xen: sync include/xen/interface/io/ring.h with Xen's newest version
+
+Miklos Szeredi <mszeredi@redhat.com>
+    fuse: release pipe buf after last use
+
+Lin Ma <linma@zju.edu.cn>
+    NFC: add NCI_UNREG flag to eliminate the race
+
+David Hildenbrand <david@redhat.com>
+    proc/vmcore: fix clearing user buffer by properly using clear_user()
+
+Stefano Garzarella <sgarzare@redhat.com>
+    vhost/vsock: fix incorrect used length reported to the guest
+
+Nadav Amit <namit@vmware.com>
+    hugetlbfs: flush TLBs correctly after huge_pmd_unshare
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracing: Check pid filtering when creating events
+
+Eric Dumazet <edumazet@google.com>
+    tcp_cubic: fix spurious Hystart ACK train detections for not-cwnd-limited flows
+
+Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
+    PM: hibernate: use correct mode for swsusp_close()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    drm/vc4: fix error code in vc4_create_object()
+
+Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+    scsi: mpt3sas: Fix kernel panic during drive powercycle test
+
+Takashi Iwai <tiwai@suse.de>
+    ARM: socfpga: Fix crash with CONFIG_FORTIRY_SOURCE
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFSv42: Don't fail clone() unless the OP_CLONE operation failed
+
+Alexander Aring <aahringo@redhat.com>
+    net: ieee802154: handle iftypes as u32
+
+Takashi Iwai <tiwai@suse.de>
+    ASoC: topology: Add missing rwsem around snd_ctl_remove() calls
+
+Florian Fainelli <f.fainelli@gmail.com>
+    ARM: dts: BCM5301X: Add interrupt properties to GPIO node
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracing: Fix pid filtering when triggers are attached
+
+Stefano Stabellini <stefano.stabellini@xilinx.com>
+    xen: detect uninitialized xenbus in xenbus_init
+
+Stefano Stabellini <stefano.stabellini@xilinx.com>
+    xen: don't continue xenstore initialization in case of errors
+
+Miklos Szeredi <mszeredi@redhat.com>
+    fuse: fix page stealing
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    staging: rtl8192e: Fix use after free in _rtl92e_pci_disconnect()
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: ctxfi: Fix out-of-range access
+
+Todd Kjos <tkjos@google.com>
+    binder: fix test regression due to sender_euid change
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    usb: hub: Fix locking issues with address0_mutex
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    usb: hub: Fix usb enumeration issue due to address0 race
+
+Mingjie Zhang <superzmj@fibocom.com>
+    USB: serial: option: add Fibocom FM101-GL variants
+
+Daniele Palmas <dnlplm@gmail.com>
+    USB: serial: option: add Telit LE910S1 0x9200 composition
+
+Lee Jones <lee.jones@linaro.org>
+    staging: ion: Prevent incorrect reference counting behavour
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm/boot/dts/bcm5301x.dtsi                    |   2 +
+ arch/arm/include/asm/tlb.h                         |   8 +
+ arch/arm/mach-socfpga/core.h                       |   2 +-
+ arch/arm/mach-socfpga/platsmp.c                    |   8 +-
+ arch/ia64/include/asm/tlb.h                        |  10 +
+ arch/parisc/install.sh                             |   1 +
+ arch/s390/include/asm/tlb.h                        |  14 ++
+ arch/s390/kernel/setup.c                           |   3 -
+ arch/sh/include/asm/tlb.h                          |  10 +
+ arch/um/include/asm/tlb.h                          |  12 +
+ drivers/android/binder.c                           |   2 +-
+ drivers/ata/sata_fsl.c                             |  20 +-
+ drivers/block/xen-blkfront.c                       | 126 ++++++----
+ drivers/gpu/drm/vc4/vc4_bo.c                       |   2 +-
+ drivers/net/ethernet/dec/tulip/de4x5.c             |  34 +--
+ drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c |   4 +
+ drivers/net/ethernet/natsemi/xtsonic.c             |   2 +-
+ .../net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c    |  10 +-
+ drivers/net/vrf.c                                  |   2 +
+ drivers/net/xen-netfront.c                         | 257 +++++++++++++--------
+ drivers/platform/x86/thinkpad_acpi.c               |  12 -
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c               |   2 +-
+ drivers/scsi/scsi_transport_iscsi.c                |   6 +-
+ drivers/staging/android/ion/ion.c                  |   6 +
+ drivers/staging/rtl8192e/rtl8192e/rtl_core.c       |   3 +-
+ drivers/thermal/thermal_core.c                     |   2 +
+ drivers/tty/hvc/hvc_xen.c                          |  17 +-
+ drivers/tty/serial/amba-pl011.c                    |   1 +
+ drivers/tty/serial/msm_serial.c                    |   3 +
+ drivers/tty/serial/serial_core.c                   |  13 +-
+ drivers/usb/core/hub.c                             |  23 +-
+ drivers/usb/serial/option.c                        |   5 +
+ drivers/vhost/vsock.c                              |   2 +-
+ drivers/video/console/vgacon.c                     |  14 +-
+ drivers/xen/xenbus/xenbus_probe.c                  |  27 ++-
+ fs/file.c                                          |  19 +-
+ fs/file_table.c                                    |   9 +-
+ fs/fuse/dev.c                                      |  14 +-
+ fs/nfs/nfs42proc.c                                 |   5 +-
+ fs/nfs/nfs42xdr.c                                  |   3 +-
+ fs/proc/vmcore.c                                   |  15 +-
+ include/asm-generic/tlb.h                          |   2 +
+ include/linux/file.h                               |   2 +
+ include/linux/fs.h                                 |   4 +-
+ include/linux/ipc_namespace.h                      |  15 ++
+ include/linux/kprobes.h                            |   2 +
+ include/linux/sched.h                              |   2 +-
+ include/linux/shm.h                                |  13 +-
+ include/linux/siphash.h                            |  14 +-
+ include/net/nfc/nci_core.h                         |   1 +
+ include/net/nl802154.h                             |   7 +-
+ include/xen/interface/io/ring.h                    | 257 ++++++++++-----------
+ ipc/shm.c                                          | 176 ++++++++++----
+ kernel/kprobes.c                                   |   3 +
+ kernel/power/hibernate.c                           |   6 +-
+ kernel/trace/trace.h                               |  24 +-
+ kernel/trace/trace_events.c                        |   7 +
+ lib/siphash.c                                      |  12 +-
+ mm/hugetlb.c                                       |  72 +++++-
+ mm/memory.c                                        |  16 ++
+ net/ipv4/devinet.c                                 |   2 +-
+ net/ipv4/tcp_cubic.c                               |   5 +-
+ net/nfc/nci/core.c                                 |  19 +-
+ net/rds/tcp.c                                      |   2 +-
+ sound/pci/ctxfi/ctamixer.c                         |  14 +-
+ sound/pci/ctxfi/ctdaio.c                           |  16 +-
+ sound/pci/ctxfi/ctresource.c                       |   7 +-
+ sound/pci/ctxfi/ctresource.h                       |   4 +-
+ sound/pci/ctxfi/ctsrc.c                            |   7 +-
+ sound/soc/soc-topology.c                           |   3 +
+ 71 files changed, 967 insertions(+), 481 deletions(-)
 
 
