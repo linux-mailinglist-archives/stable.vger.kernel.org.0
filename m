@@ -2,147 +2,293 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EADBB46924E
+	by mail.lfdr.de (Postfix) with ESMTP id A15E646924D
 	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 10:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232314AbhLFJ3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240613AbhLFJ3O (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 6 Dec 2021 04:29:14 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:50088 "EHLO www.linuxtv.org"
+Received: from www.linuxtv.org ([130.149.80.248]:50084 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240600AbhLFJ3O (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232314AbhLFJ3O (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 6 Dec 2021 04:29:14 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1muAFl-008lYL-6r; Mon, 06 Dec 2021 09:25:45 +0000
+        id 1muAFl-008lY2-4q; Mon, 06 Dec 2021 09:25:45 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Date:   Mon, 06 Dec 2021 09:25:33 +0000
-Subject: [git:media_stage/master] media: cec-pin: fix interrupt en/disable handling
+Subject: [git:media_stage/master] media: cec: fix a deadlock situation
 To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1muAFl-008lYL-6r@www.linuxtv.org>
+Message-Id: <E1muAFl-008lY2-4q@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: cec-pin: fix interrupt en/disable handling
+Subject: media: cec: fix a deadlock situation
 Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Date:    Wed Dec 1 13:41:25 2021 +0100
+Date:    Wed Dec 1 13:41:26 2021 +0100
 
-The en/disable_irq() functions keep track of the 'depth': i.e. if
-interrupts are disabled twice, then it needs to enable_irq() calls to
-enable them again. The cec-pin framework didn't take this into accound
-and could disable irqs multiple times, and it expected that a single
-enable_irq() would enable them again.
+The cec_devnode struct has a lock meant to serialize access
+to the fields of this struct. This lock is taken during
+device node (un)registration and when opening or releasing a
+filehandle to the device node. When the last open filehandle
+is closed the cec adapter might be disabled by calling the
+adap_enable driver callback with the devnode.lock held.
 
-Move all calls to en/disable_irq() to the kthread where it is easy
-to keep track of the current irq state and ensure that multiple
-en/disable_irq calls never happen.
+However, if during that callback a message or event arrives
+then the driver will call one of the cec_queue_event()
+variants in cec-adap.c, and those will take the same devnode.lock
+to walk the open filehandle list.
 
-If interrupts where disabled twice, then they would never turn on
-again, leaving the CEC adapter in a dead state.
+This obviously causes a deadlock.
+
+This is quite easy to reproduce with the cec-gpio driver since that
+uses the cec-pin framework which generated lots of events and uses
+a kernel thread for the processing, so when adap_enable is called
+the thread is still running and can generate events.
+
+But I suspect that it might also happen with other drivers if an
+interrupt arrives signaling e.g. a received message before adap_enable
+had a chance to disable the interrupts.
+
+This patch adds a new mutex to serialize access to the fhs list.
+When adap_enable() is called the devnode.lock mutex is held, but
+not devnode.lock_fhs. The event functions in cec-adap.c will now
+use devnode.lock_fhs instead of devnode.lock, ensuring that it is
+safe to call those functions from the adap_enable callback.
+
+This specific issue only happens if the last open filehandle is closed
+and the physical address is invalid. This is not something that
+happens during normal operation, but it does happen when monitoring
+CEC traffic (e.g. cec-ctl --monitor) with an unconfigured CEC adapter.
 
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 865463fc03ed (media: cec-pin: add error injection support)
-Cc: <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>  # for v5.13 and up
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
- drivers/media/cec/core/cec-pin.c | 31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+ drivers/media/cec/core/cec-adap.c | 38 +++++++++++++++++++++-----------------
+ drivers/media/cec/core/cec-api.c  |  6 ++++++
+ drivers/media/cec/core/cec-core.c |  3 +++
+ include/media/cec.h               | 11 +++++++++--
+ 4 files changed, 39 insertions(+), 19 deletions(-)
 
 ---
 
-diff --git a/drivers/media/cec/core/cec-pin.c b/drivers/media/cec/core/cec-pin.c
-index 2b6459df1e94..21f0f749713e 100644
---- a/drivers/media/cec/core/cec-pin.c
-+++ b/drivers/media/cec/core/cec-pin.c
-@@ -1033,6 +1033,7 @@ static int cec_pin_thread_func(void *_adap)
+diff --git a/drivers/media/cec/core/cec-adap.c b/drivers/media/cec/core/cec-adap.c
+index da73eb50cce2..857d6b1612c2 100644
+--- a/drivers/media/cec/core/cec-adap.c
++++ b/drivers/media/cec/core/cec-adap.c
+@@ -161,10 +161,10 @@ static void cec_queue_event(struct cec_adapter *adap,
+ 	u64 ts = ktime_get_ns();
+ 	struct cec_fh *fh;
+ 
+-	mutex_lock(&adap->devnode.lock);
++	mutex_lock(&adap->devnode.lock_fhs);
+ 	list_for_each_entry(fh, &adap->devnode.fhs, list)
+ 		cec_queue_event_fh(fh, ev, ts);
+-	mutex_unlock(&adap->devnode.lock);
++	mutex_unlock(&adap->devnode.lock_fhs);
+ }
+ 
+ /* Notify userspace that the CEC pin changed state at the given time. */
+@@ -178,11 +178,12 @@ void cec_queue_pin_cec_event(struct cec_adapter *adap, bool is_high,
+ 	};
+ 	struct cec_fh *fh;
+ 
+-	mutex_lock(&adap->devnode.lock);
+-	list_for_each_entry(fh, &adap->devnode.fhs, list)
++	mutex_lock(&adap->devnode.lock_fhs);
++	list_for_each_entry(fh, &adap->devnode.fhs, list) {
+ 		if (fh->mode_follower == CEC_MODE_MONITOR_PIN)
+ 			cec_queue_event_fh(fh, &ev, ktime_to_ns(ts));
+-	mutex_unlock(&adap->devnode.lock);
++	}
++	mutex_unlock(&adap->devnode.lock_fhs);
+ }
+ EXPORT_SYMBOL_GPL(cec_queue_pin_cec_event);
+ 
+@@ -195,10 +196,10 @@ void cec_queue_pin_hpd_event(struct cec_adapter *adap, bool is_high, ktime_t ts)
+ 	};
+ 	struct cec_fh *fh;
+ 
+-	mutex_lock(&adap->devnode.lock);
++	mutex_lock(&adap->devnode.lock_fhs);
+ 	list_for_each_entry(fh, &adap->devnode.fhs, list)
+ 		cec_queue_event_fh(fh, &ev, ktime_to_ns(ts));
+-	mutex_unlock(&adap->devnode.lock);
++	mutex_unlock(&adap->devnode.lock_fhs);
+ }
+ EXPORT_SYMBOL_GPL(cec_queue_pin_hpd_event);
+ 
+@@ -211,10 +212,10 @@ void cec_queue_pin_5v_event(struct cec_adapter *adap, bool is_high, ktime_t ts)
+ 	};
+ 	struct cec_fh *fh;
+ 
+-	mutex_lock(&adap->devnode.lock);
++	mutex_lock(&adap->devnode.lock_fhs);
+ 	list_for_each_entry(fh, &adap->devnode.fhs, list)
+ 		cec_queue_event_fh(fh, &ev, ktime_to_ns(ts));
+-	mutex_unlock(&adap->devnode.lock);
++	mutex_unlock(&adap->devnode.lock_fhs);
+ }
+ EXPORT_SYMBOL_GPL(cec_queue_pin_5v_event);
+ 
+@@ -286,12 +287,12 @@ static void cec_queue_msg_monitor(struct cec_adapter *adap,
+ 	u32 monitor_mode = valid_la ? CEC_MODE_MONITOR :
+ 				      CEC_MODE_MONITOR_ALL;
+ 
+-	mutex_lock(&adap->devnode.lock);
++	mutex_lock(&adap->devnode.lock_fhs);
+ 	list_for_each_entry(fh, &adap->devnode.fhs, list) {
+ 		if (fh->mode_follower >= monitor_mode)
+ 			cec_queue_msg_fh(fh, msg);
+ 	}
+-	mutex_unlock(&adap->devnode.lock);
++	mutex_unlock(&adap->devnode.lock_fhs);
+ }
+ 
+ /*
+@@ -302,12 +303,12 @@ static void cec_queue_msg_followers(struct cec_adapter *adap,
  {
- 	struct cec_adapter *adap = _adap;
- 	struct cec_pin *pin = adap->pin;
-+	bool irq_enabled = false;
+ 	struct cec_fh *fh;
  
- 	for (;;) {
- 		wait_event_interruptible(pin->kthread_waitq,
-@@ -1060,6 +1061,7 @@ static int cec_pin_thread_func(void *_adap)
- 				ns_to_ktime(pin->work_rx_msg.rx_ts));
- 			msg->len = 0;
- 		}
-+
- 		if (pin->work_tx_status) {
- 			unsigned int tx_status = pin->work_tx_status;
- 
-@@ -1083,27 +1085,39 @@ static int cec_pin_thread_func(void *_adap)
- 		switch (atomic_xchg(&pin->work_irq_change,
- 				    CEC_PIN_IRQ_UNCHANGED)) {
- 		case CEC_PIN_IRQ_DISABLE:
--			pin->ops->disable_irq(adap);
-+			if (irq_enabled) {
-+				pin->ops->disable_irq(adap);
-+				irq_enabled = false;
-+			}
- 			cec_pin_high(pin);
- 			cec_pin_to_idle(pin);
- 			hrtimer_start(&pin->timer, ns_to_ktime(0),
- 				      HRTIMER_MODE_REL);
- 			break;
- 		case CEC_PIN_IRQ_ENABLE:
-+			if (irq_enabled)
-+				break;
- 			pin->enable_irq_failed = !pin->ops->enable_irq(adap);
- 			if (pin->enable_irq_failed) {
- 				cec_pin_to_idle(pin);
- 				hrtimer_start(&pin->timer, ns_to_ktime(0),
- 					      HRTIMER_MODE_REL);
-+			} else {
-+				irq_enabled = true;
- 			}
- 			break;
- 		default:
- 			break;
- 		}
--
- 		if (kthread_should_stop())
- 			break;
+-	mutex_lock(&adap->devnode.lock);
++	mutex_lock(&adap->devnode.lock_fhs);
+ 	list_for_each_entry(fh, &adap->devnode.fhs, list) {
+ 		if (fh->mode_follower == CEC_MODE_FOLLOWER)
+ 			cec_queue_msg_fh(fh, msg);
  	}
-+	if (pin->ops->disable_irq && irq_enabled)
-+		pin->ops->disable_irq(adap);
-+	hrtimer_cancel(&pin->timer);
-+	cec_pin_read(pin);
-+	cec_pin_to_idle(pin);
-+	pin->state = CEC_ST_OFF;
- 	return 0;
+-	mutex_unlock(&adap->devnode.lock);
++	mutex_unlock(&adap->devnode.lock_fhs);
  }
  
-@@ -1129,13 +1143,7 @@ static int cec_pin_adap_enable(struct cec_adapter *adap, bool enable)
- 		hrtimer_start(&pin->timer, ns_to_ktime(0),
- 			      HRTIMER_MODE_REL);
- 	} else {
--		if (pin->ops->disable_irq)
--			pin->ops->disable_irq(adap);
--		hrtimer_cancel(&pin->timer);
- 		kthread_stop(pin->kthread);
--		cec_pin_read(pin);
--		cec_pin_to_idle(pin);
--		pin->state = CEC_ST_OFF;
+ /* Notify userspace of an adapter state change. */
+@@ -1578,6 +1579,7 @@ void __cec_s_phys_addr(struct cec_adapter *adap, u16 phys_addr, bool block)
+ 		/* Disabling monitor all mode should always succeed */
+ 		if (adap->monitor_all_cnt)
+ 			WARN_ON(call_op(adap, adap_monitor_all_enable, false));
++		/* serialize adap_enable */
+ 		mutex_lock(&adap->devnode.lock);
+ 		if (adap->needs_hpd || list_empty(&adap->devnode.fhs)) {
+ 			WARN_ON(adap->ops->adap_enable(adap, false));
+@@ -1589,14 +1591,16 @@ void __cec_s_phys_addr(struct cec_adapter *adap, u16 phys_addr, bool block)
+ 			return;
  	}
+ 
++	/* serialize adap_enable */
+ 	mutex_lock(&adap->devnode.lock);
+ 	adap->last_initiator = 0xff;
+ 	adap->transmit_in_progress = false;
+ 
+-	if ((adap->needs_hpd || list_empty(&adap->devnode.fhs)) &&
+-	    adap->ops->adap_enable(adap, true)) {
+-		mutex_unlock(&adap->devnode.lock);
+-		return;
++	if (adap->needs_hpd || list_empty(&adap->devnode.fhs)) {
++		if (adap->ops->adap_enable(adap, true)) {
++			mutex_unlock(&adap->devnode.lock);
++			return;
++		}
+ 	}
+ 
+ 	if (adap->monitor_all_cnt &&
+diff --git a/drivers/media/cec/core/cec-api.c b/drivers/media/cec/core/cec-api.c
+index 0edb7142afdb..d72ad48c9898 100644
+--- a/drivers/media/cec/core/cec-api.c
++++ b/drivers/media/cec/core/cec-api.c
+@@ -586,6 +586,7 @@ static int cec_open(struct inode *inode, struct file *filp)
+ 		return err;
+ 	}
+ 
++	/* serialize adap_enable */
+ 	mutex_lock(&devnode->lock);
+ 	if (list_empty(&devnode->fhs) &&
+ 	    !adap->needs_hpd &&
+@@ -624,7 +625,9 @@ static int cec_open(struct inode *inode, struct file *filp)
+ 	}
+ #endif
+ 
++	mutex_lock(&devnode->lock_fhs);
+ 	list_add(&fh->list, &devnode->fhs);
++	mutex_unlock(&devnode->lock_fhs);
+ 	mutex_unlock(&devnode->lock);
+ 
  	return 0;
- }
-@@ -1156,11 +1164,8 @@ void cec_pin_start_timer(struct cec_pin *pin)
- 	if (pin->state != CEC_ST_RX_IRQ)
- 		return;
+@@ -653,8 +656,11 @@ static int cec_release(struct inode *inode, struct file *filp)
+ 		cec_monitor_all_cnt_dec(adap);
+ 	mutex_unlock(&adap->lock);
  
--	atomic_set(&pin->work_irq_change, CEC_PIN_IRQ_UNCHANGED);
--	pin->ops->disable_irq(pin->adap);
--	cec_pin_high(pin);
--	cec_pin_to_idle(pin);
--	hrtimer_start(&pin->timer, ns_to_ktime(0), HRTIMER_MODE_REL);
-+	atomic_set(&pin->work_irq_change, CEC_PIN_IRQ_DISABLE);
-+	wake_up_interruptible(&pin->kthread_waitq);
- }
++	/* serialize adap_enable */
+ 	mutex_lock(&devnode->lock);
++	mutex_lock(&devnode->lock_fhs);
+ 	list_del(&fh->list);
++	mutex_unlock(&devnode->lock_fhs);
+ 	if (cec_is_registered(adap) && list_empty(&devnode->fhs) &&
+ 	    !adap->needs_hpd && adap->phys_addr == CEC_PHYS_ADDR_INVALID) {
+ 		WARN_ON(adap->ops->adap_enable(adap, false));
+diff --git a/drivers/media/cec/core/cec-core.c b/drivers/media/cec/core/cec-core.c
+index 551689d371a7..ec67065d5202 100644
+--- a/drivers/media/cec/core/cec-core.c
++++ b/drivers/media/cec/core/cec-core.c
+@@ -169,8 +169,10 @@ static void cec_devnode_unregister(struct cec_adapter *adap)
+ 	devnode->registered = false;
+ 	devnode->unregistered = true;
  
- static int cec_pin_adap_transmit(struct cec_adapter *adap, u8 attempts,
++	mutex_lock(&devnode->lock_fhs);
+ 	list_for_each_entry(fh, &devnode->fhs, list)
+ 		wake_up_interruptible(&fh->wait);
++	mutex_unlock(&devnode->lock_fhs);
+ 
+ 	mutex_unlock(&devnode->lock);
+ 
+@@ -272,6 +274,7 @@ struct cec_adapter *cec_allocate_adapter(const struct cec_adap_ops *ops,
+ 
+ 	/* adap->devnode initialization */
+ 	INIT_LIST_HEAD(&adap->devnode.fhs);
++	mutex_init(&adap->devnode.lock_fhs);
+ 	mutex_init(&adap->devnode.lock);
+ 
+ 	adap->kthread = kthread_run(cec_thread_func, adap, "cec-%s", name);
+diff --git a/include/media/cec.h b/include/media/cec.h
+index 208c9613c07e..77346f757036 100644
+--- a/include/media/cec.h
++++ b/include/media/cec.h
+@@ -26,13 +26,17 @@
+  * @dev:	cec device
+  * @cdev:	cec character device
+  * @minor:	device node minor number
++ * @lock:	lock to serialize open/release and registration
+  * @registered:	the device was correctly registered
+  * @unregistered: the device was unregistered
++ * @lock_fhs:	lock to control access to @fhs
+  * @fhs:	the list of open filehandles (cec_fh)
+- * @lock:	lock to control access to this structure
+  *
+  * This structure represents a cec-related device node.
+  *
++ * To add or remove filehandles from @fhs the @lock must be taken first,
++ * followed by @lock_fhs. It is safe to access @fhs if either lock is held.
++ *
+  * The @parent is a physical device. It must be set by core or device drivers
+  * before registering the node.
+  */
+@@ -43,10 +47,13 @@ struct cec_devnode {
+ 
+ 	/* device info */
+ 	int minor;
++	/* serialize open/release and registration */
++	struct mutex lock;
+ 	bool registered;
+ 	bool unregistered;
++	/* protect access to fhs */
++	struct mutex lock_fhs;
+ 	struct list_head fhs;
+-	struct mutex lock;
+ };
+ 
+ struct cec_adapter;
