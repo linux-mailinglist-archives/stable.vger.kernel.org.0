@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D63469AA1
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:05:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7EC469C86
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344956AbhLFPJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:09:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40488 "EHLO
+        id S1358515AbhLFPXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:21 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54424 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345833AbhLFPHX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:07:23 -0500
+        with ESMTP id S1347104AbhLFPVT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B487B81123;
-        Mon,  6 Dec 2021 15:03:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9215DC341C1;
-        Mon,  6 Dec 2021 15:03:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F18FB810E7;
+        Mon,  6 Dec 2021 15:17:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 635F0C341C2;
+        Mon,  6 Dec 2021 15:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803031;
-        bh=M8HEae/UF5ZV1fSaVZ5VZW210U26HTBby91n/IkM/kk=;
+        s=korg; t=1638803868;
+        bh=i+jgwPIrm0lnwRxNLGX7q2jp31+Kqd9MHs7MUO9ZOfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KW9BxjA4K4CSR/04zjn9Vo6a41A7VPPhVi+6LnWhk5a4IXCounzZY+xgwkhVVc7BK
-         q3U58QGKsPyf6tcDNjcupVnL4h3nwvnEMfO+wzhUPKRN+C6ELBPohr8n86Cm8Rkn5d
-         aqd5vctPRsHyFlYmcYYjrkeB+J8vYaSqkgROYIbM=
+        b=LpRo4IhaqBrxHRwuUiiOrpLhtl7GKWXXu0tuLgaejOE48T+6sn4xDrA8hCx9Tc20y
+         gXUqupnQtEPaJvOnukhnAYGxbWpPImAqo14ZsRFo5b3k6QN7WlPMpPriuuj7Bp8Wob
+         TlaVdSBymc0/oKl2V2YR+GALLCpohncKuTtGprXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.9 50/62] sata_fsl: fix UAF in sata_fsl_port_stop when rmmod sata_fsl
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 076/130] ASoC: tegra: Fix wrong value type in DMIC
 Date:   Mon,  6 Dec 2021 15:56:33 +0100
-Message-Id: <20211206145550.938064733@linuxfoundation.org>
+Message-Id: <20211206145602.296631883@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Sameer Pujar <spujar@nvidia.com>
 
-commit 6c8ad7e8cf29eb55836e7a0215f967746ab2b504 upstream.
+commit 559d234569a998a4004de1bd1f12da5487fb826e upstream.
 
-When the `rmmod sata_fsl.ko` command is executed in the PPC64 GNU/Linux,
-a bug is reported:
- ==================================================================
- BUG: Unable to handle kernel data access on read at 0x80000800805b502c
- Oops: Kernel access of bad area, sig: 11 [#1]
- NIP [c0000000000388a4] .ioread32+0x4/0x20
- LR [80000000000c6034] .sata_fsl_port_stop+0x44/0xe0 [sata_fsl]
- Call Trace:
-  .free_irq+0x1c/0x4e0 (unreliable)
-  .ata_host_stop+0x74/0xd0 [libata]
-  .release_nodes+0x330/0x3f0
-  .device_release_driver_internal+0x178/0x2c0
-  .driver_detach+0x64/0xd0
-  .bus_remove_driver+0x70/0xf0
-  .driver_unregister+0x38/0x80
-  .platform_driver_unregister+0x14/0x30
-  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
-  .__se_sys_delete_module+0x1ec/0x2d0
-  .system_call_exception+0xfc/0x1f0
-  system_call_common+0xf8/0x200
- ==================================================================
+The enum controls are expected to use enumerated value type.
+Update relevant references in control get/put callbacks.
 
-The triggering of the BUG is shown in the following stack:
-
-driver_detach
-  device_release_driver_internal
-    __device_release_driver
-      drv->remove(dev) --> platform_drv_remove/platform_remove
-        drv->remove(dev) --> sata_fsl_remove
-          iounmap(host_priv->hcr_base);			<---- unmap
-          kfree(host_priv);                             <---- free
-      devres_release_all
-        release_nodes
-          dr->node.release(dev, dr->data) --> ata_host_stop
-            ap->ops->port_stop(ap) --> sata_fsl_port_stop
-                ioread32(hcr_base + HCONTROL)           <---- UAF
-            host->ops->host_stop(host)
-
-The iounmap(host_priv->hcr_base) and kfree(host_priv) functions should
-not be executed in drv->remove. These functions should be executed in
-host_stop after port_stop. Therefore, we move these functions to the
-new function sata_fsl_host_stop and bind the new function to host_stop.
-
-Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 8c8ff982e9e2 ("ASoC: tegra: Add Tegra210 based DMIC driver")
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/1637219231-406-4-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_fsl.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ sound/soc/tegra/tegra210_dmic.c |   23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
---- a/drivers/ata/sata_fsl.c
-+++ b/drivers/ata/sata_fsl.c
-@@ -1406,6 +1406,14 @@ static int sata_fsl_init_controller(stru
+--- a/sound/soc/tegra/tegra210_dmic.c
++++ b/sound/soc/tegra/tegra210_dmic.c
+@@ -165,15 +165,15 @@ static int tegra210_dmic_get_control(str
+ 	if (strstr(kcontrol->id.name, "Boost Gain Volume"))
+ 		ucontrol->value.integer.value[0] = dmic->boost_gain;
+ 	else if (strstr(kcontrol->id.name, "Channel Select"))
+-		ucontrol->value.integer.value[0] = dmic->ch_select;
++		ucontrol->value.enumerated.item[0] = dmic->ch_select;
+ 	else if (strstr(kcontrol->id.name, "Mono To Stereo"))
+-		ucontrol->value.integer.value[0] = dmic->mono_to_stereo;
++		ucontrol->value.enumerated.item[0] = dmic->mono_to_stereo;
+ 	else if (strstr(kcontrol->id.name, "Stereo To Mono"))
+-		ucontrol->value.integer.value[0] = dmic->stereo_to_mono;
++		ucontrol->value.enumerated.item[0] = dmic->stereo_to_mono;
+ 	else if (strstr(kcontrol->id.name, "OSR Value"))
+-		ucontrol->value.integer.value[0] = dmic->osr_val;
++		ucontrol->value.enumerated.item[0] = dmic->osr_val;
+ 	else if (strstr(kcontrol->id.name, "LR Polarity Select"))
+-		ucontrol->value.integer.value[0] = dmic->lrsel;
++		ucontrol->value.enumerated.item[0] = dmic->lrsel;
+ 
  	return 0;
  }
+@@ -183,20 +183,19 @@ static int tegra210_dmic_put_control(str
+ {
+ 	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
+-	int value = ucontrol->value.integer.value[0];
  
-+static void sata_fsl_host_stop(struct ata_host *host)
-+{
-+        struct sata_fsl_host_priv *host_priv = host->private_data;
-+
-+        iounmap(host_priv->hcr_base);
-+        kfree(host_priv);
-+}
-+
- /*
-  * scsi mid-layer and libata interface structures
-  */
-@@ -1438,6 +1446,8 @@ static struct ata_port_operations sata_f
- 	.port_start = sata_fsl_port_start,
- 	.port_stop = sata_fsl_port_stop,
- 
-+	.host_stop      = sata_fsl_host_stop,
-+
- 	.pmp_attach = sata_fsl_pmp_attach,
- 	.pmp_detach = sata_fsl_pmp_detach,
- };
-@@ -1572,8 +1582,6 @@ static int sata_fsl_remove(struct platfo
- 	ata_host_detach(host);
- 
- 	irq_dispose_mapping(host_priv->irq);
--	iounmap(host_priv->hcr_base);
--	kfree(host_priv);
+ 	if (strstr(kcontrol->id.name, "Boost Gain Volume"))
+-		dmic->boost_gain = value;
++		dmic->boost_gain = ucontrol->value.integer.value[0];
+ 	else if (strstr(kcontrol->id.name, "Channel Select"))
+-		dmic->ch_select = ucontrol->value.integer.value[0];
++		dmic->ch_select = ucontrol->value.enumerated.item[0];
+ 	else if (strstr(kcontrol->id.name, "Mono To Stereo"))
+-		dmic->mono_to_stereo = value;
++		dmic->mono_to_stereo = ucontrol->value.enumerated.item[0];
+ 	else if (strstr(kcontrol->id.name, "Stereo To Mono"))
+-		dmic->stereo_to_mono = value;
++		dmic->stereo_to_mono = ucontrol->value.enumerated.item[0];
+ 	else if (strstr(kcontrol->id.name, "OSR Value"))
+-		dmic->osr_val = value;
++		dmic->osr_val = ucontrol->value.enumerated.item[0];
+ 	else if (strstr(kcontrol->id.name, "LR Polarity Select"))
+-		dmic->lrsel = value;
++		dmic->lrsel = ucontrol->value.enumerated.item[0];
  
  	return 0;
  }
