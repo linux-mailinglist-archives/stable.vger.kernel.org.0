@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B5D8469F02
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF00C469A0E
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391214AbhLFPpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33048 "EHLO
+        id S1345051AbhLFPFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:05:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389531AbhLFPk3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:40:29 -0500
+        with ESMTP id S1345722AbhLFPE4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E342DC08EC72;
-        Mon,  6 Dec 2021 07:25:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04BACC0698CB;
+        Mon,  6 Dec 2021 07:01:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73747B81126;
-        Mon,  6 Dec 2021 15:25:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A880C34902;
-        Mon,  6 Dec 2021 15:24:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6EF3B81118;
+        Mon,  6 Dec 2021 15:01:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09DA9C341C1;
+        Mon,  6 Dec 2021 15:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804300;
-        bh=4VBJLaUNb63cWfnxxofnl510akopAl+BzY2QnSWSgyI=;
+        s=korg; t=1638802884;
+        bh=ZD2mWSV3ePzau/4DyXKXKwtar36HxC0s/POOFGwy+uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bL4X8OHNOzHtfdhO6ZIZx0KPpNY4A6FiQS1fv0ekLo11A1y+MWbr6Q9bx5MuOKeN5
-         gYE+J92t6HqpXs+Js0+CjcI2C3bRjCisu1h0tyb9k0jZYqyXDmx32wcsUNFzyTu+x6
-         wcVXjz7/yKPZluL9XXkhegpmCKr7MASXjp6Kjmic=
+        b=LBLRLO8t8lj3sbr2VSB9xvOZlk68eD9f4G1Zo2c/QI1z4zuzkLC1UlIu+5B1C5QnV
+         4B36huqSF1acQlB3WQGiM0e6RxRB2H1t+NiC+gwdotIm7/SE0lKleczjNopPQXw6+a
+         TBjT0j5HrPYdZ+mzHOsatWXjV69ZcetzHcNio97M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Streun Fabio <fstreun@student.ethz.ch>,
-        Joel Wanner <joel.wanner@inf.ethz.ch>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 096/207] wireguard: receive: use ring buffer for incoming handshakes
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 07/62] ALSA: ctxfi: Fix out-of-range access
 Date:   Mon,  6 Dec 2021 15:55:50 +0100
-Message-Id: <20211206145613.563349712@linuxfoundation.org>
+Message-Id: <20211206145549.416249226@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,251 +46,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 886fcee939adb5e2af92741b90643a59f2b54f97 upstream.
+commit 76c47183224c86e4011048b80f0e2d0d166f01c2 upstream.
 
-Apparently the spinlock on incoming_handshake's skb_queue is highly
-contended, and a torrent of handshake or cookie packets can bring the
-data plane to its knees, simply by virtue of enqueueing the handshake
-packets to be processed asynchronously. So, we try switching this to a
-ring buffer to hopefully have less lock contention. This alleviates the
-problem somewhat, though it still isn't perfect, so future patches will
-have to improve this further. However, it at least doesn't completely
-diminish the data plane.
+The master and next_conj of rcs_ops are used for iterating the
+resource list entries, and currently those are supposed to return the
+current value.  The problem is that next_conf may go over the last
+entry before the loop abort condition is evaluated, and it may return
+the "current" value that is beyond the array size.  It was caught
+recently as a GPF, for example.
 
-Reported-by: Streun Fabio <fstreun@student.ethz.ch>
-Reported-by: Joel Wanner <joel.wanner@inf.ethz.ch>
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Those return values are, however, never actually evaluated, hence
+basically we don't have to consider the current value as the return at
+all.  By dropping those return values, the potential out-of-range
+access above is also fixed automatically.
+
+This patch changes the return type of master and next_conj callbacks
+to void and drop the superfluous code accordingly.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214985
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211118215729.26257-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/device.c   |   36 ++++++++++++++++++------------------
- drivers/net/wireguard/device.h   |    9 +++------
- drivers/net/wireguard/queueing.c |    6 +++---
- drivers/net/wireguard/queueing.h |    2 +-
- drivers/net/wireguard/receive.c  |   27 ++++++++++++---------------
- 5 files changed, 37 insertions(+), 43 deletions(-)
+ sound/pci/ctxfi/ctamixer.c   |   14 ++++++--------
+ sound/pci/ctxfi/ctdaio.c     |   16 ++++++++--------
+ sound/pci/ctxfi/ctresource.c |    7 +++----
+ sound/pci/ctxfi/ctresource.h |    4 ++--
+ sound/pci/ctxfi/ctsrc.c      |    7 +++----
+ 5 files changed, 22 insertions(+), 26 deletions(-)
 
---- a/drivers/net/wireguard/device.c
-+++ b/drivers/net/wireguard/device.c
-@@ -98,6 +98,7 @@ static int wg_stop(struct net_device *de
+--- a/sound/pci/ctxfi/ctamixer.c
++++ b/sound/pci/ctxfi/ctamixer.c
+@@ -27,16 +27,15 @@
+ 
+ #define BLANK_SLOT		4094
+ 
+-static int amixer_master(struct rsc *rsc)
++static void amixer_master(struct rsc *rsc)
  {
- 	struct wg_device *wg = netdev_priv(dev);
- 	struct wg_peer *peer;
-+	struct sk_buff *skb;
- 
- 	mutex_lock(&wg->device_update_lock);
- 	list_for_each_entry(peer, &wg->peer_list, peer_list) {
-@@ -108,7 +109,9 @@ static int wg_stop(struct net_device *de
- 		wg_noise_reset_last_sent_handshake(&peer->last_sent_handshake);
- 	}
- 	mutex_unlock(&wg->device_update_lock);
--	skb_queue_purge(&wg->incoming_handshakes);
-+	while ((skb = ptr_ring_consume(&wg->handshake_queue.ring)) != NULL)
-+		kfree_skb(skb);
-+	atomic_set(&wg->handshake_queue_len, 0);
- 	wg_socket_reinit(wg, NULL, NULL);
- 	return 0;
- }
-@@ -235,14 +238,13 @@ static void wg_destruct(struct net_devic
- 	destroy_workqueue(wg->handshake_receive_wq);
- 	destroy_workqueue(wg->handshake_send_wq);
- 	destroy_workqueue(wg->packet_crypt_wq);
--	wg_packet_queue_free(&wg->decrypt_queue);
--	wg_packet_queue_free(&wg->encrypt_queue);
-+	wg_packet_queue_free(&wg->handshake_queue, true);
-+	wg_packet_queue_free(&wg->decrypt_queue, false);
-+	wg_packet_queue_free(&wg->encrypt_queue, false);
- 	rcu_barrier(); /* Wait for all the peers to be actually freed. */
- 	wg_ratelimiter_uninit();
- 	memzero_explicit(&wg->static_identity, sizeof(wg->static_identity));
--	skb_queue_purge(&wg->incoming_handshakes);
- 	free_percpu(dev->tstats);
--	free_percpu(wg->incoming_handshakes_worker);
- 	kvfree(wg->index_hashtable);
- 	kvfree(wg->peer_hashtable);
- 	mutex_unlock(&wg->device_update_lock);
-@@ -298,7 +300,6 @@ static int wg_newlink(struct net *src_ne
- 	init_rwsem(&wg->static_identity.lock);
- 	mutex_init(&wg->socket_update_lock);
- 	mutex_init(&wg->device_update_lock);
--	skb_queue_head_init(&wg->incoming_handshakes);
- 	wg_allowedips_init(&wg->peer_allowedips);
- 	wg_cookie_checker_init(&wg->cookie_checker, wg);
- 	INIT_LIST_HEAD(&wg->peer_list);
-@@ -316,16 +317,10 @@ static int wg_newlink(struct net *src_ne
- 	if (!dev->tstats)
- 		goto err_free_index_hashtable;
- 
--	wg->incoming_handshakes_worker =
--		wg_packet_percpu_multicore_worker_alloc(
--				wg_packet_handshake_receive_worker, wg);
--	if (!wg->incoming_handshakes_worker)
--		goto err_free_tstats;
--
- 	wg->handshake_receive_wq = alloc_workqueue("wg-kex-%s",
- 			WQ_CPU_INTENSIVE | WQ_FREEZABLE, 0, dev->name);
- 	if (!wg->handshake_receive_wq)
--		goto err_free_incoming_handshakes;
-+		goto err_free_tstats;
- 
- 	wg->handshake_send_wq = alloc_workqueue("wg-kex-%s",
- 			WQ_UNBOUND | WQ_FREEZABLE, 0, dev->name);
-@@ -347,10 +342,15 @@ static int wg_newlink(struct net *src_ne
- 	if (ret < 0)
- 		goto err_free_encrypt_queue;
- 
--	ret = wg_ratelimiter_init();
-+	ret = wg_packet_queue_init(&wg->handshake_queue, wg_packet_handshake_receive_worker,
-+				   MAX_QUEUED_INCOMING_HANDSHAKES);
- 	if (ret < 0)
- 		goto err_free_decrypt_queue;
- 
-+	ret = wg_ratelimiter_init();
-+	if (ret < 0)
-+		goto err_free_handshake_queue;
-+
- 	ret = register_netdevice(dev);
- 	if (ret < 0)
- 		goto err_uninit_ratelimiter;
-@@ -367,18 +367,18 @@ static int wg_newlink(struct net *src_ne
- 
- err_uninit_ratelimiter:
- 	wg_ratelimiter_uninit();
-+err_free_handshake_queue:
-+	wg_packet_queue_free(&wg->handshake_queue, false);
- err_free_decrypt_queue:
--	wg_packet_queue_free(&wg->decrypt_queue);
-+	wg_packet_queue_free(&wg->decrypt_queue, false);
- err_free_encrypt_queue:
--	wg_packet_queue_free(&wg->encrypt_queue);
-+	wg_packet_queue_free(&wg->encrypt_queue, false);
- err_destroy_packet_crypt:
- 	destroy_workqueue(wg->packet_crypt_wq);
- err_destroy_handshake_send:
- 	destroy_workqueue(wg->handshake_send_wq);
- err_destroy_handshake_receive:
- 	destroy_workqueue(wg->handshake_receive_wq);
--err_free_incoming_handshakes:
--	free_percpu(wg->incoming_handshakes_worker);
- err_free_tstats:
- 	free_percpu(dev->tstats);
- err_free_index_hashtable:
---- a/drivers/net/wireguard/device.h
-+++ b/drivers/net/wireguard/device.h
-@@ -39,21 +39,18 @@ struct prev_queue {
- 
- struct wg_device {
- 	struct net_device *dev;
--	struct crypt_queue encrypt_queue, decrypt_queue;
-+	struct crypt_queue encrypt_queue, decrypt_queue, handshake_queue;
- 	struct sock __rcu *sock4, *sock6;
- 	struct net __rcu *creating_net;
- 	struct noise_static_identity static_identity;
--	struct workqueue_struct *handshake_receive_wq, *handshake_send_wq;
--	struct workqueue_struct *packet_crypt_wq;
--	struct sk_buff_head incoming_handshakes;
--	int incoming_handshake_cpu;
--	struct multicore_worker __percpu *incoming_handshakes_worker;
-+	struct workqueue_struct *packet_crypt_wq,*handshake_receive_wq, *handshake_send_wq;
- 	struct cookie_checker cookie_checker;
- 	struct pubkey_hashtable *peer_hashtable;
- 	struct index_hashtable *index_hashtable;
- 	struct allowedips peer_allowedips;
- 	struct mutex device_update_lock, socket_update_lock;
- 	struct list_head device_list, peer_list;
-+	atomic_t handshake_queue_len;
- 	unsigned int num_peers, device_update_gen;
- 	u32 fwmark;
- 	u16 incoming_port;
---- a/drivers/net/wireguard/queueing.c
-+++ b/drivers/net/wireguard/queueing.c
-@@ -38,11 +38,11 @@ int wg_packet_queue_init(struct crypt_qu
- 	return 0;
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
  }
  
--void wg_packet_queue_free(struct crypt_queue *queue)
-+void wg_packet_queue_free(struct crypt_queue *queue, bool purge)
+-static int amixer_next_conj(struct rsc *rsc)
++static void amixer_next_conj(struct rsc *rsc)
  {
- 	free_percpu(queue->worker);
--	WARN_ON(!__ptr_ring_empty(&queue->ring));
--	ptr_ring_cleanup(&queue->ring, NULL);
-+	WARN_ON(!purge && !__ptr_ring_empty(&queue->ring));
-+	ptr_ring_cleanup(&queue->ring, purge ? (void(*)(void*))kfree_skb : NULL);
+ 	rsc->conj++;
+-	return container_of(rsc, struct amixer, rsc)->idx[rsc->conj];
  }
  
- #define NEXT(skb) ((skb)->prev)
---- a/drivers/net/wireguard/queueing.h
-+++ b/drivers/net/wireguard/queueing.h
-@@ -23,7 +23,7 @@ struct sk_buff;
- /* queueing.c APIs: */
- int wg_packet_queue_init(struct crypt_queue *queue, work_func_t function,
- 			 unsigned int len);
--void wg_packet_queue_free(struct crypt_queue *queue);
-+void wg_packet_queue_free(struct crypt_queue *queue, bool purge);
- struct multicore_worker __percpu *
- wg_packet_percpu_multicore_worker_alloc(work_func_t function, void *ptr);
+ static int amixer_index(const struct rsc *rsc)
+@@ -335,16 +334,15 @@ int amixer_mgr_destroy(struct amixer_mgr
  
---- a/drivers/net/wireguard/receive.c
-+++ b/drivers/net/wireguard/receive.c
-@@ -116,8 +116,8 @@ static void wg_receive_handshake_packet(
- 		return;
- 	}
+ /* SUM resource management */
  
--	under_load = skb_queue_len(&wg->incoming_handshakes) >=
--		     MAX_QUEUED_INCOMING_HANDSHAKES / 8;
-+	under_load = atomic_read(&wg->handshake_queue_len) >=
-+			MAX_QUEUED_INCOMING_HANDSHAKES / 8;
- 	if (under_load) {
- 		last_under_load = ktime_get_coarse_boottime_ns();
- 	} else if (last_under_load) {
-@@ -212,13 +212,14 @@ static void wg_receive_handshake_packet(
- 
- void wg_packet_handshake_receive_worker(struct work_struct *work)
+-static int sum_master(struct rsc *rsc)
++static void sum_master(struct rsc *rsc)
  {
--	struct wg_device *wg = container_of(work, struct multicore_worker,
--					    work)->ptr;
-+	struct crypt_queue *queue = container_of(work, struct multicore_worker, work)->ptr;
-+	struct wg_device *wg = container_of(queue, struct wg_device, handshake_queue);
- 	struct sk_buff *skb;
- 
--	while ((skb = skb_dequeue(&wg->incoming_handshakes)) != NULL) {
-+	while ((skb = ptr_ring_consume_bh(&queue->ring)) != NULL) {
- 		wg_receive_handshake_packet(wg, skb);
- 		dev_kfree_skb(skb);
-+		atomic_dec(&wg->handshake_queue_len);
- 		cond_resched();
- 	}
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
  }
-@@ -554,21 +555,17 @@ void wg_packet_receive(struct wg_device
- 	case cpu_to_le32(MESSAGE_HANDSHAKE_RESPONSE):
- 	case cpu_to_le32(MESSAGE_HANDSHAKE_COOKIE): {
- 		int cpu;
--
--		if (skb_queue_len(&wg->incoming_handshakes) >
--			    MAX_QUEUED_INCOMING_HANDSHAKES ||
--		    unlikely(!rng_is_initialized())) {
-+		if (unlikely(!rng_is_initialized() ||
-+			     ptr_ring_produce_bh(&wg->handshake_queue.ring, skb))) {
- 			net_dbg_skb_ratelimited("%s: Dropping handshake packet from %pISpfsc\n",
- 						wg->dev->name, skb);
- 			goto err;
- 		}
--		skb_queue_tail(&wg->incoming_handshakes, skb);
--		/* Queues up a call to packet_process_queued_handshake_
--		 * packets(skb):
--		 */
--		cpu = wg_cpumask_next_online(&wg->incoming_handshake_cpu);
-+		atomic_inc(&wg->handshake_queue_len);
-+		cpu = wg_cpumask_next_online(&wg->handshake_queue.last_cpu);
-+		/* Queues up a call to packet_process_queued_handshake_packets(skb): */
- 		queue_work_on(cpu, wg->handshake_receive_wq,
--			&per_cpu_ptr(wg->incoming_handshakes_worker, cpu)->work);
-+			      &per_cpu_ptr(wg->handshake_queue.worker, cpu)->work);
- 		break;
- 	}
- 	case cpu_to_le32(MESSAGE_DATA):
+ 
+-static int sum_next_conj(struct rsc *rsc)
++static void sum_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct sum, rsc)->idx[rsc->conj];
+ }
+ 
+ static int sum_index(const struct rsc *rsc)
+--- a/sound/pci/ctxfi/ctdaio.c
++++ b/sound/pci/ctxfi/ctdaio.c
+@@ -55,12 +55,12 @@ static struct daio_rsc_idx idx_20k2[NUM_
+ 	[SPDIFIO] = {.left = 0x05, .right = 0x85},
+ };
+ 
+-static int daio_master(struct rsc *rsc)
++static void daio_master(struct rsc *rsc)
+ {
+ 	/* Actually, this is not the resource index of DAIO.
+ 	 * For DAO, it is the input mapper index. And, for DAI,
+ 	 * it is the output time-slot index. */
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static int daio_index(const struct rsc *rsc)
+@@ -68,19 +68,19 @@ static int daio_index(const struct rsc *
+ 	return rsc->conj;
+ }
+ 
+-static int daio_out_next_conj(struct rsc *rsc)
++static void daio_out_next_conj(struct rsc *rsc)
+ {
+-	return rsc->conj += 2;
++	rsc->conj += 2;
+ }
+ 
+-static int daio_in_next_conj_20k1(struct rsc *rsc)
++static void daio_in_next_conj_20k1(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x200;
++	rsc->conj += 0x200;
+ }
+ 
+-static int daio_in_next_conj_20k2(struct rsc *rsc)
++static void daio_in_next_conj_20k2(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x100;
++	rsc->conj += 0x100;
+ }
+ 
+ static const struct rsc_ops daio_out_rsc_ops = {
+--- a/sound/pci/ctxfi/ctresource.c
++++ b/sound/pci/ctxfi/ctresource.c
+@@ -113,18 +113,17 @@ static int audio_ring_slot(const struct
+     return (rsc->conj << 4) + offset_in_audio_slot_block[rsc->type];
+ }
+ 
+-static int rsc_next_conj(struct rsc *rsc)
++static void rsc_next_conj(struct rsc *rsc)
+ {
+ 	unsigned int i;
+ 	for (i = 0; (i < 8) && (!(rsc->msr & (0x1 << i))); )
+ 		i++;
+ 	rsc->conj += (AUDIO_SLOT_BLOCK_NUM >> i);
+-	return rsc->conj;
+ }
+ 
+-static int rsc_master(struct rsc *rsc)
++static void rsc_master(struct rsc *rsc)
+ {
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static const struct rsc_ops rsc_generic_ops = {
+--- a/sound/pci/ctxfi/ctresource.h
++++ b/sound/pci/ctxfi/ctresource.h
+@@ -43,8 +43,8 @@ struct rsc {
+ };
+ 
+ struct rsc_ops {
+-	int (*master)(struct rsc *rsc);	/* Move to master resource */
+-	int (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
++	void (*master)(struct rsc *rsc); /* Move to master resource */
++	void (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
+ 	int (*index)(const struct rsc *rsc); /* Return the index of resource */
+ 	/* Return the output slot number */
+ 	int (*output_slot)(const struct rsc *rsc);
+--- a/sound/pci/ctxfi/ctsrc.c
++++ b/sound/pci/ctxfi/ctsrc.c
+@@ -594,16 +594,15 @@ int src_mgr_destroy(struct src_mgr *src_
+ 
+ /* SRCIMP resource manager operations */
+ 
+-static int srcimp_master(struct rsc *rsc)
++static void srcimp_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
+ }
+ 
+-static int srcimp_next_conj(struct rsc *rsc)
++static void srcimp_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct srcimp, rsc)->idx[rsc->conj];
+ }
+ 
+ static int srcimp_index(const struct rsc *rsc)
 
 
