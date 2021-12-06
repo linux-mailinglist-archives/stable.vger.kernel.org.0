@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5DD469BA4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88396469B2D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:10:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349897AbhLFPSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49024 "EHLO
+        id S1347637AbhLFPN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:13:26 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43734 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357392AbhLFPQF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:05 -0500
+        with ESMTP id S1347167AbhLFPL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30421B8111D;
-        Mon,  6 Dec 2021 15:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BA12C341C1;
-        Mon,  6 Dec 2021 15:12:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E32EFB810AC;
+        Mon,  6 Dec 2021 15:07:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E277C341C6;
+        Mon,  6 Dec 2021 15:07:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803554;
-        bh=Ext6ZqfE8sVnU9h6sFrHWioziDXc1kQDxZ145o/hI8Y=;
+        s=korg; t=1638803275;
+        bh=F8ScSE/g0ifcwkrTXQw+13vvRCUtp4sF93kcFMa8mDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FpEuwiQruNr6qMjaQEcFUNOzW40NyJCgFktIVye6L9ItMk8d52Lu7B5IY1YLFoYqy
-         C3Dt6ZR88uBYy4A2gPS2TQCNo8YbGtFqn6EQJrUk7dcKkJCgl/IXov1I5Ea+zKEmDL
-         wX5eaS1Ot4/WMk7mxZLWGl0EWBM0QWC2Zp7fT/nY=
+        b=HeAVfuHH5Jo8JR0yMb0iPMcBynLRb1BeMm0rrRp9wh8sOdbstD3VY4uk9X1w5cuWz
+         WpPTdq+yNUESmigzw6+dAxTlnSHQ/96Wa6aRqNC4CNyAgTIeqhJzhowP/zfmUM8s7d
+         nrdQCHxzE7wL2Fujy2Zrim72Vm8XV+2RNgErnpR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.4 35/70] i2c: cbus-gpio: set atomic transfer callback
+        stable@vger.kernel.org, Benjamin Poirier <bpoirier@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 091/106] net: mpls: Fix notifications when deleting a device
 Date:   Mon,  6 Dec 2021 15:56:39 +0100
-Message-Id: <20211206145553.138731292@linuxfoundation.org>
+Message-Id: <20211206145558.667394843@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
+From: Benjamin Poirier <bpoirier@nvidia.com>
 
-commit b12764695c3fcade145890b67f82f8b139174cc7 upstream.
+commit 7d4741eacdefa5f0475431645b56baf00784df1f upstream.
 
-CBUS transfers have always been atomic, but after commit 63b96983a5dd
-("i2c: core: introduce callbacks for atomic transfers") we started to see
-warnings during e.g. poweroff as the atomic callback is not explicitly set.
-Fix that.
+There are various problems related to netlink notifications for mpls route
+changes in response to interfaces being deleted:
+* delete interface of only nexthop
+	DELROUTE notification is missing RTA_OIF attribute
+* delete interface of non-last nexthop
+	NEWROUTE notification is missing entirely
+* delete interface of last nexthop
+	DELROUTE notification is missing nexthop
 
-Fixes the following WARNING seen during Nokia N810 power down:
+All of these problems stem from the fact that existing routes are modified
+in-place before sending a notification. Restructure mpls_ifdown() to avoid
+changing the route in the DELROUTE cases and to create a copy in the
+NEWROUTE case.
 
-[  786.570617] reboot: Power down
-[  786.573913] ------------[ cut here ]------------
-[  786.578826] WARNING: CPU: 0 PID: 672 at drivers/i2c/i2c-core.h:40 i2c_smbus_xfer+0x100/0x110
-[  786.587799] No atomic I2C transfer handler for 'i2c-2'
-
-Fixes: 63b96983a5dd ("i2c: core: introduce callbacks for atomic transfers")
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: f8efb73c97e2 ("mpls: multipath route support")
+Signed-off-by: Benjamin Poirier <bpoirier@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-cbus-gpio.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/mpls/af_mpls.c |   68 ++++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 52 insertions(+), 16 deletions(-)
 
---- a/drivers/i2c/busses/i2c-cbus-gpio.c
-+++ b/drivers/i2c/busses/i2c-cbus-gpio.c
-@@ -195,8 +195,9 @@ static u32 cbus_i2c_func(struct i2c_adap
+--- a/net/mpls/af_mpls.c
++++ b/net/mpls/af_mpls.c
+@@ -1407,22 +1407,52 @@ static void mpls_dev_destroy_rcu(struct
+ 	kfree(mdev);
  }
  
- static const struct i2c_algorithm cbus_i2c_algo = {
--	.smbus_xfer	= cbus_i2c_smbus_xfer,
--	.functionality	= cbus_i2c_func,
-+	.smbus_xfer		= cbus_i2c_smbus_xfer,
-+	.smbus_xfer_atomic	= cbus_i2c_smbus_xfer,
-+	.functionality		= cbus_i2c_func,
- };
+-static void mpls_ifdown(struct net_device *dev, int event)
++static int mpls_ifdown(struct net_device *dev, int event)
+ {
+ 	struct mpls_route __rcu **platform_label;
+ 	struct net *net = dev_net(dev);
+-	u8 alive, deleted;
+ 	unsigned index;
  
- static int cbus_i2c_remove(struct platform_device *pdev)
+ 	platform_label = rtnl_dereference(net->mpls.platform_label);
+ 	for (index = 0; index < net->mpls.platform_labels; index++) {
+ 		struct mpls_route *rt = rtnl_dereference(platform_label[index]);
++		bool nh_del = false;
++		u8 alive = 0;
+ 
+ 		if (!rt)
+ 			continue;
+ 
+-		alive = 0;
+-		deleted = 0;
++		if (event == NETDEV_UNREGISTER) {
++			u8 deleted = 0;
++
++			for_nexthops(rt) {
++				struct net_device *nh_dev =
++					rtnl_dereference(nh->nh_dev);
++
++				if (!nh_dev || nh_dev == dev)
++					deleted++;
++				if (nh_dev == dev)
++					nh_del = true;
++			} endfor_nexthops(rt);
++
++			/* if there are no more nexthops, delete the route */
++			if (deleted == rt->rt_nhn) {
++				mpls_route_update(net, index, NULL, NULL);
++				continue;
++			}
++
++			if (nh_del) {
++				size_t size = sizeof(*rt) + rt->rt_nhn *
++					rt->rt_nh_size;
++				struct mpls_route *orig = rt;
++
++				rt = kmalloc(size, GFP_KERNEL);
++				if (!rt)
++					return -ENOMEM;
++				memcpy(rt, orig, size);
++			}
++		}
++
+ 		change_nexthops(rt) {
+ 			unsigned int nh_flags = nh->nh_flags;
+ 
+@@ -1446,16 +1476,15 @@ static void mpls_ifdown(struct net_devic
+ next:
+ 			if (!(nh_flags & (RTNH_F_DEAD | RTNH_F_LINKDOWN)))
+ 				alive++;
+-			if (!rtnl_dereference(nh->nh_dev))
+-				deleted++;
+ 		} endfor_nexthops(rt);
+ 
+ 		WRITE_ONCE(rt->rt_nhn_alive, alive);
+ 
+-		/* if there are no more nexthops, delete the route */
+-		if (event == NETDEV_UNREGISTER && deleted == rt->rt_nhn)
+-			mpls_route_update(net, index, NULL, NULL);
++		if (nh_del)
++			mpls_route_update(net, index, rt, NULL);
+ 	}
++
++	return 0;
+ }
+ 
+ static void mpls_ifup(struct net_device *dev, unsigned int flags)
+@@ -1519,8 +1548,12 @@ static int mpls_dev_notify(struct notifi
+ 		return NOTIFY_OK;
+ 
+ 	switch (event) {
++		int err;
++
+ 	case NETDEV_DOWN:
+-		mpls_ifdown(dev, event);
++		err = mpls_ifdown(dev, event);
++		if (err)
++			return notifier_from_errno(err);
+ 		break;
+ 	case NETDEV_UP:
+ 		flags = dev_get_flags(dev);
+@@ -1531,13 +1564,18 @@ static int mpls_dev_notify(struct notifi
+ 		break;
+ 	case NETDEV_CHANGE:
+ 		flags = dev_get_flags(dev);
+-		if (flags & (IFF_RUNNING | IFF_LOWER_UP))
++		if (flags & (IFF_RUNNING | IFF_LOWER_UP)) {
+ 			mpls_ifup(dev, RTNH_F_DEAD | RTNH_F_LINKDOWN);
+-		else
+-			mpls_ifdown(dev, event);
++		} else {
++			err = mpls_ifdown(dev, event);
++			if (err)
++				return notifier_from_errno(err);
++		}
+ 		break;
+ 	case NETDEV_UNREGISTER:
+-		mpls_ifdown(dev, event);
++		err = mpls_ifdown(dev, event);
++		if (err)
++			return notifier_from_errno(err);
+ 		mdev = mpls_dev_get(dev);
+ 		if (mdev) {
+ 			mpls_dev_sysctl_unregister(dev, mdev);
+@@ -1548,8 +1586,6 @@ static int mpls_dev_notify(struct notifi
+ 	case NETDEV_CHANGENAME:
+ 		mdev = mpls_dev_get(dev);
+ 		if (mdev) {
+-			int err;
+-
+ 			mpls_dev_sysctl_unregister(dev, mdev);
+ 			err = mpls_dev_sysctl_register(dev, mdev);
+ 			if (err)
 
 
