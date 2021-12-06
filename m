@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B348469AF2
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE4B7469C89
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346504AbhLFPLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:11:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345160AbhLFPJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A39C08E886;
-        Mon,  6 Dec 2021 07:03:59 -0800 (PST)
+        id S1358537AbhLFPXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54494 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347500AbhLFPV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2761B81132;
-        Mon,  6 Dec 2021 15:03:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C4A1C341C1;
-        Mon,  6 Dec 2021 15:03:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDAECB81126;
+        Mon,  6 Dec 2021 15:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B71EC341C2;
+        Mon,  6 Dec 2021 15:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803036;
-        bh=iJApRTQ/dLBLr46xS0POkjv0n38tHrca9TozFhN9qUQ=;
+        s=korg; t=1638803874;
+        bh=B1tPb4Y81YUEFcjknVtv2dgfbxahQigJmXfHtEaZks4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmLDKx9pyBABhGePu5phVrlEtqkzzVu5KhtK7cBFE30gy+DcDdJjtIIIwd4sJXbo6
-         ywhOMFX2BRoxBTcfdNoJzfZO/IENsdN2QzgMNsMv6igbkEgltsKU2T6Jw4+Ytq52mE
-         OXfQ25Til8drwfjblnIkduErkcSBbKJZsRHWhy5Q=
+        b=qyhGDQBM/OnSl511LmQoB3CnuTziCzIvxztZ68QxhZ5G2fM/67YB6GwkttRmbMQZO
+         pG4Wdz1wGyxgt+cdv1GiEQp+gKag94r5J3RBTyYoSrr1vuW+/Ttry1pfARhUp02N+V
+         mhl3DRCDC4gkXGte8h+SWr0USOIzKuDd+e9VqGNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 52/62] fs: add fget_many() and fput_many()
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Mark Brown <broonie@kernel.org>,
+        Sameer Pujar <spujar@nvidia.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 078/130] ASoC: tegra: Fix kcontrol put callback in ADMAIF
 Date:   Mon,  6 Dec 2021 15:56:35 +0100
-Message-Id: <20211206145551.005163803@linuxfoundation.org>
+Message-Id: <20211206145602.368698887@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,138 +45,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sameer Pujar <spujar@nvidia.com>
 
-commit 091141a42e15fe47ada737f3996b317072afcefb upstream.
+commit e2b87a18a60c02d0dcd1de801d669587e516cc4d upstream.
 
-Some uses cases repeatedly get and put references to the same file, but
-the only exposed interface is doing these one at the time. As each of
-these entail an atomic inc or dec on a shared structure, that cost can
-add up.
+The kcontrol put callback is expected to return 1 when there is change
+in HW or when the update is acknowledged by driver. This would ensure
+that change notifications are sent to subscribed applications. Update
+the ADMAIF driver accordingly.
 
-Add fget_many(), which works just like fget(), except it takes an
-argument for how many references to get on the file. Ditto fput_many(),
-which can drop an arbitrary number of references to a file.
-
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: f74028e159bb ("ASoC: tegra: Add Tegra210 based ADMAIF driver")
+Suggested-by: Jaroslav Kysela <perex@perex.cz>
+Suggested-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/1637219231-406-8-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/file.c            |   15 ++++++++++-----
- fs/file_table.c      |    9 +++++++--
- include/linux/file.h |    2 ++
- include/linux/fs.h   |    4 +++-
- 4 files changed, 22 insertions(+), 8 deletions(-)
+ sound/soc/tegra/tegra210_admaif.c |  138 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 109 insertions(+), 29 deletions(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -692,7 +692,7 @@ void do_close_on_exec(struct files_struc
- 	spin_unlock(&files->file_lock);
- }
+--- a/sound/soc/tegra/tegra210_admaif.c
++++ b/sound/soc/tegra/tegra210_admaif.c
+@@ -424,46 +424,122 @@ static const struct snd_soc_dai_ops tegr
+ 	.trigger	= tegra_admaif_trigger,
+ };
  
--static struct file *__fget(unsigned int fd, fmode_t mask)
-+static struct file *__fget(unsigned int fd, fmode_t mask, unsigned int refs)
+-static int tegra_admaif_get_control(struct snd_kcontrol *kcontrol,
+-				    struct snd_ctl_elem_value *ucontrol)
++static int tegra210_admaif_pget_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
  {
- 	struct files_struct *files = current->files;
- 	struct file *file;
-@@ -707,7 +707,7 @@ loop:
- 		 */
- 		if (file->f_mode & mask)
- 			file = NULL;
--		else if (!get_file_rcu(file))
-+		else if (!get_file_rcu_many(file, refs))
- 			goto loop;
- 	}
- 	rcu_read_unlock();
-@@ -715,15 +715,20 @@ loop:
- 	return file;
- }
- 
-+struct file *fget_many(unsigned int fd, unsigned int refs)
-+{
-+	return __fget(fd, FMODE_PATH, refs);
+ 	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+ 	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg];
++
++	return 0;
 +}
 +
- struct file *fget(unsigned int fd)
- {
--	return __fget(fd, FMODE_PATH);
-+	return __fget(fd, FMODE_PATH, 1);
- }
- EXPORT_SYMBOL(fget);
- 
- struct file *fget_raw(unsigned int fd)
- {
--	return __fget(fd, 0);
-+	return __fget(fd, 0, 1);
- }
- EXPORT_SYMBOL(fget_raw);
- 
-@@ -754,7 +759,7 @@ static unsigned long __fget_light(unsign
- 			return 0;
- 		return (unsigned long)file;
- 	} else {
--		file = __fget(fd, mask);
-+		file = __fget(fd, mask, 1);
- 		if (!file)
- 			return 0;
- 		return FDPUT_FPUT | (unsigned long)file;
---- a/fs/file_table.c
-+++ b/fs/file_table.c
-@@ -261,9 +261,9 @@ void flush_delayed_fput(void)
- 
- static DECLARE_DELAYED_WORK(delayed_fput_work, delayed_fput);
- 
--void fput(struct file *file)
-+void fput_many(struct file *file, unsigned int refs)
- {
--	if (atomic_long_dec_and_test(&file->f_count)) {
-+	if (atomic_long_sub_and_test(refs, &file->f_count)) {
- 		struct task_struct *task = current;
- 
- 		if (likely(!in_interrupt() && !(task->flags & PF_KTHREAD))) {
-@@ -282,6 +282,11 @@ void fput(struct file *file)
- 	}
- }
- 
-+void fput(struct file *file)
++static int tegra210_admaif_pput_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
 +{
-+	fput_many(file, 1);
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+-	unsigned int *uctl_val = &ucontrol->value.enumerated.item[0];
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++	unsigned int value = ucontrol->value.enumerated.item[0];
+ 
+-	if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+-		*uctl_val = admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg];
+-	else if (strstr(kcontrol->id.name, "Capture Mono To Stereo"))
+-		*uctl_val = admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg];
+-	else if (strstr(kcontrol->id.name, "Playback Stereo To Mono"))
+-		*uctl_val = admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg];
+-	else if (strstr(kcontrol->id.name, "Capture Stereo To Mono"))
+-		*uctl_val = admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg];
++	if (value == admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg])
++		return 0;
++
++	admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg] = value;
++
++	return 1;
 +}
 +
- /*
-  * synchronous analog of fput(); for kernel threads that might be needed
-  * in some umount() (and thus can't use flush_delayed_fput() without
---- a/include/linux/file.h
-+++ b/include/linux/file.h
-@@ -12,6 +12,7 @@
- struct file;
++static int tegra210_admaif_cget_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg];
  
- extern void fput(struct file *);
-+extern void fput_many(struct file *, unsigned int);
- 
- struct file_operations;
- struct vfsmount;
-@@ -40,6 +41,7 @@ static inline void fdput(struct fd fd)
+ 	return 0;
  }
  
- extern struct file *fget(unsigned int fd);
-+extern struct file *fget_many(unsigned int fd, unsigned int refs);
- extern struct file *fget_raw(unsigned int fd);
- extern unsigned long __fdget(unsigned int fd);
- extern unsigned long __fdget_raw(unsigned int fd);
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -939,7 +939,9 @@ static inline struct file *get_file(stru
- 	atomic_long_inc(&f->f_count);
- 	return f;
- }
--#define get_file_rcu(x) atomic_long_inc_not_zero(&(x)->f_count)
-+#define get_file_rcu_many(x, cnt)	\
-+	atomic_long_add_unless(&(x)->f_count, (cnt), 0)
-+#define get_file_rcu(x) get_file_rcu_many((x), 1)
- #define fput_atomic(x)	atomic_long_add_unless(&(x)->f_count, -1, 1)
- #define file_count(x)	atomic_long_read(&(x)->f_count)
+-static int tegra_admaif_put_control(struct snd_kcontrol *kcontrol,
+-				    struct snd_ctl_elem_value *ucontrol)
++static int tegra210_admaif_cput_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
+ {
+ 	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+ 	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg])
++		return 0;
++
++	admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg] = value;
++
++	return 1;
++}
++
++static int tegra210_admaif_pget_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg];
++
++	return 0;
++}
++
++static int tegra210_admaif_pput_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
+ 	unsigned int value = ucontrol->value.enumerated.item[0];
  
+-	if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+-		admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg] = value;
+-	else if (strstr(kcontrol->id.name, "Capture Mono To Stereo"))
+-		admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg] = value;
+-	else if (strstr(kcontrol->id.name, "Playback Stereo To Mono"))
+-		admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg] = value;
+-	else if (strstr(kcontrol->id.name, "Capture Stereo To Mono"))
+-		admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg] = value;
++	if (value == admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg])
++		return 0;
++
++	admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg] = value;
++
++	return 1;
++}
++
++static int tegra210_admaif_cget_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg];
+ 
+ 	return 0;
+ }
+ 
++static int tegra210_admaif_cput_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg])
++		return 0;
++
++	admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg] = value;
++
++	return 1;
++}
++
+ static int tegra_admaif_dai_probe(struct snd_soc_dai *dai)
+ {
+ 	struct tegra_admaif *admaif = snd_soc_dai_get_drvdata(dai);
+@@ -559,17 +635,21 @@ static const char * const tegra_admaif_m
+ }
+ 
+ #define TEGRA_ADMAIF_CIF_CTRL(reg)					       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Mono To Stereo", reg - 1,\
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Mono To Stereo", reg - 1,     \
++			tegra210_admaif_pget_mono_to_stereo,		       \
++			tegra210_admaif_pput_mono_to_stereo,		       \
+ 			tegra_admaif_mono_conv_text),			       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Stereo To Mono", reg - 1,\
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Stereo To Mono", reg - 1,     \
++			tegra210_admaif_pget_stereo_to_mono,		       \
++			tegra210_admaif_pput_stereo_to_mono,		       \
+ 			tegra_admaif_stereo_conv_text),			       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Mono To Stereo", reg - 1, \
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Mono To Stereo", reg - 1,      \
++			tegra210_admaif_cget_mono_to_stereo,		       \
++			tegra210_admaif_cput_mono_to_stereo,		       \
+ 			tegra_admaif_mono_conv_text),			       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Stereo To Mono", reg - 1, \
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Stereo To Mono", reg - 1,      \
++			tegra210_admaif_cget_stereo_to_mono,		       \
++			tegra210_admaif_cput_stereo_to_mono,		       \
+ 			tegra_admaif_stereo_conv_text)
+ 
+ static struct snd_kcontrol_new tegra210_admaif_controls[] = {
 
 
