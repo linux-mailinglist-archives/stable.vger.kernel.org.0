@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1E5469A10
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93232469F01
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345775AbhLFPFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:05:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37698 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345789AbhLFPFE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:05:04 -0500
+        id S1391222AbhLFPpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33108 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1389602AbhLFPkj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:40:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE562C08EC98;
+        Mon,  6 Dec 2021 07:25:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60CB3B8101B;
-        Mon,  6 Dec 2021 15:01:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F6CC341C1;
-        Mon,  6 Dec 2021 15:01:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98DE2B810E7;
+        Mon,  6 Dec 2021 15:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0C38C34901;
+        Mon,  6 Dec 2021 15:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802893;
-        bh=+MlNDKvthONigKyd5y4e/FDJvLA5Mq0vGAt+tqLzkB4=;
+        s=korg; t=1638804308;
+        bh=FVcsG/vdlndGr9XaEoecGs7oK7bHRHkwJE4+ab7k1FQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUZXrjeGPt2oOA8FnsaFfs29/o5/KhjzJkFhgXgq2uzVJkNHubq85UiQPmn55R28E
-         CMV78Z43v+4D5dyBlKpBqqlK0ANzsHN204GR6wIyYinID5IGu2Vj9aisQ/ZW5MzOPW
-         szo9PBLYK+qkSZuywttkJCPhcsGWPMBg7m5GLVkw=
+        b=vcd+0rLDNYZ+MatBB+L3sVxyLJtcs4j0t2Wmsl4MusOhb020T+5MVOiGBzQe3THOq
+         lHT1hePxikydZSPuYfzZhuKgNw8JdUl47mEptnZ51q3kQKLbTb3TWdtgBgCGpy4gJO
+         3anv5QbSzaGilW4njLeBdyw41m75tErmAdWB+E1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stable@vger.kernel.org, jbeulich@suse.com,
-        Stefano Stabellini <stefano.stabellini@xilinx.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.9 10/62] xen: dont continue xenstore initialization in case of errors
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.15 099/207] i2c: stm32f7: flush TX FIFO upon transfer errors
 Date:   Mon,  6 Dec 2021 15:55:53 +0100
-Message-Id: <20211206145549.513244843@linuxfoundation.org>
+Message-Id: <20211206145613.664766095@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-commit 08f6c2b09ebd4b326dbe96d13f94fee8f9814c78 upstream.
+commit 0c21d02ca469574d2082379db52d1a27b99eed0c upstream.
 
-In case of errors in xenbus_init (e.g. missing xen_store_gfn parameter),
-we goto out_error but we forget to reset xen_store_domain_type to
-XS_UNKNOWN. As a consequence xenbus_probe_initcall and other initcalls
-will still try to initialize xenstore resulting into a crash at boot.
+While handling an error during transfer (ex: NACK), it could
+happen that the driver has already written data into TXDR
+before the transfer get stopped.
+This commit add TXDR Flush after end of transfer in case of error to
+avoid sending a wrong data on any other slave upon next transfer.
 
-[    2.479830] Call trace:
-[    2.482314]  xb_init_comms+0x18/0x150
-[    2.486354]  xs_init+0x34/0x138
-[    2.489786]  xenbus_probe+0x4c/0x70
-[    2.498432]  xenbus_probe_initcall+0x2c/0x7c
-[    2.503944]  do_one_initcall+0x54/0x1b8
-[    2.507358]  kernel_init_freeable+0x1ac/0x210
-[    2.511617]  kernel_init+0x28/0x130
-[    2.516112]  ret_from_fork+0x10/0x20
-
-Cc: <Stable@vger.kernel.org>
-Cc: jbeulich@suse.com
-Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
-Link: https://lore.kernel.org/r/20211115222719.2558207-1-sstabellini@kernel.org
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/xenbus/xenbus_probe.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-stm32f7.c |   20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -764,7 +764,7 @@ static struct notifier_block xenbus_resu
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1696,6 +1696,16 @@ static int stm32f7_i2c_xfer(struct i2c_a
+ 	time_left = wait_for_completion_timeout(&i2c_dev->complete,
+ 						i2c_dev->adap.timeout);
+ 	ret = f7_msg->result;
++	if (ret) {
++		/*
++		 * It is possible that some unsent data have already been
++		 * written into TXDR. To avoid sending old data in a
++		 * further transfer, flush TXDR in case of any error
++		 */
++		writel_relaxed(STM32F7_I2C_ISR_TXE,
++			       i2c_dev->base + STM32F7_I2C_ISR);
++		goto pm_free;
++	}
  
- static int __init xenbus_init(void)
- {
--	int err = 0;
-+	int err;
- 	uint64_t v = 0;
- 	xen_store_domain_type = XS_UNKNOWN;
+ 	if (!time_left) {
+ 		dev_dbg(i2c_dev->dev, "Access to slave 0x%x timed out\n",
+@@ -1744,8 +1754,16 @@ static int stm32f7_i2c_smbus_xfer(struct
+ 	timeout = wait_for_completion_timeout(&i2c_dev->complete,
+ 					      i2c_dev->adap.timeout);
+ 	ret = f7_msg->result;
+-	if (ret)
++	if (ret) {
++		/*
++		 * It is possible that some unsent data have already been
++		 * written into TXDR. To avoid sending old data in a
++		 * further transfer, flush TXDR in case of any error
++		 */
++		writel_relaxed(STM32F7_I2C_ISR_TXE,
++			       i2c_dev->base + STM32F7_I2C_ISR);
+ 		goto pm_free;
++	}
  
-@@ -832,8 +832,10 @@ static int __init xenbus_init(void)
- 	 */
- 	proc_mkdir("xen", NULL);
- #endif
-+	return 0;
- 
- out_error:
-+	xen_store_domain_type = XS_UNKNOWN;
- 	return err;
- }
- 
+ 	if (!timeout) {
+ 		dev_dbg(dev, "Access to slave 0x%x timed out\n", f7_msg->addr);
 
 
