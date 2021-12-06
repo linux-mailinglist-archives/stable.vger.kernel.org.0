@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFBFF469A5B
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:04:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BFDC469D7D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345499AbhLFPHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:07:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
+        id S1386753AbhLFP35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:29:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345935AbhLFPGH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:06:07 -0500
+        with ESMTP id S1351343AbhLFP1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:27:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE4EC0698D0;
-        Mon,  6 Dec 2021 07:02:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4626AC08EAF4;
+        Mon,  6 Dec 2021 07:17:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34981B81120;
-        Mon,  6 Dec 2021 15:02:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 696D0C341C1;
-        Mon,  6 Dec 2021 15:02:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12637B8101B;
+        Mon,  6 Dec 2021 15:17:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55F0AC341C5;
+        Mon,  6 Dec 2021 15:17:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802955;
-        bh=wd4XTbdD/XCki0ryunNA0x9xmQx4KEGmhPlPkrLFSLQ=;
+        s=korg; t=1638803854;
+        bh=naLG/wsoL020DkFG5mgyebviCHwIgayaemkfc3FdoQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QLbmUNRm/x+cOT7u5ra3l9veNJWmzbqmm4QlZffJdj9C2pAw9bOEFxdQvlG0h4c5Y
-         lABE8Eg1ZZsez+URC5XAr+/9AXXuNOrkBHpF1psT3ubYL5vB1SY0T42T4yTQwuDvrX
-         Y+L52KwNRpCa8mUx/m9NVYfuCuT+O8NGwHUBC5zg=
+        b=kwL1zEcFairZEtxB3Fy9QLFtyYxHvRViv0uoR2EUeII0qIDGv+LxdXw31V/K4WeQU
+         ZdJCMUiJQd9wRhtTFNXZZI8ZctYxXgB9oOUqaWWsD2EvHpn9Jcn5qySsR0qemTPg+P
+         1plg0b3WHUCP59hIZ5x2t2A1TPHtMG7oyqjdp+FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 12/62] tracing: Fix pid filtering when triggers are attached
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.10 038/130] sata_fsl: fix UAF in sata_fsl_port_stop when rmmod sata_fsl
 Date:   Mon,  6 Dec 2021 15:55:55 +0100
-Message-Id: <20211206145549.576343262@linuxfoundation.org>
+Message-Id: <20211206145600.995363585@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +49,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit a55f224ff5f238013de8762c4287117e47b86e22 upstream.
+commit 6c8ad7e8cf29eb55836e7a0215f967746ab2b504 upstream.
 
-If a event is filtered by pid and a trigger that requires processing of
-the event to happen is a attached to the event, the discard portion does
-not take the pid filtering into account, and the event will then be
-recorded when it should not have been.
+When the `rmmod sata_fsl.ko` command is executed in the PPC64 GNU/Linux,
+a bug is reported:
+ ==================================================================
+ BUG: Unable to handle kernel data access on read at 0x80000800805b502c
+ Oops: Kernel access of bad area, sig: 11 [#1]
+ NIP [c0000000000388a4] .ioread32+0x4/0x20
+ LR [80000000000c6034] .sata_fsl_port_stop+0x44/0xe0 [sata_fsl]
+ Call Trace:
+  .free_irq+0x1c/0x4e0 (unreliable)
+  .ata_host_stop+0x74/0xd0 [libata]
+  .release_nodes+0x330/0x3f0
+  .device_release_driver_internal+0x178/0x2c0
+  .driver_detach+0x64/0xd0
+  .bus_remove_driver+0x70/0xf0
+  .driver_unregister+0x38/0x80
+  .platform_driver_unregister+0x14/0x30
+  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
+  .__se_sys_delete_module+0x1ec/0x2d0
+  .system_call_exception+0xfc/0x1f0
+  system_call_common+0xf8/0x200
+ ==================================================================
 
+The triggering of the BUG is shown in the following stack:
+
+driver_detach
+  device_release_driver_internal
+    __device_release_driver
+      drv->remove(dev) --> platform_drv_remove/platform_remove
+        drv->remove(dev) --> sata_fsl_remove
+          iounmap(host_priv->hcr_base);			<---- unmap
+          kfree(host_priv);                             <---- free
+      devres_release_all
+        release_nodes
+          dr->node.release(dev, dr->data) --> ata_host_stop
+            ap->ops->port_stop(ap) --> sata_fsl_port_stop
+                ioread32(hcr_base + HCONTROL)           <---- UAF
+            host->ops->host_stop(host)
+
+The iounmap(host_priv->hcr_base) and kfree(host_priv) functions should
+not be executed in drv->remove. These functions should be executed in
+host_stop after port_stop. Therefore, we move these functions to the
+new function sata_fsl_host_stop and bind the new function to host_stop.
+
+Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
 Cc: stable@vger.kernel.org
-Fixes: 3fdaf80f4a836 ("tracing: Implement event pid filtering")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.h |   24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/ata/sata_fsl.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1161,14 +1161,26 @@ __event_trigger_test_discard(struct trac
- 	if (eflags & EVENT_FILE_FL_TRIGGER_COND)
- 		*tt = event_triggers_call(file, entry);
- 
--	if (test_bit(EVENT_FILE_FL_SOFT_DISABLED_BIT, &file->flags) ||
--	    (unlikely(file->flags & EVENT_FILE_FL_FILTERED) &&
--	     !filter_match_preds(file->filter, entry))) {
--		__trace_event_discard_commit(buffer, event);
--		return true;
--	}
-+	if (likely(!(file->flags & (EVENT_FILE_FL_SOFT_DISABLED |
-+				    EVENT_FILE_FL_FILTERED |
-+				    EVENT_FILE_FL_PID_FILTER))))
-+		return false;
-+
-+	if (file->flags & EVENT_FILE_FL_SOFT_DISABLED)
-+		goto discard;
-+
-+	if (file->flags & EVENT_FILE_FL_FILTERED &&
-+	    !filter_match_preds(file->filter, entry))
-+		goto discard;
-+
-+	if ((file->flags & EVENT_FILE_FL_PID_FILTER) &&
-+	    trace_event_ignore_this_pid(file))
-+		goto discard;
- 
- 	return false;
-+ discard:
-+	__trace_event_discard_commit(buffer, event);
-+	return true;
+--- a/drivers/ata/sata_fsl.c
++++ b/drivers/ata/sata_fsl.c
+@@ -1394,6 +1394,14 @@ static int sata_fsl_init_controller(stru
+ 	return 0;
  }
  
- /**
++static void sata_fsl_host_stop(struct ata_host *host)
++{
++        struct sata_fsl_host_priv *host_priv = host->private_data;
++
++        iounmap(host_priv->hcr_base);
++        kfree(host_priv);
++}
++
+ /*
+  * scsi mid-layer and libata interface structures
+  */
+@@ -1426,6 +1434,8 @@ static struct ata_port_operations sata_f
+ 	.port_start = sata_fsl_port_start,
+ 	.port_stop = sata_fsl_port_stop,
+ 
++	.host_stop      = sata_fsl_host_stop,
++
+ 	.pmp_attach = sata_fsl_pmp_attach,
+ 	.pmp_detach = sata_fsl_pmp_detach,
+ };
+@@ -1558,8 +1568,6 @@ static int sata_fsl_remove(struct platfo
+ 	ata_host_detach(host);
+ 
+ 	irq_dispose_mapping(host_priv->irq);
+-	iounmap(host_priv->hcr_base);
+-	kfree(host_priv);
+ 
+ 	return 0;
+ }
 
 
