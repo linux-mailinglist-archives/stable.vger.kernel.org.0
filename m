@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6685469A99
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:05:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DD8469B39
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:10:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346588AbhLFPJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:09:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56692 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345749AbhLFPHD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:07:03 -0500
+        id S1348949AbhLFPNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:13:50 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43996 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348558AbhLFPLt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1A0F61323;
-        Mon,  6 Dec 2021 15:03:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0985C341C1;
-        Mon,  6 Dec 2021 15:03:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5372BB8111D;
+        Mon,  6 Dec 2021 15:08:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73022C341C5;
+        Mon,  6 Dec 2021 15:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803014;
-        bh=OYqfNBoNz+tZBWD6foSarOP8L+1GQ5g3AKkbZjbzlHs=;
+        s=korg; t=1638803295;
+        bh=4GGXR8wK70ZravjoS71SnY+VtXZZ4oVVlOBySCYEqao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCKguY4KWRXYkLMeMFjH3HrbKfuGI7bUm1yf2ZF6QESDcQjMh8Un2ZwPQrhfRrbBt
-         g611s3cgHwNSpsl3vCIYAHODCpuTcEiULPCrlUjk9tInzFmpw6NsZJXhrvqVrFLj6v
-         9OnkAb2G/JDDE5jDtE39YFLKbTTNdCprAVAoWpuQ=
+        b=tmvW9KZ5iL2fH2ngcvIrQX2JcQDw4NAh+oHQ6riacNf7kE5YYMgMpnyXLO0H29TUB
+         MJhcVm9AUZUWPAv+FKE9VRwoydPLeFveixqMAmQ3HRKi9iKmPbFiqWGxI43WxNQdY9
+         cNWW0sm7Zby69B+8BtSQKhJufxA8HumAhDNKY53Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pierre Gondois <Pierre.Gondois@arm.com>
-Subject: [PATCH 4.9 61/62] serial: pl011: Add ACPI SBSA UART match id
-Date:   Mon,  6 Dec 2021 15:56:44 +0100
-Message-Id: <20211206145551.320977315@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.14 097/106] parisc: Fix KBUILD_IMAGE for self-extracting kernel
+Date:   Mon,  6 Dec 2021 15:56:45 +0100
+Message-Id: <20211206145558.899150085@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre Gondois <Pierre.Gondois@arm.com>
+From: Helge Deller <deller@gmx.de>
 
-commit ac442a077acf9a6bf1db4320ec0c3f303be092b3 upstream.
+commit 1d7c29b77725d05faff6754d2f5e7c147aedcf93 upstream.
 
-The document 'ACPI for Arm Components 1.0' defines the following
-_HID mappings:
--'Prime cell UART (PL011)': ARMH0011
--'SBSA UART': ARMHB000
+Default KBUILD_IMAGE to $(boot)/bzImage if a self-extracting
+(CONFIG_PARISC_SELF_EXTRACT=y) kernel is to be built.
+This fixes the bindeb-pkg make target.
 
-Use the sbsa-uart driver when a device is described with
-the 'ARMHB000' _HID.
-
-Note:
-PL011 devices currently use the sbsa-uart driver instead of the
-uart-pl011 driver. Indeed, PL011 devices are not bound to a clock
-in ACPI. It is not possible to change their baudrate.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Pierre Gondois <Pierre.Gondois@arm.com>
-Link: https://lore.kernel.org/r/20211109172248.19061-1-Pierre.Gondois@arm.com
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v4.14+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/amba-pl011.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/Makefile |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -2702,6 +2702,7 @@ MODULE_DEVICE_TABLE(of, sbsa_uart_of_mat
+--- a/arch/parisc/Makefile
++++ b/arch/parisc/Makefile
+@@ -17,7 +17,12 @@
+ # Mike Shaver, Helge Deller and Martin K. Petersen
+ #
  
- static const struct acpi_device_id sbsa_uart_acpi_match[] = {
- 	{ "ARMH0011", 0 },
-+	{ "ARMHB000", 0 },
- 	{},
- };
- MODULE_DEVICE_TABLE(acpi, sbsa_uart_acpi_match);
++ifdef CONFIG_PARISC_SELF_EXTRACT
++boot := arch/parisc/boot
++KBUILD_IMAGE := $(boot)/bzImage
++else
+ KBUILD_IMAGE := vmlinuz
++endif
+ 
+ KBUILD_DEFCONFIG := default_defconfig
+ 
 
 
