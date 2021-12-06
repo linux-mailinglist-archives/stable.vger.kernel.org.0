@@ -2,128 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F16246AA74
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76BD046AAEB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:48:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349749AbhLFVde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:33:34 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:50347 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1349674AbhLFVdd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:33:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638826204;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=p53Oezk+1OSj1lIwb4tUAgq9sOSOpWc8DC+JVKBLVzU=;
-        b=Cu6hGakJ8xdoCgTE4rHplfoZZGuNhohU18Y/3NPdXxmzEJHSkoP47or228bhBY1xwb+wrc
-        3TXgiMUTj87fp1wfWn+t2WvJSOqBvCIbQtevdzFzqjteWb56GeRP3yKqBJabNjfxGkLtYP
-        YrBXkFPpbethdZeM8Vx4jx2zU7smyaI=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-22-zWO973SxOoSuJ81wWXm5fg-1; Mon, 06 Dec 2021 16:30:02 -0500
-X-MC-Unique: zWO973SxOoSuJ81wWXm5fg-1
-Received: by mail-ed1-f72.google.com with SMTP id c1-20020aa7c741000000b003e7bf1da4bcso9372182eds.21
-        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 13:30:01 -0800 (PST)
+        id S1352988AbhLFVvy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:51:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39254 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352983AbhLFVvx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:51:53 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A53C061359
+        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 13:48:24 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id z5so49158830edd.3
+        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 13:48:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6Eip2d/hVRGSLRlvh3UtzxqF3/zCUzzqztI5oHT+KdI=;
+        b=EvMTxmIsfoaSzvFvf70bWgCu1ARC+fwDYdQj+lqJZ4N07cj76CSqLJjaGNO12txDXp
+         j6FhDV5fNm0g3TyHS8kLuH03PC5FU4DT0JuLNC1qxdJuQnoGrNKGDEDPhHLKwutb/RJm
+         bgB4KLujTRxMH5a9X/em6adrlxpsOgxMiornk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=p53Oezk+1OSj1lIwb4tUAgq9sOSOpWc8DC+JVKBLVzU=;
-        b=SA6/25kRz04sVH8vVWRu29/eUBW1h4pwxuujKxjHLD9TM8Gc5YZxMzKlBXzAT1ifGm
-         m3YuBRiWbtS6xtm0FD1I7qmZIgPd+Difbcp33okncsJ4jTQw1jQUl+/XoIyFngKmTiDf
-         62i55sAImPxKt8B6eNniN0LSjzWoukDGCzlUph0pUrv5egdKdhjkrxXxr3/zYveq7oSF
-         UWg/H2J6lxhfReC8h8N62qKkB7W0cHwDHUBCXtHEwpp+zUpD9KfjYVCfPa6XyVIHRnz1
-         05EECQA01ZYbXfzRQrkqnndo6QXL4RUfyuMCqkSPBPo3MWDzh1eBCr2YxV5Qs/wWYo+l
-         kQfg==
-X-Gm-Message-State: AOAM530i9nxCiqIa3Aookep6QQv7QjRrLBXQOmo7LV0AjiXwq7m4T20O
-        VKCD06FTGBCafArI0RWJ4Y8KmbWLrejhVOxeQP+snQ317oHXP0mS36kiEHOCHiIB/Gt1OG2O0G6
-        YujGQAxuT7zKeyqPR
-X-Received: by 2002:a17:906:fcbb:: with SMTP id qw27mr47382574ejb.320.1638826200907;
-        Mon, 06 Dec 2021 13:30:00 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzuUvSXjWJL6H/9MMTz/nsEtjTv40TckCVGyIdz4xyLwFEflF9jGzxbEBhtYQRLgBPLfOA6lw==
-X-Received: by 2002:a17:906:fcbb:: with SMTP id qw27mr47382557ejb.320.1638826200752;
-        Mon, 06 Dec 2021 13:30:00 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id e8sm9681219edz.73.2021.12.06.13.30.00
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6Eip2d/hVRGSLRlvh3UtzxqF3/zCUzzqztI5oHT+KdI=;
+        b=XC0QYAmWI08abQSrnUmKSPDKNyZI/TdfejiLQePBr23sTUJ+ptVxZtegwaItB0ZScY
+         eLZ7T4DH9sL3hjcVsRICE8GAUTF0aXAWl/8FswPdjaTr67yGDitsbAJdzHfVnhndezof
+         nWps8XIK4XMB6XInV42tvzjOyMdnWNnaWcoSlpkU3H7LERE57ASWnCV1EpUxEd/AFH5M
+         AEAxkY5vYWwP6tuLlT40BOmb1MWAnOpJxqb46V8+bRwx/4/ShECv5cjjM0xHpPqXCr5M
+         INDLmOszDOtiFaRHcfWAPNR5MCUTSBU5zRIbSfQAJ/ZoPK37ER3BdiGFoSRBOw2MCLmg
+         eO9A==
+X-Gm-Message-State: AOAM530zfWPC9LEBQ9isabn3P8YB97hRPIlDjI4oRcBypG1Z31xAyPxK
+        PJsJmPqlzpNIVfMtZSsf07C0/OvLgkTxc0Y1
+X-Google-Smtp-Source: ABdhPJzyC19BNEwlAajAfQ5EsSb+0xJRe8U39hKWZU+jxIurF7P+MDthrOSZsQHEvUUIi/40ruQcjw==
+X-Received: by 2002:a17:907:6e8e:: with SMTP id sh14mr47545536ejc.536.1638827302224;
+        Mon, 06 Dec 2021 13:48:22 -0800 (PST)
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com. [209.85.221.50])
+        by smtp.gmail.com with ESMTPSA id ar2sm7271346ejc.20.2021.12.06.13.48.20
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Dec 2021 13:30:00 -0800 (PST)
-Message-ID: <63bfe091-ef07-8747-745d-11d5aacab847@redhat.com>
-Date:   Mon, 6 Dec 2021 22:29:59 +0100
+        Mon, 06 Dec 2021 13:48:20 -0800 (PST)
+Received: by mail-wr1-f50.google.com with SMTP id o13so25176439wrs.12
+        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 13:48:20 -0800 (PST)
+X-Received: by 2002:adf:9d88:: with SMTP id p8mr48026383wre.140.1638827300398;
+ Mon, 06 Dec 2021 13:48:20 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] platform/x86/intel: hid: add quirk to support Surface Go
- 3
-Content-Language: en-US
-To:     Alex Hung <alex.hung@canonical.com>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20211203212810.2666508-1-alex.hung@canonical.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20211203212810.2666508-1-alex.hung@canonical.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20211204002301.116139-1-ebiggers@kernel.org> <20211204002301.116139-3-ebiggers@kernel.org>
+ <CAHk-=wgJ+6qgbB+WCDosxOgDp34ybncUwPJ5Evo8gcXptfzF+Q@mail.gmail.com> <Ya5qWLLv3i4szS4N@gmail.com>
+In-Reply-To: <Ya5qWLLv3i4szS4N@gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 6 Dec 2021 13:48:04 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wgvt7PH+AU_29H95tJQZ9FnhS8vVmymbhpZ6NZ7yaAigw@mail.gmail.com>
+Message-ID: <CAHk-=wgvt7PH+AU_29H95tJQZ9FnhS8vVmymbhpZ6NZ7yaAigw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] aio: fix use-after-free due to missing POLLFREE handling
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        Benjamin LaHaise <bcrl@kvack.org>, linux-aio@kvack.org,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Ramji Jiyani <ramjiyani@google.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, Dec 6, 2021 at 11:54 AM Eric Biggers <ebiggers@kernel.org> wrote:
+>
+> It could be fixed by converting signalfd and binder to use something like this,
+> right?
+>
+>         #define wake_up_pollfree(x)  \
+>                __wake_up(x, TASK_NORMAL, 0, poll_to_key(EPOLLHUP | POLLFREE))
 
-On 12/3/21 22:28, Alex Hung wrote:
-> Similar to other systems Surface Go 3 requires a DMI quirk to enable
-> 5 button array for power and volume buttons.
-> 
-> Buglink: https://github.com/linux-surface/linux-surface/issues/595
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Alex Hung <alex.hung@canonical.com>
+Yeah, that looks better to me.
 
-Thank you for your patch, I've applied this patch to my review-hans 
-branch:
-https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=review-hans
+That said, maybe it would be even better to then make it more explicit
+about what it does, and not make it look like just another wakeup with
+an odd parameter.
 
-Note it will show up in my review-hans branch once I've pushed my
-local branch there, which might take a while.
+IOW, maybe that "pollfree()" function itself could very much do the
+waitqueue entry removal on each entry using list_del_init(), and not
+expect the wakeup code for the entry to do so.
 
-I will also include this in my next fixes pull-req for 5.16.
+I think that kind of explicit "this removes all entries from the wait
+list head" is better than "let's do a wakeup and expect all entries to
+magically implicitly remove themselves".
 
-Once I've run some tests on this branch the patches there will be
-added to the platform-drivers-x86/for-next branch and eventually
-will be included in the pdx86 pull-request to Linus for the next
-merge-window.
+After all, that "implicitly remove themselves" was what didn't happen,
+and caused the bug in the first place.
 
-Regards,
+And all the normal cases, that don't care about POLLFREE at all,
+because their waitqueues don't go away from under them, wouldn't care,
+because "list_del_init()" still  leaves a valid self-pointing list in
+place, so if they do list_del() afterwards, nothing happens.
 
-Hans
+I dunno. But yes, that wake_up_pollfree() of yours certainly looks
+better than what we have now.
 
+> As for eliminating POLLFREE entirely, that would require that the waitqueue
+> heads be moved to a location which has a longer lifetime.
 
+Yeah, the problem with aio and epoll is exactly that they end up using
+waitqueue heads without knowing what they are.
 
-> ---
->  drivers/platform/x86/intel/hid.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/platform/x86/intel/hid.c b/drivers/platform/x86/intel/hid.c
-> index 08598942a6d7..13f8cf70b9ae 100644
-> --- a/drivers/platform/x86/intel/hid.c
-> +++ b/drivers/platform/x86/intel/hid.c
-> @@ -99,6 +99,13 @@ static const struct dmi_system_id button_array_table[] = {
->  			DMI_MATCH(DMI_PRODUCT_FAMILY, "ThinkPad X1 Tablet Gen 2"),
->  		},
->  	},
-> +	{
-> +		.ident = "Microsoft Surface Go 3",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Surface Go 3"),
-> +		},
-> +	},
->  	{ }
->  };
->  
-> 
+I'm not at all convinced that there aren't other situations where the
+thing the waitqueue head is embedded might not have other lifetimes.
 
+The *common* situation is obviously that it's associated with a file,
+and the file pointer ends up holding the reference to whatever device
+or something (global list in a loadable module, or whatever) it is.
+
+Hmm. The poll_wait() callback function actually does get the 'struct
+file *' that the wait is associated with. I wonder if epoll queueing
+could actually increment the file ref when it creates its own wait
+entry, and release it at ep_remove_wait_queue()?
+
+Maybe epoll could avoid having to remove entries entirely that way -
+simply by virtue of having a ref to the files - and remove the need
+for having the ->whead pointer entirely (and remove the need for
+POLLFREE handling)?
+
+And maybe the signalfd case can do the same - instead of expecting
+exit() to clean up the list when sighand->count goes to zero, maybe
+the signalfd filp can just hold a ref to that 'struct sighand_struct',
+and it gets free'd whenever there are no signalfd users left?
+
+That would involve making signalfd_ctx actually tied to one particular
+'struct signal', but that might be the right thing to do regardless
+(instead of making it always act on 'current' like it does now).
+
+So maybe with some re-organization, we could get rid of the need for
+POLLFREE entirely.. Anybody?
+
+But your patches are certainly simpler in that they just fix the status quo.
+
+             Linus
