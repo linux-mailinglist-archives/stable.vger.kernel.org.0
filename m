@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3D2469C3D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89ECE469B47
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346842AbhLFPV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:21:27 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:37916 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345843AbhLFPTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:06 -0500
+        id S1356001AbhLFPOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:14:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54642 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345639AbhLFPM2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0511DC08EAF0;
+        Mon,  6 Dec 2021 07:05:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30F7E6130D;
-        Mon,  6 Dec 2021 15:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BE79C341C1;
-        Mon,  6 Dec 2021 15:15:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C55E4B8110B;
+        Mon,  6 Dec 2021 15:05:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D80C341DC;
+        Mon,  6 Dec 2021 15:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803736;
-        bh=uyHjeqVGdSnFGny2L9uSilrTJtV1Hkq8Oi8TQNt2mus=;
+        s=korg; t=1638803129;
+        bh=BNRo4LGhMpDpYSeDPyzHfw++8YVuRYVOhs0HxBvyiZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldK49gIUSeOdmGeyopWQ1vt2NqnqCMKE24I62nn1jXOXitByw9rBwMeAgM+uQT6NE
-         l/1Hr2lSJkkZwmxlWTkavZ5MHvztzjuB+OIiVSepDWBq/s+BIPWtlfM8H6ZNZwUTdK
-         crTYbCw3PuvgBkLmcCwCsXDr7R1K7KY6/Q7T/Sp4=
+        b=oIB5igTaMs6nUevn8QLAKrGmHSVgW17l0715oMATEZAslY7x3jit8ImPRIO4AmwLA
+         9IN0UHzQlF3bMnY3V9sPqOt+QNwiTdJ94TbfYufgk9nv3rHYEa82GfG8EEjKpmGMf/
+         /TawTTgXw2PrTMloV/uTx1LEGFFzp99WKGZJb4bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/130] perf report: Fix memory leaks around perf_tip()
+        stable@vger.kernel.org, Tomasz Maciej Nowak <tmn505@gmail.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.14 037/106] PCI: aardvark: Issue PERST via GPIO
 Date:   Mon,  6 Dec 2021 15:55:45 +0100
-Message-Id: <20211206145600.613797456@linuxfoundation.org>
+Message-Id: <20211206145556.663317259@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,127 +50,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit d9fc706108c15f8bc2d4ccccf8e50f74830fabd9 ]
+commit 5169a9851daaa2782a7bd2bb83d5b1bd224b2879 upstream.
 
-perf_tip() may allocate memory or use a literal, this means memory
-wasn't freed if allocated. Change the API so that literals aren't used.
+Add support for issuing PERST via GPIO specified in 'reset-gpios'
+property (as described in PCI device tree bindings).
 
-At the same time add missing frees for system_path. These issues were
-spotted using leak sanitizer.
+Some buggy cards (e.g. Compex WLE900VX or WLE1216) are not detected
+after reboot when PERST is not issued during driver initialization.
 
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20211118073804.2149974-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If bootloader already enabled link training then issuing PERST has no
+effect for some buggy cards (e.g. Compex WLE900VX) and these cards are
+not detected. We therefore clear the LINK_TRAINING_EN register before.
+
+It was observed that Compex WLE900VX card needs to be in PERST reset
+for at least 10ms if bootloader enabled link training.
+
+Tested on Turris MOX.
+
+Link: https://lore.kernel.org/r/20200430080625.26070-6-pali@kernel.org
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-report.c | 15 +++++++++------
- tools/perf/util/util.c      | 14 +++++++-------
- tools/perf/util/util.h      |  2 +-
- 3 files changed, 17 insertions(+), 14 deletions(-)
+ drivers/pci/host/pci-aardvark.c |   44 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 43 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 5824aa24acfcc..91cab5cdfbc16 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -610,14 +610,17 @@ static int report__browse_hists(struct report *rep)
- 	int ret;
- 	struct perf_session *session = rep->session;
- 	struct evlist *evlist = session->evlist;
--	const char *help = perf_tip(system_path(TIPDIR));
-+	char *help = NULL, *path = NULL;
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -12,6 +12,7 @@
+  */
  
--	if (help == NULL) {
-+	path = system_path(TIPDIR);
-+	if (perf_tip(&help, path) || help == NULL) {
- 		/* fallback for people who don't install perf ;-) */
--		help = perf_tip(DOCDIR);
--		if (help == NULL)
--			help = "Cannot load tips.txt file, please install perf!";
-+		free(path);
-+		path = system_path(DOCDIR);
-+		if (perf_tip(&help, path) || help == NULL)
-+			help = strdup("Cannot load tips.txt file, please install perf!");
- 	}
-+	free(path);
+ #include <linux/delay.h>
++#include <linux/gpio.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+ #include <linux/irqdomain.h>
+@@ -20,6 +21,7 @@
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
+ #include <linux/of_address.h>
++#include <linux/of_gpio.h>
+ #include <linux/of_pci.h>
  
- 	switch (use_browser) {
- 	case 1:
-@@ -644,7 +647,7 @@ static int report__browse_hists(struct report *rep)
- 		ret = perf_evlist__tty_browse_hists(evlist, rep, help);
- 		break;
- 	}
--
-+	free(help);
- 	return ret;
+ /* PCIe core registers */
+@@ -214,6 +216,7 @@ struct advk_pcie {
+ 	u16 msi_msg;
+ 	int root_bus_nr;
+ 	int link_gen;
++	struct gpio_desc *reset_gpio;
+ };
+ 
+ static inline void advk_writel(struct advk_pcie *pcie, u32 val, u64 reg)
+@@ -349,6 +352,25 @@ err:
+ 	dev_err(dev, "link never came up\n");
  }
  
-diff --git a/tools/perf/util/util.c b/tools/perf/util/util.c
-index 37a9492edb3eb..df3c4671be72a 100644
---- a/tools/perf/util/util.c
-+++ b/tools/perf/util/util.c
-@@ -379,32 +379,32 @@ fetch_kernel_version(unsigned int *puint, char *str,
- 	return 0;
- }
- 
--const char *perf_tip(const char *dirpath)
-+int perf_tip(char **strp, const char *dirpath)
++static void advk_pcie_issue_perst(struct advk_pcie *pcie)
++{
++	u32 reg;
++
++	if (!pcie->reset_gpio)
++		return;
++
++	/* PERST does not work for some cards when link training is enabled */
++	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
++	reg &= ~LINK_TRAINING_EN;
++	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
++
++	/* 10ms delay is needed for some cards */
++	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
++	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
++	usleep_range(10000, 11000);
++	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
++}
++
+ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
  {
- 	struct strlist *tips;
- 	struct str_node *node;
--	char *tip = NULL;
- 	struct strlist_config conf = {
- 		.dirname = dirpath,
- 		.file_only = true,
- 	};
-+	int ret = 0;
+ 	u32 reg;
+@@ -358,6 +380,8 @@ static void advk_pcie_setup_hw(struct ad
+ 	for (i = 0; i < 8; i++)
+ 		advk_pcie_set_ob_win(pcie, i, 0, 0, 0, 0, 0, 0, 0);
  
-+	*strp = NULL;
- 	tips = strlist__new("tips.txt", &conf);
- 	if (tips == NULL)
--		return errno == ENOENT ? NULL :
--			"Tip: check path of tips.txt or get more memory! ;-p";
-+		return -errno;
++	advk_pcie_issue_perst(pcie);
++
+ 	/* Set to Direct mode */
+ 	reg = advk_readl(pcie, CTRL_CONFIG_REG);
+ 	reg &= ~(CTRL_MODE_MASK << CTRL_MODE_SHIFT);
+@@ -430,7 +454,8 @@ static void advk_pcie_setup_hw(struct ad
  
- 	if (strlist__nr_entries(tips) == 0)
- 		goto out;
+ 	/*
+ 	 * PERST# signal could have been asserted by pinctrl subsystem before
+-	 * probe() callback has been called, making the endpoint going into
++	 * probe() callback has been called or issued explicitly by reset gpio
++	 * function advk_pcie_issue_perst(), making the endpoint going into
+ 	 * fundamental reset. As required by PCI Express spec a delay for at
+ 	 * least 100ms after such a reset before link training is needed.
+ 	 */
+@@ -1075,6 +1100,23 @@ static int advk_pcie_probe(struct platfo
+ 		return ret;
+ 	}
  
- 	node = strlist__entry(tips, random() % strlist__nr_entries(tips));
--	if (asprintf(&tip, "Tip: %s", node->s) < 0)
--		tip = (char *)"Tip: get more memory! ;-)";
-+	if (asprintf(strp, "Tip: %s", node->s) < 0)
-+		ret = -ENOMEM;
- 
- out:
- 	strlist__delete(tips);
- 
--	return tip;
-+	return ret;
- }
- 
- char *perf_exe(char *buf, int len)
-diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
-index ad737052e5977..9f0d36ba77f2d 100644
---- a/tools/perf/util/util.h
-+++ b/tools/perf/util/util.h
-@@ -39,7 +39,7 @@ int fetch_kernel_version(unsigned int *puint,
- #define KVER_FMT	"%d.%d.%d"
- #define KVER_PARAM(x)	KVER_VERSION(x), KVER_PATCHLEVEL(x), KVER_SUBLEVEL(x)
- 
--const char *perf_tip(const char *dirpath);
-+int perf_tip(char **strp, const char *dirpath);
- 
- #ifndef HAVE_SCHED_GETCPU_SUPPORT
- int sched_getcpu(void);
--- 
-2.33.0
-
++	pcie->reset_gpio = devm_fwnode_get_index_gpiod_from_child(dev, "reset",
++								  0,
++								  dev_fwnode(dev),
++								  GPIOD_OUT_LOW,
++								  "pcie1-reset");
++	ret = PTR_ERR_OR_ZERO(pcie->reset_gpio);
++	if (ret) {
++		if (ret == -ENOENT) {
++			pcie->reset_gpio = NULL;
++		} else {
++			if (ret != -EPROBE_DEFER)
++				dev_err(dev, "Failed to get reset-gpio: %i\n",
++					ret);
++			return ret;
++		}
++	}
++
+ 	ret = of_pci_get_max_link_speed(dev->of_node);
+ 	if (ret <= 0 || ret > 3)
+ 		pcie->link_gen = 3;
 
 
