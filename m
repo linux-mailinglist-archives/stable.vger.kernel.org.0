@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9F946A944
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:12:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2C146A94A
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:13:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350221AbhLFVQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:16:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58244 "EHLO
+        id S1350139AbhLFVQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:16:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350139AbhLFVQY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:16:24 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFCCC061746;
-        Mon,  6 Dec 2021 13:12:54 -0800 (PST)
+        with ESMTP id S1350223AbhLFVQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:16:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20BB7C0613F8;
+        Mon,  6 Dec 2021 13:13:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 47AFECE1412;
-        Mon,  6 Dec 2021 21:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710B4C341CB;
-        Mon,  6 Dec 2021 21:12:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAEF8B81221;
+        Mon,  6 Dec 2021 21:13:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 514E4C341C1;
+        Mon,  6 Dec 2021 21:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825171;
-        bh=unlC7HLWyW/ytc26HnASg751ADcMZewyNkZGzmL/MyE=;
+        s=k20201202; t=1638825180;
+        bh=fbZcHfztkVh/9iYEi+/Xqk3tFGUtpBIMDyj4UDvNSDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L37/lwYedVW/ynwwG11le97opYLGpF4COF4fla8TU3622239Lk+XIGz41yH3Vvr/Q
-         tfJLJf/ajRyM86oDVVGQe/6wHGQyYiUOF1E7qwqK5zxoGmUJjn9UjnvwLnqhWIcEd4
-         A8pk6xmlRpBo2G8Aec+veXEoTLQ5U0hamLu1dEkEvKwTgJ40dKq2CEY7jQ6S/Ry763
-         8ZXXvdMKOLDkpYprb4VhjlgvDXPpi8jUpqTJy08EODO1DfgnCeGPcICh8AwndGzkA7
-         R89fjRQ127aCgsov37bEXTldGN08L2bPuq9iDV4zdFBdocfXkWh6o+YzLqcAKcwlIi
-         qKCxTmiet+rJQ==
+        b=cpNXQFCnnmbRnT0x7MVf6FAA/cogLTwGKhEh2QjEMdXgdG9g3x6EoZ/xXQA5U6LRS
+         GnfRNZn/xsAtnmxKC0SmK4K5f9EOpvCrL+r/if35bg0OPpEjfkcKaJM2kDs8SCUj6J
+         SYxj5tdjtcTHjilCYLfXEVZHsIusqomn4Os7HVxtPmpsziR4rEAc/IznvbBJHj/Xc4
+         BxUP5AWYM/XAQ1xgoHnAI+pYv8ewYqLPNSLsaE8D0FqgdxB/8LcS8IdtwfoQXBxiSk
+         ZYusI4H2zVQq/V6JmC7x9R0jksMeJdVQAUs2QH47xZQA3WvBeMMKd9NL+B5RXBraJR
+         s48wVr8t6Rchg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Akhil P Oommen <akhilpo@codeaurora.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Philip Chen <philipchen@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
         sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch,
-        jordan@cosmicpenguin.net, jonathan@marek.ca,
-        dmitry.baryshkov@linaro.org, saiprakash.ranjan@codeaurora.org,
-        dianders@chromium.org, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 02/24] drm/msm/a6xx: Fix uinitialized use of gpu_scid
-Date:   Mon,  6 Dec 2021 16:12:07 -0500
-Message-Id: <20211206211230.1660072-2-sashal@kernel.org>
+        dmitry.baryshkov@linaro.org, abhinavk@codeaurora.org,
+        bjorn.andersson@linaro.org, jonathan@marek.ca,
+        jesszhan@codeaurora.org, tiny.windzz@gmail.com, vulab@iscas.ac.cn,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 03/24] drm/msm/dsi: set default num_data_lanes
+Date:   Mon,  6 Dec 2021 16:12:08 -0500
+Message-Id: <20211206211230.1660072-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211206211230.1660072-1-sashal@kernel.org>
 References: <20211206211230.1660072-1-sashal@kernel.org>
@@ -56,69 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <akhilpo@codeaurora.org>
+From: Philip Chen <philipchen@chromium.org>
 
-[ Upstream commit 9ba873e66ed317a1ff645d5e52c2e72597ff3d18 ]
+[ Upstream commit cd92cc187c053ab010a1570e2d61d68394a5c725 ]
 
-Avoid a possible uninitialized use of gpu_scid variable to fix the
-below smatch warning:
-	drivers/gpu/drm/msm/adreno/a6xx_gpu.c:1480 a6xx_llc_activate()
-	error: uninitialized symbol 'gpu_scid'.
+If "data_lanes" property of the dsi output endpoint is missing in
+the DT, num_data_lanes would be 0 by default, which could cause
+dsi_host_attach() to fail if dsi->lanes is set to a non-zero value
+by the bridge driver.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211118154903.3.Ie4ac321feb10168af569d9c2b4cf6828bed8122c@changeid
+According to the binding document of msm dsi controller, the
+input/output endpoint of the controller is expected to have 4 lanes.
+So let's set num_data_lanes to 4 by default.
+
+Signed-off-by: Philip Chen <philipchen@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20211030100812.1.I6cd9af36b723fed277d34539d3b2ba4ca233ad2d@changeid
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 267a880811d65..723074aae5b63 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1424,17 +1424,24 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
- {
- 	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
- 	struct msm_gpu *gpu = &adreno_gpu->base;
--	u32 gpu_scid, cntl1_regval = 0;
-+	u32 cntl1_regval = 0;
- 
- 	if (IS_ERR(a6xx_gpu->llc_mmio))
- 		return;
- 
- 	if (!llcc_slice_activate(a6xx_gpu->llc_slice)) {
--		gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
-+		u32 gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
- 
- 		gpu_scid &= 0x1f;
- 		cntl1_regval = (gpu_scid << 0) | (gpu_scid << 5) | (gpu_scid << 10) |
- 			       (gpu_scid << 15) | (gpu_scid << 20);
-+
-+		/* On A660, the SCID programming for UCHE traffic is done in
-+		 * A6XX_GBIF_SCACHE_CNTL0[14:10]
-+		 */
-+		if (adreno_is_a660_family(adreno_gpu))
-+			gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
-+				(1 << 8), (gpu_scid << 10) | (1 << 8));
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index ea641151e77e7..dc85974c78975 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1696,6 +1696,8 @@ static int dsi_host_parse_lane_data(struct msm_dsi_host *msm_host,
+ 	if (!prop) {
+ 		DRM_DEV_DEBUG(dev,
+ 			"failed to find data lane mapping, using default\n");
++		/* Set the number of date lanes to 4 by default. */
++		msm_host->num_data_lanes = 4;
+ 		return 0;
  	}
  
- 	/*
-@@ -1471,13 +1478,6 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
- 	}
- 
- 	gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL1, GENMASK(24, 0), cntl1_regval);
--
--	/* On A660, the SCID programming for UCHE traffic is done in
--	 * A6XX_GBIF_SCACHE_CNTL0[14:10]
--	 */
--	if (adreno_is_a660_family(adreno_gpu))
--		gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
--			(1 << 8), (gpu_scid << 10) | (1 << 8));
- }
- 
- static void a6xx_llc_slices_destroy(struct a6xx_gpu *a6xx_gpu)
 -- 
 2.33.0
 
