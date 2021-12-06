@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B84846A952
+	by mail.lfdr.de (Postfix) with ESMTP id 258BF46A951
 	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:13:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350240AbhLFVQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1350329AbhLFVQu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 6 Dec 2021 16:16:50 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51674 "EHLO
+Received: from ams.source.kernel.org ([145.40.68.75]:51782 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350301AbhLFVQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:16:39 -0500
+        with ESMTP id S1350365AbhLFVQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:16:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0846AB81221;
-        Mon,  6 Dec 2021 21:13:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 367B6C341C7;
-        Mon,  6 Dec 2021 21:13:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89EBBB8110F;
+        Mon,  6 Dec 2021 21:13:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEDACC341C1;
+        Mon,  6 Dec 2021 21:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825187;
-        bh=H4uUvM5pppAu6WzREmO2UlgD4GP2fvGc+Ml8KZHDA48=;
+        s=k20201202; t=1638825196;
+        bh=RmUvLN5TUsfm8pWXxTp9zCUEG8c60QbEHR/Zn0rbyT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eo0ZRvNgGlVh2u62uSm0aX6OKemDRtFFAgJ2wN2BnWMafYgrHx47gGWFcYrQHH73/
-         BgUJd4Ck8mLycyaTaywauEUxxzWaibtMT4i4gQTfCdyj0GOuMEJ7bSaB+YZP2r8LRh
-         lJ4kSJCXAG2E29gr1wo0bYIr5A1keppXq6uYSmC41auRQ0tOjDKPF3ePtVqG8Xn676
-         GKfF1K5xCEFJGaT2mqv8qMrU6R6HivLXEUjXwOE6nvPqPX2X+zD06gVDB5nf+RZKL6
-         mb/3GoO5JDbbbEtQxLzQv1/SiudHB4vzWKJm7iZKP/5nvKiAYaWAT1F3vb3M2hrOUC
-         poXqNkbAMKHWg==
+        b=cgg9odRuEe83+xIaAy+fPGS36EcMX+UcpiZz22ZrPMkkn9AFugNhm8sOutefWG+pr
+         O0yNbtwPKhUNmqOSsGhXSlYi0H/LEOzrk9V9OSDtEhH6pbaH9y+2sZFhQMfYKyT4Fu
+         TTnSI01X0ZjJwLEsGf0iJufP9mw6DaVJqRJsnmLxqRWa3JlAd+SytwnyhJBAzBPz/k
+         Zf36EtQnjy60gO7YuFHufF+T/0j9uJpL6WsoUEo60WRbXnVkSEWdzS2n9lcCRLTdy+
+         sXGt5gMbBRPojbFntA6YcHDibrCTkHSzqT2J33u5BcB2uZrLzg9n1ejUFisyJXpsYd
+         9pjwqBAvc0fCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
-        sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch,
-        khsieh@codeaurora.org, swboyd@chromium.org,
-        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 04/24] drm/msm/dp: Avoid unpowered AUX xfers that caused crashes
-Date:   Mon,  6 Dec 2021 16:12:09 -0500
-Message-Id: <20211206211230.1660072-4-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Fuad Tabba <tabba@google.com>,
+        Sasha Levin <sashal@kernel.org>, catalin.marinas@arm.com,
+        will@kernel.org, ardb@kernel.org, pbonzini@redhat.com,
+        dbrazdil@google.com, mark.rutland@arm.com, qperret@google.com,
+        steven.price@arm.com, linux-arm-kernel@lists.infradead.org,
+        kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.15 05/24] KVM: arm64: Save PSTATE early on exit
+Date:   Mon,  6 Dec 2021 16:12:10 -0500
+Message-Id: <20211206211230.1660072-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211206211230.1660072-1-sashal@kernel.org>
 References: <20211206211230.1660072-1-sashal@kernel.org>
@@ -53,127 +50,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit d03fcc1de0863b1188ceb867cfa84a578fdc96bc ]
+[ Upstream commit 83bb2c1a01d7127d5adc7d69d7aaa3f7072de2b4 ]
 
-If you happened to try to access `/dev/drm_dp_aux` devices provided by
-the MSM DP AUX driver too early at bootup you could go boom. Let's
-avoid that by only allowing AUX transfers when the controller is
-powered up.
+In order to be able to use primitives such as vcpu_mode_is_32bit(),
+we need to synchronize the guest PSTATE. However, this is currently
+done deep into the bowels of the world-switch code, and we do have
+helpers evaluating this much earlier (__vgic_v3_perform_cpuif_access
+and handle_aarch32_guest, for example).
 
-Specifically the crash that was seen (on Chrome OS 5.4 tree with
-relevant backports):
-  Kernel panic - not syncing: Asynchronous SError Interrupt
-  CPU: 0 PID: 3131 Comm: fwupd Not tainted 5.4.144-16620-g28af11b73efb #1
-  Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
-  Call trace:
-   dump_backtrace+0x0/0x14c
-   show_stack+0x20/0x2c
-   dump_stack+0xac/0x124
-   panic+0x150/0x390
-   nmi_panic+0x80/0x94
-   arm64_serror_panic+0x78/0x84
-   do_serror+0x0/0x118
-   do_serror+0xa4/0x118
-   el1_error+0xbc/0x160
-   dp_catalog_aux_write_data+0x1c/0x3c
-   dp_aux_cmd_fifo_tx+0xf0/0x1b0
-   dp_aux_transfer+0x1b0/0x2bc
-   drm_dp_dpcd_access+0x8c/0x11c
-   drm_dp_dpcd_read+0x64/0x10c
-   auxdev_read_iter+0xd4/0x1c4
+Move the saving of the guest pstate into the early fixups, which
+cures the first issue. The second one will be addressed separately.
 
-I did a little bit of tracing and found that:
-* We register the AUX device very early at bootup.
-* Power isn't actually turned on for my system until
-  hpd_event_thread() -> dp_display_host_init() -> dp_power_init()
-* You can see that dp_power_init() calls dp_aux_init() which is where
-  we start allowing AUX channel requests to go through.
-
-In general this patch is a bit of a bandaid but at least it gets us
-out of the current state where userspace acting at the wrong time can
-fully crash the system.
-* I think the more proper fix (which requires quite a bit more
-  changes) is to power stuff on while an AUX transfer is
-  happening. This is like the solution we did for ti-sn65dsi86. This
-  might be required for us to move to populating the panel via the
-  DP-AUX bus.
-* Another fix considered was to dynamically register / unregister. I
-  tried that at <https://crrev.com/c/3169431/3> but it got
-  ugly. Currently there's a bug where the pm_runtime() state isn't
-  tracked properly and that causes us to just keep registering more
-  and more.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Link: https://lore.kernel.org/r/20211109100403.1.I4e23470d681f7efe37e2e7f1a6466e15e9bb1d72@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Tested-by: Fuad Tabba <tabba@google.com>
+Reviewed-by: Fuad Tabba <tabba@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_aux.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/arm64/kvm/hyp/include/hyp/switch.h    | 6 ++++++
+ arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h | 7 ++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_aux.c b/drivers/gpu/drm/msm/dp/dp_aux.c
-index eb40d8413bca9..6d36f63c33388 100644
---- a/drivers/gpu/drm/msm/dp/dp_aux.c
-+++ b/drivers/gpu/drm/msm/dp/dp_aux.c
-@@ -33,6 +33,7 @@ struct dp_aux_private {
- 	bool read;
- 	bool no_send_addr;
- 	bool no_send_stop;
-+	bool initted;
- 	u32 offset;
- 	u32 segment;
- 
-@@ -331,6 +332,10 @@ static ssize_t dp_aux_transfer(struct drm_dp_aux *dp_aux,
- 	}
- 
- 	mutex_lock(&aux->mutex);
-+	if (!aux->initted) {
-+		ret = -EIO;
-+		goto exit;
-+	}
- 
- 	dp_aux_update_offset_and_segment(aux, msg);
- 	dp_aux_transfer_helper(aux, msg, true);
-@@ -380,6 +385,8 @@ static ssize_t dp_aux_transfer(struct drm_dp_aux *dp_aux,
- 	}
- 
- 	aux->cmd_busy = false;
+diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
+index a0e78a6027be0..c75e84489f57b 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/switch.h
++++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
+@@ -416,6 +416,12 @@ static inline bool __hyp_handle_ptrauth(struct kvm_vcpu *vcpu)
+  */
+ static inline bool fixup_guest_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
+ {
++	/*
++	 * Save PSTATE early so that we can evaluate the vcpu mode
++	 * early on.
++	 */
++	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
 +
-+exit:
- 	mutex_unlock(&aux->mutex);
+ 	if (ARM_EXCEPTION_CODE(*exit_code) != ARM_EXCEPTION_IRQ)
+ 		vcpu->arch.fault.esr_el2 = read_sysreg_el2(SYS_ESR);
  
- 	return ret;
-@@ -431,8 +438,13 @@ void dp_aux_init(struct drm_dp_aux *dp_aux)
+diff --git a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
+index de7e14c862e6c..7ecca8b078519 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
++++ b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
+@@ -70,7 +70,12 @@ static inline void __sysreg_save_el1_state(struct kvm_cpu_context *ctxt)
+ static inline void __sysreg_save_el2_return_state(struct kvm_cpu_context *ctxt)
+ {
+ 	ctxt->regs.pc			= read_sysreg_el2(SYS_ELR);
+-	ctxt->regs.pstate		= read_sysreg_el2(SYS_SPSR);
++	/*
++	 * Guest PSTATE gets saved at guest fixup time in all
++	 * cases. We still need to handle the nVHE host side here.
++	 */
++	if (!has_vhe() && ctxt->__hyp_running_vcpu)
++		ctxt->regs.pstate	= read_sysreg_el2(SYS_SPSR);
  
- 	aux = container_of(dp_aux, struct dp_aux_private, dp_aux);
- 
-+	mutex_lock(&aux->mutex);
-+
- 	dp_catalog_aux_enable(aux->catalog, true);
- 	aux->retry_cnt = 0;
-+	aux->initted = true;
-+
-+	mutex_unlock(&aux->mutex);
- }
- 
- void dp_aux_deinit(struct drm_dp_aux *dp_aux)
-@@ -441,7 +453,12 @@ void dp_aux_deinit(struct drm_dp_aux *dp_aux)
- 
- 	aux = container_of(dp_aux, struct dp_aux_private, dp_aux);
- 
-+	mutex_lock(&aux->mutex);
-+
-+	aux->initted = false;
- 	dp_catalog_aux_enable(aux->catalog, false);
-+
-+	mutex_unlock(&aux->mutex);
- }
- 
- int dp_aux_register(struct drm_dp_aux *dp_aux)
+ 	if (cpus_have_final_cap(ARM64_HAS_RAS_EXTN))
+ 		ctxt_sys_reg(ctxt, DISR_EL1) = read_sysreg_s(SYS_VDISR_EL2);
 -- 
 2.33.0
 
