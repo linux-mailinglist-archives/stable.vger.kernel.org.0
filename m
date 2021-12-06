@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76CBD469B1C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:09:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA75469BB6
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348737AbhLFPMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:12:54 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59228 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356007AbhLFPLC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:02 -0500
+        id S1356631AbhLFPSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358529AbhLFPQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98497C08EC67;
+        Mon,  6 Dec 2021 07:09:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB0BA61310;
-        Mon,  6 Dec 2021 15:07:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 911E2C341C2;
-        Mon,  6 Dec 2021 15:07:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 625C1B81126;
+        Mon,  6 Dec 2021 15:09:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A670EC341C5;
+        Mon,  6 Dec 2021 15:09:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803253;
-        bh=tYx1idAeozzcmY7Kw0bjUj3yMgAFvUZZbWLeviEOONY=;
+        s=korg; t=1638803359;
+        bh=NAQYj6k14BTvbarLpERBFjTCDkSvdLI44DIIKOd4jKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEcJ+VSkcENlMxJWagPDvZa8pZz/ezyq7F+tp9GvHas1jDU44CB0bfDYe3QUNkY5i
-         NrdbhxSqZDkjEuAXsWS6EpYyG0JwIs2GX98EhwwNHfJig2vMKW3pRXAyDU0obBculn
-         g6jHj84sfKY/sIDedcjHLXAX61eZh/Pug/ahzU8E=
+        b=d/kQHfqPcnfyQEtxzIhrAOwws2cPV3W8q9bc8bOY2KiLahmSpI0jGyoETIy4VTDlX
+         pGAEHnsb4ksl/p536Z4WMypVWELQBEr49iBQ3o+Rv1xgWNW/L1ZEiUg/IyQZOMfY+j
+         nQTqGdZf5vUq3Ref/1jcbzK4oeINBXNLVJAx6YcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 083/106] vrf: Reset IPCB/IP6CB when processing outbound pkts in vrf dev xmit
+        stable@vger.kernel.org, zhangyue <zhangyue1@kylinos.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 14/48] net: tulip: de4x5: fix the problem that the array lp->phy[8] may be out of bound
 Date:   Mon,  6 Dec 2021 15:56:31 +0100
-Message-Id: <20211206145558.372838230@linuxfoundation.org>
+Message-Id: <20211206145549.344338370@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: zhangyue <zhangyue1@kylinos.cn>
 
-commit ee201011c1e1563c114a55c86eb164b236f18e84 upstream.
+[ Upstream commit 61217be886b5f7402843677e4be7e7e83de9cb41 ]
 
-IPCB/IP6CB need to be initialized when processing outbound v4 or v6 pkts
-in the codepath of vrf device xmit function so that leftover garbage
-doesn't cause futher code that uses the CB to incorrectly process the
-pkt.
+In line 5001, if all id in the array 'lp->phy[8]' is not 0, when the
+'for' end, the 'k' is 8.
 
-One occasion of the issue might occur when MPLS route uses the vrf
-device as the outgoing device such as when the route is added using "ip
--f mpls route add <label> dev <vrf>" command.
+At this time, the array 'lp->phy[8]' may be out of bound.
 
-The problems seems to exist since day one. Hence I put the day one
-commits on the Fixes tags.
-
-Fixes: 193125dbd8eb ("net: Introduce VRF device driver")
-Fixes: 35402e313663 ("net: Add IPv6 support to VRF device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211130162637.3249-1-ssuryaextr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: zhangyue <zhangyue1@kylinos.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/dec/tulip/de4x5.c | 30 +++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -208,6 +208,7 @@ static netdev_tx_t vrf_process_v6_outbou
- 	/* strip the ethernet header added for pass through VRF device */
- 	__skb_pull(skb, skb_network_offset(skb));
- 
-+	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
- 	ret = vrf_ip6_local_out(net, skb->sk, skb);
- 	if (unlikely(net_xmit_eval(ret)))
- 		dev->stats.tx_errors++;
-@@ -289,6 +290,7 @@ static netdev_tx_t vrf_process_v4_outbou
- 					       RT_SCOPE_LINK);
+diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
+index c813e6f2b371e..a80252973171f 100644
+--- a/drivers/net/ethernet/dec/tulip/de4x5.c
++++ b/drivers/net/ethernet/dec/tulip/de4x5.c
+@@ -4999,19 +4999,23 @@ mii_get_phy(struct net_device *dev)
  	}
- 
-+	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
- 	ret = vrf_ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
- 	if (unlikely(net_xmit_eval(ret)))
- 		vrf_dev->stats.tx_errors++;
+ 	if ((j == limit) && (i < DE4X5_MAX_MII)) {
+ 	    for (k=0; k < DE4X5_MAX_PHY && lp->phy[k].id; k++);
+-	    lp->phy[k].addr = i;
+-	    lp->phy[k].id = id;
+-	    lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
+-	    lp->phy[k].spd.mask = GENERIC_MASK;    /* 100Mb/s technologies   */
+-	    lp->phy[k].spd.value = GENERIC_VALUE;  /* TX & T4, H/F Duplex    */
+-	    lp->mii_cnt++;
+-	    lp->active++;
+-	    printk("%s: Using generic MII device control. If the board doesn't operate,\nplease mail the following dump to the author:\n", dev->name);
+-	    j = de4x5_debug;
+-	    de4x5_debug |= DEBUG_MII;
+-	    de4x5_dbg_mii(dev, k);
+-	    de4x5_debug = j;
+-	    printk("\n");
++	    if (k < DE4X5_MAX_PHY) {
++		lp->phy[k].addr = i;
++		lp->phy[k].id = id;
++		lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
++		lp->phy[k].spd.mask = GENERIC_MASK;    /* 100Mb/s technologies   */
++		lp->phy[k].spd.value = GENERIC_VALUE;  /* TX & T4, H/F Duplex    */
++		lp->mii_cnt++;
++		lp->active++;
++		printk("%s: Using generic MII device control. If the board doesn't operate,\nplease mail the following dump to the author:\n", dev->name);
++		j = de4x5_debug;
++		de4x5_debug |= DEBUG_MII;
++		de4x5_dbg_mii(dev, k);
++		de4x5_debug = j;
++		printk("\n");
++	    } else {
++		goto purgatory;
++	    }
+ 	}
+     }
+   purgatory:
+-- 
+2.33.0
+
 
 
