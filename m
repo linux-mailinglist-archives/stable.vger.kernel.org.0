@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE993469CA1
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94369469B0A
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358986AbhLFPYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:24:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56914 "EHLO
+        id S1345092AbhLFPMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:12:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356403AbhLFPWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:22:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 520C6C08E9BC;
-        Mon,  6 Dec 2021 07:14:47 -0800 (PST)
+        with ESMTP id S1350078AbhLFPKi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:10:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C4CDC061359;
+        Mon,  6 Dec 2021 07:04:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4C27612C1;
-        Mon,  6 Dec 2021 15:14:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7E47C341C2;
-        Mon,  6 Dec 2021 15:14:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52907B81136;
+        Mon,  6 Dec 2021 15:04:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76E3DC341C1;
+        Mon,  6 Dec 2021 15:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803686;
-        bh=f8FDVQlSX/kwqMVCs12n3hux8Hv+01Gm08VbV2EG0pI=;
+        s=korg; t=1638803079;
+        bh=ty2GBagN0sdznxDrHTJSyV2OgyP9iFxUMrmWHXGdVVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dYpLYWwIlckZwkMSmWyAgsi7ZqmWon72gAn1vHdAeCZF/zF9uNMLwO5P9Vi7h2iAa
-         zJ7J5vqW9RjUU0GJ6z4iESjLhPfdmtUHsakXM1pasTr3ThVzv2yXoldQ27m/7H633n
-         pwVyqEarCwJwBOdX3XC1B/icUazU3VFSYN4chI2s=
+        b=Ylxq+Kee3pbeozRFEP53UGh2QMv5ANGGSu08OjlgJFuRY5qHgt5M6uh2DU6CC2afG
+         qmsQHUEEKFZi/4uwwhNCSC52iLB9M6c7n1C25cg9O0Cm3ozF9o1BCrEGxLumE8x0Xj
+         gGDWL7z3PcTx5DKTX3yWiLppHKN574QzKkpsYyos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 011/130] atlantic: Fix OOB read and write in hw_atl_utils_fw_rpc_wait
-Date:   Mon,  6 Dec 2021 15:55:28 +0100
-Message-Id: <20211206145600.014001768@linuxfoundation.org>
+Subject: [PATCH 4.14 021/106] scsi: mpt3sas: Fix kernel panic during drive powercycle test
+Date:   Mon,  6 Dec 2021 15:55:29 +0100
+Message-Id: <20211206145556.101187271@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,90 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit b922f622592af76b57cbc566eaeccda0b31a3496 ]
+[ Upstream commit 0ee4ba13e09c9d9c1cb6abb59da8295d9952328b ]
 
-This bug report shows up when running our research tools. The
-reports is SOOB read, but it seems SOOB write is also possible
-a few lines below.
+While looping over shost's sdev list it is possible that one
+of the drives is getting removed and its sas_target object is
+freed but its sdev object remains intact.
 
-In details, fw.len and sw.len are inputs coming from io. A len
-over the size of self->rpc triggers SOOB. The patch fixes the
-bugs by adding sanity checks.
+Consequently, a kernel panic can occur while the driver is trying to access
+the sas_address field of sas_target object without also checking the
+sas_target object for NULL.
 
-The bugs are triggerable with compromised/malfunctioning devices.
-They are potentially exploitable given they first leak up to
-0xffff bytes and able to overwrite the region later.
-
-The patch is tested with QEMU emulater.
-This is NOT tested with a real device.
-
-Attached is the log we found by fuzzing.
-
-BUG: KASAN: slab-out-of-bounds in
-	hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
-Read of size 4 at addr ffff888016260b08 by task modprobe/213
-CPU: 0 PID: 213 Comm: modprobe Not tainted 5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- ? hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- __kasan_report.cold+0x37/0x7c
- ? aq_hw_read_reg_bit+0x60/0x70 [atlantic]
- ? hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- kasan_report+0xe/0x20
- hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- hw_atl_utils_fw_rpc_call+0x95/0x130 [atlantic]
- hw_atl_utils_fw_rpc_wait+0x176/0x210 [atlantic]
- hw_atl_utils_mpi_create+0x229/0x2e0 [atlantic]
- ? hw_atl_utils_fw_rpc_wait+0x210/0x210 [atlantic]
- ? hw_atl_utils_initfw+0x9f/0x1c8 [atlantic]
- hw_atl_utils_initfw+0x12a/0x1c8 [atlantic]
- aq_nic_ndev_register+0x88/0x650 [atlantic]
- ? aq_nic_ndev_init+0x235/0x3c0 [atlantic]
- aq_pci_probe+0x731/0x9b0 [atlantic]
- ? aq_pci_func_init+0xc0/0xc0 [atlantic]
- local_pci_probe+0xd3/0x160
- pci_device_probe+0x23f/0x3e0
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20211117104909.2069-1-sreekanth.reddy@broadcom.com
+Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c   | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-index 404cbf60d3f2f..da1d185f6d226 100644
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-@@ -559,6 +559,11 @@ int hw_atl_utils_fw_rpc_wait(struct aq_hw_s *self,
- 			goto err_exit;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index 332ea3af69ec3..79c5a193308f4 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -2955,7 +2955,7 @@ _scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc, u64 sas_address)
  
- 		if (fw.len == 0xFFFFU) {
-+			if (sw.len > sizeof(self->rpc)) {
-+				printk(KERN_INFO "Invalid sw len: %x\n", sw.len);
-+				err = -EINVAL;
-+				goto err_exit;
-+			}
- 			err = hw_atl_utils_fw_rpc_call(self, sw.len);
- 			if (err < 0)
- 				goto err_exit;
-@@ -567,6 +572,11 @@ int hw_atl_utils_fw_rpc_wait(struct aq_hw_s *self,
- 
- 	if (rpc) {
- 		if (fw.len) {
-+			if (fw.len > sizeof(self->rpc)) {
-+				printk(KERN_INFO "Invalid fw len: %x\n", fw.len);
-+				err = -EINVAL;
-+				goto err_exit;
-+			}
- 			err =
- 			hw_atl_utils_fw_downld_dwords(self,
- 						      self->rpc_addr,
+ 	shost_for_each_device(sdev, ioc->shost) {
+ 		sas_device_priv_data = sdev->hostdata;
+-		if (!sas_device_priv_data)
++		if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
+ 			continue;
+ 		if (sas_device_priv_data->sas_target->sas_address
+ 		    != sas_address)
 -- 
 2.33.0
 
