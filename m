@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2867469BFC
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D52469D3B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357840AbhLFPTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:19:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347063AbhLFPRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 934BCC08EAE9;
-        Mon,  6 Dec 2021 07:10:34 -0800 (PST)
+        id S244402AbhLFP2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42376 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359134AbhLFPYS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D1E5B8111E;
-        Mon,  6 Dec 2021 15:10:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C857C341C2;
-        Mon,  6 Dec 2021 15:10:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 734C36133C;
+        Mon,  6 Dec 2021 15:20:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52D03C341C2;
+        Mon,  6 Dec 2021 15:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803432;
-        bh=Wtyv9B/EzQ4/3BqBfvqzTd+JS0pyb8Wx8MsRVgC1Z0Y=;
+        s=korg; t=1638804046;
+        bh=RLPrFAp3DVZ6ThzxUXhWMGaAznPUo5CPpjnjLqs8W7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kh4GzjhcoSInY50Wcy+3ukMwBRo/WVyCJQpRWtiug2SmWfBIkUjN5xiA/6QeWU+UC
-         tVbjazk7edY2E9RBEGUwlxx6AYsFNuqFBSLhYaO+AMlKZynGpRLeApQJ0ZKIwCK9QC
-         CHxAq+Z2A8Im0iS6QRglrCry/rR81ztVuIMaby34=
+        b=zLF7g30IbNQ4B9YEAfgQ5Tav60aww6b/D9G0QpOnU3/ybbd4qplzufYZfT9NoNsuf
+         XFk+SsRm3u+ptfS3uI5XYk7rFGfgJTtjuv/gLpIqFCHkFsin7WTi5pRlq7X9vV/E7S
+         v5LPTC9vHug77fIKT0xfpumiV/RjM5vk7wG7eFC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wim Osterholt <wim@djo.tudelft.nl>,
-        "Pavel V. Panteleev" <panteleev_p@mcst.ru>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 4.19 39/48] vgacon: Propagate console boot parameters before calling `vc_resize
+        stable@vger.kernel.org, Nikita Danilov <ndanilov@aquantia.com>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 099/130] atlantic: Add missing DIDs and fix 115c.
 Date:   Mon,  6 Dec 2021 15:56:56 +0100
-Message-Id: <20211206145550.176683649@linuxfoundation.org>
+Message-Id: <20211206145603.070909853@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,94 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Nikita Danilov <ndanilov@aquantia.com>
 
-commit 3dfac26e2ef29ff2abc2a75aa4cd48fce25a2c4b upstream.
+commit 413d5e09caa5a11da9c7d72401ba0588466a04c0 upstream.
 
-Fix a division by zero in `vgacon_resize' with a backtrace like:
+At the late production stages new dev ids were introduced. These are
+now in production, so its important for the driver to recognize these.
+And also fix the board caps for AQC115C adapter.
 
-vgacon_resize
-vc_do_resize
-vgacon_init
-do_bind_con_driver
-do_unbind_con_driver
-fbcon_fb_unbind
-do_unregister_framebuffer
-do_register_framebuffer
-register_framebuffer
-__drm_fb_helper_initial_config_and_unlock
-drm_helper_hpd_irq_event
-dw_hdmi_irq
-irq_thread
-kthread
-
-caused by `c->vc_cell_height' not having been initialized.  This has
-only started to trigger with commit 860dafa90259 ("vt: Fix character
-height handling with VT_RESIZEX"), however the ultimate offender is
-commit 50ec42edd978 ("[PATCH] Detaching fbcon: fix vgacon to allow
-retaking of the console").
-
-Said commit has added a call to `vc_resize' whenever `vgacon_init' is
-called with the `init' argument set to 0, which did not happen before.
-And the call is made before a key vgacon boot parameter retrieved in
-`vgacon_startup' has been propagated in `vgacon_init' for `vc_resize' to
-use to the console structure being worked on.  Previously the parameter
-was `c->vc_font.height' and now it is `c->vc_cell_height'.
-
-In this particular scenario the registration of fbcon has failed and vt
-resorts to vgacon.  Now fbcon does have initialized `c->vc_font.height'
-somehow, unlike `c->vc_cell_height', which is why this code did not
-crash before, but either way the boot parameters should have been copied
-to the console structure ahead of the call to `vc_resize' rather than
-afterwards, so that first the call has a chance to use them and second
-they do not change the console structure to something possibly different
-from what was used by `vc_resize'.
-
-Move the propagation of the vgacon boot parameters ahead of the call to
-`vc_resize' then.  Adjust the comment accordingly.
-
-Fixes: 50ec42edd978 ("[PATCH] Detaching fbcon: fix vgacon to allow retaking of the console")
-Cc: stable@vger.kernel.org # v2.6.18+
-Reported-by: Wim Osterholt <wim@djo.tudelft.nl>
-Reported-by: Pavel V. Panteleev <panteleev_p@mcst.ru>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2110252317110.58149@angie.orcam.me.uk
+Fixes: b3f0c79cba206 ("net: atlantic: A2 hw_ops skeleton")
+Signed-off-by: Nikita Danilov <ndanilov@aquantia.com>
+Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/vgacon.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_common.h       |    2 +
+ drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c     |    7 +++++-
+ drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c |   17 +++++++++++++++
+ drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h |    2 +
+ 4 files changed, 27 insertions(+), 1 deletion(-)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -370,11 +370,17 @@ static void vgacon_init(struct vc_data *
- 	struct uni_pagedir *p;
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_common.h
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_common.h
+@@ -40,10 +40,12 @@
  
- 	/*
--	 * We cannot be loaded as a module, therefore init is always 1,
--	 * but vgacon_init can be called more than once, and init will
--	 * not be 1.
-+	 * We cannot be loaded as a module, therefore init will be 1
-+	 * if we are the default console, however if we are a fallback
-+	 * console, for example if fbcon has failed registration, then
-+	 * init will be 0, so we need to make sure our boot parameters
-+	 * have been copied to the console structure for vgacon_resize
-+	 * ultimately called by vc_resize.  Any subsequent calls to
-+	 * vgacon_init init will have init set to 0 too.
- 	 */
- 	c->vc_can_do_color = vga_can_do_color;
-+	c->vc_scan_lines = vga_scan_lines;
-+	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
+ #define AQ_DEVICE_ID_AQC113DEV	0x00C0
+ #define AQ_DEVICE_ID_AQC113CS	0x94C0
++#define AQ_DEVICE_ID_AQC113CA	0x34C0
+ #define AQ_DEVICE_ID_AQC114CS	0x93C0
+ #define AQ_DEVICE_ID_AQC113	0x04C0
+ #define AQ_DEVICE_ID_AQC113C	0x14C0
+ #define AQ_DEVICE_ID_AQC115C	0x12C0
++#define AQ_DEVICE_ID_AQC116C	0x11C0
  
- 	/* set dimensions manually if init != 0 since vc_resize() will fail */
- 	if (init) {
-@@ -383,8 +389,6 @@ static void vgacon_init(struct vc_data *
- 	} else
- 		vc_resize(c, vga_video_num_columns, vga_video_num_lines);
+ #define HW_ATL_NIC_NAME "Marvell (aQuantia) AQtion 10Gbit Network Adapter"
  
--	c->vc_scan_lines = vga_scan_lines;
--	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
- 	c->vc_complement_mask = 0x7700;
- 	if (vga_512_chars)
- 		c->vc_hi_font_mask = 0x0800;
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
+@@ -49,6 +49,8 @@ static const struct pci_device_id aq_pci
+ 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113), },
+ 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113C), },
+ 	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC115C), },
++	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC113CA), },
++	{ PCI_VDEVICE(AQUANTIA, AQ_DEVICE_ID_AQC116C), },
+ 
+ 	{}
+ };
+@@ -85,7 +87,10 @@ static const struct aq_board_revision_s
+ 	{ AQ_DEVICE_ID_AQC113CS,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
+ 	{ AQ_DEVICE_ID_AQC114CS,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
+ 	{ AQ_DEVICE_ID_AQC113C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
+-	{ AQ_DEVICE_ID_AQC115C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
++	{ AQ_DEVICE_ID_AQC115C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc115c, },
++	{ AQ_DEVICE_ID_AQC113CA,	AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc113, },
++	{ AQ_DEVICE_ID_AQC116C,		AQ_HWREV_ANY,	&hw_atl2_ops, &hw_atl2_caps_aqc116c, },
++
+ };
+ 
+ MODULE_DEVICE_TABLE(pci, aq_pci_tbl);
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
+@@ -72,6 +72,23 @@ const struct aq_hw_caps_s hw_atl2_caps_a
+ 			  AQ_NIC_RATE_10M_HALF,
+ };
+ 
++const struct aq_hw_caps_s hw_atl2_caps_aqc115c = {
++	DEFAULT_BOARD_BASIC_CAPABILITIES,
++	.media_type = AQ_HW_MEDIA_TYPE_TP,
++	.link_speed_msk = AQ_NIC_RATE_2G5 |
++			  AQ_NIC_RATE_1G  |
++			  AQ_NIC_RATE_100M      |
++			  AQ_NIC_RATE_10M,
++};
++
++const struct aq_hw_caps_s hw_atl2_caps_aqc116c = {
++	DEFAULT_BOARD_BASIC_CAPABILITIES,
++	.media_type = AQ_HW_MEDIA_TYPE_TP,
++	.link_speed_msk = AQ_NIC_RATE_1G  |
++			  AQ_NIC_RATE_100M      |
++			  AQ_NIC_RATE_10M,
++};
++
+ static u32 hw_atl2_sem_act_rslvr_get(struct aq_hw_s *self)
+ {
+ 	return hw_atl_reg_glb_cpu_sem_get(self, HW_ATL2_FW_SM_ACT_RSLVR);
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.h
+@@ -9,6 +9,8 @@
+ #include "aq_common.h"
+ 
+ extern const struct aq_hw_caps_s hw_atl2_caps_aqc113;
++extern const struct aq_hw_caps_s hw_atl2_caps_aqc115c;
++extern const struct aq_hw_caps_s hw_atl2_caps_aqc116c;
+ extern const struct aq_hw_ops hw_atl2_ops;
+ 
+ #endif /* HW_ATL2_H */
 
 
