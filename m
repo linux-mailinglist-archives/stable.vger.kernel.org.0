@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6447469BED
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF91A469C84
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346750AbhLFPRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:15 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33372 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355852AbhLFPMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:51 -0500
+        id S1358280AbhLFPXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54388 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348468AbhLFPVR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A59361316;
-        Mon,  6 Dec 2021 15:09:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B3AAC341C1;
-        Mon,  6 Dec 2021 15:09:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5474CB8111F;
+        Mon,  6 Dec 2021 15:17:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F7DC341CA;
+        Mon,  6 Dec 2021 15:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803362;
-        bh=Ax+mzh3O/LR+EVqEKIJkihsoy88c801hBicX0PEHIjQ=;
+        s=korg; t=1638803866;
+        bh=9k/wmdh+QryMKYR7/AfSxFGhRzyTRsW/XlBFVILplNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlqM3bFi8/sfJi3efPFJlQfssPDbN6AaBNMNMBpaMoyJtP9AydBxTvkVmuLfKYp7B
-         6Je35iHSYAeeHOK6vsDkKEz8WJ9q6SiyP7oI2MZO1QXBwupRbLiUuPl1es5YfOHK4e
-         hF6vmjH2HumPjKTppJpVqNOClpPhEEQvNMejFqf0=
+        b=Pfs9ZwwmeWy19b653A59tLZ7cQUd20+1Eu+3NWZhknIoItlhn1+4EWzFjlOfX+6rm
+         B4zKq7xWV3MkQetMjD1Q/JmKBzAacIvcK/DCQsFVYdHPRKUdX/1rgZLzB7iDdqYQTw
+         IQLseRvQw4qL4EGYXajgSjV4oTjXqGyFihuZ75JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Teng Qi <starmiku1207184332@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/48] net: ethernet: dec: tulip: de4x5: fix possible array overflows in type3_infoblock()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 075/130] ASoC: tegra: Fix wrong value type in I2S
 Date:   Mon,  6 Dec 2021 15:56:32 +0100
-Message-Id: <20211206145549.375368069@linuxfoundation.org>
+Message-Id: <20211206145602.266063962@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teng Qi <starmiku1207184332@gmail.com>
+From: Sameer Pujar <spujar@nvidia.com>
 
-[ Upstream commit 0fa68da72c3be09e06dd833258ee89c33374195f ]
+commit 8a2c2fa0c5331445c801e9241f2bb4e0e2a895a8 upstream.
 
-The definition of macro MOTO_SROM_BUG is:
-  #define MOTO_SROM_BUG    (lp->active == 8 && (get_unaligned_le32(
-  dev->dev_addr) & 0x00ffffff) == 0x3e0008)
+The enum controls are expected to use enumerated value type.
+Update relevant references in control get/put callbacks.
 
-and the if statement
-  if (MOTO_SROM_BUG) lp->active = 0;
-
-using this macro indicates lp->active could be 8. If lp->active is 8 and
-the second comparison of this macro is false. lp->active will remain 8 in:
-  lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
-  lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
-  lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].ana = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].fdx = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].ttm = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].mci = *p;
-
-However, the length of array lp->phy is 8, so array overflows can occur.
-To fix these possible array overflows, we first check lp->active and then
-return -EINVAL if it is greater or equal to ARRAY_SIZE(lp->phy) (i.e. 8).
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c0bfa98349d1 ("ASoC: tegra: Add Tegra210 based I2S driver")
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/1637219231-406-3-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/dec/tulip/de4x5.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/tegra/tegra210_i2s.c |   42 +++++++++++++++++++++++------------------
+ 1 file changed, 24 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
-index a80252973171f..c97fc0e384ca6 100644
---- a/drivers/net/ethernet/dec/tulip/de4x5.c
-+++ b/drivers/net/ethernet/dec/tulip/de4x5.c
-@@ -4708,6 +4708,10 @@ type3_infoblock(struct net_device *dev, u_char count, u_char *p)
-         lp->ibn = 3;
-         lp->active = *p++;
- 	if (MOTO_SROM_BUG) lp->active = 0;
-+	/* if (MOTO_SROM_BUG) statement indicates lp->active could
-+	 * be 8 (i.e. the size of array lp->phy) */
-+	if (WARN_ON(lp->active >= ARRAY_SIZE(lp->phy)))
-+		return -EINVAL;
- 	lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
- 	lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
- 	lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
--- 
-2.33.0
-
+--- a/sound/soc/tegra/tegra210_i2s.c
++++ b/sound/soc/tegra/tegra210_i2s.c
+@@ -317,24 +317,27 @@ static int tegra210_i2s_get_control(stru
+ {
+ 	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
+-	long *uctl_val = &ucontrol->value.integer.value[0];
+ 
+ 	if (strstr(kcontrol->id.name, "Loopback"))
+-		*uctl_val = i2s->loopback;
++		ucontrol->value.integer.value[0] = i2s->loopback;
+ 	else if (strstr(kcontrol->id.name, "FSYNC Width"))
+-		*uctl_val = i2s->fsync_width;
++		ucontrol->value.integer.value[0] = i2s->fsync_width;
+ 	else if (strstr(kcontrol->id.name, "Capture Stereo To Mono"))
+-		*uctl_val = i2s->stereo_to_mono[I2S_TX_PATH];
++		ucontrol->value.enumerated.item[0] =
++			i2s->stereo_to_mono[I2S_TX_PATH];
+ 	else if (strstr(kcontrol->id.name, "Capture Mono To Stereo"))
+-		*uctl_val = i2s->mono_to_stereo[I2S_TX_PATH];
++		ucontrol->value.enumerated.item[0] =
++			i2s->mono_to_stereo[I2S_TX_PATH];
+ 	else if (strstr(kcontrol->id.name, "Playback Stereo To Mono"))
+-		*uctl_val = i2s->stereo_to_mono[I2S_RX_PATH];
++		ucontrol->value.enumerated.item[0] =
++			i2s->stereo_to_mono[I2S_RX_PATH];
+ 	else if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+-		*uctl_val = i2s->mono_to_stereo[I2S_RX_PATH];
++		ucontrol->value.enumerated.item[0] =
++			i2s->mono_to_stereo[I2S_RX_PATH];
+ 	else if (strstr(kcontrol->id.name, "Playback FIFO Threshold"))
+-		*uctl_val = i2s->rx_fifo_th;
++		ucontrol->value.integer.value[0] = i2s->rx_fifo_th;
+ 	else if (strstr(kcontrol->id.name, "BCLK Ratio"))
+-		*uctl_val = i2s->bclk_ratio;
++		ucontrol->value.integer.value[0] = i2s->bclk_ratio;
+ 
+ 	return 0;
+ }
+@@ -344,10 +347,9 @@ static int tegra210_i2s_put_control(stru
+ {
+ 	struct snd_soc_component *compnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra210_i2s *i2s = snd_soc_component_get_drvdata(compnt);
+-	int value = ucontrol->value.integer.value[0];
+ 
+ 	if (strstr(kcontrol->id.name, "Loopback")) {
+-		i2s->loopback = value;
++		i2s->loopback = ucontrol->value.integer.value[0];
+ 
+ 		regmap_update_bits(i2s->regmap, TEGRA210_I2S_CTRL,
+ 				   I2S_CTRL_LPBK_MASK,
+@@ -362,24 +364,28 @@ static int tegra210_i2s_put_control(stru
+ 		 * cases mixer control is used to update custom values. A value
+ 		 * of "N" here means, width is "N + 1" bit clock wide.
+ 		 */
+-		i2s->fsync_width = value;
++		i2s->fsync_width = ucontrol->value.integer.value[0];
+ 
+ 		regmap_update_bits(i2s->regmap, TEGRA210_I2S_CTRL,
+ 				   I2S_CTRL_FSYNC_WIDTH_MASK,
+ 				   i2s->fsync_width << I2S_FSYNC_WIDTH_SHIFT);
+ 
+ 	} else if (strstr(kcontrol->id.name, "Capture Stereo To Mono")) {
+-		i2s->stereo_to_mono[I2S_TX_PATH] = value;
++		i2s->stereo_to_mono[I2S_TX_PATH] =
++			ucontrol->value.enumerated.item[0];
+ 	} else if (strstr(kcontrol->id.name, "Capture Mono To Stereo")) {
+-		i2s->mono_to_stereo[I2S_TX_PATH] = value;
++		i2s->mono_to_stereo[I2S_TX_PATH] =
++			ucontrol->value.enumerated.item[0];
+ 	} else if (strstr(kcontrol->id.name, "Playback Stereo To Mono")) {
+-		i2s->stereo_to_mono[I2S_RX_PATH] = value;
++		i2s->stereo_to_mono[I2S_RX_PATH] =
++			ucontrol->value.enumerated.item[0];
+ 	} else if (strstr(kcontrol->id.name, "Playback Mono To Stereo")) {
+-		i2s->mono_to_stereo[I2S_RX_PATH] = value;
++		i2s->mono_to_stereo[I2S_RX_PATH] =
++			ucontrol->value.enumerated.item[0];
+ 	} else if (strstr(kcontrol->id.name, "Playback FIFO Threshold")) {
+-		i2s->rx_fifo_th = value;
++		i2s->rx_fifo_th = ucontrol->value.integer.value[0];
+ 	} else if (strstr(kcontrol->id.name, "BCLK Ratio")) {
+-		i2s->bclk_ratio = value;
++		i2s->bclk_ratio = ucontrol->value.integer.value[0];
+ 	}
+ 
+ 	return 0;
 
 
