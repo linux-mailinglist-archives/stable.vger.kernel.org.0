@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10242469DEC
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7515469C48
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388606AbhLFPeV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:34:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35080 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378286AbhLFP3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:29:14 -0500
+        id S1347788AbhLFPVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55776 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357364AbhLFPS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D3D7C061D7F;
+        Mon,  6 Dec 2021 07:12:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1506B81120;
-        Mon,  6 Dec 2021 15:25:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2833CC34902;
-        Mon,  6 Dec 2021 15:25:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF259B81118;
+        Mon,  6 Dec 2021 15:12:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F798C341C2;
+        Mon,  6 Dec 2021 15:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804341;
-        bh=7ChLCP/OKGry50Mf9RAvzQK8/j2BlcMeb4D9jk/YiVI=;
+        s=korg; t=1638803529;
+        bh=d55QDCACO6f0HAd5Yz7n414h9MPjDxif9jm1APCAPPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFvjfohgHbuBwl08KLTjFBx3ucuYZhpmBpXg5oySXspiBMmeNqZ1c1y0kE0B1mJPV
-         YFBm4dEEZzvLfDSFQDtvvYfm9eqwVyXHlm3Mcm6l/hZLlFmmJiDFJk7ipcDWvg/Wv6
-         r48d5MNkOsBAjJouoOLYzWswP/okynqvF9LeFvF4=
+        b=1EwZLT8+YKXUiZiKUtQGfSrfVwmDN1nSNBDfct2/UKhmAnD/+2UCmoM5XAtB9VN9Z
+         1z/6D9SsDF6yF+JZ/fkpwubzkdtp1TVv2CWLUSQtiaLu4Us6oKMlABc4rrUyKUFOuY
+         hhujdqtR9l2XUE4Yx10hbS2PBLw4usV3DT9iHRic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 113/207] net: dsa: b53: Add SPI ID table
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        =?UTF-8?q?=E7=85=A7=E5=B1=B1=E5=91=A8=E4=B8=80=E9=83=8E?= 
+        <teruyama@springboard-inc.jp>
+Subject: [PATCH 5.4 03/70] arm64: dts: mcbin: support 2W SFP modules
 Date:   Mon,  6 Dec 2021 15:56:07 +0100
-Message-Id: <20211206145614.162641551@linuxfoundation.org>
+Message-Id: <20211206145552.026559657@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit 88362ebfd7fb569c78d5cb507aa9d3c8fc203839 upstream.
+commit 05abc6a5dec2a8c123a50235ecd1ad8d75ffa7b4 upstream.
 
-Currently autoloading for SPI devices does not use the DT ID table, it
-uses SPI modalises. Supporting OF modalises is going to be difficult if
-not impractical, an attempt was made but has been reverted, so ensure
-that module autoloading works for this driver by adding an id_table
-listing the SPI IDs for everything.
+Allow the SFP cages to be used with 2W SFP modules.
 
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: Christian Lamparter <chunkeey@gmail.com>
+Cc: 照山周一郎 <teruyama@springboard-inc.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/b53/b53_spi.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/dsa/b53/b53_spi.c
-+++ b/drivers/net/dsa/b53/b53_spi.c
-@@ -349,6 +349,19 @@ static const struct of_device_id b53_spi
- };
- MODULE_DEVICE_TABLE(of, b53_spi_of_match);
+--- a/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-8040-mcbin.dtsi
+@@ -71,6 +71,7 @@
+ 		tx-fault-gpio  = <&cp1_gpio1 26 GPIO_ACTIVE_HIGH>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&cp1_sfpp0_pins>;
++		maximum-power-milliwatt = <2000>;
+ 	};
  
-+static const struct spi_device_id b53_spi_ids[] = {
-+	{ .name = "bcm5325" },
-+	{ .name = "bcm5365" },
-+	{ .name = "bcm5395" },
-+	{ .name = "bcm5397" },
-+	{ .name = "bcm5398" },
-+	{ .name = "bcm53115" },
-+	{ .name = "bcm53125" },
-+	{ .name = "bcm53128" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(spi, b53_spi_ids);
-+
- static struct spi_driver b53_spi_driver = {
- 	.driver = {
- 		.name	= "b53-switch",
-@@ -357,6 +370,7 @@ static struct spi_driver b53_spi_driver
- 	.probe	= b53_spi_probe,
- 	.remove	= b53_spi_remove,
- 	.shutdown = b53_spi_shutdown,
-+	.id_table = b53_spi_ids,
+ 	sfp_eth1: sfp-eth1 {
+@@ -83,6 +84,7 @@
+ 		tx-fault-gpio = <&cp0_gpio2 30 GPIO_ACTIVE_HIGH>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&cp1_sfpp1_pins &cp0_sfpp1_pins>;
++		maximum-power-milliwatt = <2000>;
+ 	};
+ 
+ 	sfp_eth3: sfp-eth3 {
+@@ -95,6 +97,7 @@
+ 		tx-fault-gpio = <&cp0_gpio2 19 GPIO_ACTIVE_HIGH>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&cp0_sfp_1g_pins &cp1_sfp_1g_pins>;
++		maximum-power-milliwatt = <2000>;
+ 	};
  };
  
- module_spi_driver(b53_spi_driver);
 
 
