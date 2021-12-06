@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE400469C88
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B93C469BB8
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240199AbhLFPXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:23:24 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38610 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348751AbhLFPVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:21 -0500
+        id S1357677AbhLFPSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54458 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358554AbhLFPQl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8760C08EC6E;
+        Mon,  6 Dec 2021 07:09:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C6F9612C1;
-        Mon,  6 Dec 2021 15:17:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E3B6C341C5;
-        Mon,  6 Dec 2021 15:17:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 474E561328;
+        Mon,  6 Dec 2021 15:09:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA20C341C2;
+        Mon,  6 Dec 2021 15:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803871;
-        bh=HGJ4r0DMn362nLGtyubdq7Vjo+ARI5pMwZG3rn1LoBg=;
+        s=korg; t=1638803367;
+        bh=DC5LAuL4GwStZqv8zR8y8+4n45rj059UYTyBZoM2Rco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KO7HKgk8+DIo22l+UjMLavKlL7S60+Pg/vLCsoenHM450/ILABnSJDaYJ+jigh4Dv
-         pGLDpE5Jyn+zw3uVQAjnOaX5ZVgNPjo2PxcBw2WM4g/KWVwskAOcxB2YBD/XrKYdw5
-         mHi4DN5y+0AJjgELId8I/0bFEoHUxjbOdvI5lFak=
+        b=Tgc8f61GGNDAqdedVrH8ZVt7Lna0kNgLCMmMK6ljIqcWeLqvgqSwgMDJyIcmlh5lZ
+         eyEvHTDPowZ6u2DtOg5P0cGf3eTrYdcFB6AZShn6+KU4EoJPr6MrtJHfqrW6SA2GUH
+         EEXQcOxbkfsGYBFxwOzu4AdO3PtrcJVz2qSTv/NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sameer Pujar <spujar@nvidia.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 077/130] ASoC: tegra: Fix wrong value type in DSPK
+        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 17/48] vrf: Reset IPCB/IP6CB when processing outbound pkts in vrf dev xmit
 Date:   Mon,  6 Dec 2021 15:56:34 +0100
-Message-Id: <20211206145602.328717063@linuxfoundation.org>
+Message-Id: <20211206145549.442413029@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Stephen Suryaputra <ssuryaextr@gmail.com>
 
-commit 3aa0d5c8bb3f5ef622ec2764823f551a1f630711 upstream.
+commit ee201011c1e1563c114a55c86eb164b236f18e84 upstream.
 
-The enum controls are expected to use enumerated value type.
-Update relevant references in control get/put callbacks.
+IPCB/IP6CB need to be initialized when processing outbound v4 or v6 pkts
+in the codepath of vrf device xmit function so that leftover garbage
+doesn't cause futher code that uses the CB to incorrectly process the
+pkt.
 
-Fixes: 327ef6470266 ("ASoC: tegra: Add Tegra186 based DSPK driver")
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/1637219231-406-5-git-send-email-spujar@nvidia.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+One occasion of the issue might occur when MPLS route uses the vrf
+device as the outgoing device such as when the route is added using "ip
+-f mpls route add <label> dev <vrf>" command.
+
+The problems seems to exist since day one. Hence I put the day one
+commits on the Fixes tags.
+
+Fixes: 193125dbd8eb ("net: Introduce VRF device driver")
+Fixes: 35402e313663 ("net: Add IPv6 support to VRF device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20211130162637.3249-1-ssuryaextr@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/tegra/tegra186_dspk.c |   23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ drivers/net/vrf.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/tegra/tegra186_dspk.c
-+++ b/sound/soc/tegra/tegra186_dspk.c
-@@ -35,15 +35,15 @@ static int tegra186_dspk_get_control(str
- 	if (strstr(kcontrol->id.name, "FIFO Threshold"))
- 		ucontrol->value.integer.value[0] = dspk->rx_fifo_th;
- 	else if (strstr(kcontrol->id.name, "OSR Value"))
--		ucontrol->value.integer.value[0] = dspk->osr_val;
-+		ucontrol->value.enumerated.item[0] = dspk->osr_val;
- 	else if (strstr(kcontrol->id.name, "LR Polarity Select"))
--		ucontrol->value.integer.value[0] = dspk->lrsel;
-+		ucontrol->value.enumerated.item[0] = dspk->lrsel;
- 	else if (strstr(kcontrol->id.name, "Channel Select"))
--		ucontrol->value.integer.value[0] = dspk->ch_sel;
-+		ucontrol->value.enumerated.item[0] = dspk->ch_sel;
- 	else if (strstr(kcontrol->id.name, "Mono To Stereo"))
--		ucontrol->value.integer.value[0] = dspk->mono_to_stereo;
-+		ucontrol->value.enumerated.item[0] = dspk->mono_to_stereo;
- 	else if (strstr(kcontrol->id.name, "Stereo To Mono"))
--		ucontrol->value.integer.value[0] = dspk->stereo_to_mono;
-+		ucontrol->value.enumerated.item[0] = dspk->stereo_to_mono;
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -210,6 +210,7 @@ static netdev_tx_t vrf_process_v6_outbou
+ 	/* strip the ethernet header added for pass through VRF device */
+ 	__skb_pull(skb, skb_network_offset(skb));
  
- 	return 0;
- }
-@@ -53,20 +53,19 @@ static int tegra186_dspk_put_control(str
- {
- 	struct snd_soc_component *codec = snd_soc_kcontrol_component(kcontrol);
- 	struct tegra186_dspk *dspk = snd_soc_component_get_drvdata(codec);
--	int val = ucontrol->value.integer.value[0];
++	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
+ 	ret = vrf_ip6_local_out(net, skb->sk, skb);
+ 	if (unlikely(net_xmit_eval(ret)))
+ 		dev->stats.tx_errors++;
+@@ -291,6 +292,7 @@ static netdev_tx_t vrf_process_v4_outbou
+ 					       RT_SCOPE_LINK);
+ 	}
  
- 	if (strstr(kcontrol->id.name, "FIFO Threshold"))
--		dspk->rx_fifo_th = val;
-+		dspk->rx_fifo_th = ucontrol->value.integer.value[0];
- 	else if (strstr(kcontrol->id.name, "OSR Value"))
--		dspk->osr_val = val;
-+		dspk->osr_val = ucontrol->value.enumerated.item[0];
- 	else if (strstr(kcontrol->id.name, "LR Polarity Select"))
--		dspk->lrsel = val;
-+		dspk->lrsel = ucontrol->value.enumerated.item[0];
- 	else if (strstr(kcontrol->id.name, "Channel Select"))
--		dspk->ch_sel = val;
-+		dspk->ch_sel = ucontrol->value.enumerated.item[0];
- 	else if (strstr(kcontrol->id.name, "Mono To Stereo"))
--		dspk->mono_to_stereo = val;
-+		dspk->mono_to_stereo = ucontrol->value.enumerated.item[0];
- 	else if (strstr(kcontrol->id.name, "Stereo To Mono"))
--		dspk->stereo_to_mono = val;
-+		dspk->stereo_to_mono = ucontrol->value.enumerated.item[0];
- 
- 	return 0;
- }
++	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
+ 	ret = vrf_ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
+ 	if (unlikely(net_xmit_eval(ret)))
+ 		vrf_dev->stats.tx_errors++;
 
 
