@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB87469C5C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE6D469F1E
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356231AbhLFPV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:21:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55888 "EHLO
+        id S1391415AbhLFPph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358684AbhLFPTk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A3CC0698D1;
-        Mon,  6 Dec 2021 07:13:51 -0800 (PST)
+        with ESMTP id S1390550AbhLFPmb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25FE5C0698D8;
+        Mon,  6 Dec 2021 07:28:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4CC2612DB;
-        Mon,  6 Dec 2021 15:13:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD4CC341C1;
-        Mon,  6 Dec 2021 15:13:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C57FFB81120;
+        Mon,  6 Dec 2021 15:28:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16C4DC34901;
+        Mon,  6 Dec 2021 15:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803630;
-        bh=Deu1GMJmchFX9Y13+caJe0ysu1S53HHLqp6oMvQG3zY=;
+        s=korg; t=1638804506;
+        bh=/BKPCJEstKX1aGtbfYuiieYyZSdnXwgmEawrRs4P09c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9zA1bZe/46rGSlGMWI3ufQrApUonuQ+ZOtrLPMLq2ksn1q66XZ9cU5MvsdbZlQvk
-         g/D1TO24AJcimI9eOvgvEsLuDR8XHVYF2TihdFgF4JIj04R7oLJVMkwbAVEnB8wXvQ
-         4WpXK/rU93zpVR2vv2fUOll2Mj6DtrT11HXpD+po=
+        b=xiFjzwtnjuwUkhr+hNkP4GNdZD46AclX5mNxxQf4lrFchN7e2Rm6D6x3FAjZdWL0P
+         RuGM7miy78TyzIPX5aGcBl5fkvnGjfahH5XbF4oNsGW1dPCDQN5kQzb6F9I45SMezv
+         MNdWwLYITwHUHCjdWA4TnqqIqI4DzDIgClGD08Hs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 5.4 29/70] fget: check that the fd still exists after getting a ref to it
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Jian-Hong Pan <jhp@endlessos.org>
+Subject: [PATCH 5.15 139/207] drm/vc4: kms: Wait for the commit before increasing our clock rate
 Date:   Mon,  6 Dec 2021 15:56:33 +0100
-Message-Id: <20211206145552.929775417@linuxfoundation.org>
+Message-Id: <20211206145615.040776412@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 054aa8d439b9185d4f5eb9a90282d1ce74772969 upstream.
+commit 0c980a006d3fbee86c4d0698f66d6f5381831787 upstream.
 
-Jann Horn points out that there is another possible race wrt Unix domain
-socket garbage collection, somewhat reminiscent of the one fixed in
-commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK").
+Several DRM/KMS atomic commits can run in parallel if they affect
+different CRTC. These commits share the global HVS state, so we have
+some code to make sure we run commits in sequence. This synchronization
+code is one of the first thing that runs in vc4_atomic_commit_tail().
 
-See the extended comment about the garbage collection requirements added
-to unix_peek_fds() by that commit for details.
+Another constraints we have is that we need to make sure the HVS clock
+gets a boost during the commit. That code relies on clk_set_min_rate and
+will remove the old minimum and set a new one. We also need another,
+temporary, minimum for the duration of the commit.
 
-The race comes from how we can locklessly look up a file descriptor just
-as it is in the process of being closed, and with the right artificial
-timing (Jann added a few strategic 'mdelay(500)' calls to do that), the
-Unix domain socket garbage collector could see the reference count
-decrement of the close() happen before fget() took its reference to the
-file and the file was attached onto a new file descriptor.
+The algorithm is thus to set a temporary minimum, drop the previous
+one, do the commit, and finally set the minimum for the current mode.
 
-This is all (intentionally) correct on the 'struct file *' side, with
-RCU lookups and lockless reference counting very much part of the
-design.  Getting that reference count out of order isn't a problem per
-se.
+However, the part that sets the temporary minimum and drops the older
+one runs before the commit synchronization code.
 
-But the garbage collector can get confused by seeing this situation of
-having seen a file not having any remaining external references and then
-seeing it being attached to an fd.
+Thus, under the proper conditions, we can end up mixing up the minimums
+and ending up with the wrong one for our current step.
 
-In commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK") the
-fix was to serialize the file descriptor install with the garbage
-collector by taking and releasing the unix_gc_lock.
+To avoid it, let's move the clock setup in the protected section.
 
-That's not really an option here, but since this all happens when we are
-in the process of looking up a file descriptor, we can instead simply
-just re-check that the file hasn't been closed in the meantime, and just
-re-do the lookup if we raced with a concurrent close() of the same file
-descriptor.
-
-Reported-and-tested-by: Jann Horn <jannh@google.com>
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d7d96c00e585 ("drm/vc4: hvs: Boost the core clock during modeset")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Tested-by: Jian-Hong Pan <jhp@endlessos.org>
+Link: https://lore.kernel.org/r/20211117094527.146275-2-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/file.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/vc4/vc4_kms.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -723,6 +723,10 @@ loop:
- 			file = NULL;
- 		else if (!get_file_rcu_many(file, refs))
- 			goto loop;
-+		else if (__fcheck_files(files, fd) != file) {
-+			fput_many(file, refs);
-+			goto loop;
-+		}
+--- a/drivers/gpu/drm/vc4/vc4_kms.c
++++ b/drivers/gpu/drm/vc4/vc4_kms.c
+@@ -353,9 +353,6 @@ static void vc4_atomic_commit_tail(struc
+ 		vc4_hvs_mask_underrun(dev, vc4_crtc_state->assigned_channel);
  	}
- 	rcu_read_unlock();
  
+-	if (vc4->hvs->hvs5)
+-		clk_set_min_rate(hvs->core_clk, 500000000);
+-
+ 	old_hvs_state = vc4_hvs_get_old_global_state(state);
+ 	if (!old_hvs_state)
+ 		return;
+@@ -377,6 +374,9 @@ static void vc4_atomic_commit_tail(struc
+ 			drm_err(dev, "Timed out waiting for commit\n");
+ 	}
+ 
++	if (vc4->hvs->hvs5)
++		clk_set_min_rate(hvs->core_clk, 500000000);
++
+ 	drm_atomic_helper_commit_modeset_disables(dev, state);
+ 
+ 	vc4_ctm_commit(vc4, state);
 
 
