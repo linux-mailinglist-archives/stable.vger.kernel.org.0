@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F91C469EC8
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F050469ADA
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355787AbhLFPoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:44:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60610 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389912AbhLFPlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:41:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE461C0698C2;
-        Mon,  6 Dec 2021 07:25:28 -0800 (PST)
+        id S1348119AbhLFPLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42130 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347667AbhLFPJO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58D0F6130D;
-        Mon,  6 Dec 2021 15:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F4D2C34901;
-        Mon,  6 Dec 2021 15:25:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2203B8114D;
+        Mon,  6 Dec 2021 15:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34875C341C2;
+        Mon,  6 Dec 2021 15:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804327;
-        bh=O5wlqANaYG7YsUrtQsPqSbHvWTC9EtfJhH5Q2iHyJRI=;
+        s=korg; t=1638803143;
+        bh=IsZ/1Qu10PR7ml21IEfwjA5yxLPQpxYylW1mkHE0ctQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gk0Y/oPxrV+4+4n8rWETAB/dPTnYxxpWJUp+ldikw6Id+19NDbOALMv+G9B8It4oV
-         QLjj2mv3CKKSBETyNNT4BePgEpKt9YOnC/l723UckzFfxuXwMn70N7L85VbNjQWAD9
-         NccfLYKga61YniIJdBI7z13RJV7LU7SeTfIt09KU=
+        b=kixpzJJBqUXHXGVxcDAtPH6qFQRGHzdUX2Nz2yPEyH8IRFwen89g5q5SSkiIB9G1K
+         LwQo4mp+LX1FckPsbjIgTe/s5XWR3/Eh7OZJINicZ53bRiI1yFzGPWvGXCk2wxIERH
+         km6jKFjlFszhdTg2z2N+hCdsMYb8t4iM6NfJaQhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Ely <paul.ely@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 065/207] scsi: lpfc: Fix non-recovery of remote ports following an unsolicited LOGO
+        stable@vger.kernel.org, Stable@vger.kernel.org, jbeulich@suse.com,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.14 011/106] xen: dont continue xenstore initialization in case of errors
 Date:   Mon,  6 Dec 2021 15:55:19 +0100
-Message-Id: <20211206145612.489419621@linuxfoundation.org>
+Message-Id: <20211206145555.782529990@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-commit 0956ba63bd94355bf38cd40f7eb9104577739ab8 upstream.
+commit 08f6c2b09ebd4b326dbe96d13f94fee8f9814c78 upstream.
 
-A commit introduced formal regstration of all Fabric nodes to the SCSI
-transport as well as REG/UNREG RPI mailbox requests. The commit introduced
-the NLP_RELEASE_RPI flag for rports set in the lpfc_cmpl_els_logo_acc()
-routine to help clean up the RPIs. This new code caused the driver to
-release the RPI value used for the remote port and marked the RPI invalid.
-When the driver later attempted to re-login, it would use the invalid RPI
-and the adapter rejected the PLOGI request.  As no login occurred, the
-devloss timer on the rport expired and connectivity was lost.
+In case of errors in xenbus_init (e.g. missing xen_store_gfn parameter),
+we goto out_error but we forget to reset xen_store_domain_type to
+XS_UNKNOWN. As a consequence xenbus_probe_initcall and other initcalls
+will still try to initialize xenstore resulting into a crash at boot.
 
-This patch corrects the code by removing the snippet that requests the rpi
-to be unregistered. This change only occurs on a node that is already
-marked to be rediscovered. This puts the code back to its original
-behavior, preserving the already-assigned rpi value (registered or not)
-which can be used on the re-login attempts.
+[    2.479830] Call trace:
+[    2.482314]  xb_init_comms+0x18/0x150
+[    2.486354]  xs_init+0x34/0x138
+[    2.489786]  xenbus_probe+0x4c/0x70
+[    2.498432]  xenbus_probe_initcall+0x2c/0x7c
+[    2.503944]  do_one_initcall+0x54/0x1b8
+[    2.507358]  kernel_init_freeable+0x1ac/0x210
+[    2.511617]  kernel_init+0x28/0x130
+[    2.516112]  ret_from_fork+0x10/0x20
 
-Link: https://lore.kernel.org/r/20211123165646.62740-1-jsmart2021@gmail.com
-Fixes: fe83e3b9b422 ("scsi: lpfc: Fix node handling for Fabric Controller and Domain Controller")
-Cc: <stable@vger.kernel.org> # v5.14+
-Co-developed-by: Paul Ely <paul.ely@broadcom.com>
-Signed-off-by: Paul Ely <paul.ely@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: <Stable@vger.kernel.org>
+Cc: jbeulich@suse.com
+Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+Link: https://lore.kernel.org/r/20211115222719.2558207-1-sstabellini@kernel.org
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/xen/xenbus/xenbus_probe.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -5075,14 +5075,9 @@ lpfc_cmpl_els_logo_acc(struct lpfc_hba *
- 		/* NPort Recovery mode or node is just allocated */
- 		if (!lpfc_nlp_not_used(ndlp)) {
- 			/* A LOGO is completing and the node is in NPR state.
--			 * If this a fabric node that cleared its transport
--			 * registration, release the rpi.
-+			 * Just unregister the RPI because the node is still
-+			 * required.
- 			 */
--			spin_lock_irq(&ndlp->lock);
--			ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
--			if (phba->sli_rev == LPFC_SLI_REV4)
--				ndlp->nlp_flag |= NLP_RELEASE_RPI;
--			spin_unlock_irq(&ndlp->lock);
- 			lpfc_unreg_rpi(vport, ndlp);
- 		} else {
- 			/* Indicate the node has already released, should
+--- a/drivers/xen/xenbus/xenbus_probe.c
++++ b/drivers/xen/xenbus/xenbus_probe.c
+@@ -838,7 +838,7 @@ static struct notifier_block xenbus_resu
+ 
+ static int __init xenbus_init(void)
+ {
+-	int err = 0;
++	int err;
+ 	uint64_t v = 0;
+ 	xen_store_domain_type = XS_UNKNOWN;
+ 
+@@ -912,8 +912,10 @@ static int __init xenbus_init(void)
+ 	 */
+ 	proc_create_mount_point("xen");
+ #endif
++	return 0;
+ 
+ out_error:
++	xen_store_domain_type = XS_UNKNOWN;
+ 	return err;
+ }
+ 
 
 
