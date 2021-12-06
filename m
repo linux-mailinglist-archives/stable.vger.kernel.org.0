@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9ECA469C0C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E3F469EDA
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349038AbhLFPTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:19:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55436 "EHLO
+        id S1390489AbhLFPoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:44:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359446AbhLFPRq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:46 -0500
+        with ESMTP id S1390515AbhLFPm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF928C08EAEF;
-        Mon,  6 Dec 2021 07:11:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E84CEC08ED09;
+        Mon,  6 Dec 2021 07:27:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D31E61330;
-        Mon,  6 Dec 2021 15:11:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E90C341C2;
-        Mon,  6 Dec 2021 15:11:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 878A361310;
+        Mon,  6 Dec 2021 15:27:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7049AC34901;
+        Mon,  6 Dec 2021 15:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803462;
-        bh=hl6PYDoqp9tjNcrk58kurk0ZLh4O5DscMYbbTIgsN7M=;
+        s=korg; t=1638804434;
+        bh=L1qaNGXU6bejk8ImdcDhO7c6jEDjEEWi7YqN7a9ocl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLWzOz6ZLD6QuJhtpF1rK5keLEeTxOWAGA7sR0kDRiBZ5aikmLPsOhq2t5zMkJxNZ
-         EQa+WZdUscwGZcpaCbt3ilv5N9Iny0UzRlvVdSJ8t7KooXdL4xc7i2g2fWDjYgjsVh
-         LUfu/DxXBmI3+SZiQ+9vfuqZZBuOy1H+bbLcHRyk=
+        b=K58OT4CTqbCgKLpcV2IQgzbqInzidRivLNI2W7I36gxAWnWu7LqQeYsp1xGGEGWIe
+         cRi05jZgScuMdc3Ong0FhSDhtPAmk03MspTkcYwW8XFpy7M9v2oqRxcUreRRFcLhn7
+         LvjvAlOA7FtXWuQ3N55PGr0+90OppFd4pYNOTNV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 4.19 23/48] fget: check that the fd still exists after getting a ref to it
+        stable@vger.kernel.org, Nikita Danilov <ndanilov@aquantia.com>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 146/207] atlatnic: enable Nbase-t speeds with base-t
 Date:   Mon,  6 Dec 2021 15:56:40 +0100
-Message-Id: <20211206145549.647407123@linuxfoundation.org>
+Message-Id: <20211206145615.294573004@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +49,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Nikita Danilov <ndanilov@aquantia.com>
 
-commit 054aa8d439b9185d4f5eb9a90282d1ce74772969 upstream.
+commit aa685acd98eae25d5351e30288d6cfb65b9c80a5 upstream.
 
-Jann Horn points out that there is another possible race wrt Unix domain
-socket garbage collection, somewhat reminiscent of the one fixed in
-commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK").
+When 2.5G is advertised, N-Base should be advertised against the T-base
+caps. N5G is out of use in baseline code and driver should treat both 5G
+and N5G (and also 2.5G and N2.5G) equally from user perspective.
 
-See the extended comment about the garbage collection requirements added
-to unix_peek_fds() by that commit for details.
-
-The race comes from how we can locklessly look up a file descriptor just
-as it is in the process of being closed, and with the right artificial
-timing (Jann added a few strategic 'mdelay(500)' calls to do that), the
-Unix domain socket garbage collector could see the reference count
-decrement of the close() happen before fget() took its reference to the
-file and the file was attached onto a new file descriptor.
-
-This is all (intentionally) correct on the 'struct file *' side, with
-RCU lookups and lockless reference counting very much part of the
-design.  Getting that reference count out of order isn't a problem per
-se.
-
-But the garbage collector can get confused by seeing this situation of
-having seen a file not having any remaining external references and then
-seeing it being attached to an fd.
-
-In commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK") the
-fix was to serialize the file descriptor install with the garbage
-collector by taking and releasing the unix_gc_lock.
-
-That's not really an option here, but since this all happens when we are
-in the process of looking up a file descriptor, we can instead simply
-just re-check that the file hasn't been closed in the meantime, and just
-re-do the lookup if we raced with a concurrent close() of the same file
-descriptor.
-
-Reported-and-tested-by: Jann Horn <jannh@google.com>
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 5cfd54d7dc186 ("net: atlantic: minimal A2 fw_ops")
+Signed-off-by: Nikita Danilov <ndanilov@aquantia.com>
+Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/file.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/aquantia/atlantic/aq_common.h                |   25 ++++------
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c |    3 -
+ drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c |    4 -
+ 3 files changed, 13 insertions(+), 19 deletions(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -694,6 +694,10 @@ loop:
- 			file = NULL;
- 		else if (!get_file_rcu_many(file, refs))
- 			goto loop;
-+		else if (__fcheck_files(files, fd) != file) {
-+			fput_many(file, refs);
-+			goto loop;
-+		}
- 	}
- 	rcu_read_unlock();
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_common.h
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_common.h
+@@ -53,20 +53,19 @@
  
+ #define AQ_NIC_RATE_10G		BIT(0)
+ #define AQ_NIC_RATE_5G		BIT(1)
+-#define AQ_NIC_RATE_5GSR	BIT(2)
+-#define AQ_NIC_RATE_2G5		BIT(3)
+-#define AQ_NIC_RATE_1G		BIT(4)
+-#define AQ_NIC_RATE_100M	BIT(5)
+-#define AQ_NIC_RATE_10M		BIT(6)
+-#define AQ_NIC_RATE_1G_HALF	BIT(7)
+-#define AQ_NIC_RATE_100M_HALF	BIT(8)
+-#define AQ_NIC_RATE_10M_HALF	BIT(9)
++#define AQ_NIC_RATE_2G5		BIT(2)
++#define AQ_NIC_RATE_1G		BIT(3)
++#define AQ_NIC_RATE_100M	BIT(4)
++#define AQ_NIC_RATE_10M		BIT(5)
++#define AQ_NIC_RATE_1G_HALF	BIT(6)
++#define AQ_NIC_RATE_100M_HALF	BIT(7)
++#define AQ_NIC_RATE_10M_HALF	BIT(8)
+ 
+-#define AQ_NIC_RATE_EEE_10G	BIT(10)
+-#define AQ_NIC_RATE_EEE_5G	BIT(11)
+-#define AQ_NIC_RATE_EEE_2G5	BIT(12)
+-#define AQ_NIC_RATE_EEE_1G	BIT(13)
+-#define AQ_NIC_RATE_EEE_100M	BIT(14)
++#define AQ_NIC_RATE_EEE_10G	BIT(9)
++#define AQ_NIC_RATE_EEE_5G	BIT(10)
++#define AQ_NIC_RATE_EEE_2G5	BIT(11)
++#define AQ_NIC_RATE_EEE_1G	BIT(12)
++#define AQ_NIC_RATE_EEE_100M	BIT(13)
+ #define AQ_NIC_RATE_EEE_MSK     (AQ_NIC_RATE_EEE_10G |\
+ 				 AQ_NIC_RATE_EEE_5G |\
+ 				 AQ_NIC_RATE_EEE_2G5 |\
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c
+@@ -132,9 +132,6 @@ static enum hw_atl_fw2x_rate link_speed_
+ 	if (speed & AQ_NIC_RATE_5G)
+ 		rate |= FW2X_RATE_5G;
+ 
+-	if (speed & AQ_NIC_RATE_5GSR)
+-		rate |= FW2X_RATE_5G;
+-
+ 	if (speed & AQ_NIC_RATE_2G5)
+ 		rate |= FW2X_RATE_2G5;
+ 
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2_utils_fw.c
+@@ -154,7 +154,7 @@ static void a2_link_speed_mask2fw(u32 sp
+ {
+ 	link_options->rate_10G = !!(speed & AQ_NIC_RATE_10G);
+ 	link_options->rate_5G = !!(speed & AQ_NIC_RATE_5G);
+-	link_options->rate_N5G = !!(speed & AQ_NIC_RATE_5GSR);
++	link_options->rate_N5G = link_options->rate_5G;
+ 	link_options->rate_2P5G = !!(speed & AQ_NIC_RATE_2G5);
+ 	link_options->rate_N2P5G = link_options->rate_2P5G;
+ 	link_options->rate_1G = !!(speed & AQ_NIC_RATE_1G);
+@@ -192,8 +192,6 @@ static u32 a2_fw_lkp_to_mask(struct lkp_
+ 		rate |= AQ_NIC_RATE_10G;
+ 	if (lkp_link_caps->rate_5G)
+ 		rate |= AQ_NIC_RATE_5G;
+-	if (lkp_link_caps->rate_N5G)
+-		rate |= AQ_NIC_RATE_5GSR;
+ 	if (lkp_link_caps->rate_2P5G)
+ 		rate |= AQ_NIC_RATE_2G5;
+ 	if (lkp_link_caps->rate_1G)
 
 
