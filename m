@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3C7469BDC
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0165B469D73
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359215AbhLFPRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54682 "EHLO
+        id S1346082AbhLFP3u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:29:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356011AbhLFPOe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C908C0698CB;
-        Mon,  6 Dec 2021 07:06:37 -0800 (PST)
+        with ESMTP id S1386622AbhLFP0s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E03C08E79C;
+        Mon,  6 Dec 2021 07:16:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7E49B81125;
-        Mon,  6 Dec 2021 15:06:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A799C341C1;
-        Mon,  6 Dec 2021 15:06:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EDCE612EB;
+        Mon,  6 Dec 2021 15:16:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70052C341C2;
+        Mon,  6 Dec 2021 15:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803194;
-        bh=gmfiOvAb/bdKVbgKjYKtYexC1gbwdgEpq3e9KS6IGQM=;
+        s=korg; t=1638803804;
+        bh=sWiTJK3c64+gXHiQzoUryTdm1kf1T2CwMmd+hcjSwIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KURnRfts7MYlE8wHBdxmQVCHliDDXc8SgsMi4w9DiXt/sY/Sg6Pf9+26Qj0EkUvgJ
-         ZaZbmu8xWGwVAum/kOIF0Nm2LzZRO0reSHD/QUpJwKFckwU0tbyvoGV8NHIvU0p5u7
-         C4h1V0UGScGzr9wOuZYMhDWtzgofg4Bl/TYmBft4=
+        b=M9mNvM2TfNCN3lZKSZN9qmR0cE9vg6Nz2rrCv1WXU6cHgom1I34zpRxFK7ib4m14a
+         Xj75ssMfIZMsNjVBYM/H1PrnoErFlsfjseE6bMOGrOTdMonn+Fm51aaK4ktlmYa6J1
+         kqQ7amNZQ1T30e78S34y2uMXltxecZMeHNCHGTb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
-Subject: [PATCH 4.14 061/106] xen/blkfront: read response from backend only once
+        stable@vger.kernel.org, youling <youling257@gmail.com>,
+        Yifan Zhang <yifan1.zhang@amd.com>,
+        James Zhu <James.Zhu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 052/130] drm/amdkfd: fix boot failure when iommu is disabled in Picasso.
 Date:   Mon,  6 Dec 2021 15:56:09 +0100
-Message-Id: <20211206145557.551084458@linuxfoundation.org>
+Message-Id: <20211206145601.480843781@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,127 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-commit 71b66243f9898d0e54296b4e7035fb33cdcb0707 upstream.
+commit afd18180c07026f94a80ff024acef5f4159084a4 upstream.
 
-In order to avoid problems in case the backend is modifying a response
-on the ring page while the frontend has already seen it, just read the
-response into a local buffer in one go and then operate on that buffer
-only.
+When IOMMU disabled in sbios and kfd in iommuv2 path, iommuv2
+init will fail. But this failure should not block amdgpu driver init.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Acked-by: Roger Pau Monné <roger.pau@citrix.com>
-Link: https://lore.kernel.org/r/20210730103854.12681-2-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: youling <youling257@gmail.com>
+Tested-by: youling <youling257@gmail.com>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: James Zhu <James.Zhu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |   35 ++++++++++++++++++-----------------
- 1 file changed, 18 insertions(+), 17 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    4 ----
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c    |    3 +++
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -1550,7 +1550,7 @@ static bool blkif_completion(unsigned lo
- static irqreturn_t blkif_interrupt(int irq, void *dev_id)
- {
- 	struct request *req;
--	struct blkif_response *bret;
-+	struct blkif_response bret;
- 	RING_IDX i, rp;
- 	unsigned long flags;
- 	struct blkfront_ring_info *rinfo = (struct blkfront_ring_info *)dev_id;
-@@ -1567,8 +1567,9 @@ static irqreturn_t blkif_interrupt(int i
- 	for (i = rinfo->ring.rsp_cons; i != rp; i++) {
- 		unsigned long id;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2255,10 +2255,6 @@ static int amdgpu_device_ip_init(struct
+ 		amdgpu_xgmi_add_device(adev);
+ 	amdgpu_amdkfd_device_init(adev);
  
--		bret = RING_GET_RESPONSE(&rinfo->ring, i);
--		id   = bret->id;
-+		RING_COPY_RESPONSE(&rinfo->ring, i, &bret);
-+		id = bret.id;
+-	r = amdgpu_amdkfd_resume_iommu(adev);
+-	if (r)
+-		goto init_failed;
+-
+ 	amdgpu_fru_get_product_info(adev);
+ 
+ init_failed:
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -751,6 +751,9 @@ bool kgd2kfd_device_init(struct kfd_dev
+ 
+ 	kfd_cwsr_init(kfd);
+ 
++	if(kgd2kfd_resume_iommu(kfd))
++		goto device_iommu_error;
 +
- 		/*
- 		 * The backend has messed up and given us an id that we would
- 		 * never have given to it (we stamp it up to BLK_RING_SIZE -
-@@ -1576,39 +1577,39 @@ static irqreturn_t blkif_interrupt(int i
- 		 */
- 		if (id >= BLK_RING_SIZE(info)) {
- 			WARN(1, "%s: response to %s has incorrect id (%ld)\n",
--			     info->gd->disk_name, op_name(bret->operation), id);
-+			     info->gd->disk_name, op_name(bret.operation), id);
- 			/* We can't safely get the 'struct request' as
- 			 * the id is busted. */
- 			continue;
- 		}
- 		req  = rinfo->shadow[id].request;
+ 	if (kfd_resume(kfd))
+ 		goto kfd_resume_error;
  
--		if (bret->operation != BLKIF_OP_DISCARD) {
-+		if (bret.operation != BLKIF_OP_DISCARD) {
- 			/*
- 			 * We may need to wait for an extra response if the
- 			 * I/O request is split in 2
- 			 */
--			if (!blkif_completion(&id, rinfo, bret))
-+			if (!blkif_completion(&id, rinfo, &bret))
- 				continue;
- 		}
- 
- 		if (add_id_to_freelist(rinfo, id)) {
- 			WARN(1, "%s: response to %s (id %ld) couldn't be recycled!\n",
--			     info->gd->disk_name, op_name(bret->operation), id);
-+			     info->gd->disk_name, op_name(bret.operation), id);
- 			continue;
- 		}
- 
--		if (bret->status == BLKIF_RSP_OKAY)
-+		if (bret.status == BLKIF_RSP_OKAY)
- 			blkif_req(req)->error = BLK_STS_OK;
- 		else
- 			blkif_req(req)->error = BLK_STS_IOERR;
- 
--		switch (bret->operation) {
-+		switch (bret.operation) {
- 		case BLKIF_OP_DISCARD:
--			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
-+			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
- 				struct request_queue *rq = info->rq;
- 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
--					   info->gd->disk_name, op_name(bret->operation));
-+					   info->gd->disk_name, op_name(bret.operation));
- 				blkif_req(req)->error = BLK_STS_NOTSUPP;
- 				info->feature_discard = 0;
- 				info->feature_secdiscard = 0;
-@@ -1618,15 +1619,15 @@ static irqreturn_t blkif_interrupt(int i
- 			break;
- 		case BLKIF_OP_FLUSH_DISKCACHE:
- 		case BLKIF_OP_WRITE_BARRIER:
--			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
-+			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
- 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
--				       info->gd->disk_name, op_name(bret->operation));
-+				       info->gd->disk_name, op_name(bret.operation));
- 				blkif_req(req)->error = BLK_STS_NOTSUPP;
- 			}
--			if (unlikely(bret->status == BLKIF_RSP_ERROR &&
-+			if (unlikely(bret.status == BLKIF_RSP_ERROR &&
- 				     rinfo->shadow[id].req.u.rw.nr_segments == 0)) {
- 				printk(KERN_WARNING "blkfront: %s: empty %s op failed\n",
--				       info->gd->disk_name, op_name(bret->operation));
-+				       info->gd->disk_name, op_name(bret.operation));
- 				blkif_req(req)->error = BLK_STS_NOTSUPP;
- 			}
- 			if (unlikely(blkif_req(req)->error)) {
-@@ -1639,9 +1640,9 @@ static irqreturn_t blkif_interrupt(int i
- 			/* fall through */
- 		case BLKIF_OP_READ:
- 		case BLKIF_OP_WRITE:
--			if (unlikely(bret->status != BLKIF_RSP_OKAY))
-+			if (unlikely(bret.status != BLKIF_RSP_OKAY))
- 				dev_dbg(&info->xbdev->dev, "Bad return from blkdev data "
--					"request: %x\n", bret->status);
-+					"request: %x\n", bret.status);
- 
- 			break;
- 		default:
 
 
