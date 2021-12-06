@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766E1469A0D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1C1469DD2
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:34:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345754AbhLFPFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:05:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52500 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344364AbhLFPEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B884C0698C5;
-        Mon,  6 Dec 2021 07:01:21 -0800 (PST)
+        id S1359208AbhLFPdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:33:20 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34158 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357179AbhLFP2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:28:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28FC1B81125;
-        Mon,  6 Dec 2021 15:01:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ACC6C341C2;
-        Mon,  6 Dec 2021 15:01:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8CBF8B8101C;
+        Mon,  6 Dec 2021 15:24:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB31EC34900;
+        Mon,  6 Dec 2021 15:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802879;
-        bh=ZZ1+XS0q6JWAbqpOfJwgun9gVY07Kq7gRXICCNC0Jwc=;
+        s=korg; t=1638804297;
+        bh=r1fLnjSkFDFMM8K9EWPXdy5Sjw6FO2poZifXfJq0aCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsFeHRVZ1+E6qML123Xsaa9e/ZBkX+DqTNeeHAda4m3rM0Q+ZZqbTPEkMa4X8q74H
-         n08AG6PMMDyUMVfuep5uDuWYHn7hiiWrG4aAzP0LJlrKSy/c79titTybQM+XQvaaol
-         MQF/kKmbtFd3Z5nt8NLpKNJEbRp2UTrmGLnLDqd0=
+        b=H8oI181HWiiY9+5oxhDeJcHiD3QZBRPI7+r3tzjUqUNFz1fDd+H8/XGhe8zQFvHWq
+         c9yKFSmmXJLVOwiiyTSLDJsZWUwcjmomlhXhRIBU9x32GzndKWD535ybPAye0EMkp2
+         rCcUigwV6/gkt9yIkLEEKRCVzqv4Tffvj/jwzAgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.9 05/62] usb: hub: Fix locking issues with address0_mutex
-Date:   Mon,  6 Dec 2021 15:55:48 +0100
-Message-Id: <20211206145549.345781230@linuxfoundation.org>
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Xiumei Mu <xmu@redhat.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 095/207] wireguard: device: reset peer src endpoint when netns exits
+Date:   Mon,  6 Dec 2021 15:55:49 +0100
+Message-Id: <20211206145613.525364103@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,103 +48,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 6cca13de26eea6d32a98d96d916a048d16a12822 upstream.
+commit 20ae1d6aa159eb91a9bf09ff92ccaa94dbea92c2 upstream.
 
-Fix the circular lock dependency and unbalanced unlock of addess0_mutex
-introduced when fixing an address0_mutex enumeration retry race in commit
-ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+Each peer's endpoint contains a dst_cache entry that takes a reference
+to another netdev. When the containing namespace exits, we take down the
+socket and prevent future sockets from being created (by setting
+creating_net to NULL), which removes that potential reference on the
+netns. However, it doesn't release references to the netns that a netdev
+cached in dst_cache might be taking, so the netns still might fail to
+exit. Since the socket is gimped anyway, we can simply clear all the
+dst_caches (by way of clearing the endpoint src), which will release all
+references.
 
-Make sure locking order between port_dev->status_lock and address0_mutex
-is correct, and that address0_mutex is not unlocked in hub_port_connect
-"done:" codepath which may be reached without locking address0_mutex
+However, the current dst_cache_reset function only releases those
+references lazily. But it turns out that all of our usages of
+wg_socket_clear_peer_endpoint_src are called from contexts that are not
+exactly high-speed or bottle-necked. For example, when there's
+connection difficulty, or when userspace is reconfiguring the interface.
+And in particular for this patch, when the netns is exiting. So for
+those cases, it makes more sense to call dst_release immediately. For
+that, we add a small helper function to dst_cache.
 
-Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
-Cc: <stable@vger.kernel.org>
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211123101656.1113518-1-mathias.nyman@linux.intel.com
+This patch also adds a test to netns.sh from Hangbin Liu to ensure this
+doesn't regress.
+
+Tested-by: Hangbin Liu <liuhangbin@gmail.com>
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Cc: Toke Høiland-Jørgensen <toke@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Fixes: 900575aa33a3 ("wireguard: device: avoid circular netns references")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/wireguard/device.c             |    3 +++
+ drivers/net/wireguard/socket.c             |    2 +-
+ include/net/dst_cache.h                    |   11 +++++++++++
+ net/core/dst_cache.c                       |   19 +++++++++++++++++++
+ tools/testing/selftests/wireguard/netns.sh |   24 +++++++++++++++++++++++-
+ 5 files changed, 57 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -4835,6 +4835,7 @@ static void hub_port_connect(struct usb_
- 	struct usb_port *port_dev = hub->ports[port1 - 1];
- 	struct usb_device *udev = port_dev->child;
- 	static int unreliable_port = -1;
-+	bool retry_locked;
+--- a/drivers/net/wireguard/device.c
++++ b/drivers/net/wireguard/device.c
+@@ -398,6 +398,7 @@ static struct rtnl_link_ops link_ops __r
+ static void wg_netns_pre_exit(struct net *net)
+ {
+ 	struct wg_device *wg;
++	struct wg_peer *peer;
  
- 	/* Disconnect any existing devices under this port */
- 	if (udev) {
-@@ -4891,9 +4892,10 @@ static void hub_port_connect(struct usb_
- 
- 	status = 0;
- 
--	mutex_lock(hcd->address0_mutex);
--
- 	for (i = 0; i < SET_CONFIG_TRIES; i++) {
-+		usb_lock_port(port_dev);
-+		mutex_lock(hcd->address0_mutex);
-+		retry_locked = true;
- 
- 		/* reallocate for each attempt, since references
- 		 * to the previous one can escape in various ways
-@@ -4902,6 +4904,8 @@ static void hub_port_connect(struct usb_
- 		if (!udev) {
- 			dev_err(&port_dev->dev,
- 					"couldn't allocate usb_device\n");
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
- 			goto done;
+ 	rtnl_lock();
+ 	list_for_each_entry(wg, &device_list, device_list) {
+@@ -407,6 +408,8 @@ static void wg_netns_pre_exit(struct net
+ 			mutex_lock(&wg->device_update_lock);
+ 			rcu_assign_pointer(wg->creating_net, NULL);
+ 			wg_socket_reinit(wg, NULL, NULL);
++			list_for_each_entry(peer, &wg->peer_list, peer_list)
++				wg_socket_clear_peer_endpoint_src(peer);
+ 			mutex_unlock(&wg->device_update_lock);
  		}
- 
-@@ -4923,13 +4927,13 @@ static void hub_port_connect(struct usb_
- 		}
- 
- 		/* reset (non-USB 3.0 devices) and get descriptor */
--		usb_lock_port(port_dev);
- 		status = hub_port_init(hub, udev, port1, i);
--		usb_unlock_port(port_dev);
- 		if (status < 0)
- 			goto loop;
- 
- 		mutex_unlock(hcd->address0_mutex);
-+		usb_unlock_port(port_dev);
-+		retry_locked = false;
- 
- 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
- 			msleep(2000);
-@@ -5019,11 +5023,14 @@ static void hub_port_connect(struct usb_
- 
- loop_disable:
- 		hub_port_disable(hub, port1, 1);
--		mutex_lock(hcd->address0_mutex);
- loop:
- 		usb_ep0_reinit(udev);
- 		release_devnum(udev);
- 		hub_free_dev(udev);
-+		if (retry_locked) {
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
-+		}
- 		usb_put_dev(udev);
- 		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
- 			break;
-@@ -5046,8 +5053,6 @@ loop:
  	}
+--- a/drivers/net/wireguard/socket.c
++++ b/drivers/net/wireguard/socket.c
+@@ -308,7 +308,7 @@ void wg_socket_clear_peer_endpoint_src(s
+ {
+ 	write_lock_bh(&peer->endpoint_lock);
+ 	memset(&peer->endpoint.src6, 0, sizeof(peer->endpoint.src6));
+-	dst_cache_reset(&peer->endpoint_cache);
++	dst_cache_reset_now(&peer->endpoint_cache);
+ 	write_unlock_bh(&peer->endpoint_lock);
+ }
  
- done:
--	mutex_unlock(hcd->address0_mutex);
--
- 	hub_port_disable(hub, port1, 1);
- 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
- 		if (status != -ENOTCONN && status != -ENODEV)
+--- a/include/net/dst_cache.h
++++ b/include/net/dst_cache.h
+@@ -80,6 +80,17 @@ static inline void dst_cache_reset(struc
+ }
+ 
+ /**
++ *	dst_cache_reset_now - invalidate the cache contents immediately
++ *	@dst_cache: the cache
++ *
++ *	The caller must be sure there are no concurrent users, as this frees
++ *	all dst_cache users immediately, rather than waiting for the next
++ *	per-cpu usage like dst_cache_reset does. Most callers should use the
++ *	higher speed lazily-freed dst_cache_reset function instead.
++ */
++void dst_cache_reset_now(struct dst_cache *dst_cache);
++
++/**
+  *	dst_cache_init - initialize the cache, allocating the required storage
+  *	@dst_cache: the cache
+  *	@gfp: allocation flags
+--- a/net/core/dst_cache.c
++++ b/net/core/dst_cache.c
+@@ -162,3 +162,22 @@ void dst_cache_destroy(struct dst_cache
+ 	free_percpu(dst_cache->cache);
+ }
+ EXPORT_SYMBOL_GPL(dst_cache_destroy);
++
++void dst_cache_reset_now(struct dst_cache *dst_cache)
++{
++	int i;
++
++	if (!dst_cache->cache)
++		return;
++
++	dst_cache->reset_ts = jiffies;
++	for_each_possible_cpu(i) {
++		struct dst_cache_pcpu *idst = per_cpu_ptr(dst_cache->cache, i);
++		struct dst_entry *dst = idst->dst;
++
++		idst->cookie = 0;
++		idst->dst = NULL;
++		dst_release(dst);
++	}
++}
++EXPORT_SYMBOL_GPL(dst_cache_reset_now);
+--- a/tools/testing/selftests/wireguard/netns.sh
++++ b/tools/testing/selftests/wireguard/netns.sh
+@@ -613,6 +613,28 @@ ip0 link set wg0 up
+ kill $ncat_pid
+ ip0 link del wg0
+ 
++# Ensure that dst_cache references don't outlive netns lifetime
++ip1 link add dev wg0 type wireguard
++ip2 link add dev wg0 type wireguard
++configure_peers
++ip1 link add veth1 type veth peer name veth2
++ip1 link set veth2 netns $netns2
++ip1 addr add fd00:aa::1/64 dev veth1
++ip2 addr add fd00:aa::2/64 dev veth2
++ip1 link set veth1 up
++ip2 link set veth2 up
++waitiface $netns1 veth1
++waitiface $netns2 veth2
++ip1 -6 route add default dev veth1 via fd00:aa::2
++ip2 -6 route add default dev veth2 via fd00:aa::1
++n1 wg set wg0 peer "$pub2" endpoint [fd00:aa::2]:2
++n2 wg set wg0 peer "$pub1" endpoint [fd00:aa::1]:1
++n1 ping6 -c 1 fd00::2
++pp ip netns delete $netns1
++pp ip netns delete $netns2
++pp ip netns add $netns1
++pp ip netns add $netns2
++
+ # Ensure there aren't circular reference loops
+ ip1 link add wg1 type wireguard
+ ip2 link add wg2 type wireguard
+@@ -631,7 +653,7 @@ while read -t 0.1 -r line 2>/dev/null ||
+ done < /dev/kmsg
+ alldeleted=1
+ for object in "${!objects[@]}"; do
+-	if [[ ${objects["$object"]} != *createddestroyed ]]; then
++	if [[ ${objects["$object"]} != *createddestroyed && ${objects["$object"]} != *createdcreateddestroyeddestroyed ]]; then
+ 		echo "Error: $object: merely ${objects["$object"]}" >&3
+ 		alldeleted=0
+ 	fi
 
 
