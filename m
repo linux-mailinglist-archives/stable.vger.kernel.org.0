@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B24A3469EA4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75210469A43
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356614AbhLFPnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:43:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
+        id S1346102AbhLFPG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:06:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386649AbhLFP0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D31AEC08E844;
-        Mon,  6 Dec 2021 07:17:02 -0800 (PST)
+        with ESMTP id S1346094AbhLFPFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:05:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E36C0698C0;
+        Mon,  6 Dec 2021 07:02:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BA59B81018;
-        Mon,  6 Dec 2021 15:17:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC4D0C341C1;
-        Mon,  6 Dec 2021 15:17:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B85106130D;
+        Mon,  6 Dec 2021 15:02:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB2BC341C2;
+        Mon,  6 Dec 2021 15:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803821;
-        bh=4VBJLaUNb63cWfnxxofnl510akopAl+BzY2QnSWSgyI=;
+        s=korg; t=1638802938;
+        bh=FcbuHZfhQor/wXaa3ulIMaaXHw2J9/Y894AlTHu/C84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCvniCdcALBH+jHBACiF8Jxy0RZXcocWV93mUgMG4SFWrMfmtqKuvjYW+vdjWlU8m
-         GZYqnGBc1g+EqriL8gEIY91eHgApyAN2i9iqQfqeqWl7BDBSAaTFzwUs3lM9bP7ldN
-         /c4c1zTY9ihT4g2CPZnpdtmPn3ehifKpp2DiW2jE=
+        b=Z6QGPYGxNhIBG3d9MHAKl4Jsf/oeRIzGO/yMP+aClzDvlZTGpUxeX/G5Y0u5kXWi6
+         GAgapTFrYzny4b13GMEYPnRSfyPMAw13NL1PuBp4Xeo1Dvuf1eIXiza2Ifkny2MbvR
+         IRy9mut6xXMBd7iydcWQyb1TLPOfoE2TS1gvaN7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Streun Fabio <fstreun@student.ethz.ch>,
-        Joel Wanner <joel.wanner@inf.ethz.ch>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 058/130] wireguard: receive: use ring buffer for incoming handshakes
-Date:   Mon,  6 Dec 2021 15:56:15 +0100
-Message-Id: <20211206145601.684358895@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 33/62] xen/netfront: dont read data from request on the ring page
+Date:   Mon,  6 Dec 2021 15:56:16 +0100
+Message-Id: <20211206145550.318795852@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,251 +48,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 886fcee939adb5e2af92741b90643a59f2b54f97 upstream.
+commit 162081ec33c2686afa29d91bf8d302824aa846c7 upstream.
 
-Apparently the spinlock on incoming_handshake's skb_queue is highly
-contended, and a torrent of handshake or cookie packets can bring the
-data plane to its knees, simply by virtue of enqueueing the handshake
-packets to be processed asynchronously. So, we try switching this to a
-ring buffer to hopefully have less lock contention. This alleviates the
-problem somewhat, though it still isn't perfect, so future patches will
-have to improve this further. However, it at least doesn't completely
-diminish the data plane.
+In order to avoid a malicious backend being able to influence the local
+processing of a request build the request locally first and then copy
+it to the ring page. Any reading from the request influencing the
+processing in the frontend needs to be done on the local instance.
 
-Reported-by: Streun Fabio <fstreun@student.ethz.ch>
-Reported-by: Joel Wanner <joel.wanner@inf.ethz.ch>
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/device.c   |   36 ++++++++++++++++++------------------
- drivers/net/wireguard/device.h   |    9 +++------
- drivers/net/wireguard/queueing.c |    6 +++---
- drivers/net/wireguard/queueing.h |    2 +-
- drivers/net/wireguard/receive.c  |   27 ++++++++++++---------------
- 5 files changed, 37 insertions(+), 43 deletions(-)
+ drivers/net/xen-netfront.c |   80 ++++++++++++++++++++-------------------------
+ 1 file changed, 37 insertions(+), 43 deletions(-)
 
---- a/drivers/net/wireguard/device.c
-+++ b/drivers/net/wireguard/device.c
-@@ -98,6 +98,7 @@ static int wg_stop(struct net_device *de
- {
- 	struct wg_device *wg = netdev_priv(dev);
- 	struct wg_peer *peer;
-+	struct sk_buff *skb;
- 
- 	mutex_lock(&wg->device_update_lock);
- 	list_for_each_entry(peer, &wg->peer_list, peer_list) {
-@@ -108,7 +109,9 @@ static int wg_stop(struct net_device *de
- 		wg_noise_reset_last_sent_handshake(&peer->last_sent_handshake);
- 	}
- 	mutex_unlock(&wg->device_update_lock);
--	skb_queue_purge(&wg->incoming_handshakes);
-+	while ((skb = ptr_ring_consume(&wg->handshake_queue.ring)) != NULL)
-+		kfree_skb(skb);
-+	atomic_set(&wg->handshake_queue_len, 0);
- 	wg_socket_reinit(wg, NULL, NULL);
- 	return 0;
- }
-@@ -235,14 +238,13 @@ static void wg_destruct(struct net_devic
- 	destroy_workqueue(wg->handshake_receive_wq);
- 	destroy_workqueue(wg->handshake_send_wq);
- 	destroy_workqueue(wg->packet_crypt_wq);
--	wg_packet_queue_free(&wg->decrypt_queue);
--	wg_packet_queue_free(&wg->encrypt_queue);
-+	wg_packet_queue_free(&wg->handshake_queue, true);
-+	wg_packet_queue_free(&wg->decrypt_queue, false);
-+	wg_packet_queue_free(&wg->encrypt_queue, false);
- 	rcu_barrier(); /* Wait for all the peers to be actually freed. */
- 	wg_ratelimiter_uninit();
- 	memzero_explicit(&wg->static_identity, sizeof(wg->static_identity));
--	skb_queue_purge(&wg->incoming_handshakes);
- 	free_percpu(dev->tstats);
--	free_percpu(wg->incoming_handshakes_worker);
- 	kvfree(wg->index_hashtable);
- 	kvfree(wg->peer_hashtable);
- 	mutex_unlock(&wg->device_update_lock);
-@@ -298,7 +300,6 @@ static int wg_newlink(struct net *src_ne
- 	init_rwsem(&wg->static_identity.lock);
- 	mutex_init(&wg->socket_update_lock);
- 	mutex_init(&wg->device_update_lock);
--	skb_queue_head_init(&wg->incoming_handshakes);
- 	wg_allowedips_init(&wg->peer_allowedips);
- 	wg_cookie_checker_init(&wg->cookie_checker, wg);
- 	INIT_LIST_HEAD(&wg->peer_list);
-@@ -316,16 +317,10 @@ static int wg_newlink(struct net *src_ne
- 	if (!dev->tstats)
- 		goto err_free_index_hashtable;
- 
--	wg->incoming_handshakes_worker =
--		wg_packet_percpu_multicore_worker_alloc(
--				wg_packet_handshake_receive_worker, wg);
--	if (!wg->incoming_handshakes_worker)
--		goto err_free_tstats;
--
- 	wg->handshake_receive_wq = alloc_workqueue("wg-kex-%s",
- 			WQ_CPU_INTENSIVE | WQ_FREEZABLE, 0, dev->name);
- 	if (!wg->handshake_receive_wq)
--		goto err_free_incoming_handshakes;
-+		goto err_free_tstats;
- 
- 	wg->handshake_send_wq = alloc_workqueue("wg-kex-%s",
- 			WQ_UNBOUND | WQ_FREEZABLE, 0, dev->name);
-@@ -347,10 +342,15 @@ static int wg_newlink(struct net *src_ne
- 	if (ret < 0)
- 		goto err_free_encrypt_queue;
- 
--	ret = wg_ratelimiter_init();
-+	ret = wg_packet_queue_init(&wg->handshake_queue, wg_packet_handshake_receive_worker,
-+				   MAX_QUEUED_INCOMING_HANDSHAKES);
- 	if (ret < 0)
- 		goto err_free_decrypt_queue;
- 
-+	ret = wg_ratelimiter_init();
-+	if (ret < 0)
-+		goto err_free_handshake_queue;
-+
- 	ret = register_netdevice(dev);
- 	if (ret < 0)
- 		goto err_uninit_ratelimiter;
-@@ -367,18 +367,18 @@ static int wg_newlink(struct net *src_ne
- 
- err_uninit_ratelimiter:
- 	wg_ratelimiter_uninit();
-+err_free_handshake_queue:
-+	wg_packet_queue_free(&wg->handshake_queue, false);
- err_free_decrypt_queue:
--	wg_packet_queue_free(&wg->decrypt_queue);
-+	wg_packet_queue_free(&wg->decrypt_queue, false);
- err_free_encrypt_queue:
--	wg_packet_queue_free(&wg->encrypt_queue);
-+	wg_packet_queue_free(&wg->encrypt_queue, false);
- err_destroy_packet_crypt:
- 	destroy_workqueue(wg->packet_crypt_wq);
- err_destroy_handshake_send:
- 	destroy_workqueue(wg->handshake_send_wq);
- err_destroy_handshake_receive:
- 	destroy_workqueue(wg->handshake_receive_wq);
--err_free_incoming_handshakes:
--	free_percpu(wg->incoming_handshakes_worker);
- err_free_tstats:
- 	free_percpu(dev->tstats);
- err_free_index_hashtable:
---- a/drivers/net/wireguard/device.h
-+++ b/drivers/net/wireguard/device.h
-@@ -39,21 +39,18 @@ struct prev_queue {
- 
- struct wg_device {
- 	struct net_device *dev;
--	struct crypt_queue encrypt_queue, decrypt_queue;
-+	struct crypt_queue encrypt_queue, decrypt_queue, handshake_queue;
- 	struct sock __rcu *sock4, *sock6;
- 	struct net __rcu *creating_net;
- 	struct noise_static_identity static_identity;
--	struct workqueue_struct *handshake_receive_wq, *handshake_send_wq;
--	struct workqueue_struct *packet_crypt_wq;
--	struct sk_buff_head incoming_handshakes;
--	int incoming_handshake_cpu;
--	struct multicore_worker __percpu *incoming_handshakes_worker;
-+	struct workqueue_struct *packet_crypt_wq,*handshake_receive_wq, *handshake_send_wq;
- 	struct cookie_checker cookie_checker;
- 	struct pubkey_hashtable *peer_hashtable;
- 	struct index_hashtable *index_hashtable;
- 	struct allowedips peer_allowedips;
- 	struct mutex device_update_lock, socket_update_lock;
- 	struct list_head device_list, peer_list;
-+	atomic_t handshake_queue_len;
- 	unsigned int num_peers, device_update_gen;
- 	u32 fwmark;
- 	u16 incoming_port;
---- a/drivers/net/wireguard/queueing.c
-+++ b/drivers/net/wireguard/queueing.c
-@@ -38,11 +38,11 @@ int wg_packet_queue_init(struct crypt_qu
- 	return 0;
- }
- 
--void wg_packet_queue_free(struct crypt_queue *queue)
-+void wg_packet_queue_free(struct crypt_queue *queue, bool purge)
- {
- 	free_percpu(queue->worker);
--	WARN_ON(!__ptr_ring_empty(&queue->ring));
--	ptr_ring_cleanup(&queue->ring, NULL);
-+	WARN_ON(!purge && !__ptr_ring_empty(&queue->ring));
-+	ptr_ring_cleanup(&queue->ring, purge ? (void(*)(void*))kfree_skb : NULL);
- }
- 
- #define NEXT(skb) ((skb)->prev)
---- a/drivers/net/wireguard/queueing.h
-+++ b/drivers/net/wireguard/queueing.h
-@@ -23,7 +23,7 @@ struct sk_buff;
- /* queueing.c APIs: */
- int wg_packet_queue_init(struct crypt_queue *queue, work_func_t function,
- 			 unsigned int len);
--void wg_packet_queue_free(struct crypt_queue *queue);
-+void wg_packet_queue_free(struct crypt_queue *queue, bool purge);
- struct multicore_worker __percpu *
- wg_packet_percpu_multicore_worker_alloc(work_func_t function, void *ptr);
- 
---- a/drivers/net/wireguard/receive.c
-+++ b/drivers/net/wireguard/receive.c
-@@ -116,8 +116,8 @@ static void wg_receive_handshake_packet(
- 		return;
- 	}
- 
--	under_load = skb_queue_len(&wg->incoming_handshakes) >=
--		     MAX_QUEUED_INCOMING_HANDSHAKES / 8;
-+	under_load = atomic_read(&wg->handshake_queue_len) >=
-+			MAX_QUEUED_INCOMING_HANDSHAKES / 8;
- 	if (under_load) {
- 		last_under_load = ktime_get_coarse_boottime_ns();
- 	} else if (last_under_load) {
-@@ -212,13 +212,14 @@ static void wg_receive_handshake_packet(
- 
- void wg_packet_handshake_receive_worker(struct work_struct *work)
- {
--	struct wg_device *wg = container_of(work, struct multicore_worker,
--					    work)->ptr;
-+	struct crypt_queue *queue = container_of(work, struct multicore_worker, work)->ptr;
-+	struct wg_device *wg = container_of(queue, struct wg_device, handshake_queue);
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -424,7 +424,8 @@ struct xennet_gnttab_make_txreq {
+ 	struct netfront_queue *queue;
  	struct sk_buff *skb;
+ 	struct page *page;
+-	struct xen_netif_tx_request *tx; /* Last request */
++	struct xen_netif_tx_request *tx;      /* Last request on ring page */
++	struct xen_netif_tx_request tx_local; /* Last request local copy*/
+ 	unsigned int size;
+ };
  
--	while ((skb = skb_dequeue(&wg->incoming_handshakes)) != NULL) {
-+	while ((skb = ptr_ring_consume_bh(&queue->ring)) != NULL) {
- 		wg_receive_handshake_packet(wg, skb);
- 		dev_kfree_skb(skb);
-+		atomic_dec(&wg->handshake_queue_len);
- 		cond_resched();
- 	}
+@@ -452,30 +453,27 @@ static void xennet_tx_setup_grant(unsign
+ 	queue->grant_tx_page[id] = page;
+ 	queue->grant_tx_ref[id] = ref;
+ 
+-	tx->id = id;
+-	tx->gref = ref;
+-	tx->offset = offset;
+-	tx->size = len;
+-	tx->flags = 0;
++	info->tx_local.id = id;
++	info->tx_local.gref = ref;
++	info->tx_local.offset = offset;
++	info->tx_local.size = len;
++	info->tx_local.flags = 0;
++
++	*tx = info->tx_local;
+ 
+ 	info->tx = tx;
+-	info->size += tx->size;
++	info->size += info->tx_local.size;
  }
-@@ -554,21 +555,17 @@ void wg_packet_receive(struct wg_device
- 	case cpu_to_le32(MESSAGE_HANDSHAKE_RESPONSE):
- 	case cpu_to_le32(MESSAGE_HANDSHAKE_COOKIE): {
- 		int cpu;
+ 
+ static struct xen_netif_tx_request *xennet_make_first_txreq(
+-	struct netfront_queue *queue, struct sk_buff *skb,
+-	struct page *page, unsigned int offset, unsigned int len)
++	struct xennet_gnttab_make_txreq *info,
++	unsigned int offset, unsigned int len)
+ {
+-	struct xennet_gnttab_make_txreq info = {
+-		.queue = queue,
+-		.skb = skb,
+-		.page = page,
+-		.size = 0,
+-	};
++	info->size = 0;
+ 
+-	gnttab_for_one_grant(page, offset, len, xennet_tx_setup_grant, &info);
++	gnttab_for_one_grant(info->page, offset, len, xennet_tx_setup_grant, info);
+ 
+-	return info.tx;
++	return info->tx;
+ }
+ 
+ static void xennet_make_one_txreq(unsigned long gfn, unsigned int offset,
+@@ -488,35 +486,27 @@ static void xennet_make_one_txreq(unsign
+ 	xennet_tx_setup_grant(gfn, offset, len, data);
+ }
+ 
+-static struct xen_netif_tx_request *xennet_make_txreqs(
+-	struct netfront_queue *queue, struct xen_netif_tx_request *tx,
+-	struct sk_buff *skb, struct page *page,
++static void xennet_make_txreqs(
++	struct xennet_gnttab_make_txreq *info,
++	struct page *page,
+ 	unsigned int offset, unsigned int len)
+ {
+-	struct xennet_gnttab_make_txreq info = {
+-		.queue = queue,
+-		.skb = skb,
+-		.tx = tx,
+-	};
 -
--		if (skb_queue_len(&wg->incoming_handshakes) >
--			    MAX_QUEUED_INCOMING_HANDSHAKES ||
--		    unlikely(!rng_is_initialized())) {
-+		if (unlikely(!rng_is_initialized() ||
-+			     ptr_ring_produce_bh(&wg->handshake_queue.ring, skb))) {
- 			net_dbg_skb_ratelimited("%s: Dropping handshake packet from %pISpfsc\n",
- 						wg->dev->name, skb);
- 			goto err;
- 		}
--		skb_queue_tail(&wg->incoming_handshakes, skb);
--		/* Queues up a call to packet_process_queued_handshake_
--		 * packets(skb):
--		 */
--		cpu = wg_cpumask_next_online(&wg->incoming_handshake_cpu);
-+		atomic_inc(&wg->handshake_queue_len);
-+		cpu = wg_cpumask_next_online(&wg->handshake_queue.last_cpu);
-+		/* Queues up a call to packet_process_queued_handshake_packets(skb): */
- 		queue_work_on(cpu, wg->handshake_receive_wq,
--			&per_cpu_ptr(wg->incoming_handshakes_worker, cpu)->work);
-+			      &per_cpu_ptr(wg->handshake_queue.worker, cpu)->work);
- 		break;
+ 	/* Skip unused frames from start of page */
+ 	page += offset >> PAGE_SHIFT;
+ 	offset &= ~PAGE_MASK;
+ 
+ 	while (len) {
+-		info.page = page;
+-		info.size = 0;
++		info->page = page;
++		info->size = 0;
+ 
+ 		gnttab_foreach_grant_in_range(page, offset, len,
+ 					      xennet_make_one_txreq,
+-					      &info);
++					      info);
+ 
+ 		page++;
+ 		offset = 0;
+-		len -= info.size;
++		len -= info->size;
  	}
- 	case cpu_to_le32(MESSAGE_DATA):
+-
+-	return info.tx;
+ }
+ 
+ /*
+@@ -569,7 +559,7 @@ static int xennet_start_xmit(struct sk_b
+ {
+ 	struct netfront_info *np = netdev_priv(dev);
+ 	struct netfront_stats *tx_stats = this_cpu_ptr(np->tx_stats);
+-	struct xen_netif_tx_request *tx, *first_tx;
++	struct xen_netif_tx_request *first_tx;
+ 	unsigned int i;
+ 	int notify;
+ 	int slots;
+@@ -578,6 +568,7 @@ static int xennet_start_xmit(struct sk_b
+ 	unsigned int len;
+ 	unsigned long flags;
+ 	struct netfront_queue *queue = NULL;
++	struct xennet_gnttab_make_txreq info = { };
+ 	unsigned int num_queues = dev->real_num_tx_queues;
+ 	u16 queue_index;
+ 	struct sk_buff *nskb;
+@@ -635,21 +626,24 @@ static int xennet_start_xmit(struct sk_b
+ 	}
+ 
+ 	/* First request for the linear area. */
+-	first_tx = tx = xennet_make_first_txreq(queue, skb,
+-						page, offset, len);
+-	offset += tx->size;
++	info.queue = queue;
++	info.skb = skb;
++	info.page = page;
++	first_tx = xennet_make_first_txreq(&info, offset, len);
++	offset += info.tx_local.size;
+ 	if (offset == PAGE_SIZE) {
+ 		page++;
+ 		offset = 0;
+ 	}
+-	len -= tx->size;
++	len -= info.tx_local.size;
+ 
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 		/* local packet? */
+-		tx->flags |= XEN_NETTXF_csum_blank | XEN_NETTXF_data_validated;
++		first_tx->flags |= XEN_NETTXF_csum_blank |
++				   XEN_NETTXF_data_validated;
+ 	else if (skb->ip_summed == CHECKSUM_UNNECESSARY)
+ 		/* remote but checksummed. */
+-		tx->flags |= XEN_NETTXF_data_validated;
++		first_tx->flags |= XEN_NETTXF_data_validated;
+ 
+ 	/* Optional extra info after the first request. */
+ 	if (skb_shinfo(skb)->gso_size) {
+@@ -658,7 +652,7 @@ static int xennet_start_xmit(struct sk_b
+ 		gso = (struct xen_netif_extra_info *)
+ 			RING_GET_REQUEST(&queue->tx, queue->tx.req_prod_pvt++);
+ 
+-		tx->flags |= XEN_NETTXF_extra_info;
++		first_tx->flags |= XEN_NETTXF_extra_info;
+ 
+ 		gso->u.gso.size = skb_shinfo(skb)->gso_size;
+ 		gso->u.gso.type = (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6) ?
+@@ -672,13 +666,13 @@ static int xennet_start_xmit(struct sk_b
+ 	}
+ 
+ 	/* Requests for the rest of the linear area. */
+-	tx = xennet_make_txreqs(queue, tx, skb, page, offset, len);
++	xennet_make_txreqs(&info, page, offset, len);
+ 
+ 	/* Requests for all the frags. */
+ 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+ 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+-		tx = xennet_make_txreqs(queue, tx, skb,
+-					skb_frag_page(frag), frag->page_offset,
++		xennet_make_txreqs(&info, skb_frag_page(frag),
++					frag->page_offset,
+ 					skb_frag_size(frag));
+ 	}
+ 
 
 
