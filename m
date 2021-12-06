@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B54D4469D6A
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D65A469E89
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357899AbhLFP3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:29:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59726 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386188AbhLFP0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:15 -0500
+        id S1386020AbhLFPjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:39:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60572 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358084AbhLFPhX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:37:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9711C08EADB;
+        Mon,  6 Dec 2021 07:23:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADFD2B81118;
-        Mon,  6 Dec 2021 15:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CED09C341C1;
-        Mon,  6 Dec 2021 15:22:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 791556132A;
+        Mon,  6 Dec 2021 15:23:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 603ACC341C2;
+        Mon,  6 Dec 2021 15:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804164;
-        bh=as5tJYuTCWOWSTEALSBQe2QSq/HyeoW71HBw5oiJU4Y=;
+        s=korg; t=1638804194;
+        bh=NVYc831lTubR1pDQoit5Z7uxb0b0HMjCDCYurmDIRHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inOQNfI5jBuxc+O1pX5eKD+DYxK/fyvuhjbsot+wHLRM2rF/HA4W7rXdtYGxoy7F6
-         h6a6NehkIOueyzt1bzsMr0Inzd1DaNF/iy62T4FtvYrGtC3jx7WX2bkZW+nJvUoWOZ
-         0E0xwhHbAKyzMtSgTHiQEUAppT7gqBPzMv1m4rgU=
+        b=QCXUftPVW6tL1H7T0x2Gi+w0hjs/kpzrKtQq4lGd8Jr9JSnBE0HrpgFmovIvGXik3
+         1q86q++UjCIoZhhasEdOcDLV9C7lauCLmng2XxJ9UGpe0lN5yXEm6MxC4Kg4Pcd/Gy
+         xF2zv0VMjH98kfY7v61KO/yAJH36PCmXm5EmwABg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/207] scsi: iscsi: Unblock session then wake up error handler
-Date:   Mon,  6 Dec 2021 15:54:46 +0100
-Message-Id: <20211206145611.333223860@linuxfoundation.org>
+Subject: [PATCH 5.15 033/207] net: usb: r8152: Add MAC passthrough support for more Lenovo Docks
+Date:   Mon,  6 Dec 2021 15:54:47 +0100
+Message-Id: <20211206145611.372865535@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -46,51 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
+[ Upstream commit f77b83b5bbab53d2be339184838b19ed2c62c0a5 ]
 
-We can race where iscsi_session_recovery_timedout() has woken up the error
-handler thread and it's now setting the devices to offline, and
-session_recovery_timedout()'s call to scsi_target_unblock() is also trying
-to set the device's state to transport-offline. We can then get a mix of
-states.
+Like ThinkaPad Thunderbolt 4 Dock, more Lenovo docks start to use the original
+Realtek USB ethernet chip ID 0bda:8153.
 
-For the case where we can't relogin we want the devices to be in
-transport-offline so when we have repaired the connection
-__iscsi_unblock_session() can set the state back to running.
+Lenovo Docks always use their own IDs for usb hub, even for older Docks.
+If parent hub is from Lenovo, then r8152 should try MAC passthrough.
+Verified on Lenovo TBT3 dock too.
 
-Set the device state then call into libiscsi to wake up the error handler.
-
-Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/usb/r8152.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 78343d3f93857..554b6f7842236 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -1899,12 +1899,12 @@ static void session_recovery_timedout(struct work_struct *work)
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index f329e39100a7d..d3da350777a4d 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -9603,12 +9603,9 @@ static int rtl8152_probe(struct usb_interface *intf,
+ 		netdev->hw_features &= ~NETIF_F_RXCSUM;
  	}
- 	spin_unlock_irqrestore(&session->lock, flags);
  
--	if (session->transport->session_recovery_timedout)
--		session->transport->session_recovery_timedout(session);
--
- 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
- 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
- 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
-+
-+	if (session->transport->session_recovery_timedout)
-+		session->transport->session_recovery_timedout(session);
- }
+-	if (le16_to_cpu(udev->descriptor.idVendor) == VENDOR_ID_LENOVO) {
+-		switch (le16_to_cpu(udev->descriptor.idProduct)) {
+-		case DEVICE_ID_THINKPAD_THUNDERBOLT3_DOCK_GEN2:
+-		case DEVICE_ID_THINKPAD_USB_C_DOCK_GEN2:
+-			tp->lenovo_macpassthru = 1;
+-		}
++	if (udev->parent &&
++			le16_to_cpu(udev->parent->descriptor.idVendor) == VENDOR_ID_LENOVO) {
++		tp->lenovo_macpassthru = 1;
+ 	}
  
- static void __iscsi_unblock_session(struct work_struct *work)
+ 	if (le16_to_cpu(udev->descriptor.bcdDevice) == 0x3011 && udev->serial &&
 -- 
 2.33.0
 
