@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A929469D10
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1172B469C22
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244338AbhLFP2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55986 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358111AbhLFPXF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:05 -0500
+        id S1347333AbhLFPVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:05 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36936 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357590AbhLFPR4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3DC4B81018;
-        Mon,  6 Dec 2021 15:19:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B17CC341C6;
-        Mon,  6 Dec 2021 15:19:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E88C6133D;
+        Mon,  6 Dec 2021 15:14:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26FBDC341C1;
+        Mon,  6 Dec 2021 15:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803973;
-        bh=Wtyv9B/EzQ4/3BqBfvqzTd+JS0pyb8Wx8MsRVgC1Z0Y=;
+        s=korg; t=1638803666;
+        bh=f5jn4Mw2tfC7qY0Ro02sm2n4qtXnx5isnSSf8JbTxII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNgVNRJ94vLjFAduSBFE1i73HBXQeuvB9rpsYBaICGPZAHRmw6/mJe/nKX4tGBqUh
-         ECSNz8KtFi3Va+yqM6toMzc0kXTJLC99cG0YLu09YDwGSvs0J4oVIutiLcALM4qgaj
-         NMxJXV6bgoajaozE4tDDirjJP4gLSwicp/iiJaNo=
+        b=l6FR+xnJKPM2L+3wl9di2lehh2cRHEtLWHIv768Oy74rGOf8mF+Zp0Hr0MaTd/ZJu
+         uDRFpfjbxWhgZGA9SYbc4j3D/spFVaYmgeoeO07hj/QH3wBDLloBR7kmKf87XZ8v9f
+         WFWnzccQK7TEUMxFniNJC673+c2Wq1DGAL3IAQ8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wim Osterholt <wim@djo.tudelft.nl>,
-        "Pavel V. Panteleev" <panteleev_p@mcst.ru>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>
-Subject: [PATCH 5.10 113/130] vgacon: Propagate console boot parameters before calling `vc_resize
+        stable@vger.kernel.org, Jay Dolan <jay.dolan@accesio.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 66/70] serial: 8250_pci: rewrite pericom_do_set_divisor()
 Date:   Mon,  6 Dec 2021 15:57:10 +0100
-Message-Id: <20211206145603.550152143@linuxfoundation.org>
+Message-Id: <20211206145554.212061966@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Jay Dolan <jay.dolan@accesio.com>
 
-commit 3dfac26e2ef29ff2abc2a75aa4cd48fce25a2c4b upstream.
+commit bb1201d4b38ec67bd9a871cf86b0cc10f28b15b5 upstream.
 
-Fix a division by zero in `vgacon_resize' with a backtrace like:
+Have pericom_do_set_divisor() use the uartclk instead of a hard coded
+value to work with different speed crystals. Tested with 14.7456 and 24
+MHz crystals.
 
-vgacon_resize
-vc_do_resize
-vgacon_init
-do_bind_con_driver
-do_unbind_con_driver
-fbcon_fb_unbind
-do_unregister_framebuffer
-do_register_framebuffer
-register_framebuffer
-__drm_fb_helper_initial_config_and_unlock
-drm_helper_hpd_irq_event
-dw_hdmi_irq
-irq_thread
-kthread
+Have pericom_do_set_divisor() always calculate the divisor rather than
+call serial8250_do_set_divisor() for rates below baud_base.
 
-caused by `c->vc_cell_height' not having been initialized.  This has
-only started to trigger with commit 860dafa90259 ("vt: Fix character
-height handling with VT_RESIZEX"), however the ultimate offender is
-commit 50ec42edd978 ("[PATCH] Detaching fbcon: fix vgacon to allow
-retaking of the console").
+Do not write registers or call serial8250_do_set_divisor() if valid
+divisors could not be found.
 
-Said commit has added a call to `vc_resize' whenever `vgacon_init' is
-called with the `init' argument set to 0, which did not happen before.
-And the call is made before a key vgacon boot parameter retrieved in
-`vgacon_startup' has been propagated in `vgacon_init' for `vc_resize' to
-use to the console structure being worked on.  Previously the parameter
-was `c->vc_font.height' and now it is `c->vc_cell_height'.
-
-In this particular scenario the registration of fbcon has failed and vt
-resorts to vgacon.  Now fbcon does have initialized `c->vc_font.height'
-somehow, unlike `c->vc_cell_height', which is why this code did not
-crash before, but either way the boot parameters should have been copied
-to the console structure ahead of the call to `vc_resize' rather than
-afterwards, so that first the call has a chance to use them and second
-they do not change the console structure to something possibly different
-from what was used by `vc_resize'.
-
-Move the propagation of the vgacon boot parameters ahead of the call to
-`vc_resize' then.  Adjust the comment accordingly.
-
-Fixes: 50ec42edd978 ("[PATCH] Detaching fbcon: fix vgacon to allow retaking of the console")
-Cc: stable@vger.kernel.org # v2.6.18+
-Reported-by: Wim Osterholt <wim@djo.tudelft.nl>
-Reported-by: Pavel V. Panteleev <panteleev_p@mcst.ru>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2110252317110.58149@angie.orcam.me.uk
+Fixes: 6bf4e42f1d19 ("serial: 8250: Add support for higher baud rates to Pericom chips")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211122120604.3909-3-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/vgacon.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c |   30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -370,11 +370,17 @@ static void vgacon_init(struct vc_data *
- 	struct uni_pagedir *p;
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -1351,29 +1351,33 @@ pericom_do_set_divisor(struct uart_port
+ {
+ 	int scr;
+ 	int lcr;
+-	int actual_baud;
+-	int tolerance;
  
- 	/*
--	 * We cannot be loaded as a module, therefore init is always 1,
--	 * but vgacon_init can be called more than once, and init will
--	 * not be 1.
-+	 * We cannot be loaded as a module, therefore init will be 1
-+	 * if we are the default console, however if we are a fallback
-+	 * console, for example if fbcon has failed registration, then
-+	 * init will be 0, so we need to make sure our boot parameters
-+	 * have been copied to the console structure for vgacon_resize
-+	 * ultimately called by vc_resize.  Any subsequent calls to
-+	 * vgacon_init init will have init set to 0 too.
- 	 */
- 	c->vc_can_do_color = vga_can_do_color;
-+	c->vc_scan_lines = vga_scan_lines;
-+	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
+-	for (scr = 5 ; scr <= 15 ; scr++) {
+-		actual_baud = 921600 * 16 / scr;
+-		tolerance = actual_baud / 50;
++	for (scr = 16; scr > 4; scr--) {
++		unsigned int maxrate = port->uartclk / scr;
++		unsigned int divisor = max(maxrate / baud, 1U);
++		int delta = maxrate / divisor - baud;
  
- 	/* set dimensions manually if init != 0 since vc_resize() will fail */
- 	if (init) {
-@@ -383,8 +389,6 @@ static void vgacon_init(struct vc_data *
- 	} else
- 		vc_resize(c, vga_video_num_columns, vga_video_num_lines);
+-		if ((baud < actual_baud + tolerance) &&
+-			(baud > actual_baud - tolerance)) {
++		if (baud > maxrate + baud / 50)
++			continue;
  
--	c->vc_scan_lines = vga_scan_lines;
--	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
- 	c->vc_complement_mask = 0x7700;
- 	if (vga_512_chars)
- 		c->vc_hi_font_mask = 0x0800;
++		if (delta > baud / 50)
++			divisor++;
++
++		if (divisor > 0xffff)
++			continue;
++
++		/* Update delta due to possible divisor change */
++		delta = maxrate / divisor - baud;
++		if (abs(delta) < baud / 50) {
+ 			lcr = serial_port_in(port, UART_LCR);
+ 			serial_port_out(port, UART_LCR, lcr | 0x80);
+-
+-			serial_port_out(port, UART_DLL, 1);
+-			serial_port_out(port, UART_DLM, 0);
++			serial_port_out(port, UART_DLL, divisor & 0xff);
++			serial_port_out(port, UART_DLM, divisor >> 8 & 0xff);
+ 			serial_port_out(port, 2, 16 - scr);
+ 			serial_port_out(port, UART_LCR, lcr);
+ 			return;
+-		} else if (baud > actual_baud) {
+-			break;
+ 		}
+ 	}
+-	serial8250_do_set_divisor(port, baud, quot, quot_frac);
+ }
+ static int pci_pericom_setup(struct serial_private *priv,
+ 		  const struct pciserial_board *board,
 
 
