@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 102C2469D16
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB658469F32
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355888AbhLFP2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41510 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243761AbhLFPXL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:11 -0500
+        id S1391518AbhLFPpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33044 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390746AbhLFPmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB156C07E5E7;
+        Mon,  6 Dec 2021 07:30:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAFBD6134C;
-        Mon,  6 Dec 2021 15:19:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BBC2C341C2;
-        Mon,  6 Dec 2021 15:19:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87B4FB81135;
+        Mon,  6 Dec 2021 15:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5AD0C34900;
+        Mon,  6 Dec 2021 15:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803982;
-        bh=Z/y5FqKn8NWA7ZnYOB1l9GfqHB0vXRPCIkRWS6Zrrgo=;
+        s=korg; t=1638804618;
+        bh=FHYTGk8iAPAiTDXBO58qYocphM6hJCLik7KJiqrJ/BU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2760ibW3oL4zJMiXAdrH1g0WZ2QQH7ibHST6SRlEl/EVw3pI0VIahN25c6hbm8fg
-         3pXIZCb2zpZwgG998zkFvkL2wdICBGJnTk9tZA7cfLFKR0TJFRVOMkQk3Fma1xB8Sg
-         gsRDhCPeYO8x5Nkq40hcNW2rMg2lCM/4CKCERcns=
+        b=vA2DnSdu4dRQS2X+zWAQ1NOUL6EpnwtP/LOAYyaODAYikwfQGWhem8VOH99kl20Ou
+         wetpigipW+HhTXKs3nnTSD7oWQY3obzbrcJC1ulDpQaHBI94P3cBdoN4xQNJjD2FwH
+         pGwTWvpKATJpQZ27ZP/kvGNVuWjvp9h+adZWW2Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Badhri Jagan Sridharan <badhri@google.com>
-Subject: [PATCH 5.10 116/130] usb: typec: tcpm: Wait in SNK_DEBOUNCED until disconnect
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 179/207] KVM: x86/mmu: Rename slot_handle_leaf to slot_handle_level_4k
 Date:   Mon,  6 Dec 2021 15:57:13 +0100
-Message-Id: <20211206145603.656982978@linuxfoundation.org>
+Message-Id: <20211206145616.467672594@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +48,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badhri Jagan Sridharan <badhri@google.com>
+From: David Matlack <dmatlack@google.com>
 
-commit fbcd13df1e78eb2ba83a3c160eefe2d6f574beaf upstream.
+[ Upstream commit 610265ea3da117db435868bd109f1861534a5634 ]
 
-Stub from the spec:
-"4.5.2.2.4.2 Exiting from AttachWait.SNK State
-A Sink shall transition to Unattached.SNK when the state of both
-the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
-A DRP shall transition to Unattached.SRC when the state of both
-the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
+slot_handle_leaf is a misnomer because it only operates on 4K SPTEs
+whereas "leaf" is used to describe any valid terminal SPTE (4K or
+large page). Rename slot_handle_leaf to slot_handle_level_4k to
+avoid confusion.
 
-This change makes TCPM to wait in SNK_DEBOUNCED state until
-CC1 and CC2 pins is SNK.Open for at least tPDDebounce. Previously,
-TCPM resets the port if vbus is not present in PD_T_PS_SOURCE_ON.
-This causes TCPM to loop continuously when connected to a
-faulty power source that does not present vbus. Waiting in
-SNK_DEBOUNCED also ensures that TCPM is adherant to
-"4.5.2.2.4.2 Exiting from AttachWait.SNK State" requirements.
+Making this change makes it more obvious there is a benign discrepency
+between the legacy MMU and the TDP MMU when it comes to dirty logging.
+The legacy MMU only iterates through 4K SPTEs when zapping for
+collapsing and when clearing D-bits. The TDP MMU, on the other hand,
+iterates through SPTEs on all levels.
 
-[ 6169.280751] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
-[ 6169.280759] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
-[ 6169.280771] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
-[ 6169.282427] CC1: 0 -> 0, CC2: 5 -> 5 [state SNK_ATTACH_WAIT, polarity 0, connected]
-[ 6169.450825] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
-[ 6169.450834] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
-[ 6169.930892] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
-[ 6169.931296] disable vbus discharge ret:0
-[ 6169.931301] Setting usb_comm capable false
-[ 6169.932783] Setting voltage/current limit 0 mV 0 mA
-[ 6169.932802] polarity 0
-[ 6169.933706] Requesting mux state 0, usb-role 0, orientation 0
-[ 6169.936689] cc:=0
-[ 6169.936812] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
-[ 6169.937157] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
-[ 6170.036880] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
-[ 6170.036890] state change PORT_RESET_WAIT_OFF -> SNK_UNATTACHED [rev2 NONE_AMS]
-[ 6170.036896] Start toggling
-[ 6170.041412] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0, disconnected]
-[ 6170.042973] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
-[ 6170.042976] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
-[ 6170.042981] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
-[ 6170.213014] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
-[ 6170.213019] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
-[ 6170.693068] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
-[ 6170.693304] disable vbus discharge ret:0
-[ 6170.693308] Setting usb_comm capable false
-[ 6170.695193] Setting voltage/current limit 0 mV 0 mA
-[ 6170.695210] polarity 0
-[ 6170.695990] Requesting mux state 0, usb-role 0, orientation 0
-[ 6170.701896] cc:=0
-[ 6170.702181] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
-[ 6170.703343] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
+The TDP MMU behavior of zapping SPTEs at all levels is technically
+overkill for its current dirty logging implementation, which always
+demotes to 4k SPTES, but both the TDP MMU and legacy MMU zap if and only
+if the SPTE can be replaced by a larger page, i.e. will not spuriously
+zap 2m (or larger) SPTEs. Opportunistically add comments to explain this
+discrepency in the code.
 
-Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
-Cc: stable@vger.kernel.org
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Link: https://lore.kernel.org/r/20211130001825.3142830-1-badhri@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David Matlack <dmatlack@google.com>
+Message-Id: <20211019162223.3935109-1-dmatlack@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |    4 ----
- 1 file changed, 4 deletions(-)
+ arch/x86/kvm/mmu/mmu.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -3293,11 +3293,7 @@ static void run_state_machine(struct tcp
- 				       tcpm_try_src(port) ? SRC_TRY
- 							  : SNK_ATTACHED,
- 				       0);
--		else
--			/* Wait for VBUS, but not forever */
--			tcpm_set_state(port, PORT_RESET, PD_T_PS_SOURCE_ON);
- 		break;
--
- 	case SRC_TRY:
- 		port->try_src_count++;
- 		tcpm_set_cc(port, tcpm_rp_cc(port));
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 287fc1086db78..f2e74e8c1651a 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5474,8 +5474,8 @@ slot_handle_level(struct kvm *kvm, const struct kvm_memory_slot *memslot,
+ }
+ 
+ static __always_inline bool
+-slot_handle_leaf(struct kvm *kvm, const struct kvm_memory_slot *memslot,
+-		 slot_level_handler fn, bool flush_on_yield)
++slot_handle_level_4k(struct kvm *kvm, const struct kvm_memory_slot *memslot,
++		     slot_level_handler fn, bool flush_on_yield)
+ {
+ 	return slot_handle_level(kvm, memslot, fn, PG_LEVEL_4K,
+ 				 PG_LEVEL_4K, flush_on_yield);
+@@ -5859,7 +5859,12 @@ void kvm_mmu_zap_collapsible_sptes(struct kvm *kvm,
+ 
+ 	if (kvm_memslots_have_rmaps(kvm)) {
+ 		write_lock(&kvm->mmu_lock);
+-		flush = slot_handle_leaf(kvm, slot, kvm_mmu_zap_collapsible_spte, true);
++		/*
++		 * Zap only 4k SPTEs since the legacy MMU only supports dirty
++		 * logging at a 4k granularity and never creates collapsible
++		 * 2m SPTEs during dirty logging.
++		 */
++		flush = slot_handle_level_4k(kvm, slot, kvm_mmu_zap_collapsible_spte, true);
+ 		if (flush)
+ 			kvm_arch_flush_remote_tlbs_memslot(kvm, slot);
+ 		write_unlock(&kvm->mmu_lock);
+@@ -5896,8 +5901,11 @@ void kvm_mmu_slot_leaf_clear_dirty(struct kvm *kvm,
+ 
+ 	if (kvm_memslots_have_rmaps(kvm)) {
+ 		write_lock(&kvm->mmu_lock);
+-		flush = slot_handle_leaf(kvm, memslot, __rmap_clear_dirty,
+-					 false);
++		/*
++		 * Clear dirty bits only on 4k SPTEs since the legacy MMU only
++		 * support dirty logging at a 4k granularity.
++		 */
++		flush = slot_handle_level_4k(kvm, memslot, __rmap_clear_dirty, false);
+ 		write_unlock(&kvm->mmu_lock);
+ 	}
+ 
+-- 
+2.33.0
+
 
 
