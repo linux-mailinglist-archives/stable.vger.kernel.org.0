@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F15B3469E23
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9CCA469EF7
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349518AbhLFPgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:36:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48546 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388440AbhLFPcq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:46 -0500
+        id S1391130AbhLFPpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1388170AbhLFPcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872D2C08E856;
+        Mon,  6 Dec 2021 07:19:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8006561310;
-        Mon,  6 Dec 2021 15:29:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 676D8C34900;
-        Mon,  6 Dec 2021 15:29:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50471B81135;
+        Mon,  6 Dec 2021 15:19:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C7F3C341C1;
+        Mon,  6 Dec 2021 15:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804557;
-        bh=DKTPlAHGNp7hl5YY5FYZAl7aOhAQaXfXsmdHoIjod/A=;
+        s=korg; t=1638803965;
+        bh=rhQ6gw2N4GendxGyO6hG8ndGQ19HAKkm+QVk7bFiWG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEBvppDhpq1FX4lOrwsIQLOLWZ3M+6Yx8VLIRm2HWwICcBiiBUSXkjNFwYVHEtXv9
-         A7J0B8T6QlwLT4jcdgCLtInI1zkhOfkVO5LpAxDIeUOIYi1CddeyNStja2QBwnpr1y
-         GUcDp62Hg2jCltFHdUMtTP27Pd/W+6mTIhoYFzmo=
+        b=l5DPpk9RX95DJpmynOdqDLExYCGEMTL2B0eLGRI3g5HoeRVpjhRrAhp4UoJ23CObh
+         V+VLdDwZpFwThehRgLdgfviE4xv5jZxprBoQGXNaOBP0xSuhHiWhi4vaCNOZoDfJvm
+         2dQELSnRyiBHP9V1hI5rJd75N0otaVZ0wCBnhZpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Sterritt <sterritt@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Marc Orr <marcorr@google.com>, Peter Gonda <pgonda@google.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 172/207] x86/sev: Fix SEV-ES INS/OUTS instructions for word, dword, and qword
-Date:   Mon,  6 Dec 2021 15:57:06 +0100
-Message-Id: <20211206145616.220150126@linuxfoundation.org>
+        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 110/130] x86/entry: Add a fence for kernel entry SWAPGS in paranoid_entry()
+Date:   Mon,  6 Dec 2021 15:57:07 +0100
+Message-Id: <20211206145603.437518528@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,155 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Sterritt <sterritt@google.com>
+From: Lai Jiangshan <laijs@linux.alibaba.com>
 
-[ Upstream commit 1d5379d0475419085d3575bd9155f2e558e96390 ]
+[ Upstream commit c07e45553da1808aa802e9f0ffa8108cfeaf7a17 ]
 
-Properly type the operands being passed to __put_user()/__get_user().
-Otherwise, these routines truncate data for dependent instructions
-(e.g., INSW) and only read/write one byte.
+Commit
 
-This has been tested by sending a string with REP OUTSW to a port and
-then reading it back in with REP INSW on the same port.
+  18ec54fdd6d18 ("x86/speculation: Prepare entry code for Spectre v1 swapgs mitigations")
 
-Previous behavior was to only send and receive the first char of the
-size. For example, word operations for "abcd" would only read/write
-"ac". With change, the full string is now written and read back.
+added FENCE_SWAPGS_{KERNEL|USER}_ENTRY for conditional SWAPGS. In
+paranoid_entry(), it uses only FENCE_SWAPGS_KERNEL_ENTRY for both
+branches. This is because the fence is required for both cases since the
+CR3 write is conditional even when PTI is enabled.
 
-Fixes: f980f9c31a923 (x86/sev-es: Compile early handler code into kernel image)
-Signed-off-by: Michael Sterritt <sterritt@google.com>
+But
+
+  96b2371413e8f ("x86/entry/64: Switch CR3 before SWAPGS in paranoid entry")
+
+changed the order of SWAPGS and the CR3 write. And it missed the needed
+FENCE_SWAPGS_KERNEL_ENTRY for the user gsbase case.
+
+Add it back by changing the branches so that FENCE_SWAPGS_KERNEL_ENTRY
+can cover both branches.
+
+  [ bp: Massage, fix typos, remove obsolete comment while at it. ]
+
+Fixes: 96b2371413e8f ("x86/entry/64: Switch CR3 before SWAPGS in paranoid entry")
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Reviewed-by: Peter Gonda <pgonda@google.com>
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lkml.kernel.org/r/20211119232757.176201-1-sterritt@google.com
+Link: https://lkml.kernel.org/r/20211126101209.8613-2-jiangshanlai@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sev.c | 57 +++++++++++++++++++++++++++++--------------
- 1 file changed, 39 insertions(+), 18 deletions(-)
+ arch/x86/entry/entry_64.S | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 88401675dabb0..a0064cf77e562 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -294,11 +294,6 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
- 				   char *dst, char *buf, size_t size)
- {
- 	unsigned long error_code = X86_PF_PROT | X86_PF_WRITE;
--	char __user *target = (char __user *)dst;
--	u64 d8;
--	u32 d4;
--	u16 d2;
--	u8  d1;
- 
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index 166554a109aeb..a24ce5905ab82 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -936,6 +936,7 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ .Lparanoid_entry_checkgs:
+ 	/* EBX = 1 -> kernel GSBASE active, no restore required */
+ 	movl	$1, %ebx
++
  	/*
- 	 * This function uses __put_user() independent of whether kernel or user
-@@ -320,26 +315,42 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
- 	 * instructions here would cause infinite nesting.
- 	 */
- 	switch (size) {
--	case 1:
-+	case 1: {
-+		u8 d1;
-+		u8 __user *target = (u8 __user *)dst;
-+
- 		memcpy(&d1, buf, 1);
- 		if (__put_user(d1, target))
- 			goto fault;
- 		break;
--	case 2:
-+	}
-+	case 2: {
-+		u16 d2;
-+		u16 __user *target = (u16 __user *)dst;
-+
- 		memcpy(&d2, buf, 2);
- 		if (__put_user(d2, target))
- 			goto fault;
- 		break;
--	case 4:
-+	}
-+	case 4: {
-+		u32 d4;
-+		u32 __user *target = (u32 __user *)dst;
-+
- 		memcpy(&d4, buf, 4);
- 		if (__put_user(d4, target))
- 			goto fault;
- 		break;
--	case 8:
-+	}
-+	case 8: {
-+		u64 d8;
-+		u64 __user *target = (u64 __user *)dst;
-+
- 		memcpy(&d8, buf, 8);
- 		if (__put_user(d8, target))
- 			goto fault;
- 		break;
-+	}
- 	default:
- 		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
- 		return ES_UNSUPPORTED;
-@@ -362,11 +373,6 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 				  char *src, char *buf, size_t size)
- {
- 	unsigned long error_code = X86_PF_PROT;
--	char __user *s = (char __user *)src;
--	u64 d8;
--	u32 d4;
--	u16 d2;
--	u8  d1;
+ 	 * The kernel-enforced convention is a negative GSBASE indicates
+ 	 * a kernel value. No SWAPGS needed on entry and exit.
+@@ -943,21 +944,14 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	movl	$MSR_GS_BASE, %ecx
+ 	rdmsr
+ 	testl	%edx, %edx
+-	jns	.Lparanoid_entry_swapgs
+-	ret
++	js	.Lparanoid_kernel_gsbase
  
- 	/*
- 	 * This function uses __get_user() independent of whether kernel or user
-@@ -388,26 +394,41 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 	 * instructions here would cause infinite nesting.
- 	 */
- 	switch (size) {
--	case 1:
-+	case 1: {
-+		u8 d1;
-+		u8 __user *s = (u8 __user *)src;
-+
- 		if (__get_user(d1, s))
- 			goto fault;
- 		memcpy(buf, &d1, 1);
- 		break;
--	case 2:
-+	}
-+	case 2: {
-+		u16 d2;
-+		u16 __user *s = (u16 __user *)src;
-+
- 		if (__get_user(d2, s))
- 			goto fault;
- 		memcpy(buf, &d2, 2);
- 		break;
--	case 4:
-+	}
-+	case 4: {
-+		u32 d4;
-+		u32 __user *s = (u32 __user *)src;
-+
- 		if (__get_user(d4, s))
- 			goto fault;
- 		memcpy(buf, &d4, 4);
- 		break;
--	case 8:
-+	}
-+	case 8: {
-+		u64 d8;
-+		u64 __user *s = (u64 __user *)src;
- 		if (__get_user(d8, s))
- 			goto fault;
- 		memcpy(buf, &d8, 8);
- 		break;
-+	}
- 	default:
- 		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
- 		return ES_UNSUPPORTED;
+-.Lparanoid_entry_swapgs:
++	/* EBX = 0 -> SWAPGS required on exit */
++	xorl	%ebx, %ebx
+ 	swapgs
++.Lparanoid_kernel_gsbase:
+ 
+-	/*
+-	 * The above SAVE_AND_SWITCH_TO_KERNEL_CR3 macro doesn't do an
+-	 * unconditional CR3 write, even in the PTI case.  So do an lfence
+-	 * to prevent GS speculation, regardless of whether PTI is enabled.
+-	 */
+ 	FENCE_SWAPGS_KERNEL_ENTRY
+-
+-	/* EBX = 0 -> SWAPGS required on exit */
+-	xorl	%ebx, %ebx
+ 	ret
+ SYM_CODE_END(paranoid_entry)
+ 
 -- 
 2.33.0
 
