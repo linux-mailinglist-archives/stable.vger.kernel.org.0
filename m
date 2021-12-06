@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A9A46999C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:58:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CCE946999F
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344136AbhLFPCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:02:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52840 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343709AbhLFPCH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:07 -0500
+        id S1344779AbhLFPCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:02:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344787AbhLFPCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341E3C061746;
+        Mon,  6 Dec 2021 06:58:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2131612D3;
-        Mon,  6 Dec 2021 14:58:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7D90C341C2;
-        Mon,  6 Dec 2021 14:58:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC4F1B810E7;
+        Mon,  6 Dec 2021 14:58:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4161BC341C2;
+        Mon,  6 Dec 2021 14:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802718;
-        bh=Hhlbw8AxhK7obTAW16YMJtftZaHl4MPLEEfRrHOmRXM=;
+        s=korg; t=1638802723;
+        bh=SbmC89HWXVWyKVjBpaDZOz4X+92HnYX6IHQrnNJ3gDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QELTaFMRVxRwuz/1+6vygdKV6EtBj5EHkWlC/OCOpcJAzZlJTCqjSDN1g7KUihDbw
-         Q0LO+qPr6C33n4k8nNLdECN/mnx5evx1Ku8mw/ZyXlDc4qvRfgaXiWWPy7CDKcv4oR
-         vX7g59MQI9gUyEGJ9sKOYtkw4Hm5/kn82sykdfLs=
+        b=2sJkV5NK7dWZYSI7Ubluwa3TqB3/AmDaSw1lZ0K91Xbj2RkDUhPRxL0u3/o9EuWd7
+         MqSza6eaznDp2oTBjm/m7Jq9nez1gqN/Cmft9BYTU/vIUaEteKvZQ6xnDfwb/4Cw81
+         fAndcSj1kfqsYhSsXug8kzCytGoBGof2D+qxeyPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, lee.jones@linaro.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "devel@driverdev.osuosl.org, arve@android.com, stable@vger.kernel.org,
-        riandrews@android.com, labbott@redhat.com, sumit.semwal@linaro.org, Dan
-        Carpenter" <dan.carpenter@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.4 01/52] staging: ion: Prevent incorrect reference counting behavour
-Date:   Mon,  6 Dec 2021 15:55:45 +0100
-Message-Id: <20211206145547.942588455@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 02/52] USB: serial: option: add Telit LE910S1 0x9200 composition
+Date:   Mon,  6 Dec 2021 15:55:46 +0100
+Message-Id: <20211206145547.976674902@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
 References: <20211206145547.892668902@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,40 +47,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-Supply additional checks in order to prevent unexpected results.
+commit e353f3e88720300c3d72f49a4bea54f42db1fa5e upstream.
 
-Fixes: b892bf75b2034 ("ion: Switch ion to use dma-buf")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Add the following Telit LE910S1 composition:
+
+0x9200: tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20211119140319.10448-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/android/ion/ion.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/staging/android/ion/ion.c
-+++ b/drivers/staging/android/ion/ion.c
-@@ -606,6 +606,9 @@ static void *ion_buffer_kmap_get(struct
- 	void *vaddr;
- 
- 	if (buffer->kmap_cnt) {
-+		if (buffer->kmap_cnt == INT_MAX)
-+			return ERR_PTR(-EOVERFLOW);
-+
- 		buffer->kmap_cnt++;
- 		return buffer->vaddr;
- 	}
-@@ -626,6 +629,9 @@ static void *ion_handle_kmap_get(struct
- 	void *vaddr;
- 
- 	if (handle->kmap_cnt) {
-+		if (handle->kmap_cnt == INT_MAX)
-+			return ERR_PTR(-EOVERFLOW);
-+
- 		handle->kmap_cnt++;
- 		return buffer->vaddr;
- 	}
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1243,6 +1243,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
+ 	  .driver_info = NCTRL(0) | ZLP },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9200),				/* Telit LE910S1 flashing device */
++	  .driver_info = NCTRL(0) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) },
 
 
