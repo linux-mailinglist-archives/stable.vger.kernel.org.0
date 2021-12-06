@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CFAB469ACC
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED470469C51
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345909AbhLFPLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:11:16 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57874 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347231AbhLFPI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:08:27 -0500
+        id S1355934AbhLFPVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51288 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356350AbhLFPSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:38 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8655861316;
-        Mon,  6 Dec 2021 15:04:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D697C341C6;
-        Mon,  6 Dec 2021 15:04:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EAEDB81134;
+        Mon,  6 Dec 2021 15:15:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6932BC341C1;
+        Mon,  6 Dec 2021 15:15:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803096;
-        bh=W/p0efIP0roSH8CWBJDgf6OSb8g6IsjFLp89wGXAykc=;
+        s=korg; t=1638803706;
+        bh=Fv9fpWLNEQLgjpl9mzaffZEKLRmOtc1MC2/U0es4LuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PzfUmn+1aoSp/SB+MY0Ea57+BWeRxutaveYfq2Jgr41RLwpF/km5wykvichnc3gbY
-         XnLXxYi/a2xYjWXnSkLQ3n9re1uVpWDx/6E/a9kPovcrAg0TyJh4ZlKzJ6fnhhwK5o
-         n6ErE9kh9azSEdPBRdB3tbKiCyOlV3YrADKWlacQ=
+        b=IrYNt7ig8vTChJDOOZ9jiEU5vCh8SyrJ6Yx8D6iZADIv514v+FdoOFYV8qOcudnJ/
+         VyXjAhug9EFa72TwF79B9ij0rqS3lKCSEtWCrEld9vwxpcj+E8ZoQW7PjcYycsnWPS
+         /0P8hhT9BSUaaxQ7aswfFRPlDLnPF4n8iUoa75Uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        Yuchung Cheng <ycheng@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 026/106] tcp_cubic: fix spurious Hystart ACK train detections for not-cwnd-limited flows
-Date:   Mon,  6 Dec 2021 15:55:34 +0100
-Message-Id: <20211206145556.266864796@linuxfoundation.org>
+Subject: [PATCH 5.10 018/130] scsi: iscsi: Unblock session then wake up error handler
+Date:   Mon,  6 Dec 2021 15:55:35 +0100
+Message-Id: <20211206145600.262282700@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,85 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 4e1fddc98d2585ddd4792b5e44433dcee7ece001 ]
+[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
 
-While testing BIG TCP patch series, I was expecting that TCP_RR workloads
-with 80KB requests/answers would send one 80KB TSO packet,
-then being received as a single GRO packet.
+We can race where iscsi_session_recovery_timedout() has woken up the error
+handler thread and it's now setting the devices to offline, and
+session_recovery_timedout()'s call to scsi_target_unblock() is also trying
+to set the device's state to transport-offline. We can then get a mix of
+states.
 
-It turns out this was not happening, and the root cause was that
-cubic Hystart ACK train was triggering after a few (2 or 3) rounds of RPC.
+For the case where we can't relogin we want the devices to be in
+transport-offline so when we have repaired the connection
+__iscsi_unblock_session() can set the state back to running.
 
-Hystart was wrongly setting CWND/SSTHRESH to 30, while my RPC
-needed a budget of ~20 segments.
+Set the device state then call into libiscsi to wake up the error handler.
 
-Ideally these TCP_RR flows should not exit slow start.
-
-Cubic Hystart should reset itself at each round, instead of assuming
-every TCP flow is a bulk one.
-
-Note that even after this patch, Hystart can still trigger, depending
-on scheduling artifacts, but at a higher CWND/SSTHRESH threshold,
-keeping optimal TSO packet sizes.
-
-Tested:
-
-ip link set dev eth0 gro_ipv6_max_size 131072 gso_ipv6_max_size 131072
-nstat -n; netperf -H ... -t TCP_RR  -l 5  -- -r 80000,80000 -K cubic; nstat|egrep "Ip6InReceives|Hystart|Ip6OutRequests"
-
-Before:
-
-   8605
-Ip6InReceives                   87541              0.0
-Ip6OutRequests                  129496             0.0
-TcpExtTCPHystartTrainDetect     1                  0.0
-TcpExtTCPHystartTrainCwnd       30                 0.0
-
-After:
-
-  8760
-Ip6InReceives                   88514              0.0
-Ip6OutRequests                  87975              0.0
-
-Fixes: ae27e98a5152 ("[TCP] CUBIC v2.3")
-Co-developed-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Yuchung Cheng <ycheng@google.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Link: https://lore.kernel.org/r/20211123202535.1843771-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_cubic.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_cubic.c b/net/ipv4/tcp_cubic.c
-index 8b5ba0a5cd386..93530bd332470 100644
---- a/net/ipv4/tcp_cubic.c
-+++ b/net/ipv4/tcp_cubic.c
-@@ -340,8 +340,6 @@ static void bictcp_cong_avoid(struct sock *sk, u32 ack, u32 acked)
- 		return;
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 3f7fa8de36427..a5759d0e388a8 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -1909,12 +1909,12 @@ static void session_recovery_timedout(struct work_struct *work)
+ 	}
+ 	spin_unlock_irqrestore(&session->lock, flags);
  
- 	if (tcp_in_slow_start(tp)) {
--		if (hystart && after(ack, ca->end_seq))
--			bictcp_hystart_reset(sk);
- 		acked = tcp_slow_start(tp, acked);
- 		if (!acked)
- 			return;
-@@ -383,6 +381,9 @@ static void hystart_update(struct sock *sk, u32 delay)
- 	if (ca->found & hystart_detect)
- 		return;
- 
-+	if (after(tp->snd_una, ca->end_seq))
-+		bictcp_hystart_reset(sk);
+-	if (session->transport->session_recovery_timedout)
+-		session->transport->session_recovery_timedout(session);
+-
+ 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
+ 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
+ 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
 +
- 	if (hystart_detect & HYSTART_ACK_TRAIN) {
- 		u32 now = bictcp_clock();
++	if (session->transport->session_recovery_timedout)
++		session->transport->session_recovery_timedout(session);
+ }
  
+ static void __iscsi_unblock_session(struct work_struct *work)
 -- 
 2.33.0
 
