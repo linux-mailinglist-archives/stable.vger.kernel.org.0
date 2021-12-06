@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D990469EEC
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADE71469D1E
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350318AbhLFPou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:44:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33322 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390596AbhLFPme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3161C0698DD;
-        Mon,  6 Dec 2021 07:29:01 -0800 (PST)
+        id S1350765AbhLFP2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:21 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54540 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358683AbhLFPXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D25FB8111C;
-        Mon,  6 Dec 2021 15:29:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C9BC34901;
-        Mon,  6 Dec 2021 15:28:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 251E8B81118;
+        Mon,  6 Dec 2021 15:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B76DC341C1;
+        Mon,  6 Dec 2021 15:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804540;
-        bh=le6caFEAm1b95VtNuowG1E68Hs6Z4xMntMNAJkBakVk=;
+        s=korg; t=1638803999;
+        bh=/WahLXFqrjQsDvFShH1lEVqasEOBgc9nuB1dpvbRTcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UVwiN9+sL/ocdGVubTu/sTthp5Kiw45jTvUvDYiluYVpTgG0KfIExaRsBE6YIuLOt
-         ZudWufAvA+acINt+wIyFWoU6wjEDmntOAnoVKDXWlJEoCooJUgHbOuaFjdT0otIuYM
-         /8hJoGxPpBi6Aqek+c1B7OGPl3TXs1/EpyHHqsFM=
+        b=akMMjHMWRtGpklAqWf+RHk4GTOFGE9hxkovb5Fn8KidLCbqLC3oLJqWvhaMd9ce40
+         XMtbEGnsWBbbVDT1RboPMqjVDvkNgiFSb8FbjPxER7u4Rl25Q5VYPFkdinSeEzdPS0
+         lEcEBY9baPXvj8kjW5tU3rRPcGdSQ93tC1yW0inI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Al Cooper <alcooperx@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 184/207] serial: 8250_bcm7271: UART errors after resuming from S2
+        stable@vger.kernel.org, Pierre Gondois <Pierre.Gondois@arm.com>
+Subject: [PATCH 5.10 121/130] serial: pl011: Add ACPI SBSA UART match id
 Date:   Mon,  6 Dec 2021 15:57:18 +0100
-Message-Id: <20211206145616.648120791@linuxfoundation.org>
+Message-Id: <20211206145603.833367305@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,82 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Pierre Gondois <Pierre.Gondois@arm.com>
 
-[ Upstream commit 9cabe26e65a893afd5846908aa393bd283ab6609 ]
+commit ac442a077acf9a6bf1db4320ec0c3f303be092b3 upstream.
 
-There is a small window in time during resume where the hardware
-flow control signal RTS can be asserted (which allows a sender to
-resume sending data to the UART) but the baud rate has not yet
-been restored. This will cause corrupted data and FRAMING, OVERRUN
-and BREAK errors. This is happening because the MCTRL register is
-shadowed in uart_port struct and is later used during resume to set
-the MCTRL register during both serial8250_do_startup() and
-uart_resume_port(). Unfortunately, serial8250_do_startup()
-happens before the UART baud rate is restored. The fix is to clear
-the shadowed mctrl value at the end of suspend and restore it at the
-end of resume.
+The document 'ACPI for Arm Components 1.0' defines the following
+_HID mappings:
+-'Prime cell UART (PL011)': ARMH0011
+-'SBSA UART': ARMHB000
 
-Fixes: 41a469482de2 ("serial: 8250: Add new 8250-core based Broadcom STB driver")
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Link: https://lore.kernel.org/r/20211201201402.47446-1-alcooperx@gmail.com
+Use the sbsa-uart driver when a device is described with
+the 'ARMHB000' _HID.
+
+Note:
+PL011 devices currently use the sbsa-uart driver instead of the
+uart-pl011 driver. Indeed, PL011 devices are not bound to a clock
+in ACPI. It is not possible to change their baudrate.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pierre Gondois <Pierre.Gondois@arm.com>
+Link: https://lore.kernel.org/r/20211109172248.19061-1-Pierre.Gondois@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_bcm7271.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/tty/serial/amba-pl011.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/8250/8250_bcm7271.c b/drivers/tty/serial/8250/8250_bcm7271.c
-index 7f656fac503fe..5163d60756b73 100644
---- a/drivers/tty/serial/8250/8250_bcm7271.c
-+++ b/drivers/tty/serial/8250/8250_bcm7271.c
-@@ -237,6 +237,7 @@ struct brcmuart_priv {
- 	u32		rx_err;
- 	u32		rx_timeout;
- 	u32		rx_abort;
-+	u32		saved_mctrl;
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -2791,6 +2791,7 @@ MODULE_DEVICE_TABLE(of, sbsa_uart_of_mat
+ 
+ static const struct acpi_device_id sbsa_uart_acpi_match[] = {
+ 	{ "ARMH0011", 0 },
++	{ "ARMHB000", 0 },
+ 	{},
  };
- 
- static struct dentry *brcmuart_debugfs_root;
-@@ -1133,16 +1134,27 @@ static int brcmuart_remove(struct platform_device *pdev)
- static int __maybe_unused brcmuart_suspend(struct device *dev)
- {
- 	struct brcmuart_priv *priv = dev_get_drvdata(dev);
-+	struct uart_8250_port *up = serial8250_get_port(priv->line);
-+	struct uart_port *port = &up->port;
- 
- 	serial8250_suspend_port(priv->line);
- 	clk_disable_unprepare(priv->baud_mux_clk);
- 
-+	/*
-+	 * This will prevent resume from enabling RTS before the
-+	 *  baud rate has been resored.
-+	 */
-+	priv->saved_mctrl = port->mctrl;
-+	port->mctrl = 0;
-+
- 	return 0;
- }
- 
- static int __maybe_unused brcmuart_resume(struct device *dev)
- {
- 	struct brcmuart_priv *priv = dev_get_drvdata(dev);
-+	struct uart_8250_port *up = serial8250_get_port(priv->line);
-+	struct uart_port *port = &up->port;
- 	int ret;
- 
- 	ret = clk_prepare_enable(priv->baud_mux_clk);
-@@ -1165,6 +1177,7 @@ static int __maybe_unused brcmuart_resume(struct device *dev)
- 		start_rx_dma(serial8250_get_port(priv->line));
- 	}
- 	serial8250_resume_port(priv->line);
-+	port->mctrl = priv->saved_mctrl;
- 	return 0;
- }
- 
--- 
-2.33.0
-
+ MODULE_DEVICE_TABLE(acpi, sbsa_uart_acpi_match);
 
 
