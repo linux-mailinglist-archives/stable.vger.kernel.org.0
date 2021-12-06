@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 336DE469A89
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E080F469ADE
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347447AbhLFPIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:08:36 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56258 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346498AbhLFPGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:06:35 -0500
+        id S1347277AbhLFPLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:35 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42454 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345885AbhLFPJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9561C61309;
-        Mon,  6 Dec 2021 15:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A4F7C341C1;
-        Mon,  6 Dec 2021 15:03:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D61AB8111A;
+        Mon,  6 Dec 2021 15:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA70CC341C2;
+        Mon,  6 Dec 2021 15:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802986;
-        bh=ndOXS9KXsxvEwuKPKH64yIMrAtFzTbeJd27fUhEFgO0=;
+        s=korg; t=1638803169;
+        bh=4DAPYaE3QzWVTGxK5BZ9VharGhkXbjbRKxIDupCGNeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbqZMuukuO74R47ZKQcl8rFxOUGNn2eZyCcSbB8PyffqNUyIPW0kQe7tyh1JMtYSl
-         6CLFwyfZ4QQsPnqPtQP8V04XbIPvJsf7m7noapGB7oO9Bsw8IGvkav4QCGaXAeJQy3
-         LJo5Hy2vjUXqZBZSTyhH9VoQjqGoqOcRGkDBVSUY=
+        b=ZkVzP7mtFM1z3WLB0ko4Mi5uFSbe/kV+2F2t1vjXA8hIZ83oUgrAv+I8/ysaDv5nn
+         VyQ4txk7X11OvrwqvxGAOJPFwa+4/G7eX6DCR4AXK6H7j678l5Uq3QLBsd3hnnvoX5
+         XM8Zjy8sx6v0knlaZOJWjcQ2i0KXiZLD4me6kuno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/62] scsi: mpt3sas: Fix kernel panic during drive powercycle test
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.14 053/106] pinctrl: armada-37xx: Correct PWM pins definitions
 Date:   Mon,  6 Dec 2021 15:56:01 +0100
-Message-Id: <20211206145549.802086417@linuxfoundation.org>
+Message-Id: <20211206145557.266387595@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +46,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: "Marek Beh�n" <kabel@kernel.org>
 
-[ Upstream commit 0ee4ba13e09c9d9c1cb6abb59da8295d9952328b ]
+commit baf8d6899b1e8906dc076ef26cc633e96a8bb0c3 upstream.
 
-While looping over shost's sdev list it is possible that one
-of the drives is getting removed and its sas_target object is
-freed but its sdev object remains intact.
+The PWM pins on North Bridge on Armada 37xx can be configured into PWM
+or GPIO functions. When in PWM function, each pin can also be configured
+to drive low on 0 and tri-state on 1 (LED mode).
 
-Consequently, a kernel panic can occur while the driver is trying to access
-the sas_address field of sas_target object without also checking the
-sas_target object for NULL.
+The current definitions handle this by declaring two pin groups for each
+pin:
+- group "pwmN" with functions "pwm" and "gpio"
+- group "ledN_od" ("od" for open drain) with functions "led" and "gpio"
 
-Link: https://lore.kernel.org/r/20211117104909.2069-1-sreekanth.reddy@broadcom.com
-Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is semantically incorrect. The correct definition for each pin
+should be one group with three functions: "pwm", "led" and "gpio".
+
+Change the "pwmN" groups to support "led" function.
+
+Remove "ledN_od" groups. This cannot break backwards compatibility with
+older device trees: no device tree uses it since there is no PWM driver
+for this SOC yet. Also "ledN_od" groups are not even documented.
+
+Fixes: b835d6953009 ("pinctrl: armada-37xx: swap polarity on LED group")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20210719112938.27594-1-kabel@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt |    8 ++--
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c                               |   17 ++++------
+ 2 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index 58876b8a2e9f8..8063b97bf2e9b 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -2927,7 +2927,7 @@ _scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc, u64 sas_address)
+--- a/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
++++ b/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
+@@ -43,19 +43,19 @@ group emmc_nb
  
- 	shost_for_each_device(sdev, ioc->shost) {
- 		sas_device_priv_data = sdev->hostdata;
--		if (!sas_device_priv_data)
-+		if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
- 			continue;
- 		if (sas_device_priv_data->sas_target->sas_address
- 		    != sas_address)
--- 
-2.33.0
-
+ group pwm0
+  - pin 11 (GPIO1-11)
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm1
+  - pin 12
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm2
+  - pin 13
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm3
+  - pin 14
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pmic1
+  - pin 7
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -153,10 +153,14 @@ static struct armada_37xx_pin_group arma
+ 	PIN_GRP_GPIO("jtag", 20, 5, BIT(0), "jtag"),
+ 	PIN_GRP_GPIO("sdio0", 8, 3, BIT(1), "sdio"),
+ 	PIN_GRP_GPIO("emmc_nb", 27, 9, BIT(2), "emmc"),
+-	PIN_GRP_GPIO("pwm0", 11, 1, BIT(3), "pwm"),
+-	PIN_GRP_GPIO("pwm1", 12, 1, BIT(4), "pwm"),
+-	PIN_GRP_GPIO("pwm2", 13, 1, BIT(5), "pwm"),
+-	PIN_GRP_GPIO("pwm3", 14, 1, BIT(6), "pwm"),
++	PIN_GRP_GPIO_3("pwm0", 11, 1, BIT(3) | BIT(20), 0, BIT(20), BIT(3),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm1", 12, 1, BIT(4) | BIT(21), 0, BIT(21), BIT(4),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm2", 13, 1, BIT(5) | BIT(22), 0, BIT(22), BIT(5),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm3", 14, 1, BIT(6) | BIT(23), 0, BIT(23), BIT(6),
++		       "pwm", "led"),
+ 	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
+ 	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
+ 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
+@@ -170,11 +174,6 @@ static struct armada_37xx_pin_group arma
+ 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
+ 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
+ 		      18, 2, "gpio", "uart"),
+-	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
+-	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
+-	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
+-	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
+-
+ };
+ 
+ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 
 
