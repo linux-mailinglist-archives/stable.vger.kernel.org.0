@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44066469B80
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1AF469B9E
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356639AbhLFPRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:42 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34910 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346493AbhLFPOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:45 -0500
+        id S1356136AbhLFPSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54652 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356910AbhLFPPs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393FFC08E8A8;
+        Mon,  6 Dec 2021 07:08:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B734F61333;
-        Mon,  6 Dec 2021 15:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97022C341C5;
-        Mon,  6 Dec 2021 15:11:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9E836134F;
+        Mon,  6 Dec 2021 15:08:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF57CC341C1;
+        Mon,  6 Dec 2021 15:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803474;
-        bh=sQdt5IE+cU4xQgsFcYb+l9qO3gdvUeoE1AbldgNi2/M=;
+        s=korg; t=1638803292;
+        bh=RozQamQQtRuZSEjp0n1NPClHeyLCJGDs8DRON/hA+wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYLRAfjVqujsylwE/eWcDYq5wIOVoHyul7kPUUEj1emVsdaXmMO08Kh6RhmssBdpv
-         VEHCOdGslVfM2D1gV5EJhCjmmIA3pYIRm4yd0KYWlFi60MNUmzSXN7Hvl9clo/MtT2
-         hbN83ltLqmuCowDSNCa0xaIuOUXwnabeuF3aKYI8=
+        b=myodd3KIPH3oOs4UbDCfmiCpAq3Pm44Ag/PwCsyk/UKPVrrc10rGd46IcjTuKmeEZ
+         9k+Cu4gjHq5uwLUrL2xwlZEfmJtdsPQeMAQbDEUvNShPiizZFWlLMzhKNSZZC6hfsR
+         qcuqTKoYkqjDv+zbFqb4eN05TkNDyP0fdnuHdKac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 27/48] net: qlogic: qlcnic: Fix a NULL pointer dereference in qlcnic_83xx_add_rings()
+        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 096/106] net/smc: Keep smc_close_final rc during active close
 Date:   Mon,  6 Dec 2021 15:56:44 +0100
-Message-Id: <20211206145549.777194875@linuxfoundation.org>
+Message-Id: <20211206145558.866211109@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +49,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Tony Lu <tonylu@linux.alibaba.com>
 
-commit e2dabc4f7e7b60299c20a36d6a7b24ed9bf8e572 upstream.
+commit 00e158fb91dfaff3f94746f260d11f1a4853506e upstream.
 
-In qlcnic_83xx_add_rings(), the indirect function of
-ahw->hw_ops->alloc_mbx_args will be called to allocate memory for
-cmd.req.arg, and there is a dereference of it in qlcnic_83xx_add_rings(),
-which could lead to a NULL pointer dereference on failure of the
-indirect function like qlcnic_83xx_alloc_mbx_args().
+When smc_close_final() returns error, the return code overwrites by
+kernel_sock_shutdown() in smc_close_active(). The return code of
+smc_close_final() is more important than kernel_sock_shutdown(), and it
+will pass to userspace directly.
 
-Fix this bug by adding a check of alloc_mbx_args(), this patch
-imitates the logic of mbx_cmd()'s failure handling.
+Fix it by keeping both return codes, if smc_close_final() raises an
+error, return it or kernel_sock_shutdown()'s.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_QLCNIC=m show no new warnings, and our
-static analyzer no longer warns about this code.
-
-Fixes: 7f9664525f9c ("qlcnic: 83xx memory map and HW access routine")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Link: https://lore.kernel.org/r/20211130110848.109026-1-zhou1615@umn.edu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/linux-s390/1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com/
+Fixes: 606a63c9783a ("net/smc: Ensure the active closing peer first closes clcsock")
+Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/smc/smc_close.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
-@@ -1079,8 +1079,14 @@ static int qlcnic_83xx_add_rings(struct
- 	sds_mbx_size = sizeof(struct qlcnic_sds_mbx);
- 	context_id = recv_ctx->context_id;
- 	num_sds = adapter->drv_sds_rings - QLCNIC_MAX_SDS_RINGS;
--	ahw->hw_ops->alloc_mbx_args(&cmd, adapter,
--				    QLCNIC_CMD_ADD_RCV_RINGS);
-+	err = ahw->hw_ops->alloc_mbx_args(&cmd, adapter,
-+					QLCNIC_CMD_ADD_RCV_RINGS);
-+	if (err) {
-+		dev_err(&adapter->pdev->dev,
-+			"Failed to alloc mbx args %d\n", err);
-+		return err;
-+	}
-+
- 	cmd.req.arg[1] = 0 | (num_sds << 8) | (context_id << 16);
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -180,6 +180,7 @@ int smc_close_active(struct smc_sock *sm
+ 	int old_state;
+ 	long timeout;
+ 	int rc = 0;
++	int rc1 = 0;
  
- 	/* set up status rings, mbx 2-81 */
+ 	timeout = current->flags & PF_EXITING ?
+ 		  0 : sock_flag(sk, SOCK_LINGER) ?
+@@ -219,8 +220,11 @@ again:
+ 			/* actively shutdown clcsock before peer close it,
+ 			 * prevent peer from entering TIME_WAIT state.
+ 			 */
+-			if (smc->clcsock && smc->clcsock->sk)
+-				rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
++			if (smc->clcsock && smc->clcsock->sk) {
++				rc1 = kernel_sock_shutdown(smc->clcsock,
++							   SHUT_RDWR);
++				rc = rc ? rc : rc1;
++			}
+ 		} else {
+ 			/* peer event has changed the state */
+ 			goto again;
 
 
