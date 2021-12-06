@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B44469C46
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5042F469C1B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:17:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355123AbhLFPVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:21:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55790 "EHLO
+        id S1346111AbhLFPUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357778AbhLFPTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:00 -0500
+        with ESMTP id S1357132AbhLFPRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB9B8C0698C1;
-        Mon,  6 Dec 2021 07:12:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065C7C0354AB;
+        Mon,  6 Dec 2021 07:11:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B92F2B810F1;
-        Mon,  6 Dec 2021 15:12:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 081F9C341C2;
-        Mon,  6 Dec 2021 15:12:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1AA1B810AC;
+        Mon,  6 Dec 2021 15:11:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E904DC341C6;
+        Mon,  6 Dec 2021 15:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803560;
-        bh=sQdt5IE+cU4xQgsFcYb+l9qO3gdvUeoE1AbldgNi2/M=;
+        s=korg; t=1638803468;
+        bh=zk1nJ+JAJgqvgtbCyFpi89oSLlS8ZID7/oPsUErH5RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEvMhd/rZpN4Zuhm+sgQ9srQA096CH8VRx5QOiunZPq4bDaP5cgaIBd2moIWq1dTA
-         fy/x5ei4Sg59VsH7JoQVEoE1v1qBASzCl9CURhPFXZUx/YGxgN+eiWgx4e556eDQbI
-         RzFk57IlYiU9FNBNPJ5cfTfuBaFXdQXKbIxAOeGI=
+        b=hIhhM8YBWHppZJcHrzUfrf7ScX9P2kuJ/f2nA+cEuj38bnVAV/+00kTi6VaNZCK0E
+         mgcW+cFIGnQjc+4GlP7ealI9ZZcoe8dNFTnfJyCP3YxnhJpn1Vs+JIlcpOzCA2vIGF
+         SfKPHcQ9Qfnm1AJjFr+Am74tkLA/2inY53UZx0n4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 37/70] net: qlogic: qlcnic: Fix a NULL pointer dereference in qlcnic_83xx_add_rings()
-Date:   Mon,  6 Dec 2021 15:56:41 +0100
-Message-Id: <20211206145553.204629711@linuxfoundation.org>
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 25/48] i2c: stm32f7: stop dma transfer in case of NACK
+Date:   Mon,  6 Dec 2021 15:56:42 +0100
+Message-Id: <20211206145549.711110268@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,59 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-commit e2dabc4f7e7b60299c20a36d6a7b24ed9bf8e572 upstream.
+commit 31b90a95ccbbb4b628578ac17e3b3cc8eeacfe31 upstream.
 
-In qlcnic_83xx_add_rings(), the indirect function of
-ahw->hw_ops->alloc_mbx_args will be called to allocate memory for
-cmd.req.arg, and there is a dereference of it in qlcnic_83xx_add_rings(),
-which could lead to a NULL pointer dereference on failure of the
-indirect function like qlcnic_83xx_alloc_mbx_args().
+In case of receiving a NACK, the dma transfer should be stopped
+to avoid feeding data into the FIFO.
+Also ensure to properly return the proper error code and avoid
+waiting for the end of the dma completion in case of
+error happening during the transmission.
 
-Fix this bug by adding a check of alloc_mbx_args(), this patch
-imitates the logic of mbx_cmd()'s failure handling.
-
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_QLCNIC=m show no new warnings, and our
-static analyzer no longer warns about this code.
-
-Fixes: 7f9664525f9c ("qlcnic: 83xx memory map and HW access routine")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Link: https://lore.kernel.org/r/20211130110848.109026-1-zhou1615@umn.edu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 7ecc8cfde553 ("i2c: i2c-stm32f7: Add DMA support")
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
-@@ -1079,8 +1079,14 @@ static int qlcnic_83xx_add_rings(struct
- 	sds_mbx_size = sizeof(struct qlcnic_sds_mbx);
- 	context_id = recv_ctx->context_id;
- 	num_sds = adapter->drv_sds_rings - QLCNIC_MAX_SDS_RINGS;
--	ahw->hw_ops->alloc_mbx_args(&cmd, adapter,
--				    QLCNIC_CMD_ADD_RCV_RINGS);
-+	err = ahw->hw_ops->alloc_mbx_args(&cmd, adapter,
-+					QLCNIC_CMD_ADD_RCV_RINGS);
-+	if (err) {
-+		dev_err(&adapter->pdev->dev,
-+			"Failed to alloc mbx args %d\n", err);
-+		return err;
-+	}
-+
- 	cmd.req.arg[1] = 0 | (num_sds << 8) | (context_id << 16);
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1379,6 +1379,7 @@ static irqreturn_t stm32f7_i2c_isr_event
+ {
+ 	struct stm32f7_i2c_dev *i2c_dev = data;
+ 	struct stm32f7_i2c_msg *f7_msg = &i2c_dev->f7_msg;
++	struct stm32_i2c_dma *dma = i2c_dev->dma;
+ 	void __iomem *base = i2c_dev->base;
+ 	u32 status, mask;
+ 	int ret = IRQ_HANDLED;
+@@ -1403,6 +1404,10 @@ static irqreturn_t stm32f7_i2c_isr_event
+ 	if (status & STM32F7_I2C_ISR_NACKF) {
+ 		dev_dbg(i2c_dev->dev, "<%s>: Receive NACK\n", __func__);
+ 		writel_relaxed(STM32F7_I2C_ICR_NACKCF, base + STM32F7_I2C_ICR);
++		if (i2c_dev->use_dma) {
++			stm32f7_i2c_disable_dma_req(i2c_dev);
++			dmaengine_terminate_all(dma->chan_using);
++		}
+ 		f7_msg->result = -ENXIO;
+ 	}
  
- 	/* set up status rings, mbx 2-81 */
+@@ -1418,7 +1423,7 @@ static irqreturn_t stm32f7_i2c_isr_event
+ 		/* Clear STOP flag */
+ 		writel_relaxed(STM32F7_I2C_ICR_STOPCF, base + STM32F7_I2C_ICR);
+ 
+-		if (i2c_dev->use_dma) {
++		if (i2c_dev->use_dma && !f7_msg->result) {
+ 			ret = IRQ_WAKE_THREAD;
+ 		} else {
+ 			i2c_dev->master_mode = false;
+@@ -1431,7 +1436,7 @@ static irqreturn_t stm32f7_i2c_isr_event
+ 		if (f7_msg->stop) {
+ 			mask = STM32F7_I2C_CR2_STOP;
+ 			stm32f7_i2c_set_bits(base + STM32F7_I2C_CR2, mask);
+-		} else if (i2c_dev->use_dma) {
++		} else if (i2c_dev->use_dma && !f7_msg->result) {
+ 			ret = IRQ_WAKE_THREAD;
+ 		} else if (f7_msg->smbus) {
+ 			stm32f7_i2c_smbus_rep_start(i2c_dev);
 
 
