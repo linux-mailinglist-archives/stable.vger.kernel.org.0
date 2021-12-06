@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9441469BAD
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AEF3469BC5
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356759AbhLFPSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48820 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358034AbhLFPQZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:25 -0500
+        id S1356896AbhLFPSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55442 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359047AbhLFPQz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE368C07E5E2;
+        Mon,  6 Dec 2021 07:10:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBC20B810F1;
-        Mon,  6 Dec 2021 15:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4752C341C2;
-        Mon,  6 Dec 2021 15:12:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 883F1B8111F;
+        Mon,  6 Dec 2021 15:10:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D042EC341C1;
+        Mon,  6 Dec 2021 15:10:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803574;
-        bh=rUS+rCInb2rt+CdpgZSpzW+F9rzeq1letG6D9IcOosc=;
+        s=korg; t=1638803401;
+        bh=g5vzduTfSGynRVeX59VVaxoshbzTsTbElMLPzfqW/JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqLXJj/iLlZhLTKzwUbCy4p6Sim7v5ivrgCUXKNMnOar8yyonoxEXZ2b0zif+/pwK
-         nXw63ZrXR4horvzAtj2ntIE36EkJ2ZObvl9HJNvL7rUnQqbBdC1SN/5On1B8fSnJTQ
-         lFhzVDuBdrN9CSdoLEM5mnjDNjuHETf1Li43IYTg=
+        b=XABUwq2oMyh5X7wS0yVfCQZlHTsD9/1MyeYU7dPVLNnOXfIlwoOpeE1VRO1JN3xvq
+         HB9rBocIEGGDuIEkpW3NaTZwARrLkkTNajZQsVAPX910BwCofs/Yk4s+/ujUPDOcUO
+         0lKRgFhmudIcdHbVO2Bq2wCzuOU0gQu5ou+DY7dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org
-Subject: [PATCH 5.4 42/70] rxrpc: Fix rxrpc_local leak in rxrpc_lookup_peer()
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 29/48] siphash: use _unaligned version by default
 Date:   Mon,  6 Dec 2021 15:56:46 +0100
-Message-Id: <20211206145553.391929442@linuxfoundation.org>
+Message-Id: <20211206145549.842146821@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,69 +50,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit beacff50edbd6c9659a6f15fc7f6126909fade29 upstream.
+commit f7e5b9bfa6c8820407b64eabc1f29c9a87e8993d upstream.
 
-Need to call rxrpc_put_local() for peer candidate before kfree() as it
-holds a ref to rxrpc_local.
+On ARM v6 and later, we define CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+because the ordinary load/store instructions (ldr, ldrh, ldrb) can
+tolerate any misalignment of the memory address. However, load/store
+double and load/store multiple instructions (ldrd, ldm) may still only
+be used on memory addresses that are 32-bit aligned, and so we have to
+use the CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS macro with care, or we
+may end up with a severe performance hit due to alignment traps that
+require fixups by the kernel. Testing shows that this currently happens
+with clang-13 but not gcc-11. In theory, any compiler version can
+produce this bug or other problems, as we are dealing with undefined
+behavior in C99 even on architectures that support this in hardware,
+see also https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363.
 
-[DH: v2: Changed to abstract the peer freeing code out into a function]
+Fortunately, the get_unaligned() accessors do the right thing: when
+building for ARMv6 or later, the compiler will emit unaligned accesses
+using the ordinary load/store instructions (but avoid the ones that
+require 32-bit alignment). When building for older ARM, those accessors
+will emit the appropriate sequence of ldrb/mov/orr instructions. And on
+architectures that can truly tolerate any kind of misalignment, the
+get_unaligned() accessors resolve to the leXX_to_cpup accessors that
+operate on aligned addresses.
 
-Fixes: 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
-Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/all/20211121041608.133740-2-eiichi.tsukata@nutanix.com/ # v1
+Since the compiler will in fact emit ldrd or ldm instructions when
+building this code for ARM v6 or later, the solution is to use the
+unaligned accessors unconditionally on architectures where this is
+known to be fast. The _aligned version of the hash function is
+however still needed to get the best performance on architectures
+that cannot do any unaligned access in hardware.
+
+This new version avoids the undefined behavior and should produce
+the fastest hash on all architectures we support.
+
+Link: https://lore.kernel.org/linux-arm-kernel/20181008211554.5355-4-ard.biesheuvel@linaro.org/
+Link: https://lore.kernel.org/linux-crypto/CAK8P3a2KfmmGDbVHULWevB0hv71P2oi2ZCHEAqT=8dQfa0=cqQ@mail.gmail.com/
+Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Fixes: 2c956a60778c ("siphash: add cryptographically secure PRF")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/peer_object.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ include/linux/siphash.h |   14 ++++----------
+ lib/siphash.c           |   12 ++++++------
+ 2 files changed, 10 insertions(+), 16 deletions(-)
 
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -297,6 +297,12 @@ static struct rxrpc_peer *rxrpc_create_p
- 	return peer;
+--- a/include/linux/siphash.h
++++ b/include/linux/siphash.h
+@@ -27,9 +27,7 @@ static inline bool siphash_key_is_zero(c
  }
  
-+static void rxrpc_free_peer(struct rxrpc_peer *peer)
-+{
-+	rxrpc_put_local(peer->local);
-+	kfree_rcu(peer, rcu);
-+}
-+
- /*
-  * Set up a new incoming peer.  There shouldn't be any other matching peers
-  * since we've already done a search in the list from the non-reentrant context
-@@ -363,7 +369,7 @@ struct rxrpc_peer *rxrpc_lookup_peer(str
- 		spin_unlock_bh(&rxnet->peer_hash_lock);
+ u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key);
+-#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key);
+-#endif
  
- 		if (peer)
--			kfree(candidate);
-+			rxrpc_free_peer(candidate);
- 		else
- 			peer = candidate;
- 	}
-@@ -418,8 +424,7 @@ static void __rxrpc_put_peer(struct rxrp
- 	list_del_init(&peer->keepalive_link);
- 	spin_unlock_bh(&rxnet->peer_hash_lock);
- 
--	rxrpc_put_local(peer->local);
--	kfree_rcu(peer, rcu);
-+	rxrpc_free_peer(peer);
+ u64 siphash_1u64(const u64 a, const siphash_key_t *key);
+ u64 siphash_2u64(const u64 a, const u64 b, const siphash_key_t *key);
+@@ -82,10 +80,9 @@ static inline u64 ___siphash_aligned(con
+ static inline u64 siphash(const void *data, size_t len,
+ 			  const siphash_key_t *key)
+ {
+-#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+-	if (!IS_ALIGNED((unsigned long)data, SIPHASH_ALIGNMENT))
++	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) ||
++	    !IS_ALIGNED((unsigned long)data, SIPHASH_ALIGNMENT))
+ 		return __siphash_unaligned(data, len, key);
+-#endif
+ 	return ___siphash_aligned(data, len, key);
  }
  
- /*
-@@ -455,8 +460,7 @@ void rxrpc_put_peer_locked(struct rxrpc_
- 	if (n == 0) {
- 		hash_del_rcu(&peer->hash_link);
- 		list_del_init(&peer->keepalive_link);
--		rxrpc_put_local(peer->local);
--		kfree_rcu(peer, rcu);
-+		rxrpc_free_peer(peer);
- 	}
+@@ -96,10 +93,8 @@ typedef struct {
+ 
+ u32 __hsiphash_aligned(const void *data, size_t len,
+ 		       const hsiphash_key_t *key);
+-#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u32 __hsiphash_unaligned(const void *data, size_t len,
+ 			 const hsiphash_key_t *key);
+-#endif
+ 
+ u32 hsiphash_1u32(const u32 a, const hsiphash_key_t *key);
+ u32 hsiphash_2u32(const u32 a, const u32 b, const hsiphash_key_t *key);
+@@ -135,10 +130,9 @@ static inline u32 ___hsiphash_aligned(co
+ static inline u32 hsiphash(const void *data, size_t len,
+ 			   const hsiphash_key_t *key)
+ {
+-#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+-	if (!IS_ALIGNED((unsigned long)data, HSIPHASH_ALIGNMENT))
++	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) ||
++	    !IS_ALIGNED((unsigned long)data, HSIPHASH_ALIGNMENT))
+ 		return __hsiphash_unaligned(data, len, key);
+-#endif
+ 	return ___hsiphash_aligned(data, len, key);
  }
  
+--- a/lib/siphash.c
++++ b/lib/siphash.c
+@@ -49,6 +49,7 @@
+ 	SIPROUND; \
+ 	return (v0 ^ v1) ^ (v2 ^ v3);
+ 
++#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key)
+ {
+ 	const u8 *end = data + len - (len % sizeof(u64));
+@@ -80,8 +81,8 @@ u64 __siphash_aligned(const void *data,
+ 	POSTAMBLE
+ }
+ EXPORT_SYMBOL(__siphash_aligned);
++#endif
+ 
+-#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key)
+ {
+ 	const u8 *end = data + len - (len % sizeof(u64));
+@@ -113,7 +114,6 @@ u64 __siphash_unaligned(const void *data
+ 	POSTAMBLE
+ }
+ EXPORT_SYMBOL(__siphash_unaligned);
+-#endif
+ 
+ /**
+  * siphash_1u64 - compute 64-bit siphash PRF value of a u64
+@@ -250,6 +250,7 @@ EXPORT_SYMBOL(siphash_3u32);
+ 	HSIPROUND; \
+ 	return (v0 ^ v1) ^ (v2 ^ v3);
+ 
++#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
+ {
+ 	const u8 *end = data + len - (len % sizeof(u64));
+@@ -280,8 +281,8 @@ u32 __hsiphash_aligned(const void *data,
+ 	HPOSTAMBLE
+ }
+ EXPORT_SYMBOL(__hsiphash_aligned);
++#endif
+ 
+-#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u32 __hsiphash_unaligned(const void *data, size_t len,
+ 			 const hsiphash_key_t *key)
+ {
+@@ -313,7 +314,6 @@ u32 __hsiphash_unaligned(const void *dat
+ 	HPOSTAMBLE
+ }
+ EXPORT_SYMBOL(__hsiphash_unaligned);
+-#endif
+ 
+ /**
+  * hsiphash_1u32 - compute 64-bit hsiphash PRF value of a u32
+@@ -418,6 +418,7 @@ EXPORT_SYMBOL(hsiphash_4u32);
+ 	HSIPROUND; \
+ 	return v1 ^ v3;
+ 
++#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
+ {
+ 	const u8 *end = data + len - (len % sizeof(u32));
+@@ -438,8 +439,8 @@ u32 __hsiphash_aligned(const void *data,
+ 	HPOSTAMBLE
+ }
+ EXPORT_SYMBOL(__hsiphash_aligned);
++#endif
+ 
+-#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
+ u32 __hsiphash_unaligned(const void *data, size_t len,
+ 			 const hsiphash_key_t *key)
+ {
+@@ -461,7 +462,6 @@ u32 __hsiphash_unaligned(const void *dat
+ 	HPOSTAMBLE
+ }
+ EXPORT_SYMBOL(__hsiphash_unaligned);
+-#endif
+ 
+ /**
+  * hsiphash_1u32 - compute 32-bit hsiphash PRF value of a u32
 
 
