@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85901469C06
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3327E469D2E
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347379AbhLFPTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:19:42 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36650 "EHLO
+        id S1357903AbhLFP2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:39 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38978 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356007AbhLFPRk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:40 -0500
+        with ESMTP id S1358915AbhLFPYN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44C506131B;
-        Mon,  6 Dec 2021 15:14:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29D64C341C5;
-        Mon,  6 Dec 2021 15:14:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A8C461309;
+        Mon,  6 Dec 2021 15:20:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF2EC341C1;
+        Mon,  6 Dec 2021 15:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803649;
-        bh=MLE0ZFfMY8EyCcYz4aouMFKJQ+r1w69P3r2hfQLIFew=;
+        s=korg; t=1638804044;
+        bh=8ZFSuPn7+r7bBqe3Vgh0e7Q8oD5+dJ3P2gMCzTmiPsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TyI1HouUSARXAs6JaQc0/MqISkGeCwNL8hP82AgaYioGxYLZJSwqZi8p1UqThS+NZ
-         2vqGRj0aWJduGTbt3Gx9XPGJhQazR2KycB1JwEnSBjJ+79z5ZrC7CfANO3SxmG0Yym
-         fQ8CbDolCqrUfOLCu6+EBsILZDmtNS9Nz2VYqqiI=
+        b=qbV5zIPT2D/Z8xUsc4DlZoFjpBi/e+hFJCjj/2qQ8Fl/wWwjY1TnYHKKiOS5gwdto
+         hjcBqT+xEO/TPk3ql0bqzxK+UG4BjwRVb39JRMayzwocbgIaNabU0KPOL9MGhJCCvF
+         CPHbyzirlJptcB3Lv2O3ZPUuPGn5nvgIxzC/4uHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.4 61/70] x86/64/mm: Map all kernel memory into trampoline_pgd
+        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 108/130] sched/uclamp: Fix rq->uclamp_max not set on first enqueue
 Date:   Mon,  6 Dec 2021 15:57:05 +0100
-Message-Id: <20211206145554.026812020@linuxfoundation.org>
+Message-Id: <20211206145603.367006033@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Qais Yousef <qais.yousef@arm.com>
 
-commit 51523ed1c26758de1af7e58730a656875f72f783 upstream.
+[ Upstream commit 315c4f884800c45cb6bd8c90422fad554a8b9588 ]
 
-The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
-range of kernel memory (with 4-level paging). This range contains the
-kernel's text+data+bss mappings and the module mapping space but not the
-direct mapping and the vmalloc area.
+Commit d81ae8aac85c ("sched/uclamp: Fix initialization of struct
+uclamp_rq") introduced a bug where uclamp_max of the rq is not reset to
+match the woken up task's uclamp_max when the rq is idle.
 
-This is enough to get the application processors out of real-mode, but
-for code that switches back to real-mode the trampoline_pgd is missing
-important parts of the address space. For example, consider this code
-from arch/x86/kernel/reboot.c, function machine_real_restart() for a
-64-bit kernel:
+The code was relying on rq->uclamp_max initialized to zero, so on first
+enqueue
 
-  #ifdef CONFIG_X86_32
-  	load_cr3(initial_page_table);
-  #else
-  	write_cr3(real_mode_header->trampoline_pgd);
+	static inline void uclamp_rq_inc_id(struct rq *rq, struct task_struct *p,
+					    enum uclamp_id clamp_id)
+	{
+		...
 
-  	/* Exiting long mode will fail if CR4.PCIDE is set. */
-  	if (boot_cpu_has(X86_FEATURE_PCID))
-  		cr4_clear_bits(X86_CR4_PCIDE);
-  #endif
+		if (uc_se->value > READ_ONCE(uc_rq->value))
+			WRITE_ONCE(uc_rq->value, uc_se->value);
+	}
 
-  	/* Jump to the identity-mapped low memory code */
-  #ifdef CONFIG_X86_32
-  	asm volatile("jmpl *%0" : :
-  		     "rm" (real_mode_header->machine_real_restart_asm),
-  		     "a" (type));
-  #else
-  	asm volatile("ljmpl *%0" : :
-  		     "m" (real_mode_header->machine_real_restart_asm),
-  		     "D" (type));
-  #endif
+was actually resetting it. But since commit d81ae8aac85c changed the
+default to 1024, this no longer works. And since rq->uclamp_flags is
+also initialized to 0, neither above code path nor uclamp_idle_reset()
+update the rq->uclamp_max on first wake up from idle.
 
-The code switches to the trampoline_pgd, which unmaps the direct mapping
-and also the kernel stack. The call to cr4_clear_bits() will find no
-stack and crash the machine. The real_mode_header pointer below points
-into the direct mapping, and dereferencing it also causes a crash.
+This is only visible from first wake up(s) until the first dequeue to
+idle after enabling the static key. And it only matters if the
+uclamp_max of this task is < 1024 since only then its uclamp_max will be
+effectively ignored.
 
-The reason this does not crash always is only that kernel mappings are
-global and the CR3 switch does not flush those mappings. But if theses
-mappings are not in the TLB already, the above code will crash before it
-can jump to the real-mode stub.
+Fix it by properly initializing rq->uclamp_flags = UCLAMP_FLAG_IDLE to
+ensure uclamp_idle_reset() is called which then will update the rq
+uclamp_max value as expected.
 
-Extend the trampoline_pgd to contain all kernel mappings to prevent
-these crashes and to make code which runs on this page-table more
-robust.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211202153226.22946-5-joro@8bytes.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d81ae8aac85c ("sched/uclamp: Fix initialization of struct uclamp_rq")
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <Valentin.Schneider@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lkml.kernel.org/r/20211202112033.1705279-1-qais.yousef@arm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/realmode/init.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ kernel/sched/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -50,6 +50,7 @@ static void __init setup_real_mode(void)
- #ifdef CONFIG_X86_64
- 	u64 *trampoline_pgd;
- 	u64 efer;
-+	int i;
- #endif
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 304aad997da11..0a5f9fad45e4b 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1526,7 +1526,7 @@ static void __init init_uclamp_rq(struct rq *rq)
+ 		};
+ 	}
  
- 	base = (unsigned char *)real_mode_header;
-@@ -108,8 +109,17 @@ static void __init setup_real_mode(void)
- 		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
- 
- 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
-+
-+	/* Map the real mode stub as virtual == physical */
- 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
--	trampoline_pgd[511] = init_top_pgt[511].pgd;
-+
-+	/*
-+	 * Include the entirety of the kernel mapping into the trampoline
-+	 * PGD.  This way, all mappings present in the normal kernel page
-+	 * tables are usable while running on trampoline_pgd.
-+	 */
-+	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
-+		trampoline_pgd[i] = init_top_pgt[i].pgd;
- #endif
+-	rq->uclamp_flags = 0;
++	rq->uclamp_flags = UCLAMP_FLAG_IDLE;
  }
  
+ static void __init init_uclamp(void)
+-- 
+2.33.0
+
 
 
