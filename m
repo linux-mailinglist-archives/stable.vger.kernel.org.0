@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62554469A03
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F5E8469AFB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345328AbhLFPEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345311AbhLFPEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2574C0698CB;
-        Mon,  6 Dec 2021 07:00:39 -0800 (PST)
+        id S1348315AbhLFPMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:12:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42556 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347992AbhLFPJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9046761318;
-        Mon,  6 Dec 2021 15:00:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7365AC341C6;
-        Mon,  6 Dec 2021 15:00:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDE15B81133;
+        Mon,  6 Dec 2021 15:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E9FBC341C2;
+        Mon,  6 Dec 2021 15:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802839;
-        bh=bxuq3nW77zBVngGrcwi1e0TIGey0k2UTchvWd42orJY=;
+        s=korg; t=1638803177;
+        bh=UKCf6Nl/8CPo4hwXcT/gj8rt6suJdu8OJksdedh0ZB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MK8tBX60oSl0VcChlcc1QAEYkGEj8ZTR9NurjVbRbv82rP1Y+mlosZjdPIZ+AIaiY
-         we8PxwsQILqbkKG0WPHxRI/hpXmgw4nqu1rDXJPhjfQApv9tUvkOxPukC9e5g+zURq
-         LSYqbd3y9azW5lEVW+IF+iI55FPw/Uu61Os0S0UA=
+        b=l81QJduOUp2B2RGMQay3cea7uBuViGaPF+VvC+FwSgey7cJamSr3P/DEHJtzP8HVz
+         uhdZxxvXliXAgIOT9OYdEnwKwdXe/fsYl21CmdpjeP0JnxrllXXartOc69tSSvLJN8
+         Z2WUfi9IXfhbebw637ND3vewbXsWFMUuu1neURhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Philipp Rudo <prudo@redhat.com>,
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
+        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 20/52] proc/vmcore: fix clearing user buffer by properly using clear_user()
+Subject: [PATCH 4.14 056/106] hugetlbfs: flush TLBs correctly after huge_pmd_unshare
 Date:   Mon,  6 Dec 2021 15:56:04 +0100
-Message-Id: <20211206145548.577135458@linuxfoundation.org>
+Message-Id: <20211206145557.367838689@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,97 +48,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit c1e63117711977cc4295b2ce73de29dd17066c82 upstream.
+commit a4a118f2eead1d6c49e00765de89878288d4b890 upstream.
 
-To clear a user buffer we cannot simply use memset, we have to use
-clear_user().  With a virtio-mem device that registers a vmcore_cb and
-has some logically unplugged memory inside an added Linux memory block,
-I can easily trigger a BUG by copying the vmcore via "cp":
+When __unmap_hugepage_range() calls to huge_pmd_unshare() succeed, a TLB
+flush is missing.  This TLB flush must be performed before releasing the
+i_mmap_rwsem, in order to prevent an unshared PMDs page from being
+released and reused before the TLB flush took place.
 
-  systemd[1]: Starting Kdump Vmcore Save Service...
-  kdump[420]: Kdump is using the default log level(3).
-  kdump[453]: saving to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
-  kdump[458]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
-  kdump[465]: saving vmcore-dmesg.txt complete
-  kdump[467]: saving vmcore
-  BUG: unable to handle page fault for address: 00007f2374e01000
-  #PF: supervisor write access in kernel mode
-  #PF: error_code(0x0003) - permissions violation
-  PGD 7a523067 P4D 7a523067 PUD 7a528067 PMD 7a525067 PTE 800000007048f867
-  Oops: 0003 [#1] PREEMPT SMP NOPTI
-  CPU: 0 PID: 468 Comm: cp Not tainted 5.15.0+ #6
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-27-g64f37cc530f1-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:read_from_oldmem.part.0.cold+0x1d/0x86
-  Code: ff ff ff e8 05 ff fe ff e9 b9 e9 7f ff 48 89 de 48 c7 c7 38 3b 60 82 e8 f1 fe fe ff 83 fd 08 72 3c 49 8d 7d 08 4c 89 e9 89 e8 <49> c7 45 00 00 00 00 00 49 c7 44 05 f8 00 00 00 00 48 83 e7 f81
-  RSP: 0018:ffffc9000073be08 EFLAGS: 00010212
-  RAX: 0000000000001000 RBX: 00000000002fd000 RCX: 00007f2374e01000
-  RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00007f2374e01008
-  RBP: 0000000000001000 R08: 0000000000000000 R09: ffffc9000073bc50
-  R10: ffffc9000073bc48 R11: ffffffff829461a8 R12: 000000000000f000
-  R13: 00007f2374e01000 R14: 0000000000000000 R15: ffff88807bd421e8
-  FS:  00007f2374e12140(0000) GS:ffff88807f000000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f2374e01000 CR3: 000000007a4aa000 CR4: 0000000000350eb0
-  Call Trace:
-   read_vmcore+0x236/0x2c0
-   proc_reg_read+0x55/0xa0
-   vfs_read+0x95/0x190
-   ksys_read+0x4f/0xc0
-   do_syscall_64+0x3b/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+Arguably, a comprehensive solution would use mmu_gather interface to
+batch the TLB flushes and the PMDs page release, however it is not an
+easy solution: (1) try_to_unmap_one() and try_to_migrate_one() also call
+huge_pmd_unshare() and they cannot use the mmu_gather interface; and (2)
+deferring the release of the page reference for the PMDs page until
+after i_mmap_rwsem is dropeed can confuse huge_pmd_unshare() into
+thinking PMDs are shared when they are not.
 
-Some x86-64 CPUs have a CPU feature called "Supervisor Mode Access
-Prevention (SMAP)", which is used to detect wrong access from the kernel
-to user buffers like this: SMAP triggers a permissions violation on
-wrong access.  In the x86-64 variant of clear_user(), SMAP is properly
-handled via clac()+stac().
+Fix __unmap_hugepage_range() by adding the missing TLB flush, and
+forcing a flush when unshare is successful.
 
-To fix, properly use clear_user() when we're dealing with a user buffer.
-
-Link: https://lkml.kernel.org/r/20211112092750.6921-1-david@redhat.com
-Fixes: 997c136f518c ("fs/proc/vmcore.c: add hook to read_from_oldmem() to check for non-ram pages")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: Philipp Rudo <prudo@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary linked list for accumulating pages)" # 3.6
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/proc/vmcore.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -105,14 +105,19 @@ static ssize_t read_from_oldmem(char *bu
- 			nr_bytes = count;
+---
+ arch/arm/include/asm/tlb.h  |    8 ++++++++
+ arch/ia64/include/asm/tlb.h |   10 ++++++++++
+ arch/s390/include/asm/tlb.h |   14 ++++++++++++++
+ arch/sh/include/asm/tlb.h   |   10 ++++++++++
+ arch/um/include/asm/tlb.h   |   12 ++++++++++++
+ include/asm-generic/tlb.h   |    2 ++
+ mm/hugetlb.c                |   19 +++++++++++++++++++
+ mm/memory.c                 |   10 ++++++++++
+ 8 files changed, 85 insertions(+)
+
+--- a/arch/arm/include/asm/tlb.h
++++ b/arch/arm/include/asm/tlb.h
+@@ -280,6 +280,14 @@ tlb_remove_pmd_tlb_entry(struct mmu_gath
+ 	tlb_add_flush(tlb, addr);
+ }
  
- 		/* If pfn is not ram, return zeros for sparse dump files */
--		if (pfn_is_ram(pfn) == 0)
--			memset(buf, 0, nr_bytes);
--		else {
-+		if (pfn_is_ram(pfn) == 0) {
-+			tmp = 0;
-+			if (!userbuf)
-+				memset(buf, 0, nr_bytes);
-+			else if (clear_user(buf, nr_bytes))
-+				tmp = -EFAULT;
-+		} else {
- 			tmp = copy_oldmem_page(pfn, buf, nr_bytes,
- 						offset, userbuf);
--			if (tmp < 0)
--				return tmp;
- 		}
-+		if (tmp < 0)
-+			return tmp;
++static inline void
++tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
++		    unsigned long size)
++{
++	tlb_add_flush(tlb, address);
++	tlb_add_flush(tlb, address + size - PMD_SIZE);
++}
 +
- 		*ppos += nr_bytes;
- 		count -= nr_bytes;
- 		buf += nr_bytes;
+ #define pte_free_tlb(tlb, ptep, addr)	__pte_free_tlb(tlb, ptep, addr)
+ #define pmd_free_tlb(tlb, pmdp, addr)	__pmd_free_tlb(tlb, pmdp, addr)
+ #define pud_free_tlb(tlb, pudp, addr)	pud_free((tlb)->mm, pudp)
+--- a/arch/ia64/include/asm/tlb.h
++++ b/arch/ia64/include/asm/tlb.h
+@@ -269,6 +269,16 @@ __tlb_remove_tlb_entry (struct mmu_gathe
+ 	tlb->end_addr = address + PAGE_SIZE;
+ }
+ 
++static inline void
++tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
++		    unsigned long size)
++{
++	if (tlb->start_addr > address)
++		tlb->start_addr = address;
++	if (tlb->end_addr < address + size)
++		tlb->end_addr = address + size;
++}
++
+ #define tlb_migrate_finish(mm)	platform_tlb_migrate_finish(mm)
+ 
+ #define tlb_start_vma(tlb, vma)			do { } while (0)
+--- a/arch/s390/include/asm/tlb.h
++++ b/arch/s390/include/asm/tlb.h
+@@ -116,6 +116,20 @@ static inline void tlb_remove_page_size(
+ 	return tlb_remove_page(tlb, page);
+ }
+ 
++static inline void tlb_flush_pmd_range(struct mmu_gather *tlb,
++				unsigned long address, unsigned long size)
++{
++	/*
++	 * the range might exceed the original range that was provided to
++	 * tlb_gather_mmu(), so we need to update it despite the fact it is
++	 * usually not updated.
++	 */
++	if (tlb->start > address)
++		tlb->start = address;
++	if (tlb->end < address + size)
++		tlb->end = address + size;
++}
++
+ /*
+  * pte_free_tlb frees a pte table and clears the CRSTE for the
+  * page table from the tlb.
+--- a/arch/sh/include/asm/tlb.h
++++ b/arch/sh/include/asm/tlb.h
+@@ -127,6 +127,16 @@ static inline void tlb_remove_page_size(
+ 	return tlb_remove_page(tlb, page);
+ }
+ 
++static inline void
++tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
++		    unsigned long size)
++{
++	if (tlb->start > address)
++		tlb->start = address;
++	if (tlb->end < address + size)
++		tlb->end = address + size;
++}
++
+ #define tlb_remove_check_page_size_change tlb_remove_check_page_size_change
+ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
+ 						     unsigned int page_size)
+--- a/arch/um/include/asm/tlb.h
++++ b/arch/um/include/asm/tlb.h
+@@ -130,6 +130,18 @@ static inline void tlb_remove_page_size(
+ 	return tlb_remove_page(tlb, page);
+ }
+ 
++static inline void
++tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
++		    unsigned long size)
++{
++	tlb->need_flush = 1;
++
++	if (tlb->start > address)
++		tlb->start = address;
++	if (tlb->end < address + size)
++		tlb->end = address + size;
++}
++
+ /**
+  * tlb_remove_tlb_entry - remember a pte unmapping for later tlb invalidation.
+  *
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -117,6 +117,8 @@ void arch_tlb_gather_mmu(struct mmu_gath
+ void tlb_flush_mmu(struct mmu_gather *tlb);
+ void arch_tlb_finish_mmu(struct mmu_gather *tlb,
+ 			 unsigned long start, unsigned long end, bool force);
++void tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
++			 unsigned long size);
+ extern bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
+ 				   int page_size);
+ 
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3386,6 +3386,7 @@ void __unmap_hugepage_range(struct mmu_g
+ 	unsigned long sz = huge_page_size(h);
+ 	const unsigned long mmun_start = start;	/* For mmu_notifiers */
+ 	const unsigned long mmun_end   = end;	/* For mmu_notifiers */
++	bool force_flush = false;
+ 
+ 	WARN_ON(!is_vm_hugetlb_page(vma));
+ 	BUG_ON(start & ~huge_page_mask(h));
+@@ -3407,6 +3408,8 @@ void __unmap_hugepage_range(struct mmu_g
+ 		ptl = huge_pte_lock(h, mm, ptep);
+ 		if (huge_pmd_unshare(mm, &address, ptep)) {
+ 			spin_unlock(ptl);
++			tlb_flush_pmd_range(tlb, address & PUD_MASK, PUD_SIZE);
++			force_flush = true;
+ 			continue;
+ 		}
+ 
+@@ -3463,6 +3466,22 @@ void __unmap_hugepage_range(struct mmu_g
+ 	}
+ 	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
+ 	tlb_end_vma(tlb, vma);
++
++	/*
++	 * If we unshared PMDs, the TLB flush was not recorded in mmu_gather. We
++	 * could defer the flush until now, since by holding i_mmap_rwsem we
++	 * guaranteed that the last refernece would not be dropped. But we must
++	 * do the flushing before we return, as otherwise i_mmap_rwsem will be
++	 * dropped and the last reference to the shared PMDs page might be
++	 * dropped as well.
++	 *
++	 * In theory we could defer the freeing of the PMD pages as well, but
++	 * huge_pmd_unshare() relies on the exact page_count for the PMD page to
++	 * detect sharing, so we cannot defer the release of the page either.
++	 * Instead, do flush now.
++	 */
++	if (force_flush)
++		tlb_flush_mmu(tlb);
+ }
+ 
+ void __unmap_hugepage_range_final(struct mmu_gather *tlb,
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -335,6 +335,16 @@ bool __tlb_remove_page_size(struct mmu_g
+ 	return false;
+ }
+ 
++void tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
++			 unsigned long size)
++{
++	if (tlb->page_size != 0 && tlb->page_size != PMD_SIZE)
++		tlb_flush_mmu(tlb);
++
++	tlb->page_size = PMD_SIZE;
++	tlb->start = min(tlb->start, address);
++	tlb->end = max(tlb->end, address + size);
++}
+ #endif /* HAVE_GENERIC_MMU_GATHER */
+ 
+ #ifdef CONFIG_HAVE_RCU_TABLE_FREE
 
 
