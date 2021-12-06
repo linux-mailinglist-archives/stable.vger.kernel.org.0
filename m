@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC54469D41
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FDDD469D43
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239330AbhLFP2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:48 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42672 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377535AbhLFPYj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:39 -0500
+        id S1376830AbhLFP2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55652 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377561AbhLFPYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E207C6132A;
-        Mon,  6 Dec 2021 15:21:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6094C341C2;
-        Mon,  6 Dec 2021 15:21:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68D3AB8101B;
+        Mon,  6 Dec 2021 15:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE67C341C5;
+        Mon,  6 Dec 2021 15:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804069;
-        bh=7Y6x205BDUFgAZRQgyrD2j4b6+OUapip8rPatiemWc4=;
+        s=korg; t=1638804072;
+        bh=KWxXtW72Tj7fGimpSt36yqmxv90yxBqm44E4kmS6tPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFYy5zKJUlbQF2W/ElOIuHtAJ13Z33LztyJl6RiWnuXXBdsMnqPu82jWTvPrUB11/
-         CJpx+yrvsjtmDc6RYYBS62NdJmilnL03atYz/9A9gA+av9eke5qwaTFbnFXdmPZpPq
-         Lvqg5GsHMAyW5xA3kNUVcU199R5wuTWsBT0sJBOY=
+        b=Iwlwd2896OXgmJQ5szKguJfZ6kuDVX+JHGXQzhQQYSC0nk468/ixANc37Q8T5wiYZ
+         EI0y/ViZYE7r8yuPUIhXrQ6NbRNIsjHdtkAkV2XRLAFOG8Axl8Hz6axkLBGmiZ93Qp
+         T23gI9uJHAau5coWb0XaWwQYKtQ1roRLuhAfTGjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 016/207] powerpc/pseries/ddw: Do not try direct mapping with persistent memory and one window
-Date:   Mon,  6 Dec 2021 15:54:30 +0100
-Message-Id: <20211206145610.766220868@linuxfoundation.org>
+Subject: [PATCH 5.15 017/207] drm/sun4i: fix unmet dependency on RESET_CONTROLLER for PHY_SUN6I_MIPI_DPHY
+Date:   Mon,  6 Dec 2021 15:54:31 +0100
+Message-Id: <20211206145610.797976281@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -45,51 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit ad3976025b311cdeb822ad3e7a7554018cb0f83f ]
+[ Upstream commit bb162bb2b4394108c8f055d1b115735331205e28 ]
 
-There is a possibility of having just one DMA window available with
-a limited capacity which the existing code does not handle that well.
-If the window is big enough for the system RAM but less than
-MAX_PHYSMEM_BITS (which we want when persistent memory is present),
-we create 1:1 window and leave persistent memory without DMA.
+When PHY_SUN6I_MIPI_DPHY is selected, and RESET_CONTROLLER
+is not selected, Kbuild gives the following warning:
 
-This disables 1:1 mapping entirely if there is persistent memory and
-either:
-- the huge DMA window does not cover the entire address space;
-- the default DMA window is removed.
+WARNING: unmet direct dependencies detected for PHY_SUN6I_MIPI_DPHY
+  Depends on [n]: (ARCH_SUNXI [=n] || COMPILE_TEST [=y]) && HAS_IOMEM [=y] && COMMON_CLK [=y] && RESET_CONTROLLER [=n]
+  Selected by [y]:
+  - DRM_SUN6I_DSI [=y] && HAS_IOMEM [=y] && DRM_SUN4I [=y]
 
-This relies on reverted 54fc3c681ded
-("powerpc/pseries/ddw: Extend upper limit for huge DMA window for persistent memory")
-to return the actual amount RAM in ddw_memory_hotplug_max() (posted
-separately).
+This is because DRM_SUN6I_DSI selects PHY_SUN6I_MIPI_DPHY
+without selecting or depending on RESET_CONTROLLER, despite
+PHY_SUN6I_MIPI_DPHY depending on RESET_CONTROLLER.
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211108040320.3857636-4-aik@ozlabs.ru
+These unmet dependency bugs were detected by Kismet,
+a static analysis tool for Kconfig. Please advise if this
+is not the appropriate solution.
+
+v2:
+Fixed indentation to match the rest of the file.
+
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211109032351.43322-1-julianbraha@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/iommu.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/sun4i/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/powerpc/platforms/pseries/iommu.c b/arch/powerpc/platforms/pseries/iommu.c
-index ad96d6e13d1f6..8322ca86d5acf 100644
---- a/arch/powerpc/platforms/pseries/iommu.c
-+++ b/arch/powerpc/platforms/pseries/iommu.c
-@@ -1356,8 +1356,10 @@ static bool enable_ddw(struct pci_dev *dev, struct device_node *pdn)
- 		len = order_base_2(query.largest_available_block << page_shift);
- 		win_name = DMA64_PROPNAME;
- 	} else {
--		direct_mapping = true;
--		win_name = DIRECT64_PROPNAME;
-+		direct_mapping = !default_win_removed ||
-+			(len == MAX_PHYSMEM_BITS) ||
-+			(!pmem_present && (len == max_ram_len));
-+		win_name = direct_mapping ? DIRECT64_PROPNAME : DMA64_PROPNAME;
- 	}
- 
- 	ret = create_ddw(dev, ddw_avail, &create, page_shift, len);
+diff --git a/drivers/gpu/drm/sun4i/Kconfig b/drivers/gpu/drm/sun4i/Kconfig
+index 5755f0432e774..8c796de53222c 100644
+--- a/drivers/gpu/drm/sun4i/Kconfig
++++ b/drivers/gpu/drm/sun4i/Kconfig
+@@ -46,6 +46,7 @@ config DRM_SUN6I_DSI
+ 	default MACH_SUN8I
+ 	select CRC_CCITT
+ 	select DRM_MIPI_DSI
++	select RESET_CONTROLLER
+ 	select PHY_SUN6I_MIPI_DPHY
+ 	help
+ 	  Choose this option if you want have an Allwinner SoC with
 -- 
 2.33.0
 
