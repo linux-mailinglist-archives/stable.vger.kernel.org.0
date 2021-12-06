@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4A724699BA
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:59:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4F24699BE
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:00:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345176AbhLFPDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:03:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52064 "EHLO
+        id S236902AbhLFPDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:03:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345030AbhLFPCu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:50 -0500
+        with ESMTP id S1344964AbhLFPCx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53B6FC0613F8;
-        Mon,  6 Dec 2021 06:59:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49148C061D7F;
+        Mon,  6 Dec 2021 06:59:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E599F61310;
-        Mon,  6 Dec 2021 14:59:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CA93C341C1;
-        Mon,  6 Dec 2021 14:59:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C09B56131C;
+        Mon,  6 Dec 2021 14:59:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E43C341D2;
+        Mon,  6 Dec 2021 14:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802760;
-        bh=JYpTyQpdXBvqmFM2uxmq6UsF8L9SUh7iBhgDHlgWEdU=;
+        s=korg; t=1638802763;
+        bh=gO3FsktaD+ahvdu0ydIXlULndKJtijU07K2bT5GYWwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yByolH5UxCY4hMLa8VFYsRyWu/aO834B/HoCS5gaJhLrCToj9MurkQGCtzBCJMIH/
-         +cmYYS1hmyMCJTBa3O2+TBJ2r51dxG5c8TEKFWXGERb2O700zLgD47qqzIqe04Ppsl
-         OkcSH3hTmhlL88huyv0LkgkkPYp8+aBhzT2znkso=
+        b=k+1UcS2PMT7yd81XbGBo6UOmskn6rxZvUVMlWV6VtvfBuC14JWDIzpWjjlDuOpr8f
+         RdK9OawCv+8WXb7vBm6xOgJyugutExsY+BqI87fuRjSzcf+/6IChtn1OsnMcg52f7k
+         NFHkKaMQ7kzLd8Tb1WTENY4fvCtWLdFb7Y16QR9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Andrei Vagin <avagin@gmail.com>,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 24/52] shm: extend forced shm destroy to support objects from several IPC nses
-Date:   Mon,  6 Dec 2021 15:56:08 +0100
-Message-Id: <20211206145548.716559960@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.4 25/52] xen: sync include/xen/interface/io/ring.h with Xens newest version
+Date:   Mon,  6 Dec 2021 15:56:09 +0100
+Message-Id: <20211206145548.748748300@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
 References: <20211206145547.892668902@linuxfoundation.org>
@@ -54,390 +46,382 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 85b6d24646e4125c591639841169baa98a2da503 upstream.
+commit 629a5d87e26fe96bcaab44cbb81f5866af6f7008 upstream.
 
-Currently, the exit_shm() function not designed to work properly when
-task->sysvshm.shm_clist holds shm objects from different IPC namespaces.
+Sync include/xen/interface/io/ring.h with Xen's newest version in
+order to get the RING_COPY_RESPONSE() and RING_RESPONSE_PROD_OVERFLOW()
+macros.
 
-This is a real pain when sysctl kernel.shm_rmid_forced = 1, because it
-leads to use-after-free (reproducer exists).
-
-This is an attempt to fix the problem by extending exit_shm mechanism to
-handle shm's destroy from several IPC ns'es.
-
-To achieve that we do several things:
-
-1. add a namespace (non-refcounted) pointer to the struct shmid_kernel
-
-2. during new shm object creation (newseg()/shmget syscall) we
-   initialize this pointer by current task IPC ns
-
-3. exit_shm() fully reworked such that it traverses over all shp's in
-   task->sysvshm.shm_clist and gets IPC namespace not from current task
-   as it was before but from shp's object itself, then call
-   shm_destroy(shp, ns).
-
-Note: We need to be really careful here, because as it was said before
-(1), our pointer to IPC ns non-refcnt'ed.  To be on the safe side we
-using special helper get_ipc_ns_not_zero() which allows to get IPC ns
-refcounter only if IPC ns not in the "state of destruction".
-
-Q/A
-
-Q: Why can we access shp->ns memory using non-refcounted pointer?
-A: Because shp object lifetime is always shorther than IPC namespace
-   lifetime, so, if we get shp object from the task->sysvshm.shm_clist
-   while holding task_lock(task) nobody can steal our namespace.
-
-Q: Does this patch change semantics of unshare/setns/clone syscalls?
-A: No. It's just fixes non-covered case when process may leave IPC
-   namespace without getting task->sysvshm.shm_clist list cleaned up.
-
-Link: https://lkml.kernel.org/r/67bb03e5-f79c-1815-e2bf-949c67047418@colorfullife.com
-Link: https://lkml.kernel.org/r/20211109151501.4921-1-manfred@colorfullife.com
-Fixes: ab602f79915 ("shm: make exit_shm work proportional to task activity")
-Co-developed-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Andrei Vagin <avagin@gmail.com>
-Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/ipc_namespace.h |   15 +++
- include/linux/sched.h         |    2 
- include/linux/shm.h           |   13 ++-
- ipc/shm.c                     |  176 +++++++++++++++++++++++++++++++-----------
- 4 files changed, 159 insertions(+), 47 deletions(-)
+ include/xen/interface/io/ring.h |  271 +++++++++++++++++++---------------------
+ 1 file changed, 131 insertions(+), 140 deletions(-)
 
---- a/include/linux/ipc_namespace.h
-+++ b/include/linux/ipc_namespace.h
-@@ -123,6 +123,16 @@ static inline struct ipc_namespace *get_
- 	return ns;
- }
- 
-+static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
-+{
-+	if (ns) {
-+		if (atomic_inc_not_zero(&ns->count))
-+			return ns;
-+	}
-+
-+	return NULL;
-+}
-+
- extern void put_ipc_ns(struct ipc_namespace *ns);
- #else
- static inline struct ipc_namespace *copy_ipcs(unsigned long flags,
-@@ -138,6 +148,11 @@ static inline struct ipc_namespace *get_
- {
- 	return ns;
- }
-+
-+static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
-+{
-+	return ns;
-+}
- 
- static inline void put_ipc_ns(struct ipc_namespace *ns)
- {
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -2792,7 +2792,7 @@ static inline int thread_group_empty(str
-  * Protects ->fs, ->files, ->mm, ->group_info, ->comm, keyring
-  * subscriptions and synchronises with wait4().  Also used in procfs.  Also
-  * pins the final release of task.io_context.  Also protects ->cpuset and
-- * ->cgroup.subsys[]. And ->vfork_done.
-+ * ->cgroup.subsys[]. And ->vfork_done. And ->sysvshm.shm_clist.
-  *
-  * Nests both inside and outside of read_lock(&tasklist_lock).
-  * It must not be nested with write_lock_irq(&tasklist_lock),
---- a/include/linux/shm.h
-+++ b/include/linux/shm.h
-@@ -19,9 +19,18 @@ struct shmid_kernel /* private to the ke
- 	pid_t			shm_lprid;
- 	struct user_struct	*mlock_user;
- 
--	/* The task created the shm object.  NULL if the task is dead. */
-+	/*
-+	 * The task created the shm object, for
-+	 * task_lock(shp->shm_creator)
-+	 */
- 	struct task_struct	*shm_creator;
--	struct list_head	shm_clist;	/* list by creator */
-+
-+	/*
-+	 * List by creator. task_lock(->shm_creator) required for read/write.
-+	 * If list_empty(), then the creator is dead already.
-+	 */
-+	struct list_head	shm_clist;
-+	struct ipc_namespace	*ns;
- };
- 
- /* shm_mode upper byte flags */
---- a/ipc/shm.c
-+++ b/ipc/shm.c
-@@ -90,6 +90,7 @@ static void do_shm_rmid(struct ipc_names
- {
- 	struct shmid_kernel *shp;
- 	shp = container_of(ipcp, struct shmid_kernel, shm_perm);
-+	WARN_ON(ns != shp->ns);
- 
- 	if (shp->shm_nattch) {
- 		shp->shm_perm.mode |= SHM_DEST;
-@@ -180,10 +181,43 @@ static void shm_rcu_free(struct rcu_head
- 	ipc_rcu_free(head);
- }
- 
--static inline void shm_rmid(struct ipc_namespace *ns, struct shmid_kernel *s)
-+/*
-+ * It has to be called with shp locked.
-+ * It must be called before ipc_rmid()
-+ */
-+static inline void shm_clist_rm(struct shmid_kernel *shp)
-+{
-+	struct task_struct *creator;
-+
-+	/* ensure that shm_creator does not disappear */
-+	rcu_read_lock();
-+
-+	/*
-+	 * A concurrent exit_shm may do a list_del_init() as well.
-+	 * Just do nothing if exit_shm already did the work
-+	 */
-+	if (!list_empty(&shp->shm_clist)) {
-+		/*
-+		 * shp->shm_creator is guaranteed to be valid *only*
-+		 * if shp->shm_clist is not empty.
-+		 */
-+		creator = shp->shm_creator;
-+
-+		task_lock(creator);
-+		/*
-+		 * list_del_init() is a nop if the entry was already removed
-+		 * from the list.
-+		 */
-+		list_del_init(&shp->shm_clist);
-+		task_unlock(creator);
-+	}
-+	rcu_read_unlock();
-+}
-+
-+static inline void shm_rmid(struct shmid_kernel *s)
- {
--	list_del(&s->shm_clist);
--	ipc_rmid(&shm_ids(ns), &s->shm_perm);
-+	shm_clist_rm(s);
-+	ipc_rmid(&shm_ids(s->ns), &s->shm_perm);
- }
- 
- 
-@@ -238,7 +272,7 @@ static void shm_destroy(struct ipc_names
- 	shm_file = shp->shm_file;
- 	shp->shm_file = NULL;
- 	ns->shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
--	shm_rmid(ns, shp);
-+	shm_rmid(shp);
- 	shm_unlock(shp);
- 	if (!is_file_hugepages(shm_file))
- 		shmem_lock(shm_file, 0, shp->mlock_user);
-@@ -259,10 +293,10 @@ static void shm_destroy(struct ipc_names
-  *
-  * 2) sysctl kernel.shm_rmid_forced is set to 1.
+--- a/include/xen/interface/io/ring.h
++++ b/include/xen/interface/io/ring.h
+@@ -24,82 +24,79 @@ typedef unsigned int RING_IDX;
+  * A ring contains as many entries as will fit, rounded down to the nearest
+  * power of two (so we can mask with (size-1) to loop around).
   */
--static bool shm_may_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
-+static bool shm_may_destroy(struct shmid_kernel *shp)
- {
- 	return (shp->shm_nattch == 0) &&
--	       (ns->shm_rmid_forced ||
-+	       (shp->ns->shm_rmid_forced ||
- 		(shp->shm_perm.mode & SHM_DEST));
- }
+-#define __CONST_RING_SIZE(_s, _sz)				\
+-	(__RD32(((_sz) - offsetof(struct _s##_sring, ring)) /	\
+-		sizeof(((struct _s##_sring *)0)->ring[0])))
+-
++#define __CONST_RING_SIZE(_s, _sz) \
++    (__RD32(((_sz) - offsetof(struct _s##_sring, ring)) / \
++	    sizeof(((struct _s##_sring *)0)->ring[0])))
+ /*
+  * The same for passing in an actual pointer instead of a name tag.
+  */
+-#define __RING_SIZE(_s, _sz)						\
+-	(__RD32(((_sz) - (long)&(_s)->ring + (long)(_s)) / sizeof((_s)->ring[0])))
++#define __RING_SIZE(_s, _sz) \
++    (__RD32(((_sz) - (long)(_s)->ring + (long)(_s)) / sizeof((_s)->ring[0])))
  
-@@ -293,7 +327,7 @@ static void shm_close(struct vm_area_str
- 	shp->shm_lprid = task_tgid_vnr(current);
- 	shp->shm_dtim = get_seconds();
- 	shp->shm_nattch--;
--	if (shm_may_destroy(ns, shp))
-+	if (shm_may_destroy(shp))
- 		shm_destroy(ns, shp);
- 	else
- 		shm_unlock(shp);
-@@ -314,10 +348,10 @@ static int shm_try_destroy_orphaned(int
- 	 *
- 	 * As shp->* are changed under rwsem, it's safe to skip shp locking.
- 	 */
--	if (shp->shm_creator != NULL)
-+	if (!list_empty(&shp->shm_clist))
- 		return 0;
+ /*
+  * Macros to make the correct C datatypes for a new kind of ring.
+  *
+  * To make a new ring datatype, you need to have two message structures,
+- * let's say struct request, and struct response already defined.
++ * let's say request_t, and response_t already defined.
+  *
+  * In a header where you want the ring datatype declared, you then do:
+  *
+- *     DEFINE_RING_TYPES(mytag, struct request, struct response);
++ *     DEFINE_RING_TYPES(mytag, request_t, response_t);
+  *
+  * These expand out to give you a set of types, as you can see below.
+  * The most important of these are:
+  *
+- *     struct mytag_sring      - The shared ring.
+- *     struct mytag_front_ring - The 'front' half of the ring.
+- *     struct mytag_back_ring  - The 'back' half of the ring.
++ *     mytag_sring_t      - The shared ring.
++ *     mytag_front_ring_t - The 'front' half of the ring.
++ *     mytag_back_ring_t  - The 'back' half of the ring.
+  *
+  * To initialize a ring in your code you need to know the location and size
+  * of the shared memory area (PAGE_SIZE, for instance). To initialise
+  * the front half:
+  *
+- *     struct mytag_front_ring front_ring;
+- *     SHARED_RING_INIT((struct mytag_sring *)shared_page);
+- *     FRONT_RING_INIT(&front_ring, (struct mytag_sring *)shared_page,
+- *		       PAGE_SIZE);
++ *     mytag_front_ring_t front_ring;
++ *     SHARED_RING_INIT((mytag_sring_t *)shared_page);
++ *     FRONT_RING_INIT(&front_ring, (mytag_sring_t *)shared_page, PAGE_SIZE);
+  *
+  * Initializing the back follows similarly (note that only the front
+  * initializes the shared ring):
+  *
+- *     struct mytag_back_ring back_ring;
+- *     BACK_RING_INIT(&back_ring, (struct mytag_sring *)shared_page,
+- *		      PAGE_SIZE);
++ *     mytag_back_ring_t back_ring;
++ *     BACK_RING_INIT(&back_ring, (mytag_sring_t *)shared_page, PAGE_SIZE);
+  */
  
--	if (shm_may_destroy(ns, shp)) {
-+	if (shm_may_destroy(shp)) {
- 		shm_lock_by_ptr(shp);
- 		shm_destroy(ns, shp);
- 	}
-@@ -335,48 +369,97 @@ void shm_destroy_orphaned(struct ipc_nam
- /* Locking assumes this will only be called with task == current */
- void exit_shm(struct task_struct *task)
- {
--	struct ipc_namespace *ns = task->nsproxy->ipc_ns;
--	struct shmid_kernel *shp, *n;
-+	for (;;) {
-+		struct shmid_kernel *shp;
-+		struct ipc_namespace *ns;
+-#define DEFINE_RING_TYPES(__name, __req_t, __rsp_t)			\
+-									\
+-/* Shared ring entry */							\
+-union __name##_sring_entry {						\
+-    __req_t req;							\
+-    __rsp_t rsp;							\
+-};									\
+-									\
+-/* Shared ring page */							\
+-struct __name##_sring {							\
+-    RING_IDX req_prod, req_event;					\
+-    RING_IDX rsp_prod, rsp_event;					\
+-    uint8_t  pad[48];							\
+-    union __name##_sring_entry ring[1]; /* variable-length */		\
+-};									\
+-									\
+-/* "Front" end's private variables */					\
+-struct __name##_front_ring {						\
+-    RING_IDX req_prod_pvt;						\
+-    RING_IDX rsp_cons;							\
+-    unsigned int nr_ents;						\
+-    struct __name##_sring *sring;					\
+-};									\
+-									\
+-/* "Back" end's private variables */					\
+-struct __name##_back_ring {						\
+-    RING_IDX rsp_prod_pvt;						\
+-    RING_IDX req_cons;							\
+-    unsigned int nr_ents;						\
+-    struct __name##_sring *sring;					\
+-};
+-
++#define DEFINE_RING_TYPES(__name, __req_t, __rsp_t)                     \
++                                                                        \
++/* Shared ring entry */                                                 \
++union __name##_sring_entry {                                            \
++    __req_t req;                                                        \
++    __rsp_t rsp;                                                        \
++};                                                                      \
++                                                                        \
++/* Shared ring page */                                                  \
++struct __name##_sring {                                                 \
++    RING_IDX req_prod, req_event;                                       \
++    RING_IDX rsp_prod, rsp_event;                                       \
++    uint8_t __pad[48];                                                  \
++    union __name##_sring_entry ring[1]; /* variable-length */           \
++};                                                                      \
++                                                                        \
++/* "Front" end's private variables */                                   \
++struct __name##_front_ring {                                            \
++    RING_IDX req_prod_pvt;                                              \
++    RING_IDX rsp_cons;                                                  \
++    unsigned int nr_ents;                                               \
++    struct __name##_sring *sring;                                       \
++};                                                                      \
++                                                                        \
++/* "Back" end's private variables */                                    \
++struct __name##_back_ring {                                             \
++    RING_IDX rsp_prod_pvt;                                              \
++    RING_IDX req_cons;                                                  \
++    unsigned int nr_ents;                                               \
++    struct __name##_sring *sring;                                       \
++};                                                                      \
++                                                                        \
+ /*
+  * Macros for manipulating rings.
+  *
+@@ -116,105 +113,99 @@ struct __name##_back_ring {						\
+  */
  
--	if (list_empty(&task->sysvshm.shm_clist))
--		return;
-+		task_lock(task);
+ /* Initialising empty rings */
+-#define SHARED_RING_INIT(_s) do {					\
+-    (_s)->req_prod  = (_s)->rsp_prod  = 0;				\
+-    (_s)->req_event = (_s)->rsp_event = 1;				\
+-    memset((_s)->pad, 0, sizeof((_s)->pad));				\
++#define SHARED_RING_INIT(_s) do {                                       \
++    (_s)->req_prod  = (_s)->rsp_prod  = 0;                              \
++    (_s)->req_event = (_s)->rsp_event = 1;                              \
++    (void)memset((_s)->__pad, 0, sizeof((_s)->__pad));                  \
+ } while(0)
+ 
+-#define FRONT_RING_INIT(_r, _s, __size) do {				\
+-    (_r)->req_prod_pvt = 0;						\
+-    (_r)->rsp_cons = 0;							\
+-    (_r)->nr_ents = __RING_SIZE(_s, __size);				\
+-    (_r)->sring = (_s);							\
++#define FRONT_RING_ATTACH(_r, _s, _i, __size) do {                      \
++    (_r)->req_prod_pvt = (_i);                                          \
++    (_r)->rsp_cons = (_i);                                              \
++    (_r)->nr_ents = __RING_SIZE(_s, __size);                            \
++    (_r)->sring = (_s);                                                 \
+ } while (0)
+ 
+-#define BACK_RING_INIT(_r, _s, __size) do {				\
+-    (_r)->rsp_prod_pvt = 0;						\
+-    (_r)->req_cons = 0;							\
+-    (_r)->nr_ents = __RING_SIZE(_s, __size);				\
+-    (_r)->sring = (_s);							\
+-} while (0)
++#define FRONT_RING_INIT(_r, _s, __size) FRONT_RING_ATTACH(_r, _s, 0, __size)
+ 
+-/* Initialize to existing shared indexes -- for recovery */
+-#define FRONT_RING_ATTACH(_r, _s, __size) do {				\
+-    (_r)->sring = (_s);							\
+-    (_r)->req_prod_pvt = (_s)->req_prod;				\
+-    (_r)->rsp_cons = (_s)->rsp_prod;					\
+-    (_r)->nr_ents = __RING_SIZE(_s, __size);				\
++#define BACK_RING_ATTACH(_r, _s, _i, __size) do {                       \
++    (_r)->rsp_prod_pvt = (_i);                                          \
++    (_r)->req_cons = (_i);                                              \
++    (_r)->nr_ents = __RING_SIZE(_s, __size);                            \
++    (_r)->sring = (_s);                                                 \
+ } while (0)
+ 
+-#define BACK_RING_ATTACH(_r, _s, __size) do {				\
+-    (_r)->sring = (_s);							\
+-    (_r)->rsp_prod_pvt = (_s)->rsp_prod;				\
+-    (_r)->req_cons = (_s)->req_prod;					\
+-    (_r)->nr_ents = __RING_SIZE(_s, __size);				\
+-} while (0)
++#define BACK_RING_INIT(_r, _s, __size) BACK_RING_ATTACH(_r, _s, 0, __size)
+ 
+ /* How big is this ring? */
+-#define RING_SIZE(_r)							\
++#define RING_SIZE(_r)                                                   \
+     ((_r)->nr_ents)
+ 
+ /* Number of free requests (for use on front side only). */
+-#define RING_FREE_REQUESTS(_r)						\
++#define RING_FREE_REQUESTS(_r)                                          \
+     (RING_SIZE(_r) - ((_r)->req_prod_pvt - (_r)->rsp_cons))
+ 
+ /* Test if there is an empty slot available on the front ring.
+  * (This is only meaningful from the front. )
+  */
+-#define RING_FULL(_r)							\
++#define RING_FULL(_r)                                                   \
+     (RING_FREE_REQUESTS(_r) == 0)
+ 
+ /* Test if there are outstanding messages to be processed on a ring. */
+-#define RING_HAS_UNCONSUMED_RESPONSES(_r)				\
++#define RING_HAS_UNCONSUMED_RESPONSES(_r)                               \
+     ((_r)->sring->rsp_prod - (_r)->rsp_cons)
+ 
+-#define RING_HAS_UNCONSUMED_REQUESTS(_r)				\
+-    ({									\
+-	unsigned int req = (_r)->sring->req_prod - (_r)->req_cons;	\
+-	unsigned int rsp = RING_SIZE(_r) -				\
+-			   ((_r)->req_cons - (_r)->rsp_prod_pvt);	\
+-	req < rsp ? req : rsp;						\
+-    })
++#define RING_HAS_UNCONSUMED_REQUESTS(_r) ({                             \
++    unsigned int req = (_r)->sring->req_prod - (_r)->req_cons;          \
++    unsigned int rsp = RING_SIZE(_r) -                                  \
++        ((_r)->req_cons - (_r)->rsp_prod_pvt);                          \
++    req < rsp ? req : rsp;                                              \
++})
+ 
+ /* Direct access to individual ring elements, by index. */
+-#define RING_GET_REQUEST(_r, _idx)					\
++#define RING_GET_REQUEST(_r, _idx)                                      \
+     (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].req))
+ 
++#define RING_GET_RESPONSE(_r, _idx)                                     \
++    (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].rsp))
 +
-+		if (list_empty(&task->sysvshm.shm_clist)) {
-+			task_unlock(task);
-+			break;
-+		}
-+
-+		shp = list_first_entry(&task->sysvshm.shm_clist, struct shmid_kernel,
-+				shm_clist);
+ /*
+- * Get a local copy of a request.
++ * Get a local copy of a request/response.
+  *
+- * Use this in preference to RING_GET_REQUEST() so all processing is
++ * Use this in preference to RING_GET_{REQUEST,RESPONSE}() so all processing is
+  * done on a local copy that cannot be modified by the other end.
+  *
+  * Note that https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58145 may cause this
+- * to be ineffective where _req is a struct which consists of only bitfields.
++ * to be ineffective where dest is a struct which consists of only bitfields.
+  */
+-#define RING_COPY_REQUEST(_r, _idx, _req) do {				\
+-	/* Use volatile to force the copy into _req. */			\
+-	*(_req) = *(volatile typeof(_req))RING_GET_REQUEST(_r, _idx);	\
++#define RING_COPY_(type, r, idx, dest) do {				\
++	/* Use volatile to force the copy into dest. */			\
++	*(dest) = *(volatile typeof(dest))RING_GET_##type(r, idx);	\
+ } while (0)
  
--	/*
--	 * If kernel.shm_rmid_forced is not set then only keep track of
--	 * which shmids are orphaned, so that a later set of the sysctl
--	 * can clean them up.
--	 */
--	if (!ns->shm_rmid_forced) {
--		down_read(&shm_ids(ns).rwsem);
--		list_for_each_entry(shp, &task->sysvshm.shm_clist, shm_clist)
--			shp->shm_creator = NULL;
- 		/*
--		 * Only under read lock but we are only called on current
--		 * so no entry on the list will be shared.
-+		 * 1) Get pointer to the ipc namespace. It is worth to say
-+		 * that this pointer is guaranteed to be valid because
-+		 * shp lifetime is always shorter than namespace lifetime
-+		 * in which shp lives.
-+		 * We taken task_lock it means that shp won't be freed.
- 		 */
--		list_del(&task->sysvshm.shm_clist);
--		up_read(&shm_ids(ns).rwsem);
--		return;
--	}
-+		ns = shp->ns;
+-#define RING_GET_RESPONSE(_r, _idx)					\
+-    (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].rsp))
++#define RING_COPY_REQUEST(r, idx, req)  RING_COPY_(REQUEST, r, idx, req)
++#define RING_COPY_RESPONSE(r, idx, rsp) RING_COPY_(RESPONSE, r, idx, rsp)
  
--	/*
--	 * Destroy all already created segments, that were not yet mapped,
--	 * and mark any mapped as orphan to cover the sysctl toggling.
--	 * Destroy is skipped if shm_may_destroy() returns false.
--	 */
--	down_write(&shm_ids(ns).rwsem);
--	list_for_each_entry_safe(shp, n, &task->sysvshm.shm_clist, shm_clist) {
--		shp->shm_creator = NULL;
-+		/*
-+		 * 2) If kernel.shm_rmid_forced is not set then only keep track of
-+		 * which shmids are orphaned, so that a later set of the sysctl
-+		 * can clean them up.
-+		 */
-+		if (!ns->shm_rmid_forced)
-+			goto unlink_continue;
+ /* Loop termination condition: Would the specified index overflow the ring? */
+-#define RING_REQUEST_CONS_OVERFLOW(_r, _cons)				\
++#define RING_REQUEST_CONS_OVERFLOW(_r, _cons)                           \
+     (((_cons) - (_r)->rsp_prod_pvt) >= RING_SIZE(_r))
  
--		if (shm_may_destroy(ns, shp)) {
--			shm_lock_by_ptr(shp);
--			shm_destroy(ns, shp);
-+		/*
-+		 * 3) get a reference to the namespace.
-+		 *    The refcount could be already 0. If it is 0, then
-+		 *    the shm objects will be free by free_ipc_work().
-+		 */
-+		ns = get_ipc_ns_not_zero(ns);
-+		if (!ns) {
-+unlink_continue:
-+			list_del_init(&shp->shm_clist);
-+			task_unlock(task);
-+			continue;
- 		}
--	}
+ /* Ill-behaved frontend determination: Can there be this many requests? */
+-#define RING_REQUEST_PROD_OVERFLOW(_r, _prod)               \
++#define RING_REQUEST_PROD_OVERFLOW(_r, _prod)                           \
+     (((_prod) - (_r)->rsp_prod_pvt) > RING_SIZE(_r))
  
--	/* Remove the list head from any segments still attached. */
--	list_del(&task->sysvshm.shm_clist);
--	up_write(&shm_ids(ns).rwsem);
-+		/*
-+		 * 4) get a reference to shp.
-+		 *   This cannot fail: shm_clist_rm() is called before
-+		 *   ipc_rmid(), thus the refcount cannot be 0.
-+		 */
-+		WARN_ON(!ipc_rcu_getref(&shp->shm_perm));
+-
+-#define RING_PUSH_REQUESTS(_r) do {					\
+-    wmb(); /* back sees requests /before/ updated producer index */	\
+-    (_r)->sring->req_prod = (_r)->req_prod_pvt;				\
++/* Ill-behaved backend determination: Can there be this many responses? */
++#define RING_RESPONSE_PROD_OVERFLOW(_r, _prod)                          \
++    (((_prod) - (_r)->rsp_cons) > RING_SIZE(_r))
 +
-+		/*
-+		 * 5) unlink the shm segment from the list of segments
-+		 *    created by current.
-+		 *    This must be done last. After unlinking,
-+		 *    only the refcounts obtained above prevent IPC_RMID
-+		 *    from destroying the segment or the namespace.
-+		 */
-+		list_del_init(&shp->shm_clist);
-+
-+		task_unlock(task);
-+
-+		/*
-+		 * 6) we have all references
-+		 *    Thus lock & if needed destroy shp.
-+		 */
-+		down_write(&shm_ids(ns).rwsem);
-+		shm_lock_by_ptr(shp);
-+		/*
-+		 * rcu_read_lock was implicitly taken in shm_lock_by_ptr, it's
-+		 * safe to call ipc_rcu_putref here
-+		 */
-+		ipc_rcu_putref(&shp->shm_perm, shm_rcu_free);
-+
-+		if (ipc_valid_object(&shp->shm_perm)) {
-+			if (shm_may_destroy(shp))
-+				shm_destroy(ns, shp);
-+			else
-+				shm_unlock(shp);
-+		} else {
-+			/*
-+			 * Someone else deleted the shp from namespace
-+			 * idr/kht while we have waited.
-+			 * Just unlock and continue.
-+			 */
-+			shm_unlock(shp);
-+		}
-+
-+		up_write(&shm_ids(ns).rwsem);
-+		put_ipc_ns(ns); /* paired with get_ipc_ns_not_zero */
-+	}
- }
++#define RING_PUSH_REQUESTS(_r) do {                                    \
++    wmb(); /* back sees requests /before/ updated producer index */    \
++    (_r)->sring->req_prod = (_r)->req_prod_pvt;                        \
+ } while (0)
  
- static int shm_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
-@@ -607,7 +690,11 @@ static int newseg(struct ipc_namespace *
- 		goto no_id;
- 	}
+-#define RING_PUSH_RESPONSES(_r) do {					\
+-    wmb(); /* front sees responses /before/ updated producer index */	\
+-    (_r)->sring->rsp_prod = (_r)->rsp_prod_pvt;				\
++#define RING_PUSH_RESPONSES(_r) do {                                   \
++    wmb(); /* front sees resps /before/ updated producer index */      \
++    (_r)->sring->rsp_prod = (_r)->rsp_prod_pvt;                        \
+ } while (0)
  
-+	shp->ns = ns;
-+
-+	task_lock(current);
- 	list_add(&shp->shm_clist, &current->sysvshm.shm_clist);
-+	task_unlock(current);
+ /*
+@@ -247,40 +238,40 @@ struct __name##_back_ring {						\
+  *  field appropriately.
+  */
  
- 	/*
- 	 * shmid gets reported as "inode#" in /proc/pid/maps.
-@@ -1252,7 +1339,8 @@ out_nattch:
- 	down_write(&shm_ids(ns).rwsem);
- 	shp = shm_lock(ns, shmid);
- 	shp->shm_nattch--;
--	if (shm_may_destroy(ns, shp))
+-#define RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(_r, _notify) do {		\
+-    RING_IDX __old = (_r)->sring->req_prod;				\
+-    RING_IDX __new = (_r)->req_prod_pvt;				\
+-    wmb(); /* back sees requests /before/ updated producer index */	\
+-    (_r)->sring->req_prod = __new;					\
+-    mb(); /* back sees new requests /before/ we check req_event */	\
+-    (_notify) = ((RING_IDX)(__new - (_r)->sring->req_event) <		\
+-		 (RING_IDX)(__new - __old));				\
+-} while (0)
+-
+-#define RING_PUSH_RESPONSES_AND_CHECK_NOTIFY(_r, _notify) do {		\
+-    RING_IDX __old = (_r)->sring->rsp_prod;				\
+-    RING_IDX __new = (_r)->rsp_prod_pvt;				\
+-    wmb(); /* front sees responses /before/ updated producer index */	\
+-    (_r)->sring->rsp_prod = __new;					\
+-    mb(); /* front sees new responses /before/ we check rsp_event */	\
+-    (_notify) = ((RING_IDX)(__new - (_r)->sring->rsp_event) <		\
+-		 (RING_IDX)(__new - __old));				\
+-} while (0)
+-
+-#define RING_FINAL_CHECK_FOR_REQUESTS(_r, _work_to_do) do {		\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
+-    if (_work_to_do) break;						\
+-    (_r)->sring->req_event = (_r)->req_cons + 1;			\
+-    mb();								\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
+-} while (0)
+-
+-#define RING_FINAL_CHECK_FOR_RESPONSES(_r, _work_to_do) do {		\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
+-    if (_work_to_do) break;						\
+-    (_r)->sring->rsp_event = (_r)->rsp_cons + 1;			\
+-    mb();								\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
++#define RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(_r, _notify) do {          \
++    RING_IDX __old = (_r)->sring->req_prod;                            \
++    RING_IDX __new = (_r)->req_prod_pvt;                               \
++    wmb(); /* back sees requests /before/ updated producer index */    \
++    (_r)->sring->req_prod = __new;                                     \
++    mb(); /* back sees new requests /before/ we check req_event */     \
++    (_notify) = ((RING_IDX)(__new - (_r)->sring->req_event) <          \
++                 (RING_IDX)(__new - __old));                           \
++} while (0)
 +
-+	if (shm_may_destroy(shp))
- 		shm_destroy(ns, shp);
- 	else
- 		shm_unlock(shp);
++#define RING_PUSH_RESPONSES_AND_CHECK_NOTIFY(_r, _notify) do {         \
++    RING_IDX __old = (_r)->sring->rsp_prod;                            \
++    RING_IDX __new = (_r)->rsp_prod_pvt;                               \
++    wmb(); /* front sees resps /before/ updated producer index */      \
++    (_r)->sring->rsp_prod = __new;                                     \
++    mb(); /* front sees new resps /before/ we check rsp_event */       \
++    (_notify) = ((RING_IDX)(__new - (_r)->sring->rsp_event) <          \
++                 (RING_IDX)(__new - __old));                           \
++} while (0)
++
++#define RING_FINAL_CHECK_FOR_REQUESTS(_r, _work_to_do) do {            \
++    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);                  \
++    if (_work_to_do) break;                                            \
++    (_r)->sring->req_event = (_r)->req_cons + 1;                       \
++    mb();                                                              \
++    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);                  \
++} while (0)
++
++#define RING_FINAL_CHECK_FOR_RESPONSES(_r, _work_to_do) do {           \
++    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);                 \
++    if (_work_to_do) break;                                            \
++    (_r)->sring->rsp_event = (_r)->rsp_cons + 1;                       \
++    mb();                                                              \
++    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);                 \
+ } while (0)
+ 
+ #endif /* __XEN_PUBLIC_IO_RING_H__ */
 
 
