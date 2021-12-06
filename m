@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F3A469C03
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF541469E1D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358103AbhLFPTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:19:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36460 "EHLO
+        id S1350649AbhLFPgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:36:20 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48156 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347767AbhLFPRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:25 -0500
+        with ESMTP id S1387877AbhLFPcB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60DC06134B;
-        Mon,  6 Dec 2021 15:13:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 440F0C341C5;
-        Mon,  6 Dec 2021 15:13:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C965D6132A;
+        Mon,  6 Dec 2021 15:28:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB0DC34901;
+        Mon,  6 Dec 2021 15:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803635;
-        bh=ohFr6CkPRRj1nsr4hi0r+BAAWbERw9tYTaXjFmTPq4E=;
+        s=korg; t=1638804512;
+        bh=2ShyBfhNKhTojNtGZoMi+Kkr4HOEAiks/BUaYV0mTgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmit5fxxWKoUOEcmXfZWRFObTcSkfy/w5kAiUczHypRWhXT15TaR7bVJPZfBQ1900
-         DzYfLv1E8OBBfrdhgWovRHsjtMGRWSQKFJ0g2geYNG9EVgl4oA7pjtMnoi3ppNDaxa
-         WJI7oyHyGJfOovcfM4IbaOuRyU4ANwcFjgsDE0io=
+        b=ZClk8nS1r5huO3q7Qt2GlvqlHcEcStMi+7TxJS4Nymhr2hLMpbjVz5evUb91U/Re2
+         W1g5wgERO3KHNNmNIFmwo3A/ytt69F32e6mrDC3hHq3OeEqyaNc+zidR6dpUwkbrAm
+         Eg7zTDsj97Rvbq9vF/j3VAjzN9wCzfTlLP55hFGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.4 31/70] sata_fsl: fix warning in remove_proc_entry when rmmod sata_fsl
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Jian-Hong Pan <jhp@endlessos.org>
+Subject: [PATCH 5.15 141/207] drm/vc4: kms: Add missing drm_crtc_commit_put
 Date:   Mon,  6 Dec 2021 15:56:35 +0100
-Message-Id: <20211206145552.997662162@linuxfoundation.org>
+Message-Id: <20211206145615.114552684@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 6f48394cf1f3e8486591ad98c11cdadb8f1ef2ad upstream.
+commit 049cfff8d53a30cae3349ff71a4c01b7d9981bc2 upstream.
 
-Trying to remove the fsl-sata module in the PPC64 GNU/Linux
-leads to the following warning:
- ------------[ cut here ]------------
- remove_proc_entry: removing non-empty directory 'irq/69',
-   leaking at least 'fsl-sata[ff0221000.sata]'
- WARNING: CPU: 3 PID: 1048 at fs/proc/generic.c:722
-   .remove_proc_entry+0x20c/0x220
- IRQMASK: 0
- NIP [c00000000033826c] .remove_proc_entry+0x20c/0x220
- LR [c000000000338268] .remove_proc_entry+0x208/0x220
- Call Trace:
-  .remove_proc_entry+0x208/0x220 (unreliable)
-  .unregister_irq_proc+0x104/0x140
-  .free_desc+0x44/0xb0
-  .irq_free_descs+0x9c/0xf0
-  .irq_dispose_mapping+0x64/0xa0
-  .sata_fsl_remove+0x58/0xa0 [sata_fsl]
-  .platform_drv_remove+0x40/0x90
-  .device_release_driver_internal+0x160/0x2c0
-  .driver_detach+0x64/0xd0
-  .bus_remove_driver+0x70/0xf0
-  .driver_unregister+0x38/0x80
-  .platform_driver_unregister+0x14/0x30
-  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
- ---[ end trace 0ea876d4076908f5 ]---
+Commit 9ec03d7f1ed3 ("drm/vc4: kms: Wait on previous FIFO users before a
+commit") introduced a global state for the HVS, with each FIFO storing
+the current CRTC commit so that we can properly synchronize commits.
 
-The driver creates the mapping by calling irq_of_parse_and_map(),
-so it also has to dispose the mapping. But the easy way out is to
-simply use platform_get_irq() instead of irq_of_parse_map(). Also
-we should adapt return value checking and propagate error values.
+However, the refcounting was off and we thus ended up leaking the
+drm_crtc_commit structure every commit. Add a drm_crtc_commit_put to
+prevent the leakage.
 
-In this case the mapping is not managed by the device but by
-the of core, so the device has not to dispose the mapping.
-
-Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 9ec03d7f1ed3 ("drm/vc4: kms: Wait on previous FIFO users before a commit")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Tested-by: Jian-Hong Pan <jhp@endlessos.org>
+Link: https://lore.kernel.org/r/20211117094527.146275-4-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_fsl.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/vc4/vc4_kms.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/ata/sata_fsl.c
-+++ b/drivers/ata/sata_fsl.c
-@@ -1490,9 +1490,9 @@ static int sata_fsl_probe(struct platfor
- 	host_priv->ssr_base = ssr_base;
- 	host_priv->csr_base = csr_base;
+--- a/drivers/gpu/drm/vc4/vc4_kms.c
++++ b/drivers/gpu/drm/vc4/vc4_kms.c
+@@ -361,6 +361,7 @@ static void vc4_atomic_commit_tail(struc
+ 		struct vc4_crtc_state *vc4_crtc_state =
+ 			to_vc4_crtc_state(old_crtc_state);
+ 		unsigned int channel = vc4_crtc_state->assigned_channel;
++		struct drm_crtc_commit *commit;
+ 		int ret;
  
--	irq = irq_of_parse_and_map(ofdev->dev.of_node, 0);
--	if (!irq) {
--		dev_err(&ofdev->dev, "invalid irq from platform\n");
-+	irq = platform_get_irq(ofdev, 0);
-+	if (irq < 0) {
-+		retval = irq;
- 		goto error_exit_with_cleanup;
+ 		if (channel == VC4_HVS_CHANNEL_DISABLED)
+@@ -369,9 +370,15 @@ static void vc4_atomic_commit_tail(struc
+ 		if (!old_hvs_state->fifo_state[channel].in_use)
+ 			continue;
+ 
+-		ret = drm_crtc_commit_wait(old_hvs_state->fifo_state[channel].pending_commit);
++		commit = old_hvs_state->fifo_state[channel].pending_commit;
++		if (!commit)
++			continue;
++
++		ret = drm_crtc_commit_wait(commit);
+ 		if (ret)
+ 			drm_err(dev, "Timed out waiting for commit\n");
++
++		drm_crtc_commit_put(commit);
  	}
- 	host_priv->irq = irq;
-@@ -1567,8 +1567,6 @@ static int sata_fsl_remove(struct platfo
  
- 	ata_host_detach(host);
- 
--	irq_dispose_mapping(host_priv->irq);
--
- 	return 0;
- }
- 
+ 	if (vc4->hvs->hvs5)
 
 
