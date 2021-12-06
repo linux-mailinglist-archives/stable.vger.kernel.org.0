@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA517469C94
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0469D4699FD
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243133AbhLFPXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:23:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53322 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346729AbhLFPTr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:47 -0500
+        id S1345435AbhLFPEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:04:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345260AbhLFPEI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3329CC0698C8;
+        Mon,  6 Dec 2021 07:00:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECB4EB8101C;
-        Mon,  6 Dec 2021 15:16:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41C26C341C2;
-        Mon,  6 Dec 2021 15:16:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F18C1B8110B;
+        Mon,  6 Dec 2021 15:00:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24CB6C341C2;
+        Mon,  6 Dec 2021 15:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803775;
-        bh=TzrBPBsGzAXOiSwJk2H2Hk2ZG6Ep75URO8rI4RVLqcs=;
+        s=korg; t=1638802827;
+        bh=wLfB4vVvdp+48s32KDlvXqV7pY6b374i+XhzZfsZRt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5v1sQ9ETMMNfQ6Z02Mi2HPz4HrnXmZqFMTt32aUTJdAf8bpTuI82T8vpohDiYx+U
-         HAoCfcAozhvDmy2IcTtoSksDkSZCON9KGV5fLYqdYvZCI/oFfIGg57xDCn8+7M4GM8
-         6qHHmpOEg5pnFka23OSDiX+bLaEUZ/BFWDN7QUF8=
+        b=L/WYLH8PJAnjjOvLXep0zPFO14GdgOKcnVApPx9ARmhfEI4ymvTha1rN1jGz47SCz
+         /Cw13X56T370hBPtqL+8Nh/hh+MtaW6RCQF5dIPN529KMt6r6Rq5TikrNQsRgU4et+
+         7mMTZnjU0okU3cpBLRHXfRPu7BpfiSd8PjQH+h+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Lai Jiangshan <jiangshanlai+lkml@gmail.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 043/130] KVM: nVMX: Flush current VPID (L1 vs. L2) for KVM_REQ_TLB_FLUSH_GUEST
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 16/52] scsi: mpt3sas: Fix kernel panic during drive powercycle test
 Date:   Mon,  6 Dec 2021 15:56:00 +0100
-Message-Id: <20211206145601.168519126@linuxfoundation.org>
+Message-Id: <20211206145548.455879135@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
+References: <20211206145547.892668902@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,81 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-commit 2b4a5a5d56881ece3c66b9a9a8943a6f41bd7349 upstream.
+[ Upstream commit 0ee4ba13e09c9d9c1cb6abb59da8295d9952328b ]
 
-Flush the current VPID when handling KVM_REQ_TLB_FLUSH_GUEST instead of
-always flushing vpid01.  Any TLB flush that is triggered when L2 is
-active is scoped to L2's VPID (if it has one), e.g. if L2 toggles CR4.PGE
-and L1 doesn't intercept PGE writes, then KVM's emulation of the TLB
-flush needs to be applied to L2's VPID.
+While looping over shost's sdev list it is possible that one
+of the drives is getting removed and its sas_target object is
+freed but its sdev object remains intact.
 
-Reported-by: Lai Jiangshan <jiangshanlai+lkml@gmail.com>
-Fixes: 07ffaf343e34 ("KVM: nVMX: Sync all PGDs on nested transition with shadow paging")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211125014944.536398-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Consequently, a kernel panic can occur while the driver is trying to access
+the sas_address field of sas_target object without also checking the
+sas_target object for NULL.
+
+Link: https://lore.kernel.org/r/20211117104909.2069-1-sreekanth.reddy@broadcom.com
+Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2908,6 +2908,13 @@ static void vmx_flush_tlb_all(struct kvm
- 	}
- }
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index 49b751a8f5f3b..0e39bb1489ac7 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -2904,7 +2904,7 @@ _scsih_ublock_io_device(struct MPT3SAS_ADAPTER *ioc, u64 sas_address)
  
-+static inline int vmx_get_current_vpid(struct kvm_vcpu *vcpu)
-+{
-+	if (is_guest_mode(vcpu))
-+		return nested_get_vpid02(vcpu);
-+	return to_vmx(vcpu)->vpid;
-+}
-+
- static void vmx_flush_tlb_current(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_mmu *mmu = vcpu->arch.mmu;
-@@ -2920,31 +2927,29 @@ static void vmx_flush_tlb_current(struct
- 	if (enable_ept)
- 		ept_sync_context(construct_eptp(vcpu, root_hpa,
- 						mmu->shadow_root_level));
--	else if (!is_guest_mode(vcpu))
--		vpid_sync_context(to_vmx(vcpu)->vpid);
- 	else
--		vpid_sync_context(nested_get_vpid02(vcpu));
-+		vpid_sync_context(vmx_get_current_vpid(vcpu));
- }
- 
- static void vmx_flush_tlb_gva(struct kvm_vcpu *vcpu, gva_t addr)
- {
- 	/*
--	 * vpid_sync_vcpu_addr() is a nop if vmx->vpid==0, see the comment in
-+	 * vpid_sync_vcpu_addr() is a nop if vpid==0, see the comment in
- 	 * vmx_flush_tlb_guest() for an explanation of why this is ok.
- 	 */
--	vpid_sync_vcpu_addr(to_vmx(vcpu)->vpid, addr);
-+	vpid_sync_vcpu_addr(vmx_get_current_vpid(vcpu), addr);
- }
- 
- static void vmx_flush_tlb_guest(struct kvm_vcpu *vcpu)
- {
- 	/*
--	 * vpid_sync_context() is a nop if vmx->vpid==0, e.g. if enable_vpid==0
--	 * or a vpid couldn't be allocated for this vCPU.  VM-Enter and VM-Exit
--	 * are required to flush GVA->{G,H}PA mappings from the TLB if vpid is
-+	 * vpid_sync_context() is a nop if vpid==0, e.g. if enable_vpid==0 or a
-+	 * vpid couldn't be allocated for this vCPU.  VM-Enter and VM-Exit are
-+	 * required to flush GVA->{G,H}PA mappings from the TLB if vpid is
- 	 * disabled (VM-Enter with vpid enabled and vpid==0 is disallowed),
- 	 * i.e. no explicit INVVPID is necessary.
- 	 */
--	vpid_sync_context(to_vmx(vcpu)->vpid);
-+	vpid_sync_context(vmx_get_current_vpid(vcpu));
- }
- 
- void vmx_ept_load_pdptrs(struct kvm_vcpu *vcpu)
+ 	shost_for_each_device(sdev, ioc->shost) {
+ 		sas_device_priv_data = sdev->hostdata;
+-		if (!sas_device_priv_data)
++		if (!sas_device_priv_data || !sas_device_priv_data->sas_target)
+ 			continue;
+ 		if (sas_device_priv_data->sas_target->sas_address
+ 		    != sas_address)
+-- 
+2.33.0
+
 
 
