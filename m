@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50FBB46AA08
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:19:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C72646AA0B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:19:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243031AbhLFVXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:23:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58678 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350972AbhLFVW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:22:59 -0500
+        id S1348362AbhLFVXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:23:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60252 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350387AbhLFVXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:23:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10147C0613F8;
+        Mon,  6 Dec 2021 13:19:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB254B81084;
-        Mon,  6 Dec 2021 21:19:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF44C341C8;
-        Mon,  6 Dec 2021 21:19:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CBD1DB81084;
+        Mon,  6 Dec 2021 21:19:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91DCC341C6;
+        Mon,  6 Dec 2021 21:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825566;
-        bh=67IQHyjtgvsS8cup5Ojt+DPWEsjdJNnKB4Pxob3ISXE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYOwd/N/NIWvT5TldHPdDiL8ocCcGHltCZ9RMArC4HOYpsR8T5h6gxs7+Kq3PqNlL
-         3JOwAFkqjYi+/Xfvt8xtHCTlTZ+t2q091H+nPvbdzbg8YGNNU21Fg7KwCJbmIQ1oUu
-         35bISQIy1HX7PdsKqGlxpZLJZZp2ySByquGkBKkP5MMJNYoiZCv+TTuctWXmYDu1sK
-         o8YVhVsN08OTZeYcj/wGmlE4o/vuR3VGj8y77rk/NALbchLdwOCL/u0XNipwpsFZb4
-         1PNkmLOQl9fI5eL/aujz11qo8Q9yVBQsymCLRwNPwVTbOS8kk6NT0gnNWxwkBMGovu
-         cFzRfTCIqr4jA==
+        s=k20201202; t=1638825579;
+        bh=DmOPVP8gRAHwDRltcXtrVdNkEkqCVs90JbwOIXSNKbo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fOwM96AfHixlDO63YdHqT7GCMt6/UPu7HMXWw6p8J8E0g45Ls9vJTYr44CWyCUhpD
+         j0d5cL8YeFbitifMNUaqcJjfUiZE1is5rk+rihr26kFnk4YTWgV7kcv56bfKyC2qWs
+         x9e2eI7XokpzACAeBACBJU0+12ZZh/tVOrqGhJgw3R2aX5Ex7CMHRIGl8oSPeXRsvi
+         maMQpAIwE80MANBym7ViS8u5MOt2n/bR/0Eh23GzRiYYL7JT8MBwc5fYgM/R6whqVA
+         tqzddT92olZCT5vz5xAAwXW9XzRGvWWxyDVM0G/37mQyYn6fC3DyA5nxIdEx3khIP/
+         v8jG30P7QoQmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chen Jun <chenjun102@huawei.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com
-Subject: [PATCH AUTOSEL 5.4 10/10] tracing: Fix a kmemleak false positive in tracing_map
-Date:   Mon,  6 Dec 2021 16:17:29 -0500
-Message-Id: <20211206211738.1661003-10-sashal@kernel.org>
+Cc:     Philip Chen <philipchen@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
+        sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch,
+        dmitry.baryshkov@linaro.org, abhinavk@codeaurora.org,
+        bjorn.andersson@linaro.org, jonathan@marek.ca,
+        jesszhan@codeaurora.org, vulab@iscas.ac.cn, tiny.windzz@gmail.com,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 1/7] drm/msm/dsi: set default num_data_lanes
+Date:   Mon,  6 Dec 2021 16:19:21 -0500
+Message-Id: <20211206211934.1661294-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211206211738.1661003-1-sashal@kernel.org>
-References: <20211206211738.1661003-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,101 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jun <chenjun102@huawei.com>
+From: Philip Chen <philipchen@chromium.org>
 
-[ Upstream commit f25667e5980a4333729cac3101e5de1bb851f71a ]
+[ Upstream commit cd92cc187c053ab010a1570e2d61d68394a5c725 ]
 
-Doing the command:
-  echo 'hist:key=common_pid.execname,common_timestamp' > /sys/kernel/debug/tracing/events/xxx/trigger
+If "data_lanes" property of the dsi output endpoint is missing in
+the DT, num_data_lanes would be 0 by default, which could cause
+dsi_host_attach() to fail if dsi->lanes is set to a non-zero value
+by the bridge driver.
 
-Triggers many kmemleak reports:
+According to the binding document of msm dsi controller, the
+input/output endpoint of the controller is expected to have 4 lanes.
+So let's set num_data_lanes to 4 by default.
 
-unreferenced object 0xffff0000c7ea4980 (size 128):
-  comm "bash", pid 338, jiffies 4294912626 (age 9339.324s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000f3469921>] kmem_cache_alloc_trace+0x4c0/0x6f0
-    [<0000000054ca40c3>] hist_trigger_elt_data_alloc+0x140/0x178
-    [<00000000633bd154>] tracing_map_init+0x1f8/0x268
-    [<000000007e814ab9>] event_hist_trigger_func+0xca0/0x1ad0
-    [<00000000bf8520ed>] trigger_process_regex+0xd4/0x128
-    [<00000000f549355a>] event_trigger_write+0x7c/0x120
-    [<00000000b80f898d>] vfs_write+0xc4/0x380
-    [<00000000823e1055>] ksys_write+0x74/0xf8
-    [<000000008a9374aa>] __arm64_sys_write+0x24/0x30
-    [<0000000087124017>] do_el0_svc+0x88/0x1c0
-    [<00000000efd0dcd1>] el0_svc+0x1c/0x28
-    [<00000000dbfba9b3>] el0_sync_handler+0x88/0xc0
-    [<00000000e7399680>] el0_sync+0x148/0x180
-unreferenced object 0xffff0000c7ea4980 (size 128):
-  comm "bash", pid 338, jiffies 4294912626 (age 9339.324s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000f3469921>] kmem_cache_alloc_trace+0x4c0/0x6f0
-    [<0000000054ca40c3>] hist_trigger_elt_data_alloc+0x140/0x178
-    [<00000000633bd154>] tracing_map_init+0x1f8/0x268
-    [<000000007e814ab9>] event_hist_trigger_func+0xca0/0x1ad0
-    [<00000000bf8520ed>] trigger_process_regex+0xd4/0x128
-    [<00000000f549355a>] event_trigger_write+0x7c/0x120
-    [<00000000b80f898d>] vfs_write+0xc4/0x380
-    [<00000000823e1055>] ksys_write+0x74/0xf8
-    [<000000008a9374aa>] __arm64_sys_write+0x24/0x30
-    [<0000000087124017>] do_el0_svc+0x88/0x1c0
-    [<00000000efd0dcd1>] el0_svc+0x1c/0x28
-    [<00000000dbfba9b3>] el0_sync_handler+0x88/0xc0
-    [<00000000e7399680>] el0_sync+0x148/0x180
-
-The reason is elts->pages[i] is alloced by get_zeroed_page.
-and kmemleak will not scan the area alloced by get_zeroed_page.
-The address stored in elts->pages will be regarded as leaked.
-
-That is, the elts->pages[i] will have pointers loaded onto it as well, and
-without telling kmemleak about it, those pointers will look like memory
-without a reference.
-
-To fix this, call kmemleak_alloc to tell kmemleak to scan elts->pages[i]
-
-Link: https://lkml.kernel.org/r/20211124140801.87121-1-chenjun102@huawei.com
-
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Philip Chen <philipchen@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20211030100812.1.I6cd9af36b723fed277d34539d3b2ba4ca233ad2d@changeid
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/tracing_map.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
-index 10657b8dc2c2d..83c2a0598c648 100644
---- a/kernel/trace/tracing_map.c
-+++ b/kernel/trace/tracing_map.c
-@@ -15,6 +15,7 @@
- #include <linux/jhash.h>
- #include <linux/slab.h>
- #include <linux/sort.h>
-+#include <linux/kmemleak.h>
- 
- #include "tracing_map.h"
- #include "trace.h"
-@@ -307,6 +308,7 @@ void tracing_map_array_free(struct tracing_map_array *a)
- 	for (i = 0; i < a->n_pages; i++) {
- 		if (!a->pages[i])
- 			break;
-+		kmemleak_free(a->pages[i]);
- 		free_page((unsigned long)a->pages[i]);
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 77dae147caf90..9abfb19ea7ede 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1677,6 +1677,8 @@ static int dsi_host_parse_lane_data(struct msm_dsi_host *msm_host,
+ 	if (!prop) {
+ 		dev_dbg(dev,
+ 			"failed to find data lane mapping, using default\n");
++		/* Set the number of date lanes to 4 by default. */
++		msm_host->num_data_lanes = 4;
+ 		return 0;
  	}
  
-@@ -342,6 +344,7 @@ struct tracing_map_array *tracing_map_array_alloc(unsigned int n_elts,
- 		a->pages[i] = (void *)get_zeroed_page(GFP_KERNEL);
- 		if (!a->pages[i])
- 			goto free;
-+		kmemleak_alloc(a->pages[i], PAGE_SIZE, 1, GFP_KERNEL);
- 	}
-  out:
- 	return a;
 -- 
 2.33.0
 
