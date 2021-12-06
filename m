@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63BB3469E6C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 891CB469D53
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385583AbhLFPiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:38:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378673AbhLFPgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:36:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0988C09CE47;
-        Mon,  6 Dec 2021 07:21:53 -0800 (PST)
+        id S230354AbhLFP3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:29:09 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41576 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1385534AbhLFPZX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:25:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C480B8111D;
-        Mon,  6 Dec 2021 15:21:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B42EDC341C1;
-        Mon,  6 Dec 2021 15:21:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 922CA612D3;
+        Mon,  6 Dec 2021 15:21:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78498C341C6;
+        Mon,  6 Dec 2021 15:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804111;
-        bh=UtV9L2j80McXabyILMCllLJyejamau41L+YIDDXnLX8=;
+        s=korg; t=1638804114;
+        bh=BlMii64HDJCaC92Mm5g1HBrpyBkQPk6BAJyffq0fCVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jeq4/V6dj7HjM8I5T7rC+tTdoRZII0wG2JMFKIf5TTnk4Sh3NP28IH0u0DQ7I98/B
-         QVpoIANgvnjwLXx2vYr9UTdIVaneJDl5sSJMAqtTdXsHG70HKO+3l7E5x9YOU7tCdb
-         YkpFpilrzw8CpodbcML+8M5FPaPyHVg85n4N5hkA=
+        b=wl4pqy3m+30G8/VurFLw+4LWGV/YbEeZRUZmFbqn6krUmOgvJfzwHxZgAZ9+iJ0LW
+         stamFfzvFkcc8aEMgD8FXMLac3gIeCFa5OSDXQuDTBh6d4awzA2org+7PE1JuBFDAe
+         gVgN5w1wl+T0iT3sxoiJPxrc+URsIWsEf2j+bM2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 003/207] ALSA: usb-audio: Disable low-latency playback for free-wheel mode
-Date:   Mon,  6 Dec 2021 15:54:17 +0100
-Message-Id: <20211206145610.297918781@linuxfoundation.org>
+Subject: [PATCH 5.15 004/207] ALSA: usb-audio: Disable low-latency mode for implicit feedback sync
+Date:   Mon,  6 Dec 2021 15:54:18 +0100
+Message-Id: <20211206145610.335267634@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -48,50 +45,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit e581f1cec4f899f788f6c9477f805b1d5fef25e2 upstream.
+commit bceee75387554f682638e719d1ea60125ea78cea upstream.
 
-The free-wheel stream operation like dmix may not update the appl_ptr
-appropriately, and it doesn't fit with the low-latency playback mode.
-Disable the low-latency playback operation when the stream is set up
-in such a mode.
+When a playback stream runs in the implicit feedback mode, its
+operation is passive and won't start unless the capture packet is
+received.  This behavior contradicts with the low-latency playback
+mode, and we should turn off lowlatency_playback flag accordingly.
 
-Link: https://lore.kernel.org/r/20210929080844.11583-5-tiwai@suse.de
+In theory, we may take the low-latency mode when the playback-first
+quirk is set, but it still conflicts with the later operation with the
+fixed packet numbers, so it's disabled all together for now.
+
+Link: https://lore.kernel.org/r/20210929080844.11583-6-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/pcm.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/usb/pcm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
 --- a/sound/usb/pcm.c
 +++ b/sound/usb/pcm.c
-@@ -582,7 +582,8 @@ static int snd_usb_hw_free(struct snd_pc
- }
- 
- /* check whether early start is needed for playback stream */
--static int lowlatency_playback_available(struct snd_usb_substream *subs)
-+static int lowlatency_playback_available(struct snd_pcm_runtime *runtime,
-+					 struct snd_usb_substream *subs)
- {
- 	struct snd_usb_audio *chip = subs->stream->chip;
- 
-@@ -591,6 +592,9 @@ static int lowlatency_playback_available
- 	/* disabled via module option? */
- 	if (!chip->lowlatency)
+@@ -595,6 +595,9 @@ static int lowlatency_playback_available
+ 	/* free-wheeling mode? (e.g. dmix) */
+ 	if (runtime->stop_threshold > runtime->buffer_size)
  		return false;
-+	/* free-wheeling mode? (e.g. dmix) */
-+	if (runtime->stop_threshold > runtime->buffer_size)
++	/* implicit feedback mode has own operation mode */
++	if (snd_usb_endpoint_implicit_feedback_sink(subs->data_endpoint))
 +		return false;
  	/* too short periods? */
  	if (subs->data_endpoint->nominal_queue_size >= subs->buffer_bytes)
  		return false;
-@@ -630,7 +634,7 @@ static int snd_usb_pcm_prepare(struct sn
- 	subs->period_elapsed_pending = 0;
- 	runtime->delay = 0;
- 
--	subs->lowlatency_playback = lowlatency_playback_available(subs);
-+	subs->lowlatency_playback = lowlatency_playback_available(runtime, subs);
- 	if (!subs->lowlatency_playback)
- 		ret = start_endpoints(subs);
- 
 
 
