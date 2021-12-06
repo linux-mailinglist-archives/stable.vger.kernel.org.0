@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3484946A9B9
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:16:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A77D46A9BB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350712AbhLFVTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:19:41 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47962 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350954AbhLFVTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:19:22 -0500
+        id S1350899AbhLFVTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:19:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350916AbhLFVTY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:19:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 448C6C0698D1;
+        Mon,  6 Dec 2021 13:15:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A8217CE185C;
-        Mon,  6 Dec 2021 21:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3CF1C341C6;
-        Mon,  6 Dec 2021 21:15:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8CC77CE1864;
+        Mon,  6 Dec 2021 21:15:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B6DC341C8;
+        Mon,  6 Dec 2021 21:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825349;
-        bh=CtcKASc9UMnknSvliK8E7YX1Ljqy0C2xHCE6Xh0Ics8=;
+        s=k20201202; t=1638825351;
+        bh=ELH+il2Mf3EsnMMFH+0Rbjv4Z0olnhBGcL9NmlJwzNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SL2CzDCOx1kS7dquvVh1H2GJx7AIIWg9YHwPMpmVimpB+X9Y4KtQ6T0z/btBs4Z9g
-         BtaYqFZDNyh7otyphtv+C9DD9uytmvZUJ90Sp/VsTIV1mS+IowBcfSVP0YIf2cMex4
-         x7mwDpsP9WcGkz6FhDSfQZCudVQpKEpr+HFiFS5st612qF5lEBJujjYy+iYId9xMXg
-         6TYlOCT5tueEfH64D6vlQ1c5sXLT0tQDBYSJbJmCEaIe5+wl+xWoWDYnKEPabNAW73
-         FsJGWiOd2rl5ZNVtGVXMccRvSP/foaXJbRiQApdbY1OiYr6SPoRIi/JU+iWRIYkGo0
-         6izF6nJGS4vgw==
+        b=Jjr9Jv5nxDVIdYkaDZOyqk7i1XXMqrTAc9r5woNX8K74SZo+I0DgvupDOnW3qkkon
+         KnBex+eU7LdoMnO1xZ8vIJtMfaWzi5BkhWvrDLGtsvcG8myy8qc8Js6WUL2XD7SXJT
+         kIK2cM+mUpl2w1Ezr2y/82oben6fxnro6RUZvgB1JqAOUC7JLDXS8cuMk7FW8lUOmy
+         COoain1vguuI8bH4Vl9HmzhG7Z9WhHXS/nilAavUb4Kse7g+5zU2THRmpn5VAym4+P
+         vGkTk2v02rfSJP/1tAQxqG7KdZZms1dbEMtXpBbD6hnN8iFoUNYRRztH6FVX92afGj
+         lLXfduzbBAnkg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilie Halip <ilie.halip@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        borntraeger@linux.ibm.com, nathan@kernel.org, svens@linux.ibm.com,
-        iii@linux.ibm.com, meted@linux.ibm.com, linux-s390@vger.kernel.org,
-        llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 03/15] s390/test_unwind: use raw opcode instead of invalid instruction
-Date:   Mon,  6 Dec 2021 16:15:03 -0500
-Message-Id: <20211206211520.1660478-3-sashal@kernel.org>
+Cc:     Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Peng Fan <peng.fan@nxp.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
+        linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/15] Revert "tty: serial: fsl_lpuart: drop earlycon entry for i.MX8QXP"
+Date:   Mon,  6 Dec 2021 16:15:04 -0500
+Message-Id: <20211206211520.1660478-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211206211520.1660478-1-sashal@kernel.org>
 References: <20211206211520.1660478-1-sashal@kernel.org>
@@ -53,53 +52,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilie Halip <ilie.halip@gmail.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-[ Upstream commit 53ae7230918154d1f4281d7aa3aae9650436eadf ]
+[ Upstream commit 4e9679738a918d8a482ac6a2cb2bb871f094bb84 ]
 
-Building with clang & LLVM_IAS=1 leads to an error:
-    arch/s390/lib/test_unwind.c:179:4: error: invalid register pair
-                        "       mvcl    %%r1,%%r1\n"
-                        ^
+Revert commit b4b844930f27 ("tty: serial: fsl_lpuart: drop earlycon entry
+for i.MX8QXP"), because this breaks earlycon support on imx8qm/imx8qxp.
+While it is true that for earlycon there is no difference between
+i.MX8QXP and i.MX7ULP (for now at least), there are differences
+regarding clocks and fixups for wakeup support. For that reason it was
+deemed unacceptable to add the imx7ulp compatible to device tree in
+order to get earlycon working again.
 
-The test creates an invalid instruction that would trap at runtime, but the
-LLVM inline assembler tries to validate it at compile time too.
-
-Use the raw instruction opcode instead.
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Suggested-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1421
-Link: https://lore.kernel.org/r/20211117174822.3632412-1-ilie.halip@gmail.com
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[hca@linux.ibm.com: use illegal opcode, and update comment]
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20211124073109.805088-1-alexander.stein@ew.tq-group.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/lib/test_unwind.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/lib/test_unwind.c b/arch/s390/lib/test_unwind.c
-index 6bad84c372dcb..b0b67e6d1f6e2 100644
---- a/arch/s390/lib/test_unwind.c
-+++ b/arch/s390/lib/test_unwind.c
-@@ -171,10 +171,11 @@ static noinline int unwindme_func4(struct unwindme *u)
- 		}
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index a70911a227a84..b9f8add284e33 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2559,6 +2559,7 @@ OF_EARLYCON_DECLARE(lpuart, "fsl,vf610-lpuart", lpuart_early_console_setup);
+ OF_EARLYCON_DECLARE(lpuart32, "fsl,ls1021a-lpuart", lpuart32_early_console_setup);
+ OF_EARLYCON_DECLARE(lpuart32, "fsl,ls1028a-lpuart", ls1028a_early_console_setup);
+ OF_EARLYCON_DECLARE(lpuart32, "fsl,imx7ulp-lpuart", lpuart32_imx_early_console_setup);
++OF_EARLYCON_DECLARE(lpuart32, "fsl,imx8qxp-lpuart", lpuart32_imx_early_console_setup);
+ EARLYCON_DECLARE(lpuart, lpuart_early_console_setup);
+ EARLYCON_DECLARE(lpuart32, lpuart32_early_console_setup);
  
- 		/*
--		 * trigger specification exception
-+		 * Trigger operation exception; use insn notation to bypass
-+		 * llvm's integrated assembler sanity checks.
- 		 */
- 		asm volatile(
--			"	mvcl	%%r1,%%r1\n"
-+			"	.insn	e,0x0000\n"	/* illegal opcode */
- 			"0:	nopr	%%r7\n"
- 			EX_TABLE(0b, 0b)
- 			:);
 -- 
 2.33.0
 
