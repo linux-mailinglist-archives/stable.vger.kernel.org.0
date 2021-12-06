@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD914699B4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:59:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A07FF4699B7
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:59:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345066AbhLFPCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:02:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52074 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344979AbhLFPCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2EDBC061359;
-        Mon,  6 Dec 2021 06:59:12 -0800 (PST)
+        id S1345000AbhLFPC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:02:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35908 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345012AbhLFPCq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 791E06131C;
-        Mon,  6 Dec 2021 14:59:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF1FC341C2;
-        Mon,  6 Dec 2021 14:59:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FD1CB8111D;
+        Mon,  6 Dec 2021 14:59:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35421C341D5;
+        Mon,  6 Dec 2021 14:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802751;
-        bh=zMi/DVADbJrThEpYf1E6JrCwv8XBnKVwZ9YeTBbmyBg=;
+        s=korg; t=1638802754;
+        bh=Ku/iJtrE2wJUnabMvwR/1aM9s3/YHVZntm0KfJjgbE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQQoINhKzRa3DPw/6ITvyStf1q+2ZmDL78pNiee4CodaUVpeboBx6roHkR402UTPq
-         qDCMTaArjOZBwei4e+Xi0A+dfXQJKLrcc2gJ8Ywkr8TCKJwtsZUSHriQrUNQiK+9mf
-         NuAdKajusfB13bAM6O6gGBWdE/E7KnhGAQTbvI10=
+        b=M2VOcnuOSKz1bEzbkgXwrBbmXR87RlsqUNksspk5mJxpnf0tirCgKfz1xw7WpZfil
+         zIIEF6VWa6Yifff1tIrQRtVHzMpHxx5dAudpSHW2xBrDWAORPBc7sYetRswtvG+5S3
+         MCtDKbZt4Tx/l+vBKrs3apTlbzrWk2xEw9AWCg+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 4.4 21/52] NFC: add NCI_UNREG flag to eliminate the race
-Date:   Mon,  6 Dec 2021 15:56:05 +0100
-Message-Id: <20211206145548.613722335@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.4 22/52] fuse: fix page stealing
+Date:   Mon,  6 Dec 2021 15:56:06 +0100
+Message-Id: <20211206145548.644251087@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
 References: <20211206145547.892668902@linuxfoundation.org>
@@ -48,116 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 48b71a9e66c2eab60564b1b1c85f4928ed04e406 upstream.
+commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
 
-There are two sites that calls queue_work() after the
-destroy_workqueue() and lead to possible UAF.
+It is possible to trigger a crash by splicing anon pipe bufs to the fuse
+device.
 
-The first site is nci_send_cmd(), which can happen after the
-nci_close_device as below
+The reason for this is that anon_pipe_buf_release() will reuse buf->page if
+the refcount is 1, but that page might have already been stolen and its
+flags modified (e.g. PG_lru added).
 
-nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
-  nci_close_device           |
-    flush_workqueue          |
-    del_timer_sync           |
-  nci_unregister_device      |    nfc_get_device
-    destroy_workqueue        |    nfc_dev_up
-    nfc_unregister_device    |      nci_dev_up
-      device_del             |        nci_open_device
-                             |          __nci_request
-                             |            nci_send_cmd
-                             |              queue_work !!!
+This happens in the unlikely case of fuse_dev_splice_write() getting around
+to calling pipe_buf_release() after a page has been stolen, added to the
+page cache and removed from the page cache.
 
-Another site is nci_cmd_timer, awaked by the nci_cmd_work from the
-nci_send_cmd.
+Fix by calling pipe_buf_release() right after the page was inserted into
+the page cache.  In this case the page has an elevated refcount so any
+release function will know that the page isn't reusable.
 
-  ...                        |  ...
-  nci_unregister_device      |  queue_work
-    destroy_workqueue        |
-    nfc_unregister_device    |  ...
-      device_del             |  nci_cmd_work
-                             |  mod_timer
-                             |  ...
-                             |  nci_cmd_timer
-                             |    queue_work !!!
-
-For the above two UAF, the root cause is that the nfc_dev_up can race
-between the nci_unregister_device routine. Therefore, this patch
-introduce NCI_UNREG flag to easily eliminate the possible race. In
-addition, the mutex_lock in nci_close_device can act as a barrier.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211116152732.19238-1-linma@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Frank Dinoff <fdinoff@google.com>
+Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
+Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
+Cc: <stable@vger.kernel.org> # v2.6.35
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/nfc/nci_core.h |    1 +
- net/nfc/nci/core.c         |   19 +++++++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/include/net/nfc/nci_core.h
-+++ b/include/net/nfc/nci_core.h
-@@ -42,6 +42,7 @@ enum nci_flag {
- 	NCI_UP,
- 	NCI_DATA_EXCHANGE,
- 	NCI_DATA_EXCHANGE_TO,
-+	NCI_UNREG,
- };
+---
+ fs/fuse/dev.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -922,6 +922,13 @@ static int fuse_try_move_page(struct fus
+ 		return err;
+ 	}
  
- /* NCI device states */
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -401,6 +401,11 @@ static int nci_open_device(struct nci_de
- 
- 	mutex_lock(&ndev->req_lock);
- 
-+	if (test_bit(NCI_UNREG, &ndev->flags)) {
-+		rc = -ENODEV;
-+		goto done;
-+	}
-+
- 	if (test_bit(NCI_UP, &ndev->flags)) {
- 		rc = -EALREADY;
- 		goto done;
-@@ -464,6 +469,10 @@ done:
- static int nci_close_device(struct nci_dev *ndev)
- {
- 	nci_req_cancel(ndev, ENODEV);
-+
-+	/* This mutex needs to be held as a barrier for
-+	 * caller nci_unregister_device
++	/*
++	 * Release while we have extra ref on stolen page.  Otherwise
++	 * anon_pipe_buf_release() might think the page can be reused.
 +	 */
- 	mutex_lock(&ndev->req_lock);
- 
- 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
-@@ -501,8 +510,8 @@ static int nci_close_device(struct nci_d
- 	/* Flush cmd wq */
- 	flush_workqueue(ndev->cmd_wq);
- 
--	/* Clear flags */
--	ndev->flags = 0;
-+	/* Clear flags except NCI_UNREG */
-+	ndev->flags &= BIT(NCI_UNREG);
- 
- 	mutex_unlock(&ndev->req_lock);
- 
-@@ -1182,6 +1191,12 @@ void nci_unregister_device(struct nci_de
- {
- 	struct nci_conn_info    *conn_info, *n;
- 
-+	/* This set_bit is not protected with specialized barrier,
-+	 * However, it is fine because the mutex_lock(&ndev->req_lock);
-+	 * in nci_close_device() will help to emit one.
-+	 */
-+	set_bit(NCI_UNREG, &ndev->flags);
++	buf->ops->release(cs->pipe, buf);
++	buf->ops = NULL;
 +
- 	nci_close_device(ndev);
+ 	page_cache_get(newpage);
  
- 	destroy_workqueue(ndev->cmd_wq);
+ 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
+@@ -2090,7 +2097,8 @@ static ssize_t fuse_dev_splice_write(str
+ out_free:
+ 	for (idx = 0; idx < nbuf; idx++) {
+ 		struct pipe_buffer *buf = &bufs[idx];
+-		buf->ops->release(pipe, buf);
++		if (buf->ops)
++			buf->ops->release(pipe, buf);
+ 	}
+ 	pipe_unlock(pipe);
+ 
 
 
