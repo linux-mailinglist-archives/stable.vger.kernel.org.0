@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8ED469B27
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:09:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B348469AF2
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346589AbhLFPNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:13:16 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60014 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346274AbhLFPLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:13 -0500
+        id S1346504AbhLFPLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53140 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345160AbhLFPJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36A39C08E886;
+        Mon,  6 Dec 2021 07:03:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E92A56131E;
-        Mon,  6 Dec 2021 15:07:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D195BC341C5;
-        Mon,  6 Dec 2021 15:07:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2761B81132;
+        Mon,  6 Dec 2021 15:03:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C4A1C341C1;
+        Mon,  6 Dec 2021 15:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803264;
-        bh=HcNbF3fnbk/eJN8AY/sxa+5BokSDwd9fmPjASQs4nUI=;
+        s=korg; t=1638803036;
+        bh=iJApRTQ/dLBLr46xS0POkjv0n38tHrca9TozFhN9qUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WYYHgpHaU65ikMzpA0zTzBICuY3FNTfRfpfY4rtFWwFIqhdjm3AuklAZ2Y8NvWFzm
-         z8X5zlrSeYB8tAo49UmGYqQnyRpAwoKIzeVNERJXfhVNCn6DheoVtfExfVtFdZDBlH
-         pDKLfmz5ehIRZlvLppLt9BOHeL26DmAPvUFTi0TY=
+        b=pmLDKx9pyBABhGePu5phVrlEtqkzzVu5KhtK7cBFE30gy+DcDdJjtIIIwd4sJXbo6
+         ywhOMFX2BRoxBTcfdNoJzfZO/IENsdN2QzgMNsMv6igbkEgltsKU2T6Jw4+Ytq52mE
+         OXfQ25Til8drwfjblnIkduErkcSBbKJZsRHWhy5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
         Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 087/106] fs: add fget_many() and fput_many()
+Subject: [PATCH 4.9 52/62] fs: add fget_many() and fput_many()
 Date:   Mon,  6 Dec 2021 15:56:35 +0100
-Message-Id: <20211206145558.525646517@linuxfoundation.org>
+Message-Id: <20211206145551.005163803@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +73,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/file.c
 +++ b/fs/file.c
-@@ -679,7 +679,7 @@ void do_close_on_exec(struct files_struc
+@@ -692,7 +692,7 @@ void do_close_on_exec(struct files_struc
  	spin_unlock(&files->file_lock);
  }
  
@@ -79,7 +82,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  {
  	struct files_struct *files = current->files;
  	struct file *file;
-@@ -694,7 +694,7 @@ loop:
+@@ -707,7 +707,7 @@ loop:
  		 */
  		if (file->f_mode & mask)
  			file = NULL;
@@ -88,7 +91,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			goto loop;
  	}
  	rcu_read_unlock();
-@@ -702,15 +702,20 @@ loop:
+@@ -715,15 +715,20 @@ loop:
  	return file;
  }
  
@@ -111,7 +114,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  EXPORT_SYMBOL(fget_raw);
  
-@@ -741,7 +746,7 @@ static unsigned long __fget_light(unsign
+@@ -754,7 +759,7 @@ static unsigned long __fget_light(unsign
  			return 0;
  		return (unsigned long)file;
  	} else {
@@ -148,7 +151,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
   * in some umount() (and thus can't use flush_delayed_fput() without
 --- a/include/linux/file.h
 +++ b/include/linux/file.h
-@@ -13,6 +13,7 @@
+@@ -12,6 +12,7 @@
  struct file;
  
  extern void fput(struct file *);
@@ -156,7 +159,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  struct file_operations;
  struct vfsmount;
-@@ -41,6 +42,7 @@ static inline void fdput(struct fd fd)
+@@ -40,6 +41,7 @@ static inline void fdput(struct fd fd)
  }
  
  extern struct file *fget(unsigned int fd);
@@ -166,7 +169,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  extern unsigned long __fdget_raw(unsigned int fd);
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -908,7 +908,9 @@ static inline struct file *get_file(stru
+@@ -939,7 +939,9 @@ static inline struct file *get_file(stru
  	atomic_long_inc(&f->f_count);
  	return f;
  }
