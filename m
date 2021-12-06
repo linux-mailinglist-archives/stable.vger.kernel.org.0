@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E62469E8B
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF0A469D50
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379810AbhLFPjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:39:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60420 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378545AbhLFPgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:36:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E63C5C09CE45;
-        Mon,  6 Dec 2021 07:21:43 -0800 (PST)
+        id S1378247AbhLFP3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:29:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43084 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1384571AbhLFPZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:25:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8613761320;
-        Mon,  6 Dec 2021 15:21:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A889C341C1;
-        Mon,  6 Dec 2021 15:21:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 485B961316;
+        Mon,  6 Dec 2021 15:21:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F448C341C1;
+        Mon,  6 Dec 2021 15:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804103;
-        bh=n3597jHgL7vSM4mrRLxmd/92eVmOD7NHilGmdvqz/JA=;
+        s=korg; t=1638804105;
+        bh=bjFep7mKyjB5kaBghACXk66zvw7ksdRTVqRp9Aqm5cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqlaioe4FgyUQT5MKIc8bUKr7+vZm1KVOz8d1/wkUKFdwZcDj4R5MkXu52foX2B26
-         RB2N0EQgUMF69CJ/J9ei5ihOUT4nO5CyaUG2xVUi27wngeiS/csmGuwirWJQbcNpJx
-         ERsr7vGgfcvtWt32YE+YVeW8Q86YLAoPWoxQfdLc=
+        b=FAFDSUbCSpc6Gxn5FiOyC1A0WIvShaQ8A/Wd8ZAiDgJEHUv5r3umOK0+eoExM6eX7
+         cfOyr5Y7hqV/rhA9UPrscJ1oFU73zDs/Mrgv1/14pxnfGKoY7+BDfDc1/Ksez8kLM0
+         UT4Yw9ESPnIQNOI8IjZKp01RCRJWL/sxoqyJk1Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/207] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
-Date:   Mon,  6 Dec 2021 15:54:41 +0100
-Message-Id: <20211206145611.151759818@linuxfoundation.org>
+Subject: [PATCH 5.15 028/207] s390/setup: avoid using memblock_enforce_memory_limit
+Date:   Mon,  6 Dec 2021 15:54:42 +0100
+Message-Id: <20211206145611.186101032@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -48,67 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
+[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
 
-When WWAN device wake from S3 deep, under thinkpad platform,
-WWAN would be disabled. This disable status could be checked
-by command 'nmcli r wwan' or 'rfkill list'.
+There is a difference in how architectures treat "mem=" option. For some
+that is an amount of online memory, for s390 and x86 this is the limiting
+max address. Some memblock api like memblock_enforce_memory_limit()
+take limit argument and explicitly treat it as the size of online memory,
+and use __find_max_addr to convert it to an actual max address. Current
+s390 usage:
 
-Issue analysis as below:
-  When host resume from S3 deep, thinkpad_acpi driver would
-call hotkey_resume() function. Finnaly, it will use
-wan_get_status to check the current status of WWAN device.
-During this resume progress, wan_get_status would always
-return off even WWAN boot up completely.
-  In patch V2, Hans said 'sw_state should be unchanged
-after a suspend/resume. It's better to drop the
-tpacpi_rfk_update_swstate call all together from the
-resume path'.
-  And it's confimed by Lenovo that GWAN is no longer
- available from WHL generation because the design does not
- match with current pin control.
+memblock_enforce_memory_limit(memblock_end_of_DRAM());
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+yields different results depending on presence of memory holes (offline
+memory blocks in between online memory). If there are no memory holes
+limit == max_addr in memblock_enforce_memory_limit() and it does trim
+online memory and reserved memory regions. With memory holes present it
+actually does nothing.
+
+Since we already use memblock_remove() explicitly to trim online memory
+regions to potential limit (think mem=, kdump, addressing limits, etc.)
+drop the usage of memblock_enforce_memory_limit() altogether. Trimming
+reserved regions should not be required, since we now use
+memblock_set_current_limit() to limit allocations and any explicit memory
+reservations above the limit is an actual problem we should not hide.
+
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ arch/s390/kernel/setup.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 6aa31816159cf..3dc055ce6e61b 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -1178,15 +1178,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
- 	return status;
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index d77269f168948..ee67215a678a5 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -816,9 +816,6 @@ static void __init setup_memory(void)
+ 		storage_key_init_range(start, end);
+ 
+ 	psw_set_key(PAGE_DEFAULT_KEY);
+-
+-	/* Only cosmetics */
+-	memblock_enforce_memory_limit(memblock_end_of_DRAM());
  }
  
--/* Query FW and update rfkill sw state for all rfkill switches */
--static void tpacpi_rfk_update_swstate_all(void)
--{
--	unsigned int i;
--
--	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
--		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
--}
--
- /*
-  * Sync the HW-blocking state of all rfkill switches,
-  * do notice it causes the rfkill core to schedule uevents
-@@ -3129,9 +3120,6 @@ static void tpacpi_send_radiosw_update(void)
- 	if (wlsw == TPACPI_RFK_RADIO_OFF)
- 		tpacpi_rfk_update_hwblock_state(true);
- 
--	/* Sync sw blocking state */
--	tpacpi_rfk_update_swstate_all();
--
- 	/* Sync hw blocking state last if it is hw-unblocked */
- 	if (wlsw == TPACPI_RFK_RADIO_ON)
- 		tpacpi_rfk_update_hwblock_state(false);
+ static void __init relocate_amode31_section(void)
 -- 
 2.33.0
 
