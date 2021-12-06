@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC08F469D11
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A50B1469C1C
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:17:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231571AbhLFP2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41412 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345567AbhLFPXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:06 -0500
+        id S245230AbhLFPU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:20:57 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50598 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356485AbhLFPSA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F213F61322;
-        Mon,  6 Dec 2021 15:19:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D87C8C341C2;
-        Mon,  6 Dec 2021 15:19:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB6A7B81118;
+        Mon,  6 Dec 2021 15:14:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1395C341C1;
+        Mon,  6 Dec 2021 15:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803976;
-        bh=wGJm4T3sZ7pyGcgI6geMZTXBsGtyIi+Ki/1p3s5geho=;
+        s=korg; t=1638803669;
+        bh=No5nGlbdVWn6S/6CT5wauubRW/OJi95ReWUqCjlVrTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XJfQ4GXF2CAU+ve1+iVzU/PSqoPRE/oDMtbK/Ac2K97UQVsQXkgyY8wf7eN9+zQoJ
-         v2uYzRn0N/racNHcJ53ILx+JV4i0czBeARSftM6860l+cgznbLY976ttjRt/CSUsUk
-         SGkQy2kRyuCLuDNgHyH9x8+ZRTeGKOebDYXX1k2c=
+        b=1f2c6SvPp90aBrC967iPfpdbQnwgrMCJJc6mXnZDU1JPk+lkQtXg+V7i8ZHTQEzNT
+         1Whp1VgwZBAC5z2r9bAptkHq97q1iOuYNe2DPgoNt3PnV18gCmZ36Nm/xy4Dtjf4zI
+         9Wx15nrUkIHTLmWwzSedbhD5DNgn0STPLwiVaBBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 114/130] xhci: Fix commad ring abort, write all 64 bits to CRCR register.
+        Mordechay Goodstein <mordechay.goodstein@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 67/70] iwlwifi: mvm: retry init flow if failed
 Date:   Mon,  6 Dec 2021 15:57:11 +0100
-Message-Id: <20211206145603.592333300@linuxfoundation.org>
+Message-Id: <20211206145554.243717739@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +46,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Mordechay Goodstein <mordechay.goodstein@intel.com>
 
-commit 09f736aa95476631227d2dc0e6b9aeee1ad7ed58 upstream.
+commit 5283dd677e52af9db6fe6ad11b2f12220d519d0c upstream.
 
-Turns out some xHC controllers require all 64 bits in the CRCR register
-to be written to execute a command abort.
+In some very rare cases the init flow may fail.  In many cases, this is
+recoverable, so we can retry.  Implement a loop to retry two more times
+after the first attempt failed.
 
-The lower 32 bits containing the command abort bit is written first.
-In case the command ring stops before we write the upper 32 bits then
-hardware may use these upper bits to set the commnd ring dequeue pointer.
+This can happen in two different situations, namely during probe and
+during mac80211 start.  For the first case, a simple loop is enough.
+For the second case, we need to add a flag to prevent mac80211 from
+trying to restart it as well, leaving full control with the driver.
 
-Solve this by making sure the upper 32 bits contain a valid command
-ring dequeue pointer.
-
-The original patch that only wrote the first 32 to stop the ring went
-to stable, so this fix should go there as well.
-
-Fixes: ff0e50d3564f ("xhci: Fix command ring pointer corruption while aborting a command")
-Cc: stable@vger.kernel.org
-Tested-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211126122340.1193239-2-mathias.nyman@linux.intel.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/iwlwifi.20211110150132.57514296ecab.I52a0411774b700bdc7dedb124d8b59bf99456eb2@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c      |   22 +++++++++++++-------
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.h      |    3 ++
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c |   24 +++++++++++++++++++++-
+ drivers/net/wireless/intel/iwlwifi/mvm/mvm.h      |    3 ++
+ drivers/net/wireless/intel/iwlwifi/mvm/ops.c      |    3 ++
+ 5 files changed, 47 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -342,7 +342,9 @@ static void xhci_handle_stopped_cmd_ring
- /* Must be called with xhci->lock held, releases and aquires lock back */
- static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
- {
--	u32 temp_32;
-+	struct xhci_segment *new_seg	= xhci->cmd_ring->deq_seg;
-+	union xhci_trb *new_deq		= xhci->cmd_ring->dequeue;
-+	u64 crcr;
- 	int ret;
- 
- 	xhci_dbg(xhci, "Abort command ring\n");
-@@ -351,13 +353,18 @@ static int xhci_abort_cmd_ring(struct xh
- 
- 	/*
- 	 * The control bits like command stop, abort are located in lower
--	 * dword of the command ring control register. Limit the write
--	 * to the lower dword to avoid corrupting the command ring pointer
--	 * in case if the command ring is stopped by the time upper dword
--	 * is written.
-+	 * dword of the command ring control register.
-+	 * Some controllers require all 64 bits to be written to abort the ring.
-+	 * Make sure the upper dword is valid, pointing to the next command,
-+	 * avoiding corrupting the command ring pointer in case the command ring
-+	 * is stopped by the time the upper dword is written.
- 	 */
--	temp_32 = readl(&xhci->op_regs->cmd_ring);
--	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
-+	next_trb(xhci, NULL, &new_seg, &new_deq);
-+	if (trb_is_link(new_deq))
-+		next_trb(xhci, NULL, &new_seg, &new_deq);
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -1276,23 +1276,31 @@ _iwl_op_mode_start(struct iwl_drv *drv,
+ 	const struct iwl_op_mode_ops *ops = op->ops;
+ 	struct dentry *dbgfs_dir = NULL;
+ 	struct iwl_op_mode *op_mode = NULL;
++	int retry, max_retry = !!iwlwifi_mod_params.fw_restart * IWL_MAX_INIT_RETRY;
 +
-+	crcr = xhci_trb_virt_to_dma(new_seg, new_deq);
-+	xhci_write_64(xhci, crcr | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
++	for (retry = 0; retry <= max_retry; retry++) {
  
- 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
- 	 * completion of the Command Abort operation. If CRR is not negated in 5
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+-	drv->dbgfs_op_mode = debugfs_create_dir(op->name,
+-						drv->dbgfs_drv);
+-	dbgfs_dir = drv->dbgfs_op_mode;
++		drv->dbgfs_op_mode = debugfs_create_dir(op->name,
++							drv->dbgfs_drv);
++		dbgfs_dir = drv->dbgfs_op_mode;
+ #endif
+ 
+-	op_mode = ops->start(drv->trans, drv->trans->cfg, &drv->fw, dbgfs_dir);
++		op_mode = ops->start(drv->trans, drv->trans->cfg,
++				     &drv->fw, dbgfs_dir);
++
++		if (op_mode)
++			return op_mode;
++
++		IWL_ERR(drv, "retry init count %d\n", retry);
+ 
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+-	if (!op_mode) {
+ 		debugfs_remove_recursive(drv->dbgfs_op_mode);
+ 		drv->dbgfs_op_mode = NULL;
+-	}
+ #endif
++	}
+ 
+-	return op_mode;
++	return NULL;
+ }
+ 
+ static void _iwl_op_mode_stop(struct iwl_drv *drv)
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.h
+@@ -145,4 +145,7 @@ void iwl_drv_stop(struct iwl_drv *drv);
+ #define IWL_EXPORT_SYMBOL(sym)
+ #endif
+ 
++/* max retry for init flow */
++#define IWL_MAX_INIT_RETRY 2
++
+ #endif /* __iwl_drv_h__ */
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -71,6 +71,7 @@
+ #include <net/ieee80211_radiotap.h>
+ #include <net/tcp.h>
+ 
++#include "iwl-drv.h"
+ #include "iwl-op-mode.h"
+ #include "iwl-io.h"
+ #include "mvm.h"
+@@ -1129,9 +1130,30 @@ static int iwl_mvm_mac_start(struct ieee
+ {
+ 	struct iwl_mvm *mvm = IWL_MAC80211_GET_MVM(hw);
+ 	int ret;
++	int retry, max_retry = 0;
+ 
+ 	mutex_lock(&mvm->mutex);
+-	ret = __iwl_mvm_mac_start(mvm);
++
++	/* we are starting the mac not in error flow, and restart is enabled */
++	if (!test_bit(IWL_MVM_STATUS_HW_RESTART_REQUESTED, &mvm->status) &&
++	    iwlwifi_mod_params.fw_restart) {
++		max_retry = IWL_MAX_INIT_RETRY;
++		/*
++		 * This will prevent mac80211 recovery flows to trigger during
++		 * init failures
++		 */
++		set_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
++	}
++
++	for (retry = 0; retry <= max_retry; retry++) {
++		ret = __iwl_mvm_mac_start(mvm);
++		if (!ret)
++			break;
++
++		IWL_ERR(mvm, "mac start retry %d\n", retry);
++	}
++	clear_bit(IWL_MVM_STATUS_STARTING, &mvm->status);
++
+ 	mutex_unlock(&mvm->mutex);
+ 
+ 	return ret;
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
+@@ -1167,6 +1167,8 @@ struct iwl_mvm {
+  * @IWL_MVM_STATUS_ROC_AUX_RUNNING: AUX remain-on-channel is running
+  * @IWL_MVM_STATUS_FIRMWARE_RUNNING: firmware is running
+  * @IWL_MVM_STATUS_NEED_FLUSH_P2P: need to flush P2P bcast STA
++ * @IWL_MVM_STATUS_STARTING: starting mac,
++ *	used to disable restart flow while in STARTING state
+  */
+ enum iwl_mvm_status {
+ 	IWL_MVM_STATUS_HW_RFKILL,
+@@ -1177,6 +1179,7 @@ enum iwl_mvm_status {
+ 	IWL_MVM_STATUS_ROC_AUX_RUNNING,
+ 	IWL_MVM_STATUS_FIRMWARE_RUNNING,
+ 	IWL_MVM_STATUS_NEED_FLUSH_P2P,
++	IWL_MVM_STATUS_STARTING,
+ };
+ 
+ /* Keep track of completed init configuration */
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ops.c
+@@ -1288,6 +1288,9 @@ void iwl_mvm_nic_restart(struct iwl_mvm
+ 	 */
+ 	if (!mvm->fw_restart && fw_error) {
+ 		iwl_fw_error_collect(&mvm->fwrt);
++	} else if (test_bit(IWL_MVM_STATUS_STARTING,
++			    &mvm->status)) {
++		IWL_ERR(mvm, "Starting mac, retry will be triggered anyway\n");
+ 	} else if (test_bit(IWL_MVM_STATUS_IN_HW_RESTART, &mvm->status)) {
+ 		struct iwl_mvm_reprobe *reprobe;
+ 
 
 
