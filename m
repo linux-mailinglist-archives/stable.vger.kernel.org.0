@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF9C469B6D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82768469BC1
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350293AbhLFPRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54480 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357608AbhLFPQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99BC6C08EB4E;
-        Mon,  6 Dec 2021 07:08:44 -0800 (PST)
+        id S1356827AbhLFPS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49186 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358846AbhLFPQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4136FB81120;
-        Mon,  6 Dec 2021 15:08:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7698BC341C5;
-        Mon,  6 Dec 2021 15:08:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0377B81018;
+        Mon,  6 Dec 2021 15:13:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AFFC341C2;
+        Mon,  6 Dec 2021 15:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803323;
-        bh=pC166YA6n24amnNkQtGTNNSNnR3GI8K7nn0VAxxRJGo=;
+        s=korg; t=1638803599;
+        bh=0QcBUqjL7DISFx5P3SLGtewpQyu+P8G29gHlaNr4qXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNsHbVF9OxfJHZABQ3cdIWoDQ5Gbpm5QR+RbDphNaWNWcG/j6M173vaowDR/vQK+R
-         oUuHDO9ps8SS2LgRafelGHYoEREPOSBgVs//FSioFBnp9NHOD7sVzx6+QJIPYOCtux
-         QxJZvS9Yazw7Q/2b8ypjqYqmALjb3Sk6jwoV+oy0=
+        b=TO2YcV2IfTtQw0BCRlnyByTBQaeuUaS62yaBSZXYH1VONGtheV4IsH9rVnE24wD18
+         RqhPCLFMTRt6wph3Y8znAbPNd6uaaA37mRayJUY+yBAV6qgLkuGNd81yhNBt2kcJmg
+         1gm3IAo367i3LlbdfSgb2qHCS+YiFchRbGG1j54g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 106/106] parisc: Mark cr16 CPU clocksource unstable on all SMP machines
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 50/70] ipv6: fix memory leak in fib6_rule_suppress
 Date:   Mon,  6 Dec 2021 15:56:54 +0100
-Message-Id: <20211206145559.233368784@linuxfoundation.org>
+Message-Id: <20211206145553.654660102@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: msizanoen1 <msizanoen@qtmlabs.xyz>
 
-commit afdb4a5b1d340e4afffc65daa21cc71890d7d589 upstream.
+commit cdef485217d30382f3bf6448c54b4401648fe3f1 upstream.
 
-In commit c8c3735997a3 ("parisc: Enhance detection of synchronous cr16
-clocksources") I assumed that CPUs on the same physical core are syncronous.
-While booting up the kernel on two different C8000 machines, one with a
-dual-core PA8800 and one with a dual-core PA8900 CPU, this turned out to be
-wrong. The symptom was that I saw a jump in the internal clocks printed to the
-syslog and strange overall behaviour.  On machines which have 4 cores (2
-dual-cores) the problem isn't visible, because the current logic already marked
-the cr16 clocksource unstable in this case.
+The kernel leaks memory when a `fib` rule is present in IPv6 nftables
+firewall rules and a suppress_prefix rule is present in the IPv6 routing
+rules (used by certain tools such as wg-quick). In such scenarios, every
+incoming packet will leak an allocation in `ip6_dst_cache` slab cache.
 
-This patch now marks the cr16 interval timers unstable if we have more than one
-CPU in the system, and it fixes this issue.
+After some hours of `bpftrace`-ing and source code reading, I tracked
+down the issue to ca7a03c41753 ("ipv6: do not free rt if
+FIB_LOOKUP_NOREF is set on suppress rule").
 
-Fixes: c8c3735997a3 ("parisc: Enhance detection of synchronous cr16 clocksources")
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.15+
+The problem with that change is that the generic `args->flags` always have
+`FIB_LOOKUP_NOREF` set[1][2] but the IPv6-specific flag
+`RT6_LOOKUP_F_DST_NOREF` might not be, leading to `fib6_rule_suppress` not
+decreasing the refcount when needed.
+
+How to reproduce:
+ - Add the following nftables rule to a prerouting chain:
+     meta nfproto ipv6 fib saddr . mark . iif oif missing drop
+   This can be done with:
+     sudo nft create table inet test
+     sudo nft create chain inet test test_chain '{ type filter hook prerouting priority filter + 10; policy accept; }'
+     sudo nft add rule inet test test_chain meta nfproto ipv6 fib saddr . mark . iif oif missing drop
+ - Run:
+     sudo ip -6 rule add table main suppress_prefixlength 0
+ - Watch `sudo slabtop -o | grep ip6_dst_cache` to see memory usage increase
+   with every incoming ipv6 packet.
+
+This patch exposes the protocol-specific flags to the protocol
+specific `suppress` function, and check the protocol-specific `flags`
+argument for RT6_LOOKUP_F_DST_NOREF instead of the generic
+FIB_LOOKUP_NOREF when decreasing the refcount, like this.
+
+[1]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L71
+[2]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L99
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215105
+Fixes: ca7a03c41753 ("ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/parisc/kernel/time.c |   24 +++++-------------------
- 1 file changed, 5 insertions(+), 19 deletions(-)
 
---- a/arch/parisc/kernel/time.c
-+++ b/arch/parisc/kernel/time.c
-@@ -245,27 +245,13 @@ void __init time_init(void)
- static int __init init_cr16_clocksource(void)
- {
- 	/*
--	 * The cr16 interval timers are not syncronized across CPUs on
--	 * different sockets, so mark them unstable and lower rating on
--	 * multi-socket SMP systems.
-+	 * The cr16 interval timers are not syncronized across CPUs, even if
-+	 * they share the same socket.
- 	 */
- 	if (num_online_cpus() > 1 && !running_on_qemu) {
--		int cpu;
--		unsigned long cpu0_loc;
--		cpu0_loc = per_cpu(cpu_data, 0).cpu_loc;
--
--		for_each_online_cpu(cpu) {
--			if (cpu == 0)
--				continue;
--			if ((cpu0_loc != 0) &&
--			    (cpu0_loc == per_cpu(cpu_data, cpu).cpu_loc))
--				continue;
--
--			clocksource_cr16.name = "cr16_unstable";
--			clocksource_cr16.flags = CLOCK_SOURCE_UNSTABLE;
--			clocksource_cr16.rating = 0;
--			break;
--		}
-+		clocksource_cr16.name = "cr16_unstable";
-+		clocksource_cr16.flags = CLOCK_SOURCE_UNSTABLE;
-+		clocksource_cr16.rating = 0;
- 	}
+---
+ include/net/fib_rules.h |    2 +-
+ net/core/fib_rules.c    |    2 +-
+ net/ipv4/fib_rules.c    |    2 +-
+ net/ipv6/fib6_rules.c   |    5 ++---
+ 4 files changed, 5 insertions(+), 6 deletions(-)
+
+--- a/include/net/fib_rules.h
++++ b/include/net/fib_rules.h
+@@ -68,7 +68,7 @@ struct fib_rules_ops {
+ 	int			(*action)(struct fib_rule *,
+ 					  struct flowi *, int,
+ 					  struct fib_lookup_arg *);
+-	bool			(*suppress)(struct fib_rule *,
++	bool			(*suppress)(struct fib_rule *, int,
+ 					    struct fib_lookup_arg *);
+ 	int			(*match)(struct fib_rule *,
+ 					 struct flowi *, int);
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -300,7 +300,7 @@ jumped:
+ 		else
+ 			err = ops->action(rule, fl, flags, arg);
  
- 	/* XXX: We may want to mark sched_clock stable here if cr16 clocks are
+-		if (!err && ops->suppress && ops->suppress(rule, arg))
++		if (!err && ops->suppress && ops->suppress(rule, flags, arg))
+ 			continue;
+ 
+ 		if (err != -EAGAIN) {
+--- a/net/ipv4/fib_rules.c
++++ b/net/ipv4/fib_rules.c
+@@ -137,7 +137,7 @@ static int fib4_rule_action(struct fib_r
+ 	return err;
+ }
+ 
+-static bool fib4_rule_suppress(struct fib_rule *rule, struct fib_lookup_arg *arg)
++static bool fib4_rule_suppress(struct fib_rule *rule, int flags, struct fib_lookup_arg *arg)
+ {
+ 	struct fib_result *result = (struct fib_result *) arg->result;
+ 	struct net_device *dev = NULL;
+--- a/net/ipv6/fib6_rules.c
++++ b/net/ipv6/fib6_rules.c
+@@ -260,7 +260,7 @@ static int fib6_rule_action(struct fib_r
+ 	return __fib6_rule_action(rule, flp, flags, arg);
+ }
+ 
+-static bool fib6_rule_suppress(struct fib_rule *rule, struct fib_lookup_arg *arg)
++static bool fib6_rule_suppress(struct fib_rule *rule, int flags, struct fib_lookup_arg *arg)
+ {
+ 	struct fib6_result *res = arg->result;
+ 	struct rt6_info *rt = res->rt6;
+@@ -287,8 +287,7 @@ static bool fib6_rule_suppress(struct fi
+ 	return false;
+ 
+ suppress_route:
+-	if (!(arg->flags & FIB_LOOKUP_NOREF))
+-		ip6_rt_put(rt);
++	ip6_rt_put_flags(rt, flags);
+ 	return true;
+ }
+ 
 
 
