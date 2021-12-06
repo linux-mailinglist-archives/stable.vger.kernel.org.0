@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D65A469E89
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5BD469D7C
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386020AbhLFPjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:39:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358084AbhLFPhX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:37:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9711C08EADB;
-        Mon,  6 Dec 2021 07:23:15 -0800 (PST)
+        id S1350752AbhLFP34 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:29:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44126 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348578AbhLFP1B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:27:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 791556132A;
-        Mon,  6 Dec 2021 15:23:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 603ACC341C2;
-        Mon,  6 Dec 2021 15:23:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69BDD612EB;
+        Mon,  6 Dec 2021 15:23:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44807C341E7;
+        Mon,  6 Dec 2021 15:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804194;
-        bh=NVYc831lTubR1pDQoit5Z7uxb0b0HMjCDCYurmDIRHg=;
+        s=korg; t=1638804211;
+        bh=jK80ZHaxoeA8DYw/BapI3GJl6uWcr+lliEp3Ys1Uwmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCXUftPVW6tL1H7T0x2Gi+w0hjs/kpzrKtQq4lGd8Jr9JSnBE0HrpgFmovIvGXik3
-         1q86q++UjCIoZhhasEdOcDLV9C7lauCLmng2XxJ9UGpe0lN5yXEm6MxC4Kg4Pcd/Gy
-         xF2zv0VMjH98kfY7v61KO/yAJH36PCmXm5EmwABg=
+        b=HVkYYPQ5CI4+DZ3FRgnBuwvIw2NPzlUU42mr0dbKlU3Yu22zM6Qep1hqI7z66eNZZ
+         EfY3tzQ8mBtHaXCcOJwYqIgQze5PDOREjbXLq0/Dr2OO2k4UeS48MG5GqA9/lOJBzb
+         D+rLg5RAyIqtGyua2c8MToJSpqdi1+7GNqcU65i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+        Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/207] net: usb: r8152: Add MAC passthrough support for more Lenovo Docks
-Date:   Mon,  6 Dec 2021 15:54:47 +0100
-Message-Id: <20211206145611.372865535@linuxfoundation.org>
+Subject: [PATCH 5.15 034/207] drm/amd/pm: Remove artificial freq level on Navi1x
+Date:   Mon,  6 Dec 2021 15:54:48 +0100
+Message-Id: <20211206145611.403769524@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -48,44 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Lijo Lazar <lijo.lazar@amd.com>
 
-[ Upstream commit f77b83b5bbab53d2be339184838b19ed2c62c0a5 ]
+[ Upstream commit be83a5676767c99c2417083c29d42aa1e109a69d ]
 
-Like ThinkaPad Thunderbolt 4 Dock, more Lenovo docks start to use the original
-Realtek USB ethernet chip ID 0bda:8153.
+Print Navi1x fine grained clocks in a consistent manner with other SOCs.
+Don't show aritificial DPM level when the current clock equals min or max.
 
-Lenovo Docks always use their own IDs for usb hub, even for older Docks.
-If parent hub is from Lenovo, then r8152 should try MAC passthrough.
-Verified on Lenovo TBT3 dock too.
-
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index f329e39100a7d..d3da350777a4d 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -9603,12 +9603,9 @@ static int rtl8152_probe(struct usb_interface *intf,
- 		netdev->hw_features &= ~NETIF_F_RXCSUM;
- 	}
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
+index b1ad451af06bd..dfba0bc732073 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
+@@ -1265,7 +1265,7 @@ static int navi10_print_clk_levels(struct smu_context *smu,
+ 			enum smu_clk_type clk_type, char *buf)
+ {
+ 	uint16_t *curve_settings;
+-	int i, size = 0, ret = 0;
++	int i, levels, size = 0, ret = 0;
+ 	uint32_t cur_value = 0, value = 0, count = 0;
+ 	uint32_t freq_values[3] = {0};
+ 	uint32_t mark_index = 0;
+@@ -1319,14 +1319,17 @@ static int navi10_print_clk_levels(struct smu_context *smu,
+ 			freq_values[1] = cur_value;
+ 			mark_index = cur_value == freq_values[0] ? 0 :
+ 				     cur_value == freq_values[2] ? 2 : 1;
+-			if (mark_index != 1)
+-				freq_values[1] = (freq_values[0] + freq_values[2]) / 2;
  
--	if (le16_to_cpu(udev->descriptor.idVendor) == VENDOR_ID_LENOVO) {
--		switch (le16_to_cpu(udev->descriptor.idProduct)) {
--		case DEVICE_ID_THINKPAD_THUNDERBOLT3_DOCK_GEN2:
--		case DEVICE_ID_THINKPAD_USB_C_DOCK_GEN2:
--			tp->lenovo_macpassthru = 1;
--		}
-+	if (udev->parent &&
-+			le16_to_cpu(udev->parent->descriptor.idVendor) == VENDOR_ID_LENOVO) {
-+		tp->lenovo_macpassthru = 1;
- 	}
- 
- 	if (le16_to_cpu(udev->descriptor.bcdDevice) == 0x3011 && udev->serial &&
+-			for (i = 0; i < 3; i++) {
++			levels = 3;
++			if (mark_index != 1) {
++				levels = 2;
++				freq_values[1] = freq_values[2];
++			}
++
++			for (i = 0; i < levels; i++) {
+ 				size += sysfs_emit_at(buf, size, "%d: %uMhz %s\n", i, freq_values[i],
+ 						i == mark_index ? "*" : "");
+ 			}
+-
+ 		}
+ 		break;
+ 	case SMU_PCIE:
 -- 
 2.33.0
 
