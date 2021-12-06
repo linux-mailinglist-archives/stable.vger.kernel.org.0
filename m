@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFD546AA16
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:20:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F11346AA18
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:20:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351214AbhLFVXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:23:25 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59062 "EHLO
+        id S1351222AbhLFVX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:23:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59086 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231593AbhLFVXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:23:23 -0500
+        with ESMTP id S1351208AbhLFVXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:23:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 290D9B8159D;
-        Mon,  6 Dec 2021 21:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D69C341CB;
-        Mon,  6 Dec 2021 21:19:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0DADB8159B;
+        Mon,  6 Dec 2021 21:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D9BC341C8;
+        Mon,  6 Dec 2021 21:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825591;
-        bh=+ujxdqI/HpDnZEPVLzroYRyWIoElKf+V2bFWz8LvKcg=;
+        s=k20201202; t=1638825593;
+        bh=6QpwS/9Vb12Zo4I5wEAM8ZPeJpvINJqCzEKoMF6wWOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4rLAHEq4/vqdE4qL90KtHLw3hZx5kCgOvFJ5pikSFtYPXA6sDPacwQHVKT25FIHw
-         8fC78Swzj/isLAandDA11tZgkdb6FePpOJ9omwd6rvsmXzkSyBMSK8v7hJx0aseFVK
-         wYQVFUx/uEyzv7je1LOkf6T1cYrXqrGSXURuhlWWcw5EKi7iRl31Kb9Rmrz+87I70Y
-         QbNyEkoVkJOj7G/kwnIzBIFzM5/mrcuUUVw0+YrMU89UXGIUJQRRw/Hf3bVOJlOKZw
-         a18jOxfh8JLlAi+gyjxcpTeckgfBgfPKaKYjn+lFbEuIDN1gs/UVTKvpDQVLhGV8yh
-         hn6nMhpXbXtgQ==
+        b=N1FDrM4M8VEGqGTa4b/pfAyfVFZA2VxE4ZsjsyJ9LbYZL9mpSd4UXqH3x72VKcA17
+         pcTfuhiApErQ22AhIZseHvj7KMUESBacmBOF1uLC6kuB2YQ2DZUPCppvdHLKVhZzGL
+         8hGC9cAtH/yjKtzyAygFXrpFT7IthX5mm7Gy+FgVnBdyG4HtuCAH99OwzgyRamKa9z
+         fQcSFiKCBEX+NLJ20RvOB1yuD5PG2w6b7EjmKVzZ0n8GN8O8EwrbJvpthzK1sz1Plj
+         RuJnkH25hNqybzi9oq2sZV9kbzh0Er1rc1ekYy7gqMj3AGIDG2uXbLa6BUTnQef70/
+         QDCGcPIUEndoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Erik Ekman <erik@kryo.se>,
-        Michael Stapelberg <michael@stapelberg.ch>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        netdev@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/7] net/mlx4_en: Update reported link modes for 1/10G
-Date:   Mon,  6 Dec 2021 16:19:23 -0500
-Message-Id: <20211206211934.1661294-3-sashal@kernel.org>
+Cc:     Helge Deller <deller@gmx.de>, kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, airlied@linux.ie,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 4/7] parisc/agp: Annotate parisc agp init functions with __init
+Date:   Mon,  6 Dec 2021 16:19:24 -0500
+Message-Id: <20211206211934.1661294-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211206211934.1661294-1-sashal@kernel.org>
 References: <20211206211934.1661294-1-sashal@kernel.org>
@@ -50,112 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 2191b1dfef7d45f44b5008d2148676d9f2c82874 ]
+[ Upstream commit 8d88382b7436551a9ebb78475c546b670790cbf6 ]
 
-When link modes were initially added in commit 2c762679435dc
-("net/mlx4_en: Use PTYS register to query ethtool settings") and
-later updated for the new ethtool API in commit 3d8f7cc78d0eb
-("net: mlx4: use new ETHTOOL_G/SSETTINGS API") the only 1/10G non-baseT
-link modes configured were 1000baseKX, 10000baseKX4 and 10000baseKR.
-It looks like these got picked to represent other modes since nothing
-better was available.
-
-Switch to using more specific link modes added in commit 5711a98221443
-("net: ethtool: add support for 1000BaseX and missing 10G link modes").
-
-Tested with MCX311A-XCAT connected via DAC.
-Before:
-
-% sudo ethtool enp3s0
-Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseKX/Full
-	                        10000baseKR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseKX/Full
-	                        10000baseKR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-With this change:
-
-% sudo ethtool enp3s0
-	Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseX/Full
-	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseX/Full
- 	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-Tested-by: Michael Stapelberg <michael@stapelberg.ch>
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 6 +++---
+ drivers/char/agp/parisc-agp.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-index 6a005014d46af..f652cfd8127bf 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -663,7 +663,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
--				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
-+				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
-@@ -675,9 +675,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
- 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
- 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
- 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
+diff --git a/drivers/char/agp/parisc-agp.c b/drivers/char/agp/parisc-agp.c
+index 15f2e7025b78e..1d5510cb6db4e 100644
+--- a/drivers/char/agp/parisc-agp.c
++++ b/drivers/char/agp/parisc-agp.c
+@@ -285,7 +285,7 @@ agp_ioc_init(void __iomem *ioc_regs)
+         return 0;
+ }
+ 
+-static int
++static int __init
+ lba_find_capability(int cap)
+ {
+ 	struct _parisc_agp_info *info = &parisc_agp_info;
+@@ -370,7 +370,7 @@ parisc_agp_setup(void __iomem *ioc_hpa, void __iomem *lba_hpa)
+ 	return error;
+ }
+ 
+-static int
++static int __init
+ find_quicksilver(struct device *dev, void *data)
+ {
+ 	struct parisc_device **lba = data;
+@@ -382,7 +382,7 @@ find_quicksilver(struct device *dev, void *data)
+ 	return 0;
+ }
+ 
+-static int
++static int __init
+ parisc_agp_init(void)
+ {
+ 	extern struct sba_device *sba_list;
 -- 
 2.33.0
 
