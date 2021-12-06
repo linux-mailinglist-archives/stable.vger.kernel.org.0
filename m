@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADCCF469BD5
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB0C1469F19
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359116AbhLFPRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:01 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34344 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350729AbhLFPOF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:05 -0500
+        id S1391372AbhLFPpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33178 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390537AbhLFPma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66F7FC0698D3;
+        Mon,  6 Dec 2021 07:28:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BF6E61319;
-        Mon,  6 Dec 2021 15:10:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EEBC341C1;
-        Mon,  6 Dec 2021 15:10:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00F476131B;
+        Mon,  6 Dec 2021 15:28:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9865C34900;
+        Mon,  6 Dec 2021 15:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803434;
-        bh=p6LYL8+1mm261afjJwqkm3hpF347y2q+hRVR1I3Inyg=;
+        s=korg; t=1638804484;
+        bh=f+vxqzT73r2rlq92rOoNKxkKpasNEvIcUfmDH1B4V+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5+5LrffhOcFmkmG00E6KMueR47xfN4tsNdqeE+2HJE7+kR49Un5JEujgnxI269Xu
-         bqPgRjzsLtnd8q6o3Zm9Ms6aB1MEMAB7xvavUtFADarIMsEA+zIYMUmi3Ul/4lMt1U
-         006Ho/Sq3kJ2z+55DdE8MJESm0VJXVHo3+KLd+HY=
+        b=M9pScf8R2gVpNMOIUbCyczu0YuZNOzQ7jJksbfR2Kn7AA+larfBaov6BWDnoUejxh
+         0oTfoB8gmIzAVwf5VANCt25d429wgEiWroX6DuQCJK7GgDqykTuZm5Zx+IoDaaClTw
+         U4jCr2GM0J9GzesISJW7QDMo9F/xxMh1qWj0CpUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 40/48] xhci: Fix commad ring abort, write all 64 bits to CRCR register.
+        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 163/207] net/mlx5: Move MODIFY_RQT command to ignore list in internal error state
 Date:   Mon,  6 Dec 2021 15:56:57 +0100
-Message-Id: <20211206145550.207939735@linuxfoundation.org>
+Message-Id: <20211206145615.911060240@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-commit 09f736aa95476631227d2dc0e6b9aeee1ad7ed58 upstream.
+[ Upstream commit e45c0b34493c24eeeebf89f63a5293aac7728ed7 ]
 
-Turns out some xHC controllers require all 64 bits in the CRCR register
-to be written to execute a command abort.
+When the device is in internal error state, command interface isn't
+accessible and the driver decides which commands to fail and which
+to ignore.
 
-The lower 32 bits containing the command abort bit is written first.
-In case the command ring stops before we write the upper 32 bits then
-hardware may use these upper bits to set the commnd ring dequeue pointer.
+Move the MODIFY_RQT command to the ignore list in order to avoid
+the following redundant warning messages in internal error state:
 
-Solve this by making sure the upper 32 bits contain a valid command
-ring dequeue pointer.
+mlx5_core 0000:82:00.1: mlx5e_rss_disable:419:(pid 23754): Failed to redirect RQT 0x0 to drop RQ 0xc00848: err = -5
+mlx5_core 0000:82:00.1: mlx5e_rx_res_channels_deactivate:598:(pid 23754): Failed to redirect direct RQT 0x1 to drop RQ 0xc00848 (channel 0): err = -5
+mlx5_core 0000:82:00.1: mlx5e_rx_res_channels_deactivate:607:(pid 23754): Failed to redirect XSK RQT 0x19 to drop RQ 0xc00848 (channel 0): err = -5
 
-The original patch that only wrote the first 32 to stop the ring went
-to stable, so this fix should go there as well.
-
-Fixes: ff0e50d3564f ("xhci: Fix command ring pointer corruption while aborting a command")
-Cc: stable@vger.kernel.org
-Tested-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211126122340.1193239-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 43ec0f41fa73 ("net/mlx5e: Hide all implementation details of mlx5e_rx_res")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-ring.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -339,7 +339,9 @@ static void xhci_handle_stopped_cmd_ring
- /* Must be called with xhci->lock held, releases and aquires lock back */
- static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
- {
--	u32 temp_32;
-+	struct xhci_segment *new_seg	= xhci->cmd_ring->deq_seg;
-+	union xhci_trb *new_deq		= xhci->cmd_ring->dequeue;
-+	u64 crcr;
- 	int ret;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index c698e4b5381d7..bea35530c2d0b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -336,6 +336,7 @@ static int mlx5_internal_err_ret_value(struct mlx5_core_dev *dev, u16 op,
+ 	case MLX5_CMD_OP_DEALLOC_SF:
+ 	case MLX5_CMD_OP_DESTROY_UCTX:
+ 	case MLX5_CMD_OP_DESTROY_UMEM:
++	case MLX5_CMD_OP_MODIFY_RQT:
+ 		return MLX5_CMD_STAT_OK;
  
- 	xhci_dbg(xhci, "Abort command ring\n");
-@@ -348,13 +350,18 @@ static int xhci_abort_cmd_ring(struct xh
+ 	case MLX5_CMD_OP_QUERY_HCA_CAP:
+@@ -441,7 +442,6 @@ static int mlx5_internal_err_ret_value(struct mlx5_core_dev *dev, u16 op,
+ 	case MLX5_CMD_OP_MODIFY_TIS:
+ 	case MLX5_CMD_OP_QUERY_TIS:
+ 	case MLX5_CMD_OP_CREATE_RQT:
+-	case MLX5_CMD_OP_MODIFY_RQT:
+ 	case MLX5_CMD_OP_QUERY_RQT:
  
- 	/*
- 	 * The control bits like command stop, abort are located in lower
--	 * dword of the command ring control register. Limit the write
--	 * to the lower dword to avoid corrupting the command ring pointer
--	 * in case if the command ring is stopped by the time upper dword
--	 * is written.
-+	 * dword of the command ring control register.
-+	 * Some controllers require all 64 bits to be written to abort the ring.
-+	 * Make sure the upper dword is valid, pointing to the next command,
-+	 * avoiding corrupting the command ring pointer in case the command ring
-+	 * is stopped by the time the upper dword is written.
- 	 */
--	temp_32 = readl(&xhci->op_regs->cmd_ring);
--	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
-+	next_trb(xhci, NULL, &new_seg, &new_deq);
-+	if (trb_is_link(new_deq))
-+		next_trb(xhci, NULL, &new_seg, &new_deq);
-+
-+	crcr = xhci_trb_virt_to_dma(new_seg, new_deq);
-+	xhci_write_64(xhci, crcr | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
- 
- 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
- 	 * completion of the Command Abort operation. If CRR is not negated in 5
+ 	case MLX5_CMD_OP_CREATE_FLOW_TABLE:
+-- 
+2.33.0
+
 
 
