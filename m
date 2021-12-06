@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 578EE469EAB
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3245469E29
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385910AbhLFPna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:43:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49066 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388469AbhLFPdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:33:35 -0500
+        id S1356412AbhLFPgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:36:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1388248AbhLFPca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21B63C09B06F;
+        Mon,  6 Dec 2021 07:19:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0987361322;
-        Mon,  6 Dec 2021 15:30:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DD2C34900;
-        Mon,  6 Dec 2021 15:30:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE5D4B81118;
+        Mon,  6 Dec 2021 15:19:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D938C341C1;
+        Mon,  6 Dec 2021 15:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804604;
-        bh=wL4tWySXBrPzJT5fG9ckppc3JBbRbiWt60uRzrLiJp8=;
+        s=korg; t=1638803970;
+        bh=jvzNmJK63+tjJYtDhzEY6ibaTayFSQtHZM1E31RcI/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDRfTYoQdPhO5x6/mhuh1r+ltWx9rV2OOpu/kSrVGLwepYv5fWxZ8v8rTsgoG9bpI
-         GPWXguR47fM6J/6KhXH6vkLUYhFtHiINyk0W3H1XhD1dFGuJTACpoUHHYoN8SszLLy
-         J7ukdK5XGGyKPi7U0GkC6cTHECS0nMzYmB6a2MHs=
+        b=ojPA3SKQvuq3oKt9jP45mTe+kOu8TN5n4jfcVsPrBvAc8QmzRO2zcp+X1xj7nPIvk
+         WbvqZRffxMZE1GPsCiK7acmdrUM+4m4L+3craGh1uMGPzJXZT6idn3SCG5z3McXeNj
+         vM3z0xpp2yaySYKRv0c/cPu1kpVHkCwPVId/+Bow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
-        Borislav Petkov <bp@suse.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 174/207] x86/entry: Use the correct fence macro after swapgs in kernel CR3
-Date:   Mon,  6 Dec 2021 15:57:08 +0100
-Message-Id: <20211206145616.287986461@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 112/130] parisc: Fix "make install" on newer debian releases
+Date:   Mon,  6 Dec 2021 15:57:09 +0100
+Message-Id: <20211206145603.510167968@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +46,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <laijs@linux.alibaba.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 1367afaa2ee90d1c956dfc224e199fcb3ff3f8cc ]
+commit 0f9fee4cdebfbe695c297e5b603a275e2557c1cc upstream.
 
-The commit
+On newer debian releases the debian-provided "installkernel" script is
+installed in /usr/sbin. Fix the kernel install.sh script to look for the
+script in this directory as well.
 
-  c75890700455 ("x86/entry/64: Remove unneeded kernel CR3 switching")
-
-removed a CR3 write in the faulting path of load_gs_index().
-
-But the path's FENCE_SWAPGS_USER_ENTRY has no fence operation if PTI is
-enabled, see spectre_v1_select_mitigation().
-
-Rather, it depended on the serializing CR3 write of SWITCH_TO_KERNEL_CR3
-and since it got removed, add a FENCE_SWAPGS_KERNEL_ENTRY call to make
-sure speculation is blocked.
-
- [ bp: Massage commit message and comment. ]
-
-Fixes: c75890700455 ("x86/entry/64: Remove unneeded kernel CR3 switching")
-Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20211126101209.8613-3-jiangshanlai@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org> # v3.13+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/entry_64.S | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/parisc/install.sh |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index f1a8b5b2af964..f9e1c06a1c329 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -987,11 +987,6 @@ SYM_CODE_START_LOCAL(error_entry)
- 	pushq	%r12
- 	ret
+--- a/arch/parisc/install.sh
++++ b/arch/parisc/install.sh
+@@ -39,6 +39,7 @@ verify "$3"
+ if [ -n "${INSTALLKERNEL}" ]; then
+   if [ -x ~/bin/${INSTALLKERNEL} ]; then exec ~/bin/${INSTALLKERNEL} "$@"; fi
+   if [ -x /sbin/${INSTALLKERNEL} ]; then exec /sbin/${INSTALLKERNEL} "$@"; fi
++  if [ -x /usr/sbin/${INSTALLKERNEL} ]; then exec /usr/sbin/${INSTALLKERNEL} "$@"; fi
+ fi
  
--.Lerror_entry_done_lfence:
--	FENCE_SWAPGS_KERNEL_ENTRY
--.Lerror_entry_done:
--	ret
--
- 	/*
- 	 * There are two places in the kernel that can potentially fault with
- 	 * usergs. Handle them here.  B stepping K8s sometimes report a
-@@ -1014,8 +1009,14 @@ SYM_CODE_START_LOCAL(error_entry)
- 	 * .Lgs_change's error handler with kernel gsbase.
- 	 */
- 	SWAPGS
--	FENCE_SWAPGS_USER_ENTRY
--	jmp .Lerror_entry_done
-+
-+	/*
-+	 * Issue an LFENCE to prevent GS speculation, regardless of whether it is a
-+	 * kernel or user gsbase.
-+	 */
-+.Lerror_entry_done_lfence:
-+	FENCE_SWAPGS_KERNEL_ENTRY
-+	ret
- 
- .Lbstep_iret:
- 	/* Fix truncated RIP */
--- 
-2.33.0
-
+ # Default install
 
 
