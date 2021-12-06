@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0D04691B8
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 09:47:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 188AA4691B9
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 09:47:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239614AbhLFIuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 03:50:44 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51088 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236377AbhLFIuo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 03:50:44 -0500
+        id S236377AbhLFIus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 03:50:48 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55858 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239616AbhLFIus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 03:50:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAD48611A6
-        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 08:47:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7E95C341C2;
-        Mon,  6 Dec 2021 08:47:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5045AB8103C
+        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 08:47:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DEAEC341C8;
+        Mon,  6 Dec 2021 08:47:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638780435;
-        bh=50F1Fxu66lxunLreCOFhghTQlpMuqRnTP9AHBdzAAgI=;
+        s=korg; t=1638780438;
+        bh=XGdhpVcE/GF/wS0A0bKLyxWnRKBQmRhpmW9GexpXmEI=;
         h=Subject:To:Cc:From:Date:From;
-        b=qJ72nXB5E+6pxRspghZiaQ/T5mowj7e96Bx16Ii/teehhQsyb8Ga72CY8N+k7rTIZ
-         nOuH0OwpkNQ6JrtgK27zU0WvFOjnanA3ehzx/+QAWt8XwkUG/YYWdRPAT65CxAYc0j
-         S5aqEahukj/iFhFxwl+BUTCX06rlyBY7FIiaQ+hw=
-Subject: FAILED: patch "[PATCH] serial: 8250_pci: Fix ACCES entries in pci_serial_quirks" failed to apply to 4.9-stable tree
+        b=SHjtIq9RYBl+GKdArepdA/3EdS+ADOqgHywLSHt8piTk+/3RV51DabP942PpzvUoj
+         ftMj0fldsa5Pih8xiBL7Sw5+PsWx4I8j0sqmNIVMc3LYshZ5p5KVTtg+3KcFaH45W/
+         jPpaOhMlft8XL38BrLnuvyprz2bcZqUrjExLCUxc=
+Subject: FAILED: patch "[PATCH] serial: 8250_pci: Fix ACCES entries in pci_serial_quirks" failed to apply to 4.19-stable tree
 To:     jay.dolan@accesio.com, andriy.shevchenko@linux.intel.com,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Dec 2021 09:47:04 +0100
-Message-ID: <163878042467139@kroah.com>
+Date:   Mon, 06 Dec 2021 09:47:05 +0100
+Message-ID: <16387804252351@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
