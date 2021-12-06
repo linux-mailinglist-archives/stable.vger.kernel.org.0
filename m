@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F062D469EFB
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF34469D18
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391141AbhLFPpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:11 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37242 "EHLO
+        id S1358385AbhLFP2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56198 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388157AbhLFPcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:22 -0500
+        with ESMTP id S1358370AbhLFPXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEEC1B81126;
-        Mon,  6 Dec 2021 15:28:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EC62C34900;
-        Mon,  6 Dec 2021 15:28:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C55B7B81120;
+        Mon,  6 Dec 2021 15:19:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A174C341C1;
+        Mon,  6 Dec 2021 15:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804531;
-        bh=0Bzi1B7magKOPH8sqU6AFIZ2qbfj7RA7crg0prPXjZk=;
+        s=korg; t=1638803987;
+        bh=qwl2eku5qbXaeynAA2THQ+8x/ze1s/hPDoP2EgpyMfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvL67vZ92f6R3Bh0+MjgwowOKz8FbTI9dkOQ3MVynAASR5YL+HfvudzPBPpNNcszS
-         S71l/L/HRVJKTslhN2H7wxSX2ipuA+KNyu3o7T97Kt0xklPm+LcN9KFQBI4I1nYKw4
-         xRxh8vXOCRl8dPKQYLpqOAKi7XdOS/tLZxTvabDo=
+        b=wr5T7jW2I6SfKeAoveOmLKXW5zZhNEM9cNpo+aN+FzpxbQ6GTOvuxk/VCqXUDNy3s
+         gXKTLeeVxVzMt1u/T/kfuPB2M0LNUjIZ1J8Q6X/OGgsblQcqOBOu8L79JrjtIvBiGN
+         wU0jJAHqywo2IScNAk/Hp0oqkgzZKzGckAVNoWk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Ben-Ishay <benishay@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 181/207] net/mlx5e: Rename lro_timeout to packet_merge_timeout
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Feng Tang <feng.tang@intel.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.10 118/130] x86/tsc: Disable clocksource watchdog for TSC on qualified platorms
 Date:   Mon,  6 Dec 2021 15:57:15 +0100
-Message-Id: <20211206145616.544507234@linuxfoundation.org>
+Message-Id: <20211206145603.735110739@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,112 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Ben-Ishay <benishay@nvidia.com>
+From: Feng Tang <feng.tang@intel.com>
 
-[ Upstream commit 50f477fe9933193e960785f1192be801d7cd307a ]
+commit b50db7095fe002fa3e16605546cba66bf1b68a3e upstream.
 
-TIR stands for transport interface receive, the TIR object is
-responsible for performing all transport related operations on
-the receive side like packet processing, demultiplexing the packets
-to different RQ's, etc.
-lro_timeout is a field in the TIR that is used to set the timeout for lro
-session, this series introduces new packet merge type, therefore rename
-lro_timeout to packet_merge_timeout for all packet merge types.
+There are cases that the TSC clocksource is wrongly judged as unstable by
+the clocksource watchdog mechanism which tries to validate the TSC against
+HPET, PM_TIMER or jiffies. While there is hardly a general reliable way to
+check the validity of a watchdog, Thomas Gleixner proposed [1]:
 
-Signed-off-by: Ben Ben-Ishay <benishay@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+"I'm inclined to lift that requirement when the CPU has:
+
+    1) X86_FEATURE_CONSTANT_TSC
+    2) X86_FEATURE_NONSTOP_TSC
+    3) X86_FEATURE_NONSTOP_TSC_S3
+    4) X86_FEATURE_TSC_ADJUST
+    5) At max. 4 sockets
+
+ After two decades of horrors we're finally at a point where TSC seems
+ to be halfway reliable and less abused by BIOS tinkerers. TSC_ADJUST
+ was really key as we can now detect even small modifications reliably
+ and the important point is that we can cure them as well (not pretty
+ but better than all other options)."
+
+As feature #3 X86_FEATURE_NONSTOP_TSC_S3 only exists on several generations
+of Atom processorz, and is always coupled with X86_FEATURE_CONSTANT_TSC
+and X86_FEATURE_NONSTOP_TSC, skip checking it, and also be more defensive
+to use maximal 2 sockets.
+
+The check is done inside tsc_init() before registering 'tsc-early' and
+'tsc' clocksources, as there were cases that both of them had been
+wrongly judged as unreliable.
+
+For more background of tsc/watchdog, there is a good summary in [2]
+
+[tglx} Update vs. jiffies:
+
+  On systems where the only remaining clocksource aside of TSC is jiffies
+  there is no way to make this work because that creates a circular
+  dependency. Jiffies accuracy depends on not missing a periodic timer
+  interrupt, which is not guaranteed. That could be detected by TSC, but as
+  TSC is not trusted this cannot be compensated. The consequence is a
+  circulus vitiosus which results in shutting down TSC and falling back to
+  the jiffies clocksource which is even more unreliable.
+
+[1]. https://lore.kernel.org/lkml/87eekfk8bd.fsf@nanos.tec.linutronix.de/
+[2]. https://lore.kernel.org/lkml/87a6pimt1f.ffs@nanos.tec.linutronix.de/
+
+[ tglx: Refine comment and amend changelog ]
+
+Fixes: 6e3cd95234dc ("x86/hpet: Use another crystalball to evaluate HPET usability")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211117023751.24190-2-feng.tang@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h        | 2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en/params.c | 2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en/tir.c    | 6 +++---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c   | 2 +-
- include/linux/mlx5/mlx5_ifc.h                       | 6 +++---
- 5 files changed, 9 insertions(+), 9 deletions(-)
+ arch/x86/kernel/tsc.c |   28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index 03a7a4ce5cd5e..d9d19130c1a34 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -264,7 +264,7 @@ struct mlx5e_params {
- 	bool scatter_fcs_en;
- 	bool rx_dim_enabled;
- 	bool tx_dim_enabled;
--	u32 lro_timeout;
-+	u32 packet_merge_timeout;
- 	u32 pflags;
- 	struct bpf_prog *xdp_prog;
- 	struct mlx5e_xsk *xsk;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/params.c b/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
-index 3cbb596821e89..2b2b3c5cdbd5c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
-@@ -173,7 +173,7 @@ struct mlx5e_lro_param mlx5e_get_lro_param(struct mlx5e_params *params)
+--- a/arch/x86/kernel/tsc.c
++++ b/arch/x86/kernel/tsc.c
+@@ -1178,6 +1178,12 @@ void mark_tsc_unstable(char *reason)
  
- 	lro_param = (struct mlx5e_lro_param) {
- 		.enabled = params->lro_en,
--		.timeout = params->lro_timeout,
-+		.timeout = params->packet_merge_timeout,
- 	};
+ EXPORT_SYMBOL_GPL(mark_tsc_unstable);
  
- 	return lro_param;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c
-index de936dc4bc483..857ea09791597 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c
-@@ -82,9 +82,9 @@ void mlx5e_tir_builder_build_lro(struct mlx5e_tir_builder *builder,
- 	if (!lro_param->enabled)
- 		return;
++static void __init tsc_disable_clocksource_watchdog(void)
++{
++	clocksource_tsc_early.flags &= ~CLOCK_SOURCE_MUST_VERIFY;
++	clocksource_tsc.flags &= ~CLOCK_SOURCE_MUST_VERIFY;
++}
++
+ static void __init check_system_tsc_reliable(void)
+ {
+ #if defined(CONFIG_MGEODEGX1) || defined(CONFIG_MGEODE_LX) || defined(CONFIG_X86_GENERIC)
+@@ -1194,6 +1200,23 @@ static void __init check_system_tsc_reli
+ #endif
+ 	if (boot_cpu_has(X86_FEATURE_TSC_RELIABLE))
+ 		tsc_clocksource_reliable = 1;
++
++	/*
++	 * Disable the clocksource watchdog when the system has:
++	 *  - TSC running at constant frequency
++	 *  - TSC which does not stop in C-States
++	 *  - the TSC_ADJUST register which allows to detect even minimal
++	 *    modifications
++	 *  - not more than two sockets. As the number of sockets cannot be
++	 *    evaluated at the early boot stage where this has to be
++	 *    invoked, check the number of online memory nodes as a
++	 *    fallback solution which is an reasonable estimate.
++	 */
++	if (boot_cpu_has(X86_FEATURE_CONSTANT_TSC) &&
++	    boot_cpu_has(X86_FEATURE_NONSTOP_TSC) &&
++	    boot_cpu_has(X86_FEATURE_TSC_ADJUST) &&
++	    nr_online_nodes <= 2)
++		tsc_disable_clocksource_watchdog();
+ }
  
--	MLX5_SET(tirc, tirc, lro_enable_mask,
--		 MLX5_TIRC_LRO_ENABLE_MASK_IPV4_LRO |
--		 MLX5_TIRC_LRO_ENABLE_MASK_IPV6_LRO);
-+	MLX5_SET(tirc, tirc, packet_merge_mask,
-+		 MLX5_TIRC_PACKET_MERGE_MASK_IPV4_LRO |
-+		 MLX5_TIRC_PACKET_MERGE_MASK_IPV6_LRO);
- 	MLX5_SET(tirc, tirc, lro_max_ip_payload_size,
- 		 (MLX5E_PARAMS_DEFAULT_LRO_WQE_SZ - rough_max_l2_l3_hdr_sz) >> 8);
- 	MLX5_SET(tirc, tirc, lro_timeout_period_usecs, lro_param->timeout);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 41ef6eb70a585..a9d80ffb25376 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4323,7 +4323,7 @@ void mlx5e_build_nic_params(struct mlx5e_priv *priv, struct mlx5e_xsk *xsk, u16
- 		if (!mlx5e_rx_mpwqe_is_linear_skb(mdev, params, NULL))
- 			params->lro_en = !slow_pci_heuristic(mdev);
+ /*
+@@ -1385,9 +1408,6 @@ static int __init init_tsc_clocksource(v
+ 	if (tsc_unstable)
+ 		goto unreg;
+ 
+-	if (tsc_clocksource_reliable || no_tsc_watchdog)
+-		clocksource_tsc.flags &= ~CLOCK_SOURCE_MUST_VERIFY;
+-
+ 	if (boot_cpu_has(X86_FEATURE_NONSTOP_TSC_S3))
+ 		clocksource_tsc.flags |= CLOCK_SOURCE_SUSPEND_NONSTOP;
+ 
+@@ -1525,7 +1545,7 @@ void __init tsc_init(void)
  	}
--	params->lro_timeout = mlx5e_choose_lro_timeout(mdev, MLX5E_DEFAULT_LRO_TIMEOUT);
-+	params->packet_merge_timeout = mlx5e_choose_lro_timeout(mdev, MLX5E_DEFAULT_LRO_TIMEOUT);
  
- 	/* CQ moderation params */
- 	rx_cq_period_mode = MLX5_CAP_GEN(mdev, cq_period_start_from_cqe) ?
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 993204a6c1a13..944bb9f5006c1 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -3309,8 +3309,8 @@ enum {
- };
+ 	if (tsc_clocksource_reliable || no_tsc_watchdog)
+-		clocksource_tsc_early.flags &= ~CLOCK_SOURCE_MUST_VERIFY;
++		tsc_disable_clocksource_watchdog();
  
- enum {
--	MLX5_TIRC_LRO_ENABLE_MASK_IPV4_LRO  = 0x1,
--	MLX5_TIRC_LRO_ENABLE_MASK_IPV6_LRO  = 0x2,
-+	MLX5_TIRC_PACKET_MERGE_MASK_IPV4_LRO  = BIT(0),
-+	MLX5_TIRC_PACKET_MERGE_MASK_IPV6_LRO  = BIT(1),
- };
- 
- enum {
-@@ -3335,7 +3335,7 @@ struct mlx5_ifc_tirc_bits {
- 
- 	u8         reserved_at_80[0x4];
- 	u8         lro_timeout_period_usecs[0x10];
--	u8         lro_enable_mask[0x4];
-+	u8         packet_merge_mask[0x4];
- 	u8         lro_max_ip_payload_size[0x8];
- 
- 	u8         reserved_at_a0[0x40];
--- 
-2.33.0
-
+ 	clocksource_register_khz(&clocksource_tsc_early, tsc_khz);
+ 	detect_art();
 
 
