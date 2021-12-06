@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4DE4699E6
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8D4469ADB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345471AbhLFPE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52212 "EHLO
+        id S1347253AbhLFPLd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345435AbhLFPDz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6BDDC061D7E;
-        Mon,  6 Dec 2021 07:00:21 -0800 (PST)
+        with ESMTP id S1345738AbhLFPJT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E8B7C08E8A7;
+        Mon,  6 Dec 2021 07:04:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82B25B8110B;
-        Mon,  6 Dec 2021 15:00:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04B4CC341C1;
-        Mon,  6 Dec 2021 15:00:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1FA76132E;
+        Mon,  6 Dec 2021 15:04:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1ECEC341C9;
+        Mon,  6 Dec 2021 15:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802819;
-        bh=/Wb6m5v5fmBpipAr4UQHcfMhU2vYSv9T7Gi+eLxGnho=;
+        s=korg; t=1638803042;
+        bh=SCbTQ9iOmR7KLOuf5o37ZnR8TWH3EbshxaDxG0fTRR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DV5kHRS2Y7o9DaNPZ5C+Ql/FDXM3RobE4/5EoMca9+Y1QErBVnJCXbzKbhTXiOMuQ
-         jB0Y1ngvKpZooyynEjjl6/qPvvnopgwLCA+T2QHJrUN8v97mQyTxtMXsiIhoua5drN
-         +Dw+kS4awEljcXsqkuXrPvUatXoXn6Y+hAbDQFEg=
+        b=tGfsbzfSV9CWwD/2/bKkQsxT3EWFWQMFo4QqjvdczZqMNe15XQR3TQS27GDQclxbT
+         bIWguOu0UHiMoljoE7Aiu5uDwNYJn3mf/kFZEvdtl4++qT3q4OZznC/ANpZyITPjL9
+         fUsgbSQE17cFrCPU4dbjETkTh64AlgXv5ZndS8Ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.4 43/52] sata_fsl: fix warning in remove_proc_entry when rmmod sata_fsl
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 44/62] scsi: iscsi: Unblock session then wake up error handler
 Date:   Mon,  6 Dec 2021 15:56:27 +0100
-Message-Id: <20211206145549.379554239@linuxfoundation.org>
+Message-Id: <20211206145550.727655287@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,78 +49,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 6f48394cf1f3e8486591ad98c11cdadb8f1ef2ad upstream.
+[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
 
-Trying to remove the fsl-sata module in the PPC64 GNU/Linux
-leads to the following warning:
- ------------[ cut here ]------------
- remove_proc_entry: removing non-empty directory 'irq/69',
-   leaking at least 'fsl-sata[ff0221000.sata]'
- WARNING: CPU: 3 PID: 1048 at fs/proc/generic.c:722
-   .remove_proc_entry+0x20c/0x220
- IRQMASK: 0
- NIP [c00000000033826c] .remove_proc_entry+0x20c/0x220
- LR [c000000000338268] .remove_proc_entry+0x208/0x220
- Call Trace:
-  .remove_proc_entry+0x208/0x220 (unreliable)
-  .unregister_irq_proc+0x104/0x140
-  .free_desc+0x44/0xb0
-  .irq_free_descs+0x9c/0xf0
-  .irq_dispose_mapping+0x64/0xa0
-  .sata_fsl_remove+0x58/0xa0 [sata_fsl]
-  .platform_drv_remove+0x40/0x90
-  .device_release_driver_internal+0x160/0x2c0
-  .driver_detach+0x64/0xd0
-  .bus_remove_driver+0x70/0xf0
-  .driver_unregister+0x38/0x80
-  .platform_driver_unregister+0x14/0x30
-  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
- ---[ end trace 0ea876d4076908f5 ]---
+We can race where iscsi_session_recovery_timedout() has woken up the error
+handler thread and it's now setting the devices to offline, and
+session_recovery_timedout()'s call to scsi_target_unblock() is also trying
+to set the device's state to transport-offline. We can then get a mix of
+states.
 
-The driver creates the mapping by calling irq_of_parse_and_map(),
-so it also has to dispose the mapping. But the easy way out is to
-simply use platform_get_irq() instead of irq_of_parse_map(). Also
-we should adapt return value checking and propagate error values.
+For the case where we can't relogin we want the devices to be in
+transport-offline so when we have repaired the connection
+__iscsi_unblock_session() can set the state back to running.
 
-In this case the mapping is not managed by the device but by
-the of core, so the device has not to dispose the mapping.
+Set the device state then call into libiscsi to wake up the error handler.
 
-Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_fsl.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/ata/sata_fsl.c
-+++ b/drivers/ata/sata_fsl.c
-@@ -1502,9 +1502,9 @@ static int sata_fsl_probe(struct platfor
- 	host_priv->ssr_base = ssr_base;
- 	host_priv->csr_base = csr_base;
- 
--	irq = irq_of_parse_and_map(ofdev->dev.of_node, 0);
--	if (!irq) {
--		dev_err(&ofdev->dev, "invalid irq from platform\n");
-+	irq = platform_get_irq(ofdev, 0);
-+	if (irq < 0) {
-+		retval = irq;
- 		goto error_exit_with_cleanup;
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index aed17f958448d..acd8eb8c94cf7 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -1898,12 +1898,12 @@ static void session_recovery_timedout(struct work_struct *work)
  	}
- 	host_priv->irq = irq;
-@@ -1581,8 +1581,6 @@ static int sata_fsl_remove(struct platfo
+ 	spin_unlock_irqrestore(&session->lock, flags);
  
- 	ata_host_detach(host);
- 
--	irq_dispose_mapping(host_priv->irq);
+-	if (session->transport->session_recovery_timedout)
+-		session->transport->session_recovery_timedout(session);
 -
- 	return 0;
+ 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
+ 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
+ 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
++
++	if (session->transport->session_recovery_timedout)
++		session->transport->session_recovery_timedout(session);
  }
  
+ static void __iscsi_unblock_session(struct work_struct *work)
+-- 
+2.33.0
+
 
 
