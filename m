@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4B7469ABB
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:07:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7A4469C9A
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347954AbhLFPJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:09:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345947AbhLFPHo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:07:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5157DC0698C2;
-        Mon,  6 Dec 2021 07:03:32 -0800 (PST)
+        id S1359055AbhLFPXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:53 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38822 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355959AbhLFPVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6F9C61342;
-        Mon,  6 Dec 2021 15:03:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7EEAC341C1;
-        Mon,  6 Dec 2021 15:03:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7C1C6130D;
+        Mon,  6 Dec 2021 15:18:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F04DC341C2;
+        Mon,  6 Dec 2021 15:18:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803011;
-        bh=fzhFtjV0JZA5MKmOFmqC9SL+v6z0pKoJd1YZyse+dYU=;
+        s=korg; t=1638803900;
+        bh=UtOdD7UOwFTTMncBV2kXlv+ctN+w+KR62/wd5b3/AlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/mF2Oq4O5PQBagOvPjwzh2e0DQr/Z+3CWhHu58pzVOdEO7gze1/BgjIrf+9fD6LL
-         SI1FlvDdMp++kbz2N0B9KOv5P4lCtpdvpqPw9yF0v00DMsv0QXHsniR8BMBttUKck0
-         jWIZJKdLA/RnznMzZmHd//08Zun2rijhqDQxryLM=
+        b=AXVZOMM8ay8iuaBRNWfFferTAx0hj5xbsfGcdHiyblnqNckX5NWt7evCh7TxSA7/m
+         txc1o97dtALeZ1Bc3SK94OQOQgCPCyk3oXg+cpdzTCEoyVmUrC659b8HlY5vj0l66f
+         y7tpFBjtI3IiS/i96PBb9zDlGTOaiBuVg54sjyko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.9 60/62] tty: serial: msm_serial: Deactivate RX DMA for polling support
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Sven Schuchmann <schuchmann@schleissheimer.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 086/130] net: usb: lan78xx: lan78xx_phy_init(): use PHY_POLL instead of "0" if no IRQ is available
 Date:   Mon,  6 Dec 2021 15:56:43 +0100
-Message-Id: <20211206145551.285722826@linuxfoundation.org>
+Message-Id: <20211206145602.637100196@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Sven Schuchmann <schuchmann@schleissheimer.de>
 
-commit 7492ffc90fa126afb67d4392d56cb4134780194a upstream.
+commit 817b653160db9852d5a0498a31f047e18ce27e5b upstream.
 
-The CONSOLE_POLLING mode is used for tools like k(g)db. In this kind of
-setup, it is often sharing a serial device with the normal system console.
-This is usually no problem because the polling helpers can consume input
-values directly (when in kgdb context) and the normal Linux handlers can
-only consume new input values after kgdb switched back.
+On most systems request for IRQ 0 will fail, phylib will print an error message
+and fall back to polling. To fix this set the phydev->irq to PHY_POLL if no IRQ
+is available.
 
-This is not true anymore when RX DMA is enabled for UARTDM controllers.
-Single input values can no longer be received correctly. Instead following
-seems to happen:
-
-* on 1. input, some old input is read (continuously)
-* on 2. input, two old inputs are read (continuously)
-* on 3. input, three old input values are read (continuously)
-* on 4. input, 4 previous inputs are received
-
-This repeats then for each group of 4 input values.
-
-This behavior changes slightly depending on what state the controller was
-when the first input was received. But this makes working with kgdb
-basically impossible because control messages are always corrupted when
-kgdboc tries to parse them.
-
-RX DMA should therefore be off when CONSOLE_POLLING is enabled to avoid
-these kind of problems. No such problem was noticed for TX DMA.
-
-Fixes: 99693945013a ("tty: serial: msm: Add RX DMA support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Link: https://lore.kernel.org/r/20211113121050.7266-1-sven@narfation.org
+Fixes: cc89c323a30e ("lan78xx: Use irq_domain for phy interrupt from USB Int. EP")
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Sven Schuchmann <schuchmann@schleissheimer.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/msm_serial.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/lan78xx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -611,6 +611,9 @@ static void msm_start_rx_dma(struct msm_
- 	u32 val;
- 	int ret;
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -2128,7 +2128,7 @@ static int lan78xx_phy_init(struct lan78
+ 	if (dev->domain_data.phyirq > 0)
+ 		phydev->irq = dev->domain_data.phyirq;
+ 	else
+-		phydev->irq = 0;
++		phydev->irq = PHY_POLL;
+ 	netdev_dbg(dev->net, "phydev->irq = %d\n", phydev->irq);
  
-+	if (IS_ENABLED(CONFIG_CONSOLE_POLL))
-+		return;
-+
- 	if (!dma->chan)
- 		return;
- 
+ 	/* set to AUTOMDIX */
 
 
