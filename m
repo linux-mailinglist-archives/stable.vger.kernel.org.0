@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5FAE46A9A6
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E1446A9A7
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350686AbhLFVTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:19:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58786 "EHLO
+        id S1350848AbhLFVTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:19:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350851AbhLFVSi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:18:38 -0500
+        with ESMTP id S1350638AbhLFVSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:18:41 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EBF6C07E5C5;
-        Mon,  6 Dec 2021 13:15:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E749C0698C1;
+        Mon,  6 Dec 2021 13:15:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B659FCE13C6;
+        by sin.source.kernel.org (Postfix) with ESMTPS id ABCEECE1861;
+        Mon,  6 Dec 2021 21:15:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 367DEC341CA;
         Mon,  6 Dec 2021 21:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC273C341C7;
-        Mon,  6 Dec 2021 21:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825303;
-        bh=dUqW5jmy37lTCjgJ2ggYyL6p1tYO8IpcNgrJdv/x10I=;
+        s=k20201202; t=1638825307;
+        bh=p4q2jJiqmTvTg/BQqSl9uEEFfH48wa23OnPgltutTCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXBVgIGdn5yJoEnMNM6USc4KCpR6NNlpKW0NXD+uBPMrKybYDlpbyP8s6O5oqBF8G
-         U3uPfndsGiRP9abCtNxDCKn4y506p9T9yS3gN8wIWhDaWRalZXbf+/7AiUz76d0rYm
-         Urle/jXZxAu5alxPYnrXXwlvUHk/TNEJ8KpmzvA37kkxKjO8Bg4Rz2M8sGMb2LV3oY
-         fC/leiZ28WIRlTZiju63w1JWql+tbr4m6xU2xaoyVbArjlfn5Pt8b+18DVH7dcyvJi
-         gu4Ecl5RLSlgUdVgOGEJERV0/n00Jf0104Y5mnUqwff3D517tvBT+kMVJ+grlTuuoW
-         NequWONn3Sixg==
+        b=Sjq6bhJkYgaJiGUUlD6f/4ZAXvRmuXOyySS+h8UVep0p00DWfp1KXd9pLFnbVoP3D
+         V4+pjSOsNIVK6Jw0lC3jVtUJLT6BsWb1fyqDcB13oeWHLd0A0mfA9/rdYZUBhzlPbC
+         JjRgEhYKJ9YgpT0m0zhVH5gajOneDejVCAB17vdEOLfxzZmqbvG4162v9zt2AFcOG7
+         xfIdCZ22GkVMaGR0rUz/hE7BJPYsxVuZ0RWirUHePKKjqtyK3YsiUjMAb1EFQXlUB2
+         b4m+QxEhlmW7maNQXBoNp8Iyjnwo3M8fZEE4Yu4oIN/+HYQ6W7P80lgvvdGc9ktEAP
+         PCA9EFeovmOmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Perry Yuan <Perry.Yuan@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+Cc:     Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, sunpeng.li@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Wayne.Lin@amd.com, Nicholas.Kazlauskas@amd.com,
-        eryk.brol@amd.com, dingchen.zhang@amd.com,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
         amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 21/24] drm/amd/display: add connector type check for CRC source set
-Date:   Mon,  6 Dec 2021 16:12:26 -0500
-Message-Id: <20211206211230.1660072-21-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 22/24] drm/amdkfd: process_info lock not needed for svm
+Date:   Mon,  6 Dec 2021 16:12:27 -0500
+Message-Id: <20211206211230.1660072-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211206211230.1660072-1-sashal@kernel.org>
 References: <20211206211230.1660072-1-sashal@kernel.org>
@@ -56,76 +53,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Perry Yuan <Perry.Yuan@amd.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit 2da34b7bb59e1caa9a336e0e20a76b8b6a4abea2 ]
+[ Upstream commit 3abfe30d803e62cc75dec254eefab3b04d69219b ]
 
-[Why]
-IGT bypass test will set crc source as DPRX,and display DM didn`t check
-connection type, it run the test on the HDMI connector ,then the kernel
-will be crashed because aux->transfer is set null for HDMI connection.
-This patch will skip the invalid connection test and fix kernel crash issue.
+process_info->lock is used to protect kfd_bo_list, vm_list_head, n_vms
+and userptr valid/inval list, svm_range_restore_work and
+svm_range_set_attr don't access those, so do not need to take
+process_info lock. This will avoid potential circular locking issue.
 
-[How]
-Check the connector type while setting the pipe crc source as DPRX or
-auto,if the type is not DP or eDP, the crtc crc source will not be set
-and report error code to IGT test,IGT will show the this subtest as no
-valid crtc/connector combinations found.
-
-116.779714] [IGT] amd_bypass: starting subtest 8bpc-bypass-mode
-[ 117.730996] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[ 117.731001] #PF: supervisor instruction fetch in kernel mode
-[ 117.731003] #PF: error_code(0x0010) - not-present page
-[ 117.731004] PGD 0 P4D 0
-[ 117.731006] Oops: 0010 [#1] SMP NOPTI
-[ 117.731009] CPU: 11 PID: 2428 Comm: amd_bypass Tainted: G OE 5.11.0-34-generic #36~20.04.1-Ubuntu
-[ 117.731011] Hardware name: AMD CZN/, BIOS AB.FD 09/07/2021
-[ 117.731012] RIP: 0010:0x0
-[ 117.731015] Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-[ 117.731016] RSP: 0018:ffffa8d64225bab8 EFLAGS: 00010246
-[ 117.731017] RAX: 0000000000000000 RBX: 0000000000000020 RCX: ffffa8d64225bb5e
-[ 117.731018] RDX: ffff93151d921880 RSI: ffffa8d64225bac8 RDI: ffff931511a1a9d8
-[ 117.731022] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 117.731023] CR2: ffffffffffffffd6 CR3: 000000010d5a4000 CR4: 0000000000750ee0
-[ 117.731023] PKRU: 55555554
-[ 117.731024] Call Trace:
-[ 117.731027] drm_dp_dpcd_access+0x72/0x110 [drm_kms_helper]
-[ 117.731036] drm_dp_dpcd_read+0xb7/0xf0 [drm_kms_helper]
-[ 117.731040] drm_dp_start_crc+0x38/0xb0 [drm_kms_helper]
-[ 117.731047] amdgpu_dm_crtc_set_crc_source+0x1ae/0x3e0 [amdgpu]
-[ 117.731149] crtc_crc_open+0x174/0x220 [drm]
-[ 117.731162] full_proxy_open+0x168/0x1f0
-[ 117.731165] ? open_proxy_open+0x100/0x100
-
-BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1546
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-index cce062adc4391..8a441a22c46ec 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-@@ -314,6 +314,14 @@ int amdgpu_dm_crtc_set_crc_source(struct drm_crtc *crtc, const char *src_name)
- 			ret = -EINVAL;
- 			goto cleanup;
- 		}
-+
-+		if ((aconn->base.connector_type != DRM_MODE_CONNECTOR_DisplayPort) &&
-+				(aconn->base.connector_type != DRM_MODE_CONNECTOR_eDP)) {
-+			DRM_DEBUG_DRIVER("No DP connector available for CRC source\n");
-+			ret = -EINVAL;
-+			goto cleanup;
-+		}
-+
- 	}
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+index 179080329af89..5a674235ae41a 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+@@ -1565,7 +1565,6 @@ svm_range_list_lock_and_flush_work(struct svm_range_list *svms,
+ static void svm_range_restore_work(struct work_struct *work)
+ {
+ 	struct delayed_work *dwork = to_delayed_work(work);
+-	struct amdkfd_process_info *process_info;
+ 	struct svm_range_list *svms;
+ 	struct svm_range *prange;
+ 	struct kfd_process *p;
+@@ -1585,12 +1584,10 @@ static void svm_range_restore_work(struct work_struct *work)
+ 	 * the lifetime of this thread, kfd_process and mm will be valid.
+ 	 */
+ 	p = container_of(svms, struct kfd_process, svms);
+-	process_info = p->kgd_process_info;
+ 	mm = p->mm;
+ 	if (!mm)
+ 		return;
  
- #if defined(CONFIG_DRM_AMD_SECURE_DISPLAY)
+-	mutex_lock(&process_info->lock);
+ 	svm_range_list_lock_and_flush_work(svms, mm);
+ 	mutex_lock(&svms->lock);
+ 
+@@ -1643,7 +1640,6 @@ static void svm_range_restore_work(struct work_struct *work)
+ out_reschedule:
+ 	mutex_unlock(&svms->lock);
+ 	mmap_write_unlock(mm);
+-	mutex_unlock(&process_info->lock);
+ 
+ 	/* If validation failed, reschedule another attempt */
+ 	if (evicted_ranges) {
+@@ -2974,7 +2970,6 @@ static int
+ svm_range_set_attr(struct kfd_process *p, uint64_t start, uint64_t size,
+ 		   uint32_t nattr, struct kfd_ioctl_svm_attribute *attrs)
+ {
+-	struct amdkfd_process_info *process_info = p->kgd_process_info;
+ 	struct mm_struct *mm = current->mm;
+ 	struct list_head update_list;
+ 	struct list_head insert_list;
+@@ -2993,8 +2988,6 @@ svm_range_set_attr(struct kfd_process *p, uint64_t start, uint64_t size,
+ 
+ 	svms = &p->svms;
+ 
+-	mutex_lock(&process_info->lock);
+-
+ 	svm_range_list_lock_and_flush_work(svms, mm);
+ 
+ 	if (!svm_range_is_valid(mm, start, size)) {
+@@ -3070,8 +3063,6 @@ svm_range_set_attr(struct kfd_process *p, uint64_t start, uint64_t size,
+ 	mutex_unlock(&svms->lock);
+ 	mmap_read_unlock(mm);
+ out:
+-	mutex_unlock(&process_info->lock);
+-
+ 	pr_debug("pasid 0x%x svms 0x%p [0x%llx 0x%llx] done, r=%d\n", p->pasid,
+ 		 &p->svms, start, start + size - 1, r);
+ 
 -- 
 2.33.0
 
