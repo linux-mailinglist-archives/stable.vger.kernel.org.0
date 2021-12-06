@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDDFF469F1B
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C8D9469C39
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391393AbhLFPpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33164 "EHLO
+        id S1348736AbhLFPV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390529AbhLFPm3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:29 -0500
+        with ESMTP id S1357464AbhLFPTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2C13C0698C6;
-        Mon,  6 Dec 2021 07:27:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E98AC0698C3;
+        Mon,  6 Dec 2021 07:13:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68847B8101B;
-        Mon,  6 Dec 2021 15:27:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FEC3C34900;
-        Mon,  6 Dec 2021 15:27:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA65DB8111A;
+        Mon,  6 Dec 2021 15:13:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19AA9C341C2;
+        Mon,  6 Dec 2021 15:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804462;
-        bh=uvABKF+0uhXo8hjWpBCGKhFK09bblWqlT4KGLREcB2Y=;
+        s=korg; t=1638803585;
+        bh=CuW/n4VtCHwH7aaPq0IjMPfOiXH3307h8nRw5wEYGbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvqUJh5vg6c5/2RZHxXprMqdFpHDKT+8WolG4TZ9qDg7WNiEHSSgvmg+2fJwjxkLV
-         bu9fRupTle5da2I/S1rnv+bl9RJGn2OG56m/UgdTKM0Hf7JAoUElcNbsK3SN9n6klu
-         zW35BMZKgHcAMTOyZe8FEkFhrQ3SROp5u6aDlCzY=
+        b=E0YuuFIVR9/KB3LSrx5ijHw9A3gEUsIAOgtDpWEcuXzLQDSMTZJ15x8Y5nA+hnV8I
+         lgBZ/BFiAa57KH1JglzaP6MFFla03XhLBuxvURJmp45BXYcgtZrJnPxNikLO6Fthq+
+         FfoM0X+7VMTzkrWkO/qLynTrpdJ39Jd75JlMg/Gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 155/207] drm/msm: Fix mmap to include VM_IO and VM_DONTDUMP
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 45/70] net: annotate data-races on txq->xmit_lock_owner
 Date:   Mon,  6 Dec 2021 15:56:49 +0100
-Message-Id: <20211206145615.629523096@linuxfoundation.org>
+Message-Id: <20211206145553.485563161@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,101 +48,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 3466d9e217b337bf473ee629c608e53f9f3ab786 ]
+commit 7a10d8c810cfad3e79372d7d1c77899d86cd6662 upstream.
 
-In commit 510410bfc034 ("drm/msm: Implement mmap as GEM object
-function") we switched to a new/cleaner method of doing things. That's
-good, but we missed a little bit.
+syzbot found that __dev_queue_xmit() is reading txq->xmit_lock_owner
+without annotations.
 
-Before that commit, we used to _first_ run through the
-drm_gem_mmap_obj() case where `obj->funcs->mmap()` was NULL. That meant
-that we ran:
+No serious issue there, let's document what is happening there.
 
-  vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
-  vma->vm_page_prot = pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-  vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
+BUG: KCSAN: data-race in __dev_queue_xmit / __dev_queue_xmit
 
-...and _then_ we modified those mappings with our own. Now that
-`obj->funcs->mmap()` is no longer NULL we don't run the default
-code. It looks like the fact that the vm_flags got VM_IO / VM_DONTDUMP
-was important because we're now getting crashes on Chromebooks that
-use ARC++ while logging out. Specifically a crash that looks like this
-(this is on a 5.10 kernel w/ relevant backports but also seen on a
-5.15 kernel):
+write to 0xffff888139d09484 of 4 bytes by interrupt on cpu 0:
+ __netif_tx_unlock include/linux/netdevice.h:4437 [inline]
+ __dev_queue_xmit+0x948/0xf70 net/core/dev.c:4229
+ dev_queue_xmit_accel+0x19/0x20 net/core/dev.c:4265
+ macvlan_queue_xmit drivers/net/macvlan.c:543 [inline]
+ macvlan_start_xmit+0x2b3/0x3d0 drivers/net/macvlan.c:567
+ __netdev_start_xmit include/linux/netdevice.h:4987 [inline]
+ netdev_start_xmit include/linux/netdevice.h:5001 [inline]
+ xmit_one+0x105/0x2f0 net/core/dev.c:3590
+ dev_hard_start_xmit+0x72/0x120 net/core/dev.c:3606
+ sch_direct_xmit+0x1b2/0x7c0 net/sched/sch_generic.c:342
+ __dev_xmit_skb+0x83d/0x1370 net/core/dev.c:3817
+ __dev_queue_xmit+0x590/0xf70 net/core/dev.c:4194
+ dev_queue_xmit+0x13/0x20 net/core/dev.c:4259
+ neigh_hh_output include/net/neighbour.h:511 [inline]
+ neigh_output include/net/neighbour.h:525 [inline]
+ ip6_finish_output2+0x995/0xbb0 net/ipv6/ip6_output.c:126
+ __ip6_finish_output net/ipv6/ip6_output.c:191 [inline]
+ ip6_finish_output+0x444/0x4c0 net/ipv6/ip6_output.c:201
+ NF_HOOK_COND include/linux/netfilter.h:296 [inline]
+ ip6_output+0x10e/0x210 net/ipv6/ip6_output.c:224
+ dst_output include/net/dst.h:450 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ ndisc_send_skb+0x486/0x610 net/ipv6/ndisc.c:508
+ ndisc_send_rs+0x3b0/0x3e0 net/ipv6/ndisc.c:702
+ addrconf_rs_timer+0x370/0x540 net/ipv6/addrconf.c:3898
+ call_timer_fn+0x2e/0x240 kernel/time/timer.c:1421
+ expire_timers+0x116/0x240 kernel/time/timer.c:1466
+ __run_timers+0x368/0x410 kernel/time/timer.c:1734
+ run_timer_softirq+0x2e/0x60 kernel/time/timer.c:1747
+ __do_softirq+0x158/0x2de kernel/softirq.c:558
+ __irq_exit_rcu kernel/softirq.c:636 [inline]
+ irq_exit_rcu+0x37/0x70 kernel/softirq.c:648
+ sysvec_apic_timer_interrupt+0x3e/0xb0 arch/x86/kernel/apic/apic.c:1097
+ asm_sysvec_apic_timer_interrupt+0x12/0x20
 
-  Unable to handle kernel paging request at virtual address ffffffc008000000
-  Mem abort info:
-    ESR = 0x96000006
-    EC = 0x25: DABT (current EL), IL = 32 bits
-    SET = 0, FnV = 0
-    EA = 0, S1PTW = 0
-  Data abort info:
-    ISV = 0, ISS = 0x00000006
-    CM = 0, WnR = 0
-  swapper pgtable: 4k pages, 39-bit VAs, pgdp=000000008293d000
-  [ffffffc008000000] pgd=00000001002b3003, p4d=00000001002b3003,
-                     pud=00000001002b3003, pmd=0000000000000000
-  Internal error: Oops: 96000006 [#1] PREEMPT SMP
-  [...]
-  CPU: 7 PID: 15734 Comm: crash_dump64 Tainted: G W 5.10.67 #1 [...]
-  Hardware name: Qualcomm Technologies, Inc. sc7280 IDP SKU2 platform (DT)
-  pstate: 80400009 (Nzcv daif +PAN -UAO -TCO BTYPE=--)
-  pc : __arch_copy_to_user+0xc0/0x30c
-  lr : copyout+0xac/0x14c
-  [...]
-  Call trace:
-   __arch_copy_to_user+0xc0/0x30c
-   copy_page_to_iter+0x1a0/0x294
-   process_vm_rw_core+0x240/0x408
-   process_vm_rw+0x110/0x16c
-   __arm64_sys_process_vm_readv+0x30/0x3c
-   el0_svc_common+0xf8/0x250
-   do_el0_svc+0x30/0x80
-   el0_svc+0x10/0x1c
-   el0_sync_handler+0x78/0x108
-   el0_sync+0x184/0x1c0
-  Code: f8408423 f80008c3 910020c6 36100082 (b8404423)
+read to 0xffff888139d09484 of 4 bytes by interrupt on cpu 1:
+ __dev_queue_xmit+0x5e3/0xf70 net/core/dev.c:4213
+ dev_queue_xmit_accel+0x19/0x20 net/core/dev.c:4265
+ macvlan_queue_xmit drivers/net/macvlan.c:543 [inline]
+ macvlan_start_xmit+0x2b3/0x3d0 drivers/net/macvlan.c:567
+ __netdev_start_xmit include/linux/netdevice.h:4987 [inline]
+ netdev_start_xmit include/linux/netdevice.h:5001 [inline]
+ xmit_one+0x105/0x2f0 net/core/dev.c:3590
+ dev_hard_start_xmit+0x72/0x120 net/core/dev.c:3606
+ sch_direct_xmit+0x1b2/0x7c0 net/sched/sch_generic.c:342
+ __dev_xmit_skb+0x83d/0x1370 net/core/dev.c:3817
+ __dev_queue_xmit+0x590/0xf70 net/core/dev.c:4194
+ dev_queue_xmit+0x13/0x20 net/core/dev.c:4259
+ neigh_resolve_output+0x3db/0x410 net/core/neighbour.c:1523
+ neigh_output include/net/neighbour.h:527 [inline]
+ ip6_finish_output2+0x9be/0xbb0 net/ipv6/ip6_output.c:126
+ __ip6_finish_output net/ipv6/ip6_output.c:191 [inline]
+ ip6_finish_output+0x444/0x4c0 net/ipv6/ip6_output.c:201
+ NF_HOOK_COND include/linux/netfilter.h:296 [inline]
+ ip6_output+0x10e/0x210 net/ipv6/ip6_output.c:224
+ dst_output include/net/dst.h:450 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ ndisc_send_skb+0x486/0x610 net/ipv6/ndisc.c:508
+ ndisc_send_rs+0x3b0/0x3e0 net/ipv6/ndisc.c:702
+ addrconf_rs_timer+0x370/0x540 net/ipv6/addrconf.c:3898
+ call_timer_fn+0x2e/0x240 kernel/time/timer.c:1421
+ expire_timers+0x116/0x240 kernel/time/timer.c:1466
+ __run_timers+0x368/0x410 kernel/time/timer.c:1734
+ run_timer_softirq+0x2e/0x60 kernel/time/timer.c:1747
+ __do_softirq+0x158/0x2de kernel/softirq.c:558
+ __irq_exit_rcu kernel/softirq.c:636 [inline]
+ irq_exit_rcu+0x37/0x70 kernel/softirq.c:648
+ sysvec_apic_timer_interrupt+0x8d/0xb0 arch/x86/kernel/apic/apic.c:1097
+ asm_sysvec_apic_timer_interrupt+0x12/0x20
+ kcsan_setup_watchpoint+0x94/0x420 kernel/kcsan/core.c:443
+ folio_test_anon include/linux/page-flags.h:581 [inline]
+ PageAnon include/linux/page-flags.h:586 [inline]
+ zap_pte_range+0x5ac/0x10e0 mm/memory.c:1347
+ zap_pmd_range mm/memory.c:1467 [inline]
+ zap_pud_range mm/memory.c:1496 [inline]
+ zap_p4d_range mm/memory.c:1517 [inline]
+ unmap_page_range+0x2dc/0x3d0 mm/memory.c:1538
+ unmap_single_vma+0x157/0x210 mm/memory.c:1583
+ unmap_vmas+0xd0/0x180 mm/memory.c:1615
+ exit_mmap+0x23d/0x470 mm/mmap.c:3170
+ __mmput+0x27/0x1b0 kernel/fork.c:1113
+ mmput+0x3d/0x50 kernel/fork.c:1134
+ exit_mm+0xdb/0x170 kernel/exit.c:507
+ do_exit+0x608/0x17a0 kernel/exit.c:819
+ do_group_exit+0xce/0x180 kernel/exit.c:929
+ get_signal+0xfc3/0x1550 kernel/signal.c:2852
+ arch_do_signal_or_restart+0x8c/0x2e0 arch/x86/kernel/signal.c:868
+ handle_signal_work kernel/entry/common.c:148 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
+ exit_to_user_mode_prepare+0x113/0x190 kernel/entry/common.c:207
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:289 [inline]
+ syscall_exit_to_user_mode+0x20/0x40 kernel/entry/common.c:300
+ do_syscall_64+0x50/0xd0 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Let's add the two flags back in.
+value changed: 0x00000000 -> 0xffffffff
 
-While we're at it, the fact that we aren't running the default means
-that we _don't_ need to clear out VM_PFNMAP, so remove that and save
-an instruction.
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 28712 Comm: syz-executor.0 Tainted: G        W         5.16.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 
-NOTE: it was confirmed that VM_IO was the important flag to fix the
-problem I was seeing, but adding back VM_DONTDUMP seems like a sane
-thing to do so I'm doing that too.
-
-Fixes: 510410bfc034 ("drm/msm: Implement mmap as GEM object function")
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20211110113334.1.I1687e716adb2df746da58b508db3f25423c40b27@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20211130170155.2331929-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_gem.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/netdevice.h |   19 +++++++++++++------
+ net/core/dev.c            |    5 ++++-
+ 2 files changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-index bd6ec04f345e1..cb52ac01e5122 100644
---- a/drivers/gpu/drm/msm/msm_gem.c
-+++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -1055,8 +1055,7 @@ static int msm_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3943,7 +3943,8 @@ static inline u32 netif_msg_init(int deb
+ static inline void __netif_tx_lock(struct netdev_queue *txq, int cpu)
  {
- 	struct msm_gem_object *msm_obj = to_msm_bo(obj);
+ 	spin_lock(&txq->_xmit_lock);
+-	txq->xmit_lock_owner = cpu;
++	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
++	WRITE_ONCE(txq->xmit_lock_owner, cpu);
+ }
  
--	vma->vm_flags &= ~VM_PFNMAP;
--	vma->vm_flags |= VM_MIXEDMAP | VM_DONTEXPAND;
-+	vma->vm_flags |= VM_IO | VM_MIXEDMAP | VM_DONTEXPAND | VM_DONTDUMP;
- 	vma->vm_page_prot = msm_gem_pgprot(msm_obj, vm_get_page_prot(vma->vm_flags));
+ static inline bool __netif_tx_acquire(struct netdev_queue *txq)
+@@ -3960,26 +3961,32 @@ static inline void __netif_tx_release(st
+ static inline void __netif_tx_lock_bh(struct netdev_queue *txq)
+ {
+ 	spin_lock_bh(&txq->_xmit_lock);
+-	txq->xmit_lock_owner = smp_processor_id();
++	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
++	WRITE_ONCE(txq->xmit_lock_owner, smp_processor_id());
+ }
  
- 	return 0;
--- 
-2.33.0
-
+ static inline bool __netif_tx_trylock(struct netdev_queue *txq)
+ {
+ 	bool ok = spin_trylock(&txq->_xmit_lock);
+-	if (likely(ok))
+-		txq->xmit_lock_owner = smp_processor_id();
++
++	if (likely(ok)) {
++		/* Pairs with READ_ONCE() in __dev_queue_xmit() */
++		WRITE_ONCE(txq->xmit_lock_owner, smp_processor_id());
++	}
+ 	return ok;
+ }
+ 
+ static inline void __netif_tx_unlock(struct netdev_queue *txq)
+ {
+-	txq->xmit_lock_owner = -1;
++	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
++	WRITE_ONCE(txq->xmit_lock_owner, -1);
+ 	spin_unlock(&txq->_xmit_lock);
+ }
+ 
+ static inline void __netif_tx_unlock_bh(struct netdev_queue *txq)
+ {
+-	txq->xmit_lock_owner = -1;
++	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
++	WRITE_ONCE(txq->xmit_lock_owner, -1);
+ 	spin_unlock_bh(&txq->_xmit_lock);
+ }
+ 
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3766,7 +3766,10 @@ static int __dev_queue_xmit(struct sk_bu
+ 	if (dev->flags & IFF_UP) {
+ 		int cpu = smp_processor_id(); /* ok because BHs are off */
+ 
+-		if (txq->xmit_lock_owner != cpu) {
++		/* Other cpus might concurrently change txq->xmit_lock_owner
++		 * to -1 or to their cpu id, but not to our id.
++		 */
++		if (READ_ONCE(txq->xmit_lock_owner) != cpu) {
+ 			if (dev_xmit_recursion())
+ 				goto recursion_alert;
+ 
 
 
