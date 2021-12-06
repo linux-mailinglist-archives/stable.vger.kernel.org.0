@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 647D3469E8C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F91C469EC8
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386157AbhLFPji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:39:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60150 "EHLO
+        id S1355787AbhLFPoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:44:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356824AbhLFPhc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:37:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63712C08EAE0;
-        Mon,  6 Dec 2021 07:23:31 -0800 (PST)
+        with ESMTP id S1389912AbhLFPlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:41:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE461C0698C2;
+        Mon,  6 Dec 2021 07:25:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DF0AB8101C;
-        Mon,  6 Dec 2021 15:23:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F8FEC341C1;
-        Mon,  6 Dec 2021 15:23:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58D0F6130D;
+        Mon,  6 Dec 2021 15:25:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F4D2C34901;
+        Mon,  6 Dec 2021 15:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804209;
-        bh=ohFr6CkPRRj1nsr4hi0r+BAAWbERw9tYTaXjFmTPq4E=;
+        s=korg; t=1638804327;
+        bh=O5wlqANaYG7YsUrtQsPqSbHvWTC9EtfJhH5Q2iHyJRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KABy6bhc/nHPsO6Tkq5Wa7Z7vLZALUTNAagEtOygbgTvjo4Mw2i6uI0IXsdJGGkhF
-         P+PDQHLbzCkLDnZOX5Pk/uziKhtOg9Rbj+Svo7l+bYVhTzhDBtDRV4n1MGBssMzoqE
-         /mqc7enkqnGtvQY8PIYSy+CKldkmGr8o2ZpTCy0A=
+        b=Gk0Y/oPxrV+4+4n8rWETAB/dPTnYxxpWJUp+ldikw6Id+19NDbOALMv+G9B8It4oV
+         QLjj2mv3CKKSBETyNNT4BePgEpKt9YOnC/l723UckzFfxuXwMn70N7L85VbNjQWAD9
+         NccfLYKga61YniIJdBI7z13RJV7LU7SeTfIt09KU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.15 064/207] sata_fsl: fix warning in remove_proc_entry when rmmod sata_fsl
-Date:   Mon,  6 Dec 2021 15:55:18 +0100
-Message-Id: <20211206145612.457818978@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Ely <paul.ely@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 065/207] scsi: lpfc: Fix non-recovery of remote ports following an unsolicited LOGO
+Date:   Mon,  6 Dec 2021 15:55:19 +0100
+Message-Id: <20211206145612.489419621@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -49,78 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 6f48394cf1f3e8486591ad98c11cdadb8f1ef2ad upstream.
+commit 0956ba63bd94355bf38cd40f7eb9104577739ab8 upstream.
 
-Trying to remove the fsl-sata module in the PPC64 GNU/Linux
-leads to the following warning:
- ------------[ cut here ]------------
- remove_proc_entry: removing non-empty directory 'irq/69',
-   leaking at least 'fsl-sata[ff0221000.sata]'
- WARNING: CPU: 3 PID: 1048 at fs/proc/generic.c:722
-   .remove_proc_entry+0x20c/0x220
- IRQMASK: 0
- NIP [c00000000033826c] .remove_proc_entry+0x20c/0x220
- LR [c000000000338268] .remove_proc_entry+0x208/0x220
- Call Trace:
-  .remove_proc_entry+0x208/0x220 (unreliable)
-  .unregister_irq_proc+0x104/0x140
-  .free_desc+0x44/0xb0
-  .irq_free_descs+0x9c/0xf0
-  .irq_dispose_mapping+0x64/0xa0
-  .sata_fsl_remove+0x58/0xa0 [sata_fsl]
-  .platform_drv_remove+0x40/0x90
-  .device_release_driver_internal+0x160/0x2c0
-  .driver_detach+0x64/0xd0
-  .bus_remove_driver+0x70/0xf0
-  .driver_unregister+0x38/0x80
-  .platform_driver_unregister+0x14/0x30
-  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
- ---[ end trace 0ea876d4076908f5 ]---
+A commit introduced formal regstration of all Fabric nodes to the SCSI
+transport as well as REG/UNREG RPI mailbox requests. The commit introduced
+the NLP_RELEASE_RPI flag for rports set in the lpfc_cmpl_els_logo_acc()
+routine to help clean up the RPIs. This new code caused the driver to
+release the RPI value used for the remote port and marked the RPI invalid.
+When the driver later attempted to re-login, it would use the invalid RPI
+and the adapter rejected the PLOGI request.  As no login occurred, the
+devloss timer on the rport expired and connectivity was lost.
 
-The driver creates the mapping by calling irq_of_parse_and_map(),
-so it also has to dispose the mapping. But the easy way out is to
-simply use platform_get_irq() instead of irq_of_parse_map(). Also
-we should adapt return value checking and propagate error values.
+This patch corrects the code by removing the snippet that requests the rpi
+to be unregistered. This change only occurs on a node that is already
+marked to be rediscovered. This puts the code back to its original
+behavior, preserving the already-assigned rpi value (registered or not)
+which can be used on the re-login attempts.
 
-In this case the mapping is not managed by the device but by
-the of core, so the device has not to dispose the mapping.
-
-Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20211123165646.62740-1-jsmart2021@gmail.com
+Fixes: fe83e3b9b422 ("scsi: lpfc: Fix node handling for Fabric Controller and Domain Controller")
+Cc: <stable@vger.kernel.org> # v5.14+
+Co-developed-by: Paul Ely <paul.ely@broadcom.com>
+Signed-off-by: Paul Ely <paul.ely@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_fsl.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/drivers/ata/sata_fsl.c
-+++ b/drivers/ata/sata_fsl.c
-@@ -1490,9 +1490,9 @@ static int sata_fsl_probe(struct platfor
- 	host_priv->ssr_base = ssr_base;
- 	host_priv->csr_base = csr_base;
- 
--	irq = irq_of_parse_and_map(ofdev->dev.of_node, 0);
--	if (!irq) {
--		dev_err(&ofdev->dev, "invalid irq from platform\n");
-+	irq = platform_get_irq(ofdev, 0);
-+	if (irq < 0) {
-+		retval = irq;
- 		goto error_exit_with_cleanup;
- 	}
- 	host_priv->irq = irq;
-@@ -1567,8 +1567,6 @@ static int sata_fsl_remove(struct platfo
- 
- 	ata_host_detach(host);
- 
--	irq_dispose_mapping(host_priv->irq);
--
- 	return 0;
- }
- 
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -5075,14 +5075,9 @@ lpfc_cmpl_els_logo_acc(struct lpfc_hba *
+ 		/* NPort Recovery mode or node is just allocated */
+ 		if (!lpfc_nlp_not_used(ndlp)) {
+ 			/* A LOGO is completing and the node is in NPR state.
+-			 * If this a fabric node that cleared its transport
+-			 * registration, release the rpi.
++			 * Just unregister the RPI because the node is still
++			 * required.
+ 			 */
+-			spin_lock_irq(&ndlp->lock);
+-			ndlp->nlp_flag &= ~NLP_NPR_2B_DISC;
+-			if (phba->sli_rev == LPFC_SLI_REV4)
+-				ndlp->nlp_flag |= NLP_RELEASE_RPI;
+-			spin_unlock_irq(&ndlp->lock);
+ 			lpfc_unreg_rpi(vport, ndlp);
+ 		} else {
+ 			/* Indicate the node has already released, should
 
 
