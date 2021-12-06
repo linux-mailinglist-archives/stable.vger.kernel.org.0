@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63970469DE7
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1105469B6F
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376954AbhLFPeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:34:01 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47600 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387271AbhLFPa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:30:57 -0500
+        id S1350664AbhLFPR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:26 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47452 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357956AbhLFPQW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E96561319;
-        Mon,  6 Dec 2021 15:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83477C34901;
-        Mon,  6 Dec 2021 15:27:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3EF8B810E7;
+        Mon,  6 Dec 2021 15:12:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24552C341C2;
+        Mon,  6 Dec 2021 15:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804448;
-        bh=rAaja8OqKShVk0JRcifhjGZBXNwsWvpxrp6Ha6XRalY=;
+        s=korg; t=1638803571;
+        bh=GD3/rPmxSQKdnMFtYDYc5S1YQcsfgwwjZqXkIBHwTWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VA6DOk4TRJTdm1yB2/3ud/X8f+kxbRRsmkV5KJ4jBX/hoJgdU9a34oQVdVr+8Il89
-         yOiXzPM8WVAzi47iWv65XasbqzUu7REwkd7qKQaA8uAMDV9NlHlGy0MAlM62gUpkrm
-         bzjdgQraTb0xwIiWAxzHwMiQNHusOyE+4u5LCIQQ=
+        b=IDFGnv2XAAc28AhxweMrNZK6Msqb+lwx32ZUZQUzi4Qalxz9hLnS23DazFHNMHK8b
+         NAE9hmZIJg+QpAGT/kixH3kc1X9LuOkGG9jwEWOCo6weUj64XE9xjCrK7HJBtPixKr
+         ZhOIukxiPfa0wY3IcE1HpGAzZUl3WoUhkr7ui7U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Saurabh <ssaurabh@marvell.com>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
+        stable@vger.kernel.org, Li Zhijian <lizhijian@cn.fujitsu.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 151/207] atlantic: Remove warn trace message.
+Subject: [PATCH 5.4 41/70] selftests: net: Correct case name
 Date:   Mon,  6 Dec 2021 15:56:45 +0100
-Message-Id: <20211206145615.466097886@linuxfoundation.org>
+Message-Id: <20211206145553.357765896@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,34 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Saurabh <ssaurabh@marvell.com>
+From: Li Zhijian <lizhijian@cn.fujitsu.com>
 
-commit 060a0fb721ec5bbe02ae322e434ec87dc25ed6e9 upstream.
+commit a05431b22be819d75db72ca3d44381d18a37b092 upstream.
 
-Remove the warn trace message - it's not a correct check here, because
-the function can still be called on the device in DOWN state
+ipv6_addr_bind/ipv4_addr_bind are function names. Previously, bind test
+would not be run by default due to the wrong case names
 
-Fixes: 508f2e3dce454 ("net: atlantic: split rx and tx per-queue stats")
-Signed-off-by: Sameer Saurabh <ssaurabh@marvell.com>
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Fixes: 34d0302ab861 ("selftests: Add ipv6 address bind tests to fcnal-test")
+Fixes: 75b2b2b3db4c ("selftests: Add ipv4 address bind tests to fcnal-test")
+Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_vec.c |    3 ---
- 1 file changed, 3 deletions(-)
+ tools/testing/selftests/net/fcnal-test.sh |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-@@ -362,9 +362,6 @@ unsigned int aq_vec_get_sw_stats(struct
- {
- 	unsigned int count;
+--- a/tools/testing/selftests/net/fcnal-test.sh
++++ b/tools/testing/selftests/net/fcnal-test.sh
+@@ -3450,8 +3450,8 @@ EOF
+ ################################################################################
+ # main
  
--	WARN_ONCE(!aq_vec_is_valid_tc(self, tc),
--		  "Invalid tc %u (#rx=%u, #tx=%u)\n",
--		  tc, self->rx_rings, self->tx_rings);
- 	if (!aq_vec_is_valid_tc(self, tc))
- 		return 0;
+-TESTS_IPV4="ipv4_ping ipv4_tcp ipv4_udp ipv4_addr_bind ipv4_runtime ipv4_netfilter"
+-TESTS_IPV6="ipv6_ping ipv6_tcp ipv6_udp ipv6_addr_bind ipv6_runtime ipv6_netfilter"
++TESTS_IPV4="ipv4_ping ipv4_tcp ipv4_udp ipv4_bind ipv4_runtime ipv4_netfilter"
++TESTS_IPV6="ipv6_ping ipv6_tcp ipv6_udp ipv6_bind ipv6_runtime ipv6_netfilter"
+ TESTS_OTHER="use_cases"
  
+ PAUSE_ON_FAIL=no
 
 
