@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78719469A4D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:04:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F39D469BBC
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345631AbhLFPHF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:07:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52612 "EHLO
+        id S1345885AbhLFPSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344956AbhLFPE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9F7C0698D3;
-        Mon,  6 Dec 2021 07:01:00 -0800 (PST)
+        with ESMTP id S1358686AbhLFPQo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D58C08EC75;
+        Mon,  6 Dec 2021 07:09:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B12E061322;
-        Mon,  6 Dec 2021 15:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F54C341C2;
-        Mon,  6 Dec 2021 15:00:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3FFAB8114D;
+        Mon,  6 Dec 2021 15:09:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01692C341C1;
+        Mon,  6 Dec 2021 15:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802859;
-        bh=tzrRvf/+l3VoRpurkwVSnZigQa5kJGOJkaBpcQq8KpQ=;
+        s=korg; t=1638803370;
+        bh=mM3Dmhb3vLiMZngwEY6i5y+X8FAGEtzrp7zekTJCihM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZgrcwjQ3S2W+JFbYWrwMW4YiZxPy2WgnFVHh3CenQlkyoN3Kwch2fKLh3uy4boCR
-         9eO3kUOSHRDB2RnHEppi3cIGUqkhVRQQndFrP86D2E9QjB2xP9Rw59dNAukRZgeFK5
-         dXQ1GH1/S4HNwgONx8tkUdja0Kfdg60KzDfgZ0MU=
+        b=q9b32Riw/FS4FLc0y07H+T9FR+dODav6dZ+1+bxnPrIxQgbw4a6R1m3QrBrI9F2tu
+         wjavv0uHHPcqMIX8htPw+OjTdeOKWbtVqmI5FrBjBAqo9XQw/foQf/sn649fxlUl8o
+         2pBkRImWNZVNf1rcyA4WwDKIWrJC52p5Su2rRheM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.4 51/52] tty: serial: msm_serial: Deactivate RX DMA for polling support
+        stable@vger.kernel.org, zhangyue <zhangyue1@kylinos.cn>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 18/48] kprobes: Limit max data_size of the kretprobe instances
 Date:   Mon,  6 Dec 2021 15:56:35 +0100
-Message-Id: <20211206145549.633835750@linuxfoundation.org>
+Message-Id: <20211206145549.473923784@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 7492ffc90fa126afb67d4392d56cb4134780194a upstream.
+commit 6bbfa44116689469267f1a6e3d233b52114139d2 upstream.
 
-The CONSOLE_POLLING mode is used for tools like k(g)db. In this kind of
-setup, it is often sharing a serial device with the normal system console.
-This is usually no problem because the polling helpers can consume input
-values directly (when in kgdb context) and the normal Linux handlers can
-only consume new input values after kgdb switched back.
+The 'kprobe::data_size' is unsigned, thus it can not be negative.  But if
+user sets it enough big number (e.g. (size_t)-8), the result of 'data_size
++ sizeof(struct kretprobe_instance)' becomes smaller than sizeof(struct
+kretprobe_instance) or zero. In result, the kretprobe_instance are
+allocated without enough memory, and kretprobe accesses outside of
+allocated memory.
 
-This is not true anymore when RX DMA is enabled for UARTDM controllers.
-Single input values can no longer be received correctly. Instead following
-seems to happen:
+To avoid this issue, introduce a max limitation of the
+kretprobe::data_size. 4KB per instance should be OK.
 
-* on 1. input, some old input is read (continuously)
-* on 2. input, two old inputs are read (continuously)
-* on 3. input, three old input values are read (continuously)
-* on 4. input, 4 previous inputs are received
+Link: https://lkml.kernel.org/r/163836995040.432120.10322772773821182925.stgit@devnote2
 
-This repeats then for each group of 4 input values.
-
-This behavior changes slightly depending on what state the controller was
-when the first input was received. But this makes working with kgdb
-basically impossible because control messages are always corrupted when
-kgdboc tries to parse them.
-
-RX DMA should therefore be off when CONSOLE_POLLING is enabled to avoid
-these kind of problems. No such problem was noticed for TX DMA.
-
-Fixes: 99693945013a ("tty: serial: msm: Add RX DMA support")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Link: https://lore.kernel.org/r/20211113121050.7266-1-sven@narfation.org
+Fixes: f47cd9b553aa ("kprobes: kretprobe user entry-handler")
+Reported-by: zhangyue <zhangyue1@kylinos.cn>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/msm_serial.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/kprobes.h |    2 ++
+ kernel/kprobes.c        |    3 +++
+ 2 files changed, 5 insertions(+)
 
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -446,6 +446,9 @@ static void msm_start_rx_dma(struct msm_
- 	u32 val;
- 	int ret;
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -168,6 +168,8 @@ struct kretprobe {
+ 	raw_spinlock_t lock;
+ };
  
-+	if (IS_ENABLED(CONFIG_CONSOLE_POLL))
-+		return;
++#define KRETPROBE_MAX_DATA_SIZE	4096
 +
- 	if (!dma->chan)
- 		return;
+ struct kretprobe_instance {
+ 	struct hlist_node hlist;
+ 	struct kretprobe *rp;
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1976,6 +1976,9 @@ int register_kretprobe(struct kretprobe
+ 		}
+ 	}
  
++	if (rp->data_size > KRETPROBE_MAX_DATA_SIZE)
++		return -E2BIG;
++
+ 	rp->kp.pre_handler = pre_handler_kretprobe;
+ 	rp->kp.post_handler = NULL;
+ 	rp->kp.fault_handler = NULL;
 
 
