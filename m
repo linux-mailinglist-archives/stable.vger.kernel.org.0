@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D249C469B34
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FB39469EDD
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346807AbhLFPNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:13:39 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43884 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346437AbhLFPLh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:37 -0500
+        id S1391059AbhLFPof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:44:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390519AbhLFPm2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1173C061D5F;
+        Mon,  6 Dec 2021 07:27:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1DCEB81018;
-        Mon,  6 Dec 2021 15:08:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30434C341C5;
-        Mon,  6 Dec 2021 15:08:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87BA6B8101B;
+        Mon,  6 Dec 2021 15:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF025C34900;
+        Mon,  6 Dec 2021 15:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803286;
-        bh=o0Kppx78TWfBX0G1H3Zkt6EYTa6xHBJvVs8vrraF5iM=;
+        s=korg; t=1638804442;
+        bh=w3szSjw2J7ql5NwA+A7W4Kel3hZgWbWjD6AHnWZ+Ez4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHfcIpdaWcxnnvUs1D86k5yc2bHqqZadaKyOnQqhaXghj43aQ1WfLq7AkAqogzeyL
-         gbmm+H+G8AxyPLM+D/3HvMn4ooBEoTP0lm7SvRUaGI7FzIER/OcxYQDmqU4YfagAy+
-         EQtOWL5mLtbW+4Oz1SW0TETT13F94mJGpIueCq1s=
+        b=VD2N45ToCMN/TQ0DmvTH5DmRjYUSFixDwy9QAxuUd2Bgoi7zRcRyFRES2RKhHUVxM
+         tuhOWYhfJuEVmf38ol9oS8ucl6USUZr6UZLW9TD6Nxst+Pl6dgPKvML4R4omI2+H7/
+         f34EH/ssrnxM6ut0b8NifjgU6uBVnim0pCi14s+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Sven Schuchmann <schuchmann@schleissheimer.de>,
+        stable@vger.kernel.org, Sameer Saurabh <ssaurabh@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 094/106] net: usb: lan78xx: lan78xx_phy_init(): use PHY_POLL instead of "0" if no IRQ is available
-Date:   Mon,  6 Dec 2021 15:56:42 +0100
-Message-Id: <20211206145558.792757965@linuxfoundation.org>
+Subject: [PATCH 5.15 149/207] Remove Half duplex mode speed capabilities.
+Date:   Mon,  6 Dec 2021 15:56:43 +0100
+Message-Id: <20211206145615.398603210@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schuchmann <schuchmann@schleissheimer.de>
+From: Sameer Saurabh <ssaurabh@marvell.com>
 
-commit 817b653160db9852d5a0498a31f047e18ce27e5b upstream.
+commit 03fa512189eb9b55ded5f3e81ad638315555b340 upstream.
 
-On most systems request for IRQ 0 will fail, phylib will print an error message
-and fall back to polling. To fix this set the phydev->irq to PHY_POLL if no IRQ
-is available.
+Since Half Duplex mode has been deprecated by the firmware, driver should
+not advertise Half Duplex speed in ethtool support link speed values.
 
-Fixes: cc89c323a30e ("lan78xx: Use irq_domain for phy interrupt from USB Int. EP")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Sven Schuchmann <schuchmann@schleissheimer.de>
+Fixes: 071a02046c262 ("net: atlantic: A2: half duplex support")
+Signed-off-by: Sameer Saurabh <ssaurabh@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/lan78xx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -2052,7 +2052,7 @@ static int lan78xx_phy_init(struct lan78
- 	if (dev->domain_data.phyirq > 0)
- 		phydev->irq = dev->domain_data.phyirq;
- 	else
--		phydev->irq = 0;
-+		phydev->irq = PHY_POLL;
- 	netdev_dbg(dev->net, "phydev->irq = %d\n", phydev->irq);
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl2/hw_atl2.c
+@@ -65,11 +65,8 @@ const struct aq_hw_caps_s hw_atl2_caps_a
+ 			  AQ_NIC_RATE_5G  |
+ 			  AQ_NIC_RATE_2G5 |
+ 			  AQ_NIC_RATE_1G  |
+-			  AQ_NIC_RATE_1G_HALF   |
+ 			  AQ_NIC_RATE_100M      |
+-			  AQ_NIC_RATE_100M_HALF |
+-			  AQ_NIC_RATE_10M       |
+-			  AQ_NIC_RATE_10M_HALF,
++			  AQ_NIC_RATE_10M,
+ };
  
- 	/* set to AUTOMDIX */
+ const struct aq_hw_caps_s hw_atl2_caps_aqc115c = {
 
 
