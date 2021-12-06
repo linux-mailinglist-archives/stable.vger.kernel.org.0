@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53694469ECD
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B24A3469EA4
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388474AbhLFPoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:44:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60564 "EHLO
+        id S1356614AbhLFPnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:43:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390313AbhLFPmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:19 -0500
+        with ESMTP id S1386649AbhLFP0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929F3C09CE65;
-        Mon,  6 Dec 2021 07:26:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D31AEC08E844;
+        Mon,  6 Dec 2021 07:17:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59E78B8111E;
-        Mon,  6 Dec 2021 15:26:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D258C34901;
-        Mon,  6 Dec 2021 15:26:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BA59B81018;
+        Mon,  6 Dec 2021 15:17:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC4D0C341C1;
+        Mon,  6 Dec 2021 15:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804367;
-        bh=ctAN86+aLtUg4P4YugcH9097oNHEOyVGq7zN1p44ofQ=;
+        s=korg; t=1638803821;
+        bh=4VBJLaUNb63cWfnxxofnl510akopAl+BzY2QnSWSgyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFrBJCx6mQDd16QioEiB8q97p7vPi3TtFVZTbSTS924o7AvuNT3SDZZwXziZSD8BH
-         CSH+uRoYrygJoYkQaUGUcgVMnsSlTe29wS8XH9+a/YRkJrHjqvGjZAXlx6O9Ukb1rI
-         vw/D2SyuMemX6XvvZk7TW81D7X/U5Bl2Qlyp3FyQ=
+        b=TCvniCdcALBH+jHBACiF8Jxy0RZXcocWV93mUgMG4SFWrMfmtqKuvjYW+vdjWlU8m
+         GZYqnGBc1g+EqriL8gEIY91eHgApyAN2i9iqQfqeqWl7BDBSAaTFzwUs3lM9bP7ldN
+         /c4c1zTY9ihT4g2CPZnpdtmPn3ehifKpp2DiW2jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Mark Brown <broonie@kernel.org>,
-        Sameer Pujar <spujar@nvidia.com>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 121/207] ASoC: tegra: Fix kcontrol put callback in DMIC
+        stable@vger.kernel.org, Streun Fabio <fstreun@student.ethz.ch>,
+        Joel Wanner <joel.wanner@inf.ethz.ch>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 058/130] wireguard: receive: use ring buffer for incoming handshakes
 Date:   Mon,  6 Dec 2021 15:56:15 +0100
-Message-Id: <20211206145614.428269998@linuxfoundation.org>
+Message-Id: <20211206145601.684358895@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,248 +49,251 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit a347dfa10262fa0a10e2b1970ea0194e3d4a3251 upstream.
+commit 886fcee939adb5e2af92741b90643a59f2b54f97 upstream.
 
-The kcontrol put callback is expected to return 1 when there is change
-in HW or when the update is acknowledged by driver. This would ensure
-that change notifications are sent to subscribed applications. Update
-the DMIC driver accordingly.
+Apparently the spinlock on incoming_handshake's skb_queue is highly
+contended, and a torrent of handshake or cookie packets can bring the
+data plane to its knees, simply by virtue of enqueueing the handshake
+packets to be processed asynchronously. So, we try switching this to a
+ring buffer to hopefully have less lock contention. This alleviates the
+problem somewhat, though it still isn't perfect, so future patches will
+have to improve this further. However, it at least doesn't completely
+diminish the data plane.
 
-Fixes: 8c8ff982e9e2 ("ASoC: tegra: Add Tegra210 based DMIC driver")
-Suggested-by: Jaroslav Kysela <perex@perex.cz>
-Suggested-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/1637219231-406-10-git-send-email-spujar@nvidia.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Streun Fabio <fstreun@student.ethz.ch>
+Reported-by: Joel Wanner <joel.wanner@inf.ethz.ch>
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/tegra/tegra210_dmic.c |  183 ++++++++++++++++++++++++++++++++--------
- 1 file changed, 149 insertions(+), 34 deletions(-)
+ drivers/net/wireguard/device.c   |   36 ++++++++++++++++++------------------
+ drivers/net/wireguard/device.h   |    9 +++------
+ drivers/net/wireguard/queueing.c |    6 +++---
+ drivers/net/wireguard/queueing.h |    2 +-
+ drivers/net/wireguard/receive.c  |   27 ++++++++++++---------------
+ 5 files changed, 37 insertions(+), 43 deletions(-)
 
---- a/sound/soc/tegra/tegra210_dmic.c
-+++ b/sound/soc/tegra/tegra210_dmic.c
-@@ -156,50 +156,162 @@ static int tegra210_dmic_hw_params(struc
- 	return 0;
- }
- 
--static int tegra210_dmic_get_control(struct snd_kcontrol *kcontrol,
-+static int tegra210_dmic_get_boost_gain(struct snd_kcontrol *kcontrol,
-+					struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+
-+	ucontrol->value.integer.value[0] = dmic->boost_gain;
-+
-+	return 0;
-+}
-+
-+static int tegra210_dmic_put_boost_gain(struct snd_kcontrol *kcontrol,
-+					struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+	int value = ucontrol->value.integer.value[0];
-+
-+	if (value == dmic->boost_gain)
-+		return 0;
-+
-+	dmic->boost_gain = value;
-+
-+	return 1;
-+}
-+
-+static int tegra210_dmic_get_ch_select(struct snd_kcontrol *kcontrol,
-+				       struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+
-+	ucontrol->value.enumerated.item[0] = dmic->ch_select;
-+
-+	return 0;
-+}
-+
-+static int tegra210_dmic_put_ch_select(struct snd_kcontrol *kcontrol,
-+				       struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+	unsigned int value = ucontrol->value.enumerated.item[0];
-+
-+	if (value == dmic->ch_select)
-+		return 0;
-+
-+	dmic->ch_select = value;
-+
-+	return 1;
-+}
-+
-+static int tegra210_dmic_get_mono_to_stereo(struct snd_kcontrol *kcontrol,
-+					    struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+
-+	ucontrol->value.enumerated.item[0] = dmic->mono_to_stereo;
-+
-+	return 0;
-+}
-+
-+static int tegra210_dmic_put_mono_to_stereo(struct snd_kcontrol *kcontrol,
-+					    struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+	unsigned int value = ucontrol->value.enumerated.item[0];
-+
-+	if (value == dmic->mono_to_stereo)
-+		return 0;
-+
-+	dmic->mono_to_stereo = value;
-+
-+	return 1;
-+}
-+
-+static int tegra210_dmic_get_stereo_to_mono(struct snd_kcontrol *kcontrol,
-+					    struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+
-+	ucontrol->value.enumerated.item[0] = dmic->stereo_to_mono;
-+
-+	return 0;
-+}
-+
-+static int tegra210_dmic_put_stereo_to_mono(struct snd_kcontrol *kcontrol,
-+					    struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+	unsigned int value = ucontrol->value.enumerated.item[0];
-+
-+	if (value == dmic->stereo_to_mono)
-+		return 0;
-+
-+	dmic->stereo_to_mono = value;
-+
-+	return 1;
-+}
-+
-+static int tegra210_dmic_get_osr_val(struct snd_kcontrol *kcontrol,
- 				     struct snd_ctl_elem_value *ucontrol)
+--- a/drivers/net/wireguard/device.c
++++ b/drivers/net/wireguard/device.c
+@@ -98,6 +98,7 @@ static int wg_stop(struct net_device *de
  {
- 	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
- 	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
+ 	struct wg_device *wg = netdev_priv(dev);
+ 	struct wg_peer *peer;
++	struct sk_buff *skb;
  
--	if (strstr(kcontrol->id.name, "Boost Gain Volume"))
--		ucontrol->value.integer.value[0] = dmic->boost_gain;
--	else if (strstr(kcontrol->id.name, "Channel Select"))
--		ucontrol->value.enumerated.item[0] = dmic->ch_select;
--	else if (strstr(kcontrol->id.name, "Mono To Stereo"))
--		ucontrol->value.enumerated.item[0] = dmic->mono_to_stereo;
--	else if (strstr(kcontrol->id.name, "Stereo To Mono"))
--		ucontrol->value.enumerated.item[0] = dmic->stereo_to_mono;
--	else if (strstr(kcontrol->id.name, "OSR Value"))
--		ucontrol->value.enumerated.item[0] = dmic->osr_val;
--	else if (strstr(kcontrol->id.name, "LR Polarity Select"))
--		ucontrol->value.enumerated.item[0] = dmic->lrsel;
-+	ucontrol->value.enumerated.item[0] = dmic->osr_val;
+ 	mutex_lock(&wg->device_update_lock);
+ 	list_for_each_entry(peer, &wg->peer_list, peer_list) {
+@@ -108,7 +109,9 @@ static int wg_stop(struct net_device *de
+ 		wg_noise_reset_last_sent_handshake(&peer->last_sent_handshake);
+ 	}
+ 	mutex_unlock(&wg->device_update_lock);
+-	skb_queue_purge(&wg->incoming_handshakes);
++	while ((skb = ptr_ring_consume(&wg->handshake_queue.ring)) != NULL)
++		kfree_skb(skb);
++	atomic_set(&wg->handshake_queue_len, 0);
+ 	wg_socket_reinit(wg, NULL, NULL);
+ 	return 0;
+ }
+@@ -235,14 +238,13 @@ static void wg_destruct(struct net_devic
+ 	destroy_workqueue(wg->handshake_receive_wq);
+ 	destroy_workqueue(wg->handshake_send_wq);
+ 	destroy_workqueue(wg->packet_crypt_wq);
+-	wg_packet_queue_free(&wg->decrypt_queue);
+-	wg_packet_queue_free(&wg->encrypt_queue);
++	wg_packet_queue_free(&wg->handshake_queue, true);
++	wg_packet_queue_free(&wg->decrypt_queue, false);
++	wg_packet_queue_free(&wg->encrypt_queue, false);
+ 	rcu_barrier(); /* Wait for all the peers to be actually freed. */
+ 	wg_ratelimiter_uninit();
+ 	memzero_explicit(&wg->static_identity, sizeof(wg->static_identity));
+-	skb_queue_purge(&wg->incoming_handshakes);
+ 	free_percpu(dev->tstats);
+-	free_percpu(wg->incoming_handshakes_worker);
+ 	kvfree(wg->index_hashtable);
+ 	kvfree(wg->peer_hashtable);
+ 	mutex_unlock(&wg->device_update_lock);
+@@ -298,7 +300,6 @@ static int wg_newlink(struct net *src_ne
+ 	init_rwsem(&wg->static_identity.lock);
+ 	mutex_init(&wg->socket_update_lock);
+ 	mutex_init(&wg->device_update_lock);
+-	skb_queue_head_init(&wg->incoming_handshakes);
+ 	wg_allowedips_init(&wg->peer_allowedips);
+ 	wg_cookie_checker_init(&wg->cookie_checker, wg);
+ 	INIT_LIST_HEAD(&wg->peer_list);
+@@ -316,16 +317,10 @@ static int wg_newlink(struct net *src_ne
+ 	if (!dev->tstats)
+ 		goto err_free_index_hashtable;
  
+-	wg->incoming_handshakes_worker =
+-		wg_packet_percpu_multicore_worker_alloc(
+-				wg_packet_handshake_receive_worker, wg);
+-	if (!wg->incoming_handshakes_worker)
+-		goto err_free_tstats;
+-
+ 	wg->handshake_receive_wq = alloc_workqueue("wg-kex-%s",
+ 			WQ_CPU_INTENSIVE | WQ_FREEZABLE, 0, dev->name);
+ 	if (!wg->handshake_receive_wq)
+-		goto err_free_incoming_handshakes;
++		goto err_free_tstats;
+ 
+ 	wg->handshake_send_wq = alloc_workqueue("wg-kex-%s",
+ 			WQ_UNBOUND | WQ_FREEZABLE, 0, dev->name);
+@@ -347,10 +342,15 @@ static int wg_newlink(struct net *src_ne
+ 	if (ret < 0)
+ 		goto err_free_encrypt_queue;
+ 
+-	ret = wg_ratelimiter_init();
++	ret = wg_packet_queue_init(&wg->handshake_queue, wg_packet_handshake_receive_worker,
++				   MAX_QUEUED_INCOMING_HANDSHAKES);
+ 	if (ret < 0)
+ 		goto err_free_decrypt_queue;
+ 
++	ret = wg_ratelimiter_init();
++	if (ret < 0)
++		goto err_free_handshake_queue;
++
+ 	ret = register_netdevice(dev);
+ 	if (ret < 0)
+ 		goto err_uninit_ratelimiter;
+@@ -367,18 +367,18 @@ static int wg_newlink(struct net *src_ne
+ 
+ err_uninit_ratelimiter:
+ 	wg_ratelimiter_uninit();
++err_free_handshake_queue:
++	wg_packet_queue_free(&wg->handshake_queue, false);
+ err_free_decrypt_queue:
+-	wg_packet_queue_free(&wg->decrypt_queue);
++	wg_packet_queue_free(&wg->decrypt_queue, false);
+ err_free_encrypt_queue:
+-	wg_packet_queue_free(&wg->encrypt_queue);
++	wg_packet_queue_free(&wg->encrypt_queue, false);
+ err_destroy_packet_crypt:
+ 	destroy_workqueue(wg->packet_crypt_wq);
+ err_destroy_handshake_send:
+ 	destroy_workqueue(wg->handshake_send_wq);
+ err_destroy_handshake_receive:
+ 	destroy_workqueue(wg->handshake_receive_wq);
+-err_free_incoming_handshakes:
+-	free_percpu(wg->incoming_handshakes_worker);
+ err_free_tstats:
+ 	free_percpu(dev->tstats);
+ err_free_index_hashtable:
+--- a/drivers/net/wireguard/device.h
++++ b/drivers/net/wireguard/device.h
+@@ -39,21 +39,18 @@ struct prev_queue {
+ 
+ struct wg_device {
+ 	struct net_device *dev;
+-	struct crypt_queue encrypt_queue, decrypt_queue;
++	struct crypt_queue encrypt_queue, decrypt_queue, handshake_queue;
+ 	struct sock __rcu *sock4, *sock6;
+ 	struct net __rcu *creating_net;
+ 	struct noise_static_identity static_identity;
+-	struct workqueue_struct *handshake_receive_wq, *handshake_send_wq;
+-	struct workqueue_struct *packet_crypt_wq;
+-	struct sk_buff_head incoming_handshakes;
+-	int incoming_handshake_cpu;
+-	struct multicore_worker __percpu *incoming_handshakes_worker;
++	struct workqueue_struct *packet_crypt_wq,*handshake_receive_wq, *handshake_send_wq;
+ 	struct cookie_checker cookie_checker;
+ 	struct pubkey_hashtable *peer_hashtable;
+ 	struct index_hashtable *index_hashtable;
+ 	struct allowedips peer_allowedips;
+ 	struct mutex device_update_lock, socket_update_lock;
+ 	struct list_head device_list, peer_list;
++	atomic_t handshake_queue_len;
+ 	unsigned int num_peers, device_update_gen;
+ 	u32 fwmark;
+ 	u16 incoming_port;
+--- a/drivers/net/wireguard/queueing.c
++++ b/drivers/net/wireguard/queueing.c
+@@ -38,11 +38,11 @@ int wg_packet_queue_init(struct crypt_qu
  	return 0;
  }
  
--static int tegra210_dmic_put_control(struct snd_kcontrol *kcontrol,
-+static int tegra210_dmic_put_osr_val(struct snd_kcontrol *kcontrol,
-+				     struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+	unsigned int value = ucontrol->value.enumerated.item[0];
-+
-+	if (value == dmic->osr_val)
-+		return 0;
-+
-+	dmic->osr_val = value;
-+
-+	return 1;
-+}
-+
-+static int tegra210_dmic_get_pol_sel(struct snd_kcontrol *kcontrol,
- 				     struct snd_ctl_elem_value *ucontrol)
+-void wg_packet_queue_free(struct crypt_queue *queue)
++void wg_packet_queue_free(struct crypt_queue *queue, bool purge)
  {
- 	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
- 	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
- 
--	if (strstr(kcontrol->id.name, "Boost Gain Volume"))
--		dmic->boost_gain = ucontrol->value.integer.value[0];
--	else if (strstr(kcontrol->id.name, "Channel Select"))
--		dmic->ch_select = ucontrol->value.enumerated.item[0];
--	else if (strstr(kcontrol->id.name, "Mono To Stereo"))
--		dmic->mono_to_stereo = ucontrol->value.enumerated.item[0];
--	else if (strstr(kcontrol->id.name, "Stereo To Mono"))
--		dmic->stereo_to_mono = ucontrol->value.enumerated.item[0];
--	else if (strstr(kcontrol->id.name, "OSR Value"))
--		dmic->osr_val = ucontrol->value.enumerated.item[0];
--	else if (strstr(kcontrol->id.name, "LR Polarity Select"))
--		dmic->lrsel = ucontrol->value.enumerated.item[0];
-+	ucontrol->value.enumerated.item[0] = dmic->lrsel;
- 
- 	return 0;
+ 	free_percpu(queue->worker);
+-	WARN_ON(!__ptr_ring_empty(&queue->ring));
+-	ptr_ring_cleanup(&queue->ring, NULL);
++	WARN_ON(!purge && !__ptr_ring_empty(&queue->ring));
++	ptr_ring_cleanup(&queue->ring, purge ? (void(*)(void*))kfree_skb : NULL);
  }
  
-+static int tegra210_dmic_put_pol_sel(struct snd_kcontrol *kcontrol,
-+				     struct snd_ctl_elem_value *ucontrol)
-+{
-+	struct snd_soc_component *comp = snd_soc_kcontrol_component(kcontrol);
-+	struct tegra210_dmic *dmic = snd_soc_component_get_drvdata(comp);
-+	unsigned int value = ucontrol->value.enumerated.item[0];
-+
-+	if (value == dmic->lrsel)
-+		return 0;
-+
-+	dmic->lrsel = value;
-+
-+	return 1;
-+}
-+
- static const struct snd_soc_dai_ops tegra210_dmic_dai_ops = {
- 	.hw_params	= tegra210_dmic_hw_params,
- };
-@@ -286,19 +398,22 @@ static const struct soc_enum tegra210_dm
+ #define NEXT(skb) ((skb)->prev)
+--- a/drivers/net/wireguard/queueing.h
++++ b/drivers/net/wireguard/queueing.h
+@@ -23,7 +23,7 @@ struct sk_buff;
+ /* queueing.c APIs: */
+ int wg_packet_queue_init(struct crypt_queue *queue, work_func_t function,
+ 			 unsigned int len);
+-void wg_packet_queue_free(struct crypt_queue *queue);
++void wg_packet_queue_free(struct crypt_queue *queue, bool purge);
+ struct multicore_worker __percpu *
+ wg_packet_percpu_multicore_worker_alloc(work_func_t function, void *ptr);
  
- static const struct snd_kcontrol_new tegra210_dmic_controls[] = {
- 	SOC_SINGLE_EXT("Boost Gain Volume", 0, 0, MAX_BOOST_GAIN, 0,
--		       tegra210_dmic_get_control, tegra210_dmic_put_control),
-+		       tegra210_dmic_get_boost_gain,
-+		       tegra210_dmic_put_boost_gain),
- 	SOC_ENUM_EXT("Channel Select", tegra210_dmic_ch_enum,
--		     tegra210_dmic_get_control, tegra210_dmic_put_control),
-+		     tegra210_dmic_get_ch_select, tegra210_dmic_put_ch_select),
- 	SOC_ENUM_EXT("Mono To Stereo",
--		     tegra210_dmic_mono_conv_enum, tegra210_dmic_get_control,
--		     tegra210_dmic_put_control),
-+		     tegra210_dmic_mono_conv_enum,
-+		     tegra210_dmic_get_mono_to_stereo,
-+		     tegra210_dmic_put_mono_to_stereo),
- 	SOC_ENUM_EXT("Stereo To Mono",
--		     tegra210_dmic_stereo_conv_enum, tegra210_dmic_get_control,
--		     tegra210_dmic_put_control),
-+		     tegra210_dmic_stereo_conv_enum,
-+		     tegra210_dmic_get_stereo_to_mono,
-+		     tegra210_dmic_put_stereo_to_mono),
- 	SOC_ENUM_EXT("OSR Value", tegra210_dmic_osr_enum,
--		     tegra210_dmic_get_control, tegra210_dmic_put_control),
-+		     tegra210_dmic_get_osr_val, tegra210_dmic_put_osr_val),
- 	SOC_ENUM_EXT("LR Polarity Select", tegra210_dmic_lrsel_enum,
--		     tegra210_dmic_get_control, tegra210_dmic_put_control),
-+		     tegra210_dmic_get_pol_sel, tegra210_dmic_put_pol_sel),
- };
+--- a/drivers/net/wireguard/receive.c
++++ b/drivers/net/wireguard/receive.c
+@@ -116,8 +116,8 @@ static void wg_receive_handshake_packet(
+ 		return;
+ 	}
  
- static const struct snd_soc_component_driver tegra210_dmic_compnt = {
+-	under_load = skb_queue_len(&wg->incoming_handshakes) >=
+-		     MAX_QUEUED_INCOMING_HANDSHAKES / 8;
++	under_load = atomic_read(&wg->handshake_queue_len) >=
++			MAX_QUEUED_INCOMING_HANDSHAKES / 8;
+ 	if (under_load) {
+ 		last_under_load = ktime_get_coarse_boottime_ns();
+ 	} else if (last_under_load) {
+@@ -212,13 +212,14 @@ static void wg_receive_handshake_packet(
+ 
+ void wg_packet_handshake_receive_worker(struct work_struct *work)
+ {
+-	struct wg_device *wg = container_of(work, struct multicore_worker,
+-					    work)->ptr;
++	struct crypt_queue *queue = container_of(work, struct multicore_worker, work)->ptr;
++	struct wg_device *wg = container_of(queue, struct wg_device, handshake_queue);
+ 	struct sk_buff *skb;
+ 
+-	while ((skb = skb_dequeue(&wg->incoming_handshakes)) != NULL) {
++	while ((skb = ptr_ring_consume_bh(&queue->ring)) != NULL) {
+ 		wg_receive_handshake_packet(wg, skb);
+ 		dev_kfree_skb(skb);
++		atomic_dec(&wg->handshake_queue_len);
+ 		cond_resched();
+ 	}
+ }
+@@ -554,21 +555,17 @@ void wg_packet_receive(struct wg_device
+ 	case cpu_to_le32(MESSAGE_HANDSHAKE_RESPONSE):
+ 	case cpu_to_le32(MESSAGE_HANDSHAKE_COOKIE): {
+ 		int cpu;
+-
+-		if (skb_queue_len(&wg->incoming_handshakes) >
+-			    MAX_QUEUED_INCOMING_HANDSHAKES ||
+-		    unlikely(!rng_is_initialized())) {
++		if (unlikely(!rng_is_initialized() ||
++			     ptr_ring_produce_bh(&wg->handshake_queue.ring, skb))) {
+ 			net_dbg_skb_ratelimited("%s: Dropping handshake packet from %pISpfsc\n",
+ 						wg->dev->name, skb);
+ 			goto err;
+ 		}
+-		skb_queue_tail(&wg->incoming_handshakes, skb);
+-		/* Queues up a call to packet_process_queued_handshake_
+-		 * packets(skb):
+-		 */
+-		cpu = wg_cpumask_next_online(&wg->incoming_handshake_cpu);
++		atomic_inc(&wg->handshake_queue_len);
++		cpu = wg_cpumask_next_online(&wg->handshake_queue.last_cpu);
++		/* Queues up a call to packet_process_queued_handshake_packets(skb): */
+ 		queue_work_on(cpu, wg->handshake_receive_wq,
+-			&per_cpu_ptr(wg->incoming_handshakes_worker, cpu)->work);
++			      &per_cpu_ptr(wg->handshake_queue.worker, cpu)->work);
+ 		break;
+ 	}
+ 	case cpu_to_le32(MESSAGE_DATA):
 
 
