@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22AEE469AEE
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3216469AD7
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346265AbhLFPLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:11:51 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42024 "EHLO
+        id S1347220AbhLFPLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:31 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40296 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345451AbhLFPJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:06 -0500
+        with ESMTP id S1345092AbhLFPJI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C2C6B81017;
-        Mon,  6 Dec 2021 15:05:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF8CC341C1;
-        Mon,  6 Dec 2021 15:05:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48572B8114B;
+        Mon,  6 Dec 2021 15:05:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E899C341C1;
+        Mon,  6 Dec 2021 15:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803135;
-        bh=0Ik3TpwB80NHWsmohbDiYpLzIbvgCl/kGtoZ2ZU64RA=;
+        s=korg; t=1638803138;
+        bh=DmE4uPNk1L/ZoVwRahBhCHQZjjwzg08kn8liqlEA0bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lsja437oBAtwJcc5XYNIiSoE90vnj7onKqksEAJmAOrgRZ4ziAfcXL0gvBufFXbZx
-         eWNy7fHcF71xSN/0moaI3RtiElYzOEvuq2yBTKa8Mv+01jT7rDA5WfVV7KObt5M/7r
-         0dmcSUh2Ks7oH80EaiYccrYR0czatuCVlkOp8ZhU=
+        b=vYZey6ips65wi5pbft4jJ8bPUIGFm81cG5t3yCUkuPr1PdhS/7cO5jHn9LGeRS87u
+         8abdBC7rbi9T+Z35m9/tk0dxMPDSs20SunPCkGuzQnacCXgLoiFpsRPvTjbP6mFwaY
+         Ol9CL1DJPmyv4Dx1wV3zRP2DSqRsibkbrrJlX99c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Joshua Dickens <joshua.dickens@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.14 008/106] HID: wacom: Use "Confidence" flag to prevent reporting invalid contacts
-Date:   Mon,  6 Dec 2021 15:55:16 +0100
-Message-Id: <20211206145555.683830766@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.14 009/106] staging: rtl8192e: Fix use after free in _rtl92e_pci_disconnect()
+Date:   Mon,  6 Dec 2021 15:55:17 +0100
+Message-Id: <20211206145555.716825441@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
 References: <20211206145555.386095297@linuxfoundation.org>
@@ -45,81 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 7fb0413baa7f8a04caef0c504df9af7e0623d296 upstream.
+commit b535917c51acc97fb0761b1edec85f1f3d02bda4 upstream.
 
-The HID descriptor of many of Wacom's touch input devices include a
-"Confidence" usage that signals if a particular touch collection contains
-useful data. The driver does not look at this flag, however, which causes
-even invalid contacts to be reported to userspace. A lucky combination of
-kernel event filtering and device behavior (specifically: contact ID 0 ==
-invalid, contact ID >0 == valid; and order all data so that all valid
-contacts are reported before any invalid contacts) spare most devices from
-any visibly-bad behavior.
+The free_rtllib() function frees the "dev" pointer so there is use
+after free on the next line.  Re-arrange things to avoid that.
 
-The DTH-2452 is one example of an unlucky device that misbehaves. It uses
-ID 0 for both the first valid contact and all invalid contacts. Because
-we report both the valid and invalid contacts, the kernel reports that
-contact 0 first goes down (valid) and then goes up (invalid) in every
-report. This causes ~100 clicks per second simply by touching the screen.
-
-This patch inroduces new `confidence` flag in our `hid_data` structure.
-The value is initially set to `true` at the start of a report and can be
-set to `false` if an invalid touch usage is seen.
-
-Link: https://github.com/linuxwacom/input-wacom/issues/270
-Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Joshua Dickens <joshua.dickens@wacom.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 66898177e7e5 ("staging: rtl8192e: Fix unload/reload problem")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211117072016.GA5237@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_wac.c |    8 +++++++-
- drivers/hid/wacom_wac.h |    1 +
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8192e/rtl8192e/rtl_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2433,6 +2433,9 @@ static void wacom_wac_finger_event(struc
- 	struct wacom_features *features = &wacom->wacom_wac.features;
+--- a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
++++ b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
+@@ -2582,13 +2582,14 @@ static void _rtl92e_pci_disconnect(struc
+ 			free_irq(dev->irq, dev);
+ 			priv->irq = 0;
+ 		}
+-		free_rtllib(dev);
  
- 	switch (equivalent_usage) {
-+	case HID_DG_CONFIDENCE:
-+		wacom_wac->hid_data.confidence = value;
-+		break;
- 	case HID_GD_X:
- 		wacom_wac->hid_data.x = value;
- 		break;
-@@ -2463,7 +2466,8 @@ static void wacom_wac_finger_event(struc
- 
- 
- 	if (usage->usage_index + 1 == field->report_count) {
--		if (equivalent_usage == wacom_wac->hid_data.last_slot_field)
-+		if (equivalent_usage == wacom_wac->hid_data.last_slot_field &&
-+		    wacom_wac->hid_data.confidence)
- 			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
- 	}
- }
-@@ -2476,6 +2480,8 @@ static void wacom_wac_finger_pre_report(
- 	struct hid_data* hid_data = &wacom_wac->hid_data;
- 	int i;
- 
-+	hid_data->confidence = true;
+ 		if (dev->mem_start != 0) {
+ 			iounmap((void __iomem *)dev->mem_start);
+ 			release_mem_region(pci_resource_start(pdev, 1),
+ 					pci_resource_len(pdev, 1));
+ 		}
 +
- 	for (i = 0; i < report->maxfield; i++) {
- 		struct hid_field *field = report->field[i];
- 		int j;
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -293,6 +293,7 @@ struct hid_data {
- 	bool inrange_state;
- 	bool invert_state;
- 	bool tipswitch;
-+	bool confidence;
- 	int x;
- 	int y;
- 	int pressure;
++		free_rtllib(dev);
+ 	} else {
+ 		priv = rtllib_priv(dev);
+ 	}
 
 
