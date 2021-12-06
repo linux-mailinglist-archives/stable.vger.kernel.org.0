@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 580DD469C79
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:19:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24208469A4A
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:04:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357611AbhLFPWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:22:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53986 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376938AbhLFPUv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:20:51 -0500
+        id S1346760AbhLFPHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:07:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52924 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345933AbhLFPGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:06:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C6A8C0613F8;
+        Mon,  6 Dec 2021 07:02:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36F3FB8111E;
-        Mon,  6 Dec 2021 15:17:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C805C341C2;
-        Mon,  6 Dec 2021 15:17:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46BD5B8111F;
+        Mon,  6 Dec 2021 15:02:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA0EC341C2;
+        Mon,  6 Dec 2021 15:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803840;
-        bh=Ext6ZqfE8sVnU9h6sFrHWioziDXc1kQDxZ145o/hI8Y=;
+        s=korg; t=1638802952;
+        bh=7go0+OBwEGq+qQ/uzNgaQpETV+VrnVdckV1N0s0MTI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vj1InWiGEZb3wwz9ailLU+Zdj01vfKK3RUvaGe2OAhfLtrXFFyjjeHVd5ht2aFRZ/
-         ZN0V7RCzELQ7XywIXThpnFpw0+vV5xJy9Eu3mvgfYEdA2sbqzQziRqVqIYVOMGu9uH
-         g70DkPoiZp6NipPDmA0fohd1DrXruHkWz3ejBnjo=
+        b=rSmyl8ePFJ8M6zRXSaV123e0S/uW/+bmMxBzvptQuXWqmp6HZS8MnEUN5M+CZmaiS
+         RGh6ssq8u2IpjZY51POAn/wEwo6Snfdr3ZZ466VoELXrdugfu4EyUeBJwMRiSXxXiY
+         MLadwx0dKwcWuPhpDgRfx+MVgSPvFM3b7wH2Olvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 064/130] i2c: cbus-gpio: set atomic transfer callback
+        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.9 38/62] NFSv42: Fix pagecache invalidation after COPY/CLONE
 Date:   Mon,  6 Dec 2021 15:56:21 +0100
-Message-Id: <20211206145601.891092915@linuxfoundation.org>
+Message-Id: <20211206145550.508344136@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaro Koskinen <aaro.koskinen@iki.fi>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit b12764695c3fcade145890b67f82f8b139174cc7 upstream.
+commit 3f015d89a47cd8855cd92f71fff770095bd885a1 upstream.
 
-CBUS transfers have always been atomic, but after commit 63b96983a5dd
-("i2c: core: introduce callbacks for atomic transfers") we started to see
-warnings during e.g. poweroff as the atomic callback is not explicitly set.
-Fix that.
+The mechanism in use to allow the client to see the results of COPY/CLONE
+is to drop those pages from the pagecache.  This forces the client to read
+those pages once more from the server.  However, truncate_pagecache_range()
+zeros out partial pages instead of dropping them.  Let us instead use
+invalidate_inode_pages2_range() with full-page offsets to ensure the client
+properly sees the results of COPY/CLONE operations.
 
-Fixes the following WARNING seen during Nokia N810 power down:
-
-[  786.570617] reboot: Power down
-[  786.573913] ------------[ cut here ]------------
-[  786.578826] WARNING: CPU: 0 PID: 672 at drivers/i2c/i2c-core.h:40 i2c_smbus_xfer+0x100/0x110
-[  786.587799] No atomic I2C transfer handler for 'i2c-2'
-
-Fixes: 63b96983a5dd ("i2c: core: introduce callbacks for atomic transfers")
-Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: <stable@vger.kernel.org> # v4.7+
+Fixes: 2e72448b07dc ("NFS: Add COPY nfs operation")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-cbus-gpio.c |    5 +++--
+ fs/nfs/nfs42proc.c |    5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-cbus-gpio.c
-+++ b/drivers/i2c/busses/i2c-cbus-gpio.c
-@@ -195,8 +195,9 @@ static u32 cbus_i2c_func(struct i2c_adap
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -181,8 +181,9 @@ static ssize_t _nfs42_proc_copy(struct f
+ 			return status;
+ 	}
+ 
+-	truncate_pagecache_range(dst_inode, pos_dst,
+-				 pos_dst + res->write_res.count);
++	WARN_ON_ONCE(invalidate_inode_pages2_range(dst_inode->i_mapping,
++					pos_dst >> PAGE_SHIFT,
++					(pos_dst + res->write_res.count - 1) >> PAGE_SHIFT));
+ 
+ 	return res->write_res.count;
  }
- 
- static const struct i2c_algorithm cbus_i2c_algo = {
--	.smbus_xfer	= cbus_i2c_smbus_xfer,
--	.functionality	= cbus_i2c_func,
-+	.smbus_xfer		= cbus_i2c_smbus_xfer,
-+	.smbus_xfer_atomic	= cbus_i2c_smbus_xfer,
-+	.functionality		= cbus_i2c_func,
- };
- 
- static int cbus_i2c_remove(struct platform_device *pdev)
 
 
