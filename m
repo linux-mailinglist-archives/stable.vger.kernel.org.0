@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BA9A469E3B
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6104F469E27
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385793AbhLFPhI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:37:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48838 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357615AbhLFPdH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:33:07 -0500
+        id S1356351AbhLFPgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:36:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37778 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357909AbhLFPdK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:33:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FE2261327;
-        Mon,  6 Dec 2021 15:29:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E549DC34900;
-        Mon,  6 Dec 2021 15:29:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 713FEB810AC;
+        Mon,  6 Dec 2021 15:29:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1CCBC34901;
+        Mon,  6 Dec 2021 15:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804576;
-        bh=OEEGC+RfoDDgr1acKy8hmdbIf+hesSt1JEinBSefDA4=;
+        s=korg; t=1638804579;
+        bh=6l9NKx8VC4Sex7t3Ghl62o1IiRG4Xima+ciOuejNMYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoXWXdKtSc/fc+CoXudAmOxQHr58o7OVIcnhwPpqzIcBnua460exnJkjXxT7sN5To
-         MkkYrHG/t+PAPC6ZnoOuJDQd61rr17yjTtt/mPw7MhYSlpaUMvWPhP9US1zLnTS9MD
-         R0v0i1zRZ0pZhEsXwjjZirwvsGjwY/wuJep6Kn+0=
+        b=aSP2aJrqK4ZhjR1CKcuRj7I+wd8OajBuJ4w80xl7pxiy4vxcqXvcbGe9iiDt28Wra
+         jDzdw748Vw78OtE3f8wlYvBeGC+TOQ+7SE4W/qxtYQcDDQqUi25b7PgrXjDGnyjSMS
+         LG44KDM+CgS0tXjZC8djCS6aY8e+YTjRt6otcg2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.15 196/207] x86/64/mm: Map all kernel memory into trampoline_pgd
-Date:   Mon,  6 Dec 2021 15:57:30 +0100
-Message-Id: <20211206145617.070329238@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 5.15 197/207] tty: serial: msm_serial: Deactivate RX DMA for polling support
+Date:   Mon,  6 Dec 2021 15:57:31 +0100
+Message-Id: <20211206145617.110280942@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -44,93 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 51523ed1c26758de1af7e58730a656875f72f783 upstream.
+commit 7492ffc90fa126afb67d4392d56cb4134780194a upstream.
 
-The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
-range of kernel memory (with 4-level paging). This range contains the
-kernel's text+data+bss mappings and the module mapping space but not the
-direct mapping and the vmalloc area.
+The CONSOLE_POLLING mode is used for tools like k(g)db. In this kind of
+setup, it is often sharing a serial device with the normal system console.
+This is usually no problem because the polling helpers can consume input
+values directly (when in kgdb context) and the normal Linux handlers can
+only consume new input values after kgdb switched back.
 
-This is enough to get the application processors out of real-mode, but
-for code that switches back to real-mode the trampoline_pgd is missing
-important parts of the address space. For example, consider this code
-from arch/x86/kernel/reboot.c, function machine_real_restart() for a
-64-bit kernel:
+This is not true anymore when RX DMA is enabled for UARTDM controllers.
+Single input values can no longer be received correctly. Instead following
+seems to happen:
 
-  #ifdef CONFIG_X86_32
-  	load_cr3(initial_page_table);
-  #else
-  	write_cr3(real_mode_header->trampoline_pgd);
+* on 1. input, some old input is read (continuously)
+* on 2. input, two old inputs are read (continuously)
+* on 3. input, three old input values are read (continuously)
+* on 4. input, 4 previous inputs are received
 
-  	/* Exiting long mode will fail if CR4.PCIDE is set. */
-  	if (boot_cpu_has(X86_FEATURE_PCID))
-  		cr4_clear_bits(X86_CR4_PCIDE);
-  #endif
+This repeats then for each group of 4 input values.
 
-  	/* Jump to the identity-mapped low memory code */
-  #ifdef CONFIG_X86_32
-  	asm volatile("jmpl *%0" : :
-  		     "rm" (real_mode_header->machine_real_restart_asm),
-  		     "a" (type));
-  #else
-  	asm volatile("ljmpl *%0" : :
-  		     "m" (real_mode_header->machine_real_restart_asm),
-  		     "D" (type));
-  #endif
+This behavior changes slightly depending on what state the controller was
+when the first input was received. But this makes working with kgdb
+basically impossible because control messages are always corrupted when
+kgdboc tries to parse them.
 
-The code switches to the trampoline_pgd, which unmaps the direct mapping
-and also the kernel stack. The call to cr4_clear_bits() will find no
-stack and crash the machine. The real_mode_header pointer below points
-into the direct mapping, and dereferencing it also causes a crash.
+RX DMA should therefore be off when CONSOLE_POLLING is enabled to avoid
+these kind of problems. No such problem was noticed for TX DMA.
 
-The reason this does not crash always is only that kernel mappings are
-global and the CR3 switch does not flush those mappings. But if theses
-mappings are not in the TLB already, the above code will crash before it
-can jump to the real-mode stub.
-
-Extend the trampoline_pgd to contain all kernel mappings to prevent
-these crashes and to make code which runs on this page-table more
-robust.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Fixes: 99693945013a ("tty: serial: msm: Add RX DMA support")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211202153226.22946-5-joro@8bytes.org
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Link: https://lore.kernel.org/r/20211113121050.7266-1-sven@narfation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/realmode/init.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/tty/serial/msm_serial.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -72,6 +72,7 @@ static void __init setup_real_mode(void)
- #ifdef CONFIG_X86_64
- 	u64 *trampoline_pgd;
- 	u64 efer;
-+	int i;
- #endif
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -598,6 +598,9 @@ static void msm_start_rx_dma(struct msm_
+ 	u32 val;
+ 	int ret;
  
- 	base = (unsigned char *)real_mode_header;
-@@ -128,8 +129,17 @@ static void __init setup_real_mode(void)
- 	trampoline_header->flags = 0;
- 
- 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
++	if (IS_ENABLED(CONFIG_CONSOLE_POLL))
++		return;
 +
-+	/* Map the real mode stub as virtual == physical */
- 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
--	trampoline_pgd[511] = init_top_pgt[511].pgd;
-+
-+	/*
-+	 * Include the entirety of the kernel mapping into the trampoline
-+	 * PGD.  This way, all mappings present in the normal kernel page
-+	 * tables are usable while running on trampoline_pgd.
-+	 */
-+	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
-+		trampoline_pgd[i] = init_top_pgt[i].pgd;
- #endif
+ 	if (!dma->chan)
+ 		return;
  
- 	sme_sev_setup_real_mode(trampoline_header);
 
 
