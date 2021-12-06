@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD71469AEA
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A47469D85
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347394AbhLFPLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:11:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41350 "EHLO
+        id S1386853AbhLFPaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:30:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60770 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347129AbhLFPIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:08:16 -0500
+        with ESMTP id S1355815AbhLFP1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:27:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3515B81132;
-        Mon,  6 Dec 2021 15:04:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24820C341C1;
-        Mon,  6 Dec 2021 15:04:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD45DB81138;
+        Mon,  6 Dec 2021 15:24:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F36C2C341C7;
+        Mon,  6 Dec 2021 15:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803084;
-        bh=LsSWTblbar9WjJ0A101qxYrGsk//7J20ewbc3ncaHmU=;
+        s=korg; t=1638804242;
+        bh=o3utI/Vr0wiBW1HhlOYQwbO0tkgWIK9xr9EX1lxqS08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khuz8cItdSzDm8v7ti6N6NXNUhYYATDUZoq5o4eBs+WTO2m8zlDqvBb0XMAOTIL5t
-         +gDU7znQw2dqBrsSZn11vHNuYMfTwBm4LizdggeDhkD9zDwrAN1wvRFNoYMqL0X2WW
-         aoWlI2AVSurRuBzB6uGabmU0Uq/fjOagQi4L+jX0=
+        b=oqHGueyf04ch6jzgvur1HsMHOlM8ErAfdVTNdAQld09fsjnPKvp/9omBRXhkajC3j
+         8P+wCq3bDS1LqG+2sAXSk9nBX7u/ye7NQT3pnt0CzkfMSXtfWfj+NXuN4vrutjCRfM
+         u9mQPyDqeHL95MhkryvmA++1Iqzn+dslhgqAxc5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Tobias Brunner <tobias@strongswan.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 023/106] ipv6: fix typos in __ip6_finish_output()
-Date:   Mon,  6 Dec 2021 15:55:31 +0100
-Message-Id: <20211206145556.166969840@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        David Matlack <dmatlack@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 078/207] KVM: VMX: prepare sync_pir_to_irr for running with APICv disabled
+Date:   Mon,  6 Dec 2021 15:55:32 +0100
+Message-Id: <20211206145612.939917006@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,45 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 19d36c5f294879949c9d6f57cb61d39cc4c48553 ]
+commit 7e1901f6c86c896acff6609e0176f93f756d8b2a upstream.
 
-We deal with IPv6 packets, so we need to use IP6CB(skb)->flags and
-IP6SKB_REROUTED, instead of IPCB(skb)->flags and IPSKB_REROUTED
+If APICv is disabled for this vCPU, assigned devices may still attempt to
+post interrupts.  In that case, we need to cancel the vmentry and deliver
+the interrupt with KVM_REQ_EVENT.  Extend the existing code that handles
+injection of L1 interrupts into L2 to cover this case as well.
 
-Found by code inspection, please double check that fixing this bug
-does not surface other bugs.
+vmx_hwapic_irr_update is only called when APICv is active so it would be
+confusing to add a check for vcpu->arch.apicv_active in there.  Instead,
+just use vmx_set_rvi directly in vmx_sync_pir_to_irr.
 
-Fixes: 09ee9dba9611 ("ipv6: Reinject IPv6 packets if IPsec policy matches after SNAT")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Tobias Brunner <tobias@strongswan.org>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: David Ahern <dsahern@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Tested-by: Tobias Brunner <tobias@strongswan.org>
-Acked-by: Tobias Brunner <tobias@strongswan.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Reviewed-by: David Matlack <dmatlack@google.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211123004311.2954158-3-pbonzini@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/vmx.c |   39 +++++++++++++++++++++++++--------------
+ 1 file changed, 25 insertions(+), 14 deletions(-)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index a903d0ce7e701..f906fe2acedd3 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -175,7 +175,7 @@ static int ip6_finish_output(struct net *net, struct sock *sk, struct sk_buff *s
- #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
- 	/* Policy lookup after SNAT yielded a new policy */
- 	if (skb_dst(skb)->xfrm) {
--		IPCB(skb)->flags |= IPSKB_REROUTED;
-+		IP6CB(skb)->flags |= IP6SKB_REROUTED;
- 		return dst_output(net, sk, skb);
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6242,9 +6242,9 @@ static int vmx_sync_pir_to_irr(struct kv
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+ 	int max_irr;
+-	bool max_irr_updated;
++	bool got_posted_interrupt;
+ 
+-	if (KVM_BUG_ON(!vcpu->arch.apicv_active, vcpu->kvm))
++	if (KVM_BUG_ON(!enable_apicv, vcpu->kvm))
+ 		return -EIO;
+ 
+ 	if (pi_test_on(&vmx->pi_desc)) {
+@@ -6254,22 +6254,33 @@ static int vmx_sync_pir_to_irr(struct kv
+ 		 * But on x86 this is just a compiler barrier anyway.
+ 		 */
+ 		smp_mb__after_atomic();
+-		max_irr_updated =
++		got_posted_interrupt =
+ 			kvm_apic_update_irr(vcpu, vmx->pi_desc.pir, &max_irr);
+-
+-		/*
+-		 * If we are running L2 and L1 has a new pending interrupt
+-		 * which can be injected, this may cause a vmexit or it may
+-		 * be injected into L2.  Either way, this interrupt will be
+-		 * processed via KVM_REQ_EVENT, not RVI, because we do not use
+-		 * virtual interrupt delivery to inject L1 interrupts into L2.
+-		 */
+-		if (is_guest_mode(vcpu) && max_irr_updated)
+-			kvm_make_request(KVM_REQ_EVENT, vcpu);
+ 	} else {
+ 		max_irr = kvm_lapic_find_highest_irr(vcpu);
++		got_posted_interrupt = false;
  	}
- #endif
--- 
-2.33.0
-
+-	vmx_hwapic_irr_update(vcpu, max_irr);
++
++	/*
++	 * Newly recognized interrupts are injected via either virtual interrupt
++	 * delivery (RVI) or KVM_REQ_EVENT.  Virtual interrupt delivery is
++	 * disabled in two cases:
++	 *
++	 * 1) If L2 is running and the vCPU has a new pending interrupt.  If L1
++	 * wants to exit on interrupts, KVM_REQ_EVENT is needed to synthesize a
++	 * VM-Exit to L1.  If L1 doesn't want to exit, the interrupt is injected
++	 * into L2, but KVM doesn't use virtual interrupt delivery to inject
++	 * interrupts into L2, and so KVM_REQ_EVENT is again needed.
++	 *
++	 * 2) If APICv is disabled for this vCPU, assigned devices may still
++	 * attempt to post interrupts.  The posted interrupt vector will cause
++	 * a VM-Exit and the subsequent entry will call sync_pir_to_irr.
++	 */
++	if (!is_guest_mode(vcpu) && kvm_vcpu_apicv_active(vcpu))
++		vmx_set_rvi(max_irr);
++	else if (got_posted_interrupt)
++		kvm_make_request(KVM_REQ_EVENT, vcpu);
++
+ 	return max_irr;
+ }
+ 
 
 
