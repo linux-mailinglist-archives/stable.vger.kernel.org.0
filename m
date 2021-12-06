@@ -2,93 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 562F0469616
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 13:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF25B46961B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 13:59:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243433AbhLFNBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 08:01:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51498 "EHLO
+        id S243421AbhLFNDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 08:03:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243421AbhLFNBx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 08:01:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00BF4C061746
-        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 04:58:24 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 890396126E
-        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 12:58:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E3EEC341C1;
-        Mon,  6 Dec 2021 12:58:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638795504;
-        bh=caeDQ7P2Y9CTY9WpVl3B+g8dDnHxyDUR51IqIn/nCsA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=abQ5uBqXgJrh3/A+n50lQZQ+vsJKXOqFYGEwnGICKaum5YOSQAhmRE3ETQQXk4RVp
-         6hHRc6kdnum712HJctDAxKdUV2AmYFjURUrPjXrzjXpI4RzorU9KBDOoBaU03Z+he9
-         kMOsKileQgu7ikQI9VkASB/3Dq+0mztxq9B/UOWM=
-Date:   Mon, 6 Dec 2021 13:58:21 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Vakul Garg <vakul.garg@nxp.com>, stable@vger.kernel.org
-Subject: Re: [PATCH stable 5.10] net/tls: Fix authentication failure in CCM
- mode
-Message-ID: <Ya4I7XTQyqiqwoVZ@kroah.com>
-References: <163861363511932@kroah.com>
- <20211206093536.129211-1-tianjia.zhang@linux.alibaba.com>
+        with ESMTP id S243274AbhLFNDD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 08:03:03 -0500
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E02C061746
+        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 04:59:34 -0800 (PST)
+Received: by mail-lf1-x12a.google.com with SMTP id z21so2993005lfu.8
+        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 04:59:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:to:content-language:from
+         :subject:cc:content-transfer-encoding;
+        bh=fCxJcUzAEg6T9mato1MKFp8WUVBEDQGDxtg358JwWXY=;
+        b=nmTZKTk278vTnBJWCnR5ylg9v3qBaN6JDbjSrezbs89igVzEPy1KrRA5cVvN34p7E8
+         +iR31AV1r18dS3lVqSAuS8Q38JUITVA3oJnqRU0Yt81OaV19D321O/8vmzOpnhz3UcpQ
+         PlpjkdKmXsAeghci1dcB/il5Oq6fRdU/tabuFKSUmK7uWGa29y6K3FDC2Wk5yGEJX7JS
+         +BqrBYf0q+eFCYromzQIzUm2vJBY1rToHc5hQH99hpoI9rpBpMDpqbMhmHBTdz8optBW
+         YdmBmlikQ9tW8cc3JlqBLdyzcY7TIH5a93+9houmA2ZVqewBmPBRijN2VKwVVfKjbZaG
+         wxkw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:to
+         :content-language:from:subject:cc:content-transfer-encoding;
+        bh=fCxJcUzAEg6T9mato1MKFp8WUVBEDQGDxtg358JwWXY=;
+        b=qR+i+r1+s44ISrq+bg4LRwnzDd3DGBYy2RLGvRhfIT1LPj3Nw/xre6l7NUi69ivhhP
+         CthxbTQDSx4gdKhBykLvJNClNr26fPASoad05JQYN3UFXeKtn11v8LfsK/ItRJh/0w/+
+         i0ygX+huuBKWWC//cqUXvfTFKe44MTyzITfg+TWMM+q2mjaMNh+ceHs2ACbn4Q/EQH5Z
+         tpIe75e5xABtPojuaaYITJj6xuI11Pq+Z9bYs6ZZmVU/SBnlmZNBY0M3M7Ok52IP5bfs
+         QWGS5AgQ9VP99ZbqF/Ve2uh1441e0G3zSJZQOtWdpDAwNoOjFz9ZFh/zqeuYj7U+ui6B
+         7CWg==
+X-Gm-Message-State: AOAM531rU/8vBoBwSzsa1p3aZFIXfp8CYqAueYzxKFnrtj22Ot9Fk86P
+        Ls5jdIc3Q8K9RQSi7MDx2YYNHrWVJ00=
+X-Google-Smtp-Source: ABdhPJxdZ7QCpVYpLUARiBnvYDGq3MSG39dloBFe64E2BTaZJC33xlLxX5QAh1nfy4GL9/nQ7e9jqg==
+X-Received: by 2002:a05:6512:11e5:: with SMTP id p5mr33875982lfs.537.1638795572448;
+        Mon, 06 Dec 2021 04:59:32 -0800 (PST)
+Received: from [213.112.1.193] (c-51aad954.51034-0-757473696b74.bbcust.telenor.se. [213.112.1.193])
+        by smtp.gmail.com with ESMTPSA id f35sm1347180lfv.98.2021.12.06.04.59.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Dec 2021 04:59:32 -0800 (PST)
+Message-ID: <a11f5d22-658c-44e9-51ab-d39c5e8776da@gmail.com>
+Date:   Mon, 6 Dec 2021 13:59:31 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211206093536.129211-1-tianjia.zhang@linux.alibaba.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.1
+To:     stable@vger.kernel.org
+Content-Language: en-GB
+From:   Thomas Lindroth <thomas.lindroth@gmail.com>
+Subject: Could the fix for broken gcc-plugins with gcc-11 be backported to
+ 5.10?
+Cc:     keescook@chromium.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 06, 2021 at 05:35:36PM +0800, Tianjia Zhang wrote:
-> commit 5961060692f8b17cd2080620a3d27b95d2ae05ca upstream.
-> 
-> When the TLS cipher suite uses CCM mode, including AES CCM and
-> SM4 CCM, the first byte of the B0 block is flags, and the real
-> IV starts from the second byte. The XOR operation of the IV and
-> rec_seq should be skip this byte, that is, add the iv_offset.
-> 
-> Fixes: f295b3ae9f59 ("net/tls: Add support of AES128-CCM based ciphers")
-> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-> Cc: Vakul Garg <vakul.garg@nxp.com>
-> Cc: stable@vger.kernel.org # v5.2+
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> ---
->  net/tls/tls_sw.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-> index 122d5daed8b6..8cd011ea9fbb 100644
-> --- a/net/tls/tls_sw.c
-> +++ b/net/tls/tls_sw.c
-> @@ -515,7 +515,7 @@ static int tls_do_encryption(struct sock *sk,
->  	memcpy(&rec->iv_data[iv_offset], tls_ctx->tx.iv,
->  	       prot->iv_size + prot->salt_size);
->  
-> -	xor_iv_with_seq(prot->version, rec->iv_data, tls_ctx->tx.rec_seq);
-> +	xor_iv_with_seq(prot->version, rec->iv_data + iv_offset, tls_ctx->tx.rec_seq);
->  
->  	sge->offset += prot->prepend_size;
->  	sge->length -= prot->prepend_size;
-> @@ -1487,7 +1487,7 @@ static int decrypt_internal(struct sock *sk, struct sk_buff *skb,
->  	else
->  		memcpy(iv + iv_offset, tls_ctx->rx.iv, prot->salt_size);
->  
-> -	xor_iv_with_seq(prot->version, iv, tls_ctx->rx.rec_seq);
-> +	xor_iv_with_seq(prot->version, iv + iv_offset, tls_ctx->rx.rec_seq);
->  
->  	/* Prepare AAD */
->  	tls_make_aad(aad, rxm->full_len - prot->overhead_size +
-> -- 
-> 2.19.1.3.ge56e4f7
-> 
+Build support for gcc-plugins are not detected with gcc-11 in lts kernels.
+Gentoo and Arch apply their own patch to fix the problem in their distribution
+kernels but I would prefer if a proper fix was applied upstream.
 
-Both backports now queued up, thanks.
+https://bugs.gentoo.org/814200 a gentoo report with the relevant info.
 
-greg k-h
+I've searched for any upstream discussions about the problem but I've only found
+one message saying the backport needs an additional fix. That was almost a year
+ago. https://www.spinics.net/lists/stable/msg438000.html
+
+/Thomas Lindroth
