@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C32D6469A92
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:05:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABE5469C7F
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347526AbhLFPIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:08:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52896 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346692AbhLFPG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:06:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47892C07E5F7;
-        Mon,  6 Dec 2021 07:03:11 -0800 (PST)
+        id S1357937AbhLFPXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:01 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39456 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346546AbhLFPVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:21:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08E88B81018;
-        Mon,  6 Dec 2021 15:03:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47590C341C5;
-        Mon,  6 Dec 2021 15:03:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBB096132F;
+        Mon,  6 Dec 2021 15:17:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFDFFC33AA1;
+        Mon,  6 Dec 2021 15:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802988;
-        bh=hKuToEGQdkelpbyquX+wm/ISvQPDg6rdgOlJly+IrOY=;
+        s=korg; t=1638803849;
+        bh=lgazTf/KmclGBV+oVKueKG8F65kkA0ahysymL142Ne0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sih2tVmx17ohEuTXw/FBXJ4S0TWnpjKMv+2yiM6q6qfXPCOTCiXEvW9pr6HYKKT6c
-         YVDzgXs/idg/++NEzAATVqQKqXvaIGOKSoYOxc0c7cUoxiNPfDqKqd/R/jc8KdaFmj
-         pp9G5UVJuG3toHV1PDa32cc6EeEEL0XsQYd8SsKU=
+        b=huGVy0W+r0L4XU8KmZH8DSIHynz1oyD8fBZ26NfQHb6g0DiIaN9iShNxJ4Q/nXPMZ
+         1IGtbtggA1tWkmm8Yo0WyMyJ0BbC0VraqTPvp6n3G+4w6HRvEGRmbDLfLAWkD6BjFA
+         Sme8oA3llilDO4Riy7RaMtX82cq5fmxsI0uGSgCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.9 09/62] fuse: fix page stealing
-Date:   Mon,  6 Dec 2021 15:55:52 +0100
-Message-Id: <20211206145549.480110780@linuxfoundation.org>
+        stable@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.10 036/130] s390/pci: move pseudo-MMIO to prevent MIO overlap
+Date:   Mon,  6 Dec 2021 15:55:53 +0100
+Message-Id: <20211206145600.921337525@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,64 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
+commit 52d04d408185b7aa47628d2339c28ec70074e0ae upstream.
 
-It is possible to trigger a crash by splicing anon pipe bufs to the fuse
-device.
+When running without MIO support, with pci=nomio or for devices which
+are not MIO-capable the zPCI subsystem generates pseudo-MMIO addresses
+to allow access to PCI BARs via MMIO based Linux APIs even though the
+platform uses function handles and BAR numbers.
 
-The reason for this is that anon_pipe_buf_release() will reuse buf->page if
-the refcount is 1, but that page might have already been stolen and its
-flags modified (e.g. PG_lru added).
+This is done by stashing an index into our global IOMAP array which
+contains the function handle in the 16 most significant bits of the
+addresses returned by ioremap() always setting the most significant bit.
 
-This happens in the unlikely case of fuse_dev_splice_write() getting around
-to calling pipe_buf_release() after a page has been stolen, added to the
-page cache and removed from the page cache.
+On the other hand the MIO addresses assigned by the platform for use,
+while requiring special instructions, allow PCI access with virtually
+mapped physical addresses. Now the problem is that these MIO addresses
+and our own pseudo-MMIO addresses may overlap, while functionally this
+would not be a problem by itself this overlap is detected by common code
+as both address types are added as resources in the iomem_resource tree.
+This leads to the overlapping resource claim of either the MIO capable
+or non-MIO capable devices with being rejected.
 
-Fix by calling pipe_buf_release() right after the page was inserted into
-the page cache.  In this case the page has an elevated refcount so any
-release function will know that the page isn't reusable.
+Since PCI is tightly coupled to the use of the iomem_resource tree, see
+for example the code for request_mem_region(), we can't reasonably get
+rid of the overlap being detected by keeping our pseudo-MMIO addresses
+out of the iomem_resource tree.
 
-Reported-by: Frank Dinoff <fdinoff@google.com>
-Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
-Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
-Cc: <stable@vger.kernel.org> # v2.6.35
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Instead let's move the range used by our own pseudo-MMIO addresses by
+starting at (1UL << 62) and only using addresses below (1UL << 63) thus
+avoiding the range currently used for MIO addresses.
+
+Fixes: c7ff0e918a7c ("s390/pci: deal with devices that have no support for MIO instructions")
+Cc: stable@vger.kernel.org # 5.3+
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/dev.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/pci_io.h |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -898,6 +898,12 @@ static int fuse_try_move_page(struct fus
- 		goto out_put_old;
- 	}
+--- a/arch/s390/include/asm/pci_io.h
++++ b/arch/s390/include/asm/pci_io.h
+@@ -14,12 +14,13 @@
  
-+	/*
-+	 * Release while we have extra ref on stolen page.  Otherwise
-+	 * anon_pipe_buf_release() might think the page can be reused.
-+	 */
-+	pipe_buf_release(cs->pipe, buf);
-+
- 	get_page(newpage);
+ /* I/O Map */
+ #define ZPCI_IOMAP_SHIFT		48
+-#define ZPCI_IOMAP_ADDR_BASE		0x8000000000000000UL
++#define ZPCI_IOMAP_ADDR_SHIFT		62
++#define ZPCI_IOMAP_ADDR_BASE		(1UL << ZPCI_IOMAP_ADDR_SHIFT)
+ #define ZPCI_IOMAP_ADDR_OFF_MASK	((1UL << ZPCI_IOMAP_SHIFT) - 1)
+ #define ZPCI_IOMAP_MAX_ENTRIES							\
+-	((ULONG_MAX - ZPCI_IOMAP_ADDR_BASE + 1) / (1UL << ZPCI_IOMAP_SHIFT))
++	(1UL << (ZPCI_IOMAP_ADDR_SHIFT - ZPCI_IOMAP_SHIFT))
+ #define ZPCI_IOMAP_ADDR_IDX_MASK						\
+-	(~ZPCI_IOMAP_ADDR_OFF_MASK - ZPCI_IOMAP_ADDR_BASE)
++	((ZPCI_IOMAP_ADDR_BASE - 1) & ~ZPCI_IOMAP_ADDR_OFF_MASK)
  
- 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
-@@ -2040,8 +2046,12 @@ static ssize_t fuse_dev_splice_write(str
- 
- 	pipe_lock(pipe);
- out_free:
--	for (idx = 0; idx < nbuf; idx++)
--		pipe_buf_release(pipe, &bufs[idx]);
-+	for (idx = 0; idx < nbuf; idx++) {
-+		struct pipe_buffer *buf = &bufs[idx];
-+
-+		if (buf->ops)
-+			pipe_buf_release(pipe, buf);
-+	}
- 	pipe_unlock(pipe);
- 
- 	kfree(bufs);
+ struct zpci_iomap_entry {
+ 	u32 fh;
 
 
