@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F180A4699DD
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6D67469DF3
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345366AbhLFPEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:13 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54000 "EHLO
+        id S1388777AbhLFPeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:34:50 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47226 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344993AbhLFPDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:46 -0500
+        with ESMTP id S1386872AbhLFPaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:30:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49D4461325;
-        Mon,  6 Dec 2021 15:00:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CA46C341C1;
-        Mon,  6 Dec 2021 15:00:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0168661320;
+        Mon,  6 Dec 2021 15:26:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9643C34900;
+        Mon,  6 Dec 2021 15:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802816;
-        bh=M8HEae/UF5ZV1fSaVZ5VZW210U26HTBby91n/IkM/kk=;
+        s=korg; t=1638804403;
+        bh=DBqJtksb32IyiU/2a8jx2PQeTKPtvhXaky4ND5a8o44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjsHMbA9b72FfVJV0fqkC9NvFk28sz+TGkeRdi2ATwu1sWeQQnTpMYB5e+ei54zrQ
-         oYLA89o/5yZAfdeQGEn0D+MToOmJ8i6TY3Z7P/IjBNIHl7Kh79ToqajoN8ptgWM3yx
-         4Xs4pQ0i5aspyHFFc1fm2JsboSnY0iuOBT9F0+l4=
+        b=ViIfaF0NRtcmM020JEE2Q6iLbd6jsAMNrfa4cJOZ1bIsZV9R9VS6KSgJOFhLUcM5E
+         VtYL0enmhflh2DUl+CoH2MUjmEQqrW/rC0yP2xGeABrXAbhHzXHh9QiEcXSh2qnbuh
+         A1zmtlWjpEvVLua5st7T0a1frmWWIrLauDCnUb9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Sergei Shtylyov <sergei.shtylyov@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.4 42/52] sata_fsl: fix UAF in sata_fsl_port_stop when rmmod sata_fsl
-Date:   Mon,  6 Dec 2021 15:56:26 +0100
-Message-Id: <20211206145549.345920919@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 133/207] ipv4: convert fib_num_tclassid_users to atomic_t
+Date:   Mon,  6 Dec 2021 15:56:27 +0100
+Message-Id: <20211206145614.830597707@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,98 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 6c8ad7e8cf29eb55836e7a0215f967746ab2b504 upstream.
+commit 213f5f8f31f10aa1e83187ae20fb7fa4e626b724 upstream.
 
-When the `rmmod sata_fsl.ko` command is executed in the PPC64 GNU/Linux,
-a bug is reported:
- ==================================================================
- BUG: Unable to handle kernel data access on read at 0x80000800805b502c
- Oops: Kernel access of bad area, sig: 11 [#1]
- NIP [c0000000000388a4] .ioread32+0x4/0x20
- LR [80000000000c6034] .sata_fsl_port_stop+0x44/0xe0 [sata_fsl]
- Call Trace:
-  .free_irq+0x1c/0x4e0 (unreliable)
-  .ata_host_stop+0x74/0xd0 [libata]
-  .release_nodes+0x330/0x3f0
-  .device_release_driver_internal+0x178/0x2c0
-  .driver_detach+0x64/0xd0
-  .bus_remove_driver+0x70/0xf0
-  .driver_unregister+0x38/0x80
-  .platform_driver_unregister+0x14/0x30
-  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
-  .__se_sys_delete_module+0x1ec/0x2d0
-  .system_call_exception+0xfc/0x1f0
-  system_call_common+0xf8/0x200
- ==================================================================
+Before commit faa041a40b9f ("ipv4: Create cleanup helper for fib_nh")
+changes to net->ipv4.fib_num_tclassid_users were protected by RTNL.
 
-The triggering of the BUG is shown in the following stack:
+After the change, this is no longer the case, as free_fib_info_rcu()
+runs after rcu grace period, without rtnl being held.
 
-driver_detach
-  device_release_driver_internal
-    __device_release_driver
-      drv->remove(dev) --> platform_drv_remove/platform_remove
-        drv->remove(dev) --> sata_fsl_remove
-          iounmap(host_priv->hcr_base);			<---- unmap
-          kfree(host_priv);                             <---- free
-      devres_release_all
-        release_nodes
-          dr->node.release(dev, dr->data) --> ata_host_stop
-            ap->ops->port_stop(ap) --> sata_fsl_port_stop
-                ioread32(hcr_base + HCONTROL)           <---- UAF
-            host->ops->host_stop(host)
-
-The iounmap(host_priv->hcr_base) and kfree(host_priv) functions should
-not be executed in drv->remove. These functions should be executed in
-host_stop after port_stop. Therefore, we move these functions to the
-new function sata_fsl_host_stop and bind the new function to host_stop.
-
-Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: faa041a40b9f ("ipv4: Create cleanup helper for fib_nh")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: David Ahern <dsahern@kernel.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_fsl.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ include/net/ip_fib.h     |    2 +-
+ include/net/netns/ipv4.h |    2 +-
+ net/ipv4/fib_frontend.c  |    2 +-
+ net/ipv4/fib_rules.c     |    4 ++--
+ net/ipv4/fib_semantics.c |    4 ++--
+ 5 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/ata/sata_fsl.c
-+++ b/drivers/ata/sata_fsl.c
-@@ -1406,6 +1406,14 @@ static int sata_fsl_init_controller(stru
- 	return 0;
+--- a/include/net/ip_fib.h
++++ b/include/net/ip_fib.h
+@@ -438,7 +438,7 @@ int fib_validate_source(struct sk_buff *
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+ static inline int fib_num_tclassid_users(struct net *net)
+ {
+-	return net->ipv4.fib_num_tclassid_users;
++	return atomic_read(&net->ipv4.fib_num_tclassid_users);
  }
+ #else
+ static inline int fib_num_tclassid_users(struct net *net)
+--- a/include/net/netns/ipv4.h
++++ b/include/net/netns/ipv4.h
+@@ -65,7 +65,7 @@ struct netns_ipv4 {
+ 	bool			fib_has_custom_local_routes;
+ 	bool			fib_offload_disabled;
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+-	int			fib_num_tclassid_users;
++	atomic_t		fib_num_tclassid_users;
+ #endif
+ 	struct hlist_head	*fib_table_hash;
+ 	struct sock		*fibnl;
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -1582,7 +1582,7 @@ static int __net_init fib_net_init(struc
+ 	int error;
  
-+static void sata_fsl_host_stop(struct ata_host *host)
-+{
-+        struct sata_fsl_host_priv *host_priv = host->private_data;
-+
-+        iounmap(host_priv->hcr_base);
-+        kfree(host_priv);
-+}
-+
- /*
-  * scsi mid-layer and libata interface structures
-  */
-@@ -1438,6 +1446,8 @@ static struct ata_port_operations sata_f
- 	.port_start = sata_fsl_port_start,
- 	.port_stop = sata_fsl_port_stop,
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+-	net->ipv4.fib_num_tclassid_users = 0;
++	atomic_set(&net->ipv4.fib_num_tclassid_users, 0);
+ #endif
+ 	error = ip_fib_net_init(net);
+ 	if (error < 0)
+--- a/net/ipv4/fib_rules.c
++++ b/net/ipv4/fib_rules.c
+@@ -264,7 +264,7 @@ static int fib4_rule_configure(struct fi
+ 	if (tb[FRA_FLOW]) {
+ 		rule4->tclassid = nla_get_u32(tb[FRA_FLOW]);
+ 		if (rule4->tclassid)
+-			net->ipv4.fib_num_tclassid_users++;
++			atomic_inc(&net->ipv4.fib_num_tclassid_users);
+ 	}
+ #endif
  
-+	.host_stop      = sata_fsl_host_stop,
-+
- 	.pmp_attach = sata_fsl_pmp_attach,
- 	.pmp_detach = sata_fsl_pmp_detach,
- };
-@@ -1572,8 +1582,6 @@ static int sata_fsl_remove(struct platfo
- 	ata_host_detach(host);
+@@ -296,7 +296,7 @@ static int fib4_rule_delete(struct fib_r
  
- 	irq_dispose_mapping(host_priv->irq);
--	iounmap(host_priv->hcr_base);
--	kfree(host_priv);
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+ 	if (((struct fib4_rule *)rule)->tclassid)
+-		net->ipv4.fib_num_tclassid_users--;
++		atomic_dec(&net->ipv4.fib_num_tclassid_users);
+ #endif
+ 	net->ipv4.fib_has_custom_rules = true;
  
- 	return 0;
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -220,7 +220,7 @@ void fib_nh_release(struct net *net, str
+ {
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+ 	if (fib_nh->nh_tclassid)
+-		net->ipv4.fib_num_tclassid_users--;
++		atomic_dec(&net->ipv4.fib_num_tclassid_users);
+ #endif
+ 	fib_nh_common_release(&fib_nh->nh_common);
  }
+@@ -632,7 +632,7 @@ int fib_nh_init(struct net *net, struct
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+ 	nh->nh_tclassid = cfg->fc_flow;
+ 	if (nh->nh_tclassid)
+-		net->ipv4.fib_num_tclassid_users++;
++		atomic_inc(&net->ipv4.fib_num_tclassid_users);
+ #endif
+ #ifdef CONFIG_IP_ROUTE_MULTIPATH
+ 	nh->fib_nh_weight = nh_weight;
 
 
