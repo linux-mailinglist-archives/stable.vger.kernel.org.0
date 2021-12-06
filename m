@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD55469EE5
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40405469C08
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:16:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359171AbhLFPon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:44:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33186 "EHLO
+        id S237532AbhLFPTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:19:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390547AbhLFPma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE758C0698D6;
-        Mon,  6 Dec 2021 07:28:21 -0800 (PST)
+        with ESMTP id S1356707AbhLFPRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:17:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20039C08ED3D;
+        Mon,  6 Dec 2021 07:10:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D6FE6130D;
-        Mon,  6 Dec 2021 15:28:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E22C34900;
-        Mon,  6 Dec 2021 15:28:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0489B81129;
+        Mon,  6 Dec 2021 15:10:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58DB9C341C1;
+        Mon,  6 Dec 2021 15:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804501;
-        bh=dImLpwY/A2mb8Y8aH3ujPVNwegqlEU8u3t8Sj+a3SMA=;
+        s=korg; t=1638803451;
+        bh=TszRsrTYXZHqJvxv3mmouyRPoMeejjv77zaWwI9RLoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1lycb9wVn6/+onUchghr0gIMMWXgdpu7Jhcy0uY9et9d6ULBJyfRM7pMomrz0J1o8
-         57WReikww6IJLNd87mRSJy6TOeLeVTq2sqrD2poy9Y9dxz1ChLb4xrV47sMLD5j7Nt
-         HareG24BFasvy2yewQY6RGFmhwD2ZXB1+UFxtPPE=
+        b=uyK0EhkLQhLBYguv8yLdhfClkYTvkdqXLciyOUpH1e/FyRW3JmGloRzNwoKQp0knL
+         l3BGh7C9yweTVfyA0ZKHGZP+fIpU30pdBLZsN06+ahBEtDuYjsMqvz7pACTDectFr8
+         V0A+EoWI96LmEQo9nIVGExzDKyrV0XZk+5nIU4dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 168/207] KVM: VMX: Set failure code in prepare_vmcs02()
-Date:   Mon,  6 Dec 2021 15:57:02 +0100
-Message-Id: <20211206145616.089268934@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 46/48] serial: core: fix transmit-buffer reset and memleak
+Date:   Mon,  6 Dec 2021 15:57:03 +0100
+Message-Id: <20211206145550.435033460@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,41 +48,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit bfbb307c628676929c2d329da0daf9d22afa8ad2 ]
+commit 00de977f9e0aa9760d9a79d1e41ff780f74e3424 upstream.
 
-The error paths in the prepare_vmcs02() function are supposed to set
-*entry_failure_code but this path does not.  It leads to using an
-uninitialized variable in the caller.
+Commit 761ed4a94582 ("tty: serial_core: convert uart_close to use
+tty_port_close") converted serial core to use tty_port_close() but
+failed to notice that the transmit buffer still needs to be freed on
+final close.
 
-Fixes: 71f7347025bf ("KVM: nVMX: Load GUEST_IA32_PERF_GLOBAL_CTRL MSR on VM-Entry")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Message-Id: <20211130125337.GB24578@kili>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Not freeing the transmit buffer means that the buffer is no longer
+cleared on next open so that any ioctl() waiting for the buffer to drain
+might wait indefinitely (e.g. on termios changes) or that stale data can
+end up being transmitted in case tx is restarted.
+
+Furthermore, the buffer of any port that has been opened would leak on
+driver unbind.
+
+Note that the port lock is held when clearing the buffer pointer due to
+the ldisc race worked around by commit a5ba1d95e46e ("uart: fix race
+between uart_put_char() and uart_shutdown()").
+
+Also note that the tty-port shutdown() callback is not called for
+console ports so it is not strictly necessary to free the buffer page
+after releasing the lock (cf. d72402145ace ("tty/serial: do not free
+trasnmit buffer page under port lock")).
+
+Link: https://lore.kernel.org/r/319321886d97c456203d5c6a576a5480d07c3478.1635781688.git.baruch@tkos.co.il
+Fixes: 761ed4a94582 ("tty: serial_core: convert uart_close to use tty_port_close")
+Cc: stable@vger.kernel.org      # 4.9
+Cc: Rob Herring <robh@kernel.org>
+Reported-by: Baruch Siach <baruch@tkos.co.il>
+Tested-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211108085431.12637-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/serial_core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 302f1752cc4c2..e97a11abc1d85 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2609,8 +2609,10 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1527,6 +1527,7 @@ static void uart_tty_port_shutdown(struc
+ {
+ 	struct uart_state *state = container_of(port, struct uart_state, port);
+ 	struct uart_port *uport = uart_port_check(state);
++	char *buf;
  
- 	if ((vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL) &&
- 	    WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
--				     vmcs12->guest_ia32_perf_global_ctrl)))
-+				     vmcs12->guest_ia32_perf_global_ctrl))) {
-+		*entry_failure_code = ENTRY_FAIL_DEFAULT;
- 		return -EINVAL;
-+	}
+ 	/*
+ 	 * At this point, we stop accepting input.  To do this, we
+@@ -1548,8 +1549,18 @@ static void uart_tty_port_shutdown(struc
+ 	 */
+ 	tty_port_set_suspended(port, 0);
  
- 	kvm_rsp_write(vcpu, vmcs12->guest_rsp);
- 	kvm_rip_write(vcpu, vmcs12->guest_rip);
--- 
-2.33.0
-
+-	uart_change_pm(state, UART_PM_STATE_OFF);
++	/*
++	 * Free the transmit buffer.
++	 */
++	spin_lock_irq(&uport->lock);
++	buf = state->xmit.buf;
++	state->xmit.buf = NULL;
++	spin_unlock_irq(&uport->lock);
++
++	if (buf)
++		free_page((unsigned long)buf);
+ 
++	uart_change_pm(state, UART_PM_STATE_OFF);
+ }
+ 
+ static void uart_wait_until_sent(struct tty_struct *tty, int timeout)
 
 
