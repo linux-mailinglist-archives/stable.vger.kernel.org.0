@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 020AC469B22
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:09:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D26E469C47
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346479AbhLFPNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:13:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53236 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356082AbhLFPLE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:11:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44646C061D60;
-        Mon,  6 Dec 2021 07:05:05 -0800 (PST)
+        id S1350151AbhLFPVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37622 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357615AbhLFPSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D505A6130A;
-        Mon,  6 Dec 2021 15:05:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5EEEC341C2;
-        Mon,  6 Dec 2021 15:05:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 056296132F;
+        Mon,  6 Dec 2021 15:15:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A4AC341C1;
+        Mon,  6 Dec 2021 15:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803104;
-        bh=bKAsRjF+JikFD9Qj7QDah99nUuOwa5+mgcrhtMO5eG8=;
+        s=korg; t=1638803714;
+        bh=/U9FxitpadGD+gXB9HlW7Ev7z2e8KTHdVeMPb3pDD9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKqWl9KzoKNTg7yxm92e2QOcEOte/lYWRaRPNkN+ewXn8T8BHEoC1kCumgdnsFDeV
-         YRyOIaxeQyxHJgEmNybnaJ/Ie1KmFQ58kFecqom0R25qBHAZW9HtgjufVDC81r7am3
-         e9Q65hkh825/PPPzScP6bdjyyX39LUTP9fYOjB/Q=
+        b=WNVy9HmoMpN2Hy6dFvAmUc90lGjOQfn6DBtlpTsqx/atZVz4Y3kAAdBo2UlGKw0Ji
+         Vl4lCFRQAm/94/Dw6XlZpoTYN7daPGMp+pEK2qw+uBP1+BgR0F1rOW2ZZnkPAAk4cu
+         lT15vAmo7TNnJriB6TGO0EGB8L8ezvgy8fmj64dU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH 4.14 029/106] vhost/vsock: fix incorrect used length reported to the guest
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Bernard Zhao <bernard@vivo.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 020/130] drm/amd/amdgpu: fix potential memleak
 Date:   Mon,  6 Dec 2021 15:55:37 +0100
-Message-Id: <20211206145556.371349809@linuxfoundation.org>
+Message-Id: <20211206145600.332924515@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,41 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Bernard Zhao <bernard@vivo.com>
 
-commit 49d8c5ffad07ca014cfae72a1b9b8c52b6ad9cb8 upstream.
+[ Upstream commit 27dfaedc0d321b4ea4e10c53e4679d6911ab17aa ]
 
-The "used length" reported by calling vhost_add_used() must be the
-number of bytes written by the device (using "in" buffers).
+In function amdgpu_get_xgmi_hive, when kobject_init_and_add failed
+There is a potential memleak if not call kobject_put.
 
-In vhost_vsock_handle_tx_kick() the device only reads the guest
-buffers (they are all "out" buffers), without writing anything,
-so we must pass 0 as "used length" to comply virtio spec.
-
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: stable@vger.kernel.org
-Reported-by: Halil Pasic <pasic@linux.ibm.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20211122163525.294024-2-sgarzare@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Bernard Zhao <bernard@vivo.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vsock.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -490,7 +490,7 @@ static void vhost_vsock_handle_tx_kick(s
- 			virtio_transport_free_pkt(pkt);
- 
- 		len += sizeof(pkt->hdr);
--		vhost_add_used(vq, head, len);
-+		vhost_add_used(vq, head, 0);
- 		total_len += len;
- 		added = true;
- 	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+index 0526dec1d736e..042c85fc528bb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_xgmi.c
+@@ -358,6 +358,7 @@ struct amdgpu_hive_info *amdgpu_get_xgmi_hive(struct amdgpu_device *adev)
+ 			"%s", "xgmi_hive_info");
+ 	if (ret) {
+ 		dev_err(adev->dev, "XGMI: failed initializing kobject for xgmi hive\n");
++		kobject_put(&hive->kobj);
+ 		kfree(hive);
+ 		hive = NULL;
+ 		goto pro_end;
+-- 
+2.33.0
+
 
 
