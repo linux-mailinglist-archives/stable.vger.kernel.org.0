@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CAB5469F07
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F05469A27
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391261AbhLFPpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33048 "EHLO
+        id S1346156AbhLFPF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:05:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390178AbhLFPmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72230C08EAF7;
-        Mon,  6 Dec 2021 07:25:45 -0800 (PST)
+        with ESMTP id S1345786AbhLFPFY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:05:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 659A6C0698D2;
+        Mon,  6 Dec 2021 07:01:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EADB6132F;
-        Mon,  6 Dec 2021 15:25:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E90D5C34900;
-        Mon,  6 Dec 2021 15:25:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C5B2B8111D;
+        Mon,  6 Dec 2021 15:01:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 485F9C341C2;
+        Mon,  6 Dec 2021 15:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804344;
-        bh=HzXv7hcKioppoILGZ2ktv8RJohdKGsc3B4K12aeBnx4=;
+        s=korg; t=1638802912;
+        bh=bxuq3nW77zBVngGrcwi1e0TIGey0k2UTchvWd42orJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HdZdSvPMyYBWilokLYLk70PgWbiRMszWT9sTxfMARyFmzVQgGEq3ETuPXY9K6llWB
-         wgDH068Lplb+J4dsYZlw9GWee/D2olb84/zbiNekdGGewZUr1g7M8KqP+vw4z/KQrn
-         NEDjaSSUFkrleSO15KbjQ0kCdaPj+67bUVVXFVko=
+        b=oHgyqaiCO4ZFy6LIn2oV2MXGNAr9eUI+giBVImNl+AtKJ4qfigi9SLD+3M67+dguq
+         GEH+QVGcFuIkVEbBXVgJnm5xAL7GuBE6CyMAJs7b656YtTF1IrYMt01/ZqoCmUreRW
+         OX9pG+WTVV37lVgypVvy3vAb0wtbLULPjbR+EmkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.15 114/207] mt76: mt7915: fix NULL pointer dereference in mt7915_get_phy_mode
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Philipp Rudo <prudo@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 25/62] proc/vmcore: fix clearing user buffer by properly using clear_user()
 Date:   Mon,  6 Dec 2021 15:56:08 +0100
-Message-Id: <20211206145614.200338390@linuxfoundation.org>
+Message-Id: <20211206145550.056281640@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,93 +51,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit 6e53d6d26920d5221d3f4d4f5ffdd629ea69aa5c upstream.
+commit c1e63117711977cc4295b2ce73de29dd17066c82 upstream.
 
-Fix the following NULL pointer dereference in mt7915_get_phy_mode
-routine adding an ibss interface to the mt7915 driver.
+To clear a user buffer we cannot simply use memset, we have to use
+clear_user().  With a virtio-mem device that registers a vmcore_cb and
+has some logically unplugged memory inside an added Linux memory block,
+I can easily trigger a BUG by copying the vmcore via "cp":
 
-[  101.137097] wlan0: Trigger new scan to find an IBSS to join
-[  102.827039] wlan0: Creating new IBSS network, BSSID 26:a4:50:1a:6e:69
-[  103.064756] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[  103.073670] Mem abort info:
-[  103.076520]   ESR = 0x96000005
-[  103.079614]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  103.084934]   SET = 0, FnV = 0
-[  103.088042]   EA = 0, S1PTW = 0
-[  103.091215] Data abort info:
-[  103.094104]   ISV = 0, ISS = 0x00000005
-[  103.098041]   CM = 0, WnR = 0
-[  103.101044] user pgtable: 4k pages, 39-bit VAs, pgdp=00000000460b1000
-[  103.107565] [0000000000000000] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000
-[  103.116590] Internal error: Oops: 96000005 [#1] SMP
-[  103.189066] CPU: 1 PID: 333 Comm: kworker/u4:3 Not tainted 5.10.75 #0
-[  103.195498] Hardware name: MediaTek MT7622 RFB1 board (DT)
-[  103.201124] Workqueue: phy0 ieee80211_iface_work [mac80211]
-[  103.206695] pstate: 20000005 (nzCv daif -PAN -UAO -TCO BTYPE=--)
-[  103.212705] pc : mt7915_get_phy_mode+0x68/0x120 [mt7915e]
-[  103.218103] lr : mt7915_mcu_add_bss_info+0x11c/0x760 [mt7915e]
-[  103.223927] sp : ffffffc011cdb9e0
-[  103.227235] x29: ffffffc011cdb9e0 x28: ffffff8006563098
-[  103.232545] x27: ffffff8005f4da22 x26: ffffff800685ac40
-[  103.237855] x25: 0000000000000001 x24: 000000000000011f
-[  103.243165] x23: ffffff8005f4e260 x22: ffffff8006567918
-[  103.248475] x21: ffffff8005f4df80 x20: ffffff800685ac58
-[  103.253785] x19: ffffff8006744400 x18: 0000000000000000
-[  103.259094] x17: 0000000000000000 x16: 0000000000000001
-[  103.264403] x15: 000899c3a2d9d2e4 x14: 000899bdc3c3a1c8
-[  103.269713] x13: 0000000000000000 x12: 0000000000000000
-[  103.275024] x11: ffffffc010e30c20 x10: 0000000000000000
-[  103.280333] x9 : 0000000000000050 x8 : ffffff8006567d88
-[  103.285642] x7 : ffffff8006563b5c x6 : ffffff8006563b44
-[  103.290952] x5 : 0000000000000002 x4 : 0000000000000001
-[  103.296262] x3 : 0000000000000001 x2 : 0000000000000001
-[  103.301572] x1 : 0000000000000000 x0 : 0000000000000011
-[  103.306882] Call trace:
-[  103.309328]  mt7915_get_phy_mode+0x68/0x120 [mt7915e]
-[  103.314378]  mt7915_bss_info_changed+0x198/0x200 [mt7915e]
-[  103.319941]  ieee80211_bss_info_change_notify+0x128/0x290 [mac80211]
-[  103.326360]  __ieee80211_sta_join_ibss+0x308/0x6c4 [mac80211]
-[  103.332171]  ieee80211_sta_create_ibss+0x8c/0x10c [mac80211]
-[  103.337895]  ieee80211_ibss_work+0x3dc/0x614 [mac80211]
-[  103.343185]  ieee80211_iface_work+0x388/0x3f0 [mac80211]
-[  103.348495]  process_one_work+0x288/0x690
-[  103.352499]  worker_thread+0x70/0x464
-[  103.356157]  kthread+0x144/0x150
-[  103.359380]  ret_from_fork+0x10/0x18
-[  103.362952] Code: 394008c3 52800220 394000e4 7100007f (39400023)
+  systemd[1]: Starting Kdump Vmcore Save Service...
+  kdump[420]: Kdump is using the default log level(3).
+  kdump[453]: saving to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+  kdump[458]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+  kdump[465]: saving vmcore-dmesg.txt complete
+  kdump[467]: saving vmcore
+  BUG: unable to handle page fault for address: 00007f2374e01000
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0003) - permissions violation
+  PGD 7a523067 P4D 7a523067 PUD 7a528067 PMD 7a525067 PTE 800000007048f867
+  Oops: 0003 [#1] PREEMPT SMP NOPTI
+  CPU: 0 PID: 468 Comm: cp Not tainted 5.15.0+ #6
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-27-g64f37cc530f1-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:read_from_oldmem.part.0.cold+0x1d/0x86
+  Code: ff ff ff e8 05 ff fe ff e9 b9 e9 7f ff 48 89 de 48 c7 c7 38 3b 60 82 e8 f1 fe fe ff 83 fd 08 72 3c 49 8d 7d 08 4c 89 e9 89 e8 <49> c7 45 00 00 00 00 00 49 c7 44 05 f8 00 00 00 00 48 83 e7 f81
+  RSP: 0018:ffffc9000073be08 EFLAGS: 00010212
+  RAX: 0000000000001000 RBX: 00000000002fd000 RCX: 00007f2374e01000
+  RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00007f2374e01008
+  RBP: 0000000000001000 R08: 0000000000000000 R09: ffffc9000073bc50
+  R10: ffffc9000073bc48 R11: ffffffff829461a8 R12: 000000000000f000
+  R13: 00007f2374e01000 R14: 0000000000000000 R15: ffff88807bd421e8
+  FS:  00007f2374e12140(0000) GS:ffff88807f000000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f2374e01000 CR3: 000000007a4aa000 CR4: 0000000000350eb0
+  Call Trace:
+   read_vmcore+0x236/0x2c0
+   proc_reg_read+0x55/0xa0
+   vfs_read+0x95/0x190
+   ksys_read+0x4f/0xc0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 37f4ca907c46 ("mt76: mt7915: register per-phy HE capabilities for each interface")
-Fixes: e57b7901469f ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/ddae419a740f1fb9e48afd432035e9f394f512ee.1637239456.git.lorenzo@kernel.org
+Some x86-64 CPUs have a CPU feature called "Supervisor Mode Access
+Prevention (SMAP)", which is used to detect wrong access from the kernel
+to user buffers like this: SMAP triggers a permissions violation on
+wrong access.  In the x86-64 variant of clear_user(), SMAP is properly
+handled via clac()+stac().
+
+To fix, properly use clear_user() when we're dealing with a user buffer.
+
+Link: https://lkml.kernel.org/r/20211112092750.6921-1-david@redhat.com
+Fixes: 997c136f518c ("fs/proc/vmcore.c: add hook to read_from_oldmem() to check for non-ram pages")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Philipp Rudo <prudo@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/proc/vmcore.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -176,7 +176,7 @@ mt7915_get_phy_mode(struct ieee80211_vif
- 		if (ht_cap->ht_supported)
- 			mode |= PHY_MODE_GN;
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -105,14 +105,19 @@ static ssize_t read_from_oldmem(char *bu
+ 			nr_bytes = count;
  
--		if (he_cap->has_he)
-+		if (he_cap && he_cap->has_he)
- 			mode |= PHY_MODE_AX_24G;
- 	} else if (band == NL80211_BAND_5GHZ) {
- 		mode |= PHY_MODE_A;
-@@ -187,7 +187,7 @@ mt7915_get_phy_mode(struct ieee80211_vif
- 		if (vht_cap->vht_supported)
- 			mode |= PHY_MODE_AC;
- 
--		if (he_cap->has_he)
-+		if (he_cap && he_cap->has_he)
- 			mode |= PHY_MODE_AX_5G;
- 	}
- 
+ 		/* If pfn is not ram, return zeros for sparse dump files */
+-		if (pfn_is_ram(pfn) == 0)
+-			memset(buf, 0, nr_bytes);
+-		else {
++		if (pfn_is_ram(pfn) == 0) {
++			tmp = 0;
++			if (!userbuf)
++				memset(buf, 0, nr_bytes);
++			else if (clear_user(buf, nr_bytes))
++				tmp = -EFAULT;
++		} else {
+ 			tmp = copy_oldmem_page(pfn, buf, nr_bytes,
+ 						offset, userbuf);
+-			if (tmp < 0)
+-				return tmp;
+ 		}
++		if (tmp < 0)
++			return tmp;
++
+ 		*ppos += nr_bytes;
+ 		count -= nr_bytes;
+ 		buf += nr_bytes;
 
 
