@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2A07469D70
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 792DF469AFC
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356217AbhLFP3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:29:45 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41576 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386501AbhLFP0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:26:38 -0500
+        id S1348891AbhLFPMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:12:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53242 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348330AbhLFPKC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:10:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A408C08E9B1;
+        Mon,  6 Dec 2021 07:04:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0CA7612D3;
-        Mon,  6 Dec 2021 15:23:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B667CC341C2;
-        Mon,  6 Dec 2021 15:23:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9DE9B81131;
+        Mon,  6 Dec 2021 15:04:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAAB5C341D8;
+        Mon,  6 Dec 2021 15:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804189;
-        bh=XgUzlZHa/ibMS9h95rahf3HPkzBolmgsYvirHATlK80=;
+        s=korg; t=1638803056;
+        bh=nlgCYGCH61Hl8/8Cw1RGnsRNF5fslSg5wCvPTrFKXXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wrl/rqQeOZyNiy8Dvh3VdUdWF7c57K7YCPzFkrdqMwwy1E5JKcDs9vZhK5PAgFo3d
-         RikEDNm04ZP8hSPA80Hn6J8EogdpOFkHLBZmtAA+A6osIY7hBPVse9tijAy2nb5ks8
-         vwkle2uYH8/dhVySC0jva46CvFURE4GlmYzuxRyc=
+        b=WpZnJFLPLVSIvlT7pIf7SU2nO1wYYrb9jazeDn6kqP0KfW4mBA/9cJyX5F+F11K/e
+         onKJQPlDHgl+8mTeCt4UA8C0LBPrz5mPGIZjd7IBox1OC9gFata+HB5z0aoFvaayNd
+         IEg8LjK4EEpPFT6EHmSEsvHvIENEL7h8R5zVKf+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 058/207] cpufreq: Fix get_cpu_device() failure in add_cpu_dev_symlink()
-Date:   Mon,  6 Dec 2021 15:55:12 +0100
-Message-Id: <20211206145612.252156529@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Todd Kjos <tkjos@google.com>
+Subject: [PATCH 4.14 005/106] binder: fix test regression due to sender_euid change
+Date:   Mon,  6 Dec 2021 15:55:13 +0100
+Message-Id: <20211206145555.578979327@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Todd Kjos <tkjos@google.com>
 
-commit 2c1b5a84669d2477d8fffe9136e86a2cff591729 upstream.
+commit c21a80ca0684ec2910344d72556c816cb8940c01 upstream.
 
-When I hot added a CPU, I found 'cpufreq' directory was not created
-below /sys/devices/system/cpu/cpuX/.
+This is a partial revert of commit
+29bc22ac5e5b ("binder: use euid from cred instead of using task").
+Setting sender_euid using proc->cred caused some Android system test
+regressions that need further investigation. It is a partial
+reversion because subsequent patches rely on proc->cred.
 
-It is because get_cpu_device() failed in add_cpu_dev_symlink().
-
-cpufreq_add_dev() is the .add_dev callback of a CPU subsys interface.
-It will be called when the CPU device registered into the system.
-The call chain is as follows:
-
-  register_cpu()
-  ->device_register()
-   ->device_add()
-    ->bus_probe_device()
-     ->cpufreq_add_dev()
-
-But only after the CPU device has been registered, we can get the
-CPU device by get_cpu_device(), otherwise it will return NULL.
-
-Since we already have the CPU device in cpufreq_add_dev(), pass
-it to add_cpu_dev_symlink().
-
-I noticed that the 'kobj' of the CPU device has been added into
-the system before cpufreq_add_dev().
-
-Fixes: 2f0ba790df51 ("cpufreq: Fix creation of symbolic links to policy directories")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 29bc22ac5e5b ("binder: use euid from cred instead of using task")
+Cc: stable@vger.kernel.org # 4.4+
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Change-Id: I9b1769a3510fed250bb21859ef8beebabe034c66
+Link: https://lore.kernel.org/r/20211112180720.2858135-1-tkjos@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/cpufreq.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/android/binder.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1004,10 +1004,9 @@ static struct kobj_type ktype_cpufreq =
- 	.release	= cpufreq_sysfs_release,
- };
- 
--static void add_cpu_dev_symlink(struct cpufreq_policy *policy, unsigned int cpu)
-+static void add_cpu_dev_symlink(struct cpufreq_policy *policy, unsigned int cpu,
-+				struct device *dev)
- {
--	struct device *dev = get_cpu_device(cpu);
--
- 	if (unlikely(!dev))
- 		return;
- 
-@@ -1391,7 +1390,7 @@ static int cpufreq_online(unsigned int c
- 	if (new_policy) {
- 		for_each_cpu(j, policy->related_cpus) {
- 			per_cpu(cpufreq_cpu_data, j) = policy;
--			add_cpu_dev_symlink(policy, j);
-+			add_cpu_dev_symlink(policy, j, get_cpu_device(j));
- 		}
- 
- 		policy->min_freq_req = kzalloc(2 * sizeof(*policy->min_freq_req),
-@@ -1565,7 +1564,7 @@ static int cpufreq_add_dev(struct device
- 	/* Create sysfs link on CPU registration */
- 	policy = per_cpu(cpufreq_cpu_data, cpu);
- 	if (policy)
--		add_cpu_dev_symlink(policy, cpu);
-+		add_cpu_dev_symlink(policy, cpu, dev);
- 
- 	return 0;
- }
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2894,7 +2894,7 @@ static void binder_transaction(struct bi
+ 		t->from = thread;
+ 	else
+ 		t->from = NULL;
+-	t->sender_euid = proc->cred->euid;
++	t->sender_euid = task_euid(proc->tsk);
+ 	t->to_proc = target_proc;
+ 	t->to_thread = target_thread;
+ 	t->code = tr->code;
 
 
