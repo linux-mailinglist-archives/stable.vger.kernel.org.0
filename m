@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C397D469D2A
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:25:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC4F469E1B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345903AbhLFP2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42192 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359029AbhLFPYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:02 -0500
+        id S1349785AbhLFPgO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:36:14 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35518 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1387719AbhLFPbs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:31:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C12D61353;
-        Mon,  6 Dec 2021 15:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3876FC341D4;
-        Mon,  6 Dec 2021 15:20:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A539B8111E;
+        Mon,  6 Dec 2021 15:28:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1834C34901;
+        Mon,  6 Dec 2021 15:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804032;
-        bh=f9Ahp/2cMb3nJpI/DkOuse+2EWDaEqnz/Qcf+EJ9nR0=;
+        s=korg; t=1638804498;
+        bh=D9BneoZ5pKUabNYLDWhUTzNUJl51i27LH35N2pk8NFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tDdgaiPkcufYFoHEJ686iDSsdGAp6N3E9HYa36ibbZ6jbJVXq2tot1oBMEa5BFRXb
-         ziizBGZOO4oje+1QLuvps7HbETO37kJttdi+Tw/Ftd8SoJfBmSXfPt/fTULsjsvuhm
-         YOH5bIfPpCtpFOw+m2cDKCjZzLTH1r6Wa7nz1qHE=
+        b=FKmVARFqpo/Bz9V1Q0QcPKfHSHnpRLJFls0nHe021Zzpi/lJ5NJk7U2IHDqO1geAn
+         5nh6+mhGfkh92eue4ARPpJBEamaCmTSUucRHIdk+GIEWr+mVFlIimtZfSUDnTWyaQz
+         d6Ira7ViG/AvN1+8sQ6KI9Me19zfT4rbT9AqRlfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Like Xu <likexu@tencent.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 104/130] KVM: VMX: Set failure code in prepare_vmcs02()
+Subject: [PATCH 5.15 167/207] KVM: x86/pmu: Fix reserved bits for AMD PerfEvtSeln register
 Date:   Mon,  6 Dec 2021 15:57:01 +0100
-Message-Id: <20211206145603.237976406@linuxfoundation.org>
+Message-Id: <20211206145616.057749160@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit bfbb307c628676929c2d329da0daf9d22afa8ad2 ]
+[ Upstream commit cb1d220da0faa5ca0deb93449aff953f0c2cce6d ]
 
-The error paths in the prepare_vmcs02() function are supposed to set
-*entry_failure_code but this path does not.  It leads to using an
-uninitialized variable in the caller.
+If we run the following perf command in an AMD Milan guest:
 
-Fixes: 71f7347025bf ("KVM: nVMX: Load GUEST_IA32_PERF_GLOBAL_CTRL MSR on VM-Entry")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Message-Id: <20211130125337.GB24578@kili>
+  perf stat \
+  -e cpu/event=0x1d0/ \
+  -e cpu/event=0x1c7/ \
+  -e cpu/umask=0x1f,event=0x18e/ \
+  -e cpu/umask=0x7,event=0x18e/ \
+  -e cpu/umask=0x18,event=0x18e/ \
+  ./workload
+
+dmesg will report a #GP warning from an unchecked MSR access
+error on MSR_F15H_PERF_CTLx.
+
+This is because according to APM (Revision: 4.03) Figure 13-7,
+the bits [35:32] of AMD PerfEvtSeln register is a part of the
+event select encoding, which extends the EVENT_SELECT field
+from 8 bits to 12 bits.
+
+Opportunistically update pmu->reserved_bits for reserved bit 19.
+
+Reported-by: Jim Mattson <jmattson@google.com>
+Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
+Signed-off-by: Like Xu <likexu@tencent.com>
+Message-Id: <20211118130320.95997-1-likexu@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/nested.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/pmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 257ec2cbf69a4..36661b15c3d04 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2619,8 +2619,10 @@ static int prepare_vmcs02(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12,
+diff --git a/arch/x86/kvm/svm/pmu.c b/arch/x86/kvm/svm/pmu.c
+index fdf587f19c5fb..e152241d1d709 100644
+--- a/arch/x86/kvm/svm/pmu.c
++++ b/arch/x86/kvm/svm/pmu.c
+@@ -282,7 +282,7 @@ static void amd_pmu_refresh(struct kvm_vcpu *vcpu)
+ 		pmu->nr_arch_gp_counters = AMD64_NUM_COUNTERS;
  
- 	if ((vmcs12->vm_entry_controls & VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL) &&
- 	    WARN_ON_ONCE(kvm_set_msr(vcpu, MSR_CORE_PERF_GLOBAL_CTRL,
--				     vmcs12->guest_ia32_perf_global_ctrl)))
-+				     vmcs12->guest_ia32_perf_global_ctrl))) {
-+		*entry_failure_code = ENTRY_FAIL_DEFAULT;
- 		return -EINVAL;
-+	}
- 
- 	kvm_rsp_write(vcpu, vmcs12->guest_rsp);
- 	kvm_rip_write(vcpu, vmcs12->guest_rip);
+ 	pmu->counter_bitmask[KVM_PMC_GP] = ((u64)1 << 48) - 1;
+-	pmu->reserved_bits = 0xffffffff00200000ull;
++	pmu->reserved_bits = 0xfffffff000280000ull;
+ 	pmu->version = 1;
+ 	/* not applicable to AMD; but clean them to prevent any fall out */
+ 	pmu->counter_bitmask[KVM_PMC_FIXED] = 0;
 -- 
 2.33.0
 
