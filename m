@@ -2,54 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C992469D40
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04EB6469EC1
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376501AbhLFP2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57012 "EHLO
+        id S1385566AbhLFPoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:44:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377247AbhLFPYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42E62C08EAEA;
-        Mon,  6 Dec 2021 07:15:32 -0800 (PST)
+        with ESMTP id S1385538AbhLFPir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:38:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17816C034029;
+        Mon,  6 Dec 2021 07:24:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E19D2612D3;
-        Mon,  6 Dec 2021 15:15:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B54AC341C1;
-        Mon,  6 Dec 2021 15:15:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE136B8111C;
+        Mon,  6 Dec 2021 15:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F13C34900;
+        Mon,  6 Dec 2021 15:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803731;
-        bh=UIpFhI+ZxW78Zsk2Sx6TEyfvqhS6JuBdNd2I6o9pxl0=;
+        s=korg; t=1638804277;
+        bh=8wYwYFuPefN885NMekF7IHdDdJYo1e4nts20Bkr+ueQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFgb5+1/EGj6dkRcbY4DMyn1zKD/FNvCMEse262XRle44GbczANLDNmEtn+cH3DxQ
-         WxKRQuBORcbZZ3XxfpVN9CH4ZB1+T+fj15fDBziWKraUvS5USZYPrC+NqwiljG/0e3
-         /5QekGcmdUDcWfOZFLM7XS9edZOD3pQNzXa3Is/U=
+        b=klgBn3in1nx7oQwf5YODqkUz+ryb2SdS3kAkEGFsTWS9vLqb+0uh9e6eYHCzFF4Ik
+         9g+Cpb/HJ4kaPp7wSCd2EH/5gSmY9Br+COFJAJNZcX3Pbe8eqkkOW1H+8l5hG+ijRx
+         ur/gH8DXATtRI9zRjF//2crAWvLlZ+Ei8AGO5YZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        German Gomez <german.gomez@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        John Garry <john.garry@huawei.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 026/130] perf inject: Fix ARM SPE handling
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 089/207] net: dsa: mv88e6xxx: Fix inband AN for 2500base-x on 88E6393X family
 Date:   Mon,  6 Dec 2021 15:55:43 +0100
-Message-Id: <20211206145600.547874997@linuxfoundation.org>
+Message-Id: <20211206145613.314182236@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,96 +48,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: German Gomez <german.gomez@arm.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 9e1a8d9f683260d50e0a14176d3f7c46a93b2700 ]
+commit 163000dbc772c1eae9bdfe7c8fe30155db1efd74 upstream.
 
-'perf inject' is currently not working for Arm SPE. When you try to run
-'perf inject' and 'perf report' with a perf.data file that contains SPE
-traces, the tool reports a "Bad address" error:
+Inband AN is broken on Amethyst in 2500base-x mode when set by standard
+mechanism (via cmode).
 
-  # ./perf record -e arm_spe_0/ts_enable=1,store_filter=1,branch_filter=1,load_filter=1/ -a -- sleep 1
-  # ./perf inject -i perf.data -o perf.inject.data --itrace
-  # ./perf report -i perf.inject.data --stdio
+(There probably is some weird setting done by default in the switch for
+ this mode that make it cycle in some state or something, because when
+ the peer is the mvneta controller, it receives link change interrupts
+ every ~0.3ms, but the link is always down.)
 
-  0x42c00 [0x8]: failed to process type: 9 [Bad address]
-  Error:
-  failed to process sample
+Get around this by configuring the PCS mode to 1000base-x (where inband
+AN works), and then changing the SerDes frequency while SerDes
+transmitter and receiver are disabled, before enabling SerDes PHY. After
+disabling SerDes PHY, change the PCS mode back to 2500base-x, to avoid
+confusing the device (if we leave it at 1000base-x PCS mode but with
+different frequency, and then change cmode to sgmii, the device won't
+change the frequency because it thinks it already has the correct one).
 
-As far as I know, the issue was first spotted in [1], but 'perf inject'
-was not yet injecting the samples. This patch does something similar to
-what cs_etm does for injecting the samples [2], but for SPE.
+The register which changes the frequency is undocumented. I discovered
+it by going through all registers in the ranges 4.f000-4.f100 and
+1e.8000-1e.8200 for all SerDes cmodes (sgmii, 1000base-x, 2500base-x,
+5gbase-r, 10gbase-r, usxgmii) and filtering out registers that didn't
+make sense (the value was the same for modes which have different
+frequency). The result of this was:
 
-[1] https://patchwork.kernel.org/project/linux-arm-kernel/cover/20210412091006.468557-1-leo.yan@linaro.org/#24117339
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/acme/linux.git/tree/tools/perf/util/cs-etm.c?h=perf/core&id=133fe2e617e48ca0948983329f43877064ffda3e#n1196
+    reg   sgmii 1000base-x 2500base-x 5gbase-r 10gbase-r usxgmii
+  04.f002  005b       0058       0059     005c      005d    005f
+  04.f076  3000       0000       1000     4000      5000    7000
+  04.f07c  0950       0950       1850     0550      0150    0150
+  1e.8000  0059       0059       0058     0055      0051    0051
+  1e.8140  0e20       0e20       0e28     0e21      0e42    0e42
 
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: German Gomez <german.gomez@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: https://lore.kernel.org/r/20211105104130.28186-2-german.gomez@arm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Register 04.f002 is the documented Port Operational Confiuration
+register, it's last 3 bits select PCS type, so changing this register
+also changes the frequency to the appropriate value.
+
+Registers 04.f076 and 04.f07c are not writable.
+
+Undocumented register 1e.8000 was the one: changing bits 3:0 from 9 to 8
+changed SerDes frequency to 3.125 GHz, while leaving the value of PCS
+mode in register 04.f002.2:0 at 1000base-x. Inband autonegotiation
+started working correctly.
+
+(I didn't try anything with register 1e.8140 since 1e.8000 solved the
+ problem.)
+
+Since I don't have documentation for this register 1e.8000.3:0, I am
+using the constants without names, but my hypothesis is that this
+register selects PHY frequency. If in the future I have access to an
+oscilloscope able to handle these frequencies, I will try to test this
+hypothesis.
+
+Fixes: de776d0d316f ("net: dsa: mv88e6xxx: add support for mv88e6393x family")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/arm-spe.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/net/dsa/mv88e6xxx/serdes.c |   61 ++++++++++++++++++++++++++++++++++++-
+ drivers/net/dsa/mv88e6xxx/serdes.h |    1 
+ 2 files changed, 61 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/arm-spe.c b/tools/perf/util/arm-spe.c
-index 3882a5360ada4..0350020acb96f 100644
---- a/tools/perf/util/arm-spe.c
-+++ b/tools/perf/util/arm-spe.c
-@@ -48,6 +48,7 @@ struct arm_spe {
- 	u8				timeless_decoding;
- 	u8				data_queued;
- 
-+	u64				sample_type;
- 	u8				sample_flc;
- 	u8				sample_llc;
- 	u8				sample_tlb;
-@@ -244,6 +245,12 @@ static void arm_spe_prep_sample(struct arm_spe *spe,
- 	event->sample.header.size = sizeof(struct perf_event_header);
+--- a/drivers/net/dsa/mv88e6xxx/serdes.c
++++ b/drivers/net/dsa/mv88e6xxx/serdes.c
+@@ -1419,6 +1419,54 @@ static int mv88e6393x_serdes_erratum_5_2
+ 	return 0;
  }
  
-+static int arm_spe__inject_event(union perf_event *event, struct perf_sample *sample, u64 type)
++static int mv88e6393x_serdes_fix_2500basex_an(struct mv88e6xxx_chip *chip,
++					      int lane, u8 cmode, bool on)
 +{
-+	event->header.size = perf_event__sample_event_size(sample, type, 0);
-+	return perf_event__synthesize_sample(event, type, 0, sample);
++	u16 reg;
++	int err;
++
++	if (cmode != MV88E6XXX_PORT_STS_CMODE_2500BASEX)
++		return 0;
++
++	/* Inband AN is broken on Amethyst in 2500base-x mode when set by
++	 * standard mechanism (via cmode).
++	 * We can get around this by configuring the PCS mode to 1000base-x
++	 * and then writing value 0x58 to register 1e.8000. (This must be done
++	 * while SerDes receiver and transmitter are disabled, which is, when
++	 * this function is called.)
++	 * It seem that when we do this configuration to 2500base-x mode (by
++	 * changing PCS mode to 1000base-x and frequency to 3.125 GHz from
++	 * 1.25 GHz) and then configure to sgmii or 1000base-x, the device
++	 * thinks that it already has SerDes at 1.25 GHz and does not change
++	 * the 1e.8000 register, leaving SerDes at 3.125 GHz.
++	 * To avoid this, change PCS mode back to 2500base-x when disabling
++	 * SerDes from 2500base-x mode.
++	 */
++	err = mv88e6390_serdes_read(chip, lane, MDIO_MMD_PHYXS,
++				    MV88E6393X_SERDES_POC, &reg);
++	if (err)
++		return err;
++
++	reg &= ~(MV88E6393X_SERDES_POC_PCS_MASK | MV88E6393X_SERDES_POC_AN);
++	if (on)
++		reg |= MV88E6393X_SERDES_POC_PCS_1000BASEX |
++		       MV88E6393X_SERDES_POC_AN;
++	else
++		reg |= MV88E6393X_SERDES_POC_PCS_2500BASEX;
++	reg |= MV88E6393X_SERDES_POC_RESET;
++
++	err = mv88e6390_serdes_write(chip, lane, MDIO_MMD_PHYXS,
++				     MV88E6393X_SERDES_POC, reg);
++	if (err)
++		return err;
++
++	err = mv88e6390_serdes_write(chip, lane, MDIO_MMD_VEND1, 0x8000, 0x58);
++	if (err)
++		return err;
++
++	return 0;
 +}
 +
- static inline int
- arm_spe_deliver_synth_event(struct arm_spe *spe,
- 			    struct arm_spe_queue *speq __maybe_unused,
-@@ -252,6 +259,12 @@ arm_spe_deliver_synth_event(struct arm_spe *spe,
+ int mv88e6393x_serdes_power(struct mv88e6xxx_chip *chip, int port, int lane,
+ 			    bool on)
  {
- 	int ret;
+@@ -1437,6 +1485,11 @@ int mv88e6393x_serdes_power(struct mv88e
+ 		if (err)
+ 			return err;
  
-+	if (spe->synth_opts.inject) {
-+		ret = arm_spe__inject_event(event, sample, spe->sample_type);
-+		if (ret)
-+			return ret;
++		err = mv88e6393x_serdes_fix_2500basex_an(chip, lane, cmode,
++							 true);
++		if (err)
++			return err;
++
+ 		err = mv88e6393x_serdes_power_lane(chip, lane, true);
+ 		if (err)
+ 			return err;
+@@ -1457,8 +1510,14 @@ int mv88e6393x_serdes_power(struct mv88e
+ 	if (err)
+ 		return err;
+ 
+-	if (!on)
++	if (!on) {
+ 		err = mv88e6393x_serdes_power_lane(chip, lane, false);
++		if (err)
++			return err;
++
++		err = mv88e6393x_serdes_fix_2500basex_an(chip, lane, cmode,
++							 false);
 +	}
-+
- 	ret = perf_session__deliver_synth_event(spe->session, event, sample);
- 	if (ret)
- 		pr_err("ARM SPE: failed to deliver event, error %d\n", ret);
-@@ -809,6 +822,8 @@ arm_spe_synth_events(struct arm_spe *spe, struct perf_session *session)
- 	else
- 		attr.sample_type |= PERF_SAMPLE_TIME;
  
-+	spe->sample_type = attr.sample_type;
-+
- 	attr.exclude_user = evsel->core.attr.exclude_user;
- 	attr.exclude_kernel = evsel->core.attr.exclude_kernel;
- 	attr.exclude_hv = evsel->core.attr.exclude_hv;
--- 
-2.33.0
-
+ 	return err;
+ }
+--- a/drivers/net/dsa/mv88e6xxx/serdes.h
++++ b/drivers/net/dsa/mv88e6xxx/serdes.h
+@@ -93,6 +93,7 @@
+ #define MV88E6393X_SERDES_POC_PCS_MASK		0x0007
+ #define MV88E6393X_SERDES_POC_RESET		BIT(15)
+ #define MV88E6393X_SERDES_POC_PDOWN		BIT(5)
++#define MV88E6393X_SERDES_POC_AN		BIT(3)
+ #define MV88E6393X_SERDES_CTRL1			0xf003
+ #define MV88E6393X_SERDES_CTRL1_TX_PDOWN	BIT(9)
+ #define MV88E6393X_SERDES_CTRL1_RX_PDOWN	BIT(8)
 
 
