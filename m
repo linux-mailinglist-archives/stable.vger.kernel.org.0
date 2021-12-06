@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D166469A52
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:04:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D52D469B81
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345586AbhLFPHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:07:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37408 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345679AbhLFPEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:47 -0500
+        id S1356545AbhLFPRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54266 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348556AbhLFPOp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB066C0698D3;
+        Mon,  6 Dec 2021 07:07:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CDB9B81017;
-        Mon,  6 Dec 2021 15:01:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97D55C341C2;
-        Mon,  6 Dec 2021 15:01:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6EBBB810AC;
+        Mon,  6 Dec 2021 15:07:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8A77C341C2;
+        Mon,  6 Dec 2021 15:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802876;
-        bh=sZPphQ1wZvtSft/62TkQMWlLvvXIT/lcG533Glh95F4=;
+        s=korg; t=1638803247;
+        bh=psyYCgaz3mYIq74qUOngbwEXYOO0DXwDhAb5gbjl8ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EH6AJ6DP/xJYsKz3OrHAKlANgp59wEnkY/k8XJQNS9Th52QXaIlG2Kamxh8GRQTgn
-         0rSH81q/8Z6Cp++kNNnqxL5XY1cEyTLpyB9rOfLre8geOCKASPfxrpxczo8lDQfXxj
-         uY/FkwbLeHp6/c+60vTWAlALJhxbEVAID5k4UdS0=
+        b=ANvZWJ2c3++lww1Bmnvp1jpGMlW68Z3mqArIhVsSRgzC1gHFF0oTqHC1faJoS3XyK
+         FoYQFJqyCTrJ08YEjLv25i+1iCy+EdRAK0EEV7ZN7OH1pXGXQcMa+5B+uqU2pUxLrf
+         AtIQQ1oGKJ9pYqc7mF8UA+rZXhTbZxNghd1RU0y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.9 04/62] usb: hub: Fix usb enumeration issue due to address0 race
+        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.14 039/106] PCI: aardvark: Indicate error in val when config read fails
 Date:   Mon,  6 Dec 2021 15:55:47 +0100
-Message-Id: <20211206145549.313983728@linuxfoundation.org>
+Message-Id: <20211206145556.732430125@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
-References: <20211206145549.155163074@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,108 +49,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 6ae6dc22d2d1ce6aa77a6da8a761e61aca216f8b upstream.
+commit b1bd5714472cc72e14409f5659b154c765a76c65 upstream.
 
-xHC hardware can only have one slot in default state with address 0
-waiting for a unique address at a time, otherwise "undefined behavior
-may occur" according to xhci spec 5.4.3.4
+Most callers of config read do not check for return value. But most of the
+ones that do, checks for error indication in 'val' variable.
 
-The address0_mutex exists to prevent this across both xhci roothubs.
+This patch updates error handling in advk_pcie_rd_conf() function. If PIO
+transfer fails then 'val' variable is set to 0xffffffff which indicates
+failture.
 
-If hub_port_init() fails, it may unlock the mutex and exit with a xhci
-slot in default state. If the other xhci roothub calls hub_port_init()
-at this point we end up with two slots in default state.
-
-Make sure the address0_mutex protects the slot default state across
-hub_port_init() retries, until slot is addressed or disabled.
-
-Note, one known minor case is not fixed by this patch.
-If device needs to be reset during resume, but fails all hub_port_init()
-retries in usb_reset_and_verify_device(), then it's possible the slot is
-still left in default state when address0_mutex is unlocked.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 638139eb95d2 ("usb: hub: allow to process more usb hub events in parallel")
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115221630.871204-1-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20200528162604.GA323482@bjorn-Precision-5520
+Link: https://lore.kernel.org/r/20200601130315.18895-1-pali@kernel.org
+Reported-by: Bjorn Helgaas <helgaas@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/pci/host/pci-aardvark.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -4460,8 +4460,6 @@ hub_port_init(struct usb_hub *hub, struc
- 	if (oldspeed == USB_SPEED_LOW)
- 		delay = HUB_LONG_RESET_TIME;
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -631,8 +631,10 @@ static int advk_pcie_rd_conf(struct pci_
+ 	advk_writel(pcie, 1, PIO_START);
  
--	mutex_lock(hcd->address0_mutex);
--
- 	/* Reset the device; full speed may morph to high speed */
- 	/* FIXME a USB 2.0 device may morph into SuperSpeed on reset. */
- 	retval = hub_port_reset(hub, port1, udev, delay, false);
-@@ -4748,7 +4746,6 @@ fail:
- 		hub_port_disable(hub, port1, 0);
- 		update_devnum(udev, devnum);	/* for disconnect processing */
- 	}
--	mutex_unlock(hcd->address0_mutex);
- 	return retval;
- }
+ 	ret = advk_pcie_wait_pio(pcie);
+-	if (ret < 0)
++	if (ret < 0) {
++		*val = 0xffffffff;
+ 		return PCIBIOS_SET_FAILED;
++	}
  
-@@ -4893,6 +4890,9 @@ static void hub_port_connect(struct usb_
- 		unit_load = 100;
- 
- 	status = 0;
-+
-+	mutex_lock(hcd->address0_mutex);
-+
- 	for (i = 0; i < SET_CONFIG_TRIES; i++) {
- 
- 		/* reallocate for each attempt, since references
-@@ -4929,6 +4929,8 @@ static void hub_port_connect(struct usb_
- 		if (status < 0)
- 			goto loop;
- 
-+		mutex_unlock(hcd->address0_mutex);
-+
- 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
- 			msleep(2000);
- 
-@@ -5017,6 +5019,7 @@ static void hub_port_connect(struct usb_
- 
- loop_disable:
- 		hub_port_disable(hub, port1, 1);
-+		mutex_lock(hcd->address0_mutex);
- loop:
- 		usb_ep0_reinit(udev);
- 		release_devnum(udev);
-@@ -5043,6 +5046,8 @@ loop:
- 	}
- 
- done:
-+	mutex_unlock(hcd->address0_mutex);
-+
- 	hub_port_disable(hub, port1, 1);
- 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
- 		if (status != -ENOTCONN && status != -ENODEV)
-@@ -5572,6 +5577,8 @@ static int usb_reset_and_verify_device(s
- 	bos = udev->bos;
- 	udev->bos = NULL;
- 
-+	mutex_lock(hcd->address0_mutex);
-+
- 	for (i = 0; i < SET_CONFIG_TRIES; ++i) {
- 
- 		/* ep0 maxpacket size may change; let the HCD know about it.
-@@ -5581,6 +5588,7 @@ static int usb_reset_and_verify_device(s
- 		if (ret >= 0 || ret == -ENOTCONN || ret == -ENODEV)
- 			break;
- 	}
-+	mutex_unlock(hcd->address0_mutex);
- 
- 	if (ret < 0)
- 		goto re_enumerate;
+ 	/* Check PIO status and get the read result */
+ 	ret = advk_pcie_check_pio_status(pcie, val);
 
 
