@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB2B4699AF
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:59:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A9B46999E
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344957AbhLFPCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:02:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52072 "EHLO
+        id S1344794AbhLFPCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:02:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344907AbhLFPCe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:34 -0500
+        with ESMTP id S1344691AbhLFPCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3747C061354;
-        Mon,  6 Dec 2021 06:59:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77634C0613F8;
+        Mon,  6 Dec 2021 06:58:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CF1DB8110C;
-        Mon,  6 Dec 2021 14:59:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9CE8C341C5;
-        Mon,  6 Dec 2021 14:59:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38C57B81018;
+        Mon,  6 Dec 2021 14:58:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813E5C341C5;
+        Mon,  6 Dec 2021 14:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802743;
-        bh=+MlNDKvthONigKyd5y4e/FDJvLA5Mq0vGAt+tqLzkB4=;
+        s=korg; t=1638802720;
+        bh=rDQtwXULIRUdDIKjJJLmJvvfGOAlGmQYSWA+poLGulA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pf3jg5SeV8mhQQJeJyyhgmZwk9BoA0epx3KArB+9W6b38Xmw5XI7LwdqddSMWpYKC
-         FIlugNDK2FXF3KIDSzUzSiz3gxmlUcjytet01tXXETDo4IRjrnwlSLFMZmFMU1EdKD
-         XnYuFQ6qHBY577Rryg1jvggli6oL8gWYhU2ZiaZw=
+        b=uFD7MSV8C72d8m3a+mxB+iubQ9vyqBpjCi68hKNLgcJ0CsAAo505Z9w5zEi2n6E+H
+         /xttAGqa+Pn+lZ9PTBv4sCTTn6PHUZD9V5MxheEkyyqmMABd0RiinN8oHrGuV2pWqC
+         PvXf3e59hNnygyA51rN0pA1JjtjzCEGgNqeibYAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stable@vger.kernel.org, jbeulich@suse.com,
+        stable@vger.kernel.org,
         Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.4 09/52] xen: dont continue xenstore initialization in case of errors
-Date:   Mon,  6 Dec 2021 15:55:53 +0100
-Message-Id: <20211206145548.213601037@linuxfoundation.org>
+Subject: [PATCH 4.4 10/52] xen: detect uninitialized xenbus in xenbus_init
+Date:   Mon,  6 Dec 2021 15:55:54 +0100
+Message-Id: <20211206145548.242923818@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
 References: <20211206145547.892668902@linuxfoundation.org>
@@ -50,55 +52,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefano Stabellini <stefano.stabellini@xilinx.com>
 
-commit 08f6c2b09ebd4b326dbe96d13f94fee8f9814c78 upstream.
+commit 36e8f60f0867d3b70d398d653c17108459a04efe upstream.
 
-In case of errors in xenbus_init (e.g. missing xen_store_gfn parameter),
-we goto out_error but we forget to reset xen_store_domain_type to
-XS_UNKNOWN. As a consequence xenbus_probe_initcall and other initcalls
-will still try to initialize xenstore resulting into a crash at boot.
+If the xenstore page hasn't been allocated properly, reading the value
+of the related hvm_param (HVM_PARAM_STORE_PFN) won't actually return
+error. Instead, it will succeed and return zero. Instead of attempting
+to xen_remap a bad guest physical address, detect this condition and
+return early.
 
-[    2.479830] Call trace:
-[    2.482314]  xb_init_comms+0x18/0x150
-[    2.486354]  xs_init+0x34/0x138
-[    2.489786]  xenbus_probe+0x4c/0x70
-[    2.498432]  xenbus_probe_initcall+0x2c/0x7c
-[    2.503944]  do_one_initcall+0x54/0x1b8
-[    2.507358]  kernel_init_freeable+0x1ac/0x210
-[    2.511617]  kernel_init+0x28/0x130
-[    2.516112]  ret_from_fork+0x10/0x20
+Note that although a guest physical address of zero for
+HVM_PARAM_STORE_PFN is theoretically possible, it is not a good choice
+and zero has never been validly used in that capacity.
 
-Cc: <Stable@vger.kernel.org>
-Cc: jbeulich@suse.com
+Also recognize all bits set as an invalid value.
+
+For 32-bit Linux, any pfn above ULONG_MAX would get truncated. Pfns
+above ULONG_MAX should never be passed by the Xen tools to HVM guests
+anyway, so check for this condition and return early.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
-Link: https://lore.kernel.org/r/20211115222719.2558207-1-sstabellini@kernel.org
+Reviewed-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/20211123210748.1910236-1-sstabellini@kernel.org
 Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/xenbus/xenbus_probe.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/xen/xenbus/xenbus_probe.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
 --- a/drivers/xen/xenbus/xenbus_probe.c
 +++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -764,7 +764,7 @@ static struct notifier_block xenbus_resu
- 
- static int __init xenbus_init(void)
- {
--	int err = 0;
-+	int err;
- 	uint64_t v = 0;
- 	xen_store_domain_type = XS_UNKNOWN;
- 
-@@ -832,8 +832,10 @@ static int __init xenbus_init(void)
- 	 */
- 	proc_mkdir("xen", NULL);
- #endif
-+	return 0;
- 
- out_error:
-+	xen_store_domain_type = XS_UNKNOWN;
- 	return err;
- }
- 
+@@ -804,6 +804,29 @@ static int __init xenbus_init(void)
+ 		err = hvm_get_parameter(HVM_PARAM_STORE_PFN, &v);
+ 		if (err)
+ 			goto out_error;
++		/*
++		 * Uninitialized hvm_params are zero and return no error.
++		 * Although it is theoretically possible to have
++		 * HVM_PARAM_STORE_PFN set to zero on purpose, in reality it is
++		 * not zero when valid. If zero, it means that Xenstore hasn't
++		 * been properly initialized. Instead of attempting to map a
++		 * wrong guest physical address return error.
++		 *
++		 * Also recognize all bits set as an invalid value.
++		 */
++		if (!v || !~v) {
++			err = -ENOENT;
++			goto out_error;
++		}
++		/* Avoid truncation on 32-bit. */
++#if BITS_PER_LONG == 32
++		if (v > ULONG_MAX) {
++			pr_err("%s: cannot handle HVM_PARAM_STORE_PFN=%llx > ULONG_MAX\n",
++			       __func__, v);
++			err = -EINVAL;
++			goto out_error;
++		}
++#endif
+ 		xen_store_gfn = (unsigned long)v;
+ 		xen_store_interface =
+ 			xen_remap(xen_store_gfn << XEN_PAGE_SHIFT,
 
 
