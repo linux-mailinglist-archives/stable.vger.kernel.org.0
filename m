@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 922104699D3
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A19469BC0
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242129AbhLFPEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:36302 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344364AbhLFPD2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:28 -0500
+        id S1345639AbhLFPS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55016 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358800AbhLFPQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28907C0698C4;
+        Mon,  6 Dec 2021 07:09:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B83AB81017;
-        Mon,  6 Dec 2021 14:59:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DB51C341C2;
-        Mon,  6 Dec 2021 14:59:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B24DF61310;
+        Mon,  6 Dec 2021 15:09:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B7EEC341C5;
+        Mon,  6 Dec 2021 15:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802797;
-        bh=f3EGS0VFEjwTZS8NIxcdkvJAF1WJeXU+e4r9fD9mAS0=;
+        s=korg; t=1638803376;
+        bh=C3rkVKzteW0SpKk25N7VPYRyJsxtohM/s/8STn33ccc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zssorr96Diog/GkhBKkMlg2bHbKQk2XJ4g1yY2r7pPflCL6kS2SgzPkO0+0Tt8Z0N
-         ETCR8rAQov8jHve5WxRgZjWGVN51i0dlOVQfMO9s/PbKn/14t0plPqj5o4tN83qfTQ
-         iIEkFXrQ8QJJt8K8UERLhYMRjGW5x48NFh2NspHU=
+        b=hpizyjUkP95TLerZmvq8W9+mXJqNZvoAxzV89bZgX4UjFTjSL8FPvhZgMMHXenk0V
+         RArAGgiUSDOjjFxJpvWxJXhisi4/knqp4lDTXpHVUP5yVFal/enullPgqbMJGNDIRW
+         Dh9hdx+EZeCoDyK+ZQqzze/ltfz5DBtJGd28hok4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 36/52] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.19 03/48] of: clk: Make <linux/of_clk.h> self-contained
 Date:   Mon,  6 Dec 2021 15:56:20 +0100
-Message-Id: <20211206145549.131949390@linuxfoundation.org>
+Message-Id: <20211206145548.973239115@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
+commit 5df867145f8adad9e5cdf9d67db1fbc0f71351e9 upstream.
 
-When WWAN device wake from S3 deep, under thinkpad platform,
-WWAN would be disabled. This disable status could be checked
-by command 'nmcli r wwan' or 'rfkill list'.
+Depending on include order:
 
-Issue analysis as below:
-  When host resume from S3 deep, thinkpad_acpi driver would
-call hotkey_resume() function. Finnaly, it will use
-wan_get_status to check the current status of WWAN device.
-During this resume progress, wan_get_status would always
-return off even WWAN boot up completely.
-  In patch V2, Hans said 'sw_state should be unchanged
-after a suspend/resume. It's better to drop the
-tpacpi_rfk_update_swstate call all together from the
-resume path'.
-  And it's confimed by Lenovo that GWAN is no longer
- available from WHL generation because the design does not
- match with current pin control.
+    include/linux/of_clk.h:11:45: warning: ‘struct device_node’ declared inside parameter list will not be visible outside of this definition or declaration
+     unsigned int of_clk_get_parent_count(struct device_node *np);
+						 ^~~~~~~~~~~
+    include/linux/of_clk.h:12:43: warning: ‘struct device_node’ declared inside parameter list will not be visible outside of this definition or declaration
+     const char *of_clk_get_parent_name(struct device_node *np, int index);
+					       ^~~~~~~~~~~
+    include/linux/of_clk.h:13:31: warning: ‘struct of_device_id’ declared inside parameter list will not be visible outside of this definition or declaration
+     void of_clk_init(const struct of_device_id *matches);
+				   ^~~~~~~~~~~~
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by adding forward declarations for struct device_node and
+struct of_device_id.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lkml.kernel.org/r/20200205194649.31309-1-geert+renesas@glider.be
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ include/linux/of_clk.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index f3954af14f52f..466a0d0162c3d 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -1168,15 +1168,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
- 	return status;
- }
+--- a/include/linux/of_clk.h
++++ b/include/linux/of_clk.h
+@@ -6,6 +6,9 @@
+ #ifndef __LINUX_OF_CLK_H
+ #define __LINUX_OF_CLK_H
  
--/* Query FW and update rfkill sw state for all rfkill switches */
--static void tpacpi_rfk_update_swstate_all(void)
--{
--	unsigned int i;
--
--	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
--		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
--}
--
- /*
-  * Sync the HW-blocking state of all rfkill switches,
-  * do notice it causes the rfkill core to schedule uevents
-@@ -3015,9 +3006,6 @@ static void tpacpi_send_radiosw_update(void)
- 	if (wlsw == TPACPI_RFK_RADIO_OFF)
- 		tpacpi_rfk_update_hwblock_state(true);
++struct device_node;
++struct of_device_id;
++
+ #if defined(CONFIG_COMMON_CLK) && defined(CONFIG_OF)
  
--	/* Sync sw blocking state */
--	tpacpi_rfk_update_swstate_all();
--
- 	/* Sync hw blocking state last if it is hw-unblocked */
- 	if (wlsw == TPACPI_RFK_RADIO_ON)
- 		tpacpi_rfk_update_hwblock_state(false);
--- 
-2.33.0
-
+ unsigned int of_clk_get_parent_count(struct device_node *np);
 
 
