@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47462469CB2
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABA7469B70
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377536AbhLFPYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:24:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55614 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349901AbhLFPWg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:22:36 -0500
+        id S1349592AbhLFPR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54684 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358055AbhLFPQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E351C08EC38;
+        Mon,  6 Dec 2021 07:08:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 951F7B81133;
-        Mon,  6 Dec 2021 15:19:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5EBAC341C1;
-        Mon,  6 Dec 2021 15:19:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56765B81126;
+        Mon,  6 Dec 2021 15:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DD3EC341C5;
+        Mon,  6 Dec 2021 15:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803945;
-        bh=/LQ5KwQq2j2/j/Z6VSN24WgTwLuY5/MluZw3/SIkXm8=;
+        s=korg; t=1638803334;
+        bh=rLs9+i102tfl+rMpfib+Hclr2z2BuKojHu4qAKcEj/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQ5IcOcAvFgIlqlVzr2dwjo2VhTfSYG7BUrBkJwEpePrlj34QeGg8e1Y1kdClJvzG
-         1PrXAJe7rfn18rqJdBHHMbBpZWc7MCmwNLRY+z5CGlQlxPKZylYZzV8ngYOpdWEza1
-         wMMFs4hWvv7+1Gh1b59HJ6IVUalQra3GkIag182E=
+        b=mCKsHP6X+yTpjlcFwEpeoZXcuIt9yRNJvahl0d+mFjdpt/wySXulaO0We7N/QJ7Fx
+         HIgZ5hy8mmFJV3DBwoLNsSEX99JpwkHYNgv2p0bAP585uRiefRg8hh1AJpAO26W/EE
+         +/L4QQznZ/9hlxWI1Ti6oR1EnbHPIksx/cdIqJLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 071/130] net/mlx4_en: Fix an use-after-free bug in mlx4_en_try_alloc_resources()
+        stable@vger.kernel.org, zhangyue <zhangyue1@kylinos.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 080/106] net: tulip: de4x5: fix the problem that the array lp->phy[8] may be out of bound
 Date:   Mon,  6 Dec 2021 15:56:28 +0100
-Message-Id: <20211206145602.124954352@linuxfoundation.org>
+Message-Id: <20211206145558.263254704@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: zhangyue <zhangyue1@kylinos.cn>
 
-commit addad7643142f500080417dd7272f49b7a185570 upstream.
+[ Upstream commit 61217be886b5f7402843677e4be7e7e83de9cb41 ]
 
-In mlx4_en_try_alloc_resources(), mlx4_en_copy_priv() is called and
-tmp->tx_cq will be freed on the error path of mlx4_en_copy_priv().
-After that mlx4_en_alloc_resources() is called and there is a dereference
-of &tmp->tx_cq[t][i] in mlx4_en_alloc_resources(), which could lead to
-a use after free problem on failure of mlx4_en_copy_priv().
+In line 5001, if all id in the array 'lp->phy[8]' is not 0, when the
+'for' end, the 'k' is 8.
 
-Fix this bug by adding a check of mlx4_en_copy_priv()
+At this time, the array 'lp->phy[8]' may be out of bound.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_MLX4_EN=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: ec25bc04ed8e ("net/mlx4_en: Add resilience in low memory systems")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20211130164438.190591-1-zhou1615@umn.edu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: zhangyue <zhangyue1@kylinos.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/dec/tulip/de4x5.c | 30 +++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -2276,9 +2276,14 @@ int mlx4_en_try_alloc_resources(struct m
- 				bool carry_xdp_prog)
- {
- 	struct bpf_prog *xdp_prog;
--	int i, t;
-+	int i, t, ret;
- 
--	mlx4_en_copy_priv(tmp, priv, prof);
-+	ret = mlx4_en_copy_priv(tmp, priv, prof);
-+	if (ret) {
-+		en_warn(priv, "%s: mlx4_en_copy_priv() failed, return\n",
-+			__func__);
-+		return ret;
-+	}
- 
- 	if (mlx4_en_alloc_resources(tmp)) {
- 		en_warn(priv,
+diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
+index 8f108a30cba66..84cf7b4582f3e 100644
+--- a/drivers/net/ethernet/dec/tulip/de4x5.c
++++ b/drivers/net/ethernet/dec/tulip/de4x5.c
+@@ -4994,19 +4994,23 @@ mii_get_phy(struct net_device *dev)
+ 	}
+ 	if ((j == limit) && (i < DE4X5_MAX_MII)) {
+ 	    for (k=0; k < DE4X5_MAX_PHY && lp->phy[k].id; k++);
+-	    lp->phy[k].addr = i;
+-	    lp->phy[k].id = id;
+-	    lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
+-	    lp->phy[k].spd.mask = GENERIC_MASK;    /* 100Mb/s technologies   */
+-	    lp->phy[k].spd.value = GENERIC_VALUE;  /* TX & T4, H/F Duplex    */
+-	    lp->mii_cnt++;
+-	    lp->active++;
+-	    printk("%s: Using generic MII device control. If the board doesn't operate,\nplease mail the following dump to the author:\n", dev->name);
+-	    j = de4x5_debug;
+-	    de4x5_debug |= DEBUG_MII;
+-	    de4x5_dbg_mii(dev, k);
+-	    de4x5_debug = j;
+-	    printk("\n");
++	    if (k < DE4X5_MAX_PHY) {
++		lp->phy[k].addr = i;
++		lp->phy[k].id = id;
++		lp->phy[k].spd.reg = GENERIC_REG;      /* ANLPA register         */
++		lp->phy[k].spd.mask = GENERIC_MASK;    /* 100Mb/s technologies   */
++		lp->phy[k].spd.value = GENERIC_VALUE;  /* TX & T4, H/F Duplex    */
++		lp->mii_cnt++;
++		lp->active++;
++		printk("%s: Using generic MII device control. If the board doesn't operate,\nplease mail the following dump to the author:\n", dev->name);
++		j = de4x5_debug;
++		de4x5_debug |= DEBUG_MII;
++		de4x5_dbg_mii(dev, k);
++		de4x5_debug = j;
++		printk("\n");
++	    } else {
++		goto purgatory;
++	    }
+ 	}
+     }
+   purgatory:
+-- 
+2.33.0
+
 
 
