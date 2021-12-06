@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6080469C58
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766E1469A0D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348295AbhLFPV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:21:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38610 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347445AbhLFPTf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:35 -0500
+        id S1345754AbhLFPFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:05:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52500 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344364AbhLFPEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B884C0698C5;
+        Mon,  6 Dec 2021 07:01:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 237B561345;
-        Mon,  6 Dec 2021 15:16:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 066A9C341C2;
-        Mon,  6 Dec 2021 15:16:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28FC1B81125;
+        Mon,  6 Dec 2021 15:01:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ACC6C341C2;
+        Mon,  6 Dec 2021 15:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803764;
-        bh=58+9mBtUDyf/bQKjXDZfwgK+jBcyodiJKbjRhPj2Hnk=;
+        s=korg; t=1638802879;
+        bh=ZZ1+XS0q6JWAbqpOfJwgun9gVY07Kq7gRXICCNC0Jwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFualTV5Wcj2/7yXy1RoDDt/icLUxlp7Bs4vAnjrPrmEdnRB6jYg/ZyIGpKI0tfjs
-         Bo82z1byUUDibIRlL9Moocp34gPVgYcL+4gdFCUmjMQa4qb3wHINB2T7dM+sSi9PMF
-         8k3dNE8WbjavnEQasexpZKIV1On+kVweoFCXfsXk=
+        b=dsFeHRVZ1+E6qML123Xsaa9e/ZBkX+DqTNeeHAda4m3rM0Q+ZZqbTPEkMa4X8q74H
+         n08AG6PMMDyUMVfuep5uDuWYHn7hiiWrG4aAzP0LJlrKSy/c79titTybQM+XQvaaol
+         MQF/kKmbtFd3Z5nt8NLpKNJEbRp2UTrmGLnLDqd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 031/130] vrf: Reset IPCB/IP6CB when processing outbound pkts in vrf dev xmit
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.9 05/62] usb: hub: Fix locking issues with address0_mutex
 Date:   Mon,  6 Dec 2021 15:55:48 +0100
-Message-Id: <20211206145600.718913283@linuxfoundation.org>
+Message-Id: <20211206145549.345781230@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +49,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit ee201011c1e1563c114a55c86eb164b236f18e84 upstream.
+commit 6cca13de26eea6d32a98d96d916a048d16a12822 upstream.
 
-IPCB/IP6CB need to be initialized when processing outbound v4 or v6 pkts
-in the codepath of vrf device xmit function so that leftover garbage
-doesn't cause futher code that uses the CB to incorrectly process the
-pkt.
+Fix the circular lock dependency and unbalanced unlock of addess0_mutex
+introduced when fixing an address0_mutex enumeration retry race in commit
+ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
 
-One occasion of the issue might occur when MPLS route uses the vrf
-device as the outgoing device such as when the route is added using "ip
--f mpls route add <label> dev <vrf>" command.
+Make sure locking order between port_dev->status_lock and address0_mutex
+is correct, and that address0_mutex is not unlocked in hub_port_connect
+"done:" codepath which may be reached without locking address0_mutex
 
-The problems seems to exist since day one. Hence I put the day one
-commits on the Fixes tags.
-
-Fixes: 193125dbd8eb ("net: Introduce VRF device driver")
-Fixes: 35402e313663 ("net: Add IPv6 support to VRF device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211130162637.3249-1-ssuryaextr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+Cc: <stable@vger.kernel.org>
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211123101656.1113518-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vrf.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/core/hub.c |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -497,6 +497,7 @@ static netdev_tx_t vrf_process_v6_outbou
- 	/* strip the ethernet header added for pass through VRF device */
- 	__skb_pull(skb, skb_network_offset(skb));
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -4835,6 +4835,7 @@ static void hub_port_connect(struct usb_
+ 	struct usb_port *port_dev = hub->ports[port1 - 1];
+ 	struct usb_device *udev = port_dev->child;
+ 	static int unreliable_port = -1;
++	bool retry_locked;
  
-+	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
- 	ret = vrf_ip6_local_out(net, skb->sk, skb);
- 	if (unlikely(net_xmit_eval(ret)))
- 		dev->stats.tx_errors++;
-@@ -580,6 +581,7 @@ static netdev_tx_t vrf_process_v4_outbou
- 					       RT_SCOPE_LINK);
+ 	/* Disconnect any existing devices under this port */
+ 	if (udev) {
+@@ -4891,9 +4892,10 @@ static void hub_port_connect(struct usb_
+ 
+ 	status = 0;
+ 
+-	mutex_lock(hcd->address0_mutex);
+-
+ 	for (i = 0; i < SET_CONFIG_TRIES; i++) {
++		usb_lock_port(port_dev);
++		mutex_lock(hcd->address0_mutex);
++		retry_locked = true;
+ 
+ 		/* reallocate for each attempt, since references
+ 		 * to the previous one can escape in various ways
+@@ -4902,6 +4904,8 @@ static void hub_port_connect(struct usb_
+ 		if (!udev) {
+ 			dev_err(&port_dev->dev,
+ 					"couldn't allocate usb_device\n");
++			mutex_unlock(hcd->address0_mutex);
++			usb_unlock_port(port_dev);
+ 			goto done;
+ 		}
+ 
+@@ -4923,13 +4927,13 @@ static void hub_port_connect(struct usb_
+ 		}
+ 
+ 		/* reset (non-USB 3.0 devices) and get descriptor */
+-		usb_lock_port(port_dev);
+ 		status = hub_port_init(hub, udev, port1, i);
+-		usb_unlock_port(port_dev);
+ 		if (status < 0)
+ 			goto loop;
+ 
+ 		mutex_unlock(hcd->address0_mutex);
++		usb_unlock_port(port_dev);
++		retry_locked = false;
+ 
+ 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
+ 			msleep(2000);
+@@ -5019,11 +5023,14 @@ static void hub_port_connect(struct usb_
+ 
+ loop_disable:
+ 		hub_port_disable(hub, port1, 1);
+-		mutex_lock(hcd->address0_mutex);
+ loop:
+ 		usb_ep0_reinit(udev);
+ 		release_devnum(udev);
+ 		hub_free_dev(udev);
++		if (retry_locked) {
++			mutex_unlock(hcd->address0_mutex);
++			usb_unlock_port(port_dev);
++		}
+ 		usb_put_dev(udev);
+ 		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
+ 			break;
+@@ -5046,8 +5053,6 @@ loop:
  	}
  
-+	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
- 	ret = vrf_ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
- 	if (unlikely(net_xmit_eval(ret)))
- 		vrf_dev->stats.tx_errors++;
+ done:
+-	mutex_unlock(hcd->address0_mutex);
+-
+ 	hub_port_disable(hub, port1, 1);
+ 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
+ 		if (status != -ENOTCONN && status != -ENODEV)
 
 
