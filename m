@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FF3469F21
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA77469BD6
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391430AbhLFPpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33180 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390543AbhLFPma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8DFC0698D4;
-        Mon,  6 Dec 2021 07:28:09 -0800 (PST)
+        id S1359149AbhLFPRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47452 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354218AbhLFPOM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 827B3B81116;
-        Mon,  6 Dec 2021 15:28:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8E56C34902;
-        Mon,  6 Dec 2021 15:28:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1906B8111D;
+        Mon,  6 Dec 2021 15:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0690CC341C1;
+        Mon,  6 Dec 2021 15:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804487;
-        bh=96yIe4GIZ3JcXOCSey31u2M+MGmqJRBIdthTgp/tzxs=;
+        s=korg; t=1638803440;
+        bh=GmflVG0QWwQk7cEPi3CNRSu0mWZkwEKhXPuY55/kDUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hh2xo+nMTZWRRc+4C1h0gIEhH048tiGjq3QBs3QY5dWbAjAl8VRCkY+qBluthaLmh
-         q5LvdwPpfM+MplvjMfLzp7tZMcNZGM6IEZIoNEygwQbTXC7hGSwTwLGVp0vMqzP4Jc
-         pz33yEpaS7JjUcQl9hkCshGQoSSqSeSWFkzBQJds=
+        b=iEtiq+IFKuwoC4pNQJM7LajgY+DdC7a+1kkesJSR9XMRpJMrx7Nu+p6RGoJTBhxtH
+         QxiGAZrzElvlQlbjI3i2Psso52CwisJGVxNg6QicG+UZOoOVUXV1NO7b+rQBZAKNnY
+         bZ3jXD1TdNsXU/sgas/wvSRziQy9A1YnUb9h/wuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Linkin <dlinkin@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>, Parav Pandit <parav@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 164/207] net/mlx5: E-switch, Respect BW share of the new group
-Date:   Mon,  6 Dec 2021 15:56:58 +0100
-Message-Id: <20211206145615.941996709@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Badhri Jagan Sridharan <badhri@google.com>
+Subject: [PATCH 4.19 42/48] usb: typec: tcpm: Wait in SNK_DEBOUNCED until disconnect
+Date:   Mon,  6 Dec 2021 15:56:59 +0100
+Message-Id: <20211206145550.275195924@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,43 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Linkin <dlinkin@nvidia.com>
+From: Badhri Jagan Sridharan <badhri@google.com>
 
-[ Upstream commit 1e59b32e45e47c8ea5455182286ba010bfa87813 ]
+commit fbcd13df1e78eb2ba83a3c160eefe2d6f574beaf upstream.
 
-To enable transmit schduler on vport FW require non-zero configuration
-for vport's TSAR. If vport added to the group which has configured BW
-share value and TX rate values of the vport are zero, then scheduler
-wouldn't be enabled on this vport.
-Fix that by calling BW normalization if BW share of the new group is
-configured.
+Stub from the spec:
+"4.5.2.2.4.2 Exiting from AttachWait.SNK State
+A Sink shall transition to Unattached.SNK when the state of both
+the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
+A DRP shall transition to Unattached.SRC when the state of both
+the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
 
-Fixes: 0fe132eac38c ("net/mlx5: E-switch, Allow to add vports to rate groups")
-Signed-off-by: Dmytro Linkin <dlinkin@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This change makes TCPM to wait in SNK_DEBOUNCED state until
+CC1 and CC2 pins is SNK.Open for at least tPDDebounce. Previously,
+TCPM resets the port if vbus is not present in PD_T_PS_SOURCE_ON.
+This causes TCPM to loop continuously when connected to a
+faulty power source that does not present vbus. Waiting in
+SNK_DEBOUNCED also ensures that TCPM is adherant to
+"4.5.2.2.4.2 Exiting from AttachWait.SNK State" requirements.
+
+[ 6169.280751] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
+[ 6169.280759] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
+[ 6169.280771] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
+[ 6169.282427] CC1: 0 -> 0, CC2: 5 -> 5 [state SNK_ATTACH_WAIT, polarity 0, connected]
+[ 6169.450825] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
+[ 6169.450834] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
+[ 6169.930892] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
+[ 6169.931296] disable vbus discharge ret:0
+[ 6169.931301] Setting usb_comm capable false
+[ 6169.932783] Setting voltage/current limit 0 mV 0 mA
+[ 6169.932802] polarity 0
+[ 6169.933706] Requesting mux state 0, usb-role 0, orientation 0
+[ 6169.936689] cc:=0
+[ 6169.936812] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
+[ 6169.937157] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
+[ 6170.036880] state change PORT_RESET -> PORT_RESET_WAIT_OFF [delayed 100 ms]
+[ 6170.036890] state change PORT_RESET_WAIT_OFF -> SNK_UNATTACHED [rev2 NONE_AMS]
+[ 6170.036896] Start toggling
+[ 6170.041412] CC1: 0 -> 0, CC2: 0 -> 0 [state TOGGLING, polarity 0, disconnected]
+[ 6170.042973] CC1: 0 -> 0, CC2: 0 -> 5 [state TOGGLING, polarity 0, connected]
+[ 6170.042976] state change TOGGLING -> SNK_ATTACH_WAIT [rev2 NONE_AMS]
+[ 6170.042981] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev2 NONE_AMS]
+[ 6170.213014] state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED [delayed 170 ms]
+[ 6170.213019] pending state change SNK_DEBOUNCED -> PORT_RESET @ 480 ms [rev2 NONE_AMS]
+[ 6170.693068] state change SNK_DEBOUNCED -> PORT_RESET [delayed 480 ms]
+[ 6170.693304] disable vbus discharge ret:0
+[ 6170.693308] Setting usb_comm capable false
+[ 6170.695193] Setting voltage/current limit 0 mV 0 mA
+[ 6170.695210] polarity 0
+[ 6170.695990] Requesting mux state 0, usb-role 0, orientation 0
+[ 6170.701896] cc:=0
+[ 6170.702181] pending state change PORT_RESET -> PORT_RESET_WAIT_OFF @ 100 ms [rev2 NONE_AMS]
+[ 6170.703343] CC1: 0 -> 0, CC2: 5 -> 0 [state PORT_RESET, polarity 0, disconnected]
+
+Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
+Cc: stable@vger.kernel.org
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Link: https://lore.kernel.org/r/20211130001825.3142830-1-badhri@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/tcpm.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
-index c6cc67cb4f6ad..4501e3d737f80 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
-@@ -423,7 +423,7 @@ static int esw_qos_vport_update_group(struct mlx5_eswitch *esw,
- 		return err;
- 
- 	/* Recalculate bw share weights of old and new groups */
--	if (vport->qos.bw_share) {
-+	if (vport->qos.bw_share || new_group->bw_share) {
- 		esw_qos_normalize_vports_min_rate(esw, curr_group, extack);
- 		esw_qos_normalize_vports_min_rate(esw, new_group, extack);
- 	}
--- 
-2.33.0
-
+--- a/drivers/usb/typec/tcpm.c
++++ b/drivers/usb/typec/tcpm.c
+@@ -3098,11 +3098,7 @@ static void run_state_machine(struct tcp
+ 				       tcpm_try_src(port) ? SRC_TRY
+ 							  : SNK_ATTACHED,
+ 				       0);
+-		else
+-			/* Wait for VBUS, but not forever */
+-			tcpm_set_state(port, PORT_RESET, PD_T_PS_SOURCE_ON);
+ 		break;
+-
+ 	case SRC_TRY:
+ 		port->try_src_count++;
+ 		tcpm_set_cc(port, tcpm_rp_cc(port));
 
 
