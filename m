@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60662469B69
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0D9469DE8
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347699AbhLFPRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34910 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357190AbhLFPQB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:01 -0500
+        id S243611AbhLFPeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:34:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34978 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1387384AbhLFPbK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:31:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C10561309;
-        Mon,  6 Dec 2021 15:12:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81785C341C2;
-        Mon,  6 Dec 2021 15:12:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98A2CB81018;
+        Mon,  6 Dec 2021 15:27:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B57E2C34901;
+        Mon,  6 Dec 2021 15:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803552;
-        bh=k0tSwFytnas/gol83ELKO6CognkNASgLRNWVzpSgP78=;
+        s=korg; t=1638804459;
+        bh=WcScSF7kddzukuf+3Gs4FU1f4IK0BYp1yQDTQh7CJ/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2kV2sYSUAI1FRTnnSm2EYkj84jD6s+7NI6UqYkwph6ELvxto1GUp56MWSHeRNl6U
-         9JP3kmWYD7EKu+4qjtpDW0zBlJRE7GKDEJsP++VyiNjI+bcjcD3Jv923pREei2N0QE
-         6JNRs5YWd5lCi1rfawI5bKPohf14an76wng+74EM=
+        b=iai2LMeVovbi+nF0AK/W6LzDnDmZ4doUXeMKpSAyWRVrC779YlBedWQijZRjiBzoX
+         9Oqp1LU6XXn7RMXOca7qjyCHpXgSyRuMWsntUNwb7r8ML9PgmiDN1DMc6Anz8rsk44
+         JEr3gda6o9StjIVjmBdTj40ZIWnvr0LFlR7IF3hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.4 26/70] ipmi: Move remove_work to dedicated workqueue
-Date:   Mon,  6 Dec 2021 15:56:30 +0100
-Message-Id: <20211206145552.821474713@linuxfoundation.org>
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.15 137/207] drm/msm/a6xx: Allocate enough space for GMU registers
+Date:   Mon,  6 Dec 2021 15:56:31 +0100
+Message-Id: <20211206145614.970389346@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 1d49eb91e86e8c1c1614c72e3e958b6b7e2472a9 upstream.
+commit b4d25abf9720b69a03465b09d0d62d1998ed6708 upstream.
 
-Currently when removing an ipmi_user the removal is deferred as a work on
-the system's workqueue. Although this guarantees the free operation will
-occur in non atomic context, it can race with the ipmi_msghandler module
-removal (see [1]) . In case a remove_user work is scheduled for removal
-and shortly after ipmi_msghandler module is removed we can end up in a
-situation where the module is removed fist and when the work is executed
-the system crashes with :
-BUG: unable to handle page fault for address: ffffffffc05c3450
-PF: supervisor instruction fetch in kernel mode
-PF: error_code(0x0010) - not-present page
-because the pages of the module are gone. In cleanup_ipmi() there is no
-easy way to detect if there are any pending works to flush them before
-removing the module. This patch creates a separate workqueue and schedules
-the remove_work works on it. When removing the module the workqueue is
-drained when destroyed to avoid the race.
+In commit 142639a52a01 ("drm/msm/a6xx: fix crashstate capture for
+A650") we changed a6xx_get_gmu_registers() to read 3 sets of
+registers. Unfortunately, we didn't change the memory allocation for
+the array. That leads to a KASAN warning (this was on the chromeos-5.4
+kernel, which has the problematic commit backported to it):
 
-[1] https://bugs.launchpad.net/bugs/1950666
+  BUG: KASAN: slab-out-of-bounds in _a6xx_get_gmu_registers+0x144/0x430
+  Write of size 8 at addr ffffff80c89432b0 by task A618-worker/209
+  CPU: 5 PID: 209 Comm: A618-worker Tainted: G        W         5.4.156-lockdep #22
+  Hardware name: Google Lazor Limozeen without Touchscreen (rev5 - rev8) (DT)
+  Call trace:
+   dump_backtrace+0x0/0x248
+   show_stack+0x20/0x2c
+   dump_stack+0x128/0x1ec
+   print_address_description+0x88/0x4a0
+   __kasan_report+0xfc/0x120
+   kasan_report+0x10/0x18
+   __asan_report_store8_noabort+0x1c/0x24
+   _a6xx_get_gmu_registers+0x144/0x430
+   a6xx_gpu_state_get+0x330/0x25d4
+   msm_gpu_crashstate_capture+0xa0/0x84c
+   recover_worker+0x328/0x838
+   kthread_worker_fn+0x32c/0x574
+   kthread+0x2dc/0x39c
+   ret_from_fork+0x10/0x18
 
-Cc: stable@vger.kernel.org # 5.1
-Fixes: 3b9a907223d7 (ipmi: fix sleep-in-atomic in free_user at cleanup SRCU user->release_barrier)
-Signed-off-by: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
-Message-Id: <20211115131645.25116-1-ioanna-maria.alifieraki@canonical.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+  Allocated by task 209:
+   __kasan_kmalloc+0xfc/0x1c4
+   kasan_kmalloc+0xc/0x14
+   kmem_cache_alloc_trace+0x1f0/0x2a0
+   a6xx_gpu_state_get+0x164/0x25d4
+   msm_gpu_crashstate_capture+0xa0/0x84c
+   recover_worker+0x328/0x838
+   kthread_worker_fn+0x32c/0x574
+   kthread+0x2dc/0x39c
+   ret_from_fork+0x10/0x18
+
+Fixes: 142639a52a01 ("drm/msm/a6xx: fix crashstate capture for A650")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20211103153049.1.Idfa574ccb529d17b69db3a1852e49b580132035c@changeid
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -220,6 +220,8 @@ struct ipmi_user {
- 	struct work_struct remove_work;
- };
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu_state.c
+@@ -777,12 +777,12 @@ static void a6xx_get_gmu_registers(struc
+ 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
  
-+struct workqueue_struct *remove_work_wq;
-+
- static struct ipmi_user *acquire_ipmi_user(struct ipmi_user *user, int *index)
- 	__acquires(user->release_barrier)
- {
-@@ -1286,7 +1288,7 @@ static void free_user(struct kref *ref)
- 	struct ipmi_user *user = container_of(ref, struct ipmi_user, refcount);
+ 	a6xx_state->gmu_registers = state_kcalloc(a6xx_state,
+-		2, sizeof(*a6xx_state->gmu_registers));
++		3, sizeof(*a6xx_state->gmu_registers));
  
- 	/* SRCU cleanup must happen in task context. */
--	schedule_work(&user->remove_work);
-+	queue_work(remove_work_wq, &user->remove_work);
- }
+ 	if (!a6xx_state->gmu_registers)
+ 		return;
  
- static void _ipmi_destroy_user(struct ipmi_user *user)
-@@ -5161,6 +5163,13 @@ static int ipmi_init_msghandler(void)
+-	a6xx_state->nr_gmu_registers = 2;
++	a6xx_state->nr_gmu_registers = 3;
  
- 	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
- 
-+	remove_work_wq = create_singlethread_workqueue("ipmi-msghandler-remove-wq");
-+	if (!remove_work_wq) {
-+		pr_err("unable to create ipmi-msghandler-remove-wq workqueue");
-+		rv = -ENOMEM;
-+		goto out;
-+	}
-+
- 	initialized = true;
- 
- out:
-@@ -5186,6 +5195,8 @@ static void __exit cleanup_ipmi(void)
- 	int count;
- 
- 	if (initialized) {
-+		destroy_workqueue(remove_work_wq);
-+
- 		atomic_notifier_chain_unregister(&panic_notifier_list,
- 						 &panic_block);
- 
+ 	/* Get the CX GMU registers from AHB */
+ 	_a6xx_get_gmu_registers(gpu, a6xx_state, &a6xx_gmu_reglist[0],
 
 
