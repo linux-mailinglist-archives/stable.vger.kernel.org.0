@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB76A4691B4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 09:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D134691B7
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 09:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236613AbhLFIt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 03:49:29 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55184 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236377AbhLFIt2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 03:49:28 -0500
+        id S239613AbhLFIuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 03:50:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50270 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236377AbhLFIuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 03:50:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BB8BC061746
+        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 00:47:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B16E3B8103C
-        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 08:45:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBCFCC341C1;
-        Mon,  6 Dec 2021 08:45:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFDDEB81047
+        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 08:47:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7A0C341C1;
+        Mon,  6 Dec 2021 08:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638780358;
-        bh=ZPHbssQ8vkt69xPAAyv3aHALH6STua5bDw/36o80rsg=;
+        s=korg; t=1638780426;
+        bh=cLMWwVdXNHOM1AlCq6KhyQb6Vz+U9kvI0ZvxtV6XG8k=;
         h=Subject:To:Cc:From:Date:From;
-        b=LIbA5vucZnndPljsqESZRre7WhrY7p7MwqApupQaXNb46bdpWzBvZWaDQBX4guHfU
-         CBE4gSIqXloukZPG9gr/PT8pC91stiFRjURarcjd/CvQawDkGjI7hj+JGupvB3uRUe
-         QOz1XRmcqNY1dJBdyW7ElZ07XJFWcHKgDKQXbVBM=
-Subject: FAILED: patch "[PATCH] serial: tegra: Change lower tolerance baud rate limit for" failed to apply to 5.4-stable tree
-To:     patrik.john@u-blox.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=ppSWzRd47OaaS42he86LPo88mwjdTzCDncth7s2uZi81B0/+z321cr3kaqdbqBrDJ
+         JbvSf9z+AA+Lr2CqCZJbBHrVPr+AQkmgNEEY4NHEM8Tg46kr1fVYLQQSSpuos2MdNT
+         iYeMNjpVdeKhAfIpmuK5AAeUsc0lyOg1bBNfdhzE=
+Subject: FAILED: patch "[PATCH] serial: 8250_pci: Fix ACCES entries in pci_serial_quirks" failed to apply to 4.4-stable tree
+To:     jay.dolan@accesio.com, andriy.shevchenko@linux.intel.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 06 Dec 2021 09:45:55 +0100
-Message-ID: <163878035548236@kroah.com>
+Date:   Mon, 06 Dec 2021 09:47:04 +0100
+Message-ID: <163878042412269@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,47 +54,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b40de7469ef135161c80af0e8c462298cc5dac00 Mon Sep 17 00:00:00 2001
-From: Patrik John <patrik.john@u-blox.com>
-Date: Tue, 23 Nov 2021 14:27:38 +0100
-Subject: [PATCH] serial: tegra: Change lower tolerance baud rate limit for
- tegra20 and tegra30
+From c525c5d2437f93520388920baac6d9340c65d239 Mon Sep 17 00:00:00 2001
+From: Jay Dolan <jay.dolan@accesio.com>
+Date: Mon, 22 Nov 2021 14:06:03 +0200
+Subject: [PATCH] serial: 8250_pci: Fix ACCES entries in pci_serial_quirks
+ array
 
-The current implementation uses 0 as lower limit for the baud rate
-tolerance for tegra20 and tegra30 chips which causes isses on UART
-initialization as soon as baud rate clock is lower than required even
-when within the standard UART tolerance of +/- 4%.
+Fix error in table for PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4S that caused it
+and PCI_DEVICE_ID_ACCESIO_PCIE_ICM232_4 to be missing their fourth port.
 
-This fix aligns the implementation with the initial commit description
-of +/- 4% tolerance for tegra chips other than tegra186 and
-tegra194.
-
-Fixes: d781ec21bae6 ("serial: tegra: report clk rate errors")
+Fixes: 78d3820b9bd3 ("serial: 8250_pci: Have ACCES cards that use the four port Pericom PI7C9X7954 chip use the pci_pericom_setup()")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Patrik John <patrik.john@u-blox.com>
-Link: https://lore.kernel.org/r/sig.19614244f8.20211123132737.88341-1-patrik.john@u-blox.com
+Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211122120604.3909-2-andriy.shevchenko@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/tty/serial/serial-tegra.c b/drivers/tty/serial/serial-tegra.c
-index 45e2e4109acd..b6223fab0687 100644
---- a/drivers/tty/serial/serial-tegra.c
-+++ b/drivers/tty/serial/serial-tegra.c
-@@ -1506,7 +1506,7 @@ static struct tegra_uart_chip_data tegra20_uart_chip_data = {
- 	.fifo_mode_enable_status	= false,
- 	.uart_max_port			= 5,
- 	.max_dma_burst_bytes		= 4,
--	.error_tolerance_low_range	= 0,
-+	.error_tolerance_low_range	= -4,
- 	.error_tolerance_high_range	= 4,
- };
- 
-@@ -1517,7 +1517,7 @@ static struct tegra_uart_chip_data tegra30_uart_chip_data = {
- 	.fifo_mode_enable_status	= false,
- 	.uart_max_port			= 5,
- 	.max_dma_burst_bytes		= 4,
--	.error_tolerance_low_range	= 0,
-+	.error_tolerance_low_range	= -4,
- 	.error_tolerance_high_range	= 4,
- };
- 
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 5d43de143f33..b793d848aeb6 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -2291,12 +2291,19 @@ static struct pci_serial_quirk pci_serial_quirks[] = {
+ 		.setup      = pci_pericom_setup_four_at_eight,
+ 	},
+ 	{
+-		.vendor     = PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4S,
++		.vendor     = PCI_VENDOR_ID_ACCESIO,
+ 		.device     = PCI_DEVICE_ID_ACCESIO_PCIE_ICM232_4,
+ 		.subvendor  = PCI_ANY_ID,
+ 		.subdevice  = PCI_ANY_ID,
+ 		.setup      = pci_pericom_setup_four_at_eight,
+ 	},
++	{
++		.vendor     = PCI_VENDOR_ID_ACCESIO,
++		.device     = PCI_DEVICE_ID_ACCESIO_PCIE_ICM_4S,
++		.subvendor  = PCI_ANY_ID,
++		.subdevice  = PCI_ANY_ID,
++		.setup      = pci_pericom_setup_four_at_eight,
++	},
+ 	{
+ 		.vendor     = PCI_VENDOR_ID_ACCESIO,
+ 		.device     = PCI_DEVICE_ID_ACCESIO_MPCIE_ICM232_4,
 
