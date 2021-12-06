@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8CE14699A1
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:58:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DCC64699A4
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344812AbhLFPCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:02:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51956 "EHLO
+        id S1344808AbhLFPCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:02:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344792AbhLFPCS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:18 -0500
+        with ESMTP id S1344815AbhLFPCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654FFC0613F8;
-        Mon,  6 Dec 2021 06:58:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3063C061746;
+        Mon,  6 Dec 2021 06:58:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08C51B810F1;
+        by ams.source.kernel.org (Postfix) with ESMTPS id ABDC9B81112;
+        Mon,  6 Dec 2021 14:58:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77A6C341C2;
         Mon,  6 Dec 2021 14:58:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0028C341C1;
-        Mon,  6 Dec 2021 14:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802726;
-        bh=XsBdT339YUX7koQXUjXpUyVsun8a5Od5/7k6r0KcPoY=;
+        s=korg; t=1638802729;
+        bh=FMVBopKritaApjx07bxkFMFQsjcXQBCK6egHA8wmnm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beh3jlg/6RJYnNKzAJkQ+/jeYT/5aO+NSzmI51Tnj9j3oZPlNAniMb0msY9zzabqd
-         Y+Id1YiUkUvJ4X5kcENLEtWvcGbQ9eRCFOcQCUYwREeZmU2NSUxsMlk8Lr8fTLcllY
-         HZrzLWeK5YnO/ED7eY4QWgvUqbxpR5GSJ8aG9NHg=
+        b=FVxyB7xVorLfRcTws4c/Nwe0l8ZXeXXrlJI3ENnNeXTRMSKjYM3Dr72ca+gEbi+uZ
+         vmbbgo7Beecgk17qprq9cG+nl6bkcLbk6miRmReCODlydK5zk9YjWoqu27bp5pLxpK
+         /TMjsOXHXz/t+e4zPLNJ8zQ9LCNo7vjD1/5uzONs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mingjie Zhang <superzmj@fibocom.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 03/52] USB: serial: option: add Fibocom FM101-GL variants
-Date:   Mon,  6 Dec 2021 15:55:47 +0100
-Message-Id: <20211206145548.008466974@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 04/52] usb: hub: Fix usb enumeration issue due to address0 race
+Date:   Mon,  6 Dec 2021 15:55:48 +0100
+Message-Id: <20211206145548.039882039@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
 References: <20211206145547.892668902@linuxfoundation.org>
@@ -47,688 +47,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mingjie Zhang <superzmj@fibocom.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 88459e3e42760abb2299bbf6cb1026491170e02a upstream.
+commit 6ae6dc22d2d1ce6aa77a6da8a761e61aca216f8b upstream.
 
-Update the USB serial option driver support for the Fibocom
-FM101-GL Cat.6
-LTE modules as there are actually several different variants.
-- VID:PID 2cb7:01a2, FM101-GL are laptop M.2 cards (with
-  MBIM interfaces for /Linux/Chrome OS)
-- VID:PID 2cb7:01a4, FM101-GL for laptop debug M.2 cards(with adb
-  interface for /Linux/Chrome OS)
+xHC hardware can only have one slot in default state with address 0
+waiting for a unique address at a time, otherwise "undefined behavior
+may occur" according to xhci spec 5.4.3.4
 
-0x01a2: mbim, tty, tty, diag, gnss
-0x01a4: mbim, diag, tty, adb, gnss, gnss
+The address0_mutex exists to prevent this across both xhci roothubs.
 
-Here are the outputs of lsusb -v and usb-devices:
+If hub_port_init() fails, it may unlock the mutex and exit with a xhci
+slot in default state. If the other xhci roothub calls hub_port_init()
+at this point we end up with two slots in default state.
 
-T:  Bus=02 Lev=01 Prnt=01 Port=03 Cnt=01 Dev#= 86 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=01a2 Rev= 5.04
-S:  Manufacturer=Fibocom Wireless Inc.
-S:  Product=Fibocom FM101-GL Module
-S:  SerialNumber=673326ce
-C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=(none)
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=(none)
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=(none)
+Make sure the address0_mutex protects the slot default state across
+hub_port_init() retries, until slot is addressed or disabled.
 
-Bus 002 Device 084: ID 2cb7:01a2 Fibocom Wireless Inc. Fibocom FM101-GL Module
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               3.20
-  bDeviceClass            0
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0         9
-  idVendor           0x2cb7
-  idProduct          0x01a2
-  bcdDevice            5.04
-  iManufacturer           1 Fibocom Wireless Inc.
-  iProduct                2 Fibocom FM101-GL Module
-  iSerial                 3 673326ce
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x015d
-    bNumInterfaces          6
-    bConfigurationValue     1
-    iConfiguration          4 MBIM_DUN_DUN_DIAG_NMEA
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              896mA
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         0
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass      14
-      bFunctionProtocol       0
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass     14
-      bInterfaceProtocol      0
-      iInterface              5 Fibocom FM101-GL LTE Modem
-      CDC Header:
-        bcdCDC               1.10
-      CDC Union:
-        bMasterInterface        0
-        bSlaveInterface         1
-      CDC MBIM:
-        bcdMBIMVersion       1.00
-        wMaxControlMessage   4096
-        bNumberFilters       32
-        bMaxFilterSize       128
-        wMaxSegmentSize      2048
-        bmNetworkCapabilities 0x20
-          8-byte ntb input size
-      CDC MBIM Extended:
-        bcdMBIMExtendedVersion           1.00
-        bMaxOutstandingCommandMessages     64
-        wMTU                             1500
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               9
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           0
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0
-      bInterfaceProtocol      2
-      iInterface              0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       1
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0
-      bInterfaceProtocol      2
-      iInterface              6 MBIM Data
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x8e  EP 14 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               6
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x0f  EP 15 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               2
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        2
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol     64
-      iInterface              0
-      ** UNRECOGNIZED:  05 24 00 10 01
-      ** UNRECOGNIZED:  05 24 01 00 00
-      ** UNRECOGNIZED:  04 24 02 02
-      ** UNRECOGNIZED:  05 24 06 00 00
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x000a  1x 10 bytes
-        bInterval               9
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        3
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol     64
-      iInterface              0
-      ** UNRECOGNIZED:  05 24 00 10 01
-      ** UNRECOGNIZED:  05 24 01 00 00
-      ** UNRECOGNIZED:  04 24 02 02
-      ** UNRECOGNIZED:  05 24 06 00 00
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x85  EP 5 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x000a  1x 10 bytes
-        bInterval               9
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x84  EP 4 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        4
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol     48
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x03  EP 3 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x86  EP 6 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        5
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol     64
-      iInterface              0
-      ** UNRECOGNIZED:  05 24 00 10 01
-      ** UNRECOGNIZED:  05 24 01 00 00
-      ** UNRECOGNIZED:  04 24 02 02
-      ** UNRECOGNIZED:  05 24 06 00 00
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x88  EP 8 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x000a  1x 10 bytes
-        bInterval               9
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x87  EP 7 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x04  EP 4 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
+Note, one known minor case is not fixed by this patch.
+If device needs to be reset during resume, but fails all hub_port_init()
+retries in usb_reset_and_verify_device(), then it's possible the slot is
+still left in default state when address0_mutex is unlocked.
 
-T:  Bus=02 Lev=01 Prnt=01 Port=03 Cnt=01 Dev#= 85 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=01a4 Rev= 5.04
-S:  Manufacturer=Fibocom Wireless Inc.
-S:  Product=Fibocom FM101-GL Module
-S:  SerialNumber=673326ce
-C:* #Ifs= 7 Cfg#= 1 Atr=a0 MxPwr=896mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=(none)
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=(none)
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=40 Driver=(none)
-
-Bus 002 Device 085: ID 2cb7:01a4 Fibocom Wireless Inc. Fibocom FM101-GL Module
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               3.20
-  bDeviceClass            0
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0         9
-  idVendor           0x2cb7
-  idProduct          0x01a4
-  bcdDevice            5.04
-  iManufacturer           1 Fibocom Wireless Inc.
-  iProduct                2 Fibocom FM101-GL Module
-  iSerial                 3 673326ce
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0180
-    bNumInterfaces          7
-    bConfigurationValue     1
-    iConfiguration          4 MBIM_DIAG_DUN_ADB_GNSS_GNSS
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              896mA
-    Interface Association:
-      bLength                 8
-      bDescriptorType        11
-      bFirstInterface         0
-      bInterfaceCount         2
-      bFunctionClass          2 Communications
-      bFunctionSubClass      14
-      bFunctionProtocol       0
-      iFunction               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         2 Communications
-      bInterfaceSubClass     14
-      bInterfaceProtocol      0
-      iInterface              5 Fibocom FM101-GL LTE Modem
-      CDC Header:
-        bcdCDC               1.10
-      CDC Union:
-        bMasterInterface        0
-        bSlaveInterface         1
-      CDC MBIM:
-        bcdMBIMVersion       1.00
-        wMaxControlMessage   4096
-        bNumberFilters       32
-        bMaxFilterSize       128
-        wMaxSegmentSize      2048
-        bmNetworkCapabilities 0x20
-          8-byte ntb input size
-      CDC MBIM Extended:
-        bcdMBIMExtendedVersion           1.00
-        bMaxOutstandingCommandMessages     64
-        wMTU                             1500
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               9
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           0
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0
-      bInterfaceProtocol      2
-      iInterface              0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       1
-      bNumEndpoints           2
-      bInterfaceClass        10 CDC Data
-      bInterfaceSubClass      0
-      bInterfaceProtocol      2
-      iInterface              6 MBIM Data
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x8e  EP 14 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               6
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x0f  EP 15 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               2
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        2
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol     48
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        3
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol     64
-      iInterface              0
-      ** UNRECOGNIZED:  05 24 00 10 01
-      ** UNRECOGNIZED:  05 24 01 00 00
-      ** UNRECOGNIZED:  04 24 02 02
-      ** UNRECOGNIZED:  05 24 06 00 00
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x84  EP 4 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x000a  1x 10 bytes
-        bInterval               9
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        4
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass     66
-      bInterfaceProtocol      1
-      iInterface              8 ADB Interface
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x03  EP 3 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x85  EP 5 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        5
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol     64
-      iInterface              0
-      ** UNRECOGNIZED:  05 24 00 10 01
-      ** UNRECOGNIZED:  05 24 01 00 00
-      ** UNRECOGNIZED:  04 24 02 02
-      ** UNRECOGNIZED:  05 24 06 00 00
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x87  EP 7 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x000a  1x 10 bytes
-        bInterval               9
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x86  EP 6 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x04  EP 4 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        6
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0
-      bInterfaceProtocol     64
-      iInterface              0
-      ** UNRECOGNIZED:  05 24 00 10 01
-      ** UNRECOGNIZED:  05 24 01 00 00
-      ** UNRECOGNIZED:  04 24 02 02
-      ** UNRECOGNIZED:  05 24 06 00 00
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x89  EP 9 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x000a  1x 10 bytes
-        bInterval               9
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x88  EP 8 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x05  EP 5 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0400  1x 1024 bytes
-        bInterval               0
-        bMaxBurst               0
-
-Signed-off-by: Mingjie Zhang <superzmj@fibocom.com>
-Link: https://lore.kernel.org/r/20211123133757.37475-1-superzmj@fibocom.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 638139eb95d2 ("usb: hub: allow to process more usb hub events in parallel")
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211115221630.871204-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/core/hub.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2074,6 +2074,9 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a2, 0xff) },			/* Fibocom FM101-GL (laptop MBIM) */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a4, 0xff),			/* Fibocom FM101-GL (laptop MBIM) */
-+	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1405, 0xff) },			/* GosunCn GM500 MBIM */
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -4393,8 +4393,6 @@ hub_port_init(struct usb_hub *hub, struc
+ 	if (oldspeed == USB_SPEED_LOW)
+ 		delay = HUB_LONG_RESET_TIME;
+ 
+-	mutex_lock(hcd->address0_mutex);
+-
+ 	/* Reset the device; full speed may morph to high speed */
+ 	/* FIXME a USB 2.0 device may morph into SuperSpeed on reset. */
+ 	retval = hub_port_reset(hub, port1, udev, delay, false);
+@@ -4681,7 +4679,6 @@ fail:
+ 		hub_port_disable(hub, port1, 0);
+ 		update_devnum(udev, devnum);	/* for disconnect processing */
+ 	}
+-	mutex_unlock(hcd->address0_mutex);
+ 	return retval;
+ }
+ 
+@@ -4826,6 +4823,9 @@ static void hub_port_connect(struct usb_
+ 		unit_load = 100;
+ 
+ 	status = 0;
++
++	mutex_lock(hcd->address0_mutex);
++
+ 	for (i = 0; i < SET_CONFIG_TRIES; i++) {
+ 
+ 		/* reallocate for each attempt, since references
+@@ -4862,6 +4862,8 @@ static void hub_port_connect(struct usb_
+ 		if (status < 0)
+ 			goto loop;
+ 
++		mutex_unlock(hcd->address0_mutex);
++
+ 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
+ 			msleep(2000);
+ 
+@@ -4950,6 +4952,7 @@ static void hub_port_connect(struct usb_
+ 
+ loop_disable:
+ 		hub_port_disable(hub, port1, 1);
++		mutex_lock(hcd->address0_mutex);
+ loop:
+ 		usb_ep0_reinit(udev);
+ 		release_devnum(udev);
+@@ -4976,6 +4979,8 @@ loop:
+ 	}
+ 
+ done:
++	mutex_unlock(hcd->address0_mutex);
++
+ 	hub_port_disable(hub, port1, 1);
+ 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
+ 		if (status != -ENOTCONN && status != -ENODEV)
+@@ -5506,6 +5511,8 @@ static int usb_reset_and_verify_device(s
+ 	bos = udev->bos;
+ 	udev->bos = NULL;
+ 
++	mutex_lock(hcd->address0_mutex);
++
+ 	for (i = 0; i < SET_CONFIG_TRIES; ++i) {
+ 
+ 		/* ep0 maxpacket size may change; let the HCD know about it.
+@@ -5515,6 +5522,7 @@ static int usb_reset_and_verify_device(s
+ 		if (ret >= 0 || ret == -ENOTCONN || ret == -ENODEV)
+ 			break;
+ 	}
++	mutex_unlock(hcd->address0_mutex);
+ 
+ 	if (ret < 0)
+ 		goto re_enumerate;
 
 
