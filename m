@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6354469E16
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0791D469BC2
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346679AbhLFPgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:36:09 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44126 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387359AbhLFPbF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:31:05 -0500
+        id S1356857AbhLFPSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347518AbhLFPQ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60AF5C07E5E5;
+        Mon,  6 Dec 2021 07:10:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 103406132B;
-        Mon,  6 Dec 2021 15:27:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38D0C34901;
-        Mon,  6 Dec 2021 15:27:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2777CB8111B;
+        Mon,  6 Dec 2021 15:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CE5CC341C1;
+        Mon,  6 Dec 2021 15:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804456;
-        bh=mCDQ59W/C1EcTM1MvDCBsEqiPTR7igOsBHdYXHpn4Nk=;
+        s=korg; t=1638803407;
+        bh=2IqzMPuwz65FUzblmUGeYgOYGVyBQvH/aDNHAgMUgLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRrha+doR2JTD1HAjYw8kdxg8hkwXflaykWtgWb1MkTLaOGFn0D/Vp/+sO/0twBui
-         JNJOTXeCFoI+pKkdb55cl96wQB7R/dLdLk/J6i7tXg5oVPpnPaMOxHH2i25SA7s6U9
-         ERRJfdPBb5qrIiablNdL34xuhCF6ImZKKAwefm/U=
+        b=FX/ABZpmlXxe1ZVhxu/X6217FoazwlLh2hTkdVCdujTyc4ZZgoHzkmdzZ/8LAKd8Y
+         hMf300pmETnPguhKxHdu8BoLRswvW6qqtZijZAmdAyfLm4TRWKGVfhllp7P0A0mrY4
+         He8YeUpE71E6SsmwuN50I5TQGElBhk31NHAo9A04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Steev Klimaszewski <steev@kali.org>,
-        Akhil P Oommen <akhilpo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 154/207] drm/msm/devfreq: Fix OPP refcnt leak
+        stable@vger.kernel.org,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org
+Subject: [PATCH 4.19 31/48] rxrpc: Fix rxrpc_local leak in rxrpc_lookup_peer()
 Date:   Mon,  6 Dec 2021 15:56:48 +0100
-Message-Id: <20211206145615.588611539@linuxfoundation.org>
+Message-Id: <20211206145549.906454341@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +50,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-[ Upstream commit 59ba1b2b4825342676300f66d785764be3fcb093 ]
+commit beacff50edbd6c9659a6f15fc7f6126909fade29 upstream.
 
-Reported-by: Douglas Anderson <dianders@chromium.org>
-Fixes: 9bc95570175a ("drm/msm: Devfreq tuning")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Tested-By: Steev Klimaszewski <steev@kali.org>
-Reviewed-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211105202021.181092-1-robdclark@gmail.com
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Need to call rxrpc_put_local() for peer candidate before kfree() as it
+holds a ref to rxrpc_local.
+
+[DH: v2: Changed to abstract the peer freeing code out into a function]
+
+Fixes: 9ebeddef58c4 ("rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record")
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/all/20211121041608.133740-2-eiichi.tsukata@nutanix.com/ # v1
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_gpu_devfreq.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/rxrpc/peer_object.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gpu_devfreq.c b/drivers/gpu/drm/msm/msm_gpu_devfreq.c
-index 20006d060b5b5..4ac2a4eb984d8 100644
---- a/drivers/gpu/drm/msm/msm_gpu_devfreq.c
-+++ b/drivers/gpu/drm/msm/msm_gpu_devfreq.c
-@@ -20,6 +20,10 @@ static int msm_devfreq_target(struct device *dev, unsigned long *freq,
- 	struct msm_gpu *gpu = dev_to_gpu(dev);
- 	struct dev_pm_opp *opp;
+--- a/net/rxrpc/peer_object.c
++++ b/net/rxrpc/peer_object.c
+@@ -299,6 +299,12 @@ static struct rxrpc_peer *rxrpc_create_p
+ 	return peer;
+ }
  
-+	/*
-+	 * Note that devfreq_recommended_opp() can modify the freq
-+	 * to something that actually is in the opp table:
-+	 */
- 	opp = devfreq_recommended_opp(dev, freq, flags);
++static void rxrpc_free_peer(struct rxrpc_peer *peer)
++{
++	rxrpc_put_local(peer->local);
++	kfree_rcu(peer, rcu);
++}
++
+ /*
+  * Set up a new incoming peer.  There shouldn't be any other matching peers
+  * since we've already done a search in the list from the non-reentrant context
+@@ -365,7 +371,7 @@ struct rxrpc_peer *rxrpc_lookup_peer(str
+ 		spin_unlock_bh(&rxnet->peer_hash_lock);
  
- 	/*
-@@ -28,6 +32,7 @@ static int msm_devfreq_target(struct device *dev, unsigned long *freq,
- 	 */
- 	if (gpu->devfreq.idle_freq) {
- 		gpu->devfreq.idle_freq = *freq;
-+		dev_pm_opp_put(opp);
- 		return 0;
+ 		if (peer)
+-			kfree(candidate);
++			rxrpc_free_peer(candidate);
+ 		else
+ 			peer = candidate;
  	}
+@@ -420,8 +426,7 @@ static void __rxrpc_put_peer(struct rxrp
+ 	list_del_init(&peer->keepalive_link);
+ 	spin_unlock_bh(&rxnet->peer_hash_lock);
  
--- 
-2.33.0
-
+-	rxrpc_put_local(peer->local);
+-	kfree_rcu(peer, rcu);
++	rxrpc_free_peer(peer);
+ }
+ 
+ /*
+@@ -457,8 +462,7 @@ void rxrpc_put_peer_locked(struct rxrpc_
+ 	if (n == 0) {
+ 		hash_del_rcu(&peer->hash_link);
+ 		list_del_init(&peer->keepalive_link);
+-		rxrpc_put_local(peer->local);
+-		kfree_rcu(peer, rcu);
++		rxrpc_free_peer(peer);
+ 	}
+ }
+ 
 
 
