@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DF96469DE4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:35:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75FD5469A9B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376570AbhLFPeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:34:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58488 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387156AbhLFPas (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:30:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CC3C08EE1B;
-        Mon,  6 Dec 2021 07:18:28 -0800 (PST)
+        id S1345433AbhLFPJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:09:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40296 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345569AbhLFPHI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:07:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B88BB8101B;
-        Mon,  6 Dec 2021 15:18:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A602C341C1;
-        Mon,  6 Dec 2021 15:18:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C766B8111E;
+        Mon,  6 Dec 2021 15:03:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7276EC341C1;
+        Mon,  6 Dec 2021 15:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803905;
-        bh=k4TnQy9WT+XjXoUhNAoZFOz2DcHOWdK4HcA31fdqCOM=;
+        s=korg; t=1638803017;
+        bh=j3PJDrd0Ud2GSI7IDy2tnjRp8lzBXwljHPtV48Tm5Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uk4NR0p91ndRJqLXTBo8Ex4faVR69P1ycu6jbP4UWVW5r0+PpIPk/Q0VtMH3GI1ao
-         dkGxtFXf/4Po/GOzbievuWIm8PNBqtwGAGWK9Hc8vl43PdqEJERvWuY6HRv2A/meZb
-         P9WfXXfjvhMyo3qtOqas1Sr/1KyNfsRC9ZMnYWWA=
+        b=0KMr8DKQi7vZxpl7sD2i030ccrrMlBSLdEwRFTOxbsfbCjPZaAGaMELUT7xKOFzNo
+         Naqx91OtCyGeaErocTgZ/5y8+FIyR5Uqhf32b9oskbJV3S8AXoHBy7R5ufO0uzxObZ
+         yJFMvzE1dNEUDP/yUHd/F9+634ip3ru/mhpjIBRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 088/130] dpaa2-eth: destroy workqueue at the end of remove function
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 62/62] serial: core: fix transmit-buffer reset and memleak
 Date:   Mon,  6 Dec 2021 15:56:45 +0100
-Message-Id: <20211206145602.702777267@linuxfoundation.org>
+Message-Id: <20211206145551.351576576@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,35 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit f4a8adbfe4841491b60c14fe610571e1422359f9 upstream.
+commit 00de977f9e0aa9760d9a79d1e41ff780f74e3424 upstream.
 
-The commit c55211892f46 ("dpaa2-eth: support PTP Sync packet one-step
-timestamping") forgets to destroy workqueue at the end of remove
-function.
+Commit 761ed4a94582 ("tty: serial_core: convert uart_close to use
+tty_port_close") converted serial core to use tty_port_close() but
+failed to notice that the transmit buffer still needs to be freed on
+final close.
 
-Fix this by adding destroy_workqueue before fsl_mc_portal_free and
-free_netdev.
+Not freeing the transmit buffer means that the buffer is no longer
+cleared on next open so that any ioctl() waiting for the buffer to drain
+might wait indefinitely (e.g. on termios changes) or that stale data can
+end up being transmitted in case tx is restarted.
 
-Fixes: c55211892f46 ("dpaa2-eth: support PTP Sync packet one-step timestamping")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Furthermore, the buffer of any port that has been opened would leak on
+driver unbind.
+
+Note that the port lock is held when clearing the buffer pointer due to
+the ldisc race worked around by commit a5ba1d95e46e ("uart: fix race
+between uart_put_char() and uart_shutdown()").
+
+Also note that the tty-port shutdown() callback is not called for
+console ports so it is not strictly necessary to free the buffer page
+after releasing the lock (cf. d72402145ace ("tty/serial: do not free
+trasnmit buffer page under port lock")).
+
+Link: https://lore.kernel.org/r/319321886d97c456203d5c6a576a5480d07c3478.1635781688.git.baruch@tkos.co.il
+Fixes: 761ed4a94582 ("tty: serial_core: convert uart_close to use tty_port_close")
+Cc: stable@vger.kernel.org      # 4.9
+Cc: Rob Herring <robh@kernel.org>
+Reported-by: Baruch Siach <baruch@tkos.co.il>
+Tested-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211108085431.12637-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/serial_core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -4432,6 +4432,8 @@ static int dpaa2_eth_remove(struct fsl_m
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1522,6 +1522,7 @@ static void uart_tty_port_shutdown(struc
+ {
+ 	struct uart_state *state = container_of(port, struct uart_state, port);
+ 	struct uart_port *uport = uart_port_check(state);
++	char *buf;
  
- 	fsl_mc_portal_free(priv->mc_io);
+ 	/*
+ 	 * At this point, we stop accepting input.  To do this, we
+@@ -1543,8 +1544,18 @@ static void uart_tty_port_shutdown(struc
+ 	 */
+ 	tty_port_set_suspended(port, 0);
  
-+	destroy_workqueue(priv->dpaa2_ptp_wq);
+-	uart_change_pm(state, UART_PM_STATE_OFF);
++	/*
++	 * Free the transmit buffer.
++	 */
++	spin_lock_irq(&uport->lock);
++	buf = state->xmit.buf;
++	state->xmit.buf = NULL;
++	spin_unlock_irq(&uport->lock);
 +
- 	dev_dbg(net_dev->dev.parent, "Removed interface %s\n", net_dev->name);
++	if (buf)
++		free_page((unsigned long)buf);
  
- 	free_netdev(net_dev);
++	uart_change_pm(state, UART_PM_STATE_OFF);
+ }
+ 
+ static void uart_wait_until_sent(struct tty_struct *tty, int timeout)
 
 
