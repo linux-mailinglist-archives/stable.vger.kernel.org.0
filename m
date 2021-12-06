@@ -2,96 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9709546AB1A
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF1346AB1B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:57:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343894AbhLFWA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 17:00:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41484 "EHLO
+        id S1350171AbhLFWA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 17:00:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356431AbhLFWAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 17:00:30 -0500
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CA3C0613F8
-        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 13:57:01 -0800 (PST)
-Received: by mail-io1-xd33.google.com with SMTP id p23so14668993iod.7
-        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 13:57:01 -0800 (PST)
+        with ESMTP id S1356707AbhLFWAs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 17:00:48 -0500
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA01FC0613F8
+        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 13:57:17 -0800 (PST)
+Received: by mail-io1-xd2a.google.com with SMTP id e128so14720466iof.1
+        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 13:57:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linuxfoundation.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Dlr0f6TbxDcCxHl6HIutvJuGXbJUX3iddVtHBaDQXFI=;
-        b=WzMYMwiAdzw4xiZ8A4YkEUDqR4PJYLNryR8XGs5DaW+yxtvOdmDUnI8VBLsxVl2/uj
-         42zlD3foae4B+GKRQ9506UxsjiHQn8la528ywLlsLxKsePgnftT1L6LTSVOFzzn3t48D
-         RoORY119XwCFVLD/h5kL+PdIe5aVVLK9vIVWc=
+        bh=OyafP4fjpdN34kgQVAiLgkpt+hsgmiNoBpXe5qIk5dI=;
+        b=Y5yOiSFADCfW2LI2mLLA4SLbf3U9K6VUWiR3ZdkW+t+71C5BX+S7CAaollxVpij1CP
+         eNf69P9ViPvuUwvPDYLk30dHkxJVu1D4wwlFX7aps20FPCbK68uMbtHBQPFpVFyCPLpR
+         GqSS2guPpQ+gmtz84qSSxi8NMdtTDlDUroniE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=Dlr0f6TbxDcCxHl6HIutvJuGXbJUX3iddVtHBaDQXFI=;
-        b=Bnm3XoMDI0ubeXiucCE4ubfc28AMsEoThAHru9UNmE0LJ/1qUtkNjag6Q/DCJnjOw1
-         cS022DNWe27jDeXcWPyVyiZmxHeMdVB0tRc2S2TO6tJGbjWZb1GNNFPpMsFpb2T9vwaj
-         GpuMLJXOYZZVvdggdeQ15oPE64Atv2js8VSJGH2cAt+VsZeS4DjTuRqrgQDVtcISG0mr
-         /FeJSKCMIhNFU2PiZZ7ZuqaXg7ySQJoC1VlZPVAG47IWoSAaE1kPjNj71chHmAE2qf9n
-         YM15/oHfDld2bFlcoqxxqg9EtIXozxl+8P0PrawvDmD3J3rT9B1UdofM/H45VoHcMiYX
-         orjQ==
-X-Gm-Message-State: AOAM530HrD66JOQ0tO3GPtCISI9p56rtqpndI02tDvGYMyJlCVm+lVFj
-        Whtt0oQpI5qX4i1rhUHUAnvAyA==
-X-Google-Smtp-Source: ABdhPJwd0Ky2oxsOEFDNNL6Pp7oI9WY12HwJ+m0WWwNDGMlYTJTz2vQOmoZK9TZNPiFoBQmeUfV+Pw==
-X-Received: by 2002:a05:6602:45d:: with SMTP id e29mr37375337iov.202.1638827820991;
-        Mon, 06 Dec 2021 13:57:00 -0800 (PST)
+        bh=OyafP4fjpdN34kgQVAiLgkpt+hsgmiNoBpXe5qIk5dI=;
+        b=M5GE91oaGQXzKRzrhHnA6+XpImDV8G/qm2Ey+alrb11/Ds/zVv1s8zxwnGK6pkan4o
+         EQIa4TxkimrCaPZ2T8vnDmqSNVC3YadWzXLVHKob9nVssWRqr/tLeji/JQDyZg5YuYr+
+         6fbR0TqK1C7U3D9IobvT9PGZ8rZJU+pF6f14J8i1wNfSthN28Qq8rMJiaONW3p2Qk0Ve
+         vAvuK0SVZpvnlZDtkGrXBMFGD4acQ95Cuyv34hCLRCko9XUHT+TY+92/B1ePJIM/QiVU
+         F116+JLgqlrftKLrQhwhSzBIMFawYR4p/n0BqKjDudL7JQ5i7+AxU++6piMxxorJ0MVo
+         SZiA==
+X-Gm-Message-State: AOAM533Yu0wzW3fKTFZ2QmMBVWqjI6rWm7OhVRTPLlkmQIEfOoeO9GgI
+        SGm6YkAAeHGmF7NuQCenNnu6Jg==
+X-Google-Smtp-Source: ABdhPJwKM/ePpvOwrKsQ0YuSr579BbqdBY5kML/iHqOomEPgjfO83r3NVcVeAC/kKti3ZxWWTkDArA==
+X-Received: by 2002:a6b:3b43:: with SMTP id i64mr38045487ioa.182.1638827837258;
+        Mon, 06 Dec 2021 13:57:17 -0800 (PST)
 Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id c2sm7240558ilr.70.2021.12.06.13.57.00
+        by smtp.gmail.com with ESMTPSA id r12sm7472971iln.72.2021.12.06.13.57.16
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 06 Dec 2021 13:57:00 -0800 (PST)
-Subject: Re: [PATCH 5.4 00/70] 5.4.164-rc1 review
-To:     Florian Fainelli <f.fainelli@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
- <b4fd2b8c-cc44-ff11-2588-1d7a32155d84@gmail.com>
+        Mon, 06 Dec 2021 13:57:17 -0800 (PST)
+Subject: Re: [PATCH 4.19 00/48] 4.19.220-rc1 review
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
+ <20211206193811.GB11359@duo.ucw.cz>
 From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <1be2e381-301c-bd44-3569-6270042a878b@linuxfoundation.org>
-Date:   Mon, 6 Dec 2021 14:57:00 -0700
+Message-ID: <8fb68763-43e1-5d66-0bfe-1a15581bbbb5@linuxfoundation.org>
+Date:   Mon, 6 Dec 2021 14:57:16 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <b4fd2b8c-cc44-ff11-2588-1d7a32155d84@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <20211206193811.GB11359@duo.ucw.cz>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/6/21 11:57 AM, Florian Fainelli wrote:
-> On 12/6/21 6:56 AM, Greg Kroah-Hartman wrote:
->> This is the start of the stable review cycle for the 5.4.164 release.
->> There are 70 patches in this series, all will be posted as a response
+On 12/6/21 12:38 PM, Pavel Machek wrote:
+> Hi!
+> 
+>> This is the start of the stable review cycle for the 4.19.220 release.
+>> There are 48 patches in this series, all will be posted as a response
 >> to this one.  If anyone has any issues with these being applied, please
 >> let me know.
->>
->> Responses should be made by Wed, 08 Dec 2021 14:55:37 +0000.
->> Anything received after that time might be too late.
->>
->> The whole patch series can be found in one patch at:
->> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.164-rc1.gz
->> or in the git tree and branch at:
->> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
->> and the diffstat can be found below.
->>
->> thanks,
->>
->> greg k-h
 > 
-> On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+> CIP testing did not find any problems here:
 > 
-> Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-4.19.y
+> 
+> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+> 
+> Best regards,
+>                                                                  Pavel
 > 
 
 Compiled and booted on my test system. No dmesg regressions.
