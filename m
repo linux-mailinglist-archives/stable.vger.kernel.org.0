@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E812469C7D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 578EE469EAB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357877AbhLFPW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:22:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376970AbhLFPUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:20:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC0BC07E5E2;
-        Mon,  6 Dec 2021 07:14:22 -0800 (PST)
+        id S1385910AbhLFPna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:43:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49066 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1388469AbhLFPdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:33:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E39A61320;
-        Mon,  6 Dec 2021 15:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 871A7C341C5;
-        Mon,  6 Dec 2021 15:14:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0987361322;
+        Mon,  6 Dec 2021 15:30:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5DD2C34900;
+        Mon,  6 Dec 2021 15:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803661;
-        bh=LOtJeSPEIh8A6KC4te5DMVdDABvBNATBWaW+pIT2q/g=;
+        s=korg; t=1638804604;
+        bh=wL4tWySXBrPzJT5fG9ckppc3JBbRbiWt60uRzrLiJp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CC20Z2o2VwQNcGUT1GCREGuCKxtp/O+nFOAmbp/U9IwMajb3oG51SrYReDgr0Pqk3
-         K8lV6pYjZ9MOKpcQ89c4tkfllrhXSU1VkMXdcLosSqMsBT8aMpk6oER+uQyEGhXqU/
-         TNo9yYZhAA0r0SkiGvwQ+OWK9lWL1stJaJ5CYRAY=
+        b=DDRfTYoQdPhO5x6/mhuh1r+ltWx9rV2OOpu/kSrVGLwepYv5fWxZ8v8rTsgoG9bpI
+         GPWXguR47fM6J/6KhXH6vkLUYhFtHiINyk0W3H1XhD1dFGuJTACpoUHHYoN8SszLLy
+         J7ukdK5XGGyKPi7U0GkC6cTHECS0nMzYmB6a2MHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Baruch Siach <baruch@tkos.co.il>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 64/70] serial: core: fix transmit-buffer reset and memleak
+        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
+        Borislav Petkov <bp@suse.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 174/207] x86/entry: Use the correct fence macro after swapgs in kernel CR3
 Date:   Mon,  6 Dec 2021 15:57:08 +0100
-Message-Id: <20211206145554.137319150@linuxfoundation.org>
+Message-Id: <20211206145616.287986461@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,74 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Lai Jiangshan <laijs@linux.alibaba.com>
 
-commit 00de977f9e0aa9760d9a79d1e41ff780f74e3424 upstream.
+[ Upstream commit 1367afaa2ee90d1c956dfc224e199fcb3ff3f8cc ]
 
-Commit 761ed4a94582 ("tty: serial_core: convert uart_close to use
-tty_port_close") converted serial core to use tty_port_close() but
-failed to notice that the transmit buffer still needs to be freed on
-final close.
+The commit
 
-Not freeing the transmit buffer means that the buffer is no longer
-cleared on next open so that any ioctl() waiting for the buffer to drain
-might wait indefinitely (e.g. on termios changes) or that stale data can
-end up being transmitted in case tx is restarted.
+  c75890700455 ("x86/entry/64: Remove unneeded kernel CR3 switching")
 
-Furthermore, the buffer of any port that has been opened would leak on
-driver unbind.
+removed a CR3 write in the faulting path of load_gs_index().
 
-Note that the port lock is held when clearing the buffer pointer due to
-the ldisc race worked around by commit a5ba1d95e46e ("uart: fix race
-between uart_put_char() and uart_shutdown()").
+But the path's FENCE_SWAPGS_USER_ENTRY has no fence operation if PTI is
+enabled, see spectre_v1_select_mitigation().
 
-Also note that the tty-port shutdown() callback is not called for
-console ports so it is not strictly necessary to free the buffer page
-after releasing the lock (cf. d72402145ace ("tty/serial: do not free
-trasnmit buffer page under port lock")).
+Rather, it depended on the serializing CR3 write of SWITCH_TO_KERNEL_CR3
+and since it got removed, add a FENCE_SWAPGS_KERNEL_ENTRY call to make
+sure speculation is blocked.
 
-Link: https://lore.kernel.org/r/319321886d97c456203d5c6a576a5480d07c3478.1635781688.git.baruch@tkos.co.il
-Fixes: 761ed4a94582 ("tty: serial_core: convert uart_close to use tty_port_close")
-Cc: stable@vger.kernel.org      # 4.9
-Cc: Rob Herring <robh@kernel.org>
-Reported-by: Baruch Siach <baruch@tkos.co.il>
-Tested-by: Baruch Siach <baruch@tkos.co.il>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211108085431.12637-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ [ bp: Massage commit message and comment. ]
+
+Fixes: c75890700455 ("x86/entry/64: Remove unneeded kernel CR3 switching")
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211126101209.8613-3-jiangshanlai@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/x86/entry/entry_64.S | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -1573,6 +1573,7 @@ static void uart_tty_port_shutdown(struc
- {
- 	struct uart_state *state = container_of(port, struct uart_state, port);
- 	struct uart_port *uport = uart_port_check(state);
-+	char *buf;
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index f1a8b5b2af964..f9e1c06a1c329 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -987,11 +987,6 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	pushq	%r12
+ 	ret
  
+-.Lerror_entry_done_lfence:
+-	FENCE_SWAPGS_KERNEL_ENTRY
+-.Lerror_entry_done:
+-	ret
+-
  	/*
- 	 * At this point, we stop accepting input.  To do this, we
-@@ -1594,8 +1595,18 @@ static void uart_tty_port_shutdown(struc
+ 	 * There are two places in the kernel that can potentially fault with
+ 	 * usergs. Handle them here.  B stepping K8s sometimes report a
+@@ -1014,8 +1009,14 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	 * .Lgs_change's error handler with kernel gsbase.
  	 */
- 	tty_port_set_suspended(port, 0);
- 
--	uart_change_pm(state, UART_PM_STATE_OFF);
-+	/*
-+	 * Free the transmit buffer.
-+	 */
-+	spin_lock_irq(&uport->lock);
-+	buf = state->xmit.buf;
-+	state->xmit.buf = NULL;
-+	spin_unlock_irq(&uport->lock);
+ 	SWAPGS
+-	FENCE_SWAPGS_USER_ENTRY
+-	jmp .Lerror_entry_done
 +
-+	if (buf)
-+		free_page((unsigned long)buf);
++	/*
++	 * Issue an LFENCE to prevent GS speculation, regardless of whether it is a
++	 * kernel or user gsbase.
++	 */
++.Lerror_entry_done_lfence:
++	FENCE_SWAPGS_KERNEL_ENTRY
++	ret
  
-+	uart_change_pm(state, UART_PM_STATE_OFF);
- }
- 
- static void uart_wait_until_sent(struct tty_struct *tty, int timeout)
+ .Lbstep_iret:
+ 	/* Fix truncated RIP */
+-- 
+2.33.0
+
 
 
