@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A197E469F0F
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E17469BCA
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391321AbhLFPp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33490 "EHLO
+        id S1357135AbhLFPSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390487AbhLFPm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84822C0A886F;
-        Mon,  6 Dec 2021 07:26:41 -0800 (PST)
+        with ESMTP id S1359007AbhLFPQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE35C08EC93;
+        Mon,  6 Dec 2021 07:09:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22AB76132A;
-        Mon,  6 Dec 2021 15:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03C75C34901;
-        Mon,  6 Dec 2021 15:26:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37C34B81129;
+        Mon,  6 Dec 2021 15:09:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77ACCC341C1;
+        Mon,  6 Dec 2021 15:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804400;
-        bh=YYQBfgG88Y2e9/dDLh/4nH28Q0+7Cu0+GSkhzYSdzOE=;
+        s=korg; t=1638803393;
+        bh=IHuPhORhy5lyDsyNHi26fNFthDwyWJqXSMrdnQdsMC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvOuGeyd4PP0VKjxUOmpXIgf8BP01YjAat6H7hl6oOf5YZLmPyqkEJh4KO+Bu2HsR
-         1MjUM4U93QadydR3lxdSA3/qqYJCwuVrHZfLaK1tqXHdngnLzQr1NcdLRCTHFREeaR
-         KXEQD+sxM+mHDbrNWn88GQ++AMPXenPh1XFBdzW4=
+        b=DSRh3WFrx6Epl+udPCdSrmq+PMdw5R9ctY00OwMhdiuC4j+t0beV0xnyQaAiUbNYD
+         PycT8NyJr39AzW/3/0xqDT9HFRwM27iDHuc8tWOYC5CBklaEt8KQJhk4C21288aatY
+         9DU1w9D5TtVStUGQhTHIvzk92ugdAkGl/1GbCjmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 132/207] net: annotate data-races on txq->xmit_lock_owner
+        stable@vger.kernel.org, Filipe Manana <fdmanana@gmail.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 09/48] btrfs: check-integrity: fix a warning on write caching disabled disk
 Date:   Mon,  6 Dec 2021 15:56:26 +0100
-Message-Id: <20211206145614.800421023@linuxfoundation.org>
+Message-Id: <20211206145549.177026467@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
+References: <20211206145548.859182340@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,193 +49,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Wang Yugui <wangyugui@e16-tech.com>
 
-commit 7a10d8c810cfad3e79372d7d1c77899d86cd6662 upstream.
+[ Upstream commit a91cf0ffbc244792e0b3ecf7d0fddb2f344b461f ]
 
-syzbot found that __dev_queue_xmit() is reading txq->xmit_lock_owner
-without annotations.
+When a disk has write caching disabled, we skip submission of a bio with
+flush and sync requests before writing the superblock, since it's not
+needed. However when the integrity checker is enabled, this results in
+reports that there are metadata blocks referred by a superblock that
+were not properly flushed. So don't skip the bio submission only when
+the integrity checker is enabled for the sake of simplicity, since this
+is a debug tool and not meant for use in non-debug builds.
 
-No serious issue there, let's document what is happening there.
+fstests/btrfs/220 trigger a check-integrity warning like the following
+when CONFIG_BTRFS_FS_CHECK_INTEGRITY=y and the disk with WCE=0.
 
-BUG: KCSAN: data-race in __dev_queue_xmit / __dev_queue_xmit
+  btrfs: attempt to write superblock which references block M @5242880 (sdb2/5242880/0) which is not flushed out of disk's write cache (block flush_gen=1, dev->flush_gen=0)!
+  ------------[ cut here ]------------
+  WARNING: CPU: 28 PID: 843680 at fs/btrfs/check-integrity.c:2196 btrfsic_process_written_superblock+0x22a/0x2a0 [btrfs]
+  CPU: 28 PID: 843680 Comm: umount Not tainted 5.15.0-0.rc5.39.el8.x86_64 #1
+  Hardware name: Dell Inc. Precision T7610/0NK70N, BIOS A18 09/11/2019
+  RIP: 0010:btrfsic_process_written_superblock+0x22a/0x2a0 [btrfs]
+  RSP: 0018:ffffb642afb47940 EFLAGS: 00010246
+  RAX: 0000000000000000 RBX: 0000000000000002 RCX: 0000000000000000
+  RDX: 00000000ffffffff RSI: ffff8b722fc97d00 RDI: ffff8b722fc97d00
+  RBP: ffff8b5601c00000 R08: 0000000000000000 R09: c0000000ffff7fff
+  R10: 0000000000000001 R11: ffffb642afb476f8 R12: ffffffffffffffff
+  R13: ffffb642afb47974 R14: ffff8b5499254c00 R15: 0000000000000003
+  FS:  00007f00a06d4080(0000) GS:ffff8b722fc80000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fff5cff5ff0 CR3: 00000001c0c2a006 CR4: 00000000001706e0
+  Call Trace:
+   btrfsic_process_written_block+0x2f7/0x850 [btrfs]
+   __btrfsic_submit_bio.part.19+0x310/0x330 [btrfs]
+   ? bio_associate_blkg_from_css+0xa4/0x2c0
+   btrfsic_submit_bio+0x18/0x30 [btrfs]
+   write_dev_supers+0x81/0x2a0 [btrfs]
+   ? find_get_pages_range_tag+0x219/0x280
+   ? pagevec_lookup_range_tag+0x24/0x30
+   ? __filemap_fdatawait_range+0x6d/0xf0
+   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
+   ? find_first_extent_bit+0x9b/0x160 [btrfs]
+   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
+   write_all_supers+0x1b3/0xa70 [btrfs]
+   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
+   btrfs_commit_transaction+0x59d/0xac0 [btrfs]
+   close_ctree+0x11d/0x339 [btrfs]
+   generic_shutdown_super+0x71/0x110
+   kill_anon_super+0x14/0x30
+   btrfs_kill_super+0x12/0x20 [btrfs]
+   deactivate_locked_super+0x31/0x70
+   cleanup_mnt+0xb8/0x140
+   task_work_run+0x6d/0xb0
+   exit_to_user_mode_prepare+0x1f0/0x200
+   syscall_exit_to_user_mode+0x12/0x30
+   do_syscall_64+0x46/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x7f009f711dfb
+  RSP: 002b:00007fff5cff7928 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+  RAX: 0000000000000000 RBX: 000055b68c6c9970 RCX: 00007f009f711dfb
+  RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000055b68c6c9b50
+  RBP: 0000000000000000 R08: 000055b68c6ca900 R09: 00007f009f795580
+  R10: 0000000000000000 R11: 0000000000000246 R12: 000055b68c6c9b50
+  R13: 00007f00a04bf184 R14: 0000000000000000 R15: 00000000ffffffff
+  ---[ end trace 2c4b82abcef9eec4 ]---
+  S-65536(sdb2/65536/1)
+   -->
+  M-1064960(sdb2/1064960/1)
 
-write to 0xffff888139d09484 of 4 bytes by interrupt on cpu 0:
- __netif_tx_unlock include/linux/netdevice.h:4437 [inline]
- __dev_queue_xmit+0x948/0xf70 net/core/dev.c:4229
- dev_queue_xmit_accel+0x19/0x20 net/core/dev.c:4265
- macvlan_queue_xmit drivers/net/macvlan.c:543 [inline]
- macvlan_start_xmit+0x2b3/0x3d0 drivers/net/macvlan.c:567
- __netdev_start_xmit include/linux/netdevice.h:4987 [inline]
- netdev_start_xmit include/linux/netdevice.h:5001 [inline]
- xmit_one+0x105/0x2f0 net/core/dev.c:3590
- dev_hard_start_xmit+0x72/0x120 net/core/dev.c:3606
- sch_direct_xmit+0x1b2/0x7c0 net/sched/sch_generic.c:342
- __dev_xmit_skb+0x83d/0x1370 net/core/dev.c:3817
- __dev_queue_xmit+0x590/0xf70 net/core/dev.c:4194
- dev_queue_xmit+0x13/0x20 net/core/dev.c:4259
- neigh_hh_output include/net/neighbour.h:511 [inline]
- neigh_output include/net/neighbour.h:525 [inline]
- ip6_finish_output2+0x995/0xbb0 net/ipv6/ip6_output.c:126
- __ip6_finish_output net/ipv6/ip6_output.c:191 [inline]
- ip6_finish_output+0x444/0x4c0 net/ipv6/ip6_output.c:201
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip6_output+0x10e/0x210 net/ipv6/ip6_output.c:224
- dst_output include/net/dst.h:450 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- ndisc_send_skb+0x486/0x610 net/ipv6/ndisc.c:508
- ndisc_send_rs+0x3b0/0x3e0 net/ipv6/ndisc.c:702
- addrconf_rs_timer+0x370/0x540 net/ipv6/addrconf.c:3898
- call_timer_fn+0x2e/0x240 kernel/time/timer.c:1421
- expire_timers+0x116/0x240 kernel/time/timer.c:1466
- __run_timers+0x368/0x410 kernel/time/timer.c:1734
- run_timer_softirq+0x2e/0x60 kernel/time/timer.c:1747
- __do_softirq+0x158/0x2de kernel/softirq.c:558
- __irq_exit_rcu kernel/softirq.c:636 [inline]
- irq_exit_rcu+0x37/0x70 kernel/softirq.c:648
- sysvec_apic_timer_interrupt+0x3e/0xb0 arch/x86/kernel/apic/apic.c:1097
- asm_sysvec_apic_timer_interrupt+0x12/0x20
-
-read to 0xffff888139d09484 of 4 bytes by interrupt on cpu 1:
- __dev_queue_xmit+0x5e3/0xf70 net/core/dev.c:4213
- dev_queue_xmit_accel+0x19/0x20 net/core/dev.c:4265
- macvlan_queue_xmit drivers/net/macvlan.c:543 [inline]
- macvlan_start_xmit+0x2b3/0x3d0 drivers/net/macvlan.c:567
- __netdev_start_xmit include/linux/netdevice.h:4987 [inline]
- netdev_start_xmit include/linux/netdevice.h:5001 [inline]
- xmit_one+0x105/0x2f0 net/core/dev.c:3590
- dev_hard_start_xmit+0x72/0x120 net/core/dev.c:3606
- sch_direct_xmit+0x1b2/0x7c0 net/sched/sch_generic.c:342
- __dev_xmit_skb+0x83d/0x1370 net/core/dev.c:3817
- __dev_queue_xmit+0x590/0xf70 net/core/dev.c:4194
- dev_queue_xmit+0x13/0x20 net/core/dev.c:4259
- neigh_resolve_output+0x3db/0x410 net/core/neighbour.c:1523
- neigh_output include/net/neighbour.h:527 [inline]
- ip6_finish_output2+0x9be/0xbb0 net/ipv6/ip6_output.c:126
- __ip6_finish_output net/ipv6/ip6_output.c:191 [inline]
- ip6_finish_output+0x444/0x4c0 net/ipv6/ip6_output.c:201
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip6_output+0x10e/0x210 net/ipv6/ip6_output.c:224
- dst_output include/net/dst.h:450 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- ndisc_send_skb+0x486/0x610 net/ipv6/ndisc.c:508
- ndisc_send_rs+0x3b0/0x3e0 net/ipv6/ndisc.c:702
- addrconf_rs_timer+0x370/0x540 net/ipv6/addrconf.c:3898
- call_timer_fn+0x2e/0x240 kernel/time/timer.c:1421
- expire_timers+0x116/0x240 kernel/time/timer.c:1466
- __run_timers+0x368/0x410 kernel/time/timer.c:1734
- run_timer_softirq+0x2e/0x60 kernel/time/timer.c:1747
- __do_softirq+0x158/0x2de kernel/softirq.c:558
- __irq_exit_rcu kernel/softirq.c:636 [inline]
- irq_exit_rcu+0x37/0x70 kernel/softirq.c:648
- sysvec_apic_timer_interrupt+0x8d/0xb0 arch/x86/kernel/apic/apic.c:1097
- asm_sysvec_apic_timer_interrupt+0x12/0x20
- kcsan_setup_watchpoint+0x94/0x420 kernel/kcsan/core.c:443
- folio_test_anon include/linux/page-flags.h:581 [inline]
- PageAnon include/linux/page-flags.h:586 [inline]
- zap_pte_range+0x5ac/0x10e0 mm/memory.c:1347
- zap_pmd_range mm/memory.c:1467 [inline]
- zap_pud_range mm/memory.c:1496 [inline]
- zap_p4d_range mm/memory.c:1517 [inline]
- unmap_page_range+0x2dc/0x3d0 mm/memory.c:1538
- unmap_single_vma+0x157/0x210 mm/memory.c:1583
- unmap_vmas+0xd0/0x180 mm/memory.c:1615
- exit_mmap+0x23d/0x470 mm/mmap.c:3170
- __mmput+0x27/0x1b0 kernel/fork.c:1113
- mmput+0x3d/0x50 kernel/fork.c:1134
- exit_mm+0xdb/0x170 kernel/exit.c:507
- do_exit+0x608/0x17a0 kernel/exit.c:819
- do_group_exit+0xce/0x180 kernel/exit.c:929
- get_signal+0xfc3/0x1550 kernel/signal.c:2852
- arch_do_signal_or_restart+0x8c/0x2e0 arch/x86/kernel/signal.c:868
- handle_signal_work kernel/entry/common.c:148 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
- exit_to_user_mode_prepare+0x113/0x190 kernel/entry/common.c:207
- __syscall_exit_to_user_mode_work kernel/entry/common.c:289 [inline]
- syscall_exit_to_user_mode+0x20/0x40 kernel/entry/common.c:300
- do_syscall_64+0x50/0xd0 arch/x86/entry/common.c:86
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0x00000000 -> 0xffffffff
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 28712 Comm: syz-executor.0 Tainted: G        W         5.16.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20211130170155.2331929-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Filipe Manana <fdmanana@gmail.com>
+Signed-off-by: Wang Yugui <wangyugui@e16-tech.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |   19 +++++++++++++------
- net/core/dev.c            |    5 ++++-
- 2 files changed, 17 insertions(+), 7 deletions(-)
+ fs/btrfs/disk-io.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -4403,7 +4403,8 @@ static inline u32 netif_msg_init(int deb
- static inline void __netif_tx_lock(struct netdev_queue *txq, int cpu)
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index c326535d5a80a..2ac920bdf4df5 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3579,11 +3579,23 @@ static void btrfs_end_empty_barrier(struct bio *bio)
+  */
+ static void write_dev_flush(struct btrfs_device *device)
  {
- 	spin_lock(&txq->_xmit_lock);
--	txq->xmit_lock_owner = cpu;
-+	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
-+	WRITE_ONCE(txq->xmit_lock_owner, cpu);
- }
+-	struct request_queue *q = bdev_get_queue(device->bdev);
+ 	struct bio *bio = device->flush_bio;
  
- static inline bool __netif_tx_acquire(struct netdev_queue *txq)
-@@ -4420,26 +4421,32 @@ static inline void __netif_tx_release(st
- static inline void __netif_tx_lock_bh(struct netdev_queue *txq)
- {
- 	spin_lock_bh(&txq->_xmit_lock);
--	txq->xmit_lock_owner = smp_processor_id();
-+	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
-+	WRITE_ONCE(txq->xmit_lock_owner, smp_processor_id());
- }
++#ifndef CONFIG_BTRFS_FS_CHECK_INTEGRITY
++	/*
++	 * When a disk has write caching disabled, we skip submission of a bio
++	 * with flush and sync requests before writing the superblock, since
++	 * it's not needed. However when the integrity checker is enabled, this
++	 * results in reports that there are metadata blocks referred by a
++	 * superblock that were not properly flushed. So don't skip the bio
++	 * submission only when the integrity checker is enabled for the sake
++	 * of simplicity, since this is a debug tool and not meant for use in
++	 * non-debug builds.
++	 */
++	struct request_queue *q = bdev_get_queue(device->bdev);
+ 	if (!test_bit(QUEUE_FLAG_WC, &q->queue_flags))
+ 		return;
++#endif
  
- static inline bool __netif_tx_trylock(struct netdev_queue *txq)
- {
- 	bool ok = spin_trylock(&txq->_xmit_lock);
--	if (likely(ok))
--		txq->xmit_lock_owner = smp_processor_id();
-+
-+	if (likely(ok)) {
-+		/* Pairs with READ_ONCE() in __dev_queue_xmit() */
-+		WRITE_ONCE(txq->xmit_lock_owner, smp_processor_id());
-+	}
- 	return ok;
- }
- 
- static inline void __netif_tx_unlock(struct netdev_queue *txq)
- {
--	txq->xmit_lock_owner = -1;
-+	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
-+	WRITE_ONCE(txq->xmit_lock_owner, -1);
- 	spin_unlock(&txq->_xmit_lock);
- }
- 
- static inline void __netif_tx_unlock_bh(struct netdev_queue *txq)
- {
--	txq->xmit_lock_owner = -1;
-+	/* Pairs with READ_ONCE() in __dev_queue_xmit() */
-+	WRITE_ONCE(txq->xmit_lock_owner, -1);
- 	spin_unlock_bh(&txq->_xmit_lock);
- }
- 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4195,7 +4195,10 @@ static int __dev_queue_xmit(struct sk_bu
- 	if (dev->flags & IFF_UP) {
- 		int cpu = smp_processor_id(); /* ok because BHs are off */
- 
--		if (txq->xmit_lock_owner != cpu) {
-+		/* Other cpus might concurrently change txq->xmit_lock_owner
-+		 * to -1 or to their cpu id, but not to our id.
-+		 */
-+		if (READ_ONCE(txq->xmit_lock_owner) != cpu) {
- 			if (dev_xmit_recursion())
- 				goto recursion_alert;
- 
+ 	bio_reset(bio);
+ 	bio->bi_end_io = btrfs_end_empty_barrier;
+-- 
+2.33.0
+
 
 
