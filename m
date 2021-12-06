@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A18469F7B
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:46:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 461EE469D1D
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391122AbhLFPpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:09 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48380 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388176AbhLFPcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:32:25 -0500
+        id S1358947AbhLFP2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56322 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229503AbhLFPXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E2AD612EB;
-        Mon,  6 Dec 2021 15:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9183C34900;
-        Mon,  6 Dec 2021 15:28:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90E63B81135;
+        Mon,  6 Dec 2021 15:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE638C341C2;
+        Mon,  6 Dec 2021 15:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804534;
-        bh=pDaJjQ+7GNMxuRNQhu8+YGjdY6YO82tydEZ1PYZLlhU=;
+        s=korg; t=1638803993;
+        bh=Ul9Qe6+tggWdujLWSEDcT5P3VY1FnHHHw3agiexi3bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zrCuXPhS3fZ9E6ZUwoiWFKBcJqmaG9oMUlFDOrDSyamKMNdm/DkPPztSSqnm3aROG
-         mtfTFliBCyqmUACJufYLpOYxn8uyszOLwrH0zRX36Up61DFnl07/ftYN/0Hd0D2OlM
-         Ye/8brS5DncsbJjX1EKnV0PRAdP5WV6pR02rEL7o=
+        b=AM5IEybjKyc7cDO2cF/ji3oHQpzLJxNCA0sV7Igd9YCr/LpPa5eAUulDiIHtPCWxA
+         CpBDEl2bQixFjjYIdEbyoF4twzkse+Reqp035AdsOF3JjT2GCWhteF+6VjX9qle/FY
+         gYhJeSmL0Ng2j+byjG5zTMTl1GlrnrihRvX8lAaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khalid Manaa <khalidm@nvidia.com>,
-        Ben Ben-Ishay <benishay@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 182/207] net/mlx5e: Rename TIR lro functions to TIR packet merge functions
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 119/130] x86/64/mm: Map all kernel memory into trampoline_pgd
 Date:   Mon,  6 Dec 2021 15:57:16 +0100
-Message-Id: <20211206145616.574984996@linuxfoundation.org>
+Message-Id: <20211206145603.767001070@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,693 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khalid Manaa <khalidm@nvidia.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit eaee12f046924eeb1210c7e4f3b326603ff1bd85 ]
+commit 51523ed1c26758de1af7e58730a656875f72f783 upstream.
 
-This series introduces new packet merge type, therefore rename lro
-functions to packet merge to support the new merge type:
-- Generalize + rename mlx5e_build_tir_ctx_lro to
-  mlx5e_build_tir_ctx_packet_merge.
-- Rename mlx5e_modify_tirs_lro to mlx5e_modify_tirs_packet_merge.
-- Rename lro bit in mlx5_ifc_modify_tir_bitmask_bits to packet_merge.
-- Rename lro_en in mlx5e_params to packet_merge_type type and combine
-  packet_merge params into one struct mlx5e_packet_merge_param.
+The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
+range of kernel memory (with 4-level paging). This range contains the
+kernel's text+data+bss mappings and the module mapping space but not the
+direct mapping and the vmalloc area.
 
-Signed-off-by: Khalid Manaa <khalidm@nvidia.com>
-Signed-off-by: Ben Ben-Ishay <benishay@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is enough to get the application processors out of real-mode, but
+for code that switches back to real-mode the trampoline_pgd is missing
+important parts of the address space. For example, consider this code
+from arch/x86/kernel/reboot.c, function machine_real_restart() for a
+64-bit kernel:
+
+  #ifdef CONFIG_X86_32
+  	load_cr3(initial_page_table);
+  #else
+  	write_cr3(real_mode_header->trampoline_pgd);
+
+  	/* Exiting long mode will fail if CR4.PCIDE is set. */
+  	if (boot_cpu_has(X86_FEATURE_PCID))
+  		cr4_clear_bits(X86_CR4_PCIDE);
+  #endif
+
+  	/* Jump to the identity-mapped low memory code */
+  #ifdef CONFIG_X86_32
+  	asm volatile("jmpl *%0" : :
+  		     "rm" (real_mode_header->machine_real_restart_asm),
+  		     "a" (type));
+  #else
+  	asm volatile("ljmpl *%0" : :
+  		     "m" (real_mode_header->machine_real_restart_asm),
+  		     "D" (type));
+  #endif
+
+The code switches to the trampoline_pgd, which unmaps the direct mapping
+and also the kernel stack. The call to cr4_clear_bits() will find no
+stack and crash the machine. The real_mode_header pointer below points
+into the direct mapping, and dereferencing it also causes a crash.
+
+The reason this does not crash always is only that kernel mappings are
+global and the CR3 switch does not flush those mappings. But if theses
+mappings are not in the TLB already, the above code will crash before it
+can jump to the real-mode stub.
+
+Extend the trampoline_pgd to contain all kernel mappings to prevent
+these crashes and to make code which runs on this page-table more
+robust.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20211202153226.22946-5-joro@8bytes.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h  | 14 +++++-
- .../ethernet/mellanox/mlx5/core/en/params.c   | 21 +++------
- .../ethernet/mellanox/mlx5/core/en/params.h   |  6 ---
- .../net/ethernet/mellanox/mlx5/core/en/rss.c  | 23 +++++-----
- .../net/ethernet/mellanox/mlx5/core/en/rss.h  |  7 +--
- .../ethernet/mellanox/mlx5/core/en/rx_res.c   | 25 +++++-----
- .../ethernet/mellanox/mlx5/core/en/rx_res.h   |  5 +-
- .../net/ethernet/mellanox/mlx5/core/en/tir.c  | 10 ++--
- .../net/ethernet/mellanox/mlx5/core/en/tir.h  |  6 +--
- .../ethernet/mellanox/mlx5/core/en_ethtool.c  |  4 +-
- .../mellanox/mlx5/core/en_fs_ethtool.c        |  6 +--
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 46 +++++++++++--------
- .../net/ethernet/mellanox/mlx5/core/en_rep.c  |  5 +-
- .../ethernet/mellanox/mlx5/core/ipoib/ipoib.c |  7 ++-
- include/linux/mlx5/mlx5_ifc.h                 |  2 +-
- 15 files changed, 95 insertions(+), 92 deletions(-)
+ arch/x86/realmode/init.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index d9d19130c1a34..c10a107a3ea53 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -244,6 +244,17 @@ enum mlx5e_priv_flag {
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -70,6 +70,7 @@ static void __init setup_real_mode(void)
+ #ifdef CONFIG_X86_64
+ 	u64 *trampoline_pgd;
+ 	u64 efer;
++	int i;
+ #endif
  
- #define MLX5E_GET_PFLAG(params, pflag) (!!((params)->pflags & (BIT(pflag))))
+ 	base = (unsigned char *)real_mode_header;
+@@ -126,8 +127,17 @@ static void __init setup_real_mode(void)
+ 	trampoline_header->flags = 0;
  
-+enum packet_merge {
-+	MLX5E_PACKET_MERGE_NONE,
-+	MLX5E_PACKET_MERGE_LRO,
-+	MLX5E_PACKET_MERGE_SHAMPO,
-+};
+ 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
 +
-+struct mlx5e_packet_merge_param {
-+	enum packet_merge type;
-+	u32 timeout;
-+};
++	/* Map the real mode stub as virtual == physical */
+ 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
+-	trampoline_pgd[511] = init_top_pgt[511].pgd;
 +
- struct mlx5e_params {
- 	u8  log_sq_size;
- 	u8  rq_wq_type;
-@@ -258,13 +269,12 @@ struct mlx5e_params {
- 	bool tunneled_offload_en;
- 	struct dim_cq_moder rx_cq_moderation;
- 	struct dim_cq_moder tx_cq_moderation;
--	bool lro_en;
-+	struct mlx5e_packet_merge_param packet_merge;
- 	u8  tx_min_inline_mode;
- 	bool vlan_strip_disable;
- 	bool scatter_fcs_en;
- 	bool rx_dim_enabled;
- 	bool tx_dim_enabled;
--	u32 packet_merge_timeout;
- 	u32 pflags;
- 	struct bpf_prog *xdp_prog;
- 	struct mlx5e_xsk *xsk;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/params.c b/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
-index 2b2b3c5cdbd5c..15f441a1b80c2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/params.c
-@@ -87,7 +87,8 @@ bool mlx5e_rx_is_linear_skb(struct mlx5e_params *params,
- 	u32 linear_frag_sz = max(mlx5e_rx_get_linear_frag_sz(params, xsk),
- 				 mlx5e_rx_get_linear_frag_sz(params, NULL));
- 
--	return !params->lro_en && linear_frag_sz <= PAGE_SIZE;
-+	return params->packet_merge.type == MLX5E_PACKET_MERGE_NONE &&
-+		linear_frag_sz <= PAGE_SIZE;
- }
- 
- bool mlx5e_verify_rx_mpwqe_strides(struct mlx5_core_dev *mdev,
-@@ -164,19 +165,8 @@ u16 mlx5e_get_rq_headroom(struct mlx5_core_dev *mdev,
- 		mlx5e_rx_is_linear_skb(params, xsk) :
- 		mlx5e_rx_mpwqe_is_linear_skb(mdev, params, xsk);
- 
--	return is_linear_skb ? mlx5e_get_linear_rq_headroom(params, xsk) : 0;
--}
--
--struct mlx5e_lro_param mlx5e_get_lro_param(struct mlx5e_params *params)
--{
--	struct mlx5e_lro_param lro_param;
--
--	lro_param = (struct mlx5e_lro_param) {
--		.enabled = params->lro_en,
--		.timeout = params->packet_merge_timeout,
--	};
--
--	return lro_param;
-+	return is_linear_skb || params->packet_merge.type == MLX5E_PACKET_MERGE_SHAMPO ?
-+		mlx5e_get_linear_rq_headroom(params, xsk) : 0;
- }
- 
- u16 mlx5e_calc_sq_stop_room(struct mlx5_core_dev *mdev, struct mlx5e_params *params)
-@@ -485,10 +475,11 @@ static void mlx5e_build_rx_cq_param(struct mlx5_core_dev *mdev,
- 
- static u8 rq_end_pad_mode(struct mlx5_core_dev *mdev, struct mlx5e_params *params)
- {
-+	bool lro_en = params->packet_merge.type == MLX5E_PACKET_MERGE_LRO;
- 	bool ro = pcie_relaxed_ordering_enabled(mdev->pdev) &&
- 		MLX5_CAP_GEN(mdev, relaxed_ordering_write);
- 
--	return ro && params->lro_en ?
-+	return ro && lro_en ?
- 		MLX5_WQ_END_PAD_MODE_NONE : MLX5_WQ_END_PAD_MODE_ALIGN;
- }
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/params.h b/drivers/net/ethernet/mellanox/mlx5/core/en/params.h
-index 879ad46d754e1..e9593f5f06610 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/params.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/params.h
-@@ -11,11 +11,6 @@ struct mlx5e_xsk_param {
- 	u16 chunk_size;
- };
- 
--struct mlx5e_lro_param {
--	bool enabled;
--	u32 timeout;
--};
--
- struct mlx5e_cq_param {
- 	u32                        cqc[MLX5_ST_SZ_DW(cqc)];
- 	struct mlx5_wq_param       wq;
-@@ -125,7 +120,6 @@ u8 mlx5e_mpwqe_get_log_num_strides(struct mlx5_core_dev *mdev,
- u16 mlx5e_get_rq_headroom(struct mlx5_core_dev *mdev,
- 			  struct mlx5e_params *params,
- 			  struct mlx5e_xsk_param *xsk);
--struct mlx5e_lro_param mlx5e_get_lro_param(struct mlx5e_params *params);
- 
- /* Build queue parameters */
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rss.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rss.c
-index 625cd49ef96c5..7b55b14d47ef7 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/rss.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rss.c
-@@ -127,7 +127,7 @@ mlx5e_rss_get_tt_config(struct mlx5e_rss *rss, enum mlx5_traffic_types tt)
- 
- static int mlx5e_rss_create_tir(struct mlx5e_rss *rss,
- 				enum mlx5_traffic_types tt,
--				const struct mlx5e_lro_param *init_lro_param,
-+				const struct mlx5e_packet_merge_param *init_pkt_merge_param,
- 				bool inner)
- {
- 	struct mlx5e_rss_params_traffic_type rss_tt;
-@@ -161,7 +161,7 @@ static int mlx5e_rss_create_tir(struct mlx5e_rss *rss,
- 	rqtn = mlx5e_rqt_get_rqtn(&rss->rqt);
- 	mlx5e_tir_builder_build_rqt(builder, rss->mdev->mlx5e_res.hw_objs.td.tdn,
- 				    rqtn, rss->inner_ft_support);
--	mlx5e_tir_builder_build_lro(builder, init_lro_param);
-+	mlx5e_tir_builder_build_packet_merge(builder, init_pkt_merge_param);
- 	rss_tt = mlx5e_rss_get_tt_config(rss, tt);
- 	mlx5e_tir_builder_build_rss(builder, &rss->hash, &rss_tt, inner);
- 
-@@ -198,14 +198,14 @@ static void mlx5e_rss_destroy_tir(struct mlx5e_rss *rss, enum mlx5_traffic_types
- }
- 
- static int mlx5e_rss_create_tirs(struct mlx5e_rss *rss,
--				 const struct mlx5e_lro_param *init_lro_param,
-+				 const struct mlx5e_packet_merge_param *init_pkt_merge_param,
- 				 bool inner)
- {
- 	enum mlx5_traffic_types tt, max_tt;
- 	int err;
- 
- 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++) {
--		err = mlx5e_rss_create_tir(rss, tt, init_lro_param, inner);
-+		err = mlx5e_rss_create_tir(rss, tt, init_pkt_merge_param, inner);
- 		if (err)
- 			goto err_destroy_tirs;
- 	}
-@@ -297,7 +297,7 @@ int mlx5e_rss_init_no_tirs(struct mlx5e_rss *rss, struct mlx5_core_dev *mdev,
- 
- int mlx5e_rss_init(struct mlx5e_rss *rss, struct mlx5_core_dev *mdev,
- 		   bool inner_ft_support, u32 drop_rqn,
--		   const struct mlx5e_lro_param *init_lro_param)
-+		   const struct mlx5e_packet_merge_param *init_pkt_merge_param)
- {
- 	int err;
- 
-@@ -305,12 +305,12 @@ int mlx5e_rss_init(struct mlx5e_rss *rss, struct mlx5_core_dev *mdev,
- 	if (err)
- 		goto err_out;
- 
--	err = mlx5e_rss_create_tirs(rss, init_lro_param, false);
-+	err = mlx5e_rss_create_tirs(rss, init_pkt_merge_param, false);
- 	if (err)
- 		goto err_destroy_rqt;
- 
- 	if (inner_ft_support) {
--		err = mlx5e_rss_create_tirs(rss, init_lro_param, true);
-+		err = mlx5e_rss_create_tirs(rss, init_pkt_merge_param, true);
- 		if (err)
- 			goto err_destroy_tirs;
- 	}
-@@ -372,7 +372,7 @@ u32 mlx5e_rss_get_tirn(struct mlx5e_rss *rss, enum mlx5_traffic_types tt,
-  */
- int mlx5e_rss_obtain_tirn(struct mlx5e_rss *rss,
- 			  enum mlx5_traffic_types tt,
--			  const struct mlx5e_lro_param *init_lro_param,
-+			  const struct mlx5e_packet_merge_param *init_pkt_merge_param,
- 			  bool inner, u32 *tirn)
- {
- 	struct mlx5e_tir *tir;
-@@ -381,7 +381,7 @@ int mlx5e_rss_obtain_tirn(struct mlx5e_rss *rss,
- 	if (!tir) { /* TIR doesn't exist, create one */
- 		int err;
- 
--		err = mlx5e_rss_create_tir(rss, tt, init_lro_param, inner);
-+		err = mlx5e_rss_create_tir(rss, tt, init_pkt_merge_param, inner);
- 		if (err)
- 			return err;
- 		tir = rss_get_tir(rss, tt, inner);
-@@ -418,7 +418,8 @@ void mlx5e_rss_disable(struct mlx5e_rss *rss)
- 			       mlx5e_rqt_get_rqtn(&rss->rqt), rss->drop_rqn, err);
- }
- 
--int mlx5e_rss_lro_set_param(struct mlx5e_rss *rss, struct mlx5e_lro_param *lro_param)
-+int mlx5e_rss_packet_merge_set_param(struct mlx5e_rss *rss,
-+				     struct mlx5e_packet_merge_param *pkt_merge_param)
- {
- 	struct mlx5e_tir_builder *builder;
- 	enum mlx5_traffic_types tt;
-@@ -428,7 +429,7 @@ int mlx5e_rss_lro_set_param(struct mlx5e_rss *rss, struct mlx5e_lro_param *lro_p
- 	if (!builder)
- 		return -ENOMEM;
- 
--	mlx5e_tir_builder_build_lro(builder, lro_param);
-+	mlx5e_tir_builder_build_packet_merge(builder, pkt_merge_param);
- 
- 	final_err = 0;
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rss.h b/drivers/net/ethernet/mellanox/mlx5/core/en/rss.h
-index d522a10dadf33..c6b2164163440 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/rss.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rss.h
-@@ -17,7 +17,7 @@ struct mlx5e_rss *mlx5e_rss_alloc(void);
- void mlx5e_rss_free(struct mlx5e_rss *rss);
- int mlx5e_rss_init(struct mlx5e_rss *rss, struct mlx5_core_dev *mdev,
- 		   bool inner_ft_support, u32 drop_rqn,
--		   const struct mlx5e_lro_param *init_lro_param);
-+		   const struct mlx5e_packet_merge_param *init_pkt_merge_param);
- int mlx5e_rss_init_no_tirs(struct mlx5e_rss *rss, struct mlx5_core_dev *mdev,
- 			   bool inner_ft_support, u32 drop_rqn);
- int mlx5e_rss_cleanup(struct mlx5e_rss *rss);
-@@ -30,13 +30,14 @@ u32 mlx5e_rss_get_tirn(struct mlx5e_rss *rss, enum mlx5_traffic_types tt,
- 		       bool inner);
- int mlx5e_rss_obtain_tirn(struct mlx5e_rss *rss,
- 			  enum mlx5_traffic_types tt,
--			  const struct mlx5e_lro_param *init_lro_param,
-+			  const struct mlx5e_packet_merge_param *init_pkt_merge_param,
- 			  bool inner, u32 *tirn);
- 
- void mlx5e_rss_enable(struct mlx5e_rss *rss, u32 *rqns, unsigned int num_rqns);
- void mlx5e_rss_disable(struct mlx5e_rss *rss);
- 
--int mlx5e_rss_lro_set_param(struct mlx5e_rss *rss, struct mlx5e_lro_param *lro_param);
-+int mlx5e_rss_packet_merge_set_param(struct mlx5e_rss *rss,
-+				     struct mlx5e_packet_merge_param *pkt_merge_param);
- int mlx5e_rss_get_rxfh(struct mlx5e_rss *rss, u32 *indir, u8 *key, u8 *hfunc);
- int mlx5e_rss_set_rxfh(struct mlx5e_rss *rss, const u32 *indir,
- 		       const u8 *key, const u8 *hfunc,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c
-index 13056cb9757d4..1429538479960 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.c
-@@ -34,7 +34,7 @@ struct mlx5e_rx_res {
- /* API for rx_res_rss_* */
- 
- static int mlx5e_rx_res_rss_init_def(struct mlx5e_rx_res *res,
--				     const struct mlx5e_lro_param *init_lro_param,
-+				     const struct mlx5e_packet_merge_param *init_pkt_merge_param,
- 				     unsigned int init_nch)
- {
- 	bool inner_ft_support = res->features & MLX5E_RX_RES_FEATURE_INNER_FT;
-@@ -49,7 +49,7 @@ static int mlx5e_rx_res_rss_init_def(struct mlx5e_rx_res *res,
- 		return -ENOMEM;
- 
- 	err = mlx5e_rss_init(rss, res->mdev, inner_ft_support, res->drop_rqn,
--			     init_lro_param);
-+			     init_pkt_merge_param);
- 	if (err)
- 		goto err_rss_free;
- 
-@@ -275,7 +275,7 @@ struct mlx5e_rx_res *mlx5e_rx_res_alloc(void)
- }
- 
- static int mlx5e_rx_res_channels_init(struct mlx5e_rx_res *res,
--				      const struct mlx5e_lro_param *init_lro_param)
-+				      const struct mlx5e_packet_merge_param *init_pkt_merge_param)
- {
- 	bool inner_ft_support = res->features & MLX5E_RX_RES_FEATURE_INNER_FT;
- 	struct mlx5e_tir_builder *builder;
-@@ -306,7 +306,7 @@ static int mlx5e_rx_res_channels_init(struct mlx5e_rx_res *res,
- 		mlx5e_tir_builder_build_rqt(builder, res->mdev->mlx5e_res.hw_objs.td.tdn,
- 					    mlx5e_rqt_get_rqtn(&res->channels[ix].direct_rqt),
- 					    inner_ft_support);
--		mlx5e_tir_builder_build_lro(builder, init_lro_param);
-+		mlx5e_tir_builder_build_packet_merge(builder, init_pkt_merge_param);
- 		mlx5e_tir_builder_build_direct(builder);
- 
- 		err = mlx5e_tir_init(&res->channels[ix].direct_tir, builder, res->mdev, true);
-@@ -336,7 +336,7 @@ static int mlx5e_rx_res_channels_init(struct mlx5e_rx_res *res,
- 		mlx5e_tir_builder_build_rqt(builder, res->mdev->mlx5e_res.hw_objs.td.tdn,
- 					    mlx5e_rqt_get_rqtn(&res->channels[ix].xsk_rqt),
- 					    inner_ft_support);
--		mlx5e_tir_builder_build_lro(builder, init_lro_param);
-+		mlx5e_tir_builder_build_packet_merge(builder, init_pkt_merge_param);
- 		mlx5e_tir_builder_build_direct(builder);
- 
- 		err = mlx5e_tir_init(&res->channels[ix].xsk_tir, builder, res->mdev, true);
-@@ -437,7 +437,7 @@ static void mlx5e_rx_res_ptp_destroy(struct mlx5e_rx_res *res)
- 
- int mlx5e_rx_res_init(struct mlx5e_rx_res *res, struct mlx5_core_dev *mdev,
- 		      enum mlx5e_rx_res_features features, unsigned int max_nch,
--		      u32 drop_rqn, const struct mlx5e_lro_param *init_lro_param,
-+		      u32 drop_rqn, const struct mlx5e_packet_merge_param *init_pkt_merge_param,
- 		      unsigned int init_nch)
- {
- 	int err;
-@@ -447,11 +447,11 @@ int mlx5e_rx_res_init(struct mlx5e_rx_res *res, struct mlx5_core_dev *mdev,
- 	res->max_nch = max_nch;
- 	res->drop_rqn = drop_rqn;
- 
--	err = mlx5e_rx_res_rss_init_def(res, init_lro_param, init_nch);
-+	err = mlx5e_rx_res_rss_init_def(res, init_pkt_merge_param, init_nch);
- 	if (err)
- 		goto err_out;
- 
--	err = mlx5e_rx_res_channels_init(res, init_lro_param);
-+	err = mlx5e_rx_res_channels_init(res, init_pkt_merge_param);
- 	if (err)
- 		goto err_rss_destroy;
- 
-@@ -645,7 +645,8 @@ int mlx5e_rx_res_xsk_deactivate(struct mlx5e_rx_res *res, unsigned int ix)
- 	return err;
- }
- 
--int mlx5e_rx_res_lro_set_param(struct mlx5e_rx_res *res, struct mlx5e_lro_param *lro_param)
-+int mlx5e_rx_res_packet_merge_set_param(struct mlx5e_rx_res *res,
-+					struct mlx5e_packet_merge_param *pkt_merge_param)
- {
- 	struct mlx5e_tir_builder *builder;
- 	int err, final_err;
-@@ -655,7 +656,7 @@ int mlx5e_rx_res_lro_set_param(struct mlx5e_rx_res *res, struct mlx5e_lro_param
- 	if (!builder)
- 		return -ENOMEM;
- 
--	mlx5e_tir_builder_build_lro(builder, lro_param);
-+	mlx5e_tir_builder_build_packet_merge(builder, pkt_merge_param);
- 
- 	final_err = 0;
- 
-@@ -665,7 +666,7 @@ int mlx5e_rx_res_lro_set_param(struct mlx5e_rx_res *res, struct mlx5e_lro_param
- 		if (!rss)
- 			continue;
- 
--		err = mlx5e_rss_lro_set_param(rss, lro_param);
-+		err = mlx5e_rss_packet_merge_set_param(rss, pkt_merge_param);
- 		if (err)
- 			final_err = final_err ? : err;
- 	}
-@@ -673,7 +674,7 @@ int mlx5e_rx_res_lro_set_param(struct mlx5e_rx_res *res, struct mlx5e_lro_param
- 	for (ix = 0; ix < res->max_nch; ix++) {
- 		err = mlx5e_tir_modify(&res->channels[ix].direct_tir, builder);
- 		if (err) {
--			mlx5_core_warn(res->mdev, "Failed to update LRO state of direct TIR %#x for channel %u: err = %d\n",
-+			mlx5_core_warn(res->mdev, "Failed to update packet merge state of direct TIR %#x for channel %u: err = %d\n",
- 				       mlx5e_tir_get_tirn(&res->channels[ix].direct_tir), ix, err);
- 			if (!final_err)
- 				final_err = err;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h
-index 4a15942d79f7d..d09f7d174a518 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rx_res.h
-@@ -25,7 +25,7 @@ enum mlx5e_rx_res_features {
- struct mlx5e_rx_res *mlx5e_rx_res_alloc(void);
- int mlx5e_rx_res_init(struct mlx5e_rx_res *res, struct mlx5_core_dev *mdev,
- 		      enum mlx5e_rx_res_features features, unsigned int max_nch,
--		      u32 drop_rqn, const struct mlx5e_lro_param *init_lro_param,
-+		      u32 drop_rqn, const struct mlx5e_packet_merge_param *init_pkt_merge_param,
- 		      unsigned int init_nch);
- void mlx5e_rx_res_destroy(struct mlx5e_rx_res *res);
- void mlx5e_rx_res_free(struct mlx5e_rx_res *res);
-@@ -57,7 +57,8 @@ int mlx5e_rx_res_rss_set_rxfh(struct mlx5e_rx_res *res, u32 rss_idx,
- u8 mlx5e_rx_res_rss_get_hash_fields(struct mlx5e_rx_res *res, enum mlx5_traffic_types tt);
- int mlx5e_rx_res_rss_set_hash_fields(struct mlx5e_rx_res *res, enum mlx5_traffic_types tt,
- 				     u8 rx_hash_fields);
--int mlx5e_rx_res_lro_set_param(struct mlx5e_rx_res *res, struct mlx5e_lro_param *lro_param);
-+int mlx5e_rx_res_packet_merge_set_param(struct mlx5e_rx_res *res,
-+					struct mlx5e_packet_merge_param *pkt_merge_param);
- 
- int mlx5e_rx_res_rss_init(struct mlx5e_rx_res *res, u32 *rss_idx, unsigned int init_nch);
- int mlx5e_rx_res_rss_destroy(struct mlx5e_rx_res *res, u32 rss_idx);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c
-index 857ea09791597..a1afb8585e37f 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tir.c
-@@ -70,16 +70,16 @@ void mlx5e_tir_builder_build_rqt(struct mlx5e_tir_builder *builder, u32 tdn,
- 	MLX5_SET(tirc, tirc, tunneled_offload_en, inner_ft_support);
- }
- 
--void mlx5e_tir_builder_build_lro(struct mlx5e_tir_builder *builder,
--				 const struct mlx5e_lro_param *lro_param)
-+void mlx5e_tir_builder_build_packet_merge(struct mlx5e_tir_builder *builder,
-+					  const struct mlx5e_packet_merge_param *pkt_merge_param)
- {
- 	void *tirc = mlx5e_tir_builder_get_tirc(builder);
- 	const unsigned int rough_max_l2_l3_hdr_sz = 256;
- 
- 	if (builder->modify)
--		MLX5_SET(modify_tir_in, builder->in, bitmask.lro, 1);
-+		MLX5_SET(modify_tir_in, builder->in, bitmask.packet_merge, 1);
- 
--	if (!lro_param->enabled)
-+	if (pkt_merge_param->type == MLX5E_PACKET_MERGE_NONE)
- 		return;
- 
- 	MLX5_SET(tirc, tirc, packet_merge_mask,
-@@ -87,7 +87,7 @@ void mlx5e_tir_builder_build_lro(struct mlx5e_tir_builder *builder,
- 		 MLX5_TIRC_PACKET_MERGE_MASK_IPV6_LRO);
- 	MLX5_SET(tirc, tirc, lro_max_ip_payload_size,
- 		 (MLX5E_PARAMS_DEFAULT_LRO_WQE_SZ - rough_max_l2_l3_hdr_sz) >> 8);
--	MLX5_SET(tirc, tirc, lro_timeout_period_usecs, lro_param->timeout);
-+	MLX5_SET(tirc, tirc, lro_timeout_period_usecs, pkt_merge_param->timeout);
- }
- 
- static int mlx5e_hfunc_to_hw(u8 hfunc)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tir.h b/drivers/net/ethernet/mellanox/mlx5/core/en/tir.h
-index e45149a78ed9d..857a84bcd53af 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tir.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tir.h
-@@ -18,7 +18,7 @@ struct mlx5e_rss_params_traffic_type {
- };
- 
- struct mlx5e_tir_builder;
--struct mlx5e_lro_param;
-+struct mlx5e_packet_merge_param;
- 
- struct mlx5e_tir_builder *mlx5e_tir_builder_alloc(bool modify);
- void mlx5e_tir_builder_free(struct mlx5e_tir_builder *builder);
-@@ -27,8 +27,8 @@ void mlx5e_tir_builder_clear(struct mlx5e_tir_builder *builder);
- void mlx5e_tir_builder_build_inline(struct mlx5e_tir_builder *builder, u32 tdn, u32 rqn);
- void mlx5e_tir_builder_build_rqt(struct mlx5e_tir_builder *builder, u32 tdn,
- 				 u32 rqtn, bool inner_ft_support);
--void mlx5e_tir_builder_build_lro(struct mlx5e_tir_builder *builder,
--				 const struct mlx5e_lro_param *lro_param);
-+void mlx5e_tir_builder_build_packet_merge(struct mlx5e_tir_builder *builder,
-+					  const struct mlx5e_packet_merge_param *pkt_merge_param);
- void mlx5e_tir_builder_build_rss(struct mlx5e_tir_builder *builder,
- 				 const struct mlx5e_rss_params_hash *rss_hash,
- 				 const struct mlx5e_rss_params_traffic_type *rss_tt,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-index 9d451b8ee467c..dc9b8718c3c10 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -1954,8 +1954,8 @@ static int set_pflag_rx_striding_rq(struct net_device *netdev, bool enable)
- 			return -EOPNOTSUPP;
- 		if (!mlx5e_striding_rq_possible(mdev, &priv->channels.params))
- 			return -EINVAL;
--	} else if (priv->channels.params.lro_en) {
--		netdev_warn(netdev, "Can't set legacy RQ with LRO, disable LRO first\n");
-+	} else if (priv->channels.params.packet_merge.type != MLX5E_PACKET_MERGE_NONE) {
-+		netdev_warn(netdev, "Can't set legacy RQ with HW-GRO/LRO, disable them first\n");
- 		return -EINVAL;
- 	}
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs_ethtool.c
-index 03693fa74a704..d32b70c62c949 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs_ethtool.c
-@@ -411,7 +411,7 @@ static int flow_get_tirn(struct mlx5e_priv *priv,
- 			 u32 rss_context, u32 *tirn)
- {
- 	if (fs->flow_type & FLOW_RSS) {
--		struct mlx5e_lro_param lro_param;
-+		struct mlx5e_packet_merge_param pkt_merge_param;
- 		struct mlx5e_rss *rss;
- 		u32 flow_type;
- 		int err;
-@@ -426,8 +426,8 @@ static int flow_get_tirn(struct mlx5e_priv *priv,
- 		if (tt < 0)
- 			return -EINVAL;
- 
--		lro_param = mlx5e_get_lro_param(&priv->channels.params);
--		err = mlx5e_rss_obtain_tirn(rss, tt, &lro_param, false, tirn);
-+		pkt_merge_param = priv->channels.params.packet_merge;
-+		err = mlx5e_rss_obtain_tirn(rss, tt, &pkt_merge_param, false, tirn);
- 		if (err)
- 			return err;
- 		eth_rule->rss = rss;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index a9d80ffb25376..8cf5fbebd674b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -2185,17 +2185,14 @@ void mlx5e_close_channels(struct mlx5e_channels *chs)
- 	chs->num = 0;
- }
- 
--static int mlx5e_modify_tirs_lro(struct mlx5e_priv *priv)
-+static int mlx5e_modify_tirs_packet_merge(struct mlx5e_priv *priv)
- {
- 	struct mlx5e_rx_res *res = priv->rx_res;
--	struct mlx5e_lro_param lro_param;
- 
--	lro_param = mlx5e_get_lro_param(&priv->channels.params);
--
--	return mlx5e_rx_res_lro_set_param(res, &lro_param);
-+	return mlx5e_rx_res_packet_merge_set_param(res, &priv->channels.params.packet_merge);
- }
- 
--static MLX5E_DEFINE_PREACTIVATE_WRAPPER_CTX(mlx5e_modify_tirs_lro);
-+static MLX5E_DEFINE_PREACTIVATE_WRAPPER_CTX(mlx5e_modify_tirs_packet_merge);
- 
- static int mlx5e_set_mtu(struct mlx5_core_dev *mdev,
- 			 struct mlx5e_params *params, u16 mtu)
-@@ -3270,16 +3267,25 @@ static int set_feature_lro(struct net_device *netdev, bool enable)
- 	}
- 
- 	new_params = *cur_params;
--	new_params.lro_en = enable;
- 
--	if (cur_params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ) {
--		if (mlx5e_rx_mpwqe_is_linear_skb(mdev, cur_params, NULL) ==
--		    mlx5e_rx_mpwqe_is_linear_skb(mdev, &new_params, NULL))
--			reset = false;
-+	if (enable)
-+		new_params.packet_merge.type = MLX5E_PACKET_MERGE_LRO;
-+	else if (new_params.packet_merge.type == MLX5E_PACKET_MERGE_LRO)
-+		new_params.packet_merge.type = MLX5E_PACKET_MERGE_NONE;
-+	else
-+		goto out;
-+
-+	if (!(cur_params->packet_merge.type == MLX5E_PACKET_MERGE_SHAMPO &&
-+	      new_params.packet_merge.type == MLX5E_PACKET_MERGE_LRO)) {
-+		if (cur_params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ) {
-+			if (mlx5e_rx_mpwqe_is_linear_skb(mdev, cur_params, NULL) ==
-+			    mlx5e_rx_mpwqe_is_linear_skb(mdev, &new_params, NULL))
-+				reset = false;
-+		}
- 	}
- 
- 	err = mlx5e_safe_switch_params(priv, &new_params,
--				       mlx5e_modify_tirs_lro_ctx, NULL, reset);
-+				       mlx5e_modify_tirs_packet_merge_ctx, NULL, reset);
- out:
- 	mutex_unlock(&priv->state_lock);
- 	return err;
-@@ -3606,7 +3612,7 @@ int mlx5e_change_mtu(struct net_device *netdev, int new_mtu,
- 		goto out;
- 	}
- 
--	if (params->lro_en)
-+	if (params->packet_merge.type == MLX5E_PACKET_MERGE_LRO)
- 		reset = false;
- 
- 	if (params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ) {
-@@ -4063,8 +4069,8 @@ static int mlx5e_xdp_allowed(struct mlx5e_priv *priv, struct bpf_prog *prog)
- 	struct net_device *netdev = priv->netdev;
- 	struct mlx5e_params new_params;
- 
--	if (priv->channels.params.lro_en) {
--		netdev_warn(netdev, "can't set XDP while LRO is on, disable LRO first\n");
-+	if (priv->channels.params.packet_merge.type != MLX5E_PACKET_MERGE_NONE) {
-+		netdev_warn(netdev, "can't set XDP while HW-GRO/LRO is on, disable them first\n");
- 		return -EINVAL;
- 	}
- 
-@@ -4321,9 +4327,10 @@ void mlx5e_build_nic_params(struct mlx5e_priv *priv, struct mlx5e_xsk *xsk, u16
- 	    params->rq_wq_type == MLX5_WQ_TYPE_LINKED_LIST_STRIDING_RQ) {
- 		/* No XSK params: checking the availability of striding RQ in general. */
- 		if (!mlx5e_rx_mpwqe_is_linear_skb(mdev, params, NULL))
--			params->lro_en = !slow_pci_heuristic(mdev);
-+			params->packet_merge.type = slow_pci_heuristic(mdev) ?
-+				MLX5E_PACKET_MERGE_NONE : MLX5E_PACKET_MERGE_LRO;
- 	}
--	params->packet_merge_timeout = mlx5e_choose_lro_timeout(mdev, MLX5E_DEFAULT_LRO_TIMEOUT);
-+	params->packet_merge.timeout = mlx5e_choose_lro_timeout(mdev, MLX5E_DEFAULT_LRO_TIMEOUT);
- 
- 	/* CQ moderation params */
- 	rx_cq_period_mode = MLX5_CAP_GEN(mdev, cq_period_start_from_cqe) ?
-@@ -4608,7 +4615,6 @@ static int mlx5e_init_nic_rx(struct mlx5e_priv *priv)
- {
- 	struct mlx5_core_dev *mdev = priv->mdev;
- 	enum mlx5e_rx_res_features features;
--	struct mlx5e_lro_param lro_param;
- 	int err;
- 
- 	priv->rx_res = mlx5e_rx_res_alloc();
-@@ -4626,9 +4632,9 @@ static int mlx5e_init_nic_rx(struct mlx5e_priv *priv)
- 	features = MLX5E_RX_RES_FEATURE_XSK | MLX5E_RX_RES_FEATURE_PTP;
- 	if (priv->channels.params.tunneled_offload_en)
- 		features |= MLX5E_RX_RES_FEATURE_INNER_FT;
--	lro_param = mlx5e_get_lro_param(&priv->channels.params);
- 	err = mlx5e_rx_res_init(priv->rx_res, priv->mdev, features,
--				priv->max_nch, priv->drop_rq.rqn, &lro_param,
-+				priv->max_nch, priv->drop_rq.rqn,
-+				&priv->channels.params.packet_merge,
- 				priv->channels.params.num_channels);
- 	if (err)
- 		goto err_close_drop_rq;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-index c100728c381cc..edecd149dcab3 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -793,7 +793,6 @@ int mlx5e_rep_bond_update(struct mlx5e_priv *priv, bool cleanup)
- static int mlx5e_init_rep_rx(struct mlx5e_priv *priv)
- {
- 	struct mlx5_core_dev *mdev = priv->mdev;
--	struct mlx5e_lro_param lro_param;
- 	int err;
- 
- 	priv->rx_res = mlx5e_rx_res_alloc();
-@@ -808,9 +807,9 @@ static int mlx5e_init_rep_rx(struct mlx5e_priv *priv)
- 		return err;
- 	}
- 
--	lro_param = mlx5e_get_lro_param(&priv->channels.params);
- 	err = mlx5e_rx_res_init(priv->rx_res, priv->mdev, 0,
--				priv->max_nch, priv->drop_rq.rqn, &lro_param,
-+				priv->max_nch, priv->drop_rq.rqn,
-+				&priv->channels.params.packet_merge,
- 				priv->channels.params.num_channels);
- 	if (err)
- 		goto err_close_drop_rq;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-index 269ebb53eda67..cfde0a45b8b8a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-@@ -67,7 +67,7 @@ static void mlx5i_build_nic_params(struct mlx5_core_dev *mdev,
- 		MLX5E_PARAMS_MINIMUM_LOG_RQ_SIZE :
- 		MLX5I_PARAMS_DEFAULT_LOG_RQ_SIZE;
- 
--	params->lro_en = false;
-+	params->packet_merge.type = MLX5E_PACKET_MERGE_NONE;
- 	params->hard_mtu = MLX5_IB_GRH_BYTES + MLX5_IPOIB_HARD_LEN;
- 	params->tunneled_offload_en = false;
- }
-@@ -353,7 +353,6 @@ static void mlx5i_destroy_flow_steering(struct mlx5e_priv *priv)
- static int mlx5i_init_rx(struct mlx5e_priv *priv)
- {
- 	struct mlx5_core_dev *mdev = priv->mdev;
--	struct mlx5e_lro_param lro_param;
- 	int err;
- 
- 	priv->rx_res = mlx5e_rx_res_alloc();
-@@ -368,9 +367,9 @@ static int mlx5i_init_rx(struct mlx5e_priv *priv)
- 		goto err_destroy_q_counters;
- 	}
- 
--	lro_param = mlx5e_get_lro_param(&priv->channels.params);
- 	err = mlx5e_rx_res_init(priv->rx_res, priv->mdev, 0,
--				priv->max_nch, priv->drop_rq.rqn, &lro_param,
-+				priv->max_nch, priv->drop_rq.rqn,
-+				&priv->channels.params.packet_merge,
- 				priv->channels.params.num_channels);
- 	if (err)
- 		goto err_close_drop_rq;
-diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
-index 944bb9f5006c1..25d775764a5ac 100644
---- a/include/linux/mlx5/mlx5_ifc.h
-+++ b/include/linux/mlx5/mlx5_ifc.h
-@@ -6369,7 +6369,7 @@ struct mlx5_ifc_modify_tir_bitmask_bits {
- 	u8         reserved_at_3c[0x1];
- 	u8         hash[0x1];
- 	u8         reserved_at_3e[0x1];
--	u8         lro[0x1];
-+	u8         packet_merge[0x1];
- };
- 
- struct mlx5_ifc_modify_tir_out_bits {
--- 
-2.33.0
-
++	/*
++	 * Include the entirety of the kernel mapping into the trampoline
++	 * PGD.  This way, all mappings present in the normal kernel page
++	 * tables are usable while running on trampoline_pgd.
++	 */
++	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
++		trampoline_pgd[i] = init_top_pgt[i].pgd;
+ #endif
+ 
+ 	sme_sev_setup_real_mode(trampoline_header);
 
 
