@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C22646A93F
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:12:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A9F946A944
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350304AbhLFVQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:16:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58170 "EHLO
+        id S1350221AbhLFVQY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:16:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350300AbhLFVQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:16:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40847C0611F7;
-        Mon,  6 Dec 2021 13:12:43 -0800 (PST)
+        with ESMTP id S1350139AbhLFVQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:16:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFFCCC061746;
+        Mon,  6 Dec 2021 13:12:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFD0AB81197;
-        Mon,  6 Dec 2021 21:12:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78741C341C1;
-        Mon,  6 Dec 2021 21:12:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 47AFECE1412;
+        Mon,  6 Dec 2021 21:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710B4C341CB;
+        Mon,  6 Dec 2021 21:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825160;
-        bh=T3yRgLCp/9PEM/7fq9iom2T9g59mfQVQIxFhlGFfXrk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=kMQEt491P7M15oVAYo3wvGtQ6dZh9gMLu0+smRayXJj6KUvwpbG7E1FqTyOgKqYO5
-         IQzub8eN5COg6bNdmp/03UUPl6TOCBKenMzsXqVSpYHI92Caxxelw0yqfgqzU43xGq
-         jffiGpyTVPZK1D7cpC8PiZa3t/oHcMk6YflGw7lQWbrHS0atzX7+MRwqv5g/4h78Q4
-         NqkaaZZqQYXFkwvsJNfFEuj6RId2W/1bZRqQitGBiEDowEA+1DsJ2BinQgVwYBzbkc
-         q/GYriYoTsp2dvWUwtq3i2kTIw41luhofh4PMib08y0q7WUVcHxUzE26pP64zG99bM
-         c/9p1Xd48/CeA==
+        s=k20201202; t=1638825171;
+        bh=unlC7HLWyW/ytc26HnASg751ADcMZewyNkZGzmL/MyE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=L37/lwYedVW/ynwwG11le97opYLGpF4COF4fla8TU3622239Lk+XIGz41yH3Vvr/Q
+         tfJLJf/ajRyM86oDVVGQe/6wHGQyYiUOF1E7qwqK5zxoGmUJjn9UjnvwLnqhWIcEd4
+         A8pk6xmlRpBo2G8Aec+veXEoTLQ5U0hamLu1dEkEvKwTgJ40dKq2CEY7jQ6S/Ry763
+         8ZXXvdMKOLDkpYprb4VhjlgvDXPpi8jUpqTJy08EODO1DfgnCeGPcICh8AwndGzkA7
+         R89fjRQ127aCgsov37bEXTldGN08L2bPuq9iDV4zdFBdocfXkWh6o+YzLqcAKcwlIi
+         qKCxTmiet+rJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Akhil P Oommen <akhilpo@codeaurora.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
         sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch,
-        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 01/24] drm/msm: Fix null ptr access msm_ioctl_gem_submit()
-Date:   Mon,  6 Dec 2021 16:12:06 -0500
-Message-Id: <20211206211230.1660072-1-sashal@kernel.org>
+        jordan@cosmicpenguin.net, jonathan@marek.ca,
+        dmitry.baryshkov@linaro.org, saiprakash.ranjan@codeaurora.org,
+        dianders@chromium.org, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 02/24] drm/msm/a6xx: Fix uinitialized use of gpu_scid
+Date:   Mon,  6 Dec 2021 16:12:07 -0500
+Message-Id: <20211206211230.1660072-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211206211230.1660072-1-sashal@kernel.org>
+References: <20211206211230.1660072-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -53,45 +58,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Akhil P Oommen <akhilpo@codeaurora.org>
 
-[ Upstream commit 26d776fd0f79f093a5d0ce1a4c7c7a992bc3264c ]
+[ Upstream commit 9ba873e66ed317a1ff645d5e52c2e72597ff3d18 ]
 
-Fix the below null pointer dereference in msm_ioctl_gem_submit():
+Avoid a possible uninitialized use of gpu_scid variable to fix the
+below smatch warning:
+	drivers/gpu/drm/msm/adreno/a6xx_gpu.c:1480 a6xx_llc_activate()
+	error: uninitialized symbol 'gpu_scid'.
 
- 26545.260705:   Call trace:
- 26545.263223:    kref_put+0x1c/0x60
- 26545.266452:    msm_ioctl_gem_submit+0x254/0x744
- 26545.270937:    drm_ioctl_kernel+0xa8/0x124
- 26545.274976:    drm_ioctl+0x21c/0x33c
- 26545.278478:    drm_compat_ioctl+0xdc/0xf0
- 26545.282428:    __arm64_compat_sys_ioctl+0xc8/0x100
- 26545.287169:    el0_svc_common+0xf8/0x250
- 26545.291025:    do_el0_svc_compat+0x28/0x54
- 26545.295066:    el0_svc_compat+0x10/0x1c
- 26545.298838:    el0_sync_compat_handler+0xa8/0xcc
- 26545.303403:    el0_sync_compat+0x188/0x1c0
- 26545.307445:   Code: d503201f d503201f 52800028 4b0803e8 (b8680008)
- 26545.318799:   Kernel panic - not syncing: Oops: Fatal exception
-
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211118154903.2.I3ae019673a0cc45d83a193a7858748dd03dbb820@changeid
+Link: https://lore.kernel.org/r/20211118154903.3.Ie4ac321feb10168af569d9c2b4cf6828bed8122c@changeid
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem_submit.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
-index 151d19e4453cd..bf95b81bf35b5 100644
---- a/drivers/gpu/drm/msm/msm_gem_submit.c
-+++ b/drivers/gpu/drm/msm/msm_gem_submit.c
-@@ -780,6 +780,7 @@ int msm_ioctl_gem_submit(struct drm_device *dev, void *data,
- 		args->nr_cmds);
- 	if (IS_ERR(submit)) {
- 		ret = PTR_ERR(submit);
-+		submit = NULL;
- 		goto out_unlock;
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 267a880811d65..723074aae5b63 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1424,17 +1424,24 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
+ {
+ 	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
+ 	struct msm_gpu *gpu = &adreno_gpu->base;
+-	u32 gpu_scid, cntl1_regval = 0;
++	u32 cntl1_regval = 0;
+ 
+ 	if (IS_ERR(a6xx_gpu->llc_mmio))
+ 		return;
+ 
+ 	if (!llcc_slice_activate(a6xx_gpu->llc_slice)) {
+-		gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
++		u32 gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
+ 
+ 		gpu_scid &= 0x1f;
+ 		cntl1_regval = (gpu_scid << 0) | (gpu_scid << 5) | (gpu_scid << 10) |
+ 			       (gpu_scid << 15) | (gpu_scid << 20);
++
++		/* On A660, the SCID programming for UCHE traffic is done in
++		 * A6XX_GBIF_SCACHE_CNTL0[14:10]
++		 */
++		if (adreno_is_a660_family(adreno_gpu))
++			gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
++				(1 << 8), (gpu_scid << 10) | (1 << 8));
  	}
  
+ 	/*
+@@ -1471,13 +1478,6 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
+ 	}
+ 
+ 	gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL1, GENMASK(24, 0), cntl1_regval);
+-
+-	/* On A660, the SCID programming for UCHE traffic is done in
+-	 * A6XX_GBIF_SCACHE_CNTL0[14:10]
+-	 */
+-	if (adreno_is_a660_family(adreno_gpu))
+-		gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
+-			(1 << 8), (gpu_scid << 10) | (1 << 8));
+ }
+ 
+ static void a6xx_llc_slices_destroy(struct a6xx_gpu *a6xx_gpu)
 -- 
 2.33.0
 
