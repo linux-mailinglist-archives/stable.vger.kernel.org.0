@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CA014699A8
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:59:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 333244699AD
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 15:59:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344886AbhLFPC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:02:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53060 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344873AbhLFPC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:27 -0500
+        id S1345006AbhLFPCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:02:35 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35692 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344946AbhLFPCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:02:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42E9F612D3;
-        Mon,  6 Dec 2021 14:58:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 264F9C341C2;
-        Mon,  6 Dec 2021 14:58:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7CE3B81018;
+        Mon,  6 Dec 2021 14:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 044C3C341C2;
+        Mon,  6 Dec 2021 14:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802737;
-        bh=ZD2mWSV3ePzau/4DyXKXKwtar36HxC0s/POOFGwy+uM=;
+        s=korg; t=1638802740;
+        bh=yi6fOlp+oad04WBxMslBED6xtGxxnlk0WFoE/smujDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFZi2M7+TTbPgVA8qiRvneGrgPWbpyRdbUCZALw3TYj/M0EOPXeEmDSuiOgegK1mO
-         LvoSL7iY3tFpi1SSbCCky9GGa+yPF/1R2HBfRVrqpDh8ps2j5MDpmQ4MexF8wB83m+
-         HCKmPEDm2SWcx/nWCZBkY2VZtL6NAAa9mpEH02Iw=
+        b=Ka8e6/cpeor7UH0NxemestwplLR/19aDThYKtMkx1rizqce4tT74ffLk52n1J5GG6
+         BNcUWVvune1Hjg8kZs7igzCk02NBD9GhlS/yVfobxX9vEJ87bwvM3WOd2JmeudvjWw
+         U21KoHYONgf809mxczpWtHshozUgMXn55H4tz/fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 07/52] ALSA: ctxfi: Fix out-of-range access
-Date:   Mon,  6 Dec 2021 15:55:51 +0100
-Message-Id: <20211206145548.136936375@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.4 08/52] staging: rtl8192e: Fix use after free in _rtl92e_pci_disconnect()
+Date:   Mon,  6 Dec 2021 15:55:52 +0100
+Message-Id: <20211206145548.177462935@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
 References: <20211206145547.892668902@linuxfoundation.org>
@@ -43,181 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 76c47183224c86e4011048b80f0e2d0d166f01c2 upstream.
+commit b535917c51acc97fb0761b1edec85f1f3d02bda4 upstream.
 
-The master and next_conj of rcs_ops are used for iterating the
-resource list entries, and currently those are supposed to return the
-current value.  The problem is that next_conf may go over the last
-entry before the loop abort condition is evaluated, and it may return
-the "current" value that is beyond the array size.  It was caught
-recently as a GPF, for example.
+The free_rtllib() function frees the "dev" pointer so there is use
+after free on the next line.  Re-arrange things to avoid that.
 
-Those return values are, however, never actually evaluated, hence
-basically we don't have to consider the current value as the return at
-all.  By dropping those return values, the potential out-of-range
-access above is also fixed automatically.
-
-This patch changes the return type of master and next_conj callbacks
-to void and drop the superfluous code accordingly.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214985
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211118215729.26257-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 66898177e7e5 ("staging: rtl8192e: Fix unload/reload problem")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211117072016.GA5237@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/ctxfi/ctamixer.c   |   14 ++++++--------
- sound/pci/ctxfi/ctdaio.c     |   16 ++++++++--------
- sound/pci/ctxfi/ctresource.c |    7 +++----
- sound/pci/ctxfi/ctresource.h |    4 ++--
- sound/pci/ctxfi/ctsrc.c      |    7 +++----
- 5 files changed, 22 insertions(+), 26 deletions(-)
+ drivers/staging/rtl8192e/rtl8192e/rtl_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/ctxfi/ctamixer.c
-+++ b/sound/pci/ctxfi/ctamixer.c
-@@ -27,16 +27,15 @@
+--- a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
++++ b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
+@@ -2712,13 +2712,14 @@ static void _rtl92e_pci_disconnect(struc
+ 			free_irq(dev->irq, dev);
+ 			priv->irq = 0;
+ 		}
+-		free_rtllib(dev);
  
- #define BLANK_SLOT		4094
- 
--static int amixer_master(struct rsc *rsc)
-+static void amixer_master(struct rsc *rsc)
- {
- 	rsc->conj = 0;
--	return rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
-+	rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
- }
- 
--static int amixer_next_conj(struct rsc *rsc)
-+static void amixer_next_conj(struct rsc *rsc)
- {
- 	rsc->conj++;
--	return container_of(rsc, struct amixer, rsc)->idx[rsc->conj];
- }
- 
- static int amixer_index(const struct rsc *rsc)
-@@ -335,16 +334,15 @@ int amixer_mgr_destroy(struct amixer_mgr
- 
- /* SUM resource management */
- 
--static int sum_master(struct rsc *rsc)
-+static void sum_master(struct rsc *rsc)
- {
- 	rsc->conj = 0;
--	return rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
-+	rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
- }
- 
--static int sum_next_conj(struct rsc *rsc)
-+static void sum_next_conj(struct rsc *rsc)
- {
- 	rsc->conj++;
--	return container_of(rsc, struct sum, rsc)->idx[rsc->conj];
- }
- 
- static int sum_index(const struct rsc *rsc)
---- a/sound/pci/ctxfi/ctdaio.c
-+++ b/sound/pci/ctxfi/ctdaio.c
-@@ -55,12 +55,12 @@ static struct daio_rsc_idx idx_20k2[NUM_
- 	[SPDIFIO] = {.left = 0x05, .right = 0x85},
- };
- 
--static int daio_master(struct rsc *rsc)
-+static void daio_master(struct rsc *rsc)
- {
- 	/* Actually, this is not the resource index of DAIO.
- 	 * For DAO, it is the input mapper index. And, for DAI,
- 	 * it is the output time-slot index. */
--	return rsc->conj = rsc->idx;
-+	rsc->conj = rsc->idx;
- }
- 
- static int daio_index(const struct rsc *rsc)
-@@ -68,19 +68,19 @@ static int daio_index(const struct rsc *
- 	return rsc->conj;
- }
- 
--static int daio_out_next_conj(struct rsc *rsc)
-+static void daio_out_next_conj(struct rsc *rsc)
- {
--	return rsc->conj += 2;
-+	rsc->conj += 2;
- }
- 
--static int daio_in_next_conj_20k1(struct rsc *rsc)
-+static void daio_in_next_conj_20k1(struct rsc *rsc)
- {
--	return rsc->conj += 0x200;
-+	rsc->conj += 0x200;
- }
- 
--static int daio_in_next_conj_20k2(struct rsc *rsc)
-+static void daio_in_next_conj_20k2(struct rsc *rsc)
- {
--	return rsc->conj += 0x100;
-+	rsc->conj += 0x100;
- }
- 
- static const struct rsc_ops daio_out_rsc_ops = {
---- a/sound/pci/ctxfi/ctresource.c
-+++ b/sound/pci/ctxfi/ctresource.c
-@@ -113,18 +113,17 @@ static int audio_ring_slot(const struct
-     return (rsc->conj << 4) + offset_in_audio_slot_block[rsc->type];
- }
- 
--static int rsc_next_conj(struct rsc *rsc)
-+static void rsc_next_conj(struct rsc *rsc)
- {
- 	unsigned int i;
- 	for (i = 0; (i < 8) && (!(rsc->msr & (0x1 << i))); )
- 		i++;
- 	rsc->conj += (AUDIO_SLOT_BLOCK_NUM >> i);
--	return rsc->conj;
- }
- 
--static int rsc_master(struct rsc *rsc)
-+static void rsc_master(struct rsc *rsc)
- {
--	return rsc->conj = rsc->idx;
-+	rsc->conj = rsc->idx;
- }
- 
- static const struct rsc_ops rsc_generic_ops = {
---- a/sound/pci/ctxfi/ctresource.h
-+++ b/sound/pci/ctxfi/ctresource.h
-@@ -43,8 +43,8 @@ struct rsc {
- };
- 
- struct rsc_ops {
--	int (*master)(struct rsc *rsc);	/* Move to master resource */
--	int (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
-+	void (*master)(struct rsc *rsc); /* Move to master resource */
-+	void (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
- 	int (*index)(const struct rsc *rsc); /* Return the index of resource */
- 	/* Return the output slot number */
- 	int (*output_slot)(const struct rsc *rsc);
---- a/sound/pci/ctxfi/ctsrc.c
-+++ b/sound/pci/ctxfi/ctsrc.c
-@@ -594,16 +594,15 @@ int src_mgr_destroy(struct src_mgr *src_
- 
- /* SRCIMP resource manager operations */
- 
--static int srcimp_master(struct rsc *rsc)
-+static void srcimp_master(struct rsc *rsc)
- {
- 	rsc->conj = 0;
--	return rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
-+	rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
- }
- 
--static int srcimp_next_conj(struct rsc *rsc)
-+static void srcimp_next_conj(struct rsc *rsc)
- {
- 	rsc->conj++;
--	return container_of(rsc, struct srcimp, rsc)->idx[rsc->conj];
- }
- 
- static int srcimp_index(const struct rsc *rsc)
+ 		if (dev->mem_start != 0) {
+ 			iounmap((void __iomem *)dev->mem_start);
+ 			release_mem_region(pci_resource_start(pdev, 1),
+ 					pci_resource_len(pdev, 1));
+ 		}
++
++		free_rtllib(dev);
+ 	} else {
+ 		priv = rtllib_priv(dev);
+ 	}
 
 
