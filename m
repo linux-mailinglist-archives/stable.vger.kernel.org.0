@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E79B0469CB6
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:21:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2439D469F27
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358569AbhLFPYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:24:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55652 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356797AbhLFPWk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:22:40 -0500
+        id S1391463AbhLFPpq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:45:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33586 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390589AbhLFPme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE6BC08ED1E;
+        Mon,  6 Dec 2021 07:28:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4554EB8101B;
-        Mon,  6 Dec 2021 15:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D375C341C2;
-        Mon,  6 Dec 2021 15:19:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 043C96130D;
+        Mon,  6 Dec 2021 15:28:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA2A5C34901;
+        Mon,  6 Dec 2021 15:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803948;
-        bh=mVftqV1q0gOXL+0A6YmIFG3davRU4mRyQFOw+onj8Xk=;
+        s=korg; t=1638804523;
+        bh=T729lqUbBFVLAGEbP2kGpTioLNrsM+4cHXoaTWVQ040=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8LcW+xKGRtWwXMJdIcV9QaQ1wPqYGXIHA7awo17+959qmprj3zzptj6uCjlhOgxx
-         KwjymE8wedJDSfsE/liRyJwFfHmUaViSz6kwtFgsHif9GKLQ92h4H2m7hZclE0QlPt
-         bbdiCmHvgEunenG6TgYlj2d+rlDIZPyW66zn+pe4=
+        b=DrjW2fSVT82iG92ZTIRYQXyGyz0nIF8cVwOm015pEUivx1sbM8IPlg9FDqHiCou1Q
+         j6IUHMgPZdmPAm71XlsFUAG+jWR2EldKWRDO3R8utSoAS9SMQcAnKA/nBUXcOV/IwH
+         UxRmFCwB6rzPPyPFgfHCyRuxlIcqLrUYe4oxqcDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Zhijian <lizhijian@cn.fujitsu.com>,
+        stable@vger.kernel.org,
+        William Kucharski <william.kucharski@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 072/130] selftests: net: Correct case name
+Subject: [PATCH 5.15 135/207] net/rds: correct socket tunable error in rds_tcp_tune()
 Date:   Mon,  6 Dec 2021 15:56:29 +0100
-Message-Id: <20211206145602.162449363@linuxfoundation.org>
+Message-Id: <20211206145614.910240017@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
-References: <20211206145559.607158688@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +49,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Zhijian <lizhijian@cn.fujitsu.com>
+From: William Kucharski <william.kucharski@oracle.com>
 
-commit a05431b22be819d75db72ca3d44381d18a37b092 upstream.
+commit 19f36edf14bcdb783aef3af8217df96f76a8ce34 upstream.
 
-ipv6_addr_bind/ipv4_addr_bind are function names. Previously, bind test
-would not be run by default due to the wrong case names
+Correct an error where setting /proc/sys/net/rds/tcp/rds_tcp_rcvbuf would
+instead modify the socket's sk_sndbuf and would leave sk_rcvbuf untouched.
 
-Fixes: 34d0302ab861 ("selftests: Add ipv6 address bind tests to fcnal-test")
-Fixes: 75b2b2b3db4c ("selftests: Add ipv4 address bind tests to fcnal-test")
-Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+Fixes: c6a58ffed536 ("RDS: TCP: Add sysctl tunables for sndbuf/rcvbuf on rds-tcp socket")
+Signed-off-by: William Kucharski <william.kucharski@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/fcnal-test.sh |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/rds/tcp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/net/fcnal-test.sh
-+++ b/tools/testing/selftests/net/fcnal-test.sh
-@@ -3911,8 +3911,8 @@ EOF
- ################################################################################
- # main
- 
--TESTS_IPV4="ipv4_ping ipv4_tcp ipv4_udp ipv4_addr_bind ipv4_runtime ipv4_netfilter"
--TESTS_IPV6="ipv6_ping ipv6_tcp ipv6_udp ipv6_addr_bind ipv6_runtime ipv6_netfilter"
-+TESTS_IPV4="ipv4_ping ipv4_tcp ipv4_udp ipv4_bind ipv4_runtime ipv4_netfilter"
-+TESTS_IPV6="ipv6_ping ipv6_tcp ipv6_udp ipv6_bind ipv6_runtime ipv6_netfilter"
- TESTS_OTHER="use_cases"
- 
- PAUSE_ON_FAIL=no
+--- a/net/rds/tcp.c
++++ b/net/rds/tcp.c
+@@ -500,7 +500,7 @@ void rds_tcp_tune(struct socket *sock)
+ 		sk->sk_userlocks |= SOCK_SNDBUF_LOCK;
+ 	}
+ 	if (rtn->rcvbuf_size > 0) {
+-		sk->sk_sndbuf = rtn->rcvbuf_size;
++		sk->sk_rcvbuf = rtn->rcvbuf_size;
+ 		sk->sk_userlocks |= SOCK_RCVBUF_LOCK;
+ 	}
+ 	release_sock(sk);
 
 
