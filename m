@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E486C469EBB
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30284469C41
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357484AbhLFPnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:43:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59836 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378126AbhLFPiM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:38:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0BD6C08EB1C;
-        Mon,  6 Dec 2021 07:23:57 -0800 (PST)
+        id S1345684AbhLFPVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37244 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357738AbhLFPSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CE20612D7;
-        Mon,  6 Dec 2021 15:23:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CFECC341C1;
-        Mon,  6 Dec 2021 15:23:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 765DD612C1;
+        Mon,  6 Dec 2021 15:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C6C2C341C2;
+        Mon,  6 Dec 2021 15:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804236;
-        bh=aSJsFwpPZ/SdWJIBamB3K0O9vDp+iwRH3ZnrnaxmmkU=;
+        s=korg; t=1638803691;
+        bh=8l6fi617/ftVLVklsrmDF2rpIJVJlnvqWh4LFjj0Eh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gLuxdSEWB2i1jlD7Rc3/VEHKvlBKaiqeinw8rYaEamn5EXbz3yk9l/Ow4KsZFxgBZ
-         V0AF6fEaAdNjZ59iwO72f4WCqlmzYasm/zu/vjmLrSCVATbDrNZ5GBOzsQphIXtH4+
-         Y/o2qGzTILi2hJ0CqXrvk1PeBGlG5UJR/thNh5/o=
+        b=Iz2hAMvEIREEPwr/aL3B17zJy/GdrkN1obE5MMIxNn5XpE4QBfZkYfeKMDTmSidzF
+         ViEff5NpOYxFLaFHPcB3VuF6tPBbZcncax5N+WM693Ptoa9W2QV2mpFSZ71QX8TQFC
+         QtlE15hScFMkf3ayBUNgaMkSAr+vvQaz9O5gFTXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lai Jiangshan <jiangshanlai+lkml@gmail.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 076/207] KVM: nVMX: Flush current VPID (L1 vs. L2) for KVM_REQ_TLB_FLUSH_GUEST
+        stable@vger.kernel.org, Jimmy Wang <jimmy221b@163.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 013/130] platform/x86: thinkpad_acpi: Add support for dual fan control
 Date:   Mon,  6 Dec 2021 15:55:30 +0100
-Message-Id: <20211206145612.858316200@linuxfoundation.org>
+Message-Id: <20211206145600.081783662@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,81 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Jimmy Wang <jimmy221b@163.com>
 
-commit 2b4a5a5d56881ece3c66b9a9a8943a6f41bd7349 upstream.
+[ Upstream commit 1f338954a5fbe21eb22b4223141e31f2a26366d5 ]
 
-Flush the current VPID when handling KVM_REQ_TLB_FLUSH_GUEST instead of
-always flushing vpid01.  Any TLB flush that is triggered when L2 is
-active is scoped to L2's VPID (if it has one), e.g. if L2 toggles CR4.PGE
-and L1 doesn't intercept PGE writes, then KVM's emulation of the TLB
-flush needs to be applied to L2's VPID.
+   This adds dual fan control for P1 / X1 Extreme Gen4
 
-Reported-by: Lai Jiangshan <jiangshanlai+lkml@gmail.com>
-Fixes: 07ffaf343e34 ("KVM: nVMX: Sync all PGDs on nested transition with shadow paging")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211125014944.536398-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jimmy Wang <jimmy221b@163.com>
+Link: https://lore.kernel.org/r/20211105090528.39677-1-jimmy221b@163.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2916,6 +2916,13 @@ static void vmx_flush_tlb_all(struct kvm
- 	}
- }
- 
-+static inline int vmx_get_current_vpid(struct kvm_vcpu *vcpu)
-+{
-+	if (is_guest_mode(vcpu))
-+		return nested_get_vpid02(vcpu);
-+	return to_vmx(vcpu)->vpid;
-+}
-+
- static void vmx_flush_tlb_current(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_mmu *mmu = vcpu->arch.mmu;
-@@ -2928,31 +2935,29 @@ static void vmx_flush_tlb_current(struct
- 	if (enable_ept)
- 		ept_sync_context(construct_eptp(vcpu, root_hpa,
- 						mmu->shadow_root_level));
--	else if (!is_guest_mode(vcpu))
--		vpid_sync_context(to_vmx(vcpu)->vpid);
- 	else
--		vpid_sync_context(nested_get_vpid02(vcpu));
-+		vpid_sync_context(vmx_get_current_vpid(vcpu));
- }
- 
- static void vmx_flush_tlb_gva(struct kvm_vcpu *vcpu, gva_t addr)
- {
- 	/*
--	 * vpid_sync_vcpu_addr() is a nop if vmx->vpid==0, see the comment in
-+	 * vpid_sync_vcpu_addr() is a nop if vpid==0, see the comment in
- 	 * vmx_flush_tlb_guest() for an explanation of why this is ok.
- 	 */
--	vpid_sync_vcpu_addr(to_vmx(vcpu)->vpid, addr);
-+	vpid_sync_vcpu_addr(vmx_get_current_vpid(vcpu), addr);
- }
- 
- static void vmx_flush_tlb_guest(struct kvm_vcpu *vcpu)
- {
- 	/*
--	 * vpid_sync_context() is a nop if vmx->vpid==0, e.g. if enable_vpid==0
--	 * or a vpid couldn't be allocated for this vCPU.  VM-Enter and VM-Exit
--	 * are required to flush GVA->{G,H}PA mappings from the TLB if vpid is
-+	 * vpid_sync_context() is a nop if vpid==0, e.g. if enable_vpid==0 or a
-+	 * vpid couldn't be allocated for this vCPU.  VM-Enter and VM-Exit are
-+	 * required to flush GVA->{G,H}PA mappings from the TLB if vpid is
- 	 * disabled (VM-Enter with vpid enabled and vpid==0 is disallowed),
- 	 * i.e. no explicit INVVPID is necessary.
- 	 */
--	vpid_sync_context(to_vmx(vcpu)->vpid);
-+	vpid_sync_context(vmx_get_current_vpid(vcpu));
- }
- 
- void vmx_ept_load_pdptrs(struct kvm_vcpu *vcpu)
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 2a313643e0388..840bbc312aedd 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -8805,6 +8805,7 @@ static const struct tpacpi_quirk fan_quirk_table[] __initconst = {
+ 	TPACPI_Q_LNV3('N', '2', 'E', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (1st gen) */
+ 	TPACPI_Q_LNV3('N', '2', 'O', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (2nd gen) */
+ 	TPACPI_Q_LNV3('N', '2', 'V', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (3nd gen) */
++	TPACPI_Q_LNV3('N', '4', '0', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (4nd gen) */
+ 	TPACPI_Q_LNV3('N', '3', '0', TPACPI_FAN_2CTL),	/* P15 (1st gen) / P15v (1st gen) */
+ 	TPACPI_Q_LNV3('N', '3', '2', TPACPI_FAN_2CTL),	/* X1 Carbon (9th gen) */
+ };
+-- 
+2.33.0
+
 
 
