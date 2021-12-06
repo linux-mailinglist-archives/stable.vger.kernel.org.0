@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E280469B6E
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4B7469ABB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350498AbhLFPR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49186 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357807AbhLFPQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:17 -0500
+        id S1347954AbhLFPJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:09:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52972 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345947AbhLFPHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:07:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5157DC0698C2;
+        Mon,  6 Dec 2021 07:03:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 659C7B81118;
-        Mon,  6 Dec 2021 15:12:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978CEC341C2;
-        Mon,  6 Dec 2021 15:12:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6F9C61342;
+        Mon,  6 Dec 2021 15:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7EEAC341C1;
+        Mon,  6 Dec 2021 15:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803566;
-        bh=g5vzduTfSGynRVeX59VVaxoshbzTsTbElMLPzfqW/JI=;
+        s=korg; t=1638803011;
+        bh=fzhFtjV0JZA5MKmOFmqC9SL+v6z0pKoJd1YZyse+dYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tuVUJGHtJvBGKLi/jRhU/P7fFx2cd960/KChIvwqBauQmL/Lx+Ns00egj7mhH0ka4
-         inn9W7oGr2hl+SAkne/y+Ah6bLSKBIwv0p3YsGLSCAywM23ull+e1zoaAFXnOkV0zP
-         t+1evv7BOmSy97/RWWkTjUAkxTkIUyzciQCfLpIQ=
+        b=U/mF2Oq4O5PQBagOvPjwzh2e0DQr/Z+3CWhHu58pzVOdEO7gze1/BgjIrf+9fD6LL
+         SI1FlvDdMp++kbz2N0B9KOv5P4lCtpdvpqPw9yF0v00DMsv0QXHsniR8BMBttUKck0
+         jWIZJKdLA/RnznMzZmHd//08Zun2rijhqDQxryLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 39/70] siphash: use _unaligned version by default
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 4.9 60/62] tty: serial: msm_serial: Deactivate RX DMA for polling support
 Date:   Mon,  6 Dec 2021 15:56:43 +0100
-Message-Id: <20211206145553.278446223@linuxfoundation.org>
+Message-Id: <20211206145551.285722826@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145549.155163074@linuxfoundation.org>
+References: <20211206145549.155163074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,185 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit f7e5b9bfa6c8820407b64eabc1f29c9a87e8993d upstream.
+commit 7492ffc90fa126afb67d4392d56cb4134780194a upstream.
 
-On ARM v6 and later, we define CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-because the ordinary load/store instructions (ldr, ldrh, ldrb) can
-tolerate any misalignment of the memory address. However, load/store
-double and load/store multiple instructions (ldrd, ldm) may still only
-be used on memory addresses that are 32-bit aligned, and so we have to
-use the CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS macro with care, or we
-may end up with a severe performance hit due to alignment traps that
-require fixups by the kernel. Testing shows that this currently happens
-with clang-13 but not gcc-11. In theory, any compiler version can
-produce this bug or other problems, as we are dealing with undefined
-behavior in C99 even on architectures that support this in hardware,
-see also https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363.
+The CONSOLE_POLLING mode is used for tools like k(g)db. In this kind of
+setup, it is often sharing a serial device with the normal system console.
+This is usually no problem because the polling helpers can consume input
+values directly (when in kgdb context) and the normal Linux handlers can
+only consume new input values after kgdb switched back.
 
-Fortunately, the get_unaligned() accessors do the right thing: when
-building for ARMv6 or later, the compiler will emit unaligned accesses
-using the ordinary load/store instructions (but avoid the ones that
-require 32-bit alignment). When building for older ARM, those accessors
-will emit the appropriate sequence of ldrb/mov/orr instructions. And on
-architectures that can truly tolerate any kind of misalignment, the
-get_unaligned() accessors resolve to the leXX_to_cpup accessors that
-operate on aligned addresses.
+This is not true anymore when RX DMA is enabled for UARTDM controllers.
+Single input values can no longer be received correctly. Instead following
+seems to happen:
 
-Since the compiler will in fact emit ldrd or ldm instructions when
-building this code for ARM v6 or later, the solution is to use the
-unaligned accessors unconditionally on architectures where this is
-known to be fast. The _aligned version of the hash function is
-however still needed to get the best performance on architectures
-that cannot do any unaligned access in hardware.
+* on 1. input, some old input is read (continuously)
+* on 2. input, two old inputs are read (continuously)
+* on 3. input, three old input values are read (continuously)
+* on 4. input, 4 previous inputs are received
 
-This new version avoids the undefined behavior and should produce
-the fastest hash on all architectures we support.
+This repeats then for each group of 4 input values.
 
-Link: https://lore.kernel.org/linux-arm-kernel/20181008211554.5355-4-ard.biesheuvel@linaro.org/
-Link: https://lore.kernel.org/linux-crypto/CAK8P3a2KfmmGDbVHULWevB0hv71P2oi2ZCHEAqT=8dQfa0=cqQ@mail.gmail.com/
-Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Fixes: 2c956a60778c ("siphash: add cryptographically secure PRF")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This behavior changes slightly depending on what state the controller was
+when the first input was received. But this makes working with kgdb
+basically impossible because control messages are always corrupted when
+kgdboc tries to parse them.
+
+RX DMA should therefore be off when CONSOLE_POLLING is enabled to avoid
+these kind of problems. No such problem was noticed for TX DMA.
+
+Fixes: 99693945013a ("tty: serial: msm: Add RX DMA support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Link: https://lore.kernel.org/r/20211113121050.7266-1-sven@narfation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/siphash.h |   14 ++++----------
- lib/siphash.c           |   12 ++++++------
- 2 files changed, 10 insertions(+), 16 deletions(-)
+ drivers/tty/serial/msm_serial.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/linux/siphash.h
-+++ b/include/linux/siphash.h
-@@ -27,9 +27,7 @@ static inline bool siphash_key_is_zero(c
- }
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -611,6 +611,9 @@ static void msm_start_rx_dma(struct msm_
+ 	u32 val;
+ 	int ret;
  
- u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key);
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key);
--#endif
++	if (IS_ENABLED(CONFIG_CONSOLE_POLL))
++		return;
++
+ 	if (!dma->chan)
+ 		return;
  
- u64 siphash_1u64(const u64 a, const siphash_key_t *key);
- u64 siphash_2u64(const u64 a, const u64 b, const siphash_key_t *key);
-@@ -82,10 +80,9 @@ static inline u64 ___siphash_aligned(con
- static inline u64 siphash(const void *data, size_t len,
- 			  const siphash_key_t *key)
- {
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
--	if (!IS_ALIGNED((unsigned long)data, SIPHASH_ALIGNMENT))
-+	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) ||
-+	    !IS_ALIGNED((unsigned long)data, SIPHASH_ALIGNMENT))
- 		return __siphash_unaligned(data, len, key);
--#endif
- 	return ___siphash_aligned(data, len, key);
- }
- 
-@@ -96,10 +93,8 @@ typedef struct {
- 
- u32 __hsiphash_aligned(const void *data, size_t len,
- 		       const hsiphash_key_t *key);
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_unaligned(const void *data, size_t len,
- 			 const hsiphash_key_t *key);
--#endif
- 
- u32 hsiphash_1u32(const u32 a, const hsiphash_key_t *key);
- u32 hsiphash_2u32(const u32 a, const u32 b, const hsiphash_key_t *key);
-@@ -135,10 +130,9 @@ static inline u32 ___hsiphash_aligned(co
- static inline u32 hsiphash(const void *data, size_t len,
- 			   const hsiphash_key_t *key)
- {
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
--	if (!IS_ALIGNED((unsigned long)data, HSIPHASH_ALIGNMENT))
-+	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) ||
-+	    !IS_ALIGNED((unsigned long)data, HSIPHASH_ALIGNMENT))
- 		return __hsiphash_unaligned(data, len, key);
--#endif
- 	return ___hsiphash_aligned(data, len, key);
- }
- 
---- a/lib/siphash.c
-+++ b/lib/siphash.c
-@@ -49,6 +49,7 @@
- 	SIPROUND; \
- 	return (v0 ^ v1) ^ (v2 ^ v3);
- 
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u64));
-@@ -80,8 +81,8 @@ u64 __siphash_aligned(const void *data,
- 	POSTAMBLE
- }
- EXPORT_SYMBOL(__siphash_aligned);
-+#endif
- 
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u64));
-@@ -113,7 +114,6 @@ u64 __siphash_unaligned(const void *data
- 	POSTAMBLE
- }
- EXPORT_SYMBOL(__siphash_unaligned);
--#endif
- 
- /**
-  * siphash_1u64 - compute 64-bit siphash PRF value of a u64
-@@ -250,6 +250,7 @@ EXPORT_SYMBOL(siphash_3u32);
- 	HSIPROUND; \
- 	return (v0 ^ v1) ^ (v2 ^ v3);
- 
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u64));
-@@ -280,8 +281,8 @@ u32 __hsiphash_aligned(const void *data,
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_aligned);
-+#endif
- 
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_unaligned(const void *data, size_t len,
- 			 const hsiphash_key_t *key)
- {
-@@ -313,7 +314,6 @@ u32 __hsiphash_unaligned(const void *dat
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_unaligned);
--#endif
- 
- /**
-  * hsiphash_1u32 - compute 64-bit hsiphash PRF value of a u32
-@@ -418,6 +418,7 @@ EXPORT_SYMBOL(hsiphash_4u32);
- 	HSIPROUND; \
- 	return v1 ^ v3;
- 
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u32));
-@@ -438,8 +439,8 @@ u32 __hsiphash_aligned(const void *data,
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_aligned);
-+#endif
- 
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_unaligned(const void *data, size_t len,
- 			 const hsiphash_key_t *key)
- {
-@@ -461,7 +462,6 @@ u32 __hsiphash_unaligned(const void *dat
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_unaligned);
--#endif
- 
- /**
-  * hsiphash_1u32 - compute 32-bit hsiphash PRF value of a u32
 
 
