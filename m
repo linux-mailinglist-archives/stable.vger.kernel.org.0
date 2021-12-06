@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5BD469D7C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:33:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8756B469EB5
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350752AbhLFP34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:29:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44126 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348578AbhLFP1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:27:01 -0500
+        id S1380004AbhLFPnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:43:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1389372AbhLFPhm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:37:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F358C08EAE6;
+        Mon,  6 Dec 2021 07:23:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69BDD612EB;
-        Mon,  6 Dec 2021 15:23:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44807C341E7;
-        Mon,  6 Dec 2021 15:23:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD3E4B81125;
+        Mon,  6 Dec 2021 15:23:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 204E2C33AE4;
+        Mon,  6 Dec 2021 15:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804211;
-        bh=jK80ZHaxoeA8DYw/BapI3GJl6uWcr+lliEp3Ys1Uwmo=;
+        s=korg; t=1638804214;
+        bh=ViCM4pw7ivH3Q4x7TTU2A5lvG5xOLkS0I4EGkHXvdtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HVkYYPQ5CI4+DZ3FRgnBuwvIw2NPzlUU42mr0dbKlU3Yu22zM6Qep1hqI7z66eNZZ
-         EfY3tzQ8mBtHaXCcOJwYqIgQze5PDOREjbXLq0/Dr2OO2k4UeS48MG5GqA9/lOJBzb
-         D+rLg5RAyIqtGyua2c8MToJSpqdi1+7GNqcU65i8=
+        b=dZLsiVjLlhrQEa83mYKbHAU/d6VNk8olcTwpXahgVIcSBFyGGMoulxhs9pkDgA+B8
+         lBdYWnIjeWYhtc/yUWJFIaQd5qJl/Shcg3/zVTTB64G136B/C7iROKTTyC39bZ8Nvt
+         M59ufBSxNa5CiJ/a6FtluC3N0oXY4r/Y1h+JjG7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
+        stable@vger.kernel.org, shaoyunl <shaoyun.liu@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/207] drm/amd/pm: Remove artificial freq level on Navi1x
-Date:   Mon,  6 Dec 2021 15:54:48 +0100
-Message-Id: <20211206145611.403769524@linuxfoundation.org>
+Subject: [PATCH 5.15 035/207] drm/amd/amdkfd: Fix kernel panic when reset failed and been triggered again
+Date:   Mon,  6 Dec 2021 15:54:49 +0100
+Message-Id: <20211206145611.441344495@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -46,57 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijo Lazar <lijo.lazar@amd.com>
+From: shaoyunl <shaoyun.liu@amd.com>
 
-[ Upstream commit be83a5676767c99c2417083c29d42aa1e109a69d ]
+[ Upstream commit 2cf49e00d40d5132e3d067b5aa6d84791929ab15 ]
 
-Print Navi1x fine grained clocks in a consistent manner with other SOCs.
-Don't show aritificial DPM level when the current clock equals min or max.
+In SRIOV configuration, the reset may failed to bring asic back to normal but stop cpsch
+already been called, the start_cpsch will not be called since there is no resume in this
+case.  When reset been triggered again, driver should avoid to do uninitialization again.
 
-Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: shaoyunl <shaoyun.liu@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-index b1ad451af06bd..dfba0bc732073 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
-@@ -1265,7 +1265,7 @@ static int navi10_print_clk_levels(struct smu_context *smu,
- 			enum smu_clk_type clk_type, char *buf)
- {
- 	uint16_t *curve_settings;
--	int i, size = 0, ret = 0;
-+	int i, levels, size = 0, ret = 0;
- 	uint32_t cur_value = 0, value = 0, count = 0;
- 	uint32_t freq_values[3] = {0};
- 	uint32_t mark_index = 0;
-@@ -1319,14 +1319,17 @@ static int navi10_print_clk_levels(struct smu_context *smu,
- 			freq_values[1] = cur_value;
- 			mark_index = cur_value == freq_values[0] ? 0 :
- 				     cur_value == freq_values[2] ? 2 : 1;
--			if (mark_index != 1)
--				freq_values[1] = (freq_values[0] + freq_values[2]) / 2;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+index f8fce9d05f50c..4f2e0cc8a51a8 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -1225,6 +1225,11 @@ static int stop_cpsch(struct device_queue_manager *dqm)
+ 	bool hanging;
  
--			for (i = 0; i < 3; i++) {
-+			levels = 3;
-+			if (mark_index != 1) {
-+				levels = 2;
-+				freq_values[1] = freq_values[2];
-+			}
+ 	dqm_lock(dqm);
++	if (!dqm->sched_running) {
++		dqm_unlock(dqm);
++		return 0;
++	}
 +
-+			for (i = 0; i < levels; i++) {
- 				size += sysfs_emit_at(buf, size, "%d: %uMhz %s\n", i, freq_values[i],
- 						i == mark_index ? "*" : "");
- 			}
--
- 		}
- 		break;
- 	case SMU_PCIE:
+ 	if (!dqm->is_hws_hang)
+ 		unmap_queues_cpsch(dqm, KFD_UNMAP_QUEUES_FILTER_ALL_QUEUES, 0);
+ 	hanging = dqm->is_hws_hang || dqm->is_resetting;
 -- 
 2.33.0
 
