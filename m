@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A3F4469B96
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD96469BAB
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346437AbhLFPR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48672 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356472AbhLFPPf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:35 -0500
+        id S1356345AbhLFPSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:18:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54654 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357994AbhLFPQX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D180C08EC0A;
+        Mon,  6 Dec 2021 07:08:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AAE4B81018;
-        Mon,  6 Dec 2021 15:12:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4316C341C1;
-        Mon,  6 Dec 2021 15:12:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF2786132B;
+        Mon,  6 Dec 2021 15:08:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A36E9C341C5;
+        Mon,  6 Dec 2021 15:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803524;
-        bh=VupvxSCXWE50aePXNjfAa+vMquu+O1Wl/HPNVvY7huc=;
+        s=korg; t=1638803331;
+        bh=Yibu21T4UbpkU3YOXbQDC588MDn3gZHuhxgP5kuPwHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KQTKesvrtA69asQr8cB9jA7yQLEbYElA+zMs/vSkmU+v9frKJZ41bzEn7skXnPUWU
-         WKqnDxcQxp8VMqYNLn0g90p2e7rDSQkZgVeKXNudyZzV0CMdLxxC39uBsL+AbmsCLP
-         ifCf/jtSYbJhCgCWewzJ65Ga04gtGETZ73xItsh4=
+        b=BFUX8h7trOjTor+QdFYLc5JiwqR26/xOn6ERqvasAHAbyQCeTZU+a8Nhu8yIG10eu
+         VYbYQWCiH9HKWQslfSyvuOR0WgIsNsdfX0+nTsYrD/1Jl/MOLP6ltiRkJczH+SpXuJ
+         9oJWJ0mo3PTLlSMFym95nUIYZNnyiRRWOvwTTjHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 23/70] vrf: Reset IPCB/IP6CB when processing outbound pkts in vrf dev xmit
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Teng Qi <starmiku1207184332@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 079/106] ethernet: hisilicon: hns: hns_dsaf_misc: fix a possible array overflow in hns_dsaf_ge_srst_by_port()
 Date:   Mon,  6 Dec 2021 15:56:27 +0100
-Message-Id: <20211206145552.721093210@linuxfoundation.org>
+Message-Id: <20211206145558.221643930@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Teng Qi <starmiku1207184332@gmail.com>
 
-commit ee201011c1e1563c114a55c86eb164b236f18e84 upstream.
+[ Upstream commit a66998e0fbf213d47d02813b9679426129d0d114 ]
 
-IPCB/IP6CB need to be initialized when processing outbound v4 or v6 pkts
-in the codepath of vrf device xmit function so that leftover garbage
-doesn't cause futher code that uses the CB to incorrectly process the
-pkt.
+The if statement:
+  if (port >= DSAF_GE_NUM)
+        return;
 
-One occasion of the issue might occur when MPLS route uses the vrf
-device as the outgoing device such as when the route is added using "ip
--f mpls route add <label> dev <vrf>" command.
+limits the value of port less than DSAF_GE_NUM (i.e., 8).
+However, if the value of port is 6 or 7, an array overflow could occur:
+  port_rst_off = dsaf_dev->mac_cb[port]->port_rst_off;
 
-The problems seems to exist since day one. Hence I put the day one
-commits on the Fixes tags.
+because the length of dsaf_dev->mac_cb is DSAF_MAX_PORT_NUM (i.e., 6).
 
-Fixes: 193125dbd8eb ("net: Introduce VRF device driver")
-Fixes: 35402e313663 ("net: Add IPv6 support to VRF device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211130162637.3249-1-ssuryaextr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this possible array overflow, we first check port and if it is
+greater than or equal to DSAF_MAX_PORT_NUM, the function returns.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -221,6 +221,7 @@ static netdev_tx_t vrf_process_v6_outbou
- 	/* strip the ethernet header added for pass through VRF device */
- 	__skb_pull(skb, skb_network_offset(skb));
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
+index 408b63faf9a81..c4e56784ed1b8 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
+@@ -336,6 +336,10 @@ static void hns_dsaf_ge_srst_by_port(struct dsaf_device *dsaf_dev, u32 port,
+ 		return;
  
-+	memset(IP6CB(skb), 0, sizeof(*IP6CB(skb)));
- 	ret = vrf_ip6_local_out(net, skb->sk, skb);
- 	if (unlikely(net_xmit_eval(ret)))
- 		dev->stats.tx_errors++;
-@@ -304,6 +305,7 @@ static netdev_tx_t vrf_process_v4_outbou
- 					       RT_SCOPE_LINK);
- 	}
- 
-+	memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
- 	ret = vrf_ip_local_out(dev_net(skb_dst(skb)->dev), skb->sk, skb);
- 	if (unlikely(net_xmit_eval(ret)))
- 		vrf_dev->stats.tx_errors++;
+ 	if (!HNS_DSAF_IS_DEBUG(dsaf_dev)) {
++		/* DSAF_MAX_PORT_NUM is 6, but DSAF_GE_NUM is 8.
++		   We need check to prevent array overflow */
++		if (port >= DSAF_MAX_PORT_NUM)
++			return;
+ 		reg_val_1  = 0x1 << port;
+ 		port_rst_off = dsaf_dev->mac_cb[port]->port_rst_off;
+ 		/* there is difference between V1 and V2 in register.*/
+-- 
+2.33.0
+
 
 
