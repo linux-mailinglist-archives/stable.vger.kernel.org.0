@@ -2,70 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5077846A922
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:08:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C22646A93F
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:12:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350164AbhLFVL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:11:59 -0500
-Received: from mout.gmx.net ([212.227.15.18]:45151 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350115AbhLFVLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Dec 2021 16:11:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1638824904;
-        bh=maLZ3Znb1Sa8qn/6rEAhsCpfmY5KmmUj7CtaI/2QRkg=;
-        h=X-UI-Sender-Class:Date:From:Subject:To;
-        b=F6QevkJmBD1W3j6WcT6RqSgcimQafch4AfaXEiGMJCj/VQdFy9hyyi0SuN0S1Sfrr
-         KiImnBjSkj8p8WrOJFJJNjHRNdnIL315Zp6rgRrhH6uM4OMOTwbsukrWP63vOQVfy9
-         tAC81DoIuj/NTawME6SZNA0LrwbkoJm/11hJOlXQ=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.35.26]) by mail.gmx.net (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M6llE-1murrC0fAE-008MSl for
- <stable@vger.kernel.org>; Mon, 06 Dec 2021 22:08:24 +0100
-Message-ID: <a249ac61-801f-ebd0-0218-f57a771de24b@gmx.de>
-Date:   Mon, 6 Dec 2021 22:08:23 +0100
+        id S1350304AbhLFVQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:16:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58170 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350300AbhLFVQM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:16:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40847C0611F7;
+        Mon,  6 Dec 2021 13:12:43 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFD0AB81197;
+        Mon,  6 Dec 2021 21:12:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78741C341C1;
+        Mon,  6 Dec 2021 21:12:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638825160;
+        bh=T3yRgLCp/9PEM/7fq9iom2T9g59mfQVQIxFhlGFfXrk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kMQEt491P7M15oVAYo3wvGtQ6dZh9gMLu0+smRayXJj6KUvwpbG7E1FqTyOgKqYO5
+         IQzub8eN5COg6bNdmp/03UUPl6TOCBKenMzsXqVSpYHI92Caxxelw0yqfgqzU43xGq
+         jffiGpyTVPZK1D7cpC8PiZa3t/oHcMk6YflGw7lQWbrHS0atzX7+MRwqv5g/4h78Q4
+         NqkaaZZqQYXFkwvsJNfFEuj6RId2W/1bZRqQitGBiEDowEA+1DsJ2BinQgVwYBzbkc
+         q/GYriYoTsp2dvWUwtq3i2kTIw41luhofh4PMib08y0q7WUVcHxUzE26pP64zG99bM
+         c/9p1Xd48/CeA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Akhil P Oommen <akhilpo@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
+        sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 01/24] drm/msm: Fix null ptr access msm_ioctl_gem_submit()
+Date:   Mon,  6 Dec 2021 16:12:06 -0500
+Message-Id: <20211206211230.1660072-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-Subject: Re: [PATCH 5.15 000/207] 5.15.7-rc1 review
-To:     stable@vger.kernel.org
-Content-Language: de-DE
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:2MiGPzHqZbUDFad8CgG2iYqE3VtPchdEjWxVjo2RmFb6SaSUXGQ
- zX35QIPwEmc3od7JhJpaTuF5qeI4EY3jwERCuSD3NkjXqIJp/+/IHIMAzpUwYA+N2PtSasd
- EEfULvMgq36Qjh1Se+znjRF9sqq/qyXY/OgTolpbGY7/9y439mKc2yh+NtCWyjoRXhQCclD
- vschJeXSLC4kVO+z1g+eQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:xcjUHmTXCTM=:d2FQ81nRcXW2v5UwCnNmUk
- ae76aZPXybWJB67vlzwTZ3sE2IyfXWYUgkEeVdYF6KslVtdE9TrmzaGtY95L2e9tfAZx+zE5X
- XTAKs6Je7tQwlc7OrBgHXzbj2ISpdGuok8V4kWm5rl/tg7Yw5UA3A6hDp7i7A6vOGL88nY0Yq
- NGnFF3dDlt8AKKXrZx7D3eAEt80WWXLp9TQsyiHgSjHei8+hbnNT2g+7jR9zV4DOY34pr8DFf
- 1dDmh2qs7fcy1uziGj+3FCvbCcQYir9cdjl1YOXkYxLoI8NPkptEb/bNpbLift8qL3sN7wTRb
- 0/yS6ZR8z4vAemqqKjyweERifxN4SLSWu0UyZGUzcNAkPKYnSLgzRpvxtpGwERfLDQHjeCSRQ
- FahjhGFmYzurvUi7I/1BuV6449eh3HpVpsnlF3CktsHzwEwlCGAd/BegOPEfB8085wcW0VMSO
- Vj5vbOqYfGyMeD2ArhC/SPX/t06dVqqoHdYkuLuxWuULHd/XHOmmh+Uvu2PepdfZCjTYwC37L
- T05IXWjL1X81Mh+EReVb9kGlS2/wodzSQhlmv1/sRtmelJktUUBmcJYt3ZjTYIaIRCJ6Bkslq
- JdlhPFa4jm6Z6GomaW73NZGHVn9H0TnBAXdN8GrFWtYC5dpmaaMQ6DZePPIm34kosmDT7gflY
- VwXltQxPsnkjPioCzKhk3MGrLOMyB8MEuTvHAG3R5JTFxEJzaHoa3ciDu+TEzMfXNz71n0eeJ
- 6u/P3sN3XWptyRF/2CVoD5tEQsh3dMrlu8Cj6zus/19ikBkKcpfDwE/nqsUpMdIu8/EqPWw6R
- 82Tjy3rDqMM3i00S3sIjM0zNPpx/wZKitYzuTM5zLoAib3yTFZ3Bfs0imHWljf4t2RboSlXpE
- pN+fePoxTM8ueln1XpLqbPcmfnZKUjqAo/srLSxQBsFYuMVXQFqb1UXe8SrEj3JITYl1JKeVx
- zJrt3DfcsV5Wa6MM0WQwnhDFf/M0j//XnVrGDOO7GlnVaJSnjrOS68h+Soy4q6VVT3rMqD8uz
- FPxNNaePC4x6+/uIGhK7H64EVjuN+G0g1gu5XiDII5/BW+2wf4EmTBdf/idaM0QcTG8+yq1og
- lvgkHDPfyrSyPI=
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-5.15.7-rc1 successfully compiled, booted and suspended on an x86_64
-(Intel i5-11400, Fedora 35)
+From: Akhil P Oommen <akhilpo@codeaurora.org>
 
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
+[ Upstream commit 26d776fd0f79f093a5d0ce1a4c7c7a992bc3264c ]
 
-thanks
+Fix the below null pointer dereference in msm_ioctl_gem_submit():
+
+ 26545.260705:   Call trace:
+ 26545.263223:    kref_put+0x1c/0x60
+ 26545.266452:    msm_ioctl_gem_submit+0x254/0x744
+ 26545.270937:    drm_ioctl_kernel+0xa8/0x124
+ 26545.274976:    drm_ioctl+0x21c/0x33c
+ 26545.278478:    drm_compat_ioctl+0xdc/0xf0
+ 26545.282428:    __arm64_compat_sys_ioctl+0xc8/0x100
+ 26545.287169:    el0_svc_common+0xf8/0x250
+ 26545.291025:    do_el0_svc_compat+0x28/0x54
+ 26545.295066:    el0_svc_compat+0x10/0x1c
+ 26545.298838:    el0_sync_compat_handler+0xa8/0xcc
+ 26545.303403:    el0_sync_compat+0x188/0x1c0
+ 26545.307445:   Code: d503201f d503201f 52800028 4b0803e8 (b8680008)
+ 26545.318799:   Kernel panic - not syncing: Oops: Fatal exception
+
+Signed-off-by: Akhil P Oommen <akhilpo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211118154903.2.I3ae019673a0cc45d83a193a7858748dd03dbb820@changeid
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ drivers/gpu/drm/msm/msm_gem_submit.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Ronald
+diff --git a/drivers/gpu/drm/msm/msm_gem_submit.c b/drivers/gpu/drm/msm/msm_gem_submit.c
+index 151d19e4453cd..bf95b81bf35b5 100644
+--- a/drivers/gpu/drm/msm/msm_gem_submit.c
++++ b/drivers/gpu/drm/msm/msm_gem_submit.c
+@@ -780,6 +780,7 @@ int msm_ioctl_gem_submit(struct drm_device *dev, void *data,
+ 		args->nr_cmds);
+ 	if (IS_ERR(submit)) {
+ 		ret = PTR_ERR(submit);
++		submit = NULL;
+ 		goto out_unlock;
+ 	}
+ 
+-- 
+2.33.0
 
