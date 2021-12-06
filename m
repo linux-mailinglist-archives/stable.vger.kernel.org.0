@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40BB5469B9C
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E02469B93
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346087AbhLFPSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44462 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346131AbhLFPMR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:17 -0500
+        id S1357279AbhLFPRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60304 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356288AbhLFPP2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6450B8111A;
-        Mon,  6 Dec 2021 15:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D27BC341C2;
-        Mon,  6 Dec 2021 15:08:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D8616131F;
+        Mon,  6 Dec 2021 15:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CB9CC341C1;
+        Mon,  6 Dec 2021 15:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803325;
-        bh=cUa1rjRlOgH3cNAuyeNmMadLMFU3Vu5drn9Z481Poio=;
+        s=korg; t=1638803518;
+        bh=q0Mme3d1DVbEv0L+HjUgGXO6bOGqr8By/Vv7KHKla4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2GgzXHGIey2AeToS9pKEcDHWrFpIHXwNeenF1VtJeT5U24GdA+mdrlvTfr4mKUzx
-         aog42en93HzAKTNYwIx/Vh7GHgaTnavttdBFRPhD2NsTU2EIbLeBAycBpYnluTiJMt
-         vi8Xx/w2mbpMnTZbWRogNwpdE2s/Rwx0a0zAY7cs=
+        b=kB6ReqqcKaBirEcMrtXT3CD0ykJYSiUIpguWDbiwgsP1reGuhoRcVVY/1+vYf1bNx
+         YmLGkQjw69UbMYEpQe4OaJkvVdwR6fGRmw6MwCKFxfnPHxLw7ofWfQ1xuma6X1da4K
+         9HhIRFFiiaxue3bn2nRq/57ipn11/V7QPlnpimIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
-        Thara Gopinath <thara.gopinath@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/106] thermal: core: Reset previous low and high trip during thermal zone init
+Subject: [PATCH 5.4 21/70] perf report: Fix memory leaks around perf_tip()
 Date:   Mon,  6 Dec 2021 15:56:25 +0100
-Message-Id: <20211206145558.155246106@linuxfoundation.org>
+Message-Id: <20211206145552.650273827@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
-References: <20211206145555.386095297@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +51,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 99b63316c39988039965693f5f43d8b4ccb1c86c ]
+[ Upstream commit d9fc706108c15f8bc2d4ccccf8e50f74830fabd9 ]
 
-During the suspend is in process, thermal_zone_device_update bails out
-thermal zone re-evaluation for any sensor trip violation without
-setting next valid trip to that sensor. It assumes during resume
-it will re-evaluate same thermal zone and update trip. But when it is
-in suspend temperature goes down and on resume path while updating
-thermal zone if temperature is less than previously violated trip,
-thermal zone set trip function evaluates the same previous high and
-previous low trip as new high and low trip. Since there is no change
-in high/low trip, it bails out from thermal zone set trip API without
-setting any trip. It leads to a case where sensor high trip or low
-trip is disabled forever even though thermal zone has a valid high
-or low trip.
+perf_tip() may allocate memory or use a literal, this means memory
+wasn't freed if allocated. Change the API so that literals aren't used.
 
-During thermal zone device init, reset thermal zone previous high
-and low trip. It resolves above mentioned scenario.
+At the same time add missing frees for system_path. These issues were
+spotted using leak sanitizer.
 
-Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
-Reviewed-by: Thara Gopinath <thara.gopinath@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20211118073804.2149974-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/builtin-report.c | 15 +++++++++------
+ tools/perf/util/util.c      | 14 +++++++-------
+ tools/perf/util/util.h      |  2 +-
+ 3 files changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index 94820f25a15ff..8374b8078b7df 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -457,6 +457,8 @@ static void thermal_zone_device_init(struct thermal_zone_device *tz)
- {
- 	struct thermal_instance *pos;
- 	tz->temperature = THERMAL_TEMP_INVALID;
-+	tz->prev_low_trip = -INT_MAX;
-+	tz->prev_high_trip = INT_MAX;
- 	list_for_each_entry(pos, &tz->thermal_instances, tz_node)
- 		pos->initialized = false;
+diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
+index d3c0b04e2e22b..dc228bdf2bbc2 100644
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -569,14 +569,17 @@ static int report__browse_hists(struct report *rep)
+ 	int ret;
+ 	struct perf_session *session = rep->session;
+ 	struct evlist *evlist = session->evlist;
+-	const char *help = perf_tip(system_path(TIPDIR));
++	char *help = NULL, *path = NULL;
+ 
+-	if (help == NULL) {
++	path = system_path(TIPDIR);
++	if (perf_tip(&help, path) || help == NULL) {
+ 		/* fallback for people who don't install perf ;-) */
+-		help = perf_tip(DOCDIR);
+-		if (help == NULL)
+-			help = "Cannot load tips.txt file, please install perf!";
++		free(path);
++		path = system_path(DOCDIR);
++		if (perf_tip(&help, path) || help == NULL)
++			help = strdup("Cannot load tips.txt file, please install perf!");
+ 	}
++	free(path);
+ 
+ 	switch (use_browser) {
+ 	case 1:
+@@ -598,7 +601,7 @@ static int report__browse_hists(struct report *rep)
+ 		ret = perf_evlist__tty_browse_hists(evlist, rep, help);
+ 		break;
+ 	}
+-
++	free(help);
+ 	return ret;
  }
+ 
+diff --git a/tools/perf/util/util.c b/tools/perf/util/util.c
+index ae56c766eda16..b3c1ae288b478 100644
+--- a/tools/perf/util/util.c
++++ b/tools/perf/util/util.c
+@@ -343,32 +343,32 @@ fetch_kernel_version(unsigned int *puint, char *str,
+ 	return 0;
+ }
+ 
+-const char *perf_tip(const char *dirpath)
++int perf_tip(char **strp, const char *dirpath)
+ {
+ 	struct strlist *tips;
+ 	struct str_node *node;
+-	char *tip = NULL;
+ 	struct strlist_config conf = {
+ 		.dirname = dirpath,
+ 		.file_only = true,
+ 	};
++	int ret = 0;
+ 
++	*strp = NULL;
+ 	tips = strlist__new("tips.txt", &conf);
+ 	if (tips == NULL)
+-		return errno == ENOENT ? NULL :
+-			"Tip: check path of tips.txt or get more memory! ;-p";
++		return -errno;
+ 
+ 	if (strlist__nr_entries(tips) == 0)
+ 		goto out;
+ 
+ 	node = strlist__entry(tips, random() % strlist__nr_entries(tips));
+-	if (asprintf(&tip, "Tip: %s", node->s) < 0)
+-		tip = (char *)"Tip: get more memory! ;-)";
++	if (asprintf(strp, "Tip: %s", node->s) < 0)
++		ret = -ENOMEM;
+ 
+ out:
+ 	strlist__delete(tips);
+ 
+-	return tip;
++	return ret;
+ }
+ 
+ char *perf_exe(char *buf, int len)
+diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
+index 9969b8b46f7c3..e4a7e1cafc70a 100644
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -37,7 +37,7 @@ int fetch_kernel_version(unsigned int *puint,
+ #define KVER_FMT	"%d.%d.%d"
+ #define KVER_PARAM(x)	KVER_VERSION(x), KVER_PATCHLEVEL(x), KVER_SUBLEVEL(x)
+ 
+-const char *perf_tip(const char *dirpath);
++int perf_tip(char **strp, const char *dirpath);
+ 
+ #ifndef HAVE_SCHED_GETCPU_SUPPORT
+ int sched_getcpu(void);
 -- 
 2.33.0
 
