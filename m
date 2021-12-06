@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0F1469F79
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:45:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2FC9469E2C
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391103AbhLFPpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:07 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48954 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376296AbhLFPd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:33:26 -0500
+        id S1379173AbhLFPgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:36:50 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38442 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378647AbhLFPda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:33:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8ED5C6133C;
-        Mon,  6 Dec 2021 15:29:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7138AC34902;
-        Mon,  6 Dec 2021 15:29:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A746B81018;
+        Mon,  6 Dec 2021 15:30:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 311E9C34901;
+        Mon,  6 Dec 2021 15:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804596;
-        bh=b9hSnik2Nr6mPn2zRPr+Twdy9HcRDoOkiTuSNVZv4AA=;
+        s=korg; t=1638804598;
+        bh=hQR5TUoH6NNwW9wbpZfBB33XtDKrBh9/3bA6bVhUxVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhaIpV5QwLgN6GBqTXwYP4/vtohpOiG9xbH7zqWawVx2Kr+/nYf3MX4jTx8jiHT0L
-         MU3Gg3XIWLzp/dGBSZdWxmbs/r+cx1LfYjErRXFKWg9PnZVYN/tpieLDXilJOStPtl
-         LXsgOITH4y3wCnVSvS7GWhVm0w9fFqwe25dO1OnQ=
+        b=xZMmKMDmZJ0wFQTN177phWW/z0bVOtfPmPwQNUdPHZqW0d5/oUgC1oD4q8YYX/vCe
+         lmRX5C8cjEJdZdIgTKIjo5q5RS7Mp4dep6c2ypITQXGgzAmt49MaXH8uVqLZzU/gsD
+         HTxeMZ3MlenZe9+LZed0iZXh1wB9yGXhMMpJKM48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Dolan <jay.dolan@accesio.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.15 202/207] serial: 8250_pci: rewrite pericom_do_set_divisor()
-Date:   Mon,  6 Dec 2021 15:57:36 +0100
-Message-Id: <20211206145617.278002001@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Zeng <chao.zeng@siemens.com>,
+        Su Bao Cheng <baocheng.su@siemens.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.15 203/207] serial: 8250: Fix RTS modem control while in rs485 mode
+Date:   Mon,  6 Dec 2021 15:57:37 +0100
+Message-Id: <20211206145617.310210380@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -44,78 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Dolan <jay.dolan@accesio.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit bb1201d4b38ec67bd9a871cf86b0cc10f28b15b5 upstream.
+commit f85e04503f369b3f2be28c83fc48b74e19936ebc upstream.
 
-Have pericom_do_set_divisor() use the uartclk instead of a hard coded
-value to work with different speed crystals. Tested with 14.7456 and 24
-MHz crystals.
+Commit f45709df7731 ("serial: 8250: Don't touch RTS modem control while
+in rs485 mode") sought to prevent user space from interfering with rs485
+communication by ignoring a TIOCMSET ioctl() which changes RTS polarity.
 
-Have pericom_do_set_divisor() always calculate the divisor rather than
-call serial8250_do_set_divisor() for rates below baud_base.
+It did so in serial8250_do_set_mctrl(), which turns out to be too deep
+in the call stack:  When a uart_port is opened, RTS polarity is set by
+the rs485-aware function uart_port_dtr_rts().  It calls down to
+serial8250_do_set_mctrl() and that particular RTS polarity change should
+*not* be ignored.
 
-Do not write registers or call serial8250_do_set_divisor() if valid
-divisors could not be found.
+The user-visible result is that on 8250_omap ports which use rs485 with
+inverse polarity (RTS bit in MCR register is 1 to receive, 0 to send),
+a newly opened port initially sets up RTS for sending instead of
+receiving.  That's because omap_8250_startup() sets the cached value
+up->mcr to 0 and omap_8250_restore_regs() subsequently writes it to the
+MCR register.  Due to the commit, serial8250_do_set_mctrl() preserves
+that incorrect register value:
 
-Fixes: 6bf4e42f1d19 ("serial: 8250: Add support for higher baud rates to Pericom chips")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jay Dolan <jay.dolan@accesio.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211122120604.3909-3-andriy.shevchenko@linux.intel.com
+do_sys_openat2
+  do_filp_open
+    path_openat
+      vfs_open
+        do_dentry_open
+	  chrdev_open
+	    tty_open
+	      uart_open
+	        tty_port_open
+		  uart_port_activate
+		    uart_startup
+		      uart_port_startup
+		        serial8250_startup
+			  omap_8250_startup # up->mcr = 0
+			uart_change_speed
+			  serial8250_set_termios
+			    omap_8250_set_termios
+			      omap_8250_restore_regs
+			        serial8250_out_MCR # up->mcr written
+		  tty_port_block_til_ready
+		    uart_dtr_rts
+		      uart_port_dtr_rts
+		        serial8250_set_mctrl
+			  omap8250_set_mctrl
+			    serial8250_do_set_mctrl # mcr[1] = 1 ignored
+
+Fix by intercepting RTS changes from user space in uart_tiocmset()
+instead.
+
+Link: https://lore.kernel.org/linux-serial/20211027111644.1996921-1-baocheng.su@siemens.com/
+Fixes: f45709df7731 ("serial: 8250: Don't touch RTS modem control while in rs485 mode")
+Cc: Chao Zeng <chao.zeng@siemens.com>
+Cc: stable@vger.kernel.org # v5.7+
+Reported-by: Su Bao Cheng <baocheng.su@siemens.com>
+Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
+Tested-by: Su Bao Cheng <baocheng.su@siemens.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/21170e622a1aaf842a50b32146008b5374b3dd1d.1637596432.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_pci.c |   30 +++++++++++++++++-------------
- 1 file changed, 17 insertions(+), 13 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    7 -------
+ drivers/tty/serial/serial_core.c    |    5 +++++
+ 2 files changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -1349,29 +1349,33 @@ pericom_do_set_divisor(struct uart_port
- {
- 	int scr;
- 	int lcr;
--	int actual_baud;
--	int tolerance;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2024,13 +2024,6 @@ void serial8250_do_set_mctrl(struct uart
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 	unsigned char mcr;
  
--	for (scr = 5 ; scr <= 15 ; scr++) {
--		actual_baud = 921600 * 16 / scr;
--		tolerance = actual_baud / 50;
-+	for (scr = 16; scr > 4; scr--) {
-+		unsigned int maxrate = port->uartclk / scr;
-+		unsigned int divisor = max(maxrate / baud, 1U);
-+		int delta = maxrate / divisor - baud;
- 
--		if ((baud < actual_baud + tolerance) &&
--			(baud > actual_baud - tolerance)) {
-+		if (baud > maxrate + baud / 50)
-+			continue;
- 
-+		if (delta > baud / 50)
-+			divisor++;
-+
-+		if (divisor > 0xffff)
-+			continue;
-+
-+		/* Update delta due to possible divisor change */
-+		delta = maxrate / divisor - baud;
-+		if (abs(delta) < baud / 50) {
- 			lcr = serial_port_in(port, UART_LCR);
- 			serial_port_out(port, UART_LCR, lcr | 0x80);
+-	if (port->rs485.flags & SER_RS485_ENABLED) {
+-		if (serial8250_in_MCR(up) & UART_MCR_RTS)
+-			mctrl |= TIOCM_RTS;
+-		else
+-			mctrl &= ~TIOCM_RTS;
+-	}
 -
--			serial_port_out(port, UART_DLL, 1);
--			serial_port_out(port, UART_DLM, 0);
-+			serial_port_out(port, UART_DLL, divisor & 0xff);
-+			serial_port_out(port, UART_DLM, divisor >> 8 & 0xff);
- 			serial_port_out(port, 2, 16 - scr);
- 			serial_port_out(port, UART_LCR, lcr);
- 			return;
--		} else if (baud > actual_baud) {
--			break;
- 		}
+ 	mcr = serial8250_TIOCM_to_MCR(mctrl);
+ 
+ 	mcr = (mcr & up->mcr_mask) | up->mcr_force | up->mcr;
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -1075,6 +1075,11 @@ uart_tiocmset(struct tty_struct *tty, un
+ 		goto out;
+ 
+ 	if (!tty_io_error(tty)) {
++		if (uport->rs485.flags & SER_RS485_ENABLED) {
++			set &= ~TIOCM_RTS;
++			clear &= ~TIOCM_RTS;
++		}
++
+ 		uart_update_mctrl(uport, set, clear);
+ 		ret = 0;
  	}
--	serial8250_do_set_divisor(port, baud, quot, quot_frac);
- }
- static int pci_pericom_setup(struct serial_private *priv,
- 		  const struct pciserial_board *board,
 
 
