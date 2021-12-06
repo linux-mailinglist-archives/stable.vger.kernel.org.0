@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B24469AFA
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 498ED469AF4
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356410AbhLFPL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:11:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52966 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347829AbhLFPJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D0EAC0698E5;
-        Mon,  6 Dec 2021 07:04:12 -0800 (PST)
+        id S1349121AbhLFPL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58752 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346203AbhLFPJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35839B81131;
-        Mon,  6 Dec 2021 15:04:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A933C341C1;
-        Mon,  6 Dec 2021 15:04:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3D2C61326;
+        Mon,  6 Dec 2021 15:05:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85FDC341C2;
+        Mon,  6 Dec 2021 15:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803051;
-        bh=gnziy01bTCHGil2cRg/ArSqHcK6pTKqwK7PPjkbIhnM=;
+        s=korg; t=1638803152;
+        bh=BU1QrZcFfIDx8fq7u9yoof7T7KA5DSdjqKiRzULuERU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FubIiuhUfrHhYKluo8ayqBqYGb/hM/uHNdodhdIKMe9ezpN2YbPrUvh5lJEmCNGVj
-         Oaqq7A+9Lozih/O5eGqeDD2wRNY/4WWZaqY/JtOSdaUO+bqEajGkToTJ+RCjLkh9CX
-         wH9+yOeJBAR8dXu6c36l6+798iFhVoMuBup2KPmo=
+        b=V9VBuX/zD2t6sG+45vHlHA3kfRCCGGfvGLT+eNMkEE+bMV97Hqa5o75sk/txziGTu
+         PVx77UoOb51xg4Bs500ODwopiZWqudVIRjSq+AYlQbTnu5cxcN7SnWjypprPN3WEXd
+         8z3GQSWsnzSwxxd0O8LJrNFmgwPxq8jzUdS+uaCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 003/106] usb: hub: Fix usb enumeration issue due to address0 race
-Date:   Mon,  6 Dec 2021 15:55:11 +0100
-Message-Id: <20211206145555.510835894@linuxfoundation.org>
+Subject: [PATCH 4.14 004/106] usb: hub: Fix locking issues with address0_mutex
+Date:   Mon,  6 Dec 2021 15:55:12 +0100
+Message-Id: <20211206145555.545111529@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
 References: <20211206145555.386095297@linuxfoundation.org>
@@ -49,106 +48,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 6ae6dc22d2d1ce6aa77a6da8a761e61aca216f8b upstream.
+commit 6cca13de26eea6d32a98d96d916a048d16a12822 upstream.
 
-xHC hardware can only have one slot in default state with address 0
-waiting for a unique address at a time, otherwise "undefined behavior
-may occur" according to xhci spec 5.4.3.4
+Fix the circular lock dependency and unbalanced unlock of addess0_mutex
+introduced when fixing an address0_mutex enumeration retry race in commit
+ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
 
-The address0_mutex exists to prevent this across both xhci roothubs.
+Make sure locking order between port_dev->status_lock and address0_mutex
+is correct, and that address0_mutex is not unlocked in hub_port_connect
+"done:" codepath which may be reached without locking address0_mutex
 
-If hub_port_init() fails, it may unlock the mutex and exit with a xhci
-slot in default state. If the other xhci roothub calls hub_port_init()
-at this point we end up with two slots in default state.
-
-Make sure the address0_mutex protects the slot default state across
-hub_port_init() retries, until slot is addressed or disabled.
-
-Note, one known minor case is not fixed by this patch.
-If device needs to be reset during resume, but fails all hub_port_init()
-retries in usb_reset_and_verify_device(), then it's possible the slot is
-still left in default state when address0_mutex is unlocked.
-
+Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
 Cc: <stable@vger.kernel.org>
-Fixes: 638139eb95d2 ("usb: hub: allow to process more usb hub events in parallel")
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115221630.871204-1-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20211123101656.1113518-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/usb/core/hub.c |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -4472,8 +4472,6 @@ hub_port_init(struct usb_hub *hub, struc
- 	if (oldspeed == USB_SPEED_LOW)
- 		delay = HUB_LONG_RESET_TIME;
+@@ -4859,6 +4859,7 @@ static void hub_port_connect(struct usb_
+ 	struct usb_port *port_dev = hub->ports[port1 - 1];
+ 	struct usb_device *udev = port_dev->child;
+ 	static int unreliable_port = -1;
++	bool retry_locked;
+ 
+ 	/* Disconnect any existing devices under this port */
+ 	if (udev) {
+@@ -4915,9 +4916,10 @@ static void hub_port_connect(struct usb_
+ 
+ 	status = 0;
  
 -	mutex_lock(hcd->address0_mutex);
 -
- 	/* Reset the device; full speed may morph to high speed */
- 	/* FIXME a USB 2.0 device may morph into SuperSpeed on reset. */
- 	retval = hub_port_reset(hub, port1, udev, delay, false);
-@@ -4772,7 +4770,6 @@ fail:
- 		hub_port_disable(hub, port1, 0);
- 		update_devnum(udev, devnum);	/* for disconnect processing */
- 	}
--	mutex_unlock(hcd->address0_mutex);
- 	return retval;
- }
- 
-@@ -4917,6 +4914,9 @@ static void hub_port_connect(struct usb_
- 		unit_load = 100;
- 
- 	status = 0;
-+
-+	mutex_lock(hcd->address0_mutex);
-+
  	for (i = 0; i < SET_CONFIG_TRIES; i++) {
++		usb_lock_port(port_dev);
++		mutex_lock(hcd->address0_mutex);
++		retry_locked = true;
  
  		/* reallocate for each attempt, since references
-@@ -4953,6 +4953,8 @@ static void hub_port_connect(struct usb_
+ 		 * to the previous one can escape in various ways
+@@ -4926,6 +4928,8 @@ static void hub_port_connect(struct usb_
+ 		if (!udev) {
+ 			dev_err(&port_dev->dev,
+ 					"couldn't allocate usb_device\n");
++			mutex_unlock(hcd->address0_mutex);
++			usb_unlock_port(port_dev);
+ 			goto done;
+ 		}
+ 
+@@ -4947,13 +4951,13 @@ static void hub_port_connect(struct usb_
+ 		}
+ 
+ 		/* reset (non-USB 3.0 devices) and get descriptor */
+-		usb_lock_port(port_dev);
+ 		status = hub_port_init(hub, udev, port1, i);
+-		usb_unlock_port(port_dev);
  		if (status < 0)
  			goto loop;
  
-+		mutex_unlock(hcd->address0_mutex);
-+
+ 		mutex_unlock(hcd->address0_mutex);
++		usb_unlock_port(port_dev);
++		retry_locked = false;
+ 
  		if (udev->quirks & USB_QUIRK_DELAY_INIT)
  			msleep(2000);
- 
-@@ -5041,6 +5043,7 @@ static void hub_port_connect(struct usb_
+@@ -5043,11 +5047,14 @@ static void hub_port_connect(struct usb_
  
  loop_disable:
  		hub_port_disable(hub, port1, 1);
-+		mutex_lock(hcd->address0_mutex);
+-		mutex_lock(hcd->address0_mutex);
  loop:
  		usb_ep0_reinit(udev);
  		release_devnum(udev);
-@@ -5067,6 +5070,8 @@ loop:
+ 		hub_free_dev(udev);
++		if (retry_locked) {
++			mutex_unlock(hcd->address0_mutex);
++			usb_unlock_port(port_dev);
++		}
+ 		usb_put_dev(udev);
+ 		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
+ 			break;
+@@ -5070,8 +5077,6 @@ loop:
  	}
  
  done:
-+	mutex_unlock(hcd->address0_mutex);
-+
+-	mutex_unlock(hcd->address0_mutex);
+-
  	hub_port_disable(hub, port1, 1);
  	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
  		if (status != -ENOTCONN && status != -ENODEV)
-@@ -5608,6 +5613,8 @@ static int usb_reset_and_verify_device(s
- 	bos = udev->bos;
- 	udev->bos = NULL;
- 
-+	mutex_lock(hcd->address0_mutex);
-+
- 	for (i = 0; i < SET_CONFIG_TRIES; ++i) {
- 
- 		/* ep0 maxpacket size may change; let the HCD know about it.
-@@ -5617,6 +5624,7 @@ static int usb_reset_and_verify_device(s
- 		if (ret >= 0 || ret == -ENOTCONN || ret == -ENODEV)
- 			break;
- 	}
-+	mutex_unlock(hcd->address0_mutex);
- 
- 	if (ret < 0)
- 		goto re_enumerate;
 
 
