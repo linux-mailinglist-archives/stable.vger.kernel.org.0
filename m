@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23A9D469BCC
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B118469B3F
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357266AbhLFPSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:18:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54678 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358975AbhLFPQx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:16:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F09D7C08EC91;
-        Mon,  6 Dec 2021 07:09:49 -0800 (PST)
+        id S1350611AbhLFPOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:14:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60850 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349131AbhLFPMB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:12:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9C09B81125;
-        Mon,  6 Dec 2021 15:09:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E846DC341C2;
-        Mon,  6 Dec 2021 15:09:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 576F36131B;
+        Mon,  6 Dec 2021 15:08:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BED0C341C2;
+        Mon,  6 Dec 2021 15:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803387;
-        bh=iUlbNDrhOEDro64p7Xq2N7codrJPdeoCeLQRCGjUGFY=;
+        s=korg; t=1638803311;
+        bh=zckwn8ZqgcsTcbvynf3POGfdMPebx1qlpjUTQOx6pMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rel5WJ/24hdJ7ClSf1dDfBAct1W2n/8VlhcCb5uCxZDJRt1UJHL83D7+dgihtUcyP
-         RkGEt+nk2vcoO3nSoyk93Gz6ouBvs+JbzbBUqV2KEcKMlLSlS4ofGx2BDpgI4PvRqF
-         GeIFagES+SDBWJiDSXd6U7G8AuiyuJS4bRSimabw=
+        b=MydOxboUi/cWWgEVOPyJn2lrzdt2M8kpml+kshHmnHjbji2a/5r5nRuSbaeWJMfYc
+         O2fvD1LRV1jSLv99AwnBEM2Hot9CQ5AIvWlsaQqxPhlZjWoLUzpx8esf+3AjBy9v/x
+         g8nZ/y4uNQjHCIngByXQ1EP4xmPdyvSed3qVHS+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@gmail.com>,
+        Wang Yugui <wangyugui@e16-tech.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/48] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
+Subject: [PATCH 4.14 076/106] btrfs: check-integrity: fix a warning on write caching disabled disk
 Date:   Mon,  6 Dec 2021 15:56:24 +0100
-Message-Id: <20211206145549.105939206@linuxfoundation.org>
+Message-Id: <20211206145558.117000439@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145548.859182340@linuxfoundation.org>
-References: <20211206145548.859182340@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,67 +46,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Wang Yugui <wangyugui@e16-tech.com>
 
-[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
+[ Upstream commit a91cf0ffbc244792e0b3ecf7d0fddb2f344b461f ]
 
-When WWAN device wake from S3 deep, under thinkpad platform,
-WWAN would be disabled. This disable status could be checked
-by command 'nmcli r wwan' or 'rfkill list'.
+When a disk has write caching disabled, we skip submission of a bio with
+flush and sync requests before writing the superblock, since it's not
+needed. However when the integrity checker is enabled, this results in
+reports that there are metadata blocks referred by a superblock that
+were not properly flushed. So don't skip the bio submission only when
+the integrity checker is enabled for the sake of simplicity, since this
+is a debug tool and not meant for use in non-debug builds.
 
-Issue analysis as below:
-  When host resume from S3 deep, thinkpad_acpi driver would
-call hotkey_resume() function. Finnaly, it will use
-wan_get_status to check the current status of WWAN device.
-During this resume progress, wan_get_status would always
-return off even WWAN boot up completely.
-  In patch V2, Hans said 'sw_state should be unchanged
-after a suspend/resume. It's better to drop the
-tpacpi_rfk_update_swstate call all together from the
-resume path'.
-  And it's confimed by Lenovo that GWAN is no longer
- available from WHL generation because the design does not
- match with current pin control.
+fstests/btrfs/220 trigger a check-integrity warning like the following
+when CONFIG_BTRFS_FS_CHECK_INTEGRITY=y and the disk with WCE=0.
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+  btrfs: attempt to write superblock which references block M @5242880 (sdb2/5242880/0) which is not flushed out of disk's write cache (block flush_gen=1, dev->flush_gen=0)!
+  ------------[ cut here ]------------
+  WARNING: CPU: 28 PID: 843680 at fs/btrfs/check-integrity.c:2196 btrfsic_process_written_superblock+0x22a/0x2a0 [btrfs]
+  CPU: 28 PID: 843680 Comm: umount Not tainted 5.15.0-0.rc5.39.el8.x86_64 #1
+  Hardware name: Dell Inc. Precision T7610/0NK70N, BIOS A18 09/11/2019
+  RIP: 0010:btrfsic_process_written_superblock+0x22a/0x2a0 [btrfs]
+  RSP: 0018:ffffb642afb47940 EFLAGS: 00010246
+  RAX: 0000000000000000 RBX: 0000000000000002 RCX: 0000000000000000
+  RDX: 00000000ffffffff RSI: ffff8b722fc97d00 RDI: ffff8b722fc97d00
+  RBP: ffff8b5601c00000 R08: 0000000000000000 R09: c0000000ffff7fff
+  R10: 0000000000000001 R11: ffffb642afb476f8 R12: ffffffffffffffff
+  R13: ffffb642afb47974 R14: ffff8b5499254c00 R15: 0000000000000003
+  FS:  00007f00a06d4080(0000) GS:ffff8b722fc80000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fff5cff5ff0 CR3: 00000001c0c2a006 CR4: 00000000001706e0
+  Call Trace:
+   btrfsic_process_written_block+0x2f7/0x850 [btrfs]
+   __btrfsic_submit_bio.part.19+0x310/0x330 [btrfs]
+   ? bio_associate_blkg_from_css+0xa4/0x2c0
+   btrfsic_submit_bio+0x18/0x30 [btrfs]
+   write_dev_supers+0x81/0x2a0 [btrfs]
+   ? find_get_pages_range_tag+0x219/0x280
+   ? pagevec_lookup_range_tag+0x24/0x30
+   ? __filemap_fdatawait_range+0x6d/0xf0
+   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
+   ? find_first_extent_bit+0x9b/0x160 [btrfs]
+   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
+   write_all_supers+0x1b3/0xa70 [btrfs]
+   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
+   btrfs_commit_transaction+0x59d/0xac0 [btrfs]
+   close_ctree+0x11d/0x339 [btrfs]
+   generic_shutdown_super+0x71/0x110
+   kill_anon_super+0x14/0x30
+   btrfs_kill_super+0x12/0x20 [btrfs]
+   deactivate_locked_super+0x31/0x70
+   cleanup_mnt+0xb8/0x140
+   task_work_run+0x6d/0xb0
+   exit_to_user_mode_prepare+0x1f0/0x200
+   syscall_exit_to_user_mode+0x12/0x30
+   do_syscall_64+0x46/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x7f009f711dfb
+  RSP: 002b:00007fff5cff7928 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+  RAX: 0000000000000000 RBX: 000055b68c6c9970 RCX: 00007f009f711dfb
+  RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000055b68c6c9b50
+  RBP: 0000000000000000 R08: 000055b68c6ca900 R09: 00007f009f795580
+  R10: 0000000000000000 R11: 0000000000000246 R12: 000055b68c6c9b50
+  R13: 00007f00a04bf184 R14: 0000000000000000 R15: 00000000ffffffff
+  ---[ end trace 2c4b82abcef9eec4 ]---
+  S-65536(sdb2/65536/1)
+   -->
+  M-1064960(sdb2/1064960/1)
+
+Reviewed-by: Filipe Manana <fdmanana@gmail.com>
+Signed-off-by: Wang Yugui <wangyugui@e16-tech.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ fs/btrfs/disk-io.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index fa8bcbe3d2762..912ce5cb2f084 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -1198,15 +1198,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
- 	return status;
- }
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index ace58d6a270b6..41ebc613ca4cf 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3339,11 +3339,23 @@ static void btrfs_end_empty_barrier(struct bio *bio)
+  */
+ static void write_dev_flush(struct btrfs_device *device)
+ {
+-	struct request_queue *q = bdev_get_queue(device->bdev);
+ 	struct bio *bio = device->flush_bio;
  
--/* Query FW and update rfkill sw state for all rfkill switches */
--static void tpacpi_rfk_update_swstate_all(void)
--{
--	unsigned int i;
--
--	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
--		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
--}
--
- /*
-  * Sync the HW-blocking state of all rfkill switches,
-  * do notice it causes the rfkill core to schedule uevents
-@@ -3145,9 +3136,6 @@ static void tpacpi_send_radiosw_update(void)
- 	if (wlsw == TPACPI_RFK_RADIO_OFF)
- 		tpacpi_rfk_update_hwblock_state(true);
++#ifndef CONFIG_BTRFS_FS_CHECK_INTEGRITY
++	/*
++	 * When a disk has write caching disabled, we skip submission of a bio
++	 * with flush and sync requests before writing the superblock, since
++	 * it's not needed. However when the integrity checker is enabled, this
++	 * results in reports that there are metadata blocks referred by a
++	 * superblock that were not properly flushed. So don't skip the bio
++	 * submission only when the integrity checker is enabled for the sake
++	 * of simplicity, since this is a debug tool and not meant for use in
++	 * non-debug builds.
++	 */
++	struct request_queue *q = bdev_get_queue(device->bdev);
+ 	if (!test_bit(QUEUE_FLAG_WC, &q->queue_flags))
+ 		return;
++#endif
  
--	/* Sync sw blocking state */
--	tpacpi_rfk_update_swstate_all();
--
- 	/* Sync hw blocking state last if it is hw-unblocked */
- 	if (wlsw == TPACPI_RFK_RADIO_ON)
- 		tpacpi_rfk_update_hwblock_state(false);
+ 	bio_reset(bio);
+ 	bio->bi_end_io = btrfs_end_empty_barrier;
 -- 
 2.33.0
 
