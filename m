@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B31AB469F2F
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79CD5469D29
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391501AbhLFPpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:45:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60714 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390691AbhLFPmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F3FC0698E4;
-        Mon,  6 Dec 2021 07:29:29 -0800 (PST)
+        id S245046AbhLFP2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:28:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57778 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359206AbhLFPX7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5FB461322;
-        Mon,  6 Dec 2021 15:29:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2EDC34900;
-        Mon,  6 Dec 2021 15:29:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40825B810E7;
+        Mon,  6 Dec 2021 15:20:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 897EDC341C1;
+        Mon,  6 Dec 2021 15:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804568;
-        bh=n8V+UayL874nh+QL2WUkvqJ7PtJp9nFyGmUjTT8SLW4=;
+        s=korg; t=1638804027;
+        bh=CGVZuP9OseeWhUDiKnbmprsqxVzz2zue0tFNNfoZcDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VX6fA4QCJXdYQeH+4Hhc8SHl5FMhIwDYHlmFm9ttf/X+AD1VEBeDh2f5tt0J+kqhU
-         IgTIo8XaVlgu9FwYHtwUGB2e/p/n+SL+4AjFaxrV6eaF+PS1pbksXT34C7Vw9k78BX
-         0oQO98yMdkaxS8zlRr9yC5jan0L03XOg3jBNDXd8=
+        b=vRo6hDLAzxHnv4HT77udWKrmmONY3DoUhAqqXIgzLCjU9514eS5RFo88pTYoNsf4Q
+         +evBxZKOLJMIwHqjyvHKfshW2yDYbq9b9BZ9+Wy3wXlJ24SuqUrten0mNURiLjPe+Q
+         TXIF8Rgp90Dh6BwmKArMFeLzHruZWcW6CR0E8VFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
-        Peter Chen <peter.chen@kernel.org>,
-        Zhou Qingyang <zhou1615@umn.edu>
-Subject: [PATCH 5.15 193/207] usb: cdnsp: Fix a NULL pointer dereference in cdnsp_endpoint_init()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.10 130/130] ipmi: msghandler: Make symbol remove_work_wq static
 Date:   Mon,  6 Dec 2021 15:57:27 +0100
-Message-Id: <20211206145616.961913284@linuxfoundation.org>
+Message-Id: <20211206145604.155775188@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 37307f7020ab38dde0892a578249bf63d00bca64 upstream.
+commit 5a3ba99b62d8486de0316334e72ac620d4b94fdd upstream.
 
-In cdnsp_endpoint_init(), cdnsp_ring_alloc() is assigned to pep->ring
-and there is a dereference of it in cdnsp_endpoint_init(), which could
-lead to a NULL pointer dereference on failure of cdnsp_ring_alloc().
+The sparse tool complains as follows:
 
-Fix this bug by adding a check of pep->ring.
+drivers/char/ipmi/ipmi_msghandler.c:194:25: warning:
+ symbol 'remove_work_wq' was not declared. Should it be static?
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+This symbol is not used outside of ipmi_msghandler.c, so
+marks it static.
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_USB_CDNSP_GADGET=y show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Pawel Laszczak <pawell@cadence.com>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Link: https://lore.kernel.org/r/20211130172700.206650-1-zhou1615@umn.edu
+Fixes: 1d49eb91e86e ("ipmi: Move remove_work to dedicated workqueue")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Message-Id: <20211123083618.2366808-1-weiyongjun1@huawei.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-mem.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/char/ipmi/ipmi_msghandler.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/cdns3/cdnsp-mem.c
-+++ b/drivers/usb/cdns3/cdnsp-mem.c
-@@ -987,6 +987,9 @@ int cdnsp_endpoint_init(struct cdnsp_dev
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -203,7 +203,7 @@ struct ipmi_user {
+ 	struct work_struct remove_work;
+ };
  
- 	/* Set up the endpoint ring. */
- 	pep->ring = cdnsp_ring_alloc(pdev, 2, ring_type, max_packet, mem_flags);
-+	if (!pep->ring)
-+		return -ENOMEM;
-+
- 	pep->skip = false;
+-struct workqueue_struct *remove_work_wq;
++static struct workqueue_struct *remove_work_wq;
  
- 	/* Fill the endpoint context */
+ static struct ipmi_user *acquire_ipmi_user(struct ipmi_user *user, int *index)
+ 	__acquires(user->release_barrier)
 
 
