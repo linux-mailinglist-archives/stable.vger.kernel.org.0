@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6E3469E85
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:39:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22AEE469AEE
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:08:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379761AbhLFPj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:39:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60118 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356951AbhLFPh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:37:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42DECC08EADD;
-        Mon,  6 Dec 2021 07:23:24 -0800 (PST)
+        id S1346265AbhLFPLv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:11:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42024 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345451AbhLFPJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:09:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6003612EB;
-        Mon,  6 Dec 2021 15:23:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA4F0C341C1;
-        Mon,  6 Dec 2021 15:23:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C2C6B81017;
+        Mon,  6 Dec 2021 15:05:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF8CC341C1;
+        Mon,  6 Dec 2021 15:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804203;
-        bh=6aV/8CEXWFS5URizPQBRcsKpQlhjJUce7lkw7WyWqjU=;
+        s=korg; t=1638803135;
+        bh=0Ik3TpwB80NHWsmohbDiYpLzIbvgCl/kGtoZ2ZU64RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zAZJIg5QauqiIPITbVtguTdcUyDEb0f1mX9OkUzXyZCixjw3/7/+/WQZnEYUDxKzm
-         4ai2hmMv1ffm/nkpVSJ1nevWb/N0tjGG2B6xiJLWHbO2KttUEUs51MraiG++41tfNj
-         GIjlkBvTg4A95XbUpENgvr3LRJNAGFEtzIA30Vyk=
+        b=Lsja437oBAtwJcc5XYNIiSoE90vnj7onKqksEAJmAOrgRZ4ziAfcXL0gvBufFXbZx
+         eWNy7fHcF71xSN/0moaI3RtiElYzOEvuq2yBTKa8Mv+01jT7rDA5WfVV7KObt5M/7r
+         0dmcSUh2Ks7oH80EaiYccrYR0czatuCVlkOp8ZhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>
-Subject: [PATCH 5.15 062/207] fget: check that the fd still exists after getting a ref to it
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Joshua Dickens <joshua.dickens@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 008/106] HID: wacom: Use "Confidence" flag to prevent reporting invalid contacts
 Date:   Mon,  6 Dec 2021 15:55:16 +0100
-Message-Id: <20211206145612.385671084@linuxfoundation.org>
+Message-Id: <20211206145555.683830766@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-References: <20211206145610.172203682@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Jason Gerecke <killertofu@gmail.com>
 
-commit 054aa8d439b9185d4f5eb9a90282d1ce74772969 upstream.
+commit 7fb0413baa7f8a04caef0c504df9af7e0623d296 upstream.
 
-Jann Horn points out that there is another possible race wrt Unix domain
-socket garbage collection, somewhat reminiscent of the one fixed in
-commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK").
+The HID descriptor of many of Wacom's touch input devices include a
+"Confidence" usage that signals if a particular touch collection contains
+useful data. The driver does not look at this flag, however, which causes
+even invalid contacts to be reported to userspace. A lucky combination of
+kernel event filtering and device behavior (specifically: contact ID 0 ==
+invalid, contact ID >0 == valid; and order all data so that all valid
+contacts are reported before any invalid contacts) spare most devices from
+any visibly-bad behavior.
 
-See the extended comment about the garbage collection requirements added
-to unix_peek_fds() by that commit for details.
+The DTH-2452 is one example of an unlucky device that misbehaves. It uses
+ID 0 for both the first valid contact and all invalid contacts. Because
+we report both the valid and invalid contacts, the kernel reports that
+contact 0 first goes down (valid) and then goes up (invalid) in every
+report. This causes ~100 clicks per second simply by touching the screen.
 
-The race comes from how we can locklessly look up a file descriptor just
-as it is in the process of being closed, and with the right artificial
-timing (Jann added a few strategic 'mdelay(500)' calls to do that), the
-Unix domain socket garbage collector could see the reference count
-decrement of the close() happen before fget() took its reference to the
-file and the file was attached onto a new file descriptor.
+This patch inroduces new `confidence` flag in our `hid_data` structure.
+The value is initially set to `true` at the start of a report and can be
+set to `false` if an invalid touch usage is seen.
 
-This is all (intentionally) correct on the 'struct file *' side, with
-RCU lookups and lockless reference counting very much part of the
-design.  Getting that reference count out of order isn't a problem per
-se.
-
-But the garbage collector can get confused by seeing this situation of
-having seen a file not having any remaining external references and then
-seeing it being attached to an fd.
-
-In commit cbcf01128d0a ("af_unix: fix garbage collect vs MSG_PEEK") the
-fix was to serialize the file descriptor install with the garbage
-collector by taking and releasing the unix_gc_lock.
-
-That's not really an option here, but since this all happens when we are
-in the process of looking up a file descriptor, we can instead simply
-just re-check that the file hasn't been closed in the meantime, and just
-re-do the lookup if we raced with a concurrent close() of the same file
-descriptor.
-
-Reported-and-tested-by: Jann Horn <jannh@google.com>
-Acked-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://github.com/linuxwacom/input-wacom/issues/270
+Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Tested-by: Joshua Dickens <joshua.dickens@wacom.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/file.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/wacom_wac.c |    8 +++++++-
+ drivers/hid/wacom_wac.h |    1 +
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/file.c
-+++ b/fs/file.c
-@@ -858,6 +858,10 @@ loop:
- 			file = NULL;
- 		else if (!get_file_rcu_many(file, refs))
- 			goto loop;
-+		else if (files_lookup_fd_raw(files, fd) != file) {
-+			fput_many(file, refs);
-+			goto loop;
-+		}
- 	}
- 	rcu_read_unlock();
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2433,6 +2433,9 @@ static void wacom_wac_finger_event(struc
+ 	struct wacom_features *features = &wacom->wacom_wac.features;
  
+ 	switch (equivalent_usage) {
++	case HID_DG_CONFIDENCE:
++		wacom_wac->hid_data.confidence = value;
++		break;
+ 	case HID_GD_X:
+ 		wacom_wac->hid_data.x = value;
+ 		break;
+@@ -2463,7 +2466,8 @@ static void wacom_wac_finger_event(struc
+ 
+ 
+ 	if (usage->usage_index + 1 == field->report_count) {
+-		if (equivalent_usage == wacom_wac->hid_data.last_slot_field)
++		if (equivalent_usage == wacom_wac->hid_data.last_slot_field &&
++		    wacom_wac->hid_data.confidence)
+ 			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
+ 	}
+ }
+@@ -2476,6 +2480,8 @@ static void wacom_wac_finger_pre_report(
+ 	struct hid_data* hid_data = &wacom_wac->hid_data;
+ 	int i;
+ 
++	hid_data->confidence = true;
++
+ 	for (i = 0; i < report->maxfield; i++) {
+ 		struct hid_field *field = report->field[i];
+ 		int j;
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -293,6 +293,7 @@ struct hid_data {
+ 	bool inrange_state;
+ 	bool invert_state;
+ 	bool tipswitch;
++	bool confidence;
+ 	int x;
+ 	int y;
+ 	int pressure;
 
 
