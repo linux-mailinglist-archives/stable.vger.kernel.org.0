@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBF046A9D4
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2494E46A9C4
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 22:16:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350881AbhLFVTz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 16:19:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59104 "EHLO
+        id S1351013AbhLFVT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 16:19:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350830AbhLFVTd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:19:33 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89909C061D60;
-        Mon,  6 Dec 2021 13:16:04 -0800 (PST)
+        with ESMTP id S1350840AbhLFVTl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 16:19:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C010C061D7E;
+        Mon,  6 Dec 2021 13:16:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D736ECE17E3;
-        Mon,  6 Dec 2021 21:16:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 612BEC341C7;
-        Mon,  6 Dec 2021 21:15:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2653EB8110F;
+        Mon,  6 Dec 2021 21:16:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48501C341C1;
+        Mon,  6 Dec 2021 21:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638825361;
-        bh=oI7QOW09TqrgqqDrmRnFro9Q0kmZYFmfUTM0lBxZ0vY=;
+        s=k20201202; t=1638825370;
+        bh=0gv2sLSslX98X/4SZB+5tTFVgXgHd1/5d63Lh6cc4FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C40BTgjBkeqP9hywFogfWUldrXtNbMmMUG3QNbBv9umlrvYWJSP46z6gXBMmsvk8L
-         lv9ToYzS66bL5wTPWi/cqqyyDHe/Rlh37Q7bi9sJWmqVo6vJS3lWDjRITk1M24DfHU
-         l+94n2M+sN4Dp8rmh8xqqq391ZQtOruBTjo/BxjIt4GR0FcNQgXLIVcl1g82VwGO8C
-         T7qtSCxfEXAxThG9ck5CkF6lHokuogNMes1av3Uslj3xEEJF8l734R8gKvtynke/KV
-         7kDvm+TAG0VhZnm9EQKYlAR8FiwIEp32swazgF1tkd1INMFAu6d21jurX+X8zU3PWu
-         vI5gw5pt12pSw==
+        b=X6eaRhx6nP58nd0WdKQvxTPr0ajAA8S0xRt1lDkpvkAwDsSoANxnABOehMDi54REE
+         dcQWw2rH7nm4fTA5vtfXMwcvZWowiPDJBTzx/ZVnJ8EPh7JTvMIrTSwqHK50x5IeXa
+         NXIIdPbwBBUf7ZFEMwhE102Jqhy6Sj2CygNAv1OMgcbpYBoDT6Ghc2AIDmZritsego
+         364NZjCXYgS+emKtBcL19rS7KQyHj4NrGo1yFZ5Aev1WN5zdhljjzfUCG+qsFuDY5m
+         NT/8l5Ym05uNpRtjiUyq5eGwz4MdANaEGf07ePIrPOISoFnNb/5lvjy+m2IdluEgS6
+         uv+rg06DBsZpg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Erik Ekman <erik@kryo.se>,
-        Michael Stapelberg <michael@stapelberg.ch>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        netdev@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 06/15] net/mlx4_en: Update reported link modes for 1/10G
-Date:   Mon,  6 Dec 2021 16:15:06 -0500
-Message-Id: <20211206211520.1660478-6-sashal@kernel.org>
+Cc:     Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        perex@perex.cz, tiwai@suse.com,
+        pierre-louis.bossart@linux.intel.com, broonie@kernel.org,
+        imre.deak@intel.com, leon@kernel.org,
+        ranjani.sridharan@linux.intel.com,
+        guennadi.liakhovetski@linux.intel.com, hui.wang@canonical.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 07/15] ALSA: hda: Add Intel DG2 PCI ID and HDMI codec vid
+Date:   Mon,  6 Dec 2021 16:15:07 -0500
+Message-Id: <20211206211520.1660478-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211206211520.1660478-1-sashal@kernel.org>
 References: <20211206211520.1660478-1-sashal@kernel.org>
@@ -53,112 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 2191b1dfef7d45f44b5008d2148676d9f2c82874 ]
+[ Upstream commit d85ffff5302b1509efc482e8877c253b0a668b33 ]
 
-When link modes were initially added in commit 2c762679435dc
-("net/mlx4_en: Use PTYS register to query ethtool settings") and
-later updated for the new ethtool API in commit 3d8f7cc78d0eb
-("net: mlx4: use new ETHTOOL_G/SSETTINGS API") the only 1/10G non-baseT
-link modes configured were 1000baseKX, 10000baseKX4 and 10000baseKR.
-It looks like these got picked to represent other modes since nothing
-better was available.
+Add HD Audio PCI ID and HDMI codec vendor ID for Intel DG2.
 
-Switch to using more specific link modes added in commit 5711a98221443
-("net: ethtool: add support for 1000BaseX and missing 10G link modes").
-
-Tested with MCX311A-XCAT connected via DAC.
-Before:
-
-% sudo ethtool enp3s0
-Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseKX/Full
-	                        10000baseKR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseKX/Full
-	                        10000baseKR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-With this change:
-
-% sudo ethtool enp3s0
-	Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseX/Full
-	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseX/Full
- 	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-Tested-by: Michael Stapelberg <michael@stapelberg.ch>
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211130124732.696896-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/hda_intel.c  | 12 +++++++++++-
+ sound/pci/hda/patch_hdmi.c |  1 +
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-index 3616b77caa0ad..01275c376721c 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -663,7 +663,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
--				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
-+				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
-@@ -675,9 +675,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
- 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
- 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
- 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 64115a796af06..3cc936f2cbf8d 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -369,7 +369,10 @@ enum {
+ 					((pci)->device == 0x0c0c) || \
+ 					((pci)->device == 0x0d0c) || \
+ 					((pci)->device == 0x160c) || \
+-					((pci)->device == 0x490d))
++					((pci)->device == 0x490d) || \
++					((pci)->device == 0x4f90) || \
++					((pci)->device == 0x4f91) || \
++					((pci)->device == 0x4f92))
+ 
+ #define IS_BXT(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x5a98)
+ 
+@@ -2540,6 +2543,13 @@ static const struct pci_device_id azx_ids[] = {
+ 	/* DG1 */
+ 	{ PCI_DEVICE(0x8086, 0x490d),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	/* DG2 */
++	{ PCI_DEVICE(0x8086, 0x4f90),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	{ PCI_DEVICE(0x8086, 0x4f91),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	{ PCI_DEVICE(0x8086, 0x4f92),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+ 	/* Alderlake-S */
+ 	{ PCI_DEVICE(0x8086, 0x7ad0),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index c65144715af78..7b91615bcac32 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -4364,6 +4364,7 @@ HDA_CODEC_ENTRY(0x80862814, "DG1 HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862815, "Alderlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281c, "Alderlake-P HDMI", patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862816, "Rocketlake HDMI",	patch_i915_tgl_hdmi),
++HDA_CODEC_ENTRY(0x80862819, "DG2 HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281b, "Elkhartlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
 -- 
 2.33.0
 
