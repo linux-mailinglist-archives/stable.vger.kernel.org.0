@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3B71469D25
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:25:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 922CC469EB0
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350082AbhLFP2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42052 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376284AbhLFPXv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:23:51 -0500
+        id S1386000AbhLFPnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:43:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1388714AbhLFPei (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:34:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76DBFC07E5F3;
+        Mon,  6 Dec 2021 07:20:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EA1D612C1;
-        Mon,  6 Dec 2021 15:20:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00B12C341C1;
-        Mon,  6 Dec 2021 15:20:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EBB0B810AC;
+        Mon,  6 Dec 2021 15:20:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65792C341C2;
+        Mon,  6 Dec 2021 15:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804021;
-        bh=rAaja8OqKShVk0JRcifhjGZBXNwsWvpxrp6Ha6XRalY=;
+        s=korg; t=1638804029;
+        bh=kuNp9ksckLFnCMGd4ARqguiLs+L5cN445axbRFPQAqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVijb61aXPVo4XJTLn3eIwsAABee+fH70fl6TKgQnHIgSzJ19vuMO5HtxL3n/Eat3
-         rUnKcF4byVR4U7UzFQ+dRuGGb+h6tw0n3r1FXwcSQNziScQDE4REgjPaOCSGZanFDR
-         CcwxbTBMKo3bCZTYs3LbDmfv+YilP4RRbldq2iMM=
+        b=vElZc2BnvN0cohfJymNPQ6GETOZo7WhwTpeJ8oYf3HH62dpZjbK3ff+VDCO2ULmDM
+         rTc4l1XkMRUZn3QhWZHewtOm728nOB58Xr3rXaxEfMc10lT6FrBW0WZ0RpH+CKOcrW
+         DqKsSyg+mCm3bdZe+nD9CtGRJvT9oxgY/fyFQPUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Saurabh <ssaurabh@marvell.com>,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 102/130] atlantic: Remove warn trace message.
-Date:   Mon,  6 Dec 2021 15:56:59 +0100
-Message-Id: <20211206145603.168692182@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Like Xu <likexu@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 103/130] KVM: x86/pmu: Fix reserved bits for AMD PerfEvtSeln register
+Date:   Mon,  6 Dec 2021 15:57:00 +0100
+Message-Id: <20211206145603.200409455@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
 References: <20211206145559.607158688@linuxfoundation.org>
@@ -46,34 +49,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Saurabh <ssaurabh@marvell.com>
+From: Like Xu <likexu@tencent.com>
 
-commit 060a0fb721ec5bbe02ae322e434ec87dc25ed6e9 upstream.
+[ Upstream commit cb1d220da0faa5ca0deb93449aff953f0c2cce6d ]
 
-Remove the warn trace message - it's not a correct check here, because
-the function can still be called on the device in DOWN state
+If we run the following perf command in an AMD Milan guest:
 
-Fixes: 508f2e3dce454 ("net: atlantic: split rx and tx per-queue stats")
-Signed-off-by: Sameer Saurabh <ssaurabh@marvell.com>
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  perf stat \
+  -e cpu/event=0x1d0/ \
+  -e cpu/event=0x1c7/ \
+  -e cpu/umask=0x1f,event=0x18e/ \
+  -e cpu/umask=0x7,event=0x18e/ \
+  -e cpu/umask=0x18,event=0x18e/ \
+  ./workload
+
+dmesg will report a #GP warning from an unchecked MSR access
+error on MSR_F15H_PERF_CTLx.
+
+This is because according to APM (Revision: 4.03) Figure 13-7,
+the bits [35:32] of AMD PerfEvtSeln register is a part of the
+event select encoding, which extends the EVENT_SELECT field
+from 8 bits to 12 bits.
+
+Opportunistically update pmu->reserved_bits for reserved bit 19.
+
+Reported-by: Jim Mattson <jmattson@google.com>
+Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
+Signed-off-by: Like Xu <likexu@tencent.com>
+Message-Id: <20211118130320.95997-1-likexu@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_vec.c |    3 ---
- 1 file changed, 3 deletions(-)
+ arch/x86/kvm/svm/pmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-@@ -362,9 +362,6 @@ unsigned int aq_vec_get_sw_stats(struct
- {
- 	unsigned int count;
+diff --git a/arch/x86/kvm/svm/pmu.c b/arch/x86/kvm/svm/pmu.c
+index 035da07500e8b..5a5c165a30ed1 100644
+--- a/arch/x86/kvm/svm/pmu.c
++++ b/arch/x86/kvm/svm/pmu.c
+@@ -274,7 +274,7 @@ static void amd_pmu_refresh(struct kvm_vcpu *vcpu)
+ 		pmu->nr_arch_gp_counters = AMD64_NUM_COUNTERS;
  
--	WARN_ONCE(!aq_vec_is_valid_tc(self, tc),
--		  "Invalid tc %u (#rx=%u, #tx=%u)\n",
--		  tc, self->rx_rings, self->tx_rings);
- 	if (!aq_vec_is_valid_tc(self, tc))
- 		return 0;
- 
+ 	pmu->counter_bitmask[KVM_PMC_GP] = ((u64)1 << 48) - 1;
+-	pmu->reserved_bits = 0xffffffff00200000ull;
++	pmu->reserved_bits = 0xfffffff000280000ull;
+ 	pmu->version = 1;
+ 	/* not applicable to AMD; but clean them to prevent any fall out */
+ 	pmu->counter_bitmask[KVM_PMC_FIXED] = 0;
+-- 
+2.33.0
+
 
 
