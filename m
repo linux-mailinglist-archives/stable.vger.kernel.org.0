@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2FD469D4E
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19E62469E8B
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344008AbhLFP3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:29:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58936 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380145AbhLFPZL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:25:11 -0500
+        id S1379810AbhLFPjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:39:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60420 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378545AbhLFPgq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:36:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E63C5C09CE45;
+        Mon,  6 Dec 2021 07:21:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B34CB81132;
-        Mon,  6 Dec 2021 15:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E4F8C341C2;
-        Mon,  6 Dec 2021 15:21:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8613761320;
+        Mon,  6 Dec 2021 15:21:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A889C341C1;
+        Mon,  6 Dec 2021 15:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804100;
-        bh=3ZuQ7agRVfGGOLhnu0lAQFOlD6OrifS9UMyh1KpBFJU=;
+        s=korg; t=1638804103;
+        bh=n3597jHgL7vSM4mrRLxmd/92eVmOD7NHilGmdvqz/JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icLUUz0Yis2CC1SI9mo4I5p6TXVG1QtvByIMOvdvehBzBXoy1umvvBjpCU3qvXB+D
-         GLyUoJq2gJak2fc1IQUs4GWWQ9OrM1EHOISIqVUzxD8tm47XgXGS18UWMxmxjIEsg3
-         UT/3e9kI8G1Jnf2Ae4xAtvdIZeqV3LN8qiFbMb44=
+        b=qqlaioe4FgyUQT5MKIc8bUKr7+vZm1KVOz8d1/wkUKFdwZcDj4R5MkXu52foX2B26
+         RB2N0EQgUMF69CJ/J9ei5ihOUT4nO5CyaUG2xVUi27wngeiS/csmGuwirWJQbcNpJx
+         ERsr7vGgfcvtWt32YE+YVeW8Q86YLAoPWoxQfdLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jimmy Wang <jimmy221b@163.com>,
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/207] platform/x86: thinkpad_acpi: Add support for dual fan control
-Date:   Mon,  6 Dec 2021 15:54:40 +0100
-Message-Id: <20211206145611.110329716@linuxfoundation.org>
+Subject: [PATCH 5.15 027/207] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
+Date:   Mon,  6 Dec 2021 15:54:41 +0100
+Message-Id: <20211206145611.151759818@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -45,32 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Wang <jimmy221b@163.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-[ Upstream commit 1f338954a5fbe21eb22b4223141e31f2a26366d5 ]
+[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
 
-   This adds dual fan control for P1 / X1 Extreme Gen4
+When WWAN device wake from S3 deep, under thinkpad platform,
+WWAN would be disabled. This disable status could be checked
+by command 'nmcli r wwan' or 'rfkill list'.
 
-Signed-off-by: Jimmy Wang <jimmy221b@163.com>
-Link: https://lore.kernel.org/r/20211105090528.39677-1-jimmy221b@163.com
+Issue analysis as below:
+  When host resume from S3 deep, thinkpad_acpi driver would
+call hotkey_resume() function. Finnaly, it will use
+wan_get_status to check the current status of WWAN device.
+During this resume progress, wan_get_status would always
+return off even WWAN boot up completely.
+  In patch V2, Hans said 'sw_state should be unchanged
+after a suspend/resume. It's better to drop the
+tpacpi_rfk_update_swstate call all together from the
+resume path'.
+  And it's confimed by Lenovo that GWAN is no longer
+ available from WHL generation because the design does not
+ match with current pin control.
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/thinkpad_acpi.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
 diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 27595aba214d9..6aa31816159cf 100644
+index 6aa31816159cf..3dc055ce6e61b 100644
 --- a/drivers/platform/x86/thinkpad_acpi.c
 +++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -8853,6 +8853,7 @@ static const struct tpacpi_quirk fan_quirk_table[] __initconst = {
- 	TPACPI_Q_LNV3('N', '2', 'E', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (1st gen) */
- 	TPACPI_Q_LNV3('N', '2', 'O', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (2nd gen) */
- 	TPACPI_Q_LNV3('N', '2', 'V', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (3nd gen) */
-+	TPACPI_Q_LNV3('N', '4', '0', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (4nd gen) */
- 	TPACPI_Q_LNV3('N', '3', '0', TPACPI_FAN_2CTL),	/* P15 (1st gen) / P15v (1st gen) */
- 	TPACPI_Q_LNV3('N', '3', '2', TPACPI_FAN_2CTL),	/* X1 Carbon (9th gen) */
- };
+@@ -1178,15 +1178,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
+ 	return status;
+ }
+ 
+-/* Query FW and update rfkill sw state for all rfkill switches */
+-static void tpacpi_rfk_update_swstate_all(void)
+-{
+-	unsigned int i;
+-
+-	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
+-		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
+-}
+-
+ /*
+  * Sync the HW-blocking state of all rfkill switches,
+  * do notice it causes the rfkill core to schedule uevents
+@@ -3129,9 +3120,6 @@ static void tpacpi_send_radiosw_update(void)
+ 	if (wlsw == TPACPI_RFK_RADIO_OFF)
+ 		tpacpi_rfk_update_hwblock_state(true);
+ 
+-	/* Sync sw blocking state */
+-	tpacpi_rfk_update_swstate_all();
+-
+ 	/* Sync hw blocking state last if it is hw-unblocked */
+ 	if (wlsw == TPACPI_RFK_RADIO_ON)
+ 		tpacpi_rfk_update_hwblock_state(false);
 -- 
 2.33.0
 
