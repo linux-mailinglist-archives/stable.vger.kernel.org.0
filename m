@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38367469D3D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A862F469E5A
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349485AbhLFP2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:28:44 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40652 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358396AbhLFPYY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:24:24 -0500
+        id S1356753AbhLFPiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:38:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1389217AbhLFPfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:35:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5921C08EA3F;
+        Mon,  6 Dec 2021 07:20:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 055E16131B;
-        Mon,  6 Dec 2021 15:20:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E13F9C341C1;
-        Mon,  6 Dec 2021 15:20:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F5A2B8111E;
+        Mon,  6 Dec 2021 15:20:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7856C341C2;
+        Mon,  6 Dec 2021 15:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638804052;
-        bh=xK7leu6dHAMktzkNzqRf+5HU2isjzX2K5dKG/Xc3DgI=;
+        s=korg; t=1638804055;
+        bh=/Sbowx0mAiWIoQTstUbAKneiRbodDlnMsju38rGnDUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HRAcVVcDqTGxhrJU92ZZ528XnqGK6wL7yJwLCzq6Z/cM3Nb/41vXlxj2lXFEVDQl7
-         qy3wpeynzh+qmGU07tAjOmhIlLM9jyo1Movxxb4/FulcVZs+JC8ypnDPKMV4gVB9tX
-         KIenwGFbEofAE0Whctw2FTcXhOFi3z1VLceD2HaM=
+        b=JhmFnc8zY3NCnhRZhVY7ofqyXSoDInRnXEgLLQzMa8wqjQifiQ9ev56CN/5aduLue
+         zQt9Nw/pBKdZRJKMR2A9DE7O5xI0uY3H+z//ZWJFil8t8KwzAD6fPpz02cpYSG016+
+         tDQ+eAZ98HDwT9WYmVTFLx1lk1TosYMqxCiaCwuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 010/207] ALSA: usb-audio: Less restriction for low-latency playback mode
-Date:   Mon,  6 Dec 2021 15:54:24 +0100
-Message-Id: <20211206145610.541848445@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: [PATCH 5.15 011/207] ALSA: usb-audio: Switch back to non-latency mode at a later point
+Date:   Mon,  6 Dec 2021 15:54:25 +0100
+Message-Id: <20211206145610.575373835@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
 References: <20211206145610.172203682@linuxfoundation.org>
@@ -45,36 +49,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 53451b6da8271905941eb1eb369db152c4bd92f2 upstream.
+commit eee5d6f1356a016105a974fb176b491288439efa upstream.
 
-The recent support for the improved low-latency playback mode applied
-the SNDRV_PCM_INFO_EXPLICIT_SYNC flag for the target streams, but this
-was a slight overkill.  The use of the flag above disables effectively
-both PCM status and control mmaps, while basically what we want to
-track is only about the appl_ptr update.
+The recent regression report revealed that the judgment of the
+low-latency playback mode based on the runtime->stop_threshold cannot
+work reliably at the prepare stage, as sw_params call may happen at
+any time, and PCM dmix actually sets it up after the prepare call.
+This ended up with the stall of the stream as PCM ack won't be issued
+at all.
 
-For less restriction, use a more proper flag,
-SNDRV_PCM_INFO_SYNC_APPLPTR instead, which disables only the control
-mmap.
+For addressing this, check the free-wheeling mode again at the PCM
+trigger right before starting the stream again, and allow switching to
+the non-LL mode at a late stage.
 
 Fixes: d5f871f89e21 ("ALSA: usb-audio: Improved lowlatency playback support")
-Link: https://lore.kernel.org/r/20211011103650.10182-1-tiwai@suse.de
+Reported-and-tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Link: https://lore.kernel.org/r/20211117161855.m45mxcqszkfcetai@box.shutemov.name
+Link: https://lore.kernel.org/r/20211119102459.7055-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/pcm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/pcm.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 --- a/sound/usb/pcm.c
 +++ b/sound/usb/pcm.c
-@@ -1095,7 +1095,7 @@ static int snd_usb_pcm_open(struct snd_p
- 	/* need an explicit sync to catch applptr update in low-latency mode */
- 	if (direction == SNDRV_PCM_STREAM_PLAYBACK &&
- 	    as->chip->lowlatency)
--		runtime->hw.info |= SNDRV_PCM_INFO_EXPLICIT_SYNC;
-+		runtime->hw.info |= SNDRV_PCM_INFO_SYNC_APPLPTR;
- 	runtime->private_data = subs;
- 	subs->pcm_substream = substream;
- 	/* runtime PM is also done there */
+@@ -581,6 +581,12 @@ static int snd_usb_hw_free(struct snd_pc
+ 	return 0;
+ }
+ 
++/* free-wheeling mode? (e.g. dmix) */
++static int in_free_wheeling_mode(struct snd_pcm_runtime *runtime)
++{
++	return runtime->stop_threshold > runtime->buffer_size;
++}
++
+ /* check whether early start is needed for playback stream */
+ static int lowlatency_playback_available(struct snd_pcm_runtime *runtime,
+ 					 struct snd_usb_substream *subs)
+@@ -592,8 +598,7 @@ static int lowlatency_playback_available
+ 	/* disabled via module option? */
+ 	if (!chip->lowlatency)
+ 		return false;
+-	/* free-wheeling mode? (e.g. dmix) */
+-	if (runtime->stop_threshold > runtime->buffer_size)
++	if (in_free_wheeling_mode(runtime))
+ 		return false;
+ 	/* implicit feedback mode has own operation mode */
+ 	if (snd_usb_endpoint_implicit_feedback_sink(subs->data_endpoint))
+@@ -1545,6 +1550,8 @@ static int snd_usb_substream_playback_tr
+ 					      subs);
+ 		if (subs->lowlatency_playback &&
+ 		    cmd == SNDRV_PCM_TRIGGER_START) {
++			if (in_free_wheeling_mode(substream->runtime))
++				subs->lowlatency_playback = false;
+ 			err = start_endpoints(subs);
+ 			if (err < 0) {
+ 				snd_usb_endpoint_set_callback(subs->data_endpoint,
 
 
