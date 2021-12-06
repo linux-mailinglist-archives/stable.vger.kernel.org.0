@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5539C4699D9
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A5F469C27
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345338AbhLFPEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
+        id S1349473AbhLFPVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:21:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345365AbhLFPDn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:03:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C43C0698D3;
-        Mon,  6 Dec 2021 06:59:45 -0800 (PST)
+        with ESMTP id S1356616AbhLFPSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:18:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB18C08E843;
+        Mon,  6 Dec 2021 07:11:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C377B81017;
-        Mon,  6 Dec 2021 14:59:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50F04C341C2;
-        Mon,  6 Dec 2021 14:59:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBBA561330;
+        Mon,  6 Dec 2021 15:11:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A15B9C341D1;
+        Mon,  6 Dec 2021 15:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802782;
-        bh=/IiACQVPNWyvMyTjeZMYZTuSqP6oZ2wf+yCoxi/XMSM=;
+        s=korg; t=1638803488;
+        bh=XEzrYMBGYkk3IuC17Hh1XTiQio+TLdBSJNHVnZkED4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=niDpa2x+BhBNc3ZSduYpC0Q2gTnhPBC/NQNoUA+t2q3N2GnJiPH9qv2w2aVD+gOCS
-         W9Kno61dtIKIvKbk6OLpNZizlXYWEJ9HZhP7QLfP92JtEIbuZbhkiZ6kxDialZkPFc
-         PrEgMlW8DWyADgWcenVCdlbv+PF0kjK7kHF0bQIs=
+        b=wrNIcskbSm2/qBubhNcjPTWuyGS74uE5cKjfg7fLNvyZ+Bsxecs3xjfIZ5QF7d5E0
+         rGE2Au4LeCWzz6J3TRIHdyBb1kmPbDpOTIs4dg9Cv432PuJfC8l/Fe28oY/6EWB47B
+         gNlLVd88g+l1HYpygKBIGOdBfW6sPfwe2J6M/cQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 31/52] xen/netfront: disentangle tx_skb_freelist
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/70] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
 Date:   Mon,  6 Dec 2021 15:56:15 +0100
-Message-Id: <20211206145548.942934372@linuxfoundation.org>
+Message-Id: <20211206145552.294056604@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
+References: <20211206145551.909846023@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,179 +48,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit 21631d2d741a64a073e167c27769e73bc7844a2f upstream.
+[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
 
-The tx_skb_freelist elements are in a single linked list with the
-request id used as link reference. The per element link field is in a
-union with the skb pointer of an in use request.
+When WWAN device wake from S3 deep, under thinkpad platform,
+WWAN would be disabled. This disable status could be checked
+by command 'nmcli r wwan' or 'rfkill list'.
 
-Move the link reference out of the union in order to enable a later
-reuse of it for requests which need a populated skb pointer.
+Issue analysis as below:
+  When host resume from S3 deep, thinkpad_acpi driver would
+call hotkey_resume() function. Finnaly, it will use
+wan_get_status to check the current status of WWAN device.
+During this resume progress, wan_get_status would always
+return off even WWAN boot up completely.
+  In patch V2, Hans said 'sw_state should be unchanged
+after a suspend/resume. It's better to drop the
+tpacpi_rfk_update_swstate call all together from the
+resume path'.
+  And it's confimed by Lenovo that GWAN is no longer
+ available from WHL generation because the design does not
+ match with current pin control.
 
-Rename add_id_to_freelist() and get_id_from_freelist() to
-add_id_to_list() and get_id_from_list() in order to prepare using
-those for other lists as well. Define ~0 as value to indicate the end
-of a list and place that value into the link for a request not being
-on the list.
-
-When freeing a skb zero the skb pointer in the request. Use a NULL
-value of the skb pointer instead of skb_entry_is_link() for deciding
-whether a request has a skb linked to it.
-
-Remove skb_entry_set_link() and open code it instead as it is really
-trivial now.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c |   61 ++++++++++++++++++---------------------------
- 1 file changed, 25 insertions(+), 36 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 12 ------------
+ 1 file changed, 12 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -120,17 +120,11 @@ struct netfront_queue {
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 3028d9f1ac59c..5d114088c88fb 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -1188,15 +1188,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
+ 	return status;
+ }
  
- 	/*
- 	 * {tx,rx}_skbs store outstanding skbuffs. Free tx_skb entries
--	 * are linked from tx_skb_freelist through skb_entry.link.
--	 *
--	 *  NB. Freelist index entries are always going to be less than
--	 *  PAGE_OFFSET, whereas pointers to skbs will always be equal or
--	 *  greater than PAGE_OFFSET: we use this property to distinguish
--	 *  them.
-+	 * are linked from tx_skb_freelist through tx_link.
- 	 */
--	union skb_entry {
--		struct sk_buff *skb;
--		unsigned long link;
--	} tx_skbs[NET_TX_RING_SIZE];
-+	struct sk_buff *tx_skbs[NET_TX_RING_SIZE];
-+	unsigned short tx_link[NET_TX_RING_SIZE];
-+#define TX_LINK_NONE 0xffff
- 	grant_ref_t gref_tx_head;
- 	grant_ref_t grant_tx_ref[NET_TX_RING_SIZE];
- 	struct page *grant_tx_page[NET_TX_RING_SIZE];
-@@ -168,33 +162,25 @@ struct netfront_rx_info {
- 	struct xen_netif_extra_info extras[XEN_NETIF_EXTRA_TYPE_MAX - 1];
- };
- 
--static void skb_entry_set_link(union skb_entry *list, unsigned short id)
+-/* Query FW and update rfkill sw state for all rfkill switches */
+-static void tpacpi_rfk_update_swstate_all(void)
 -{
--	list->link = id;
--}
+-	unsigned int i;
 -
--static int skb_entry_is_link(const union skb_entry *list)
--{
--	BUILD_BUG_ON(sizeof(list->skb) != sizeof(list->link));
--	return (unsigned long)list->skb < PAGE_OFFSET;
+-	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
+-		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
 -}
 -
  /*
-  * Access macros for acquiring freeing slots in tx_skbs[].
-  */
+  * Sync the HW-blocking state of all rfkill switches,
+  * do notice it causes the rfkill core to schedule uevents
+@@ -3135,9 +3126,6 @@ static void tpacpi_send_radiosw_update(void)
+ 	if (wlsw == TPACPI_RFK_RADIO_OFF)
+ 		tpacpi_rfk_update_hwblock_state(true);
  
--static void add_id_to_freelist(unsigned *head, union skb_entry *list,
--			       unsigned short id)
-+static void add_id_to_list(unsigned *head, unsigned short *list,
-+			   unsigned short id)
- {
--	skb_entry_set_link(&list[id], *head);
-+	list[id] = *head;
- 	*head = id;
- }
- 
--static unsigned short get_id_from_freelist(unsigned *head,
--					   union skb_entry *list)
-+static unsigned short get_id_from_list(unsigned *head, unsigned short *list)
- {
- 	unsigned int id = *head;
--	*head = list[id].link;
-+
-+	if (id != TX_LINK_NONE) {
-+		*head = list[id];
-+		list[id] = TX_LINK_NONE;
-+	}
- 	return id;
- }
- 
-@@ -394,7 +380,8 @@ static void xennet_tx_buf_gc(struct netf
- 				continue;
- 
- 			id  = txrsp.id;
--			skb = queue->tx_skbs[id].skb;
-+			skb = queue->tx_skbs[id];
-+			queue->tx_skbs[id] = NULL;
- 			if (unlikely(gnttab_query_foreign_access(
- 				queue->grant_tx_ref[id]) != 0)) {
- 				pr_alert("%s: warning -- grant still in use by backend domain\n",
-@@ -407,7 +394,7 @@ static void xennet_tx_buf_gc(struct netf
- 				&queue->gref_tx_head, queue->grant_tx_ref[id]);
- 			queue->grant_tx_ref[id] = GRANT_INVALID_REF;
- 			queue->grant_tx_page[id] = NULL;
--			add_id_to_freelist(&queue->tx_skb_freelist, queue->tx_skbs, id);
-+			add_id_to_list(&queue->tx_skb_freelist, queue->tx_link, id);
- 			dev_kfree_skb_irq(skb);
- 		}
- 
-@@ -450,7 +437,7 @@ static void xennet_tx_setup_grant(unsign
- 	struct netfront_queue *queue = info->queue;
- 	struct sk_buff *skb = info->skb;
- 
--	id = get_id_from_freelist(&queue->tx_skb_freelist, queue->tx_skbs);
-+	id = get_id_from_list(&queue->tx_skb_freelist, queue->tx_link);
- 	tx = RING_GET_REQUEST(&queue->tx, queue->tx.req_prod_pvt++);
- 	ref = gnttab_claim_grant_reference(&queue->gref_tx_head);
- 	WARN_ON_ONCE(IS_ERR_VALUE((unsigned long)(int)ref));
-@@ -458,7 +445,7 @@ static void xennet_tx_setup_grant(unsign
- 	gnttab_grant_foreign_access_ref(ref, queue->info->xbdev->otherend_id,
- 					gfn, GNTMAP_readonly);
- 
--	queue->tx_skbs[id].skb = skb;
-+	queue->tx_skbs[id] = skb;
- 	queue->grant_tx_page[id] = page;
- 	queue->grant_tx_ref[id] = ref;
- 
-@@ -1126,17 +1113,18 @@ static void xennet_release_tx_bufs(struc
- 
- 	for (i = 0; i < NET_TX_RING_SIZE; i++) {
- 		/* Skip over entries which are actually freelist references */
--		if (skb_entry_is_link(&queue->tx_skbs[i]))
-+		if (!queue->tx_skbs[i])
- 			continue;
- 
--		skb = queue->tx_skbs[i].skb;
-+		skb = queue->tx_skbs[i];
-+		queue->tx_skbs[i] = NULL;
- 		get_page(queue->grant_tx_page[i]);
- 		gnttab_end_foreign_access(queue->grant_tx_ref[i],
- 					  GNTMAP_readonly,
- 					  (unsigned long)page_address(queue->grant_tx_page[i]));
- 		queue->grant_tx_page[i] = NULL;
- 		queue->grant_tx_ref[i] = GRANT_INVALID_REF;
--		add_id_to_freelist(&queue->tx_skb_freelist, queue->tx_skbs, i);
-+		add_id_to_list(&queue->tx_skb_freelist, queue->tx_link, i);
- 		dev_kfree_skb_irq(skb);
- 	}
- }
-@@ -1637,13 +1625,14 @@ static int xennet_init_queue(struct netf
- 	snprintf(queue->name, sizeof(queue->name), "vif%s-q%u",
- 		 devid, queue->id);
- 
--	/* Initialise tx_skbs as a free chain containing every entry. */
-+	/* Initialise tx_skb_freelist as a free chain containing every entry. */
- 	queue->tx_skb_freelist = 0;
- 	for (i = 0; i < NET_TX_RING_SIZE; i++) {
--		skb_entry_set_link(&queue->tx_skbs[i], i+1);
-+		queue->tx_link[i] = i + 1;
- 		queue->grant_tx_ref[i] = GRANT_INVALID_REF;
- 		queue->grant_tx_page[i] = NULL;
- 	}
-+	queue->tx_link[NET_TX_RING_SIZE - 1] = TX_LINK_NONE;
- 
- 	/* Clear out rx_skbs */
- 	for (i = 0; i < NET_RX_RING_SIZE; i++) {
+-	/* Sync sw blocking state */
+-	tpacpi_rfk_update_swstate_all();
+-
+ 	/* Sync hw blocking state last if it is hw-unblocked */
+ 	if (wlsw == TPACPI_RFK_RADIO_ON)
+ 		tpacpi_rfk_update_hwblock_state(false);
+-- 
+2.33.0
+
 
 
