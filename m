@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDFD44699FF
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E60E469C93
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345695AbhLFPEt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:04:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52360 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345270AbhLFPEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:04:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EDF2C0698E5;
-        Mon,  6 Dec 2021 07:00:31 -0800 (PST)
+        id S1344835AbhLFPXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:23:40 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38838 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345164AbhLFPTv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:19:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 244CB612C0;
-        Mon,  6 Dec 2021 15:00:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06AFCC341C1;
-        Mon,  6 Dec 2021 15:00:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01AEA612DB;
+        Mon,  6 Dec 2021 15:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5950C341C2;
+        Mon,  6 Dec 2021 15:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638802830;
-        bh=xexyGZS4u3UlzD8zCwsTvgRNjuZuYYNwR+M3eSREFCw=;
+        s=korg; t=1638803781;
+        bh=BKJIY6la4EjbejNgntuX5jeB5u8bWyQ+xRnXcMK8FeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EebBL7leL56ymNZqMSpXktDieXxpoB1GyY7NZD5yr3tdFUEcTQxnsziCEwhyjOujr
-         h9kcp1++tpCvP1EPLKKfzuPubZ3xIEFMbrgMGkOiLPLJDhvzqE9OV/36bXszSfio7k
-         o2UPBvyDSi8asUahYtoAGISlBNpGQNvySLi8dKOU=
+        b=Te/zyq0bGWFSEXYzpu3k689m8newbJQ8aJZDINfJnfJHYL3Fv/v/K6hXtHKy9wq8+
+         5AEcLR/hH6xM021V+1LAx1qI8ogAiyxWh3MKgCv6+PfQL6Bocpj2PLO69K8h5DZDE7
+         iE57LR0E+2CiklHbeese/LOh/exkVXw618Agn9Rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        Yuchung Cheng <ycheng@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 17/52] tcp_cubic: fix spurious Hystart ACK train detections for not-cwnd-limited flows
-Date:   Mon,  6 Dec 2021 15:56:01 +0100
-Message-Id: <20211206145548.487427069@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Chris January <Chris.January@arm.com>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 045/130] KVM: arm64: Avoid setting the upper 32 bits of TCR_EL2 and CPTR_EL2 to 1
+Date:   Mon,  6 Dec 2021 15:56:02 +0100
+Message-Id: <20211206145601.237522262@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145547.892668902@linuxfoundation.org>
-References: <20211206145547.892668902@linuxfoundation.org>
+In-Reply-To: <20211206145559.607158688@linuxfoundation.org>
+References: <20211206145559.607158688@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,87 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-[ Upstream commit 4e1fddc98d2585ddd4792b5e44433dcee7ece001 ]
+commit 1f80d15020d7f130194821feb1432b67648c632d upstream.
 
-While testing BIG TCP patch series, I was expecting that TCP_RR workloads
-with 80KB requests/answers would send one 80KB TSO packet,
-then being received as a single GRO packet.
+Having a signed (1 << 31) constant for TCR_EL2_RES1 and CPTR_EL2_TCPAC
+causes the upper 32-bit to be set to 1 when assigning them to a 64-bit
+variable. Bit 32 in TCR_EL2 is no longer RES0 in ARMv8.7: with FEAT_LPA2
+it changes the meaning of bits 49:48 and 9:8 in the stage 1 EL2 page
+table entries. As a result of the sign-extension, a non-VHE kernel can
+no longer boot on a model with ARMv8.7 enabled.
 
-It turns out this was not happening, and the root cause was that
-cubic Hystart ACK train was triggering after a few (2 or 3) rounds of RPC.
+CPTR_EL2 still has the top 32 bits RES0 but we should preempt any future
+problems
 
-Hystart was wrongly setting CWND/SSTHRESH to 30, while my RPC
-needed a budget of ~20 segments.
+Make these top bit constants unsigned as per commit df655b75c43f
+("arm64: KVM: Avoid setting the upper 32 bits of VTCR_EL2 to 1").
 
-Ideally these TCP_RR flows should not exit slow start.
-
-Cubic Hystart should reset itself at each round, instead of assuming
-every TCP flow is a bulk one.
-
-Note that even after this patch, Hystart can still trigger, depending
-on scheduling artifacts, but at a higher CWND/SSTHRESH threshold,
-keeping optimal TSO packet sizes.
-
-Tested:
-
-ip link set dev eth0 gro_ipv6_max_size 131072 gso_ipv6_max_size 131072
-nstat -n; netperf -H ... -t TCP_RR  -l 5  -- -r 80000,80000 -K cubic; nstat|egrep "Ip6InReceives|Hystart|Ip6OutRequests"
-
-Before:
-
-   8605
-Ip6InReceives                   87541              0.0
-Ip6OutRequests                  129496             0.0
-TcpExtTCPHystartTrainDetect     1                  0.0
-TcpExtTCPHystartTrainCwnd       30                 0.0
-
-After:
-
-  8760
-Ip6InReceives                   88514              0.0
-Ip6OutRequests                  87975              0.0
-
-Fixes: ae27e98a5152 ("[TCP] CUBIC v2.3")
-Co-developed-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Yuchung Cheng <ycheng@google.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Link: https://lore.kernel.org/r/20211123202535.1843771-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: Chris January <Chris.January@arm.com>
+Cc: <stable@vger.kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211125152014.2806582-1-catalin.marinas@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_cubic.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/kvm_arm.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_cubic.c b/net/ipv4/tcp_cubic.c
-index 9fb3a5e83a7c7..e0b3b194b6049 100644
---- a/net/ipv4/tcp_cubic.c
-+++ b/net/ipv4/tcp_cubic.c
-@@ -342,8 +342,6 @@ static void bictcp_cong_avoid(struct sock *sk, u32 ack, u32 acked)
- 		return;
+--- a/arch/arm64/include/asm/kvm_arm.h
++++ b/arch/arm64/include/asm/kvm_arm.h
+@@ -83,7 +83,7 @@
+ #define HCR_HOST_VHE_FLAGS (HCR_RW | HCR_TGE | HCR_E2H)
  
- 	if (tcp_in_slow_start(tp)) {
--		if (hystart && after(ack, ca->end_seq))
--			bictcp_hystart_reset(sk);
- 		acked = tcp_slow_start(tp, acked);
- 		if (!acked)
- 			return;
-@@ -394,6 +392,9 @@ static void hystart_update(struct sock *sk, u32 delay)
- 	if (ca->found & hystart_detect)
- 		return;
+ /* TCR_EL2 Registers bits */
+-#define TCR_EL2_RES1		((1 << 31) | (1 << 23))
++#define TCR_EL2_RES1		((1U << 31) | (1 << 23))
+ #define TCR_EL2_TBI		(1 << 20)
+ #define TCR_EL2_PS_SHIFT	16
+ #define TCR_EL2_PS_MASK		(7 << TCR_EL2_PS_SHIFT)
+@@ -268,7 +268,7 @@
+ #define CPTR_EL2_TFP_SHIFT 10
  
-+	if (after(tp->snd_una, ca->end_seq))
-+		bictcp_hystart_reset(sk);
-+
- 	if (hystart_detect & HYSTART_ACK_TRAIN) {
- 		u32 now = bictcp_clock();
- 
--- 
-2.33.0
-
+ /* Hyp Coprocessor Trap Register */
+-#define CPTR_EL2_TCPAC	(1 << 31)
++#define CPTR_EL2_TCPAC	(1U << 31)
+ #define CPTR_EL2_TAM	(1 << 30)
+ #define CPTR_EL2_TTA	(1 << 20)
+ #define CPTR_EL2_TFP	(1 << CPTR_EL2_TFP_SHIFT)
 
 
