@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5368469B8D
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C731469BDE
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:15:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347856AbhLFPRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35098 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346843AbhLFPPT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:19 -0500
+        id S1359266AbhLFPRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:17:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54258 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356080AbhLFPOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:14:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97E54C08EB3E;
+        Mon,  6 Dec 2021 07:06:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FFC861329;
-        Mon,  6 Dec 2021 15:11:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72AF5C341C5;
-        Mon,  6 Dec 2021 15:11:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D488B810F1;
+        Mon,  6 Dec 2021 15:06:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DD72C341C2;
+        Mon,  6 Dec 2021 15:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803491;
-        bh=cCKOnF1J9lGvvt+vd6E2ZT5Fps/Grrz8rJbM4Wj70cE=;
+        s=korg; t=1638803213;
+        bh=SYADHwegBHLHX2IqBrWF5EqWP6v8l1dzTJnhdpZVJMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzYmxdm4JwKDL51ppFD8ehnOftmn1+uY5hn1ICQapvWh8Enm3SBPy2Uozx79Z+IiG
-         c+AZgGpfyHBFG3Pp2o0dtPzuma8fS9IM0COnS8dag2sISV5WKH2ZJWIz55fMTyfmmd
-         V7ImqzMRtZRFV00wXe6oIbgZo69kHNwB30sJSrLs=
+        b=Dm4cFnzd42s1sfGtAbu11R5/64hWZwQqWXg/5ntCPGx2sVzhV46LnZFTSbm1VWBNH
+         VZN+UL2rvmSonEiCAvWYsjfw9i2HcH+drRkBo/eWc85Ufq5JgvXGiLVqouCbhJeABb
+         Tyj55hpbilGqO2UBL7YZbfNOaWyNY++r+3mvVlf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/70] s390/setup: avoid using memblock_enforce_memory_limit
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.14 068/106] tty: hvc: replace BUG_ON() with negative return value
 Date:   Mon,  6 Dec 2021 15:56:16 +0100
-Message-Id: <20211206145552.325802398@linuxfoundation.org>
+Message-Id: <20211206145557.824018686@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145555.386095297@linuxfoundation.org>
+References: <20211206145555.386095297@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
+commit e679004dec37566f658a255157d3aed9d762a2b7 upstream.
 
-There is a difference in how architectures treat "mem=" option. For some
-that is an amount of online memory, for s390 and x86 this is the limiting
-max address. Some memblock api like memblock_enforce_memory_limit()
-take limit argument and explicitly treat it as the size of online memory,
-and use __find_max_addr to convert it to an actual max address. Current
-s390 usage:
+Xen frontends shouldn't BUG() in case of illegal data received from
+their backends. So replace the BUG_ON()s when reading illegal data from
+the ring page with negative return values.
 
-memblock_enforce_memory_limit(memblock_end_of_DRAM());
-
-yields different results depending on presence of memory holes (offline
-memory blocks in between online memory). If there are no memory holes
-limit == max_addr in memblock_enforce_memory_limit() and it does trim
-online memory and reserved memory regions. With memory holes present it
-actually does nothing.
-
-Since we already use memblock_remove() explicitly to trim online memory
-regions to potential limit (think mem=, kdump, addressing limits, etc.)
-drop the usage of memblock_enforce_memory_limit() altogether. Trimming
-reserved regions should not be required, since we now use
-memblock_set_current_limit() to limit allocations and any explicit memory
-reservations above the limit is an actual problem we should not hide.
-
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20210707091045.460-1-jgross@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/setup.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/tty/hvc/hvc_xen.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index f661f176966f5..9a0316a067a11 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -841,9 +841,6 @@ static void __init setup_memory(void)
- 		storage_key_init_range(reg->base, reg->base + reg->size);
- 	}
- 	psw_set_key(PAGE_DEFAULT_KEY);
--
--	/* Only cosmetics */
--	memblock_enforce_memory_limit(memblock_end_of_DRAM());
- }
+--- a/drivers/tty/hvc/hvc_xen.c
++++ b/drivers/tty/hvc/hvc_xen.c
+@@ -99,7 +99,11 @@ static int __write_console(struct xencon
+ 	cons = intf->out_cons;
+ 	prod = intf->out_prod;
+ 	mb();			/* update queue values before going on */
+-	BUG_ON((prod - cons) > sizeof(intf->out));
++
++	if ((prod - cons) > sizeof(intf->out)) {
++		pr_err_once("xencons: Illegal ring page indices");
++		return -EINVAL;
++	}
  
- /*
--- 
-2.33.0
-
+ 	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
+ 		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
+@@ -127,7 +131,10 @@ static int domU_write_console(uint32_t v
+ 	 */
+ 	while (len) {
+ 		int sent = __write_console(cons, data, len);
+-		
++
++		if (sent < 0)
++			return sent;
++
+ 		data += sent;
+ 		len -= sent;
+ 
+@@ -151,7 +158,11 @@ static int domU_read_console(uint32_t vt
+ 	cons = intf->in_cons;
+ 	prod = intf->in_prod;
+ 	mb();			/* get pointers before reading ring */
+-	BUG_ON((prod - cons) > sizeof(intf->in));
++
++	if ((prod - cons) > sizeof(intf->in)) {
++		pr_err_once("xencons: Illegal ring page indices");
++		return -EINVAL;
++	}
+ 
+ 	while (cons != prod && recv < len)
+ 		buf[recv++] = intf->in[MASK_XENCONS_IDX(cons++, intf->in)];
 
 
