@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03FCB469B64
-	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3964B469ECA
+	for <lists+stable@lfdr.de>; Mon,  6 Dec 2021 16:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348198AbhLFPRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 10:17:18 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35630 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357057AbhLFPP4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:15:56 -0500
+        id S1358934AbhLFPoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 10:44:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390245AbhLFPmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 10:42:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E025C08ECB8;
+        Mon,  6 Dec 2021 07:25:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15ECE61319;
-        Mon,  6 Dec 2021 15:12:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2605C341C2;
-        Mon,  6 Dec 2021 15:12:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C08361309;
+        Mon,  6 Dec 2021 15:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 053E6C34900;
+        Mon,  6 Dec 2021 15:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638803546;
-        bh=M5Z+3pt+FhGukmgwWamYUThxGpWs/0c0Twp3UWwh+IY=;
+        s=korg; t=1638804358;
+        bh=B1tPb4Y81YUEFcjknVtv2dgfbxahQigJmXfHtEaZks4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6kRWJFigN7eOnos9lghuO+b01+3/w3jYZtwqdsHZg3mdHMQg+BBjO1XdnrKx409c
-         T2iIaXeQzwfxyFscdsbgtEQWe5z60GRXnqxtJ2DsKLROKNyPHWvs3qmvYmFQJJ8VKJ
-         W/Q+KyU/4BFXEbaLKw364LLJxR9Uhr+CbxFbKBa0=
+        b=vx5mFeY1CXya3od5fjwer2H5o7zrvYk8IHKwsSTdB2NHSAzbyhvmPOoZngdwvEg0O
+         rsm5IpjGWxMn035LN5aScbaeU1Yn4hYtkWnQLpq6B/cfkd/7QUEwjSv58ELM5ehGPm
+         XVO5brytqCurGJNpTmJ6LQ3OHryTMs6yzFzgRhRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/70] atlantic: Fix OOB read and write in hw_atl_utils_fw_rpc_wait
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Mark Brown <broonie@kernel.org>,
+        Sameer Pujar <spujar@nvidia.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 119/207] ASoC: tegra: Fix kcontrol put callback in ADMAIF
 Date:   Mon,  6 Dec 2021 15:56:13 +0100
-Message-Id: <20211206145552.229649686@linuxfoundation.org>
+Message-Id: <20211206145614.364492195@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211206145551.909846023@linuxfoundation.org>
-References: <20211206145551.909846023@linuxfoundation.org>
+In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
+References: <20211206145610.172203682@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,92 +48,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Sameer Pujar <spujar@nvidia.com>
 
-[ Upstream commit b922f622592af76b57cbc566eaeccda0b31a3496 ]
+commit e2b87a18a60c02d0dcd1de801d669587e516cc4d upstream.
 
-This bug report shows up when running our research tools. The
-reports is SOOB read, but it seems SOOB write is also possible
-a few lines below.
+The kcontrol put callback is expected to return 1 when there is change
+in HW or when the update is acknowledged by driver. This would ensure
+that change notifications are sent to subscribed applications. Update
+the ADMAIF driver accordingly.
 
-In details, fw.len and sw.len are inputs coming from io. A len
-over the size of self->rpc triggers SOOB. The patch fixes the
-bugs by adding sanity checks.
-
-The bugs are triggerable with compromised/malfunctioning devices.
-They are potentially exploitable given they first leak up to
-0xffff bytes and able to overwrite the region later.
-
-The patch is tested with QEMU emulater.
-This is NOT tested with a real device.
-
-Attached is the log we found by fuzzing.
-
-BUG: KASAN: slab-out-of-bounds in
-	hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
-Read of size 4 at addr ffff888016260b08 by task modprobe/213
-CPU: 0 PID: 213 Comm: modprobe Not tainted 5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- ? hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- __kasan_report.cold+0x37/0x7c
- ? aq_hw_read_reg_bit+0x60/0x70 [atlantic]
- ? hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- kasan_report+0xe/0x20
- hw_atl_utils_fw_upload_dwords+0x393/0x3c0 [atlantic]
- hw_atl_utils_fw_rpc_call+0x95/0x130 [atlantic]
- hw_atl_utils_fw_rpc_wait+0x176/0x210 [atlantic]
- hw_atl_utils_mpi_create+0x229/0x2e0 [atlantic]
- ? hw_atl_utils_fw_rpc_wait+0x210/0x210 [atlantic]
- ? hw_atl_utils_initfw+0x9f/0x1c8 [atlantic]
- hw_atl_utils_initfw+0x12a/0x1c8 [atlantic]
- aq_nic_ndev_register+0x88/0x650 [atlantic]
- ? aq_nic_ndev_init+0x235/0x3c0 [atlantic]
- aq_pci_probe+0x731/0x9b0 [atlantic]
- ? aq_pci_func_init+0xc0/0xc0 [atlantic]
- local_pci_probe+0xd3/0x160
- pci_device_probe+0x23f/0x3e0
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f74028e159bb ("ASoC: tegra: Add Tegra210 based ADMAIF driver")
+Suggested-by: Jaroslav Kysela <perex@perex.cz>
+Suggested-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/1637219231-406-8-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c   | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/tegra/tegra210_admaif.c |  138 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 109 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-index 873f9865f0d15..b7d70c33459fd 100644
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-@@ -481,6 +481,11 @@ int hw_atl_utils_fw_rpc_wait(struct aq_hw_s *self,
- 			goto err_exit;
+--- a/sound/soc/tegra/tegra210_admaif.c
++++ b/sound/soc/tegra/tegra210_admaif.c
+@@ -424,46 +424,122 @@ static const struct snd_soc_dai_ops tegr
+ 	.trigger	= tegra_admaif_trigger,
+ };
  
- 		if (fw.len == 0xFFFFU) {
-+			if (sw.len > sizeof(self->rpc)) {
-+				printk(KERN_INFO "Invalid sw len: %x\n", sw.len);
-+				err = -EINVAL;
-+				goto err_exit;
-+			}
- 			err = hw_atl_utils_fw_rpc_call(self, sw.len);
- 			if (err < 0)
- 				goto err_exit;
-@@ -489,6 +494,11 @@ int hw_atl_utils_fw_rpc_wait(struct aq_hw_s *self,
+-static int tegra_admaif_get_control(struct snd_kcontrol *kcontrol,
+-				    struct snd_ctl_elem_value *ucontrol)
++static int tegra210_admaif_pget_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
+ {
+ 	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+ 	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg];
++
++	return 0;
++}
++
++static int tegra210_admaif_pput_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+-	unsigned int *uctl_val = &ucontrol->value.enumerated.item[0];
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++	unsigned int value = ucontrol->value.enumerated.item[0];
  
- 	if (rpc) {
- 		if (fw.len) {
-+			if (fw.len > sizeof(self->rpc)) {
-+				printk(KERN_INFO "Invalid fw len: %x\n", fw.len);
-+				err = -EINVAL;
-+				goto err_exit;
-+			}
- 			err =
- 			hw_atl_utils_fw_downld_dwords(self,
- 						      self->rpc_addr,
--- 
-2.33.0
-
+-	if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+-		*uctl_val = admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg];
+-	else if (strstr(kcontrol->id.name, "Capture Mono To Stereo"))
+-		*uctl_val = admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg];
+-	else if (strstr(kcontrol->id.name, "Playback Stereo To Mono"))
+-		*uctl_val = admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg];
+-	else if (strstr(kcontrol->id.name, "Capture Stereo To Mono"))
+-		*uctl_val = admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg];
++	if (value == admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg])
++		return 0;
++
++	admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg] = value;
++
++	return 1;
++}
++
++static int tegra210_admaif_cget_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg];
+ 
+ 	return 0;
+ }
+ 
+-static int tegra_admaif_put_control(struct snd_kcontrol *kcontrol,
+-				    struct snd_ctl_elem_value *ucontrol)
++static int tegra210_admaif_cput_mono_to_stereo(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
+ {
+ 	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
+ 	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg])
++		return 0;
++
++	admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg] = value;
++
++	return 1;
++}
++
++static int tegra210_admaif_pget_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
+ 	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg];
++
++	return 0;
++}
++
++static int tegra210_admaif_pput_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
+ 	unsigned int value = ucontrol->value.enumerated.item[0];
+ 
+-	if (strstr(kcontrol->id.name, "Playback Mono To Stereo"))
+-		admaif->mono_to_stereo[ADMAIF_TX_PATH][ec->reg] = value;
+-	else if (strstr(kcontrol->id.name, "Capture Mono To Stereo"))
+-		admaif->mono_to_stereo[ADMAIF_RX_PATH][ec->reg] = value;
+-	else if (strstr(kcontrol->id.name, "Playback Stereo To Mono"))
+-		admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg] = value;
+-	else if (strstr(kcontrol->id.name, "Capture Stereo To Mono"))
+-		admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg] = value;
++	if (value == admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg])
++		return 0;
++
++	admaif->stereo_to_mono[ADMAIF_TX_PATH][ec->reg] = value;
++
++	return 1;
++}
++
++static int tegra210_admaif_cget_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++
++	ucontrol->value.enumerated.item[0] =
++		admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg];
+ 
+ 	return 0;
+ }
+ 
++static int tegra210_admaif_cput_stereo_to_mono(struct snd_kcontrol *kcontrol,
++	struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_component *cmpnt = snd_soc_kcontrol_component(kcontrol);
++	struct tegra_admaif *admaif = snd_soc_component_get_drvdata(cmpnt);
++	struct soc_enum *ec = (struct soc_enum *)kcontrol->private_value;
++	unsigned int value = ucontrol->value.enumerated.item[0];
++
++	if (value == admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg])
++		return 0;
++
++	admaif->stereo_to_mono[ADMAIF_RX_PATH][ec->reg] = value;
++
++	return 1;
++}
++
+ static int tegra_admaif_dai_probe(struct snd_soc_dai *dai)
+ {
+ 	struct tegra_admaif *admaif = snd_soc_dai_get_drvdata(dai);
+@@ -559,17 +635,21 @@ static const char * const tegra_admaif_m
+ }
+ 
+ #define TEGRA_ADMAIF_CIF_CTRL(reg)					       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Mono To Stereo", reg - 1,\
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Mono To Stereo", reg - 1,     \
++			tegra210_admaif_pget_mono_to_stereo,		       \
++			tegra210_admaif_pput_mono_to_stereo,		       \
+ 			tegra_admaif_mono_conv_text),			       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Stereo To Mono", reg - 1,\
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Playback Stereo To Mono", reg - 1,     \
++			tegra210_admaif_pget_stereo_to_mono,		       \
++			tegra210_admaif_pput_stereo_to_mono,		       \
+ 			tegra_admaif_stereo_conv_text),			       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Mono To Stereo", reg - 1, \
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Mono To Stereo", reg - 1,      \
++			tegra210_admaif_cget_mono_to_stereo,		       \
++			tegra210_admaif_cput_mono_to_stereo,		       \
+ 			tegra_admaif_mono_conv_text),			       \
+-	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Stereo To Mono", reg - 1, \
+-			tegra_admaif_get_control, tegra_admaif_put_control,    \
++	NV_SOC_ENUM_EXT("ADMAIF" #reg " Capture Stereo To Mono", reg - 1,      \
++			tegra210_admaif_cget_stereo_to_mono,		       \
++			tegra210_admaif_cput_stereo_to_mono,		       \
+ 			tegra_admaif_stereo_conv_text)
+ 
+ static struct snd_kcontrol_new tegra210_admaif_controls[] = {
 
 
