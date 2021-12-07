@@ -2,92 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7693746B936
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:34:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B2E746B94E
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230057AbhLGKiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 05:38:06 -0500
-Received: from ns.iliad.fr ([212.27.33.1]:34688 "EHLO ns.iliad.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229449AbhLGKiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Dec 2021 05:38:05 -0500
-Received: from ns.iliad.fr (localhost [127.0.0.1])
-        by ns.iliad.fr (Postfix) with ESMTP id CCE651FFD9;
-        Tue,  7 Dec 2021 11:34:34 +0100 (CET)
-Received: from sakura (freebox.vlq16.iliad.fr [213.36.7.13])
-        by ns.iliad.fr (Postfix) with ESMTP id BF3101FF88;
-        Tue,  7 Dec 2021 11:34:34 +0100 (CET)
-Message-ID: <12988dafdf7e14ba6db69ab483a2eb53e411fc0d.camel@freebox.fr>
-Subject: Re: [PATCH] powerpc/603: Fix boot failure with DEBUG_PAGEALLOC and
- KFENCE
-From:   Maxime Bizon <mbizon@freebox.fr>
-Reply-To: mbizon@freebox.fr
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Tue, 07 Dec 2021 11:34:34 +0100
-In-Reply-To: <aea33b4813a26bdb9378b5f273f00bd5d4abe240.1638857364.git.christophe.leroy@csgroup.eu>
-References: <aea33b4813a26bdb9378b5f273f00bd5d4abe240.1638857364.git.christophe.leroy@csgroup.eu>
-Organization: Freebox
+        id S229607AbhLGKoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 05:44:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47578 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229517AbhLGKob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 05:44:31 -0500
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6687C061574
+        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 02:41:01 -0800 (PST)
+Received: by mail-yb1-xb2d.google.com with SMTP id v203so39615025ybe.6
+        for <stable@vger.kernel.org>; Tue, 07 Dec 2021 02:41:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=basnieuwenhuizen.nl; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=pScc3ssxK44brT1donktLtNeL6CZhUwDaYqiqX+57wk=;
+        b=ApSIMjmhvNSIhcGGfgUEURyTWBqUsME0oblKLRdRDSDrltfw1jkPWBOBV3UwcORsOq
+         S6t+wycP31Y8fRze20C1b9rrvlhKhzbvwbMGw8nIqRWsiQemNbvownbqBs42jmfZyd8/
+         jAxt5Y4jgaNCeDtftMvkB6X2Yb+cxSV8HsILbLGB8AU9wbewHNbQMruev8SLAlChZjtr
+         NN53s0LfeWG1YVh5nYih63EJgEagBOWqWTHfhKO5lj6veJknXCNzGIbpA/fTegRQmqKf
+         HvjRjl4x8A9f1rdOviraWAW3RQiz6PFOU/rGQTiGicPccPyA6lvzfuqEKUC0Nv+emYLJ
+         q/Zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=pScc3ssxK44brT1donktLtNeL6CZhUwDaYqiqX+57wk=;
+        b=2xTF66SPHuRyUbJ9S4DOdNX2K+jv7mekKfw9ncGyL4RVnSINxiUcST/ZGDAmKYZNTB
+         kxkQvWpCEQxhNP43dkRQHzObqnXSRq2ltQrVmk6/R0j59OsdT8NRTeYKSfDs83yYxdX2
+         AMp2uRm0YOmTedpVMAyOz7Xgc9PtAbW2HH5Pf71JNOUSc6BHkiGIHL0L0ELxlwXZiwG6
+         vT8x9P6vXkYAYyGmQ4FdhAvANRcxjg2YNrEZ95L2qvapjnWGpc+ermFIETGlIo/NnB9b
+         SD5mjxXB8coO0UJhnbflN7HhH07pVePmPvRtQyRj8NLD5IVrmWgxq9Ab76D9ap1EX2XQ
+         AbQg==
+X-Gm-Message-State: AOAM530nOBf2T9II8lxr29Ix25jEmyV2fxa08Q7sGgcI84b00VOTGPwz
+        uMzg683vj8USXIxwwtU4igU3hVlvEyay+fBxzdgblw==
+X-Google-Smtp-Source: ABdhPJxdMWUDaXFu6u63ZbI25qXwwZjYTXpxeeKTv86I4DZdYW0IiMwTbAWjVZY66O7U9jNd3NVLfZs0MOd4ob9LoBs=
+X-Received: by 2002:a25:ac21:: with SMTP id w33mr50967307ybi.616.1638873660994;
+ Tue, 07 Dec 2021 02:41:00 -0800 (PST)
+MIME-Version: 1.0
+References: <20211207013235.5985-1-bas@basnieuwenhuizen.nl>
+ <05f1e475-3483-b780-d66a-a80577edee39@intel.com> <7d2f372f-36f5-1ecc-7ddb-25cf7d444e5d@amd.com>
+In-Reply-To: <7d2f372f-36f5-1ecc-7ddb-25cf7d444e5d@amd.com>
+From:   Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Date:   Tue, 7 Dec 2021 11:40:47 +0100
+Message-ID: <CAP+8YyEzsedvYObj=FVUFTtYo4sdHH354=gBfCAu16qtL1jqLg@mail.gmail.com>
+Subject: Re: [PATCH] drm/syncobj: Deal with signalled fences in transfer.
+To:     =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+Cc:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        ML dri-devel <dri-devel@lists.freedesktop.org>,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: ClamAV using ClamSMTP ; ns.iliad.fr ; Tue Dec  7 11:34:34 2021 +0100 (CET)
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Dec 7, 2021 at 8:21 AM Christian K=C3=B6nig <christian.koenig@amd.c=
+om> wrote:
+>
+> Am 07.12.21 um 08:10 schrieb Lionel Landwerlin:
+> > On 07/12/2021 03:32, Bas Nieuwenhuizen wrote:
+> >> See the comments in the code. Basically if the seqno is already
+> >> signalled then we get a NULL fence. If we then put the NULL fence
+> >> in a binary syncobj it counts as unsignalled, making that syncobj
+> >> pretty much useless for all expected uses.
+> >>
+> >> Not 100% sure about the transfer to a timeline syncobj but I
+> >> believe it is needed there too, as AFAICT the add_point function
+> >> assumes the fence isn't NULL.
+> >>
+> >> Fixes: ea569910cbab ("drm/syncobj: add transition iotcls between
+> >> binary and timeline v2")
+> >> Cc: stable@vger.kernel.org
+> >> Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+> >> ---
+> >>   drivers/gpu/drm/drm_syncobj.c | 26 ++++++++++++++++++++++++++
+> >>   1 file changed, 26 insertions(+)
+> >>
+> >> diff --git a/drivers/gpu/drm/drm_syncobj.c
+> >> b/drivers/gpu/drm/drm_syncobj.c
+> >> index fdd2ec87cdd1..eb28a40400d2 100644
+> >> --- a/drivers/gpu/drm/drm_syncobj.c
+> >> +++ b/drivers/gpu/drm/drm_syncobj.c
+> >> @@ -861,6 +861,19 @@ static int
+> >> drm_syncobj_transfer_to_timeline(struct drm_file *file_private,
+> >>                        &fence);
+> >>       if (ret)
+> >>           goto err;
+> >> +
+> >> +    /* If the requested seqno is already signaled
+> >> drm_syncobj_find_fence may
+> >> +     * return a NULL fence. To make sure the recipient gets
+> >> signalled, use
+> >> +     * a new fence instead.
+> >> +     */
+> >> +    if (!fence) {
+> >> +        fence =3D dma_fence_allocate_private_stub();
+> >> +        if (!fence) {
+> >> +            ret =3D -ENOMEM;
+> >> +            goto err;
+> >> +        }
+> >> +    }
+> >> +
+> >
+> >
+> > Shouldn't we fix drm_syncobj_find_fence() instead?
+>
+> Mhm, now that you mention it. Bas, why do you think that
+> dma_fence_chain_find_seqno() may return NULL when the fence is already
+> signaled?
+>
+> Double checking the code that should never ever happen.
 
-On Tue, 2021-12-07 at 06:10 +0000, Christophe Leroy wrote:
+Well, I tested the patch with
+https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/14097/diffs?commi=
+t_id=3Dd4c5c840f4e3839f9f5c1747a9034eb2b565f5c0
+so I'm pretty sure it happens, and this patch fixes  it, though I may
+have misidentified what the code should do.
 
-Hello,
+My reading is that the dma_fence_chain_for_each in
+dma_fence_chain_find_seqno will never visit a signalled fence (unless
+the top one is signalled), as dma_fence_chain_walk will never return a
+signalled fence (it only returns on NULL or !signalled).
 
-With the patch applied and
-
-CONFIG_DEBUG_PAGEALLOC=y
-CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT=y
-CONFIG_DEBUG_VM=y
-
-I get tons of this during boot:
-
-[    0.000000] Dentry cache hash table entries: 262144 (order: 8, 1048576 bytes, linear)
-[    0.000000] Inode-cache hash table entries: 131072 (order: 7, 524288 bytes, linear)
-[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
-[    0.000000] ------------[ cut here ]------------
-[    0.000000] WARNING: CPU: 0 PID: 0 at arch/powerpc/mm/pgtable.c:194 set_pte_at+0x18/0x160
-[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0+ #442
-[    0.000000] NIP:  80015ebc LR: 80016728 CTR: 800166e4
-[    0.000000] REGS: 80751dd0 TRAP: 0700   Not tainted  (5.15.0+)
-[    0.000000] MSR:  00021032 <ME,IR,DR,RI>  CR: 42228882  XER: 20000000
-[    0.000000] 
-[    0.000000] GPR00: 800b8dc8 80751e80 806c6300 807311d8 807a1000 8ffffe84 80751ea8 00000000 
-[    0.000000] GPR08: 007a1591 00000001 007a1180 00000000 42224882 00000000 3ff9c608 3fffd79c 
-[    0.000000] GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 800166e4 807a2000 
-[    0.000000] GPR24: 807a1fff 807311d8 807311d8 807a2000 80768804 00000000 807a1000 007a1180 
-[    0.000000] NIP [80015ebc] set_pte_at+0x18/0x160
-[    0.000000] LR [80016728] set_page_attr+0x44/0xc0
-[    0.000000] Call Trace:
-[    0.000000] [80751e80] [80058570] console_unlock+0x340/0x428 (unreliable)
-[    0.000000] [80751ea0] [00000000] 0x0
-[    0.000000] [80751ec0] [800b8dc8] __apply_to_page_range+0x144/0x2a8
-[    0.000000] [80751f00] [80016918] __kernel_map_pages+0x54/0x64
-[    0.000000] [80751f10] [800cfeb0] __free_pages_ok+0x1b0/0x440
-[    0.000000] [80751f50] [805cfc8c] memblock_free_all+0x1d8/0x274
-[    0.000000] [80751f90] [805c5e0c] mem_init+0x3c/0xd0
-[    0.000000] [80751fb0] [805c0bdc] start_kernel+0x404/0x5c4
-[    0.000000] [80751ff0] [000033f0] 0x33f0
-[    0.000000] Instruction dump:
-[    0.000000] 7c630034 83e1000c 5463d97e 7c0803a6 38210010 4e800020 9421ffe0 93e1001c 
-[    0.000000] 83e60000 81250000 71290001 41820014 <0fe00000> 7c0802a6 93c10018 90010024 
-
-
--- 
-Maxime
-
-
-
+Happy to move this to drm_syncobj_find_fence.
+>
+> Regards,
+> Christian.
+>
+> >
+> > By returning a stub fence for the timeline case if there isn't one.
+> >
+> >
+> > Because the same NULL fence check appears missing in amdgpu (and
+> > probably other drivers).
+> >
+> >
+> > Also we should have tests for this in IGT.
+> >
+> > AMD contributed some tests when this code was written but they never
+> > got reviewed :(
+> >
+> >
+> > -Lionel
+> >
+> >
+> >>       chain =3D kzalloc(sizeof(struct dma_fence_chain), GFP_KERNEL);
+> >>       if (!chain) {
+> >>           ret =3D -ENOMEM;
+> >> @@ -890,6 +903,19 @@ drm_syncobj_transfer_to_binary(struct drm_file
+> >> *file_private,
+> >>                        args->src_point, args->flags, &fence);
+> >>       if (ret)
+> >>           goto err;
+> >> +
+> >> +    /* If the requested seqno is already signaled
+> >> drm_syncobj_find_fence may
+> >> +     * return a NULL fence. To make sure the recipient gets
+> >> signalled, use
+> >> +     * a new fence instead.
+> >> +     */
+> >> +    if (!fence) {
+> >> +        fence =3D dma_fence_allocate_private_stub();
+> >> +        if (!fence) {
+> >> +            ret =3D -ENOMEM;
+> >> +            goto err;
+> >> +        }
+> >> +    }
+> >> +
+> >>       drm_syncobj_replace_fence(binary_syncobj, fence);
+> >>       dma_fence_put(fence);
+> >>   err:
+> >
+> >
+>
