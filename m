@@ -2,62 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A16446BE37
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 15:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2925246BE9D
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 16:06:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238277AbhLGO53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 09:57:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50674 "EHLO
+        id S233616AbhLGPJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 10:09:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238271AbhLGO53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 09:57:29 -0500
-Received: from mail.itouring.de (mail.itouring.de [IPv6:2a01:4f8:a0:4463::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1648BC061574
-        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 06:53:58 -0800 (PST)
-Received: from tux.applied-asynchrony.com (p5ddd7e1c.dip0.t-ipconnect.de [93.221.126.28])
-        by mail.itouring.de (Postfix) with ESMTPSA id 616B1103761;
-        Tue,  7 Dec 2021 15:53:54 +0100 (CET)
-Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
-        by tux.applied-asynchrony.com (Postfix) with ESMTP id 1A09BF01601;
-        Tue,  7 Dec 2021 15:53:54 +0100 (CET)
-Subject: Re: [PATCH] bfq: Fix use-after-free with cgroups
-To:     Jan Kara <jack@suse.cz>, Paolo Valente <paolo.valente@linaro.org>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        =?UTF-8?Q?Michal_Koutn=c3=bd?= <mkoutny@suse.com>, fvogt@suse.de,
-        Tejun Heo <tj@kernel.org>, cgroups@vger.kernel.org,
-        stable@vger.kernel.org, Fabian Vogt <fvogt@suse.com>
-References: <20211201133439.3309-1-jack@suse.cz>
-From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
-Organization: Applied Asynchrony, Inc.
-Message-ID: <28ded939-6339-c9e1-c0a3-ff84fb197eed@applied-asynchrony.com>
-Date:   Tue, 7 Dec 2021 15:53:54 +0100
+        with ESMTP id S232860AbhLGPJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 10:09:43 -0500
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5E5C061574
+        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 07:06:12 -0800 (PST)
+Received: by mail-pf1-x434.google.com with SMTP id n26so13769137pff.3
+        for <stable@vger.kernel.org>; Tue, 07 Dec 2021 07:06:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=xUPcqgjRdW5D3SdORCfEGopu6HaBk3UXxPJAuoxbjuI=;
+        b=G0OEGzvzSyXKxGVcKUgvPxcMfVpOs+W/WautldYBxt1vv2scpQQqf+obIV3F50NhUM
+         gb9rjb0+rYOYtsr7L6VHvdKZ5ZlVtOi/b3daX5zCzjGLOyOQpl1guFgyZDFgRlUyAnH0
+         4k5E969aJzi5bJc9rV7I556pImCfjkzE/c7Ymq0eZNtAnVleGuNQIoLbU/2/7OoU44Dv
+         ZlgQuGbfL1k46D52sPU/LYgt2uweqEVi4lKeQQIo8+8bsDXJsMXpZDOI0d+LRP4SSPk8
+         xmj3hK2pUzfBEbgV+TyF5w7EGHHSrxmJnToAWZEt7zhQ5Z1f0j7lk97HHbBHTiCYD49N
+         Be4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=xUPcqgjRdW5D3SdORCfEGopu6HaBk3UXxPJAuoxbjuI=;
+        b=lFBjZglkTQoCRtZzbbJ+G3qnO1/sUvMrZVmiCBLK8Q/JE3V9VHVH7oYbjPVn2+Vk5a
+         RP/Z32u6/orVIVglr/8dI5sndhXtSloSokrzchTenvqhDK8h9JD9PmOIbZ2QE8NEkSm5
+         xXL4cbWdWOcQnRobGjk8wqvmfLiBmGYgOc3CM0DQIKkoYOrvNBbx0NBBAdj4K9mV2zbL
+         RL/i+FEIYJ1OCfOY18VK6ugkw3/o0ciy4mIoBZ9BiNJIOWQfXe2AGUbyGa/eng7Gl/NX
+         SB5T0Two8ge07cUxt9/+R8CdRSC7VTB9owXqVdbmGcaB7bl0GZQ/75/ggXOIFx1xPEmU
+         ZX1A==
+X-Gm-Message-State: AOAM531y/5+YtB4qgdutoh5k9rADuBhdYMioApeprlqE+9YIg+O37TGG
+        ChpOTydiU6oNjhY0tsLI4QwjJod1pjeCEThvE7M=
+X-Google-Smtp-Source: ABdhPJxO0HCMmtwq8+p+yqKgEQ23cJHkVwsygWjtOP938XtpKGG+vufabnB64Ia3bu1Vn5eThB4VjeYLCtY/cS0AlOw=
+X-Received: by 2002:a63:4559:: with SMTP id u25mr24122473pgk.15.1638889572367;
+ Tue, 07 Dec 2021 07:06:12 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20211201133439.3309-1-jack@suse.cz>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a17:90b:3ec7:0:0:0:0 with HTTP; Tue, 7 Dec 2021 07:06:12
+ -0800 (PST)
+Reply-To: jeanmustapha596@gmail.com
+From:   Jean Mustapha <arafaeloxford@gmail.com>
+Date:   Tue, 7 Dec 2021 07:06:12 -0800
+Message-ID: <CAM=40BJ+b2-8KoFYF+F_zgBxDE+8B0R808pJKXZimBTS2sA2eQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
 
-On 2021-12-01 14:34, Jan Kara wrote:
-> BFQ started crashing with 5.15-based kernels like:
-> 
-> BUG: KASAN: use-after-free in rb_erase (lib/rbtree.c:262 lib/rbtr
-> Read of size 8 at addr ffff888008193098 by task bash/1472
-[snip]
+Hello,
 
-This does not compile when CONFIG_BFQ_GROUP_IOSCHED is disabled.
-I know the patch is meant for the case where it is enabled, but still..
-
-block/bfq-iosched.c: In function 'bfq_init_bfqq':
-block/bfq-iosched.c:5362:51: error: 'struct bfq_group' has no member named 'children'
-  5362 |         hlist_add_head(&bfqq->children_node, &bfqg->children);
-       |                                                   ^~
-make[1]: *** [scripts/Makefile.build:277: block/bfq-iosched.o] Error 1
-
-Probably just needs a few more ifdefs :)
-
-cheers
-Holger
+ Good morning, My name is Jean Mustapha, I am a Gas Engineer and I
+work in the Oil Field as an Independent Oil contractor. I want to
+travel to your country for vacation. I am contacting you so that you
+can help me find an apartment or villa for rent or for sale in your
+country where I will spend my vacation, I am willing to pay for your
+services if you can assist me.
