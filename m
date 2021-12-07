@@ -2,104 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8DED46BC64
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 14:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C84846BCCD
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 14:44:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237029AbhLGN0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 08:26:37 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:60750 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232535AbhLGN0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 08:26:37 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 3195D1FDFE;
-        Tue,  7 Dec 2021 13:23:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1638883386; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=e3MujDroQCCYFmjo9aU+XnlNtxQIfbbwBM+qx0TwvZA=;
-        b=seX7fjd3dhWbMLAzyyjOOcYy5pvqRFbfqgSB8dF+6CqlVqD6PH5s5EPABaOLYypyFdDlJ9
-        ywbxRdq9qIuAaZnxc9VBTcZ1jf6GJS/JF1CmOOvwPZ5ZO1w616j2VQ+VTZqWpBh0WlC5vu
-        awim2Bn8l5QAUyuNH6vWNtBeerc21GI=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 040D8A3B89;
-        Tue,  7 Dec 2021 13:23:05 +0000 (UTC)
-Date:   Tue, 7 Dec 2021 14:23:03 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Alexey Makhalov <amakhalov@vmware.com>,
-        Dennis Zhou <dennis@kernel.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Message-ID: <Ya9gN3rZ1eQou3rc@dhcp22.suse.cz>
-References: <YYrGpn/52HaLCAyo@fedora>
- <YYrSC7vtSQXz652a@dhcp22.suse.cz>
- <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
- <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
- <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
- <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
- <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
- <1043a1a4-b7f2-8730-d192-7cab9f15ee24@redhat.com>
- <Ya9P5NxhcZDcyptT@dhcp22.suse.cz>
- <ab5cfba0-1d49-4e4d-e2c8-171e24473c1b@redhat.com>
+        id S237122AbhLGNrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 08:47:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33818 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231515AbhLGNry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 08:47:54 -0500
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96E0C061574
+        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 05:44:23 -0800 (PST)
+Received: by mail-pj1-x1029.google.com with SMTP id iq11so10330839pjb.3
+        for <stable@vger.kernel.org>; Tue, 07 Dec 2021 05:44:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ioJ0fIC9nMqDhSwRIKVFw2ieuOP+mwmW7zOW40kjoqw=;
+        b=ALcg7gwJs+KrkaK9eZRSihH8/sqFl7jbFprG0BD8aAB95ChI1Mmb+djFc58Tw/Z7sx
+         Jee0TfBzHCShLiagOa3ZhrhiFcRxILo+n+Z75TZcY8tiiZ6GTjbgQnPcxDA37fao/Us3
+         bj1yA8abKoFUvuPnpz9EUWW0zx4+lEiZzY9nsswJYWD4apmj9lcuHKazlSi7y7okfjCp
+         zlGMFsYEZjhv3qvbeROTsZ7l3WG7Q8D4iCxHX6HevJKpRw8nhe59QFck161CuunhZp37
+         CGxpZLIqDhCB3VCvNa/hTM2hfkFNLgNblkzpPIcHx2Zb0HKZkfwmqrDipaQQIKhv/FKi
+         AKZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ioJ0fIC9nMqDhSwRIKVFw2ieuOP+mwmW7zOW40kjoqw=;
+        b=Y+7/1XTiA2njncAIsCI/I1XZJxThymVH8IvT8LlgqVfGyhePJLWf8ueUDOUAyW5ziC
+         GhnwvP+QHVlrsrtzdiWsOUm9uI0fsyhp+kA1PQhF5kDKp9E++pKPBBIawKR5wq/dzPz4
+         a3a+klL/yPnuzBqyUZG3QeJVkjUkN0Mvtx/asragfY+mTnW1Q71l/gVhdS6NzHU1aVou
+         TyBMORq49VHbPTrZMmp81IbHjgaaHp/cOqP8TrvYzBm29jwlx4kbfH2IP3kwdT+3THO8
+         nW5Tki80YnSY8xbTOX9D5IAkYyUPE14FSR5MTBfvQRrHCkCUdu6XdzLPzncvpLZ6Dj9S
+         7DRQ==
+X-Gm-Message-State: AOAM532ahJyZ2+aRAnbuzHP7cqgrJrVF9uaboWjpiMBQ9DPdhTTgj5oP
+        9fC0UxE3B9QUlgtXsGEfO6qTJBt2ZYhLFTMI
+X-Google-Smtp-Source: ABdhPJx9GeeAea8lf0xQrTgu99jv11LKVp7qU31HKzFJUfAaU6e0sxgG5f+bTImRocb0JbsGwgaGDw==
+X-Received: by 2002:a17:90b:4c02:: with SMTP id na2mr6849054pjb.94.1638884663119;
+        Tue, 07 Dec 2021 05:44:23 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id fw21sm2862121pjb.25.2021.12.07.05.44.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Dec 2021 05:44:22 -0800 (PST)
+Message-ID: <61af6536.1c69fb81.9cd9f.8001@mx.google.com>
+Date:   Tue, 07 Dec 2021 05:44:22 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ab5cfba0-1d49-4e4d-e2c8-171e24473c1b@redhat.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.256-106-gdcd74d7b3f01
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.14 baseline: 146 runs,
+ 1 regressions (v4.14.256-106-gdcd74d7b3f01)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 07-12-21 13:28:31, David Hildenbrand wrote:
-[...]
-> But maybe I am missing something important regarding online vs. offline
-> nodes that your patch changes?
+stable-rc/queue/4.14 baseline: 146 runs, 1 regressions (v4.14.256-106-gdcd7=
+4d7b3f01)
 
-I am relying on alloc_node_data setting the node online. But if we are
-to change the call to arch_alloc_node_data then the patch needs to be
-more involved. Here is what I have right now. If this happens to be the
-right way then there is some additional work to sync up with the hotplug
-code.
+Regressions Summary
+-------------------
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index c5952749ad40..a296e934ad2f 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -8032,8 +8032,23 @@ void __init free_area_init(unsigned long *max_zone_pfn)
- 	/* Initialise every node */
- 	mminit_verify_pageflags_layout();
- 	setup_nr_node_ids();
--	for_each_online_node(nid) {
--		pg_data_t *pgdat = NODE_DATA(nid);
-+	for_each_node(nid) {
-+		pg_data_t *pgdat;
-+
-+		if (!node_online(nid)) {
-+			pr_warn("Node %d uninitialized by the platform. Please report with memory map.\n", nid);
-+			pgdat = arch_alloc_nodedata(nid);
-+			pgdat->per_cpu_nodestats = alloc_percpu(struct per_cpu_nodestat);
-+			arch_refresh_nodedata(nid, pgdat);
-+			node_set_online(nid);
-+			/* TODO do we need register_one_node here or postpone to
-+			 * when any memory is onlined there
-+			 */
-+			free_area_init_memoryless_node(nid);
-+			continue;
-+		}
-+
-+		pgdat = NODE_DATA(nid);
- 		free_area_init_node(nid);
- 
- 		/* Any memory on that node */
--- 
-Michal Hocko
-SUSE Labs
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.256-106-gdcd74d7b3f01/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.256-106-gdcd74d7b3f01
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      dcd74d7b3f0145ae68e21f64b4d836df2e380af4 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61af32d3920ad856341a94b0
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
+-106-gdcd74d7b3f01/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
+-106-gdcd74d7b3f01/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61af32d3920ad85=
+6341a94b3
+        failing since 1 day (last pass: v4.14.256-86-gce5b7722e4968, first =
+fail: v4.14.256-96-g0a8417bc52507)
+        2 lines
+
+    2021-12-07T10:09:06.036579  [   20.182434] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-12-07T10:09:06.078182  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/95
+    2021-12-07T10:09:06.087084  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
