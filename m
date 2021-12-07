@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3FA46B8EB
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:25:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8B646B8E5
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235153AbhLGK2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 05:28:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43736 "EHLO
+        id S235105AbhLGK2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 05:28:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235072AbhLGK20 (ORCPT
+        with ESMTP id S235090AbhLGK20 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 05:28:26 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78F4EC061359
-        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 02:24:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEA24C061D5F
+        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 02:24:55 -0800 (PST)
 Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <mkl@pengutronix.de>)
-        id 1muXeY-0003Pk-Ok
+        id 1muXeY-0003Nu-1P
         for stable@vger.kernel.org; Tue, 07 Dec 2021 11:24:54 +0100
 Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 5FFFF6BE8F2
+        by bjornoya.blackshift.org (Postfix) with SMTP id 2AFA36BE8EE
         for <stable@vger.kernel.org>; Tue,  7 Dec 2021 10:24:47 +0000 (UTC)
 Received: from hardanger.blackshift.org (unknown [172.20.34.65])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 7044E6BE8A9;
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id A7D146BE8AD;
         Tue,  7 Dec 2021 10:24:43 +0000 (UTC)
 Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 5d18fbf2;
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 677c6507;
         Tue, 7 Dec 2021 10:24:27 +0000 (UTC)
 From:   Marc Kleine-Budde <mkl@pengutronix.de>
 To:     netdev@vger.kernel.org
 Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
         kernel@pengutronix.de,
         Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        stable@vger.kernel.org, Matt Kline <matt@bitbashing.io>,
+        stable@vger.kernel.org,
         Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 5/9] can: m_can: pci: fix iomap_read_fifo() and iomap_write_fifo()
-Date:   Tue,  7 Dec 2021 11:24:16 +0100
-Message-Id: <20211207102420.120131-6-mkl@pengutronix.de>
+Subject: [PATCH net 6/9] can: m_can: pci: fix incorrect reference clock rate
+Date:   Tue,  7 Dec 2021 11:24:17 +0100
+Message-Id: <20211207102420.120131-7-mkl@pengutronix.de>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211207102420.120131-1-mkl@pengutronix.de>
 References: <20211207102420.120131-1-mkl@pengutronix.de>
@@ -58,57 +58,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-The same fix that was previously done in m_can_platform in commit
-99d173fbe894 ("can: m_can: fix iomap_read_fifo() and iomap_write_fifo()")
-is required in m_can_pci as well to make iomap_read_fifo() and
-iomap_write_fifo() work for val_count > 1.
+When testing the CAN controller on our Ekhart Lake hardware, we
+determined that all communication was running with twice the configured
+bitrate. Changing the reference clock rate from 100MHz to 200MHz fixed
+this. Intel's support has confirmed to us that 200MHz is indeed the
+correct clock rate.
 
-Fixes: 812270e5445b ("can: m_can: Batch FIFO writes during CAN transmit")
-Fixes: 1aa6772f64b4 ("can: m_can: Batch FIFO reads during CAN receive")
-Link: https://lore.kernel.org/all/20211118144011.10921-1-matthias.schiffer@ew.tq-group.com
+Fixes: cab7ffc0324f ("can: m_can: add PCI glue driver for Intel Elkhart Lake")
+Link: https://lore.kernel.org/all/c9cf3995f45c363e432b3ae8eb1275e54f009fc8.1636967198.git.matthias.schiffer@ew.tq-group.com
 Cc: stable@vger.kernel.org
-Cc: Matt Kline <matt@bitbashing.io>
 Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
- drivers/net/can/m_can/m_can_pci.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/can/m_can/m_can_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/can/m_can/m_can_pci.c b/drivers/net/can/m_can/m_can_pci.c
-index 89cc3d41e952..d72c294ac4d3 100644
+index d72c294ac4d3..8f184a852a0a 100644
 --- a/drivers/net/can/m_can/m_can_pci.c
 +++ b/drivers/net/can/m_can/m_can_pci.c
-@@ -42,8 +42,13 @@ static u32 iomap_read_reg(struct m_can_classdev *cdev, int reg)
- static int iomap_read_fifo(struct m_can_classdev *cdev, int offset, void *val, size_t val_count)
- {
- 	struct m_can_pci_priv *priv = cdev_to_priv(cdev);
-+	void __iomem *src = priv->base + offset;
+@@ -18,7 +18,7 @@
  
--	ioread32_rep(priv->base + offset, val, val_count);
-+	while (val_count--) {
-+		*(unsigned int *)val = ioread32(src);
-+		val += 4;
-+		src += 4;
-+	}
+ #define M_CAN_PCI_MMIO_BAR		0
  
- 	return 0;
- }
-@@ -61,8 +66,13 @@ static int iomap_write_fifo(struct m_can_classdev *cdev, int offset,
- 			    const void *val, size_t val_count)
- {
- 	struct m_can_pci_priv *priv = cdev_to_priv(cdev);
-+	void __iomem *dst = priv->base + offset;
+-#define M_CAN_CLOCK_FREQ_EHL		100000000
++#define M_CAN_CLOCK_FREQ_EHL		200000000
+ #define CTL_CSR_INT_CTL_OFFSET		0x508
  
--	iowrite32_rep(priv->base + offset, val, val_count);
-+	while (val_count--) {
-+		iowrite32(*(unsigned int *)val, dst);
-+		val += 4;
-+		dst += 4;
-+	}
- 
- 	return 0;
- }
+ struct m_can_pci_priv {
 -- 
 2.33.0
 
