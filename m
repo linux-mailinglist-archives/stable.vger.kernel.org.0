@@ -2,249 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 807B546B9AD
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 12:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A7146B9B9
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 12:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234753AbhLGLEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 06:04:14 -0500
-Received: from mail-bn8nam08on2072.outbound.protection.outlook.com ([40.107.100.72]:45313
-        "EHLO NAM04-BN8-obe.outbound.protection.outlook.com"
+        id S235528AbhLGLG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 06:06:26 -0500
+Received: from mail-bn8nam12on2060.outbound.protection.outlook.com ([40.107.237.60]:29973
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S235147AbhLGLEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Dec 2021 06:04:13 -0500
+        id S230293AbhLGLGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Dec 2021 06:06:25 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Z0I5FY56FErJfCT9cwEqCgfPDaOZgFJl7kohyJhOVFQVenDDeWYsk1zb2SiUhyeA9QJDDDg4CfqSPnehTdtehEhnkc3n8GR2hMfCwSFfa2gTUHJRmdXvCvovHebufWmi6Wv30BMIj1tnb4KqcyiVPPJzRgR3iMLgvWDhabZbtbqU5zsCltf/F7vPwEQjeaWuFJjUK6wff7iG7C2e+58OBna+0nC3APnv3fwSLWzvAUIf7tIhDS9aHhED78VFXLiTU8Q6X+n2OPgymNA4o+ZdnUC+SWT1UNM+esci2hRel6e67cjLIemBAg/zMkwo8gfGVy9yhD2UKORP/ObrOnzVyQ==
+ b=SgAOqIu/yxcjReiOiaou2f0xFgJMH4C5LxH0RqHZDYn5VeiaeBD1SBvwOM/AJwIDGEpFlS5SqWfCkJYE+FwAZ5dfpmtqzOl2z6g6CD+X8PlnCLe9NyYwkk9Sg0jxO+gJ9i+M6eVlYm0ECyIEa5tLrPJSCN9Ms2lAxCDhd/wlAjzsdSH/XNppBTgSSVWYHCKy066xvLM/0bAciVg0sDK2gFHcZNoKax99O4kX/kSrtgt7bpYGi6ScqfDmRFSSiY//D5L84fQ1LjMNTrSkBuIq5irhvHOzVAG7SrQKGmNDe3FVJ69dw3NEezWrSUoWYfVUfM4xVPleOJlTI9jN2Bf70w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qMwGIo+QRhZsHvEfxltFNDnzYrp7bdCqgItAxKefpAA=;
- b=DLrOiXjEQkgmLqn8lwybbqRudjPF5+n79Mi56TKHpWuTeOZvKjP3ra0aguCUzzUpW3N9d3ftmx7746oIRE+fOc9UCAkZ90xPqzOnGqwlWJnRJ8YurCbo3oA8uye0U3F1g0CjdPMYP/ZzeuuUFALp7QyyVeKma/J0wgJIMoexgZQU5QCO7ySJZcbrr6oj99yv4a6QY3SMU605ZZWNMSOGsZEssm6HnD2FXSFJToPIBgCTkIuQNR9HIILZd2nV/w3+OSdELZ/yqUd+tG0LDkwTIQxdjsPeI/vhJEJ6abCsZx8KLnAPGgEbL35nRkHTDrh7luo2yeSYoIIHc4UFMreEOw==
+ bh=QkLoXzt0kzdt1p6sc1w92nYNzDu9gYQCPc3QRut7XSA=;
+ b=WgNPoeGLcX/LO+K/ZL03WExHMNbHmsucRg+juIuMbXC1cLsZLSjHl+kz62vYbnPVva9ZM5B4htEd3VUo0MpP+t7ealiQr88X0NC6jAhfB1Vuc7GMWssQysO6A6skEfBfsq722fqfQutkPJrTuJekWKDnI+MDuKp/2sk78MeztII+LqQn5Uv2LJgCEeoHC02CEXim0Ri6xkyqIkT2fYJGL9Goy2g4zufLqfWjUDRyNHfxdQaQk76M5WnGX9YvAEaEZnBgVb7GwA3kj3B1v8zaGyYUL9tpetnREZ8RDkim6Y6/Y0V3LXmc7c9m4M23zvU7/YmN8tizH0TuGFOwuvSqLw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qMwGIo+QRhZsHvEfxltFNDnzYrp7bdCqgItAxKefpAA=;
- b=OHQcnSMyCUWAwm5Kjn9e7HT1XzBABwZ94aTp2N4Q3RewCWh2jt8BoCYhaV/l2ipF+K4T4r0ckX5U79ZBOi8lwNZQ/Z8gf0ashvs++gJy3sSdXpmcfr7T3n1geHY3Mfif6TvgfqC5RIeBBD+a2Hz3qdsUmuWK+Y1vEGBjutklk1c=
+ bh=QkLoXzt0kzdt1p6sc1w92nYNzDu9gYQCPc3QRut7XSA=;
+ b=LYGNN4PPQflJ2TQKX6mrA7vgUiysc5Cg+JKoPqIao8L3E2J9i1mdw/r1NYDK6el10jPNMGBr3g4TX589EYG1Un3X5Z4gBwqUcgMuT8H94r2rfeQGZJaGznkU+RFgDYJsEmQ27ZVqb7jwiiznx4lifivtvivOJDiaHqUCwZWr+YT2MNxspGB3f8ig0ceS51vtkE724I8wlRB5g6jJch8V0+eHjoGf3hXdAOW/XiDlxMYCJcSy9GR9EEvwWJRN7gxphqQyfuHDD/JrzCWPQthlr1euuHqBVKcCNc18yWxR3FYIalk06UaL4xN61kF0dR1yPLT2+bSALeARXiMevnfloA==
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
- (2603:10b6:301:5a::14) by MWHPR1201MB0238.namprd12.prod.outlook.com
- (2603:10b6:301:57::7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.21; Tue, 7 Dec
- 2021 11:00:38 +0000
-Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
- ([fe80::d16c:a6d5:5d2e:f9d4]) by MWHPR1201MB0192.namprd12.prod.outlook.com
- ([fe80::d16c:a6d5:5d2e:f9d4%12]) with mapi id 15.20.4755.022; Tue, 7 Dec 2021
- 11:00:37 +0000
-Subject: Re: [PATCH] drm/syncobj: Deal with signalled fences in transfer.
-To:     Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Cc:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        ML dri-devel <dri-devel@lists.freedesktop.org>,
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CO6PR12MB5444.namprd12.prod.outlook.com (2603:10b6:5:35e::8) by
+ CO6PR12MB5428.namprd12.prod.outlook.com (2603:10b6:5:35c::19) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4755.22; Tue, 7 Dec 2021 11:02:54 +0000
+Received: from CO6PR12MB5444.namprd12.prod.outlook.com
+ ([fe80::ecac:528f:e36c:39d0]) by CO6PR12MB5444.namprd12.prod.outlook.com
+ ([fe80::ecac:528f:e36c:39d0%5]) with mapi id 15.20.4755.022; Tue, 7 Dec 2021
+ 11:02:54 +0000
+Subject: Re: [PATCH 1/3] ALSA: hda/tegra: Skip reset on BPMP devices
+To:     Dmitry Osipenko <digetx@gmail.com>,
+        Sameer Pujar <spujar@nvidia.com>, tiwai@suse.com,
+        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
+        thierry.reding@gmail.com, perex@perex.cz
+Cc:     alsa-devel@alsa-project.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-References: <20211207013235.5985-1-bas@basnieuwenhuizen.nl>
- <05f1e475-3483-b780-d66a-a80577edee39@intel.com>
- <7d2f372f-36f5-1ecc-7ddb-25cf7d444e5d@amd.com>
- <CAP+8YyEzsedvYObj=FVUFTtYo4sdHH354=gBfCAu16qtL1jqLg@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Message-ID: <9540e080-6b07-c82c-d4d2-d2711a50066d@amd.com>
-Date:   Tue, 7 Dec 2021 12:00:30 +0100
+References: <1638858770-22594-1-git-send-email-spujar@nvidia.com>
+ <1638858770-22594-2-git-send-email-spujar@nvidia.com>
+ <7742adae-cdbe-a9ea-2cef-f63363298d73@gmail.com>
+ <2f29f787-7c77-a56e-3b90-0fc452fd1c88@gmail.com>
+ <9c21aa0d-b7e6-17b8-cd1a-f12a2b2a1a57@gmail.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <5e50e8a1-5436-b543-f15d-50c5089304e3@nvidia.com>
+Date:   Tue, 7 Dec 2021 11:02:45 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.14.0
-In-Reply-To: <CAP+8YyEzsedvYObj=FVUFTtYo4sdHH354=gBfCAu16qtL1jqLg@mail.gmail.com>
+In-Reply-To: <9c21aa0d-b7e6-17b8-cd1a-f12a2b2a1a57@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-ClientProxiedBy: AM6P193CA0140.EURP193.PROD.OUTLOOK.COM
- (2603:10a6:209:85::45) To MWHPR1201MB0192.namprd12.prod.outlook.com
- (2603:10b6:301:5a::14)
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: LO4P123CA0374.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:18e::19) To CO6PR12MB5444.namprd12.prod.outlook.com
+ (2603:10b6:5:35e::8)
 MIME-Version: 1.0
-Received: from [192.168.178.21] (87.176.191.248) by AM6P193CA0140.EURP193.PROD.OUTLOOK.COM (2603:10a6:209:85::45) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.20 via Frontend Transport; Tue, 7 Dec 2021 11:00:36 +0000
+Received: from [10.26.49.14] (195.110.77.193) by LO4P123CA0374.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:18e::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.17 via Frontend Transport; Tue, 7 Dec 2021 11:02:51 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 04641400-dce9-4cbd-a26e-08d9b970ccff
-X-MS-TrafficTypeDiagnostic: MWHPR1201MB0238:EE_
-X-Microsoft-Antispam-PRVS: <MWHPR1201MB0238AA92D46ECBE80DE71AA8836E9@MWHPR1201MB0238.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-MS-Office365-Filtering-Correlation-Id: 883f536b-5145-4116-3d1c-08d9b9711deb
+X-MS-TrafficTypeDiagnostic: CO6PR12MB5428:EE_
+X-Microsoft-Antispam-PRVS: <CO6PR12MB54288B260FD452BD90D81DFCD96E9@CO6PR12MB5428.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2201;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: eB4Gk93WbFEn2FWrVCA2gM5PSBYJeVHW+cN36goSQOn0MjCK2zaMUcuz3q7s4cdW+SH1ghTt092PWf7bW0azAWQ2G+JNhoWdeg1uS/xtaHblDf8Pokojab5mIISh5ipIRvhgx8Sg/ev7aNfZLKT8Iu9TUWr4nHSJGmlE0xCB8Ne7L6euyouJIYHUO6knf0s9Lr0bsxASQ41gi5VXlFSqzQA8C/8XBVn9lUpZwF1Z96R+e5FZ994aj5jQGh6vdEAncAgvwdQn7pwNEStb31b7NCcFt7ed51ArvfUSxty8yKNi8mhsDsKXm+zak44CLzb/xsmBJBJyjU/6aI9Lbs7CHFqbfeGiUKgcgWNs4RugwL6cqhGpRKc5Q5nKIfvFfuoVf6Ct/2t7LAqx1strCJfOyQOW5OJNCm3cYNyOeX1N0LIUw7TkO3nTy/AkN8Gx8Yhvnn55JLpZBTMtVHB8MccPEtOhdgA7kZ+BWopbAMFfp4yoO/6dRjfu0K0qP2p4JL/Lve1MvtppLJonQqP70wYAupQ2kBOOtSXEwKqJ/Jp8Sj+4F0JT1USngCRAgz1MWjm3ZOh98zZpTV16BaTpRYnHMBHcmVlEYNorYWVRjNuEHm2kRVpqZN9dtLW7SNxGaWeZYZKT0YfYqd89jvhcdq20P94kNaQmW67SPwO6BDYvA9w5egqN77GHlU9DiO+y17ytmaxG6Odk8cH+vIFFIw4OtSEiukpxFpkGkRhDjTbWcOC4N4nDjQMc9aonyWnxWN/Y
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1201MB0192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(508600001)(66946007)(66476007)(66556008)(966005)(83380400001)(8676002)(186003)(956004)(5660300002)(45080400002)(6666004)(86362001)(6916009)(26005)(8936002)(38100700002)(4326008)(2616005)(36756003)(316002)(31696002)(6486002)(16576012)(53546011)(31686004)(54906003)(2906002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: fHn8yMSvgTzoSrqgW7fAkwb0Oz4EUTRhmA9edtA32aNUdvhx+/uAU8GnR/x+IeKBJyTFELCUaZtjglQYhqAx+6pEKDOivQoLllOY9UPZ1wHSPVey/o0Am10MZvYeqkmD8OW4SPo/6gLPGnj0AXwmaGPmzOxAFlqeaxKMi0h8ioZczbkrBOWfhZq52RXA31yHsWAkp+jAAcEaw5FOoqHD+vecvY3L/WqIBCJ6vS/aE0r/jE5VUVW2r2io0i9TRGq+P5vikXZj74+BTaRyoIBmJEk8NFPM059fXXIneHni/kpYkTWewiP0fmsuIkHntMQAzxcG25yZqa5e8M/P7IYKnEamXrOP2ww77WytVYWjx3IUjblN2mo6dbwgUtLPkvFWzSdPY3J5LKWbrc/pmKiF/J0n28bSWdk+/vTj+qPuCp+vaJsMB9X6eeyrfawMeXkCrTi7Uj1Ek425I/g1s81sgNkC8/BGpshzgaYKYv6b/k9GAA74RdaGpXq0Ifa0AudZDjuBulMfEefYzasXxi9CwNtYXgbEkwnfg9qukaovQyV62MFFd6bfgLSCXmfLgLlfVI1Rlmg56oTz6dnawgAdSeEpZ9Z7JYZ8xXzKCfFqsqQQBupezpnxXtvIXGjsZ6LhxVjOUlp09/V5kECGwOSfk3e+3BAjOoOMh1pdd9BHYAHCley0RlJxRwBPCYCWO10DOvHg6z2GgOyVVaq4jMNRY8zyHWkOTqY/8ROtyCXnonsR0mrws2VFc10ojoqaNIJ2
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO6PR12MB5444.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(4744005)(2616005)(8936002)(956004)(83380400001)(508600001)(38100700002)(36756003)(7416002)(316002)(8676002)(5660300002)(6486002)(6666004)(53546011)(31686004)(66946007)(31696002)(55236004)(16576012)(186003)(4326008)(66476007)(66556008)(2906002)(110136005)(26005)(86362001)(45980500001)(43740500002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Sk1la3poWkNzYks0eHY1L2E4NHJxUGdQNit0TEFyYVB0WkUrbWoyc3hlNkd4?=
- =?utf-8?B?bkJLTXlVUXNOZ3crU2VlVldvN1YrS0J4bnMvWllJeUo3SGw3UVNEbGkyb212?=
- =?utf-8?B?MEVnZHhnWnhmN2tBSVN5UXBwZjIzOWNNRU9ySmtGQWdDYjBlUWhmUi91QnhO?=
- =?utf-8?B?NWp1ZVR5WlMyZGdkMG9abXRjOHNWNUlPWTU1enBxalNPUHpXcFNqcmJwazNG?=
- =?utf-8?B?UlNFdGc2aS9yS0ZueEpKREYwUmhQdzJYc3FVaERCV2RkUGZwRDlGOHdXb1Vy?=
- =?utf-8?B?UXRuV0VWM0EzVTVRc1dJOFA4aEpWWXlhYkliVk1GSVFXVDc2SXJ3SXArazZr?=
- =?utf-8?B?a3RZY3JBMlJPTGFEcWdCdStjZjJiQldYYmJyRVlWMDNtcDBrZGVMVlFuY0Rh?=
- =?utf-8?B?OEkvNm9Cdk0rN20xU1hFSGNaczgxa0pzL0Uza3Q5NGtKNGRVeFRodGZJY29G?=
- =?utf-8?B?N2d0TFc3ZklydmFsenJNVld3cG9MVUNxUDhKSjB4NExuQnQzeVpSaS91Ny83?=
- =?utf-8?B?dWk3b0M5NVcxZ2x0NHN5YVVMalo3SDFlOVE0UVJwNVBXZlp2UkxuK1M3akZo?=
- =?utf-8?B?NkVnbjZ6bEszaUlkTzc0UnkrdzEyeHh2ZWpHMUE1dFBDVUZYN0QxcW84VXZS?=
- =?utf-8?B?R0w4YVQ0N3M1OGhQd1F6MExtZWNSdXBsbVZwWkhXQkNzbzN5N0RwVHcwL1B4?=
- =?utf-8?B?YllXbEIrZUVGZDNGRlNoL3l0dTM1UGtRZEJsN2hTVmVPT1Vhb0FxemxDTlRH?=
- =?utf-8?B?K0lzL3IvWk9HZkg1ODZNTjNYa2p5UGg5QmRuSVIvSU80QnlxdDl6ZmxVMVI2?=
- =?utf-8?B?RkJEVHhrM085UktJMDIzTkgydGxCV1N6bXZDQk5JRy9takhQQ1BGblNnam1w?=
- =?utf-8?B?azVHSmlIekZvU1d1eWVUOGV6d3hOdVQ0U015SGY4L3pXbDhhRmYyRjI5SEdK?=
- =?utf-8?B?QzB1blRUeWxlZVdkT283UGZETzF2YmxDVlJpOWFFUUdvWHk3UkE3U2xLWVZB?=
- =?utf-8?B?V3hhZWtJM2dZRjlhaXVjNmdJWjBJcm5SV2VPQ2kwRjg3N29Ua0VIQktuNXR4?=
- =?utf-8?B?MXhMWmtpVHpkVXZzSnJVQUdnbXBaV3pZejZka3R4MzUyYnZPYU1lcTFycmlk?=
- =?utf-8?B?dWtmQk5lbFhqd2pPNzd4MzltYzJ2QzRNMzV0OHkrbGw2Q3BRWmhCcnZ5aGwr?=
- =?utf-8?B?U3RPVXpKampZUGNWQkFoWFJFSHEzZTBZMzhhdklFK1dJUzV6TjViWFJVVmYw?=
- =?utf-8?B?bjMzTytJYzR3alpoSlMzZWVvdWVGZXBSZ0Nlak4xOTl1dk9nT2JRK0N2WGJD?=
- =?utf-8?B?T0tIaWJzcitISldjdTllTklGbDlLY3VKWjU5dmd4OUlUckxmdjBtRHdiNnRC?=
- =?utf-8?B?SkFCbGtRbHBOcnduWjZCRldiWlE4QjNtdVZUUEpqWUdKQ0NEeTZlcy95c0xz?=
- =?utf-8?B?TFdEcUZQUDFFdkhxKzdIYjM0SVBuU2ZNeUdicVdyRmNaYmVObGNBVGllb0Q2?=
- =?utf-8?B?QmordlcrSkhEYjNwNThhYzNWK3Naa2hFdnRibnM0QjE4TFllcVh3NElCUHE5?=
- =?utf-8?B?Z1VMVURrbjl4NUEybnZkVXJnSndhbElORjA5aVd1aFNNcm1sYVRxeWJFbTJ6?=
- =?utf-8?B?SnZzdVhETlBGc2JLOWV3T3IxdDNkU1dDVTc2UXloZ2FTc0NMR3BnbzB4aS9L?=
- =?utf-8?B?Rm5iTkxvUWJDNW1IVjRQL2xKbUhBZTZzb0JGS0Z2N1crMmMvMmRUVDlZLzRp?=
- =?utf-8?B?eXdTbDlKY2NIMDc4K3V1Vi9SaUVqOTVSZVJQdzlURmFPRjBMNlcxSUY0Nk93?=
- =?utf-8?B?MENwcS9QcnZ6d0laeFh0VXJZcExzVi81Q0hHZUMvczZvc0RZMkhHNHZuTHlo?=
- =?utf-8?B?YnJNWDlDWURnaUhNcHR3VkE5bkN0STJMN0NqVWoxVHRDUjFZaFNFVHFxQ1Y3?=
- =?utf-8?B?YVEwTDN3YzIzSk11NkNTNWRPUmNXQU1JRVlqK1lIUzV2TDFQMkRPVlBIRUFi?=
- =?utf-8?B?RWd2NTNMQlY1VnliekdjV1BSRENETThuZElYeThsdkttT08wdTlqKzhQUmtx?=
- =?utf-8?B?c1YxdERYZnVXRExHcEJManJMN05vTTh6OGUvYWl1YWk3OG5CdWFTRy9IWGtU?=
- =?utf-8?Q?tkpE=3D?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 04641400-dce9-4cbd-a26e-08d9b970ccff
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1201MB0192.namprd12.prod.outlook.com
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VkpIMnd2MmJDUkc0NTJMMkZOVm9XQkc4THZWdTRSSTc3MWxtbEFGZFBoTE5q?=
+ =?utf-8?B?emUwMkRkNHBsQkFRL3kvOHhTdnFMZzd6QUVFbGlGRFZMa0NDaDVVN3AyNzdn?=
+ =?utf-8?B?RnQ5K2NTY0lLd0h1RGFoUXlSNGZ1bENNVEt2cnFpaDQvelpRbEJJRS9OQ1g4?=
+ =?utf-8?B?YnhJU2ZHMHpLUUI0ZXFzVStVczRjektSV3p6S1hXdjZTZVNtaVViUnI0Mm9I?=
+ =?utf-8?B?MTJrc3dpNTlQSGZIVU04M0RRZDZpNndQbk04Z2U2b0dqTUk2Q0VpK2RYTmgz?=
+ =?utf-8?B?aUQ1U3l2WXR2RnRxMzdqRENYQVhqZVg5R0x2SUQrTEZ4Ry81ckQrRFBLRVQx?=
+ =?utf-8?B?SzJYM3RLNnhPSGtSUkZvcEUxUE5HdXVJQTljTnRzdkMvNlg0aG9rMncvajhQ?=
+ =?utf-8?B?T1pMbCtINVRLUkJXa2JTZkRvNW90ZWdMZUppQjlFODZsUHdrYXZvOGdEdnRr?=
+ =?utf-8?B?YkRWM3FreWl3Y0RpSWtSKzZaVHhzdi9vajBMdnk2MkZHWDFJZklVREZGSGFt?=
+ =?utf-8?B?N1M1bEVKbGhVK3ZYMlhQQWhKb3cxVFcrNzZwU0J6SWRmKzhvMGdQS2U3WkFK?=
+ =?utf-8?B?OVE3VHl2bVFvTk1TMGVnN3NaMzRRWDJYYis5eTZCaWVzMWxmYnhILzJ5TTF0?=
+ =?utf-8?B?MjdFR0xxUm9vQXZnbDhKWUVaU1hEMVNXTjlrSUV4MHpPd3ZEaVRQdXZRWU9q?=
+ =?utf-8?B?dkVVeXltQnUwZHJUdHhxNmZzbnA0QXZOL1pXWmI5TGVvYnc0SVRJakh0dkFu?=
+ =?utf-8?B?YkxXZWp3bHFORENkM0o3VWxvU1FGYnhIdDU0aW9YNVIybXNDbU5PYkJvRXg4?=
+ =?utf-8?B?WS9ZL0hFYXRjdzVPQi8yc3dJTWJ5c2VKbGlNUmhyNzBUcG5NUDV0amxkb1Rm?=
+ =?utf-8?B?OC9kUFZJOW5vWHl3VU5YeUlzRlVnNGVTUWNaeTVMYzdoL3dMNTBwYjd1OElG?=
+ =?utf-8?B?SEFSUFBJMkZwNXMraVpYRG5pRmNNaUIyN3BpWnlZbUxkZDZMMXZkU2ozeDA5?=
+ =?utf-8?B?R09Hb3g5eTREQjYyb1M5aUdPZUpZR3RSaWlBRWtjUk1TWUhldTJoSUlsZFdT?=
+ =?utf-8?B?Nk9oVE1Ed2pyYXNZZHdVbnBrQ0RCVk9Sblk0MEhJdk40V2svdG9sczVpV3FL?=
+ =?utf-8?B?cEZHamdnclE4bTA3VE0vaFpsY3dUQjZ4K1hvNzZ4d2I1c01GdVJNb0ZXQ1ZX?=
+ =?utf-8?B?bmJ2K1JtS1RXT1lIalFLNU5JY0Rkd2JPZmdHbFB4dTNjNWVqQXdEYUhCU0ZL?=
+ =?utf-8?B?T0s3d2daTUNRZ2JEL25FZndqV2pjL2JjQ2MyNktKZTN2MFQ1cTBsaWloamhV?=
+ =?utf-8?B?OUllektFOTVVVWppV1RWNktZVWRqOFFqWXFZRzFiNEN5QkpNNlVPK0d3d253?=
+ =?utf-8?B?N3JVK0ErVlNIRDZwYXNZSUNJeFVkWEZsZXJ5clBub0hQWVkxNTlhRHd2V2x3?=
+ =?utf-8?B?SWcwMFZKNFlKcTkrL2RYdjNoNEE0dlE3N1ZOZmc1WjgzY2hBVkVIUHEzTCtV?=
+ =?utf-8?B?d3l1NUNZdkFpZlBhMXlENkduRlhsakRDQ0FvbjhFbGIraTJnSkJueUJqbnhG?=
+ =?utf-8?B?SUx0RGIyS1JNODk5YUZYZldNMHc0VUU3Q21EVm9FVFB2VHFpcUtKbjZEdXFT?=
+ =?utf-8?B?NldycjU1UWEvbGRBNCtMYllDdlBlYTUwT3I1MFlSTmV4TEZIOERWdi90bHpC?=
+ =?utf-8?B?Q0xpREdUTHdYcWNHOG9HdmpCVGhheVozc3VtcTVKcW1hU2JDUlczZEZOcGJC?=
+ =?utf-8?B?OGVvay9CSlc2UnpiNklRZW85WkZVNHU3aVZUNnFlcU9DN3RydWNWZVYybUY1?=
+ =?utf-8?B?alI0SVZ6M1lrb21rb1dwdEswRGRRdmY0bTQxaWxMRzNSejFjdHJTN1RqOWZ5?=
+ =?utf-8?B?SjlURXgzdlU1QWl3Ukdmd3JqV0ZMMHhuOXpzMmpLZys5aUlwOGVaNUo5RUFE?=
+ =?utf-8?B?aHlSWFJNQWt6VUdaVFozUVdlTld3RzMrUWlBOW1QM0RhaVcvK2lianV2QS9Y?=
+ =?utf-8?B?YThVZ3JxQUNMdTFaMXdIV2NCODBzVHVmVGoyS2dLMEJqeVNUT05mbUlQd2xM?=
+ =?utf-8?B?bzA0RjJTRUFnQWFNR3N5aUFaMXNSalNPS0RUTXUzdVZFQk5jb1NHaHJMSDJ5?=
+ =?utf-8?B?RVpCeEhxa2liajNMUjV4dHIrWEFicDZ6VlFmb2wwR3cvSSswTkhZSUJnblZk?=
+ =?utf-8?Q?jvaiui0e+aFRfdvAMpr1Tbg=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 883f536b-5145-4116-3d1c-08d9b9711deb
+X-MS-Exchange-CrossTenant-AuthSource: CO6PR12MB5444.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Dec 2021 11:00:37.7886
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Dec 2021 11:02:53.9958
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: UcausHx0cKN+Y2/79jsRBgkTz19NjxV1UoNpIx9Oqob/iG5XMSj6eb/hUtscei2K
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR1201MB0238
+X-MS-Exchange-CrossTenant-UserPrincipalName: Q1ve3wMQ9Mhg3ZiySKTCFX/Cq7tXEUpN6onE9KBgyRbOGizKzDXaFl0UPs1DH6uGmgHsuiQ4/REA0ZZBMw34Sg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR12MB5428
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 07.12.21 um 11:40 schrieb Bas Nieuwenhuizen:
-> On Tue, Dec 7, 2021 at 8:21 AM Christian König <christian.koenig@amd.com> wrote:
->> Am 07.12.21 um 08:10 schrieb Lionel Landwerlin:
->>> On 07/12/2021 03:32, Bas Nieuwenhuizen wrote:
->>>> See the comments in the code. Basically if the seqno is already
->>>> signalled then we get a NULL fence. If we then put the NULL fence
->>>> in a binary syncobj it counts as unsignalled, making that syncobj
->>>> pretty much useless for all expected uses.
->>>>
->>>> Not 100% sure about the transfer to a timeline syncobj but I
->>>> believe it is needed there too, as AFAICT the add_point function
->>>> assumes the fence isn't NULL.
->>>>
->>>> Fixes: ea569910cbab ("drm/syncobj: add transition iotcls between
->>>> binary and timeline v2")
->>>> Cc: stable@vger.kernel.org
->>>> Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
->>>> ---
->>>>    drivers/gpu/drm/drm_syncobj.c | 26 ++++++++++++++++++++++++++
->>>>    1 file changed, 26 insertions(+)
->>>>
->>>> diff --git a/drivers/gpu/drm/drm_syncobj.c
->>>> b/drivers/gpu/drm/drm_syncobj.c
->>>> index fdd2ec87cdd1..eb28a40400d2 100644
->>>> --- a/drivers/gpu/drm/drm_syncobj.c
->>>> +++ b/drivers/gpu/drm/drm_syncobj.c
->>>> @@ -861,6 +861,19 @@ static int
->>>> drm_syncobj_transfer_to_timeline(struct drm_file *file_private,
->>>>                         &fence);
->>>>        if (ret)
->>>>            goto err;
->>>> +
->>>> +    /* If the requested seqno is already signaled
->>>> drm_syncobj_find_fence may
->>>> +     * return a NULL fence. To make sure the recipient gets
->>>> signalled, use
->>>> +     * a new fence instead.
->>>> +     */
->>>> +    if (!fence) {
->>>> +        fence = dma_fence_allocate_private_stub();
->>>> +        if (!fence) {
->>>> +            ret = -ENOMEM;
->>>> +            goto err;
->>>> +        }
->>>> +    }
->>>> +
->>>
->>> Shouldn't we fix drm_syncobj_find_fence() instead?
->> Mhm, now that you mention it. Bas, why do you think that
->> dma_fence_chain_find_seqno() may return NULL when the fence is already
->> signaled?
->>
->> Double checking the code that should never ever happen.
-> Well, I tested the patch with
-> https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgitlab.freedesktop.org%2Fmesa%2Fmesa%2F-%2Fmerge_requests%2F14097%2Fdiffs%3Fcommit_id%3Dd4c5c840f4e3839f9f5c1747a9034eb2b565f5c0&amp;data=04%7C01%7Cchristian.koenig%40amd.com%7Cc1ab29fc100842826f5d08d9b96e102a%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637744705383763833%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=sXkTJWm%2FWm2xwgLGdepVWAOlqj%2FeArnvmMvnJpQ9YEs%3D&amp;reserved=0
-> so I'm pretty sure it happens, and this patch fixes  it, though I may
-> have misidentified what the code should do.
->
-> My reading is that the dma_fence_chain_for_each in
-> dma_fence_chain_find_seqno will never visit a signalled fence (unless
-> the top one is signalled), as dma_fence_chain_walk will never return a
-> signalled fence (it only returns on NULL or !signalled).
 
-Ah, yes that suddenly makes more sense.
+On 07/12/2021 10:58, Dmitry Osipenko wrote:
+> 07.12.2021 13:44, Dmitry Osipenko пишет:
+>> 07.12.2021 13:22, Dmitry Osipenko пишет:
+>>> 07.12.2021 09:32, Sameer Pujar пишет:
+>>>> HDA regression is recently reported on Tegra194 based platforms.
+>>>> This happens because "hda2codec_2x" reset does not really exist
+>>>> in Tegra194 and it causes probe failure. All the HDA based audio
+>>>> tests fail at the moment. This underlying issue is exposed by
+>>>> commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
+>>>> response") which now checks return code of BPMP command response.
+> 
+> I see that this BPMP commit already has been reverted. There is no
+> problem in this hda_tegra driver at all.
 
-> Happy to move this to drm_syncobj_find_fence.
+That is temporary until this fix is merged and then we will revert the 
+revert.
 
-No, I think that your current patch is fine.
+Jon
 
-That drm_syncobj_find_fence() only returns NULL when it can't find 
-anything !signaled is correct behavior I think.
-
-Going to push your original patch if nobody has any more objections.
-
-But somebody might want to take care of the IGT as well.
-
-Regards,
-Christian.
-
->> Regards,
->> Christian.
->>
->>> By returning a stub fence for the timeline case if there isn't one.
->>>
->>>
->>> Because the same NULL fence check appears missing in amdgpu (and
->>> probably other drivers).
->>>
->>>
->>> Also we should have tests for this in IGT.
->>>
->>> AMD contributed some tests when this code was written but they never
->>> got reviewed :(
->>>
->>>
->>> -Lionel
->>>
->>>
->>>>        chain = kzalloc(sizeof(struct dma_fence_chain), GFP_KERNEL);
->>>>        if (!chain) {
->>>>            ret = -ENOMEM;
->>>> @@ -890,6 +903,19 @@ drm_syncobj_transfer_to_binary(struct drm_file
->>>> *file_private,
->>>>                         args->src_point, args->flags, &fence);
->>>>        if (ret)
->>>>            goto err;
->>>> +
->>>> +    /* If the requested seqno is already signaled
->>>> drm_syncobj_find_fence may
->>>> +     * return a NULL fence. To make sure the recipient gets
->>>> signalled, use
->>>> +     * a new fence instead.
->>>> +     */
->>>> +    if (!fence) {
->>>> +        fence = dma_fence_allocate_private_stub();
->>>> +        if (!fence) {
->>>> +            ret = -ENOMEM;
->>>> +            goto err;
->>>> +        }
->>>> +    }
->>>> +
->>>>        drm_syncobj_replace_fence(binary_syncobj, fence);
->>>>        dma_fence_put(fence);
->>>>    err:
->>>
-
+-- 
+nvpublic
