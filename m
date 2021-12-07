@@ -2,172 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DD146AFA0
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 02:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA86546AFCF
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 02:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344899AbhLGBW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 20:22:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59260 "EHLO
+        id S229555AbhLGBgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 20:36:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344156AbhLGBWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 20:22:20 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5A5C061746
-        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 17:18:51 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id h24so9087253pjq.2
-        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 17:18:51 -0800 (PST)
+        with ESMTP id S235279AbhLGBgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 20:36:10 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61EDAC061746
+        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 17:32:40 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id a18so26144876wrn.6
+        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 17:32:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Dy79etYV06Uvnq/6cF1cJmfGyDPc6QLSiA8Fb2bsBSU=;
-        b=su9MHwBS+uFbtXiYxVQhwY3YJ2wauwbZ5Lhn/sQ54hcbvR1J7SkzXHcRqzFCTo1IdY
-         qwVhwX5SZE+Bbz7Ybe8yogtQgQhByY1Z5UpPlBYkotZT6muYKm6+2L8NZafQdySmzMkV
-         ujFvTPuDJO49BJtsFdvyWBXCchiDt++C0+mgYmr1VsPA636DVRSJosTUfxr0bXV+bT+r
-         x8tf0irNX6RDCiVWD/z3DxJPqJGMlKqcSLJf591ZgMo3Z1x0hfxK/2ndNw/7D4mf/c1I
-         cT7MxFeVFu0nh005XqmNOS8Kf+SF7lFbPXk1WbgbH1E/oZA+j8fA1Lr9U/h2mTO6Fs27
-         xFNQ==
+        d=basnieuwenhuizen.nl; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ov6NmFfn2KOdbrAOSyyJhZZ3QFfk7XcAFTsXrWKZIFk=;
+        b=hNXGWtgrTIt0EBrLBJry9rtHevgDCGyN5WKpj8eLt42+KR2R71Ttf8BfNdS1Ta4YXK
+         3xFHWL24f+Pd6nkip0Dmxf2t4AzP9I8YeBHdhMQJn44OdPLy5rip9VVMQ7c/KK/JAJQz
+         IEew6xJTnv9FN8f+iVRTwqMC8RoRnZWiS02UweW+aJjI5sXlEiKhOaZR16qZZPU+5LXZ
+         16lztObWuPKNOYfep5z2dM5mE4KJggZXoXJVOClkbIbCiWTiSKpMQ4GSBI8BLoTIMHO0
+         DTJvy7T+xS34hHqcEjSjlEV1fMe4/fB85z/pGU765iO9dqym+P1bOpzsUqZu+H/WN2Ng
+         XLPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Dy79etYV06Uvnq/6cF1cJmfGyDPc6QLSiA8Fb2bsBSU=;
-        b=LzzBumJSR024Mt1XefdLEmUbzXNRj887HxC8Isurdym4RLUREY/QdG76q34oaw7eHZ
-         lUTq473RgyreKowb1QYl4+iKy6RNOaGp+VOWseLoN/rgeEfWs9lVaV91ij7MalYB8oR1
-         FS8IcrDZAJyX4GGDUuv+orqP0YmnZSIfCNEhZ5mqpFQunMCscXQM6lDhYBS3cp9jOjyY
-         OJUZ3Fc0CW7dR3EGQ9AMnYxKaPhQL1l1BWD8HhJs6PJMn7Xa+loQLjyrYZGytRZrYzC3
-         QLUDMkphWZiLQJSCYTqNogkHPbfHfYpjjQOmw3STsXtsxMFpjgoLZoI0Fp/UXzU8w3da
-         Zl3Q==
-X-Gm-Message-State: AOAM533skbafq1LVrj1OT2jCzwA6twsAentJUJLhjZaTznLze28ER+BC
-        rphiRBoQJaXiLRh+NnJx1Zt2WZQwAqztZjG4
-X-Google-Smtp-Source: ABdhPJxmq7anILl6xhLrAptqevDDNVJvOYPx+46l8Iv9ho/qeB+MQbjEWNiShs7eLd5XhulTHpAsqQ==
-X-Received: by 2002:a17:90b:4d8c:: with SMTP id oj12mr2770973pjb.100.1638839931001;
-        Mon, 06 Dec 2021 17:18:51 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d20sm13555001pfl.88.2021.12.06.17.18.50
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ov6NmFfn2KOdbrAOSyyJhZZ3QFfk7XcAFTsXrWKZIFk=;
+        b=0UzP0tpnHCe3BZhy10kpJOBoLQWVgEFFEF4zzg6kpgpmTCNNoLgHu+w8TmQm8stshj
+         F6zk0csdeU/dpYDR/4FSowIYqsL4ThcIdLR6bVqlSPklf7roJ4/2vDE8Qem554/DYggV
+         pq7knUzhh0t48/1PhePXrqelq1Gcv9Hawf6pvxYMthj5y5aWGEpgTY2NfBdjhSVbM5pJ
+         VxdPH73UVDrCtBHtqzjMho8zg/O09hdNCOWUIhs46MhsJypWv2ijQ3oWGTobxuAE52UL
+         ktbcD85BrHyOmYUNlACoFJrtKd6t6EQGqcNjJ+HGlEXC4MWwniyiIzMTQ1+wQWPM+csq
+         SGUQ==
+X-Gm-Message-State: AOAM530/GKtnCxtjNS/8P80kTxJ9p8Z28N/CRxzn+Q5HGduOHlI2RACP
+        x+K+sO/Ahm/5GuJTXXyuKppyknBeUlStpg==
+X-Google-Smtp-Source: ABdhPJz1v2UhAoPvMz7BxrFH9hPP7mcUYPVRgsZ3GGZ39+iG4CaJSv/xlTKE429w9hs98RBfBpYGYA==
+X-Received: by 2002:adf:e84e:: with SMTP id d14mr46741229wrn.472.1638840758785;
+        Mon, 06 Dec 2021 17:32:38 -0800 (PST)
+Received: from bas-workstation.. ([2a02:aa12:a77f:2000:7285:c2ff:fe67:a82f])
+        by smtp.gmail.com with ESMTPSA id g198sm1010018wme.23.2021.12.06.17.32.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Dec 2021 17:18:50 -0800 (PST)
-Message-ID: <61aeb67a.1c69fb81.65fff.7552@mx.google.com>
-Date:   Mon, 06 Dec 2021 17:18:50 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 06 Dec 2021 17:32:38 -0800 (PST)
+From:   Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+To:     dri-devel@lists.freedesktop.org
+Cc:     david1.zhou@amd.com, christian.koenig@amd.com,
+        lionel.g.landwerlin@intel.com,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/syncobj: Deal with signalled fences in transfer.
+Date:   Tue,  7 Dec 2021 02:32:35 +0100
+Message-Id: <20211207013235.5985-1-bas@basnieuwenhuizen.nl>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.256-106-g0e1b735b5316
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 baseline: 149 runs,
- 2 regressions (v4.14.256-106-g0e1b735b5316)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 149 runs, 2 regressions (v4.14.256-106-g0e1b=
-735b5316)
+See the comments in the code. Basically if the seqno is already
+signalled then we get a NULL fence. If we then put the NULL fence
+in a binary syncobj it counts as unsignalled, making that syncobj
+pretty much useless for all expected uses.
 
-Regressions Summary
--------------------
+Not 100% sure about the transfer to a timeline syncobj but I
+believe it is needed there too, as AFAICT the add_point function
+assumes the fence isn't NULL.
 
-platform    | arch   | lab           | compiler | defconfig                =
-    | regressions
-------------+--------+---------------+----------+--------------------------=
-----+------------
-panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig      =
-    | 1          =
+Fixes: ea569910cbab ("drm/syncobj: add transition iotcls between binary and timeline v2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+---
+ drivers/gpu/drm/drm_syncobj.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-qemu_x86_64 | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon...6-chromeb=
-ook | 1          =
+diff --git a/drivers/gpu/drm/drm_syncobj.c b/drivers/gpu/drm/drm_syncobj.c
+index fdd2ec87cdd1..eb28a40400d2 100644
+--- a/drivers/gpu/drm/drm_syncobj.c
++++ b/drivers/gpu/drm/drm_syncobj.c
+@@ -861,6 +861,19 @@ static int drm_syncobj_transfer_to_timeline(struct drm_file *file_private,
+ 				     &fence);
+ 	if (ret)
+ 		goto err;
++
++	/* If the requested seqno is already signaled drm_syncobj_find_fence may
++	 * return a NULL fence. To make sure the recipient gets signalled, use
++	 * a new fence instead.
++	 */
++	if (!fence) {
++		fence = dma_fence_allocate_private_stub();
++		if (!fence) {
++			ret = -ENOMEM;
++			goto err;
++		}
++	}
++
+ 	chain = kzalloc(sizeof(struct dma_fence_chain), GFP_KERNEL);
+ 	if (!chain) {
+ 		ret = -ENOMEM;
+@@ -890,6 +903,19 @@ drm_syncobj_transfer_to_binary(struct drm_file *file_private,
+ 				     args->src_point, args->flags, &fence);
+ 	if (ret)
+ 		goto err;
++
++	/* If the requested seqno is already signaled drm_syncobj_find_fence may
++	 * return a NULL fence. To make sure the recipient gets signalled, use
++	 * a new fence instead.
++	 */
++	if (!fence) {
++		fence = dma_fence_allocate_private_stub();
++		if (!fence) {
++			ret = -ENOMEM;
++			goto err;
++		}
++	}
++
+ 	drm_syncobj_replace_fence(binary_syncobj, fence);
+ 	dma_fence_put(fence);
+ err:
+-- 
+2.34.1
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.256-106-g0e1b735b5316/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.256-106-g0e1b735b5316
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0e1b735b5316567be036843a464bbbcca4c32666 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch   | lab           | compiler | defconfig                =
-    | regressions
-------------+--------+---------------+----------+--------------------------=
-----+------------
-panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig      =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ae7b712fb99ef40e1a948a
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--106-g0e1b735b5316/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--106-g0e1b735b5316/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ae7b712fb99ef=
-40e1a948d
-        failing since 1 day (last pass: v4.14.256-86-gce5b7722e4968, first =
-fail: v4.14.256-96-g0a8417bc52507)
-        2 lines
-
-    2021-12-06T21:06:42.835033  [   20.067504] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-06T21:06:42.875615  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/100
-    2021-12-06T21:06:42.884990  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =
-
-
-
-platform    | arch   | lab           | compiler | defconfig                =
-    | regressions
-------------+--------+---------------+----------+--------------------------=
-----+------------
-qemu_x86_64 | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon...6-chromeb=
-ook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ae7df69e5e77d2f41a94ab
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--106-g0e1b735b5316/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-brooni=
-e/baseline-qemu_x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--106-g0e1b735b5316/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-brooni=
-e/baseline-qemu_x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ae7df69e5e77d2f41a9=
-4ac
-        new failure (last pass: v4.14.256-28-gb75fc63979563) =
-
- =20
