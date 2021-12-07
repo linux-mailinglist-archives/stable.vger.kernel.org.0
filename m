@@ -2,196 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E56E46B350
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 08:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9117346B368
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 08:09:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229614AbhLGHEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 02:04:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51052 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbhLGHEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 02:04:01 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50383C061748
-        for <stable@vger.kernel.org>; Mon,  6 Dec 2021 23:00:31 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id np6-20020a17090b4c4600b001a90b011e06so1847045pjb.5
-        for <stable@vger.kernel.org>; Mon, 06 Dec 2021 23:00:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=v2KD/Dfq+rnasKB8lmx/9vy0d1bpdTQ6pdlpbDm2cNY=;
-        b=eWk/izWrJiBMpzVzdMAdYwo/6UxhY/+bJYF5qccMSL8poHIFm3PiGWUsyomrJ1lCFi
-         7Ps6GZDPf0UTI/AykAQltm4aV9ukzLw5NBJyy0Y5LDhBBTIOQYuNIFYJoy49SlvhmzMB
-         TdLOSFyDbnKFXpkGTDK8F94WJRXPNqA7WbEcCkC0rethFXdUpNil1y2aPDTHmiPiR3p0
-         cBeqfiycNJvys+XfCzZd2zHyF2uRyyDZ8IEBoH0JlgPJhDhaIeAm7Zg3LmwVbusa6M1K
-         NoDYFXELniTyaNNuHEYHD/182M8ZeV6ew/IrB70sooXIM/gdLSiSJ7SXfkRiuJB/3ll9
-         vj1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=v2KD/Dfq+rnasKB8lmx/9vy0d1bpdTQ6pdlpbDm2cNY=;
-        b=11ATKWAYM/ESQRIaj+44VTK8b+KDNlWu9YGztypBSCdvoPK4fdJiahg4fBeiH3//1d
-         G2EFz4nlLD5nenFo/g5CU2O5wPNwC7wd+68FozMHUV3K9nJCVKHx9FMKJUjUVym5SHxf
-         bM0vF9xj/zi5MSl8IFCHnSSQAUpWiKKB03HEJ5YJtxkUL6eOKELCpNKejfNu5f/h/qfu
-         gctsJ7KH6wV1hheSQoq+zepZ/Z4grfAHV4OeMJWblXqKle3BescpQ/MSZzN99JE3RvxK
-         a25cCoqaTL6HUu8Tj9ksHhu5Pui7Y/VvwIo/9Md+iAiMCaAoLIyJRjL+c1Em7MTPRcmH
-         Ymhw==
-X-Gm-Message-State: AOAM530gVAv3AnMZBBv4wDwA4BY9nEdC4LTSSmL9yTGtnMOWHFIQopKO
-        NsgcIpW7jnluMNQxlGNniTz1
-X-Google-Smtp-Source: ABdhPJwkH2+F982zkzFbH3pqOLJ9QtawrtTVzIPRPRDf5DaQaZMX9AZVzN3QtPe9mTr5KSKs4UZL1A==
-X-Received: by 2002:a17:902:ab47:b0:141:95b2:7eaf with SMTP id ij7-20020a170902ab4700b0014195b27eafmr48733066plb.40.1638860430704;
-        Mon, 06 Dec 2021 23:00:30 -0800 (PST)
-Received: from localhost.localdomain ([117.217.176.38])
-        by smtp.gmail.com with ESMTPSA id d6sm11825211pgv.48.2021.12.06.23.00.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Dec 2021 23:00:30 -0800 (PST)
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     mhi@lists.linux.dev
-Cc:     aleksander@aleksander.es, loic.poulain@linaro.org,
-        thomas.perrot@bootlin.com, hemantk@codeaurora.org,
-        bbhatt@codeaurora.org, quic_jhugo@quicinc.com,
-        linux-arm-msm@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        id S229446AbhLGHNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 02:13:14 -0500
+Received: from mail-bn8nam12on2076.outbound.protection.outlook.com ([40.107.237.76]:47672
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229445AbhLGHNM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Dec 2021 02:13:12 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=G0tv4okyATBYo6IYExXKQlxP2FdtVrCgUwPUmbsR+L9LPfbqlvz10vEgvhZ8IDMeYGcGpMBTULLqcmRuY6V+ppUgcdCwaTGHbkZfJQkXJ0BUq7kwmFRfKg5Dor4V97ntsfDoUsKuixOov38YvK/5O4Gg3EPfWuQahyaXvYqZYnUwc+LxZg4N1qIX6N++6dsbGI0juVCwLnhnysxGY8mE2cafUpJU+u7fTHJ0yC5oQohAlCjRv9ldbW/WUyCowX9++NV1iLI4jOwYO+7ZQZXmYHKIguhDhrJ8hktP6dpusNDKeKXklD76evJ9HeqDayD1t5jf0GVX7A+cvOpWPoE5+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=odz5QcBpUr3bpfLuLBKOJQFqKYsFgOVGzQBTNr+3btk=;
+ b=i3IWzcppm4sH07FSd7U+FnNAfQHUdquPRq1dbdIg18iax5JyGj3GYdPmOQuGRm0EBvOizfikkvo5MCuq+pncPAXQoojPhAeSvkhIVwLQ69fVViS/XJi3QunDF5YaFdFHrv5heFasDod94aP1Cn+ibUCTQrg7JEuIzdAgwbns3hhIHur3vi6yQGrZMlwAAbsU59u/tjU6iPg879G2BtvEKoqKVAc1bSY4F0IDU2Z59J4FqRItqe+iUF42YfQJckVUWAvlbIGG8RDhXQdX6C3o4hqKIT66bf87rNxk1lzeFm/Jt7EOUGhJGyce0g+IdInK1yr669UlWdVOuhd7n1B5kg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=odz5QcBpUr3bpfLuLBKOJQFqKYsFgOVGzQBTNr+3btk=;
+ b=GMzxyfXMIMx1pZfT6VWz7H11AP6NdbRB9qk+RoJQAnhvw5K3Fkb7hd7LL/qN+SeK0bmKoa5vvEHOhNPOz4yCmg81rK3NTQlUwKurxI2j//RRV7kM4zpsjuk/4ulWNQu3e+iAr/Q7klsoKnz/zbs1hAm+eHOw4x/V///90HjKY7I=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
+ (2603:10b6:301:5a::14) by MWHPR12MB1616.namprd12.prod.outlook.com
+ (2603:10b6:301:b::20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.21; Tue, 7 Dec
+ 2021 07:09:39 +0000
+Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
+ ([fe80::d16c:a6d5:5d2e:f9d4]) by MWHPR1201MB0192.namprd12.prod.outlook.com
+ ([fe80::d16c:a6d5:5d2e:f9d4%12]) with mapi id 15.20.4755.022; Tue, 7 Dec 2021
+ 07:09:39 +0000
+Subject: Re: [PATCH] drm/syncobj: Deal with signalled fences in transfer.
+To:     Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        dri-devel@lists.freedesktop.org
+Cc:     david1.zhou@amd.com, lionel.g.landwerlin@intel.com,
         stable@vger.kernel.org
-Subject: [PATCH v5] bus: mhi: Fix race while handling SYS_ERR at power up
-Date:   Tue,  7 Dec 2021 12:30:18 +0530
-Message-Id: <20211207070018.115219-1-manivannan.sadhasivam@linaro.org>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
+References: <20211207013235.5985-1-bas@basnieuwenhuizen.nl>
+From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Message-ID: <6b4beed9-6d2a-96c2-956e-5a5fb6f6fbd9@amd.com>
+Date:   Tue, 7 Dec 2021 08:09:31 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+In-Reply-To: <20211207013235.5985-1-bas@basnieuwenhuizen.nl>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-ClientProxiedBy: AS8PR04CA0133.eurprd04.prod.outlook.com
+ (2603:10a6:20b:127::18) To MWHPR1201MB0192.namprd12.prod.outlook.com
+ (2603:10b6:301:5a::14)
+MIME-Version: 1.0
+Received: from [192.168.178.21] (87.176.191.248) by AS8PR04CA0133.eurprd04.prod.outlook.com (2603:10a6:20b:127::18) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.14 via Frontend Transport; Tue, 7 Dec 2021 07:09:37 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 4989b807-5952-4596-35b2-08d9b95088a9
+X-MS-TrafficTypeDiagnostic: MWHPR12MB1616:EE_
+X-Microsoft-Antispam-PRVS: <MWHPR12MB16162F9C6FD212B59AA8103C836E9@MWHPR12MB1616.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: xPO2mGnwgEk9THacZVg4WAAJbR2+WJ7aLr6Qug9kVdgy6sX3EdzgG5vQz/ECbyyc9kx8yC3matJBJ/qugf0tXVTdiXVWabPjlhFfB2Zm6HBhuJi+ugDp5phxvkX5J6DnnOzVZMENtUYLyNZTETP+itjH8ceQs3vkUvkeFoCNwcJWaJcKim+Yfu/QLUoSS8nk00HX3Of1pl6vgYAOAD+jXd6/z6504tEe0nqvb3PK7apXmtHR6V8ZcbrdsLr2eoS9iEen1Y5MyhKIPZoFd42bOPLyBA+6Lf0LFKI1Pjd1N03e9vkLfnFGdiViSm0R+Uc3TeLYNzn2JgBzraZwiCdXdKpxcVBCF22jjVu0xVQrvSt79wPeUWDI/Br01PQGA4EAsg1fX3w57bdfb4VA4dBSUoNY/7CJhSTH9ollGVOAEl/c/F+G9gHta7vqiOpQxrk5Kk89QMhhHoTSgrt/FUDg0CjUR2cnOuQ3g52oKHTB1pSGgNcPhSGTcEU6nOGoYOSkC4vW3GkMtvUwW4EOZ17hvSzhuOOfgl+8T7QST3JrkDtb/M1HXf3LXZU6RrSxjSCBsgiSnoKA/T2Md+L83ENjdJ4IzLOc7fFAlo5g85ny69iR0P2jdVoVQFgazNnJD/9eDhYZTgnrqQU61MY4ZDTVWahuzky8kwmmRLuXTQ9F+mbfZlGboOb/AsJa8KAVNBwkzUrmTjjQk8ZTZvorqqQEO/7pdSWSsDbALY5Ot/zKpPU=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1201MB0192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(86362001)(36756003)(31696002)(6486002)(186003)(8936002)(26005)(316002)(508600001)(5660300002)(8676002)(2616005)(2906002)(31686004)(4326008)(6666004)(83380400001)(16576012)(956004)(66556008)(66946007)(66476007)(38100700002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?b29saXlkNWdTTTV4YzBvQi82WTN1MXdRT3ZwaXNGWU1DbWhxaEFPYXE0TkZL?=
+ =?utf-8?B?b1Fab0ZwM2RvenFDNzY3VXNXNWJCeXZ0ZjJ1Tk9nR3JTTnZNQ0hnalNxcjhp?=
+ =?utf-8?B?OGVRRjdteFJBMVNDdTZ1S1B2NjRmWjU1eEhuRUMyZGoxdVJlcEpvbm5QZCtn?=
+ =?utf-8?B?MUk0SFc2SWRPTWZwbGJ4TjlLNGdyQXhRVE5GejRFYmpZU1cvZk91bDR5UU45?=
+ =?utf-8?B?Vnp5L0c0SGRleVQvbmt6TW5LUVpCb1hzM1c1MW9XcmtueFBsNUhEMnJOampq?=
+ =?utf-8?B?dGNpVGFCeWd3eFo4dHZtajY4YjNnNzJaV3BuTDJ0Z3VaeUd2OFRzMVJTS2Vu?=
+ =?utf-8?B?Vmwwc0w3SlFLL2E4WkJoR1ZYK3RYUmV4ZzZueWVuczhKYnEwMHZzU0ZXenFk?=
+ =?utf-8?B?clpDbHA2TndlVTVJc3pET3lXYnVXM2gyZkhwR1lzRnM3NHlHei9lU2w4NUpy?=
+ =?utf-8?B?aWhaMG9aTjMxSGxjMVIvYjA1THh2Mk9EamxhUm1YaVZ4emtyWldtWDZycURv?=
+ =?utf-8?B?OUxhYTRWRlVrTEx3UnNqdytyRmNvVUYzTUlGQjNsRTREV3N5aEhqMWdRTlZB?=
+ =?utf-8?B?VmZCTXZEeTdTV2VWdnBPTWFWWUl1WC9RZXVnbnh5ZmtHOVhuR00vVjh2WGJU?=
+ =?utf-8?B?VU1HNER1SEJ0M2QzZ0c5ejFMY24yQm5iY0ZHcVN2eHoxejRTU3l2MlRaRGN0?=
+ =?utf-8?B?TDFsckc0Znd4TytWamlpVFVxT2dRUjUwYjFINXNIam9hWksvdXhKTEYwOXAz?=
+ =?utf-8?B?dThyYkxEdGV5endyN1dKQ0M0eG5LNmRFbjBzWERTUklMbUtxSHQvampweThm?=
+ =?utf-8?B?empndHlWcjE5Z3QxTzVEc1Q0VCtxTW52QzQzWnIySjh5RXExTGlKV3c4SzIz?=
+ =?utf-8?B?clJCZm91QmlNSlhUbnBRb3hENHdpbG83cFJHdkxxU1ZKSWpFKytCMTNGZkNI?=
+ =?utf-8?B?dC9GeFcvN2JLWCtoWnNoM1NLczlMVGxCQldXT1RTYkRtdE9RcTdzZUZlY0tx?=
+ =?utf-8?B?RFNtVDdhZFNoWjIxZUtEeSt6UFNSMFFsRitCaUR6WjVMa2M0U1ZYR0w1ZHVT?=
+ =?utf-8?B?bGloRHBzSGF6VXB1a3hpeS9wdDVsZ1IzeWM1dWlvTUphck1PY1RhYmdkVVJt?=
+ =?utf-8?B?Z3dUc0RseGxSV2puY2g2VzRad3dzL2c2Y3U5dEV0ZlRDUm5LZ3VMcERMVUs0?=
+ =?utf-8?B?RUoyekE1emlCN3B0QmE3N09yZDV4RHBrSGo4V2FadDJWVkFiSUJsaVMxL3N6?=
+ =?utf-8?B?dTlYSFZHN3V5dGxUWStjYlBlSTdVUDduTm1BbjQyVDFFYXNreXk4Q1BrbTRF?=
+ =?utf-8?B?VHBKcEZmMU1aQmd2dDlMdXBCRi93LzdYZGRobWJKU3dkZHBYeS9sY0ROYzYx?=
+ =?utf-8?B?REpJTUNyc3ZuSzNqTU9XNjdTYm1MNmZBUytJeEFKRHNIdFBvYjVCT0tsaGc2?=
+ =?utf-8?B?V3dIckxNcW8wTGhjcDJOOC9oK0lwTm9wUTVJWnFFcjcxa2ZidU04anZERHB5?=
+ =?utf-8?B?YS9YRU84Mm9paUtabmRRaVIzMnRpM2tDREpZWC8rdE5xTE94VzZXSXlreFBJ?=
+ =?utf-8?B?QWxvTFIwcUY3UmFnMUVKOFllcUg5NHR6R0ZsS05veExVbHNMcjUwbkJSQ0dm?=
+ =?utf-8?B?OGc5bW5tbVd3dFY1RjQ5NzNzT1hyeHJ3TWVFY0JsV3IwNzZrdzVLcTAxaGRj?=
+ =?utf-8?B?c3lkRUxMTFZOdnZaRGlvM3Vja2RPNCtmcTM2U3ZqdEVwU0llUlRRSS9wVWJP?=
+ =?utf-8?B?eEFMcUtteVRZVjRyNDVIWGpzUytwaEM1Q0NKaEYrQkdFNHlKQUw1dVh2Q0U2?=
+ =?utf-8?B?RFlFajl0RFhVV3ZCdmQwZko1WVdyK3B5WU9IQkpqV1Zub29jeXVsWmRybVU2?=
+ =?utf-8?B?dVNHUGVkYXZxRmxkdVBHc1FiQ2hraGNvd1ZIdFpISzJiSVlndTAwY0hJSlh4?=
+ =?utf-8?B?TEluOE1saUxqQ09reFRUUTNKRVBuZXdLUU9kQitBc2VoUjNPUEQvK25yeDVH?=
+ =?utf-8?B?a2VPb1VTbE56SUF5ZUhkSnhvalUyam15RFAzOWZ5djZidldjeVc1WWJKbkpJ?=
+ =?utf-8?B?TFJzS3p0Y0xvcW1GNjBCNkxWRjVHdCtWc1RvYjJWeXdkcmM4MnlLVjNMTTZH?=
+ =?utf-8?Q?eOzs=3D?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4989b807-5952-4596-35b2-08d9b95088a9
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1201MB0192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Dec 2021 07:09:39.3737
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LGMqyGJkoazp4oWPd+PosacS/heMSlSLTpi4ZMc65wuLZAYGoAjy+bX+e2dfvsUW
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR12MB1616
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During SYS_ERR condition, as a response to the MHI_RESET from host, some
-devices tend to issue BHI interrupt without clearing the SYS_ERR state in
-the device. This creates a race condition and causes a failure in booting
-up the device.
+Am 07.12.21 um 02:32 schrieb Bas Nieuwenhuizen:
+> See the comments in the code. Basically if the seqno is already
+> signalled then we get a NULL fence. If we then put the NULL fence
+> in a binary syncobj it counts as unsignalled, making that syncobj
+> pretty much useless for all expected uses.
+>
+> Not 100% sure about the transfer to a timeline syncobj but I
+> believe it is needed there too, as AFAICT the add_point function
+> assumes the fence isn't NULL.
+>
+> Fixes: ea569910cbab ("drm/syncobj: add transition iotcls between binary and timeline v2")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
 
-The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
-handling in mhi_async_power_up(). Once the host detects that the device
-is in SYS_ERR state, it issues MHI_RESET and waits for the device to
-process the reset request. During this time, the device triggers the BHI
-interrupt to the host without clearing SYS_ERR condition. So the host
-starts handling the SYS_ERR condition again.
+Reviewed-by: Christian König <christian.koenig@amd.com>
 
-To fix this issue, let's register the IRQ handler only after handling the
-SYS_ERR check to avoid getting spurious IRQs from the device.
+Going to push that to drm-misc-fixes later today if nobody objects in 
+the meantime.
 
-Cc: stable@vger.kernel.org
-Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-Reported-by: Aleksander Morgado <aleksander@aleksander.es>
-Tested-by: Aleksander Morgado <aleksander@aleksander.es>
-Tested-by: Thomas Perrot <thomas.perrot@bootlin.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
----
-
-Changes in v5:
-
-* Rewored the commit message and used "error_exit" goto label for error
-  path
-
-Changes in v4:
-
-* Reverted the change that moved BHI_INTVEC as that was causing issue as
-  reported by Aleksander.
-
-Changes in v3:
-
-* Moved BHI_INTVEC setup after irq setup
-* Used interval_us as the delay for the polling API
-
-Changes in v2:
-
-* Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
-
- drivers/bus/mhi/core/pm.c | 35 ++++++++++++-----------------------
- 1 file changed, 12 insertions(+), 23 deletions(-)
-
-diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index 7464f5d09973..9ae8532df5a3 100644
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -1038,7 +1038,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 	enum mhi_ee_type current_ee;
- 	enum dev_st_transition next_state;
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
--	u32 val;
-+	u32 interval_us = 25000; /* poll register field every 25 milliseconds */
- 	int ret;
- 
- 	dev_info(dev, "Requested to power ON\n");
-@@ -1055,10 +1055,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 	mutex_lock(&mhi_cntrl->pm_mutex);
- 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
- 
--	ret = mhi_init_irq_setup(mhi_cntrl);
--	if (ret)
--		goto error_setup_irq;
--
- 	/* Setup BHI INTVEC */
- 	write_lock_irq(&mhi_cntrl->pm_lock);
- 	mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
-@@ -1072,7 +1068,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 		dev_err(dev, "%s is not a valid EE for power on\n",
- 			TO_MHI_EXEC_STR(current_ee));
- 		ret = -EIO;
--		goto error_async_power_up;
-+		goto error_exit;
- 	}
- 
- 	state = mhi_get_mhi_state(mhi_cntrl);
-@@ -1081,20 +1077,12 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 
- 	if (state == MHI_STATE_SYS_ERR) {
- 		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
--		ret = wait_event_timeout(mhi_cntrl->state_event,
--				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
--					mhi_read_reg_field(mhi_cntrl,
--							   mhi_cntrl->regs,
--							   MHICTRL,
--							   MHICTRL_RESET_MASK,
--							   MHICTRL_RESET_SHIFT,
--							   &val) ||
--					!val,
--				msecs_to_jiffies(mhi_cntrl->timeout_ms));
--		if (!ret) {
--			ret = -EIO;
-+		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
-+				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
-+				 interval_us);
-+		if (ret) {
- 			dev_info(dev, "Failed to reset MHI due to syserr state\n");
--			goto error_async_power_up;
-+			goto error_exit;
- 		}
- 
- 		/*
-@@ -1104,6 +1092,10 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
- 	}
- 
-+	ret = mhi_init_irq_setup(mhi_cntrl);
-+	if (ret)
-+		goto error_exit;
-+
- 	/* Transition to next state */
- 	next_state = MHI_IN_PBL(current_ee) ?
- 		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
-@@ -1116,10 +1108,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 
- 	return 0;
- 
--error_async_power_up:
--	mhi_deinit_free_irq(mhi_cntrl);
--
--error_setup_irq:
-+error_exit:
- 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
- 	mutex_unlock(&mhi_cntrl->pm_mutex);
- 
--- 
-2.25.1
+> ---
+>   drivers/gpu/drm/drm_syncobj.c | 26 ++++++++++++++++++++++++++
+>   1 file changed, 26 insertions(+)
+>
+> diff --git a/drivers/gpu/drm/drm_syncobj.c b/drivers/gpu/drm/drm_syncobj.c
+> index fdd2ec87cdd1..eb28a40400d2 100644
+> --- a/drivers/gpu/drm/drm_syncobj.c
+> +++ b/drivers/gpu/drm/drm_syncobj.c
+> @@ -861,6 +861,19 @@ static int drm_syncobj_transfer_to_timeline(struct drm_file *file_private,
+>   				     &fence);
+>   	if (ret)
+>   		goto err;
+> +
+> +	/* If the requested seqno is already signaled drm_syncobj_find_fence may
+> +	 * return a NULL fence. To make sure the recipient gets signalled, use
+> +	 * a new fence instead.
+> +	 */
+> +	if (!fence) {
+> +		fence = dma_fence_allocate_private_stub();
+> +		if (!fence) {
+> +			ret = -ENOMEM;
+> +			goto err;
+> +		}
+> +	}
+> +
+>   	chain = kzalloc(sizeof(struct dma_fence_chain), GFP_KERNEL);
+>   	if (!chain) {
+>   		ret = -ENOMEM;
+> @@ -890,6 +903,19 @@ drm_syncobj_transfer_to_binary(struct drm_file *file_private,
+>   				     args->src_point, args->flags, &fence);
+>   	if (ret)
+>   		goto err;
+> +
+> +	/* If the requested seqno is already signaled drm_syncobj_find_fence may
+> +	 * return a NULL fence. To make sure the recipient gets signalled, use
+> +	 * a new fence instead.
+> +	 */
+> +	if (!fence) {
+> +		fence = dma_fence_allocate_private_stub();
+> +		if (!fence) {
+> +			ret = -ENOMEM;
+> +			goto err;
+> +		}
+> +	}
+> +
+>   	drm_syncobj_replace_fence(binary_syncobj, fence);
+>   	dma_fence_put(fence);
+>   err:
 
