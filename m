@@ -2,90 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1119B46B604
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 09:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138D946B61E
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 09:36:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232950AbhLGIgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 03:36:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44966 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232952AbhLGIgE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 03:36:04 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18EC6C061746;
-        Tue,  7 Dec 2021 00:32:35 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id i12so12754833pfd.6;
-        Tue, 07 Dec 2021 00:32:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=Pv4Kn/kXpuqms5hUdvFbWbbJ/CjSdzb1UQVcC4I7FOo=;
-        b=pEvLhStOo/tODPkiZGv+Snpf+9MmQOahulOyGnOpuvqNN0hyy0yswfJZKZIpy7U4zq
-         7S3TfBjTrCuiWD81gz0wUe3KuFYECMaVrk83bGoRhNd7vtECoPOhxofQyn6syQ0ceLZB
-         vy9SZVVYV73Ee8upzUt+lDGWZByrbg6cp6tTFhpuZEKVuRO6fCMZG2gumMIgXuA8YieE
-         OrTUCwtRgyk+mlO4POnW4g0c3ljksz1aEt3S7vZVmZ0ElVP+YYAUBc3qJO3zc8v+3sgB
-         bMZAvXljsupE7Z6J4xTb3yQeD/yso11lFU34g8o4dTGVSHjOTU8m0Wr5LFIrG+LjnXil
-         PeJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=Pv4Kn/kXpuqms5hUdvFbWbbJ/CjSdzb1UQVcC4I7FOo=;
-        b=o3Hkb0VQTCNhbUbKH6DGEEiFJa4zWpFUeHcyo8DgogLPdV5W0cxgSvG4RcCsplJcmQ
-         Hu5EyDwgfedHGBcJaNSqEML8jAPJYx9HqSqYmpzOkccw9SmUSHskuAk9JTEU6Y6UYWoh
-         wnAfvx8vEXTCV8q4TOR00C+QTDeyjR/SYjHeU2UkAlrnGRoUonoyqby5ylH38H7V8Rz9
-         HhMFskKMMRuZGtLXjGl/EeUaiM3zmUm7Ro5YBUOx2IqytRcaf0Iu5y0BczdRY5unkEl3
-         vKam/y/42TcFtXA7tqQBAr16O319Ldd02mDyMmamH4D7JOIQtTnii3oT1bnwbGHX1W+k
-         ZyZg==
-X-Gm-Message-State: AOAM531Qd3unmFi+EdMALrLVvNI1/fzRV9QcUrYVNvctlqt3XRRJJrRe
-        pLYebEyBNiNNsnOManupHD4dql7AZKO4rkgiRKE=
-X-Google-Smtp-Source: ABdhPJyKNxVXzYeeCXbPlt2jybk10zQrYRsiCxmVnsjUPXowhLbRPr6BVfqJRTTbW25doSqgbv/kEg==
-X-Received: by 2002:a63:d008:: with SMTP id z8mr19280753pgf.623.1638865954089;
-        Tue, 07 Dec 2021 00:32:34 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id j7sm15657903pfc.74.2021.12.07.00.32.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Dec 2021 00:32:33 -0800 (PST)
-Message-ID: <61af1c21.1c69fb81.6f938.c5b1@mx.google.com>
-Date:   Tue, 07 Dec 2021 00:32:33 -0800 (PST)
-X-Google-Original-Date: Tue, 07 Dec 2021 08:32:27 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211206145610.172203682@linuxfoundation.org>
-Subject: RE: [PATCH 5.15 000/207] 5.15.7-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S229487AbhLGIkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 03:40:09 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:57508 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233045AbhLGIkD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 03:40:03 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 5E97D1FD56;
+        Tue,  7 Dec 2021 08:36:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1638866192; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OhKBSihja7Wi0IcDmkS9szspFsMyGwohZw3DnR8AKto=;
+        b=qToIQ1ybfGM6pOBSE6JkXHudkwGB08MCharrhZJ/5Ju6/Lqnm2gyR72ib25xp6j6cmYvwQ
+        dR5OniWaAObE7yhrCbPplQuWZwtskN2sXp2l0hDSRSHdTnDaV7d4BCjeNwIZGx1QiZ56xH
+        HuPGV6FjrsqMOsRSJbfClw4fgfatZEY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1638866192;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OhKBSihja7Wi0IcDmkS9szspFsMyGwohZw3DnR8AKto=;
+        b=24suiqKIhx9u/m/LjLHzCCE8+Ev+w3ELxUmnxQXJ73CJ0cDGgF4u5MQ2GZn4GML20Ob5b/
+        FGIz6GQ/MQOo8RDg==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 4A896A3B8A;
+        Tue,  7 Dec 2021 08:36:32 +0000 (UTC)
+Date:   Tue, 07 Dec 2021 09:36:32 +0100
+Message-ID: <s5htufkolpr.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Thierry Reding <thierry.reding@gmail.com>
+Cc:     Sameer Pujar <spujar@nvidia.com>, tiwai@suse.com,
+        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
+        perex@perex.cz, jonathanh@nvidia.com, digetx@gmail.com,
+        alsa-devel@alsa-project.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] ALSA: hda/tegra: Skip reset on BPMP devices
+In-Reply-To: <Ya8Ya2en5Tm5Ol2u@orome.fritz.box>
+References: <1638858770-22594-1-git-send-email-spujar@nvidia.com>
+        <1638858770-22594-2-git-send-email-spujar@nvidia.com>
+        <Ya8Ya2en5Tm5Ol2u@orome.fritz.box>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon,  6 Dec 2021 15:54:14 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.15.7 release.
-> There are 207 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, 07 Dec 2021 09:16:43 +0100,
+Thierry Reding wrote:
 > 
-> Responses should be made by Wed, 08 Dec 2021 14:55:37 +0000.
-> Anything received after that time might be too late.
+> On Tue, Dec 07, 2021 at 12:02:48PM +0530, Sameer Pujar wrote:
+> > HDA regression is recently reported on Tegra194 based platforms.
+> > This happens because "hda2codec_2x" reset does not really exist
+> > in Tegra194 and it causes probe failure. All the HDA based audio
+> > tests fail at the moment. This underlying issue is exposed by
+> > commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
+> > response") which now checks return code of BPMP command response.
+> > 
+> > The failure can be fixed by avoiding above reset in the driver,
+> > but the explicit reset is not necessary for Tegra devices which
+> > depend on BPMP. On such devices, BPMP ensures reset application
+> > during unpowergate calls. Hence skip reset on these devices
+> > which is applicable for Tegra186 and later.
+> > 
+> > Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+> > Cc: stable@vger.kernel.org
+> > Depends-on: 87f0e46e7559 ("ALSA: hda/tegra: Reset hardware")
+> > ---
+> >  sound/pci/hda/hda_tegra.c | 24 +++++++++++++++++++-----
+> >  1 file changed, 19 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
+> > index ea700395..862141e 100644
+> > --- a/sound/pci/hda/hda_tegra.c
+> > +++ b/sound/pci/hda/hda_tegra.c
+> > @@ -68,6 +68,10 @@
+> >   */
+> >  #define TEGRA194_NUM_SDO_LINES	  4
+> >  
+> > +struct hda_data {
+> > +	unsigned int do_reset:1;
+> > +};
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.7-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
+> I suppose this could also be a bool. Not sure if we need to care about
+> packing optimizations at this point.
 > 
-> thanks,
+> It may also be useful to rename this to something less generic to avoid
+> potential clashes with other data structures in the future. We've often
+> used the _soc suffix in other drivers to mark this kind of SoC-specific
+> data. In this case it would be struct hda_tegra_soc.
 > 
-> greg k-h
-> 
+> If Takashi is fine with this as-is, I don't have any strong objections,
+> though.
 
-5.15.7-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Indeed, a bit more prefix would be better for avoiding the possible
+conflict in future, but the struct name is local, so I don't mind to
+use the simple name for now.  We can change it later once when needed,
+too. 
 
+> > +
+> >  struct hda_tegra {
+> >  	struct azx chip;
+> >  	struct device *dev;
+> > @@ -76,6 +80,7 @@ struct hda_tegra {
+> >  	unsigned int nclocks;
+> >  	void __iomem *regs;
+> >  	struct work_struct probe_work;
+> > +	const struct hda_data *data;
+> >  };
+> >  
+> >  #ifdef CONFIG_PM
+> > @@ -427,8 +432,13 @@ static int hda_tegra_create(struct snd_card *card,
+> >  	return 0;
+> >  }
+> >  
+> > +static const struct hda_data tegra30_data = {
+> > +	.do_reset = 1,
+> > +};
+> > +
+> >  static const struct of_device_id hda_tegra_match[] = {
+> > -	{ .compatible = "nvidia,tegra30-hda" },
+> > +	{ .compatible = "nvidia,tegra30-hda", .data = &tegra30_data },
+> > +	{ .compatible = "nvidia,tegra186-hda" },
+> >  	{ .compatible = "nvidia,tegra194-hda" },
+> >  	{},
+> >  };
+> 
+> One other thing we've done in the past is to explicitly pass these
+> structures for each compatible string. That simplifies things a bit
+> because we don't have to keep checking for non-NULL pointers and instead
+> rely on the fact that there's always a valid pointer.
+> 
+> To do so, you'd basically add:
+> 
+> 	static const struct hda_data tegra186_data = {
+> 		.do_reset = 0,
+> 	};
+> 
+> And reference that for both the Tegra186 and Tegra194 entries. Again,
+> not strictly necessary and since we have only one occurrence where we
+> need to check this, it seems fine as-is, so:
+> 
+> Acked-by: Thierry Reding <treding@nvidia.com>
+
+That's true, too.  OTOH, completely without a NULL check would be also
+unsafe, so some sanity check would be still required.
+
+That said, the current patch is good enough for taking as a regression
+fix, but I'm fine to wait for a while for v2 to address those, too :)
+
+
+thanks,
+
+Takashi
