@@ -2,100 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E8A46BF6F
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 16:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DAE346C00F
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 16:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238888AbhLGPi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 10:38:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60952 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234255AbhLGPiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 10:38:55 -0500
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21717C061574;
-        Tue,  7 Dec 2021 07:35:25 -0800 (PST)
-Received: by mail-lj1-x22b.google.com with SMTP id m12so28122179ljj.6;
-        Tue, 07 Dec 2021 07:35:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=6QJHwvAIj7j6f9tXcv3t1jDYcyJk0MG+odriPhUknmc=;
-        b=gjMvzabeYrtiD2l4Ppofk0NmbF2NeHkBy3RKVQY6q5lwJxyQj6t6Hb/1Lqt667WBl7
-         nBEHCeGtXXXoqIcawTvzlZrmK34PF4DDZ6durwpMs9n8YJQmsBhzLkP2kx+OKYGvJIhi
-         n/c5L3ynfKirxqvexlPKBa9ie4H59UI60l9TswOhBzcFPVysh54UKdf2n01/UZmD75Nx
-         2sPDu8zABxfYiKrueVw8j6NQVVkhPqvCZ6RZZ3C7BJ7QvJe3TG2D3Z98KF4c/6lRuuxx
-         SOOgHpATXEFThcn433wYrvqvWjItjYepmDIrGN0l+K2T0yh1Fx139BK3veAjkcuQcFlk
-         zjxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6QJHwvAIj7j6f9tXcv3t1jDYcyJk0MG+odriPhUknmc=;
-        b=iAXV7m/EXx7Xvgcjn095chLgNTvs+kVLlWN+SHYXAc2UaaT86xq8ZcTNKV8UYgofql
-         KY8iZ7FeSfVC6bvtRY/5bUtMAXdZjjWLFR5El2/OEQkAoRQXqi173kqoj1Uku+V7FmC+
-         BhProlGW6IH7bnMrRqsobyTH4GfgEbNj1nGQWbrmlVJ69ChTNObmzR77T9PCmF9e48V/
-         wPIMGvTTPp7of3eCTqdIx0Lniz8D+Li6V2o7nBJJVqbrArqRXK7GHAThvRWdKclJquuc
-         ekPOLEiI+WFkvA2l6QbTs0UFoLDcf3eLfmoovbAcmuRUDy2gCsI0AaL6OBSGKY1rl7iP
-         hV1w==
-X-Gm-Message-State: AOAM531lfmwgRYo9DHuUL1LelLH7s5MksdLfTd8Jd1NTzJ5n2k5gnVRa
-        /Jf8IDLDbOM8xZIcTKG3iKI=
-X-Google-Smtp-Source: ABdhPJxHGZ+65r90qy522XHUaM4sCGrdC5fWeHGrHG5KsxuLtJvqNuqbIoCPKboT5L1H87xO47QUSw==
-X-Received: by 2002:a2e:9702:: with SMTP id r2mr43684071lji.482.1638891323459;
-        Tue, 07 Dec 2021 07:35:23 -0800 (PST)
-Received: from [192.168.2.145] (94-29-46-111.dynamic.spd-mgts.ru. [94.29.46.111])
-        by smtp.googlemail.com with ESMTPSA id n15sm454740lfu.228.2021.12.07.07.35.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Dec 2021 07:35:22 -0800 (PST)
-Subject: Re: [PATCH 1/3] ALSA: hda/tegra: Skip reset on BPMP devices
-To:     Sameer Pujar <spujar@nvidia.com>, tiwai@suse.com,
-        broonie@kernel.org, lgirdwood@gmail.com, thierry.reding@gmail.com,
-        perex@perex.cz
-Cc:     jonathanh@nvidia.com, alsa-devel@alsa-project.org,
-        devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mohan Kumar <mkumard@nvidia.com>, robh+dt@kernel.org
-References: <1638858770-22594-1-git-send-email-spujar@nvidia.com>
- <1638858770-22594-2-git-send-email-spujar@nvidia.com>
- <7742adae-cdbe-a9ea-2cef-f63363298d73@gmail.com>
- <8fd704d9-43ce-e34a-a3c0-b48381ef0cd8@nvidia.com>
- <56bb43b6-8d72-b1de-4402-a2cb31707bd9@gmail.com>
- <4855e9c4-e4c2-528b-c9ad-2be7209dc62a@nvidia.com>
- <5d441571-c1c2-5433-729f-86d6396c2853@gmail.com>
- <f32cde65-63dc-67f8-ded8-b58ea5e89f4e@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <95cc7efa-251c-690b-9afa-53ee9e052c34@gmail.com>
-Date:   Tue, 7 Dec 2021 18:35:21 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S234183AbhLGP7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 10:59:46 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:46648 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229879AbhLGP7p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 10:59:45 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 8889D1FE00;
+        Tue,  7 Dec 2021 15:56:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1638892574; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=eIuuu/kOGy1zuDG2ON0nQADHm6iD+deyHDd0QC8WGMg=;
+        b=hsdS34/zBKzEB0fwf/afqKYsPcTbONTw7GkyZJZkt8cVDZWyG2z4m1m1LkdGqu2aY9HAnQ
+        DlQKS3WRGGKKr98FP4rWbEIQy6HI/HuJiH43nEFcvhqYxMBCROyQ2rLQCGmEM8m2cv2/Vu
+        +w+EOQ8EtasCyB4TgnKwyT3SPHcREYI=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 58562A3B85;
+        Tue,  7 Dec 2021 15:56:14 +0000 (UTC)
+Date:   Tue, 7 Dec 2021 16:56:13 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Alexey Makhalov <amakhalov@vmware.com>,
+        Dennis Zhou <dennis@kernel.org>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
+Message-ID: <Ya+EHUYgzo8GaCeq@dhcp22.suse.cz>
+References: <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
+ <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
+ <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
+ <1043a1a4-b7f2-8730-d192-7cab9f15ee24@redhat.com>
+ <Ya9P5NxhcZDcyptT@dhcp22.suse.cz>
+ <ab5cfba0-1d49-4e4d-e2c8-171e24473c1b@redhat.com>
+ <Ya9gN3rZ1eQou3rc@dhcp22.suse.cz>
+ <77e785e6-cf34-0cff-26a5-852d3786a9b8@redhat.com>
+ <Ya992YvnZ3e3G6h0@dhcp22.suse.cz>
+ <b7deaf90-8c3c-c22a-b8dc-e6d98bc93ae6@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <f32cde65-63dc-67f8-ded8-b58ea5e89f4e@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b7deaf90-8c3c-c22a-b8dc-e6d98bc93ae6@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-07.12.2021 17:49, Sameer Pujar пишет:
-...
->>> How the reload case would be different? Can you please specify more
->>> details if you are referring to a particular scenario?
->> You have a shared power domain. Since power domain can be turned off
->> only when nobody keeps domain turned on, you now making reset of HDA
->> controller dependent on the state of display driver.
+On Tue 07-12-21 16:34:30, David Hildenbrand wrote:
+> On 07.12.21 16:29, Michal Hocko wrote:
+> > On Tue 07-12-21 16:09:39, David Hildenbrand wrote:
+> >> On 07.12.21 14:23, Michal Hocko wrote:
+> >>> On Tue 07-12-21 13:28:31, David Hildenbrand wrote:
+> >>> [...]
+> >>>> But maybe I am missing something important regarding online vs. offline
+> >>>> nodes that your patch changes?
+> >>>
+> >>> I am relying on alloc_node_data setting the node online. But if we are
+> >>> to change the call to arch_alloc_node_data then the patch needs to be
+> >>> more involved. Here is what I have right now. If this happens to be the
+> >>> right way then there is some additional work to sync up with the hotplug
+> >>> code.
+> >>>
+> >>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> >>> index c5952749ad40..a296e934ad2f 100644
+> >>> --- a/mm/page_alloc.c
+> >>> +++ b/mm/page_alloc.c
+> >>> @@ -8032,8 +8032,23 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+> >>>  	/* Initialise every node */
+> >>>  	mminit_verify_pageflags_layout();
+> >>>  	setup_nr_node_ids();
+> >>> -	for_each_online_node(nid) {
+> >>> -		pg_data_t *pgdat = NODE_DATA(nid);
+> >>> +	for_each_node(nid) {
+> >>> +		pg_data_t *pgdat;
+> >>> +
+> >>> +		if (!node_online(nid)) {
+> >>> +			pr_warn("Node %d uninitialized by the platform. Please report with memory map.\n", nid);
+> >>> +			pgdat = arch_alloc_nodedata(nid);
+> >>> +			pgdat->per_cpu_nodestats = alloc_percpu(struct per_cpu_nodestat);
+> >>> +			arch_refresh_nodedata(nid, pgdat);
+> >>> +			node_set_online(nid);
+> >>
+> >> Setting all possible nodes online might result in quite some QE noice,
+> >> because all these nodes will then be visible in the sysfs and
+> >> try_offline_nodes() is essentially for the trash.
+> > 
+> > I am not sure I follow. I believe sysfs will not get populate because I
+> > do not call register_one_node.
 > 
-> I don't think that the state of display driver would affect. The HDA
-> driver itself can issue unpowergate calls which in turn ensures h/w
-> reset. If display driver is already runtime active, HDA driver runtime
-> resume after this would be still fine since h/w reset is already applied
-> during display runtime resume. Note that both HDA and display resets are
-> connected to this power-domain and BPMP applies these resets during
-> unpowergate.
+> arch/x86/kernel/topology.c:topology_init()
+> 
+> for_each_online_node(i)
+> 	register_one_node(i);
 
-HDA won't be reset while display is active on T186+.
-HDA will be reset while is display is inactive on T186+.
-HDA will be reset regardless of display state on pre-T186.
+Right you are.
+ 
+> > You are right that try_offline_nodes will be reduce which is good imho.
+> > More changes will be possible (hopefully to drop some ugly code) on top
+> > of this change (or any other that achieves that there are no NULL pgdat
+> > for possible nodes).
+> > 
+> 
+> No to exposing actually offline nodes to user space via sysfs.
 
-This is a pure inconsistency of the reset behaviour. Please don't do it.
+Why is that a problem with the sysfs for non-populated nodes?
+
+-- 
+Michal Hocko
+SUSE Labs
