@@ -2,202 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF3E46BA16
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 12:28:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9BB46BA30
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 12:38:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbhLGLcN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 06:32:13 -0500
-Received: from mga07.intel.com ([134.134.136.100]:64423 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230496AbhLGLcN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Dec 2021 06:32:13 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10190"; a="300940684"
-X-IronPort-AV: E=Sophos;i="5.87,293,1631602800"; 
-   d="scan'208";a="300940684"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2021 03:28:42 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,293,1631602800"; 
-   d="scan'208";a="611640335"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga004.jf.intel.com with ESMTP; 07 Dec 2021 03:28:42 -0800
-Received: from [10.252.34.167] (rgraefe-MOBL.ger.corp.intel.com [10.252.34.167])
-        by linux.intel.com (Postfix) with ESMTP id 23F9A580522;
-        Tue,  7 Dec 2021 03:28:40 -0800 (PST)
-Message-ID: <e8b90142-770f-7c23-59c6-303c88eaf6e6@intel.com>
-Date:   Tue, 7 Dec 2021 13:28:40 +0200
+        id S231238AbhLGLl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 06:41:59 -0500
+Received: from mailgw01.mediatek.com ([60.244.123.138]:59212 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S235776AbhLGLl6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 06:41:58 -0500
+X-UUID: c1d2d3faf55548ef827f6e6e2d90f71d-20211207
+X-UUID: c1d2d3faf55548ef827f6e6e2d90f71d-20211207
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        (envelope-from <yf.wang@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 686929266; Tue, 07 Dec 2021 19:38:24 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Tue, 7 Dec 2021 19:38:22 +0800
+Received: from mbjsdccf07.mediatek.inc (10.15.20.246) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 7 Dec 2021 19:38:21 +0800
+From:   <yf.wang@mediatek.com>
+To:     <will@kernel.org>
+CC:     <Guangming.Cao@mediatek.com>, <Libo.Kang@mediatek.com>,
+        <iommu@lists.linux-foundation.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>, <matthias.bgg@gmail.com>,
+        <robin.murphy@arm.com>, <wsd_upstream@mediatek.com>,
+        <yf.wang@mediatek.com>, <stable@vger.kernel.org>
+Subject: [PATCH v3] iommu/io-pgtable-arm-v7s: Add error handle for page table allocation failure
+Date:   Tue, 7 Dec 2021 19:33:15 +0800
+Message-ID: <20211207113315.29109-1-yf.wang@mediatek.com>
+X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20211207094817.GA31382@willie-the-truck>
+References: <20211207094817.GA31382@willie-the-truck>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
-Subject: Re: [PATCH] drm/syncobj: Deal with signalled fences in transfer.
-Content-Language: en-US
-To:     =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
-        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Cc:     ML dri-devel <dri-devel@lists.freedesktop.org>,
-        stable@vger.kernel.org
-References: <20211207013235.5985-1-bas@basnieuwenhuizen.nl>
- <05f1e475-3483-b780-d66a-a80577edee39@intel.com>
- <7d2f372f-36f5-1ecc-7ddb-25cf7d444e5d@amd.com>
- <CAP+8YyEzsedvYObj=FVUFTtYo4sdHH354=gBfCAu16qtL1jqLg@mail.gmail.com>
- <9540e080-6b07-c82c-d4d2-d2711a50066d@amd.com>
-From:   Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-In-Reply-To: <9540e080-6b07-c82c-d4d2-d2711a50066d@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07/12/2021 13:00, Christian König wrote:
-> Am 07.12.21 um 11:40 schrieb Bas Nieuwenhuizen:
->> On Tue, Dec 7, 2021 at 8:21 AM Christian König 
->> <christian.koenig@amd.com> wrote:
->>> Am 07.12.21 um 08:10 schrieb Lionel Landwerlin:
->>>> On 07/12/2021 03:32, Bas Nieuwenhuizen wrote:
->>>>> See the comments in the code. Basically if the seqno is already
->>>>> signalled then we get a NULL fence. If we then put the NULL fence
->>>>> in a binary syncobj it counts as unsignalled, making that syncobj
->>>>> pretty much useless for all expected uses.
->>>>>
->>>>> Not 100% sure about the transfer to a timeline syncobj but I
->>>>> believe it is needed there too, as AFAICT the add_point function
->>>>> assumes the fence isn't NULL.
->>>>>
->>>>> Fixes: ea569910cbab ("drm/syncobj: add transition iotcls between
->>>>> binary and timeline v2")
->>>>> Cc: stable@vger.kernel.org
->>>>> Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
->>>>> ---
->>>>>    drivers/gpu/drm/drm_syncobj.c | 26 ++++++++++++++++++++++++++
->>>>>    1 file changed, 26 insertions(+)
->>>>>
->>>>> diff --git a/drivers/gpu/drm/drm_syncobj.c
->>>>> b/drivers/gpu/drm/drm_syncobj.c
->>>>> index fdd2ec87cdd1..eb28a40400d2 100644
->>>>> --- a/drivers/gpu/drm/drm_syncobj.c
->>>>> +++ b/drivers/gpu/drm/drm_syncobj.c
->>>>> @@ -861,6 +861,19 @@ static int
->>>>> drm_syncobj_transfer_to_timeline(struct drm_file *file_private,
->>>>>                         &fence);
->>>>>        if (ret)
->>>>>            goto err;
->>>>> +
->>>>> +    /* If the requested seqno is already signaled
->>>>> drm_syncobj_find_fence may
->>>>> +     * return a NULL fence. To make sure the recipient gets
->>>>> signalled, use
->>>>> +     * a new fence instead.
->>>>> +     */
->>>>> +    if (!fence) {
->>>>> +        fence = dma_fence_allocate_private_stub();
->>>>> +        if (!fence) {
->>>>> +            ret = -ENOMEM;
->>>>> +            goto err;
->>>>> +        }
->>>>> +    }
->>>>> +
->>>>
->>>> Shouldn't we fix drm_syncobj_find_fence() instead?
->>> Mhm, now that you mention it. Bas, why do you think that
->>> dma_fence_chain_find_seqno() may return NULL when the fence is already
->>> signaled?
->>>
->>> Double checking the code that should never ever happen.
->> Well, I tested the patch with
->> https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgitlab.freedesktop.org%2Fmesa%2Fmesa%2F-%2Fmerge_requests%2F14097%2Fdiffs%3Fcommit_id%3Dd4c5c840f4e3839f9f5c1747a9034eb2b565f5c0&amp;data=04%7C01%7Cchristian.koenig%40amd.com%7Cc1ab29fc100842826f5d08d9b96e102a%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637744705383763833%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000&amp;sdata=sXkTJWm%2FWm2xwgLGdepVWAOlqj%2FeArnvmMvnJpQ9YEs%3D&amp;reserved=0 
->>
->> so I'm pretty sure it happens, and this patch fixes  it, though I may
->> have misidentified what the code should do.
->>
->> My reading is that the dma_fence_chain_for_each in
->> dma_fence_chain_find_seqno will never visit a signalled fence (unless
->> the top one is signalled), as dma_fence_chain_walk will never return a
->> signalled fence (it only returns on NULL or !signalled).
->
-> Ah, yes that suddenly makes more sense.
->
->> Happy to move this to drm_syncobj_find_fence.
->
-> No, I think that your current patch is fine.
->
-> That drm_syncobj_find_fence() only returns NULL when it can't find 
-> anything !signaled is correct behavior I think.
+From: Yunfei Wang <yf.wang@mediatek.com>
 
+In __arm_v7s_alloc_table function:
+iommu call kmem_cache_alloc to allocate page table, this function
+allocate memory may fail, when kmem_cache_alloc fails to allocate
+table, call virt_to_phys will be abnomal and return unexpected phys
+and goto out_free, then call kmem_cache_free to release table will
+trigger KE, __get_free_pages and free_pages have similar problem,
+so add error handle for page table allocation failure.
 
-We should probably update the docs then :
+Fixes: 29859aeb8a6ea ("iommu/io-pgtable-arm-v7s: Abort allocation when table address overflows the PTE")
+Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
+Cc: <stable@vger.kernel.org> # 5.10.*
+---
+v3: Update patch
+    1. Remove unnecessary log print as suggested by Will.
+    2. Remove unnecessary condition check.
+v2: Cc stable@vger.kernel.org
+    1. This patch needs to be merged stable branch, add stable@vger.kernel.org
+       in mail list.
+    2. There is No new code change in v2.
 
+---
+ drivers/iommu/io-pgtable-arm-v7s.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-  * Returns 0 on success or a negative error value on failure. On 
-success @fence
-  * contains a reference to the fence, which must be released by calling
-  * dma_fence_put().
-
-
-Looking at some of the kernel drivers, it looks like they don't all 
-protect themselves against NULL pointers :
-
-
-https://elixir.bootlin.com/linux/latest/source/drivers/gpu/drm/vc4/vc4_gem.c#L1195
-
-https://elixir.bootlin.com/linux/latest/source/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c#L1020
-
-
--Lionel
-
-
->
-> Going to push your original patch if nobody has any more objections.
->
-> But somebody might want to take care of the IGT as well.
->
-> Regards,
-> Christian.
->
->>> Regards,
->>> Christian.
->>>
->>>> By returning a stub fence for the timeline case if there isn't one.
->>>>
->>>>
->>>> Because the same NULL fence check appears missing in amdgpu (and
->>>> probably other drivers).
->>>>
->>>>
->>>> Also we should have tests for this in IGT.
->>>>
->>>> AMD contributed some tests when this code was written but they never
->>>> got reviewed :(
->>>>
->>>>
->>>> -Lionel
->>>>
->>>>
->>>>>        chain = kzalloc(sizeof(struct dma_fence_chain), GFP_KERNEL);
->>>>>        if (!chain) {
->>>>>            ret = -ENOMEM;
->>>>> @@ -890,6 +903,19 @@ drm_syncobj_transfer_to_binary(struct drm_file
->>>>> *file_private,
->>>>>                         args->src_point, args->flags, &fence);
->>>>>        if (ret)
->>>>>            goto err;
->>>>> +
->>>>> +    /* If the requested seqno is already signaled
->>>>> drm_syncobj_find_fence may
->>>>> +     * return a NULL fence. To make sure the recipient gets
->>>>> signalled, use
->>>>> +     * a new fence instead.
->>>>> +     */
->>>>> +    if (!fence) {
->>>>> +        fence = dma_fence_allocate_private_stub();
->>>>> +        if (!fence) {
->>>>> +            ret = -ENOMEM;
->>>>> +            goto err;
->>>>> +        }
->>>>> +    }
->>>>> +
->>>>>        drm_syncobj_replace_fence(binary_syncobj, fence);
->>>>>        dma_fence_put(fence);
->>>>>    err:
->>>>
->
+diff --git a/drivers/iommu/io-pgtable-arm-v7s.c b/drivers/iommu/io-pgtable-arm-v7s.c
+index bfb6acb651e5..be066c1503d3 100644
+--- a/drivers/iommu/io-pgtable-arm-v7s.c
++++ b/drivers/iommu/io-pgtable-arm-v7s.c
+@@ -246,13 +246,17 @@ static void *__arm_v7s_alloc_table(int lvl, gfp_t gfp,
+ 			__GFP_ZERO | ARM_V7S_TABLE_GFP_DMA, get_order(size));
+ 	else if (lvl == 2)
+ 		table = kmem_cache_zalloc(data->l2_tables, gfp);
++
++	if (!table)
++		return NULL;
++
+ 	phys = virt_to_phys(table);
+ 	if (phys != (arm_v7s_iopte)phys) {
+ 		/* Doesn't fit in PTE */
+ 		dev_err(dev, "Page table does not fit in PTE: %pa", &phys);
+ 		goto out_free;
+ 	}
+-	if (table && !cfg->coherent_walk) {
++	if (!cfg->coherent_walk) {
+ 		dma = dma_map_single(dev, table, size, DMA_TO_DEVICE);
+ 		if (dma_mapping_error(dev, dma))
+ 			goto out_free;
+-- 
+2.18.0
 
