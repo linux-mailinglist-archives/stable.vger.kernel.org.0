@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2750946AEC9
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 01:06:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E13E46AECD
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 01:06:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350606AbhLGAKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Dec 2021 19:10:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
+        id S1377955AbhLGAKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Dec 2021 19:10:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229783AbhLGAKC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 19:10:02 -0500
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584EAC061746;
-        Mon,  6 Dec 2021 16:06:33 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id x15so50109822edv.1;
-        Mon, 06 Dec 2021 16:06:33 -0800 (PST)
+        with ESMTP id S1357955AbhLGAKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Dec 2021 19:10:03 -0500
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 569C0C061746;
+        Mon,  6 Dec 2021 16:06:34 -0800 (PST)
+Received: by mail-ed1-x52c.google.com with SMTP id r11so49523499edd.9;
+        Mon, 06 Dec 2021 16:06:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=WE5bBeb2eJPuT7PslF4NZOlF3ypIGd3g2CFf+WxsT0Q=;
-        b=nCAbv9dYTiu7R7wBMuoluTGvEHVh/pa+nuZ+TzNCsCH3gvqo2S8laybaR7RnRfFhcA
-         YTrmTgGzyBVD/ESScn5yhz3XC3zalRihRlUtqmM170jvAsdpx8K9L1rEpOK/zhPv/gBu
-         EEk/FVySij9rFcAeexN5+I0hn0efAAVkqsF+Q1UG8l8Dn8Ywda6XRm+Pah7ta8BQhrIu
-         LBXKRv6Os886hZ23jbO7KebqZMgf3PncE4mh0MTRz+JVjFoSlGdTraCjwqwpxBTETGpX
-         gbemYfYAWofdYWViuhxek5tRr1AXiMLISInkw3pWOkzOSQ4gVwkYqE8FZv5yYXpYglMd
-         ZUJw==
+        bh=Y9BlW3tW97AkK+vn8PCzzi0aOsH6GB6w8a58eRmyYjc=;
+        b=n98sMr+RdacEvvYXsn7f9OhBlVeGv2hXjrLPAAHqo2rpfVj5F01lCK8fizNs0zQGgJ
+         64DdvFJp6b/ko/a6DGstyiwFEtuZYUpQDJsL0Xe92Q/hImi/kotTB2Y5N2D6vNuMaKu3
+         UCSW196FvvubsS3QsCtj7M9T76MeoqVscv2F79UXcwd/wx1rc8APn7PHgXXJi7tPcOJ6
+         SZeVTwoikQbcM879oMhL8pCmUpDjtQhhSCXw03VyzE7JvJAK7dmY2/853lEQEHfEjyrc
+         Lwbrz7ZqQs+jB43NUgWthI4FWEZMrRrHXCriFZq8GionOtPdM4Vn04+06A8++v9v2xBJ
+         iihQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=WE5bBeb2eJPuT7PslF4NZOlF3ypIGd3g2CFf+WxsT0Q=;
-        b=3hwzFh/sUQHUCGcrA+oF5Eg8QbU+pKbydX2ILR5rvgLJgTtBrVdRJgtz5QzPZtIyt7
-         ifQ49rN3BE/BazU2aNMj59F1udDkjIfNUOTI2dQUzXMvzOnVi0F/doWpIxjKAIB00L2R
-         6Z5qHasdKiKUID+TeX+lI1+d0wJ5zLM1Zvy1tTTAxQqLFZyxFpgFim6yT3Bsa2NyMIiu
-         FEPZPEO5QN1+uXOC+utBiKK/Qfp7V3V2YsY2LqfqRE069vmakFW2ctYJmdbQB4anAVP5
-         9WBNu+N1wogsF1boMPVBcyrJNkJ9srD4gUCk5f04ZhnaUpuwjQuv5JHMJGxLWUK/ZMSN
-         sWAA==
-X-Gm-Message-State: AOAM533hiTra2r4/mETVBPfHfDWADBla30zogPe8nnasU3TQGxzBatdp
-        8UBNXRYRaKTfcrOevbHs65Y=
-X-Google-Smtp-Source: ABdhPJyJys3GJzGuaRjK+svI92HIk1yspjaRXFUhn3v++hGz42nWP3Dx9+5GbBCTwYlgz1QvXoez3g==
-X-Received: by 2002:a05:6402:350e:: with SMTP id b14mr3583797edd.313.1638835591792;
-        Mon, 06 Dec 2021 16:06:31 -0800 (PST)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Y9BlW3tW97AkK+vn8PCzzi0aOsH6GB6w8a58eRmyYjc=;
+        b=cgO0/98N9J6/CyQuxZ252az+w4OHxHqlEapzCogBBMzEwJLAp0DkFPoSbyDdmyj1c5
+         4mSdetoQX6LUE/mi+gtLrWDeEwjogadELAD+3RdFvfFRDISqL6pnUTOQ2+tXOkqJv/D5
+         //UCIWVAbmUh/RFDcnWi6Lw0bvuHHkQXs+/Xnt8W9Xj3DMzCPm3gVPcSket4KUfHDQzS
+         gYp0f2cEowXCX/nHR3+GV1pGFoMCtoUf8uXOCd7AV8ABDCUWsWhe5X70y9DJN4bLT3fK
+         8UNa9bSb8BdN1rWN0vuqoMm4JRW8jUF1ZsDYqueTJaemSNiI+wdJAf/SHsBdVT//hfR0
+         yn+g==
+X-Gm-Message-State: AOAM531RfgMUNN+jnI9dJFg5TEC5c1bgmXwP7hwtnfRTKi51TcwOGkvU
+        Qn7iOe3AxHeQYwS9qjAuwhI=
+X-Google-Smtp-Source: ABdhPJyToRWxuN4Kb29Mk+9wG4XQx3dJzRyIetHQPSJcO+et4L7HwrNpBjqlg+94u1xp79xjxCT9qQ==
+X-Received: by 2002:a17:906:3b84:: with SMTP id u4mr47852666ejf.310.1638835592899;
+        Mon, 06 Dec 2021 16:06:32 -0800 (PST)
 Received: from piling.lan (80.71.134.83.ipv4.parknet.dk. [80.71.134.83])
-        by smtp.gmail.com with ESMTPSA id w18sm8713114edx.55.2021.12.06.16.06.30
+        by smtp.gmail.com with ESMTPSA id w18sm8713114edx.55.2021.12.06.16.06.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 06 Dec 2021 16:06:31 -0800 (PST)
+        Mon, 06 Dec 2021 16:06:32 -0800 (PST)
 From:   Ricardo Ribalda <ricardo.ribalda@gmail.com>
 X-Google-Original-From: Ricardo Ribalda <ribalda@chromium.org>
 To:     Nicolas Dufresne <nicolas@ndufresne.ca>,
@@ -57,38 +57,66 @@ To:     Nicolas Dufresne <nicolas@ndufresne.ca>,
         Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
         linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
         tfiga@chromium.org, stable <stable@vger.kernel.org>
-Subject: [PATCH 0/3] uvc: Restore old vdev name
-Date:   Tue,  7 Dec 2021 01:06:26 +0100
-Message-Id: <20211207000629.4985-1-ribalda@chromium.org>
+Subject: [PATCH 1/3] Revert "media: uvcvideo: Set unique vdev name based in type"
+Date:   Tue,  7 Dec 2021 01:06:27 +0100
+Message-Id: <20211207000629.4985-2-ribalda@chromium.org>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211207000629.4985-1-ribalda@chromium.org>
+References: <20211207000629.4985-1-ribalda@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to have unique entity names, we decided to change the name of
-the video devices with their functionality.
+A lot of userspace depends on a descriptive name for vdev. Without this
+patch, users have a hard time figuring out which camera shall they use
+for their video conferencing.
 
-This has resulted in some (all?) GUIs showing not useful names.
+This reverts commit e3f60e7e1a2b451f538f9926763432249bcf39c4.
 
-This patchset reverts the original patch and introduces a new one to
-allow having different entity and vdev names.
+Cc: <stable@vger.kernel.org>
+Fixes: e3f60e7e1a2b ("media: uvcvideo: Set unique vdev name based in type")
+Reported-by: Nicolas Dufresne <nicolas@ndufresne.ca>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+---
+ drivers/media/usb/uvc/uvc_driver.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-Since some distros have ported the reverted patch to their stable
-kernels, it would be great if we can get this sent asap, to avoid making
-more people angry ;).
-
-
-Ricardo Ribalda (3):
-  Revert "media: uvcvideo: Set unique vdev name based in type"
-  media: v4l2-dev.c: Allow driver-defined entity names
-  media: uvcvideo: Set unique entity name based in type
-
- drivers/media/usb/uvc/uvc_driver.c | 14 +++++++++++---
- drivers/media/v4l2-core/v4l2-dev.c |  4 +++-
- 2 files changed, 14 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 7c007426e082..058d28a0344b 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -2193,7 +2193,6 @@ int uvc_register_video_device(struct uvc_device *dev,
+ 			      const struct v4l2_file_operations *fops,
+ 			      const struct v4l2_ioctl_ops *ioctl_ops)
+ {
+-	const char *name;
+ 	int ret;
+ 
+ 	/* Initialize the video buffers queue. */
+@@ -2222,20 +2221,16 @@ int uvc_register_video_device(struct uvc_device *dev,
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+ 	default:
+ 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
+-		name = "Video Capture";
+ 		break;
+ 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
+ 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
+-		name = "Video Output";
+ 		break;
+ 	case V4L2_BUF_TYPE_META_CAPTURE:
+ 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
+-		name = "Metadata";
+ 		break;
+ 	}
+ 
+-	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
+-		 stream->header.bTerminalLink);
++	strscpy(vdev->name, dev->name, sizeof(vdev->name));
+ 
+ 	/*
+ 	 * Set the driver data before calling video_register_device, otherwise
 -- 
 2.33.0
 
