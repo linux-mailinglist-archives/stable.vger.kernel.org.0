@@ -2,92 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1975B46B8C4
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:22:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B384546B8D9
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbhLGK0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 05:26:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
+        id S235055AbhLGK2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 05:28:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229528AbhLGK0C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 05:26:02 -0500
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8656C061574;
-        Tue,  7 Dec 2021 02:22:31 -0800 (PST)
-Received: by mail-lj1-x22f.google.com with SMTP id k2so26533453lji.4;
-        Tue, 07 Dec 2021 02:22:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=zn4bh7aDtipPvIQajdqUH0g7HydWjfXn6rvGe1BMNUA=;
-        b=QX0Oq1SAxkO6tVEodTmKdzTn3o3oXRNoD1cv2vYJCr+21mmrHt3JLRdQZRSiTE2jX8
-         REup2kvzdfpFTnvbfjSuQjq+qNCgxuaIJohZHc/yJYd520QTmIZQXfGQ2MpYCM7AYjBD
-         0IFrCLqGfJkCFLPIyJKbyisgH4vsavf7WKBq5V+LA8w9LAMZvg+SDAf4Y6NFGTv98KOB
-         5AdN1q9YmwkDlLQcj32OBvTAD1soULHez9BkU7GXJhOK8dA4MFNxgO298FDJsGueYRUM
-         z0IvpCD3p/Adh1xCzlNGwArIrZEMsL2NJJQNIJj5HqdACjbu9MqMGms70PR+63oaUfmC
-         a3kQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=zn4bh7aDtipPvIQajdqUH0g7HydWjfXn6rvGe1BMNUA=;
-        b=31of1G0RKriLRxBanm+6ALoeYmu3lclcBFXujmMRn+4hoxdn359+i7RQrzEpty2Qn/
-         oOAyB6X1J04igczFCgGygykAR0ZkVF5eAzOLJWX9Js7Pr5ZrRbD6iUffZbuFY/BMm6Wm
-         Nq+y1fxi2/A5ivWr0CbYGti8OpbnibWkSUgprs23HofPsW2BhXftSgTTD51FiGwTF4Vs
-         kGe1HD04CtYPzzpKZMr6D0/AX1j+Zjrme7c3nOnLLHYBKOzXqkYz8yvvQ9HVTOR5S4oq
-         aA9D8rh/haQHM7bqqe2aD5/YROL04RrNYcLPnsIsMwE3gTuUzLoYwlww1GzSNYvMbrIh
-         N6sg==
-X-Gm-Message-State: AOAM533i7rhf8aY3f43yAdpqYpG3sC/48+vxFux3vwpXmwfcuzL0qs/d
-        Lvfz4BO1awr++HUVm3blfd5T8nE8gDQ=
-X-Google-Smtp-Source: ABdhPJwa9mQuwpzBTlt1YakBtu9w7COZcAvYbJk3NFERAIkQSUu9HoZB4XdVRfP08MqzECPAi0qGOQ==
-X-Received: by 2002:a05:651c:1687:: with SMTP id bd7mr42558183ljb.305.1638872550008;
-        Tue, 07 Dec 2021 02:22:30 -0800 (PST)
-Received: from [192.168.2.145] (94-29-46-111.dynamic.spd-mgts.ru. [94.29.46.111])
-        by smtp.googlemail.com with ESMTPSA id l5sm1568500ljh.66.2021.12.07.02.22.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Dec 2021 02:22:29 -0800 (PST)
-Subject: Re: [PATCH 1/3] ALSA: hda/tegra: Skip reset on BPMP devices
-To:     Sameer Pujar <spujar@nvidia.com>, tiwai@suse.com,
-        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
-        thierry.reding@gmail.com, perex@perex.cz
-Cc:     jonathanh@nvidia.com, alsa-devel@alsa-project.org,
-        devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <1638858770-22594-1-git-send-email-spujar@nvidia.com>
- <1638858770-22594-2-git-send-email-spujar@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <7742adae-cdbe-a9ea-2cef-f63363298d73@gmail.com>
-Date:   Tue, 7 Dec 2021 13:22:28 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S235057AbhLGK2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 05:28:19 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5453C061746
+        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 02:24:49 -0800 (PST)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1muXeS-0003HW-AU
+        for stable@vger.kernel.org; Tue, 07 Dec 2021 11:24:48 +0100
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id 8ED476BE8BA
+        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 10:24:44 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id E782F6BE8A1;
+        Tue,  7 Dec 2021 10:24:42 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id a9db8432;
+        Tue, 7 Dec 2021 10:24:26 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 1/9] can: pch_can: pch_can_rx_normal: fix use after free
+Date:   Tue,  7 Dec 2021 11:24:12 +0100
+Message-Id: <20211207102420.120131-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211207102420.120131-1-mkl@pengutronix.de>
+References: <20211207102420.120131-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <1638858770-22594-2-git-send-email-spujar@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-07.12.2021 09:32, Sameer Pujar пишет:
-> HDA regression is recently reported on Tegra194 based platforms.
-> This happens because "hda2codec_2x" reset does not really exist
-> in Tegra194 and it causes probe failure. All the HDA based audio
-> tests fail at the moment. This underlying issue is exposed by
-> commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
-> response") which now checks return code of BPMP command response.
-> 
-> The failure can be fixed by avoiding above reset in the driver,
-> but the explicit reset is not necessary for Tegra devices which
-> depend on BPMP. On such devices, BPMP ensures reset application
-> during unpowergate calls. Hence skip reset on these devices
-> which is applicable for Tegra186 and later.
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-The power domain is shared with the display, AFAICS. The point of reset
-is to bring h/w into predictable state. It doesn't make sense to me to
-skip the reset.
+After calling netif_receive_skb(skb), dereferencing skb is unsafe.
+Especially, the can_frame cf which aliases skb memory is dereferenced
+just after the call netif_receive_skb(skb).
 
-If T194+ doesn't have hda2codec_2x reset, then don't request that reset
-for T194+.
+Reordering the lines solves the issue.
+
+Fixes: b21d18b51b31 ("can: Topcliff: Add PCH_CAN driver.")
+Link: https://lore.kernel.org/all/20211123111654.621610-1-mailhol.vincent@wanadoo.fr
+Cc: stable@vger.kernel.org
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/pch_can.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/can/pch_can.c b/drivers/net/can/pch_can.c
+index 92a54a5fd4c5..964c8a09226a 100644
+--- a/drivers/net/can/pch_can.c
++++ b/drivers/net/can/pch_can.c
+@@ -692,11 +692,11 @@ static int pch_can_rx_normal(struct net_device *ndev, u32 obj_num, int quota)
+ 			cf->data[i + 1] = data_reg >> 8;
+ 		}
+ 
+-		netif_receive_skb(skb);
+ 		rcv_pkts++;
+ 		stats->rx_packets++;
+ 		quota--;
+ 		stats->rx_bytes += cf->len;
++		netif_receive_skb(skb);
+ 
+ 		pch_fifo_thresh(priv, obj_num);
+ 		obj_num++;
+
+base-commit: 4dbb0dad8e63fcd0b5a117c2861d2abe7ff5f186
+-- 
+2.33.0
+
+
