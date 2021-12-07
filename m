@@ -2,94 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A52C646C2FB
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 19:40:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E1E46C357
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 20:08:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240597AbhLGSnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 13:43:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49150 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231241AbhLGSnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 13:43:45 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B9AC061574;
-        Tue,  7 Dec 2021 10:40:14 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S240857AbhLGTMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 14:12:17 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:37886 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240856AbhLGTMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 14:12:16 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 006C7CE1D8F;
-        Tue,  7 Dec 2021 18:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E7E5AC341C7;
-        Tue,  7 Dec 2021 18:40:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638902411;
-        bh=ILmDEX7ThAV4WS/jNr/jBBecP8tMHp+dApEK+/6VC8Y=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=D806Oot+ukqAe2IOOu/ymmRPC5f8qmg0736iQbtTQjlCRNKCLI7GyD2agVcBFjQH8
-         44SNDgxSXkltVzgGR/CDGB7c3F7S+9MlboSbX9J2KK5H7XAeoTaH3i7wImVodj8CYJ
-         fChei1+kXe94q44uxVbzUM8KF3h7HlCCNJXAmSECJe+MVxBm6JAP+JZHgSMugi/kiQ
-         PHC15RK+aEMJ0d6i9puiZYaGa73LZLsQh2EhnKGwRli0wzIP6LjH0J//JDopMFrbek
-         UjfFdt8Vu4oKUa9MqoBOcBJozqMfOM+tLipViATF3/a/8FvUE2qUmyJVlwMEVCub3f
-         XMudnn/hcWHRw==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id BEFF3609D8;
-        Tue,  7 Dec 2021 18:40:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 3277021B39;
+        Tue,  7 Dec 2021 19:08:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1638904125; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=niz+gipHwOp3WNjxROtKHr6F+e90fRTIiaV+AhLVRjE=;
+        b=CrVG0o9D3ePoRKMpFmdr0JmlbaiFeYYMhpbfUGzbawFoZ+W3UDpTJBg/TaSL3rIUT+uDi0
+        SeVEQbv8Eh5NM6OGu8sKA/GU0BRKPIkO0k5k+fNOusOczAYjJ1sWtdO528Owdy1BFsVniR
+        ASGmD98/jrKXst4wbFXONPf7vEl+LZA=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0FFAB13AB6;
+        Tue,  7 Dec 2021 19:08:45 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id g504Az2xr2HgaAAAMHmgww
+        (envelope-from <mkoutny@suse.com>); Tue, 07 Dec 2021 19:08:45 +0000
+Date:   Tue, 7 Dec 2021 20:08:43 +0100
+From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
+        fvogt@suse.de, Tejun Heo <tj@kernel.org>, cgroups@vger.kernel.org,
+        stable@vger.kernel.org, Fabian Vogt <fvogt@suse.com>
+Subject: Re: [PATCH] bfq: Fix use-after-free with cgroups
+Message-ID: <20211207190843.GA40898@blackbody.suse.cz>
+References: <20211201133439.3309-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 1/9] can: pch_can: pch_can_rx_normal: fix use after free
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163890241077.29949.3491385738739624114.git-patchwork-notify@kernel.org>
-Date:   Tue, 07 Dec 2021 18:40:10 +0000
-References: <20211207102420.120131-2-mkl@pengutronix.de>
-In-Reply-To: <20211207102420.120131-2-mkl@pengutronix.de>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-can@vger.kernel.org, kernel@pengutronix.de,
-        mailhol.vincent@wanadoo.fr, stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211201133439.3309-1-jack@suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+On Wed, Dec 01, 2021 at 02:34:39PM +0100, Jan Kara <jack@suse.cz> wrote:
+> After some analysis we've found out that the culprit of the problem is
+> that some task is reparented from cgroup G to the root cgroup and G is
+> offlined.
 
-This series was applied to netdev/net.git (master)
-by Marc Kleine-Budde <mkl@pengutronix.de>:
+Just sharing my interpretation for context -- (I saw this was a system
+using the unified cgroup hierarchy, io_cgrp_subsys_on_dfl_key was
+enabled) and what was observed could also have been disabling the io
+controller on given level -- that would also manifest similarly -- the
+task is migrated to parent and the former blkcg is offlined.
 
-On Tue,  7 Dec 2021 11:24:12 +0100 you wrote:
-> From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-> 
-> After calling netif_receive_skb(skb), dereferencing skb is unsafe.
-> Especially, the can_frame cf which aliases skb memory is dereferenced
-> just after the call netif_receive_skb(skb).
-> 
-> Reordering the lines solves the issue.
-> 
+
+> +static void bfq_reparent_children(struct bfq_data *bfqd, struct bfq_group *bfqg)
 > [...]
+> -	bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
+> [...]
+> +	hlist_for_each_entry_safe(bfqq, next, &bfqg->children, children_node)
+> +		bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
 
-Here is the summary with links:
-  - [net,1/9] can: pch_can: pch_can_rx_normal: fix use after free
-    https://git.kernel.org/netdev/net/c/94cddf1e9227
-  - [net,2/9] can: sja1000: fix use after free in ems_pcmcia_add_card()
-    https://git.kernel.org/netdev/net/c/3ec6ca6b1a8e
-  - [net,3/9] can: m_can: Disable and ignore ELO interrupt
-    https://git.kernel.org/netdev/net/c/f58ac1adc76b
-  - [net,4/9] can: m_can: m_can_read_fifo: fix memory leak in error branch
-    https://git.kernel.org/netdev/net/c/31cb32a590d6
-  - [net,5/9] can: m_can: pci: fix iomap_read_fifo() and iomap_write_fifo()
-    https://git.kernel.org/netdev/net/c/d737de2d7cc3
-  - [net,6/9] can: m_can: pci: fix incorrect reference clock rate
-    https://git.kernel.org/netdev/net/c/8c03b8bff765
-  - [net,7/9] Revert "can: m_can: remove support for custom bit timing"
-    https://git.kernel.org/netdev/net/c/ea768b2ffec6
-  - [net,8/9] can: m_can: make custom bittiming fields const
-    https://git.kernel.org/netdev/net/c/ea22ba40debe
-  - [net,9/9] can: m_can: pci: use custom bit timings for Elkhart Lake
-    https://git.kernel.org/netdev/net/c/ea4c1787685d
+Here I assume root_group is (representing) the global blkcg root and
+this reparenting thus skips all ancestors between the removed leaf and
+the root. IIUC the associated io_context would then be treated as if it
+was running in the root blkcg.
+(Admittedly, this isn't a change from this patch but it may cause some
+surprises if the given process runs after the operation.)
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Reparenting to the immediate ancestors should be safe as cgroup core
+should ensure children are offlined before parents. Would it make sense
+to you?
+
+
+> @@ -897,38 +844,17 @@ static void bfq_pd_offline(struct blkg_policy_data *pd)
+> [...]
+> -		 * It may happen that some queues are still active
+> -		 * (busy) upon group destruction (if the corresponding
+> -		 * processes have been forced to terminate). We move
+> -		 * all the leaf entities corresponding to these queues
+> -		 * to the root_group.
+
+This comment is removed but it seems to me it assumed that the
+reparented entities are only some transitional remainings of terminated
+tasks but they may be the processes migrated upwards with a long (IO
+active) life ahead.
 
 
