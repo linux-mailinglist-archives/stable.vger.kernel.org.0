@@ -2,174 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2325446B8B9
-	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1975B46B8C4
+	for <lists+stable@lfdr.de>; Tue,  7 Dec 2021 11:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbhLGKZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Dec 2021 05:25:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59722 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232748AbhLGKZM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 05:25:12 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47E75B81742;
-        Tue,  7 Dec 2021 10:21:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9126DC341C3;
-        Tue,  7 Dec 2021 10:21:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638872499;
-        bh=B7PoJNQcRgmqnokMlCXwji2pqiavAd+MPxhxPnHjEOg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GJiyzjHRo7qjSpQIuFaIuisc45W3GLm6WDc149fd25vGipRUocuBzdYZeXF9+DMSq
-         lalxiV75G1H0ulTdSRxIQsc/r+flLV7JaVKpuAyQbZeKxY1eyFxzVy5J1CQIyEGhfV
-         nbBNJvgrn3SVpRnipK/+yqtGXkCHSUTULGyq2quXgYzsIXIxqUzCE/KBSxnAFqhkbo
-         rxtUjiIT8KVz434DLIxKxwTFJTZ8INaaEZoSY0V3+1kLgELrVpeLrh7DjrSIBVK3SE
-         8cXgJrRr0chqhwiUFEcaSZc5DCClGeApzf8Zz9x6f2Yr3guWWs/CiSu/4x6IRDO6QV
-         oQ15j86JHLkOw==
-Date:   Tue, 7 Dec 2021 02:21:38 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Benjamin LaHaise <bcrl@kvack.org>, linux-aio@kvack.org,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ramji Jiyani <ramjiyani@google.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/2] aio: fix use-after-free due to missing POLLFREE
- handling
-Message-ID: <Ya81svYkRLvRCfL+@sol.localdomain>
-References: <20211204002301.116139-1-ebiggers@kernel.org>
- <20211204002301.116139-3-ebiggers@kernel.org>
- <CAHk-=wgJ+6qgbB+WCDosxOgDp34ybncUwPJ5Evo8gcXptfzF+Q@mail.gmail.com>
- <Ya5qWLLv3i4szS4N@gmail.com>
- <CAHk-=wgvt7PH+AU_29H95tJQZ9FnhS8vVmymbhpZ6NZ7yaAigw@mail.gmail.com>
+        id S230072AbhLGK0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Dec 2021 05:26:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229528AbhLGK0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Dec 2021 05:26:02 -0500
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8656C061574;
+        Tue,  7 Dec 2021 02:22:31 -0800 (PST)
+Received: by mail-lj1-x22f.google.com with SMTP id k2so26533453lji.4;
+        Tue, 07 Dec 2021 02:22:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=zn4bh7aDtipPvIQajdqUH0g7HydWjfXn6rvGe1BMNUA=;
+        b=QX0Oq1SAxkO6tVEodTmKdzTn3o3oXRNoD1cv2vYJCr+21mmrHt3JLRdQZRSiTE2jX8
+         REup2kvzdfpFTnvbfjSuQjq+qNCgxuaIJohZHc/yJYd520QTmIZQXfGQ2MpYCM7AYjBD
+         0IFrCLqGfJkCFLPIyJKbyisgH4vsavf7WKBq5V+LA8w9LAMZvg+SDAf4Y6NFGTv98KOB
+         5AdN1q9YmwkDlLQcj32OBvTAD1soULHez9BkU7GXJhOK8dA4MFNxgO298FDJsGueYRUM
+         z0IvpCD3p/Adh1xCzlNGwArIrZEMsL2NJJQNIJj5HqdACjbu9MqMGms70PR+63oaUfmC
+         a3kQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=zn4bh7aDtipPvIQajdqUH0g7HydWjfXn6rvGe1BMNUA=;
+        b=31of1G0RKriLRxBanm+6ALoeYmu3lclcBFXujmMRn+4hoxdn359+i7RQrzEpty2Qn/
+         oOAyB6X1J04igczFCgGygykAR0ZkVF5eAzOLJWX9Js7Pr5ZrRbD6iUffZbuFY/BMm6Wm
+         Nq+y1fxi2/A5ivWr0CbYGti8OpbnibWkSUgprs23HofPsW2BhXftSgTTD51FiGwTF4Vs
+         kGe1HD04CtYPzzpKZMr6D0/AX1j+Zjrme7c3nOnLLHYBKOzXqkYz8yvvQ9HVTOR5S4oq
+         aA9D8rh/haQHM7bqqe2aD5/YROL04RrNYcLPnsIsMwE3gTuUzLoYwlww1GzSNYvMbrIh
+         N6sg==
+X-Gm-Message-State: AOAM533i7rhf8aY3f43yAdpqYpG3sC/48+vxFux3vwpXmwfcuzL0qs/d
+        Lvfz4BO1awr++HUVm3blfd5T8nE8gDQ=
+X-Google-Smtp-Source: ABdhPJwa9mQuwpzBTlt1YakBtu9w7COZcAvYbJk3NFERAIkQSUu9HoZB4XdVRfP08MqzECPAi0qGOQ==
+X-Received: by 2002:a05:651c:1687:: with SMTP id bd7mr42558183ljb.305.1638872550008;
+        Tue, 07 Dec 2021 02:22:30 -0800 (PST)
+Received: from [192.168.2.145] (94-29-46-111.dynamic.spd-mgts.ru. [94.29.46.111])
+        by smtp.googlemail.com with ESMTPSA id l5sm1568500ljh.66.2021.12.07.02.22.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Dec 2021 02:22:29 -0800 (PST)
+Subject: Re: [PATCH 1/3] ALSA: hda/tegra: Skip reset on BPMP devices
+To:     Sameer Pujar <spujar@nvidia.com>, tiwai@suse.com,
+        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
+        thierry.reding@gmail.com, perex@perex.cz
+Cc:     jonathanh@nvidia.com, alsa-devel@alsa-project.org,
+        devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <1638858770-22594-1-git-send-email-spujar@nvidia.com>
+ <1638858770-22594-2-git-send-email-spujar@nvidia.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <7742adae-cdbe-a9ea-2cef-f63363298d73@gmail.com>
+Date:   Tue, 7 Dec 2021 13:22:28 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+In-Reply-To: <1638858770-22594-2-git-send-email-spujar@nvidia.com>
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHk-=wgvt7PH+AU_29H95tJQZ9FnhS8vVmymbhpZ6NZ7yaAigw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 06, 2021 at 01:48:04PM -0800, Linus Torvalds wrote:
-> On Mon, Dec 6, 2021 at 11:54 AM Eric Biggers <ebiggers@kernel.org> wrote:
-> >
-> > It could be fixed by converting signalfd and binder to use something like this,
-> > right?
-> >
-> >         #define wake_up_pollfree(x)  \
-> >                __wake_up(x, TASK_NORMAL, 0, poll_to_key(EPOLLHUP | POLLFREE))
+07.12.2021 09:32, Sameer Pujar пишет:
+> HDA regression is recently reported on Tegra194 based platforms.
+> This happens because "hda2codec_2x" reset does not really exist
+> in Tegra194 and it causes probe failure. All the HDA based audio
+> tests fail at the moment. This underlying issue is exposed by
+> commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
+> response") which now checks return code of BPMP command response.
 > 
-> Yeah, that looks better to me.
-> 
-> That said, maybe it would be even better to then make it more explicit
-> about what it does, and not make it look like just another wakeup with
-> an odd parameter.
-> 
-> IOW, maybe that "pollfree()" function itself could very much do the
-> waitqueue entry removal on each entry using list_del_init(), and not
-> expect the wakeup code for the entry to do so.
-> 
-> I think that kind of explicit "this removes all entries from the wait
-> list head" is better than "let's do a wakeup and expect all entries to
-> magically implicitly remove themselves".
-> 
-> After all, that "implicitly remove themselves" was what didn't happen,
-> and caused the bug in the first place.
-> 
-> And all the normal cases, that don't care about POLLFREE at all,
-> because their waitqueues don't go away from under them, wouldn't care,
-> because "list_del_init()" still  leaves a valid self-pointing list in
-> place, so if they do list_del() afterwards, nothing happens.
-> 
-> I dunno. But yes, that wake_up_pollfree() of yours certainly looks
-> better than what we have now.
+> The failure can be fixed by avoiding above reset in the driver,
+> but the explicit reset is not necessary for Tegra devices which
+> depend on BPMP. On such devices, BPMP ensures reset application
+> during unpowergate calls. Hence skip reset on these devices
+> which is applicable for Tegra186 and later.
 
-In v2 (https://lore.kernel.org/r/20211207095726.169766-1-ebiggers@kernel.org/),
-I did end up making wake_up_pollfree() into a function, which calls __wake_up()
-and also checks that the queue became empty.
+The power domain is shared with the display, AFAICS. The point of reset
+is to bring h/w into predictable state. It doesn't make sense to me to
+skip the reset.
 
-However, I didn't make wake_up_pollfree() remove the queue entries itself.  I
-don't think that would be better, given that the purpose of POLLFREE is to
-provide a notification that the queue is going away, not simply to remove the
-queue entries.  In particular, we might want to cancel the poll request(s);
-that's what aio poll does.  Also, we need to synchronize with other places where
-the waitqueue is accessed, e.g. to remove an entry which requires taking the
-waitqueue lock (see either aio poll or epoll).
-
-> > As for eliminating POLLFREE entirely, that would require that the waitqueue
-> > heads be moved to a location which has a longer lifetime.
-> 
-> Yeah, the problem with aio and epoll is exactly that they end up using
-> waitqueue heads without knowing what they are.
-> 
-> I'm not at all convinced that there aren't other situations where the
-> thing the waitqueue head is embedded might not have other lifetimes.
-> 
-> The *common* situation is obviously that it's associated with a file,
-> and the file pointer ends up holding the reference to whatever device
-> or something (global list in a loadable module, or whatever) it is.
-> 
-> Hmm. The poll_wait() callback function actually does get the 'struct
-> file *' that the wait is associated with. I wonder if epoll queueing
-> could actually increment the file ref when it creates its own wait
-> entry, and release it at ep_remove_wait_queue()?
-> 
-> Maybe epoll could avoid having to remove entries entirely that way -
-> simply by virtue of having a ref to the files - and remove the need
-> for having the ->whead pointer entirely (and remove the need for
-> POLLFREE handling)?
-
-Well, the documented user-visible behavior of epoll is that when a file is
-closed, it is automatically removed from all epoll instances.  That precludes
-epoll instances from holding references to the files which they are polling.
-
-And the reason that POLLFREE needs to exist is that holding a file reference
-isn't enough anyway, since in the case of signalfd and binder the waitqueue may
-have a shorter lifetime.  If the file reference was enough, then aio poll
-wouldn't need to handle POLLFREE.
-
-> 
-> And maybe the signalfd case can do the same - instead of expecting
-> exit() to clean up the list when sighand->count goes to zero, maybe
-> the signalfd filp can just hold a ref to that 'struct sighand_struct',
-> and it gets free'd whenever there are no signalfd users left?
-> 
-> That would involve making signalfd_ctx actually tied to one particular
-> 'struct signal', but that might be the right thing to do regardless
-> (instead of making it always act on 'current' like it does now).
-> 
-> So maybe with some re-organization, we could get rid of the need for
-> POLLFREE entirely.. Anybody?
-> 
-> But your patches are certainly simpler in that they just fix the status quo.
-
-That would be really nice, but unfortunately the current behavior is documented
-in signalfd(2), for example:
-
-"""
-   fork(2) semantics
-       After  a  fork(2),  the  child inherits a copy of the signalfd file de‐
-       scriptor.  A read(2) from the file descriptor in the child will  return
-       information about signals queued to the child.
-"""
-
-With your proposed change to signalfd, the child would receive its parent's
-signals via the signalfd, rather than its own signals.
-
-It's maybe how signalfd should have worked originally.  I don't know whether it
-is actually safe to change or not, but the fact that the current behavior is
-specifically documented in the man page isn't too promising.
-
-Also, changing signalfd by itself wouldn't allow removal of POLLFREE; binder
-would have to be changed too.  I'm not a binder expert, but fixing binder
-doesn't look super promising.  It looks pretty intentional that binder_poll()
-operates on per-thread state, while the binder file description itself is a
-per-process thing.
-
-- Eric
+If T194+ doesn't have hda2codec_2x reset, then don't request that reset
+for T194+.
