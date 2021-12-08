@@ -2,148 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35DC646CF05
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 09:30:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B80146CF25
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 09:34:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240725AbhLHIeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 03:34:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244853AbhLHIeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 03:34:16 -0500
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95C9FC0617A2
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 00:30:45 -0800 (PST)
-Received: by mail-pf1-x42d.google.com with SMTP id x131so1795731pfc.12
-        for <stable@vger.kernel.org>; Wed, 08 Dec 2021 00:30:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=RRzI4Iei17Ahggjstaqb1wov493fOuSguTH2Wc+bkwI=;
-        b=ZlrqYumsXJ26Tvh0dTMnaSXivpjkDZvaj8K4es5g8PFBhjcf2pkZlVXbThCYAHMYYC
-         7RLoLdhOwvUfYhlBz1G8UAR0hw2PN/hACdXrH8Nmcw9ZpvUhons9s9mA8jE3crhs75Fm
-         /wcNAZ27E9xS/UXTiCeNQU7zq/5wDyZexd0kUoHpBeIy7tqdxGtuCdPzhkDTTwUnis6R
-         se8Tanwa/vMQhFUrN+gpQRIM6zEWKTcyE19eNULgZb/000Y4GhCulAe9rBfskrk2pTdq
-         Pp1NrDl5o6c2uCpfLk1++rDpJNB6NdRNw+D56AJbKnOx/rsxrSEE2v3J1sV/ZJHkX4gC
-         69VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=RRzI4Iei17Ahggjstaqb1wov493fOuSguTH2Wc+bkwI=;
-        b=jOko1brwkiPcINOyUa/qh1J3W05814L2azYHu6VcVgJX5hwfpfYpUCYFWl37tzQ/UO
-         NuzU9HTs7Ji91HpgUpFgrdpoP2PwAfmyMEgHUipR3RLSAAh3AuphmvmuR4ce3WF/cz3A
-         LJcVxwLOiG/CEk9JhRKPSduExpf5AbTx5X69Q9I78omTDI3GfROhJwZmFz7h7tM2TDB4
-         7WErWUzZkINgBQXo1jiyhu9A7rdmVYEd7yR5cW7t2e7Q0MZrXGxf1HnSMSpGFs+RUMzE
-         Acs3fC0hz5M+5f1gmOM0AIWMMj0Ka9zJLdeG13MHoIgE2yP+9h73nZY5FyyPoay1yZIu
-         Zo6w==
-X-Gm-Message-State: AOAM533i1OP3iPdCSvdBnyYFMfJH36D/SwLD+g+CNrZMYkEReb867+JS
-        0Hld/GFPISCRp5racVR3VdqT
-X-Google-Smtp-Source: ABdhPJxGzy9Z2ZMkn1bf7beooiLm6AWWW1bSqP0UhkmlyfZ2EcXB2dbbvnFb/xvteJJ/lcrb/FdDHw==
-X-Received: by 2002:a63:5b24:: with SMTP id p36mr15366637pgb.258.1638952244983;
-        Wed, 08 Dec 2021 00:30:44 -0800 (PST)
-Received: from thinkpad ([117.202.189.59])
-        by smtp.gmail.com with ESMTPSA id s19sm2408544pfu.104.2021.12.08.00.30.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Dec 2021 00:30:44 -0800 (PST)
-Date:   Wed, 8 Dec 2021 14:00:37 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Hemant Kumar <hemantk@codeaurora.org>
-Cc:     mhi@lists.linux.dev, bbhatt@codeaurora.org,
-        loic.poulain@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, kvalo@codeaurora.org,
-        stable@vger.kernel.org, Pengyu Ma <mapengyu@gmail.com>
-Subject: Re: [PATCH] bus: mhi: core: Add support for forced PM resume
-Message-ID: <20211208083037.GD70121@thinkpad>
-References: <20211206161059.107007-1-manivannan.sadhasivam@linaro.org>
- <7eb05d7c-ddda-5ec1-73a0-e696d2b5a236@codeaurora.org>
+        id S245004AbhLHIiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 03:38:24 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:45106 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240745AbhLHIiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 03:38:10 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 1F4B62113D;
+        Wed,  8 Dec 2021 08:34:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1638952478; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=VEx7L2uKEFkh7PkDUkqZJdaZbYdaJ5/ADsblq0a2GMY=;
+        b=uOgd7PBGkpRP1E//AO+SzSyrmxpr1SlUwNEu6/JT7mflDPum0fLmNn+fggTDgNyAZvyUii
+        qKlhVqNWsYUDZ2nDAeMqQI/kFgYFwKrRzgGzbEN9cPygn2buHvYtPoeDBaa5zptKHOV6pb
+        cbBd6qiDyjesz14HH1q3NUId0LNJHKo=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id E4E87A3B85;
+        Wed,  8 Dec 2021 08:34:37 +0000 (UTC)
+Date:   Wed, 8 Dec 2021 09:34:37 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Alexey Makhalov <amakhalov@vmware.com>,
+        Dennis Zhou <dennis@kernel.org>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
+Message-ID: <YbBuHSkvd6fDdQ9d@dhcp22.suse.cz>
+References: <Ya+EHUYgzo8GaCeq@dhcp22.suse.cz>
+ <d01c20fe-86d2-1dc8-e56d-15c0da49afb3@redhat.com>
+ <Ya+LbaD8mkvIdq+c@dhcp22.suse.cz>
+ <Ya+Nq2fWrSgl79Bn@dhcp22.suse.cz>
+ <2E174230-04F3-4798-86D5-1257859FFAD8@vmware.com>
+ <21539fc8-15a8-1c8c-4a4f-8b85734d2a0e@redhat.com>
+ <78E39A43-D094-4706-B4BD-18C0B18EB2C3@vmware.com>
+ <f9786109-518f-38d4-0270-a3e87a13c4ef@redhat.com>
+ <YbBo5uvV7wtgOYrj@dhcp22.suse.cz>
+ <5a44c44a-141c-363d-c23e-558edc23b9b4@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <7eb05d7c-ddda-5ec1-73a0-e696d2b5a236@codeaurora.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5a44c44a-141c-363d-c23e-558edc23b9b4@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 07, 2021 at 03:41:42PM -0800, Hemant Kumar wrote:
-> Hi Mani,
+On Wed 08-12-21 09:24:39, David Hildenbrand wrote:
+> On 08.12.21 09:12, Michal Hocko wrote:
+> > On Tue 07-12-21 19:03:28, David Hildenbrand wrote:
+> >> On 07.12.21 18:17, Alexey Makhalov wrote:
+> >>>
+> >>>
+> >>>> On Dec 7, 2021, at 9:13 AM, David Hildenbrand <david@redhat.com> wrote:
+> >>>>
+> >>>> On 07.12.21 18:02, Alexey Makhalov wrote:
+> >>>>>
+> >>>>>
+> >>>>>> On Dec 7, 2021, at 8:36 AM, Michal Hocko <mhocko@suse.com> wrote:
+> >>>>>>
+> >>>>>> On Tue 07-12-21 17:27:29, Michal Hocko wrote:
+> >>>>>> [...]
+> >>>>>>> So your proposal is to drop set_node_online from the patch and add it as
+> >>>>>>> a separate one which handles
+> >>>>>>> 	- sysfs part (i.e. do not register a node which doesn't span a
+> >>>>>>> 	  physical address space)
+> >>>>>>> 	- hotplug side of (drop the pgd allocation, register node lazily
+> >>>>>>> 	  when a first memblocks are registered)
+> >>>>>>
+> >>>>>> In other words, the first stage
+> >>>>>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> >>>>>> index c5952749ad40..f9024ba09c53 100644
+> >>>>>> --- a/mm/page_alloc.c
+> >>>>>> +++ b/mm/page_alloc.c
+> >>>>>> @@ -6382,7 +6382,11 @@ static void __build_all_zonelists(void *data)
+> >>>>>> 	if (self && !node_online(self->node_id)) {
+> >>>>>> 		build_zonelists(self);
+> >>>>>> 	} else {
+> >>>>>> -		for_each_online_node(nid) {
+> >>>>>> +		/*
+> >>>>>> +		 * All possible nodes have pgdat preallocated
+> >>>>>> +		 * free_area_init
+> >>>>>> +		 */
+> >>>>>> +		for_each_node(nid) {
+> >>>>>> 			pg_data_t *pgdat = NODE_DATA(nid);
+> >>>>>>
+> >>>>>> 			build_zonelists(pgdat);
+> >>>>>
+> >>>>> Will it blow up memory usage for the nodes which might never be onlined?
+> >>>>> I prefer the idea of init on demand.
+> >>>>>
+> >>>>> Even now there is an existing problem.
+> >>>>> In my experiments, I observed _huge_ memory consumption increase by increasing number
+> >>>>> of possible numa nodes. I’m going to report it in separate mail thread.
+> >>>>
+> >>>> I already raised that PPC might be problematic in that regard. Which
+> >>>> architecture / setup do you have in mind that can have a lot of possible
+> >>>> nodes?
+> >>>>
+> >>> It is x86_64 VMware VM, not the regular one, but specially configured (1 vCPU per node,
+> >>> with hot-plug support, 128 possible nodes)  
+> >>
+> >> I thought the pgdat would be smaller but I just gave it a test:
+> > 
+> > Yes, pgdat is quite large! Just embeded zones can eat a lot.
+> > 
+> >> On my system, pgdata_t is 173824 bytes. So 128 nodes would correspond to
+> >> 21 MiB, which is indeed a lot. I assume it's due to "struct zonelist",
+> >> which has MAX_ZONES_PER_ZONELIST == (MAX_NUMNODES * MAX_NR_ZONES) zone
+> >> references ...
+> > 
+> > This is what pahole tells me
+> > struct pglist_data {
+> >         struct zone                node_zones[4] __attribute__((__aligned__(64))); /*     0  5632 */
+> >         /* --- cacheline 88 boundary (5632 bytes) --- */
+> >         struct zonelist            node_zonelists[1];    /*  5632    80 */
+> > 	[...]
+> >         /* size: 6400, cachelines: 100, members: 27 */
+> >         /* sum members: 6369, holes: 5, sum holes: 31 */
+> > 
+> > with my particular config (which is !NUMA). I haven't really checked
+> > whether there are other places which might scale with MAX_NUM_NODES or
+> > something like that.
+> > 
+> > Anyway, is 21MB of wasted space for 128 Node machine something really
+> > note worthy?
+> > 
 > 
-> On 12/6/2021 8:10 AM, Manivannan Sadhasivam wrote:
-> > From: Loic Poulain <loic.poulain@linaro.org>
-> > 
-> > For whatever reason, some devices like QCA6390, WCN6855 using ath11k
-> > are not in M3 state during PM resume, but still functional. The
-> > mhi_pm_resume should then not fail in those cases, and let the higher
-> > level device specific stack continue resuming process.
-> > 
-> > Add a new parameter to mhi_pm_resume, to force resuming, whatever the
-> > current MHI state is. This fixes a regression with non functional
-> > ath11k WiFi after suspend/resume cycle on some machines.
-> > 
-> > Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=214179
-> > 
-> > Cc: stable@vger.kernel.org #5.13
-> > Fixes: 020d3b26c07a ("bus: mhi: Early MHI resume failure in non M3 state")
-> > Reported-by: Kalle Valo <kvalo@codeaurora.org>
-> > Reported-by: Pengyu Ma <mapengyu@gmail.com>
-> > Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-> > [mani: Added comment, bug report, added reported-by tags and CCed stable]
-> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> > ---
-> >   drivers/bus/mhi/core/pm.c             | 10 +++++++---
-> >   drivers/bus/mhi/pci_generic.c         |  2 +-
-> >   drivers/net/wireless/ath/ath11k/mhi.c |  6 +++++-
-> >   include/linux/mhi.h                   |  3 ++-
-> >   4 files changed, 15 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-> > index 7464f5d09973..4ddd266e042e 100644
-> > --- a/drivers/bus/mhi/core/pm.c
-> > +++ b/drivers/bus/mhi/core/pm.c
-> > @@ -881,7 +881,7 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
-> >   }
-> >   EXPORT_SYMBOL_GPL(mhi_pm_suspend);
-> > -int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
-> > +int mhi_pm_resume(struct mhi_controller *mhi_cntrl, bool force)
-> >   {
-> >   	struct mhi_chan *itr, *tmp;
-> >   	struct device *dev = &mhi_cntrl->mhi_dev->dev;
-> > @@ -898,8 +898,12 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
-> >   	if (MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state))
-> >   		return -EIO;
-> > -	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3)
-> > -		return -EINVAL;
-> > +	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3) {
-> 	in case if mhi_get_mhi_state(mhi_cntrl) returns SYS_ERR (assuming while
-> doing this check SYS_ERR is set) do we still want to continue pm resume when
-> force is true? Just want to make sure SYS_ERR handling with and without this
-> change remains the same or atleast does not cause any regression with this
-> change. or if we need to continue pm resume only for MHI_STATE_RESET when
-> MHI_STATE_M3 is not set?
+> I think we'll soon might see setups (again, CXL is an example, but als
+> owhen providing a dynamic amount of performance differentiated memory
+> via virtio-mem) where this will most probably matter. With performance
+> differentiated memory we'll see a lot more nodes getting used in
+> general, and a lot more nodes eventually getting hotplugged.
 
-SYS_ERR state is a valid case while resuming from suspend. The "force" flag is
-supposed to be used by controllers that goes to a weird state like RESET. If we
-just add check for RESET, then we might get another scenario in future. That's
-why the "force" flag made sense to me.
+There are certainly machines with many nodes. E.g. SLES kernels are
+build with CONFIG_NODES_SHIFT=10 which is a lot of potential nodes.
+And I have seen really large machines with many nodes but those usually
+come with a lot of memory and they do not tend to have non populated
+nodes AFAIR.
 
-If we want to handle SYS_ERR then we need to check for that before M3 and that
-can be done in a separate patch. But since we didn't hit this scenario till now,
-let's handle it later if needed.
-
-Thanks,
-Mani
-
-> > +		dev_warn(dev, "Resuming from non M3 state (%s)\n",
-> > +			 TO_MHI_STATE_STR(mhi_get_mhi_state(mhi_cntrl)));
-> > +		if (!force)
-> > +			return -EINVAL;
-> > +	}
-> [..]
+> If 128 nodes is realistic, I cannot tell.
 > 
-> Thanks,
-> Hemant
-> -- 
-> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, a
-> Linux Foundation Collaborative Project
+> We could optimize by allocating some members dynamically. For example
+> we'll never need MAX_NUMNODES entries, but only the number of possible
+> nodes.
+
+Yes agreed. Scaling with MAX_NUMNODES is almost always wasteful.
+
+-- 
+Michal Hocko
+SUSE Labs
