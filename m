@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A59FA46D3CA
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E312C46D3CC
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233842AbhLHM54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 07:57:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47238 "EHLO
+        id S233844AbhLHM6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 07:58:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232176AbhLHM54 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5A18C061746
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 04:54:24 -0800 (PST)
+        with ESMTP id S229743AbhLHM6H (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:58:07 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A97C061746
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 04:54:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E972B81F7E
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7796C00446;
-        Wed,  8 Dec 2021 12:54:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9E9C3CE214F
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50089C00446;
+        Wed,  8 Dec 2021 12:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638968062;
-        bh=3j+RAzJEH8PiODHDyPIOdjbusHtCK/uyWFemb4bfOyg=;
+        s=korg; t=1638968071;
+        bh=4HecYuEfKou+h02Uo2MNK20aUwDdzAT18VWUuM4IRJc=;
         h=Subject:To:From:Date:From;
-        b=ljgADuxiBJj3dnqMUPOEsBtYbauIOAd4YwFyUnQt5MZRe27XVEu55RYf3z62FD5sa
-         xA8CcVd3HxCnYPNztRhe/VgWJvx16QeUX5GnQn0V8qN3ZIxsP/rKBxwxdHqTBHUcB7
-         YFYsgBssxfPC5U/P7WD4fjNcBkuJosYRiD9m0Dts=
-Subject: patch "iio: itg3200: Call iio_trigger_notify_done() on error" added to char-misc-linus
-To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=kf03MpBHfLLEzcb0FIS/xLTfVrNdKUzNmCen66cdMY+QwviZ7d1T6id67/ILWQIlW
+         6kdqnqe8t+PJ0CHOVpqgi0a598t51YEzjf7ExHGKQKhl6OAs/n0pdNFaroWIQVV9ZR
+         4LPvFNILy17LCfHNKePnSQY739mRl2ERrWhFZWU4=
+Subject: patch "iio: gyro: adxrs290: fix data signedness" added to char-misc-linus
+To:     kister.jimenez@analog.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
+        nuno.sa@analog.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 08 Dec 2021 13:53:56 +0100
-Message-ID: <163896803648241@kroah.com>
+Date:   Wed, 08 Dec 2021 13:53:57 +0100
+Message-ID: <1638968037112163@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,7 +45,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: itg3200: Call iio_trigger_notify_done() on error
+    iio: gyro: adxrs290: fix data signedness
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -59,44 +60,57 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 67fe29583e72b2103abb661bb58036e3c1f00277 Mon Sep 17 00:00:00 2001
-From: Lars-Peter Clausen <lars@metafoo.de>
-Date: Mon, 1 Nov 2021 15:40:54 +0100
-Subject: iio: itg3200: Call iio_trigger_notify_done() on error
+From fde272e78e004a45c7e4976876277d7e6a5a0ede Mon Sep 17 00:00:00 2001
+From: Kister Genesis Jimenez <kister.jimenez@analog.com>
+Date: Mon, 15 Nov 2021 11:41:47 +0100
+Subject: iio: gyro: adxrs290: fix data signedness
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-IIO trigger handlers must call iio_trigger_notify_done() when done. This
-must be done even when an error occurred. Otherwise the trigger will be
-seen as busy indefinitely and the trigger handler will never be called
-again.
+Properly sign-extend the rate and temperature data.
 
-The itg3200 driver neglects to call iio_trigger_notify_done() when there is
-an error reading the gyro data. Fix this by making sure that
-iio_trigger_notify_done() is included in the error exit path.
-
-Fixes: 9dbf091da080 ("iio: gyro: Add itg3200")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211101144055.13858-1-lars@metafoo.de
+Fixes: 2c8920fff1457 ("iio: gyro: Add driver support for ADXRS290")
+Signed-off-by: Kister Genesis Jimenez <kister.jimenez@analog.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20211115104147.18669-1-nuno.sa@analog.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/gyro/itg3200_buffer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/gyro/adxrs290.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/gyro/itg3200_buffer.c b/drivers/iio/gyro/itg3200_buffer.c
-index 04dd6a7969ea..4cfa0d439560 100644
---- a/drivers/iio/gyro/itg3200_buffer.c
-+++ b/drivers/iio/gyro/itg3200_buffer.c
-@@ -61,9 +61,9 @@ static irqreturn_t itg3200_trigger_handler(int irq, void *p)
+diff --git a/drivers/iio/gyro/adxrs290.c b/drivers/iio/gyro/adxrs290.c
+index 3e0734ddafe3..600e9725da78 100644
+--- a/drivers/iio/gyro/adxrs290.c
++++ b/drivers/iio/gyro/adxrs290.c
+@@ -7,6 +7,7 @@
+  */
  
- 	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ #include <linux/bitfield.h>
++#include <linux/bitops.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
+@@ -124,7 +125,7 @@ static int adxrs290_get_rate_data(struct iio_dev *indio_dev, const u8 cmd, int *
+ 		goto err_unlock;
+ 	}
  
-+error_ret:
- 	iio_trigger_notify_done(indio_dev->trig);
+-	*val = temp;
++	*val = sign_extend32(temp, 15);
  
--error_ret:
- 	return IRQ_HANDLED;
- }
+ err_unlock:
+ 	mutex_unlock(&st->lock);
+@@ -146,7 +147,7 @@ static int adxrs290_get_temp_data(struct iio_dev *indio_dev, int *val)
+ 	}
  
+ 	/* extract lower 12 bits temperature reading */
+-	*val = temp & 0x0FFF;
++	*val = sign_extend32(temp, 11);
+ 
+ err_unlock:
+ 	mutex_unlock(&st->lock);
 -- 
 2.34.1
 
