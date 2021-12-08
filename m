@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B6546D3C8
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A59FA46D3CA
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233827AbhLHM5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 07:57:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
+        id S233842AbhLHM54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 07:57:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232176AbhLHM5v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 855E4C061746
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 04:54:19 -0800 (PST)
+        with ESMTP id S232176AbhLHM54 (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5A18C061746
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 04:54:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CD164CE2167
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78000C00446;
-        Wed,  8 Dec 2021 12:54:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E972B81F7E
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7796C00446;
+        Wed,  8 Dec 2021 12:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638968056;
-        bh=l3PTzdl2giIZ1dGxpBWP8CjAYylsDopWE786F6xSDi4=;
+        s=korg; t=1638968062;
+        bh=3j+RAzJEH8PiODHDyPIOdjbusHtCK/uyWFemb4bfOyg=;
         h=Subject:To:From:Date:From;
-        b=Fs39VPOh+aM4VKvz674Sf0tj8JitzmMpvF+bI9RKIMDdwCl3H6rb2SwB+tR7ZSiQw
-         k3MCpa4fQyMcrSf4ftcL+d2daWDzE1Xim9HubMwGCEFGZEdCnCIfS4Z2H2LUZ9HePZ
-         r2eIXC2h5XEY+YUabRH0fAjJ6ZarTYz+AyrH1aWw=
-Subject: patch "iio: dln2: Check return value of devm_iio_trigger_register()" added to char-misc-linus
+        b=ljgADuxiBJj3dnqMUPOEsBtYbauIOAd4YwFyUnQt5MZRe27XVEu55RYf3z62FD5sa
+         xA8CcVd3HxCnYPNztRhe/VgWJvx16QeUX5GnQn0V8qN3ZIxsP/rKBxwxdHqTBHUcB7
+         YFYsgBssxfPC5U/P7WD4fjNcBkuJosYRiD9m0Dts=
+Subject: patch "iio: itg3200: Call iio_trigger_notify_done() on error" added to char-misc-linus
 To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
-        stable@vger.kernel.org
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 08 Dec 2021 13:53:55 +0100
-Message-ID: <1638968035211126@kroah.com>
+Date:   Wed, 08 Dec 2021 13:53:56 +0100
+Message-ID: <163896803648241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: dln2: Check return value of devm_iio_trigger_register()
+    iio: itg3200: Call iio_trigger_notify_done() on error
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -59,41 +59,44 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 90751fb9f224e0e1555b49a8aa9e68f6537e4cec Mon Sep 17 00:00:00 2001
+From 67fe29583e72b2103abb661bb58036e3c1f00277 Mon Sep 17 00:00:00 2001
 From: Lars-Peter Clausen <lars@metafoo.de>
-Date: Mon, 1 Nov 2021 14:30:43 +0100
-Subject: iio: dln2: Check return value of devm_iio_trigger_register()
+Date: Mon, 1 Nov 2021 15:40:54 +0100
+Subject: iio: itg3200: Call iio_trigger_notify_done() on error
 
-Registering a trigger can fail and the return value of
-devm_iio_trigger_register() must be checked. Otherwise undefined behavior
-can occur when the trigger is used.
+IIO trigger handlers must call iio_trigger_notify_done() when done. This
+must be done even when an error occurred. Otherwise the trigger will be
+seen as busy indefinitely and the trigger handler will never be called
+again.
 
-Fixes: 7c0299e879dd ("iio: adc: Add support for DLN2 ADC")
+The itg3200 driver neglects to call iio_trigger_notify_done() when there is
+an error reading the gyro data. Fix this by making sure that
+iio_trigger_notify_done() is included in the error exit path.
+
+Fixes: 9dbf091da080 ("iio: gyro: Add itg3200")
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211101133043.6974-1-lars@metafoo.de
-Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211101144055.13858-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/dln2-adc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/iio/gyro/itg3200_buffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/dln2-adc.c b/drivers/iio/adc/dln2-adc.c
-index 6c67192946aa..97d162a3cba4 100644
---- a/drivers/iio/adc/dln2-adc.c
-+++ b/drivers/iio/adc/dln2-adc.c
-@@ -655,7 +655,11 @@ static int dln2_adc_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 	iio_trigger_set_drvdata(dln2->trig, dln2);
--	devm_iio_trigger_register(dev, dln2->trig);
-+	ret = devm_iio_trigger_register(dev, dln2->trig);
-+	if (ret) {
-+		dev_err(dev, "failed to register trigger: %d\n", ret);
-+		return ret;
-+	}
- 	iio_trigger_set_immutable(indio_dev, dln2->trig);
+diff --git a/drivers/iio/gyro/itg3200_buffer.c b/drivers/iio/gyro/itg3200_buffer.c
+index 04dd6a7969ea..4cfa0d439560 100644
+--- a/drivers/iio/gyro/itg3200_buffer.c
++++ b/drivers/iio/gyro/itg3200_buffer.c
+@@ -61,9 +61,9 @@ static irqreturn_t itg3200_trigger_handler(int irq, void *p)
  
- 	ret = devm_iio_triggered_buffer_setup(dev, indio_dev, NULL,
+ 	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ 
++error_ret:
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
+-error_ret:
+ 	return IRQ_HANDLED;
+ }
+ 
 -- 
 2.34.1
 
