@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B0C46D3C5
+	by mail.lfdr.de (Postfix) with ESMTP id 8723E46D3C6
 	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233807AbhLHM5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 07:57:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47168 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233796AbhLHM5l (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F95BC061746
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 04:54:09 -0800 (PST)
+        id S233821AbhLHM5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 07:57:45 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:47948 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233796AbhLHM5p (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE391B81F7E
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17C55C00446;
-        Wed,  8 Dec 2021 12:54:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8E0D0CE2167
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03444C341C7;
+        Wed,  8 Dec 2021 12:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638968046;
-        bh=4oKwn1DBqQyNlyzHlkivVAw6MoyWpBm8e6F62/ZoyEc=;
+        s=korg; t=1638968049;
+        bh=7pBXGr+7blcsQhEk5rUvgjIFJ2lJFQfogTO4YvkBHyY=;
         h=Subject:To:From:Date:From;
-        b=JsZkM27rD0JBrOW1ikaaqIIUlFoPyTzTtAqcVu94AFvmoS/vpGuxKo27zQDk5GGab
-         9YLSq40VHtSiTsV1q0bC/BdRp7RjcJjTME2BTmFGrSHqe+qxHhbd/P0TmjxGTgGDwV
-         iji5kSSJEmFXcoewj3HmgTotpso1r5bGMpQjkKY8=
-Subject: patch "iio: adc: stm32: fix a current leak by resetting pcsel before" added to char-misc-linus
-To:     fabrice.gasnier@foss.st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, olivier.moysan@foss.st.com
+        b=xHEvQWiUP7aDo92+YbJqCFL2dW4eWr4vr2bI0qc0b7Zvz5USqbxTkxSmJEFiDr60f
+         h+7n38c7AMX3U8wrR3DFZPRSfd5f3KxiGAyhWVMwQUBtpJHG2q63LHCl2HDNv/okwE
+         jZPwmZAw6r2tNIApwYqoODdpOJ8XehE4pabdELi0=
+Subject: patch "iio: mma8452: Fix trigger reference couting" added to char-misc-linus
+To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 08 Dec 2021 13:53:53 +0100
-Message-ID: <16389680334820@kroah.com>
+Message-ID: <1638968033113117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32: fix a current leak by resetting pcsel before
+    iio: mma8452: Fix trigger reference couting
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -59,46 +56,44 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From f711f28e71e965c0d1141c830fa7131b41abbe75 Mon Sep 17 00:00:00 2001
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Date: Fri, 22 Oct 2021 14:19:29 +0200
-Subject: iio: adc: stm32: fix a current leak by resetting pcsel before
- disabling vdda
+From cd0082235783f814241a1c9483fb89e405f4f892 Mon Sep 17 00:00:00 2001
+From: Lars-Peter Clausen <lars@metafoo.de>
+Date: Sun, 24 Oct 2021 11:26:59 +0200
+Subject: iio: mma8452: Fix trigger reference couting
 
-Some I/Os are connected to ADC input channels, when the corresponding bit
-in PCSEL register are set on STM32H7 and STM32MP15. This is done in the
-prepare routine of stm32-adc driver.
-There are constraints here, as PCSEL shouldn't be set when VDDA supply
-is disabled. Enabling/disabling of VDDA supply in done via stm32-adc-core
-runtime PM routines (before/after ADC is enabled/disabled).
+The mma8452 driver directly assigns a trigger to the struct iio_dev. The
+IIO core when done using this trigger will call `iio_trigger_put()` to drop
+the reference count by 1.
 
-Currently, PCSEL remains set when disabling ADC. Later on, PM runtime
-can disable the VDDA supply. This creates some conditions on I/Os that
-can start to leak current.
-So PCSEL needs to be cleared when disabling the ADC.
+Without the matching `iio_trigger_get()` in the driver the reference count
+can reach 0 too early, the trigger gets freed while still in use and a
+use-after-free occurs.
 
-Fixes: 95e339b6e85d ("iio: adc: stm32: add support for STM32H7")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Reviewed-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Link: https://lore.kernel.org/r/1634905169-23762-1-git-send-email-fabrice.gasnier@foss.st.com
+Fix this by getting a reference to the trigger before assigning it to the
+IIO device.
+
+Fixes: ae6d9ce05691 ("iio: mma8452: Add support for interrupt driven triggers.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024092700.6844-1-lars@metafoo.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/stm32-adc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/mma8452.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index 6245434f8377..60f2ccf7e342 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1117,6 +1117,7 @@ static void stm32h7_adc_unprepare(struct iio_dev *indio_dev)
- {
- 	struct stm32_adc *adc = iio_priv(indio_dev);
+diff --git a/drivers/iio/accel/mma8452.c b/drivers/iio/accel/mma8452.c
+index 715b8138fb71..09c7f10fefb6 100644
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1470,7 +1470,7 @@ static int mma8452_trigger_setup(struct iio_dev *indio_dev)
+ 	if (ret)
+ 		return ret;
  
-+	stm32_adc_writel(adc, STM32H7_ADC_PCSEL, 0);
- 	stm32h7_adc_disable(indio_dev);
- 	stm32_adc_int_ch_disable(adc);
- 	stm32h7_adc_enter_pwr_down(adc);
+-	indio_dev->trig = trig;
++	indio_dev->trig = iio_trigger_get(trig);
+ 
+ 	return 0;
+ }
 -- 
 2.34.1
 
