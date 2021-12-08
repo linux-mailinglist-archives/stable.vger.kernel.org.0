@@ -2,119 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62BC846DB12
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 19:28:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 639DD46DF06
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 00:30:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238887AbhLHScZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 13:32:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41808 "EHLO
+        id S241166AbhLHXeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 18:34:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238888AbhLHScW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 13:32:22 -0500
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F92CC061A32
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 10:28:50 -0800 (PST)
-Received: by mail-pl1-x632.google.com with SMTP id q17so2074359plr.11
-        for <stable@vger.kernel.org>; Wed, 08 Dec 2021 10:28:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RAHYsn80W/cLHnf6ht51GzLoiJp0ynFyHN6zfSS2Mg4=;
-        b=XeYENC/ehYAImGZe9+myaSRhkNfR5/LdUowH0QRQqKPyZ4ON15sfaRbnWo5OzZIHP2
-         iNsFftUGHV6REbBEv2aWABqJ6HptiZMyvi1188f12mslhlx4cPs/qqBauRtFCeOLyn6q
-         4aUWyp5qQgAELffNcQEbgXsI0jXYa2Eh3l5nBQc/CU2NgoAJox3zn2MSd0tg2ZCK9BL/
-         zHBk640JfuIP9SRPB5Izr5U2G7k6sKjCdLGpqjZdhSZQ7ruNNQLAcpVrPKW06kRQunSC
-         lvtB44PTRvZnfkpfFES0zEdQUgBp5xmmEVZpNwg+qRpYvFCX+ciIS/y8dqaDlUiw4qgP
-         QwWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=RAHYsn80W/cLHnf6ht51GzLoiJp0ynFyHN6zfSS2Mg4=;
-        b=CAbZ93kEVYGWMc9MB9hUBm1AZgIAtPKq7tY8KnRBZ3k6aUZBxHB5qg/WExb9QnkDw6
-         QSBmXxyos6+OUV5gmJv6E7QAH592/NLRM0vqks28tfnlwE91188ud5DvLPSGU9SVQmdF
-         ZCnuDKb99GloQI8SIHEl0cVajXlPh3nyxkQBiR2Kv330gQWhwxDSjnXa55uV8/TFcmrd
-         1VK3P/I944s88PWgCr1kOD9I4g5JYvySCPbvGmvRt+Fq9BfzIHUpk3YltLPOIg8OGuYp
-         B8pE4MRVNB8A2ZmyC/Yha4eBLRXYxR2cWpiAvXXWenb7r6uipd/CE0M4ZBqQu3CjbBt0
-         evYw==
-X-Gm-Message-State: AOAM5336hwefgSvi8zLr1bbmAAe1W4QPmhSo5ZwgL9/jlzG5bCp3j+fn
-        W4RQRXLwogPTAGdjqgbjkmLPaQ==
-X-Google-Smtp-Source: ABdhPJwe4TPTy0GHNA6JeJJcGjVeT51U8qxGCLZLydC+k2fTYOqDNPP1iZn5EFgq7tG8Ucv1WR5lvw==
-X-Received: by 2002:a17:90a:db89:: with SMTP id h9mr9223384pjv.71.1638988130016;
-        Wed, 08 Dec 2021 10:28:50 -0800 (PST)
-Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id l1sm3178185pgl.61.2021.12.08.10.28.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Dec 2021 10:28:49 -0800 (PST)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     netdev@vger.kernel.org
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
-        syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
-Subject: [PATCH] nfc: fix segfault in nfc_genl_dump_devices_done
-Date:   Wed,  8 Dec 2021 10:27:42 -0800
-Message-Id: <20211208182742.340542-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.33.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S233080AbhLHXeD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 18:34:03 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C776AC061746;
+        Wed,  8 Dec 2021 15:30:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1DE8ACE23C4;
+        Wed,  8 Dec 2021 23:30:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DF73C00446;
+        Wed,  8 Dec 2021 23:30:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1639006227;
+        bh=+mGrY+CjhnN/ZQmoo2RsdzqcaVIxkbK/dt5k4B4xQHg=;
+        h=Date:From:To:Subject:From;
+        b=ivDUUNPhXQ6gbz5IwXKQHlDVkv8OPkF9R5ti140p9ThqnftolkWBGzBrggUxizCFC
+         W4ONQXwxLwuvNaVp96na1ZivFVD0aso3sybE1BNAd4tQWiTf6yTBP0x7nz23MtCh1p
+         Dv3gUtN5NVvSejU0svVnfxU+43CXKBwEeEEqpZDw=
+Date:   Wed, 08 Dec 2021 15:30:26 -0800
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, arbn@yandex-team.com,
+        mgorman@techsingularity.net, mhocko@suse.com,
+        mm-commits@vger.kernel.org, rientjes@google.com,
+        stable@vger.kernel.org
+Subject:  +
+ mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
+ added to -mm tree
+Message-ID: <20211208233026.yaSqy1PdE%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When kmalloc in nfc_genl_dump_devices() fails then
-nfc_genl_dump_devices_done() segfaults as below
 
-KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-CPU: 0 PID: 25 Comm: kworker/0:1 Not tainted 5.16.0-rc4-01180-g2a987e65025e-dirty #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
-Workqueue: events netlink_sock_destruct_work
-RIP: 0010:klist_iter_exit+0x26/0x80
-Call Trace:
-<TASK>
-class_dev_iter_exit+0x15/0x20
-nfc_genl_dump_devices_done+0x3b/0x50
-genl_lock_done+0x84/0xd0
-netlink_sock_destruct+0x8f/0x270
-__sk_destruct+0x64/0x3b0
-sk_destruct+0xa8/0xd0
-__sk_free+0x2e8/0x3d0
-sk_free+0x51/0x90
-netlink_sock_destruct_work+0x1c/0x20
-process_one_work+0x411/0x710
-worker_thread+0x6fd/0xa80
+The patch titled
+     Subject: mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+has been added to the -mm tree.  Its filename is
+     mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
 
-Link: https://syzkaller.appspot.com/bug?id=fc0fa5a53db9edd261d56e74325419faf18bd0df
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
----
- net/nfc/netlink.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
 
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 334f63c9529e..0b4fae183a4b 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -636,8 +636,10 @@ static int nfc_genl_dump_devices_done(struct netlink_callback *cb)
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Andrey Ryabinin <arbn@yandex-team.com>
+Subject: mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+
+alloc_pages_vma() may try to allocate THP page on the local NUMA node
+first:
+
+	page = __alloc_pages_node(hpage_node,
+		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+
+And if the allocation fails it retries allowing remote memory:
+
+	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+    		page = __alloc_pages_node(hpage_node,
+					gfp, order);
+
+However, this retry allocation completely ignores memory policy nodemask
+allowing allocation to escape restrictions.
+
+The first appearance of this bug seems to be the commit ac5b2c18911f
+ ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+The bug disappeared later in the commit 89c83fb539f9
+ ("mm, thp: consolidate THP gfp handling into alloc_hugepage_direct_gfpmask")
+and reappeared again in slightly different form in the commit 76e654cc91bb
+ ("mm, page_alloc: allow hugepage fallback to remote nodes when madvised")
+
+Fix this by passing correct nodemask to the __alloc_pages() call.
+
+The demonstration/reproducer of the problem:
+ $ mount -oremount,size=4G,huge=always /dev/shm/
+ $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+ $ cat mbind_thp.c
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <numaif.h>
+
+ #define SIZE 2ULL << 30
+ int main(int argc, char **argv)
  {
- 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
- 
--	nfc_device_iter_exit(iter);
--	kfree(iter);
-+	if (iter) {
-+		nfc_device_iter_exit(iter);
-+		kfree(iter);
-+	}
- 
- 	return 0;
+   int fd;
+   unsigned long long i;
+   char *addr;
+   pid_t pid;
+   char buf[100];
+   unsigned long nodemask = 1;
+
+   fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+   assert(fd > 0);
+   assert(ftruncate(fd, SIZE) == 0);
+
+   addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+                        MAP_SHARED, fd, 0);
+
+   assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+   for (i = 0; i < SIZE; i+=4096) {
+     addr[i] = 1;
+   }
+   pid = getpid();
+   snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+   system(buf);
+   sleep(10000);
+
+   return 0;
  }
--- 
-2.33.1
+ $ gcc mbind_thp.c -o mbind_thp -lnuma
+ $ numactl -H
+ available: 2 nodes (0-1)
+ node 0 cpus: 0 2
+ node 0 size: 1918 MB
+ node 0 free: 1595 MB
+ node 1 cpus: 1 3
+ node 1 size: 2014 MB
+ node 1 free: 1731 MB
+ node distances:
+ node   0   1
+   0:  10  20
+   1:  20  10
+ $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+ 7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+
+Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: David Rientjes <rientjes@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/mempolicy.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/mm/mempolicy.c~mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions
++++ a/mm/mempolicy.c
+@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp,
+ 			 * memory with both reclaim and compact as well.
+ 			 */
+ 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+-				page = __alloc_pages_node(hpage_node,
+-								gfp, order);
++				page = __alloc_pages(gfp, order, hpage_node, nmask);
+ 
+ 			goto out;
+ 		}
+_
+
+Patches currently in -mm which might be from arbn@yandex-team.com are
+
+mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
 
