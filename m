@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A04246D3CD
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52D0646D3CF
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233845AbhLHM6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 07:58:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229743AbhLHM6K (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:58:10 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E6DC061746
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 04:54:38 -0800 (PST)
+        id S233854AbhLHM6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 07:58:16 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:48188 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229743AbhLHM6Q (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:58:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AB867CE2166
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 543FCC00446;
-        Wed,  8 Dec 2021 12:54:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6507CCE216D
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F3CC00446;
+        Wed,  8 Dec 2021 12:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638968074;
-        bh=2vaOgoYKyF3dZhObMbK1yogNlsQe2SvMOgPImHL12XY=;
+        s=korg; t=1638968080;
+        bh=oHzYZwN+rX8vBUD3UkuiVBxxS5J9lyjvywee5NKPWP8=;
         h=Subject:To:From:Date:From;
-        b=YAfExH+oT+7Yt0fgy2NKm/7UJk2Hdjz8fLX36hL4KUrrlB13vW3FyQzMjxVo0FIzc
-         x32ecr0xQ7A4R06F94uys9sKBwXbztC+u0csl9FvAWdlRhYTLF6tKkxK++bqyJfzoi
-         EVTpmdj3sVan2wHmY5lQe/joNan9ytavCJ+Qza9Y=
-Subject: patch "iio: ad7768-1: Call iio_trigger_notify_done() on error" added to char-misc-linus
-To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=0MlKXFDj8sN10kxnds1SnrgphbEHRt9hVowcmd4PnN8eahdhKpmRMWuND6cbjLule
+         0uUhhXB4NeQtEOGeNGRw3wnKEwTdPU2f0EUKAAbwCRFHCK8I7hiwgvHSNfVufkrLpe
+         jMdAexCO9IcrEpvgBAWYgktbaH1UqtCOHAjuq+IU=
+Subject: patch "iio: adc: axp20x_adc: fix charging current reporting on AXP22x" added to char-misc-linus
+To:     boger@wirenboard.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, wens@csie.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 08 Dec 2021 13:53:57 +0100
-Message-ID: <163896803716973@kroah.com>
+Date:   Wed, 08 Dec 2021 13:53:58 +0100
+Message-ID: <16389680383192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: ad7768-1: Call iio_trigger_notify_done() on error
+    iio: adc: axp20x_adc: fix charging current reporting on AXP22x
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -59,43 +56,69 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 6661146427cbbce6d1fe3dbb11ff1c487f55799a Mon Sep 17 00:00:00 2001
-From: Lars-Peter Clausen <lars@metafoo.de>
-Date: Mon, 1 Nov 2021 15:40:55 +0100
-Subject: iio: ad7768-1: Call iio_trigger_notify_done() on error
+From 92beafb76a31bdc02649eb44e93a8e4f4cfcdbe8 Mon Sep 17 00:00:00 2001
+From: Evgeny Boger <boger@wirenboard.com>
+Date: Wed, 17 Nov 2021 00:37:46 +0300
+Subject: iio: adc: axp20x_adc: fix charging current reporting on AXP22x
 
-IIO trigger handlers must call iio_trigger_notify_done() when done. This
-must be done even when an error occurred. Otherwise the trigger will be
-seen as busy indefinitely and the trigger handler will never be called
-again.
+Both the charging and discharging currents on AXP22x are stored as
+12-bit integers, in accordance with the datasheet.
+It's also confirmed by vendor BSP (axp20x_adc.c:axp22_icharge_to_mA).
 
-The ad7768-1 driver neglects to call iio_trigger_notify_done() when there
-is an error reading the converter data. Fix this by making sure that
-iio_trigger_notify_done() is included in the error exit path.
+The scale factor of 0.5 is never mentioned in datasheet, nor in the
+vendor source code. I think it was here to compensate for
+erroneous addition bit in register width.
 
-Fixes: a5f8c7da3dbe ("iio: adc: Add AD7768-1 ADC basic support")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211101144055.13858-2-lars@metafoo.de
+Tested on custom A40i+AXP221s board with external ammeter as
+a reference.
+
+Fixes: 0e34d5de961d ("iio: adc: add support for X-Powers AXP20X and AXP22X PMICs ADCs")
+Signed-off-by: Evgeny Boger <boger@wirenboard.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20211116213746.264378-1-boger@wirenboard.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/ad7768-1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/axp20x_adc.c | 18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/iio/adc/ad7768-1.c b/drivers/iio/adc/ad7768-1.c
-index 2c5c8a3672b2..aa42ba759fa1 100644
---- a/drivers/iio/adc/ad7768-1.c
-+++ b/drivers/iio/adc/ad7768-1.c
-@@ -480,8 +480,8 @@ static irqreturn_t ad7768_trigger_handler(int irq, void *p)
- 	iio_push_to_buffers_with_timestamp(indio_dev, &st->data.scan,
- 					   iio_get_time_ns(indio_dev));
+diff --git a/drivers/iio/adc/axp20x_adc.c b/drivers/iio/adc/axp20x_adc.c
+index 3e0c0233b431..df99f1365c39 100644
+--- a/drivers/iio/adc/axp20x_adc.c
++++ b/drivers/iio/adc/axp20x_adc.c
+@@ -251,19 +251,8 @@ static int axp22x_adc_raw(struct iio_dev *indio_dev,
+ 			  struct iio_chan_spec const *chan, int *val)
+ {
+ 	struct axp20x_adc_iio *info = iio_priv(indio_dev);
+-	int size;
  
--	iio_trigger_notify_done(indio_dev->trig);
- err_unlock:
-+	iio_trigger_notify_done(indio_dev->trig);
- 	mutex_unlock(&st->lock);
+-	/*
+-	 * N.B.: Unlike the Chinese datasheets tell, the charging current is
+-	 * stored on 12 bits, not 13 bits. Only discharging current is on 13
+-	 * bits.
+-	 */
+-	if (chan->type == IIO_CURRENT && chan->channel == AXP22X_BATT_DISCHRG_I)
+-		size = 13;
+-	else
+-		size = 12;
+-
+-	*val = axp20x_read_variable_width(info->regmap, chan->address, size);
++	*val = axp20x_read_variable_width(info->regmap, chan->address, 12);
+ 	if (*val < 0)
+ 		return *val;
  
- 	return IRQ_HANDLED;
+@@ -386,9 +375,8 @@ static int axp22x_adc_scale(struct iio_chan_spec const *chan, int *val,
+ 		return IIO_VAL_INT_PLUS_MICRO;
+ 
+ 	case IIO_CURRENT:
+-		*val = 0;
+-		*val2 = 500000;
+-		return IIO_VAL_INT_PLUS_MICRO;
++		*val = 1;
++		return IIO_VAL_INT;
+ 
+ 	case IIO_TEMP:
+ 		*val = 100;
 -- 
 2.34.1
 
