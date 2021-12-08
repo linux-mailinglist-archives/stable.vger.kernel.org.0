@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F396746D3C7
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE3A46D3C9
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233796AbhLHM5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 07:57:46 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49494 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233837AbhLHM5q (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:46 -0500
+        id S233837AbhLHM5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 07:57:54 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:48012 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232176AbhLHM5x (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB6D3B81F79
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B493C00446;
-        Wed,  8 Dec 2021 12:54:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C1A78CE2166
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:54:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F89C00446;
+        Wed,  8 Dec 2021 12:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638968052;
-        bh=+sYDWmv1FzbFCUGkaaCGP6VKEYcon894ah6iIzBwK2M=;
+        s=korg; t=1638968059;
+        bh=7R6lhqCWCxjzxJA/usDAtuzPiPws+55VnN3ddgqHQTs=;
         h=Subject:To:From:Date:From;
-        b=fmg/omWQsWSLBS0JDIZWzDydAe0SGm2s34CB+bdHOgl5TX8wS7Kfb+DwG2rUmrG0f
-         Dr/sqDBDUEg4hmmDbHLRXX98dJtxKGCLSk4zwVWKrA33i5NhAoAO/QYjFLO61DntNA
-         wWpxjo3TK9dwgi78NmZ01jux+W6otWM8R6l3gBB4=
-Subject: patch "iio: dln2-adc: Fix lockdep complaint" added to char-misc-linus
-To:     noralf@tronnes.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, jackoalan@gmail.com
+        b=PkjncjBhj+E7Jil/DNYCdAxTiE91tdkFrVuYuXXWd1dxs/WJVmwsdnDf0t6mk/d/C
+         rq8b6eDcl1omAkpjXlyz+pmxXPBWtjzIqnN9aGhimmvuhM4L1gC0Y/Yd/i2y0coNWZ
+         UrGpv9/uh4Gx4EDOVKksqIGRRFZJtyUXWCugKN68=
+Subject: patch "iio: trigger: Fix reference counting" added to char-misc-linus
+To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, nuno.sa@analog.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 08 Dec 2021 13:53:54 +0100
-Message-ID: <16389680348282@kroah.com>
+Date:   Wed, 08 Dec 2021 13:53:55 +0100
+Message-ID: <1638968035210203@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: dln2-adc: Fix lockdep complaint
+    iio: trigger: Fix reference counting
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -56,96 +56,50 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 59f92868176f191eefde70d284bdfc1ed76a84bc Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Date: Mon, 18 Oct 2021 13:37:31 +0200
-Subject: iio: dln2-adc: Fix lockdep complaint
+From a827a4984664308f13599a0b26c77018176d0c7c Mon Sep 17 00:00:00 2001
+From: Lars-Peter Clausen <lars@metafoo.de>
+Date: Sun, 24 Oct 2021 11:27:00 +0200
+Subject: iio: trigger: Fix reference counting
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-When reading the voltage:
+In viio_trigger_alloc() device_initialize() is used to set the initial
+reference count of the trigger to 1. Then another get_device() is called on
+trigger. This sets the reference count to 2 before the trigger is returned.
 
-$ cat /sys/bus/iio/devices/iio\:device0/in_voltage0_raw
+iio_trigger_free(), which is the matching API to viio_trigger_alloc(),
+calls put_device() which decreases the reference count by 1. But the second
+reference count acquired in viio_trigger_alloc() is never dropped.
 
-Lockdep complains:
+As a result the iio_trigger_release() function is never called and the
+memory associated with the trigger is never freed.
 
-[  153.910616] ======================================================
-[  153.916918] WARNING: possible circular locking dependency detected
-[  153.923221] 5.14.0+ #5 Not tainted
-[  153.926692] ------------------------------------------------------
-[  153.932992] cat/717 is trying to acquire lock:
-[  153.937525] c2585358 (&indio_dev->mlock){+.+.}-{3:3}, at: iio_device_claim_direct_mode+0x28/0x44
-[  153.946541]
-               but task is already holding lock:
-[  153.952487] c2585860 (&dln2->mutex){+.+.}-{3:3}, at: dln2_adc_read_raw+0x94/0x2bc [dln2_adc]
-[  153.961152]
-               which lock already depends on the new lock.
+Since there is no reason for the trigger to start its lifetime with two
+reference counts just remove the extra get_device() in
+viio_trigger_alloc().
 
-Fix this by not calling into the iio core underneath the dln2->mutex lock.
-
-Fixes: 7c0299e879dd ("iio: adc: Add support for DLN2 ADC")
-Cc: Jack Andersen <jackoalan@gmail.com>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Link: https://lore.kernel.org/r/20211018113731.25723-1-noralf@tronnes.org
+Fixes: 5f9c035cae18 ("staging:iio:triggers. Add a reference get to the core for triggers.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20211024092700.6844-2-lars@metafoo.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/dln2-adc.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/iio/industrialio-trigger.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/iio/adc/dln2-adc.c b/drivers/iio/adc/dln2-adc.c
-index 16407664182c..6c67192946aa 100644
---- a/drivers/iio/adc/dln2-adc.c
-+++ b/drivers/iio/adc/dln2-adc.c
-@@ -248,7 +248,6 @@ static int dln2_adc_set_chan_period(struct dln2_adc *dln2,
- static int dln2_adc_read(struct dln2_adc *dln2, unsigned int channel)
- {
- 	int ret, i;
--	struct iio_dev *indio_dev = platform_get_drvdata(dln2->pdev);
- 	u16 conflict;
- 	__le16 value;
- 	int olen = sizeof(value);
-@@ -257,13 +256,9 @@ static int dln2_adc_read(struct dln2_adc *dln2, unsigned int channel)
- 		.chan = channel,
- 	};
+diff --git a/drivers/iio/industrialio-trigger.c b/drivers/iio/industrialio-trigger.c
+index b23caa2f2aa1..93990ff1dfe3 100644
+--- a/drivers/iio/industrialio-trigger.c
++++ b/drivers/iio/industrialio-trigger.c
+@@ -556,7 +556,6 @@ struct iio_trigger *viio_trigger_alloc(struct device *parent,
+ 		irq_modify_status(trig->subirq_base + i,
+ 				  IRQ_NOREQUEST | IRQ_NOAUTOEN, IRQ_NOPROBE);
+ 	}
+-	get_device(&trig->dev);
  
--	ret = iio_device_claim_direct_mode(indio_dev);
--	if (ret < 0)
--		return ret;
--
- 	ret = dln2_adc_set_chan_enabled(dln2, channel, true);
- 	if (ret < 0)
--		goto release_direct;
-+		return ret;
- 
- 	ret = dln2_adc_set_port_enabled(dln2, true, &conflict);
- 	if (ret < 0) {
-@@ -300,8 +295,6 @@ static int dln2_adc_read(struct dln2_adc *dln2, unsigned int channel)
- 	dln2_adc_set_port_enabled(dln2, false, NULL);
- disable_chan:
- 	dln2_adc_set_chan_enabled(dln2, channel, false);
--release_direct:
--	iio_device_release_direct_mode(indio_dev);
- 
- 	return ret;
- }
-@@ -337,10 +330,16 @@ static int dln2_adc_read_raw(struct iio_dev *indio_dev,
- 
- 	switch (mask) {
- 	case IIO_CHAN_INFO_RAW:
-+		ret = iio_device_claim_direct_mode(indio_dev);
-+		if (ret < 0)
-+			return ret;
-+
- 		mutex_lock(&dln2->mutex);
- 		ret = dln2_adc_read(dln2, chan->channel);
- 		mutex_unlock(&dln2->mutex);
- 
-+		iio_device_release_direct_mode(indio_dev);
-+
- 		if (ret < 0)
- 			return ret;
+ 	return trig;
  
 -- 
 2.34.1
