@@ -2,71 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A21446D3DD
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:57:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6756646D3E7
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:58:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233905AbhLHNBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 08:01:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48098 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233900AbhLHNBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 08:01:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED16C061746
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 04:57:49 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C5662CE214F
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 12:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 649D4C00446;
-        Wed,  8 Dec 2021 12:57:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638968266;
-        bh=YHPRMh2uk2L6Q46EC366cfowe+lnQgevaxpyPayvDT4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jgfF2gTrRXMNY17qYCUZ8V9UrPzDxWCMVqdfgpNc/Dvxnp0LDEAsBI0iGRZKAhujv
-         lvUPBXi15iwRUzVGli2uRipOVp/Gnk3VFtr5rAX76AXnZo0I4s0/cgChO/kVrsrxog
-         QSjdthFjoWiUUHANcfJaTl+pqe+sF+WYiKQTEd3I=
-Date:   Wed, 8 Dec 2021 13:57:43 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lyude Paul <lyude@redhat.com>
-Cc:     rodrigo.vivi@intel.com, stable@vger.kernel.org,
-        ville.syrjala@linux.intel.com
-Subject: Re: FAILED: patch "[PATCH] drm/i915: Add support for panels with
- VESA backlights with" failed to apply to 5.15-stable tree
-Message-ID: <YbCrx22nKTboVF/M@kroah.com>
-References: <16387074612176@kroah.com>
- <390babb7a9b7e27a9edbc909a4ea5bf6bf256da3.camel@redhat.com>
+        id S232271AbhLHNC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 08:02:27 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:51473 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232257AbhLHNC0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 08:02:26 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 891655C01F8;
+        Wed,  8 Dec 2021 07:58:54 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Wed, 08 Dec 2021 07:58:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=mvx6K+D9MdBbmewV+L2aWcNX8ry
+        odOnQHP9XwkfdoFg=; b=IaXiJLFzKwLJ+96yvvorLAPcwqkFMU32VIVAwjd2Xla
+        CuyWJC6uxBdIRFV91kn0sPfMmVKGxG6vUWCMXwO7PWsMlh+vCCsk6U5b7s6fLqVw
+        7czCAuJe7yD/a1yk5tPTWuUqiOgD7JBrtkS7XvJ5pxWYKdCkaQeIr6y53RDdeD46
+        /mopYFY3jPAFtmVbM78XIg/5agV52zDDdmC3nx+NoBAhydKb4JyOJL6FMcPPC5k6
+        /QOVriZU/z5Gr7cvvMImWca3prH7uvTV+vkXZI2BXg8U++FhXGSLuLfm3P0XcRSP
+        5GZb3VYmaXu2ElNja1OBzcd/dtH/VcrDzLq8shUDKhg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mvx6K+
+        D9MdBbmewV+L2aWcNX8ryodOnQHP9XwkfdoFg=; b=RLpzVcwGiOnCQzwppZHbSI
+        padvQ+ZkgjBjuOrsKlepSyNiGJL9K2l5OUJ3tJ9ocKkN1evyUOSn8k3DDwUVziEC
+        j0ZngNraoIu1eyiFJ//87MYbHTdy/EZVITmBPRJBs2oV6rucaGHrTNHV9SsRmfWC
+        d4/6ti3GgDZIuEW26PTbKIhVaKX74jCBiYc0Cm6wHYbHgxrD1t+9YpBZcRSjawPM
+        gs2040I22cnG5r2AoemIcW076RhvFJ1Ks11EXzdZp9QWMQs7uf4zEvsZ0bLI6qNq
+        8+nFDUYKw7+Xy2BGBmQHjdX/pFaGkgWYrMVSE/kUjyw5seJFrNLZ/MzSdbTD8WTQ
+        ==
+X-ME-Sender: <xms:DqywYfzuFA73za7ZTjQkP-j4JN2Tl5VJF1TrJ_Ymy5pBeAOW9EtGbg>
+    <xme:DqywYXRF5u2pXUQes0YDvp9-LuRB8R7su9WqO6t72Kcr8Z-VWaMZJsuYpBtRykrJC
+    s9MnHdyPUy9Bw>
+X-ME-Received: <xmr:DqywYZUiwsNIgwHnUx77geEeACzhiedEEwaZaprrWl7N-CmnqlBdqsY69f5mbYYnuLopiiMU_6TCaG_WIPOh2CXeJE-Fjz3i>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrjeekgdeghecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjsehttdertd
+    dttddvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeen
+    ucggtffrrghtthgvrhhnpeevueehjefgfffgiedvudekvdektdelleelgefhleejieeuge
+    egveeuuddukedvteenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
+    fhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:DqywYZgD-iC6OkjJSxCn-6OEPvN_CANkwOPATzI-9ndtjXvZdD-nNw>
+    <xmx:DqywYRDcEQbDiQkjbAvd3JZ12TPix4TUuE3XkYpjOZiCpILxIt8oAg>
+    <xmx:DqywYSKv9-BaWcH4Yvk-66uA-k2tVPmgkY2kYtTtpQlyjZnpdsBeEQ>
+    <xmx:DqywYUNbFlsDNY7RORGhdQCk74SGzvq9L7AYCm9x-ySXf2BfpSQdrA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 8 Dec 2021 07:58:53 -0500 (EST)
+Date:   Wed, 8 Dec 2021 13:58:51 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Dan Vacura <W36195@motorola.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: usb: gadget: uvc: fix multiple opens
+Message-ID: <YbCsC0i4VpQW2YPE@kroah.com>
+References: <PS1PR03MB360765EE2F51F5A44F80EAB0F36E9@PS1PR03MB3607.apcprd03.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <390babb7a9b7e27a9edbc909a4ea5bf6bf256da3.camel@redhat.com>
+In-Reply-To: <PS1PR03MB360765EE2F51F5A44F80EAB0F36E9@PS1PR03MB3607.apcprd03.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 07, 2021 at 06:23:49PM -0500, Lyude Paul wrote:
-> Huh, well this is strange. I'm assuming that you send these emails out as part
-> of an automated script that tries applying patches and fails, but I think
-> something may have gone wrong here as I just tried cherry-picking
-> 04f0d6cc62cc1eaf9242c081520c024a17ba86a3 onto v5.15.6, and it applied without
-> needing any manual conflict resolution. Any idea what might be going on?
+On Tue, Dec 07, 2021 at 10:53:44PM +0000, Dan Vacura wrote:
+> Requesting 72ee48ee8925446eaeda8e4ef3f2eb16b4a93d2a to be cherry-picked to stable 5.10 and 5.15 for use on Android devices
+> with external camera support enabled in conjunction with UVC gadget support.
 
-You mean 61e29a0956bd ("drm/i915: Add support for panels with VESA
-backlights with PWM enable/disable"), right?
-
-Anyway, yes, it fails to build:
-
-  CC [M]  drivers/gpu/drm/i915/display/intel_dp_aux_backlight.o
-drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c: In function ‘intel_dp_aux_vesa_enable_backlight’:
-drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c:302:33: error: implicit declaration of function ‘intel_backlight_invert_pwm_level’; did you mean ‘intel_panel_invert_pwm_level’? [-Werror=implicit-function-declaration]
-  302 |                 u32 pwm_level = intel_backlight_invert_pwm_level(connector,
-      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                 intel_panel_invert_pwm_level
-cc1: all warnings being treated as errors
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
