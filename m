@@ -2,166 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B939A46D92A
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 18:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE0246D941
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 18:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237511AbhLHRG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 12:06:59 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:39700 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229713AbhLHRG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 12:06:56 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 240B31FD26;
-        Wed,  8 Dec 2021 17:03:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1638983003; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=s4gf+GnBTZj35lejPEzW+m7/Sfx1dKT/0lrMZKP5eE4=;
-        b=NXQl1lHMNCTYbYqIlsYcw1pvNAEHX4MnStYqOC567FSTozMGZZ1yNgUDWlHbmYhEhS7Y1d
-        JMfrybbx/9rgom2Eojr1UDDFUHQhZLrMBYYej9N1NEP4bYiTLBck/HIv3AY+op21tU2EVV
-        8hq9q9XNZtqRqeCyL4D8Ntkk1S9A8Q0=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 8BCA7A3B93;
-        Wed,  8 Dec 2021 17:03:22 +0000 (UTC)
-Date:   Wed, 8 Dec 2021 18:03:22 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Andrey Ryabinin <arbn@yandex-team.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, yc-core@yandex-team.ru,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        David Rientjes <rientjes@google.com>
-Subject: Re: [PATCH] mm: mempolicy: fix THP allocations escaping mempolicy
- restrictions
-Message-ID: <YbDlWiW5P7tlqlZj@dhcp22.suse.cz>
-References: <20211208165343.22349-1-arbn@yandex-team.com>
+        id S237563AbhLHRMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 12:12:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51056 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234495AbhLHRMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 12:12:42 -0500
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83363C0617A1
+        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 09:09:10 -0800 (PST)
+Received: by mail-oi1-x22c.google.com with SMTP id bk14so4944853oib.7
+        for <stable@vger.kernel.org>; Wed, 08 Dec 2021 09:09:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=OgfPDgaMPhAITwurbC63osk1dbgUc7Avx44mgX2iC1Y=;
+        b=G8wQ679+1Nd+LPVjc1WsLSOxpyOC1ILDo0rLgpcgwbqc8cFAcnW2KPV8oH5SYQq8CA
+         02LhNbVauMTmzaqy1/9CqG7X8VTyHKDhGCvIHM9ZG5KI6y22wrp3hHIps1MNzg5Gahxe
+         J4d9UE6tJGhqP5AjBS2OBNIeyz9n4Qbbl8TupG8Kj3LGKJGvGWoKYeT6tyFQULlv9xdw
+         MiLpAn6WaxjF+DQLd71J2xqXDZDGwJDowtjRDNeWZMiwrr+goKeXypaYJRyPbCOj6zfo
+         iAMaIqO534zTSq1gqTNXrzITogm/C8nXwkTuIBnJV6pEnWkWL/NbchrfKRnD7IMEYJDC
+         iX9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=OgfPDgaMPhAITwurbC63osk1dbgUc7Avx44mgX2iC1Y=;
+        b=VR7Sv24ssLxAWWFwcs1v+WLJfJVGfq9jCWFtGjdzF6GP28zkphlRLGm/VYr80/yrfH
+         nPHMqW4S5djpZVCi5kJeGMAVjpkoMsWmwvxunbGnHofUUdi6iPSQVUL0z0GPBXoU6JD5
+         WV/Kfd04mYj/rZgsWhL8Jzr/VVA0oTYHXcTXewtiaCgV14CVT2ErZ21mz1br6s6HY1pn
+         idn9Bwpe3AW2gOi/jKip321b6G3UmX4PpN0WKD8h26PQVYMmRQnWOg1vEKOVcrRFsu5I
+         oQHtVyJRsjdRvFc3m91QcE7sJlkn23f+o2R5u4K5/aByDENxt35C7D65KhWdpsY2KF8f
+         ZfCw==
+X-Gm-Message-State: AOAM5334wrXFKKEH1i1EdbW15tIBiA/oLSvGmnYPXhGtkQ+hGBcs31oO
+        DO9rQfI7+AiM/bXPD04A6HGxw2zhiVV3g/x07rw=
+X-Google-Smtp-Source: ABdhPJyO7vyZwkbemiPp97kMyZ9tSvDeFC7sTeCDBNA1hj6Vu+ZzUtPeUPSXO8l8lAHxYqkjWbqLwxSFqgJkqm52Z9M=
+X-Received: by 2002:a05:6808:1a83:: with SMTP id bm3mr599954oib.173.1638983349790;
+ Wed, 08 Dec 2021 09:09:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211208165343.22349-1-arbn@yandex-team.com>
+Received: by 2002:a05:6830:90f:0:0:0:0 with HTTP; Wed, 8 Dec 2021 09:09:09
+ -0800 (PST)
+Reply-To: msbelinaya892@gmail.com
+From:   msbelinaya <michealraymond797@gmail.com>
+Date:   Wed, 8 Dec 2021 17:09:09 +0000
+Message-ID: <CANz3t=gZ8KucegttnNmDOFonTCBqPocxdSYuU8a8z8e8u5U0RQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 08-12-21 19:53:43, Andrey Ryabinin wrote:
-> alloc_pages_vma() may try to allocate THP page on the local
-> NUMA node first:
-> 	page = __alloc_pages_node(hpage_node,
-> 		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
-> 
-> And if the allocation fails it retries allowing remote memory:
-> 
-> 	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
->     		page = __alloc_pages_node(hpage_node,
-> 					gfp, order);
-> 
-> However, this retry allocation completely ignores memory policy
-> nodemask allowing allocation to escape restrictions.
-> 
-> The first appearance of this bug seems to be the commit ac5b2c18911f
->  ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
-> The bug disappeared later in the commit 89c83fb539f9
->  ("mm, thp: consolidate THP gfp handling into alloc_hugepage_direct_gfpmask")
-> and reappeared again in slightly different form in the commit 76e654cc91bb
->  ("mm, page_alloc: allow hugepage fallback to remote nodes when madvised")
-> 
-> Fix this by passing correct nodemask to the __alloc_pages() call.
-> 
-> The demonstration/reproducer of the problem:
->  $ mount -oremount,size=4G,huge=always /dev/shm/
->  $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
->  $ cat mbind_thp.c
->  #include <unistd.h>
->  #include <sys/mman.h>
->  #include <sys/stat.h>
->  #include <fcntl.h>
->  #include <assert.h>
->  #include <stdlib.h>
->  #include <stdio.h>
->  #include <numaif.h>
-> 
->  #define SIZE 2ULL << 30
->  int main(int argc, char **argv)
->  {
->    int fd;
->    unsigned long long i;
->    char *addr;
->    pid_t pid;
->    char buf[100];
->    unsigned long nodemask = 1;
-> 
->    fd = open("/dev/shm/test", O_RDWR|O_CREAT);
->    assert(fd > 0);
->    assert(ftruncate(fd, SIZE) == 0);
-> 
->    addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
->                         MAP_SHARED, fd, 0);
-> 
->    assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
->    for (i = 0; i < SIZE; i+=4096) {
->      addr[i] = 1;
->    }
->    pid = getpid();
->    snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
->    system(buf);
->    sleep(10000);
-> 
->    return 0;
->  }
->  $ gcc mbind_thp.c -o mbind_thp -lnuma
->  $ numactl -H
->  available: 2 nodes (0-1)
->  node 0 cpus: 0 2
->  node 0 size: 1918 MB
->  node 0 free: 1595 MB
->  node 1 cpus: 1 3
->  node 1 size: 2014 MB
->  node 1 free: 1731 MB
->  node distances:
->  node   0   1
->    0:  10  20
->    1:  20  10
->  $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
->  7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
-> 
-> Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
-> Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
-> Cc: <stable@vger.kernel.org>
-> Cc: Andrea Arcangeli <aarcange@redhat.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Cc: David Rientjes <rientjes@google.com>
+Ich biete meine Freundschaft an und glaube, dass Sie mich mit gutem
+Herzen annehmen werden. Ich wurde gedr=C3=A4ngt, Sie zu kontaktieren und zu
+sehen, wie wir uns am besten unterst=C3=BCtzen k=C3=B6nnen. Ich bin Frau Ko=
+djovi
+Hegbor aus der T=C3=BCrkei und ich arbeite als Operations Division Manager
+bei der StandardBNP Bank Limited T=C3=BCrkei. Ich glaube, es ist Gottes
+Wille, dass ich Ihnen jetzt begegnen werde. Ich habe ein wichtiges
+gesch=C3=A4ftliches Gespr=C3=A4ch, das ich mit Ihnen teilen m=C3=B6chte, vo=
+n dem ich
+glaube, dass es Sie interessiert, da es mit Ihrem Nachnamen
+zusammenh=C3=A4ngt und Sie davon profitieren wird.
 
-Looks good to me.
-Acked-by: Michal Hocko <mhocko@suse.com>
+ Im Jahr 2006 er=C3=B6ffnete ein B=C3=BCrger Ihres Landes bei meiner Bank e=
+in
+36-monatiges Nicht-Residentenkonto im Wert von =C2=A3 8.400.000,00. Das
+Ablaufdatum f=C3=BCr diese Hinterlegungsvereinbarung war der 16. Januar
+2009. Leider starb er bei einem t=C3=B6dlichen Erdbeben am 12. Mai 2008 in
+Sichuan, China, bei dem auf einer Gesch=C3=A4ftsreise mindestens 68.000
+Menschen ums Leben kamen.
 
-Thanks!
+Die Gesch=C3=A4ftsleitung meiner Bank hat noch nichts von seinem Tod
+geh=C3=B6rt, ich wusste davon, weil er mein Freund war und ich sein
+Kontoverwalter war, als das Konto vor meiner Bef=C3=B6rderung er=C3=B6ffnet
+wurde. Aber Sir
+ hat bei der Kontoer=C3=B6ffnung die n=C3=A4chsten Angeh=C3=B6rigen / Erben=
+ nicht
+erw=C3=A4hnt und er war nicht verheiratet oder hatte keine Kinder. Letzte
+Woche bat mich meine Bankdirektion, Anweisungen zu geben, was mit
+seinem Geld zu tun sei, wenn der Vertrag verl=C3=A4ngert werden sollte.
 
-> ---
->  mm/mempolicy.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-> index 10e9c87260ed..f6248affaf38 100644
-> --- a/mm/mempolicy.c
-> +++ b/mm/mempolicy.c
-> @@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
->  			 * memory with both reclaim and compact as well.
->  			 */
->  			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
-> -				page = __alloc_pages_node(hpage_node,
-> -								gfp, order);
-> +				page = __alloc_pages(gfp, order, hpage_node, nmask);
->  
->  			goto out;
->  		}
-> -- 
-> 2.32.0
+Ich wei=C3=9F, dass dies passieren wird, und deshalb habe ich nach einem
+Mittel gesucht, mit der Situation umzugehen, denn wenn meine
+Bankdirektoren wissen, dass sie tot sind und keinen Erben haben,
+nehmen sie das Geld f=C3=BCr ihren pers=C3=B6nlichen Gebrauch, also tue ich=
+ es
+nicht Ich m=C3=B6chte nicht, dass so etwas passiert. Da habe ich deinen
+Nachnamen gesehen, habe mich gefreut und suche nun deine Mitarbeit, um
+dich als n=C3=A4chster Angeh=C3=B6riger / Erbe des Kontos zu pr=C3=A4sentie=
+ren, da du
+den gleichen Nachnamen wie er hast und meine Bankzentrale das Konto
+freigeben wird f=C3=BCr dich. Es besteht kein Risiko; die Transaktion wird
+im Rahmen einer legitimen Vereinbarung durchgef=C3=BChrt, die Sie vor
+Rechtsverletzungen sch=C3=BCtzt.
 
--- 
-Michal Hocko
-SUSE Labs
+Es ist besser f=C3=BCr uns, das Geld zu beanspruchen, als es den
+Bankdirektoren zu =C3=BCberlassen, sie sind bereits reich. Ich bin kein
+gieriger Mensch, also schlage ich vor, dass wir das Geld gleichm=C3=A4=C3=
+=9Fig
+aufteilen, 50/50% auf beide Parteien. Mein Anteil wird mir helfen,
+mein eigenes Unternehmen zu gr=C3=BCnden und den Erl=C3=B6s f=C3=BCr wohlt=
+=C3=A4tige
+Zwecke zu verwenden, was mein Traum war.
+
+Bitte teilen Sie mir Ihre Meinung zu meinem Vorschlag mit, ich brauche
+wirklich Ihre Hilfe bei dieser Transaktion. Ich habe dich auserw=C3=A4hlt,
+mir zu helfen, nicht aus eigener Kraft, mein Lieber, sondern bei Gott,
+ich wollte, dass du wei=C3=9Ft, dass ich mir die Zeit genommen habe, f=C3=
+=BCr
+diese Nachricht zu beten, bevor ich dich jemals kontaktiert habe, um
+deine Meinung mitzuteilen und bitte zu behandeln diese Informationen
+als STRENG GEHEIM. Nach Erhalt Ihrer Antwort ausschlie=C3=9Flich =C3=BCber =
+meine
+pers=C3=B6nliche E-Mail-Adresse msbelinaya892@gmail.com
+gibt Ihnen Details zur Transaktion. Und eine Kopie der
+Einlagenbescheinigung des Fonds und der Gr=C3=BCndungsurkunde der
+Gesellschaft, die den Fonds gegr=C3=BCndet hat.
+Gott segne in Erwartung Ihrer dringenden Antwort
+Mit freundlichen Gr=C3=BC=C3=9Fen
+Frau. Kodjovi Hegbor
+msbelinaya892@gmail.com
