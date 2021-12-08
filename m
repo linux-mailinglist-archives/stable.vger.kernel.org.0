@@ -2,206 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0731446D6F1
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 16:25:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4186B46D800
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 17:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233560AbhLHP3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 10:29:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54970 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbhLHP27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 10:28:59 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4D3C061746
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 07:25:27 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id w33-20020a17090a6ba400b001a722a06212so4248279pjj.0
-        for <stable@vger.kernel.org>; Wed, 08 Dec 2021 07:25:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2adysnTQAnFJVMPvzmSrwtU/zLThJnby329HGLDBhcs=;
-        b=ntu1mr2shA/gnV6JmQNRyqZ/7IEF7+YexE9k0ulm+VKTfXHI9rHY8CZi/9WkB7ofpT
-         SSJUsP6JbaoxXhjeQ41CGxtw5Rm9s4M6I1eqVcXdtqXVeNvbQgr1rF9X7KAFAXgQ8QGM
-         oIE+WeUOPGvsdjZ5LivgoM6HsB2kZZJcVex9W1f7zBbS0oUt7ZWOmfp+JjsA/uJF+ndU
-         2zYp1mViZmSUoL4kC6vuBAlYeiLoNPkNVg7QDkKrxbUK9fYFZp9rNJBNuNmsxbnLjD3l
-         iPzPhwtrribJpIhZ8YMjr642G+PKCFWT7O7dMQpH74brdooSu00nwhJ5hSB6YlS6evV9
-         lWhQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2adysnTQAnFJVMPvzmSrwtU/zLThJnby329HGLDBhcs=;
-        b=O3TEcmRnDt/N2eS1hCDKZqjhKLwdVoo+FuLq5ntq7m1Z4+r+6e/cO+ou/iIG3a2r7e
-         bYEPzbZTY+5/Sa5NRq/5aFj8ihA+YWzkhYpRT2kMA93rlmRq1KJRLYqweM6Z+2kOMaOA
-         eiVZ1Q+iwjkAUXhCXH6CWBd6YioFFaLVhmdpZcn8gfm3YVieJRlLH2uCq2jxcF6QjMle
-         6xZ9agRNGCI3C9jS8R4vCL5sLuWPD1U6DuUHbBwxYPeA+IHJ51r97g+obnVTK3Nr0Vgm
-         N/mVmZNbAV8LnJP1nF5bD2Cm+9NfdzZcQ53ZPsUygE8Kxz5YXNGngjbajr3e2Am487lN
-         wYGw==
-X-Gm-Message-State: AOAM531BSCzV6tTgrqaZYWA0NeLkYAosDtG3YbcOK3XZtw9s7Npv1bd4
-        cyGVz9+1nBxHisZP22NKKY5CPMGvpw4AteUM
-X-Google-Smtp-Source: ABdhPJyCf2FWQtHtNiP6bxu+v3q2imudZ3vwWko/Znph6MpoYtS4kyuk+g4XshCXd0qBxYzDZijlyA==
-X-Received: by 2002:a17:90a:c403:: with SMTP id i3mr8286592pjt.203.1638977126790;
-        Wed, 08 Dec 2021 07:25:26 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p17sm4299166pfh.86.2021.12.08.07.25.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Dec 2021 07:25:26 -0800 (PST)
-Message-ID: <61b0ce66.1c69fb81.6d4eb.ba09@mx.google.com>
-Date:   Wed, 08 Dec 2021 07:25:26 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S236771AbhLHQZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 11:25:11 -0500
+Received: from mail-dm3nam07on2060.outbound.protection.outlook.com ([40.107.95.60]:12769
+        "EHLO NAM02-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S236757AbhLHQZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Dec 2021 11:25:10 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nWQW6ShbmrIMvo1NiVpPt31x0zm4taoEGApfWzGC9BsAvPZfqSnPf97BNyxq93hTAz84O/rZKLqnh4eNN8CDlQfXNu1/U9Ym6vGdYkZRXFOqGVuRxMfrWExSVRrGrzIAb5N7FA1GFxFU1/q3ynh+XKRWr2KfP4rLb6pkrUwWpiDEwGjZC1H5ZlGItoEwtoPFNuCpfZm7ubIUgmLoXSm6lo+LHV9fKk/5DUKyn9zdL2ihz9+BK5slUxeNKgDA0UK2h+1BN4eaPoT9f3av3Gz2QsBwkAVLz+W9yLM4tcXhA5q+z5SlaT/P8m4AILhXaoZcKiRb8+rDLFge6MWEKMpLmg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=w2wJQmVPpVyriPk1g6wCawujYTRlFG4aesQ4lXSTKa8=;
+ b=igAXV6kpTbq+bCCuqASVWhGd9WhJvEP1ZFagUcpqZXrlklGyzxpD+K/V3BEAJbRlakgJu6E1nNKDNQMX/Igx5ys5hB/fMaTJ9NecsOCEfBUzUu57c3lXvlBO2y2tATqGcq6CU/zqXAOfVu3Bn76hGcA3FGs84W7+qQENOWxNwYOT88hfJGsLG0UbODJCHZFlSg5YJQuFlTNVTvqCK6NL7HSmZNGj5UrH+jCYB29D2fR9I6QkUzhc3+0w2Tzqf5R97fv6+0qj2LcvuYb6aYRShcwLefj+llj5cvLgnOdQoBdicUbdY5Huow/AfYLfbR9m7eU/kD4ljEX9rn7cUi8jEg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=w2wJQmVPpVyriPk1g6wCawujYTRlFG4aesQ4lXSTKa8=;
+ b=r9nj2Hqj6dUb4+uMHePO4zwh3eoMLHdemz9jZiu9sgue//16V1VMZ52p7POEY/SFc1BvFkDdb2GqsplKBtpfAqC6bUHEHg7/9HcB6ZweTcbklEykaWe7L01KYDvlhQQC7xt4U8JZXVurQ+Ags5XpTsLH0ru1KOQk6dhB2t3wY/A=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
+ (2603:10b6:301:5a::14) by MWHPR1201MB0238.namprd12.prod.outlook.com
+ (2603:10b6:301:57::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.21; Wed, 8 Dec
+ 2021 16:21:37 +0000
+Received: from MWHPR1201MB0192.namprd12.prod.outlook.com
+ ([fe80::d16c:a6d5:5d2e:f9d4]) by MWHPR1201MB0192.namprd12.prod.outlook.com
+ ([fe80::d16c:a6d5:5d2e:f9d4%12]) with mapi id 15.20.4755.024; Wed, 8 Dec 2021
+ 16:21:37 +0000
+Subject: Re: [PATCH v2] drm/syncobj: Deal with signalled fences in
+ drm_syncobj_find_fence.
+To:     Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        dri-devel@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20211208023935.17018-1-bas@basnieuwenhuizen.nl>
+ <2e0269eb-d007-4577-d760-343ccfb05c9a@amd.com>
+ <ca5724e4-85a7-11a7-51fa-1152e0cf403f@intel.com>
+From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Message-ID: <56b31ce3-5742-0c16-2649-58526f7ad037@amd.com>
+Date:   Wed, 8 Dec 2021 17:21:31 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+In-Reply-To: <ca5724e4-85a7-11a7-51fa-1152e0cf403f@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-ClientProxiedBy: AS9PR06CA0124.eurprd06.prod.outlook.com
+ (2603:10a6:20b:467::33) To MWHPR1201MB0192.namprd12.prod.outlook.com
+ (2603:10b6:301:5a::14)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.294
-Subject: stable/linux-4.4.y baseline: 133 runs, 3 regressions (v4.4.294)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: from [IPv6:2a02:908:1252:fb60:23fe:5a01:cda7:6599] (2a02:908:1252:fb60:23fe:5a01:cda7:6599) by AS9PR06CA0124.eurprd06.prod.outlook.com (2603:10a6:20b:467::33) with Microsoft SMTP Server (version=TLS1_2, cipher=) via Frontend Transport; Wed, 8 Dec 2021 16:21:35 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 4e4f60db-3027-4495-6043-08d9ba66cebb
+X-MS-TrafficTypeDiagnostic: MWHPR1201MB0238:EE_
+X-Microsoft-Antispam-PRVS: <MWHPR1201MB02380CA3F214793BBEABA9A3836F9@MWHPR1201MB0238.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: tme6g+quvY/Ek1AtW/lpVQs3PfWQiWTec6gs4XyjqkfG0SLC5ITOFyk2BPurpRrebYe5tLN+Ui+Kp0WUIkO2JzsLBrJn4zc3JoDPyXhOQFnzQwn8MK3thwnlN2SiHdX+Gu0DKXHf+56oIVP5igEHDJWONei4g4J/IGwtVXbj29yBjIti+c/7KqSZp+oH2dRPYGxGzeLaZt5rsjZznVPr44h5KoMisCTEvYR7YnlsBsPUkw/X0OzXso2hPUnJTNAMwYtzlDM2zPWn44WQESN9kETKs08NL8bBvQo54j/QfU+IdZ10Qo3TMCKVXXcsRLBzwUSnli/wMTfbefyaV28rC02r33qbM7y+mnsFNdecM7thi1lUMusG9Lk0UQAfAy18aaybiSSkXwLwRW0pWeln6Obo1KhfAkLRMzMuu9NK/F1KOwTGhSd72dh0fpoCX1sNo+xaTdO3L5FygopRzftCo3fXGYkCCESpFABu2aoqzxVJn2RbKXFwR0+gS8u+4eRfE+jcSTOrA3n/N4planGwHxK4+bGFXDjEBgeWuW8WML3gH+Dcbu63LXYWl2ZmiJH9UZWdqzetPjcF2bV+GC+iqIYCGqdsJv3RYGWyyTsu/Ie++/3zPOG2BCK1SpqM/peEproHDU8mz+hF8Ccz2U3l6RgeZtxr+5k/hIwvN9HwipQPbyn+FkLfEGWk8xHMdqkcfUawTHwDU1iCYrjGsMqS8bfGa8H1hwrIvuZb/qaxvsYMeY1R/1oQ4hbRd7T0TDTR
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1201MB0192.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2906002)(110136005)(38100700002)(186003)(66574015)(31696002)(83380400001)(6486002)(66476007)(6666004)(66556008)(4326008)(8676002)(8936002)(31686004)(5660300002)(66946007)(53546011)(508600001)(316002)(2616005)(36756003)(86362001)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VUVPZ2ZyS1IxQXMzejJiR3pZSUtSTmxwYWNidDJNUTZDenp1YUxlVHM0Zy91?=
+ =?utf-8?B?c1pITkk4Nmwwa1hwdnc4LzA2cThPNDlGWkJpOVhhclJnRXc4NFVmTVQyemFr?=
+ =?utf-8?B?dTlSWUtDUmkxL3M1dERIUFJ6UGNBZlVFS3pCR0J6cGhBeE9Bd0lMeXY3NHFa?=
+ =?utf-8?B?OUVIN3ArSm5oUnFkWEl6SXRYYVBsZkN4djBYMFNDVCsrZmJrU2FTYTIxeEZQ?=
+ =?utf-8?B?SVRMejlxUHRTLzVvMVNPZTNVN1VYVHlYVThiS3N3SzhxcUxJOU8rbmtRdXVR?=
+ =?utf-8?B?L21YTVFaVDlNWkhlaklKcjBHeVRQc09hbThLc1B2dThiNzdCRGxGRE05Ry90?=
+ =?utf-8?B?SmpzNDJZckpZeTBFN1BoNDFrRFRjQUY1Q1ZMZitGcjBqV25UY0Eyd2RoMktm?=
+ =?utf-8?B?N3ZxVXJOaDF6TnlqMjR1ODJBdXlPRk5yWURTRVc1MnhqZkh0UTVGRXFjdVRh?=
+ =?utf-8?B?ekd6aE1pbHcwY2ZJK1daRVdFV2hSdmJnNDZ1Qm5TZ1FMQzFvd3BMV042U2tR?=
+ =?utf-8?B?LzFmTnprYU1QQjBmZXpIZnBXMkoyVWg4ckMxTzlaUGozRGNJQkYzNlpYWlFR?=
+ =?utf-8?B?RVZudFc4Rzk1UlBZeGVWY2pucllXNUg2d1lrQUxvcEpLWTZiUTBseFZoZEtK?=
+ =?utf-8?B?eG0xTWxDSmtTRmdUa3lYSUJLOVlRbGVMc1lTZ3h0SEZ3MVlSdUxza29SWmh6?=
+ =?utf-8?B?SGVJSUZtYzI2ZytQVUUrNVBMcFVibHIxZmRDeXVEK0VTVlkvdFM1Z3BqRmJ1?=
+ =?utf-8?B?a1loUUJtdHBpaGQzVHo1RURhUjRwZGhoYVphTXlxb1UrUnlVQ3JOZnBtT2hN?=
+ =?utf-8?B?K3NXWUYrSmJBbTJ2UVpsYjVtYzlOeDFzS2I5dTFKTW1VaUlGK2JrZlJkbHRm?=
+ =?utf-8?B?YzZOL2RwRWxPRitnSzM4czZLRmt6NytsUEpISk5oVUZjQmxvejBjWVhtY0JW?=
+ =?utf-8?B?VEFIYndUSE53S1lybTJPRlFZOWYva2J6UVBtTFRXdEUyYThRRjEzaDFaSExi?=
+ =?utf-8?B?ekxlS0QxWW94MmlncnVCdUFEUnVnNW92TjJ6aHVRb25zdTZpalZwQ3kzM0ZK?=
+ =?utf-8?B?WUkrcVBnWWFVWnRMeWRSL1ovTy9ESExadTBRczdmeGUrck1ienFiei9pRzZn?=
+ =?utf-8?B?bnpvUGdjaktJMlB0NTh2MWxCUzNoQTdBMnd1elAra1Yrb25kVVNnaDdEK28r?=
+ =?utf-8?B?NndOMXE4VWNWWVgwZCs1cGVPQ3ovNFh3R0thZHdnV1loWnZUWmtLOVhIemxG?=
+ =?utf-8?B?OWJyRXYwREQ1bXJzb1FwRjc1UGJDN2hIQXpGRmU0azhuZ01GV0E4aVdrKzdP?=
+ =?utf-8?B?Z2ZIRnQ2YXVRWTJtNVErTkg0dlpwLzZUck1WK1gxWk4zSUVMUHR2RVBaSE5t?=
+ =?utf-8?B?aHBWYjczMGhHNkVYcElvay9uR3ErMHN6NGlNN3NIQ21mTnhwaTNjdTIvd3hr?=
+ =?utf-8?B?NThIMzdoNFFOaDgxY3VybTN5eE5XZC9pcFpHZlN6MFBSbGxmeUxQcnlCUm1i?=
+ =?utf-8?B?ZkNSS3dRblpUaUczVGRCbXF2VmJSSHlaZzM5aWVtd3FpdWxVaFBFQzhCRWM5?=
+ =?utf-8?B?NjVNYmxrMVNTWUxJMm1XVTJvYVRFTlZqN1Nnb2dESEJQUTNpdjFBVjJuNGE4?=
+ =?utf-8?B?MUlBY3FXZGo4VFRGMWg3L3lOUVhHbm1rU09JNWNDb09pVlFFVjdjREVwYWZh?=
+ =?utf-8?B?RUlUYlY2TnNlNDAwS2kxblpjK3ZhTlNjSDRoZWx0a25iTWNvY3hzZEJCdUQv?=
+ =?utf-8?B?UFhseHplSGJqOU1LTndnUTl3MVpJeDhCS2hENEp4OVRNa0tDMVhTazA4cDZr?=
+ =?utf-8?B?SWlad2hiUnlrWXlGeU1OdzdIa1RBeWptTDF6Y1RQTFJpS09pdEpEWEk0bk9n?=
+ =?utf-8?B?enZRNDFtanlHaEpDeHFZMFJCQUpVL1VEY1JQSkhuTDNoSWV3V0dEZ0J3Q3Bo?=
+ =?utf-8?B?WE9DUDFPMTZaQVFydDU4c0s1c0s4YVFaUjA1a2tDZU1ZVktPd1Jydnc0bmdk?=
+ =?utf-8?B?eit2NGs4ckZnamVmWnBObmJ5aUlIOGhPZGtPMHE5RHZueUlXNlYvWVJJT0Vm?=
+ =?utf-8?B?dnpuSGRZMWxYN1RaMFQzR2lMa0hSQlpablo0SzVZWG41bE84anYyRktyb0NV?=
+ =?utf-8?B?ZWVBMW03TFZyNC9zWWxoZTRMVUpPWWhRQmVVMzFGWnNVMTk0c2NsS2dDdWo5?=
+ =?utf-8?Q?15VZAnJCoXY4kjOu1bKWvhc=3D?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4e4f60db-3027-4495-6043-08d9ba66cebb
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1201MB0192.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2021 16:21:36.9621
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: iCOAhx5Blqx3DN6xwkC7tcAHuZcRaQDkT8gmWgzbqnfq+4ODViXtAWw3EK4fD1T8
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR1201MB0238
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y baseline: 133 runs, 3 regressions (v4.4.294)
-
-Regressions Summary
--------------------
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 2      =
-    =
-
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
 
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.4.y/kernel/=
-v4.4.294/plan/baseline/
+Am 08.12.21 um 11:08 schrieb Lionel Landwerlin:
+> On 08/12/2021 11:28, Christian König wrote:
+>> Am 08.12.21 um 03:39 schrieb Bas Nieuwenhuizen:
+>>> dma_fence_chain_find_seqno only ever returns the top fence in the
+>>> chain or an unsignalled fence. Hence if we request a seqno that
+>>> is already signalled it returns a NULL fence. Some callers are
+>>> not prepared to handle this, like the syncobj transfer functions
+>>> for example.
+>>>
+>>> This behavior is "new" with timeline syncobj and it looks like
+>>> not all callers were updated. To fix this behavior make sure
+>>> that a successful drm_sync_find_fence always returns a non-NULL
+>>> fence.
+>>>
+>>> v2: Move the fix to drm_syncobj_find_fence from the transfer
+>>>      functions.
+>>>
+>>> Fixes: ea569910cbab ("drm/syncobj: add transition iotcls between 
+>>> binary and timeline v2")
+>>> Cc: stable@vger.kernel.org
+>>> Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+>>
+>> Reviewed-by: Christian König <christian.koenig@amd.com>
+>
+>
+> Thanks!
+>
+>
+> Acked-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.4.y
-  Describe: v4.4.294
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      90b74a039f807b3ff911d886afe2645c4522542d =
+And pushed to drm-misc-fixes.
 
+Thanks,
+Christian.
 
+>
+>
+>>
+>>> ---
+>>>   drivers/gpu/drm/drm_syncobj.c | 11 ++++++++++-
+>>>   1 file changed, 10 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/drm_syncobj.c 
+>>> b/drivers/gpu/drm/drm_syncobj.c
+>>> index fdd2ec87cdd1..11be91b5709b 100644
+>>> --- a/drivers/gpu/drm/drm_syncobj.c
+>>> +++ b/drivers/gpu/drm/drm_syncobj.c
+>>> @@ -404,8 +404,17 @@ int drm_syncobj_find_fence(struct drm_file 
+>>> *file_private,
+>>>         if (*fence) {
+>>>           ret = dma_fence_chain_find_seqno(fence, point);
+>>> -        if (!ret)
+>>> +        if (!ret) {
+>>> +            /* If the requested seqno is already signaled
+>>> +             * drm_syncobj_find_fence may return a NULL
+>>> +             * fence. To make sure the recipient gets
+>>> +             * signalled, use a new fence instead.
+>>> +             */
+>>> +            if (!*fence)
+>>> +                *fence = dma_fence_get_stub();
+>>> +
+>>>               goto out;
+>>> +        }
+>>>           dma_fence_put(*fence);
+>>>       } else {
+>>>           ret = -EINVAL;
+>>
+>
 
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 2      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b09daf3e487f4f5f1a949f
-
-  Results:     3 PASS, 2 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.4.y/v4.4.294/ar=
-m/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.4.y/v4.4.294/ar=
-m/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/61b09daf3e487f4f=
-5f1a94a2
-        new failure (last pass: v4.4.293)
-        1 lines
-
-    2021-12-08T11:57:16.846850  / # =
-
-    2021-12-08T11:57:16.847579  #
-    2021-12-08T11:57:16.950863  / # #
-    2021-12-08T11:57:16.951381  =
-
-    2021-12-08T11:57:17.052564  / # #export SHELL=3D/bin/sh
-    2021-12-08T11:57:17.053006  =
-
-    2021-12-08T11:57:17.154151  / # export SHELL=3D/bin/sh. /lava-1209009/e=
-nvironment
-    2021-12-08T11:57:17.154646  =
-
-    2021-12-08T11:57:17.255754  / # . /lava-1209009/environment/lava-120900=
-9/bin/lava-test-runner /lava-1209009/0
-    2021-12-08T11:57:17.256870   =
-
-    ... (10 line(s) more)  =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b09daf3e487f4=
-f5f1a94a4
-        new failure (last pass: v4.4.293)
-        29 lines
-
-    2021-12-08T11:57:17.720049  [   49.380767] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-08T11:57:17.772133  kern  :emerg : Internal error: Oops - BUG: =
-0 [#1] SMP ARM
-    2021-12-08T11:57:17.778002  kern  :emerg : Process udevd (pid: 105, sta=
-ck limit =3D 0xcb8f0218)
-    2021-12-08T11:57:17.782427  kern  :emerg : Stack: (0xcb8f1cf8 to 0xcb8f=
-2000)
-    2021-12-08T11:57:17.790500  kern  :emerg : 1ce0:                       =
-                                bf02bdc4 60000013
-    2021-12-08T11:57:17.803512  kern  :emerg : 1d00: bf02bdc8 c06a38e4 0000=
-0001 00[   49.460906] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Df=
-ail UNITS=3Dlines MEASUREMENT=3D29>   =
-
- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b09d993e487f4f5f1a9483
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.4.y/v4.4.294/ar=
-m/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.4.y/v4.4.294/ar=
-m/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b09d993e487f4=
-f5f1a9486
-        failing since 11 days (last pass: v4.4.292, first fail: v4.4.293)
-        2 lines
-
-    2021-12-08T11:56:53.873538  [   18.997406] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-08T11:56:53.921225  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/117
-    2021-12-08T11:56:53.930974  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
