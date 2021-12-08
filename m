@@ -2,198 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E655E46CF8F
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 09:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D75646CF94
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 09:57:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229979AbhLHJBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 04:01:01 -0500
-Received: from mail-mw2nam12on2066.outbound.protection.outlook.com ([40.107.244.66]:51675
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229933AbhLHJBB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Dec 2021 04:01:01 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ekWys6zjm6nyyNa9/ZhaPl4waw92sj6Kz2zNyHLFgSJhydPwjRnaOwCYRpmFa8lKfxOP4PUWTqjQ4X/XU7yxfUK1KHfDocX6TSvHE3z4oxOZ0bkFsf3bL7z3rwl48ycZsi1bVtp7yftCilYEkm85gcoNOR2NwNUvEWyjceUJESjMH9uLIdYPscliC9+Ecounqul/hQcmRJZijeHBZ1boCrwWgsXxZFlD4y7ShdhmbDZLHfwKJzxWE4Z/83/NBP5Wpp85WQ3zPh0tKx8MPTMWH7/9WfoIG4MKgl9AC2fyYFHeciCC9yxHJBIc4jSSaNzEP342jRuI1b5E6N4lUawLmA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6X2nglACD6c8G1F0/0xEZ5hVl23D7je+3SUkMcavaQU=;
- b=Yy41cz/xICP+xmcExF3PHaxZcw/TkWu+GQkEDmd4aFZKjyF8axSRotRunycpmjsZcPLh5ds/iZVf+73gxRyiMtIbVeAohNsr/8xEuQ+5ehdpIwQLPDgESVjeG6+84qE3vFxT/DVjSsVH7mW2CFsGAjYg0COSIKMnUemtn4FzbRltJPJ0paZnn0Df9lfNde3nY9Jx5983augE1MsZYJ9nkcTBMiUr6qEhSd9NsL/GBwaI9yai6vxfABEVcNbkgxdZWTt2GMjrK+RFmgD9N0T7VxVpTUB3WD9dKKREvTYwauDLzALMR+yPDPSQxICyJLReuIPHyca5qB0scz8wObykWA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6X2nglACD6c8G1F0/0xEZ5hVl23D7je+3SUkMcavaQU=;
- b=Xkj6uqzxgEoNu6HCOG9+P0Ywl3cGyiZUBWbYGeA3mLU4kNA/qCfGIEo3sLCYwhBb7OEOKzWqUYcoWCTmkq2lbCUBowbP9htz1J9tBsCmCrY+uNt8noju+Si/jsSymxDjt/86c0NOzO7hGt2EJPNUcd3EfpQSxYWwBObP6LYL50o=
-Received: from MWHPR05MB3648.namprd05.prod.outlook.com (2603:10b6:301:45::23)
- by MWHPR05MB3648.namprd05.prod.outlook.com (2603:10b6:301:45::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.12; Wed, 8 Dec
- 2021 08:57:28 +0000
-Received: from MWHPR05MB3648.namprd05.prod.outlook.com
- ([fe80::6929:b34e:d8b9:70bc]) by MWHPR05MB3648.namprd05.prod.outlook.com
- ([fe80::6929:b34e:d8b9:70bc%3]) with mapi id 15.20.4778.012; Wed, 8 Dec 2021
- 08:57:28 +0000
-From:   Alexey Makhalov <amakhalov@vmware.com>
-To:     Michal Hocko <mhocko@suse.com>
-CC:     Dennis Zhou <dennis@kernel.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Thread-Topic: [PATCH v3] mm: fix panic in __alloc_pages
-Thread-Index: AQHX1N5+lqzX5/9/hUCR9L+z9tfLRKv6c74AgAD9U4CAAB7tAIAADZWAgAnMHQCAAIIHgIAAufyAgAJfDQCAHgMmAIABcMIAgAAA2QA=
-Date:   Wed, 8 Dec 2021 08:57:28 +0000
-Message-ID: <9DA4ABBB-264F-4AD7-A4D4-DCBD371BE051@vmware.com>
-References: <20211108202325.20304-1-amakhalov@vmware.com>
- <2e191db3-286f-90c6-bf96-3f89891e9926@gmail.com>
- <YYqstfX8PSGDfWsn@dhcp22.suse.cz> <YYrGpn/52HaLCAyo@fedora>
- <YYrSC7vtSQXz652a@dhcp22.suse.cz>
- <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
- <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
- <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
- <YZYQUn10DrKhSE7L@dhcp22.suse.cz> <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
- <YbBywDwc2bCxWGAQ@dhcp22.suse.cz>
-In-Reply-To: <YbBywDwc2bCxWGAQ@dhcp22.suse.cz>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Apple Mail (2.3654.120.0.1.13)
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e98e231f-faa4-4829-3a72-08d9ba28c2ff
-x-ms-traffictypediagnostic: MWHPR05MB3648:EE_
-x-microsoft-antispam-prvs: <MWHPR05MB36486ABA4DD33B15176FCA9DD56F9@MWHPR05MB3648.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: o5SNiXhFYF0TIbkxHloebz2o8sk8Dz1soPqHWn2c6r6My1JKdl+mDhOmU0o17Mt3/Rh2NBamw/6XKROKAYgFlSKer3bOLvtezjpUzYrWISwXrT24MNrNr3dw/VVCDPg56Lm1s14erafCD1sjt4UV355/aXsh5br4z/f/xt5y75gVyiCxL7RpHEdpFe2f33wmqgFbObybEzIkYtEcQbhp7IGkGQSvxcwWYHyQreNTZsZBl4NxzriC9iXV5J+Fan/JxV/jIP8O4ls5w9+57kFjiKsQUIEfBxU7/QE6bBKcmbi2qNxluCISNk+Bnsqc0M5qtbFqjjaKHMh0URbG0bSaDfbKzgs+Xxd0RZm+Fq5Q50/+tMO2GumKS5OK4/351XUPERFBWY9yMJMKeJc1P8q3+/XqBraUp+uakcH6yO2K2a63TsUwXyOMc9MYz0FfiTJkVB42TGWmTujPpRmthElABFz7OAIZ20PRRaucGOHKe767ViqX0w7plp8T6TnGOkv+jSClb49ErUTsDo9FbgR9T//BpKJ6mg76BTmU4/90kJYTPKYavEPMUD7pMfMBav/Xx2GyRIrFdT4gdbcA5kQQ14ZrWd4uuIc9RIKVfz+22hRztdDEqLqZ5BNLN1ZPDbN7UMevK2IwXXPl+TtQiPyzVv9oodnJWlFDYzstymEFnInJEje8DkV6M7PWLDQNvNaSsPYyZVYay4h9aue5s0TBv/LfWULM0iwGX2uHd9RhQKBWAftnsZ6NHUedhlDaRfduDP0Xu3mX0dOGr1TMuRgPXTnigpRO/o7hKtJbOD0S3pQ=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR05MB3648.namprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(508600001)(6486002)(2616005)(33656002)(316002)(71200400001)(6512007)(54906003)(38070700005)(2906002)(7416002)(38100700002)(76116006)(91956017)(86362001)(5660300002)(8676002)(6916009)(186003)(122000001)(26005)(66946007)(83380400001)(4326008)(66556008)(66446008)(66476007)(64756008)(8936002)(36756003)(53546011)(6506007)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WDhlZ05kTTFuL2tNV1greWtTYWhSZWlmeXdZblJxQ3h3LzVETTRET0hBMStl?=
- =?utf-8?B?QksvTEVaQ2NyUitTTmF1VEdKUXNLeHcrbUZmUlJwbDAxaFhLejhFWXdNYTE5?=
- =?utf-8?B?cVZGTWdEVzc4RjhrY1Y2Z1ZFZFB3SXhyeDROY1kreGFjTFYrYmh0WWpDTVpv?=
- =?utf-8?B?NFoxNnJLSHhGRG5xcUVwN1NGc2RTWlR6MHpidWNKWnY3MU12K29iQ0dLbi9S?=
- =?utf-8?B?MHFPa1FKU3YxRGJQOUlRdWdZUUpjK2ZEazZNMFd5ZjBMWHVjSXZCTFJUS3Mw?=
- =?utf-8?B?NlU2Vmw4NkZNM3NtRDBlMENkL2c2WEJ2V1VLazVPUlFHMTFETktQMitWZmxH?=
- =?utf-8?B?ZitqQVdPMVBRVHNyMjNxbEtlWUo2YnFhdVQxRHRwTDF2NUlTN2xvaEhPOVBE?=
- =?utf-8?B?blJoaTU5Q29zZ2pRdVpNNkZOOW9VUFJWdUpKR2JEblZmSkxDOUtaeHpRVWJR?=
- =?utf-8?B?amx3SndnZkhRdi9Kdm1Fd2VxOFljT3l4ZkNpeWdLRHRGa1A3cE5sSVRyaFcy?=
- =?utf-8?B?MzRXUHFZZFBzMklRZlczYjFtd1BraXlTalMvYUtkQjBGL2l6RzhHWnRaT2hi?=
- =?utf-8?B?SHdkSjFKWVozR0daZC9QTzduSkxNZ2Ixa1kyTkdkRW0zem9WWC9IcDFYeGVu?=
- =?utf-8?B?dDg5SlVDcEFUZkJGbmw4S2dDcVAvQVB5bkJTRldFVmFwSUIveVFEVWhoN0NT?=
- =?utf-8?B?NE9IczhvUGtNZ0sxazV5bTloZy80aVFPQTF3VW9ybG1FM29rc0E3ZTVNK3Jm?=
- =?utf-8?B?cTdnQ2R1bmVsaGtqQXVtSjJKcEJsZTdPQlduZXZXZERtOGJ5elRQRys1d005?=
- =?utf-8?B?bXZLOEpkelJXd1Z6SmJuaC85MlVXSzdFRFRlRWtnTkJzdURXQVpydVhERDBS?=
- =?utf-8?B?eXZrbXpjRmxrMzRyOTdXN2l3Mmx0cVRaOVNnVnUyOVhzcU9sOEtVVDNjL2F0?=
- =?utf-8?B?R1paOGlxM3V5ZEU0akNERFJEU0Q0Sm05ZmQzVEI4cHMzMkNsRU9IVW5BMElL?=
- =?utf-8?B?c1BjblNMdU5kYUFkU2lzdUVVc2ZwbkdMR0tWd1FmUlBpUDZmTWV0SmdobGNB?=
- =?utf-8?B?d0lLejdZUHNjQ2FOZHVNZ3QrOCtKR05wcDQwMXUwcklmaHRsOWNBNUxrdHZh?=
- =?utf-8?B?TDZDOG05Q24weTVLZjJrTG1wTUhyTktUd1RlQjRrNWJTYS9ocjJqK1FtelhE?=
- =?utf-8?B?LzNIcFQzbFpRT2c4Y3IrWjRvbGt5MzlLRysrK1NkNEh0OEs1QTFoeCtCbm1S?=
- =?utf-8?B?UHBoNjljU28zMmVPbVNKTnNjTk5aWlBBT2ZrQWZMSDZERkV1YjdWR2o0RFFy?=
- =?utf-8?B?OCtqN05OYS9GVEhrZGRFS09ZV0R0NnJZeG9JQ0JyRnlGakNsM3NUdkY4QXFO?=
- =?utf-8?B?ZGdNR0pidXZKbW91MUV1VTJGMDZzU3MyaUpKYUY2a2h1d2hFWS80OGNKZ0oz?=
- =?utf-8?B?MEkwSUJodGFQOVZzTVZsTG44N1RHT3lWbVlNWldOcjFlUm5tMVNQc0FGU1Ix?=
- =?utf-8?B?bkZjTjlCa3ZUQWlHalkrbnQvZkkrUU11TGN3TkwyN21FTk5xcVJNWnlySEtX?=
- =?utf-8?B?RzB4ZVExaGFXT1RkbkpoRS85R3pZVUlVZ3psUkpKNVhMMGlLMFBmVlVWRnkv?=
- =?utf-8?B?YmJ5d3lrcDlIaEF0SGpubzRtQjFFZlFSZS9XOGxUNE9BZmZBWU4vSlVnOHFO?=
- =?utf-8?B?WHpOci84d1Z2bjJIdDI1cm5DbUhDMnBuQXMvcVl2YjhHRGhmcGljbWFQbGIw?=
- =?utf-8?B?UHRMcHBIRVNkQmNyWTBMMStQTTluMVEycDQwRWhTVEhtRGoxcXY0N1lTaXJE?=
- =?utf-8?B?Zk5IaWV4ZzZLZ3JXNVNhVnZlQTlZdjMxSFFpeGVzWUtNVW9rWU4xMnlMeTM2?=
- =?utf-8?B?UDVtcEl5UkNJUTI4SjA3YlpLZCtqSGw2ZmZVamVvMXV6QWt3WU9pWXVHditY?=
- =?utf-8?B?dmF4RVdXVUdBL29zRml5NmNocjROeit3ck5vb1NvbjI2WXN2dGoxclpuclY3?=
- =?utf-8?B?QVRzTkZYRVByajJET1pXdmNlZWlMUUF4bWVhNkRBNS8vL1N4TUhLL1BOMkNu?=
- =?utf-8?B?dGNVdDIxcXNWMFJ6NjdjTlZiMmhxSHlBaWNVcmg4L3Q0c3pNMnlBNkF0K3VK?=
- =?utf-8?B?Z2NaVGc4M1krYUZhQTBRRzlZOVV2OVFqR0JJTnZKTnozcGM3dlgvdUt2YVE3?=
- =?utf-8?Q?dCgN2I5ozc+EaKT/+2P4PrE=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <C17D811E0111A743B7F07B56954DC8A2@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S230019AbhLHJBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 04:01:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48646 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229996AbhLHJBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 04:01:21 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC05EC0617A1
+        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 00:57:49 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id np3so1438290pjb.4
+        for <stable@vger.kernel.org>; Wed, 08 Dec 2021 00:57:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=1EzMU1kpZf0bNg61CaR9yKQ9ZNHq6WXaiAA1psC5/yI=;
+        b=AgpOPNIEZLpQH0s7NeLG68U79wF1of/nvkIn1bOSSn16ocuEh6HZ6Kf/zPjwrgwNiJ
+         BQgAKYC5ZG6h1pmqNvVCScZPqJ8jjlXZBaOO8EmqTUM6+ePBQHWswF2oNY0ZSfn3vtb2
+         f6mAazl/Qb/iZiIqTWtzGJki+kb0xOM0BGzpFxHXBKyfdVlM9KjB26c97U8HUq/ohLn5
+         PwCkWpdXHb2gq1HMyI6UzmXJJbLTHZ0jTesDKO13EG5q4rodUb9kx3Qfe+yu2Y/oqvS/
+         Dl/LgNzysrAAnxhQ+qtTuU6qYmENEutwnTM8lFYPzxVyJ4HtGmvdGzV2PceHeUHRayBD
+         kh9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=1EzMU1kpZf0bNg61CaR9yKQ9ZNHq6WXaiAA1psC5/yI=;
+        b=rHPBQYVB3jkn1wUpb06cJegzSfFp0ZyQ9f66/sFzw4uKXq7kms8IsXSOczpYBt2v9k
+         LaAJMq82wfEyKbX1x0t/30f/b0HnptT7SiFfbqiOIsfQ9etIUkgwBiQ0DldhwLBZ1P9E
+         6+W4g+IEsNHNjUfLlLV1eAXQAVv9F+PfZkQ8C7GI5XlmzZ2xK5Lot86puUZQsDuZGN7j
+         I/uBNBNadxk5WgBofsJoBlkbZw/gue111UTmuCCwtri7E0L6ksXQx8keFrbSEf0q83+9
+         lXD6uuewXAZ6Qjwzsm8XC7kbL5PUN6WlK2NWkER43JB34JuVggYQ97Cbderbf3Sjsll1
+         cbzQ==
+X-Gm-Message-State: AOAM5313119NrlyI9RC+XHt8xG7ZQH5kC6VnrpiIYNg6a2sDsrs+2rjt
+        T1d3z8FBPmajW+xFN9LW8Xzd
+X-Google-Smtp-Source: ABdhPJxZI4pTJ7WlnK0xCbgwlNFyX2LzGi4PCg1p5Zh8m90wYE+o+TINUlIZ1HsMZNn/XvE78NEnIA==
+X-Received: by 2002:a17:902:7c8a:b0:143:bb4a:7bb3 with SMTP id y10-20020a1709027c8a00b00143bb4a7bb3mr58485986pll.46.1638953869226;
+        Wed, 08 Dec 2021 00:57:49 -0800 (PST)
+Received: from localhost.localdomain ([117.202.189.59])
+        by smtp.gmail.com with ESMTPSA id oa17sm2055470pjb.37.2021.12.08.00.57.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Dec 2021 00:57:48 -0800 (PST)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     gregkh@linuxfoundation.org
+Cc:     mhi@lists.linux.dev, hemantk@codeaurora.org, bbhatt@codeaurora.org,
+        loic.poulain@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ath11k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, kvalo@codeaurora.org,
+        stable@vger.kernel.org, Pengyu Ma <mapengyu@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 1/1] bus: mhi: core: Add support for forced PM resume
+Date:   Wed,  8 Dec 2021 14:27:35 +0530
+Message-Id: <20211208085735.196394-2-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211208085735.196394-1-manivannan.sadhasivam@linaro.org>
+References: <20211208085735.196394-1-manivannan.sadhasivam@linaro.org>
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR05MB3648.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e98e231f-faa4-4829-3a72-08d9ba28c2ff
-X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Dec 2021 08:57:28.1350
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Nz0g2hR7hezSzkTn299bVYT9ah0Qcrf09/e+nGFS1Fp4LQnd9ExLfL0G5B+FtllmeSUOkVUWwCWH4+GhNTbnbA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR05MB3648
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gT24gRGVjIDgsIDIwMjEsIGF0IDEyOjU0IEFNLCBNaWNoYWwgSG9ja28gPG1ob2Nrb0Bz
-dXNlLmNvbT4gd3JvdGU6DQo+IA0KPiBBbGV4ZXksDQo+IHRoaXMgaXMgc3RpbGwgbm90IGZpbmFs
-aXplZCBidXQgaXQgd291bGQgcmVhbGx5IGhlbHAgaWYgeW91IGNvdWxkIGdpdmUNCj4gaXQgYSBz
-cGluIG9uIHlvdXIgc2V0dXAuIEkgc3RpbGwgaGF2ZSB0byB0aGluayBhYm91dCBob3cgdG8gdHJh
-bnNpdGlvbg0KPiBmcm9tIGEgbWVtb3J5bGVzcyBub2RlIHRvIHN0YW5kYXJkIG5vZGUgKGluIGhv
-dHBsdWcgY29kZSkuIEFsc28gdGhlcmUNCj4gbWlnaHQgYmUgb3RoZXIgc3VycHJpc2VzIG9uIHRo
-ZSB3YXkuDQo+IA0KPiBkaWZmIC0tZ2l0IGEvbW0vcGFnZV9hbGxvYy5jIGIvbW0vcGFnZV9hbGxv
-Yy5jDQo+IGluZGV4IGM1OTUyNzQ5YWQ0MC4uOGVkOGRiMmNjYjEzIDEwMDY0NA0KPiAtLS0gYS9t
-bS9wYWdlX2FsbG9jLmMNCj4gKysrIGIvbW0vcGFnZV9hbGxvYy5jDQo+IEBAIC02MzgyLDcgKzYz
-ODIsMTEgQEAgc3RhdGljIHZvaWQgX19idWlsZF9hbGxfem9uZWxpc3RzKHZvaWQgKmRhdGEpDQo+
-IAlpZiAoc2VsZiAmJiAhbm9kZV9vbmxpbmUoc2VsZi0+bm9kZV9pZCkpIHsNCj4gCQlidWlsZF96
-b25lbGlzdHMoc2VsZik7DQo+IAl9IGVsc2Ugew0KPiAtCQlmb3JfZWFjaF9vbmxpbmVfbm9kZShu
-aWQpIHsNCj4gKwkJLyoNCj4gKwkJICogQWxsIHBvc3NpYmxlIG5vZGVzIGhhdmUgcGdkYXQgcHJl
-YWxsb2NhdGVkDQo+ICsJCSAqIGZyZWVfYXJlYV9pbml0DQo+ICsJCSAqLw0KPiArCQlmb3JfZWFj
-aF9ub2RlKG5pZCkgew0KPiAJCQlwZ19kYXRhX3QgKnBnZGF0ID0gTk9ERV9EQVRBKG5pZCk7DQo+
-IA0KPiAJCQlidWlsZF96b25lbGlzdHMocGdkYXQpOw0KPiBAQCAtODAzMiw4ICs4MDM2LDMyIEBA
-IHZvaWQgX19pbml0IGZyZWVfYXJlYV9pbml0KHVuc2lnbmVkIGxvbmcgKm1heF96b25lX3BmbikN
-Cj4gCS8qIEluaXRpYWxpc2UgZXZlcnkgbm9kZSAqLw0KPiAJbW1pbml0X3ZlcmlmeV9wYWdlZmxh
-Z3NfbGF5b3V0KCk7DQo+IAlzZXR1cF9ucl9ub2RlX2lkcygpOw0KPiAtCWZvcl9lYWNoX29ubGlu
-ZV9ub2RlKG5pZCkgew0KPiAtCQlwZ19kYXRhX3QgKnBnZGF0ID0gTk9ERV9EQVRBKG5pZCk7DQo+
-ICsJZm9yX2VhY2hfbm9kZShuaWQpIHsNCj4gKwkJcGdfZGF0YV90ICpwZ2RhdDsNCj4gKw0KPiAr
-CQlpZiAoIW5vZGVfb25saW5lKG5pZCkpIHsNCj4gKwkJCXByX3dhcm4oIk5vZGUgJWQgdW5pbml0
-aWFsaXplZCBieSB0aGUgcGxhdGZvcm0uIFBsZWFzZSByZXBvcnQgd2l0aCBib290IGRtZXNnLlxu
-IiwgbmlkKTsNCj4gKw0KPiArCQkJLyogQWxsb2NhdG9yIG5vdCBpbml0aWFsaXplZCB5ZXQgKi8N
-Cj4gKwkJCXBnZGF0ID0gbWVtYmxvY2tfYWxsb2Moc2l6ZW9mKCpwZ2RhdCksIFNNUF9DQUNIRV9C
-WVRFUyk7DQo+ICsJCQlpZiAoIXBnZGF0KSB7DQo+ICsJCQkJcHJfZXJyKCJDYW5ub3QgYWxsb2Nh
-dGUgJXp1QiBmb3Igbm9kZSAlZC5cbiIsDQo+ICsJCQkJCQlzaXplb2YoKnBnZGF0KSwgbmlkKTsN
-Cj4gKwkJCQljb250aW51ZTsNCj4gKwkJCX0NCj4gKwkJCS8qIFRPRE8gZG8gd2UgbmVlZCB0aGlz
-IGZvciBtZW1vcnlsZXNzIG5vZGVzICovDQo+ICsJCQlwZ2RhdC0+cGVyX2NwdV9ub2Rlc3RhdHMg
-PSBhbGxvY19wZXJjcHUoc3RydWN0IHBlcl9jcHVfbm9kZXN0YXQpOw0KPiArCQkJYXJjaF9yZWZy
-ZXNoX25vZGVkYXRhKG5pZCwgcGdkYXQpOw0KPiArCQkJZnJlZV9hcmVhX2luaXRfbWVtb3J5bGVz
-c19ub2RlKG5pZCk7DQo+ICsJCQkvKg0KPiArCQkJICogbm90IG1hcmtpbmcgdGhpcyBub2RlIG9u
-bGluZSBiZWNhdXNlIHdlIGRvIG5vdCB3YW50IHRvDQo+ICsJCQkgKiBjb25mdXNlIHVzZXJzcGFj
-ZSBieSBzeXNmcyBmaWxlcy9kaXJlY3RvcmllcyBmb3Igbm9kZQ0KPiArCQkJICogd2l0aG91dCBh
-bnkgbWVtb3J5IGF0dGFjaGVkIHRvIGl0IChzZWUgdG9wb2xvZ3lfaW5pdCkNCj4gKwkJCSAqLw0K
-PiArCQkJY29udGludWU7DQo+ICsJCX0NCj4gKw0KPiArCQlwZ2RhdCA9IE5PREVfREFUQShuaWQp
-Ow0KPiAJCWZyZWVfYXJlYV9pbml0X25vZGUobmlkKTsNCj4gDQo+IAkJLyogQW55IG1lbW9yeSBv
-biB0aGF0IG5vZGUgKi8NCj4gDQoNClN1cmUgTWljaGFsLCBJ4oCZbGwgZ2l2ZSBpdCBhIHNwaW4u
-DQoNClRoYW5rcyBmb3IgYXR0ZW50aW9uIHRvIHRoaXMgdG9waWMuDQoNClJlZ2FyZGluZyBtZW1v
-cnkgd2FzdGUuIA0KSGVyZSB3aGF0IEkgZm91bmQgd2hpbGUgd2FzIHVzaW5nIFZNIDEyOCBwb3Nz
-aWJsZSBOVU1BIG5vZGVzLg0KTXkgTGludXggYnVpbGQgb24gVk0gd2l0aCBvbmx5IG9uZSBudW1h
-IG5vZGUgY2FuIGJlIGJvb3RlZCBvbiAxOTJNYiBSQU0sDQpCdXQgb24gMTI4IG5vZGVzIGl0IHJl
-cXVpcmVzIDFHQiBSQU0ganVzdCB0byBib290LiBJdCBpcyBzZXJ2ZXIgZGlzdHJvLA0KbWluaW1h
-bCBzZXQgb2Ygc3lzdGVtZCBzZXJ2aWNlcywgbm8gVUkuDQoNCm1lbWluZm8gc2hvd3M6DQoxIG5v
-ZGUgY2FzZTogUGVyY3B1OiAgICAgICAgICAgIDUzNzYwIGtCDQoxMjggbm9kZXM6ICAgUGVyY3B1
-OiAgICAgICAgICAgNzE4MDQ4IGtCICEhIQ0KDQpJbml0aWFsIGFuYWxpc3lzIG11bHRpbm9kZSBt
-ZW1vcnkgY29uc3VtcHRpb24gc2hvd2VkIGF0IGxlYXN0IGRpZmZlcmVuY2UgaW4gdGhpczoNCg0K
-RXZlcnkgbWVtY2dyb3VwIGFsbG9jYXRlcyBtZW1fY2dyb3VwX3Blcl9ub2RlIGluZm8gZm9yIGFs
-bCBwb3NzaWJsZSBub2RlLg0KRWFjaCBtZW1fY2dyb3VwX3Blcl9ub2RlIGhhcyBwZXIgY3B1IHN0
-YXRzLg0KVGhhdCBtZWFucywgZWFjaCBtZW0gY2dyb3VwIGFsbG9jYXRlcyAxMjgqKHNpemVvZiBz
-dHJ1Y3QgbWVtX2Nncm91cF9wZXJfbm9kZSkgKyAxNjM4NCooc2l6ZW9mIHN0cnVjdCBscnV2ZWNf
-c3RhdHNfcGVyY3B1KQ0KDQpTZWU6IG1lbV9jZ3JvdXBfYWxsb2MoKSAtPiBhbGxvY19tZW1fY2dy
-b3VwX3Blcl9ub2RlX2luZm8oKQ0KDQpUaGVyZSBpcyBhbHNvIG9sZCBjb21tZW50IGFib3V0IGl0
-IGluIGFsbG9jX21lbV9jZ3JvdXBfcGVyX25vZGVfaW5mbygpDQogICAgICAgIC8qDQogICAgICAg
-ICAqIFRoaXMgcm91dGluZSBpcyBjYWxsZWQgYWdhaW5zdCBwb3NzaWJsZSBub2Rlcy4NCiAgICAg
-ICAgICogQnV0IGl0J3MgQlVHIHRvIGNhbGwga21hbGxvYygpIGFnYWluc3Qgb2ZmbGluZSBub2Rl
-Lg0KICAgICAgICAgKg0KICAgICAgICAgKiBUT0RPOiB0aGlzIHJvdXRpbmUgY2FuIHdhc3RlIG11
-Y2ggbWVtb3J5IGZvciBub2RlcyB3aGljaCB3aWxsDQogICAgICAgICAqICAgICAgIG5ldmVyIGJl
-IG9ubGluZWQuIEl0J3MgYmV0dGVyIHRvIHVzZSBtZW1vcnkgaG90cGx1ZyBjYWxsYmFjaw0KICAg
-ICAgICAgKiAgICAgICBmdW5jdGlvbi4NCiAgICAgICAgICovDQoNClJlZ2FyZHMsDQrigJRBbGV4
-ZXkNCg0K
+From: Loic Poulain <loic.poulain@linaro.org>
+
+For whatever reason, some devices like QCA6390, WCN6855 using ath11k
+are not in M3 state during PM resume, but still functional. The
+mhi_pm_resume should then not fail in those cases, and let the higher
+level device specific stack continue resuming process.
+
+Add a new parameter to mhi_pm_resume, to force resuming, whatever the
+current MHI state is. This fixes a regression with non functional
+ath11k WiFi after suspend/resume cycle on some machines.
+
+Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=214179
+
+Fixes: 020d3b26c07a ("bus: mhi: Early MHI resume failure in non M3 state")
+Cc: stable@vger.kernel.org #5.13
+Link: https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
+Reported-by: Kalle Valo <kvalo@codeaurora.org>
+Reported-by: Pengyu Ma <mapengyu@gmail.com>
+Tested-by: Kalle Valo <kvalo@kernel.org>
+Acked-by: Kalle Valo <kvalo@kernel.org>
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+[mani: Added comment, bug report, reported-by tags and CCed stable]
+Link: https://lore.kernel.org/r/20211206161059.107007-1-manivannan.sadhasivam@linaro.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+ drivers/bus/mhi/core/pm.c             | 10 +++++++---
+ drivers/bus/mhi/pci_generic.c         |  2 +-
+ drivers/net/wireless/ath/ath11k/mhi.c |  6 +++++-
+ include/linux/mhi.h                   |  3 ++-
+ 4 files changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index fb99e3727155..8a486374d57a 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -881,7 +881,7 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
+ }
+ EXPORT_SYMBOL_GPL(mhi_pm_suspend);
+ 
+-int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
++int mhi_pm_resume(struct mhi_controller *mhi_cntrl, bool force)
+ {
+ 	struct mhi_chan *itr, *tmp;
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+@@ -898,8 +898,12 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
+ 	if (MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state))
+ 		return -EIO;
+ 
+-	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3)
+-		return -EINVAL;
++	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3) {
++		dev_warn(dev, "Resuming from non M3 state (%s)\n",
++			 TO_MHI_STATE_STR(mhi_get_mhi_state(mhi_cntrl)));
++		if (!force)
++			return -EINVAL;
++	}
+ 
+ 	/* Notify clients about exiting LPM */
+ 	list_for_each_entry_safe(itr, tmp, &mhi_cntrl->lpm_chans, node) {
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 4c577a731709..3394819e8115 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -962,7 +962,7 @@ static int __maybe_unused mhi_pci_runtime_resume(struct device *dev)
+ 		return 0; /* Nothing to do at MHI level */
+ 
+ 	/* Exit M3, transition to M0 state */
+-	err = mhi_pm_resume(mhi_cntrl);
++	err = mhi_pm_resume(mhi_cntrl, false);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to resume device: %d\n", err);
+ 		goto err_recovery;
+diff --git a/drivers/net/wireless/ath/ath11k/mhi.c b/drivers/net/wireless/ath/ath11k/mhi.c
+index 26c7ae242db6..f1f2fa2d690d 100644
+--- a/drivers/net/wireless/ath/ath11k/mhi.c
++++ b/drivers/net/wireless/ath/ath11k/mhi.c
+@@ -533,7 +533,11 @@ static int ath11k_mhi_set_state(struct ath11k_pci *ab_pci,
+ 		ret = mhi_pm_suspend(ab_pci->mhi_ctrl);
+ 		break;
+ 	case ATH11K_MHI_RESUME:
+-		ret = mhi_pm_resume(ab_pci->mhi_ctrl);
++		/* Do force MHI resume as some devices like QCA6390, WCN6855
++		 * are not in M3 state but they are functional. So just ignore
++		 * the MHI state while resuming.
++		 */
++		ret = mhi_pm_resume(ab_pci->mhi_ctrl, true);
+ 		break;
+ 	case ATH11K_MHI_TRIGGER_RDDM:
+ 		ret = mhi_force_rddm_mode(ab_pci->mhi_ctrl);
+diff --git a/include/linux/mhi.h b/include/linux/mhi.h
+index 723985879035..102303288cee 100644
+--- a/include/linux/mhi.h
++++ b/include/linux/mhi.h
+@@ -660,8 +660,9 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl);
+ /**
+  * mhi_pm_resume - Resume MHI from suspended state
+  * @mhi_cntrl: MHI controller
++ * @force: Force resuming to M0 irrespective of the device MHI state
+  */
+-int mhi_pm_resume(struct mhi_controller *mhi_cntrl);
++int mhi_pm_resume(struct mhi_controller *mhi_cntrl, bool force);
+ 
+ /**
+  * mhi_download_rddm_image - Download ramdump image from device for
+-- 
+2.25.1
+
