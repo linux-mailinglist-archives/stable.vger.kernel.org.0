@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB80C46D3C1
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C95E446D3C2
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 13:54:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229817AbhLHM52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 07:57:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47116 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229751AbhLHM52 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1426DC061746
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 04:53:56 -0800 (PST)
+        id S233805AbhLHM5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 07:57:33 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:47844 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233794AbhLHM5d (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 8 Dec 2021 07:57:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0C5AB81F79
-        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:53:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F012FC00446;
-        Wed,  8 Dec 2021 12:53:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4C3E6CE2163
+        for <Stable@vger.kernel.org>; Wed,  8 Dec 2021 12:53:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1AF0C00446;
+        Wed,  8 Dec 2021 12:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638968033;
-        bh=1FxsxI52Xl7TNJWupZhB4hw41todDqnozGrjZN1p4Zk=;
+        s=korg; t=1638968037;
+        bh=6KsItswNp/Q5Zv8ysgDDb0pKQwv59tphs91Lig/HUAw=;
         h=Subject:To:From:Date:From;
-        b=p//5SxbnqsTLFPn3Q2YY1vj4CDsZG/OmpB0S53eZnPC3B2spFblSbZP7PGlelFtrN
-         /jL6jChIz096NmkudCbbOUjdxR56lRQB9m9sQq45t20kFj579BTFhjbhOhzkm1ABeG
-         vfkg9AEHwof2CYewrXowsGVS12yE2yfmqot3BM88=
-Subject: patch "iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove" added to char-misc-linus
-To:     yangyingliang@huawei.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, hdegoede@redhat.com, hulkci@huawei.com
+        b=asWQfqM3uuu2QJgaV0YtZTZuMX3uB1VrJadsYUv94C8r1sTtd6F7XrQEo8hfzqndK
+         vNhyExE3EJBgORhrXEDxiASx8sHZ2Otp8J91+23OBhJ5kVzRBfkkO6T3+TzQ46W8rg
+         0+dc09srfjNniI2kfZBrEgL1VxtSlIzrB6sOMG/4=
+Subject: patch "iio: ltr501: Don't return error code in trigger handler" added to char-misc-linus
+To:     lars@metafoo.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 08 Dec 2021 13:53:50 +0100
-Message-ID: <1638968030192204@kroah.com>
+Date:   Wed, 08 Dec 2021 13:53:51 +0100
+Message-ID: <163896803117495@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
+    iio: ltr501: Don't return error code in trigger handler
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -59,63 +56,46 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 70c9774e180d151abaab358108e3510a8e615215 Mon Sep 17 00:00:00 2001
-From: Yang Yingliang <yangyingliang@huawei.com>
-Date: Mon, 25 Oct 2021 20:41:59 +0800
-Subject: iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
+From ef9d67fa72c1b149a420587e435a3e888bdbf74f Mon Sep 17 00:00:00 2001
+From: Lars-Peter Clausen <lars@metafoo.de>
+Date: Sun, 24 Oct 2021 19:12:49 +0200
+Subject: iio: ltr501: Don't return error code in trigger handler
 
-When ACPI type is ACPI_SMO8500, the data->dready_trig will not be set, the
-memory allocated by iio_triggered_buffer_setup() will not be freed, and cause
-memory leak as follows:
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
-unreferenced object 0xffff888009551400 (size 512):
-  comm "i2c-SMO8500-125", pid 911, jiffies 4294911787 (age 83.852s)
-  hex dump (first 32 bytes):
-    02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 20 e2 e5 c0 ff ff ff ff  ........ .......
-  backtrace:
-    [<0000000041ce75ee>] kmem_cache_alloc_trace+0x16d/0x360
-    [<000000000aeb17b0>] iio_kfifo_allocate+0x41/0x130 [kfifo_buf]
-    [<000000004b40c1f5>] iio_triggered_buffer_setup_ext+0x2c/0x210 [industrialio_triggered_buffer]
-    [<000000004375b15f>] kxcjk1013_probe+0x10c3/0x1d81 [kxcjk_1013]
+The ltr501 interrupt handler gets this right for most error paths, but
+there is one case where it returns the error code.
 
-Fix it by remove data->dready_trig condition in probe and remove.
+In addition for this particular case the trigger handler does not call
+`iio_trigger_notify_done()`. Which when not done keeps the triggered
+disabled forever.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: a25691c1f967 ("iio: accel: kxcjk1013: allow using an external trigger")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
+
+Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024171251.22896-1-lars@metafoo.de
 Cc: <Stable@vger.kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20211025124159.2700301-1-yangyingliang@huawei.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/accel/kxcjk-1013.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iio/light/ltr501.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-index a51fdd3c9b5b..24c9387c2968 100644
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -1595,8 +1595,7 @@ static int kxcjk1013_probe(struct i2c_client *client,
- 	return 0;
- 
- err_buffer_cleanup:
--	if (data->dready_trig)
--		iio_triggered_buffer_cleanup(indio_dev);
-+	iio_triggered_buffer_cleanup(indio_dev);
- err_trigger_unregister:
- 	if (data->dready_trig)
- 		iio_trigger_unregister(data->dready_trig);
-@@ -1618,8 +1617,8 @@ static int kxcjk1013_remove(struct i2c_client *client)
- 	pm_runtime_disable(&client->dev);
- 	pm_runtime_set_suspended(&client->dev);
- 
-+	iio_triggered_buffer_cleanup(indio_dev);
- 	if (data->dready_trig) {
--		iio_triggered_buffer_cleanup(indio_dev);
- 		iio_trigger_unregister(data->dready_trig);
- 		iio_trigger_unregister(data->motion_trig);
- 	}
+diff --git a/drivers/iio/light/ltr501.c b/drivers/iio/light/ltr501.c
+index 7e51aaac0bf8..b2983b1a9ed1 100644
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -1275,7 +1275,7 @@ static irqreturn_t ltr501_trigger_handler(int irq, void *p)
+ 		ret = regmap_bulk_read(data->regmap, LTR501_ALS_DATA1,
+ 				       als_buf, sizeof(als_buf));
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 		if (test_bit(0, indio_dev->active_scan_mask))
+ 			scan.channels[j++] = le16_to_cpu(als_buf[1]);
+ 		if (test_bit(1, indio_dev->active_scan_mask))
 -- 
 2.34.1
 
