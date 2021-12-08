@@ -2,85 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B606F46CDD0
-	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 07:33:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9C246CEA0
+	for <lists+stable@lfdr.de>; Wed,  8 Dec 2021 09:04:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240320AbhLHGhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 01:37:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44390 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240343AbhLHGhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 01:37:20 -0500
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CF93C0617A2
-        for <stable@vger.kernel.org>; Tue,  7 Dec 2021 22:33:49 -0800 (PST)
-Received: by mail-ed1-x544.google.com with SMTP id l25so4734304eda.11
-        for <stable@vger.kernel.org>; Tue, 07 Dec 2021 22:33:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=emIavFyjiUbJQ6gRnLDQ6ksldpH5oGRWKyDPMInKn98=;
-        b=f2WhE5aU5JTbcAiuEtH3ALVa6wt6BnJ0NragfcYTHiAQf9yNghbwPjWdx2BXWPJ6p2
-         5b8QVHQI9EwjtaAZrAnZabuYxRGsT3BnywW4rJvTYoKhsXqvTr6hhuVGKZBa8Lgos1iv
-         hmes9Lr34Jo+vTG50XySDdakd3FPjxGa1M3G8l/xz6MbtBlOGZSLhYAP6CR3J/yAYVM1
-         mZjWO9lLyhfDAUkVuxTXL4+ttFUo7RIFS2kArU/9r2JAUrEunBeQueAZOi1P13H6+OVb
-         3hRikuYdYLdhLH0XYt7bMpKGG1bBI2nsw3YZ1PCLOrNKOmqG0DzK8oIgTaeW2H6VDz8d
-         JXpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=emIavFyjiUbJQ6gRnLDQ6ksldpH5oGRWKyDPMInKn98=;
-        b=T75FGW4bOqaxicY+iV/C7atABTdGFEWPsiEtZcM5NTIZrQ4IvHaWFF90nuxPRihM+y
-         JvfVYjWmp89actz6Zts/Q+9SMYUze1j7i9/j9WnbVO4POrKzQJi7CynF8658GDukBjvW
-         cKy89dgCaC8Rc3CfIDD/oS7otBVfC0rgIJtOOvB6x9+eYcrxpcYNsp0zggKIO8lgRDvN
-         InW3v/HpanOXi2EIvGwWkZwRdgvf94CWlip4JmJjLwfeDT94+HGr8iDnpp22FJTtmNCc
-         SRMX5EncQDcmxOPkVc8ktgUs8Gp1W+7p0SethLTvqMUF7KKYhC/sp2XjAX7myJJoA6VG
-         b9Lw==
-X-Gm-Message-State: AOAM533sKJhMiq3liCfkwOoMZvtELT0mHdU6QknB2oyZbWoOElUkVLyP
-        faf1d7NJKiwTZDxB9Ql0rLmuwlGNSJyUNVUDbZg=
-X-Google-Smtp-Source: ABdhPJwjCXwjuqiH3oDpqv2t2Y/bgj/8ImZ3xtOcHP0HYitjTBOlZeY450iwq6atPgKL1UXhDlMwZONhchVeFuIIvik=
-X-Received: by 2002:a17:907:1c15:: with SMTP id nc21mr5145094ejc.510.1638945227965;
- Tue, 07 Dec 2021 22:33:47 -0800 (PST)
+        id S244639AbhLHIH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 03:07:56 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:38946 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240425AbhLHIH4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 03:07:56 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 05AEE1FDFC;
+        Wed,  8 Dec 2021 08:04:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1638950664; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WMGjw44+jXQO3zu5GwYDCF7IsnMd3YaPPro0gBCKQtc=;
+        b=oXoYxxNDCEl899Jtek3M9lpNe1PAAXNc4D6+9gNPWpJ00vzAefmFwbXHgKPaeMXKyutVdx
+        nGhgvijtZ+SnWPNmkjCVUVgzeFXMf5I4yVmv77AgtZ08U0moj1dpHrJp7EY1QbSLNphxy2
+        4uS0IW4tm29TIJRXdOwWgMy++8zu/OU=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id C655DA3B85;
+        Wed,  8 Dec 2021 08:04:23 +0000 (UTC)
+Date:   Wed, 8 Dec 2021 09:04:21 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Alexey Makhalov <amakhalov@vmware.com>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Dennis Zhou <dennis@kernel.org>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
+Message-ID: <YbBnBQLcOSJaB7Px@dhcp22.suse.cz>
+References: <77e785e6-cf34-0cff-26a5-852d3786a9b8@redhat.com>
+ <Ya992YvnZ3e3G6h0@dhcp22.suse.cz>
+ <b7deaf90-8c3c-c22a-b8dc-e6d98bc93ae6@redhat.com>
+ <Ya+EHUYgzo8GaCeq@dhcp22.suse.cz>
+ <d01c20fe-86d2-1dc8-e56d-15c0da49afb3@redhat.com>
+ <Ya+LbaD8mkvIdq+c@dhcp22.suse.cz>
+ <Ya+Nq2fWrSgl79Bn@dhcp22.suse.cz>
+ <2E174230-04F3-4798-86D5-1257859FFAD8@vmware.com>
+ <21539fc8-15a8-1c8c-4a4f-8b85734d2a0e@redhat.com>
+ <78E39A43-D094-4706-B4BD-18C0B18EB2C3@vmware.com>
 MIME-Version: 1.0
-Received: by 2002:a54:21c1:0:0:0:0:0 with HTTP; Tue, 7 Dec 2021 22:33:47 -0800 (PST)
-Reply-To: zinaahemd702@gmail.com
-From:   Mrs Zina Ahemd <alikantou52@gmail.com>
-Date:   Tue, 7 Dec 2021 22:33:47 -0800
-Message-ID: <CAAaSjX5m6Bmyq-VroffDr1Q_L_sw1B_BRajM5iqUsKH6Qzwkfw@mail.gmail.com>
-Subject: Hello Dearest
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <78E39A43-D094-4706-B4BD-18C0B18EB2C3@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My name is Mrs Zina Ahemd Cooks  from USA I know that this message
-might come to you as surprise because we don't know each other nor
-have we ever met before but accept it with an open and positive mind.
-I have a Very important request that made me to contact you;
+On Tue 07-12-21 17:17:27, Alexey Makhalov wrote:
+> 
+> 
+> > On Dec 7, 2021, at 9:13 AM, David Hildenbrand <david@redhat.com> wrote:
+> > 
+> > On 07.12.21 18:02, Alexey Makhalov wrote:
+> >> 
+> >> 
+> >>> On Dec 7, 2021, at 8:36 AM, Michal Hocko <mhocko@suse.com> wrote:
+> >>> 
+> >>> On Tue 07-12-21 17:27:29, Michal Hocko wrote:
+> >>> [...]
+> >>>> So your proposal is to drop set_node_online from the patch and add it as
+> >>>> a separate one which handles
+> >>>> 	- sysfs part (i.e. do not register a node which doesn't span a
+> >>>> 	  physical address space)
+> >>>> 	- hotplug side of (drop the pgd allocation, register node lazily
+> >>>> 	  when a first memblocks are registered)
+> >>> 
+> >>> In other words, the first stage
+> >>> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> >>> index c5952749ad40..f9024ba09c53 100644
+> >>> --- a/mm/page_alloc.c
+> >>> +++ b/mm/page_alloc.c
+> >>> @@ -6382,7 +6382,11 @@ static void __build_all_zonelists(void *data)
+> >>> 	if (self && !node_online(self->node_id)) {
+> >>> 		build_zonelists(self);
+> >>> 	} else {
+> >>> -		for_each_online_node(nid) {
+> >>> +		/*
+> >>> +		 * All possible nodes have pgdat preallocated
+> >>> +		 * free_area_init
+> >>> +		 */
+> >>> +		for_each_node(nid) {
+> >>> 			pg_data_t *pgdat = NODE_DATA(nid);
+> >>> 
+> >>> 			build_zonelists(pgdat);
+> >> 
+> >> Will it blow up memory usage for the nodes which might never be onlined?
+> >> I prefer the idea of init on demand.
+> >> 
+> >> Even now there is an existing problem.
+> >> In my experiments, I observed _huge_ memory consumption increase by increasing number
+> >> of possible numa nodes. I’m going to report it in separate mail thread.
+> > 
+> > I already raised that PPC might be problematic in that regard. Which
+> > architecture / setup do you have in mind that can have a lot of possible
+> > nodes?
+> > 
+> It is x86_64 VMware VM, not the regular one, but specially configured (1 vCPU per node,
+> with hot-plug support, 128 possible nodes)  
 
-I was diagnosed with ovarian cancer disease which doctors have
-confirmed and announced to me that i have just few days to leave, Now
-that I=E2=80=99m ending the race like this, without any family members and =
-no
-child, I just came across your email contact from my personal search.
-
-I=E2=80=99m a business woman from USA dealing with gold exportation here in
-Republic of Burkina Faso. I have decided to hand over the sum of ($3.5
-Million Dollar) in my account to you for the help of orphanage
-homes/the needy once in your location to fulfill my wish on earth. But
-before handing over my data=E2=80=99s to you, kindly
-
-assure me that you will take only 50% of the money and share the rest
-to orphanage homes/the needy once in your country, Return to enable me
-forward to you the bank contact details now that I have access to
-Internet in the hospital to enable you contact the bank, always check
-your e-mail always remember me for doing good.
-Please don't forget to reply me in my Private E-mail:() Your early
-response will be appreciated.
-
-Yours Faithfully,
-Mrs Zina Ahemd
+This is slightly tangent but could you elaborate more on this setup and
+reasoning behind it. I was already curious when you mentioned this
+previously. Why would you want to have so many nodes and having 1:1 with
+CPUs. What is the resulting NUMA topology?
+-- 
+Michal Hocko
+SUSE Labs
