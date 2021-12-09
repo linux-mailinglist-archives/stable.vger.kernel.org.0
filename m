@@ -2,81 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B5246EC3F
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 16:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF06446EC68
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 17:00:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240554AbhLIPxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 10:53:53 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47834 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240537AbhLIPxs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 10:53:48 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6DABACE2691;
-        Thu,  9 Dec 2021 15:50:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 88C0FC341C3;
-        Thu,  9 Dec 2021 15:50:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639065009;
-        bh=iKFw1SkivAtXoMkDv6HCrejky4o84z5oL0fXbqmawRc=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=fqmouS3VQyKPqn4eWQVxGUxlWSYENSw6LeIQDqI6W2GvHyhtrJVdQFzPqkf62Ts8c
-         NKWvAVK+JChsx+gyRfWwldLIjwoB3uEQ3lcKb4Sj3w/TCEHPpzNqyMSyNT8sN0pULL
-         Twzhht7f8Q7Bb3AyY9sgkhR4CdMix1IndsnNGwRqbl9z/3se1k9AY+kkMvkYiRDUg3
-         xV76NgCb9GYVkZTHVRQLTCT7GnH+i7X9CmH64OYSAKeTHHTQpCpXmFHBzSXQCk93Ql
-         ZgOs+8hh1MKXdT/Ydux+7LZx9sOq6nEEFychNsfHE68ZMzgfE/Fdd+P8eGhF7djItH
-         QUBANA1UoGRxA==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 64EA0609D7;
-        Thu,  9 Dec 2021 15:50:09 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S239832AbhLIQDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 11:03:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55740 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235371AbhLIQDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 11:03:33 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19584C0617A2
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 08:00:00 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id gf14-20020a17090ac7ce00b001a7a2a0b5c3so7238646pjb.5
+        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 08:00:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tSG14DSt7/Tmpz/JNuX2OS/Kqmuhs9FcXFa/pRz5wao=;
+        b=mI4wfpVBNpZApZ7mdKX9C4ABPIUnuiPnaHLo2UoBdUt7o2rtMQdqf5EnK0VUe/lVoF
+         X2ciDblMVWnvdUl8y8NP6+cKUEvpax3ZYKfQbR89Fk9m/t+7FMVniNsYAdTEmQfEVVhY
+         7z+nnjc14GkRrMU3Eb0XKTf1aBV4+KYs/IhXXbzDcSuJRSmqTR8LjYXGWE/xC+ycRnit
+         CydLeZnjP4ulibKFZztITGwmxoMh8YjPFz35B386XhOIv24IwB3tekPsXz7gmNDDIlaL
+         E7Vva0q4bxBiUoQDXhjGfnOur2302rMwYEUJFWHpqGvauggxnoRxdm6o3dhfcO9cc9h7
+         EiJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tSG14DSt7/Tmpz/JNuX2OS/Kqmuhs9FcXFa/pRz5wao=;
+        b=AoUB0uc/e69T72BrkoMhfMGEmmwjPwPstyJ/+sxNjGigD1Df+3D3gN3cA7D8oNjRoT
+         6wQxGZpp9Y3/UcQ+1d7Lt7T1C339XI63YP0T5nAT+avsqUkZAynuqk2T7OyGPuo4Nhku
+         flY75An93bjv3L1U7pujFymnSq0PEFfY96yvVbuRb/HBW+5s995I92NqQhgjZaBW2dLf
+         bunwH5qHfPTol4MpVCjGs9nUgVO0Rhi0Pl26vMcg3pxQqDTAYN/PdltZBENrlP9UJLQJ
+         Jugy1V7gut9Bxd901hBvDEmmjrU6hdT9dKoc/hj90bt98149p2ZcWBhsluTEfJ/cYDWs
+         C6Jw==
+X-Gm-Message-State: AOAM530B57lcg2CLGHd3wQTttAhTvm7oGR1CFYAAJZHmBKz7Xo2UYcLY
+        ckJ2+zrVQ4urNAelu/valY8vU60VwnpwPA==
+X-Google-Smtp-Source: ABdhPJzo02U3Yp+DKsQbLQ21tpfJJWrJgkNZqU7TvOBJnHXN23IzSEbzSzHVey99YMeTVbRiKatEzA==
+X-Received: by 2002:a17:902:e74e:b0:142:fa5:49f1 with SMTP id p14-20020a170902e74e00b001420fa549f1mr68249942plf.84.1639065599585;
+        Thu, 09 Dec 2021 07:59:59 -0800 (PST)
+Received: from localhost.localdomain ([66.185.175.30])
+        by smtp.gmail.com with ESMTPSA id q17sm146875pfu.117.2021.12.09.07.59.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Dec 2021 07:59:59 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org
+Subject: [PATCH 1/2] io_uring: check tctx->in_idle when decrementing inflight_tracked
+Date:   Thu,  9 Dec 2021 08:59:55 -0700
+Message-Id: <20211209155956.383317-2-axboe@kernel.dk>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211209155956.383317-1-axboe@kernel.dk>
+References: <20211209155956.383317-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 1/2] can: kvaser_pciefd: kvaser_pciefd_rx_error_frame():
- increase correct stats->{rx,tx}_errors counter
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163906500940.10006.10267892818348895466.git-patchwork-notify@kernel.org>
-Date:   Thu, 09 Dec 2021 15:50:09 +0000
-References: <20211209081312.301036-2-mkl@pengutronix.de>
-In-Reply-To: <20211209081312.301036-2-mkl@pengutronix.de>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-can@vger.kernel.org, kernel@pengutronix.de, extja@kvaser.com,
-        stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+If we have someone potentially waiting for tracked requests to finish,
+ensure that we check in_idle and wake them up appropriately.
 
-This series was applied to netdev/net.git (master)
-by Marc Kleine-Budde <mkl@pengutronix.de>:
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-On Thu,  9 Dec 2021 09:13:11 +0100 you wrote:
-> From: Jimmy Assarsson <extja@kvaser.com>
-> 
-> Check the direction bit in the error frame packet (EPACK) to determine
-> which net_device_stats {rx,tx}_errors counter to increase.
-> 
-> Fixes: 26ad340e582d ("can: kvaser_pciefd: Add driver for Kvaser PCIEcan devices")
-> Link: https://lore.kernel.org/all/20211208152122.250852-1-extja@kvaser.com
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,1/2] can: kvaser_pciefd: kvaser_pciefd_rx_error_frame(): increase correct stats->{rx,tx}_errors counter
-    https://git.kernel.org/netdev/net/c/36aea60fc892
-  - [net,2/2] can: kvaser_usb: get CAN clock frequency from device
-    https://git.kernel.org/netdev/net/c/fb12797ab1fe
-
-You are awesome, thank you!
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c4f217613f56..b4d5b8d168bf 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6640,6 +6640,8 @@ static void io_clean_op(struct io_kiocb *req)
+ 		struct io_uring_task *tctx = req->task->io_uring;
+ 
+ 		atomic_dec(&tctx->inflight_tracked);
++		if (unlikely(atomic_read(&tctx->in_idle)))
++			wake_up(&tctx->wait);
+ 	}
+ 	if (req->flags & REQ_F_CREDS)
+ 		put_cred(req->creds);
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.34.1
 
