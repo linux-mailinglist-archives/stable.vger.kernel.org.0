@@ -2,103 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E541646EA12
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 15:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E580246EA26
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 15:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238685AbhLIOjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 09:39:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35098 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232389AbhLIOjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 09:39:11 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67112C061746;
-        Thu,  9 Dec 2021 06:35:37 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S232756AbhLIOmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 09:42:14 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:48877 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238782AbhLIOlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 09:41:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639060696;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=SicIl/F4FCwOSzdyMa6d5C5yjU3rVhalMXpaVFqCm/w=;
+        b=eowAvB/4w06vTOD+4vg1CaqtNmSyHLj+C3VzRbY7bec6QsVpGm/7KAHrkWnv8zikmJzzHt
+        l1oCjr4zLTt/Ezzy6N3YLQlqBG1IClMA39unVFQV7lTaZiLzyaL7gH3QlwB0PP5l8de61h
+        l60SPLC+Ip0VISq+k+Voc/NIfjv/mdw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-277-YSOIy4BJMvWg0__xuuhKnQ-1; Thu, 09 Dec 2021 09:38:15 -0500
+X-MC-Unique: YSOIy4BJMvWg0__xuuhKnQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 33C94CE25F9;
-        Thu,  9 Dec 2021 14:35:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C625FC004DD;
-        Thu,  9 Dec 2021 14:35:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639060533;
-        bh=VwQ1u7crT9tT2d+BvG1u1dd1ZTTVlRbYTyboOZjY+2U=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=XRlSUYtInzZ/0oU2tmL9L3RnBGehjLPN3akfPhmYyn+TWDOwoxOnJmvhmtKLxONr+
-         B9MSL2XrYtlcOky2Q4AHIJdu78ZPyBOhnXU8e1nBWMpLTgeN+DlBHsqZg9fEn9xIer
-         28+yc/qdQIzX/5BPht4AiSZmBqe90zPaFvToxgQe6sTYeVEF7bACsTV0YEcTxuM9W3
-         1shsjsfStzRavL5pvVZR5xDtdYXmluIjwZp2f8tT5nWsdgjgjW10xKI4KDg+b+EYTa
-         RM8wN9sIcTO788kJ/1yszTfeMzyuz8+WikXuohnep8HXXtAjybJry7DDAbymSXWTv+
-         vBOjSToSXzwEA==
-From:   Kalle Valo <kvalo@kernel.org>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     gregkh@linuxfoundation.org, mhi@lists.linux.dev,
-        hemantk@codeaurora.org, bbhatt@codeaurora.org,
-        loic.poulain@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org,
-        Pengyu Ma <mapengyu@gmail.com>
-Subject: Re: [PATCH v2] bus: mhi: core: Add support for forced PM resume
-References: <20211209131633.4168-1-manivannan.sadhasivam@linaro.org>
-Date:   Thu, 09 Dec 2021 16:35:25 +0200
-In-Reply-To: <20211209131633.4168-1-manivannan.sadhasivam@linaro.org>
-        (Manivannan Sadhasivam's message of "Thu, 9 Dec 2021 18:46:33 +0530")
-Message-ID: <87fsr13kya.fsf@codeaurora.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0BF65802C92;
+        Thu,  9 Dec 2021 14:38:13 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.22.16.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 18A9E694DF;
+        Thu,  9 Dec 2021 14:38:12 +0000 (UTC)
+From:   John Dorminy <jdorminy@redhat.com>
+To:     tip-bot2@linutronix.de
+Cc:     anjaneya.chagam@intel.com, bp@suse.de, dan.j.williams@intel.com,
+        linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+        stable@vger.kernel.org, x86@kernel.org
+Subject: Re: [tip: x86/urgent] x86/boot: Pull up cmdline preparation and early param parsing
+Date:   Thu,  9 Dec 2021 09:38:10 -0500
+Message-Id: <20211209143810.452527-1-jdorminy@redhat.com>
+In-Reply-To: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2>
+References: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org> writes:
+Greetings;
 
-> From: Loic Poulain <loic.poulain@linaro.org>
->
-> For whatever reason, some devices like QCA6390, WCN6855 using ath11k
-> are not in M3 state during PM resume, but still functional. The
-> mhi_pm_resume should then not fail in those cases, and let the higher
-> level device specific stack continue resuming process.
->
-> Add an API mhi_pm_resume_force(), to force resuming irrespective of the
-> current MHI state. This fixes a regression with non functional ath11k WiFi
-> after suspend/resume cycle on some machines.
->
-> Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=214179
->
-> Fixes: 020d3b26c07a ("bus: mhi: Early MHI resume failure in non M3 state")
-> Cc: stable@vger.kernel.org #5.13
-> Link: https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
-> Reported-by: Kalle Valo <kvalo@codeaurora.org>
-> Reported-by: Pengyu Ma <mapengyu@gmail.com>
-> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-> [mani: Switched to API, added bug report, reported-by tags and CCed stable]
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> ---
->
-> Changes in v2:
->
-> * Switched to a new API "mhi_pm_resume_force()" instead of the "force" flag as
->   suggested by Greg. The "force" flag is now used inside the API.
->
-> Greg: I'm sending this patch directly to you so that you can apply it to
-> char-misc once we get an ACK from Kalle.
+It seems that this patch causes a mem= parameter to the kernel to have no effect, unfortunately... 
 
-Thanks! I now tested this patch on top v5.16-rc4 using QCA6390 and
-firmware WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1, no issues found:
+As far as I understand, the x86 mem parameter handler parse_memopt() (called by parse_early_param()) relies on being called after e820__memory_setup(): it simply removes any memory above the specified limit at that moment, allowing memory to later be hotplugged without regard for the initial limit. However, the initial non-hotplugged memory must already have been set up, in e820__memory_setup(), so that it can be removed in parse_memopt(); if parse_early_param() is called before e820__memory_setup(), as this change does, the parameter ends up having no effect.
 
-Tested-by: Kalle Valo <kvalo@kernel.org>
+I apologize that I don't know how to fix this, but I'm happy to test patches.
 
-I'm not expecting any conflicts with ath11k, so please take this via
-Greg's tree. It would be really good to get this regression fixed in
-v5.16, so is it possible to send this to -rc releases?
+Typical dmesg output showing the lack of effect, built from the prior change and this change:
 
-For the ath11k part:
+With a git tree synced to 8d48bf8206f77aa8687f0e241e901e5197e52423^ (working):
+[    0.000000] Command line: BOOT_IMAGE=(hd0,msdos1)/boot/vmlinuz-5.16.0-rc1 root=UUID=a4f7bd84-4f29-40bc-8c98-f4a72d0856c4 ro net.ifnames=0 crashkernel=128M mem=4G
+...
+[    0.000000] BIOS-provided physical RAM map:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009abff] usable
+[    0.000000] BIOS-e820: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x000000007dd3afff] usable
+[    0.000000] BIOS-e820: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+[    0.000000] BIOS-e820: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+[    0.000000] BIOS-e820: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x0000000080000000-0x000000008fffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000207fffffff] usable
+[    0.000000] e820: remove [mem 0x100000000-0xfffffffffffffffe] usable
+[    0.000000] NX (Execute Disable) protection: active
+[    0.000000] user-defined physical RAM map:
+[    0.000000] user: [mem 0x0000000000000000-0x000000000009abff] usable
+[    0.000000] user: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+[    0.000000] user: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+[    0.000000] user: [mem 0x0000000000100000-0x000000007dd3afff] usable
+[    0.000000] user: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+[    0.000000] user: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+[    0.000000] user: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+[    0.000000] user: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+[    0.000000] user: [mem 0x0000000080000000-0x000000008fffffff] reserved
+[    0.000000] user: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+[    0.000000] user: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+...
+[    0.025617] Memory: 1762876K/2061136K available (16394K kernel code, 3568K rwdata, 10324K rodata, 2676K init, 4924K bss, 298000K reserved, 0K cma-reserved)
 
-Acked-by: Kalle Valo <kvalo@kernel.org>
+Synced 8d48bf8206f77aa8687f0e241e901e5197e52423 (not working):
 
--- 
-https://patchwork.kernel.org/project/linux-wireless/list/
+[    0.000000] Command line: BOOT_IMAGE=(hd0,msdos1)/boot/vmlinuz-5.16.0-rc4+ root=UUID=0e750e61-b92e-4708-a974-c50a3fb7e969 ro net.ifnames=0 crashkernel=128M mem=4G
+[    0.000000] e820: remove [mem 0x100000000-0xfffffffffffffffe] usable
+[    0.000000] BIOS-provided physical RAM map:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009abff] usable
+[    0.000000] BIOS-e820: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x000000007dd3afff] usable
+[    0.000000] BIOS-e820: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+[    0.000000] BIOS-e820: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+[    0.000000] BIOS-e820: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+[    0.000000] BIOS-e820: [mem 0x0000000080000000-0x000000008fffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000207fffffff] usable
+[    0.000000] NX (Execute Disable) protection: active
+[    0.000000] user-defined physical RAM map:
+[    0.000000] user: [mem 0x0000000000000000-0x000000000009abff] usable
+[    0.000000] user: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+[    0.000000] user: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+[    0.000000] user: [mem 0x0000000000100000-0x000000007dd3afff] usable
+[    0.000000] user: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+[    0.000000] user: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+[    0.000000] user: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+[    0.000000] user: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+[    0.000000] user: [mem 0x0000000080000000-0x000000008fffffff] reserved
+[    0.000000] user: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+[    0.000000] user: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+[    0.000000] user: [mem 0x0000000100000000-0x000000207fffffff] usable
+...
+[    0.695267] Memory: 131657608K/134181712K available (16394K kernel code, 3568K rwdata, 10328K rodata, 2676K init, 4924K bss, 2523844K reserved, 0K cma-reserved)
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
