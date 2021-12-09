@@ -2,78 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C8846E7C5
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 12:52:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED8946E804
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 13:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233602AbhLILzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 06:55:50 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:56546 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232177AbhLILzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 06:55:50 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 29A28210FF;
-        Thu,  9 Dec 2021 11:52:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1639050736; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=YX5nCd41/qX08Uy6D4mC8eSKOoVllnuhCQFVjt3bHYY=;
-        b=j6xIyE0pjiaV96qWX6YW8i89fAGNYXWoIW7+5PM2DM4WJ8vnTVMSa1YyKGFM2noa3MJ/eT
-        QRm5LfMJ6EsefviAuHICxTLFmzECai0JaOhxpXy0Z3CdjXgtDP1b3XKLSoUERfOBCuy8GU
-        FHO+qS966nEFGaHI74MYKiUaoZKUXTI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1639050736;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=YX5nCd41/qX08Uy6D4mC8eSKOoVllnuhCQFVjt3bHYY=;
-        b=2BnKLHTtAJ0egwCFnhgi64mr4fQdpOSH4ikfdztCnMR5ZUXr9pL+OLktq1UqQc4axI0TNa
-        gYe4jlET5DEuJhBw==
-Received: from suse.de (mgorman.udp.ovpn2.nue.suse.de [10.163.43.106])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 0E978A3B93;
-        Thu,  9 Dec 2021 11:52:14 +0000 (UTC)
-Date:   Thu, 9 Dec 2021 11:52:11 +0000
-From:   Mel Gorman <mgorman@suse.de>
-To:     Huang Ying <ying.huang@intel.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH -V2] numa balancing: move some document to make it
- consistent with the code
-Message-ID: <20211209115211.GI3301@suse.de>
-References: <20211209004442.999696-1-ying.huang@intel.com>
+        id S237007AbhLIMIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 07:08:39 -0500
+Received: from foss.arm.com ([217.140.110.172]:55442 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237070AbhLIMIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Dec 2021 07:08:39 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BDC872B;
+        Thu,  9 Dec 2021 04:05:05 -0800 (PST)
+Received: from usa.arm.com (e103737-lin.cambridge.arm.com [10.1.197.49])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 9AB583F5A1;
+        Thu,  9 Dec 2021 04:05:04 -0800 (PST)
+From:   Sudeep Holla <sudeep.holla@arm.com>
+To:     linux-kernel@vger.kernel.org, soc@kernel.org, arm@kernel.org
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        Pedro Batista <pedbap.g@gmail.com>,
+        Cristian Marussi <cristian.marussi@arm.com>
+Subject: [PATCH v2] firmware: arm_scpi: Fix string overflow in SCPI genpd driver
+Date:   Thu,  9 Dec 2021 12:04:56 +0000
+Message-Id: <20211209120456.696879-1-sudeep.holla@arm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20211209004442.999696-1-ying.huang@intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 09, 2021 at 08:44:42AM +0800, Huang Ying wrote:
-> After commit 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to
-> debugfs"), some NUMA balancing sysctls enclosed with SCHED_DEBUG has
-> been moved to debugfs.  This patch move the document for these
-> sysctls from
-> 
->   Documentation/admin-guide/sysctl/kernel.rst
-> 
-> to
-> 
->   Documentation/scheduler/debug.txt
-> 
-> to make the document consistent with the code.
-> 
+Without the bound checks for scpi_pd->name, it could result in the buffer
+overflow when copying the SCPI device name from the corresponding device
+tree node as the name string is set at maximum size of 30.
 
-Acked-by: Mel Gorman <mgorman@suse.de>
+Let us fix it by using devm_kasprintf so that the string buffer is
+allocated dynamically.
 
--- 
-Mel Gorman
-SUSE Labs
+Cc: stable@vger.kernel.org
+Fixes: 8bec4337ad40 ("firmware: scpi: add device power domain support using genpd")
+Reported-by: Pedro Batista <pedbap.g@gmail.com>
+Cc: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+---
+ drivers/firmware/scpi_pm_domain.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+Hi ARM SoC team,
+
+Can you apply this directly as I don't have any other fix at the moment.
+
+Regards,
+Sudeep
+
+v1->v2:
+	- Fixed accidentally dropped '.' in the name
+	- Used devm_kasprintf instead of combination of kasprintf and
+	  devm_kstrdup
+
+v1: https://lore.kernel.org/r/20211206153150.565685-1-sudeep.holla@arm.com/
+
+diff --git a/drivers/firmware/scpi_pm_domain.c b/drivers/firmware/scpi_pm_domain.c
+index 51201600d789..800673910b51 100644
+--- a/drivers/firmware/scpi_pm_domain.c
++++ b/drivers/firmware/scpi_pm_domain.c
+@@ -16,7 +16,6 @@ struct scpi_pm_domain {
+ 	struct generic_pm_domain genpd;
+ 	struct scpi_ops *ops;
+ 	u32 domain;
+-	char name[30];
+ };
+
+ /*
+@@ -110,8 +109,13 @@ static int scpi_pm_domain_probe(struct platform_device *pdev)
+
+ 		scpi_pd->domain = i;
+ 		scpi_pd->ops = scpi_ops;
+-		sprintf(scpi_pd->name, "%pOFn.%d", np, i);
+-		scpi_pd->genpd.name = scpi_pd->name;
++		scpi_pd->genpd.name = devm_kasprintf(dev, GFP_KERNEL,
++						     "%pOFn.%d", np, i);
++		if (!scpi_pd->genpd.name) {
++			dev_err(dev, "Failed to allocate genpd name:%pOFn.%d\n",
++				np, i);
++			continue;
++		}
+ 		scpi_pd->genpd.power_off = scpi_pd_power_off;
+ 		scpi_pd->genpd.power_on = scpi_pd_power_on;
+
+--
+2.25.1
+
