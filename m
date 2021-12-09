@@ -2,238 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1055646E3E4
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 09:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7144C46E485
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 09:46:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230243AbhLIIRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 03:17:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234542AbhLIIQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:16:59 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181BAC061D5E
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 00:13:25 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1mvEYM-0001i9-W6
-        for stable@vger.kernel.org; Thu, 09 Dec 2021 09:13:23 +0100
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 38E4B6C065C
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 08:13:21 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id D934C6C0648;
-        Thu,  9 Dec 2021 08:13:19 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id f26335c9;
-        Thu, 9 Dec 2021 08:13:19 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Jimmy Assarsson <extja@kvaser.com>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 2/2] can: kvaser_usb: get CAN clock frequency from device
-Date:   Thu,  9 Dec 2021 09:13:12 +0100
-Message-Id: <20211209081312.301036-3-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211209081312.301036-1-mkl@pengutronix.de>
-References: <20211209081312.301036-1-mkl@pengutronix.de>
+        id S232634AbhLIItm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 03:49:42 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:53150 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229613AbhLIItm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:49:42 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id EEA68210FB;
+        Thu,  9 Dec 2021 08:46:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1639039567; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=LdaRLyAcpzh2mvaBy6NuiwpxJ1+QK8t1DTA+skefRhE=;
+        b=ExHgqJ0kn0EP76XCdsyjjtRQnlSzdj8+QJ2RZvGS1DPq9ieQPuT0sYZlaOFRSh7BBBv1jb
+        IlSnBRdYjJM2R02g1teVLrIDLX45vlDmzpYrCt6zniIV3Q3picNMmhwR+khs/uZ4I+Xgd6
+        /dX8LpVyCWVIyp2nk+trJom5gKHYh5E=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 7F492A3B85;
+        Thu,  9 Dec 2021 08:46:07 +0000 (UTC)
+Date:   Thu, 9 Dec 2021 09:46:07 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Alexey Makhalov <amakhalov@vmware.com>
+Cc:     Dennis Zhou <dennis@kernel.org>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
+Message-ID: <YbHCT1r7NXyIvpsS@dhcp22.suse.cz>
+References: <YYqstfX8PSGDfWsn@dhcp22.suse.cz>
+ <YYrGpn/52HaLCAyo@fedora>
+ <YYrSC7vtSQXz652a@dhcp22.suse.cz>
+ <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
+ <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
+ <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
+ <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
+ <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
+ <YbBywDwc2bCxWGAQ@dhcp22.suse.cz>
+ <77BCF61E-224F-435D-8620-670C9E874A9A@vmware.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <77BCF61E-224F-435D-8620-670C9E874A9A@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Assarsson <extja@kvaser.com>
+On Thu 09-12-21 02:16:17, Alexey Makhalov wrote:
+> This patch calls alloc_percpu() from setup_arch() while percpu
+> allocator is not yet initialized (before setup_per_cpu_areas()).
 
-The CAN clock frequency is used when calculating the CAN bittiming
-parameters. When wrong clock frequency is used, the device may end up
-with wrong bittiming parameters, depending on user requested bittiming
-parameters.
+Yeah, I haven't realized the pcp is not available. I was not really sure
+about that. Could you try with the alloc_percpu dropped?
 
-To avoid this, get the CAN clock frequency from the device. Various
-existing Kvaser Leaf products use different CAN clocks.
-
-Fixes: 080f40a6fa28 ("can: kvaser_usb: Add support for Kvaser CAN/USB devices")
-Link: https://lore.kernel.org/all/20211208152122.250852-2-extja@kvaser.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- .../net/can/usb/kvaser_usb/kvaser_usb_leaf.c  | 101 +++++++++++++-----
- 1 file changed, 73 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-index 59ba7c7beec0..f7af1bf5ab46 100644
---- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-+++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_leaf.c
-@@ -28,10 +28,6 @@
- 
- #include "kvaser_usb.h"
- 
--/* Forward declaration */
--static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg;
--
--#define CAN_USB_CLOCK			8000000
- #define MAX_USBCAN_NET_DEVICES		2
- 
- /* Command header size */
-@@ -80,6 +76,12 @@ static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg;
- 
- #define CMD_LEAF_LOG_MESSAGE		106
- 
-+/* Leaf frequency options */
-+#define KVASER_USB_LEAF_SWOPTION_FREQ_MASK 0x60
-+#define KVASER_USB_LEAF_SWOPTION_FREQ_16_MHZ_CLK 0
-+#define KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK BIT(5)
-+#define KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK BIT(6)
-+
- /* error factors */
- #define M16C_EF_ACKE			BIT(0)
- #define M16C_EF_CRCE			BIT(1)
-@@ -340,6 +342,50 @@ struct kvaser_usb_err_summary {
- 	};
- };
- 
-+static const struct can_bittiming_const kvaser_usb_leaf_bittiming_const = {
-+	.name = "kvaser_usb",
-+	.tseg1_min = KVASER_USB_TSEG1_MIN,
-+	.tseg1_max = KVASER_USB_TSEG1_MAX,
-+	.tseg2_min = KVASER_USB_TSEG2_MIN,
-+	.tseg2_max = KVASER_USB_TSEG2_MAX,
-+	.sjw_max = KVASER_USB_SJW_MAX,
-+	.brp_min = KVASER_USB_BRP_MIN,
-+	.brp_max = KVASER_USB_BRP_MAX,
-+	.brp_inc = KVASER_USB_BRP_INC,
-+};
-+
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_8mhz = {
-+	.clock = {
-+		.freq = 8000000,
-+	},
-+	.timestamp_freq = 1,
-+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+};
-+
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_16mhz = {
-+	.clock = {
-+		.freq = 16000000,
-+	},
-+	.timestamp_freq = 1,
-+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+};
-+
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_24mhz = {
-+	.clock = {
-+		.freq = 24000000,
-+	},
-+	.timestamp_freq = 1,
-+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+};
-+
-+static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg_32mhz = {
-+	.clock = {
-+		.freq = 32000000,
-+	},
-+	.timestamp_freq = 1,
-+	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
-+};
-+
- static void *
- kvaser_usb_leaf_frame_to_cmd(const struct kvaser_usb_net_priv *priv,
- 			     const struct sk_buff *skb, int *frame_len,
-@@ -471,6 +517,27 @@ static int kvaser_usb_leaf_send_simple_cmd(const struct kvaser_usb *dev,
- 	return rc;
- }
- 
-+static void kvaser_usb_leaf_get_software_info_leaf(struct kvaser_usb *dev,
-+						   const struct leaf_cmd_softinfo *softinfo)
-+{
-+	u32 sw_options = le32_to_cpu(softinfo->sw_options);
-+
-+	dev->fw_version = le32_to_cpu(softinfo->fw_version);
-+	dev->max_tx_urbs = le16_to_cpu(softinfo->max_outstanding_tx);
-+
-+	switch (sw_options & KVASER_USB_LEAF_SWOPTION_FREQ_MASK) {
-+	case KVASER_USB_LEAF_SWOPTION_FREQ_16_MHZ_CLK:
-+		dev->cfg = &kvaser_usb_leaf_dev_cfg_16mhz;
-+		break;
-+	case KVASER_USB_LEAF_SWOPTION_FREQ_24_MHZ_CLK:
-+		dev->cfg = &kvaser_usb_leaf_dev_cfg_24mhz;
-+		break;
-+	case KVASER_USB_LEAF_SWOPTION_FREQ_32_MHZ_CLK:
-+		dev->cfg = &kvaser_usb_leaf_dev_cfg_32mhz;
-+		break;
-+	}
-+}
-+
- static int kvaser_usb_leaf_get_software_info_inner(struct kvaser_usb *dev)
- {
- 	struct kvaser_cmd cmd;
-@@ -486,14 +553,13 @@ static int kvaser_usb_leaf_get_software_info_inner(struct kvaser_usb *dev)
- 
- 	switch (dev->card_data.leaf.family) {
- 	case KVASER_LEAF:
--		dev->fw_version = le32_to_cpu(cmd.u.leaf.softinfo.fw_version);
--		dev->max_tx_urbs =
--			le16_to_cpu(cmd.u.leaf.softinfo.max_outstanding_tx);
-+		kvaser_usb_leaf_get_software_info_leaf(dev, &cmd.u.leaf.softinfo);
- 		break;
- 	case KVASER_USBCAN:
- 		dev->fw_version = le32_to_cpu(cmd.u.usbcan.softinfo.fw_version);
- 		dev->max_tx_urbs =
- 			le16_to_cpu(cmd.u.usbcan.softinfo.max_outstanding_tx);
-+		dev->cfg = &kvaser_usb_leaf_dev_cfg_8mhz;
- 		break;
- 	}
- 
-@@ -1225,24 +1291,11 @@ static int kvaser_usb_leaf_init_card(struct kvaser_usb *dev)
- {
- 	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
- 
--	dev->cfg = &kvaser_usb_leaf_dev_cfg;
- 	card_data->ctrlmode_supported |= CAN_CTRLMODE_3_SAMPLES;
- 
- 	return 0;
- }
- 
--static const struct can_bittiming_const kvaser_usb_leaf_bittiming_const = {
--	.name = "kvaser_usb",
--	.tseg1_min = KVASER_USB_TSEG1_MIN,
--	.tseg1_max = KVASER_USB_TSEG1_MAX,
--	.tseg2_min = KVASER_USB_TSEG2_MIN,
--	.tseg2_max = KVASER_USB_TSEG2_MAX,
--	.sjw_max = KVASER_USB_SJW_MAX,
--	.brp_min = KVASER_USB_BRP_MIN,
--	.brp_max = KVASER_USB_BRP_MAX,
--	.brp_inc = KVASER_USB_BRP_INC,
--};
--
- static int kvaser_usb_leaf_set_bittiming(struct net_device *netdev)
- {
- 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
-@@ -1348,11 +1401,3 @@ const struct kvaser_usb_dev_ops kvaser_usb_leaf_dev_ops = {
- 	.dev_read_bulk_callback = kvaser_usb_leaf_read_bulk_callback,
- 	.dev_frame_to_cmd = kvaser_usb_leaf_frame_to_cmd,
- };
--
--static const struct kvaser_usb_dev_cfg kvaser_usb_leaf_dev_cfg = {
--	.clock = {
--		.freq = CAN_USB_CLOCK,
--	},
--	.timestamp_freq = 1,
--	.bittiming_const = &kvaser_usb_leaf_bittiming_const,
--};
+Thanks for testing!
 -- 
-2.33.0
-
-
+Michal Hocko
+SUSE Labs
