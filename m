@@ -2,91 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A7746E396
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 08:59:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E3846E3DB
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 09:12:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232231AbhLIIC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 03:02:57 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:42730 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232168AbhLIIC5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:02:57 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S232443AbhLIIPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 03:15:51 -0500
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:47664
+        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234440AbhLIIPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:15:50 -0500
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com [209.85.208.198])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A2C55CE241A;
-        Thu,  9 Dec 2021 07:59:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C78C004DD;
-        Thu,  9 Dec 2021 07:59:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639036760;
-        bh=7usM8Vbzbt7a1NhxXqycqXWoO9LCXTfcFvZdVhjm9/U=;
-        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
-        b=Mf9H26Oyq6oVoTZpwcFL+iPOu0W2niMsBMuhcrJg/36GCepmIKD8APRtzCU3a7BWy
-         DZwr88C76kvk611BGBUGXCHjOaOiAXu2NHBkVJSkedoRrwj4/DZHq6S28yMJmmp1pX
-         OGJvCBUqv/dy9buOCqjt+ImxIGjVA7AQBtpjEko8yNbu4x4bWlXMOqgM0bJggtiz3u
-         GZ4l0PPbrNL9lLbqITb8hXrH7K7d4/NrhtlbX32CNrobn19W/ojq6MV0jg+jlVTGcB
-         JqcU3IGwCn/0LRHOw/la5pbiRUW93RbUP0t8fkuCmDPXVOHFHIMs2wsz5tupcS1at9
-         3xGAvFdgAdFbA==
-Content-Type: text/plain; charset="utf-8"
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id F06053F1EE
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 08:12:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1639037535;
+        bh=fBYCECAJevs/zh6Lenm9Wbk6Z5sCtP6TImy1jaIY/bc=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=krnz8Yhqxhb2tgRM696JPvr5GYf8j36xCaYTuIDaKAIwGp9mY7HXZv/eQzGQJXYEO
+         7x5N4eB0JzgdHIL3sczC2UyJ9Fh6Jf1afuZdruYlCG9QFY7par6u/LY5j+Y794H5nl
+         DJEyDOX6YHB1I7PxWYDGyXsHea5WWeNyzqgkM9Gzb1r+dFl1JMPBwf0xlqJS7AVebz
+         y7azEReOsRxPCNa3H9DuL/FCBX6xLnzonRi7h+vdmwP98VYIJvN5oxFXHRojLznwxN
+         co/MTjHkB91Jhc+glIRe4XMXl01WAK0dsATcw8TMfON+PFGAye9j7bVefpLr2MxNyR
+         kZfi1zD27I24g==
+Received: by mail-lj1-f198.google.com with SMTP id i123-20020a2e2281000000b0021cfde1fa8eso1522159lji.7
+        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 00:12:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=fBYCECAJevs/zh6Lenm9Wbk6Z5sCtP6TImy1jaIY/bc=;
+        b=CP88hc1MDz4/5dEFyujATEEBRNZwomwAdW8BMsbq0rYfOgKu0Pqx+Rn0TlgvMwr+wE
+         F9nwV1TI+YMSCmgY7OpWUYmamVsMX1ZqvsdKzKI8DEYqHZZrwtaYk61t7/rRWYRtlakl
+         KlrSk3B3SNfmva2E+TdzNgX1y08VQJhFFeEX77ZhjVNFU3eoLeXzIBjR2807sBIf0/Gl
+         FVbDZ1zf6kpvW/py6bncXBx1KIEfDI1fAl4bBksGm9AjatECirabyjQ26wjBmfZgHG3Q
+         YErAVxpXZfwqskLjsXnVDB8EcMCAdL9TBiuNRemHOCA9wjtfK3Dsh3AvothPnFpv3T+G
+         EWOg==
+X-Gm-Message-State: AOAM531nge+1ec136tYOcWdhypLis8TW0B3BrQ2EfwhotJJFtFeIYgck
+        mORlLqmXmcrqFY0Qg18NwbjzGGvBPYAqu26xzCHnXRpZTWzKV1sIdQ45FL9JpW5ZEe+U+BIwQGY
+        IO0pjoqE1MBYmyAJ/iZRgT65HEuhaERJ+xQ==
+X-Received: by 2002:a05:6512:2101:: with SMTP id q1mr4372051lfr.663.1639037533892;
+        Thu, 09 Dec 2021 00:12:13 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzzCh6D9KFbIjH70+q4mk9ijSh2M0NWaUeJ3/1sGWaRnyi/AyAL30CqWfzi7r4a7vbfvvzEbA==
+X-Received: by 2002:a05:6512:2101:: with SMTP id q1mr4372037lfr.663.1639037533607;
+        Thu, 09 Dec 2021 00:12:13 -0800 (PST)
+Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
+        by smtp.gmail.com with ESMTPSA id g26sm499826ljn.107.2021.12.09.00.12.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 Dec 2021 00:12:12 -0800 (PST)
+Message-ID: <20dcbf40-0ca0-690d-182a-e21ee6af1db4@canonical.com>
+Date:   Thu, 9 Dec 2021 09:12:12 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.1
+Subject: Re: [PATCH] nfc: fix segfault in nfc_genl_dump_devices_done
+Content-Language: en-US
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>, netdev@vger.kernel.org
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
+        syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
+References: <20211208182742.340542-1-tadeusz.struk@linaro.org>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20211208182742.340542-1-tadeusz.struk@linaro.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] ath11k: Fix buffer overflow when scanning with extraie
-From:   Kalle Valo <kvalo@kernel.org>
-In-Reply-To: <20211207142913.1734635-1-sven@narfation.org>
-References: <20211207142913.1734635-1-sven@narfation.org>
-To:     Sven Eckelmann <sven@narfation.org>
-Cc:     ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        Wen Gong <quic_wgong@quicinc.com>,
-        Sven Eckelmann <sven@narfation.org>, stable@vger.kernel.org
-User-Agent: pwcli/0.1.0-git (https://github.com/kvalo/pwcli/) Python/3.7.3
-Message-ID: <163903675519.20904.4795349677435567607.kvalo@kernel.org>
-Date:   Thu,  9 Dec 2021 07:59:19 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sven Eckelmann <sven@narfation.org> wrote:
-
-> If cfg80211 is providing extraie's for a scanning process then ath11k will
-> copy that over to the firmware. The extraie.len is a 32 bit value in struct
-> element_info and describes the amount of bytes for the vendor information
-> elements.
+On 08/12/2021 19:27, Tadeusz Struk wrote:
+> When kmalloc in nfc_genl_dump_devices() fails then
+> nfc_genl_dump_devices_done() segfaults as below
 > 
-> The WMI_TLV packet is having a special WMI_TAG_ARRAY_BYTE section. This
-> section can have a (payload) length up to 65535 bytes because the
-> WMI_TLV_LEN can store up to 16 bits. The code was missing such a check and
-> could have created a scan request which cannot be parsed correctly by the
-> firmware.
+> KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+> CPU: 0 PID: 25 Comm: kworker/0:1 Not tainted 5.16.0-rc4-01180-g2a987e65025e-dirty #5
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
+> Workqueue: events netlink_sock_destruct_work
+> RIP: 0010:klist_iter_exit+0x26/0x80
+> Call Trace:
+> <TASK>
+> class_dev_iter_exit+0x15/0x20
+> nfc_genl_dump_devices_done+0x3b/0x50
+> genl_lock_done+0x84/0xd0
+> netlink_sock_destruct+0x8f/0x270
+> __sk_destruct+0x64/0x3b0
+> sk_destruct+0xa8/0xd0
+> __sk_free+0x2e8/0x3d0
+> sk_free+0x51/0x90
+> netlink_sock_destruct_work+0x1c/0x20
+> process_one_work+0x411/0x710
+> worker_thread+0x6fd/0xa80
 > 
-> But the bigger problem was the allocation of the buffer. It has to align
-> the TLV sections by 4 bytes. But the code was using an u8 to store the
-> newly calculated length of this section (with alignment). And the new
-> calculated length was then used to allocate the skbuff. But the actual code
-> to copy in the data is using the extraie.len and not the calculated
-> "aligned" length.
-> 
-> The length of extraie with IEEE80211_HW_SINGLE_SCAN_ON_ALL_BANDS enabled
-> was 264 bytes during tests with a QCA Milan card. But it only allocated 8
-> bytes (264 bytes % 256) for it. As consequence, the code to memcpy the
-> extraie into the skb was then just overwriting data after skb->end. Things
-> like shinfo were therefore corrupted. This could usually be seen by a crash
-> in skb_zcopy_clear which tried to call a ubuf_info callback (using a bogus
-> address).
-> 
-> Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-02892.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-> 
+> Link: https://syzkaller.appspot.com/bug?id=fc0fa5a53db9edd261d56e74325419faf18bd0df
+> Cc: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: netdev@vger.kernel.org
 > Cc: stable@vger.kernel.org
-> Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-> Signed-off-by: Sven Eckelmann <sven@narfation.org>
-> Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+> Reported-by: syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
+> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+> ---
+>  net/nfc/netlink.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
 
-Patch applied to ath-next branch of ath.git, thanks.
+Cc: <stable@vger.kernel.org>
+Fixes: 4d12b8b129f1 ("NFC: add nfc generic netlink interface")
 
-a658c929ded7 ath11k: Fix buffer overflow when scanning with extraie
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
--- 
-https://patchwork.kernel.org/project/linux-wireless/patch/20211207142913.1734635-1-sven@narfation.org/
+I will fix other similar cases.
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
-
+Best regards,
+Krzysztof
