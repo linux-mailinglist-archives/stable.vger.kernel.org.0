@@ -2,87 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD5546E7A1
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 12:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C8846E7C5
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 12:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236749AbhLILhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 06:37:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49554 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232989AbhLILhu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 06:37:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE0BC061746;
-        Thu,  9 Dec 2021 03:34:16 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        id S233602AbhLILzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 06:55:50 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:56546 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232177AbhLILzu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 06:55:50 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 29A28210FF;
+        Thu,  9 Dec 2021 11:52:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1639050736; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=YX5nCd41/qX08Uy6D4mC8eSKOoVllnuhCQFVjt3bHYY=;
+        b=j6xIyE0pjiaV96qWX6YW8i89fAGNYXWoIW7+5PM2DM4WJ8vnTVMSa1YyKGFM2noa3MJ/eT
+        QRm5LfMJ6EsefviAuHICxTLFmzECai0JaOhxpXy0Z3CdjXgtDP1b3XKLSoUERfOBCuy8GU
+        FHO+qS966nEFGaHI74MYKiUaoZKUXTI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1639050736;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=YX5nCd41/qX08Uy6D4mC8eSKOoVllnuhCQFVjt3bHYY=;
+        b=2BnKLHTtAJ0egwCFnhgi64mr4fQdpOSH4ikfdztCnMR5ZUXr9pL+OLktq1UqQc4axI0TNa
+        gYe4jlET5DEuJhBw==
+Received: from suse.de (mgorman.udp.ovpn2.nue.suse.de [10.163.43.106])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F13A9B82438;
-        Thu,  9 Dec 2021 11:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D5CDC004DD;
-        Thu,  9 Dec 2021 11:34:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639049653;
-        bh=/UoSYaophVFDvX7Odv3p2En0p+Ipv1vaAWvDHVFyQpE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=I7nwVCja0RBkvgTFFsPPcuDBG3HDQJqw9KwpPxr6BEhUidxmvz9nDVHybSX3I0sst
-         CN8X2bz7kFo0ciVIq5YKVHW3Qt/fwdRmDs1ysN/AKm3mEgOE6J+NBj3b96Vs/r2N+C
-         b211lRncmTmpMdulLk0Rfp+gNKiyJD99tq4HmCajnQO+3eBcHHtqBsSVQku35L7Lb9
-         fX5RHeysjHSfEErvaE42bNPKDg0x5kVBfVBdJ3XdC3XkLkSTfSNff5s2nHxIUoKKzo
-         JMjYFk5skiSwr7PYZFjOgCJBBdJ/+QLYmpuHF2YJQYoelAxtbQwKY73TOcwLXTxt8U
-         b8Xp4p7T4zrrA==
-Date:   Thu, 9 Dec 2021 19:34:08 +0800
-From:   Peter Chen <peter.chen@kernel.org>
-To:     Pawel Laszczak <pawell@cadence.com>
-Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, jianhe@ambarella.com,
+        by relay2.suse.de (Postfix) with ESMTPS id 0E978A3B93;
+        Thu,  9 Dec 2021 11:52:14 +0000 (UTC)
+Date:   Thu, 9 Dec 2021 11:52:11 +0000
+From:   Mel Gorman <mgorman@suse.de>
+To:     Huang Ying <ying.huang@intel.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH] usb: cdnsp: Fix incorrect status for control request
-Message-ID: <20211209113408.GA5084@Peter>
-References: <20211207091838.39572-1-pawell@gli-login.cadence.com>
+Subject: Re: [PATCH -V2] numa balancing: move some document to make it
+ consistent with the code
+Message-ID: <20211209115211.GI3301@suse.de>
+References: <20211209004442.999696-1-ying.huang@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20211207091838.39572-1-pawell@gli-login.cadence.com>
+In-Reply-To: <20211209004442.999696-1-ying.huang@intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-12-07 10:18:38, Pawel Laszczak wrote:
-> From: Pawel Laszczak <pawell@cadence.com>
+On Thu, Dec 09, 2021 at 08:44:42AM +0800, Huang Ying wrote:
+> After commit 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to
+> debugfs"), some NUMA balancing sysctls enclosed with SCHED_DEBUG has
+> been moved to debugfs.  This patch move the document for these
+> sysctls from
 > 
-> Patch fixes incorrect status for control request.
-> Without this fix all usb_request objects were returned to upper drivers
-> with usb_reqest->status field set to -EINPROGRESS.
+>   Documentation/admin-guide/sysctl/kernel.rst
 > 
-> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-> Reported-by: Ken (Jian) He <jianhe@ambarella.com>
-> cc: <stable@vger.kernel.org>
-> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-> ---
->  drivers/usb/cdns3/cdnsp-ring.c | 2 ++
->  1 file changed, 2 insertions(+)
+> to
 > 
-> diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
-> index 1b1438457fb0..e8f5ecbb5c75 100644
-> --- a/drivers/usb/cdns3/cdnsp-ring.c
-> +++ b/drivers/usb/cdns3/cdnsp-ring.c
-> @@ -1029,6 +1029,8 @@ static void cdnsp_process_ctrl_td(struct cdnsp_device *pdev,
->  		return;
->  	}
->  
-> +	*status = 0;
-> +
->  	cdnsp_finish_td(pdev, td, event, pep, status);
->  }
->  
-> -- 
-I think you may move *status = 0 at the beginning of
-cdnsp_process_ctrl_td in case you would like to handle some error
-conditions during this function.
+>   Documentation/scheduler/debug.txt
+> 
+> to make the document consistent with the code.
+> 
+
+Acked-by: Mel Gorman <mgorman@suse.de>
 
 -- 
-
-Thanks,
-Peter Chen
-
+Mel Gorman
+SUSE Labs
