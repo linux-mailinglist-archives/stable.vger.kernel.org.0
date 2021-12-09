@@ -2,106 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4814946F541
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 21:52:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B48B246F543
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 21:53:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231247AbhLIU4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 15:56:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43734 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229842AbhLIU4G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 15:56:06 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S232290AbhLIU4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 15:56:39 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:51171 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231448AbhLIU4i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 15:56:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639083184;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=c4oEqkagy/qMAjzlctANbGGhASHOez2GnoWuetKkoIE=;
+        b=LhtNrF2FwFfDPCcqnXlOKTWHZ+Auk5Ay621Iy5YW14K9ouKet4EONlr2oFavtq0Wtyw/Wf
+        AkUaKbuKK71mXgLQ9nA49780aH3G+1yxCbomEVmCYoVt4hnIfm33vdnYvf/sFJ7eLFEDNI
+        RFS6ee4MrTcFzUuveFZuIx2W4aCch0E=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-103-0Uj2qM8UN3KBIJA2ezlUIQ-1; Thu, 09 Dec 2021 15:53:00 -0500
+X-MC-Unique: 0Uj2qM8UN3KBIJA2ezlUIQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2B55B82410
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 20:43:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF654C004DD;
-        Thu,  9 Dec 2021 20:43:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639082604;
-        bh=Uqolqqp5D2KihKe4UQBjOZyZT6lipIYopPjc5W1DXp0=;
-        h=Subject:To:Cc:From:Date:From;
-        b=hS7PaxrfD7a0a4L6e80y73i8KGLRciYBvddRQmARs1y0S7zjjWBst6MgNPBshqMkQ
-         D5r5aflVpwSy5UfltWwHwYeDm4cFSed/nLzEsx6/4Y4wpzT60NhAzi7U8JB5yGN79i
-         R4oWHZN5p83FLi4ulBz0ajjfi0GlouToPiK2Eoe0=
-Subject: FAILED: patch "[PATCH] HID: intel-ish-hid: ipc: only enable IRQ wakeup when" failed to apply to 5.10-stable tree
-To:     linux@weissschuh.net, benjamin.tissoires@redhat.com,
-        srinivas.pandruvada@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 09 Dec 2021 21:43:06 +0100
-Message-ID: <1639082586242133@kroah.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7398A835E22;
+        Thu,  9 Dec 2021 20:52:59 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8F82C197FC;
+        Thu,  9 Dec 2021 20:52:56 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     seanjc@google.com, vkuznets@redhat.com, mlevitsk@redhat.com,
+        joao.m.martins@oracle.com, stable@vger.kernel.org,
+        David Matlack <dmatlack@google.com>
+Subject: [PATCH v2] selftests: KVM: avoid failures due to reserved HyperTransport region
+Date:   Thu,  9 Dec 2021 15:52:56 -0500
+Message-Id: <20211209205256.301140-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+AMD proceessors define an address range that is reserved by HyperTransport
+and causes a failure if used for guest physical addresses.  Avoid
+selftests failures by reserving those guest physical addresses; the
+rules are:
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+- On parts with <40 bits, its fully hidden from software.
 
-thanks,
+- Before Fam17h, it was always 12G just below 1T, even if there was more
+RAM above this location.  In this case we just not use any RAM above 1T.
 
-greg k-h
+- On Fam17h and later, it is variable based on SME, and is either just
+below 2^48 (no encryption) or 2^43 (encryption).
 
------------------- original commit in Linus's tree ------------------
+Fixes: ef4c9f4f6546 ("KVM: selftests: Fix 32-bit truncation of vm_get_max_gfn()")
+Cc: stable@vger.kernel.org
+Cc: David Matlack <dmatlack@google.com>
+Reported-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <20210805105423.412878-1-pbonzini@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ .../testing/selftests/kvm/include/kvm_util.h  |  9 +++
+ tools/testing/selftests/kvm/lib/kvm_util.c    |  2 +-
+ .../selftests/kvm/lib/x86_64/processor.c      | 67 +++++++++++++++++++
+ 3 files changed, 77 insertions(+), 1 deletion(-)
 
-From 086e81f6b90e41a07a1a885bb11e93daa6915747 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Tue, 30 Nov 2021 07:01:17 +0100
-Subject: [PATCH] HID: intel-ish-hid: ipc: only enable IRQ wakeup when
- requested
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Fixes spurious wakeups from s0ix on Lenovo ThinkPad X1 Cargon Gen 9 on
-lid close.
-
-These wakeups are generated by interrupts from the ISH on changes to the
-lid status.
-
-By disabling the wake IRQ from the ISH we inhibit these spurious
-wakeups while keeping the resume from LID open through the ACPI
-interrupt.
-
-Reports on the Lenovo forums indicate that Lenovo ThinkPad X1 Yoga Gen6
-is also affected.
-
-Fixes: ae02e5d40d5f ("HID: intel-ish-hid: ipc layer")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214855
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211130060117.3026-1-linux@weissschuh.net
-
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 1c5039081db2..8e9d9450cb83 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -266,7 +266,8 @@ static void __maybe_unused ish_resume_handler(struct work_struct *work)
+diff --git a/tools/testing/selftests/kvm/include/kvm_util.h b/tools/testing/selftests/kvm/include/kvm_util.h
+index 6a1a37f30494..da2b702da71a 100644
+--- a/tools/testing/selftests/kvm/include/kvm_util.h
++++ b/tools/testing/selftests/kvm/include/kvm_util.h
+@@ -71,6 +71,15 @@ enum vm_guest_mode {
  
- 	if (ish_should_leave_d0i3(pdev) && !dev->suspend_flag
- 			&& IPC_IS_ISH_ILUP(fwsts)) {
--		disable_irq_wake(pdev->irq);
-+		if (device_may_wakeup(&pdev->dev))
-+			disable_irq_wake(pdev->irq);
+ #endif
  
- 		ish_set_host_ready(dev);
++#if defined(__x86_64__)
++unsigned long vm_compute_max_gfn(struct kvm_vm *vm);
++#else
++static inline unsigned long vm_compute_max_gfn(struct kvm_vm *vm)
++{
++	return ((1ULL << vm->pa_bits) >> vm->page_shift) - 1;
++}
++#endif
++
+ #define MIN_PAGE_SIZE		(1U << MIN_PAGE_SHIFT)
+ #define PTES_PER_MIN_PAGE	ptes_per_page(MIN_PAGE_SIZE)
  
-@@ -337,7 +338,8 @@ static int __maybe_unused ish_suspend(struct device *device)
- 			 */
- 			pci_save_state(pdev);
+diff --git a/tools/testing/selftests/kvm/lib/kvm_util.c b/tools/testing/selftests/kvm/lib/kvm_util.c
+index 8f2e0bb1ef96..daf6fdb217a7 100644
+--- a/tools/testing/selftests/kvm/lib/kvm_util.c
++++ b/tools/testing/selftests/kvm/lib/kvm_util.c
+@@ -302,7 +302,7 @@ struct kvm_vm *vm_create(enum vm_guest_mode mode, uint64_t phy_pages, int perm)
+ 		(1ULL << (vm->va_bits - 1)) >> vm->page_shift);
  
--			enable_irq_wake(pdev->irq);
-+			if (device_may_wakeup(&pdev->dev))
-+				enable_irq_wake(pdev->irq);
- 		}
- 	} else {
- 		/*
+ 	/* Limit physical addresses to PA-bits. */
+-	vm->max_gfn = ((1ULL << vm->pa_bits) >> vm->page_shift) - 1;
++	vm->max_gfn = vm_compute_max_gfn(vm);
+ 
+ 	/* Allocate and setup memory for guest. */
+ 	vm->vpages_mapped = sparsebit_alloc();
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+index 82c39db91369..b7105692661b 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
+@@ -1431,3 +1431,70 @@ struct kvm_cpuid2 *vcpu_get_supported_hv_cpuid(struct kvm_vm *vm, uint32_t vcpui
+ 
+ 	return cpuid;
+ }
++
++#define X86EMUL_CPUID_VENDOR_AuthenticAMD_ebx 0x68747541
++#define X86EMUL_CPUID_VENDOR_AuthenticAMD_ecx 0x444d4163
++#define X86EMUL_CPUID_VENDOR_AuthenticAMD_edx 0x69746e65
++
++static inline unsigned x86_family(unsigned int eax)
++{
++        unsigned int x86;
++
++        x86 = (eax >> 8) & 0xf;
++
++        if (x86 == 0xf)
++                x86 += (eax >> 20) & 0xff;
++
++        return x86;
++}
++
++unsigned long vm_compute_max_gfn(struct kvm_vm *vm)
++{
++	const unsigned long num_ht_pages = 12 << 18; /* 12 GiB */
++	unsigned long ht_gfn, max_gfn, max_pfn;
++	uint32_t eax, ebx, ecx, edx;
++
++	max_gfn = (1ULL << (vm->pa_bits - vm->page_shift)) - 1;
++
++	/* Avoid reserved HyperTransport region on AMD processors.  */
++	eax = ecx = 0;
++	cpuid(&eax, &ebx, &ecx, &edx);
++	if (ebx != X86EMUL_CPUID_VENDOR_AuthenticAMD_ebx ||
++	    ecx != X86EMUL_CPUID_VENDOR_AuthenticAMD_ecx ||
++	    edx != X86EMUL_CPUID_VENDOR_AuthenticAMD_edx)
++		return max_gfn;
++
++	/* On parts with <40 physical address bits, the area is fully hidden */
++	if (vm->pa_bits < 40)
++		return max_gfn;
++
++	eax = 1;
++	cpuid(&eax, &ebx, &ecx, &edx);
++	if (x86_family(eax) < 0x17) {
++		/* Before family 17h, the HyperTransport area is just below 1T.  */
++		ht_gfn = (1 << 28) - num_ht_pages;
++	} else {
++		/*
++		 * Otherwise it's at the top of the physical address
++		 * space, possibly reduced due to SME by bits 11:6 of
++		 * CPUID[0x8000001f].EBX.
++		 */
++		eax = 0x80000008;
++		cpuid(&eax, &ebx, &ecx, &edx);
++		max_pfn = (1ULL << ((eax & 255) - vm->page_shift)) - 1;
++
++		eax = 0x80000000;
++		cpuid(&eax, &ebx, &ecx, &edx);
++		if (eax >= 0x8000001f) {
++			eax = 0x8000001f;
++			cpuid(&eax, &ebx, &ecx, &edx);
++			max_pfn >>= (ebx >> 6) & 0x3f;
++		}
++		ht_gfn = max_pfn - num_ht_pages;
++	}
++
++	if (max_gfn < ht_gfn)
++		return max_gfn;
++
++	return ht_gfn - 1;
++}
+-- 
+2.31.1
 
