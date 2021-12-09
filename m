@@ -2,120 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8E3846E3DB
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 09:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB57646E3DE
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 09:13:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232443AbhLIIPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 03:15:51 -0500
-Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:47664
+        id S234444AbhLIIQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 03:16:43 -0500
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:47688
         "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234440AbhLIIPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:15:50 -0500
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com [209.85.208.198])
+        by vger.kernel.org with ESMTP id S230243AbhLIIQn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:16:43 -0500
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com [209.85.208.200])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id F06053F1EE
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 08:12:15 +0000 (UTC)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id BD5AF3F1A9
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 08:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1639037535;
-        bh=fBYCECAJevs/zh6Lenm9Wbk6Z5sCtP6TImy1jaIY/bc=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=krnz8Yhqxhb2tgRM696JPvr5GYf8j36xCaYTuIDaKAIwGp9mY7HXZv/eQzGQJXYEO
-         7x5N4eB0JzgdHIL3sczC2UyJ9Fh6Jf1afuZdruYlCG9QFY7par6u/LY5j+Y794H5nl
-         DJEyDOX6YHB1I7PxWYDGyXsHea5WWeNyzqgkM9Gzb1r+dFl1JMPBwf0xlqJS7AVebz
-         y7azEReOsRxPCNa3H9DuL/FCBX6xLnzonRi7h+vdmwP98VYIJvN5oxFXHRojLznwxN
-         co/MTjHkB91Jhc+glIRe4XMXl01WAK0dsATcw8TMfON+PFGAye9j7bVefpLr2MxNyR
-         kZfi1zD27I24g==
-Received: by mail-lj1-f198.google.com with SMTP id i123-20020a2e2281000000b0021cfde1fa8eso1522159lji.7
-        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 00:12:15 -0800 (PST)
+        s=20210705; t=1639037589;
+        bh=li++Q1lkbhIYARBNYivAD9l31K5a4noYe2Z2qkyrMDA=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=OnUBjr8J0of7aq5VvS+nGLcZJAwuRgInZNSw0K9G1/yekR6fDocUXPHv4yWegdlwp
+         2ZlpBnO1lhk4vhWIfHXLLdxrbEtPIJ5XQLxUZtMBliryKHx4mU3O5T8XD9eInFxgge
+         vNOx5EAu4jEwLU1hNIcdJ3+oIL2xAa7S/j3avybKT5iWteYTsDG14WiOYM6AMUzxbi
+         HcL1Oqo4c0ROt7tUmueVSSiXIBM+tCTwO/mH2nODUSIc58mL/u4PoSP4Y8KxtJ7hKU
+         YEJIJXCqk4Gx1/CrNWP+NClZ44TM+ONgxUthpNzFXIyI3okBKZ1dqwE+AnSI+YH0XY
+         9L8rfYbMrW5Og==
+Received: by mail-lj1-f200.google.com with SMTP id w16-20020a05651c103000b00218c9d46faeso1523383ljm.2
+        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 00:13:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=fBYCECAJevs/zh6Lenm9Wbk6Z5sCtP6TImy1jaIY/bc=;
-        b=CP88hc1MDz4/5dEFyujATEEBRNZwomwAdW8BMsbq0rYfOgKu0Pqx+Rn0TlgvMwr+wE
-         F9nwV1TI+YMSCmgY7OpWUYmamVsMX1ZqvsdKzKI8DEYqHZZrwtaYk61t7/rRWYRtlakl
-         KlrSk3B3SNfmva2E+TdzNgX1y08VQJhFFeEX77ZhjVNFU3eoLeXzIBjR2807sBIf0/Gl
-         FVbDZ1zf6kpvW/py6bncXBx1KIEfDI1fAl4bBksGm9AjatECirabyjQ26wjBmfZgHG3Q
-         YErAVxpXZfwqskLjsXnVDB8EcMCAdL9TBiuNRemHOCA9wjtfK3Dsh3AvothPnFpv3T+G
-         EWOg==
-X-Gm-Message-State: AOAM531nge+1ec136tYOcWdhypLis8TW0B3BrQ2EfwhotJJFtFeIYgck
-        mORlLqmXmcrqFY0Qg18NwbjzGGvBPYAqu26xzCHnXRpZTWzKV1sIdQ45FL9JpW5ZEe+U+BIwQGY
-        IO0pjoqE1MBYmyAJ/iZRgT65HEuhaERJ+xQ==
-X-Received: by 2002:a05:6512:2101:: with SMTP id q1mr4372051lfr.663.1639037533892;
-        Thu, 09 Dec 2021 00:12:13 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzzCh6D9KFbIjH70+q4mk9ijSh2M0NWaUeJ3/1sGWaRnyi/AyAL30CqWfzi7r4a7vbfvvzEbA==
-X-Received: by 2002:a05:6512:2101:: with SMTP id q1mr4372037lfr.663.1639037533607;
-        Thu, 09 Dec 2021 00:12:13 -0800 (PST)
-Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
-        by smtp.gmail.com with ESMTPSA id g26sm499826ljn.107.2021.12.09.00.12.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Dec 2021 00:12:12 -0800 (PST)
-Message-ID: <20dcbf40-0ca0-690d-182a-e21ee6af1db4@canonical.com>
-Date:   Thu, 9 Dec 2021 09:12:12 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
-Subject: Re: [PATCH] nfc: fix segfault in nfc_genl_dump_devices_done
-Content-Language: en-US
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>, netdev@vger.kernel.org
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
-        syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
-References: <20211208182742.340542-1-tadeusz.struk@linaro.org>
+        bh=li++Q1lkbhIYARBNYivAD9l31K5a4noYe2Z2qkyrMDA=;
+        b=RGHQ37hHYqtzvU9vR9/xHHs9VVhyeziZp4uM73huNFef7OF9aAvKJonCvTDw+oZi5h
+         pR1FLusv+gCH620LR4rWsDTPsO1CNqOliIR7aXVSvdRL2MNQe1P0xE1tN+hoagNDviAj
+         ShTb0cO/PdsZjvQRG+wdeP31kXnGjNbLoaMT8E8rmGpTmxyDv9EG3DUPH+y7lUyv9Chz
+         qV3gX5P2yUSwRhRo0ILOM6KDmj3LZDS8bBhG8hDSkcly8sf28ztdHR/jVe18Ui+sF8G0
+         1Vd5uGjPJ+4QJbJOGwkf/JVf0mg5CyraHr6LfUsEkFDfaidnX050DD5tUR+/l3628/Ng
+         21bA==
+X-Gm-Message-State: AOAM533mUaJV74pI8iJk1hnVpRaFmWRSjNKjiREYA5/R9zdojjEwwIXz
+        Z8lZabQt2sRcEXMEMQy1YHtlO2Px0vPaUu5XttkbLDJp6ZmQEkhq1gdvAA53NxzVG9H8yOmvHjo
+        1VaW6PDciKyE9R4SfXecfiXeLjbW+w9Xjjg==
+X-Received: by 2002:a05:6512:3082:: with SMTP id z2mr4516780lfd.351.1639037589269;
+        Thu, 09 Dec 2021 00:13:09 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxew4i4a9DoT8yTaM1mSJukQJbcgVSv8A/a2FaL4870WYGHn9oTdN4j+N4jiTVK5QQzEioo6A==
+X-Received: by 2002:a05:6512:3082:: with SMTP id z2mr4516767lfd.351.1639037589089;
+        Thu, 09 Dec 2021 00:13:09 -0800 (PST)
+Received: from krzk-bin.lan (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
+        by smtp.gmail.com with ESMTPSA id s5sm531144ljg.3.2021.12.09.00.13.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Dec 2021 00:13:08 -0800 (PST)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20211208182742.340542-1-tadeusz.struk@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Samuel Ortiz <sameo@linux.intel.com>, linux-nfc@lists.01.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     tadeusz.struk@linaro.org, stable@vger.kernel.org
+Subject: [PATCH] nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
+Date:   Thu,  9 Dec 2021 09:13:07 +0100
+Message-Id: <20211209081307.57337-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.32.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/12/2021 19:27, Tadeusz Struk wrote:
-> When kmalloc in nfc_genl_dump_devices() fails then
-> nfc_genl_dump_devices_done() segfaults as below
-> 
-> KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-> CPU: 0 PID: 25 Comm: kworker/0:1 Not tainted 5.16.0-rc4-01180-g2a987e65025e-dirty #5
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
-> Workqueue: events netlink_sock_destruct_work
-> RIP: 0010:klist_iter_exit+0x26/0x80
-> Call Trace:
-> <TASK>
-> class_dev_iter_exit+0x15/0x20
-> nfc_genl_dump_devices_done+0x3b/0x50
-> genl_lock_done+0x84/0xd0
-> netlink_sock_destruct+0x8f/0x270
-> __sk_destruct+0x64/0x3b0
-> sk_destruct+0xa8/0xd0
-> __sk_free+0x2e8/0x3d0
-> sk_free+0x51/0x90
-> netlink_sock_destruct_work+0x1c/0x20
-> process_one_work+0x411/0x710
-> worker_thread+0x6fd/0xa80
-> 
-> Link: https://syzkaller.appspot.com/bug?id=fc0fa5a53db9edd261d56e74325419faf18bd0df
-> Cc: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: netdev@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Reported-by: syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
-> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-> ---
->  net/nfc/netlink.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
+The done() netlink callback nfc_genl_dump_ses_done() should check if
+received argument is non-NULL, because its allocation could fail earlier
+in dumpit() (nfc_genl_dump_ses()).
 
+Fixes: ac22ac466a65 ("NFC: Add a GET_SE netlink API")
 Cc: <stable@vger.kernel.org>
-Fixes: 4d12b8b129f1 ("NFC: add nfc generic netlink interface")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ net/nfc/netlink.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
+index 334f63c9529e..5c706ed75b33 100644
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1392,8 +1392,10 @@ static int nfc_genl_dump_ses_done(struct netlink_callback *cb)
+ {
+ 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
+ 
+-	nfc_device_iter_exit(iter);
+-	kfree(iter);
++	if (iter) {
++		nfc_device_iter_exit(iter);
++		kfree(iter);
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.32.0
 
-I will fix other similar cases.
-
-Best regards,
-Krzysztof
