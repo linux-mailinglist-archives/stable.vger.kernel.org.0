@@ -2,95 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F4846F464
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 20:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA35046F46C
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 20:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231262AbhLIT7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 14:59:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56802 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231180AbhLIT7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 14:59:02 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F18C061746
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 11:55:28 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id n26so6406285pff.3
-        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 11:55:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=YyCJJVppVowTxkE+zlT+lHTZu0h5h64AtApwEArmpFs=;
-        b=ZfYxr74CSl+MS3TFLpME2Fx+phouR71gzbM4l15ZQGVKqZ2AX605xmjB80g81+3EHJ
-         gLoZqXwdWDkV7wSqwwW2hZH7NB0i2B55a7FP+QDkpAJwkTLqhUYcfiJMAJ5SURg6i3mV
-         wKvEHV5USEHnucgE+XVbGruM3KoTGGs62bvwfTdfxl511WPR/FRVPpc2p37E1M6y9Hhj
-         3HNtDgyUpTY7iBrTSM7PsSw6YZwGl8VH288nkqVsNkOmlYnTtcEQQZshzPgjS1qC0zwZ
-         7BrF3MuFfRzGpzG+giZoQczRtmoLpbR2WP/jHIthXfEWrzQnRZYkswPkA0X0WJ8dm2wW
-         7+WA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=YyCJJVppVowTxkE+zlT+lHTZu0h5h64AtApwEArmpFs=;
-        b=muoqGcMxAfPcXgOqLslsY9F9afyV40YKnf2wQjEiUEcAsmG2QgNPbzgt6UQRRtYIC+
-         LS60wAYh64db+PsxGWHnl9pf8l0Iz/vRVOvgZtXKywLfTStMC1R/QRirZsWkY6hG2x0I
-         aLj/G40T8ox+X6WU9Zjsb1X2SAUeUVp93+GM9VpL0o1Y6ksxb524oaOUilVSSy5DX5Nj
-         COHgHvvGSJbEvxO0rvMBbhAwJjsLQ2rkiVRTUhyieM9RTJR87J0IaTPfiVEqziusqCAU
-         cBebK48GqheMlWh9EMGMaL5CSBE1Qrv/ghmwDioSKYg99I6IgFh+29cI8Gc3LctHZx6B
-         OEGw==
-X-Gm-Message-State: AOAM533zeIwUPnGmTTpjtDX/iL5xU5ScjUYwbRMfIwYbW0jXnvqG5G5T
-        1PRJsF+qI4dhpJ0hIibxYvDg0oXzMxVnPqZ+3b5ZTf+aQ8jd9A==
-X-Google-Smtp-Source: ABdhPJxQvBzNeQhEL5FZLDEAtwGLhug4xAJ7EHr+kJNCDlI+csfgcaIqAf0dB6R++e4aepRc7jylUyxEyrYM5EMmXM8=
-X-Received: by 2002:a63:3603:: with SMTP id d3mr24822578pga.331.1639079717787;
- Thu, 09 Dec 2021 11:55:17 -0800 (PST)
+        id S231217AbhLIUAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 15:00:31 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:41456 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231209AbhLIUAa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 15:00:30 -0500
+Date:   Thu, 09 Dec 2021 19:56:53 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639079815;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pmssyvAR2Oe5wtBTqoQ9+F0KcYjYoAoJ54907SQvQGo=;
+        b=XgPT8aaVzpUZGp3OpZMg54MOdc1gr0F77j4D8BhbrbFl7gqUPj+rAwl0rJQvNFnBehbpjq
+        RLo33oLYIOR1dgnJAavAXhUjlM6bxhfC9xpaJN1s+5f9OLE4ttH2WLYZfJ9VCKYdVKI7TC
+        L2kMmbethAeULLu9qwnXIpX7ZBv0H+am7056GSE3BJir3rmCDFx5zU61Dsiy9Et6Ub0CdQ
+        dnyFUvBQTWKd/+JpsUcqk+dWr5r9oMIJNYHS9zICaVoXAofnNMpN1Tz7k7i6S0diyzepc1
+        wMFkk6qtX8o2YWqAYCJ83nT0xmIUIu8E9ClDum2tmo31h77JUjWyKFbxr7eoNA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639079815;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pmssyvAR2Oe5wtBTqoQ9+F0KcYjYoAoJ54907SQvQGo=;
+        b=Hd9VpU9pEULJDRUQ+w4nZs7YDoQPnYLCqWGix6E7pU/ciRj1OqC9NH2J2FPwfCsML1tY9s
+        uxF3U7d1Z1NBmDBA==
+From:   "tip-bot2 for Kees Cook" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/cleanups] x86/uaccess: Move variable into switch case statement
+Cc:     stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20211209043456.1377875-1-keescook@chromium.org>
+References: <20211209043456.1377875-1-keescook@chromium.org>
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:8ec7:0:0:0:0 with HTTP; Thu, 9 Dec 2021 11:55:17
- -0800 (PST)
-Reply-To: compaorekone34@gmail.com
-From:   kone compaore <abbttnab20@gmail.com>
-Date:   Thu, 9 Dec 2021 11:55:17 -0800
-Message-ID: <CAEKSJ0SC1cGxJamBoeAi=+OdnV8kPPHm1tdKLD1Qzz=_d7vQYQ@mail.gmail.com>
-Subject: Greetings from Kone
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <163907981387.23020.13292835544312035646.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings to you and your family.
+The following commit has been merged into the x86/cleanups branch of tip:
 
-My name is Mr. Kone Compaore, the auditing general with the bank,
-Africa Develop bank (ADB) Ouagadougou, Burkina Faso, in West Africa. I
-am contacting you to seek our honesty and sincere cooperation in
-confidential manner to transfer the sum of 10.5 (Ten million five
-hundred thousand Dollars) to your existing or new bank account.
+Commit-ID:     f529cc537b8e907c25f29eb00f50979e8e532cbc
+Gitweb:        https://git.kernel.org/tip/f529cc537b8e907c25f29eb00f50979e8e532cbc
+Author:        Kees Cook <keescook@chromium.org>
+AuthorDate:    Wed, 08 Dec 2021 20:34:56 -08:00
+Committer:     Dave Hansen <dave.hansen@linux.intel.com>
+CommitterDate: Thu, 09 Dec 2021 11:48:18 -08:00
 
-This money belongs to one of our bank client, a Libyan oil exporter
-who was working with the former Libyan government; I learn t that he
-was killed by the revolutionary forces since October 2011. Our bank is
-planning to transfer this entire fund into the government public
-treasury as unclaimed fund if nobody comes to claim the money from our
-bank after four years without account activities .
+x86/uaccess: Move variable into switch case statement
 
-We did not know each other before, but due to the fact that the
-deceased is a foreigner, the bank will welcome any claim from a
-foreigner without any suspect, that is why I decided to look for
-someone whim I can trust to come and claim the fund from our bank.
+When building with automatic stack variable initialization, GCC 12
+complains about variables defined outside of switch case statements.
+Move the variable into the case that uses it, which silences the warning:
 
-I will endorse your name in the deceased client file here in my office
-which will indicate to that the deceased is your legal joint account
-business partner or family member next of kin to the deceased and
-officially the bank will transfer the fund to your bank account within
-seven working days in accordance to our banking inheritance rules and
-fund claim regulation.
+./arch/x86/include/asm/uaccess.h:317:23: warning: statement will never be executed [-Wswitch-unreachable]
+  317 |         unsigned char x_u8__; \
+      |                       ^~~~~~
 
-I will share 40% for you and 60% for me after the fund is transferred
-to your bank account, we need to act fast to complete this transaction
-within seven days. I will come to your country to collect my share
-after the fund is transferred to your bank account in your country. I
-hope that you will not disappoint me after the fund is transferred to
-your bank account in your country.
+Cc: stable@vger.kernel.org
+Fixes: 865c50e1d279 ("x86/uaccess: utilize CONFIG_CC_HAS_ASM_GOTO_OUTPUT")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lkml.kernel.org/r/20211209043456.1377875-1-keescook@chromium.org
+---
+ arch/x86/include/asm/uaccess.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Waiting for your urgent response today
-Yours sincerely
-
-Kone Compaore
+diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
+index 33a6840..8ab9e79 100644
+--- a/arch/x86/include/asm/uaccess.h
++++ b/arch/x86/include/asm/uaccess.h
+@@ -314,11 +314,12 @@ do {									\
+ do {									\
+ 	__chk_user_ptr(ptr);						\
+ 	switch (size) {							\
+-	unsigned char x_u8__;						\
+-	case 1:								\
++	case 1:	{							\
++		unsigned char x_u8__;					\
+ 		__get_user_asm(x_u8__, ptr, "b", "=q", label);		\
+ 		(x) = x_u8__;						\
+ 		break;							\
++	}								\
+ 	case 2:								\
+ 		__get_user_asm(x, ptr, "w", "=r", label);		\
+ 		break;							\
