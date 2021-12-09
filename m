@@ -2,153 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 010CC46E965
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 14:50:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E541646EA12
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 15:35:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbhLINxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 08:53:36 -0500
-Received: from foss.arm.com ([217.140.110.172]:57070 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229963AbhLINxg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Dec 2021 08:53:36 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8EA0411B3;
-        Thu,  9 Dec 2021 05:50:02 -0800 (PST)
-Received: from e113632-lin (e113632-lin.cambridge.arm.com [10.1.196.57])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 584633F73B;
-        Thu,  9 Dec 2021 05:50:01 -0800 (PST)
-From:   Valentin Schneider <valentin.schneider@arm.com>
-To:     Huang Ying <ying.huang@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mel Gorman <mgorman@suse.de>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Huang Ying <ying.huang@intel.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH -V2] numa balancing: move some document to make it consistent with the code
-In-Reply-To: <20211209004442.999696-1-ying.huang@intel.com>
-References: <20211209004442.999696-1-ying.huang@intel.com>
-Date:   Thu, 09 Dec 2021 13:49:58 +0000
-Message-ID: <8735n1anw9.mognet@arm.com>
+        id S238685AbhLIOjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 09:39:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35098 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232389AbhLIOjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 09:39:11 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67112C061746;
+        Thu,  9 Dec 2021 06:35:37 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 33C94CE25F9;
+        Thu,  9 Dec 2021 14:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C625FC004DD;
+        Thu,  9 Dec 2021 14:35:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639060533;
+        bh=VwQ1u7crT9tT2d+BvG1u1dd1ZTTVlRbYTyboOZjY+2U=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=XRlSUYtInzZ/0oU2tmL9L3RnBGehjLPN3akfPhmYyn+TWDOwoxOnJmvhmtKLxONr+
+         B9MSL2XrYtlcOky2Q4AHIJdu78ZPyBOhnXU8e1nBWMpLTgeN+DlBHsqZg9fEn9xIer
+         28+yc/qdQIzX/5BPht4AiSZmBqe90zPaFvToxgQe6sTYeVEF7bACsTV0YEcTxuM9W3
+         1shsjsfStzRavL5pvVZR5xDtdYXmluIjwZp2f8tT5nWsdgjgjW10xKI4KDg+b+EYTa
+         RM8wN9sIcTO788kJ/1yszTfeMzyuz8+WikXuohnep8HXXtAjybJry7DDAbymSXWTv+
+         vBOjSToSXzwEA==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     gregkh@linuxfoundation.org, mhi@lists.linux.dev,
+        hemantk@codeaurora.org, bbhatt@codeaurora.org,
+        loic.poulain@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ath11k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, stable@vger.kernel.org,
+        Pengyu Ma <mapengyu@gmail.com>
+Subject: Re: [PATCH v2] bus: mhi: core: Add support for forced PM resume
+References: <20211209131633.4168-1-manivannan.sadhasivam@linaro.org>
+Date:   Thu, 09 Dec 2021 16:35:25 +0200
+In-Reply-To: <20211209131633.4168-1-manivannan.sadhasivam@linaro.org>
+        (Manivannan Sadhasivam's message of "Thu, 9 Dec 2021 18:46:33 +0530")
+Message-ID: <87fsr13kya.fsf@codeaurora.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 09/12/21 08:44, Huang Ying wrote:
-> After commit 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to
-> debugfs"), some NUMA balancing sysctls enclosed with SCHED_DEBUG has
-> been moved to debugfs.  This patch move the document for these
-> sysctls from
+Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org> writes:
+
+> From: Loic Poulain <loic.poulain@linaro.org>
 >
->   Documentation/admin-guide/sysctl/kernel.rst
+> For whatever reason, some devices like QCA6390, WCN6855 using ath11k
+> are not in M3 state during PM resume, but still functional. The
+> mhi_pm_resume should then not fail in those cases, and let the higher
+> level device specific stack continue resuming process.
 >
-> to
+> Add an API mhi_pm_resume_force(), to force resuming irrespective of the
+> current MHI state. This fixes a regression with non functional ath11k WiFi
+> after suspend/resume cycle on some machines.
 >
->   Documentation/scheduler/debug.txt
+> Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=214179
 >
-
-AFAIA new documentation files should be written in reST, and the "source"
-file is .rst so the new one should be too (as much as Peter hates it).
-
-Also, most files in there are named sched-*.rst, does that want to be
-sched-debug.rst ?
-
-> to make the document consistent with the code.
+> Fixes: 020d3b26c07a ("bus: mhi: Early MHI resume failure in non M3 state")
+> Cc: stable@vger.kernel.org #5.13
+> Link: https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
+> Reported-by: Kalle Valo <kvalo@codeaurora.org>
+> Reported-by: Pengyu Ma <mapengyu@gmail.com>
+> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+> [mani: Switched to API, added bug report, reported-by tags and CCed stable]
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> ---
 >
-> Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
-> Fixes: 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to debugfs")
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Valentin Schneider <valentin.schneider@arm.com>
-> Cc: stable@vger.kernel.org # since v5.13
+> Changes in v2:
+>
+> * Switched to a new API "mhi_pm_resume_force()" instead of the "force" flag as
+>   suggested by Greg. The "force" flag is now used inside the API.
+>
+> Greg: I'm sending this patch directly to you so that you can apply it to
+> char-misc once we get an ACK from Kalle.
 
-> diff --git a/Documentation/scheduler/debug.txt b/Documentation/scheduler/debug.txt
-> new file mode 100644
-> index 000000000000..848d83c3123c
-> --- /dev/null
-> +++ b/Documentation/scheduler/debug.txt
-> @@ -0,0 +1,48 @@
-> +Scheduler debugfs
-> +
+Thanks! I now tested this patch on top v5.16-rc4 using QCA6390 and
+firmware WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1, no issues found:
 
-How about a small intro?
+Tested-by: Kalle Valo <kvalo@kernel.org>
 
----
-diff --git a/Documentation/scheduler/debug.txt b/Documentation/scheduler/debug.txt
-index 848d83c3123c..08600de5b90e 100644
---- a/Documentation/scheduler/debug.txt
-+++ b/Documentation/scheduler/debug.txt
-@@ -1,4 +1,10 @@
-+=================
- Scheduler debugfs
-+=================
-+
-+Booting a kernel with CONFIG_SCHED_DEBUG=y will give access to scheduler
-+-specific debug files under /sys/kernel/debug/sched. Some of those files are
-+described below.
- 
- numa_balancing
- --------------
----
+I'm not expecting any conflicts with ath11k, so please take this via
+Greg's tree. It would be really good to get this regression fixed in
+v5.16, so is it possible to send this to -rc releases?
 
-> +numa_balancing
-> +--------------
+For the ath11k part:
 
-I think you got the heading ordering wrong, see
-  Documentation/doc-guide/sphinx.rst#Specific guidelines for the kernel documentation
+Acked-by: Kalle Valo <kvalo@kernel.org>
 
-IIRC Sphinx/reST only requires heading ordering to be consistent within a
-given file, but having consistency throughout the project simplifies
-reviewing/contributing. In this case, headings with "=" must appear before
-headings with "-".
+-- 
+https://patchwork.kernel.org/project/linux-wireless/list/
 
-> +
-> +`numa_balancing` directory is used to hold files to control NUMA
-> +balancing feature.  If the system overhead from the feature is too
-> +high then the rate the kernel samples for NUMA hinting faults may be
-> +controlled by the `scan_period_min_ms, scan_delay_ms,
-> +scan_period_max_ms, scan_size_mb` files.
-> +
-> +
-> +scan_period_min_ms, scan_delay_ms, scan_period_max_ms, scan_size_mb
-> +===================================================================
-> +
-> +Automatic NUMA balancing scans tasks address space and unmaps pages to
-> +detect if pages are properly placed or if the data should be migrated to a
-> +memory node local to where the task is running.  Every "scan delay" the task
-> +scans the next "scan size" number of pages in its address space. When the
-> +end of the address space is reached the scanner restarts from the beginning.
-> +
-> +In combination, the "scan delay" and "scan size" determine the scan rate.
-> +When "scan delay" decreases, the scan rate increases.  The scan delay and
-> +hence the scan rate of every task is adaptive and depends on historical
-> +behaviour. If pages are properly placed then the scan delay increases,
-> +otherwise the scan delay decreases.  The "scan size" is not adaptive but
-> +the higher the "scan size", the higher the scan rate.
-> +
-> +Higher scan rates incur higher system overhead as page faults must be
-> +trapped and potentially data must be migrated. However, the higher the scan
-> +rate, the more quickly a tasks memory is migrated to a local node if the
-> +workload pattern changes and minimises performance impact due to remote
-> +memory accesses. These files control the thresholds for scan delays and
-> +the number of pages scanned.
-> +
-> +``scan_period_min_ms`` is the minimum time in milliseconds to scan a
-> +tasks virtual memory. It effectively controls the maximum scanning
-> +rate for each task.
-> +
-> +``scan_delay_ms`` is the starting "scan delay" used for a task when it
-> +initially forks.
-> +
-> +``scan_period_max_ms`` is the maximum time in milliseconds to scan a
-> +tasks virtual memory. It effectively controls the minimum scanning
-> +rate for each task.
-> +
-> +``scan_size_mb`` is how many megabytes worth of pages are scanned for
-> +a given scan.
-> --
-> 2.30.2
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
