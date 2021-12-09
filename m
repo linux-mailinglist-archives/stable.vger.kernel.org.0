@@ -2,183 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 639DD46DF06
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 00:30:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E4546DFA3
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 01:45:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241166AbhLHXeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 18:34:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54122 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233080AbhLHXeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 18:34:03 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C776AC061746;
-        Wed,  8 Dec 2021 15:30:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1DE8ACE23C4;
-        Wed,  8 Dec 2021 23:30:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DF73C00446;
-        Wed,  8 Dec 2021 23:30:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1639006227;
-        bh=+mGrY+CjhnN/ZQmoo2RsdzqcaVIxkbK/dt5k4B4xQHg=;
-        h=Date:From:To:Subject:From;
-        b=ivDUUNPhXQ6gbz5IwXKQHlDVkv8OPkF9R5ti140p9ThqnftolkWBGzBrggUxizCFC
-         W4ONQXwxLwuvNaVp96na1ZivFVD0aso3sybE1BNAd4tQWiTf6yTBP0x7nz23MtCh1p
-         Dv3gUtN5NVvSejU0svVnfxU+43CXKBwEeEEqpZDw=
-Date:   Wed, 08 Dec 2021 15:30:26 -0800
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, arbn@yandex-team.com,
-        mgorman@techsingularity.net, mhocko@suse.com,
-        mm-commits@vger.kernel.org, rientjes@google.com,
+        id S233867AbhLIAsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 19:48:46 -0500
+Received: from mga14.intel.com ([192.55.52.115]:7587 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229846AbhLIAsq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Dec 2021 19:48:46 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10192"; a="238213612"
+X-IronPort-AV: E=Sophos;i="5.88,190,1635231600"; 
+   d="scan'208";a="238213612"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2021 16:45:13 -0800
+X-IronPort-AV: E=Sophos;i="5.88,190,1635231600"; 
+   d="scan'208";a="516049396"
+Received: from yhuang6-desk2.sh.intel.com ([10.239.159.50])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2021 16:45:10 -0800
+From:   Huang Ying <ying.huang@intel.com>
+To:     Peter Zijlstra <peterz@infradead.org>, Mel Gorman <mgorman@suse.de>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Huang Ying <ying.huang@intel.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
         stable@vger.kernel.org
-Subject:  +
- mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
- added to -mm tree
-Message-ID: <20211208233026.yaSqy1PdE%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+Subject: [PATCH -V2] numa balancing: move some document to make it consistent with the code
+Date:   Thu,  9 Dec 2021 08:44:42 +0800
+Message-Id: <20211209004442.999696-1-ying.huang@intel.com>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+After commit 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to
+debugfs"), some NUMA balancing sysctls enclosed with SCHED_DEBUG has
+been moved to debugfs.  This patch move the document for these
+sysctls from
 
-The patch titled
-     Subject: mm: mempolicy: fix THP allocations escaping mempolicy restrictions
-has been added to the -mm tree.  Its filename is
-     mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
+  Documentation/admin-guide/sysctl/kernel.rst
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
+to
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+  Documentation/scheduler/debug.txt
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+to make the document consistent with the code.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Andrey Ryabinin <arbn@yandex-team.com>
-Subject: mm: mempolicy: fix THP allocations escaping mempolicy restrictions
-
-alloc_pages_vma() may try to allocate THP page on the local NUMA node
-first:
-
-	page = __alloc_pages_node(hpage_node,
-		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
-
-And if the allocation fails it retries allowing remote memory:
-
-	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
-    		page = __alloc_pages_node(hpage_node,
-					gfp, order);
-
-However, this retry allocation completely ignores memory policy nodemask
-allowing allocation to escape restrictions.
-
-The first appearance of this bug seems to be the commit ac5b2c18911f
- ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
-The bug disappeared later in the commit 89c83fb539f9
- ("mm, thp: consolidate THP gfp handling into alloc_hugepage_direct_gfpmask")
-and reappeared again in slightly different form in the commit 76e654cc91bb
- ("mm, page_alloc: allow hugepage fallback to remote nodes when madvised")
-
-Fix this by passing correct nodemask to the __alloc_pages() call.
-
-The demonstration/reproducer of the problem:
- $ mount -oremount,size=4G,huge=always /dev/shm/
- $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
- $ cat mbind_thp.c
- #include <unistd.h>
- #include <sys/mman.h>
- #include <sys/stat.h>
- #include <fcntl.h>
- #include <assert.h>
- #include <stdlib.h>
- #include <stdio.h>
- #include <numaif.h>
-
- #define SIZE 2ULL << 30
- int main(int argc, char **argv)
- {
-   int fd;
-   unsigned long long i;
-   char *addr;
-   pid_t pid;
-   char buf[100];
-   unsigned long nodemask = 1;
-
-   fd = open("/dev/shm/test", O_RDWR|O_CREAT);
-   assert(fd > 0);
-   assert(ftruncate(fd, SIZE) == 0);
-
-   addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
-                        MAP_SHARED, fd, 0);
-
-   assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
-   for (i = 0; i < SIZE; i+=4096) {
-     addr[i] = 1;
-   }
-   pid = getpid();
-   snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
-   system(buf);
-   sleep(10000);
-
-   return 0;
- }
- $ gcc mbind_thp.c -o mbind_thp -lnuma
- $ numactl -H
- available: 2 nodes (0-1)
- node 0 cpus: 0 2
- node 0 size: 1918 MB
- node 0 free: 1595 MB
- node 1 cpus: 1 3
- node 1 size: 2014 MB
- node 1 free: 1731 MB
- node distances:
- node   0   1
-   0:  10  20
-   1:  20  10
- $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
- 7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
-
-Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
-Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
-Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
+Fixes: 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to debugfs")
 Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: David Rientjes <rientjes@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Valentin Schneider <valentin.schneider@arm.com>
+Cc: stable@vger.kernel.org # since v5.13
 ---
+ Documentation/admin-guide/sysctl/kernel.rst | 46 +-------------------
+ Documentation/scheduler/debug.txt           | 48 +++++++++++++++++++++
+ 2 files changed, 49 insertions(+), 45 deletions(-)
+ create mode 100644 Documentation/scheduler/debug.txt
 
- mm/mempolicy.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
---- a/mm/mempolicy.c~mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions
-+++ a/mm/mempolicy.c
-@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp,
- 			 * memory with both reclaim and compact as well.
- 			 */
- 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
--				page = __alloc_pages_node(hpage_node,
--								gfp, order);
-+				page = __alloc_pages(gfp, order, hpage_node, nmask);
+diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
+index 0e486f41185e..603469d42fb9 100644
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -609,51 +609,7 @@ be migrated to a local memory node.
+ The unmapping of pages and trapping faults incur additional overhead that
+ ideally is offset by improved memory locality but there is no universal
+ guarantee. If the target workload is already bound to NUMA nodes then this
+-feature should be disabled. Otherwise, if the system overhead from the
+-feature is too high then the rate the kernel samples for NUMA hinting
+-faults may be controlled by the `numa_balancing_scan_period_min_ms,
+-numa_balancing_scan_delay_ms, numa_balancing_scan_period_max_ms,
+-numa_balancing_scan_size_mb`_, and numa_balancing_settle_count sysctls.
+-
+-
+-numa_balancing_scan_period_min_ms, numa_balancing_scan_delay_ms, numa_balancing_scan_period_max_ms, numa_balancing_scan_size_mb
+-===============================================================================================================================
+-
+-
+-Automatic NUMA balancing scans tasks address space and unmaps pages to
+-detect if pages are properly placed or if the data should be migrated to a
+-memory node local to where the task is running.  Every "scan delay" the task
+-scans the next "scan size" number of pages in its address space. When the
+-end of the address space is reached the scanner restarts from the beginning.
+-
+-In combination, the "scan delay" and "scan size" determine the scan rate.
+-When "scan delay" decreases, the scan rate increases.  The scan delay and
+-hence the scan rate of every task is adaptive and depends on historical
+-behaviour. If pages are properly placed then the scan delay increases,
+-otherwise the scan delay decreases.  The "scan size" is not adaptive but
+-the higher the "scan size", the higher the scan rate.
+-
+-Higher scan rates incur higher system overhead as page faults must be
+-trapped and potentially data must be migrated. However, the higher the scan
+-rate, the more quickly a tasks memory is migrated to a local node if the
+-workload pattern changes and minimises performance impact due to remote
+-memory accesses. These sysctls control the thresholds for scan delays and
+-the number of pages scanned.
+-
+-``numa_balancing_scan_period_min_ms`` is the minimum time in milliseconds to
+-scan a tasks virtual memory. It effectively controls the maximum scanning
+-rate for each task.
+-
+-``numa_balancing_scan_delay_ms`` is the starting "scan delay" used for a task
+-when it initially forks.
+-
+-``numa_balancing_scan_period_max_ms`` is the maximum time in milliseconds to
+-scan a tasks virtual memory. It effectively controls the minimum scanning
+-rate for each task.
+-
+-``numa_balancing_scan_size_mb`` is how many megabytes worth of pages are
+-scanned for a given scan.
+-
++feature should be disabled.
  
- 			goto out;
- 		}
-_
-
-Patches currently in -mm which might be from arbn@yandex-team.com are
-
-mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
+ oops_all_cpu_backtrace
+ ======================
+diff --git a/Documentation/scheduler/debug.txt b/Documentation/scheduler/debug.txt
+new file mode 100644
+index 000000000000..848d83c3123c
+--- /dev/null
++++ b/Documentation/scheduler/debug.txt
+@@ -0,0 +1,48 @@
++Scheduler debugfs
++
++numa_balancing
++--------------
++
++`numa_balancing` directory is used to hold files to control NUMA
++balancing feature.  If the system overhead from the feature is too
++high then the rate the kernel samples for NUMA hinting faults may be
++controlled by the `scan_period_min_ms, scan_delay_ms,
++scan_period_max_ms, scan_size_mb` files.
++
++
++scan_period_min_ms, scan_delay_ms, scan_period_max_ms, scan_size_mb
++===================================================================
++
++Automatic NUMA balancing scans tasks address space and unmaps pages to
++detect if pages are properly placed or if the data should be migrated to a
++memory node local to where the task is running.  Every "scan delay" the task
++scans the next "scan size" number of pages in its address space. When the
++end of the address space is reached the scanner restarts from the beginning.
++
++In combination, the "scan delay" and "scan size" determine the scan rate.
++When "scan delay" decreases, the scan rate increases.  The scan delay and
++hence the scan rate of every task is adaptive and depends on historical
++behaviour. If pages are properly placed then the scan delay increases,
++otherwise the scan delay decreases.  The "scan size" is not adaptive but
++the higher the "scan size", the higher the scan rate.
++
++Higher scan rates incur higher system overhead as page faults must be
++trapped and potentially data must be migrated. However, the higher the scan
++rate, the more quickly a tasks memory is migrated to a local node if the
++workload pattern changes and minimises performance impact due to remote
++memory accesses. These files control the thresholds for scan delays and
++the number of pages scanned.
++
++``scan_period_min_ms`` is the minimum time in milliseconds to scan a
++tasks virtual memory. It effectively controls the maximum scanning
++rate for each task.
++
++``scan_delay_ms`` is the starting "scan delay" used for a task when it
++initially forks.
++
++``scan_period_max_ms`` is the maximum time in milliseconds to scan a
++tasks virtual memory. It effectively controls the minimum scanning
++rate for each task.
++
++``scan_size_mb`` is how many megabytes worth of pages are scanned for
++a given scan.
+-- 
+2.30.2
 
