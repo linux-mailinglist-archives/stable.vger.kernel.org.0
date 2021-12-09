@@ -2,123 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BEF946E607
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 10:56:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3E846E62B
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 11:06:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231551AbhLIKAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 05:00:17 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:34742 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229952AbhLIKAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 05:00:17 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id D57B921100;
-        Thu,  9 Dec 2021 09:56:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1639043802; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xvK0zEhdT3BGuGPYsomWUv27uncl6IYRPmZgV1UM2iE=;
-        b=t2mU/b5XSu4nCv5+rI1Yx2Zqnp7Wg0PNsgR6XXRTYPBtiIktV/9wtZPF2QC3/42EbLcnCB
-        D+Ma4XkRUQdK12zz6Gk87BfJ9OAoBntBxter9ncPIrKG0hARhz5jZsOa+MPDSQRYzs8Abi
-        mduQaMBsaSNxn256SVyiYyl1SZSSCw4=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id A2D7AA3B81;
-        Thu,  9 Dec 2021 09:56:42 +0000 (UTC)
-Date:   Thu, 9 Dec 2021 10:56:42 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Alexey Makhalov <amakhalov@vmware.com>
-Cc:     Dennis Zhou <dennis@kernel.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Message-ID: <YbHS2qN4wY+1hWZp@dhcp22.suse.cz>
-References: <YYrSC7vtSQXz652a@dhcp22.suse.cz>
- <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
- <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
- <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
- <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
- <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
- <YbBywDwc2bCxWGAQ@dhcp22.suse.cz>
- <77BCF61E-224F-435D-8620-670C9E874A9A@vmware.com>
- <YbHCT1r7NXyIvpsS@dhcp22.suse.cz>
- <2291C572-3B22-4BE5-8C7A-0D6A4609547B@vmware.com>
+        id S232428AbhLIKJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 05:09:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56920 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232554AbhLIKJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 05:09:56 -0500
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 098A5C061D5F
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 02:06:22 -0800 (PST)
+Received: by mail-lj1-x22d.google.com with SMTP id v15so8230823ljc.0
+        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 02:06:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4lFATsequWOiCgnpZ4p/6BBWla14PJU5Wf+t9BaVSeE=;
+        b=D8Gx/46XuC+G4SdL3UPnzw5BJbgf55Qxd5JmtotiY1ynfDNb8RtTnulE65G9a6uho+
+         NhC+AXr42MKR8uh/is+sgaXRdtZ/LChoW2Bpb836OIT2anUdS3ZqJnyGU9af/xG5Varj
+         z4259F+PM/GID9nAYLcKnbZgytkDHyjp6eNha/0fRTrEkAQmuUoXDDAsAwus00otIPa7
+         Dmd2W2WF+G+KgVyXPwjD6jDk21D/NcY4L/qZTKZ8dxaCxazDt9O7t2eLTPuQEtW8SJ1q
+         pla4kcIbGWrlQikz2EeZy2ME21VcQmNN0vA9To2AHNHtkfbUjlI5GOgVzoUFqQAXKhOd
+         CKZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4lFATsequWOiCgnpZ4p/6BBWla14PJU5Wf+t9BaVSeE=;
+        b=1UjJL0PcqcSxtRPS27EjRvKBPA3FHfX0GH7Pn9Y0VcJpC04OdrijiuwmF8f/DpnswG
+         u8C76ihbPqM3/JHUl7Bdu6+bRv/FgSbgvbFfp0F3PtofMVx0ucZXsbyppJPGHO44uNqF
+         xyEfuPUZEMXFkpj5LHT8cRjJPPnBemFsgInc/EIT4Eu4V1AJlehS/zlzO8YeUDcuyV8P
+         VmQqmiodQ1Rs0hqketX3mtHChB2vOahcYHOCSWo10lQQVtqJV+PGpfi/u5+zOn3TWr3Q
+         gM7DXDEx0Pjc+vGBz1DdRwayrWRwHzdiDHPMe+7Pi68hblDnEFcDesTL/Vt1IuODC66F
+         OwmQ==
+X-Gm-Message-State: AOAM5315G2mHI1ZBRxJ/5CxP5yih+LRZS31Xsq0YPuWL85q0czZ3DXPS
+        OrXtJxn99IiBoAR8OrmfK2o6vJeqRYq9vAC+vdKURg==
+X-Google-Smtp-Source: ABdhPJxH23WdQ4mT6uTrJq9zH7lO81XwGmaOOoonGOh9qQI9zjkuCKnUu+dh8lkJjj41ieGjwixrLVBJQTLbcM6lrTs=
+X-Received: by 2002:a05:651c:1507:: with SMTP id e7mr5619180ljf.300.1639044380237;
+ Thu, 09 Dec 2021 02:06:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2291C572-3B22-4BE5-8C7A-0D6A4609547B@vmware.com>
+References: <20211207075013.22911-1-wenbin.mei@mediatek.com>
+In-Reply-To: <20211207075013.22911-1-wenbin.mei@mediatek.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Thu, 9 Dec 2021 11:05:43 +0100
+Message-ID: <CAPDyKFqakV8FiQohbvh8h9UCpO14XJFDETPojSmdDUCeC1Kj8Q@mail.gmail.com>
+Subject: Re: [RESEND PATCH v1] mmc: mediatek: free the ext_csd when
+ mmc_get_ext_csd success
+To:     Wenbin Mei <wenbin.mei@mediatek.com>
+Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Chaotian Jing <chaotian.jing@mediatek.com>,
+        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 09-12-21 09:28:55, Alexey Makhalov wrote:
-> 
-> 
-> > On Dec 9, 2021, at 12:46 AM, Michal Hocko <mhocko@suse.com> wrote:
-> > 
-> > On Thu 09-12-21 02:16:17, Alexey Makhalov wrote:
-> >> This patch calls alloc_percpu() from setup_arch() while percpu
-> >> allocator is not yet initialized (before setup_per_cpu_areas()).
-> > 
-> > Yeah, I haven't realized the pcp is not available. I was not really sure
-> > about that. Could you try with the alloc_percpu dropped?
-> > 
-> > Thanks for testing!
-> > -- 
-> > Michal Hocko
-> > SUSE Labs
-> 
-> It boots now. dmesg has these new messages:
-> 
-> [    0.081777] Node 4 uninitialized by the platform. Please report with boot dmesg.
-> [    0.081790] Initmem setup node 4 [mem 0x0000000000000000-0x0000000000000000]
-> ...
-> [    0.086441] Node 127 uninitialized by the platform. Please report with boot dmesg.
-> [    0.086454] Initmem setup node 127 [mem 0x0000000000000000-0x0000000000000000]
+On Tue, 7 Dec 2021 at 08:50, Wenbin Mei <wenbin.mei@mediatek.com> wrote:
+>
+> If mmc_get_ext_csd success, the ext_csd are not freed.
+> Add the missing kfree() calls.
+>
+> Signed-off-by: Wenbin Mei <wenbin.mei@mediatek.com>
+> Fixes: c4ac38c6539b ("mmc: mtk-sd: Add HS400 online tuning support")
+> Cc: stable@vger.kernel.org
 
-Interesting that only those two didn't get a proper arch specific
-initialization. Could you check why? I assume init_cpu_to_node
-doesn't see any CPU pointing at this node. Wondering why that would be
-the case but that can be a bug in the affinity tables.
+We don't need the stable tag in this case, as commit c4ac38c6539b was
+introduced in v5.16-rc1. In any case, thanks for adding the fixes tag,
+it certainly helps!
 
-> vCPU/node hot add works.
-> Onlining works as well, but with warning. I do not think it is related to the patch:
-> [   36.838838] CPU4 has been hot-added
-> [   36.838987] acpi_processor_hotadd_init:205 cpu 4, node 4, online 0, ndata 00000000e9c7f79b
-> [   48.480498] Built 4 zonelists, mobility grouping on.  Total pages: 961440
-> [   48.480508] Policy zone: Normal
-> [   48.508318] smpboot: Booting Node 4 Processor 4 APIC 0x8
-> [   48.509255] Disabled fast string operations
-> [   48.509807] smpboot: CPU 4 Converting physical 8 to logical package 4
-> [   48.509825] smpboot: CPU 4 Converting physical 0 to logical die 4
-> [   48.510040] WARNING: workqueue cpumask: online intersect > possible intersect
+Applied for fixes, thanks!
 
-I will double check. There are changes required on the hotplug side. I
-would like to see that this one doesn't blow up before diving there.
+Kind regards
+Uffe
 
-> [   48.510324] vmware: vmware-stealtime: cpu 4, pa 3e667000
-> [   48.511311] Will online and init hotplugged CPU: 4
-> 
-> Hot remove does not quite work. It might be issue in ACPI/Firmware code or Hypervisor. Debugging…
-> 
-> Do you want me to perform any specific tests?
 
-No, not really. AFAIU your issue has been reproducible during boot and
-that seems to be fixed. I will work on the hotplug side of the things
-and post something resembling a real patch soon. That would require also
-memory hotplug testing.
-
-Thanks for your help!
--- 
-Michal Hocko
-SUSE Labs
+> ---
+>  drivers/mmc/host/mtk-sd.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
+> index 943940b44e83..632775217d35 100644
+> --- a/drivers/mmc/host/mtk-sd.c
+> +++ b/drivers/mmc/host/mtk-sd.c
+> @@ -2291,8 +2291,10 @@ static int msdc_execute_hs400_tuning(struct mmc_host *mmc, struct mmc_card *card
+>                         sdr_set_field(host->base + PAD_DS_TUNE,
+>                                       PAD_DS_TUNE_DLY1, i);
+>                 ret = mmc_get_ext_csd(card, &ext_csd);
+> -               if (!ret)
+> +               if (!ret) {
+>                         result_dly1 |= (1 << i);
+> +                       kfree(ext_csd);
+> +               }
+>         }
+>         host->hs400_tuning = false;
+>
+> --
+> 2.25.1
+>
