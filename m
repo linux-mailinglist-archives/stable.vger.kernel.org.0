@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C28846F522
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 21:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E108346F524
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 21:45:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbhLIUrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 15:47:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39616 "EHLO
+        id S229554AbhLIUr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 15:47:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230506AbhLIUq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 15:46:58 -0500
+        with ESMTP id S230374AbhLIUrY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 15:47:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9BC0C061746
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 12:43:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C31C0617A1
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 12:43:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A173CB82410
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 20:43:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4AAFC004DD;
-        Thu,  9 Dec 2021 20:43:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8442B82645
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 20:43:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B389EC004DD;
+        Thu,  9 Dec 2021 20:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639082601;
-        bh=kZuyMDRt2FQpQVqy/cvmc5P1yNOIQhStsUTsSp0MNxs=;
+        s=korg; t=1639082598;
+        bh=lXwMCUGNVRbr2IAeodS7jNjhhz/mzr8Npp8yRTuX12c=;
         h=Subject:To:Cc:From:Date:From;
-        b=wWPSDP4YEPUZnV1Y+btLDdVoaloxI/Z1KdWMXasuYgZb7f+w6SHHvXHdO3g/MGWE8
-         GippJmdiXk/1d/lI10RjUWR1fCsTPPeWzWLifpwmtC5cEsVORkdCdpOrNbz/z2eqIR
-         DQwo16tg1EoE6/0W8oYnd3Kh61Xiz7wlcK3Ml4TQ=
-Subject: FAILED: patch "[PATCH] HID: intel-ish-hid: ipc: only enable IRQ wakeup when" failed to apply to 4.19-stable tree
+        b=uOfy2vx33rGWTb0hYIDzCE/8oKh2jI22XAeqApHet1YFaCjNCjd0V7aNr4oWpQz81
+         N0o3jcxFUhKpO2HmYQmdXBeViLkJAgLHSCSnmkSy9z4+UlWy3IbEJYFWnaSn4+pWdg
+         SOggSls9mfoXWLF3f4NhAS/qs5UrVpV7SyMIToPE=
+Subject: FAILED: patch "[PATCH] HID: intel-ish-hid: ipc: only enable IRQ wakeup when" failed to apply to 5.4-stable tree
 To:     linux@weissschuh.net, benjamin.tissoires@redhat.com,
         srinivas.pandruvada@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 09 Dec 2021 21:43:05 +0100
-Message-ID: <163908258523779@kroah.com>
+Message-ID: <1639082585138183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
