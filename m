@@ -2,127 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A16C646EA34
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 15:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE86446EAF8
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 16:19:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238811AbhLIOqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 09:46:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36696 "EHLO
+        id S235085AbhLIPWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 10:22:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231863AbhLIOqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 09:46:14 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081F7C061746
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 06:42:41 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id np3so4573474pjb.4
-        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 06:42:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=DlIzAa6h2Qdf88CQ4XAT+zAj7QyEiJFQv1x54NsjTKU=;
-        b=izB4Ze5IwkTdDFN2UPnu25PTURU5BM0L76lRpnraNW9aOiFCIfT4kGA9KN4Hsp9dMI
-         5yc45D+bNrTlgL5C6Ns35vhPzcgiVqugDyrdKVBl3GWVdyX7aH9sJ2i2mH2PkzvVFpfp
-         FMB917/z54Wigzhm2+DyrWiRkYoIHWWOX/zgAVL3aB4rpx/GZM3/vGM6N0eWJ33hutyk
-         cUzhIVJRdLGS1R6INlxbilcEnv2sI9plsP0iJ0PcxwL8zJooz2xqotKh3rt6BZUpHseP
-         esFGUNhzXQuhALatzTkkVnEAVh3AG3FQzSy8RCUqvAmqnmf7IyCgQOFebnZCQFUodlQp
-         EHFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=DlIzAa6h2Qdf88CQ4XAT+zAj7QyEiJFQv1x54NsjTKU=;
-        b=y7YAqO9eNrBExZBBg3Z3LLf8tHDTIWaAlLvfP4KiqLonkzZSDl+5WD7kWM4Ie7iDSH
-         ELgcrb+S7NsqIDKgqZZgbf8O80eAe9aQJc1HFc6tvwTnODT88YVKQrSbRHhia1p5sW9l
-         uj1vwLNOkMlAuVt5KLXwn/Kd7hdseNT/ob7wMPBf8p+Ikhp80yqCElV44/5+43dtY5lq
-         kfS7pBQuJ/sz/WBYj3NtzI1QhJFGE/IyoqXYnwbUF6+IH3tvaVCVlB89uMKdCfEg2jCy
-         r6fTW+TpqECpuUpnmKCPJ67jPcirfkvUC2P8qI7dZU+wt71Qo9WyLwEk2kFWop2U5/uZ
-         6OZA==
-X-Gm-Message-State: AOAM532M4XMXuQ9yQhU7+dTTYKqWIRKzdSRguiB/5nSeH69yDOP+Rmdo
-        fsI1AxewrKQS/m3J1IT5hwtK
-X-Google-Smtp-Source: ABdhPJxBp3vk9RdIYD+lyw7hUsxgLabInUSRiWT7uujnDncQbAcGGL+tWLA/fU6V5Iel2x2ks7eahA==
-X-Received: by 2002:a17:90b:3149:: with SMTP id ip9mr16188630pjb.77.1639060960427;
-        Thu, 09 Dec 2021 06:42:40 -0800 (PST)
-Received: from thinkpad ([2409:4072:902:fac4:6231:3e3b:50a6:33a7])
-        by smtp.gmail.com with ESMTPSA id b1sm5985623pgk.37.2021.12.09.06.42.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Dec 2021 06:42:39 -0800 (PST)
-Date:   Thu, 9 Dec 2021 20:12:33 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Kalle Valo <kvalo@kernel.org>
-Cc:     gregkh@linuxfoundation.org, mhi@lists.linux.dev,
-        hemantk@codeaurora.org, bbhatt@codeaurora.org,
-        loic.poulain@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org,
-        Pengyu Ma <mapengyu@gmail.com>
-Subject: Re: [PATCH v2] bus: mhi: core: Add support for forced PM resume
-Message-ID: <20211209144233.GA9253@thinkpad>
-References: <20211209131633.4168-1-manivannan.sadhasivam@linaro.org>
- <87fsr13kya.fsf@codeaurora.org>
+        with ESMTP id S235096AbhLIPWp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 10:22:45 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F74C0617A1;
+        Thu,  9 Dec 2021 07:19:12 -0800 (PST)
+Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 0036A1EC0503;
+        Thu,  9 Dec 2021 16:19:05 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1639063146;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=hnVow05zGwYUceTmQ9hNcIsttLUONol/7cmMzWAEf8I=;
+        b=FFpAdOmtSWfdBF9+MI0GQgEE1rFMGX0OYfSJLW0yse2A7TYV0P5+Bzc1xuW2Qa+g2twjh/
+        N6jO011ZBqxqBBLblPN2uJCIhn/ieYzHNgex/3i6IEX7ezN+yhAOabdhgaY4qG8bSg0Oz/
+        wrRhTf+QCC77yyB4DyO6b4rYFKwOvpE=
+Date:   Thu, 9 Dec 2021 16:19:07 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     John Dorminy <jdorminy@redhat.com>
+Cc:     tip-bot2@linutronix.de, anjaneya.chagam@intel.com,
+        dan.j.williams@intel.com, linux-kernel@vger.kernel.org,
+        linux-tip-commits@vger.kernel.org, stable@vger.kernel.org,
+        x86@kernel.org, Hugh Dickins <hughd@google.com>,
+        "Patrick J. Volkerding" <volkerdi@gmail.com>,
+        Mike Rapoport <rppt@kernel.org>
+Subject: Re: [tip: x86/urgent] x86/boot: Pull up cmdline preparation and
+ early param parsing
+Message-ID: <YbIeYIM6JEBgO3tG@zn.tnic>
+References: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2>
+ <20211209143810.452527-1-jdorminy@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <87fsr13kya.fsf@codeaurora.org>
+In-Reply-To: <20211209143810.452527-1-jdorminy@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 09, 2021 at 04:35:25PM +0200, Kalle Valo wrote:
-> Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org> writes:
-> 
-> > From: Loic Poulain <loic.poulain@linaro.org>
-> >
-> > For whatever reason, some devices like QCA6390, WCN6855 using ath11k
-> > are not in M3 state during PM resume, but still functional. The
-> > mhi_pm_resume should then not fail in those cases, and let the higher
-> > level device specific stack continue resuming process.
-> >
-> > Add an API mhi_pm_resume_force(), to force resuming irrespective of the
-> > current MHI state. This fixes a regression with non functional ath11k WiFi
-> > after suspend/resume cycle on some machines.
-> >
-> > Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=214179
-> >
-> > Fixes: 020d3b26c07a ("bus: mhi: Early MHI resume failure in non M3 state")
-> > Cc: stable@vger.kernel.org #5.13
-> > Link: https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
-> > Reported-by: Kalle Valo <kvalo@codeaurora.org>
-> > Reported-by: Pengyu Ma <mapengyu@gmail.com>
-> > Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-> > [mani: Switched to API, added bug report, reported-by tags and CCed stable]
-> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> > ---
-> >
-> > Changes in v2:
-> >
-> > * Switched to a new API "mhi_pm_resume_force()" instead of the "force" flag as
-> >   suggested by Greg. The "force" flag is now used inside the API.
-> >
-> > Greg: I'm sending this patch directly to you so that you can apply it to
-> > char-misc once we get an ACK from Kalle.
-> 
-> Thanks! I now tested this patch on top v5.16-rc4 using QCA6390 and
-> firmware WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1, no issues found:
-> 
-> Tested-by: Kalle Valo <kvalo@kernel.org>
-> 
-> I'm not expecting any conflicts with ath11k, so please take this via
-> Greg's tree. It would be really good to get this regression fixed in
-> v5.16, so is it possible to send this to -rc releases?
-> 
-> For the ath11k part:
-> 
-> Acked-by: Kalle Valo <kvalo@kernel.org>
++ Hugh and Patrick.
 
-Thanks. If this patch looks good to Greg, then it will be queued for the next
--rc release.
-
-Thanks,
-Mani
-
+On Thu, Dec 09, 2021 at 09:38:10AM -0500, John Dorminy wrote:
+> Greetings;
 > 
-> -- 
-> https://patchwork.kernel.org/project/linux-wireless/list/
+> It seems that this patch causes a mem= parameter to the kernel to have no effect, unfortunately... 
 > 
-> https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+> As far as I understand, the x86 mem parameter handler parse_memopt() (called by parse_early_param()) relies on being called after e820__memory_setup(): it simply removes any memory above the specified limit at that moment, allowing memory to later be hotplugged without regard for the initial limit. However, the initial non-hotplugged memory must already have been set up, in e820__memory_setup(), so that it can be removed in parse_memopt(); if parse_early_param() is called before e820__memory_setup(), as this change does, the parameter ends up having no effect.
+> 
+> I apologize that I don't know how to fix this, but I'm happy to test patches.
+
+Yeah, people have been reporting boot failures with mem= on the cmdline.
+
+I think I see why, can you try this one:
+
+---
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 6a190c7f4d71..6db971e61e4b 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -862,6 +862,8 @@ void __init setup_arch(char **cmdline_p)
+ 	 */
+ 	x86_configure_nx();
+ 
++	e820__memory_setup();
++
+ 	/*
+ 	 * This parses early params and it needs to run before
+ 	 * early_reserve_memory() because latter relies on such settings
+@@ -884,7 +886,6 @@ void __init setup_arch(char **cmdline_p)
+ 	early_reserve_memory();
+ 
+ 	iomem_resource.end = (1ULL << boot_cpu_data.x86_phys_bits) - 1;
+-	e820__memory_setup();
+ 	parse_setup_data();
+ 
+ 	copy_edd();
+---
+
+Leaving in the rest for the newly added folks.
+
+> Typical dmesg output showing the lack of effect, built from the prior change and this change:
+> 
+> With a git tree synced to 8d48bf8206f77aa8687f0e241e901e5197e52423^ (working):
+> [    0.000000] Command line: BOOT_IMAGE=(hd0,msdos1)/boot/vmlinuz-5.16.0-rc1 root=UUID=a4f7bd84-4f29-40bc-8c98-f4a72d0856c4 ro net.ifnames=0 crashkernel=128M mem=4G
+> ...
+> [    0.000000] BIOS-provided physical RAM map:
+> [    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009abff] usable
+> [    0.000000] BIOS-e820: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x0000000000100000-0x000000007dd3afff] usable
+> [    0.000000] BIOS-e820: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+> [    0.000000] BIOS-e820: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+> [    0.000000] BIOS-e820: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+> [    0.000000] BIOS-e820: [mem 0x0000000080000000-0x000000008fffffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000207fffffff] usable
+> [    0.000000] e820: remove [mem 0x100000000-0xfffffffffffffffe] usable
+> [    0.000000] NX (Execute Disable) protection: active
+> [    0.000000] user-defined physical RAM map:
+> [    0.000000] user: [mem 0x0000000000000000-0x000000000009abff] usable
+> [    0.000000] user: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+> [    0.000000] user: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+> [    0.000000] user: [mem 0x0000000000100000-0x000000007dd3afff] usable
+> [    0.000000] user: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+> [    0.000000] user: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+> [    0.000000] user: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+> [    0.000000] user: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+> [    0.000000] user: [mem 0x0000000080000000-0x000000008fffffff] reserved
+> [    0.000000] user: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+> [    0.000000] user: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+> ...
+> [    0.025617] Memory: 1762876K/2061136K available (16394K kernel code, 3568K rwdata, 10324K rodata, 2676K init, 4924K bss, 298000K reserved, 0K cma-reserved)
+> 
+> Synced 8d48bf8206f77aa8687f0e241e901e5197e52423 (not working):
+> 
+> [    0.000000] Command line: BOOT_IMAGE=(hd0,msdos1)/boot/vmlinuz-5.16.0-rc4+ root=UUID=0e750e61-b92e-4708-a974-c50a3fb7e969 ro net.ifnames=0 crashkernel=128M mem=4G
+> [    0.000000] e820: remove [mem 0x100000000-0xfffffffffffffffe] usable
+> [    0.000000] BIOS-provided physical RAM map:
+> [    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009abff] usable
+> [    0.000000] BIOS-e820: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x0000000000100000-0x000000007dd3afff] usable
+> [    0.000000] BIOS-e820: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+> [    0.000000] BIOS-e820: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+> [    0.000000] BIOS-e820: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+> [    0.000000] BIOS-e820: [mem 0x0000000080000000-0x000000008fffffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+> [    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000207fffffff] usable
+> [    0.000000] NX (Execute Disable) protection: active
+> [    0.000000] user-defined physical RAM map:
+> [    0.000000] user: [mem 0x0000000000000000-0x000000000009abff] usable
+> [    0.000000] user: [mem 0x000000000009ac00-0x000000000009ffff] reserved
+> [    0.000000] user: [mem 0x00000000000e0000-0x00000000000fffff] reserved
+> [    0.000000] user: [mem 0x0000000000100000-0x000000007dd3afff] usable
+> [    0.000000] user: [mem 0x000000007dd3b000-0x000000007deeffff] reserved
+> [    0.000000] user: [mem 0x000000007def0000-0x000000007e0d3fff] ACPI NVS
+> [    0.000000] user: [mem 0x000000007e0d4000-0x000000007f367fff] reserved
+> [    0.000000] user: [mem 0x000000007f368000-0x000000007f7fffff] ACPI NVS
+> [    0.000000] user: [mem 0x0000000080000000-0x000000008fffffff] reserved
+> [    0.000000] user: [mem 0x00000000fed1c000-0x00000000fed3ffff] reserved
+> [    0.000000] user: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+> [    0.000000] user: [mem 0x0000000100000000-0x000000207fffffff] usable
+> ...
+> [    0.695267] Memory: 131657608K/134181712K available (16394K kernel code, 3568K rwdata, 10328K rodata, 2676K init, 4924K bss, 2523844K reserved, 0K cma-reserved)
+> 
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
