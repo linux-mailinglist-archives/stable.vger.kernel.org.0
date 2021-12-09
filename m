@@ -2,89 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D02746EA28
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 15:38:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A16C646EA34
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 15:42:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238792AbhLIOmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 09:42:18 -0500
-Received: from mailgw02.mediatek.com ([210.61.82.184]:41102 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S238747AbhLIOmS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 09:42:18 -0500
-X-UUID: 558ea62eb0ae44198d753f500b18983e-20211209
-X-UUID: 558ea62eb0ae44198d753f500b18983e-20211209
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw02.mediatek.com
-        (envelope-from <mark-pk.tsai@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 747855209; Thu, 09 Dec 2021 22:38:41 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 9 Dec 2021 22:38:39 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 9 Dec 2021 22:38:39 +0800
-From:   Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-To:     <luca.stefani.ge1@gmail.com>
-CC:     <akpm@linux-foundation.org>, <anton@tuxera.com>,
-        <clang-built-linux@googlegroups.com>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-ntfs-dev@lists.sourceforge.net>,
-        <michalechner92@googlemail.com>, <stable@vger.kernel.org>,
-        <mark-pk.tsai@mediatek.com>, <yj.chiang@mediatek.com>
-Subject: [PATCH v2] ntfs: Fix ntfs_test_inode and ntfs_init_locked_inode function type
-Date:   Thu, 9 Dec 2021 22:38:39 +0800
-Message-ID: <20211209143839.31021-1-mark-pk.tsai@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20200718112513.533800-1-luca.stefani.ge1@gmail.com>
-References: <20200718112513.533800-1-luca.stefani.ge1@gmail.com>
+        id S238811AbhLIOqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 09:46:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36696 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231863AbhLIOqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 09:46:14 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081F7C061746
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 06:42:41 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id np3so4573474pjb.4
+        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 06:42:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=DlIzAa6h2Qdf88CQ4XAT+zAj7QyEiJFQv1x54NsjTKU=;
+        b=izB4Ze5IwkTdDFN2UPnu25PTURU5BM0L76lRpnraNW9aOiFCIfT4kGA9KN4Hsp9dMI
+         5yc45D+bNrTlgL5C6Ns35vhPzcgiVqugDyrdKVBl3GWVdyX7aH9sJ2i2mH2PkzvVFpfp
+         FMB917/z54Wigzhm2+DyrWiRkYoIHWWOX/zgAVL3aB4rpx/GZM3/vGM6N0eWJ33hutyk
+         cUzhIVJRdLGS1R6INlxbilcEnv2sI9plsP0iJ0PcxwL8zJooz2xqotKh3rt6BZUpHseP
+         esFGUNhzXQuhALatzTkkVnEAVh3AG3FQzSy8RCUqvAmqnmf7IyCgQOFebnZCQFUodlQp
+         EHFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=DlIzAa6h2Qdf88CQ4XAT+zAj7QyEiJFQv1x54NsjTKU=;
+        b=y7YAqO9eNrBExZBBg3Z3LLf8tHDTIWaAlLvfP4KiqLonkzZSDl+5WD7kWM4Ie7iDSH
+         ELgcrb+S7NsqIDKgqZZgbf8O80eAe9aQJc1HFc6tvwTnODT88YVKQrSbRHhia1p5sW9l
+         uj1vwLNOkMlAuVt5KLXwn/Kd7hdseNT/ob7wMPBf8p+Ikhp80yqCElV44/5+43dtY5lq
+         kfS7pBQuJ/sz/WBYj3NtzI1QhJFGE/IyoqXYnwbUF6+IH3tvaVCVlB89uMKdCfEg2jCy
+         r6fTW+TpqECpuUpnmKCPJ67jPcirfkvUC2P8qI7dZU+wt71Qo9WyLwEk2kFWop2U5/uZ
+         6OZA==
+X-Gm-Message-State: AOAM532M4XMXuQ9yQhU7+dTTYKqWIRKzdSRguiB/5nSeH69yDOP+Rmdo
+        fsI1AxewrKQS/m3J1IT5hwtK
+X-Google-Smtp-Source: ABdhPJxBp3vk9RdIYD+lyw7hUsxgLabInUSRiWT7uujnDncQbAcGGL+tWLA/fU6V5Iel2x2ks7eahA==
+X-Received: by 2002:a17:90b:3149:: with SMTP id ip9mr16188630pjb.77.1639060960427;
+        Thu, 09 Dec 2021 06:42:40 -0800 (PST)
+Received: from thinkpad ([2409:4072:902:fac4:6231:3e3b:50a6:33a7])
+        by smtp.gmail.com with ESMTPSA id b1sm5985623pgk.37.2021.12.09.06.42.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Dec 2021 06:42:39 -0800 (PST)
+Date:   Thu, 9 Dec 2021 20:12:33 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Kalle Valo <kvalo@kernel.org>
+Cc:     gregkh@linuxfoundation.org, mhi@lists.linux.dev,
+        hemantk@codeaurora.org, bbhatt@codeaurora.org,
+        loic.poulain@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ath11k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, stable@vger.kernel.org,
+        Pengyu Ma <mapengyu@gmail.com>
+Subject: Re: [PATCH v2] bus: mhi: core: Add support for forced PM resume
+Message-ID: <20211209144233.GA9253@thinkpad>
+References: <20211209131633.4168-1-manivannan.sadhasivam@linaro.org>
+ <87fsr13kya.fsf@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87fsr13kya.fsf@codeaurora.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Clang's Control Flow Integrity (CFI) is a security mechanism that can
-> help prevent JOP chains, deployed extensively in downstream kernels
-> used in Android.
+On Thu, Dec 09, 2021 at 04:35:25PM +0200, Kalle Valo wrote:
+> Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org> writes:
 > 
-> It's deployment is hindered by mismatches in function signatures.  For
-> this case, we make callbacks match their intended function signature,
-> and cast parameters within them rather than casting the callback when
-> passed as a parameter.
+> > From: Loic Poulain <loic.poulain@linaro.org>
+> >
+> > For whatever reason, some devices like QCA6390, WCN6855 using ath11k
+> > are not in M3 state during PM resume, but still functional. The
+> > mhi_pm_resume should then not fail in those cases, and let the higher
+> > level device specific stack continue resuming process.
+> >
+> > Add an API mhi_pm_resume_force(), to force resuming irrespective of the
+> > current MHI state. This fixes a regression with non functional ath11k WiFi
+> > after suspend/resume cycle on some machines.
+> >
+> > Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=214179
+> >
+> > Fixes: 020d3b26c07a ("bus: mhi: Early MHI resume failure in non M3 state")
+> > Cc: stable@vger.kernel.org #5.13
+> > Link: https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
+> > Reported-by: Kalle Valo <kvalo@codeaurora.org>
+> > Reported-by: Pengyu Ma <mapengyu@gmail.com>
+> > Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+> > [mani: Switched to API, added bug report, reported-by tags and CCed stable]
+> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > ---
+> >
+> > Changes in v2:
+> >
+> > * Switched to a new API "mhi_pm_resume_force()" instead of the "force" flag as
+> >   suggested by Greg. The "force" flag is now used inside the API.
+> >
+> > Greg: I'm sending this patch directly to you so that you can apply it to
+> > char-misc once we get an ACK from Kalle.
 > 
-> When running `mount -t ntfs ...` we observe the following trace:
+> Thanks! I now tested this patch on top v5.16-rc4 using QCA6390 and
+> firmware WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1, no issues found:
 > 
-> Call trace:
-> __cfi_check_fail+0x1c/0x24
-> name_to_dev_t+0x0/0x404
-> iget5_locked+0x594/0x5e8
-> ntfs_fill_super+0xbfc/0x43ec
-> mount_bdev+0x30c/0x3cc
-> ntfs_mount+0x18/0x24
-> mount_fs+0x1b0/0x380
-> vfs_kern_mount+0x90/0x398
-> do_mount+0x5d8/0x1a10
-> SyS_mount+0x108/0x144
-> el0_svc_naked+0x34/0x38
+> Tested-by: Kalle Valo <kvalo@kernel.org>
 > 
-> Signed-off-by: Luca Stefani <luca.stefani.ge1@gmail.com>
-> Tested-by: freak07 <michalechner92@googlemail.com>
-> Acked-by: Anton Altaparmakov <anton@tuxera.com>
-> ---
->  fs/ntfs/dir.c   |  2 +-
->  fs/ntfs/inode.c | 27 ++++++++++++++-------------
->  fs/ntfs/inode.h |  4 +---
->  fs/ntfs/mft.c   |  4 ++--
->  4 files changed, 18 insertions(+), 19 deletions(-)
+> I'm not expecting any conflicts with ath11k, so please take this via
+> Greg's tree. It would be really good to get this regression fixed in
+> v5.16, so is it possible to send this to -rc releases?
 > 
+> For the ath11k part:
+> 
+> Acked-by: Kalle Valo <kvalo@kernel.org>
 
-Hi,
+Thanks. If this patch looks good to Greg, then it will be queued for the next
+-rc release.
 
-I think stable tree should pick this change.
+Thanks,
+Mani
 
-Below is the mainline commit.
-
-(1146f7e2dc15 ntfs: fix ntfs_test_inode and ntfs_init_locked_inode function type)
-
-5.4 stable have the same issue when CFI is enabled.
+> 
+> -- 
+> https://patchwork.kernel.org/project/linux-wireless/list/
+> 
+> https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
