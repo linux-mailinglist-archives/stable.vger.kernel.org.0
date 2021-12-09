@@ -2,104 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5614246E18F
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 05:35:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE7646E24D
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 07:08:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229927AbhLIEjL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 23:39:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37504 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbhLIEjL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 23:39:11 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6786FC0617A2
-        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 20:35:38 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id x131so4264360pfc.12
-        for <stable@vger.kernel.org>; Wed, 08 Dec 2021 20:35:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OTnH146W1h2tRqN4JJ2cRB6UCxYgrVEb9ej66jz/hvo=;
-        b=N9rptxSRnfF0MLgUuQ6pniD9NY0xD5gmN9NJ7q7nYIWlGUP0fj+D8bni97+3KJBESg
-         YTDJakMn80kzpqKS5vbuzleqCKcNAbRDoV5rKpWPOaKKoANlS3Y3HOLQUCPqmKekZD5N
-         DzMUZAR0D2WT1NFLrwnRVJ8pdQaeOC0bE3SbE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OTnH146W1h2tRqN4JJ2cRB6UCxYgrVEb9ej66jz/hvo=;
-        b=WVUCZ5iOLf9TS6tbHuyDBZESHpCCCT5sFCV7kwKj+NNSXp8X+oBwru4tOhBRHiqedP
-         UG9uui1iuwP0ynJsvXoyemkmlYB581APuFMjcI8CkCD4oVRyzb7UROfIfDJIROH9cfnR
-         22cuYuy05Vs552qPsMcAi681118BJ47rIsZXjLSjLS+hE0AVVtHK92Rn0kr7Q0oT6uMO
-         qLuYCdquVc76WAHNZD0hqEK5go834D+dqIxNCDv94lyYakZFdjxipO26kBpG0ytWUid3
-         qRA0rhbly0mRvRHJzisZkbF1DgZUwua8YMDvfG2RwHqMUm695WoKOdrfl4TO3+meuvC/
-         lYdQ==
-X-Gm-Message-State: AOAM531egA27FEL7/3bmBnx++2K2ZJFJURo5xgSpLVOsvoQIpvWZANaq
-        du2zwmNOISXoKlvrnUX0vQFnRL/8vb0Oaw==
-X-Google-Smtp-Source: ABdhPJySi11U26fyrl+v1mQbCHqtQHoohp4ZDdBFMGnKAY4y2rJnvnEeVrvpPP2RjYxbn2uGWN4Mxg==
-X-Received: by 2002:a63:1b02:: with SMTP id b2mr31784110pgb.263.1639024537867;
-        Wed, 08 Dec 2021 20:35:37 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id p49sm4871738pfw.43.2021.12.08.20.35.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Dec 2021 20:35:37 -0800 (PST)
-From:   Kees Cook <keescook@chromium.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Will Deacon <will@kernel.org>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        linux-kernel@vger.kernel.org, x86@kernel.org,
-        linux-hardening@vger.kernel.org
-Subject: [PATCH] x86/uaccess: Move variable into switch case statement
-Date:   Wed,  8 Dec 2021 20:34:56 -0800
-Message-Id: <20211209043456.1377875-1-keescook@chromium.org>
-X-Mailer: git-send-email 2.30.2
+        id S229488AbhLIGM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 01:12:26 -0500
+Received: from gandalf.ozlabs.org ([150.107.74.76]:35947 "EHLO
+        gandalf.ozlabs.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231745AbhLIGM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 01:12:26 -0500
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4J8kBC4GVSz4xgY;
+        Thu,  9 Dec 2021 17:08:51 +1100 (AEDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1639030132;
+        bh=D8SbP/O7wam578TW1HYdDVA3VPmkytsHTRymA1Ss3gg=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=Tg5lQFWCAqaidtyGRXagjacrGIp7N/xOSDR014fQubYxl+gIoM6VXXAGTbya+TjNV
+         9mgppM94THhjuhSGsiiW5ivjTxJDSbH/Szd1i/C+HdojrMq4lLmBUcLXtLKfC96KEr
+         WPlNPR3Qx6QmSvmLX0tj/+M2TxDRqlPNmWKQJXxWuFSq57ibcioymYSU+yvoXZsm0t
+         HMOshmqKY4hs3W2FiN9lrJGN5rbBg7bY7OEy/G+BUbIy55WIFvQrxRuUZ3T+EX7sA3
+         oFqXc24SoL3INzYBX1D3oXPFvNND/yarp82mu0pVfKSOM5aUy4qgVSXVdzccRYbt0d
+         1eczW8i3M6+nA==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "mbizon@freebox.fr" <mbizon@freebox.fr>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] powerpc/603: Fix boot failure with DEBUG_PAGEALLOC and
+ KFENCE
+In-Reply-To: <191754d3-e13d-6fe2-db4b-99d78cbf2a2e@csgroup.eu>
+References: <aea33b4813a26bdb9378b5f273f00bd5d4abe240.1638857364.git.christophe.leroy@csgroup.eu>
+ <12988dafdf7e14ba6db69ab483a2eb53e411fc0d.camel@freebox.fr>
+ <191754d3-e13d-6fe2-db4b-99d78cbf2a2e@csgroup.eu>
+Date:   Thu, 09 Dec 2021 17:08:48 +1100
+Message-ID: <8735n2nwcv.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1283; h=from:subject; bh=CQ9kD+xEuCd2isJBoD5npKFBg9v/JSWJJPAtzMVJS04=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBhsYdwZw0rJHtAVcR94cnaDCxyjWyuuqFcZGv3g4c/ hLnWAcSJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYbGHcAAKCRCJcvTf3G3AJv9SEA CP/7AJxBiaUjVDBOGfIIJpFgNWQf4HuttbJHMmPFyRwMXVG/0joQz8bEc4a850KZE+zJoTqQ9iMhqg gJQTFpLjzbJZh2NnYyZ8dlkvlGz9S4EGShw0WCExxwK1A5iu952CUR22xpgQl39N56Lu0Q1hxSbRdv Fv0YjMhNkckU3pwWjVHb0loOrGSVQHzijkGVvsf2F8noQNiR6gRCHMFaJbGG42aqP6ESpaer0jx7mU AXolO4e5ZOO7jI54h1veFFvQR7OcFGDhDcg2Ywt9CMDqhRaLB4rvDIeZ3RefIsyaw5I4+ZFS5Vw5SJ ztfQKD0GJyPqE2fsautriZzYqkO+qXokvFYwWRg9BN0zgFOZflToTKF6mODp980yOOy33eLFxloWRd r+cl0Vuwze/1CLOE2DvQSozQaOVDRnzbcYqVkm3F9wYodFHdYoEx6PBr2mqjfONDfebverxAIs+yY5 Y04fu4t/HzFTJLmbhPxOSxuKtkUM9U6D7ksvxJC5MQR4pL97Ju3aBGcGLrPjN/fng8RlDEjIkckHad pKzXTKi8eqRwbtpBc/2KIMAvr0Pl47BzP4eTdD+L4FeujC7eC0xjgRy0wFEvlhltfpvCv/oQYBzxqm 8ZSRnmZEt/H/AOpMx4lkaKlYLRgujleG5NwJXE28Na0HSnILtIFrSG7ED25Q==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When building with automatic stack variable initialization, GCC 12
-complains about variables defined outside of switch case statements.
-Move the variable into the case that uses it, which silences the warning:
+Christophe Leroy <christophe.leroy@csgroup.eu> writes:
+> Le 07/12/2021 =C3=A0 11:34, Maxime Bizon a =C3=A9crit=C2=A0:
+>>=20
+>> On Tue, 2021-12-07 at 06:10 +0000, Christophe Leroy wrote:
+>>=20
+>> Hello,
+>>=20
+>> With the patch applied and
+>>=20
+>> CONFIG_DEBUG_PAGEALLOC=3Dy
+>> CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT=3Dy
+>> CONFIG_DEBUG_VM=3Dy
+>>=20
+>> I get tons of this during boot:
+>>=20
+>> [    0.000000] Dentry cache hash table entries: 262144 (order: 8, 104857=
+6 bytes, linear)
+>> [    0.000000] Inode-cache hash table entries: 131072 (order: 7, 524288 =
+bytes, linear)
+>> [    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+>> [    0.000000] ------------[ cut here ]------------
+>> [    0.000000] WARNING: CPU: 0 PID: 0 at arch/powerpc/mm/pgtable.c:194 s=
+et_pte_at+0x18/0x160
+>> [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0+ #442
+>> [    0.000000] NIP:  80015ebc LR: 80016728 CTR: 800166e4
+>> [    0.000000] REGS: 80751dd0 TRAP: 0700   Not tainted  (5.15.0+)
+>> [    0.000000] MSR:  00021032 <ME,IR,DR,RI>  CR: 42228882  XER: 20000000
+>> [    0.000000]
+>> [    0.000000] GPR00: 800b8dc8 80751e80 806c6300 807311d8 807a1000 8ffff=
+e84 80751ea8 00000000
+>> [    0.000000] GPR08: 007a1591 00000001 007a1180 00000000 42224882 00000=
+000 3ff9c608 3fffd79c
+>> [    0.000000] GPR16: 00000000 00000000 00000000 00000000 00000000 00000=
+000 800166e4 807a2000
+>> [    0.000000] GPR24: 807a1fff 807311d8 807311d8 807a2000 80768804 00000=
+000 807a1000 007a1180
+>> [    0.000000] NIP [80015ebc] set_pte_at+0x18/0x160
+>> [    0.000000] LR [80016728] set_page_attr+0x44/0xc0
+>> [    0.000000] Call Trace:
+>> [    0.000000] [80751e80] [80058570] console_unlock+0x340/0x428 (unrelia=
+ble)
+>> [    0.000000] [80751ea0] [00000000] 0x0
+>> [    0.000000] [80751ec0] [800b8dc8] __apply_to_page_range+0x144/0x2a8
+>> [    0.000000] [80751f00] [80016918] __kernel_map_pages+0x54/0x64
+>> [    0.000000] [80751f10] [800cfeb0] __free_pages_ok+0x1b0/0x440
+>> [    0.000000] [80751f50] [805cfc8c] memblock_free_all+0x1d8/0x274
+>> [    0.000000] [80751f90] [805c5e0c] mem_init+0x3c/0xd0
+>> [    0.000000] [80751fb0] [805c0bdc] start_kernel+0x404/0x5c4
+>> [    0.000000] [80751ff0] [000033f0] 0x33f0
+>> [    0.000000] Instruction dump:
+>> [    0.000000] 7c630034 83e1000c 5463d97e 7c0803a6 38210010 4e800020 942=
+1ffe0 93e1001c
+>> [    0.000000] 83e60000 81250000 71290001 41820014 <0fe00000> 7c0802a6 9=
+3c10018 90010024
+>>=20
+>>=20
+>
+> That's unrelated to this patch.
+>
+> The problem is linked to patch c988cfd38e48 ("powerpc/32: use=20
+> set_memory_attr()"), which changed from using __set_pte_at() to using=20
+> set_memory_attr() which uses set_pte_at().
+>
+> set_pte_at() has additional checks and shall not be used to updating an=20
+> existing PTE.
+>
+> Wondering if I should just use __set_pte_at() instead like in the past,=20
+> or do like commit 9f7853d7609d ("powerpc/mm: Fix set_memory_*() against=20
+> concurrent accesses") and use pte_update()
+>
+> Michael, Aneesh, any suggestion ?
 
-./arch/x86/include/asm/uaccess.h:317:23: warning: statement will never be executed [-Wswitch-unreachable]
-  317 |         unsigned char x_u8__; \
-      |                       ^~~~~~
+The motivation for using pte_update() in that commit is that it does the
+update atomically and also handles flushing the HPTE for 64-bit Hash.
 
-Fixes: 865c50e1d279 ("x86/uaccess: utilize CONFIG_CC_HAS_ASM_GOTO_OUTPUT")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- arch/x86/include/asm/uaccess.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+But the books/32 version of pte_update() doesn't do that. In fact
+there's some HPTE handling in __set_pte_at(), but then also a comment
+saying it's handling in a subsequent flush_tlb_xxx().
 
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index 33a68407def3..8ab9e79abb2b 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -314,11 +314,12 @@ do {									\
- do {									\
- 	__chk_user_ptr(ptr);						\
- 	switch (size) {							\
--	unsigned char x_u8__;						\
--	case 1:								\
-+	case 1:	{							\
-+		unsigned char x_u8__;					\
- 		__get_user_asm(x_u8__, ptr, "b", "=q", label);		\
- 		(x) = x_u8__;						\
- 		break;							\
-+	}								\
- 	case 2:								\
- 		__get_user_asm(x, ptr, "w", "=r", label);		\
- 		break;							\
--- 
-2.30.2
+So that doesn't really help make a decision :)
 
+On the other hand, could you convert those set_memory_attr() calls to
+change_memory_attr() and then eventually drop the former?
+
+cheers
