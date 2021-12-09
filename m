@@ -2,97 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD15646E132
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 04:14:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7893246E15C
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 04:51:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231401AbhLIDSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Dec 2021 22:18:05 -0500
-Received: from mailgw02.mediatek.com ([210.61.82.184]:37178 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S229637AbhLIDSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 22:18:03 -0500
-X-UUID: ef216bd4c7554951a5776db1645ddd4a-20211209
-X-UUID: ef216bd4c7554951a5776db1645ddd4a-20211209
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1095888264; Thu, 09 Dec 2021 11:14:27 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 9 Dec 2021 11:14:27 +0800
-Received: from mhfsdcap04.gcn.mediatek.inc (10.17.3.154) by
- mtkcas10.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.0.1497.2 via Frontend Transport; Thu, 9 Dec 2021 11:14:26 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Yuwen Ng <yuwen.ng@mediatek.com>, <stable@vger.kernel.org>
-Subject: [PATCH 2/3] usb: mtu3: add memory barrier before set GPD's HWO
-Date:   Thu, 9 Dec 2021 11:14:23 +0800
-Message-ID: <20211209031424.17842-2-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211209031424.17842-1-chunfeng.yun@mediatek.com>
-References: <20211209031424.17842-1-chunfeng.yun@mediatek.com>
+        id S231624AbhLIDzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Dec 2021 22:55:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56040 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231622AbhLIDzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Dec 2021 22:55:18 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8C7C061746
+        for <stable@vger.kernel.org>; Wed,  8 Dec 2021 19:51:45 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id o13so7419315wrs.12
+        for <stable@vger.kernel.org>; Wed, 08 Dec 2021 19:51:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=cFtnd+aPBqFTXfj41f7VO6IuoOWnyDFrekVK+uQaUbA=;
+        b=QmWi3p72oIwWzGbZqKz7i/lQHJAZ97P7IbHFvSHN2kgcZhStxaCDRit6Zlc1F+7Li8
+         N2tTXX44ImzUQCehMb51w9EsaD6tlZJwEEsm4Z+t8Xs8HJlwqhYqfHKO2Zmmnx6K5lAV
+         gpdymFoOxvwguSyQdT5dPx5R0168bgyxkZwDZnPzCLFfbayGD5539uZPbo+WdqXIaERi
+         jPqyqkawGqYmx+2kFjtNWIDela/n1+F5pggD1h6OHKmkwfD4xWWrm9xkl+tL62yRzG0l
+         QW/Cgj/GB9PPJC6+FuTCSKe0b4NA2deiCe8VFD83lZ2YGuDXzc4KnSI6WEe4NWhVrGbC
+         vzvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=cFtnd+aPBqFTXfj41f7VO6IuoOWnyDFrekVK+uQaUbA=;
+        b=bmdt1OaRNuiVc1mpNMKh1z5eRGbc5rPullKw/epjqKooWVCWx1D7QMccQ80r2as4Yn
+         ehlh8VmSvRxx4HA6LRBr8q3rkr4jFjxCi0zGIuOjq8iXzeKsZwrWc4vvihM+7yOFhKkf
+         opp/De5hRfaVswcUGHYLk+iS3VeSi8aEeDvOgXTHLCpnYGy1R3XhJbTiSuYWoNRCy3vl
+         zqcb3OYvmL3k3/m5u8WdWQccLroE0CzYHCLsoQsenPIYdAkZ9P1XjMGdlqy8Rq9zb4h4
+         +w74++HTz6lrFwgYLwiRmER8OvrI6ORY4WEvLC9PUpfCn+pafF3RL7KzzioFoc6f+Qrg
+         D8+A==
+X-Gm-Message-State: AOAM5329gu7zl5ixBjE6e2JUKjUDVsDXsxIg7CcUY/7C+g0Lp9VUqWYS
+        6u3Ul0P5L1vGMf6ZylQHO2rNXdfQQBYVKhBedd0=
+X-Google-Smtp-Source: ABdhPJzgYfaKy2A2n7crsJDMLz/0D2kS/VCvd9x6V1GmDG68RBD2e41Z7EkXVGVVsPo64+1kL5HYRmFG0Q/m2lg2AL4=
+X-Received: by 2002:a5d:6d0b:: with SMTP id e11mr3546044wrq.16.1639021904446;
+ Wed, 08 Dec 2021 19:51:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-MTK:  N
+Sender: victorkalu955@gmail.com
+Received: by 2002:a5d:490e:0:0:0:0:0 with HTTP; Wed, 8 Dec 2021 19:51:44 -0800 (PST)
+From:   Evelyn Philips <evelynphilips517@gmail.com>
+Date:   Wed, 8 Dec 2021 19:51:44 -0800
+X-Google-Sender-Auth: pMQcAMjRjLINPvkEKdbOpWhoa7o
+Message-ID: <CAAgkJB=BqVszOPct-wtMDJRHZ=gcN7jMxAj6jS9WzPqYPRZ=YQ@mail.gmail.com>
+Subject: Hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is a seldom issue that the controller access invalid address
-and trigger devapc or emimpu violation. That is due to memory access
-is out of order and cause gpd data is not correct.
-Make sure GPD is fully written before giving it to HW by setting its
-HWO.
+Hello my beloved,
 
-Fixes: 48e0d3735aa5 ("usb: mtu3: supports new QMU format")
-Cc: stable@vger.kernel.org
-Reported-by: Eddie Hung <eddie.hung@mediatek.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
----
- drivers/usb/mtu3/mtu3_qmu.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+I am glad to know you, but God knows you better and he knows why he
+has directed me to you at this point in time so do not be surprise at
+all. My names are Ms Philips Evelyn. a widow, i have been suffering
+from ovarian cancer disease. At this moment i am about to end the race
+like this because the illness has gotten to a very bad stage, without
+any family members and no child. I hoped that you will not expose or
+betray this trust and confident that I am about to entrust on you for
+the mutual benefit of the orphans and the less privileges ones. I have
+some funds I inherited from my late husband, the sum of ($
+9,500,000.00 Nine point five million dollars.) deposited in the Bank.
+Having known my present health status, I decided to entrust this fund
+to you believing that you will utilize it the way i
+am going to instruct herein.
 
-diff --git a/drivers/usb/mtu3/mtu3_qmu.c b/drivers/usb/mtu3/mtu3_qmu.c
-index 3f414f91b589..34bb5ac67efe 100644
---- a/drivers/usb/mtu3/mtu3_qmu.c
-+++ b/drivers/usb/mtu3/mtu3_qmu.c
-@@ -273,6 +273,8 @@ static int mtu3_prepare_tx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
- 			gpd->dw3_info |= cpu_to_le32(GPD_EXT_FLAG_ZLP);
- 	}
- 
-+	/* make sure GPD is fully written before giving it to HW */
-+	mb();
- 	gpd->dw0_info |= cpu_to_le32(GPD_FLAGS_IOC | GPD_FLAGS_HWO);
- 
- 	mreq->gpd = gpd;
-@@ -306,6 +308,8 @@ static int mtu3_prepare_rx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
- 	gpd->next_gpd = cpu_to_le32(lower_32_bits(enq_dma));
- 	ext_addr |= GPD_EXT_NGP(mtu, upper_32_bits(enq_dma));
- 	gpd->dw3_info = cpu_to_le32(ext_addr);
-+	/* make sure GPD is fully written before giving it to HW */
-+	mb();
- 	gpd->dw0_info |= cpu_to_le32(GPD_FLAGS_IOC | GPD_FLAGS_HWO);
- 
- 	mreq->gpd = gpd;
-@@ -445,7 +449,8 @@ static void qmu_tx_zlp_error_handler(struct mtu3 *mtu, u8 epnum)
- 		return;
- 	}
- 	mtu3_setbits(mbase, MU3D_EP_TXCR0(mep->epnum), TX_TXPKTRDY);
--
-+	/* make sure GPD is fully written before giving it to HW */
-+	mb();
- 	/* by pass the current GDP */
- 	gpd_current->dw0_info |= cpu_to_le32(GPD_FLAGS_BPS | GPD_FLAGS_HWO);
- 
--- 
-2.18.0
+Therefore I need you to assist me and reclaim this money and use it
+for Charity works, for orphanages and gives justice and help to the
+poor, needy and to promote the words of God and the effort that the
+house of God will be maintained says The Lord." Jeremiah 22:15-16.=E2=80=9C
 
+It will be my great pleasure to compensate you with 35 % percent of
+the total money for your personal use, 5 % percent for any expenses
+that may occur during the international transfer process while 60% of
+the money will go to the charity project.
+
+All I require from you is sincerity and ability to complete God task
+without any failure. It will be my pleasure to see that the bank has
+finally release and transfer the fund into your bank account therein
+your country even before I die here in the hospital, because of my
+present health status everything need to be process rapidly as soon as
+possible. I am waiting for your immediate reply, if only you are
+interested for further details of the transaction and execution of
+this charitable project.
+
+Best Regards your friend Ms Philips Evelyn.
