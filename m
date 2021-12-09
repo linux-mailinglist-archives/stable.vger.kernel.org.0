@@ -2,137 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE7646E24D
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 07:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A7746E396
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 08:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229488AbhLIGM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 01:12:26 -0500
-Received: from gandalf.ozlabs.org ([150.107.74.76]:35947 "EHLO
-        gandalf.ozlabs.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbhLIGM0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 01:12:26 -0500
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        id S232231AbhLIIC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 03:02:57 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:42730 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232168AbhLIIC5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:02:57 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4J8kBC4GVSz4xgY;
-        Thu,  9 Dec 2021 17:08:51 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1639030132;
-        bh=D8SbP/O7wam578TW1HYdDVA3VPmkytsHTRymA1Ss3gg=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=Tg5lQFWCAqaidtyGRXagjacrGIp7N/xOSDR014fQubYxl+gIoM6VXXAGTbya+TjNV
-         9mgppM94THhjuhSGsiiW5ivjTxJDSbH/Szd1i/C+HdojrMq4lLmBUcLXtLKfC96KEr
-         WPlNPR3Qx6QmSvmLX0tj/+M2TxDRqlPNmWKQJXxWuFSq57ibcioymYSU+yvoXZsm0t
-         HMOshmqKY4hs3W2FiN9lrJGN5rbBg7bY7OEy/G+BUbIy55WIFvQrxRuUZ3T+EX7sA3
-         oFqXc24SoL3INzYBX1D3oXPFvNND/yarp82mu0pVfKSOM5aUy4qgVSXVdzccRYbt0d
-         1eczW8i3M6+nA==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "mbizon@freebox.fr" <mbizon@freebox.fr>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] powerpc/603: Fix boot failure with DEBUG_PAGEALLOC and
- KFENCE
-In-Reply-To: <191754d3-e13d-6fe2-db4b-99d78cbf2a2e@csgroup.eu>
-References: <aea33b4813a26bdb9378b5f273f00bd5d4abe240.1638857364.git.christophe.leroy@csgroup.eu>
- <12988dafdf7e14ba6db69ab483a2eb53e411fc0d.camel@freebox.fr>
- <191754d3-e13d-6fe2-db4b-99d78cbf2a2e@csgroup.eu>
-Date:   Thu, 09 Dec 2021 17:08:48 +1100
-Message-ID: <8735n2nwcv.fsf@mpe.ellerman.id.au>
+        by sin.source.kernel.org (Postfix) with ESMTPS id A2C55CE241A;
+        Thu,  9 Dec 2021 07:59:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73C78C004DD;
+        Thu,  9 Dec 2021 07:59:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639036760;
+        bh=7usM8Vbzbt7a1NhxXqycqXWoO9LCXTfcFvZdVhjm9/U=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=Mf9H26Oyq6oVoTZpwcFL+iPOu0W2niMsBMuhcrJg/36GCepmIKD8APRtzCU3a7BWy
+         DZwr88C76kvk611BGBUGXCHjOaOiAXu2NHBkVJSkedoRrwj4/DZHq6S28yMJmmp1pX
+         OGJvCBUqv/dy9buOCqjt+ImxIGjVA7AQBtpjEko8yNbu4x4bWlXMOqgM0bJggtiz3u
+         GZ4l0PPbrNL9lLbqITb8hXrH7K7d4/NrhtlbX32CNrobn19W/ojq6MV0jg+jlVTGcB
+         JqcU3IGwCn/0LRHOw/la5pbiRUW93RbUP0t8fkuCmDPXVOHFHIMs2wsz5tupcS1at9
+         3xGAvFdgAdFbA==
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] ath11k: Fix buffer overflow when scanning with extraie
+From:   Kalle Valo <kvalo@kernel.org>
+In-Reply-To: <20211207142913.1734635-1-sven@narfation.org>
+References: <20211207142913.1734635-1-sven@narfation.org>
+To:     Sven Eckelmann <sven@narfation.org>
+Cc:     ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
+        Wen Gong <quic_wgong@quicinc.com>,
+        Sven Eckelmann <sven@narfation.org>, stable@vger.kernel.org
+User-Agent: pwcli/0.1.0-git (https://github.com/kvalo/pwcli/) Python/3.7.3
+Message-ID: <163903675519.20904.4795349677435567607.kvalo@kernel.org>
+Date:   Thu,  9 Dec 2021 07:59:19 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Christophe Leroy <christophe.leroy@csgroup.eu> writes:
-> Le 07/12/2021 =C3=A0 11:34, Maxime Bizon a =C3=A9crit=C2=A0:
->>=20
->> On Tue, 2021-12-07 at 06:10 +0000, Christophe Leroy wrote:
->>=20
->> Hello,
->>=20
->> With the patch applied and
->>=20
->> CONFIG_DEBUG_PAGEALLOC=3Dy
->> CONFIG_DEBUG_PAGEALLOC_ENABLE_DEFAULT=3Dy
->> CONFIG_DEBUG_VM=3Dy
->>=20
->> I get tons of this during boot:
->>=20
->> [    0.000000] Dentry cache hash table entries: 262144 (order: 8, 104857=
-6 bytes, linear)
->> [    0.000000] Inode-cache hash table entries: 131072 (order: 7, 524288 =
-bytes, linear)
->> [    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
->> [    0.000000] ------------[ cut here ]------------
->> [    0.000000] WARNING: CPU: 0 PID: 0 at arch/powerpc/mm/pgtable.c:194 s=
-et_pte_at+0x18/0x160
->> [    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 5.15.0+ #442
->> [    0.000000] NIP:  80015ebc LR: 80016728 CTR: 800166e4
->> [    0.000000] REGS: 80751dd0 TRAP: 0700   Not tainted  (5.15.0+)
->> [    0.000000] MSR:  00021032 <ME,IR,DR,RI>  CR: 42228882  XER: 20000000
->> [    0.000000]
->> [    0.000000] GPR00: 800b8dc8 80751e80 806c6300 807311d8 807a1000 8ffff=
-e84 80751ea8 00000000
->> [    0.000000] GPR08: 007a1591 00000001 007a1180 00000000 42224882 00000=
-000 3ff9c608 3fffd79c
->> [    0.000000] GPR16: 00000000 00000000 00000000 00000000 00000000 00000=
-000 800166e4 807a2000
->> [    0.000000] GPR24: 807a1fff 807311d8 807311d8 807a2000 80768804 00000=
-000 807a1000 007a1180
->> [    0.000000] NIP [80015ebc] set_pte_at+0x18/0x160
->> [    0.000000] LR [80016728] set_page_attr+0x44/0xc0
->> [    0.000000] Call Trace:
->> [    0.000000] [80751e80] [80058570] console_unlock+0x340/0x428 (unrelia=
-ble)
->> [    0.000000] [80751ea0] [00000000] 0x0
->> [    0.000000] [80751ec0] [800b8dc8] __apply_to_page_range+0x144/0x2a8
->> [    0.000000] [80751f00] [80016918] __kernel_map_pages+0x54/0x64
->> [    0.000000] [80751f10] [800cfeb0] __free_pages_ok+0x1b0/0x440
->> [    0.000000] [80751f50] [805cfc8c] memblock_free_all+0x1d8/0x274
->> [    0.000000] [80751f90] [805c5e0c] mem_init+0x3c/0xd0
->> [    0.000000] [80751fb0] [805c0bdc] start_kernel+0x404/0x5c4
->> [    0.000000] [80751ff0] [000033f0] 0x33f0
->> [    0.000000] Instruction dump:
->> [    0.000000] 7c630034 83e1000c 5463d97e 7c0803a6 38210010 4e800020 942=
-1ffe0 93e1001c
->> [    0.000000] 83e60000 81250000 71290001 41820014 <0fe00000> 7c0802a6 9=
-3c10018 90010024
->>=20
->>=20
->
-> That's unrelated to this patch.
->
-> The problem is linked to patch c988cfd38e48 ("powerpc/32: use=20
-> set_memory_attr()"), which changed from using __set_pte_at() to using=20
-> set_memory_attr() which uses set_pte_at().
->
-> set_pte_at() has additional checks and shall not be used to updating an=20
-> existing PTE.
->
-> Wondering if I should just use __set_pte_at() instead like in the past,=20
-> or do like commit 9f7853d7609d ("powerpc/mm: Fix set_memory_*() against=20
-> concurrent accesses") and use pte_update()
->
-> Michael, Aneesh, any suggestion ?
+Sven Eckelmann <sven@narfation.org> wrote:
 
-The motivation for using pte_update() in that commit is that it does the
-update atomically and also handles flushing the HPTE for 64-bit Hash.
+> If cfg80211 is providing extraie's for a scanning process then ath11k will
+> copy that over to the firmware. The extraie.len is a 32 bit value in struct
+> element_info and describes the amount of bytes for the vendor information
+> elements.
+> 
+> The WMI_TLV packet is having a special WMI_TAG_ARRAY_BYTE section. This
+> section can have a (payload) length up to 65535 bytes because the
+> WMI_TLV_LEN can store up to 16 bits. The code was missing such a check and
+> could have created a scan request which cannot be parsed correctly by the
+> firmware.
+> 
+> But the bigger problem was the allocation of the buffer. It has to align
+> the TLV sections by 4 bytes. But the code was using an u8 to store the
+> newly calculated length of this section (with alignment). And the new
+> calculated length was then used to allocate the skbuff. But the actual code
+> to copy in the data is using the extraie.len and not the calculated
+> "aligned" length.
+> 
+> The length of extraie with IEEE80211_HW_SINGLE_SCAN_ON_ALL_BANDS enabled
+> was 264 bytes during tests with a QCA Milan card. But it only allocated 8
+> bytes (264 bytes % 256) for it. As consequence, the code to memcpy the
+> extraie into the skb was then just overwriting data after skb->end. Things
+> like shinfo were therefore corrupted. This could usually be seen by a crash
+> in skb_zcopy_clear which tried to call a ubuf_info callback (using a bogus
+> address).
+> 
+> Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-02892.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+> Signed-off-by: Sven Eckelmann <sven@narfation.org>
+> Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
 
-But the books/32 version of pte_update() doesn't do that. In fact
-there's some HPTE handling in __set_pte_at(), but then also a comment
-saying it's handling in a subsequent flush_tlb_xxx().
+Patch applied to ath-next branch of ath.git, thanks.
 
-So that doesn't really help make a decision :)
+a658c929ded7 ath11k: Fix buffer overflow when scanning with extraie
 
-On the other hand, could you convert those set_memory_attr() calls to
-change_memory_attr() and then eventually drop the former?
+-- 
+https://patchwork.kernel.org/project/linux-wireless/patch/20211207142913.1734635-1-sven@narfation.org/
 
-cheers
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+
