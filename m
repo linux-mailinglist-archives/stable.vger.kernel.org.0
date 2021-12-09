@@ -2,101 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB57646E3DE
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 09:13:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4244646E3E7
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 09:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234444AbhLIIQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 03:16:43 -0500
-Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:47688
-        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230243AbhLIIQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:16:43 -0500
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com [209.85.208.200])
+        id S234476AbhLIIRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 03:17:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234524AbhLIIQ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 03:16:59 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 043FCC0617A2
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 00:13:25 -0800 (PST)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1mvEYM-0001hu-VB
+        for stable@vger.kernel.org; Thu, 09 Dec 2021 09:13:23 +0100
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id EAF206C0659
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 08:13:20 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id BD5AF3F1A9
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 08:13:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1639037589;
-        bh=li++Q1lkbhIYARBNYivAD9l31K5a4noYe2Z2qkyrMDA=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=OnUBjr8J0of7aq5VvS+nGLcZJAwuRgInZNSw0K9G1/yekR6fDocUXPHv4yWegdlwp
-         2ZlpBnO1lhk4vhWIfHXLLdxrbEtPIJ5XQLxUZtMBliryKHx4mU3O5T8XD9eInFxgge
-         vNOx5EAu4jEwLU1hNIcdJ3+oIL2xAa7S/j3avybKT5iWteYTsDG14WiOYM6AMUzxbi
-         HcL1Oqo4c0ROt7tUmueVSSiXIBM+tCTwO/mH2nODUSIc58mL/u4PoSP4Y8KxtJ7hKU
-         YEJIJXCqk4Gx1/CrNWP+NClZ44TM+ONgxUthpNzFXIyI3okBKZ1dqwE+AnSI+YH0XY
-         9L8rfYbMrW5Og==
-Received: by mail-lj1-f200.google.com with SMTP id w16-20020a05651c103000b00218c9d46faeso1523383ljm.2
-        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 00:13:09 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=li++Q1lkbhIYARBNYivAD9l31K5a4noYe2Z2qkyrMDA=;
-        b=RGHQ37hHYqtzvU9vR9/xHHs9VVhyeziZp4uM73huNFef7OF9aAvKJonCvTDw+oZi5h
-         pR1FLusv+gCH620LR4rWsDTPsO1CNqOliIR7aXVSvdRL2MNQe1P0xE1tN+hoagNDviAj
-         ShTb0cO/PdsZjvQRG+wdeP31kXnGjNbLoaMT8E8rmGpTmxyDv9EG3DUPH+y7lUyv9Chz
-         qV3gX5P2yUSwRhRo0ILOM6KDmj3LZDS8bBhG8hDSkcly8sf28ztdHR/jVe18Ui+sF8G0
-         1Vd5uGjPJ+4QJbJOGwkf/JVf0mg5CyraHr6LfUsEkFDfaidnX050DD5tUR+/l3628/Ng
-         21bA==
-X-Gm-Message-State: AOAM533mUaJV74pI8iJk1hnVpRaFmWRSjNKjiREYA5/R9zdojjEwwIXz
-        Z8lZabQt2sRcEXMEMQy1YHtlO2Px0vPaUu5XttkbLDJp6ZmQEkhq1gdvAA53NxzVG9H8yOmvHjo
-        1VaW6PDciKyE9R4SfXecfiXeLjbW+w9Xjjg==
-X-Received: by 2002:a05:6512:3082:: with SMTP id z2mr4516780lfd.351.1639037589269;
-        Thu, 09 Dec 2021 00:13:09 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxew4i4a9DoT8yTaM1mSJukQJbcgVSv8A/a2FaL4870WYGHn9oTdN4j+N4jiTVK5QQzEioo6A==
-X-Received: by 2002:a05:6512:3082:: with SMTP id z2mr4516767lfd.351.1639037589089;
-        Thu, 09 Dec 2021 00:13:09 -0800 (PST)
-Received: from krzk-bin.lan (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
-        by smtp.gmail.com with ESMTPSA id s5sm531144ljg.3.2021.12.09.00.13.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Dec 2021 00:13:08 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Samuel Ortiz <sameo@linux.intel.com>, linux-nfc@lists.01.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     tadeusz.struk@linaro.org, stable@vger.kernel.org
-Subject: [PATCH] nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
-Date:   Thu,  9 Dec 2021 09:13:07 +0100
-Message-Id: <20211209081307.57337-1-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.32.0
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id BFA456C0646;
+        Thu,  9 Dec 2021 08:13:19 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id efe1c367;
+        Thu, 9 Dec 2021 08:13:19 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Jimmy Assarsson <extja@kvaser.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 1/2] can: kvaser_pciefd: kvaser_pciefd_rx_error_frame(): increase correct stats->{rx,tx}_errors counter
+Date:   Thu,  9 Dec 2021 09:13:11 +0100
+Message-Id: <20211209081312.301036-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211209081312.301036-1-mkl@pengutronix.de>
+References: <20211209081312.301036-1-mkl@pengutronix.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The done() netlink callback nfc_genl_dump_ses_done() should check if
-received argument is non-NULL, because its allocation could fail earlier
-in dumpit() (nfc_genl_dump_ses()).
+From: Jimmy Assarsson <extja@kvaser.com>
 
-Fixes: ac22ac466a65 ("NFC: Add a GET_SE netlink API")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Check the direction bit in the error frame packet (EPACK) to determine
+which net_device_stats {rx,tx}_errors counter to increase.
+
+Fixes: 26ad340e582d ("can: kvaser_pciefd: Add driver for Kvaser PCIEcan devices")
+Link: https://lore.kernel.org/all/20211208152122.250852-1-extja@kvaser.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
- net/nfc/netlink.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/can/kvaser_pciefd.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 334f63c9529e..5c706ed75b33 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1392,8 +1392,10 @@ static int nfc_genl_dump_ses_done(struct netlink_callback *cb)
- {
- 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
+diff --git a/drivers/net/can/kvaser_pciefd.c b/drivers/net/can/kvaser_pciefd.c
+index 74d9899fc904..eb74cdf26b88 100644
+--- a/drivers/net/can/kvaser_pciefd.c
++++ b/drivers/net/can/kvaser_pciefd.c
+@@ -248,6 +248,9 @@ MODULE_DESCRIPTION("CAN driver for Kvaser CAN/PCIe devices");
+ #define KVASER_PCIEFD_SPACK_EWLR BIT(23)
+ #define KVASER_PCIEFD_SPACK_EPLR BIT(24)
  
--	nfc_device_iter_exit(iter);
--	kfree(iter);
-+	if (iter) {
-+		nfc_device_iter_exit(iter);
-+		kfree(iter);
-+	}
++/* Kvaser KCAN_EPACK second word */
++#define KVASER_PCIEFD_EPACK_DIR_TX BIT(0)
++
+ struct kvaser_pciefd;
  
- 	return 0;
- }
+ struct kvaser_pciefd_can {
+@@ -1285,7 +1288,10 @@ static int kvaser_pciefd_rx_error_frame(struct kvaser_pciefd_can *can,
+ 
+ 	can->err_rep_cnt++;
+ 	can->can.can_stats.bus_error++;
+-	stats->rx_errors++;
++	if (p->header[1] & KVASER_PCIEFD_EPACK_DIR_TX)
++		stats->tx_errors++;
++	else
++		stats->rx_errors++;
+ 
+ 	can->bec.txerr = bec.txerr;
+ 	can->bec.rxerr = bec.rxerr;
+
+base-commit: a50e659b2a1be14784e80f8492aab177e67c53a2
 -- 
-2.32.0
+2.33.0
+
 
