@@ -2,184 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C0646E8B1
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 13:57:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC1D46E8ED
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 14:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236425AbhLINBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 08:01:17 -0500
-Received: from mx0b-0014ca01.pphosted.com ([208.86.201.193]:2116 "EHLO
-        mx0a-0014ca01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S229379AbhLINBQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 08:01:16 -0500
-Received: from pps.filterd (m0042333.ppops.net [127.0.0.1])
-        by mx0b-0014ca01.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 1B9CXn1o025637;
-        Thu, 9 Dec 2021 04:57:38 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=proofpoint;
- bh=IT8jaK5zP7ZNxGEYhxjNpVKQGG4g67jUubyDqKsLmtQ=;
- b=PsZkGmwrltTaWT4FFV3+eArvxViX/ku1YRaTNihTFYxUUzsZ44LTyitrz89pb7iY8wJY
- hU/Vxj/V0M+GlPEAM/GUrvOW9RNHIg1emtIc15KX/yRgLxQV0R+8egbOyRs17giAFLt2
- ccV70Ue6QgsN/0fBTnswXBNFI0vJEC3A+j2umiqinJneJBxQsQc2yxCkNbF5qewuBTo0
- Sw+odPWopzuQEvpo8l6fnLPNSTIpab9107n1cS0SCSGe+bYbdUb59a5VmKNo1SfQ4ACS
- 9P4gZ/j7uPOMyyBkB4OAFusc9Eybdc6bVc1EUuBRimLzGzPQJGMn4rY8nHOF2oKcwW60 zA== 
-Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2104.outbound.protection.outlook.com [104.47.55.104])
-        by mx0b-0014ca01.pphosted.com (PPS) with ESMTPS id 3ctgxfq470-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 09 Dec 2021 04:57:37 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ViezB3desssMuz1bTVPtj5Xj/P+IKJpyrjDG3PJuLJEyyuo/9vwovKtICX8u6As7QtOKBQt2WJxR4jKWnahHF+Qey8fqstN7X9+MJucKHsgCtwmlVDuG7PjwqxXVQj3VPjTo19TvhhbYgFt3hfrb7fZdqS8uzPx3DD0FXRtBb2IclCqQCkXGS9zzK3/h5Su0wRbebwwu7d8F4jCyDdbgowZLPIJ+QKhTZXEI64wqbmy8rkOYxi8oY79cXNp68CYn7lRbXYzT+Rycgkr+ZxMVL+Diim/CMgn4Vk6ny28bwJ3gTO8qjp3euxMt3Z8mlj1Rt2SdRQCD0V6b7sBMdBegXg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IT8jaK5zP7ZNxGEYhxjNpVKQGG4g67jUubyDqKsLmtQ=;
- b=jiNngnggrCEGxZ1NzV62Qpi9nfs6MfC9WNMQCFkMDZBDdeKL7DJIGKmr8s1h5jv2XqNTdajNxvoLJ/cm46PfwyVo+3WEQwzqwJLUZMGy0gdA0n23g/Mjsjtzd8ErC/A6UCE6RxtqYOoyUsZzyTXCBPA+aCxVXSSyrIZrGtSKT84Qz/MbLvARyEtHYXOoc47iROW1WxWkuxch1Cro+2bwVk5Xi00CdXoD1PSUBE9mZDEUf22tSOnwbwXmrrzdL/4zZ2UdqeSPRWV8uMwv4xYUNvHaT3IQ5rID4K2z+yGaTmC7QNfHv63aOhXLhHQ5KDdCihLKfbSo2bJf4CMbIQiFtw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cadence.com; dmarc=pass action=none header.from=cadence.com;
- dkim=pass header.d=cadence.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IT8jaK5zP7ZNxGEYhxjNpVKQGG4g67jUubyDqKsLmtQ=;
- b=LapgbS8WAu8gdmwnFSLkXGEuB21Y+vzbU8glWYKfqXubI1uhbH3f0cJZKr1qlwOjW+CvOjGoJL7aU7p7SIP9DkLY9nzEly2pjNWNmwGarWPsYP/WgFVBvjAvSBbjB/N7a9QauZMQGgQkwEWB6iA7/Suji/gq43lvCQdHF17Obk8=
-Received: from BYAPR07MB5381.namprd07.prod.outlook.com (2603:10b6:a03:6d::24)
- by BYAPR07MB4791.namprd07.prod.outlook.com (2603:10b6:a03::27) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4755.22; Thu, 9 Dec 2021 12:57:32 +0000
-Received: from BYAPR07MB5381.namprd07.prod.outlook.com
- ([fe80::241f:218b:e5aa:9024]) by BYAPR07MB5381.namprd07.prod.outlook.com
- ([fe80::241f:218b:e5aa:9024%7]) with mapi id 15.20.4755.022; Thu, 9 Dec 2021
- 12:57:32 +0000
-From:   Pawel Laszczak <pawell@cadence.com>
-To:     Peter Chen <peter.chen@kernel.org>
-CC:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "jianhe@ambarella.com" <jianhe@ambarella.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] usb: cdnsp: Fix incorrect status for control request
-Thread-Topic: [PATCH] usb: cdnsp: Fix incorrect status for control request
-Thread-Index: AQHX60t+MP74NKbCqkG7HRhxiNimOqwqCsQAgAAVavA=
-Date:   Thu, 9 Dec 2021 12:57:31 +0000
-Message-ID: <BYAPR07MB5381415E88BAAC945CB47A93DD709@BYAPR07MB5381.namprd07.prod.outlook.com>
-References: <20211207091838.39572-1-pawell@gli-login.cadence.com>
- <20211209113408.GA5084@Peter>
-In-Reply-To: <20211209113408.GA5084@Peter>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNccGF3ZWxsXGFwcGRhdGFccm9hbWluZ1wwOWQ4NDliNi0zMmQzLTRhNDAtODVlZS02Yjg0YmEyOWUzNWJcbXNnc1xtc2ctOTBhNWZjOGMtNThlZi0xMWVjLTg3YTYtYTQ0Y2M4MWIwYzU1XGFtZS10ZXN0XDkwYTVmYzhkLTU4ZWYtMTFlYy04N2E2LWE0NGNjODFiMGM1NWJvZHkudHh0IiBzej0iMTQ3OCIgdD0iMTMyODM1MjgyNDk5NjQ2MTQwIiBoPSJiQ09HVFYyWjcwYmlOSHpZTlc5VkJXNzlVWXc9IiBpZD0iIiBibD0iMCIgYm89IjEiLz48L21ldGE+
-x-dg-rorf: true
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: d5b72416-15c6-42be-46ee-08d9bb1376bb
-x-ms-traffictypediagnostic: BYAPR07MB4791:EE_
-x-microsoft-antispam-prvs: <BYAPR07MB4791E8121B99A9A10FBAF8A8DD709@BYAPR07MB4791.namprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:7219;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: vq4C2GoIUSEsgLgrm+SSNyx2ZxdnIS29y/GnR4ly80sEKqFWvaGdDwIx0zz4crf9cPw8CJCsxgSnlwx0m0YHz4QvSJvozBzZPFu+BV5vI/QCuzgo4h5CeJ9LAETu/zVe7jT8O8TwXh8+yX7UrX6WCbJ+X8cHkAzNtRah4BEoS5UtM+I/DSvPuoiyDtLESqZmGKkQ9Et4Vkmqtfbg/lIVQyZ42JLAY+6OcBPNRN3DoCtQJ+P3JzRelaMNA+ly9XbNYerb4JXdXfok2y0wvhUDSSt6X6z6ccinx+9ybLHQLQ0fYm26UL1GRZtDuwMqrvIMS2pFAPGnSRxhwdUQdNJpgwktEkdDXC1fzxxGwYXtoGyCBX6MpYeRpBzyrLB+eFXIA6DDVbkWR7RLmOHK7f6BcC1KkDDRbG0ZUo1TRKFEfRZIa4sRU9NZtXAflPu2uaN/tbHJtII1bZi/FIhK00aEKBJ2EqcyhP4Li61Vi91H0goa95EG5981p0f6FJOSIzAXQ00qONAZcKA6PrXUAfln3FgSvuPC8qWG5KXxzQAIbNZGB3aeBJcId7xg3Xt3pxXM5VMSaAW1rC2FhevEJGL6B3+vCgPtdsqiRyxfNMmh+Dr810VqaflQO7SHai4iuUnY/4qdBftpp8YkybFXwTxn/Krs6TgFtjQfjb95vAnmVTn+wKtItkj1dQWa/pvQ5KBiA7vVhgmuCBZGhS5TF+sF8wC9Jzr73wTjZHjMEugGqUE=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR07MB5381.namprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(36092001)(4326008)(2906002)(52536014)(83380400001)(8676002)(9686003)(33656002)(71200400001)(122000001)(86362001)(38070700005)(508600001)(66556008)(316002)(64756008)(66476007)(5660300002)(6916009)(54906003)(76116006)(6506007)(38100700002)(66446008)(66946007)(7696005)(26005)(55016003)(186003)(8936002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?RpBAL+g/1CIweOe2oxUe6OdDgz66TcUm1T9W8LzlgtZDcCBlYlgVInQzpVG0?=
- =?us-ascii?Q?OXZH6ZaQuJaa8PXwtOJ95dk0QVXxIiq7yDNVh6AaAn5+qNHYENMDBHzaqYS5?=
- =?us-ascii?Q?rkSm+QO6K1Dx4YscNOTt3iq5ZVY4U1cmto9DCILOFmzSHkIfku1fpVnO8uXF?=
- =?us-ascii?Q?KBagh35fQBQ21Q5dFSuIElJXQcnVQbI50W/8VRe45qrwe+mWYYUOIJ/4a3c4?=
- =?us-ascii?Q?4NcBoXwBPsDbu8VOhPjElo63nIPJB5vYVZl9uobB1QuxCy/4MoVsImfso5rz?=
- =?us-ascii?Q?QDs83SEfuz1nhR9YO+IulUh8lqHn/9y3ZMLecqA4Ehm1qQ15dkR/85ssrW/D?=
- =?us-ascii?Q?39VGw2w+H6sU55jwRahEy8LiqDOlXJCAWHypkRMZHQSkwNukItwQpL4Xm/GW?=
- =?us-ascii?Q?ErIWCbIg0C84yqKAHJ8vIv/7jJLwA0v1Cq+vxqB5mqyvCnJdBWvE+HVf+PSe?=
- =?us-ascii?Q?j98tLiKG2h44URPtz8gRWU05lN6WIbyWSPioZw9mNy0o0NQyfe+kCVjuD0pR?=
- =?us-ascii?Q?1S1FPhjHKdBiC4Ky4zcFmkvlzCjKBPip839VrpoIDPTTVSI16RHcsKYEHg9x?=
- =?us-ascii?Q?QbjLzKFiQpFTu6/fZc1uszDpXa71fnoHxboxReNwiI0jlsmxQszsO8ItrHeO?=
- =?us-ascii?Q?SOgaXFn6T9P4zYpKU9jWsVxgqLIiOlp3oCbPQAwK3vlTbbIS72spukXWNqdn?=
- =?us-ascii?Q?u60orqHhvqjeUpa+1pma5mHTDWB6tNXJi6WbvYK+odXylokthYzR9rgnrvbG?=
- =?us-ascii?Q?VOqydueBcyNyJZ9seFCNoXePM9LOUANG3vwM1B351xOPXZuyIbigDrTV8N6A?=
- =?us-ascii?Q?JoPVvdknkjoCUcfoNkDHYgCgLTwLhwQ7Wigs5z5MHxVaoZsk3ceHyZdkpdRI?=
- =?us-ascii?Q?rQCqT+9wUQQ++m60TjwwKI1vODDXQGy+WdBjAUca2BPF2XtxdR8yNdCebFbp?=
- =?us-ascii?Q?ueuSagCb+v7k9qfGcSBoIZVaoVIP3HvpsAdbu2itp0AEr2hK4dlIIHrxoGrt?=
- =?us-ascii?Q?JOaIH8SFO416GmlcRws9EhXWBjusCr5qLjUDlj1lkLCOunWcJ9wJFPFK9jil?=
- =?us-ascii?Q?8b3Zt6mTPZYAM8B7LZM0l+h73Hi0gUfDgKl/q0o8cOwJFnvk5WzFvvvP5ovP?=
- =?us-ascii?Q?4o0q2MQ88gNHXTrQ/AzF8ELjqjO0sGPu3zJP7UrBLDAmu+QTtUVWH1W52tDc?=
- =?us-ascii?Q?F6OmXwQfk1A8zoKPOsaWjqdmvn68wmNKgzLkt9Km6Ebc+0vaJ0ROkefYS4I6?=
- =?us-ascii?Q?0U7nitQ91MdDTCp1o7a5CKBqzWh4f4UFVzBCdCPmRTSl0d0gXuTJY+CDEWxQ?=
- =?us-ascii?Q?nuTqUD0/HSbPPmFl7q4bUzcsa5qsBSVgq6SMGMOyrrzgwHKhoWlx6mVJeswU?=
- =?us-ascii?Q?3hzXtizBdXS9Skh9TOtvVo+QSd04ss0MhBCog3IZjIs2kFdswQpeK/ka6R4g?=
- =?us-ascii?Q?5e56S/h7Sxejj1Ss/f0MwMYlDcTAdLBrpuw8ARN3p81aHzh871nVQcfoFX9H?=
- =?us-ascii?Q?DjzEP3KCRinn1j402KdKDiuvU8L7MQsfs3Llu/yqC7Zg5Ij/AKQ5wMYzLtX1?=
- =?us-ascii?Q?dLkeQ215TFfvNPVwQRKW4QzYbdNB1S37ziROktY3CBtxksUL7Mb0CTCj1jXg?=
- =?us-ascii?Q?GalpQ4kHjdNAf8UgCzFtz38nupaB/tpijfDsRNLYajUh+0fLiGmRwY3uDKeS?=
- =?us-ascii?Q?IdGwsA=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S237747AbhLINUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 08:20:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44962 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233290AbhLINUP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 08:20:15 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE70C0617A1
+        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 05:16:41 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id k6-20020a17090a7f0600b001ad9d73b20bso4807872pjl.3
+        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 05:16:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JdDY5ij0RZVpRPH4PPkpJNHpzmZFEQMl/Zl2mv0q3gY=;
+        b=lDl1VuXtMXA7wRFoKDUgDn3q4xhysFr5zJMACY+32x88H0EOmVtCZE34vaTW79/KJb
+         qKIRo8w9JCRojsRqtmeZ7IM1HreQv4j1s21YPkanWoQ7c43yKaMUw2nztLkTflJz8lEJ
+         VhRRzUKp00tXFBeQP8vBQ7P0KseWxGLBz6OnKZmP5Bs89UNVDEEJG4K3DQVjbPDTKYqW
+         rgUPPOSlDM81fOld08rILF7VqxrexIeRJ5s1QCSfVUzri8nNII/l4biOrFz2+oUpwL10
+         dQC8i7tsHf4voyvnOH4Co2MiX6kI08s/+qT4WiFxXwg78SoIYzT+iJZBLKfK0KLz0Tfq
+         +DVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=JdDY5ij0RZVpRPH4PPkpJNHpzmZFEQMl/Zl2mv0q3gY=;
+        b=HJu0X4Ld1y0xikpbnXcEbUXro8/j/oBSnDzKy7VFBERr2UPZhFFghj7X4lx6M3+/qM
+         NVWaxt+MZZgn+Up2WNyXS8eVt7UlVDjTFKgKuhsj9cpHfBGVJwH23E4ZkDo4zzY61uaB
+         EmzivuBR8GSAD4ngbY2fOLQiTeC9K6AwhiWcEuv/AkCskqJ0jSE/2hsnGWyn55gmJZ8m
+         Qvmrmg2l2YWj24syTVUvUIt6zvPe/KhCWHFQ8SQObTF6ylrbog8ivUrFFpYoXTQRssv7
+         sLUjWqtsgBrdn7v6GEAoE79Qpmt/dfbWJec3DRZn2L1zMvuKtvdGup6aqjqU4aVU96kN
+         CsKg==
+X-Gm-Message-State: AOAM533sB8SjVg0XkOwLeJ2CAZTxgyZoQW0rQBmRVegeSVBpf4CZWLQU
+        72P9F3auro0+c12M//OPdg+b
+X-Google-Smtp-Source: ABdhPJwoPqUPuxXvgZszBjudXWUF9FIm/paRD0EaLXFP5jSKiuwj93WOjzmB1wi7bg5tOXdMiOoSRA==
+X-Received: by 2002:a17:90b:4f49:: with SMTP id pj9mr15037953pjb.159.1639055801240;
+        Thu, 09 Dec 2021 05:16:41 -0800 (PST)
+Received: from localhost.localdomain ([202.21.42.41])
+        by smtp.gmail.com with ESMTPSA id q6sm5591169pgs.19.2021.12.09.05.16.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Dec 2021 05:16:40 -0800 (PST)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     gregkh@linuxfoundation.org
+Cc:     mhi@lists.linux.dev, hemantk@codeaurora.org, bbhatt@codeaurora.org,
+        loic.poulain@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ath11k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, kvalo@codeaurora.org,
+        stable@vger.kernel.org, Pengyu Ma <mapengyu@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v2] bus: mhi: core: Add support for forced PM resume
+Date:   Thu,  9 Dec 2021 18:46:33 +0530
+Message-Id: <20211209131633.4168-1-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-OriginatorOrg: cadence.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR07MB5381.namprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d5b72416-15c6-42be-46ee-08d9bb1376bb
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2021 12:57:31.9104
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 53OJu4v0RzwAQsXGIKC2RnY642ewfhokf1EQHd4s8sMtVuZ2EJFp5kpWPQ7rN2NoagYYjGmcFUNjlZ0OrZugmFLPG2S+uFgbS/dG6m7IAFo=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR07MB4791
-X-Proofpoint-GUID: xczO3D563VvqvvKj0k9xHZGE2tZ9vFPv
-X-Proofpoint-ORIG-GUID: xczO3D563VvqvvKj0k9xHZGE2tZ9vFPv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-09_04,2021-12-08_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 clxscore=1015
- adultscore=0 mlxscore=0 lowpriorityscore=0 impostorscore=0 mlxlogscore=734
- suspectscore=0 priorityscore=1501 phishscore=0 malwarescore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112090072
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->> From: Pawel Laszczak <pawell@cadence.com>
->>
->> Patch fixes incorrect status for control request.
->> Without this fix all usb_request objects were returned to upper drivers
->> with usb_reqest->status field set to -EINPROGRESS.
->>
->> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP =
-DRD Driver")
->> Reported-by: Ken (Jian) He <jianhe@ambarella.com>
->> cc: <stable@vger.kernel.org>
->> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
->> ---
->>  drivers/usb/cdns3/cdnsp-ring.c | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ri=
-ng.c
->> index 1b1438457fb0..e8f5ecbb5c75 100644
->> --- a/drivers/usb/cdns3/cdnsp-ring.c
->> +++ b/drivers/usb/cdns3/cdnsp-ring.c
->> @@ -1029,6 +1029,8 @@ static void cdnsp_process_ctrl_td(struct cdnsp_dev=
-ice *pdev,
->>  		return;
->>  	}
->>
->> +	*status =3D 0;
->> +
->>  	cdnsp_finish_td(pdev, td, event, pep, status);
->>  }
->>
->> --
->I think you may move *status =3D 0 at the beginning of
->cdnsp_process_ctrl_td in case you would like to handle some error
->conditions during this function.
+From: Loic Poulain <loic.poulain@linaro.org>
 
-I don't predict any other status code for control request in this place.
-I wanted to set this status only once after completion status stage. It was=
- the reason why I put this
-statement at the end of function.
+For whatever reason, some devices like QCA6390, WCN6855 using ath11k
+are not in M3 state during PM resume, but still functional. The
+mhi_pm_resume should then not fail in those cases, and let the higher
+level device specific stack continue resuming process.
 
---
+Add an API mhi_pm_resume_force(), to force resuming irrespective of the
+current MHI state. This fixes a regression with non functional ath11k WiFi
+after suspend/resume cycle on some machines.
 
-Regards
-Pawel Laszczak
+Bug report: https://bugzilla.kernel.org/show_bug.cgi?id=214179
+
+Fixes: 020d3b26c07a ("bus: mhi: Early MHI resume failure in non M3 state")
+Cc: stable@vger.kernel.org #5.13
+Link: https://lore.kernel.org/regressions/871r5p0x2u.fsf@codeaurora.org/
+Reported-by: Kalle Valo <kvalo@codeaurora.org>
+Reported-by: Pengyu Ma <mapengyu@gmail.com>
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+[mani: Switched to API, added bug report, reported-by tags and CCed stable]
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+
+Changes in v2:
+
+* Switched to a new API "mhi_pm_resume_force()" instead of the "force" flag as
+  suggested by Greg. The "force" flag is now used inside the API.
+
+Greg: I'm sending this patch directly to you so that you can apply it to
+char-misc once we get an ACK from Kalle.
+
+ drivers/bus/mhi/core/pm.c             | 21 ++++++++++++++++++---
+ drivers/net/wireless/ath/ath11k/mhi.c |  6 +++++-
+ include/linux/mhi.h                   | 13 +++++++++++++
+ 3 files changed, 36 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index fb99e3727155..547e6e769546 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -881,7 +881,7 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl)
+ }
+ EXPORT_SYMBOL_GPL(mhi_pm_suspend);
+ 
+-int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
++static int __mhi_pm_resume(struct mhi_controller *mhi_cntrl, bool force)
+ {
+ 	struct mhi_chan *itr, *tmp;
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+@@ -898,8 +898,12 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
+ 	if (MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state))
+ 		return -EIO;
+ 
+-	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3)
+-		return -EINVAL;
++	if (mhi_get_mhi_state(mhi_cntrl) != MHI_STATE_M3) {
++		dev_warn(dev, "Resuming from non M3 state (%s)\n",
++			 TO_MHI_STATE_STR(mhi_get_mhi_state(mhi_cntrl)));
++		if (!force)
++			return -EINVAL;
++	}
+ 
+ 	/* Notify clients about exiting LPM */
+ 	list_for_each_entry_safe(itr, tmp, &mhi_cntrl->lpm_chans, node) {
+@@ -940,8 +944,19 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
+ 
+ 	return 0;
+ }
++
++int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
++{
++	return __mhi_pm_resume(mhi_cntrl, false);
++}
+ EXPORT_SYMBOL_GPL(mhi_pm_resume);
+ 
++int mhi_pm_resume_force(struct mhi_controller *mhi_cntrl)
++{
++	return __mhi_pm_resume(mhi_cntrl, true);
++}
++EXPORT_SYMBOL_GPL(mhi_pm_resume_force);
++
+ int __mhi_device_get_sync(struct mhi_controller *mhi_cntrl)
+ {
+ 	int ret;
+diff --git a/drivers/net/wireless/ath/ath11k/mhi.c b/drivers/net/wireless/ath/ath11k/mhi.c
+index 26c7ae242db6..49c0b1ad40a0 100644
+--- a/drivers/net/wireless/ath/ath11k/mhi.c
++++ b/drivers/net/wireless/ath/ath11k/mhi.c
+@@ -533,7 +533,11 @@ static int ath11k_mhi_set_state(struct ath11k_pci *ab_pci,
+ 		ret = mhi_pm_suspend(ab_pci->mhi_ctrl);
+ 		break;
+ 	case ATH11K_MHI_RESUME:
+-		ret = mhi_pm_resume(ab_pci->mhi_ctrl);
++		/* Do force MHI resume as some devices like QCA6390, WCN6855
++		 * are not in M3 state but they are functional. So just ignore
++		 * the MHI state while resuming.
++		 */
++		ret = mhi_pm_resume_force(ab_pci->mhi_ctrl);
+ 		break;
+ 	case ATH11K_MHI_TRIGGER_RDDM:
+ 		ret = mhi_force_rddm_mode(ab_pci->mhi_ctrl);
+diff --git a/include/linux/mhi.h b/include/linux/mhi.h
+index 723985879035..a5cc4cdf9cc8 100644
+--- a/include/linux/mhi.h
++++ b/include/linux/mhi.h
+@@ -663,6 +663,19 @@ int mhi_pm_suspend(struct mhi_controller *mhi_cntrl);
+  */
+ int mhi_pm_resume(struct mhi_controller *mhi_cntrl);
+ 
++/**
++ * mhi_pm_resume_force - Force resume MHI from suspended state
++ * @mhi_cntrl: MHI controller
++ *
++ * Resume the device irrespective of its MHI state. As per the MHI spec, devices
++ * has to be in M3 state during resume. But some devices seem to be in a
++ * different MHI state other than M3 but they continue working fine if allowed.
++ * This API is intented to be used for such devices.
++ *
++ * Return: 0 if the resume succeeds, a negative error code otherwise
++ */
++int mhi_pm_resume_force(struct mhi_controller *mhi_cntrl);
++
+ /**
+  * mhi_download_rddm_image - Download ramdump image from device for
+  *                           debugging purpose.
+-- 
+2.25.1
+
