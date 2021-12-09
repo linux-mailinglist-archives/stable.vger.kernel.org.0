@@ -2,63 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E538646EB2F
-	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 16:28:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 574CB46EB47
+	for <lists+stable@lfdr.de>; Thu,  9 Dec 2021 16:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239593AbhLIPcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 10:32:22 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:51200 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239539AbhLIPcV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Dec 2021 10:32:21 -0500
-Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
+        id S239704AbhLIPgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Dec 2021 10:36:01 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39954 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239670AbhLIPgA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 10:36:00 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 4DC151EC0493;
-        Thu,  9 Dec 2021 16:28:42 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1639063722;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=I/CN4AvgWEIG3Q2qoQipTHj84Qrrl3byqwOm+sCJsN8=;
-        b=DJy/5zDPcHUEGtMgBrA+f2jwnUHCW4ZjbDqfNQPOyA5bz96RSnV6INm0TwpVZG6LBEWhSg
-        FutJTnWg161XD9EFFMdxu1vzuVfKRVSObzSTEMYPYsaBNp3Y0adXKRMWfnw4PLEv7IZvte
-        YK0yIpTOch5oQPwUDfL/2gMgTkbkpbI=
-Date:   Thu, 9 Dec 2021 16:28:48 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     John Dorminy <jdorminy@redhat.com>, tip-bot2@linutronix.de,
-        anjaneya.chagam@intel.com, dan.j.williams@intel.com,
-        linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
-        stable@vger.kernel.org, x86@kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        "Patrick J. Volkerding" <volkerdi@gmail.com>,
-        Mike Rapoport <rppt@kernel.org>
-Subject: Re: [tip: x86/urgent] x86/boot: Pull up cmdline preparation and
- early param parsing
-Message-ID: <YbIgsO/7oQW9h6wv@zn.tnic>
-References: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2>
- <20211209143810.452527-1-jdorminy@redhat.com>
- <YbIeYIM6JEBgO3tG@zn.tnic>
- <50f25412-d616-1cc6-f07f-a29d80b4bd3b@suse.com>
+        by sin.source.kernel.org (Postfix) with ESMTPS id C8144CE2686;
+        Thu,  9 Dec 2021 15:32:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11E23C341CB;
+        Thu,  9 Dec 2021 15:32:24 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.95)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1mvLPD-000Sw4-8I;
+        Thu, 09 Dec 2021 10:32:23 -0500
+Message-ID: <20211209153223.096399871@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Thu, 09 Dec 2021 10:29:09 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Yabin Cui <yabinc@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        stable@vger.kernel.org, Kalesh Singh <kaleshsingh@google.com>
+Subject: [for-linus][PATCH 1/5] tracefs: Have new files inherit the ownership of their parent
+References: <20211209152908.459494269@goodmis.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <50f25412-d616-1cc6-f07f-a29d80b4bd3b@suse.com>
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 09, 2021 at 04:26:55PM +0100, Juergen Gross wrote:
-> Sigh. This will break Xen PV. Again. The comment above the call of
-> early_reserve_memory() tells you why.
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-I know. I was just looking at how to fix that particular thing and was
-going to find you on IRC to talk to you about it...
+If directories in tracefs have their ownership changed, then any new files
+and directories that are created under those directories should inherit
+the ownership of the director they are created in.
 
+Link: https://lkml.kernel.org/r/20211208075720.4855d180@gandalf.local.home
+
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Yabin Cui <yabinc@google.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Reported-by: Kalesh Singh <kaleshsingh@google.com>
+Reported: https://lore.kernel.org/all/CAC_TJve8MMAv+H_NdLSJXZUSoxOEq2zB_pVaJ9p=7H6Bu3X76g@mail.gmail.com/
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ fs/tracefs/inode.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index 925a621b432e..06cf0534cc60 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -414,6 +414,8 @@ struct dentry *tracefs_create_file(const char *name, umode_t mode,
+ 	inode->i_mode = mode;
+ 	inode->i_fop = fops ? fops : &tracefs_file_operations;
+ 	inode->i_private = data;
++	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
++	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+ 	d_instantiate(dentry, inode);
+ 	fsnotify_create(dentry->d_parent->d_inode, dentry);
+ 	return end_creating(dentry);
+@@ -436,6 +438,8 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
+ 	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
+ 	inode->i_op = ops;
+ 	inode->i_fop = &simple_dir_operations;
++	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
++	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+ 
+ 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 	inc_nlink(inode);
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+2.33.0
