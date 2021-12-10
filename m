@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB4746FFD7
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB38846FFD8
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:29:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240391AbhLJLdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 06:33:24 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:51786 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240435AbhLJLdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:33:24 -0500
+        id S240435AbhLJLda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:33:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234860AbhLJLda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:33:30 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E2BC061746
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 03:29:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 00116CE2AB9
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:29:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78BFDC00446;
-        Fri, 10 Dec 2021 11:29:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9D44DCE24EF
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:29:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C9FAC00446;
+        Fri, 10 Dec 2021 11:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639135786;
-        bh=NirLhppcjhlL+kvj+JB3OaSLzBv0XQpHRTifa3ehEfs=;
+        s=korg; t=1639135791;
+        bh=heNlCGy381pvifIVGxVNQDWUUIXAaT/ya4re2z033Qk=;
         h=Subject:To:Cc:From:Date:From;
-        b=rDSnbVJtsxV5N/OU6HFR2HIPfhd6mNMVz7diQGv2+p7eCjpBe8HvQ7NqpN/OtVJ+j
-         TKAmwbGFlXPFXP4CkPfwXDGnp55apYisWWYM1W16PSWSG/CGbwpOrsldpSwgum84Ye
-         hZ0JDrQqEGO69xiJCGITnh77Ink1gCm5eYxRWNjk=
-Subject: FAILED: patch "[PATCH] IB/hfi1: Fix early init panic" failed to apply to 4.19-stable tree
+        b=OGIPsDL6YmnUMy5BbPdAnxbsJftfp1cgiFCS5GovnJKRlr28mFi/Qpn2WzIm2Nzce
+         o0D0NOQog2r7gEH+ZgRMQAc4/cM47xbomxFs+c9p3yt++kWig0WwsS94sjLcKI1kN+
+         Oyyy1RSS2xamY1DH1pRyN7hwGq6KdqwsuEfbUzt8=
+Subject: FAILED: patch "[PATCH] IB/hfi1: Fix early init panic" failed to apply to 5.4-stable tree
 To:     mike.marciniszyn@cornelisnetworks.com,
         dennis.dalessandro@cornelisnetworks.com, jgg@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 12:29:43 +0100
-Message-ID: <163913578315427@kroah.com>
+Date:   Fri, 10 Dec 2021 12:29:44 +0100
+Message-ID: <163913578420691@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
