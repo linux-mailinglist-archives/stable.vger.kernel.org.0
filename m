@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AECE46FFD3
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:29:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70FC446FFD5
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:29:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240410AbhLJLdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 06:33:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42538 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240391AbhLJLdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:33:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AF3C061746
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 03:29:41 -0800 (PST)
+        id S240439AbhLJLdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:33:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54570 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240391AbhLJLdS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:33:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBA63B827CA
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E567C341C6;
-        Fri, 10 Dec 2021 11:29:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0708FB827EE
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:29:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E90DC341CA;
+        Fri, 10 Dec 2021 11:29:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639135778;
-        bh=TmWpPCdwW89T22JH9wyfsOhjvl9H6rdAR4sI7on6Lyw=;
+        s=korg; t=1639135781;
+        bh=JTYdqQnSySNsWQzTLIevcFLC2z+2jv9Zrky3O2DtTXI=;
         h=Subject:To:Cc:From:Date:From;
-        b=DCb+9rVuKldkmWPSvs7nuPzKuiO2GUyWqXWyPiCpoOs7Ht8EhBWp59azRpwrQQMzQ
-         FxQtcAhk1LhAyxwFGkEmAFrFYtzWAq3hEwjBynW9w5EEyEg66sbTVfH8ho0uEWkQVw
-         kA0FvrXEr0crAMygVUioO/2ZZHHPYbHlgHm45LYs=
-Subject: FAILED: patch "[PATCH] IB/hfi1: Insure use of smp_processor_id() is preempt disabled" failed to apply to 4.14-stable tree
+        b=TM1zT6s31R+Jzufsvh1UfW5PQRMUW5lGdedhnLpc58797k+IgXscY7WAhmMqTyMaS
+         JC4XQ5gaIGKVYduFjfzqJLw9yF/9rcA2vkph4WoaK+WWbXIaTxpDBFkBiPj3a3fgOd
+         hzrx4ufVli01amJ1MeaDUxjD3DpU/busF/G71+Z8=
+Subject: FAILED: patch "[PATCH] IB/hfi1: Insure use of smp_processor_id() is preempt disabled" failed to apply to 4.9-stable tree
 To:     mike.marciniszyn@cornelisnetworks.com,
         dennis.dalessandro@cornelisnetworks.com, jgg@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 12:29:25 +0100
-Message-ID: <16391357651526@kroah.com>
+Date:   Fri, 10 Dec 2021 12:29:26 +0100
+Message-ID: <1639135766193244@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
