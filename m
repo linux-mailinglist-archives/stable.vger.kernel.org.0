@@ -2,112 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02A64704DC
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 16:48:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05BDF4704F5
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 16:52:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239955AbhLJPve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 10:51:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45374 "EHLO
+        id S230031AbhLJPzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 10:55:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243677AbhLJPtm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 10:49:42 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28129C07E5DE
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 07:44:54 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 75E63CE211C
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 15:44:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D406C00446;
-        Fri, 10 Dec 2021 15:44:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639151090;
-        bh=EIp5wNnUFBfjb2PgOkQoohdGYlY0+NMl/UPKA61cA/I=;
-        h=Subject:To:Cc:From:Date:From;
-        b=p6NQiXCLHd1szIb3DPZH5eCySnBW7fQSWXSNVJYx/FCEQnuGIHRaf3LQDl4j1kV/O
-         bO9X/aGX+/tL2z/iPu52xPSI00qrQrEyMaLT2IuaFrHGmrot+4JGqMg+WDd/Ft4Oqi
-         EuQxWcJJQpF1LAYcpj40n9oNOII8eT4sQAjr1H6A=
-Subject: FAILED: patch "[PATCH] ethtool: do not perform operations on net devices being" failed to apply to 5.10-stable tree
-To:     atenart@kernel.org, kuba@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 16:44:47 +0100
-Message-ID: <1639151087230186@kroah.com>
+        with ESMTP id S229664AbhLJPzc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 10:55:32 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2654EC061746
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 07:51:57 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id k4so6539227plx.8
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 07:51:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=968YCGedC6Cmy8I05d2vLzvjEbahZ10H0VZuI3fE94M=;
+        b=jCv6lq4ielAXkWwcgN5/euVNLJlJRyd4+i0axlDTAUiHK7wMGRUp3vtI21qVlrtB8d
+         QCiN7pf4AQLElTE6lWVuNuD/4AhZeJIqn3x4v7EpBpLXqBNQJdhQH+D5i5heNl9/OFwY
+         zjQiDA84qCCsrkRo07YjUva/LyCArZDY0b8Bgl+A/vCxH9k1j/eDv1cfSoaCJPghT+q2
+         FxBRz+1Vqkr5hfOWj14eJddc4dmWkJr/PtTCqL/SF3anYntlOjd/Dlhr03MJxZgXlJGi
+         94iyRmuOAfFKH8Z9SM8jdxCcB1CNdjeS9PlB/bBYtyHdGAfSU76fxXFWPOafNJozLB4l
+         7hEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=968YCGedC6Cmy8I05d2vLzvjEbahZ10H0VZuI3fE94M=;
+        b=k8KLKGkqk3XIJ81KU4SdBYgMkJ6U8Vka306FuKf4vTh8cadsqJuvgCd4EkiQyLrGoE
+         K8wQuSq3n2Fu4m/xrqzdk5Xy8FV5UUA9vA5RKXtwnNUaGEEypBnzfaxAQUOryO/KsJ/P
+         8oFiIvR/RKPTNkm3ku2rqLkPfFqEIQzBHXES43vPTDyBble3NpXjJgHMbA/1rb3HBjqQ
+         y9T7toHLl/mxsM74w/5qxrLE1w/l6rv38vLlpLhkdzy2rNtTlwQo3oflOjzDOHoDIxMh
+         kbFJ/C6k8/Yzh1tNoHXPtI6B6Ds36M/G5LDL6z78053p6rjo3Wr8UfqQkchGQd5esyER
+         3kMQ==
+X-Gm-Message-State: AOAM532dJk71J5wpiHLr3YUuAp2FN8xA/BMlOggdmkvL27j2DsdhVE0u
+        tuE8KwYKX/ZJ6MQjo4kFcKjWysbKnBo8rVfb
+X-Google-Smtp-Source: ABdhPJw9MEbNb5AVMmHhvDdTGzOiMxNSYbCLqiW37uSVHicSdgHRNXM72vIot7M4ztHz/cYVrPijlA==
+X-Received: by 2002:a17:902:b189:b0:143:8079:3d3b with SMTP id s9-20020a170902b18900b0014380793d3bmr76052000plr.71.1639151516400;
+        Fri, 10 Dec 2021 07:51:56 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 38sm3013487pgl.73.2021.12.10.07.51.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Dec 2021 07:51:56 -0800 (PST)
+Message-ID: <61b3779c.1c69fb81.d2913.8cce@mx.google.com>
+Date:   Fri, 10 Dec 2021 07:51:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.164
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y baseline: 153 runs, 1 regressions (v5.4.164)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.4.y baseline: 153 runs, 1 regressions (v5.4.164)
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-thanks,
+platform        | arch  | lab          | compiler | defconfig              =
+    | regressions
+----------------+-------+--------------+----------+------------------------=
+----+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig+arm64-chromeb=
+ook | 1          =
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.164/plan/baseline/
 
-From dde91ccfa25fd58f64c397d91b81a4b393100ffa Mon Sep 17 00:00:00 2001
-From: Antoine Tenart <atenart@kernel.org>
-Date: Fri, 3 Dec 2021 11:13:18 +0100
-Subject: [PATCH] ethtool: do not perform operations on net devices being
- unregistered
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.164
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e3c95128def1c937754a5cdc3d297fa47968e9f6 =
 
-There is a short period between a net device starts to be unregistered
-and when it is actually gone. In that time frame ethtool operations
-could still be performed, which might end up in unwanted or undefined
-behaviours[1].
 
-Do not allow ethtool operations after a net device starts its
-unregistration. This patch targets the netlink part as the ioctl one
-isn't affected: the reference to the net device is taken and the
-operation is executed within an rtnl lock section and the net device
-won't be found after unregister.
 
-[1] For example adding Tx queues after unregister ends up in NULL
-    pointer exceptions and UaFs, such as:
+Test Regressions
+---------------- =
 
-      BUG: KASAN: use-after-free in kobject_get+0x14/0x90
-      Read of size 1 at addr ffff88801961248c by task ethtool/755
 
-      CPU: 0 PID: 755 Comm: ethtool Not tainted 5.15.0-rc6+ #778
-      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/014
-      Call Trace:
-       dump_stack_lvl+0x57/0x72
-       print_address_description.constprop.0+0x1f/0x140
-       kasan_report.cold+0x7f/0x11b
-       kobject_get+0x14/0x90
-       kobject_add_internal+0x3d1/0x450
-       kobject_init_and_add+0xba/0xf0
-       netdev_queue_update_kobjects+0xcf/0x200
-       netif_set_real_num_tx_queues+0xb4/0x310
-       veth_set_channels+0x1c3/0x550
-       ethnl_set_channels+0x524/0x610
 
-Fixes: 041b1c5d4a53 ("ethtool: helper functions for netlink interface")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Link: https://lore.kernel.org/r/20211203101318.435618-1-atenart@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+platform        | arch  | lab          | compiler | defconfig              =
+    | regressions
+----------------+-------+--------------+----------+------------------------=
+----+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig+arm64-chromeb=
+ook | 1          =
 
-diff --git a/net/ethtool/netlink.c b/net/ethtool/netlink.c
-index 38b44c0291b1..96f4180aabd2 100644
---- a/net/ethtool/netlink.c
-+++ b/net/ethtool/netlink.c
-@@ -40,7 +40,8 @@ int ethnl_ops_begin(struct net_device *dev)
- 	if (dev->dev.parent)
- 		pm_runtime_get_sync(dev->dev.parent);
- 
--	if (!netif_device_present(dev)) {
-+	if (!netif_device_present(dev) ||
-+	    dev->reg_state == NETREG_UNREGISTERING) {
- 		ret = -ENODEV;
- 		goto err;
- 	}
 
+  Details:     https://kernelci.org/test/plan/id/61b340f8dd8ee9374239717f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.164=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
+200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.164=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
+200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b340f8dd8ee93742397=
+180
+        new failure (last pass: v5.4.163-71-g5d289daa9fc2) =
+
+ =20
