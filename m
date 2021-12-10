@@ -2,170 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E165C4705CA
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD1D4705EA
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237776AbhLJQhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 11:37:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57480 "EHLO
+        id S236848AbhLJQmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 11:42:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237570AbhLJQhC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 11:37:02 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 713BEC061746
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:33:27 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id 137so8535405pgg.3
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:33:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=l5CHR4S1i4dvQTEkMpEmhDmifAPy9Jccjj7ldlYQRCk=;
-        b=PZTO6PivlimXq0QETIB2yGOEv+jnOCg7Ce/JT6rWsD4OmmfgUNLxx3ojAtYkP7BvE7
-         AgsN5nJjgXe+BX/61uDG3GUjiMfoafXCODuHhGIl0/rmAONjkkZuNxsRNmzEGuoW1R5I
-         HI2+1QWAJTXU5anXfxo/e3nas2Fu4pF4Fo+XSxOy7NFw9iGGybF3ciuLeL6DCM20Pnxj
-         qK4hwPfvZUSM1dgopNY8/oADInuzXBesD3DkkPV/bXkknqduaRVFpOClQOx/JlB/zezu
-         dsBBI0WbTJvuuNQ1qn8aLSBs/2cFODsKn0MoOtY7G83QGUOoTnkWdf2ENh1tBs4g8D73
-         njlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=l5CHR4S1i4dvQTEkMpEmhDmifAPy9Jccjj7ldlYQRCk=;
-        b=aoAfKK0pVSZm+O8Ak7mdP0FzpgfitAYJkgcvFjYwdSA6DZzl3M0rQ9Slm6J9yBjbqD
-         RyRViIKlTHfqKTQJctZmOCMhFjikdE6baD1r7+P9N+UWC3ZpAXngQhiSc1oKg8tJJy58
-         2tVpGNABg9gWY7yflKuyoXzjkW0urRmcJkmx4QOk7z2DV6u2B41RRB8ilhr7OA/N9vC7
-         RAIy2GcfzSiZjxSXieOrNcq3PvVKRFVfntmt8WYjS4to8Bi/zFM4xG3KOmZxiDpyLIcP
-         aQ77Bt0dR7HO+owcvBdlFy4wqb0amwqtrwVV003uevOD9fEsoN2YL55xtMaEPGWuOFDi
-         cn+g==
-X-Gm-Message-State: AOAM530rk+gHcy1Jd8npraBjNIop2aItMdwnCLU0l1fvzSVa/DryzVn7
-        sRKR9BMp8EAqu2eG+GUF6VPiC3b89x9q0Vvq
-X-Google-Smtp-Source: ABdhPJz12Z41Y0dVrHBRaGFbyLEoDlcUnYZef1IU7tzA3T56Pf2alMnl/zvUESlL0zUGc66X4a9oMA==
-X-Received: by 2002:a05:6a00:10d3:b0:4a4:e516:826f with SMTP id d19-20020a056a0010d300b004a4e516826fmr18994481pfu.70.1639154006780;
-        Fri, 10 Dec 2021 08:33:26 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j23sm3197431pgn.40.2021.12.10.08.33.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Dec 2021 08:33:26 -0800 (PST)
-Message-ID: <61b38156.1c69fb81.ca4f1.94b0@mx.google.com>
-Date:   Fri, 10 Dec 2021 08:33:26 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S243756AbhLJQmL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 11:42:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51B8DC061746
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:38:36 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A3A3B828B8
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:38:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D62BC341C6;
+        Fri, 10 Dec 2021 16:38:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639154313;
+        bh=VMaNkuLQ7st+0D0S+NO5h0rZE6kd5pLaXo+dv+XrzUA=;
+        h=Subject:To:Cc:From:Date:From;
+        b=VEAItlIzqQjm7Ox7ah+KFJIEQn64Ytvd4aCxtQgrgaYIOnZ+XKMFsQBlilZV6ZCa5
+         LVFmJ9D9GgfTfAQYI+3K6pFSwI6FjFH/MYZ9YzM2UIhB6q87F8cammXHLPduldOFkW
+         MiIewW3iwdUa2obuj8NM9H2P9a2+GNRE5+trtuSM=
+Subject: FAILED: patch "[PATCH] netfilter: nft_exthdr: break evaluation if setting TCP option" failed to apply to 4.14-stable tree
+To:     pablo@netfilter.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 10 Dec 2021 17:38:31 +0100
+Message-ID: <16391543111099@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.220
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 143 runs, 2 regressions (v4.19.220)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 143 runs, 2 regressions (v4.19.220)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-        | regressions
--------------------------+--------+---------------+----------+-------------=
---------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig    | 1          =
+thanks,
 
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig | 1          =
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.220/plan/baseline/
+From 962e5a40358787105f126ab1dc01604da3d169e9 Mon Sep 17 00:00:00 2001
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Date: Tue, 30 Nov 2021 11:34:04 +0100
+Subject: [PATCH] netfilter: nft_exthdr: break evaluation if setting TCP option
+ fails
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.220
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bcd694e3e7181ddb30e4156df69a2775ce51ed4f =
+Break rule evaluation on malformed TCP options.
 
+Fixes: 99d1712bc41c ("netfilter: exthdr: tcp option set support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 
+diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
+index af4ee874a067..dbe1f2e7dd9e 100644
+--- a/net/netfilter/nft_exthdr.c
++++ b/net/netfilter/nft_exthdr.c
+@@ -236,7 +236,7 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+ 
+ 	tcph = nft_tcp_header_pointer(pkt, sizeof(buff), buff, &tcphdr_len);
+ 	if (!tcph)
+-		return;
++		goto err;
+ 
+ 	opt = (u8 *)tcph;
+ 	for (i = sizeof(*tcph); i < tcphdr_len - 1; i += optl) {
+@@ -251,16 +251,16 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+ 			continue;
+ 
+ 		if (i + optl > tcphdr_len || priv->len + priv->offset > optl)
+-			return;
++			goto err;
+ 
+ 		if (skb_ensure_writable(pkt->skb,
+ 					nft_thoff(pkt) + i + priv->len))
+-			return;
++			goto err;
+ 
+ 		tcph = nft_tcp_header_pointer(pkt, sizeof(buff), buff,
+ 					      &tcphdr_len);
+ 		if (!tcph)
+-			return;
++			goto err;
+ 
+ 		offset = i + priv->offset;
+ 
+@@ -303,6 +303,9 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+ 
+ 		return;
+ 	}
++	return;
++err:
++	regs->verdict.code = NFT_BREAK;
+ }
+ 
+ static void nft_exthdr_sctp_eval(const struct nft_expr *expr,
 
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-        | regressions
--------------------------+--------+---------------+----------+-------------=
---------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b34a67c6f6ecd5b539711f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-20/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnowboard-turbot=
--E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-20/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnowboard-turbot=
--E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b34a67c6f6ecd5b5397=
-120
-        new failure (last pass: v4.19.219-49-g36bf297d8737) =
-
- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-        | regressions
--------------------------+--------+---------------+----------+-------------=
---------+------------
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b3486b9d57b7174b397156
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-20/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-20/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b3486b9d57b71=
-74b397159
-        failing since 13 days (last pass: v4.19.217-321-g616d1abb62383, fir=
-st fail: v4.19.218)
-        2 lines
-
-    2021-12-10T12:30:19.095762  <8>[   20.964111] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-10T12:30:19.138429  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/101
-    2021-12-10T12:30:19.148869  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-12-10T12:30:19.164974  <8>[   21.034759] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
