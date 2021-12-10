@@ -2,135 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 957B746F9F2
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 05:41:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D213846FA0E
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 06:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230412AbhLJEod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Dec 2021 23:44:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34174 "EHLO
+        id S229698AbhLJFNt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 00:13:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbhLJEod (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Dec 2021 23:44:33 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B812C061746
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 20:40:59 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id j5-20020a17090a318500b001a6c749e697so7397576pjb.1
-        for <stable@vger.kernel.org>; Thu, 09 Dec 2021 20:40:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=HLceWRMsFYb5KmDfll4kVSXOWV2zFhsSJ26LhBxDtz8=;
-        b=rJXUxN/O+0wlAZt7uIXnj30bqyK/qU6ESdmTIiFvQNW3r+Il7Rl8Je7YMpMAEkdSlS
-         8RdNjLzTmeYM1gOCFi/hGnNz4p2eVgAuKyaZg+rcsvxUwruJpHqTx8YTZW+AJ/dO9JUR
-         CWIvSPXFQltMJpnDB033voWa4YKJPtC7beaLR7HaLzHjKJe+wy5y/iDMfgBOXwHCZ8m+
-         dd5liDF2EV7nIaVkGLZE+D2I2WmUVkH5bJBTfcA6eiYCdD6x0xQe0rcMOdQSQeML28SV
-         p+PnyzdDoA1tJz1CpV2LlhYaZ2+zfmJMTRQDqhIAdbxfW0MpNvUggDsWd0qpRD5WtRm8
-         v1Rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=HLceWRMsFYb5KmDfll4kVSXOWV2zFhsSJ26LhBxDtz8=;
-        b=Ywa1XAK59QXG/Kynl0vzIJ6K/jzfkQT0dlAwMN3TfDEG8IXl/z3H+Vh7v4mwMW1NFy
-         LsyoMOYtI4hbqXWJOj04KYId+lX/8z2GUVl4isIF4ntjy4NsqFrYGCR7SKxggz5KBgXx
-         T7UYG8A/mpZok7nZ40lxcTuyNsfKTntzXwFfgTLkOaWyzM6fQnxKar2mcL/cM7mbA4eA
-         clKe/iRybpxscc0wJ5LsFhTrS7OwxYe2oemKWcz1RztURJ5GNk/71LcH93/PROADmLj9
-         ul5ItEb8N1R4ag3TioLmEKLXwyXn4GJctq0/z/IwsxY2KYKF9L0Elqq7m9Z0oHb2qX8v
-         oLOg==
-X-Gm-Message-State: AOAM531Scct9QrY9kaXIlfZIa660vR5D4tWnH+kTxa4LEBur++UHE0l4
-        Zs1jAxwdpVVP7s4uekwB4fdvf4yVeueChWhJbJU=
-X-Google-Smtp-Source: ABdhPJyhuQFpR/h8GDdERBV/DSyDpAAOfcP3Of9bjl+PmxGGSUvQwKmd5yJeLV2Wjnv8cFuYLNBChw==
-X-Received: by 2002:a17:902:74cb:b0:143:6fe9:ca4 with SMTP id f11-20020a17090274cb00b001436fe90ca4mr73382799plt.2.1639111258557;
-        Thu, 09 Dec 2021 20:40:58 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ms15sm1114859pjb.26.2021.12.09.20.40.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Dec 2021 20:40:58 -0800 (PST)
-Message-ID: <61b2da5a.1c69fb81.dcabe.4f6e@mx.google.com>
-Date:   Thu, 09 Dec 2021 20:40:58 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229650AbhLJFNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 00:13:49 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A73BC061746;
+        Thu,  9 Dec 2021 21:10:14 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C9CDDCE286A;
+        Fri, 10 Dec 2021 05:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE98C00446;
+        Fri, 10 Dec 2021 05:10:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639113009;
+        bh=IgjHdU+h7nd8/berFuQhpL+cs2oDMn2YcL/bPfyzWok=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=B2TG9kmab4DZlJ2MF5L2WKYdVF6RM8bfEBOCg4YxOB+r7JrxOFLz7G7vAZ0pI70SN
+         hptxu+I94Vh3XAYd08epfaMm/Ejbhc+2kKaIBVQi4VMjTfc2o7hP15rVk71TWuFY30
+         XLjVWnWbmlHUn5PKy8TdevkO3dQYdZYBGIKp9F4CTRZtAJ09RD7OQWqbto0yKmW3uy
+         2orNoe83QdM/VEcf1mgvQpSkFobI6OdXJQ3oqKx9ViHthY5pjMIANAxmsOfb+6drgz
+         OqkF85itWlEy8hRgr7O2hZek94RC3ymseFyzBSGrG603Zw9bCCQ3Ef2HLuLqGGXeD5
+         H6xKPdc8M3Fjw==
+Date:   Thu, 9 Dec 2021 21:10:07 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Benjamin LaHaise <bcrl@kvack.org>, linux-aio@kvack.org,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Ramji Jiyani <ramjiyani@google.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Martijn Coenen <maco@android.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v3 0/5] aio: fix use-after-free and missing wakeups
+Message-ID: <YbLhL8y/TR5H0MLe@sol.localdomain>
+References: <20211209010455.42744-1-ebiggers@kernel.org>
+ <CAHk-=wjkXez+ugCbF3YpODQQS-g=-4poCwXaisLW4p2ZN_=hxw@mail.gmail.com>
+ <4a472e72-d527-db79-d46e-efa9d4cad5bb@kernel.dk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.219-56-g730dd2023c98
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 195 runs,
- 1 regressions (v4.19.219-56-g730dd2023c98)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4a472e72-d527-db79-d46e-efa9d4cad5bb@kernel.dk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 195 runs, 1 regressions (v4.19.219-56-g730dd=
-2023c98)
+On Thu, Dec 09, 2021 at 02:46:45PM -0700, Jens Axboe wrote:
+> On 12/9/21 11:00 AM, Linus Torvalds wrote:
+> > On Wed, Dec 8, 2021 at 5:06 PM Eric Biggers <ebiggers@kernel.org> wrote:
+> >>
+> >> Careful review is appreciated; the aio poll code is very hard to work
+> >> with, and it doesn't appear to have many tests.  I've verified that it
+> >> passes the libaio test suite, which provides some coverage of poll.
+> >>
+> >> Note, it looks like io_uring has the same bugs as aio poll.  I haven't
+> >> tried to fix io_uring.
+> > 
+> > I'm hoping Jens is looking at the io_ring case, but I'm also assuming
+> > that I'll just get a pull request for this at some point.
+> 
+> Yes, when I saw this original posting I did discuss it with Pavel as
+> well, and we agree that the same issue exists there. Which isn't too
+> surprising, as that's where the io_uring poll code from originally.
+> 
+> Eric, do you have a test case for this? aio is fine, we can convert it
+> to io_uring as well. Would be nice for both verifying the fix, but also
+> to carry in the io_uring regression tests for the future.
 
-Regressions Summary
--------------------
+Well, the use-after-free bug is pretty hard to test for.  It only affects
+polling a binder fd or signalfd, so one of those has to be used.  Also, I
+haven't found a way to detect it other than the use-after-free itself, so
+effectively a kernel with KASAN enabled is needed.  But KASAN doesn't work with
+signalfd because the signalfd waitqueues are in an SLAB_TYPESAFE_BY_RCU slab, so
+binder is the only way to detect it without working around SLAB_TYPESAFE_BY_RCU,
+or patching the kernel to add log messages.  Also, aio supports inline
+completion which avoids the bug, so that needs to be worked around.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+So the best I can do is provide a program that's pretty specific to aio, which
+causes KASAN to report a use-after-free if the kernel has CONFIG_KASAN and
+CONFIG_ANDROID_BINDER_IPC enabled.  Note, "normal" Linux distros don't have
+either option enabled.  I'm not sure that would be useful for you.
 
+If you're also asking about the other bug (missed wakeups), i.e. the one that
+patch 4 in this series fixes, in theory that would be detectable without those
+dependencies.  It's still a race condition that depends on kernel implementation
+details, so it will be hard to test for too.  But I might have a go at writing a
+test for it anyway.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.219-56-g730dd2023c98/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.219-56-g730dd2023c98
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      730dd2023c98834a93b7b3082e5ff1a61c2c4646 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b29efee3e9a19ea4397129
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.219=
--56-g730dd2023c98/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.219=
--56-g730dd2023c98/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b29efee3e9a19=
-ea439712c
-        failing since 2 days (last pass: v4.19.219-48-g6cc188def9f7, first =
-fail: v4.19.219-48-g68edce585def)
-        2 lines
-
-    2021-12-10T00:27:27.263964  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/106
-    2021-12-10T00:27:27.273539  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+- Eric
