@@ -2,282 +2,423 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6753546FEF6
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 11:47:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5479146FF6D
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:06:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238808AbhLJKvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 05:51:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233090AbhLJKvX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 05:51:23 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D5BDC0617A1
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 02:47:48 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id v11so14168641wrw.10
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 02:47:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=tEwwiECBVqL9MjyYGpBFXOXyDU9zb93VSUQWPEXbnfc=;
-        b=ZpCb123FKtEXlcNjcJubTiGCAWFoS2XzHAsTdTuYfLZD3b66IBSfsayK/LpvieGqG+
-         2KwU2si6c4lkVWWocUH/Z+W6tloNJBA9hmMORaNQ7WvcJyqKzcPh7topnzxSiB9V2PEJ
-         0fPgnzsMetvY+kxEGo52QzKbtNMTy9JVNUyReD8Hy6SZPt2gBBd2CdFq+m7GA8TDS8sc
-         H0O7EaGGtLrkeCAlxfsDU4Tc2EEjs42LQVGCys/wkCmBQBibBngeFDxqcZSR2gU2Dp8j
-         aWSaIPU4WFJAc+aTJkaecO1ujH2jITW/mf8tRsIjWIgx542f12nlIrLrIVyqi8volRjJ
-         tOkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tEwwiECBVqL9MjyYGpBFXOXyDU9zb93VSUQWPEXbnfc=;
-        b=ziJjbHRx9Ry5iJerZqt5tdLpOmVIxZ1AStyTSo1Oct7/wDNPh8tg5kKZVCT3gYk7oi
-         mXXCcAbp6bOpCWdWmHkt0LvtEvKzlOEX/YRoaX086wr9bcrogsZJL9K78M7+EEuZh9kk
-         erF/WL4kWKT/apfwXwwEg7qTXQgnIabQOp3GweOim2ve3CYlNN8ZSVYs5Qu7/wFSG7Ct
-         nwrzXqZqX9pw1RBzTkLHVcFz+I9aPhh2fMuC8d3YhlPuZ3SJdN6Y/al1nejRS1CkOfax
-         z0nFIPUW6ZMvWxM8H65wUN4QQIhZup+vypK3lm+DGfuClHEkTFl/q7yVP/oCL3b4ez2k
-         0wPw==
-X-Gm-Message-State: AOAM532hCG/GhTD98bo76gRfrvwU5Hc8crqEKgAiEBXqaLPeE3hjEeyE
-        jVmdlMs9WkoAlzV2lmjkJ/6r97mdZUs5sw==
-X-Google-Smtp-Source: ABdhPJyZ+jciHBqah+Y9PduEiLYZhXqedDCrs7VfhHAtAHDlC/6SqBChWxS5dtHo8YVHIs6k6OSwdQ==
-X-Received: by 2002:adf:df89:: with SMTP id z9mr12977990wrl.336.1639133267170;
-        Fri, 10 Dec 2021 02:47:47 -0800 (PST)
-Received: from localhost.localdomain ([2.31.167.18])
-        by smtp.gmail.com with ESMTPSA id m3sm2159507wrv.95.2021.12.10.02.47.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Dec 2021 02:47:46 -0800 (PST)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com
-Subject: [PATCH 4.19.y 5/5] net: sched: use Qdisc rcu API instead of relying on rtnl lock
-Date:   Fri, 10 Dec 2021 10:47:29 +0000
-Message-Id: <20211210104729.582403-5-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.34.1.173.g76aa8bc2d0-goog
-In-Reply-To: <20211210104729.582403-1-lee.jones@linaro.org>
-References: <20211210104729.582403-1-lee.jones@linaro.org>
+        id S231937AbhLJLKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:10:02 -0500
+Received: from mga14.intel.com ([192.55.52.115]:37911 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231253AbhLJLKB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Dec 2021 06:10:01 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10193"; a="238551488"
+X-IronPort-AV: E=Sophos;i="5.88,195,1635231600"; 
+   d="scan'208";a="238551488"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2021 03:06:08 -0800
+X-IronPort-AV: E=Sophos;i="5.88,195,1635231600"; 
+   d="scan'208";a="602081981"
+Received: from kbinis1x-mobl2.gar.corp.intel.com (HELO tursulin-mobl2.home) ([10.209.148.127])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2021 03:06:05 -0800
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+To:     Intel-gfx@lists.freedesktop.org
+Cc:     dri-devel@lists.freedesktop.org,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Michal Hocko <mhocko@suse.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
+        Hugh Dickins <hughd@google.com>,
+        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>,
+        Renato Pereyra <renatopereyra@google.com>,
+        intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: [PATCH] drm/i915: Stop doing writeback from the shrinker
+Date:   Fri, 10 Dec 2021 11:05:56 +0000
+Message-Id: <20211210110556.883735-1-tvrtko.ursulin@linux.intel.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@mellanox.com>
+From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-[ Upstream commit e368fdb61d8e7c67ac70791b23345b26d7bbc661 ]
+This effectively removes writeback which was added in 2d6692e642e7
+("drm/i915: Start writeback from the shrinker").
 
-As a preparation from removing rtnl lock dependency from rules update path,
-use Qdisc rcu and reference counting capabilities instead of relying on
-rtnl lock while working with Qdiscs. Create new tcf_block_release()
-function, and use it to free resources taken by tcf_block_find().
-Currently, this function only releases Qdisc and it is extended in next
-patches in this series.
+Digging through the history it seems we went back and forth on the topic
+of whether it would be safe a couple of times. See for instance
+5537252b6b6d ("drm/i915: Invalidate our pages under memory pressure")
+where Hugh Dickins has advised against it. I do not have enough expertise
+in the memory management area so am hoping for expert input here.
 
-Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[Lee: Sent to Stable]
-Link: https://syzkaller.appspot.com/bug?id=d7e411c5472dd5da33d8cc921ccadc747743a568
-Reported-by: syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reason for proposing removal is that there are reports from the field
+which indicate a sysetm wide deadlock (of a sort) implicating i915 doing
+writeback at shrinking time.
+
+Signature is a hung task notifier kicking in and task traces such as:
+
+ [  247.030274] minijail-init   D    0  1773   1770 0x80004082
+ [  247.036419] Call Trace:
+ [  247.039167]  __schedule+0x57e/0x10d2
+ [  247.043175]  ? __schedule+0x586/0x10d2
+ [  247.047381]  ? _raw_spin_unlock+0xe/0x20
+ [  247.051779]  ? __queue_work+0x316/0x371
+ [   247.056079]  schedule+0x7c/0x9f
+ [  247.059602]  rwsem_down_write_slowpath+0x2ae/0x494
+ [  247.064971]  unregister_shrinker+0x20/0x65
+ [  247.069562]  deactivate_locked_super+0x38/0x88
+ [  247.074538]  cleanup_mnt+0xcc/0x10e
+ [  247.078447]  task_work_run+0x7d/0xa6
+ [  247.082459]  do_exit+0x23d/0x831
+ [  247.086079]  ? syscall_trace_enter+0x207/0x20e
+ [  247.091055]  do_group_exit+0x8d/0x9d
+ [  247.095062]  __x64_sys_exit_group+0x17/0x17
+ [  247.099750]  do_syscall_64+0x54/0x7e
+ [  247.103758]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+ [  246.876816] chrome          D    0  1791   1785 0x00004080
+ [  246.882965] Call Trace:
+ [  246.885713]  __schedule+0x57e/0x10d2
+ [  246.889724]  ? pcpu_alloc_area+0x25d/0x273
+ [  246.894314]  schedule+0x7c/0x9f
+ [  246.897836]  rwsem_down_write_slowpath+0x2ae/0x494
+ [  246.903207]  register_shrinker_prepared+0x19/0x48
+ [  246.908479]  ? test_single_super+0x10/0x10
+ [  246.913071]  sget_fc+0x1fc/0x20e
+ [  246.916691]  ? kill_litter_super+0x40/0x40
+ [  246.921334]  ? proc_apply_options+0x42/0x42
+ [  246.926044]  vfs_get_super+0x3a/0xdf
+ [  246.930053]  vfs_get_tree+0x2b/0xc3
+ [  246.933965]  fc_mount+0x12/0x39
+ [  246.937492]  pid_ns_prepare_proc+0x9d/0xc5
+ [  246.942085]  alloc_pid+0x275/0x289
+ [  246.945900]  copy_process+0x5e5/0xeea
+ [  246.950006]  _do_fork+0x95/0x303
+ [  246.953628]  __se_sys_clone+0x65/0x7f
+ [  246.957735]  do_syscall_64+0x54/0x7e
+ [  246.961743]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+And finally the smoking gun in:
+
+ [  247.383338] CPU: 3 PID: 88 Comm: kswapd0 Tainted: G     U            5.4.154 #36
+ [  247.383338] Hardware name: Google Delbin/Delbin, BIOS Google_Delbin.13672.57.0 02/09/2021
+ [  247.383339] RIP: 0010:__rcu_read_lock+0x0/0x1a
+ [  247.383339] Code: ff ff 0f 0b e9 61 fe ff ff 0f 0b e9 76 fe ff ff 0f 0b 49 8b 44 24 20 e9 59 ff ff ff 0f 0b e9 67 ff ff ff 0f 0b e9 1b ff ff ff <0f> 1f 44 00 00 55 48 89 e5 65 48 8b 04 25 80 5d 01 00 ff 80 f8 03
+ [  247.383340] RSP: 0018:ffffb0aa0031b978 EFLAGS: 00000286
+ [  247.383340] RAX: 0000000000000000 RBX: fffff6b944ca8040 RCX: fffff6b944ca8001
+ [  247.383341] RDX: 0000000000000028 RSI: 0000000000000001 RDI: ffff8b52bc618c18
+ [  247.383341] RBP: ffffb0aa0031b9d0 R08: 0000000000000000 R09: ffff8b52fb5f00d8
+ [  247.383341] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+ [  247.383342] R13: 61c8864680b583eb R14: 0000000000000001 R15: ffffb0aa0031b980
+ [  247.383342] FS:  0000000000000000(0000) GS:ffff8b52fbf80000(0000) knlGS:0000000000000000
+ [  247.383343] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ [  247.383343] CR2: 00007c78a400d680 CR3: 0000000120f46006 CR4: 0000000000762ee0
+ [  247.383344] PKRU: 55555554
+ [  247.383344] Call Trace:
+ [  247.383345]  find_get_entry+0x4c/0x116
+ [  247.383345]  find_lock_entry+0xc8/0xec
+ [  247.383346]  shmem_writeback+0x7b/0x163
+ [  247.383346]  i915_gem_shrink+0x302/0x40b
+ [  247.383347]  ? __intel_runtime_pm_get+0x22/0x82
+ [  247.383347]  i915_gem_shrinker_scan+0x86/0xa8
+ [  247.383348]  shrink_slab+0x272/0x48b
+ [  247.383348]  shrink_node+0x784/0xbea
+ [  247.383348]  ? rcu_read_unlock_special+0x66/0x15f
+ [  247.383349]  ? update_batch_size+0x78/0x78
+ [  247.383349]  kswapd+0x75c/0xa56
+ [  247.383350]  kthread+0x147/0x156
+ [  247.383350]  ? kswapd_run+0xb6/0xb6
+ [  247.383351]  ? kthread_blkcg+0x2e/0x2e
+ [  247.383351]  ret_from_fork+0x1f/0x40
+
+You will notice the trace is from an older kernel, the problem being
+reproducing the issue on latest upstream base is proving to be tricky due
+other (unrelated) issues.
+
+It is even tricky to repro on an older kernel, with it seemingly needing a
+very specific game, transparent huge pages enabled and a specific memory
+configuration.
+
+However given the history on the topic I could find, assuming what I found
+is not incomplete, suspicion on writeback being not the right thing to do
+in general is still there. I would therefore like to have input from the
+experts here.
+
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: 2d6692e642e7 ("drm/i915: Start writeback from the shrinker")
+References: 5537252b6b6d ("drm/i915: Invalidate our pages under memory pressure")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com> #v1
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
+Cc: Renato Pereyra <renatopereyra@google.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.3+
 ---
- net/sched/cls_api.c | 79 ++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 64 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_object.h    |  2 -
+ .../gpu/drm/i915/gem/i915_gem_object_types.h  |  4 +-
+ drivers/gpu/drm/i915/gem/i915_gem_pages.c     | 10 ----
+ drivers/gpu/drm/i915/gem/i915_gem_shmem.c     | 49 -------------------
+ drivers/gpu/drm/i915/gem/i915_gem_shrinker.c  | 18 +++----
+ drivers/gpu/drm/i915/gem/i915_gem_shrinker.h  |  1 -
+ drivers/gpu/drm/i915/gem/i915_gem_ttm.c       |  6 +--
+ .../gpu/drm/i915/gem/selftests/huge_pages.c   |  3 +-
+ 8 files changed, 11 insertions(+), 82 deletions(-)
 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 4413aa8d4e829..b5da2c7a8092b 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -539,6 +539,7 @@ static struct tcf_block *tcf_block_find(struct net *net, struct Qdisc **q,
- 					struct netlink_ext_ack *extack)
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object.h b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+index 66f20b803b01..352c7158a487 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object.h
+@@ -455,7 +455,6 @@ i915_gem_object_unpin_pages(struct drm_i915_gem_object *obj)
+ 
+ int __i915_gem_object_put_pages(struct drm_i915_gem_object *obj);
+ int i915_gem_object_truncate(struct drm_i915_gem_object *obj);
+-void i915_gem_object_writeback(struct drm_i915_gem_object *obj);
+ 
+ /**
+  * i915_gem_object_pin_map - return a contiguous mapping of the entire object
+@@ -621,7 +620,6 @@ int shmem_sg_alloc_table(struct drm_i915_private *i915, struct sg_table *st,
+ 			 unsigned int max_segment);
+ void shmem_sg_free_table(struct sg_table *st, struct address_space *mapping,
+ 			 bool dirty, bool backup);
+-void __shmem_writeback(size_t size, struct address_space *mapping);
+ 
+ #ifdef CONFIG_MMU_NOTIFIER
+ static inline bool
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+index f9f7e44099fe..e188d6137cc0 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -57,10 +57,8 @@ struct drm_i915_gem_object_ops {
+ 	void (*put_pages)(struct drm_i915_gem_object *obj,
+ 			  struct sg_table *pages);
+ 	int (*truncate)(struct drm_i915_gem_object *obj);
+-	void (*writeback)(struct drm_i915_gem_object *obj);
+ 	int (*shrinker_release_pages)(struct drm_i915_gem_object *obj,
+-				      bool no_gpu_wait,
+-				      bool should_writeback);
++				      bool no_gpu_wait);
+ 
+ 	int (*pread)(struct drm_i915_gem_object *obj,
+ 		     const struct drm_i915_gem_pread *arg);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+index 49c6e55c68ce..52e975f57956 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+@@ -168,16 +168,6 @@ int i915_gem_object_truncate(struct drm_i915_gem_object *obj)
+ 	return 0;
+ }
+ 
+-/* Try to discard unwanted pages */
+-void i915_gem_object_writeback(struct drm_i915_gem_object *obj)
+-{
+-	assert_object_held_shared(obj);
+-	GEM_BUG_ON(i915_gem_object_has_pages(obj));
+-
+-	if (obj->ops->writeback)
+-		obj->ops->writeback(obj);
+-}
+-
+ static void __i915_gem_object_reset_page_iter(struct drm_i915_gem_object *obj)
  {
- 	struct tcf_block *block;
-+	int err = 0;
+ 	struct radix_tree_iter iter;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_shmem.c b/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
+index cc9fe258fba7..b4b8c921063e 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
+@@ -283,54 +283,6 @@ shmem_truncate(struct drm_i915_gem_object *obj)
+ 	return 0;
+ }
  
- 	if (ifindex == TCM_IFINDEX_MAGIC_BLOCK) {
- 		block = tcf_block_lookup(net, block_index);
-@@ -550,55 +551,93 @@ static struct tcf_block *tcf_block_find(struct net *net, struct Qdisc **q,
- 		const struct Qdisc_class_ops *cops;
- 		struct net_device *dev;
+-void __shmem_writeback(size_t size, struct address_space *mapping)
+-{
+-	struct writeback_control wbc = {
+-		.sync_mode = WB_SYNC_NONE,
+-		.nr_to_write = SWAP_CLUSTER_MAX,
+-		.range_start = 0,
+-		.range_end = LLONG_MAX,
+-		.for_reclaim = 1,
+-	};
+-	unsigned long i;
+-
+-	/*
+-	 * Leave mmapings intact (GTT will have been revoked on unbinding,
+-	 * leaving only CPU mmapings around) and add those pages to the LRU
+-	 * instead of invoking writeback so they are aged and paged out
+-	 * as normal.
+-	 */
+-
+-	/* Begin writeback on each dirty page */
+-	for (i = 0; i < size >> PAGE_SHIFT; i++) {
+-		struct page *page;
+-
+-		page = find_lock_page(mapping, i);
+-		if (!page)
+-			continue;
+-
+-		if (!page_mapped(page) && clear_page_dirty_for_io(page)) {
+-			int ret;
+-
+-			SetPageReclaim(page);
+-			ret = mapping->a_ops->writepage(page, &wbc);
+-			if (!PageWriteback(page))
+-				ClearPageReclaim(page);
+-			if (!ret)
+-				goto put;
+-		}
+-		unlock_page(page);
+-put:
+-		put_page(page);
+-	}
+-}
+-
+-static void
+-shmem_writeback(struct drm_i915_gem_object *obj)
+-{
+-	__shmem_writeback(obj->base.size, obj->base.filp->f_mapping);
+-}
+-
+ void
+ __i915_gem_object_release_shmem(struct drm_i915_gem_object *obj,
+ 				struct sg_table *pages,
+@@ -503,7 +455,6 @@ const struct drm_i915_gem_object_ops i915_gem_shmem_ops = {
+ 	.get_pages = shmem_get_pages,
+ 	.put_pages = shmem_put_pages,
+ 	.truncate = shmem_truncate,
+-	.writeback = shmem_writeback,
  
-+		rcu_read_lock();
-+
- 		/* Find link */
--		dev = __dev_get_by_index(net, ifindex);
--		if (!dev)
-+		dev = dev_get_by_index_rcu(net, ifindex);
-+		if (!dev) {
-+			rcu_read_unlock();
- 			return ERR_PTR(-ENODEV);
-+		}
+ 	.pwrite = shmem_pwrite,
+ 	.pread = shmem_pread,
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+index 157a9765f483..99a38e016780 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.c
+@@ -55,12 +55,11 @@ static bool unsafe_drop_pages(struct drm_i915_gem_object *obj,
+ 	return false;
+ }
  
- 		/* Find qdisc */
- 		if (!*parent) {
- 			*q = dev->qdisc;
- 			*parent = (*q)->handle;
- 		} else {
--			*q = qdisc_lookup(dev, TC_H_MAJ(*parent));
-+			*q = qdisc_lookup_rcu(dev, TC_H_MAJ(*parent));
- 			if (!*q) {
- 				NL_SET_ERR_MSG(extack, "Parent Qdisc doesn't exists");
--				return ERR_PTR(-EINVAL);
-+				err = -EINVAL;
-+				goto errout_rcu;
- 			}
- 		}
+-static int try_to_writeback(struct drm_i915_gem_object *obj, unsigned int flags)
++static int obj_invalidate(struct drm_i915_gem_object *obj, unsigned int flags)
+ {
+ 	if (obj->ops->shrinker_release_pages)
+ 		return obj->ops->shrinker_release_pages(obj,
+-							!(flags & I915_SHRINK_ACTIVE),
+-							flags & I915_SHRINK_WRITEBACK);
++							!(flags & I915_SHRINK_ACTIVE));
  
-+		*q = qdisc_refcount_inc_nz(*q);
-+		if (!*q) {
-+			NL_SET_ERR_MSG(extack, "Parent Qdisc doesn't exists");
-+			err = -EINVAL;
-+			goto errout_rcu;
-+		}
-+
- 		/* Is it classful? */
- 		cops = (*q)->ops->cl_ops;
- 		if (!cops) {
- 			NL_SET_ERR_MSG(extack, "Qdisc not classful");
--			return ERR_PTR(-EINVAL);
-+			err = -EINVAL;
-+			goto errout_rcu;
- 		}
+ 	switch (obj->mm.madv) {
+ 	case I915_MADV_DONTNEED:
+@@ -70,8 +69,9 @@ static int try_to_writeback(struct drm_i915_gem_object *obj, unsigned int flags)
+ 		return 0;
+ 	}
  
- 		if (!cops->tcf_block) {
- 			NL_SET_ERR_MSG(extack, "Class doesn't support blocks");
--			return ERR_PTR(-EOPNOTSUPP);
-+			err = -EOPNOTSUPP;
-+			goto errout_rcu;
- 		}
+-	if (flags & I915_SHRINK_WRITEBACK)
+-		i915_gem_object_writeback(obj);
++       if (obj->base.filp)
++		invalidate_mapping_pages(file_inode(obj->base.filp)->i_mapping,
++					 0, (loff_t)-1);
  
-+		/* At this point we know that qdisc is not noop_qdisc,
-+		 * which means that qdisc holds a reference to net_device
-+		 * and we hold a reference to qdisc, so it is safe to release
-+		 * rcu read lock.
-+		 */
-+		rcu_read_unlock();
-+
- 		/* Do we search for filter, attached to class? */
- 		if (TC_H_MIN(*parent)) {
- 			*cl = cops->find(*q, *parent);
- 			if (*cl == 0) {
- 				NL_SET_ERR_MSG(extack, "Specified class doesn't exist");
--				return ERR_PTR(-ENOENT);
-+				err = -ENOENT;
-+				goto errout_qdisc;
- 			}
- 		}
+ 	return 0;
+ }
+@@ -227,7 +227,7 @@ i915_gem_shrink(struct i915_gem_ww_ctx *ww,
+ 				}
  
- 		/* And the last stroke */
- 		block = cops->tcf_block(*q, *cl, extack);
--		if (!block)
--			return ERR_PTR(-EINVAL);
-+		if (!block) {
-+			err = -EINVAL;
-+			goto errout_qdisc;
-+		}
- 		if (tcf_block_shared(block)) {
- 			NL_SET_ERR_MSG(extack, "This filter block is shared. Please use the block index to manipulate the filters");
--			return ERR_PTR(-EOPNOTSUPP);
-+			err = -EOPNOTSUPP;
-+			goto errout_qdisc;
+ 				if (!__i915_gem_object_put_pages(obj)) {
+-					if (!try_to_writeback(obj, shrink))
++					if (!obj_invalidate(obj, shrink))
+ 						count += obj->base.size >> PAGE_SHIFT;
+ 				}
+ 				if (!ww)
+@@ -339,8 +339,7 @@ i915_gem_shrinker_scan(struct shrinker *shrinker, struct shrink_control *sc)
+ 						 &sc->nr_scanned,
+ 						 I915_SHRINK_ACTIVE |
+ 						 I915_SHRINK_BOUND |
+-						 I915_SHRINK_UNBOUND |
+-						 I915_SHRINK_WRITEBACK);
++						 I915_SHRINK_UNBOUND);
  		}
  	}
  
- 	return block;
-+
-+errout_rcu:
-+	rcu_read_unlock();
-+errout_qdisc:
-+	if (*q)
-+		qdisc_put(*q);
-+	return ERR_PTR(err);
-+}
-+
-+static void tcf_block_release(struct Qdisc *q, struct tcf_block *block)
-+{
-+	if (q)
-+		qdisc_put(q);
+@@ -361,8 +360,7 @@ i915_gem_shrinker_oom(struct notifier_block *nb, unsigned long event, void *ptr)
+ 	with_intel_runtime_pm(&i915->runtime_pm, wakeref)
+ 		freed_pages += i915_gem_shrink(NULL, i915, -1UL, NULL,
+ 					       I915_SHRINK_BOUND |
+-					       I915_SHRINK_UNBOUND |
+-					       I915_SHRINK_WRITEBACK);
++					       I915_SHRINK_UNBOUND);
+ 
+ 	/* Because we may be allocating inside our own driver, we cannot
+ 	 * assert that there are no objects with pinned pages that are not
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.h b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.h
+index 8512470f6fd6..789d6947f9b9 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_shrinker.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_shrinker.h
+@@ -22,7 +22,6 @@ unsigned long i915_gem_shrink(struct i915_gem_ww_ctx *ww,
+ #define I915_SHRINK_BOUND	BIT(1)
+ #define I915_SHRINK_ACTIVE	BIT(2)
+ #define I915_SHRINK_VMAPS	BIT(3)
+-#define I915_SHRINK_WRITEBACK	BIT(4)
+ 
+ unsigned long i915_gem_shrink_all(struct drm_i915_private *i915);
+ void i915_gem_driver_register__shrinker(struct drm_i915_private *i915);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
+index 218a9b3037c7..b7ca7b66afe7 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_ttm.c
+@@ -425,8 +425,7 @@ int i915_ttm_purge(struct drm_i915_gem_object *obj)
  }
  
- struct tcf_block_owner_item {
-@@ -1336,6 +1375,7 @@ static int tc_new_tfilter(struct sk_buff *skb, struct nlmsghdr *n,
- errout:
- 	if (chain)
- 		tcf_chain_put(chain);
-+	tcf_block_release(q, block);
- 	if (err == -EAGAIN)
- 		/* Replay the request. */
- 		goto replay;
-@@ -1457,6 +1497,7 @@ static int tc_del_tfilter(struct sk_buff *skb, struct nlmsghdr *n,
- errout:
- 	if (chain)
- 		tcf_chain_put(chain);
-+	tcf_block_release(q, block);
- 	return err;
- }
- 
-@@ -1542,6 +1583,7 @@ static int tc_get_tfilter(struct sk_buff *skb, struct nlmsghdr *n,
- errout:
- 	if (chain)
- 		tcf_chain_put(chain);
-+	tcf_block_release(q, block);
- 	return err;
- }
- 
-@@ -1858,7 +1900,8 @@ static int tc_ctl_chain(struct sk_buff *skb, struct nlmsghdr *n,
- 	chain_index = tca[TCA_CHAIN] ? nla_get_u32(tca[TCA_CHAIN]) : 0;
- 	if (chain_index > TC_ACT_EXT_VAL_MASK) {
- 		NL_SET_ERR_MSG(extack, "Specified chain index exceeds upper limit");
--		return -EINVAL;
-+		err = -EINVAL;
-+		goto errout_block;
+ static int i915_ttm_shrinker_release_pages(struct drm_i915_gem_object *obj,
+-					   bool no_wait_gpu,
+-					   bool should_writeback)
++					   bool no_wait_gpu)
+ {
+ 	struct ttm_buffer_object *bo = i915_gem_to_ttm(obj);
+ 	struct i915_ttm_tt *i915_tt =
+@@ -467,9 +466,6 @@ static int i915_ttm_shrinker_release_pages(struct drm_i915_gem_object *obj,
+ 		return ret;
  	}
- 	chain = tcf_chain_lookup(block, chain_index);
- 	if (n->nlmsg_type == RTM_NEWCHAIN) {
-@@ -1870,23 +1913,27 @@ static int tc_ctl_chain(struct sk_buff *skb, struct nlmsghdr *n,
- 				tcf_chain_hold(chain);
- 			} else {
- 				NL_SET_ERR_MSG(extack, "Filter chain already exists");
--				return -EEXIST;
-+				err = -EEXIST;
-+				goto errout_block;
- 			}
- 		} else {
- 			if (!(n->nlmsg_flags & NLM_F_CREATE)) {
- 				NL_SET_ERR_MSG(extack, "Need both RTM_NEWCHAIN and NLM_F_CREATE to create a new chain");
--				return -ENOENT;
-+				err = -ENOENT;
-+				goto errout_block;
- 			}
- 			chain = tcf_chain_create(block, chain_index);
- 			if (!chain) {
- 				NL_SET_ERR_MSG(extack, "Failed to create filter chain");
--				return -ENOMEM;
-+				err = -ENOMEM;
-+				goto errout_block;
- 			}
- 		}
- 	} else {
- 		if (!chain || tcf_chain_held_by_acts_only(chain)) {
- 			NL_SET_ERR_MSG(extack, "Cannot find specified filter chain");
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto errout_block;
- 		}
- 		tcf_chain_hold(chain);
- 	}
-@@ -1930,6 +1977,8 @@ static int tc_ctl_chain(struct sk_buff *skb, struct nlmsghdr *n,
  
- errout:
- 	tcf_chain_put(chain);
-+errout_block:
-+	tcf_block_release(q, block);
- 	if (err == -EAGAIN)
- 		/* Replay the request. */
- 		goto replay;
+-	if (should_writeback)
+-		__shmem_writeback(obj->base.size, i915_tt->filp->f_mapping);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/i915/gem/selftests/huge_pages.c b/drivers/gpu/drm/i915/gem/selftests/huge_pages.c
+index c69c7d45aabc..24bbf4d6a63d 100644
+--- a/drivers/gpu/drm/i915/gem/selftests/huge_pages.c
++++ b/drivers/gpu/drm/i915/gem/selftests/huge_pages.c
+@@ -1647,8 +1647,7 @@ static int igt_shrink_thp(void *arg)
+ 	i915_gem_shrink(NULL, i915, -1UL, NULL,
+ 			I915_SHRINK_BOUND |
+ 			I915_SHRINK_UNBOUND |
+-			I915_SHRINK_ACTIVE |
+-			I915_SHRINK_WRITEBACK);
++			I915_SHRINK_ACTIVE);
+ 	if (should_swap == i915_gem_object_has_pages(obj)) {
+ 		pr_err("unexpected pages mismatch, should_swap=%s\n",
+ 		       yesno(should_swap));
 -- 
-2.34.1.173.g76aa8bc2d0-goog
+2.32.0
 
