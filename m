@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9AA46FFDB
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:30:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4790546FFDE
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240466AbhLJLdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 06:33:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54804 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240427AbhLJLdv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:33:51 -0500
+        id S240469AbhLJLeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42720 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240451AbhLJLd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:33:56 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EAEDC061746
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 03:30:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DC4BB8275E
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:30:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AC55C341C6;
-        Fri, 10 Dec 2021 11:30:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 91FA0CE29D5
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23521C00446;
+        Fri, 10 Dec 2021 11:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639135814;
-        bh=w+TetUqB/Gy9nIp8VKlDQUqfGuSeBLvO8UuayT+FX5Q=;
+        s=korg; t=1639135817;
+        bh=LSIuvpzyUxCi4gPayX+iuujtVH2ShhH+PSLomb8xCFM=;
         h=Subject:To:Cc:From:Date:From;
-        b=IS+PVTgd25z0uQO5elBG/uXQcI1h4Hnjnwcw9ssFNfxV8bxDU9oGTeG+Q3LMRMlH1
-         ucrp//oszg26xULf/Inbiqbrlgx3WX9Cmu2OjfZFEYkyOPgD7W2R2wsosJtq+lOV2D
-         saXrs71LAFEIwYe/JIlkXZiaePvFdr3lGIF5cMGU=
-Subject: FAILED: patch "[PATCH] IB/hfi1: Fix leak of rcvhdrtail_dummy_kvaddr" failed to apply to 4.14-stable tree
+        b=UrVfiUOwqwydbocrTHhpTj/20Wpz3P8e68xgaXxwPIPJKrQyc8PYUWXj3m6bIlr8Q
+         XOiM9SQQ9PqRGkv16WPkWX38H2SD3Hl97/qiVUyaO1r4MVdd9VQn8MbC8Fi7RIjMOO
+         OvpMyimhEd/W8xyC2P0baUVRQm6Clltv/4MMgDAc=
+Subject: FAILED: patch "[PATCH] IB/hfi1: Fix leak of rcvhdrtail_dummy_kvaddr" failed to apply to 4.19-stable tree
 To:     mike.marciniszyn@cornelisnetworks.com,
         dennis.dalessandro@cornelisnetworks.com, jgg@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 12:30:03 +0100
-Message-ID: <1639135803103194@kroah.com>
+Date:   Fri, 10 Dec 2021 12:30:04 +0100
+Message-ID: <1639135804136158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
