@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51A354705EB
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:38:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BD294705EF
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243769AbhLJQmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 11:42:20 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:53204 "EHLO
+        id S243798AbhLJQm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 11:42:26 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:53254 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243751AbhLJQmU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 11:42:20 -0500
+        with ESMTP id S243803AbhLJQmZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 11:42:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DAE83CE2BCA
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:38:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85379C341C6;
-        Fri, 10 Dec 2021 16:38:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 87B71CE2C1A
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:38:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34827C341C5;
+        Fri, 10 Dec 2021 16:38:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639154322;
-        bh=NNg3GP2Z6K5fLD+Fju7rEESPiYSGsOqHX3u4Ko6aMdk=;
+        s=korg; t=1639154327;
+        bh=0VggOPjtCPeQ3bhukOWxbTtp20OEk93xN/jiWlC99Pk=;
         h=Subject:To:Cc:From:Date:From;
-        b=dJeYX3SNlJHT9woRrcvu87eWxGe1IjOQuhKqidRm1y6BBhd4THEmtkRDGI0gQNFTb
-         PlC5H+oNyI5N0B0rYxZ+8o0Yful4fhHpV4MZo0WntpAavjQBccIFlb/91HScri94Za
-         J4I0NeYACQ0ncJMGAmvEKZekOtzx4G9s5Ox4g5Xk=
-Subject: FAILED: patch "[PATCH] netfilter: nft_exthdr: break evaluation if setting TCP option" failed to apply to 4.19-stable tree
+        b=H8O6DDxjYD4dZKZy7aJbO1NP8bAbvOgAuMkA8gKqv2afCQeLNBwIQqRqrUqrhdHuW
+         7ZxkraNvIm9Z9W9MT9VrI/Grahsw17O5+9Hfskeq06YrrSLspn3UwKFcS5whVfMPFq
+         PxgSksUMryLl0NvNZ55nkE3XJucKcN6XWIW8uw7k=
+Subject: FAILED: patch "[PATCH] netfilter: nft_exthdr: break evaluation if setting TCP option" failed to apply to 5.10-stable tree
 To:     pablo@netfilter.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 17:38:31 +0100
-Message-ID: <16391543111456@kroah.com>
+Date:   Fri, 10 Dec 2021 17:38:32 +0100
+Message-ID: <1639154312212246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
