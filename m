@@ -2,68 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5C94703F7
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 16:36:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A48E24703FD
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 16:36:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242870AbhLJPj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 10:39:57 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:58523 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242917AbhLJPj5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 10:39:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639150582;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=aTsC5UMVQWvN3qZDNb1K4yW3e9uc3Gei8VL9gu3TJeU=;
-        b=B4LvTpxlWeSPJsdM0xW+R3+K7flNF1bD9qAJgywTLt/2RhoBGs9xhqBvgRQWFYgoLTsF2d
-        iVqUzt+KIx6R4ZsLNP2LGmBr8f85hP3+acvvNGAWtlIx4Sm2NnelfhV7stn9g/TsM4WSxj
-        KrEIgv4W0LkzUMoDRjFzBQT1mFPBx9c=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-493-TwqV_gJmORSLJhYIKuInmw-1; Fri, 10 Dec 2021 10:36:18 -0500
-X-MC-Unique: TwqV_gJmORSLJhYIKuInmw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CE9961B18BCF;
-        Fri, 10 Dec 2021 15:36:17 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.36.122])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 835C05D9D5;
-        Fri, 10 Dec 2021 15:36:16 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <163913443334205@kroah.com>
-References: <163913443334205@kroah.com>
-To:     gregkh@linuxfoundation.org
-Cc:     dhowells@redhat.com, jefflexu@linux.alibaba.com,
-        jlayton@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] netfs: fix parameter of cleanup()" failed to apply to 5.15-stable tree
+        id S242935AbhLJPkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 10:40:14 -0500
+Received: from mga12.intel.com ([192.55.52.136]:39116 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242917AbhLJPkO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Dec 2021 10:40:14 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10193"; a="218387042"
+X-IronPort-AV: E=Sophos;i="5.88,196,1635231600"; 
+   d="scan'208";a="218387042"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2021 07:36:23 -0800
+X-IronPort-AV: E=Sophos;i="5.88,196,1635231600"; 
+   d="scan'208";a="463700570"
+Received: from kbinis1x-mobl2.gar.corp.intel.com (HELO [10.209.148.127]) ([10.209.148.127])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2021 07:36:19 -0800
+Message-ID: <931129d0-4e86-48f9-7b2e-bddef93697c6@linux.intel.com>
+Date:   Fri, 10 Dec 2021 15:36:17 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <292329.1639150575.1@warthog.procyon.org.uk>
-Date:   Fri, 10 Dec 2021 15:36:15 +0000
-Message-ID: <292330.1639150575@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.1
+Subject: Re: [PATCH] drm/i915: Stop doing writeback from the shrinker
+Content-Language: en-US
+To:     =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
+        <thomas.hellstrom@linux.intel.com>, Intel-gfx@lists.freedesktop.org
+Cc:     dri-devel@lists.freedesktop.org,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Michal Hocko <mhocko@suse.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Hugh Dickins <hughd@google.com>,
+        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>,
+        Renato Pereyra <renatopereyra@google.com>,
+        stable@vger.kernel.org
+References: <20211210110556.883735-1-tvrtko.ursulin@linux.intel.com>
+ <a7898ef462a49db825b3fdd4efdba1e546466473.camel@linux.intel.com>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+In-Reply-To: <a7898ef462a49db825b3fdd4efdba1e546466473.camel@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-<gregkh@linuxfoundation.org> wrote:
 
-> -			ops->cleanup(netfs_priv, folio_file_mapping(folio));
-> +			ops->cleanup(folio_file_mapping(folio), netfs_priv);
+On 10/12/2021 14:46, Thomas Hellström wrote:
+> On Fri, 2021-12-10 at 11:05 +0000, Tvrtko Ursulin wrote:
+>> From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+>>
+>> This effectively removes writeback which was added in 2d6692e642e7
+>> ("drm/i915: Start writeback from the shrinker").
+>>
+>> Digging through the history it seems we went back and forth on the
+>> topic
+>> of whether it would be safe a couple of times. See for instance
+>> 5537252b6b6d ("drm/i915: Invalidate our pages under memory pressure")
+>> where Hugh Dickins has advised against it. I do not have enough
+>> expertise
+>> in the memory management area so am hoping for expert input here.
+>>
+>> Reason for proposing removal is that there are reports from the field
+>> which indicate a sysetm wide deadlock (of a sort) implicating i915
+>> doing
+>> writeback at shrinking time.
+>>
+>> Signature is a hung task notifier kicking in and task traces such as:
+> 
+> It would be interesting to see what exactly the find_get_entry is
+> blocked on. The other two tasks are blocked on the shrinker_rwsem which
+> is held by i915. If it's indeed a deadlock with either of those two,
 
-Is it page->mapping or page_mapping(page) instead of folio_file_mapping()?  If
-so, you can switch that to the other side instead, e.g.:
+It may indeed be a livelock instead of a deadlock. I have received a 
+newer trace and it indeed shows kswapd in running state. But no progress 
+in 120s and dead machine sounded like too suspicious it could happen 
+with just a gaming workload so I assumed a more serious issue than just 
+severe memory pressure.
 
--			ops->cleanup(netfs_priv, page_mapping(page));
-+			ops->cleanup(page_mapping(page), netfs_priv);
+> then the fix Chris is working on for an unrelated issue we discovered
+> with shrinking would move out the writeback call from the
+> shrinker_rwsem and resolve this, but if i915 is in turn deadlocking
+> with another process and these two are just hanging waiting for the
+> shrinker_rwsem, we would still have other issues.
 
-David
+Presumably this would involve an extra worker and tracking on a list or 
+something?
 
+Otherwise my main hope really was to get a verdict from memory 
+management experts on pros & cons of doing writeback from the driver in 
+any flavour.
+
+> Do you by any chance have the list of the locks held by the system at
+> this point?
+
+No, but maybe Renato you could also collect "echo d" and "echo m" to 
+sysrq-trigger when things go bad?
+
+Regards,
+
+Tvrtko
