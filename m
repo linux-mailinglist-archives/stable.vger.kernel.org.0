@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3829B46FFED
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:32:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EACB46FFEF
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:32:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237447AbhLJLgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 06:36:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55560 "EHLO
+        id S234921AbhLJLgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:36:06 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55620 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240453AbhLJLf7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:35:59 -0500
+        with ESMTP id S240453AbhLJLgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:36:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24BBAB8275F
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D400C00446;
-        Fri, 10 Dec 2021 11:32:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64D44B8275E
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:32:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 802F7C00446;
+        Fri, 10 Dec 2021 11:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639135943;
-        bh=0D7p5aP6Uc4gNGLsKi9Eps7K9fMYfDwGbWdK+RiSH4Y=;
+        s=korg; t=1639135949;
+        bh=63nwfvlVt+5t3iTEiNrI9cfVQOTjFzivZ5tRJBvRYqs=;
         h=Subject:To:Cc:From:Date:From;
-        b=CcebtmL25pzCp2J7EdJFOntpDdihRoUpHGOY7XrK7plSMOgvu4kT0+Dl7jfkdOBeO
-         LQ0Yrffhc+RiME3WoCFo9Ybe3CTzDct2wV4qU8qFJAh2Z7qdgAqzwe8YOaoUwjfljJ
-         BzWMB+6r5otEpw2tY5iKatYvNixSfv0l7I/LWk9c=
-Subject: FAILED: patch "[PATCH] can: pch_can: pch_can_rx_normal: fix use after free" failed to apply to 4.14-stable tree
+        b=UppRePa6WJqXsYTIbMwuaFu9jeG4rizILe8t7BuN4ihSUAhVmG0bKQDbWIV580sKn
+         OwoIovPkqzHBSCQgnL5LkSQdOAIKrxVwt9s+bwY8mR07iNiEmRLFDyYbDAPCDCf0PS
+         JQ+ebVA18x3MXXEJez87XOUT2vc+QwDc2w2QcLcI=
+Subject: FAILED: patch "[PATCH] can: pch_can: pch_can_rx_normal: fix use after free" failed to apply to 5.4-stable tree
 To:     mailhol.vincent@wanadoo.fr, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 12:32:06 +0100
-Message-ID: <1639135926255182@kroah.com>
+Date:   Fri, 10 Dec 2021 12:32:07 +0100
+Message-ID: <1639135927207154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
