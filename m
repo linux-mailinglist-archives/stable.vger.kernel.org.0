@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C28470000
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:34:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FF1470005
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235271AbhLJLh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 06:37:56 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:53554 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240540AbhLJLh4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:37:56 -0500
+        id S240572AbhLJLiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:38:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43788 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240521AbhLJLiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:38:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E184C0617A1
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 03:34:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A92A5CE29C8
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:34:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4327DC00446;
-        Fri, 10 Dec 2021 11:34:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE19CB827E9
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 335EEC341CA;
+        Fri, 10 Dec 2021 11:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639136058;
-        bh=ZtUVf9U9W9wPveMip0wut2uendMvHBQPcjZMrHt9Wgg=;
+        s=korg; t=1639136079;
+        bh=IJ+CFuYCiJdgDSq/IUwq5QIaY1nqEuu1Iinw1lUnWS4=;
         h=Subject:To:Cc:From:Date:From;
-        b=SIUuy/o6buBYfKJ0D5c7Uo69T9pR2RL7YjA3hFq8OhQbmJikHxkc24njgHzFFEdvG
-         lhINcdCMsBmPJa4Iyqq38QYTwyEAi8bI2yZ0Bt+VRa+5zbmgy8X+Za07rmdnzD1HYf
-         9qo8rxd1g2Je3Ukh6fzAVsuXNn1FU7WZ7bZMGhn4=
-Subject: FAILED: patch "[PATCH] can: m_can: Disable and ignore ELO interrupt" failed to apply to 4.4-stable tree
-To:     brian.silverman@bluerivertech.com, mkl@pengutronix.de
+        b=un5qsKRShmuWd2rr8tEFH+ZZRn/N/SADK9uYxmIxdA3Ks9D08IP+l813KD68LQAlz
+         6QQZnFqpm0NTdkXUTXvm7QJo4P/Iv42/dhccGttv3Lx5i5ezjS3sSN3ySHaBva8iDe
+         XFFLZIHl/FsL5w/Y99G4BxOdG6FwrCcQtYlmlpmI=
+Subject: FAILED: patch "[PATCH] x86/sme: Explicitly map new EFI memmap table as encrypted" failed to apply to 4.14-stable tree
+To:     thomas.lendacky@amd.com, ardb@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 12:34:00 +0100
-Message-ID: <163913604011144@kroah.com>
+Date:   Fri, 10 Dec 2021 12:34:36 +0100
+Message-ID: <163913607618052@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,61 +53,59 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f58ac1adc76b5beda43c64ef359056077df4d93a Mon Sep 17 00:00:00 2001
-From: Brian Silverman <brian.silverman@bluerivertech.com>
-Date: Mon, 29 Nov 2021 14:26:28 -0800
-Subject: [PATCH] can: m_can: Disable and ignore ELO interrupt
+From 1ff2fc02862d52e18fd3daabcfe840ec27e920a8 Mon Sep 17 00:00:00 2001
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Date: Wed, 20 Oct 2021 13:02:11 -0500
+Subject: [PATCH] x86/sme: Explicitly map new EFI memmap table as encrypted
 
-With the design of this driver, this condition is often triggered.
-However, the counter that this interrupt indicates an overflow is never
-read either, so overflowing is harmless.
+Reserving memory using efi_mem_reserve() calls into the x86
+efi_arch_mem_reserve() function. This function will insert a new EFI
+memory descriptor into the EFI memory map representing the area of
+memory to be reserved and marking it as EFI runtime memory. As part
+of adding this new entry, a new EFI memory map is allocated and mapped.
+The mapping is where a problem can occur. This new memory map is mapped
+using early_memremap() and generally mapped encrypted, unless the new
+memory for the mapping happens to come from an area of memory that is
+marked as EFI_BOOT_SERVICES_DATA memory. In this case, the new memory will
+be mapped unencrypted. However, during replacement of the old memory map,
+efi_mem_type() is disabled, so the new memory map will now be long-term
+mapped encrypted (in efi.memmap), resulting in the map containing invalid
+data and causing the kernel boot to crash.
 
-On my system, when a CAN bus starts flapping up and down, this locks up
-the whole system with lots of interrupts and printks.
+Since it is known that the area will be mapped encrypted going forward,
+explicitly map the new memory map as encrypted using early_memremap_prot().
 
-Specifically, this interrupt indicates the CEL field of ECR has
-overflowed. All reads of ECR mask out CEL.
+Cc: <stable@vger.kernel.org> # 4.14.x
+Fixes: 8f716c9b5feb ("x86/mm: Add support to access boot related data in the clear")
+Link: https://lore.kernel.org/all/ebf1eb2940405438a09d51d121ec0d02c8755558.1634752931.git.thomas.lendacky@amd.com/
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ardb: incorporate Kconfig fix by Arnd]
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 
-Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
-Link: https://lore.kernel.org/all/20211129222628.7490-1-brian.silverman@bluerivertech.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Brian Silverman <brian.silverman@bluerivertech.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 2470c47b2e31..91be87c4f4d3 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -204,16 +204,16 @@ enum m_can_reg {
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 95dd1ee01546..9636a3122496 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1932,6 +1932,7 @@ config EFI
+ 	depends on ACPI
+ 	select UCS2_STRING
+ 	select EFI_RUNTIME_WRAPPERS
++	select ARCH_USE_MEMREMAP_PROT
+ 	help
+ 	  This enables the kernel to use EFI runtime services that are
+ 	  available (such as the EFI variable services).
+diff --git a/arch/x86/platform/efi/quirks.c b/arch/x86/platform/efi/quirks.c
+index b15ebfe40a73..b0b848d6933a 100644
+--- a/arch/x86/platform/efi/quirks.c
++++ b/arch/x86/platform/efi/quirks.c
+@@ -277,7 +277,8 @@ void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size)
+ 		return;
+ 	}
  
- /* Interrupts for version 3.0.x */
- #define IR_ERR_LEC_30X	(IR_STE	| IR_FOE | IR_ACKE | IR_BE | IR_CRCE)
--#define IR_ERR_BUS_30X	(IR_ERR_LEC_30X | IR_WDI | IR_ELO | IR_BEU | \
--			 IR_BEC | IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | \
--			 IR_RF1L | IR_RF0L)
-+#define IR_ERR_BUS_30X	(IR_ERR_LEC_30X | IR_WDI | IR_BEU | IR_BEC | \
-+			 IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | IR_RF1L | \
-+			 IR_RF0L)
- #define IR_ERR_ALL_30X	(IR_ERR_STATE | IR_ERR_BUS_30X)
- 
- /* Interrupts for version >= 3.1.x */
- #define IR_ERR_LEC_31X	(IR_PED | IR_PEA)
--#define IR_ERR_BUS_31X      (IR_ERR_LEC_31X | IR_WDI | IR_ELO | IR_BEU | \
--			 IR_BEC | IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | \
--			 IR_RF1L | IR_RF0L)
-+#define IR_ERR_BUS_31X      (IR_ERR_LEC_31X | IR_WDI | IR_BEU | IR_BEC | \
-+			 IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | IR_RF1L | \
-+			 IR_RF0L)
- #define IR_ERR_ALL_31X	(IR_ERR_STATE | IR_ERR_BUS_31X)
- 
- /* Interrupt Line Select (ILS) */
-@@ -810,8 +810,6 @@ static void m_can_handle_other_err(struct net_device *dev, u32 irqstatus)
- {
- 	if (irqstatus & IR_WDI)
- 		netdev_err(dev, "Message RAM Watchdog event due to missing READY\n");
--	if (irqstatus & IR_ELO)
--		netdev_err(dev, "Error Logging Overflow\n");
- 	if (irqstatus & IR_BEU)
- 		netdev_err(dev, "Bit Error Uncorrected\n");
- 	if (irqstatus & IR_BEC)
+-	new = early_memremap(data.phys_map, data.size);
++	new = early_memremap_prot(data.phys_map, data.size,
++				  pgprot_val(pgprot_encrypted(FIXMAP_PAGE_NORMAL)));
+ 	if (!new) {
+ 		pr_err("Failed to map new boot services memmap\n");
+ 		return;
 
