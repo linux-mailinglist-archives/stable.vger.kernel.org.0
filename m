@@ -2,121 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E33584702E9
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 15:36:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0985C4702E6
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 15:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241946AbhLJOkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 09:40:03 -0500
-Received: from mail-mw2nam10on2079.outbound.protection.outlook.com ([40.107.94.79]:14721
-        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S238575AbhLJOkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Dec 2021 09:40:03 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hkPEnwpVyofyXmn8thLiU9fV2K+XOrBRPAI5M0YUGKxJ3ZqWUWgTfe9v+LVpOVQWcFqC35N8rR/0bYaUuJrlJ0zH92PLhFoSQXH7STm0o38KMdYYyBkKRCJCqYvU42Ipqz1Bgb57Os61YHIabIN0rrt77b/XSLfrcsR2s5Vz8Y9UXsOlk0MBuFD6p9vIsc1sEe2DW2wljM8Ns8G9+kXJh8s5TEoXKUBmzpzQk1VUeUqNZB7Ez5l/nebQY+7rhMp3kNFopPF5s7AGCCazFZoemVEauBcyViWIgMHgO/796XQAGgirdDb1ndouPkgMktuRf5xNhokXH2pcJ8X2RigkXw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Sn8euhzdbIQVvBBtIXFEuvHer7WBXytVkrqwNc191y0=;
- b=FSCocKmJ5d6AIcz9NBKGgQcKp0BpKxHlNNC/LppUO5DNDgnf+wVHGJLb5jZSQqF9AdZXQtNF1o0PLmOy2Lv1CtNRTWqu0lPF8EhMe2aAChREC3+jQLZKrNccoEl14waqV1vGy9mv4CKdVvxUCHb7MNCT3fTrcOQfmvnXi6G9q0cwM95aSCHd6D0kz8b6fcE8LyXdTEzJOy4k0KuohpMEr9nmNRkbYr7dhjjYFWQZ755ErH4X398j0028Rw2/9XeP07mYeXZ8i+pF20GQ74Xvo0JdwM/yb0VfXn9P5a/EEQEsY7VwjpBtgo4vKBYTIWcuDGfRnLQrYTY9/l2HdIzavg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Sn8euhzdbIQVvBBtIXFEuvHer7WBXytVkrqwNc191y0=;
- b=Kt4AH/RIgWSHLolQF6fWhocEViLiO0oEP8/CfWtnq5voAEkk/K1x91gO+dk9IWQjOzyyo2ELlhLjYiYeIiiPr7B57KlSXkp4clrOCRFFC+L4MBZoQCsb6QXH9MttU/OwS97ep/a5DRu71nQKdnTvfBJA1ONtRLTRq6xnKmhLxu4=
-Received: from DM5PR20CA0009.namprd20.prod.outlook.com (2603:10b6:3:93::19) by
- PH0PR12MB5418.namprd12.prod.outlook.com (2603:10b6:510:e5::19) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4755.21; Fri, 10 Dec 2021 14:36:26 +0000
-Received: from DM6NAM11FT032.eop-nam11.prod.protection.outlook.com
- (2603:10b6:3:93:cafe::64) by DM5PR20CA0009.outlook.office365.com
- (2603:10b6:3:93::19) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.12 via Frontend
- Transport; Fri, 10 Dec 2021 14:36:26 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB03.amd.com;
-Received: from SATLEXMB03.amd.com (165.204.84.17) by
- DM6NAM11FT032.mail.protection.outlook.com (10.13.173.93) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4778.13 via Frontend Transport; Fri, 10 Dec 2021 14:36:25 +0000
-Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Fri, 10 Dec
- 2021 08:36:24 -0600
-From:   Mario Limonciello <mario.limonciello@amd.com>
-To:     Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        "open list:X86 PLATFORM DRIVERS" 
-        <platform-driver-x86@vger.kernel.org>,
-        "Shyam Sundar S K" <Shyam-sundar.S-k@amd.com>
-CC:     Mario Limonciello <mario.limonciello@amd.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] platform/x86: amd-pmc: only use callbacks for suspend
-Date:   Fri, 10 Dec 2021 08:35:29 -0600
-Message-ID: <20211210143529.10594-1-mario.limonciello@amd.com>
-X-Mailer: git-send-email 2.25.1
+        id S242194AbhLJOjQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 09:39:16 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50148 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241946AbhLJOjQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 09:39:16 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AE14B8281E
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 14:35:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DECC341C6;
+        Fri, 10 Dec 2021 14:35:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639146939;
+        bh=D6ltzY4U2iFKTxY/ibDUIgJMhhWNtUDv4jq/8bW84/k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xLSCyyHnxz+IhBYaO9kToElBjumlgo+NohAT/0Wr4QUMtD4PQEWpqmrgMj+k8+Sq6
+         f4VKOFXV/BCblTC4WqjCkyCTbCKk/eC/9kJSyJ8P7Lg7sFYonpZNATH8SNKsK/Mzus
+         Fs1UGnzlITP4IDnOsxMBiqbGQ6p6g2XsITZN1MwE=
+Date:   Fri, 10 Dec 2021 15:35:36 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     James Zhu <jamesz@amd.com>
+Cc:     James Zhu <James.Zhu@amd.com>, stable@vger.kernel.org,
+        jzhums@gmail.com, alexander.deucher@amd.com,
+        kolAflash@kolahilft.de, Yifan Zhang <yifan1.zhang@amd.com>,
+        youling <youling257@gmail.com>
+Subject: Re: [PATCH 6/6] drm/amdkfd: fix boot failure when iommu is disabled
+ in Picasso.
+Message-ID: <YbNluFUESYFvuWO6@kroah.com>
+References: <20211209220956.3466442-1-James.Zhu@amd.com>
+ <20211209220956.3466442-7-James.Zhu@amd.com>
+ <YbNXFGM4s93myyLu@kroah.com>
+ <74391909-3894-457c-6516-7bc8c28e0d58@amd.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB03.amd.com
- (10.181.40.144)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: eb6a1f4d-bfdb-45df-0330-08d9bbea7214
-X-MS-TrafficTypeDiagnostic: PH0PR12MB5418:EE_
-X-Microsoft-Antispam-PRVS: <PH0PR12MB5418F19B1B0CC35002D04DFBE2719@PH0PR12MB5418.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5797;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: b5YcOe6XyDpI4eu1lC2SNZyi/8janK60LX6YwjcZ6azPpQSohxUfbwn5GTzpSTHjbZhNwMogcwN0g1xS6BFk98eVe8F0GpgK281o9S4V8V2qA9692N3XUelUmRIpX6QkJE0+PELJG8S1gcNbnc9uEmVvqXNCq3gstRoyMmX4tePJfGih8R9artCkFQZFrFbQW9zlzmE4/AK2vqw0wl/3pl3qs5Dslo1b8UKp1mLFSKpK63BOfWpAy1w1zNbnwTvQg4Y6ywjGID/Fx92xC0slzjZPtjVATD7N12LhlZMqHQ+RYAcqXualAXLjw1T5vqrCqzeo8gj0SWIaDw2t7sgSDlzoIN3cyZH5Wr45+5K/oECbruNuWM1Hu1Bm+0rL5W+kCqk6j2K7nqP9hlibIsGIB90VMI9CMzV91tpUkQtbsUPfHCIm4KKepGYbNKy/z3GgHdNQGIQHX+gWxBPCsBHY5/bW6B+D3BAFyO07vPWaaCUw39cfknp+Wdw+Mnk3HjWOnbw7ZHUHnZg3QhxcriRuwalU4Q/Em3XXHS8106yllLSkNZi1tEVFaJkmgYKIZrNhmzeZL4lnyTwyHKd1upXIvbntu0PRAK5WMkJX9oj+jctpCFdxpsebimEFv4P5DINtYMTFoh3PsxB/FeyqFNqj44sl29sbfjw6qJ9Lkl+B8N9L++mxtUPerPBQOwVdxtBLPvrIUiyhUcBL8U6KIIytbVUR7IpJefbYv52SClopyOFgYRFViBj7Ywe+LcpD8pdaPQ94zU/ZX2USuSsXSwIDxL5l9KiN7hmLWVvaKfBjKdQ=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(40470700001)(5660300002)(8676002)(54906003)(356005)(186003)(16526019)(15650500001)(2616005)(7696005)(316002)(426003)(336012)(8936002)(36756003)(81166007)(508600001)(44832011)(26005)(4744005)(4326008)(110136005)(2906002)(82310400004)(40460700001)(70206006)(36860700001)(70586007)(1076003)(6636002)(47076005)(86362001)(83380400001)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Dec 2021 14:36:25.9188
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: eb6a1f4d-bfdb-45df-0330-08d9bbea7214
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT032.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5418
+In-Reply-To: <74391909-3894-457c-6516-7bc8c28e0d58@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This driver is intended to be used exclusively for suspend to idle
-so callbacks to send OS_HINT during hibernate and S5 will set OS_HINT
-at the wrong time leading to an undefined behavior.
+On Fri, Dec 10, 2021 at 09:14:30AM -0500, James Zhu wrote:
+> 
+> On 2021-12-10 8:33 a.m., Greg Kroah-Hartman wrote:
+> > On Thu, Dec 09, 2021 at 05:09:56PM -0500, James Zhu wrote:
+> > > From: Yifan Zhang <yifan1.zhang@amd.com>
+> > > 
+> > > commit afd18180c07026f94a80ff024acef5f4159084a4 upstream.
+> > > 
+> > > When IOMMU disabled in sbios and kfd in iommuv2 path, iommuv2
+> > > init will fail. But this failure should not block amdgpu driver init.
+> > > 
+> > > Reported-by: youling <youling257@gmail.com>
+> > > Tested-by: youling <youling257@gmail.com>
+> > > Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+> > > Reviewed-by: James Zhu <James.Zhu@amd.com>
+> > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Signed-off-by: James Zhu <James.Zhu@amd.com>
+> > > ---
+> > >   drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ----
+> > >   drivers/gpu/drm/amd/amdkfd/kfd_device.c    | 3 +++
+> > >   2 files changed, 3 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+> > > index 488e574f5da1..f262c4e7a48a 100644
+> > > --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+> > > +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+> > > @@ -2255,10 +2255,6 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
+> > >   		amdgpu_xgmi_add_device(adev);
+> > >   	amdgpu_amdkfd_device_init(adev);
+> > > -	r = amdgpu_amdkfd_resume_iommu(adev);
+> > > -	if (r)
+> > > -		goto init_failed;
+> > > -
+> > >   	amdgpu_fru_get_product_info(adev);
+> > >   init_failed:
+> > > diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+> > > index 1204dae85797..b35f0af71f00 100644
+> > > --- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+> > > +++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+> > > @@ -751,6 +751,9 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
+> > >   	kfd_cwsr_init(kfd);
+> > > +	if (kgd2kfd_resume_iommu(kfd))
+> > > +		goto device_iommu_error;
+> > > +
+> > >   	if (kfd_resume(kfd))
+> > >   		goto kfd_resume_error;
+> > > -- 
+> > > 2.25.1
+> > > 
+> > Like I said last time, do not change the backport unless you HAVE to.
+> > You did it here again for no good reason :(
+> 
+> [JZ] Yes, I should add more explanation next time.
+> 
+> Backport conflict fix to remove  svm_migrate_init((struct amdgpu_device
+> *)kfd->kgd);
+> 
+> new AMD svm feature has not been added for 5.10 So it is safe to remove it.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
----
- drivers/platform/x86/amd-pmc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
-index 841c44cd64c2..230593ae5d6d 100644
---- a/drivers/platform/x86/amd-pmc.c
-+++ b/drivers/platform/x86/amd-pmc.c
-@@ -508,7 +508,8 @@ static int __maybe_unused amd_pmc_resume(struct device *dev)
- }
- 
- static const struct dev_pm_ops amd_pmc_pm_ops = {
--	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(amd_pmc_suspend, amd_pmc_resume)
-+	.suspend_noirq = amd_pmc_suspend,
-+	.resume_noirq = amd_pmc_resume,
- };
- 
- static const struct pci_device_id pmc_pci_ids[] = {
--- 
-2.25.1
-
+No, I am talking about the fact that you fixed up a coding style fix in
+this backport that is not in the original commit in Linus's tree.
