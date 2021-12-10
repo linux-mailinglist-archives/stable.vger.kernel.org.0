@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52FFA46FFFE
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:34:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13137470001
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240550AbhLJLhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 06:37:50 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:53520 "EHLO
+        id S240538AbhLJLiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:38:01 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:53576 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240538AbhLJLhu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:37:50 -0500
+        with ESMTP id S240521AbhLJLiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:38:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 86BF0CE2AB9
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12374C341C6;
-        Fri, 10 Dec 2021 11:34:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B4F44CE24EF
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:34:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62207C00446;
+        Fri, 10 Dec 2021 11:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639136052;
-        bh=TVqYtwddUWBurez2XEirgRaxzA3CyMpP8biWNy4IgNA=;
+        s=korg; t=1639136061;
+        bh=EJI7sTqlnAzcucsiIkIPBkvIBjeZ1z7dXDfr3h9OWQY=;
         h=Subject:To:Cc:From:Date:From;
-        b=H0n4Q94csGJdllSxRHw31LUpiqhVOo5LS0yeUlOBd2w3JS3w0l0RRtDvMDRgN3/C0
-         NCzTmUvCu3Muu/tFys1ZPBY5KM8I/OHS7NX23u5eOgdw7DebGr5GCcqTJEcxJt2ybM
-         /LamTrDjeLribvjhPG0twxJ+lifIFPgpD8MJECKg=
-Subject: FAILED: patch "[PATCH] can: m_can: Disable and ignore ELO interrupt" failed to apply to 4.14-stable tree
+        b=vJP08n247DEwR9sfdPMgzz3GF28FHiF+o5TYZuaXD/nGJjRf2gKB1EANWe88Zcwih
+         JALVMQB/W1+PCaYsqQmSD0mJGVwfHAj3VOQevMPFfY8QIDKEI0dDwCxTCOFreyMw55
+         ReR2/LRizKbzaLZ7LTGjyU69eYCtRKtmvEi4WcW4=
+Subject: FAILED: patch "[PATCH] can: m_can: Disable and ignore ELO interrupt" failed to apply to 4.9-stable tree
 To:     brian.silverman@bluerivertech.com, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 12:33:59 +0100
-Message-ID: <1639136039118112@kroah.com>
+Date:   Fri, 10 Dec 2021 12:34:00 +0100
+Message-ID: <1639136040202245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
