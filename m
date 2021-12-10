@@ -2,157 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D7B470617
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:45:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F78747067F
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:57:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237489AbhLJQsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 11:48:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60488 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233117AbhLJQsr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 11:48:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD34C061746
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:45:11 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 10884CE2C16
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:45:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB48DC00446;
-        Fri, 10 Dec 2021 16:45:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639154708;
-        bh=0hZ6hn3eC4I7yLrSJ7wFoull3wzCL6W+IVj2m1WMU14=;
-        h=Subject:To:Cc:From:Date:From;
-        b=UByx+r/XrpzCDNq4ZFEyH/r9EPASi5S1dqLAskMs1rw8gzBeEUL+1luRP/ioZtAZ4
-         eMI3NssGUF7jAFeomHoo7VtuybryDBzcoU/YvcUmM6T8whAFdKpxq9lHMIOkHlRMsw
-         i3rlJRRPfaAcO++jN1Te8taS0ZawqbWwFSLOXyBY=
-Subject: FAILED: patch "[PATCH] net: mvpp2: fix XDP rx queues registering" failed to apply to 5.10-stable tree
-To:     louis.amas@eho.link, brouer@redhat.com, emmanuel.deloget@eho.link,
-        john.fastabend@gmail.com, kuba@kernel.org, mw@semihalf.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 17:45:05 +0100
-Message-ID: <163915470517181@kroah.com>
+        id S232000AbhLJRBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 12:01:01 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48376 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229821AbhLJRBA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 12:01:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639155445;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rzeV8e563ubww0RTTrR8TIH1th19UWmc6oPCR1FYHig=;
+        b=hFBvp31FtXXoLHbqjk+emEPC5SrYXBCVZdW4XPRPlsHC0KEBRht6LZ2JaHhCmsh/Y3D0qC
+        eGjpv9gSmO8oy1kXIJe27kYW6Ap3QsWSGbXXaxVt0el8fNpdtMS8Ym11+Vb4QfY6sBux8H
+        DTwWeq9NLfgyv9560wFsKHuvQxxFwzs=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-300-PcWQMZ1uO3-yxsQdw8_kCg-1; Fri, 10 Dec 2021 11:57:22 -0500
+X-MC-Unique: PcWQMZ1uO3-yxsQdw8_kCg-1
+Received: by mail-wr1-f71.google.com with SMTP id b1-20020a5d6341000000b001901ddd352eso2535299wrw.7
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:57:21 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=rzeV8e563ubww0RTTrR8TIH1th19UWmc6oPCR1FYHig=;
+        b=Qw9hZsCS9WUXZyqy9mb/iMqtmmFh3jsldfgKYLIA0bOpie3GIYu91n4G3VH9Se0Dui
+         evF/bl40+/SYVPP2lDKaIe/69Cggg8JaSeiHUjCH+g+eBj3eDmgxcbfesj2ebjqjMpwC
+         fAnch0NIK1HxdRtJzWKa1ZtZe6x2A3WMaz50z5RP0xQnpEu3wb7O9cX4PdeAWn5FOvf7
+         GRIGKYSOSSHMeRyetuAh/DVSVyo+mS/PYAldO0wxsqgtCnwE/ad8lGfnd5QvHV6teFtY
+         +k4MTpuwhDVI2hYsIwy+1HFQHSPWb5Um6zqmCShJOzABGFLZZ66aZa7yVw5sdHkS610U
+         PUiA==
+X-Gm-Message-State: AOAM530r00pO/NqlKGUTt+xqW7mOg/ND9BeaV+duhZ5AzEasMmzd1eU0
+        lGibvaKz/4MDGqRUHbKnGzQFKKxtXxQVq39S6TvskVLPQDnqi8gpWBRPkImA3kOfGKQZRZu+DP3
+        hc6NeJyv6I9AYU6dF
+X-Received: by 2002:adf:e0d0:: with SMTP id m16mr15214313wri.74.1639155440858;
+        Fri, 10 Dec 2021 08:57:20 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz2gK/oWWEW4wGM6US1FC/izLejsINm4hcPUJh6i717fxzUPBKpCLbtPe0RbzOpYqE/WQdjqw==
+X-Received: by 2002:adf:e0d0:: with SMTP id m16mr15214300wri.74.1639155440700;
+        Fri, 10 Dec 2021 08:57:20 -0800 (PST)
+Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id l5sm12104083wms.16.2021.12.10.08.57.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Dec 2021 08:57:20 -0800 (PST)
+Message-ID: <5070829f-fe15-b7c7-f461-83122c0fa9c6@redhat.com>
+Date:   Fri, 10 Dec 2021 17:57:19 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH] platform/x86: amd-pmc: only use callbacks for suspend
+Content-Language: en-US
+To:     Mario Limonciello <mario.limonciello@amd.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        "open list:X86 PLATFORM DRIVERS" 
+        <platform-driver-x86@vger.kernel.org>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Cc:     stable@vger.kernel.org
+References: <20211210143529.10594-1-mario.limonciello@amd.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <20211210143529.10594-1-mario.limonciello@amd.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Mario,
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 12/10/21 15:35, Mario Limonciello wrote:
+> This driver is intended to be used exclusively for suspend to idle
+> so callbacks to send OS_HINT during hibernate and S5 will set OS_HINT
+> at the wrong time leading to an undefined behavior.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 
-thanks,
+I notice that there are no [Bug]Link tags here ?  It would be helpful
+to have some links to tickets / forum-posts from people who are actually
+hitting issues because of this. Both so that people with similar issues
+can then compare the symptoms as described in the links, as well as for
+me to get an idea of how urgent of a fix this is.
 
-greg k-h
+Regards,
 
------------------- original commit in Linus's tree ------------------
+Hans
 
-From a50e659b2a1be14784e80f8492aab177e67c53a2 Mon Sep 17 00:00:00 2001
-From: Louis Amas <louis.amas@eho.link>
-Date: Tue, 7 Dec 2021 15:34:22 +0100
-Subject: [PATCH] net: mvpp2: fix XDP rx queues registering
 
-The registration of XDP queue information is incorrect because the
-RX queue id we use is invalid. When port->id == 0 it appears to works
-as expected yet it's no longer the case when port->id != 0.
 
-The problem arised while using a recent kernel version on the
-MACCHIATOBin. This board has several ports:
- * eth0 and eth1 are 10Gbps interfaces ; both ports has port->id == 0;
- * eth2 is a 1Gbps interface with port->id != 0.
 
-Code from xdp-tutorial (more specifically advanced03-AF_XDP) was used
-to test packet capture and injection on all these interfaces. The XDP
-kernel was simplified to:
-
-	SEC("xdp_sock")
-	int xdp_sock_prog(struct xdp_md *ctx)
-	{
-		int index = ctx->rx_queue_index;
-
-		/* A set entry here means that the correspnding queue_id
-		* has an active AF_XDP socket bound to it. */
-		if (bpf_map_lookup_elem(&xsks_map, &index))
-			return bpf_redirect_map(&xsks_map, index, 0);
-
-		return XDP_PASS;
-	}
-
-Starting the program using:
-
-	./af_xdp_user -d DEV
-
-Gives the following result:
-
- * eth0 : ok
- * eth1 : ok
- * eth2 : no capture, no injection
-
-Investigating the issue shows that XDP rx queues for eth2 are wrong:
-XDP expects their id to be in the range [0..3] but we found them to be
-in the range [32..35].
-
-Trying to force rx queue ids using:
-
-	./af_xdp_user -d eth2 -Q 32
-
-fails as expected (we shall not have more than 4 queues).
-
-When we register the XDP rx queue information (using
-xdp_rxq_info_reg() in function mvpp2_rxq_init()) we tell it to use
-rxq->id as the queue id. This value is computed as:
-
-	rxq->id = port->id * max_rxq_count + queue_id
-
-where max_rxq_count depends on the device version. In the MACCHIATOBin
-case, this value is 32, meaning that rx queues on eth2 are numbered
-from 32 to 35 - there are four of them.
-
-Clearly, this is not the per-port queue id that XDP is expecting:
-it wants a value in the range [0..3]. It shall directly use queue_id
-which is stored in rxq->logic_rxq -- so let's use that value instead.
-
-rxq->id is left untouched ; its value is indeed valid but it should
-not be used in this context.
-
-This is consistent with the remaining part of the code in
-mvpp2_rxq_init().
-
-With this change, packet capture is working as expected on all the
-MACCHIATOBin ports.
-
-Fixes: b27db2274ba8 ("mvpp2: use page_pool allocator")
-Signed-off-by: Louis Amas <louis.amas@eho.link>
-Signed-off-by: Emmanuel Deloget <emmanuel.deloget@eho.link>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Link: https://lore.kernel.org/r/20211207143423.916334-1-louis.amas@eho.link
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index 6480696c979b..6da8a595026b 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -2960,11 +2960,11 @@ static int mvpp2_rxq_init(struct mvpp2_port *port,
- 	mvpp2_rxq_status_update(port, rxq->id, 0, rxq->size);
- 
- 	if (priv->percpu_pools) {
--		err = xdp_rxq_info_reg(&rxq->xdp_rxq_short, port->dev, rxq->id, 0);
-+		err = xdp_rxq_info_reg(&rxq->xdp_rxq_short, port->dev, rxq->logic_rxq, 0);
- 		if (err < 0)
- 			goto err_free_dma;
- 
--		err = xdp_rxq_info_reg(&rxq->xdp_rxq_long, port->dev, rxq->id, 0);
-+		err = xdp_rxq_info_reg(&rxq->xdp_rxq_long, port->dev, rxq->logic_rxq, 0);
- 		if (err < 0)
- 			goto err_unregister_rxq_short;
- 
+> ---
+>  drivers/platform/x86/amd-pmc.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
+> index 841c44cd64c2..230593ae5d6d 100644
+> --- a/drivers/platform/x86/amd-pmc.c
+> +++ b/drivers/platform/x86/amd-pmc.c
+> @@ -508,7 +508,8 @@ static int __maybe_unused amd_pmc_resume(struct device *dev)
+>  }
+>  
+>  static const struct dev_pm_ops amd_pmc_pm_ops = {
+> -	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(amd_pmc_suspend, amd_pmc_resume)
+> +	.suspend_noirq = amd_pmc_suspend,
+> +	.resume_noirq = amd_pmc_resume,
+>  };
+>  
+>  static const struct pci_device_id pmc_pci_ids[] = {
+> 
 
