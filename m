@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD294705EF
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:38:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8A24705F0
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:39:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243798AbhLJQm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 11:42:26 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:53254 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243803AbhLJQmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 11:42:25 -0500
+        id S239270AbhLJQml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 11:42:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58972 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243786AbhLJQmk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 11:42:40 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB83C0617A1
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:39:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 87B71CE2C1A
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:38:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34827C341C5;
-        Fri, 10 Dec 2021 16:38:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E7F97CE2BE2
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5976C00446;
+        Fri, 10 Dec 2021 16:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639154327;
-        bh=0VggOPjtCPeQ3bhukOWxbTtp20OEk93xN/jiWlC99Pk=;
+        s=korg; t=1639154341;
+        bh=UaUnGmKupG6wP+qECdXpguda/GbrrVyFcBPe/LbQLmk=;
         h=Subject:To:Cc:From:Date:From;
-        b=H8O6DDxjYD4dZKZy7aJbO1NP8bAbvOgAuMkA8gKqv2afCQeLNBwIQqRqrUqrhdHuW
-         7ZxkraNvIm9Z9W9MT9VrI/Grahsw17O5+9Hfskeq06YrrSLspn3UwKFcS5whVfMPFq
-         PxgSksUMryLl0NvNZ55nkE3XJucKcN6XWIW8uw7k=
-Subject: FAILED: patch "[PATCH] netfilter: nft_exthdr: break evaluation if setting TCP option" failed to apply to 5.10-stable tree
-To:     pablo@netfilter.org
+        b=EaYfQzQO5b3XqXp80ujMvCvWIvOnXDzGTGVqU+YMG5XnHhvM4OjJf5vg9jpxIIgOy
+         79R4NHjc60EK4+Qe43NW9rf+s3OmBjhgSKP5OXimLcPrZs5sv/j4DfPCI7QlZzc0Dy
+         shEnnb6lb3VfRnUc2o/kgia1Yd8DYgUmEMyaYPm4=
+Subject: FAILED: patch "[PATCH] netfilter: conntrack: annotate data-races around ct->timeout" failed to apply to 5.4-stable tree
+To:     edumazet@google.com, pablo@netfilter.org,
+        syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 17:38:32 +0100
-Message-ID: <1639154312212246@kroah.com>
+Date:   Fri, 10 Dec 2021 17:38:58 +0100
+Message-ID: <163915433881184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,58 +54,188 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 962e5a40358787105f126ab1dc01604da3d169e9 Mon Sep 17 00:00:00 2001
-From: Pablo Neira Ayuso <pablo@netfilter.org>
-Date: Tue, 30 Nov 2021 11:34:04 +0100
-Subject: [PATCH] netfilter: nft_exthdr: break evaluation if setting TCP option
- fails
+From 802a7dc5cf1bef06f7b290ce76d478138408d6b1 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Tue, 7 Dec 2021 10:03:23 -0800
+Subject: [PATCH] netfilter: conntrack: annotate data-races around ct->timeout
 
-Break rule evaluation on malformed TCP options.
+(struct nf_conn)->timeout can be read/written locklessly,
+add READ_ONCE()/WRITE_ONCE() to prevent load/store tearing.
 
-Fixes: 99d1712bc41c ("netfilter: exthdr: tcp option set support")
+BUG: KCSAN: data-race in __nf_conntrack_alloc / __nf_conntrack_find_get
+
+write to 0xffff888132e78c08 of 4 bytes by task 6029 on cpu 0:
+ __nf_conntrack_alloc+0x158/0x280 net/netfilter/nf_conntrack_core.c:1563
+ init_conntrack+0x1da/0xb30 net/netfilter/nf_conntrack_core.c:1635
+ resolve_normal_ct+0x502/0x610 net/netfilter/nf_conntrack_core.c:1746
+ nf_conntrack_in+0x1c5/0x88f net/netfilter/nf_conntrack_core.c:1901
+ ipv6_conntrack_local+0x19/0x20 net/netfilter/nf_conntrack_proto.c:414
+ nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+ nf_hook_slow+0x72/0x170 net/netfilter/core.c:619
+ nf_hook include/linux/netfilter.h:262 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ip6_xmit+0xa3a/0xa60 net/ipv6/ip6_output.c:324
+ inet6_csk_xmit+0x1a2/0x1e0 net/ipv6/inet6_connection_sock.c:135
+ __tcp_transmit_skb+0x132a/0x1840 net/ipv4/tcp_output.c:1402
+ tcp_transmit_skb net/ipv4/tcp_output.c:1420 [inline]
+ tcp_write_xmit+0x1450/0x4460 net/ipv4/tcp_output.c:2680
+ __tcp_push_pending_frames+0x68/0x1c0 net/ipv4/tcp_output.c:2864
+ tcp_push_pending_frames include/net/tcp.h:1897 [inline]
+ tcp_data_snd_check+0x62/0x2e0 net/ipv4/tcp_input.c:5452
+ tcp_rcv_established+0x880/0x10e0 net/ipv4/tcp_input.c:5947
+ tcp_v6_do_rcv+0x36e/0xa50 net/ipv6/tcp_ipv6.c:1521
+ sk_backlog_rcv include/net/sock.h:1030 [inline]
+ __release_sock+0xf2/0x270 net/core/sock.c:2768
+ release_sock+0x40/0x110 net/core/sock.c:3300
+ sk_stream_wait_memory+0x435/0x700 net/core/stream.c:145
+ tcp_sendmsg_locked+0xb85/0x25a0 net/ipv4/tcp.c:1402
+ tcp_sendmsg+0x2c/0x40 net/ipv4/tcp.c:1440
+ inet6_sendmsg+0x5f/0x80 net/ipv6/af_inet6.c:644
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ __sys_sendto+0x21e/0x2c0 net/socket.c:2036
+ __do_sys_sendto net/socket.c:2048 [inline]
+ __se_sys_sendto net/socket.c:2044 [inline]
+ __x64_sys_sendto+0x74/0x90 net/socket.c:2044
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff888132e78c08 of 4 bytes by task 17446 on cpu 1:
+ nf_ct_is_expired include/net/netfilter/nf_conntrack.h:286 [inline]
+ ____nf_conntrack_find net/netfilter/nf_conntrack_core.c:776 [inline]
+ __nf_conntrack_find_get+0x1c7/0xac0 net/netfilter/nf_conntrack_core.c:807
+ resolve_normal_ct+0x273/0x610 net/netfilter/nf_conntrack_core.c:1734
+ nf_conntrack_in+0x1c5/0x88f net/netfilter/nf_conntrack_core.c:1901
+ ipv6_conntrack_local+0x19/0x20 net/netfilter/nf_conntrack_proto.c:414
+ nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+ nf_hook_slow+0x72/0x170 net/netfilter/core.c:619
+ nf_hook include/linux/netfilter.h:262 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ip6_xmit+0xa3a/0xa60 net/ipv6/ip6_output.c:324
+ inet6_csk_xmit+0x1a2/0x1e0 net/ipv6/inet6_connection_sock.c:135
+ __tcp_transmit_skb+0x132a/0x1840 net/ipv4/tcp_output.c:1402
+ __tcp_send_ack+0x1fd/0x300 net/ipv4/tcp_output.c:3956
+ tcp_send_ack+0x23/0x30 net/ipv4/tcp_output.c:3962
+ __tcp_ack_snd_check+0x2d8/0x510 net/ipv4/tcp_input.c:5478
+ tcp_ack_snd_check net/ipv4/tcp_input.c:5523 [inline]
+ tcp_rcv_established+0x8c2/0x10e0 net/ipv4/tcp_input.c:5948
+ tcp_v6_do_rcv+0x36e/0xa50 net/ipv6/tcp_ipv6.c:1521
+ sk_backlog_rcv include/net/sock.h:1030 [inline]
+ __release_sock+0xf2/0x270 net/core/sock.c:2768
+ release_sock+0x40/0x110 net/core/sock.c:3300
+ tcp_sendpage+0x94/0xb0 net/ipv4/tcp.c:1114
+ inet_sendpage+0x7f/0xc0 net/ipv4/af_inet.c:833
+ rds_tcp_xmit+0x376/0x5f0 net/rds/tcp_send.c:118
+ rds_send_xmit+0xbed/0x1500 net/rds/send.c:367
+ rds_send_worker+0x43/0x200 net/rds/threads.c:200
+ process_one_work+0x3fc/0x980 kernel/workqueue.c:2298
+ worker_thread+0x616/0xa70 kernel/workqueue.c:2445
+ kthread+0x2c7/0x2e0 kernel/kthread.c:327
+ ret_from_fork+0x1f/0x30
+
+value changed: 0x00027cc2 -> 0x00000000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 17446 Comm: kworker/u4:5 Tainted: G        W         5.16.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: krdsd rds_send_worker
+
+Note: I chose an arbitrary commit for the Fixes: tag,
+because I do not think we need to backport this fix to very old kernels.
+
+Fixes: e37542ba111f ("netfilter: conntrack: avoid possible false sharing")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 
-diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
-index af4ee874a067..dbe1f2e7dd9e 100644
---- a/net/netfilter/nft_exthdr.c
-+++ b/net/netfilter/nft_exthdr.c
-@@ -236,7 +236,7 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
+index cc663c68ddc4..d24b0a34c8f0 100644
+--- a/include/net/netfilter/nf_conntrack.h
++++ b/include/net/netfilter/nf_conntrack.h
+@@ -276,14 +276,14 @@ static inline bool nf_is_loopback_packet(const struct sk_buff *skb)
+ /* jiffies until ct expires, 0 if already expired */
+ static inline unsigned long nf_ct_expires(const struct nf_conn *ct)
+ {
+-	s32 timeout = ct->timeout - nfct_time_stamp;
++	s32 timeout = READ_ONCE(ct->timeout) - nfct_time_stamp;
  
- 	tcph = nft_tcp_header_pointer(pkt, sizeof(buff), buff, &tcphdr_len);
- 	if (!tcph)
--		return;
-+		goto err;
- 
- 	opt = (u8 *)tcph;
- 	for (i = sizeof(*tcph); i < tcphdr_len - 1; i += optl) {
-@@ -251,16 +251,16 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
- 			continue;
- 
- 		if (i + optl > tcphdr_len || priv->len + priv->offset > optl)
--			return;
-+			goto err;
- 
- 		if (skb_ensure_writable(pkt->skb,
- 					nft_thoff(pkt) + i + priv->len))
--			return;
-+			goto err;
- 
- 		tcph = nft_tcp_header_pointer(pkt, sizeof(buff), buff,
- 					      &tcphdr_len);
- 		if (!tcph)
--			return;
-+			goto err;
- 
- 		offset = i + priv->offset;
- 
-@@ -303,6 +303,9 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
- 
- 		return;
- 	}
-+	return;
-+err:
-+	regs->verdict.code = NFT_BREAK;
+ 	return timeout > 0 ? timeout : 0;
  }
  
- static void nft_exthdr_sctp_eval(const struct nft_expr *expr,
+ static inline bool nf_ct_is_expired(const struct nf_conn *ct)
+ {
+-	return (__s32)(ct->timeout - nfct_time_stamp) <= 0;
++	return (__s32)(READ_ONCE(ct->timeout) - nfct_time_stamp) <= 0;
+ }
+ 
+ /* use after obtaining a reference count */
+@@ -302,7 +302,7 @@ static inline bool nf_ct_should_gc(const struct nf_conn *ct)
+ static inline void nf_ct_offload_timeout(struct nf_conn *ct)
+ {
+ 	if (nf_ct_expires(ct) < NF_CT_DAY / 2)
+-		ct->timeout = nfct_time_stamp + NF_CT_DAY;
++		WRITE_ONCE(ct->timeout, nfct_time_stamp + NF_CT_DAY);
+ }
+ 
+ struct kernel_param;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 770a63103c7a..4712a90a1820 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -684,7 +684,7 @@ bool nf_ct_delete(struct nf_conn *ct, u32 portid, int report)
+ 
+ 	tstamp = nf_conn_tstamp_find(ct);
+ 	if (tstamp) {
+-		s32 timeout = ct->timeout - nfct_time_stamp;
++		s32 timeout = READ_ONCE(ct->timeout) - nfct_time_stamp;
+ 
+ 		tstamp->stop = ktime_get_real_ns();
+ 		if (timeout < 0)
+@@ -1036,7 +1036,7 @@ static int nf_ct_resolve_clash_harder(struct sk_buff *skb, u32 repl_idx)
+ 	}
+ 
+ 	/* We want the clashing entry to go away real soon: 1 second timeout. */
+-	loser_ct->timeout = nfct_time_stamp + HZ;
++	WRITE_ONCE(loser_ct->timeout, nfct_time_stamp + HZ);
+ 
+ 	/* IPS_NAT_CLASH removes the entry automatically on the first
+ 	 * reply.  Also prevents UDP tracker from moving the entry to
+@@ -1560,7 +1560,7 @@ __nf_conntrack_alloc(struct net *net,
+ 	/* save hash for reusing when confirming */
+ 	*(unsigned long *)(&ct->tuplehash[IP_CT_DIR_REPLY].hnnode.pprev) = hash;
+ 	ct->status = 0;
+-	ct->timeout = 0;
++	WRITE_ONCE(ct->timeout, 0);
+ 	write_pnet(&ct->ct_net, net);
+ 	memset(&ct->__nfct_init_offset, 0,
+ 	       offsetof(struct nf_conn, proto) -
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index c7708bde057c..81d03acf68d4 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -1998,7 +1998,7 @@ static int ctnetlink_change_timeout(struct nf_conn *ct,
+ 
+ 	if (timeout > INT_MAX)
+ 		timeout = INT_MAX;
+-	ct->timeout = nfct_time_stamp + (u32)timeout;
++	WRITE_ONCE(ct->timeout, nfct_time_stamp + (u32)timeout);
+ 
+ 	if (test_bit(IPS_DYING_BIT, &ct->status))
+ 		return -ETIME;
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index 87a7388b6c89..ed37bb9b4e58 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -201,8 +201,8 @@ static void flow_offload_fixup_ct_timeout(struct nf_conn *ct)
+ 	if (timeout < 0)
+ 		timeout = 0;
+ 
+-	if (nf_flow_timeout_delta(ct->timeout) > (__s32)timeout)
+-		ct->timeout = nfct_time_stamp + timeout;
++	if (nf_flow_timeout_delta(READ_ONCE(ct->timeout)) > (__s32)timeout)
++		WRITE_ONCE(ct->timeout, nfct_time_stamp + timeout);
+ }
+ 
+ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
 
