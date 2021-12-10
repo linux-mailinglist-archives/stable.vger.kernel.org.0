@@ -2,87 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4165470B47
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 21:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B6E470B95
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 21:11:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343934AbhLJUFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 15:05:49 -0500
-Received: from mx-out.tlen.pl ([193.222.135.142]:37882 "EHLO mx-out.tlen.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343930AbhLJUFt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Dec 2021 15:05:49 -0500
-Received: (wp-smtpd smtp.tlen.pl 24446 invoked from network); 10 Dec 2021 21:02:10 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1639166531; bh=EQeAIwfyIUsx74+P6GrdREQBXO4gNs48bm/LqveNVbY=;
-          h=From:To:Cc:Subject;
-          b=gdDtgUGBjU20fselx3iBdhzVlnyKxDeTQNCQ/ZV/iv4/qSS6rf2hK3B10VYSvNMSi
-           DgqajP4D0ZPOyJrPjDzcjbZO3pGPt1FTro+IROVoYoSPASLqDpf4LWWPJS3JbtYI05
-           MYmuFkpt9L9x2KBn3OiV0nPFYS+Ai1Dp2eaiXVo4=
-Received: from aaff136.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.135.136])
-          (envelope-sender <mat.jonczyk@o2.pl>)
-          by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-rtc@vger.kernel.org>; 10 Dec 2021 21:02:10 +0100
-From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-To:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v4 1/9] rtc-cmos: take rtc_lock while reading from CMOS
-Date:   Fri, 10 Dec 2021 21:01:23 +0100
-Message-Id: <20211210200131.153887-2-mat.jonczyk@o2.pl>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211210200131.153887-1-mat.jonczyk@o2.pl>
-References: <20211210200131.153887-1-mat.jonczyk@o2.pl>
+        id S1344100AbhLJUOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 15:14:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53716 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344092AbhLJUOu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 15:14:50 -0500
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55780C061746
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 12:11:15 -0800 (PST)
+Received: by mail-oi1-x22c.google.com with SMTP id r26so14715249oiw.5
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 12:11:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :mime-version;
+        bh=KOuxIJMKNYTeFBZJypgba4fX+/Q0qIYXKhuuL8rsgx0=;
+        b=jVoZIrcMIhcs34MqmEu4ybtJ5mLwAIvoFS0tyZsRHN4vdJAK/w845YZOVWqDs0cTJ9
+         zyZqSqx4fdy9fgwK5vH4S+kbFps3bK2u+/N34wWhw5m9GiKK5/JsNEvB5noC2KjZCY3F
+         Xqb+ha3f/RuGPuLBdlIDA3m2rXEfI0QOkqwmn4Iil6ZoshZlDPnAMQhpGISk2HbeumEX
+         Unit1NJWJd3ryBpOJKu5EMDpLo/4/Cjl3i6TCaOHcWmh0GamQpWIXnzjtmbU89W+c+nt
+         0x68acITGXIkgSXRJkuzZUwV6BTrVCDCYMNJTDKK/9bWdlX+i20vygzsV62Qz14DvYYN
+         Y6ng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:mime-version;
+        bh=KOuxIJMKNYTeFBZJypgba4fX+/Q0qIYXKhuuL8rsgx0=;
+        b=LP4cXfscDiQdvRZV1yyMPf7eCtfxpdTuFwsbU4Q97fvLuVwJR+83DzD7eP7cqZuEUl
+         CcUMRXR0aikxqV3LJP20eIpPitxiiN1EipRyElsuewTuogfgv3FtPLe2fvwDUlaULX0A
+         yav3jkIDytFStv4YyI1lH8++y4ijDB99K/ReyL6ZJYrb9OCVCtuo58F+vyaF1M4kXG6a
+         Id9CLClmX0TLLjetoHeUaIAP/cenQQ3Qq+QTUFtt01Nma7vz4y2QSGwTAWEvj9yi8WZu
+         5R7WI0BO6nKEz0DpijO9VgilX1qVDwMseykZ5APZr4EadjsGtduvHmEm6p465r1lc95m
+         g8hg==
+X-Gm-Message-State: AOAM532fCiPkrGv75Nc+TZAV/vn4PGtwCKvBJc7Jv5bm49Iw+kqLVytZ
+        HHcMoiRJjr/CyfFCWNJigh2VZw==
+X-Google-Smtp-Source: ABdhPJyii/gnYmnJibARTLGKVefuQ1oitr4zcIVcaAzq7IipapeLfzuP8rfZ9812r9rqo2jWSqft+g==
+X-Received: by 2002:a54:480b:: with SMTP id j11mr14297800oij.102.1639167074440;
+        Fri, 10 Dec 2021 12:11:14 -0800 (PST)
+Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id f20sm991153oiw.48.2021.12.10.12.11.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Dec 2021 12:11:14 -0800 (PST)
+Date:   Fri, 10 Dec 2021 12:11:02 -0800 (PST)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.anvils
+To:     Borislav Petkov <bp@alien8.de>
+cc:     Mike Rapoport <rppt@kernel.org>, Juergen Gross <jgross@suse.com>,
+        John Dorminy <jdorminy@redhat.com>, tip-bot2@linutronix.de,
+        anjaneya.chagam@intel.com, dan.j.williams@intel.com,
+        linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+        stable@vger.kernel.org, x86@kernel.org,
+        Hugh Dickins <hughd@google.com>,
+        "Patrick J. Volkerding" <volkerdi@gmail.com>
+Subject: Re: [tip: x86/urgent] x86/boot: Pull up cmdline preparation and
+ early param parsing
+In-Reply-To: <YbM5yR+Hy+kwmMFU@zn.tnic>
+Message-ID: <297f4912-907-bb45-75df-a030b0d88a8e@google.com>
+References: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2> <20211209143810.452527-1-jdorminy@redhat.com> <YbIeYIM6JEBgO3tG@zn.tnic> <50f25412-d616-1cc6-f07f-a29d80b4bd3b@suse.com> <YbIgsO/7oQW9h6wv@zn.tnic> <YbIu55LZKoK3IVaF@kernel.org>
+ <YbIw1nUYJ3KlkjJQ@zn.tnic> <YbM5yR+Hy+kwmMFU@zn.tnic>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-WP-MailID: 588d400c426e2151a42bdb5fd8eff5c6
-X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0100001 [QXIz]                               
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reading from the CMOS involves writing to the index register and then
-reading from the data register. Therefore access to the CMOS has to be
-serialized with rtc_lock. This invocation of CMOS_READ was not
-serialized, which could cause trouble when other code is accessing CMOS
-at the same time.
+On Fri, 10 Dec 2021, Borislav Petkov wrote:
+> On Thu, Dec 09, 2021 at 05:37:42PM +0100, Borislav Petkov wrote:
+> > Whatever we do, it needs to be tested by all folks on Cc who already
+> > reported regressions, i.e., Anjaneya, Hugh, John and Patrick.
+> 
+> Ok, Mike is busy so here are some patches for testing:
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/bp/bp.git/log/?h=rc4-boot
+> 
+> I'd appreciate it if folks who reported an issue, verify those.
+> 
+> The first two are reverts which should address the issues with mem=
+> folks have reported. And the last one should address Anjaneya's issue.
+> 
+> I guess doing it the way as Mike suggested is cleaner/better.
 
-Use spin_lock_irq() like the rest of the function.
+Yes, mem= works fine for me, on both machines, 64-bit and 32-bit,
+thanks; but I'm not exercising the troublesome EFI case at all.
 
-Nothing in kernel modifies the RTC_DM_BINARY bit, so there could be a
-separate pair of spin_lock_irq() / spin_unlock_irq() before doing the
-math.
-
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: stable@vger.kernel.org
-
----
-
- drivers/rtc/rtc-cmos.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 4eb53412b808..dc3f8b0dde98 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -457,7 +457,10 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	min = t->time.tm_min;
- 	sec = t->time.tm_sec;
- 
-+	spin_lock_irq(&rtc_lock);
- 	rtc_control = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irq(&rtc_lock);
-+
- 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 		/* Writing 0xff means "don't care" or "match all".  */
- 		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
--- 
-2.25.1
-
+Hugh
