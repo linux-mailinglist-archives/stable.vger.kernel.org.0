@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 692AE46FFE6
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E04D46FFE7
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 12:31:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235065AbhLJLfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 06:35:04 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:52572 "EHLO
+        id S237335AbhLJLfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 06:35:07 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:52598 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234921AbhLJLfE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:35:04 -0500
+        with ESMTP id S234921AbhLJLfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 06:35:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3144BCE2AB7
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:31:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1963C00446;
-        Fri, 10 Dec 2021 11:31:25 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1BB6CCE2ABA
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 11:31:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE973C341C6;
+        Fri, 10 Dec 2021 11:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639135886;
-        bh=LjDrvM8y7fAY5iEo/bL6Ji0GKpE7BizzjbgNJ23Dw18=;
+        s=korg; t=1639135889;
+        bh=0yLyALgsi4drLg6yoPA37T9GAOLMK8yPKvAjNtDiLQA=;
         h=Subject:To:Cc:From:Date:From;
-        b=tE/NgiPQsa6Yca2FAglxZeeZ2EclV4TH1B9JOhd4aonh7brsOPqQqadSWyuoeqeM6
-         JD1Ps3+Kcp09v/gAw/S+hR9ydXVnrnI+x9US9qKPUg3AG7Ew7GfqOKilI/NaZ2ZhbO
-         ZNJbbwPtIYdVrZSsOiF/Ct1b/mWtD75hXjcbSs0g=
-Subject: FAILED: patch "[PATCH] can: kvaser_usb: get CAN clock frequency from device" failed to apply to 4.9-stable tree
+        b=cLRSJfqkgQcwsV0LUB2VjhaaCm3OXlJBwLA96+syrKVyFC/chO13dR+Rm2S1KqBay
+         8SpFM2e64HVey4Gg7HeGGwhr9E2xr1mCKwxr/DF2cnI7XzRmrNL43/bxkuNpM1w3oh
+         E5l2I+kZNZNF5v/l3P1+IV1RLVlPQKlASOLZhU7g=
+Subject: FAILED: patch "[PATCH] can: kvaser_usb: get CAN clock frequency from device" failed to apply to 4.4-stable tree
 To:     extja@kvaser.com, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Dec 2021 12:31:15 +0100
-Message-ID: <1639135875102219@kroah.com>
+Date:   Fri, 10 Dec 2021 12:31:16 +0100
+Message-ID: <163913587663117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
