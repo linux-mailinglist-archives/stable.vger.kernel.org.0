@@ -2,133 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C9F470685
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A68CC470696
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 18:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240768AbhLJRBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 12:01:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240761AbhLJRBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 12:01:35 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7090C061746
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:58:00 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id 132so717170pgd.1
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:58:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ahEVsvBaXSchz/e0dxiaE9IkmmOY1rMniDSmoh2qruw=;
-        b=oq99mRUjS3/Ck0vwSPNBmfMMjxmt6BztX3c2ePiMJjglzbOCnthCcKr8d4lPKjcmxC
-         IH7DElVZ/+RsavWh6yjyIDLYHzsuVFS6lCj78uMMffOr33PUPDrwJwR87P9ag1E1Xt9r
-         DjI5nIJNzPhrUzBMYxiPrYe0cOMqnYrsqSlax/z0s90aakacUc/KyVJ2krOfrKDQpOqr
-         6jicN/ToFXhOPSYxVmidZHJQ1UBqY4SxBPALbtaHfyrsYQ25htLV8TAR7wls3d6sqqtG
-         +iKMKPuc/SdRXT/cu2DjY67qdOBVRrQbLb8k8OkTW4xHD2+T3A5p8DqqHMk5JDZMPyse
-         bALw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ahEVsvBaXSchz/e0dxiaE9IkmmOY1rMniDSmoh2qruw=;
-        b=zDyTB4EbIYBytHXPhDzBTQm8uinGJQIxnMHPft7TxAWarv9FGCZg8aOSf/2CWcGtTe
-         GgWNra7pvSvZZGZfk4168L8sYbWIfWavM/sMGUFIxLFZLj8Q45873O+J8KQPHVIJuZiW
-         KlOtBJX4BRrYvCbDsAXvRS7id50ASlSgTco20AdujdBUgaLUySfiVa57+0HIjc9brv3x
-         zG+Mk1QOiuYUQJ+JH8yNkR8JB1km3y0Z2gjTdKoIhmf6OdcttAXXQdE7xo7ihyEn6JJi
-         vakyUhZkQt8eQS63pdSJ96CDql2O1ixcT6o8x/Zx4hNbOObPBr/ygJuYjy576x09X92e
-         mXzA==
-X-Gm-Message-State: AOAM530yvqB1cLhU3Pv/S6EB4QHwGPxquDri8//p5QdRO+ftsKuiq3zS
-        x01Nn5cMzmOjHs6IAZhhG4ACmdpLUtY2AZVV
-X-Google-Smtp-Source: ABdhPJzDoWQ6wqjwirV8qipldHDCY8aU8bR+cNh8i9CV2jqe+Yoqf+O9sA3qDxIEHaQ87g9NfXZ6TA==
-X-Received: by 2002:a63:d854:: with SMTP id k20mr39581995pgj.574.1639155480136;
-        Fri, 10 Dec 2021 08:58:00 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id mv22sm3243675pjb.36.2021.12.10.08.57.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Dec 2021 08:57:59 -0800 (PST)
-Message-ID: <61b38717.1c69fb81.77657.957e@mx.google.com>
-Date:   Fri, 10 Dec 2021 08:57:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.257
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 148 runs, 1 regressions (v4.14.257)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S239265AbhLJREf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 12:04:35 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:35638 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235987AbhLJREf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 12:04:35 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 05BB9CE1C90;
+        Fri, 10 Dec 2021 17:00:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC6FC00446;
+        Fri, 10 Dec 2021 17:00:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1639155657;
+        bh=KZSrHzXkKKoL2Rj6PO7tyfGoORTnaAP5mVVjoj0LXXM=;
+        h=Date:From:To:Subject:From;
+        b=wXi581f+SoCkg1oXBgmTshYt3bvRw65eoOJ6cV/hG3Q+eaW6RJIzBSaRBYfVkbcvG
+         kTToe7AW706JprSL1UylMrcqblHy9hMHi2APCbngPNAbzWr/ise4uYXV0VmenXqKmC
+         o5mo68nJGKHbRIQXSwnAkkn3w9C305MMrExJfFR4=
+Date:   Fri, 10 Dec 2021 09:00:56 -0800
+From:   akpm@linux-foundation.org
+To:     luofei@unicloud.com, mm-commits@vger.kernel.org,
+        naoya.horiguchi@nec.com, stable@vger.kernel.org
+Subject:  +
+ mm-hwpoison-fix-condition-in-free-hugetlb-page-path.patch added to -mm tree
+Message-ID: <20211210170056.AD9wqxVAz%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 148 runs, 1 regressions (v4.14.257)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm, hwpoison: fix condition in free hugetlb page path
+has been added to the -mm tree.  Its filename is
+     mm-hwpoison-fix-condition-in-free-hugetlb-page-path.patch
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hwpoison-fix-condition-in-free-hugetlb-page-path.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hwpoison-fix-condition-in-free-hugetlb-page-path.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Subject: mm, hwpoison: fix condition in free hugetlb page path
+
+When a memory error hits a tail page of a free hugepage,
+__page_handle_poison() is expected to be called to isolate the error in
+4kB unit, but it's not called due to the outdated if-condition in
+memory_failure_hugetlb().  This loses the chance to isolate the error in
+the finer unit, so it's not optimal.  Drop the condition.
+
+This "(p != head && TestSetPageHWPoison(head)" condition is based on the
+old semantics of PageHWPoison on hugepage (where PG_hwpoison flag was set
+on the subpage), so it's not necessray any more.  By getting to set
+PG_hwpoison on head page for hugepages, concurrent error events on
+different subpages in a single hugepage can be prevented by
+TestSetPageHWPoison(head) at the beginning of memory_failure_hugetlb(). 
+So dropping the condition should not reopen the race window originally
+mentioned in commit b985194c8c0a ("hwpoison, hugetlb:
+lock_page/unlock_page does not match for handling a free hugepage")
+
+Link: https://lkml.kernel.org/r/20211210110208.879740-1-naoya.horiguchi@linux.dev
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Fei Luo <luofei@unicloud.com>
+Cc: <stable@vger.kernel.org>	[5.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
 
+ mm/memory-failure.c |   21 +++++++--------------
+ 1 file changed, 7 insertions(+), 14 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.257/plan/baseline/
+--- a/mm/memory-failure.c~mm-hwpoison-fix-condition-in-free-hugetlb-page-path
++++ a/mm/memory-failure.c
+@@ -1470,24 +1470,17 @@ static int memory_failure_hugetlb(unsign
+ 	if (!(flags & MF_COUNT_INCREASED)) {
+ 		res = get_hwpoison_page(p, flags);
+ 		if (!res) {
+-			/*
+-			 * Check "filter hit" and "race with other subpage."
+-			 */
+ 			lock_page(head);
+-			if (PageHWPoison(head)) {
+-				if ((hwpoison_filter(p) && TestClearPageHWPoison(p))
+-				    || (p != head && TestSetPageHWPoison(head))) {
++			if (hwpoison_filter(p)) {
++				if (TestClearPageHWPoison(head))
+ 					num_poisoned_pages_dec();
+-					unlock_page(head);
+-					return 0;
+-				}
++				unlock_page(head);
++				return 0;
+ 			}
+ 			unlock_page(head);
+-			res = MF_FAILED;
+-			if (__page_handle_poison(p)) {
+-				page_ref_inc(p);
+-				res = MF_RECOVERED;
+-			}
++			res = MF_RECOVERED;
++			if (!page_handle_poison(p, true, false))
++				res = MF_FAILED;
+ 			action_result(pfn, MF_MSG_FREE_HUGE, res);
+ 			return res == MF_RECOVERED ? 0 : -EBUSY;
+ 		} else if (res < 0) {
+_
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.257
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c01d4d1b885d96a7c8c27d629abeb918ca897dbe =
+Patches currently in -mm which might be from naoya.horiguchi@nec.com are
 
+mm-hwpoison-fix-condition-in-free-hugetlb-page-path.patch
+mm-hwpoison-mf_mutex-for-soft-offline-and-unpoison.patch
+mm-hwpoison-remove-mf_msg_buddy_2nd-and-mf_msg_poisoned_huge.patch
+mm-hwpoison-fix-unpoison_memory.patch
 
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b34c948af3ef318a397135
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-57/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-57/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b34c948af3ef3=
-18a397138
-        failing since 14 days (last pass: v4.14.255-251-gf86517f95e30b, fir=
-st fail: v4.14.255-249-g84f842ef3cc1)
-        2 lines
-
-    2021-12-10T12:47:59.249493  [   20.105041] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-10T12:47:59.295256  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/95
-    2021-12-10T12:47:59.305262  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
