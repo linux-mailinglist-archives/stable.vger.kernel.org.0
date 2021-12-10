@@ -2,126 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DCB646FD6F
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 10:11:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64AD646FDBE
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 10:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239068AbhLJJOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 04:14:50 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:56928 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239067AbhLJJOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 04:14:50 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id C17DE1F3A1;
-        Fri, 10 Dec 2021 09:11:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1639127474; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=KhJyN+cMcqoKCqoaSIJSpiwZgOaAxCPlonD3mfPqH4E=;
-        b=G5eOBon2Po90+B17tlWP3jsU/MZv770GOWoBh0E/ucBzVtxvdhitpVzJyc1fx10IB9vWvJ
-        uzyLK5OJmu3lOgeK2kCNJPPrLrpgvSV43L88QXa95LDXRSbIjir36yYD7+qF30XqmXAbjK
-        0pY0hx9mt8g/6HeXesiwE/JOjt0xsWc=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 65349A3B92;
-        Fri, 10 Dec 2021 09:11:14 +0000 (UTC)
-Date:   Fri, 10 Dec 2021 10:11:13 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Alexey Makhalov <amakhalov@vmware.com>
-Cc:     Dennis Zhou <dennis@kernel.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Message-ID: <YbMZsczMGpChaWz0@dhcp22.suse.cz>
-References: <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
- <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
- <YbBywDwc2bCxWGAQ@dhcp22.suse.cz>
- <77BCF61E-224F-435D-8620-670C9E874A9A@vmware.com>
- <YbHCT1r7NXyIvpsS@dhcp22.suse.cz>
- <2291C572-3B22-4BE5-8C7A-0D6A4609547B@vmware.com>
- <YbHS2qN4wY+1hWZp@dhcp22.suse.cz>
- <B5B3BCE0-853B-444E-BAD8-823CEE8A3E59@vmware.com>
- <YbIEqflrP/vxIsXZ@dhcp22.suse.cz>
- <7D1564FA-5AC6-47F3-BC5A-A11716CD40F2@vmware.com>
+        id S239388AbhLJJb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 04:31:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42078 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239450AbhLJJb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 04:31:56 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFD0C061746;
+        Fri, 10 Dec 2021 01:28:21 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id y13so27557933edd.13;
+        Fri, 10 Dec 2021 01:28:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Wo+kEjPRCNOeRmpc24VwDoZ3sGXxzMQEGIk47myQMF4=;
+        b=D25x5s7aOfBvkoF1TAnTBMhjleDypIR/jVNd0p2Z75eSnIZErDAv1fx6EJlzyYEERD
+         rWV5T4fMEPDldGHGy4lzjbH3kK0SbORPAwBxvAUGhcNaDSrirLbvpNIXQFsSlrLISZpT
+         8EOim2hyYjFNofT0F/PjVWXDxbocKSnhkeWUqI5OyqmPf2t4jS2iSgJ3Mtzqt5Hr1Fpm
+         oXJkmh2A/7omfykgSbnPUptdgPB7L2dfxgU0jrKd8c9WMhF2cwUEQg0p7Ikio0NbJu9d
+         uKeBFO4Egbg/KQ0sOh+YG+ckeIcBg/bMkIkQpCJxqs5lWNnFvg6wHJ/eSZ4h2OX3+avB
+         HkZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Wo+kEjPRCNOeRmpc24VwDoZ3sGXxzMQEGIk47myQMF4=;
+        b=pGfC4gUUWrwWijdt5FIrVFflHcXbi6EnxUGo6nn24bPe1wEcuD1h3yvGu29vp4eTAm
+         ucHpYmwA4z8BF8kJ5dGmtdFqKzGQRjfim1qB9+rksmMFD3x0dz9a6FWVkm0GqqIlZCUB
+         nWwxjPjVz3aKBg2dOoIQ4F9n1FFSBkwVaz+AMN3Z7CEhedvKaKKbuIA02J7kEzyL2gye
+         Ya4fYfwMXYnhEjy/fW9r3Vqr/X5lt6QKe2beMUdJOJP/CIR0zZnlwWuTWDMxqVMStuBL
+         bIa2cVl2zUsCoiFi5/1wv1DAt9UCnarI/zmnxG6aB8wPM2hMxJkuzYmzeAlTLIbrCFBV
+         AoGA==
+X-Gm-Message-State: AOAM533XcPe6ocYIvNCyC9VcEfkYvWSwibx9EZYAvJ5bFtDZMObSLkS4
+        NvBxyiqqZbpVEuxHDcV2GGFckoymrnoFvQ==
+X-Google-Smtp-Source: ABdhPJwcTAzhR9JhHlzlbR4kehZa3+II/LWyggzIRg1fSi6WukM1ZJJNUF2G5HcniWyScx8qbyyG8g==
+X-Received: by 2002:a05:6402:1e95:: with SMTP id f21mr38172357edf.139.1639128499650;
+        Fri, 10 Dec 2021 01:28:19 -0800 (PST)
+Received: from a2klaptop.epam.com (host-176-36-245-220.b024.la.net.ua. [176.36.245.220])
+        by smtp.gmail.com with ESMTPSA id u10sm1100969edo.16.2021.12.10.01.28.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Dec 2021 01:28:19 -0800 (PST)
+From:   Oleksandr Andrushchenko <andr2000@gmail.com>
+To:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
+Cc:     boris.ostrovsky@oracle.com, jgross@suse.com,
+        sstabellini@kernel.org,
+        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] xen/gntdev: fix unmap notification order
+Date:   Fri, 10 Dec 2021 11:28:17 +0200
+Message-Id: <20211210092817.580718-1-andr2000@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <7D1564FA-5AC6-47F3-BC5A-A11716CD40F2@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 09-12-21 19:01:03, Alexey Makhalov wrote:
-> 
-> 
-> > On Dec 9, 2021, at 5:29 AM, Michal Hocko <mhocko@suse.com> wrote:
-> > 
-> > On Thu 09-12-21 10:23:52, Alexey Makhalov wrote:
-> >> 
-> >> 
-> >>> On Dec 9, 2021, at 1:56 AM, Michal Hocko <mhocko@suse.com> wrote:
-> >>> 
-> >>> On Thu 09-12-21 09:28:55, Alexey Makhalov wrote:
-> >>>> 
-> >>>> 
-> >>>> [    0.081777] Node 4 uninitialized by the platform. Please report with boot dmesg.
-> >>>> [    0.081790] Initmem setup node 4 [mem 0x0000000000000000-0x0000000000000000]
-> >>>> ...
-> >>>> [    0.086441] Node 127 uninitialized by the platform. Please report with boot dmesg.
-> >>>> [    0.086454] Initmem setup node 127 [mem 0x0000000000000000-0x0000000000000000]
-> >>> 
-> >>> Interesting that only those two didn't get a proper arch specific
-> >>> initialization. Could you check why? I assume init_cpu_to_node
-> >>> doesn't see any CPU pointing at this node. Wondering why that would be
-> >>> the case but that can be a bug in the affinity tables.
-> >> 
-> >> My bad shrinking. Not just these 2, but all possible and not present nodes from 4 to 127
-> >> are having this message.
-> > 
-> > Does that mean that your possible (but offline) cpus do not set their
-> > affinity?
-> > 
-> Hi Michal,
-> 
-> I didn’t quite gut a question here. Do you mean scheduler affinity for offlined/not present CPUs?
-> From the patch, this message should be printed for every possible offlined node:
-> 	for_each_node(nid) {
-> ...
-> 		if (!node_online(nid)) {
-> 			pr_warn("Node %d uninitialized by the platform. Please report with boot dmesg.\n", nid);
+From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 
-Sure, let me expand on this a bit. X86 initialization code
-(init_cpu_to_node) does
-        for_each_possible_cpu(cpu) {
-                int node = numa_cpu_node(cpu);
+While working with Xen's libxenvchan library I have faced an issue with
+unmap notifications sent in wrong order if both UNMAP_NOTIFY_SEND_EVENT
+and UNMAP_NOTIFY_CLEAR_BYTE were requested: first we send an event channel
+notification and then clear the notification byte which renders in the below
+inconsistency (cli_live is the byte which was requested to be cleared on unmap):
 
-                if (node == NUMA_NO_NODE)
-                        continue;
+[  444.514243] gntdev_put_map UNMAP_NOTIFY_SEND_EVENT map->notify.event 6
+libxenvchan_is_open cli_live 1
+[  444.515239] __unmap_grant_pages UNMAP_NOTIFY_CLEAR_BYTE at 14
 
-                if (!node_online(node))
-                        init_memory_less_node(node);
+Thus it is not possible to reliably implement the checks like
+- wait for the notification (UNMAP_NOTIFY_SEND_EVENT)
+- check the variable (UNMAP_NOTIFY_CLEAR_BYTE)
+because it is possible that the variable gets checked before it is cleared
+by the kernel.
 
-                numa_set_node(cpu, node);
-        }
+To fix that we need to re-order the notifications, so the variable is first
+gets cleared and then the event channel notification is sent.
+With this fix I can see the correct order of execution:
 
-which means that a memory less node is not initialized either when
-	- your offline CPUs are not listed in possible cpus for some
-	  reason
-	- or they do not have any node affinity (numa_cpu_node is
-	  NUMA_NO_NODE).
+[   54.522611] __unmap_grant_pages UNMAP_NOTIFY_CLEAR_BYTE at 14
+[   54.537966] gntdev_put_map UNMAP_NOTIFY_SEND_EVENT map->notify.event 6
+libxenvchan_is_open cli_live 0
 
-Could you check what is the reason in your particular case please?
+Cc: stable@vger.kernel.org
+Signed-off-by: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+---
+ drivers/xen/gntdev.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/xen/gntdev.c b/drivers/xen/gntdev.c
+index fec1b6537166..59ffea800079 100644
+--- a/drivers/xen/gntdev.c
++++ b/drivers/xen/gntdev.c
+@@ -250,13 +250,13 @@ void gntdev_put_map(struct gntdev_priv *priv, struct gntdev_grant_map *map)
+ 	if (!refcount_dec_and_test(&map->users))
+ 		return;
+ 
++	if (map->pages && !use_ptemod)
++		unmap_grant_pages(map, 0, map->count);
++
+ 	if (map->notify.flags & UNMAP_NOTIFY_SEND_EVENT) {
+ 		notify_remote_via_evtchn(map->notify.event);
+ 		evtchn_put(map->notify.event);
+ 	}
+-
+-	if (map->pages && !use_ptemod)
+-		unmap_grant_pages(map, 0, map->count);
+ 	gntdev_free_map(map);
+ }
+ 
 -- 
-Michal Hocko
-SUSE Labs
+2.25.1
+
