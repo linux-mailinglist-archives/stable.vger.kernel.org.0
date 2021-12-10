@@ -2,110 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A48E24703FD
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 16:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F02A64704DC
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 16:48:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242935AbhLJPkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 10:40:14 -0500
-Received: from mga12.intel.com ([192.55.52.136]:39116 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242917AbhLJPkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Dec 2021 10:40:14 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10193"; a="218387042"
-X-IronPort-AV: E=Sophos;i="5.88,196,1635231600"; 
-   d="scan'208";a="218387042"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2021 07:36:23 -0800
-X-IronPort-AV: E=Sophos;i="5.88,196,1635231600"; 
-   d="scan'208";a="463700570"
-Received: from kbinis1x-mobl2.gar.corp.intel.com (HELO [10.209.148.127]) ([10.209.148.127])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Dec 2021 07:36:19 -0800
-Message-ID: <931129d0-4e86-48f9-7b2e-bddef93697c6@linux.intel.com>
-Date:   Fri, 10 Dec 2021 15:36:17 +0000
+        id S239955AbhLJPve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 10:51:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45374 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243677AbhLJPtm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 10:49:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28129C07E5DE
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 07:44:54 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 75E63CE211C
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 15:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D406C00446;
+        Fri, 10 Dec 2021 15:44:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639151090;
+        bh=EIp5wNnUFBfjb2PgOkQoohdGYlY0+NMl/UPKA61cA/I=;
+        h=Subject:To:Cc:From:Date:From;
+        b=p6NQiXCLHd1szIb3DPZH5eCySnBW7fQSWXSNVJYx/FCEQnuGIHRaf3LQDl4j1kV/O
+         bO9X/aGX+/tL2z/iPu52xPSI00qrQrEyMaLT2IuaFrHGmrot+4JGqMg+WDd/Ft4Oqi
+         EuQxWcJJQpF1LAYcpj40n9oNOII8eT4sQAjr1H6A=
+Subject: FAILED: patch "[PATCH] ethtool: do not perform operations on net devices being" failed to apply to 5.10-stable tree
+To:     atenart@kernel.org, kuba@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 10 Dec 2021 16:44:47 +0100
+Message-ID: <1639151087230186@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
-Subject: Re: [PATCH] drm/i915: Stop doing writeback from the shrinker
-Content-Language: en-US
-To:     =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= 
-        <thomas.hellstrom@linux.intel.com>, Intel-gfx@lists.freedesktop.org
-Cc:     dri-devel@lists.freedesktop.org,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Michal Hocko <mhocko@suse.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Hugh Dickins <hughd@google.com>,
-        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>,
-        Renato Pereyra <renatopereyra@google.com>,
-        stable@vger.kernel.org
-References: <20211210110556.883735-1-tvrtko.ursulin@linux.intel.com>
- <a7898ef462a49db825b3fdd4efdba1e546466473.camel@linux.intel.com>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-In-Reply-To: <a7898ef462a49db825b3fdd4efdba1e546466473.camel@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 10/12/2021 14:46, Thomas Hellström wrote:
-> On Fri, 2021-12-10 at 11:05 +0000, Tvrtko Ursulin wrote:
->> From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
->>
->> This effectively removes writeback which was added in 2d6692e642e7
->> ("drm/i915: Start writeback from the shrinker").
->>
->> Digging through the history it seems we went back and forth on the
->> topic
->> of whether it would be safe a couple of times. See for instance
->> 5537252b6b6d ("drm/i915: Invalidate our pages under memory pressure")
->> where Hugh Dickins has advised against it. I do not have enough
->> expertise
->> in the memory management area so am hoping for expert input here.
->>
->> Reason for proposing removal is that there are reports from the field
->> which indicate a sysetm wide deadlock (of a sort) implicating i915
->> doing
->> writeback at shrinking time.
->>
->> Signature is a hung task notifier kicking in and task traces such as:
-> 
-> It would be interesting to see what exactly the find_get_entry is
-> blocked on. The other two tasks are blocked on the shrinker_rwsem which
-> is held by i915. If it's indeed a deadlock with either of those two,
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-It may indeed be a livelock instead of a deadlock. I have received a 
-newer trace and it indeed shows kswapd in running state. But no progress 
-in 120s and dead machine sounded like too suspicious it could happen 
-with just a gaming workload so I assumed a more serious issue than just 
-severe memory pressure.
+thanks,
 
-> then the fix Chris is working on for an unrelated issue we discovered
-> with shrinking would move out the writeback call from the
-> shrinker_rwsem and resolve this, but if i915 is in turn deadlocking
-> with another process and these two are just hanging waiting for the
-> shrinker_rwsem, we would still have other issues.
+greg k-h
 
-Presumably this would involve an extra worker and tracking on a list or 
-something?
+------------------ original commit in Linus's tree ------------------
 
-Otherwise my main hope really was to get a verdict from memory 
-management experts on pros & cons of doing writeback from the driver in 
-any flavour.
+From dde91ccfa25fd58f64c397d91b81a4b393100ffa Mon Sep 17 00:00:00 2001
+From: Antoine Tenart <atenart@kernel.org>
+Date: Fri, 3 Dec 2021 11:13:18 +0100
+Subject: [PATCH] ethtool: do not perform operations on net devices being
+ unregistered
 
-> Do you by any chance have the list of the locks held by the system at
-> this point?
+There is a short period between a net device starts to be unregistered
+and when it is actually gone. In that time frame ethtool operations
+could still be performed, which might end up in unwanted or undefined
+behaviours[1].
 
-No, but maybe Renato you could also collect "echo d" and "echo m" to 
-sysrq-trigger when things go bad?
+Do not allow ethtool operations after a net device starts its
+unregistration. This patch targets the netlink part as the ioctl one
+isn't affected: the reference to the net device is taken and the
+operation is executed within an rtnl lock section and the net device
+won't be found after unregister.
 
-Regards,
+[1] For example adding Tx queues after unregister ends up in NULL
+    pointer exceptions and UaFs, such as:
 
-Tvrtko
+      BUG: KASAN: use-after-free in kobject_get+0x14/0x90
+      Read of size 1 at addr ffff88801961248c by task ethtool/755
+
+      CPU: 0 PID: 755 Comm: ethtool Not tainted 5.15.0-rc6+ #778
+      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/014
+      Call Trace:
+       dump_stack_lvl+0x57/0x72
+       print_address_description.constprop.0+0x1f/0x140
+       kasan_report.cold+0x7f/0x11b
+       kobject_get+0x14/0x90
+       kobject_add_internal+0x3d1/0x450
+       kobject_init_and_add+0xba/0xf0
+       netdev_queue_update_kobjects+0xcf/0x200
+       netif_set_real_num_tx_queues+0xb4/0x310
+       veth_set_channels+0x1c3/0x550
+       ethnl_set_channels+0x524/0x610
+
+Fixes: 041b1c5d4a53 ("ethtool: helper functions for netlink interface")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Link: https://lore.kernel.org/r/20211203101318.435618-1-atenart@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/net/ethtool/netlink.c b/net/ethtool/netlink.c
+index 38b44c0291b1..96f4180aabd2 100644
+--- a/net/ethtool/netlink.c
++++ b/net/ethtool/netlink.c
+@@ -40,7 +40,8 @@ int ethnl_ops_begin(struct net_device *dev)
+ 	if (dev->dev.parent)
+ 		pm_runtime_get_sync(dev->dev.parent);
+ 
+-	if (!netif_device_present(dev)) {
++	if (!netif_device_present(dev) ||
++	    dev->reg_state == NETREG_UNREGISTERING) {
+ 		ret = -ENODEV;
+ 		goto err;
+ 	}
+
