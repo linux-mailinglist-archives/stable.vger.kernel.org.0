@@ -2,68 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB4646FAAA
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 07:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A036346FABA
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 07:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236996AbhLJGhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 01:37:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58568 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236965AbhLJGhA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 01:37:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D87C061746
-        for <stable@vger.kernel.org>; Thu,  9 Dec 2021 22:33:26 -0800 (PST)
+        id S237047AbhLJGqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 01:46:45 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:54382 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233015AbhLJGqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 01:46:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA1FEB82674
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 06:33:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBD5FC00446;
-        Fri, 10 Dec 2021 06:33:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7F3D7CE29F5;
+        Fri, 10 Dec 2021 06:43:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0E31C00446;
+        Fri, 10 Dec 2021 06:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639118002;
-        bh=SAmRJyNL27/MAOUlcDmn9gN8G4627rEFiE+NiAPqi/U=;
+        s=korg; t=1639118587;
+        bh=1o9uYn87Vnh04Sc9CImuxM/RMkn6GYPUKWR1WL/rh6o=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lnS2+r+EM/7CXKFgUgGrLvRkk9IBWXnTbogpi+7QrZtUybePMFRhMyYAhlwo0xblz
-         N4umlff28pW2/r50nntJXNDp1YDorbvrJmwApjCcHatTr0FTD6vcy1SyU1ULMF3yWG
-         XFtsiY62DzzKpBuo2vXb5c6zXQc7YXlNaz3VF3sw=
-Date:   Fri, 10 Dec 2021 07:33:13 +0100
+        b=N/iLusVGSAZC/Fzp7LTmS7jA5GWGfbjsJ/xjBmLrbU3EfQGj47iczvpFhASosdn8c
+         zLSaUiRprLN4O3/UOFSVid8stEtieZHx7pExmfkAdZ8Z4WvZPYTEKLYv6Njqpx5r7A
+         JOQbNYYkyeBDe7qlFakg+h0qIUr62+n0PY16K4nA=
+Date:   Fri, 10 Dec 2021 07:43:00 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     James Zhu <James.Zhu@amd.com>
-Cc:     stable@vger.kernel.org, jzhums@gmail.com,
-        alexander.deucher@amd.com, kolAflash@kolahilft.de
-Subject: Re: [PATCH 0/6] Bug:211277 fix backport for 5.10 stable
-Message-ID: <YbL0qYEI6YkBRPLT@kroah.com>
-References: <20211209220956.3466442-1-James.Zhu@amd.com>
+To:     Alex Komrakov <alexander.komrakov@broadcom.com>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Hoi Kim <hoi.kim@broadcom.com>
+Subject: Re: [PATCH 1/1] Calculate the monotonic clock from the timespec
+ clock to genereate pps PPS elapsed realtime event value and stores the
+ result into /sys/class/pps/pps0/assert_elapsed.
+Message-ID: <YbL29NfWUIy3m7cm@kroah.com>
+References: <70960a71e92f34bfa0d0f3cd82fb289d@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211209220956.3466442-1-James.Zhu@amd.com>
+In-Reply-To: <70960a71e92f34bfa0d0f3cd82fb289d@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 09, 2021 at 05:09:50PM -0500, James Zhu wrote:
-> These patches are back port for 5.10 stable.
-> They are cherry-picked from 5.14 stable.
-> 
-> BugFix: https://bugzilla.kernel.org/show_bug.cgi?id=211277
-> 
-> James Zhu (3):
->   drm/amdkfd: separate kfd_iommu_resume from kfd_resume
->   drm/amdgpu: add amdgpu_amdkfd_resume_iommu
->   drm/amdgpu: move iommu_resume before ip init/resume
-> 
-> Lang Yu (1):
->   drm/amd/amdkfd: adjust dummy functions' placement
-> 
-> Yifan Zhang (2):
->   drm/amdgpu: init iommu after amdkfd device init
->   drm/amdkfd: fix boot failure when iommu is disabled in Picasso.
+On Thu, Dec 09, 2021 at 03:28:32PM -0800, Alex Komrakov wrote:
+> -- 
+> This electronic communication and the information and any files transmitted 
+> with it, or attached to it, are confidential and are intended solely for 
+> the use of the individual or entity to whom it is addressed and may contain 
+> information that is confidential, legally privileged, protected by privacy 
+> laws, or otherwise restricted from disclosure to anyone else. If you are 
+> not the intended recipient or the person responsible for delivering the 
+> e-mail to the intended recipient, you are hereby notified that any use, 
+> copying, distributing, dissemination, forwarding, printing, or copying of 
+> this e-mail is strictly prohibited. If you received this e-mail in error, 
+> please return the e-mail to the sender, delete it from your computer, and 
+> destroy any printed copy of it.
 
-What has changed from the last time this series was submitted?
 
-thanks,
-
-greg k-h
+Now deleted.
