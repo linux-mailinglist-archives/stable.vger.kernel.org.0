@@ -2,118 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F78747067F
-	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:57:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C9F470685
+	for <lists+stable@lfdr.de>; Fri, 10 Dec 2021 17:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232000AbhLJRBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 12:01:01 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:48376 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229821AbhLJRBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 12:01:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639155445;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rzeV8e563ubww0RTTrR8TIH1th19UWmc6oPCR1FYHig=;
-        b=hFBvp31FtXXoLHbqjk+emEPC5SrYXBCVZdW4XPRPlsHC0KEBRht6LZ2JaHhCmsh/Y3D0qC
-        eGjpv9gSmO8oy1kXIJe27kYW6Ap3QsWSGbXXaxVt0el8fNpdtMS8Ym11+Vb4QfY6sBux8H
-        DTwWeq9NLfgyv9560wFsKHuvQxxFwzs=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-300-PcWQMZ1uO3-yxsQdw8_kCg-1; Fri, 10 Dec 2021 11:57:22 -0500
-X-MC-Unique: PcWQMZ1uO3-yxsQdw8_kCg-1
-Received: by mail-wr1-f71.google.com with SMTP id b1-20020a5d6341000000b001901ddd352eso2535299wrw.7
-        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:57:21 -0800 (PST)
+        id S240768AbhLJRBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 12:01:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35888 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240761AbhLJRBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 12:01:35 -0500
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7090C061746
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:58:00 -0800 (PST)
+Received: by mail-pg1-x52d.google.com with SMTP id 132so717170pgd.1
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 08:58:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ahEVsvBaXSchz/e0dxiaE9IkmmOY1rMniDSmoh2qruw=;
+        b=oq99mRUjS3/Ck0vwSPNBmfMMjxmt6BztX3c2ePiMJjglzbOCnthCcKr8d4lPKjcmxC
+         IH7DElVZ/+RsavWh6yjyIDLYHzsuVFS6lCj78uMMffOr33PUPDrwJwR87P9ag1E1Xt9r
+         DjI5nIJNzPhrUzBMYxiPrYe0cOMqnYrsqSlax/z0s90aakacUc/KyVJ2krOfrKDQpOqr
+         6jicN/ToFXhOPSYxVmidZHJQ1UBqY4SxBPALbtaHfyrsYQ25htLV8TAR7wls3d6sqqtG
+         +iKMKPuc/SdRXT/cu2DjY67qdOBVRrQbLb8k8OkTW4xHD2+T3A5p8DqqHMk5JDZMPyse
+         bALw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=rzeV8e563ubww0RTTrR8TIH1th19UWmc6oPCR1FYHig=;
-        b=Qw9hZsCS9WUXZyqy9mb/iMqtmmFh3jsldfgKYLIA0bOpie3GIYu91n4G3VH9Se0Dui
-         evF/bl40+/SYVPP2lDKaIe/69Cggg8JaSeiHUjCH+g+eBj3eDmgxcbfesj2ebjqjMpwC
-         fAnch0NIK1HxdRtJzWKa1ZtZe6x2A3WMaz50z5RP0xQnpEu3wb7O9cX4PdeAWn5FOvf7
-         GRIGKYSOSSHMeRyetuAh/DVSVyo+mS/PYAldO0wxsqgtCnwE/ad8lGfnd5QvHV6teFtY
-         +k4MTpuwhDVI2hYsIwy+1HFQHSPWb5Um6zqmCShJOzABGFLZZ66aZa7yVw5sdHkS610U
-         PUiA==
-X-Gm-Message-State: AOAM530r00pO/NqlKGUTt+xqW7mOg/ND9BeaV+duhZ5AzEasMmzd1eU0
-        lGibvaKz/4MDGqRUHbKnGzQFKKxtXxQVq39S6TvskVLPQDnqi8gpWBRPkImA3kOfGKQZRZu+DP3
-        hc6NeJyv6I9AYU6dF
-X-Received: by 2002:adf:e0d0:: with SMTP id m16mr15214313wri.74.1639155440858;
-        Fri, 10 Dec 2021 08:57:20 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz2gK/oWWEW4wGM6US1FC/izLejsINm4hcPUJh6i717fxzUPBKpCLbtPe0RbzOpYqE/WQdjqw==
-X-Received: by 2002:adf:e0d0:: with SMTP id m16mr15214300wri.74.1639155440700;
-        Fri, 10 Dec 2021 08:57:20 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id l5sm12104083wms.16.2021.12.10.08.57.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 10 Dec 2021 08:57:20 -0800 (PST)
-Message-ID: <5070829f-fe15-b7c7-f461-83122c0fa9c6@redhat.com>
-Date:   Fri, 10 Dec 2021 17:57:19 +0100
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ahEVsvBaXSchz/e0dxiaE9IkmmOY1rMniDSmoh2qruw=;
+        b=zDyTB4EbIYBytHXPhDzBTQm8uinGJQIxnMHPft7TxAWarv9FGCZg8aOSf/2CWcGtTe
+         GgWNra7pvSvZZGZfk4168L8sYbWIfWavM/sMGUFIxLFZLj8Q45873O+J8KQPHVIJuZiW
+         KlOtBJX4BRrYvCbDsAXvRS7id50ASlSgTco20AdujdBUgaLUySfiVa57+0HIjc9brv3x
+         zG+Mk1QOiuYUQJ+JH8yNkR8JB1km3y0Z2gjTdKoIhmf6OdcttAXXQdE7xo7ihyEn6JJi
+         vakyUhZkQt8eQS63pdSJ96CDql2O1ixcT6o8x/Zx4hNbOObPBr/ygJuYjy576x09X92e
+         mXzA==
+X-Gm-Message-State: AOAM530yvqB1cLhU3Pv/S6EB4QHwGPxquDri8//p5QdRO+ftsKuiq3zS
+        x01Nn5cMzmOjHs6IAZhhG4ACmdpLUtY2AZVV
+X-Google-Smtp-Source: ABdhPJzDoWQ6wqjwirV8qipldHDCY8aU8bR+cNh8i9CV2jqe+Yoqf+O9sA3qDxIEHaQ87g9NfXZ6TA==
+X-Received: by 2002:a63:d854:: with SMTP id k20mr39581995pgj.574.1639155480136;
+        Fri, 10 Dec 2021 08:58:00 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mv22sm3243675pjb.36.2021.12.10.08.57.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Dec 2021 08:57:59 -0800 (PST)
+Message-ID: <61b38717.1c69fb81.77657.957e@mx.google.com>
+Date:   Fri, 10 Dec 2021 08:57:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] platform/x86: amd-pmc: only use callbacks for suspend
-Content-Language: en-US
-To:     Mario Limonciello <mario.limonciello@amd.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        "open list:X86 PLATFORM DRIVERS" 
-        <platform-driver-x86@vger.kernel.org>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Cc:     stable@vger.kernel.org
-References: <20211210143529.10594-1-mario.limonciello@amd.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20211210143529.10594-1-mario.limonciello@amd.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.257
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y baseline: 148 runs, 1 regressions (v4.14.257)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Mario,
+stable-rc/linux-4.14.y baseline: 148 runs, 1 regressions (v4.14.257)
 
-On 12/10/21 15:35, Mario Limonciello wrote:
-> This driver is intended to be used exclusively for suspend to idle
-> so callbacks to send OS_HINT during hibernate and S5 will set OS_HINT
-> at the wrong time leading to an undefined behavior.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Regressions Summary
+-------------------
 
-I notice that there are no [Bug]Link tags here ?  It would be helpful
-to have some links to tickets / forum-posts from people who are actually
-hitting issues because of this. Both so that people with similar issues
-can then compare the symptoms as described in the links, as well as for
-me to get an idea of how urgent of a fix this is.
-
-Regards,
-
-Hans
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.257/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.257
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c01d4d1b885d96a7c8c27d629abeb918ca897dbe =
 
 
-> ---
->  drivers/platform/x86/amd-pmc.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
-> index 841c44cd64c2..230593ae5d6d 100644
-> --- a/drivers/platform/x86/amd-pmc.c
-> +++ b/drivers/platform/x86/amd-pmc.c
-> @@ -508,7 +508,8 @@ static int __maybe_unused amd_pmc_resume(struct device *dev)
->  }
->  
->  static const struct dev_pm_ops amd_pmc_pm_ops = {
-> -	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(amd_pmc_suspend, amd_pmc_resume)
-> +	.suspend_noirq = amd_pmc_suspend,
-> +	.resume_noirq = amd_pmc_resume,
->  };
->  
->  static const struct pci_device_id pmc_pci_ids[] = {
-> 
 
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b34c948af3ef318a397135
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+57/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+57/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b34c948af3ef3=
+18a397138
+        failing since 14 days (last pass: v4.14.255-251-gf86517f95e30b, fir=
+st fail: v4.14.255-249-g84f842ef3cc1)
+        2 lines
+
+    2021-12-10T12:47:59.249493  [   20.105041] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-12-10T12:47:59.295256  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/95
+    2021-12-10T12:47:59.305262  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
