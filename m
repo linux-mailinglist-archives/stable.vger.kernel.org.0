@@ -2,65 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8512470F3F
-	for <lists+stable@lfdr.de>; Sat, 11 Dec 2021 01:10:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA376470F4D
+	for <lists+stable@lfdr.de>; Sat, 11 Dec 2021 01:16:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244225AbhLKANs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 19:13:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47926 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237677AbhLKANs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 19:13:48 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2205B821CD;
-        Sat, 11 Dec 2021 00:10:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBB6C00446;
-        Sat, 11 Dec 2021 00:10:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639181410;
-        bh=XTd7xMkG1GwnlufuROlO6RhP4W7ZmTqO0LM0XAobut0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=foBxdVX5lktVOorJCrWFH77aBfdkvIdpUboWb+B7j6QPmRRBz15JcuNASbcthfPmH
-         zMEiMtZ/N3hsd6sI81D2qlpP2TI4uhxQZ+3r0M4k9uwzVKsMFqDvtdHO12s1ihKG3A
-         kA/mrvkivl7H0Gn3LQ99Ql7/b0J/3XflnryL0H6qep+vjaZX6Tg875O9rHy7ZRw4Re
-         zzrpPf/WHkAR9BU+11uRTufFenb1s7MYpiz9aPjVQIlMUDTJzdTF/N6bECaP72xXl7
-         rFZXfkdMxVZvzR6EvBvhfW8oHoIgjAryJK/vhQs/8NIEzLBVtmQUeRyoiG+kmVw9ar
-         lNv0JbKSL/riw==
-Date:   Fri, 10 Dec 2021 16:10:08 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4.14 0/3] POLLFREE fix for 4.14
-Message-ID: <YbPsYMTboeZPa7Tw@sol.localdomain>
-References: <20211211000223.50630-1-ebiggers@kernel.org>
+        id S241352AbhLKAUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 19:20:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240722AbhLKAUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 19:20:05 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A5BC061714
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:16:29 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id z6so7325893plk.6
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:16:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=nnqWAcqJw+2seM8tMYO35lb2E/JOmmJs4v3UIROApJc=;
+        b=MgDGJ2IBNf1AXBhBEU4IhsM8QZOdBl5FlJ1LDKawiK8KfffJYi2IbIimuEZOPm8tzS
+         Pgwlo+ag+K3m9Vk+PlQComtc5VXO9BU/b5IJ3cpsjXmnvHg3S59okkLLFo8Pw3N/urjm
+         X+0UPXRfHPnLfHoky/qNp1nS+i6oS5JAOjOqEIMTkMRE/Y7F2rJHRNCn1mv2lPIeBl8Q
+         GiuCG6aia2vByARdWDAZA0VsOCiWexZJ2d50ctqWVy9NRGtdNDzrl1pO3w9HF0rbb7IS
+         p4StL0KofqU/WzJTnLuxlyNyH4Nick1q9sYgj13gMUzzqkLN3IYNVtzpqk97PE0gv17F
+         btPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=nnqWAcqJw+2seM8tMYO35lb2E/JOmmJs4v3UIROApJc=;
+        b=T/AzvwdHAEs7au4OYG1aeAbGDVNnqbFFR4nPSkw+FcCdOYstubP/UveVTRxjIfdUO9
+         6AjmAOwy9vg+rNI4DhSf8Ow/OiB71B9/xgc69sXZ1BmcTG5XXIHEIWsFod9/x+BUkIpj
+         oHmjpcpFjWAabihqSFYUlqL5Y9NSBBxql+hbjuX9YKZJvp8QGWGFsZjg2T08tmQ9NzYj
+         pN+euxCByTmZnwDSBztOh66vHkkncD0eBeXixCV9JYx4r49IacT7z16LWzrMlMhQJMEU
+         9wWu7t/6NIlibJtOPq6sCRi10eMSWX6IszZLlRQqbLoMOi5pdVEhAoE3OJcyUPnGmWel
+         SBUw==
+X-Gm-Message-State: AOAM530TG3pU/CKleSCkss1aDuk4vYjxIz1E6fQIzNVVfjzu7Ctyt/hn
+        qALyNzMCM58fcOXDVYUuh4G0Nd7toXLGDM/N
+X-Google-Smtp-Source: ABdhPJyfApaEr8Elho0JyQUbXZ1nyydMdIw1t9WwAlnPi3cZra8I/qm1EqjThlqdP6gjFmfOSkTF8Q==
+X-Received: by 2002:a17:90a:7086:: with SMTP id g6mr27630048pjk.34.1639181788750;
+        Fri, 10 Dec 2021 16:16:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n6sm3740598pgk.43.2021.12.10.16.16.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Dec 2021 16:16:28 -0800 (PST)
+Message-ID: <61b3eddc.1c69fb81.eb818.b440@mx.google.com>
+Date:   Fri, 10 Dec 2021 16:16:28 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211211000223.50630-1-ebiggers@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.164-26-g9502d781e24f
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 baseline: 147 runs,
+ 1 regressions (v5.4.164-26-g9502d781e24f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 10, 2021 at 04:02:20PM -0800, Eric Biggers wrote:
-> This kernel version doesn't have aio poll, but the fix for POLLFREE with
-> exclusive waiters is still applicable to it.  This series resolves
-> conflicts in all three patches, mostly due to POLLHUP having been
-> renamed to EPOLLHUP in more recent kernels.
-> 
-> Eric Biggers (3):
->   wait: add wake_up_pollfree()
->   binder: use wake_up_pollfree()
->   signalfd: use wake_up_pollfree()
-> 
->  drivers/android/binder.c | 21 +++++++++------------
->  fs/signalfd.c            | 12 +-----------
->  include/linux/wait.h     | 26 ++++++++++++++++++++++++++
->  kernel/sched/wait.c      |  7 +++++++
->  4 files changed, 43 insertions(+), 23 deletions(-)
-> 
+stable-rc/queue/5.4 baseline: 147 runs, 1 regressions (v5.4.164-26-g9502d78=
+1e24f)
 
-Sorry, ignore this one; there's a build error in kernel/sched/wait.c.
+Regressions Summary
+-------------------
 
-- Eric
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.164-26-g9502d781e24f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.164-26-g9502d781e24f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9502d781e24fc4cf4d7eaf02de444ac37cc3d881 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b3b70517d67fd397397167
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.164-2=
+6-g9502d781e24f/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.164-2=
+6-g9502d781e24f/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b3b70517d67fd397397=
+168
+        failing since 1 day (last pass: v5.4.163-72-gfda44f5f463a, first fa=
+il: v5.4.163-73-gf01a13d9c502) =
+
+ =20
