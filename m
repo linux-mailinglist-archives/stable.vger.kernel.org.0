@@ -2,94 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F0A470F70
-	for <lists+stable@lfdr.de>; Sat, 11 Dec 2021 01:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D795F470F8F
+	for <lists+stable@lfdr.de>; Sat, 11 Dec 2021 01:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241482AbhLKAcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Dec 2021 19:32:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56012 "EHLO
+        id S241751AbhLKArG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Dec 2021 19:47:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244279AbhLKAcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 19:32:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49E5C061714;
-        Fri, 10 Dec 2021 16:28:46 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80C0AB82A4A;
-        Sat, 11 Dec 2021 00:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A114C341CA;
-        Sat, 11 Dec 2021 00:28:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639182524;
-        bh=XuaZ1fZ6TwT9fwMbUAdcVm8nv57KY1gx1t0F0FZ5++o=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDEJfKUPBqkEOTsZ9D35lUwCEG8DDVjBINAjB/pDg89ibdvTEkM4cZGDxUKY1lo86
-         8ShIaWg63ZuTczE3pekMNneJ/hLcghUF2yJOYgx5/nas3RNfsjVhC14+Kkj9HCUIzi
-         340DIgASHmULinIHKjgw9RBpa3ETlG6TExDtQR0xZ3lbHEzVVsPMydTpEfVndk1Vpn
-         4BM78qwYih9FL341priu19QTNYkRcoouyXPV25cTOpeIJCwKbH8+DblGukji2Idjsv
-         WpGpq2XbVN3b1ETRM1QuOUgr8Ydbb48TnurP5QDO0cin8yBaA5YkwabKtdCq4o8p2z
-         d4ucKqUpgn6nA==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4,4.9 3/3] signalfd: use wake_up_pollfree()
-Date:   Fri, 10 Dec 2021 16:28:32 -0800
-Message-Id: <20211211002832.153742-4-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211211002832.153742-1-ebiggers@kernel.org>
-References: <20211211002832.153742-1-ebiggers@kernel.org>
+        with ESMTP id S237381AbhLKArG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Dec 2021 19:47:06 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B718DC061714
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:43:30 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id k6-20020a17090a7f0600b001ad9d73b20bso8881514pjl.3
+        for <stable@vger.kernel.org>; Fri, 10 Dec 2021 16:43:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=UfxI0ktwUvwfApHZdVKYBwUjTiQ7XSAfAAz7wiVTCEM=;
+        b=5PtG3fjMU08yY1cXvCUc/inJu163OwPF4ndmHHYdN8fhGIeho1jFNcsqBhDTCJzPZS
+         1pw9YzyaVNx1K7i9kop1sScfmTW49vuOJ/YO/z2Ymq2le9EFnUg02wlzeApEd6gmW7KJ
+         yUjk3t+RlCnvJOu5hjBE864ZzM/HbLhAHiB4k4rmNFPK+l222Qg7O32mR4CCx/rCrpML
+         dhPQmQdHRHQ7Qvcj7ewl/ho8fIcmcMSPYuJsrF7GAhpnwd2u3QPZnmbhSqN3H+JN4Kl3
+         n4YKHA5ean77HyVXvhxHGsdmePomO7kMQIWppO1wQx/5LkyMW9SYCvgCI6/N5GkN9VYY
+         5iyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=UfxI0ktwUvwfApHZdVKYBwUjTiQ7XSAfAAz7wiVTCEM=;
+        b=LfYtg28v6r3QDt3APRhicT/qozodH3Fyqt9V++/gpgdKxV89G+kinDx590QaBP23qz
+         b3Gkd62jshMeW/cwf29Ir1i+fJgOrO2yiTk4v3ra9Kitllg4zOPwrHbeaqNz4SudQdCs
+         DF3hVsdtgo8tGDOFhva3o0zNGIpEhZsGCO1u+LddQFpYWwlK7xlybUHwsicGuXrrYQU6
+         QLSMgrkGYa77gYJ2uhAyZZxAXFnhT9cvXFfWIsDbOBkeD6RIVssNxIIAZdGKT9aPJns3
+         O7EJnbfg76hxOnfFnX9BCjA+KzmRqEoJXP3MjF7ED4eVhBlU0YvoZgizS30vWbK9/aEs
+         UJnA==
+X-Gm-Message-State: AOAM530+lFI42WKMRg51s/LmKpUQlsA/sCHBHs9bEGnU3kEQBsYwW6Ci
+        fwHFkmp/3rzRUX3TIOnaTd9eXw2unaHZDY5H
+X-Google-Smtp-Source: ABdhPJyq6QFHlN31jLoCyG9yzrQ4G5I+462Bm71rOxXYZwyLNKNy6VIwqEcWa/rMaSeccO1FSymHVA==
+X-Received: by 2002:a17:903:2344:b0:142:25b4:76c1 with SMTP id c4-20020a170903234400b0014225b476c1mr80178849plh.43.1639183410104;
+        Fri, 10 Dec 2021 16:43:30 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k16sm4667784pfu.183.2021.12.10.16.43.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Dec 2021 16:43:29 -0800 (PST)
+Message-ID: <61b3f431.1c69fb81.6d044.e6a4@mx.google.com>
+Date:   Fri, 10 Dec 2021 16:43:29 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.292-10-g8eabbb4fb693
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 baseline: 125 runs,
+ 3 regressions (v4.9.292-10-g8eabbb4fb693)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+stable-rc/queue/4.9 baseline: 125 runs, 3 regressions (v4.9.292-10-g8eabbb4=
+fb693)
 
-commit 9537bae0da1f8d1e2361ab6d0479e8af7824e160 upstream.
+Regressions Summary
+-------------------
 
-wake_up_poll() uses nr_exclusive=1, so it's not guaranteed to wake up
-all exclusive waiters.  Yet, POLLFREE *must* wake up all waiters.  epoll
-and aio poll are fortunately not affected by this, but it's very
-fragile.  Thus, the new function wake_up_pollfree() has been introduced.
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-Convert signalfd to use wake_up_pollfree().
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig             | 1          =
 
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Fixes: d80e731ecab4 ("epoll: introduce POLLFREE to flush ->signalfd_wqh before kfree()")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211209010455.42744-4-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/signalfd.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig          | 1          =
 
-diff --git a/fs/signalfd.c b/fs/signalfd.c
-index 270221fcef42c..9c5fa0ab5e0fe 100644
---- a/fs/signalfd.c
-+++ b/fs/signalfd.c
-@@ -34,17 +34,7 @@
- 
- void signalfd_cleanup(struct sighand_struct *sighand)
- {
--	wait_queue_head_t *wqh = &sighand->signalfd_wqh;
--	/*
--	 * The lockless check can race with remove_wait_queue() in progress,
--	 * but in this case its caller should run under rcu_read_lock() and
--	 * sighand_cachep is SLAB_DESTROY_BY_RCU, we can safely return.
--	 */
--	if (likely(!waitqueue_active(wqh)))
--		return;
--
--	/* wait_queue_t->func(POLLFREE) should do remove_wait_queue() */
--	wake_up_poll(wqh, POLLHUP | POLLFREE);
-+	wake_up_pollfree(&sighand->signalfd_wqh);
- }
- 
- struct signalfd_ctx {
--- 
-2.34.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.292-10-g8eabbb4fb693/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.292-10-g8eabbb4fb693
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8eabbb4fb6931f52575953d33ac3276dc9e4ee0c =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b3ba62924bd6b71839713a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-1=
+0-g8eabbb4fb693/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-1=
+0-g8eabbb4fb693/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b3ba62924bd6b718397=
+13b
+        new failure (last pass: v4.9.292-9-g6988c513714d) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b3bbb69dd931ec4b397124
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-1=
+0-g8eabbb4fb693/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minno=
+wboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-1=
+0-g8eabbb4fb693/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minno=
+wboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b3bbb69dd931ec4b397=
+125
+        failing since 0 day (last pass: v4.9.291-70-gd8115b0fbf8b, first fa=
+il: v4.9.292-9-g6988c513714d) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b3ba0a157b9d3d9439711e
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-1=
+0-g8eabbb4fb693/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-1=
+0-g8eabbb4fb693/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b3ba0a157b9d3=
+d94397121
+        failing since 0 day (last pass: v4.9.292-8-g267327cffca6, first fai=
+l: v4.9.292-9-g6988c513714d)
+        2 lines
+
+    2021-12-10T20:35:04.430202  [   20.306823] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-12-10T20:35:04.474786  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/118
+    2021-12-10T20:35:04.484102  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
