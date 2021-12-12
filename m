@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7260471AD2
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:35:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D039471AD3
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230162AbhLLOfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:35:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33080 "EHLO
+        id S231433AbhLLOfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:35:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33132 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230161AbhLLOfn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:35:43 -0500
+        with ESMTP id S230161AbhLLOfv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:35:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8909B80D15
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:35:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AAA8C341C6;
-        Sun, 12 Dec 2021 14:35:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1BAFB80D11
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:35:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCB0C341C6;
+        Sun, 12 Dec 2021 14:35:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319740;
-        bh=t1NuEIM8Mrdvzt7jQBAP2O4cwkxlqKDMcUbLq9KIO6I=;
+        s=korg; t=1639319749;
+        bh=Xb7KrINoB+/NyJSDP1VNelqRo5x6qO7/g+7xI3tD7eY=;
         h=Subject:To:Cc:From:Date:From;
-        b=ejXdh8yQpeUJScKVWo7v2QBk+zIZzWCrigp40z8jVnZa6haked9lH306DRNkRnOTN
-         CZkfBUy6Jyp6GoGVfZQteZFX2x9oTqaBVjP75XrJugqmSl/GbCqlSNxWc5INSml+Ry
-         OAVL1KbJZinf26j6ZLBIZ4vbrDOv7cKJTSguFrQM=
-Subject: FAILED: patch "[PATCH] mtd: rawnand: fsmc: Fix timing computation" failed to apply to 4.14-stable tree
+        b=SqSgjRfuRmwUYPe25fODcVxg1n/hAw/0LAk+f18VQpTnSloFGS3r2KHymmAZtc2rD
+         SHXXsi9/HQCZOTbFqmjs/O6zYV8sudbvwlbOZBSwgKWpSwqbeNZ0KumO8Pnlqyrcmu
+         qjyF6px6OJB7JS47SBrWkfFIXpgOg+uSO1g6+ypk=
+Subject: FAILED: patch "[PATCH] mtd: rawnand: fsmc: Fix timing computation" failed to apply to 4.19-stable tree
 To:     herve.codina@bootlin.com, miquel.raynal@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 15:35:37 +0100
-Message-ID: <1639319737240112@kroah.com>
+Date:   Sun, 12 Dec 2021 15:35:38 +0100
+Message-ID: <163931973817769@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
