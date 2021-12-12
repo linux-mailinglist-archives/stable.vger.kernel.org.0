@@ -2,82 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D22471CC7
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 20:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3EF471CCA
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 20:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230170AbhLLTqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 14:46:45 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50314 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230131AbhLLTqp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 14:46:45 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1C46B80D49;
-        Sun, 12 Dec 2021 19:46:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C16BC341C5;
-        Sun, 12 Dec 2021 19:46:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639338402;
-        bh=asMbxW6eSGt6dFEETWhAuzKkqjZvYAPwUw8vwWjRH00=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nEu/qpKzRNfYv7XiBgdfOa/3HZYILnqLpPgh6pVCnaG0CONMGhthSpyU97M7wI47B
-         Sao26oEbijQZOMOCynjCO1ojrKQmlY0HYzZzf8XRllDdbzKaxWHDDMcZRUfoHxrJxw
-         qV7R2J7wVNN0KLloK/4FryuZhIc1Hkmf6QNJjbjWKebfUW2TSKbfRO9raSTrMD+oWy
-         vBQKar/svIgT3TVpU0DT1eVwoVbuxJjkun8MQ4JtIANgIvprqMP2epkTrwE9EP4+4w
-         30HGD/T0Ixqk9eayimMuB1WlX/wh7vjjLza4nXuukItUP9JgulrESVs8ylw0UAw0BH
-         V90M82Scisr8g==
-Date:   Sun, 12 Dec 2021 11:46:03 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5.10 0/5] aio poll fixes for 5.10
-Message-ID: <YbZRe5163BRzb2Vx@sol.localdomain>
-References: <20211210234805.39861-1-ebiggers@kernel.org>
- <YbX/JVz768WuoiXd@kroah.com>
+        id S229533AbhLLTsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 14:48:01 -0500
+Received: from mail-pj1-f42.google.com ([209.85.216.42]:56248 "EHLO
+        mail-pj1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229505AbhLLTsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 14:48:01 -0500
+Received: by mail-pj1-f42.google.com with SMTP id v23so10416023pjr.5
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 11:48:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DdHk0Pm/5y4yquBTriMCviqBn/vAHZRkrSSmhie2yis=;
+        b=DKjlTqvMDxoxLmj5wTJYGmL3e5G4K3hbe6yk5NK2DYTL9ULEZnFBX2YuHRhctK9/V+
+         liFNWUxVpaxEO6Pa1+cesg4YmNr1osqdpXNLH2cVWuAEXM0S4AydIrCWTzdDR7eHKD6x
+         +p9Xi4BxYNe/NIQqOMPS0CRSNSmkJjEntoeE2mEV6u2i6dObv3g0u7EZ5g1vHW56tind
+         /ttgtxx1+IoiYimvySfnNDsgPMeSZlh9Lazqz0KbRx2UGKJFC6Izug9UnJa/vOYd+8uD
+         HGhVXpleem8f0lgcF3lVZgDjfgdvKtbTXDMGTkyLka6pmVgDSY7Zo/GSB3hrLHKEMJtL
+         K0LQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DdHk0Pm/5y4yquBTriMCviqBn/vAHZRkrSSmhie2yis=;
+        b=cPxqOmoMvX4qvk5/KFIG1HZd46WxA4FxTxh5FU6APl2ihOvdSm5YF/sxbK2DWqVysU
+         XGBwY9Rd5gSEMEFgCLZizTnxJ1SXxpUlqjRyciepMwULtQC2eqgW3acaqQn//O5bm8J9
+         z+Bvr0RiD5zV/ueeTbM+Tm1e1Sr1kxSWVFYqoj7+xDy82rp7aoxO1oXJALMA+b08l5vH
+         nolM8EkucWeghy+n+nawxIG9koWIr8QHaUriG9ivDLvY8CGBPNNOvizaMC/T8mz3PNiP
+         4yV2+pSvCTVnn971dOtMNSNgQ6gJQJaTvdl/RII+B9rRdk+4Nm5NaINGFfaxaKE8Hoe8
+         le0Q==
+X-Gm-Message-State: AOAM532kQpIXxSjNPwCMgreaayeZM6mZPETz1kVKOf4AigJvLnXiWyQN
+        I8In+bA9+avVh4gedMI44DZ6pdZhNe7Z51we
+X-Google-Smtp-Source: ABdhPJyt5KezM9/RepIc479Hj7sKEUvBK8/+ylikm9QEsqnaKaSXMwSZvTEbO6YBuquvjHUyjBfAWw==
+X-Received: by 2002:a17:90a:be0f:: with SMTP id a15mr38794788pjs.243.1639338420971;
+        Sun, 12 Dec 2021 11:47:00 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y4sm10138870pfi.178.2021.12.12.11.47.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 12 Dec 2021 11:47:00 -0800 (PST)
+Message-ID: <61b651b4.1c69fb81.8879e.cb4d@mx.google.com>
+Date:   Sun, 12 Dec 2021 11:47:00 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YbX/JVz768WuoiXd@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.7-135-ga62a1a0c8493
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 180 runs,
+ 2 regressions (v5.15.7-135-ga62a1a0c8493)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 12, 2021 at 02:54:45PM +0100, Greg KH wrote:
-> On Fri, Dec 10, 2021 at 03:48:00PM -0800, Eric Biggers wrote:
-> > Backport the aio poll fixes to 5.10.  This resolves a conflict in
-> > aio_poll_wake() in patch 4.  It's a "trivial" conflict, but I'm sending
-> > this to make sure it doesn't get dropped.
-> > 
-> > Eric Biggers (5):
-> >   wait: add wake_up_pollfree()
-> >   binder: use wake_up_pollfree()
-> >   signalfd: use wake_up_pollfree()
-> >   aio: keep poll requests on waitqueue until completed
-> >   aio: fix use-after-free due to missing POLLFREE handling
-> > 
-> >  drivers/android/binder.c        |  21 ++--
-> >  fs/aio.c                        | 184 ++++++++++++++++++++++++++------
-> >  fs/signalfd.c                   |  12 +--
-> >  include/linux/wait.h            |  26 +++++
-> >  include/uapi/asm-generic/poll.h |   2 +-
-> >  kernel/sched/wait.c             |   7 ++
-> >  6 files changed, 195 insertions(+), 57 deletions(-)
-> > 
-> > -- 
-> > 2.34.1
-> > 
-> 
-> Thanks for all of the backports, much appreciated and now queued up.
-> 
-> greg k-h
+stable-rc/queue/5.15 baseline: 180 runs, 2 regressions (v5.15.7-135-ga62a1a=
+0c8493)
 
-Thanks!  Can you apply the following commit to 5.15-stable too?  I missed that
-it's needed in 5.15:
+Regressions Summary
+-------------------
 
-	commit 4b3749865374899e115aa8c48681709b086fe6d3
-	Author: Xie Yongji <xieyongji@bytedance.com>
-	Date:   Mon Sep 13 19:19:28 2021 +0800
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-	    aio: Fix incorrect usage of eventfd_signal_allowed()
+rk3399-gru-kevin         | arm64  | lab-collabora | gcc-10   | defconfig   =
+                 | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.7-135-ga62a1a0c8493/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.7-135-ga62a1a0c8493
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a62a1a0c8493dedc2c9ff63c4d8a783b4298a877 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b616fe9668f453b6397136
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.7-1=
+35-ga62a1a0c8493/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.7-1=
+35-ga62a1a0c8493/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b616fe9668f453b6397=
+137
+        new failure (last pass: v5.15.7-56-g43f366b5107c) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+rk3399-gru-kevin         | arm64  | lab-collabora | gcc-10   | defconfig   =
+                 | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b617da7a75bf6639397137
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.7-1=
+35-ga62a1a0c8493/arm64/defconfig/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.7-1=
+35-ga62a1a0c8493/arm64/defconfig/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b617da7a75bf6639397=
+138
+        new failure (last pass: v5.15.7-56-g43f366b5107c) =
+
+ =20
