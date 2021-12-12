@@ -2,109 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EBF5471A55
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 14:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A37471A5B
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 14:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229739AbhLLNLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 08:11:52 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47050 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230515AbhLLNLv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 08:11:51 -0500
+        id S229914AbhLLNTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 08:19:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37554 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229907AbhLLNTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 08:19:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7ACB0CE09E6
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 13:11:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E142C341C5;
-        Sun, 12 Dec 2021 13:11:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3707EB80CA9
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 13:19:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE1CC341C5;
+        Sun, 12 Dec 2021 13:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639314708;
-        bh=Cvz/DObEPfnwRSbgjdy5gO3Ipbu7Xa8oEF5BdVZjqtM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=SM2Vs55GbHYS/RnuIPVkXWeEbLAVeY+riKsvbIxPu0SWYBJONV3/a6WovvrXZZyqS
-         idvSYYIHUcXxQ8eT7bs2R0X+k6qXPALRoAE0ijIgHy2molJ7FFslEwlj0YMLxPKwFw
-         fPqd34WH9FyeeCzztrch8A5crrABo2UEF+NUsO0I=
-Subject: FAILED: patch "[PATCH] nfsd: fix use-after-free due to delegation race" failed to apply to 4.19-stable tree
-To:     bfields@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 14:11:30 +0100
-Message-ID: <1639314690415@kroah.com>
+        s=korg; t=1639315156;
+        bh=Xx8xHH19iIcSzjQk5+6UIGK3QKkZ90ALbpOWb0yVgmY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LKnppm1f9ZIz22F8DW/daqnBBk1u6bY950Rb8XbppRwCGOOIjODNpXpHYNGXVOxvV
+         VqmtL6CuYRp9smv+3zLLbcIok6ICpuufaf66d2XGfChGf5rMxT3txeDQ/EcCLfzjLu
+         o34XAteZ14knqat+vWGYLPKqpCr50kCQz6RTLwcw=
+Date:   Sun, 12 Dec 2021 14:19:12 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     stable@vger.kernel.org,
+        Brian Silverman <brian.silverman@bluerivertech.com>
+Subject: Re: [PATCH] can: m_can: Disable and ignore ELO interrupt
+Message-ID: <YbX20AXH1F0qb4uO@kroah.com>
+References: <20211211213011.813419-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211211213011.813419-1-mkl@pengutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Dec 11, 2021 at 10:30:11PM +0100, Marc Kleine-Budde wrote:
+> From: Brian Silverman <brian.silverman@bluerivertech.com>
+> 
+> Commit f58ac1adc76b5beda43c64ef359056077df4d93a upstream.
+> 
+> With the design of this driver, this condition is often triggered.
+> However, the counter that this interrupt indicates an overflow is never
+> read either, so overflowing is harmless.
+> 
+> On my system, when a CAN bus starts flapping up and down, this locks up
+> the whole system with lots of interrupts and printks.
+> 
+> Specifically, this interrupt indicates the CEL field of ECR has
+> overflowed. All reads of ECR mask out CEL.
+> 
+> Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
+> Link: https://lore.kernel.org/all/20211129222628.7490-1-brian.silverman@bluerivertech.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Brian Silverman <brian.silverman@bluerivertech.com>
+> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> ---
+> Hey Greg,
+> 
+> this is
+> | f58ac1adc76b ("can: m_can: Disable and ignore ELO interrupt")
+> checrry picked onto v5.10. The patch applied without any problems,
+> won't know why it didn't work in your side.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This worked, thanks.
+
+Can I get a working backport for 4.4.y and 4.9.y as well?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 548ec0805c399c65ed66c6641be467f717833ab5 Mon Sep 17 00:00:00 2001
-From: "J. Bruce Fields" <bfields@redhat.com>
-Date: Mon, 29 Nov 2021 15:08:00 -0500
-Subject: [PATCH] nfsd: fix use-after-free due to delegation race
-
-A delegation break could arrive as soon as we've called vfs_setlease.  A
-delegation break runs a callback which immediately (in
-nfsd4_cb_recall_prepare) adds the delegation to del_recall_lru.  If we
-then exit nfs4_set_delegation without hashing the delegation, it will be
-freed as soon as the callback is done with it, without ever being
-removed from del_recall_lru.
-
-Symptoms show up later as use-after-free or list corruption warnings,
-usually in the laundromat thread.
-
-I suspect aba2072f4523 "nfsd: grant read delegations to clients holding
-writes" made this bug easier to hit, but I looked as far back as v3.0
-and it looks to me it already had the same problem.  So I'm not sure
-where the bug was introduced; it may have been there from the beginning.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index bfad94c70b84..1956d377d1a6 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -1207,6 +1207,11 @@ hash_delegation_locked(struct nfs4_delegation *dp, struct nfs4_file *fp)
- 	return 0;
- }
- 
-+static bool delegation_hashed(struct nfs4_delegation *dp)
-+{
-+	return !(list_empty(&dp->dl_perfile));
-+}
-+
- static bool
- unhash_delegation_locked(struct nfs4_delegation *dp)
- {
-@@ -1214,7 +1219,7 @@ unhash_delegation_locked(struct nfs4_delegation *dp)
- 
- 	lockdep_assert_held(&state_lock);
- 
--	if (list_empty(&dp->dl_perfile))
-+	if (!delegation_hashed(dp))
- 		return false;
- 
- 	dp->dl_stid.sc_type = NFS4_CLOSED_DELEG_STID;
-@@ -4598,7 +4603,7 @@ static void nfsd4_cb_recall_prepare(struct nfsd4_callback *cb)
- 	 * queued for a lease break. Don't queue it again.
- 	 */
- 	spin_lock(&state_lock);
--	if (dp->dl_time == 0) {
-+	if (delegation_hashed(dp) && dp->dl_time == 0) {
- 		dp->dl_time = ktime_get_boottime_seconds();
- 		list_add_tail(&dp->dl_recall_lru, &nn->del_recall_lru);
- 	}
-
