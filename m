@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7B8471AB5
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:24:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A087A471AB3
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:23:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231383AbhLLOYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:24:01 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40588 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231384AbhLLOYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:24:00 -0500
+        id S230122AbhLLOX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:23:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40438 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231384AbhLLOX4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:23:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35928C061751
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:23:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D9016CE0B6A
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:23:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55CDFC341C5;
-        Sun, 12 Dec 2021 14:23:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 026C5B80D11
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:23:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BBA5C341C6;
+        Sun, 12 Dec 2021 14:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319037;
-        bh=Jp45Za2gxKAo3XXcB5u5HSQo/Uct67cEMiJYeTPyWn4=;
+        s=korg; t=1639319033;
+        bh=EigBtL/q0KIOUHf3coXzz31visj8cDr3ONY7h3GeyLE=;
         h=Subject:To:Cc:From:Date:From;
-        b=pqAXi+pj6L74RNoR/6xCwTSObtBAKpF0C2vWnzBWoYBUqLPKBtiV8C5blDLYmqR36
-         mxgTzQfYO1uRJ/4WFFRM2aVdIz6n3E6EJyIEaGqElP/F8Isgu7YLfrUHicMZlryXZb
-         uJ5nhKN63+MBsjxNc1utj0hS6sH7DenEPwKHQXfs=
-Subject: FAILED: patch "[PATCH] hwmon: (dell-smm) Fix warning on /proc/i8k creation error" failed to apply to 4.19-stable tree
+        b=2p1213BYtSI/27YeXoKymqEjG4yvMVaatG8ffS+STH8T/ww8DsR5J2ue6y+rf2dA5
+         I+eL+NAGi5TnjT+Q9OmzTQue02Cts0gMmyvHM1zdsic4O/J2Uvp46SREe4rXnGYEE9
+         UduXSmB6ex2lqQvngh3jjzm1i1hN2UCq5Widw6IY=
+Subject: FAILED: patch "[PATCH] hwmon: (dell-smm) Fix warning on /proc/i8k creation error" failed to apply to 5.4-stable tree
 To:     W_Armin@gmx.de, linux@roeck-us.net, pali@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 12 Dec 2021 15:23:37 +0100
-Message-ID: <1639319017215183@kroah.com>
+Message-ID: <163931901710053@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
