@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D039471AD3
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:35:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55FCC471AD4
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:36:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231433AbhLLOfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:35:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33132 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230161AbhLLOfv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:35:51 -0500
+        id S230165AbhLLOgq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:36:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43266 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230161AbhLLOgq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:36:46 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17165C061714
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:36:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1BAFB80D11
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:35:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCB0C341C6;
-        Sun, 12 Dec 2021 14:35:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6344BCE0B1E
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:36:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A5CC341C6;
+        Sun, 12 Dec 2021 14:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319749;
-        bh=Xb7KrINoB+/NyJSDP1VNelqRo5x6qO7/g+7xI3tD7eY=;
+        s=korg; t=1639319802;
+        bh=1xeJlrdlQWvGjDWK07zjDKS0XiGkItyyG+4cOkKNhPw=;
         h=Subject:To:Cc:From:Date:From;
-        b=SqSgjRfuRmwUYPe25fODcVxg1n/hAw/0LAk+f18VQpTnSloFGS3r2KHymmAZtc2rD
-         SHXXsi9/HQCZOTbFqmjs/O6zYV8sudbvwlbOZBSwgKWpSwqbeNZ0KumO8Pnlqyrcmu
-         qjyF6px6OJB7JS47SBrWkfFIXpgOg+uSO1g6+ypk=
-Subject: FAILED: patch "[PATCH] mtd: rawnand: fsmc: Fix timing computation" failed to apply to 4.19-stable tree
-To:     herve.codina@bootlin.com, miquel.raynal@bootlin.com
+        b=DDViMXsV1CtCnXdQf3mlKrASz9LJZjSJVtGS4VjrLL3FcB4uEVNxgLyDMlVwMLFaV
+         ZvlBlisOO8hezS2Zazt/sGktziyJSp2KX3bHceSGxHGn2uwBdFE/ExzE2PjaeyloP2
+         CY7f4ttgkBNiA2q92zeeXv3BlkDjCnvFWCC2TtFk=
+Subject: FAILED: patch "[PATCH] can: m_can: pci: use custom bit timings for Elkhart Lake" failed to apply to 5.15-stable tree
+To:     matthias.schiffer@ew.tq-group.com, mkl@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 15:35:38 +0100
-Message-ID: <163931973817769@kroah.com>
+Date:   Sun, 12 Dec 2021 15:36:40 +0100
+Message-ID: <1639319800134229@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,104 +53,117 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9472335eaa1452b51dc8e8edaa1a342997cb80c7 Mon Sep 17 00:00:00 2001
-From: Herve Codina <herve.codina@bootlin.com>
-Date: Fri, 19 Nov 2021 16:03:16 +0100
-Subject: [PATCH] mtd: rawnand: fsmc: Fix timing computation
+From ea4c1787685dbf9842046f05b6390b6901ee6ba2 Mon Sep 17 00:00:00 2001
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Date: Mon, 15 Nov 2021 10:18:52 +0100
+Subject: [PATCH] can: m_can: pci: use custom bit timings for Elkhart Lake
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Under certain circumstances, the timing settings calculated by
-the FSMC NAND controller driver were inaccurate.
-These settings led to incorrect data reads or fallback to
-timing mode 0 depending on the NAND chip used.
+The relevant datasheet [1] specifies nonstandard limits for the bit timing
+parameters. While it is unclear what the exact effect of violating these
+limits is, it seems like a good idea to adhere to the documentation.
 
-The timing computation did not take into account the following
-constraint given in SPEAr3xx reference manual:
-  twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
+[1] Intel Atom® x6000E Series, and Intel® Pentium® and Celeron® N and J
+    Series Processors for IoT Applications Datasheet,
+    Volume 2 (Book 3 of 3), July 2021, Revision 001
 
-Enhance the timings calculation by taking into account this
-additional constraint.
+Fixes: cab7ffc0324f ("can: m_can: add PCI glue driver for Intel Elkhart Lake")
+Link: https://lore.kernel.org/all/9eba5d7c05a48ead4024ffa6e5926f191d8c6b38.1636967198.git.matthias.schiffer@ew.tq-group.com
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 
-This change has no impact on slow timing modes such as mode 0.
-Indeed, on mode 0, computed values are the same with and
-without the patch.
-
-NANDs which previously stayed in mode 0 because of fallback to
-mode 0 can now work at higher speeds and NANDs which were not
-working at all because of the corrupted data work at high
-speeds without troubles.
-
-Overall improvement on a Micron/MT29F1G08 (flash_speed tool):
-                        mode0       mode3
-eraseblock write speed  3220 KiB/s  4511 KiB/s
-eraseblock read speed   4491 KiB/s  7529 KiB/s
-
-Fixes: d9fb079571833 ("mtd: nand: fsmc: add support for SDR timings")
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211119150316.43080-5-herve.codina@bootlin.com
-
-diff --git a/drivers/mtd/nand/raw/fsmc_nand.c b/drivers/mtd/nand/raw/fsmc_nand.c
-index 0a6c9ef0ea8b..6b2bda815b88 100644
---- a/drivers/mtd/nand/raw/fsmc_nand.c
-+++ b/drivers/mtd/nand/raw/fsmc_nand.c
-@@ -94,6 +94,14 @@
+diff --git a/drivers/net/can/m_can/m_can_pci.c b/drivers/net/can/m_can/m_can_pci.c
+index 8f184a852a0a..b56a54d6c5a9 100644
+--- a/drivers/net/can/m_can/m_can_pci.c
++++ b/drivers/net/can/m_can/m_can_pci.c
+@@ -18,9 +18,14 @@
  
- #define FSMC_BUSY_WAIT_TIMEOUT	(1 * HZ)
+ #define M_CAN_PCI_MMIO_BAR		0
  
-+/*
-+ * According to SPEAr300 Reference Manual (RM0082)
-+ *  TOUDEL = 7ns (Output delay from the flip-flops to the board)
-+ *  TINDEL = 5ns (Input delay from the board to the flipflop)
-+ */
-+#define TOUTDEL	7000
-+#define TINDEL	5000
+-#define M_CAN_CLOCK_FREQ_EHL		200000000
+ #define CTL_CSR_INT_CTL_OFFSET		0x508
+ 
++struct m_can_pci_config {
++	const struct can_bittiming_const *bit_timing;
++	const struct can_bittiming_const *data_timing;
++	unsigned int clock_freq;
++};
 +
- struct fsmc_nand_timings {
- 	u8 tclr;
- 	u8 tar;
-@@ -278,7 +286,7 @@ static int fsmc_calc_timings(struct fsmc_nand_data *host,
+ struct m_can_pci_priv {
+ 	struct m_can_classdev cdev;
+ 
+@@ -84,9 +89,40 @@ static struct m_can_ops m_can_pci_ops = {
+ 	.read_fifo = iomap_read_fifo,
+ };
+ 
++static const struct can_bittiming_const m_can_bittiming_const_ehl = {
++	.name = KBUILD_MODNAME,
++	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
++	.tseg1_max = 64,
++	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
++	.tseg2_max = 128,
++	.sjw_max = 128,
++	.brp_min = 1,
++	.brp_max = 512,
++	.brp_inc = 1,
++};
++
++static const struct can_bittiming_const m_can_data_bittiming_const_ehl = {
++	.name = KBUILD_MODNAME,
++	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
++	.tseg1_max = 16,
++	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
++	.tseg2_max = 8,
++	.sjw_max = 4,
++	.brp_min = 1,
++	.brp_max = 32,
++	.brp_inc = 1,
++};
++
++static const struct m_can_pci_config m_can_pci_ehl = {
++	.bit_timing = &m_can_bittiming_const_ehl,
++	.data_timing = &m_can_data_bittiming_const_ehl,
++	.clock_freq = 200000000,
++};
++
+ static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
  {
- 	unsigned long hclk = clk_get_rate(host->clk);
- 	unsigned long hclkn = NSEC_PER_SEC / hclk;
--	u32 thiz, thold, twait, tset;
-+	u32 thiz, thold, twait, tset, twait_min;
+ 	struct device *dev = &pci->dev;
++	const struct m_can_pci_config *cfg;
+ 	struct m_can_classdev *mcan_class;
+ 	struct m_can_pci_priv *priv;
+ 	void __iomem *base;
+@@ -114,6 +150,8 @@ static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 	if (!mcan_class)
+ 		return -ENOMEM;
  
- 	if (sdrt->tRC_min < 30000)
- 		return -EOPNOTSUPP;
-@@ -310,13 +318,6 @@ static int fsmc_calc_timings(struct fsmc_nand_data *host,
- 	else if (tims->thold > FSMC_THOLD_MASK)
- 		tims->thold = FSMC_THOLD_MASK;
- 
--	twait = max(sdrt->tRP_min, sdrt->tWP_min);
--	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
--	if (tims->twait == 0)
--		tims->twait = 1;
--	else if (tims->twait > FSMC_TWAIT_MASK)
--		tims->twait = FSMC_TWAIT_MASK;
--
- 	tset = max(sdrt->tCS_min - sdrt->tWP_min,
- 		   sdrt->tCEA_max - sdrt->tREA_max);
- 	tims->tset = DIV_ROUND_UP(tset / 1000, hclkn) - 1;
-@@ -325,6 +326,21 @@ static int fsmc_calc_timings(struct fsmc_nand_data *host,
- 	else if (tims->tset > FSMC_TSET_MASK)
- 		tims->tset = FSMC_TSET_MASK;
- 
-+	/*
-+	 * According to SPEAr300 Reference Manual (RM0082) which gives more
-+	 * information related to FSMSC timings than the SPEAr600 one (RM0305),
-+	 *   twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
-+	 */
-+	twait_min = sdrt->tCEA_max - ((tims->tset + 1) * hclkn * 1000)
-+		    + TOUTDEL + TINDEL;
-+	twait = max3(sdrt->tRP_min, sdrt->tWP_min, twait_min);
++	cfg = (const struct m_can_pci_config *)id->driver_data;
 +
-+	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
-+	if (tims->twait == 0)
-+		tims->twait = 1;
-+	else if (tims->twait > FSMC_TWAIT_MASK)
-+		tims->twait = FSMC_TWAIT_MASK;
-+
- 	return 0;
- }
+ 	priv = cdev_to_priv(mcan_class);
  
+ 	priv->base = base;
+@@ -125,7 +163,9 @@ static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 	mcan_class->dev = &pci->dev;
+ 	mcan_class->net->irq = pci_irq_vector(pci, 0);
+ 	mcan_class->pm_clock_support = 1;
+-	mcan_class->can.clock.freq = id->driver_data;
++	mcan_class->bit_timing = cfg->bit_timing;
++	mcan_class->data_timing = cfg->data_timing;
++	mcan_class->can.clock.freq = cfg->clock_freq;
+ 	mcan_class->ops = &m_can_pci_ops;
+ 
+ 	pci_set_drvdata(pci, mcan_class);
+@@ -178,8 +218,8 @@ static SIMPLE_DEV_PM_OPS(m_can_pci_pm_ops,
+ 			 m_can_pci_suspend, m_can_pci_resume);
+ 
+ static const struct pci_device_id m_can_pci_id_table[] = {
+-	{ PCI_VDEVICE(INTEL, 0x4bc1), M_CAN_CLOCK_FREQ_EHL, },
+-	{ PCI_VDEVICE(INTEL, 0x4bc2), M_CAN_CLOCK_FREQ_EHL, },
++	{ PCI_VDEVICE(INTEL, 0x4bc1), (kernel_ulong_t)&m_can_pci_ehl, },
++	{ PCI_VDEVICE(INTEL, 0x4bc2), (kernel_ulong_t)&m_can_pci_ehl, },
+ 	{  }	/* Terminating Entry */
+ };
+ MODULE_DEVICE_TABLE(pci, m_can_pci_id_table);
 
