@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B0C9471AAA
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:22:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 402B2471AAB
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:23:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbhLLOW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:22:56 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40252 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231406AbhLLOW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:22:56 -0500
+        id S231381AbhLLOXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:23:12 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57324 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231359AbhLLOXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:23:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F0738CE0B6A
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:22:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDFEC341C5;
-        Sun, 12 Dec 2021 14:22:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBF57B80D15
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:23:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19345C341C6;
+        Sun, 12 Dec 2021 14:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639318973;
-        bh=aD3WOb9efGec0kaFYHsvhD3xPu86V/b/9Cgk1OJg9dQ=;
+        s=korg; t=1639318989;
+        bh=IIpH/qstyU+bigNreVyqd2CkXhlf4FqDkFYVx0heG+o=;
         h=Subject:To:Cc:From:Date:From;
-        b=b2grx9DPqWrKIRktkl6pqcNylpmxNeYBbVrq0a66+EYaNrTzOEsenJ3sQOHDzh09k
-         Sh///6C2s9QoPto9d6RrQLWhfPr9Yl5EHdxafkTpsLCbXfpsHqvAJbTD6wJl6nW6A4
-         xyYEUuKvMz8+SQAkIYirUvizo/4a6gY4B61CAT/g=
-Subject: FAILED: patch "[PATCH] RDMA/hns: Do not halt commands during reset until later" failed to apply to 5.4-stable tree
+        b=GmCZPftZkMnSiTRbcuhE5Qa+FV9UcO9npa90s6Pn/RJlNavjLwPed4sU80WCv2pRL
+         fJcjUVH/CMD0QE2inwQnKO26AyB4sqZs6iLBe0ZO3pJbMDv4qepRwq3beT/8k5nIxv
+         z+u/6HJpn40IuHa4/OHDKZ8mVVWWzw+fJTKLogj4=
+Subject: FAILED: patch "[PATCH] RDMA/hns: Do not destroy QP resources in the hw resetting" failed to apply to 5.4-stable tree
 To:     liyangyang20@huawei.com, jgg@nvidia.com, liangwenpeng@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 15:22:50 +0100
-Message-ID: <16393189704367@kroah.com>
+Date:   Sun, 12 Dec 2021 15:23:06 +0100
+Message-ID: <163931898632104@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,66 +50,85 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 52414e27d6b568120b087d1fbafbb4482b0ccaab Mon Sep 17 00:00:00 2001
+From b0969f83890bf8b47f5c8bd42539599b2b52fdeb Mon Sep 17 00:00:00 2001
 From: Yangyang Li <liyangyang20@huawei.com>
-Date: Tue, 23 Nov 2021 16:48:09 +0800
-Subject: [PATCH] RDMA/hns: Do not halt commands during reset until later
+Date: Tue, 23 Nov 2021 22:24:02 +0800
+Subject: [PATCH] RDMA/hns: Do not destroy QP resources in the hw resetting
+ phase
 
-is_reset is used to indicate whether the hardware starts to reset. When
-hns_roce_hw_v2_reset_notify_down() is called, the hardware has not yet
-started to reset. If is_reset is set at this time, all mailbox operations
-of resource destroy actions will be intercepted by driver. When the driver
-cleans up resources, but the hardware is still accessed, the following
-errors will appear:
+When hns_roce_v2_destroy_qp() is called, the brief calling process of the
+driver is as follows:
 
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000003f
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50e0800
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000043e
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50a0800
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000020880000436
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50a0880
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000043a
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50e0840
-  hns3 0000:35:00.0: INT status: CMDQ(0x0) HW errors(0x0) other(0x0)
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  hns3 0000:35:00.0: received unknown or unhandled event of vector0
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  {34}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 7
+ ......
+ hns_roce_v2_destroy_qp
+ hns_roce_v2_qp_modify
+	   hns_roce_cmd_mbox
+ hns_roce_qp_destroy
 
-is_reset will be set correctly in check_aedev_reset_status(), so the
-setting in hns_roce_hw_v2_reset_notify_down() should be deleted.
+If hns_roce_cmd_mbox() detects that the hardware is being reset during the
+execution of the hns_roce_cmd_mbox(), the driver will not be able to get
+the return value from the hardware (the firmware cannot respond to the
+driver's mailbox during the hardware reset phase).
 
-Fixes: 726be12f5ca0 ("RDMA/hns: Set reset flag when hw resetting")
-Link: https://lore.kernel.org/r/20211123084809.37318-1-liangwenpeng@huawei.com
+The driver needs to wait for the hardware reset to complete before
+continuing to execute hns_roce_qp_destroy(), otherwise it may happen that
+the driver releases the resources but the hardware is still accessing. In
+order to fix this problem, HNS RoCE needs to add a piece of code to wait
+for the hardware reset to complete.
+
+The original interface get_hw_reset_stat() is the instantaneous state of
+the hardware reset, which cannot accurately reflect whether the hardware
+reset is completed, so it needs to be replaced with the ae_dev_reset_cnt
+interface.
+
+The sign that the hardware reset is complete is that the return value of
+the ae_dev_reset_cnt interface is greater than the original value
+reset_cnt recorded by the driver.
+
+Fixes: 6a04aed6afae ("RDMA/hns: Fix the chip hanging caused by sending mailbox&CMQ during reset")
+Link: https://lore.kernel.org/r/20211123142402.26936-1-liangwenpeng@huawei.com
 Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
 Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 
 diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 9bfbaddd1763..ae14329c619c 100644
+index ae14329c619c..bbfa1332dedc 100644
 --- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
 +++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -6387,10 +6387,8 @@ static int hns_roce_hw_v2_reset_notify_down(struct hnae3_handle *handle)
- 	if (!hr_dev)
- 		return 0;
+@@ -33,6 +33,7 @@
+ #include <linux/acpi.h>
+ #include <linux/etherdevice.h>
+ #include <linux/interrupt.h>
++#include <linux/iopoll.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <net/addrconf.h>
+@@ -1050,9 +1051,14 @@ static u32 hns_roce_v2_cmd_hw_resetting(struct hns_roce_dev *hr_dev,
+ 					unsigned long instance_stage,
+ 					unsigned long reset_stage)
+ {
++#define HW_RESET_TIMEOUT_US 1000000
++#define HW_RESET_SLEEP_US 1000
++
+ 	struct hns_roce_v2_priv *priv = hr_dev->priv;
+ 	struct hnae3_handle *handle = priv->handle;
+ 	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
++	unsigned long val;
++	int ret;
  
--	hr_dev->is_reset = true;
- 	hr_dev->active = false;
+ 	/* When hardware reset is detected, we should stop sending mailbox&cmq&
+ 	 * doorbell to hardware. If now in .init_instance() function, we should
+@@ -1064,7 +1070,11 @@ static u32 hns_roce_v2_cmd_hw_resetting(struct hns_roce_dev *hr_dev,
+ 	 * again.
+ 	 */
  	hr_dev->dis_db = true;
--
- 	hr_dev->state = HNS_ROCE_DEVICE_STATE_RST_DOWN;
+-	if (!ops->get_hw_reset_stat(handle))
++
++	ret = read_poll_timeout(ops->ae_dev_reset_cnt, val,
++				val > hr_dev->reset_cnt, HW_RESET_SLEEP_US,
++				HW_RESET_TIMEOUT_US, false, handle);
++	if (!ret)
+ 		hr_dev->is_reset = true;
  
- 	return 0;
+ 	if (!hr_dev->is_reset || reset_stage == HNS_ROCE_STATE_RST_INIT ||
 
