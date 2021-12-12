@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1782B471ACB
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8660E471ACA
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:33:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231429AbhLLOdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:33:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42590 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231406AbhLLOdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:33:44 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C80C061714
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:33:44 -0800 (PST)
+        id S231426AbhLLOdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:33:40 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60534 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231406AbhLLOdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:33:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 594EDCE0B71
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:33:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC9C4C341C5;
-        Sun, 12 Dec 2021 14:33:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6262B80CDD
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:33:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9ACBC341C5;
+        Sun, 12 Dec 2021 14:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319620;
-        bh=pF6WKOnphB6H65025jJ+hjKgI8n8TaOJjVwI5cBnwSQ=;
+        s=korg; t=1639319617;
+        bh=/sR+yIs3Aa9RWzfHEenwRP3DPgZJQ6BtUG+YhZ1a9pE=;
         h=Subject:To:Cc:From:Date:From;
-        b=acmsKwvrUIrGFtxJLd255X2Ml6XZf4BuRTneTKehFLsbQqEqrS+kqmUIm08B/djyx
-         G0BkUr3DjiS47vppwzmoytYtzNGXK8ySxS/m20D+G7NYELlM/+Zf4QMyr8Uv6T9myd
-         bCPXZbYfnpNv3i+nS2vO9mh2uNMK+LCvQbJwNZmw=
-Subject: FAILED: patch "[PATCH] ice: safer stats processing" failed to apply to 5.10-stable tree
+        b=H+Ty91Q2zX4Jy12FuBD66SjV1zX2s8XCfN+igWoa1MsV/IE38UyfB/EUmHysbaMD6
+         tB1bsI+9eFi7DCJ2721ZKLeKqFseP2XeNssqDAETqZE9DGYiFlSRp5z4qizQOEj+jc
+         elI9I3RKIa9G1Sjg+KOd4vx64rfY9fEOYeWINlx8=
+Subject: FAILED: patch "[PATCH] ice: safer stats processing" failed to apply to 5.15-stable tree
 To:     jesse.brandeburg@intel.com, anthony.l.nguyen@intel.com,
         gurucharanx.g@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 12 Dec 2021 15:33:24 +0100
-Message-ID: <163931960449105@kroah.com>
+Message-ID: <1639319604173229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
