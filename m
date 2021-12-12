@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B77471AA0
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9ECB471AA1
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbhLLOUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:20:46 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:39588 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbhLLOUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:20:46 -0500
+        id S231373AbhLLOUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:20:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39746 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231359AbhLLOUy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:20:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4390BC061714
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:20:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C5469CE0B66
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:20:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 476B7C341C5;
-        Sun, 12 Dec 2021 14:20:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8052FCE0B6A
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B194C341C5;
+        Sun, 12 Dec 2021 14:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639318842;
-        bh=5UiP4tp8Vny+0QpUOyFE/OwkwRzFxEeQN6SUKjeAbMQ=;
+        s=korg; t=1639318850;
+        bh=cq+KdWG2g4cdiLyldFKUS6680sKOQa6ez5QALs+VvI4=;
         h=Subject:To:Cc:From:Date:From;
-        b=zR2AdA5I6Dx13dpRsKSIieNRphLbPGDHGoFftZQ7QqgFIj4kMS2138r9wn2JSCtfj
-         Q7mUxLQ2CO9hgb2y703hMtaz1XN1ZxVhKEhQ3ybkdk0kNWtSgZ5E0YofZxKmzBfqj4
-         gHDnY28eDqOIx+V1PHUn8GzEUEC9aOCMA34/o6/Y=
-Subject: FAILED: patch "[PATCH] qede: validate non LSO skb length" failed to apply to 4.4-stable tree
+        b=P8HF2O4Dh77VKqbjchbrzPp0u2sgLV7ViaDsQ3Uu+snY5m33tHJqin03hk2NEL2J1
+         hfMwXUmn/tbX67lTEW1fe19MMYIJE98Og5FYivJo8k/dM9ykC3MVl6EJFFHXXxU+gk
+         lwDkbwnREyIiO/IflWskwtITS/LYTjzUl49Y7Iv4=
+Subject: FAILED: patch "[PATCH] qede: validate non LSO skb length" failed to apply to 4.9-stable tree
 To:     manishc@marvell.com, aelior@marvell.com, kuba@kernel.org,
         palok@marvell.com, pkushwaha@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 12 Dec 2021 15:20:39 +0100
-Message-ID: <1639318839165209@kroah.com>
+Message-ID: <163931883912625@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
