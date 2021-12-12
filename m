@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C797471ACE
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:34:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04EDD471ACD
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:34:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231431AbhLLOew (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:34:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60984 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229536AbhLLOew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:34:52 -0500
+        id S231406AbhLLOeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:34:44 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:43976 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229536AbhLLOeo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:34:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9D51B80D15
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:34:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D0DAC341C5;
-        Sun, 12 Dec 2021 14:34:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BA8F1CE0B6B
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:34:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E8B3C341C6;
+        Sun, 12 Dec 2021 14:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319689;
-        bh=+8LQilHKetjOOs8o6VQuRQ9Ov6wyKkpzBofA5BCDWmg=;
+        s=korg; t=1639319681;
+        bh=eNBKJYzGd5PXrya+/ZSyJxYrt61hddSlBK3K4RYdYIk=;
         h=Subject:To:Cc:From:Date:From;
-        b=NN97X3dIhiLE6mPUXHy4469jZ2QDarw6qtiwHeNs/5Dwwq3gs87Rbz97iZkec3OAF
-         cNvVtJYs8xoadZ3aXx7IuUoiuWOPeS2pOak1Rj/G0QaDP47hlbg9Dvt8RHcATLvpy2
-         pxgAd8LfDSYwE9JMlkcKle7SHUWY2c3fEqvE/yTQ=
-Subject: FAILED: patch "[PATCH] i40e: Fix failed opcode appearing if handling messages from" failed to apply to 4.9-stable tree
+        b=xVOXCRarHbFFu0HFv5as8WIvVBrcbwlcgpd8whjzfK22sT5lAEOY1Jd26Y4yN1ZHi
+         SyDWzlK+X62uPlhPFEsNVsP6Lq4FOjtn9u0jhjEWe+ag36HYP7N7mj/Cp2+8+L9fJ9
+         QnipFWuEDjCcpRMEhq4CKZMoSVKwReXY1ZUadkIM=
+Subject: FAILED: patch "[PATCH] i40e: Fix failed opcode appearing if handling messages from" failed to apply to 4.4-stable tree
 To:     karen.sornek@intel.com, anthony.l.nguyen@intel.com,
         grzegorzx.szczurek@intel.com, tony.brelinski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 12 Dec 2021 15:34:38 +0100
-Message-ID: <1639319678144224@kroah.com>
+Message-ID: <163931967829119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
