@@ -2,116 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2842471E74
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 00:00:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39661471E7B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 00:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230168AbhLLXAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 18:00:02 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49393 "EHLO
+        id S230146AbhLLXBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 18:01:21 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25646 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230130AbhLLXAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 18:00:01 -0500
+        by vger.kernel.org with ESMTP id S230088AbhLLXBU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 18:01:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639350000;
+        s=mimecast20190719; t=1639350080;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=WYVQFnDIbcgI5d/vqJyK9JfPBSSPc6zKfbYcO57Li1U=;
-        b=WmuhVWsO5mi80RT4m+no3isY1iJou4o3YpWQaknax9Wih1bUHUku36xax5VFio+o60zIc7
-        1OGTA7llpIy1V9V4ymdA9oRteRF9FpbmNZ5nA42fn0bQH0A++73QEiJu0FpkduZ58GoFj1
-        7cL4stQ+xqGrzmI1cpzkRO3SI4HcvFI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=nWAAVnbV6MqAjMvta69bjbT9xwzoQtd+RCXC/QhLjKY=;
+        b=C44aFaxmLXk2ClxfwtTQpwloudxdgB7ICI21mq+h3EQFau9SjcGI4w6Gts0pQ2K1HHXsMp
+        aQMZs0SELS0SpZ7Mb8vjPcjMonqlEYnfkSNRlIzf0GSF5bkG0dqONey867FdAMLfG+K1Jg
+        L0xbWqD0P1cC6AmR5n8Oym0wGEKlAO8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-500-rxumuRJINKSifO3BTnR3_Q-1; Sun, 12 Dec 2021 17:59:59 -0500
-X-MC-Unique: rxumuRJINKSifO3BTnR3_Q-1
-Received: by mail-wm1-f71.google.com with SMTP id 201-20020a1c04d2000000b003335bf8075fso8800144wme.0
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:59:59 -0800 (PST)
+ us-mta-224-n8nEHhS0N2SBci9vOL_6tg-1; Sun, 12 Dec 2021 18:01:19 -0500
+X-MC-Unique: n8nEHhS0N2SBci9vOL_6tg-1
+Received: by mail-wm1-f70.google.com with SMTP id z138-20020a1c7e90000000b003319c5f9164so10689281wmc.7
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 15:01:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=WYVQFnDIbcgI5d/vqJyK9JfPBSSPc6zKfbYcO57Li1U=;
-        b=luZvJN+7y3RiHGosWQo4pvthkemUXIn+oUWMaowcarwRCCuRgvFaPcRB2b7c/BJQqx
-         hpcWE3TneUpwdsr8CtDihto8GUEZ1k7JFs3R98mhU5/OIZCJhkUFiVS/xcXagwwowz6h
-         SpuvinAGDeGeAerYnPZQnFDprfkoP5taeymdbhjZl6GzJlQXu8bpRdn4sVpsomFvuyxM
-         mKerp/H76tjy0XJY0NJup8IdSW5X94/YbClSbyBTiFOGJzt+8t2cPFWreLui0/2hJ+DS
-         ZkmIZVyWDX6XBACMc1sIMDx7aDgrBvYi/5yF7PpbaFVzaMGWjvmjUr2jxh+e3RhtYrTB
-         LflQ==
-X-Gm-Message-State: AOAM530bqHZP7T2kHn8R4WhuFM5FvdhyOewceGtb45YCkLT8zrCq3gxT
-        IkJgNMpHvMkmEajz0WuQG21706HPSLJl8T9FkdVhOtljrjTjd5HZPeWsoOpwZyZz6JdaL0h2atd
-        fw1eK8xuNmeu4M1Nk
-X-Received: by 2002:a05:600c:1987:: with SMTP id t7mr32456856wmq.24.1639349998443;
-        Sun, 12 Dec 2021 14:59:58 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx2bTppYN2huiK2nylUvg6FCr00HLDzfg04TlPUjrDVfn+bIvC2GBhAeUTenJbfKS0A/G9aQQ==
-X-Received: by 2002:a05:600c:1987:: with SMTP id t7mr32456804wmq.24.1639349998099;
-        Sun, 12 Dec 2021 14:59:58 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=nWAAVnbV6MqAjMvta69bjbT9xwzoQtd+RCXC/QhLjKY=;
+        b=IjYDL0PwETwHLXAay8xbWASv/4vVT9Rf9LXxkWT6vHD4yq3nZ89jSSsSNjoUOvz7qJ
+         uJQKxMMgbii3pwQXwIu45VIGH+xtj8gVUjruMZ52ybx7dMA+lYp2IgiUe27oizD9dnjy
+         1jvRAMsr5TB3M9t76QdNir7XNHdYd1dROKNc9f8mWXPDu4Gc7pZnf1CYTU8JnAoNwut1
+         MrKuaCf/kJAMB6wgeP7Y/nmviVcmHHyFcIQY7zI6D0Vt3MpBxrUcbe/3dHWitUpVJ3DG
+         qnKBfHKHU/kI0xlOg2paOBje+vWng+7Vi3CT29rDwKsOiHkd6nZo0XLu/5lwTbKx6caY
+         rxCg==
+X-Gm-Message-State: AOAM532FXrbqncCFadRH835l266aBpOxG677FCPZ245uibirdRP7ps1q
+        OiyW2qYdsvzOgjbqBXS1GflxKdGqnioLhxPUF2RJgdmhBHFXyW4BjgYoOgHQs0udikZ5u1d9zv/
+        QmL92mcUMY2mQgYDm
+X-Received: by 2002:adf:f98c:: with SMTP id f12mr28846597wrr.184.1639350078002;
+        Sun, 12 Dec 2021 15:01:18 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyQCdHRAXnhC2AijT3mDyv6Ek9NRjuf014yNW66vb72IH9ZLQVQ9UW9yFVsxil1X5rmlgEpzQ==
+X-Received: by 2002:adf:f98c:: with SMTP id f12mr28846567wrr.184.1639350077791;
+        Sun, 12 Dec 2021 15:01:17 -0800 (PST)
 Received: from redhat.com ([2a03:c5c0:107e:eefb:294:6ac8:eff6:22df])
-        by smtp.gmail.com with ESMTPSA id bd18sm5203284wmb.43.2021.12.12.14.59.53
+        by smtp.gmail.com with ESMTPSA id o4sm10813418wry.80.2021.12.12.15.01.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Dec 2021 14:59:57 -0800 (PST)
-Date:   Sun, 12 Dec 2021 17:59:51 -0500
+        Sun, 12 Dec 2021 15:01:17 -0800 (PST)
+Date:   Sun, 12 Dec 2021 18:01:10 -0500
 From:   "Michael S. Tsirkin" <mst@redhat.com>
 To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
         netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         arnd@arndb.de, dan.carpenter@oracle.com, hch@lst.de,
         jasowang@redhat.com, jroedel@suse.de, konrad.wilk@oracle.com,
-        lkp@intel.com, maz@kernel.org, mst@redhat.com, parav@nvidia.com,
+        lkp@intel.com, maz@kernel.org, parav@nvidia.com,
         qperret@google.com, robin.murphy@arm.com, stable@vger.kernel.org,
         steven.price@arm.com, suzuki.poulose@arm.com, wei.w.wang@intel.com,
         will@kernel.org, xieyongji@bytedance.com
-Subject: [GIT PULL] vhost: cleanups and fixes
-Message-ID: <20211212175951-mutt-send-email-mst@kernel.org>
+Subject: Re: [GIT PULL] vhost: cleanups and fixes
+Message-ID: <20211212180010-mutt-send-email-mst@kernel.org>
+References: <20211212175951-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mutt-Fcc: =sent
+In-Reply-To: <20211212175951-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following changes since commit 0fcfb00b28c0b7884635dacf38e46d60bf3d4eb1:
+The email subject is wrong. it's just bugfixes.
+But the tag is ok, and that's what matters, right?
 
-  Linux 5.16-rc4 (2021-12-05 14:08:22 -0800)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to bb47620be322c5e9e372536cb6b54e17b3a00258:
-
-  vdpa: Consider device id larger than 31 (2021-12-08 15:41:50 -0500)
-
-----------------------------------------------------------------
-virtio,vdpa: bugfixes
-
-Misc bugfixes.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      virtio: always enter drivers/virtio/
-
-Dan Carpenter (3):
-      vduse: fix memory corruption in vduse_dev_ioctl()
-      vdpa: check that offsets are within bounds
-      vduse: check that offset is within bounds in get_config()
-
-Parav Pandit (1):
-      vdpa: Consider device id larger than 31
-
-Wei Wang (1):
-      virtio/vsock: fix the transport to work with VMADDR_CID_ANY
-
-Will Deacon (1):
-      virtio_ring: Fix querying of maximum DMA mapping size for virtio device
-
- drivers/Makefile                        | 3 +--
- drivers/vdpa/vdpa.c                     | 3 ++-
- drivers/vdpa/vdpa_user/vduse_dev.c      | 6 ++++--
- drivers/vhost/vdpa.c                    | 2 +-
- drivers/virtio/virtio_ring.c            | 2 +-
- net/vmw_vsock/virtio_transport_common.c | 3 ++-
- 6 files changed, 11 insertions(+), 8 deletions(-)
+On Sun, Dec 12, 2021 at 05:59:58PM -0500, Michael S. Tsirkin wrote:
+> The following changes since commit 0fcfb00b28c0b7884635dacf38e46d60bf3d4eb1:
+> 
+>   Linux 5.16-rc4 (2021-12-05 14:08:22 -0800)
+> 
+> are available in the Git repository at:
+> 
+>   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> 
+> for you to fetch changes up to bb47620be322c5e9e372536cb6b54e17b3a00258:
+> 
+>   vdpa: Consider device id larger than 31 (2021-12-08 15:41:50 -0500)
+> 
+> ----------------------------------------------------------------
+> virtio,vdpa: bugfixes
+> 
+> Misc bugfixes.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ----------------------------------------------------------------
+> Arnd Bergmann (1):
+>       virtio: always enter drivers/virtio/
+> 
+> Dan Carpenter (3):
+>       vduse: fix memory corruption in vduse_dev_ioctl()
+>       vdpa: check that offsets are within bounds
+>       vduse: check that offset is within bounds in get_config()
+> 
+> Parav Pandit (1):
+>       vdpa: Consider device id larger than 31
+> 
+> Wei Wang (1):
+>       virtio/vsock: fix the transport to work with VMADDR_CID_ANY
+> 
+> Will Deacon (1):
+>       virtio_ring: Fix querying of maximum DMA mapping size for virtio device
+> 
+>  drivers/Makefile                        | 3 +--
+>  drivers/vdpa/vdpa.c                     | 3 ++-
+>  drivers/vdpa/vdpa_user/vduse_dev.c      | 6 ++++--
+>  drivers/vhost/vdpa.c                    | 2 +-
+>  drivers/virtio/virtio_ring.c            | 2 +-
+>  net/vmw_vsock/virtio_transport_common.c | 3 ++-
+>  6 files changed, 11 insertions(+), 8 deletions(-)
 
