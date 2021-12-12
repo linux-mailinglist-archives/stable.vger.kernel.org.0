@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55FCC471AD4
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:36:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A75BA471AD7
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230165AbhLLOgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:36:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43266 "EHLO
+        id S231443AbhLLOhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:37:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230161AbhLLOgq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:36:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17165C061714
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:36:46 -0800 (PST)
+        with ESMTP id S230161AbhLLOhd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:37:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F4119C061714
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:37:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6344BCE0B1E
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:36:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A5CC341C6;
-        Sun, 12 Dec 2021 14:36:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1F36B80D12
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:37:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B42A5C341CA;
+        Sun, 12 Dec 2021 14:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319802;
-        bh=1xeJlrdlQWvGjDWK07zjDKS0XiGkItyyG+4cOkKNhPw=;
+        s=korg; t=1639319850;
+        bh=NMXKWOTlf9peAVnB69Uzvj6wkSC1yzp/xMD7pbLroFQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=DDViMXsV1CtCnXdQf3mlKrASz9LJZjSJVtGS4VjrLL3FcB4uEVNxgLyDMlVwMLFaV
-         ZvlBlisOO8hezS2Zazt/sGktziyJSp2KX3bHceSGxHGn2uwBdFE/ExzE2PjaeyloP2
-         CY7f4ttgkBNiA2q92zeeXv3BlkDjCnvFWCC2TtFk=
-Subject: FAILED: patch "[PATCH] can: m_can: pci: use custom bit timings for Elkhart Lake" failed to apply to 5.15-stable tree
-To:     matthias.schiffer@ew.tq-group.com, mkl@pengutronix.de
+        b=RmRCJsRRUYarKHZxfYLaroUGWw29is2BEJuWiiUCDSB2tceinHN9ZnTqOpaYC7oLL
+         QsYZmmqzg1t2Guylgi1gX3M3vPYfM43zBzXjcLxXP+t2L9GYOILvg5pj0xk1r9e/9j
+         mai7vzxl61CmspIFV7epU19mLKPten9oMzFcXi6s=
+Subject: FAILED: patch "[PATCH] i40e: Fix NULL pointer dereference in i40e_dbg_dump_desc" failed to apply to 4.4-stable tree
+To:     norbertx.zulinski@intel.com, anthony.l.nguyen@intel.com,
+        gurucharanx.g@intel.com, mateusz.palczewski@intel.com,
+        sylwesterx.dziedziuch@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 15:36:40 +0100
-Message-ID: <1639319800134229@kroah.com>
+Date:   Sun, 12 Dec 2021 15:37:27 +0100
+Message-ID: <1639319847204179@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,117 +55,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ea4c1787685dbf9842046f05b6390b6901ee6ba2 Mon Sep 17 00:00:00 2001
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Date: Mon, 15 Nov 2021 10:18:52 +0100
-Subject: [PATCH] can: m_can: pci: use custom bit timings for Elkhart Lake
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 23ec111bf3549aae37140330c31a16abfc172421 Mon Sep 17 00:00:00 2001
+From: Norbert Zulinski <norbertx.zulinski@intel.com>
+Date: Mon, 22 Nov 2021 12:29:05 +0100
+Subject: [PATCH] i40e: Fix NULL pointer dereference in i40e_dbg_dump_desc
 
-The relevant datasheet [1] specifies nonstandard limits for the bit timing
-parameters. While it is unclear what the exact effect of violating these
-limits is, it seems like a good idea to adhere to the documentation.
+When trying to dump VFs VSI RX/TX descriptors
+using debugfs there was a crash
+due to NULL pointer dereference in i40e_dbg_dump_desc.
+Added a check to i40e_dbg_dump_desc that checks if
+VSI type is correct for dumping RX/TX descriptors.
 
-[1] Intel Atom® x6000E Series, and Intel® Pentium® and Celeron® N and J
-    Series Processors for IoT Applications Datasheet,
-    Volume 2 (Book 3 of 3), July 2021, Revision 001
+Fixes: 02e9c290814c ("i40e: debugfs interface")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-Fixes: cab7ffc0324f ("can: m_can: add PCI glue driver for Intel Elkhart Lake")
-Link: https://lore.kernel.org/all/9eba5d7c05a48ead4024ffa6e5926f191d8c6b38.1636967198.git.matthias.schiffer@ew.tq-group.com
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-
-diff --git a/drivers/net/can/m_can/m_can_pci.c b/drivers/net/can/m_can/m_can_pci.c
-index 8f184a852a0a..b56a54d6c5a9 100644
---- a/drivers/net/can/m_can/m_can_pci.c
-+++ b/drivers/net/can/m_can/m_can_pci.c
-@@ -18,9 +18,14 @@
- 
- #define M_CAN_PCI_MMIO_BAR		0
- 
--#define M_CAN_CLOCK_FREQ_EHL		200000000
- #define CTL_CSR_INT_CTL_OFFSET		0x508
- 
-+struct m_can_pci_config {
-+	const struct can_bittiming_const *bit_timing;
-+	const struct can_bittiming_const *data_timing;
-+	unsigned int clock_freq;
-+};
-+
- struct m_can_pci_priv {
- 	struct m_can_classdev cdev;
- 
-@@ -84,9 +89,40 @@ static struct m_can_ops m_can_pci_ops = {
- 	.read_fifo = iomap_read_fifo,
- };
- 
-+static const struct can_bittiming_const m_can_bittiming_const_ehl = {
-+	.name = KBUILD_MODNAME,
-+	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
-+	.tseg1_max = 64,
-+	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
-+	.tseg2_max = 128,
-+	.sjw_max = 128,
-+	.brp_min = 1,
-+	.brp_max = 512,
-+	.brp_inc = 1,
-+};
-+
-+static const struct can_bittiming_const m_can_data_bittiming_const_ehl = {
-+	.name = KBUILD_MODNAME,
-+	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
-+	.tseg1_max = 16,
-+	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
-+	.tseg2_max = 8,
-+	.sjw_max = 4,
-+	.brp_min = 1,
-+	.brp_max = 32,
-+	.brp_inc = 1,
-+};
-+
-+static const struct m_can_pci_config m_can_pci_ehl = {
-+	.bit_timing = &m_can_bittiming_const_ehl,
-+	.data_timing = &m_can_data_bittiming_const_ehl,
-+	.clock_freq = 200000000,
-+};
-+
- static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- {
- 	struct device *dev = &pci->dev;
-+	const struct m_can_pci_config *cfg;
- 	struct m_can_classdev *mcan_class;
- 	struct m_can_pci_priv *priv;
- 	void __iomem *base;
-@@ -114,6 +150,8 @@ static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- 	if (!mcan_class)
- 		return -ENOMEM;
- 
-+	cfg = (const struct m_can_pci_config *)id->driver_data;
-+
- 	priv = cdev_to_priv(mcan_class);
- 
- 	priv->base = base;
-@@ -125,7 +163,9 @@ static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- 	mcan_class->dev = &pci->dev;
- 	mcan_class->net->irq = pci_irq_vector(pci, 0);
- 	mcan_class->pm_clock_support = 1;
--	mcan_class->can.clock.freq = id->driver_data;
-+	mcan_class->bit_timing = cfg->bit_timing;
-+	mcan_class->data_timing = cfg->data_timing;
-+	mcan_class->can.clock.freq = cfg->clock_freq;
- 	mcan_class->ops = &m_can_pci_ops;
- 
- 	pci_set_drvdata(pci, mcan_class);
-@@ -178,8 +218,8 @@ static SIMPLE_DEV_PM_OPS(m_can_pci_pm_ops,
- 			 m_can_pci_suspend, m_can_pci_resume);
- 
- static const struct pci_device_id m_can_pci_id_table[] = {
--	{ PCI_VDEVICE(INTEL, 0x4bc1), M_CAN_CLOCK_FREQ_EHL, },
--	{ PCI_VDEVICE(INTEL, 0x4bc2), M_CAN_CLOCK_FREQ_EHL, },
-+	{ PCI_VDEVICE(INTEL, 0x4bc1), (kernel_ulong_t)&m_can_pci_ehl, },
-+	{ PCI_VDEVICE(INTEL, 0x4bc2), (kernel_ulong_t)&m_can_pci_ehl, },
- 	{  }	/* Terminating Entry */
- };
- MODULE_DEVICE_TABLE(pci, m_can_pci_id_table);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
+index 291e61ac3e44..2c1b1da1220e 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
+@@ -553,6 +553,14 @@ static void i40e_dbg_dump_desc(int cnt, int vsi_seid, int ring_id, int desc_n,
+ 		dev_info(&pf->pdev->dev, "vsi %d not found\n", vsi_seid);
+ 		return;
+ 	}
++	if (vsi->type != I40E_VSI_MAIN &&
++	    vsi->type != I40E_VSI_FDIR &&
++	    vsi->type != I40E_VSI_VMDQ2) {
++		dev_info(&pf->pdev->dev,
++			 "vsi %d type %d descriptor rings not available\n",
++			 vsi_seid, vsi->type);
++		return;
++	}
+ 	if (type == RING_TYPE_XDP && !i40e_enabled_xdp_vsi(vsi)) {
+ 		dev_info(&pf->pdev->dev, "XDP not enabled on VSI %d\n", vsi_seid);
+ 		return;
 
