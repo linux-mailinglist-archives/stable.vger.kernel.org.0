@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0354719F3
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 13:12:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 764BA4719F2
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 13:11:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbhLLMMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 07:12:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39958 "EHLO
+        id S230322AbhLLMLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 07:11:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229618AbhLLMMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 07:12:01 -0500
+        with ESMTP id S229618AbhLLMLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 07:11:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3112FC061714
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 04:12:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91104C061714
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 04:11:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED537B80CCF
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 12:11:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13556C341C6;
-        Sun, 12 Dec 2021 12:11:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C956BB80CCF
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 12:11:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE63C341C6;
+        Sun, 12 Dec 2021 12:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639311118;
-        bh=H0OqWO4m0vUuSRs/OWlmVrVYuKn3bjbYByhMfkmgRA0=;
+        s=korg; t=1639311110;
+        bh=wc+6BElzjE/AZ+9WhZy4FxLN8kogtpkOvbk4zfzYwgI=;
         h=Subject:To:Cc:From:Date:From;
-        b=NrgvR+AmWalMu1LBXQEVygCgJm2YLz5sPykN3aPERcSgIDWr2PETv41C91xNaFcWq
-         cI5+7L7cIdT5JGtlAp57eOuvCHTrMUyJm882rPjsYYh5xF/GtEM1Pn/ko2wZo/xMJW
-         jhCdefLhSX3BtX6TrZ+u9eTjMQxl8gGUl/HW6Y+I=
-Subject: FAILED: patch "[PATCH] KVM: x86: Ignore sparse banks size for an "all CPUs"," failed to apply to 5.10-stable tree
+        b=wqHcThPKFp2MQGnVpy8HoH2Zn330AvGZNf5u3ryvu18QOKOMR4p1zZkMAKE4K8ePc
+         41Mgr3JtPac5p/xwrdmeXvH6FJYhDgDkV5t3OiQOG1ERTVaJozVR2+WekRsorgtWF5
+         vf3KESTk+gvqF+9kFwFl4PROar+a2T78BCAPr9KQ=
+Subject: FAILED: patch "[PATCH] KVM: x86: Ignore sparse banks size for an "all CPUs"," failed to apply to 5.4-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com, vkuznets@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 12 Dec 2021 13:11:47 +0100
-Message-ID: <1639311107106200@kroah.com>
+Message-ID: <163931110725412@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
