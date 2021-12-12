@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51054471ADA
+	by mail.lfdr.de (Postfix) with ESMTP id 81503471ADB
 	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:37:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231448AbhLLOhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:37:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230161AbhLLOhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:37:48 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFC0C061714
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:37:48 -0800 (PST)
+        id S231449AbhLLOhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:37:51 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:44804 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230161AbhLLOhu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:37:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8B502CE0B70
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:37:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34E01C341C5;
-        Sun, 12 Dec 2021 14:37:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 830C9CE0B6F
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:37:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E971C341C5;
+        Sun, 12 Dec 2021 14:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319864;
-        bh=iT8Y/IgH/XqmOq+T8Jk5g2WLnDQwxeVs2P+DBjJ/UBs=;
+        s=korg; t=1639319867;
+        bh=JqJJrGcmciegZzeUXi8kJNAh9ofWvTfdpDLjM7XZnic=;
         h=Subject:To:Cc:From:Date:From;
-        b=1es3Du6IuBN29CFTZ1FbJa060YRj8q1+eTKF60ox0ATrCXa+lmj+nzLBC0Yce2Ham
-         aLhR3d9AlBjwNUpsnx6S1O+3p6mcQ9+d2PvAF6GcCrCdM3f23sUg4gMFAgXruiFOfO
-         xP5KSBDJSGr3Z3pqRUFQ4vfJjZLK/drAAN2Yqfv8=
-Subject: FAILED: patch "[PATCH] i40e: Fix NULL pointer dereference in i40e_dbg_dump_desc" failed to apply to 4.9-stable tree
+        b=sVBHM+/mRmfnxtXFgsKOyOrZj9NQ+vYUw8HLHXql81EtXOxv/s2tz0s28DuotOkrp
+         ZTWHzV4RgOKdHF1KYkzVq1mohtwXn/iMq0Zkcu3Ll/krEf2Zyo4P2So2bLBtKie7J9
+         NAIeZqZqstVzLtn44vz6DhLxmektUI5IVDTzPrHY=
+Subject: FAILED: patch "[PATCH] i40e: Fix NULL pointer dereference in i40e_dbg_dump_desc" failed to apply to 5.4-stable tree
 To:     norbertx.zulinski@intel.com, anthony.l.nguyen@intel.com,
         gurucharanx.g@intel.com, mateusz.palczewski@intel.com,
         sylwesterx.dziedziuch@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 15:37:28 +0100
-Message-ID: <16393198485071@kroah.com>
+Date:   Sun, 12 Dec 2021 15:37:29 +0100
+Message-ID: <1639319849255149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,7 +41,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
