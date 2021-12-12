@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F02471A51
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 14:11:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94371471A53
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 14:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230499AbhLLNLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 08:11:35 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:46938 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229739AbhLLNLe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 08:11:34 -0500
+        id S230508AbhLLNLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 08:11:45 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35328 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229739AbhLLNLo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 08:11:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B8E06CE09E6
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 13:11:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8C1C341C6;
-        Sun, 12 Dec 2021 13:11:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6A23B80CAB
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 13:11:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC6FC341C5;
+        Sun, 12 Dec 2021 13:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639314690;
-        bh=l4DDPBqfmcxkmE8GTrv4chlvdHCKrviyGHPRJu199LY=;
+        s=korg; t=1639314702;
+        bh=1cnMjvNrLtANb8x105g2D8PubIa3GUmuBD7GozMT0+o=;
         h=Subject:To:Cc:From:Date:From;
-        b=sKjLK0gku9ABNHPiibHZ5umF8YM3O6D+4Q7FgC60u79nqgAhcUAyLrWch8P3270sd
-         Fd8okrsUWYMXX0RK4C8dGc3EHvQhNyIBJ8+GhBWUwPK2EXJcCHL5iUClBTl2j6okKZ
-         JUibI0s2YUNAfAZyyfIR3ZUQaPiG+2dhaZ+Hfqms=
-Subject: FAILED: patch "[PATCH] nfsd: fix use-after-free due to delegation race" failed to apply to 4.4-stable tree
+        b=euiPE2lVloa9qhLXCXbIBf5aiPnhGMIJM4qOcJP1fakA7aOeqQfszADXIlqi0x0QP
+         /PrwEyCNlcxaImzpiE1B/em4S5/VAdhTJ/hv/mpZbJ3VmVWY4vucDri9iCYjumjYhY
+         TDngRuynvufuIGAfeHoqmpuCHALbuRNti4PTDlxw=
+Subject: FAILED: patch "[PATCH] nfsd: fix use-after-free due to delegation race" failed to apply to 4.14-stable tree
 To:     bfields@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 14:11:28 +0100
-Message-ID: <16393146883208@kroah.com>
+Date:   Sun, 12 Dec 2021 14:11:29 +0100
+Message-ID: <1639314689174211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
