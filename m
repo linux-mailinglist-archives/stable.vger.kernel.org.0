@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF701471AD1
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:35:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7260471AD2
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:35:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231435AbhLLOfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:35:02 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:44080 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbhLLOfC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:35:02 -0500
+        id S230162AbhLLOfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:35:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33080 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230161AbhLLOfn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:35:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 695AFCE0B1E
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:35:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14D7AC341C6;
-        Sun, 12 Dec 2021 14:34:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8909B80D15
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AAA8C341C6;
+        Sun, 12 Dec 2021 14:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639319698;
-        bh=dF1L1Cmh7WM+WkK/Nedlh94zz5sSQT6gGXvsvuDP9kE=;
+        s=korg; t=1639319740;
+        bh=t1NuEIM8Mrdvzt7jQBAP2O4cwkxlqKDMcUbLq9KIO6I=;
         h=Subject:To:Cc:From:Date:From;
-        b=XkZz/23nKEcMSO3M9sbcWD9rFrfbJ3UL5JHIZK4ts+xDACV6jTtaMOYiyaWeSNVz3
-         VOsR3cGj5DY+McTxXkPjIxZy1OjbW41RyCE8/iUz5ss6OLvAuB909wqQKWnE45gtAN
-         0UdiTskdUivKKpC+PgN/6xLq3IuAaDNfDUQor2TQ=
-Subject: FAILED: patch "[PATCH] i40e: Fix failed opcode appearing if handling messages from" failed to apply to 5.4-stable tree
-To:     karen.sornek@intel.com, anthony.l.nguyen@intel.com,
-        grzegorzx.szczurek@intel.com, tony.brelinski@intel.com
+        b=ejXdh8yQpeUJScKVWo7v2QBk+zIZzWCrigp40z8jVnZa6haked9lH306DRNkRnOTN
+         CZkfBUy6Jyp6GoGVfZQteZFX2x9oTqaBVjP75XrJugqmSl/GbCqlSNxWc5INSml+Ry
+         OAVL1KbJZinf26j6ZLBIZ4vbrDOv7cKJTSguFrQM=
+Subject: FAILED: patch "[PATCH] mtd: rawnand: fsmc: Fix timing computation" failed to apply to 4.14-stable tree
+To:     herve.codina@bootlin.com, miquel.raynal@bootlin.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 15:34:40 +0100
-Message-ID: <16393196805093@kroah.com>
+Date:   Sun, 12 Dec 2021 15:35:37 +0100
+Message-ID: <1639319737240112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,258 +50,104 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 61125b8be85dfbc7e9c7fe1cc6c6d631ab603516 Mon Sep 17 00:00:00 2001
-From: Karen Sornek <karen.sornek@intel.com>
-Date: Fri, 14 May 2021 11:43:13 +0200
-Subject: [PATCH] i40e: Fix failed opcode appearing if handling messages from
- VF
+From 9472335eaa1452b51dc8e8edaa1a342997cb80c7 Mon Sep 17 00:00:00 2001
+From: Herve Codina <herve.codina@bootlin.com>
+Date: Fri, 19 Nov 2021 16:03:16 +0100
+Subject: [PATCH] mtd: rawnand: fsmc: Fix timing computation
 
-Fix failed operation code appearing if handling messages from VF.
-Implemented by waiting for VF appropriate state if request starts
-handle while VF reset.
-Without this patch the message handling request while VF is in
-a reset state ends with error -5 (I40E_ERR_PARAM).
+Under certain circumstances, the timing settings calculated by
+the FSMC NAND controller driver were inaccurate.
+These settings led to incorrect data reads or fallback to
+timing mode 0 depending on the NAND chip used.
 
-Fixes: 5c3c48ac6bf5 ("i40e: implement virtual device interface")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Karen Sornek <karen.sornek@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+The timing computation did not take into account the following
+constraint given in SPEAr3xx reference manual:
+  twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 80ae264c99ba..f651861442c2 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -1948,6 +1948,32 @@ static int i40e_vc_send_resp_to_vf(struct i40e_vf *vf,
- 	return i40e_vc_send_msg_to_vf(vf, opcode, retval, NULL, 0);
+Enhance the timings calculation by taking into account this
+additional constraint.
+
+This change has no impact on slow timing modes such as mode 0.
+Indeed, on mode 0, computed values are the same with and
+without the patch.
+
+NANDs which previously stayed in mode 0 because of fallback to
+mode 0 can now work at higher speeds and NANDs which were not
+working at all because of the corrupted data work at high
+speeds without troubles.
+
+Overall improvement on a Micron/MT29F1G08 (flash_speed tool):
+                        mode0       mode3
+eraseblock write speed  3220 KiB/s  4511 KiB/s
+eraseblock read speed   4491 KiB/s  7529 KiB/s
+
+Fixes: d9fb079571833 ("mtd: nand: fsmc: add support for SDR timings")
+Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20211119150316.43080-5-herve.codina@bootlin.com
+
+diff --git a/drivers/mtd/nand/raw/fsmc_nand.c b/drivers/mtd/nand/raw/fsmc_nand.c
+index 0a6c9ef0ea8b..6b2bda815b88 100644
+--- a/drivers/mtd/nand/raw/fsmc_nand.c
++++ b/drivers/mtd/nand/raw/fsmc_nand.c
+@@ -94,6 +94,14 @@
+ 
+ #define FSMC_BUSY_WAIT_TIMEOUT	(1 * HZ)
+ 
++/*
++ * According to SPEAr300 Reference Manual (RM0082)
++ *  TOUDEL = 7ns (Output delay from the flip-flops to the board)
++ *  TINDEL = 5ns (Input delay from the board to the flipflop)
++ */
++#define TOUTDEL	7000
++#define TINDEL	5000
++
+ struct fsmc_nand_timings {
+ 	u8 tclr;
+ 	u8 tar;
+@@ -278,7 +286,7 @@ static int fsmc_calc_timings(struct fsmc_nand_data *host,
+ {
+ 	unsigned long hclk = clk_get_rate(host->clk);
+ 	unsigned long hclkn = NSEC_PER_SEC / hclk;
+-	u32 thiz, thold, twait, tset;
++	u32 thiz, thold, twait, tset, twait_min;
+ 
+ 	if (sdrt->tRC_min < 30000)
+ 		return -EOPNOTSUPP;
+@@ -310,13 +318,6 @@ static int fsmc_calc_timings(struct fsmc_nand_data *host,
+ 	else if (tims->thold > FSMC_THOLD_MASK)
+ 		tims->thold = FSMC_THOLD_MASK;
+ 
+-	twait = max(sdrt->tRP_min, sdrt->tWP_min);
+-	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
+-	if (tims->twait == 0)
+-		tims->twait = 1;
+-	else if (tims->twait > FSMC_TWAIT_MASK)
+-		tims->twait = FSMC_TWAIT_MASK;
+-
+ 	tset = max(sdrt->tCS_min - sdrt->tWP_min,
+ 		   sdrt->tCEA_max - sdrt->tREA_max);
+ 	tims->tset = DIV_ROUND_UP(tset / 1000, hclkn) - 1;
+@@ -325,6 +326,21 @@ static int fsmc_calc_timings(struct fsmc_nand_data *host,
+ 	else if (tims->tset > FSMC_TSET_MASK)
+ 		tims->tset = FSMC_TSET_MASK;
+ 
++	/*
++	 * According to SPEAr300 Reference Manual (RM0082) which gives more
++	 * information related to FSMSC timings than the SPEAr600 one (RM0305),
++	 *   twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
++	 */
++	twait_min = sdrt->tCEA_max - ((tims->tset + 1) * hclkn * 1000)
++		    + TOUTDEL + TINDEL;
++	twait = max3(sdrt->tRP_min, sdrt->tWP_min, twait_min);
++
++	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
++	if (tims->twait == 0)
++		tims->twait = 1;
++	else if (tims->twait > FSMC_TWAIT_MASK)
++		tims->twait = FSMC_TWAIT_MASK;
++
+ 	return 0;
  }
  
-+/**
-+ * i40e_sync_vf_state
-+ * @vf: pointer to the VF info
-+ * @state: VF state
-+ *
-+ * Called from a VF message to synchronize the service with a potential
-+ * VF reset state
-+ **/
-+static bool i40e_sync_vf_state(struct i40e_vf *vf, enum i40e_vf_states state)
-+{
-+	int i;
-+
-+	/* When handling some messages, it needs VF state to be set.
-+	 * It is possible that this flag is cleared during VF reset,
-+	 * so there is a need to wait until the end of the reset to
-+	 * handle the request message correctly.
-+	 */
-+	for (i = 0; i < I40E_VF_STATE_WAIT_COUNT; i++) {
-+		if (test_bit(state, &vf->vf_states))
-+			return true;
-+		usleep_range(10000, 20000);
-+	}
-+
-+	return test_bit(state, &vf->vf_states);
-+}
-+
- /**
-  * i40e_vc_get_version_msg
-  * @vf: pointer to the VF info
-@@ -2008,7 +2034,7 @@ static int i40e_vc_get_vf_resources_msg(struct i40e_vf *vf, u8 *msg)
- 	size_t len = 0;
- 	int ret;
- 
--	if (!test_bit(I40E_VF_STATE_INIT, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_INIT)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -2131,7 +2157,7 @@ static int i40e_vc_config_promiscuous_mode_msg(struct i40e_vf *vf, u8 *msg)
- 	bool allmulti = false;
- 	bool alluni = false;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err_out;
- 	}
-@@ -2219,7 +2245,7 @@ static int i40e_vc_config_queues_msg(struct i40e_vf *vf, u8 *msg)
- 	struct i40e_vsi *vsi;
- 	u16 num_qps_all = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2368,7 +2394,7 @@ static int i40e_vc_config_irq_map_msg(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2540,7 +2566,7 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
- 	struct i40e_pf *pf = vf->pf;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2590,7 +2616,7 @@ static int i40e_vc_request_queues_msg(struct i40e_vf *vf, u8 *msg)
- 	u8 cur_pairs = vf->num_queue_pairs;
- 	struct i40e_pf *pf = vf->pf;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states))
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE))
- 		return -EINVAL;
- 
- 	if (req_pairs > I40E_MAX_VF_QUEUES) {
-@@ -2635,7 +2661,7 @@ static int i40e_vc_get_stats_msg(struct i40e_vf *vf, u8 *msg)
- 
- 	memset(&stats, 0, sizeof(struct i40e_eth_stats));
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2752,7 +2778,7 @@ static int i40e_vc_add_mac_addr_msg(struct i40e_vf *vf, u8 *msg)
- 	i40e_status ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, al->vsi_id)) {
- 		ret = I40E_ERR_PARAM;
- 		goto error_param;
-@@ -2824,7 +2850,7 @@ static int i40e_vc_del_mac_addr_msg(struct i40e_vf *vf, u8 *msg)
- 	i40e_status ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, al->vsi_id)) {
- 		ret = I40E_ERR_PARAM;
- 		goto error_param;
-@@ -2968,7 +2994,7 @@ static int i40e_vc_remove_vlan_msg(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, vfl->vsi_id)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
-@@ -3088,9 +3114,9 @@ static int i40e_vc_config_rss_key(struct i40e_vf *vf, u8 *msg)
- 	struct i40e_vsi *vsi = NULL;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, vrk->vsi_id) ||
--	    (vrk->key_len != I40E_HKEY_ARRAY_SIZE)) {
-+	    vrk->key_len != I40E_HKEY_ARRAY_SIZE) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3119,9 +3145,9 @@ static int i40e_vc_config_rss_lut(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	u16 i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, vrl->vsi_id) ||
--	    (vrl->lut_entries != I40E_VF_HLUT_ARRAY_SIZE)) {
-+	    vrl->lut_entries != I40E_VF_HLUT_ARRAY_SIZE) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3154,7 +3180,7 @@ static int i40e_vc_get_rss_hena(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	int len = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3190,7 +3216,7 @@ static int i40e_vc_set_rss_hena(struct i40e_vf *vf, u8 *msg)
- 	struct i40e_hw *hw = &pf->hw;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3215,7 +3241,7 @@ static int i40e_vc_enable_vlan_stripping(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	struct i40e_vsi *vsi;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3241,7 +3267,7 @@ static int i40e_vc_disable_vlan_stripping(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	struct i40e_vsi *vsi;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3468,7 +3494,7 @@ static int i40e_vc_del_cloud_filter(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	int i, ret;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3599,7 +3625,7 @@ static int i40e_vc_add_cloud_filter(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	int i, ret;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err_out;
- 	}
-@@ -3708,7 +3734,7 @@ static int i40e_vc_add_qch_msg(struct i40e_vf *vf, u8 *msg)
- 	i40e_status aq_ret = 0;
- 	u64 speed = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3824,7 +3850,7 @@ static int i40e_vc_del_qch_msg(struct i40e_vf *vf, u8 *msg)
- 	struct i40e_pf *pf = vf->pf;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-index 091e32c1bb46..49575a640a84 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-@@ -18,6 +18,8 @@
- 
- #define I40E_MAX_VF_PROMISC_FLAGS	3
- 
-+#define I40E_VF_STATE_WAIT_COUNT	20
-+
- /* Various queue ctrls */
- enum i40e_queue_ctrl {
- 	I40E_QUEUE_CTRL_UNKNOWN = 0,
 
