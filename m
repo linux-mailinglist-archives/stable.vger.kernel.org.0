@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 402B2471AAB
-	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F879471AAD
+	for <lists+stable@lfdr.de>; Sun, 12 Dec 2021 15:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231381AbhLLOXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 09:23:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57324 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbhLLOXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:23:12 -0500
+        id S231359AbhLLOXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 09:23:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40368 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230122AbhLLOXl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 09:23:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F09C061714
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 06:23:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBF57B80D15
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19345C341C6;
-        Sun, 12 Dec 2021 14:23:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E6A5B80D17
+        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 14:23:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C66B7C341C6;
+        Sun, 12 Dec 2021 14:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639318989;
-        bh=IIpH/qstyU+bigNreVyqd2CkXhlf4FqDkFYVx0heG+o=;
+        s=korg; t=1639319018;
+        bh=AytKpmODB1A4/oudwsOkSqS/ROFlwVLZlACQmm3Bz+M=;
         h=Subject:To:Cc:From:Date:From;
-        b=GmCZPftZkMnSiTRbcuhE5Qa+FV9UcO9npa90s6Pn/RJlNavjLwPed4sU80WCv2pRL
-         fJcjUVH/CMD0QE2inwQnKO26AyB4sqZs6iLBe0ZO3pJbMDv4qepRwq3beT/8k5nIxv
-         z+u/6HJpn40IuHa4/OHDKZ8mVVWWzw+fJTKLogj4=
-Subject: FAILED: patch "[PATCH] RDMA/hns: Do not destroy QP resources in the hw resetting" failed to apply to 5.4-stable tree
-To:     liyangyang20@huawei.com, jgg@nvidia.com, liangwenpeng@huawei.com
+        b=fNzvpEnKzyeP+BFbV6Rr2GfQubMOTx0dtB2orsQosC9hF+bbVcKKtsYNBq0TVG8Wm
+         PsuWB4AKebV9ZcBvwDa1oJAjtiJ9rEojUC21iCt+KKq4W4anaIR8Fmr4dvsTBUOwmu
+         119jQpx53SriWRfUcXS1POVeu1c0FGPx1y73GjLE=
+Subject: FAILED: patch "[PATCH] hwmon: (dell-smm) Fix warning on /proc/i8k creation error" failed to apply to 4.4-stable tree
+To:     W_Armin@gmx.de, linux@roeck-us.net, pali@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 12 Dec 2021 15:23:06 +0100
-Message-ID: <163931898632104@kroah.com>
+Date:   Sun, 12 Dec 2021 15:23:35 +0100
+Message-ID: <163931901519118@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,85 +53,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b0969f83890bf8b47f5c8bd42539599b2b52fdeb Mon Sep 17 00:00:00 2001
-From: Yangyang Li <liyangyang20@huawei.com>
-Date: Tue, 23 Nov 2021 22:24:02 +0800
-Subject: [PATCH] RDMA/hns: Do not destroy QP resources in the hw resetting
- phase
+From dbd3e6eaf3d813939b28e8a66e29d81cdc836445 Mon Sep 17 00:00:00 2001
+From: Armin Wolf <W_Armin@gmx.de>
+Date: Fri, 12 Nov 2021 18:14:40 +0100
+Subject: [PATCH] hwmon: (dell-smm) Fix warning on /proc/i8k creation error
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-When hns_roce_v2_destroy_qp() is called, the brief calling process of the
-driver is as follows:
+The removal function is called regardless of whether
+/proc/i8k was created successfully or not, the later
+causing a WARN() on module removal.
+Fix that by only registering the removal function
+if /proc/i8k was created successfully.
 
- ......
- hns_roce_v2_destroy_qp
- hns_roce_v2_qp_modify
-	   hns_roce_cmd_mbox
- hns_roce_qp_destroy
+Tested on a Inspiron 3505.
 
-If hns_roce_cmd_mbox() detects that the hardware is being reset during the
-execution of the hns_roce_cmd_mbox(), the driver will not be able to get
-the return value from the hardware (the firmware cannot respond to the
-driver's mailbox during the hardware reset phase).
+Fixes: 039ae58503f3 ("hwmon: Allow to compile dell-smm-hwmon driver without /proc/i8k")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Acked-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211112171440.59006-1-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-The driver needs to wait for the hardware reset to complete before
-continuing to execute hns_roce_qp_destroy(), otherwise it may happen that
-the driver releases the resources but the hardware is still accessing. In
-order to fix this problem, HNS RoCE needs to add a piece of code to wait
-for the hardware reset to complete.
-
-The original interface get_hw_reset_stat() is the instantaneous state of
-the hardware reset, which cannot accurately reflect whether the hardware
-reset is completed, so it needs to be replaced with the ae_dev_reset_cnt
-interface.
-
-The sign that the hardware reset is complete is that the return value of
-the ae_dev_reset_cnt interface is greater than the original value
-reset_cnt recorded by the driver.
-
-Fixes: 6a04aed6afae ("RDMA/hns: Fix the chip hanging caused by sending mailbox&CMQ during reset")
-Link: https://lore.kernel.org/r/20211123142402.26936-1-liangwenpeng@huawei.com
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index ae14329c619c..bbfa1332dedc 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -33,6 +33,7 @@
- #include <linux/acpi.h>
- #include <linux/etherdevice.h>
- #include <linux/interrupt.h>
-+#include <linux/iopoll.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <net/addrconf.h>
-@@ -1050,9 +1051,14 @@ static u32 hns_roce_v2_cmd_hw_resetting(struct hns_roce_dev *hr_dev,
- 					unsigned long instance_stage,
- 					unsigned long reset_stage)
+diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
+index eaace478f508..5596c211f38d 100644
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -627,10 +627,9 @@ static void __init i8k_init_procfs(struct device *dev)
  {
-+#define HW_RESET_TIMEOUT_US 1000000
-+#define HW_RESET_SLEEP_US 1000
-+
- 	struct hns_roce_v2_priv *priv = hr_dev->priv;
- 	struct hnae3_handle *handle = priv->handle;
- 	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
-+	unsigned long val;
-+	int ret;
+ 	struct dell_smm_data *data = dev_get_drvdata(dev);
  
- 	/* When hardware reset is detected, we should stop sending mailbox&cmq&
- 	 * doorbell to hardware. If now in .init_instance() function, we should
-@@ -1064,7 +1070,11 @@ static u32 hns_roce_v2_cmd_hw_resetting(struct hns_roce_dev *hr_dev,
- 	 * again.
- 	 */
- 	hr_dev->dis_db = true;
--	if (!ops->get_hw_reset_stat(handle))
-+
-+	ret = read_poll_timeout(ops->ae_dev_reset_cnt, val,
-+				val > hr_dev->reset_cnt, HW_RESET_SLEEP_US,
-+				HW_RESET_TIMEOUT_US, false, handle);
-+	if (!ret)
- 		hr_dev->is_reset = true;
+-	/* Register the proc entry */
+-	proc_create_data("i8k", 0, NULL, &i8k_proc_ops, data);
+-
+-	devm_add_action_or_reset(dev, i8k_exit_procfs, NULL);
++	/* Only register exit function if creation was successful */
++	if (proc_create_data("i8k", 0, NULL, &i8k_proc_ops, data))
++		devm_add_action_or_reset(dev, i8k_exit_procfs, NULL);
+ }
  
- 	if (!hr_dev->is_reset || reset_stage == HNS_ROCE_STATE_RST_INIT ||
+ #else
 
