@@ -2,255 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC5F472418
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA35472744
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232227AbhLMJeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:34:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54108 "EHLO
+        id S240063AbhLMJ7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232339AbhLMJdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:42 -0500
+        with ESMTP id S239354AbhLMJ5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:13 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA37C0613FE;
-        Mon, 13 Dec 2021 01:33:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D30EC0698C9;
+        Mon, 13 Dec 2021 01:47:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DC4A0CE0E6F;
-        Mon, 13 Dec 2021 09:33:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF65C341C8;
-        Mon, 13 Dec 2021 09:33:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 58EC5CE0E77;
+        Mon, 13 Dec 2021 09:47:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02721C00446;
+        Mon, 13 Dec 2021 09:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388018;
-        bh=FJsuto7G4LcoCpYg4gHFpSaMAJPFQvpbeco5T3WVlmk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=fWFJdNpQtKtwxFxd4vV0VAJ5QY4ddm+Bx9DEFl8sWh3G/VFkB9S26W8KRiPaCXhMn
-         6AdPucDeq5jvxNWMfr/weqFL70Bw6G/YoatomIX20BbBvpU4deLJffI8GIlxWF6uTS
-         ZdKrfwhMn4nHAUKNSXDfT8ZFx4Kk07/18E+iifXE=
+        s=korg; t=1639388870;
+        bh=ZCi3VYGLr++m2kLUiC9I153EB7GFabp2p1TjFz4z43w=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HtaKqppimHnPoZoP1bm4pF3h50ZYCDEb0/HASPbHwkBQkVIOkXmiYi7RvoLL2Y/WG
+         ucrnODzjfj6QI2rgRQCnEFNjMRV0FX86bCHT+6vQEf4oQg9dkywqLwrGLeHzwxoOTJ
+         F/8nXRwQtZF/qq58TTN8bwymPDk6lRM/IrIo62Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/37] 4.4.295-rc1 review
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 037/132] netfilter: conntrack: annotate data-races around ct->timeout
 Date:   Mon, 13 Dec 2021 10:29:38 +0100
-Message-Id: <20211213092925.380184671@linuxfoundation.org>
+Message-Id: <20211213092940.399992034@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.295-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.295-rc1
-X-KernelTest-Deadline: 2021-12-15T09:29+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.295 release.
-There are 37 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Eric Dumazet <edumazet@google.com>
 
-Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
-Anything received after that time might be too late.
+commit 802a7dc5cf1bef06f7b290ce76d478138408d6b1 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.295-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+(struct nf_conn)->timeout can be read/written locklessly,
+add READ_ONCE()/WRITE_ONCE() to prevent load/store tearing.
 
-thanks,
+BUG: KCSAN: data-race in __nf_conntrack_alloc / __nf_conntrack_find_get
 
-greg k-h
+write to 0xffff888132e78c08 of 4 bytes by task 6029 on cpu 0:
+ __nf_conntrack_alloc+0x158/0x280 net/netfilter/nf_conntrack_core.c:1563
+ init_conntrack+0x1da/0xb30 net/netfilter/nf_conntrack_core.c:1635
+ resolve_normal_ct+0x502/0x610 net/netfilter/nf_conntrack_core.c:1746
+ nf_conntrack_in+0x1c5/0x88f net/netfilter/nf_conntrack_core.c:1901
+ ipv6_conntrack_local+0x19/0x20 net/netfilter/nf_conntrack_proto.c:414
+ nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+ nf_hook_slow+0x72/0x170 net/netfilter/core.c:619
+ nf_hook include/linux/netfilter.h:262 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ip6_xmit+0xa3a/0xa60 net/ipv6/ip6_output.c:324
+ inet6_csk_xmit+0x1a2/0x1e0 net/ipv6/inet6_connection_sock.c:135
+ __tcp_transmit_skb+0x132a/0x1840 net/ipv4/tcp_output.c:1402
+ tcp_transmit_skb net/ipv4/tcp_output.c:1420 [inline]
+ tcp_write_xmit+0x1450/0x4460 net/ipv4/tcp_output.c:2680
+ __tcp_push_pending_frames+0x68/0x1c0 net/ipv4/tcp_output.c:2864
+ tcp_push_pending_frames include/net/tcp.h:1897 [inline]
+ tcp_data_snd_check+0x62/0x2e0 net/ipv4/tcp_input.c:5452
+ tcp_rcv_established+0x880/0x10e0 net/ipv4/tcp_input.c:5947
+ tcp_v6_do_rcv+0x36e/0xa50 net/ipv6/tcp_ipv6.c:1521
+ sk_backlog_rcv include/net/sock.h:1030 [inline]
+ __release_sock+0xf2/0x270 net/core/sock.c:2768
+ release_sock+0x40/0x110 net/core/sock.c:3300
+ sk_stream_wait_memory+0x435/0x700 net/core/stream.c:145
+ tcp_sendmsg_locked+0xb85/0x25a0 net/ipv4/tcp.c:1402
+ tcp_sendmsg+0x2c/0x40 net/ipv4/tcp.c:1440
+ inet6_sendmsg+0x5f/0x80 net/ipv6/af_inet6.c:644
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ __sys_sendto+0x21e/0x2c0 net/socket.c:2036
+ __do_sys_sendto net/socket.c:2048 [inline]
+ __se_sys_sendto net/socket.c:2044 [inline]
+ __x64_sys_sendto+0x74/0x90 net/socket.c:2044
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
--------------
-Pseudo-Shortlog of commits:
+read to 0xffff888132e78c08 of 4 bytes by task 17446 on cpu 1:
+ nf_ct_is_expired include/net/netfilter/nf_conntrack.h:286 [inline]
+ ____nf_conntrack_find net/netfilter/nf_conntrack_core.c:776 [inline]
+ __nf_conntrack_find_get+0x1c7/0xac0 net/netfilter/nf_conntrack_core.c:807
+ resolve_normal_ct+0x273/0x610 net/netfilter/nf_conntrack_core.c:1734
+ nf_conntrack_in+0x1c5/0x88f net/netfilter/nf_conntrack_core.c:1901
+ ipv6_conntrack_local+0x19/0x20 net/netfilter/nf_conntrack_proto.c:414
+ nf_hook_entry_hookfn include/linux/netfilter.h:142 [inline]
+ nf_hook_slow+0x72/0x170 net/netfilter/core.c:619
+ nf_hook include/linux/netfilter.h:262 [inline]
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ ip6_xmit+0xa3a/0xa60 net/ipv6/ip6_output.c:324
+ inet6_csk_xmit+0x1a2/0x1e0 net/ipv6/inet6_connection_sock.c:135
+ __tcp_transmit_skb+0x132a/0x1840 net/ipv4/tcp_output.c:1402
+ __tcp_send_ack+0x1fd/0x300 net/ipv4/tcp_output.c:3956
+ tcp_send_ack+0x23/0x30 net/ipv4/tcp_output.c:3962
+ __tcp_ack_snd_check+0x2d8/0x510 net/ipv4/tcp_input.c:5478
+ tcp_ack_snd_check net/ipv4/tcp_input.c:5523 [inline]
+ tcp_rcv_established+0x8c2/0x10e0 net/ipv4/tcp_input.c:5948
+ tcp_v6_do_rcv+0x36e/0xa50 net/ipv6/tcp_ipv6.c:1521
+ sk_backlog_rcv include/net/sock.h:1030 [inline]
+ __release_sock+0xf2/0x270 net/core/sock.c:2768
+ release_sock+0x40/0x110 net/core/sock.c:3300
+ tcp_sendpage+0x94/0xb0 net/ipv4/tcp.c:1114
+ inet_sendpage+0x7f/0xc0 net/ipv4/af_inet.c:833
+ rds_tcp_xmit+0x376/0x5f0 net/rds/tcp_send.c:118
+ rds_send_xmit+0xbed/0x1500 net/rds/send.c:367
+ rds_send_worker+0x43/0x200 net/rds/threads.c:200
+ process_one_work+0x3fc/0x980 kernel/workqueue.c:2298
+ worker_thread+0x616/0xa70 kernel/workqueue.c:2445
+ kthread+0x2c7/0x2e0 kernel/kthread.c:327
+ ret_from_fork+0x1f/0x30
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.295-rc1
+value changed: 0x00027cc2 -> 0x00000000
 
-Vladimir Murzin <vladimir.murzin@arm.com>
-    irqchip: nvic: Fix offset for Interrupt Priority Offsets
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 17446 Comm: kworker/u4:5 Tainted: G        W         5.16.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: krdsd rds_send_worker
 
-Wudi Wang <wangwudi@hisilicon.com>
-    irqchip/irq-gic-v3-its.c: Force synchronisation when issuing INVALL
+Note: I chose an arbitrary commit for the Fixes: tag,
+because I do not think we need to backport this fix to very old kernels.
 
-Yang Yingliang <yangyingliang@huawei.com>
-    iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
+Fixes: e37542ba111f ("netfilter: conntrack: avoid possible false sharing")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/net/netfilter/nf_conntrack.h |    6 +++---
+ net/netfilter/nf_conntrack_core.c    |    6 +++---
+ net/netfilter/nf_conntrack_netlink.c |    2 +-
+ net/netfilter/nf_flow_table_core.c   |    4 ++--
+ 4 files changed, 9 insertions(+), 9 deletions(-)
 
-Lars-Peter Clausen <lars@metafoo.de>
-    iio: itg3200: Call iio_trigger_notify_done() on error
-
-Lars-Peter Clausen <lars@metafoo.de>
-    iio: ltr501: Don't return error code in trigger handler
-
-Lars-Peter Clausen <lars@metafoo.de>
-    iio: mma8452: Fix trigger reference couting
-
-Lars-Peter Clausen <lars@metafoo.de>
-    iio: stk3310: Don't return error code in interrupt handler
-
-Pavel Hofman <pavel.hofman@ivitera.com>
-    usb: core: config: fix validation of wMaxPacketValue entries
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    USB: gadget: zero allocate endpoint 0 buffers
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    USB: gadget: detect too-big endpoint 0 requests
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    net/qla3xxx: fix an error code in ql_adapter_up()
-
-Eric Dumazet <edumazet@google.com>
-    net, neigh: clear whole pneigh_entry at alloc time
-
-Joakim Zhang <qiangqing.zhang@nxp.com>
-    net: fec: only clear interrupt of handling queue in fec_enet_rx_queue()
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    net: altera: set a couple error code in probe()
-
-Lee Jones <lee.jones@linaro.org>
-    net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
-
-Davidlohr Bueso <dave@stgolabs.net>
-    block: fix ioprio_get(IOPRIO_WHO_PGRP) vs setuid(2)
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tracefs: Set all files to the same group ownership as the mount option
-
-Eric Biggers <ebiggers@google.com>
-    signalfd: use wake_up_pollfree()
-
-Eric Biggers <ebiggers@google.com>
-    binder: use wake_up_pollfree()
-
-Eric Biggers <ebiggers@google.com>
-    wait: add wake_up_pollfree()
-
-Hannes Reinecke <hare@suse.de>
-    libata: add horkage for ASMedia 1092
-
-Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-    can: pch_can: pch_can_rx_normal: fix use after free
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tracefs: Have new files inherit the ownership of their parent
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: oss: Handle missing errors in snd_pcm_oss_change_params*()
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: oss: Limit the period size to 16MB
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: oss: Fix negative period/buffer sizes
-
-Alan Young <consult.awy@gmail.com>
-    ALSA: ctl: Fix copy of updated id with element read/write
-
-Manjong Lee <mj0123.lee@samsung.com>
-    mm: bdi: initialize bdi_min_ratio when bdi is unregistered
-
-Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-    nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    can: sja1000: fix use after free in ems_pcmcia_add_card()
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    HID: check for valid USB device for many HID drivers
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    HID: wacom: fix problems when device is not a valid USB device
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    HID: add USB_HID dependancy on some USB HID drivers
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    HID: add USB_HID dependancy to hid-chicony
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    HID: add USB_HID dependancy to hid-prodikeys
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    HID: add hid_is_usb() function to make it simpler for USB detection
-
-Jason Gerecke <killertofu@gmail.com>
-    HID: introduce hid_is_using_ll_driver
-
-
--------------
-
-Diffstat:
-
- Makefile                                      |  4 +-
- block/ioprio.c                                |  3 ++
- drivers/android/binder.c                      | 21 ++++----
- drivers/ata/libata-core.c                     |  2 +
- drivers/hid/Kconfig                           | 10 ++--
- drivers/hid/hid-chicony.c                     |  8 ++-
- drivers/hid/hid-corsair.c                     |  7 ++-
- drivers/hid/hid-elo.c                         |  3 ++
- drivers/hid/hid-holtek-kbd.c                  |  9 +++-
- drivers/hid/hid-holtek-mouse.c                |  9 ++++
- drivers/hid/hid-lg.c                          | 10 +++-
- drivers/hid/hid-prodikeys.c                   | 10 +++-
- drivers/hid/hid-roccat-arvo.c                 |  3 ++
- drivers/hid/hid-roccat-isku.c                 |  3 ++
- drivers/hid/hid-roccat-kone.c                 |  3 ++
- drivers/hid/hid-roccat-koneplus.c             |  3 ++
- drivers/hid/hid-roccat-konepure.c             |  3 ++
- drivers/hid/hid-roccat-kovaplus.c             |  3 ++
- drivers/hid/hid-roccat-lua.c                  |  3 ++
- drivers/hid/hid-roccat-pyra.c                 |  3 ++
- drivers/hid/hid-roccat-ryos.c                 |  3 ++
- drivers/hid/hid-roccat-savu.c                 |  3 ++
- drivers/hid/hid-samsung.c                     |  3 ++
- drivers/hid/hid-uclogic.c                     |  3 ++
- drivers/hid/i2c-hid/i2c-hid.c                 |  3 +-
- drivers/hid/uhid.c                            |  3 +-
- drivers/hid/usbhid/hid-core.c                 |  3 +-
- drivers/hid/wacom_sys.c                       | 17 ++++--
- drivers/iio/accel/kxcjk-1013.c                |  5 +-
- drivers/iio/accel/mma8452.c                   |  2 +-
- drivers/iio/gyro/itg3200_buffer.c             |  2 +-
- drivers/iio/light/ltr501.c                    |  2 +-
- drivers/iio/light/stk3310.c                   |  6 +--
- drivers/irqchip/irq-gic-v3-its.c              |  2 +-
- drivers/irqchip/irq-nvic.c                    |  2 +-
- drivers/net/can/pch_can.c                     |  2 +-
- drivers/net/can/sja1000/ems_pcmcia.c          |  7 ++-
- drivers/net/ethernet/altera/altera_tse_main.c |  9 ++--
- drivers/net/ethernet/freescale/fec.h          |  3 ++
- drivers/net/ethernet/freescale/fec_main.c     |  2 +-
- drivers/net/ethernet/qlogic/qla3xxx.c         | 19 ++++---
- drivers/net/usb/cdc_ncm.c                     |  2 +
- drivers/usb/core/config.c                     |  2 +-
- drivers/usb/gadget/composite.c                | 14 ++++-
- drivers/usb/gadget/legacy/dbgp.c              | 15 +++++-
- drivers/usb/gadget/legacy/inode.c             | 16 +++++-
- fs/signalfd.c                                 | 12 +----
- fs/tracefs/inode.c                            | 76 +++++++++++++++++++++++++++
- include/linux/hid.h                           | 16 ++++++
- include/linux/wait.h                          | 26 +++++++++
- kernel/sched/wait.c                           |  8 +++
- mm/backing-dev.c                              |  7 +++
- net/bluetooth/hidp/core.c                     |  3 +-
- net/core/neighbour.c                          |  2 +-
- net/nfc/netlink.c                             |  6 ++-
- sound/core/control_compat.c                   |  3 ++
- sound/core/oss/pcm_oss.c                      | 37 ++++++++-----
- 57 files changed, 372 insertions(+), 94 deletions(-)
+--- a/include/net/netfilter/nf_conntrack.h
++++ b/include/net/netfilter/nf_conntrack.h
+@@ -262,14 +262,14 @@ static inline bool nf_is_loopback_packet
+ /* jiffies until ct expires, 0 if already expired */
+ static inline unsigned long nf_ct_expires(const struct nf_conn *ct)
+ {
+-	s32 timeout = ct->timeout - nfct_time_stamp;
++	s32 timeout = READ_ONCE(ct->timeout) - nfct_time_stamp;
+ 
+ 	return timeout > 0 ? timeout : 0;
+ }
+ 
+ static inline bool nf_ct_is_expired(const struct nf_conn *ct)
+ {
+-	return (__s32)(ct->timeout - nfct_time_stamp) <= 0;
++	return (__s32)(READ_ONCE(ct->timeout) - nfct_time_stamp) <= 0;
+ }
+ 
+ /* use after obtaining a reference count */
+@@ -288,7 +288,7 @@ static inline bool nf_ct_should_gc(const
+ static inline void nf_ct_offload_timeout(struct nf_conn *ct)
+ {
+ 	if (nf_ct_expires(ct) < NF_CT_DAY / 2)
+-		ct->timeout = nfct_time_stamp + NF_CT_DAY;
++		WRITE_ONCE(ct->timeout, nfct_time_stamp + NF_CT_DAY);
+ }
+ 
+ struct kernel_param;
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -660,7 +660,7 @@ bool nf_ct_delete(struct nf_conn *ct, u3
+ 
+ 	tstamp = nf_conn_tstamp_find(ct);
+ 	if (tstamp) {
+-		s32 timeout = ct->timeout - nfct_time_stamp;
++		s32 timeout = READ_ONCE(ct->timeout) - nfct_time_stamp;
+ 
+ 		tstamp->stop = ktime_get_real_ns();
+ 		if (timeout < 0)
+@@ -980,7 +980,7 @@ static int nf_ct_resolve_clash_harder(st
+ 	}
+ 
+ 	/* We want the clashing entry to go away real soon: 1 second timeout. */
+-	loser_ct->timeout = nfct_time_stamp + HZ;
++	WRITE_ONCE(loser_ct->timeout, nfct_time_stamp + HZ);
+ 
+ 	/* IPS_NAT_CLASH removes the entry automatically on the first
+ 	 * reply.  Also prevents UDP tracker from moving the entry to
+@@ -1487,7 +1487,7 @@ __nf_conntrack_alloc(struct net *net,
+ 	/* save hash for reusing when confirming */
+ 	*(unsigned long *)(&ct->tuplehash[IP_CT_DIR_REPLY].hnnode.pprev) = hash;
+ 	ct->status = 0;
+-	ct->timeout = 0;
++	WRITE_ONCE(ct->timeout, 0);
+ 	write_pnet(&ct->ct_net, net);
+ 	memset(&ct->__nfct_init_offset, 0,
+ 	       offsetof(struct nf_conn, proto) -
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -1971,7 +1971,7 @@ static int ctnetlink_change_timeout(stru
+ 
+ 	if (timeout > INT_MAX)
+ 		timeout = INT_MAX;
+-	ct->timeout = nfct_time_stamp + (u32)timeout;
++	WRITE_ONCE(ct->timeout, nfct_time_stamp + (u32)timeout);
+ 
+ 	if (test_bit(IPS_DYING_BIT, &ct->status))
+ 		return -ETIME;
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -151,8 +151,8 @@ static void flow_offload_fixup_ct_timeou
+ 	else
+ 		return;
+ 
+-	if (nf_flow_timeout_delta(ct->timeout) > (__s32)timeout)
+-		ct->timeout = nfct_time_stamp + timeout;
++	if (nf_flow_timeout_delta(READ_ONCE(ct->timeout)) > (__s32)timeout)
++		WRITE_ONCE(ct->timeout, nfct_time_stamp + timeout);
+ }
+ 
+ static void flow_offload_fixup_ct_state(struct nf_conn *ct)
 
 
