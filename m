@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D7747274A
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F49D4723D6
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237968AbhLMJ7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:59:34 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44190 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239524AbhLMJ51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:27 -0500
+        id S232176AbhLMJcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:32:15 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:57400 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229494AbhLMJcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:32:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91801B80E73;
-        Mon, 13 Dec 2021 09:57:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF51EC34601;
-        Mon, 13 Dec 2021 09:57:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0C1D0CE0E29;
+        Mon, 13 Dec 2021 09:32:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8434C341C8;
+        Mon, 13 Dec 2021 09:32:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389442;
-        bh=jwKI3uDMqhGbXFFf1Z80wcLtoC7mvKfFvLkRUSjyeW0=;
+        s=korg; t=1639387932;
+        bh=/SdA1HN9oyfgJohuAE0t28ar12qvyacTE7d4FdX1278=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PcjCtzsCUtjmcmq5duiKoJypz0ZSib0oJiP0EMyCvq10OWoouGUuJTllPkl362dF/
-         UOKd816jJcIO6MxlK8nBMzL6UL8MTYYCOALECWlgJQ0+KC6FCsvVw6kZUDI3oCBRAh
-         MFZ7L38jGFehVNftdVnYOJObEQqasaeFST8mZqAQ=
+        b=BOy9f6F/700XedgGiD0mccEKdaLxg+/acYI3waJzxFlUQ/d6Hl3VGbqz8dQeFRGAZ
+         GKuV+6k1AQPe3huOn5o+PCpgoM+PkOwpluM1icPru6Ys48JH7fdnFLklS7s4CN3Q1e
+         8nVjm59soMz/j2PV1CNKK4SIdvKM3qomoSQrWPHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Young <consult.awy@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 064/171] ALSA: ctl: Fix copy of updated id with element read/write
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.4 01/37] HID: introduce hid_is_using_ll_driver
 Date:   Mon, 13 Dec 2021 10:29:39 +0100
-Message-Id: <20211213092947.236541170@linuxfoundation.org>
+Message-Id: <20211213092925.428214066@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
+References: <20211213092925.380184671@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,51 +47,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Young <consult.awy@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-commit b6409dd6bdc03aa178bbff0d80db2a30d29b63ac upstream.
+commit fc2237a724a9e448599076d7d23497f51e2f7441 upstream.
 
-When control_compat.c:copy_ctl_value_to_user() is used, by
-ctl_elem_read_user() & ctl_elem_write_user(), it must also copy back the
-snd_ctl_elem_id value that may have been updated (filled in) by the call
-to snd_ctl_elem_read/snd_ctl_elem_write().
+Although HID itself is transport-agnostic, occasionally a driver may
+want to interact with the low-level transport that a device is connected
+through. To do this, we need to know what kind of bus is in use. The
+first guess may be to look at the 'bus' field of the 'struct hid_device',
+but this field may be emulated in some cases (e.g. uhid).
 
-This matches the functionality provided by snd_ctl_elem_read_user() and
-snd_ctl_elem_write_user(), via snd_ctl_build_ioff().
+More ideally, we can check which ll_driver a device is using. This
+function introduces a 'hid_is_using_ll_driver' function and makes the
+'struct hid_ll_driver' of the four most common transports accessible
+through hid.h.
 
-Without this, and without making additional calls to snd_ctl_info()
-which are unnecessary when using the non-compat calls, a userspace
-application will not know the numid value for the element and
-consequently will not be able to use the poll/read interface on the
-control file to determine which elements have updates.
-
-Signed-off-by: Alan Young <consult.awy@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211202150607.543389-1-consult.awy@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/control_compat.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/i2c-hid/i2c-hid.c |    3 ++-
+ drivers/hid/uhid.c            |    3 ++-
+ drivers/hid/usbhid/hid-core.c |    3 ++-
+ include/linux/hid.h           |   11 +++++++++++
+ net/bluetooth/hidp/core.c     |    3 ++-
+ 5 files changed, 19 insertions(+), 4 deletions(-)
 
---- a/sound/core/control_compat.c
-+++ b/sound/core/control_compat.c
-@@ -264,6 +264,7 @@ static int copy_ctl_value_to_user(void _
- 				  struct snd_ctl_elem_value *data,
- 				  int type, int count)
- {
-+	struct snd_ctl_elem_value32 __user *data32 = userdata;
- 	int i, size;
- 
- 	if (type == SNDRV_CTL_ELEM_TYPE_BOOLEAN ||
-@@ -280,6 +281,8 @@ static int copy_ctl_value_to_user(void _
- 		if (copy_to_user(valuep, data->value.bytes.data, size))
- 			return -EFAULT;
- 	}
-+	if (copy_to_user(&data32->id, &data->id, sizeof(data32->id)))
-+		return -EFAULT;
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -789,7 +789,7 @@ static int i2c_hid_power(struct hid_devi
  	return 0;
  }
  
+-static struct hid_ll_driver i2c_hid_ll_driver = {
++struct hid_ll_driver i2c_hid_ll_driver = {
+ 	.parse = i2c_hid_parse,
+ 	.start = i2c_hid_start,
+ 	.stop = i2c_hid_stop,
+@@ -799,6 +799,7 @@ static struct hid_ll_driver i2c_hid_ll_d
+ 	.output_report = i2c_hid_output_report,
+ 	.raw_request = i2c_hid_raw_request,
+ };
++EXPORT_SYMBOL_GPL(i2c_hid_ll_driver);
+ 
+ static int i2c_hid_init_irq(struct i2c_client *client)
+ {
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -372,7 +372,7 @@ static int uhid_hid_output_report(struct
+ 	return uhid_hid_output_raw(hid, buf, count, HID_OUTPUT_REPORT);
+ }
+ 
+-static struct hid_ll_driver uhid_hid_driver = {
++struct hid_ll_driver uhid_hid_driver = {
+ 	.start = uhid_hid_start,
+ 	.stop = uhid_hid_stop,
+ 	.open = uhid_hid_open,
+@@ -381,6 +381,7 @@ static struct hid_ll_driver uhid_hid_dri
+ 	.raw_request = uhid_hid_raw_request,
+ 	.output_report = uhid_hid_output_report,
+ };
++EXPORT_SYMBOL_GPL(uhid_hid_driver);
+ 
+ #ifdef CONFIG_COMPAT
+ 
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1272,7 +1272,7 @@ static int usbhid_idle(struct hid_device
+ 	return hid_set_idle(dev, ifnum, report, idle);
+ }
+ 
+-static struct hid_ll_driver usb_hid_driver = {
++struct hid_ll_driver usb_hid_driver = {
+ 	.parse = usbhid_parse,
+ 	.start = usbhid_start,
+ 	.stop = usbhid_stop,
+@@ -1285,6 +1285,7 @@ static struct hid_ll_driver usb_hid_driv
+ 	.output_report = usbhid_output_report,
+ 	.idle = usbhid_idle,
+ };
++EXPORT_SYMBOL_GPL(usb_hid_driver);
+ 
+ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ {
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -754,6 +754,17 @@ struct hid_ll_driver {
+ 	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
+ };
+ 
++extern struct hid_ll_driver i2c_hid_ll_driver;
++extern struct hid_ll_driver hidp_hid_driver;
++extern struct hid_ll_driver uhid_hid_driver;
++extern struct hid_ll_driver usb_hid_driver;
++
++static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
++		struct hid_ll_driver *driver)
++{
++	return hdev->ll_driver == driver;
++}
++
+ #define	PM_HINT_FULLON	1<<5
+ #define PM_HINT_NORMAL	1<<1
+ 
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -734,7 +734,7 @@ static void hidp_stop(struct hid_device
+ 	hid->claimed = 0;
+ }
+ 
+-static struct hid_ll_driver hidp_hid_driver = {
++struct hid_ll_driver hidp_hid_driver = {
+ 	.parse = hidp_parse,
+ 	.start = hidp_start,
+ 	.stop = hidp_stop,
+@@ -743,6 +743,7 @@ static struct hid_ll_driver hidp_hid_dri
+ 	.raw_request = hidp_raw_request,
+ 	.output_report = hidp_output_report,
+ };
++EXPORT_SYMBOL_GPL(hidp_hid_driver);
+ 
+ /* This function sets up the hid device. It does not add it
+    to the HID system. That is done in hidp_add_connection(). */
 
 
