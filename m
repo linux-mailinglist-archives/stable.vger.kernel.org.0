@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D2F4728DB
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:16:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37834472652
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241270AbhLMKPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:15:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35416 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243350AbhLMKMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:12:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E969C08ECB8;
-        Mon, 13 Dec 2021 01:54:26 -0800 (PST)
+        id S234508AbhLMJuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:50:24 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39926 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237291AbhLMJsV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:48:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 446BEB80E39;
-        Mon, 13 Dec 2021 09:54:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C9DC34600;
-        Mon, 13 Dec 2021 09:54:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0E9BCCE0E29;
+        Mon, 13 Dec 2021 09:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB3A7C00446;
+        Mon, 13 Dec 2021 09:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389263;
-        bh=A3lXUWFMScdH9r2Kh7fEOqqgEHOnaa01MFfcMGP0XPQ=;
+        s=korg; t=1639388898;
+        bh=vw9sqUhUs3bJpis4YdtzI/gG1bBy3fgJG+Gvwh4feRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2hjb22lXQQthhANHP3KidNjWqiHyE6ZzYnnSRY2bFm/ZLXesfRYhcAktCmj5Hdo9
-         zJyLN8WwloS3R6fjxxvZ37QvNN1/uOEWdSzRMYf0oz3Dj+3NnZvZO3VfFr09vPlyKr
-         y0dnbmJnJIngLK6cItJbaK85RWyDY7qCgxqMgWRU=
+        b=TuiA27khsYDWhCHEbQSHJnzl1zmpJCMnqnHnhAbrOBht6Z0gwyDkYfHDO9ykBaYHU
+         BBFb2UMNE6lECrTeD89r3oyvbJ6JK7kOgmLAX3+z6yN5+B6eH1yleCrTNt6SdamsFe
+         sv8OlXAcFrCHBmKMY72QMDtQVDxo8pfBpMB3sgA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 040/171] ice: ignore dropped packets during init
-Date:   Mon, 13 Dec 2021 10:29:15 +0100
-Message-Id: <20211213092946.412566678@linuxfoundation.org>
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 015/132] IB/hfi1: Fix early init panic
+Date:   Mon, 13 Dec 2021 10:29:16 +0100
+Message-Id: <20211213092939.604033904@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,39 +46,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit 28dc1b86f8ea9fd6f4c9e0b363db73ecabf84e22 upstream.
+commit f6a3cfec3c01f9983e961c3327cef0db129a3c43 upstream.
 
-If the hardware is constantly receiving unicast or broadcast packets
-during driver load, the device previously counted many GLV_RDPC (VSI
-dropped packets) events during init. This causes confusing dropped
-packet statistics during driver load. The dropped packets counter
-incrementing does stop once the driver finishes loading.
+The following trace can be observed with an init failure such as firmware
+load failures:
 
-Avoid this problem by baselining our statistics at the end of driver
-open instead of the end of probe.
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+  PGD 0 P4D 0
+  Oops: 0010 [#1] SMP PTI
+  CPU: 0 PID: 537 Comm: kworker/0:3 Tainted: G           OE    --------- -  - 4.18.0-240.el8.x86_64 #1
+  Workqueue: events work_for_cpu_fn
+  RIP: 0010:0x0
+  Code: Bad RIP value.
+  RSP: 0000:ffffae5f878a3c98 EFLAGS: 00010046
+  RAX: 0000000000000000 RBX: ffff95e48e025c00 RCX: 0000000000000000
+  RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff95e48e025c00
+  RBP: ffff95e4bf3660a4 R08: 0000000000000000 R09: ffffffff86d5e100
+  R10: ffff95e49e1de600 R11: 0000000000000001 R12: ffff95e4bf366180
+  R13: ffff95e48e025c00 R14: ffff95e4bf366028 R15: ffff95e4bf366000
+  FS:  0000000000000000(0000) GS:ffff95e4df200000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffffffffffffffd6 CR3: 0000000f86a0a003 CR4: 00000000001606f0
+  Call Trace:
+   receive_context_interrupt+0x1f/0x40 [hfi1]
+   __free_irq+0x201/0x300
+   free_irq+0x2e/0x60
+   pci_free_irq+0x18/0x30
+   msix_free_irq.part.2+0x46/0x80 [hfi1]
+   msix_clean_up_interrupts+0x2b/0x70 [hfi1]
+   hfi1_init_dd+0x640/0x1a90 [hfi1]
+   do_init_one.isra.19+0x34d/0x680 [hfi1]
+   local_pci_probe+0x41/0x90
+   work_for_cpu_fn+0x16/0x20
+   process_one_work+0x1a7/0x360
+   worker_thread+0x1cf/0x390
+   ? create_worker+0x1a0/0x1a0
+   kthread+0x112/0x130
+   ? kthread_flush_work_fn+0x10/0x10
+   ret_from_fork+0x35/0x40
 
-Fixes: cdedef59deb0 ("ice: Configure VSIs for Tx/Rx")
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+The free_irq() results in a callback to the registered interrupt handler,
+and rcd->do_interrupt is NULL because the receive context data structures
+are not fully initialized.
+
+Fix by ensuring that the do_interrupt is always assigned and adding a
+guards in the slow path handler to detect and handle a partially
+initialized receive context and noop the receive.
+
+Link: https://lore.kernel.org/r/20211129192003.101968.33612.stgit@awfm-01.cornelisnetworks.com
+Cc: stable@vger.kernel.org
+Fixes: b0ba3c18d6bf ("IB/hfi1: Move normal functions from hfi1_devdata to const array")
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/hfi1/chip.c   |    2 ++
+ drivers/infiniband/hw/hfi1/driver.c |    2 ++
+ drivers/infiniband/hw/hfi1/init.c   |    5 ++---
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5621,6 +5621,9 @@ static int ice_up_complete(struct ice_vs
- 		netif_carrier_on(vsi->netdev);
- 	}
+--- a/drivers/infiniband/hw/hfi1/chip.c
++++ b/drivers/infiniband/hw/hfi1/chip.c
+@@ -8456,6 +8456,8 @@ static void receive_interrupt_common(str
+  */
+ static void __hfi1_rcd_eoi_intr(struct hfi1_ctxtdata *rcd)
+ {
++	if (!rcd->rcvhdrq)
++		return;
+ 	clear_recv_intr(rcd);
+ 	if (check_packet_present(rcd))
+ 		force_recv_intr(rcd);
+--- a/drivers/infiniband/hw/hfi1/driver.c
++++ b/drivers/infiniband/hw/hfi1/driver.c
+@@ -1053,6 +1053,8 @@ int handle_receive_interrupt(struct hfi1
+ 	struct hfi1_packet packet;
+ 	int skip_pkt = 0;
  
-+	/* clear this now, and the first stats read will be used as baseline */
-+	vsi->stat_offsets_loaded = false;
-+
- 	ice_service_task_schedule(pf);
++	if (!rcd->rcvhdrq)
++		return RCV_PKT_OK;
+ 	/* Control context will always use the slow path interrupt handler */
+ 	needset = (rcd->ctxt == HFI1_CTRL_CTXT) ? 0 : 1;
  
- 	return 0;
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -154,7 +154,6 @@ static int hfi1_create_kctxt(struct hfi1
+ 	rcd->fast_handler = get_dma_rtail_setting(rcd) ?
+ 				handle_receive_interrupt_dma_rtail :
+ 				handle_receive_interrupt_nodma_rtail;
+-	rcd->slow_handler = handle_receive_interrupt;
+ 
+ 	hfi1_set_seq_cnt(rcd, 1);
+ 
+@@ -375,6 +374,8 @@ int hfi1_create_ctxtdata(struct hfi1_ppo
+ 		rcd->numa_id = numa;
+ 		rcd->rcv_array_groups = dd->rcv_entries.ngroups;
+ 		rcd->rhf_rcv_function_map = normal_rhf_rcv_functions;
++		rcd->slow_handler = handle_receive_interrupt;
++		rcd->do_interrupt = rcd->slow_handler;
+ 		rcd->msix_intr = CCE_NUM_MSIX_VECTORS;
+ 
+ 		mutex_init(&rcd->exp_mutex);
+@@ -939,8 +940,6 @@ int hfi1_init(struct hfi1_devdata *dd, i
+ 		if (!rcd)
+ 			continue;
+ 
+-		rcd->do_interrupt = &handle_receive_interrupt;
+-
+ 		lastfail = hfi1_create_rcvhdrq(dd, rcd);
+ 		if (!lastfail)
+ 			lastfail = hfi1_setup_eagerbufs(rcd);
 
 
