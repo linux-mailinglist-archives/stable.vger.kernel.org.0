@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D728472A5B
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:40:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6F34727B8
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243185AbhLMKj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:39:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41570 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244226AbhLMKjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:39:48 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A5CDC08EC70;
-        Mon, 13 Dec 2021 01:52:28 -0800 (PST)
+        id S238614AbhLMKEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:04:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46344 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240170AbhLMKAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:00:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 76DE2CE0E7D;
-        Mon, 13 Dec 2021 09:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22B08C00446;
-        Mon, 13 Dec 2021 09:52:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C615B80EA2;
+        Mon, 13 Dec 2021 10:00:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5813C34604;
+        Mon, 13 Dec 2021 10:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389144;
-        bh=lujrZBCoAyyE7Zc4QDqaa8wcKuPXGjH4z1p1kBbQ8Ig=;
+        s=korg; t=1639389607;
+        bh=YCgtwX7kgDZCOUbjeDVDI2z/mQlaIpqeWOEh5tshI2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuHHwpYPgOFXhWweMeKbD051gxLApPOTzAZZf3ehCNOK5IbYxErUdsP2oHT+D7Rli
-         wGCWA6ikGW9xdEO2QKChJnzTWl6dUgAVg1w+GaaXNLIBoEJz0ouFW+bvllmAabb2uu
-         kG4y9htbIbsQf04BJ6dzcMKE3Mx5PtxkTZc0ur6g=
+        b=neyXTn6L/8Ci8noteCqyiZdqcT9Bep0htFUocxsIl7KstKToPyNwVCt7Kl1XZVFbt
+         NlSNj341gYa5oMB5j2NgiClToUEZ4oIC0ZqNrRAqhlGt4kVDYWXXTw/fdaN7P63PWi
+         3RWDIjIYOc9p+L72wyUAOr4KqPJoJyKNtyXWsg8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Boger <boger@wirenboard.com>,
-        Chen-Yu Tsai <wens@csie.org>, Stable@vger.kernel.org,
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 118/132] iio: adc: axp20x_adc: fix charging current reporting on AXP22x
+Subject: [PATCH 5.15 144/171] iio: trigger: Fix reference counting
 Date:   Mon, 13 Dec 2021 10:30:59 +0100
-Message-Id: <20211213092943.145446843@linuxfoundation.org>
+Message-Id: <20211213092949.870611061@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,66 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Boger <boger@wirenboard.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 92beafb76a31bdc02649eb44e93a8e4f4cfcdbe8 upstream.
+commit a827a4984664308f13599a0b26c77018176d0c7c upstream.
 
-Both the charging and discharging currents on AXP22x are stored as
-12-bit integers, in accordance with the datasheet.
-It's also confirmed by vendor BSP (axp20x_adc.c:axp22_icharge_to_mA).
+In viio_trigger_alloc() device_initialize() is used to set the initial
+reference count of the trigger to 1. Then another get_device() is called on
+trigger. This sets the reference count to 2 before the trigger is returned.
 
-The scale factor of 0.5 is never mentioned in datasheet, nor in the
-vendor source code. I think it was here to compensate for
-erroneous addition bit in register width.
+iio_trigger_free(), which is the matching API to viio_trigger_alloc(),
+calls put_device() which decreases the reference count by 1. But the second
+reference count acquired in viio_trigger_alloc() is never dropped.
 
-Tested on custom A40i+AXP221s board with external ammeter as
-a reference.
+As a result the iio_trigger_release() function is never called and the
+memory associated with the trigger is never freed.
 
-Fixes: 0e34d5de961d ("iio: adc: add support for X-Powers AXP20X and AXP22X PMICs ADCs")
-Signed-off-by: Evgeny Boger <boger@wirenboard.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20211116213746.264378-1-boger@wirenboard.com
+Since there is no reason for the trigger to start its lifetime with two
+reference counts just remove the extra get_device() in
+viio_trigger_alloc().
+
+Fixes: 5f9c035cae18 ("staging:iio:triggers. Add a reference get to the core for triggers.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20211024092700.6844-2-lars@metafoo.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/axp20x_adc.c |   18 +++---------------
- 1 file changed, 3 insertions(+), 15 deletions(-)
+ drivers/iio/industrialio-trigger.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/iio/adc/axp20x_adc.c
-+++ b/drivers/iio/adc/axp20x_adc.c
-@@ -251,19 +251,8 @@ static int axp22x_adc_raw(struct iio_dev
- 			  struct iio_chan_spec const *chan, int *val)
- {
- 	struct axp20x_adc_iio *info = iio_priv(indio_dev);
--	int size;
+--- a/drivers/iio/industrialio-trigger.c
++++ b/drivers/iio/industrialio-trigger.c
+@@ -556,7 +556,6 @@ struct iio_trigger *viio_trigger_alloc(s
+ 		irq_modify_status(trig->subirq_base + i,
+ 				  IRQ_NOREQUEST | IRQ_NOAUTOEN, IRQ_NOPROBE);
+ 	}
+-	get_device(&trig->dev);
  
--	/*
--	 * N.B.: Unlike the Chinese datasheets tell, the charging current is
--	 * stored on 12 bits, not 13 bits. Only discharging current is on 13
--	 * bits.
--	 */
--	if (chan->type == IIO_CURRENT && chan->channel == AXP22X_BATT_DISCHRG_I)
--		size = 13;
--	else
--		size = 12;
--
--	*val = axp20x_read_variable_width(info->regmap, chan->address, size);
-+	*val = axp20x_read_variable_width(info->regmap, chan->address, 12);
- 	if (*val < 0)
- 		return *val;
+ 	return trig;
  
-@@ -386,9 +375,8 @@ static int axp22x_adc_scale(struct iio_c
- 		return IIO_VAL_INT_PLUS_MICRO;
- 
- 	case IIO_CURRENT:
--		*val = 0;
--		*val2 = 500000;
--		return IIO_VAL_INT_PLUS_MICRO;
-+		*val = 1;
-+		return IIO_VAL_INT;
- 
- 	case IIO_TEMP:
- 		*val = 100;
 
 
