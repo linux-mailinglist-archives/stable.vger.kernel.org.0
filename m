@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 613EF47261E
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D89BD4725AC
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:45:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235971AbhLMJtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:49:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56180 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233004AbhLMJq3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:46:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2485C08EB4B;
-        Mon, 13 Dec 2021 01:41:21 -0800 (PST)
+        id S235879AbhLMJpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:45:24 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:36822 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234589AbhLMJnX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:43:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A562B80E23;
-        Mon, 13 Dec 2021 09:41:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 894A3C341C5;
-        Mon, 13 Dec 2021 09:41:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C4CBDCE0E79;
+        Mon, 13 Dec 2021 09:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A99C341C5;
+        Mon, 13 Dec 2021 09:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388480;
-        bh=C8gy0G98KFGsoXjGSHAbINoBm3zA1+daz2NB0fwNbdE=;
+        s=korg; t=1639388599;
+        bh=uAiqZR3IvrFrXzJGBI0LYMHFB0Cq9UInD/O8AAugYSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=loKH2TzT7Z5yT/1filW/aR6IbWEgpswOjIDyPX9Vd9eCqz8c+rnOuJzvLVdbbGqew
-         twFm1RkiRdDudV0aJNGqntwKcSES3KF5B6WJWgJtHSrCG3NK/DQv3j6tsCklrT+AfS
-         sqe6K/Tem+6ddEt0QNEX+Z+RsRQ488WdmYwlnfR0=
+        b=zWwsdWmjMQ7VDeW48xESD5fENf2H8XqfrVWIBP5YYsL7goWAp38BAQwMv8Fgy3Cbk
+         W2p/9riXJymcPkLzGnPC+39YLiFvIq2tnWZEOwSDE7LyP2f31XxBf/RCQsfx/HeHu9
+         Hhcg+pJzZIk2P3/rA6L5/EJvj9YNUN9yAhcKjHq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Brian Silverman <brian.silverman@bluerivertech.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 31/74] can: m_can: Disable and ignore ELO interrupt
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 32/88] ALSA: pcm: oss: Handle missing errors in snd_pcm_oss_change_params*()
 Date:   Mon, 13 Dec 2021 10:30:02 +0100
-Message-Id: <20211213092931.851793274@linuxfoundation.org>
+Message-Id: <20211213092934.337895842@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Silverman <brian.silverman@bluerivertech.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f58ac1adc76b5beda43c64ef359056077df4d93a upstream.
+commit 6665bb30a6b1a4a853d52557c05482ee50e71391 upstream.
 
-With the design of this driver, this condition is often triggered.
-However, the counter that this interrupt indicates an overflow is never
-read either, so overflowing is harmless.
+A couple of calls in snd_pcm_oss_change_params_locked() ignore the
+possible errors.  Catch those errors and abort the operation for
+avoiding further problems.
 
-On my system, when a CAN bus starts flapping up and down, this locks up
-the whole system with lots of interrupts and printks.
-
-Specifically, this interrupt indicates the CEL field of ECR has
-overflowed. All reads of ECR mask out CEL.
-
-Fixes: e0d1f4816f2a ("can: m_can: add Bosch M_CAN controller support")
-Link: https://lore.kernel.org/all/20211129222628.7490-1-brian.silverman@bluerivertech.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Brian Silverman <brian.silverman@bluerivertech.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211201073606.11660-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/can/m_can/m_can.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ sound/core/oss/pcm_oss.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -233,15 +233,15 @@ enum m_can_mram_cfg {
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -884,8 +884,15 @@ static int snd_pcm_oss_change_params_loc
+ 		err = -EINVAL;
+ 		goto failure;
+ 	}
+-	choose_rate(substream, sparams, runtime->oss.rate);
+-	snd_pcm_hw_param_near(substream, sparams, SNDRV_PCM_HW_PARAM_CHANNELS, runtime->oss.channels, NULL);
++
++	err = choose_rate(substream, sparams, runtime->oss.rate);
++	if (err < 0)
++		goto failure;
++	err = snd_pcm_hw_param_near(substream, sparams,
++				    SNDRV_PCM_HW_PARAM_CHANNELS,
++				    runtime->oss.channels, NULL);
++	if (err < 0)
++		goto failure;
  
- /* Interrupts for version 3.0.x */
- #define IR_ERR_LEC_30X	(IR_STE	| IR_FOE | IR_ACKE | IR_BE | IR_CRCE)
--#define IR_ERR_BUS_30X	(IR_ERR_LEC_30X | IR_WDI | IR_ELO | IR_BEU | \
--			 IR_BEC | IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | \
--			 IR_RF1L | IR_RF0L)
-+#define IR_ERR_BUS_30X	(IR_ERR_LEC_30X | IR_WDI | IR_BEU | IR_BEC | \
-+			 IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | IR_RF1L | \
-+			 IR_RF0L)
- #define IR_ERR_ALL_30X	(IR_ERR_STATE | IR_ERR_BUS_30X)
- /* Interrupts for version >= 3.1.x */
- #define IR_ERR_LEC_31X	(IR_PED | IR_PEA)
--#define IR_ERR_BUS_31X      (IR_ERR_LEC_31X | IR_WDI | IR_ELO | IR_BEU | \
--			 IR_BEC | IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | \
--			 IR_RF1L | IR_RF0L)
-+#define IR_ERR_BUS_31X      (IR_ERR_LEC_31X | IR_WDI | IR_BEU | IR_BEC | \
-+			 IR_TOO | IR_MRAF | IR_TSW | IR_TEFL | IR_RF1L | \
-+			 IR_RF0L)
- #define IR_ERR_ALL_31X	(IR_ERR_STATE | IR_ERR_BUS_31X)
+ 	format = snd_pcm_oss_format_from(runtime->oss.format);
  
- /* Interrupt Line Select (ILS) */
-@@ -769,8 +769,6 @@ static void m_can_handle_other_err(struc
- {
- 	if (irqstatus & IR_WDI)
- 		netdev_err(dev, "Message RAM Watchdog event due to missing READY\n");
--	if (irqstatus & IR_ELO)
--		netdev_err(dev, "Error Logging Overflow\n");
- 	if (irqstatus & IR_BEU)
- 		netdev_err(dev, "Bit Error Uncorrected\n");
- 	if (irqstatus & IR_BEC)
 
 
