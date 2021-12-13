@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6004724F6
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFDD9472452
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234004AbhLMJkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:40:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233200AbhLMJiZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:38:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB65C08E856;
-        Mon, 13 Dec 2021 01:37:08 -0800 (PST)
+        id S234166AbhLMJfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:35:42 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48632 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234165AbhLMJew (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF6C1B80E0B;
-        Mon, 13 Dec 2021 09:37:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32475C341C5;
-        Mon, 13 Dec 2021 09:37:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31AE1B80E0B;
+        Mon, 13 Dec 2021 09:34:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60A85C341C5;
+        Mon, 13 Dec 2021 09:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388225;
-        bh=WIWdys5//IC5POQNm2wp3TJhcElEgJF+rtvRr0nj37I=;
+        s=korg; t=1639388089;
+        bh=R9v+fkHT821O4Y+3dlOzbe2bQoJEF2sBwEPmfQf22j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SrRuJzUTFETThCODwlmXMXcJ9zsqdSlfKxL7UjPdaFppBThMXHWprERczegHgz41O
-         dC4NA/jbWR6mV5vP4UjMpdfqyAwKKFEfEi/Ia9BdMoXY7M+lQkV81CZctbMZtWE7l6
-         D3AH7Seb0b8iJmme8UEmKJtzJAibaA022EyBtrEI=
+        b=X8SoEkcrfgbLdZp4PtfxmaFfddsfw62eG+uv1Tx317+iG7tjlPIEgt3sS1TPChUma
+         TNIj2cJ6NuJ6FpKUvegVgCEQYuxartK1YovCi6sCcyU0v3p0wqnaLlKmj+ymtz2O8Y
+         0NuIS9UoaVHfaHua4Ke4oFjnWV/kDHpWMFF3saig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>,
+        Nicolas Diaz <nicolas.diaz@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 29/53] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
+Subject: [PATCH 4.9 26/42] net: fec: only clear interrupt of handling queue in fec_enet_rx_queue()
 Date:   Mon, 13 Dec 2021 10:30:08 +0100
-Message-Id: <20211213092929.327616807@linuxfoundation.org>
+Message-Id: <20211213092927.425255607@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,70 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit 2be6d4d16a0849455a5c22490e3c5983495fed00 upstream.
+commit b5bd95d17102b6719e3531d627875b9690371383 upstream.
 
-Currently, due to the sequential use of min_t() and clamp_t() macros,
-in cdc_ncm_check_tx_max(), if dwNtbOutMaxSize is not set, the logic
-sets tx_max to 0.  This is then used to allocate the data area of the
-SKB requested later in cdc_ncm_fill_tx_frame().
+Background:
+We have a customer is running a Profinet stack on the 8MM which receives and
+responds PNIO packets every 4ms and PNIO-CM packets every 40ms. However, from
+time to time the received PNIO-CM package is "stock" and is only handled when
+receiving a new PNIO-CM or DCERPC-Ping packet (tcpdump shows the PNIO-CM and
+the DCERPC-Ping packet at the same time but the PNIO-CM HW timestamp is from
+the expected 40 ms and not the 2s delay of the DCERPC-Ping).
 
-This does not cause an issue presently because when memory is
-allocated during initialisation phase of SKB creation, more memory
-(512b) is allocated than is required for the SKB headers alone (320b),
-leaving some space (512b - 320b = 192b) for CDC data (172b).
+After debugging, we noticed PNIO, PNIO-CM and DCERPC-Ping packets would
+be handled by different RX queues.
 
-However, if more elements (for example 3 x u64 = [24b]) were added to
-one of the SKB header structs, say 'struct skb_shared_info',
-increasing its original size (320b [320b aligned]) to something larger
-(344b [384b aligned]), then suddenly the CDC data (172b) no longer
-fits in the spare SKB data area (512b - 384b = 128b).
+The root cause should be driver ack all queues' interrupt when handle a
+specific queue in fec_enet_rx_queue(). The blamed patch is introduced to
+receive as much packets as possible once to avoid interrupt flooding.
+But it's unreasonable to clear other queues'interrupt when handling one
+queue, this patch tries to fix it.
 
-Consequently the SKB bounds checking semantics fails and panics:
-
-  skbuff: skb_over_panic: text:ffffffff830a5b5f len:184 put:172   \
-     head:ffff888119227c00 data:ffff888119227c00 tail:0xb8 end:0x80 dev:<NULL>
-
-  ------------[ cut here ]------------
-  kernel BUG at net/core/skbuff.c:110!
-  RIP: 0010:skb_panic+0x14f/0x160 net/core/skbuff.c:106
-  <snip>
-  Call Trace:
-   <IRQ>
-   skb_over_panic+0x2c/0x30 net/core/skbuff.c:115
-   skb_put+0x205/0x210 net/core/skbuff.c:1877
-   skb_put_zero include/linux/skbuff.h:2270 [inline]
-   cdc_ncm_ndp16 drivers/net/usb/cdc_ncm.c:1116 [inline]
-   cdc_ncm_fill_tx_frame+0x127f/0x3d50 drivers/net/usb/cdc_ncm.c:1293
-   cdc_ncm_tx_fixup+0x98/0xf0 drivers/net/usb/cdc_ncm.c:1514
-
-By overriding the max value with the default CDC_NCM_NTB_MAX_SIZE_TX
-when not offered through the system provided params, we ensure enough
-data space is allocated to handle the CDC data, meaning no crash will
-occur.
-
-Cc: Oliver Neukum <oliver@neukum.org>
-Fixes: 289507d3364f9 ("net: cdc_ncm: use sysfs for rx/tx aggregation tuning")
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20211202143437.1411410-1-lee.jones@linaro.org
+Fixes: ed63f1dcd578 (net: fec: clear receive interrupts before processing a packet)
+Cc: Russell King <rmk+kernel@arm.linux.org.uk>
+Reported-by: Nicolas Diaz <nicolas.diaz@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Link: https://lore.kernel.org/r/20211206135457.15946-1-qiangqing.zhang@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_ncm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/freescale/fec.h      |    3 +++
+ drivers/net/ethernet/freescale/fec_main.c |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -177,6 +177,8 @@ static u32 cdc_ncm_check_tx_max(struct u
- 	/* clamp new_tx to sane values */
- 	min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth16);
- 	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
-+	if (max == 0)
-+		max = CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
+--- a/drivers/net/ethernet/freescale/fec.h
++++ b/drivers/net/ethernet/freescale/fec.h
+@@ -371,6 +371,9 @@ struct bufdesc_ex {
+ #define FEC_ENET_WAKEUP	((uint)0x00020000)	/* Wakeup request */
+ #define FEC_ENET_TXF	(FEC_ENET_TXF_0 | FEC_ENET_TXF_1 | FEC_ENET_TXF_2)
+ #define FEC_ENET_RXF	(FEC_ENET_RXF_0 | FEC_ENET_RXF_1 | FEC_ENET_RXF_2)
++#define FEC_ENET_RXF_GET(X)	(((X) == 0) ? FEC_ENET_RXF_0 :	\
++				(((X) == 1) ? FEC_ENET_RXF_1 :	\
++				FEC_ENET_RXF_2))
+ #define FEC_ENET_TS_AVAIL       ((uint)0x00010000)
+ #define FEC_ENET_TS_TIMER       ((uint)0x00008000)
  
- 	/* some devices set dwNtbOutMaxSize too low for the above default */
- 	min = min(min, max);
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -1380,7 +1380,7 @@ fec_enet_rx_queue(struct net_device *nde
+ 			break;
+ 		pkt_received++;
+ 
+-		writel(FEC_ENET_RXF, fep->hwp + FEC_IEVENT);
++		writel(FEC_ENET_RXF_GET(queue_id), fep->hwp + FEC_IEVENT);
+ 
+ 		/* Check for errors. */
+ 		status ^= BD_ENET_RX_LAST;
 
 
