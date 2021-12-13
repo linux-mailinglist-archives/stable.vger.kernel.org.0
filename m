@@ -2,32 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BAC2472866
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4324726DD
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236859AbhLMKLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:11:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34460 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242831AbhLMKIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:08:54 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BD7FC08EA76;
-        Mon, 13 Dec 2021 01:53:22 -0800 (PST)
+        id S235793AbhLMJzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:55:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39308 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234122AbhLMJx0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:53:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A7E19CE0DEF;
-        Mon, 13 Dec 2021 09:53:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 521B0C00446;
-        Mon, 13 Dec 2021 09:53:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16A51B80E12;
+        Mon, 13 Dec 2021 09:53:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E2C0C00446;
+        Mon, 13 Dec 2021 09:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389198;
-        bh=NEQJNdKR5JoGf6gQvZzjS89qgZG3Wgn14DWga/h9BXw=;
+        s=korg; t=1639389201;
+        bh=VY+Jaz0eU6DCWjVfzq2jzpljvoxIOyOuAnNEHFSSlvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvTTq7xlxqy0oQ2Obfwdgrp7e+NVy5GD09V0gY72xqEMUgSRig1w1UprSOnwkO6r9
-         2sZMvDfxeyW51N9rQqd0BZMw8PlgPKDz+TTC9FV+9GDmJuzQ8d+cWq/7akA6now6Vo
-         kILsgPuxG0TCm791qeHwyS7GpzIhoaimeyMyfvrg=
+        b=FhvZwZV5v7L5jEOTXWWNTOUXaiLABREX+YhveBUDR7Aq3FzMbmXiiSz/EsmWUBtwX
+         jGE9ogtcvU3al+j/PXtXrqFSwQSSXVwbBoYWZpT7Bbs0EKBfY9/9OogvtLKIUkj2Qp
+         Wt8PZcZAFhQPFAs0Aj2wdRqKmN7VRm5thf2XfdwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +32,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
         Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
         Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 018/171] IB/hfi1: Insure use of smp_processor_id() is preempt disabled
-Date:   Mon, 13 Dec 2021 10:28:53 +0100
-Message-Id: <20211213092945.695040078@linuxfoundation.org>
+Subject: [PATCH 5.15 019/171] IB/hfi1: Fix early init panic
+Date:   Mon, 13 Dec 2021 10:28:54 +0100
+Message-Id: <20211213092945.726382886@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -51,60 +48,115 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit b6d57e24ce6cc3df8a8845e1b193e88a65d501b1 upstream.
+commit f6a3cfec3c01f9983e961c3327cef0db129a3c43 upstream.
 
-The following BUG has just surfaced with our 5.16 testing:
+The following trace can be observed with an init failure such as firmware
+load failures:
 
-  BUG: using smp_processor_id() in preemptible [00000000] code: mpicheck/1581081
-  caller is sdma_select_user_engine+0x72/0x210 [hfi1]
-  CPU: 0 PID: 1581081 Comm: mpicheck Tainted: G S                5.16.0-rc1+ #1
-  Hardware name: Intel Corporation S2600WT2R/S2600WT2R, BIOS SE5C610.86B.01.01.0016.033120161139 03/31/2016
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+  PGD 0 P4D 0
+  Oops: 0010 [#1] SMP PTI
+  CPU: 0 PID: 537 Comm: kworker/0:3 Tainted: G           OE    --------- -  - 4.18.0-240.el8.x86_64 #1
+  Workqueue: events work_for_cpu_fn
+  RIP: 0010:0x0
+  Code: Bad RIP value.
+  RSP: 0000:ffffae5f878a3c98 EFLAGS: 00010046
+  RAX: 0000000000000000 RBX: ffff95e48e025c00 RCX: 0000000000000000
+  RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff95e48e025c00
+  RBP: ffff95e4bf3660a4 R08: 0000000000000000 R09: ffffffff86d5e100
+  R10: ffff95e49e1de600 R11: 0000000000000001 R12: ffff95e4bf366180
+  R13: ffff95e48e025c00 R14: ffff95e4bf366028 R15: ffff95e4bf366000
+  FS:  0000000000000000(0000) GS:ffff95e4df200000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: ffffffffffffffd6 CR3: 0000000f86a0a003 CR4: 00000000001606f0
   Call Trace:
-   <TASK>
-   dump_stack_lvl+0x33/0x42
-   check_preemption_disabled+0xbf/0xe0
-   sdma_select_user_engine+0x72/0x210 [hfi1]
-   ? _raw_spin_unlock_irqrestore+0x1f/0x31
-   ? hfi1_mmu_rb_insert+0x6b/0x200 [hfi1]
-   hfi1_user_sdma_process_request+0xa02/0x1120 [hfi1]
-   ? hfi1_write_iter+0xb8/0x200 [hfi1]
-   hfi1_write_iter+0xb8/0x200 [hfi1]
-   do_iter_readv_writev+0x163/0x1c0
-   do_iter_write+0x80/0x1c0
-   vfs_writev+0x88/0x1a0
-   ? recalibrate_cpu_khz+0x10/0x10
-   ? ktime_get+0x3e/0xa0
-   ? __fget_files+0x66/0xa0
-   do_writev+0x65/0x100
-   do_syscall_64+0x3a/0x80
+   receive_context_interrupt+0x1f/0x40 [hfi1]
+   __free_irq+0x201/0x300
+   free_irq+0x2e/0x60
+   pci_free_irq+0x18/0x30
+   msix_free_irq.part.2+0x46/0x80 [hfi1]
+   msix_clean_up_interrupts+0x2b/0x70 [hfi1]
+   hfi1_init_dd+0x640/0x1a90 [hfi1]
+   do_init_one.isra.19+0x34d/0x680 [hfi1]
+   local_pci_probe+0x41/0x90
+   work_for_cpu_fn+0x16/0x20
+   process_one_work+0x1a7/0x360
+   worker_thread+0x1cf/0x390
+   ? create_worker+0x1a0/0x1a0
+   kthread+0x112/0x130
+   ? kthread_flush_work_fn+0x10/0x10
+   ret_from_fork+0x35/0x40
 
-Fix this long standing bug by moving the smp_processor_id() to after the
-rcu_read_lock().
+The free_irq() results in a callback to the registered interrupt handler,
+and rcd->do_interrupt is NULL because the receive context data structures
+are not fully initialized.
 
-The rcu_read_lock() implicitly disables preemption.
+Fix by ensuring that the do_interrupt is always assigned and adding a
+guards in the slow path handler to detect and handle a partially
+initialized receive context and noop the receive.
 
-Link: https://lore.kernel.org/r/20211129191958.101968.87329.stgit@awfm-01.cornelisnetworks.com
+Link: https://lore.kernel.org/r/20211129192003.101968.33612.stgit@awfm-01.cornelisnetworks.com
 Cc: stable@vger.kernel.org
-Fixes: 0cb2aa690c7e ("IB/hfi1: Add sysfs interface for affinity setup")
+Fixes: b0ba3c18d6bf ("IB/hfi1: Move normal functions from hfi1_devdata to const array")
 Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/chip.c   |    2 ++
+ drivers/infiniband/hw/hfi1/driver.c |    2 ++
+ drivers/infiniband/hw/hfi1/init.c   |    5 ++---
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -838,8 +838,8 @@ struct sdma_engine *sdma_select_user_eng
- 	if (current->nr_cpus_allowed != 1)
- 		goto out;
+--- a/drivers/infiniband/hw/hfi1/chip.c
++++ b/drivers/infiniband/hw/hfi1/chip.c
+@@ -8414,6 +8414,8 @@ static void receive_interrupt_common(str
+  */
+ static void __hfi1_rcd_eoi_intr(struct hfi1_ctxtdata *rcd)
+ {
++	if (!rcd->rcvhdrq)
++		return;
+ 	clear_recv_intr(rcd);
+ 	if (check_packet_present(rcd))
+ 		force_recv_intr(rcd);
+--- a/drivers/infiniband/hw/hfi1/driver.c
++++ b/drivers/infiniband/hw/hfi1/driver.c
+@@ -1011,6 +1011,8 @@ int handle_receive_interrupt(struct hfi1
+ 	struct hfi1_packet packet;
+ 	int skip_pkt = 0;
  
--	cpu_id = smp_processor_id();
- 	rcu_read_lock();
-+	cpu_id = smp_processor_id();
- 	rht_node = rhashtable_lookup(dd->sdma_rht, &cpu_id,
- 				     sdma_rht_params);
++	if (!rcd->rcvhdrq)
++		return RCV_PKT_OK;
+ 	/* Control context will always use the slow path interrupt handler */
+ 	needset = (rcd->ctxt == HFI1_CTRL_CTXT) ? 0 : 1;
  
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -112,7 +112,6 @@ static int hfi1_create_kctxt(struct hfi1
+ 	rcd->fast_handler = get_dma_rtail_setting(rcd) ?
+ 				handle_receive_interrupt_dma_rtail :
+ 				handle_receive_interrupt_nodma_rtail;
+-	rcd->slow_handler = handle_receive_interrupt;
+ 
+ 	hfi1_set_seq_cnt(rcd, 1);
+ 
+@@ -333,6 +332,8 @@ int hfi1_create_ctxtdata(struct hfi1_ppo
+ 		rcd->numa_id = numa;
+ 		rcd->rcv_array_groups = dd->rcv_entries.ngroups;
+ 		rcd->rhf_rcv_function_map = normal_rhf_rcv_functions;
++		rcd->slow_handler = handle_receive_interrupt;
++		rcd->do_interrupt = rcd->slow_handler;
+ 		rcd->msix_intr = CCE_NUM_MSIX_VECTORS;
+ 
+ 		mutex_init(&rcd->exp_mutex);
+@@ -897,8 +898,6 @@ int hfi1_init(struct hfi1_devdata *dd, i
+ 		if (!rcd)
+ 			continue;
+ 
+-		rcd->do_interrupt = &handle_receive_interrupt;
+-
+ 		lastfail = hfi1_create_rcvhdrq(dd, rcd);
+ 		if (!lastfail)
+ 			lastfail = hfi1_setup_eagerbufs(rcd);
 
 
