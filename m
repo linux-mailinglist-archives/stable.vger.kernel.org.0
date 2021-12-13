@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE2BA472899
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:14:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 191054729AC
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239932AbhLMKOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:09 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:46178 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235027AbhLMJ45 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:56:57 -0500
+        id S245699AbhLMKXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:23:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244978AbhLMKTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:19:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09D17C061371;
+        Mon, 13 Dec 2021 01:57:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E16FACE0E86;
-        Mon, 13 Dec 2021 09:56:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86D08C34600;
-        Mon, 13 Dec 2021 09:56:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA722B80E2F;
+        Mon, 13 Dec 2021 09:56:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C276C34600;
+        Mon, 13 Dec 2021 09:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389411;
-        bh=uf172LFsvGkogJ4pSihMNlwgTlNtAhValDJMtbHFdNU=;
+        s=korg; t=1639389418;
+        bh=CDXo2h4vz+YwBBOpxTJoGDGKPvgQg9+CFfdB73paPyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqZV7rrhQkoJ6KfHCcuJ3fAXI6yfCtTjBxx0083FJW5U1tNpYJTi2n+hwphBp/nD5
-         ohb4dFCjo7Rx/FvFV53uVg1OqzAyJNNB11HGLzlD79y/Ajpqm6X5Qye2e0LnSqRMdZ
-         XJlMJcB/nUHJafvyGrH1d9TCivfvx/2Nqeb7/RIk=
+        b=fW3MNulUbEc48aFLV/qFDGqgNRv91SyjyI0xsPQkqmuIH0Hv2hJo/H3WppiJtNqEn
+         q7v5Q3F7sBSNdWgNiUFeJ2ZKVr+ThQEtSCTzQD7Bwffurnlztia+BsaDM6lojzNBZD
+         FlNwhkjG+ZUugENAQQzSZLn6DKH9T80n+pjL52iY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 089/171] mmc: renesas_sdhi: initialize variable properly when tuning
-Date:   Mon, 13 Dec 2021 10:30:04 +0100
-Message-Id: <20211213092948.047760768@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.15 090/171] clk: qcom: regmap-mux: fix parent clock lookup
+Date:   Mon, 13 Dec 2021 10:30:05 +0100
+Message-Id: <20211213092948.080794524@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -45,34 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 7dba402807a85fa3723f4a27504813caf81cc9d7 upstream.
+commit 9a61f813fcc8d56d85fcf9ca6119cf2b5ac91dd5 upstream.
 
-'cmd_error' is not necessarily initialized on some error paths in
-mmc_send_tuning(). Initialize it.
+The function mux_get_parent() uses qcom_find_src_index() to find the
+parent clock index, which is incorrect: qcom_find_src_index() uses src
+enum for the lookup, while mux_get_parent() should use cfg field (which
+corresponds to the register value). Add qcom_find_cfg_index() function
+doing this kind of lookup and use it for mux parent lookup.
 
-Fixes: 2c9017d0b5d3 ("mmc: renesas_sdhi: abort tuning when timeout detected")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Fixes: df964016490b ("clk: qcom: add parent map for regmap mux")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211130132309.18246-1-wsa+renesas@sang-engineering.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20211115233407.1046179-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/renesas_sdhi_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/clk-regmap-mux.c |    2 +-
+ drivers/clk/qcom/common.c         |   12 ++++++++++++
+ drivers/clk/qcom/common.h         |    2 ++
+ 3 files changed, 15 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -673,7 +673,7 @@ static int renesas_sdhi_execute_tuning(s
+--- a/drivers/clk/qcom/clk-regmap-mux.c
++++ b/drivers/clk/qcom/clk-regmap-mux.c
+@@ -28,7 +28,7 @@ static u8 mux_get_parent(struct clk_hw *
+ 	val &= mask;
  
- 	/* Issue CMD19 twice for each tap */
- 	for (i = 0; i < 2 * priv->tap_num; i++) {
--		int cmd_error;
-+		int cmd_error = 0;
+ 	if (mux->parent_map)
+-		return qcom_find_src_index(hw, mux->parent_map, val);
++		return qcom_find_cfg_index(hw, mux->parent_map, val);
  
- 		/* Set sampling clock position */
- 		sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_TAPSET, i % priv->tap_num);
+ 	return val;
+ }
+--- a/drivers/clk/qcom/common.c
++++ b/drivers/clk/qcom/common.c
+@@ -69,6 +69,18 @@ int qcom_find_src_index(struct clk_hw *h
+ }
+ EXPORT_SYMBOL_GPL(qcom_find_src_index);
+ 
++int qcom_find_cfg_index(struct clk_hw *hw, const struct parent_map *map, u8 cfg)
++{
++	int i, num_parents = clk_hw_get_num_parents(hw);
++
++	for (i = 0; i < num_parents; i++)
++		if (cfg == map[i].cfg)
++			return i;
++
++	return -ENOENT;
++}
++EXPORT_SYMBOL_GPL(qcom_find_cfg_index);
++
+ struct regmap *
+ qcom_cc_map(struct platform_device *pdev, const struct qcom_cc_desc *desc)
+ {
+--- a/drivers/clk/qcom/common.h
++++ b/drivers/clk/qcom/common.h
+@@ -49,6 +49,8 @@ extern void
+ qcom_pll_set_fsm_mode(struct regmap *m, u32 reg, u8 bias_count, u8 lock_count);
+ extern int qcom_find_src_index(struct clk_hw *hw, const struct parent_map *map,
+ 			       u8 src);
++extern int qcom_find_cfg_index(struct clk_hw *hw, const struct parent_map *map,
++			       u8 cfg);
+ 
+ extern int qcom_cc_register_board_clk(struct device *dev, const char *path,
+ 				      const char *name, unsigned long rate);
 
 
