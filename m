@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12B6472733
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25B6747273C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237231AbhLMJ7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:59:08 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:42842 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236998AbhLMJyJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:54:09 -0500
+        id S237658AbhLMJ7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58884 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238543AbhLMJ44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:56:56 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DB7AC09B057;
+        Mon, 13 Dec 2021 01:46:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 269ACCE0EDF;
-        Mon, 13 Dec 2021 09:54:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91DF6C34600;
-        Mon, 13 Dec 2021 09:54:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B9859CE0E89;
+        Mon, 13 Dec 2021 09:46:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D0BFC00446;
+        Mon, 13 Dec 2021 09:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389246;
-        bh=pOPE3yPZP2q0Aiai9R3sZu+k1c2LhmsTNJ9CeHODaS4=;
+        s=korg; t=1639388810;
+        bh=+SCLD9UK3iOdmbcca8gQH5VRMG4w65O4cBrUe3qd9fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbpwSMNJdqKRHtR/rUzNd+3e3haTHSihmv8YfmX3HX2vdnte9cXjTeIHTNdCUBKWI
-         q4ynGwytoQzsxh5zVD121reJJB0wBPVYQcQmEPPaSKvoyjdV4VdETnYA3rpxdx7PYQ
-         tHHOEsamw4D2aXmgOKJ7RoyvEnn49Ff1VfpqgCYQ=
+        b=uFTyshJTpX2FXpXyhkL7ayWOfV6i1SKtqHNNENffreDmBsoILnUMKIYS8kUSLwVup
+         BdsBZVWaxp5ILu+Vaeo2q2nHR58Kjh2y/sUXlmmITaUVb0MpQ4FPHrNd/g6nYVacmL
+         avSsEBsV/hMAmKXcqQTe0oIGUi5VBcdoUQUA7cJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Crosser <crosser@average.org>,
-        Lahav Schlesinger <lschlesinger@drivenets.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.15 034/171] selftests: netfilter: add a vrf+conntrack testcase
-Date:   Mon, 13 Dec 2021 10:29:09 +0100
-Message-Id: <20211213092946.218705020@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.10 009/132] HID: add USB_HID dependancy on some USB HID drivers
+Date:   Mon, 13 Dec 2021 10:29:10 +0100
+Message-Id: <20211213092939.394120975@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,268 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 33b8aad21ac175eba9577a73eb62b0aa141c241c upstream.
+commit f237d9028f844a86955fc9da59d7ac4a5c55d7d5 upstream.
 
-Rework the reproducer for the vrf+conntrack regression reported
-by Eugene into a selftest and also add a test for ip masquerading
-that Lahav fixed recently.
+Some HID drivers are only for USB drivers, yet did not depend on
+CONFIG_USB_HID.  This was hidden by the fact that the USB functions were
+stubbed out in the past, but now that drivers are checking for USB
+devices properly, build errors can occur with some random
+configurations.
 
-With net or net-next tree, the first test fails and the latter
-two pass.
-
-With 09e856d54bda5f28 ("vrf: Reset skb conntrack connection on VRF rcv")
-reverted first test passes but the last two fail.
-
-A proper fix needs more work, for time being a revert seems to be
-the best choice, snat/masquerade did not work before the fix.
-
-Link: https://lore.kernel.org/netdev/378ca299-4474-7e9a-3d36-2350c8c98995@gmail.com/T/#m95358a31810df7392f541f99d187227bc75c9963
-Reported-by: Eugene Crosser <crosser@average.org>
-Cc: Lahav Schlesinger <lschlesinger@drivenets.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20211202114819.2511954-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/netfilter/Makefile         |    3 
- tools/testing/selftests/netfilter/conntrack_vrf.sh |  219 +++++++++++++++++++++
- 2 files changed, 221 insertions(+), 1 deletion(-)
- create mode 100755 tools/testing/selftests/netfilter/conntrack_vrf.sh
+ drivers/hid/Kconfig |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/netfilter/Makefile
-+++ b/tools/testing/selftests/netfilter/Makefile
-@@ -5,7 +5,8 @@ TEST_PROGS := nft_trans_stress.sh nft_fi
- 	conntrack_icmp_related.sh nft_flowtable.sh ipvs.sh \
- 	nft_concat_range.sh nft_conntrack_helper.sh \
- 	nft_queue.sh nft_meta.sh nf_nat_edemux.sh \
--	ipip-conntrack-mtu.sh conntrack_tcp_unreplied.sh
-+	ipip-conntrack-mtu.sh conntrack_tcp_unreplied.sh \
-+	conntrack_vrf.sh
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -214,7 +214,7 @@ config HID_CHICONY
  
- LDLIBS = -lmnl
- TEST_GEN_FILES =  nf-queue
---- /dev/null
-+++ b/tools/testing/selftests/netfilter/conntrack_vrf.sh
-@@ -0,0 +1,219 @@
-+#!/bin/sh
-+
-+# This script demonstrates interaction of conntrack and vrf.
-+# The vrf driver calls the netfilter hooks again, with oif/iif
-+# pointing at the VRF device.
-+#
-+# For ingress, this means first iteration has iifname of lower/real
-+# device.  In this script, thats veth0.
-+# Second iteration is iifname set to vrf device, tvrf in this script.
-+#
-+# For egress, this is reversed: first iteration has the vrf device,
-+# second iteration is done with the lower/real/veth0 device.
-+#
-+# test_ct_zone_in demonstrates unexpected change of nftables
-+# behavior # caused by commit 09e856d54bda5f28 "vrf: Reset skb conntrack
-+# connection on VRF rcv"
-+#
-+# It was possible to assign conntrack zone to a packet (or mark it for
-+# `notracking`) in the prerouting chain before conntrack, based on real iif.
-+#
-+# After the change, the zone assignment is lost and the zone is assigned based
-+# on the VRF master interface (in case such a rule exists).
-+# assignment is lost. Instead, assignment based on the `iif` matching
-+# Thus it is impossible to distinguish packets based on the original
-+# interface.
-+#
-+# test_masquerade_vrf and test_masquerade_veth0 demonstrate the problem
-+# that was supposed to be fixed by the commit mentioned above to make sure
-+# that any fix to test case 1 won't break masquerade again.
-+
-+ksft_skip=4
-+
-+IP0=172.30.30.1
-+IP1=172.30.30.2
-+PFXL=30
-+ret=0
-+
-+sfx=$(mktemp -u "XXXXXXXX")
-+ns0="ns0-$sfx"
-+ns1="ns1-$sfx"
-+
-+cleanup()
-+{
-+	ip netns pids $ns0 | xargs kill 2>/dev/null
-+	ip netns pids $ns1 | xargs kill 2>/dev/null
-+
-+	ip netns del $ns0 $ns1
-+}
-+
-+nft --version > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not run test without nft tool"
-+	exit $ksft_skip
-+fi
-+
-+ip -Version > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not run test without ip tool"
-+	exit $ksft_skip
-+fi
-+
-+ip netns add "$ns0"
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not create net namespace $ns0"
-+	exit $ksft_skip
-+fi
-+ip netns add "$ns1"
-+
-+trap cleanup EXIT
-+
-+ip netns exec $ns0 sysctl -q -w net.ipv4.conf.default.rp_filter=0
-+ip netns exec $ns0 sysctl -q -w net.ipv4.conf.all.rp_filter=0
-+ip netns exec $ns0 sysctl -q -w net.ipv4.conf.all.rp_filter=0
-+
-+ip link add veth0 netns "$ns0" type veth peer name veth0 netns "$ns1" > /dev/null 2>&1
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not add veth device"
-+	exit $ksft_skip
-+fi
-+
-+ip -net $ns0 li add tvrf type vrf table 9876
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not add vrf device"
-+	exit $ksft_skip
-+fi
-+
-+ip -net $ns0 li set lo up
-+
-+ip -net $ns0 li set veth0 master tvrf
-+ip -net $ns0 li set tvrf up
-+ip -net $ns0 li set veth0 up
-+ip -net $ns1 li set veth0 up
-+
-+ip -net $ns0 addr add $IP0/$PFXL dev veth0
-+ip -net $ns1 addr add $IP1/$PFXL dev veth0
-+
-+ip netns exec $ns1 iperf3 -s > /dev/null 2>&1&
-+if [ $? -ne 0 ];then
-+	echo "SKIP: Could not start iperf3"
-+	exit $ksft_skip
-+fi
-+
-+# test vrf ingress handling.
-+# The incoming connection should be placed in conntrack zone 1,
-+# as decided by the first iteration of the ruleset.
-+test_ct_zone_in()
-+{
-+ip netns exec $ns0 nft -f - <<EOF
-+table testct {
-+	chain rawpre {
-+		type filter hook prerouting priority raw;
-+
-+		iif { veth0, tvrf } counter meta nftrace set 1
-+		iif veth0 counter ct zone set 1 counter return
-+		iif tvrf counter ct zone set 2 counter return
-+		ip protocol icmp counter
-+		notrack counter
-+	}
-+
-+	chain rawout {
-+		type filter hook output priority raw;
-+
-+		oif veth0 counter ct zone set 1 counter return
-+		oif tvrf counter ct zone set 2 counter return
-+		notrack counter
-+	}
-+}
-+EOF
-+	ip netns exec $ns1 ping -W 1 -c 1 -I veth0 $IP0 > /dev/null
-+
-+	# should be in zone 1, not zone 2
-+	count=$(ip netns exec $ns0 conntrack -L -s $IP1 -d $IP0 -p icmp --zone 1 2>/dev/null | wc -l)
-+	if [ $count -eq 1 ]; then
-+		echo "PASS: entry found in conntrack zone 1"
-+	else
-+		echo "FAIL: entry not found in conntrack zone 1"
-+		count=$(ip netns exec $ns0 conntrack -L -s $IP1 -d $IP0 -p icmp --zone 2 2> /dev/null | wc -l)
-+		if [ $count -eq 1 ]; then
-+			echo "FAIL: entry found in zone 2 instead"
-+		else
-+			echo "FAIL: entry not in zone 1 or 2, dumping table"
-+			ip netns exec $ns0 conntrack -L
-+			ip netns exec $ns0 nft list ruleset
-+		fi
-+	fi
-+}
-+
-+# add masq rule that gets evaluated w. outif set to vrf device.
-+# This tests the first iteration of the packet through conntrack,
-+# oifname is the vrf device.
-+test_masquerade_vrf()
-+{
-+	ip netns exec $ns0 conntrack -F 2>/dev/null
-+
-+ip netns exec $ns0 nft -f - <<EOF
-+flush ruleset
-+table ip nat {
-+	chain postrouting {
-+		type nat hook postrouting priority 0;
-+		# NB: masquerade should always be combined with 'oif(name) bla',
-+		# lack of this is intentional here, we want to exercise double-snat.
-+		ip saddr 172.30.30.0/30 counter masquerade random
-+	}
-+}
-+EOF
-+	ip netns exec $ns0 ip vrf exec tvrf iperf3 -t 1 -c $IP1 >/dev/null
-+	if [ $? -ne 0 ]; then
-+		echo "FAIL: iperf3 connect failure with masquerade + sport rewrite on vrf device"
-+		ret=1
-+		return
-+	fi
-+
-+	# must also check that nat table was evaluated on second (lower device) iteration.
-+	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2'
-+	if [ $? -eq 0 ]; then
-+		echo "PASS: iperf3 connect with masquerade + sport rewrite on vrf device"
-+	else
-+		echo "FAIL: vrf masq rule has unexpected counter value"
-+		ret=1
-+	fi
-+}
-+
-+# add masq rule that gets evaluated w. outif set to veth device.
-+# This tests the 2nd iteration of the packet through conntrack,
-+# oifname is the lower device (veth0 in this case).
-+test_masquerade_veth()
-+{
-+	ip netns exec $ns0 conntrack -F 2>/dev/null
-+ip netns exec $ns0 nft -f - <<EOF
-+flush ruleset
-+table ip nat {
-+	chain postrouting {
-+		type nat hook postrouting priority 0;
-+		meta oif veth0 ip saddr 172.30.30.0/30 counter masquerade random
-+	}
-+}
-+EOF
-+	ip netns exec $ns0 ip vrf exec tvrf iperf3 -t 1 -c $IP1 > /dev/null
-+	if [ $? -ne 0 ]; then
-+		echo "FAIL: iperf3 connect failure with masquerade + sport rewrite on veth device"
-+		ret=1
-+		return
-+	fi
-+
-+	# must also check that nat table was evaluated on second (lower device) iteration.
-+	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2'
-+	if [ $? -eq 0 ]; then
-+		echo "PASS: iperf3 connect with masquerade + sport rewrite on veth device"
-+	else
-+		echo "FAIL: vrf masq rule has unexpected counter value"
-+		ret=1
-+	fi
-+}
-+
-+test_ct_zone_in
-+test_masquerade_vrf
-+test_masquerade_veth
-+
-+exit $ret
+ config HID_CORSAIR
+ 	tristate "Corsair devices"
+-	depends on HID && USB && LEDS_CLASS
++	depends on USB_HID && LEDS_CLASS
+ 	help
+ 	Support for Corsair devices that are not fully compliant with the
+ 	HID standard.
+@@ -541,7 +541,7 @@ config HID_LENOVO
+ 
+ config HID_LOGITECH
+ 	tristate "Logitech devices"
+-	depends on HID
++	depends on USB_HID
+ 	depends on LEDS_CLASS
+ 	default !EXPERT
+ 	help
+@@ -889,7 +889,7 @@ config HID_SAITEK
+ 
+ config HID_SAMSUNG
+ 	tristate "Samsung InfraRed remote control or keyboards"
+-	depends on HID
++	depends on USB_HID
+ 	help
+ 	Support for Samsung InfraRed remote control or keyboards.
+ 
 
 
