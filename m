@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B314728AC
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDCB947255B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238939AbhLMKOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60288 "EHLO
+        id S234574AbhLMJn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240933AbhLMKCv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:02:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54AD3C07E5EE;
-        Mon, 13 Dec 2021 01:49:43 -0800 (PST)
+        with ESMTP id S235081AbhLMJkF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A67C0698D5;
+        Mon, 13 Dec 2021 01:38:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CCDF4CE0E92;
-        Mon, 13 Dec 2021 09:49:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77111C341CE;
-        Mon, 13 Dec 2021 09:49:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 583C3B80D1F;
+        Mon, 13 Dec 2021 09:38:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F03CC00446;
+        Mon, 13 Dec 2021 09:38:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388981;
-        bh=fMgUlj/beUfdjYidA1J9qCIA8KBnSkOcbIGRPgjrGRg=;
+        s=korg; t=1639388306;
+        bh=YIphPqtanoHjDzHK7oxDO2c4u0Iigi0ESl6nWCM17FY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGeTJ8xR/1QB1l07fs+shvGgI19LK//rCtx6wAKYeJpzso3Cgt763WYC8CerwCUey
-         qTWOnucn8adHd0hWHiuq0r4vbXx+JNnkRxIzZUy36uMz9wlNxXsK7tvPI/tPILdv+9
-         6m/xT7icbW5xNOEKFHaAsLXq6w/SxF0Mh7UzS3X8=
+        b=QcK/UPNBCzl1Qh1m+bxXTKoKoD1TyHz22wRfD9zyz4QShyVMDt3quwGw2i/3iFMOy
+         hDz87xiCFktpW4GE2YAaP3xeVBq95SugB4WI8zfWao9+JI5u5ze6j0O6MA8jNoZiZM
+         o5YHwNE2C8tOSiI920e6fY1nHjMaVULV9QX1M1kQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 075/132] PM: runtime: Fix pm_runtime_active() kerneldoc comment
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 37/53] xhci: Remove CONFIG_USB_DEFAULT_PERSIST to prevent xHCI from runtime suspending
 Date:   Mon, 13 Dec 2021 10:30:16 +0100
-Message-Id: <20211213092941.684110349@linuxfoundation.org>
+Message-Id: <20211213092929.593946951@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,31 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 444dd878e85fb33fcfb2682cfdab4c236f33ea3e upstream.
+commit 811ae81320da53a5670c36970cefacca8519f90e upstream.
 
-The kerneldoc comment of pm_runtime_active() does not reflect the
-behavior of the function, so update it accordingly.
+When the xHCI is quirked with XHCI_RESET_ON_RESUME, runtime resume
+routine also resets the controller.
 
-Fixes: 403d2d116ec0 ("PM: runtime: Add kerneldoc comments to multiple helpers")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+This is bad for USB drivers without reset_resume callback, because
+there's no subsequent call of usb_dev_complete() ->
+usb_resume_complete() to force rebinding the driver to the device. For
+instance, btusb device stops working after xHCI controller is runtime
+resumed, if the controlled is quirked with XHCI_RESET_ON_RESUME.
+
+So always take XHCI_RESET_ON_RESUME into account to solve the issue.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211210141735.1384209-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/pm_runtime.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/include/linux/pm_runtime.h
-+++ b/include/linux/pm_runtime.h
-@@ -127,7 +127,7 @@ static inline bool pm_runtime_suspended(
-  * pm_runtime_active - Check whether or not a device is runtime-active.
-  * @dev: Target device.
-  *
-- * Return %true if runtime PM is enabled for @dev and its runtime PM status is
-+ * Return %true if runtime PM is disabled for @dev or its runtime PM status is
-  * %RPM_ACTIVE, or %false otherwise.
-  *
-  * Note that the return value of this function can only be trusted if it is
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3627,7 +3627,6 @@ static void xhci_free_dev(struct usb_hcd
+ 	struct xhci_slot_ctx *slot_ctx;
+ 	int i, ret;
+ 
+-#ifndef CONFIG_USB_DEFAULT_PERSIST
+ 	/*
+ 	 * We called pm_runtime_get_noresume when the device was attached.
+ 	 * Decrement the counter here to allow controller to runtime suspend
+@@ -3635,7 +3634,6 @@ static void xhci_free_dev(struct usb_hcd
+ 	 */
+ 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
+ 		pm_runtime_put_noidle(hcd->self.controller);
+-#endif
+ 
+ 	ret = xhci_check_args(hcd, udev, NULL, 0, true, __func__);
+ 	/* If the host is halted due to driver unload, we still need to free the
+@@ -3790,14 +3788,12 @@ int xhci_alloc_dev(struct usb_hcd *hcd,
+ 
+ 	udev->slot_id = slot_id;
+ 
+-#ifndef CONFIG_USB_DEFAULT_PERSIST
+ 	/*
+ 	 * If resetting upon resume, we can't put the controller into runtime
+ 	 * suspend if there is a device attached.
+ 	 */
+ 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
+ 		pm_runtime_get_noresume(hcd->self.controller);
+-#endif
+ 
+ 	/* Is this a LS or FS device under a HS hub? */
+ 	/* Hub or peripherial? */
 
 
