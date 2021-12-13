@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7ACB47294B
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA3747273F
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245151AbhLMKTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:19:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35068 "EHLO
+        id S238029AbhLMJ7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243828AbhLMKOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:14:50 -0500
+        with ESMTP id S239210AbhLMJ5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:01 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD146C08ED84;
-        Mon, 13 Dec 2021 01:55:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B3BFC061D7E;
+        Mon, 13 Dec 2021 01:47:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61033B80E0C;
-        Mon, 13 Dec 2021 09:55:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1DB0C34601;
-        Mon, 13 Dec 2021 09:55:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43E4CB80DE8;
+        Mon, 13 Dec 2021 09:47:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C331C00446;
+        Mon, 13 Dec 2021 09:47:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389310;
-        bh=+Djn/3BEkd6UZGefbb8zDB8OGVDMZDaJu1Osml+P4aM=;
+        s=korg; t=1639388842;
+        bh=waDXZOXkgSUQ5tSZ0B7ihVQ/POu+BCMaFvW/aQwnbnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tz2xB/Kd1QfVOIRAUOR2/RM0GhJdw5+TqO/SICdpydyJT+A6U1r/DunDFcdmHOd3z
-         FEUWgeZJ9T8OgJUEWe9NDgRNGOgaAccQkCATF7H0kBU8xj04uDHUPRHzR5Jbq5jnhU
-         m+CviqeSiR1SCpemtBsctSMz+5LCjmtwWTDDbSnM=
+        b=dTyvh5j5uJRGOLpO/P6/QTvoQ9b0GEIxSr2vRFxCBGz3Aw6F/vLyYQQ/EgCtPt0/p
+         IbimKz+ibDeYRLKCEyK/FC8UIpx2y3X3PvVKCKhFfHh1Mx0NNhi6YR1GCnRc/3rV0q
+         kRb3xd6faqnUUXwwdzICQIUDmiX9iCHFccK3otVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 054/171] net: dsa: felix: Fix memory leak in felix_setup_mmio_filtering
+        stable@vger.kernel.org, Eugene Crosser <crosser@average.org>,
+        Lahav Schlesinger <lschlesinger@drivenets.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 028/132] selftests: netfilter: add a vrf+conntrack testcase
 Date:   Mon, 13 Dec 2021 10:29:29 +0100
-Message-Id: <20211213092946.905613066@linuxfoundation.org>
+Message-Id: <20211213092940.068522223@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,38 +49,255 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit e8b1d7698038e76363859fb47ae0a262080646f5 upstream.
+commit 33b8aad21ac175eba9577a73eb62b0aa141c241c upstream.
 
-Avoid a memory leak if there is not a CPU port defined.
+Rework the reproducer for the vrf+conntrack regression reported
+by Eugene into a selftest and also add a test for ip masquerading
+that Lahav fixed recently.
 
-Fixes: 8d5f7954b7c8 ("net: dsa: felix: break at first CPU port during init and teardown")
-Addresses-Coverity-ID: 1492897 ("Resource leak")
-Addresses-Coverity-ID: 1492899 ("Resource leak")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20211209110538.11585-1-jose.exposito89@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+With net or net-next tree, the first test fails and the latter
+two pass.
+
+With 09e856d54bda5f28 ("vrf: Reset skb conntrack connection on VRF rcv")
+reverted first test passes but the last two fail.
+
+A proper fix needs more work, for time being a revert seems to be
+the best choice, snat/masquerade did not work before the fix.
+
+Link: https://lore.kernel.org/netdev/378ca299-4474-7e9a-3d36-2350c8c98995@gmail.com/T/#m95358a31810df7392f541f99d187227bc75c9963
+Reported-by: Eugene Crosser <crosser@average.org>
+Cc: Lahav Schlesinger <lschlesinger@drivenets.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/testing/selftests/netfilter/conntrack_vrf.sh |  219 +++++++++++++++++++++
+ 1 file changed, 219 insertions(+)
+ create mode 100755 tools/testing/selftests/netfilter/conntrack_vrf.sh
 
---- a/drivers/net/dsa/ocelot/felix.c
-+++ b/drivers/net/dsa/ocelot/felix.c
-@@ -290,8 +290,11 @@ static int felix_setup_mmio_filtering(st
- 		}
- 	}
- 
--	if (cpu < 0)
-+	if (cpu < 0) {
-+		kfree(tagging_rule);
-+		kfree(redirect_rule);
- 		return -EINVAL;
+--- /dev/null
++++ b/tools/testing/selftests/netfilter/conntrack_vrf.sh
+@@ -0,0 +1,219 @@
++#!/bin/sh
++
++# This script demonstrates interaction of conntrack and vrf.
++# The vrf driver calls the netfilter hooks again, with oif/iif
++# pointing at the VRF device.
++#
++# For ingress, this means first iteration has iifname of lower/real
++# device.  In this script, thats veth0.
++# Second iteration is iifname set to vrf device, tvrf in this script.
++#
++# For egress, this is reversed: first iteration has the vrf device,
++# second iteration is done with the lower/real/veth0 device.
++#
++# test_ct_zone_in demonstrates unexpected change of nftables
++# behavior # caused by commit 09e856d54bda5f28 "vrf: Reset skb conntrack
++# connection on VRF rcv"
++#
++# It was possible to assign conntrack zone to a packet (or mark it for
++# `notracking`) in the prerouting chain before conntrack, based on real iif.
++#
++# After the change, the zone assignment is lost and the zone is assigned based
++# on the VRF master interface (in case such a rule exists).
++# assignment is lost. Instead, assignment based on the `iif` matching
++# Thus it is impossible to distinguish packets based on the original
++# interface.
++#
++# test_masquerade_vrf and test_masquerade_veth0 demonstrate the problem
++# that was supposed to be fixed by the commit mentioned above to make sure
++# that any fix to test case 1 won't break masquerade again.
++
++ksft_skip=4
++
++IP0=172.30.30.1
++IP1=172.30.30.2
++PFXL=30
++ret=0
++
++sfx=$(mktemp -u "XXXXXXXX")
++ns0="ns0-$sfx"
++ns1="ns1-$sfx"
++
++cleanup()
++{
++	ip netns pids $ns0 | xargs kill 2>/dev/null
++	ip netns pids $ns1 | xargs kill 2>/dev/null
++
++	ip netns del $ns0 $ns1
++}
++
++nft --version > /dev/null 2>&1
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not run test without nft tool"
++	exit $ksft_skip
++fi
++
++ip -Version > /dev/null 2>&1
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not run test without ip tool"
++	exit $ksft_skip
++fi
++
++ip netns add "$ns0"
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not create net namespace $ns0"
++	exit $ksft_skip
++fi
++ip netns add "$ns1"
++
++trap cleanup EXIT
++
++ip netns exec $ns0 sysctl -q -w net.ipv4.conf.default.rp_filter=0
++ip netns exec $ns0 sysctl -q -w net.ipv4.conf.all.rp_filter=0
++ip netns exec $ns0 sysctl -q -w net.ipv4.conf.all.rp_filter=0
++
++ip link add veth0 netns "$ns0" type veth peer name veth0 netns "$ns1" > /dev/null 2>&1
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not add veth device"
++	exit $ksft_skip
++fi
++
++ip -net $ns0 li add tvrf type vrf table 9876
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not add vrf device"
++	exit $ksft_skip
++fi
++
++ip -net $ns0 li set lo up
++
++ip -net $ns0 li set veth0 master tvrf
++ip -net $ns0 li set tvrf up
++ip -net $ns0 li set veth0 up
++ip -net $ns1 li set veth0 up
++
++ip -net $ns0 addr add $IP0/$PFXL dev veth0
++ip -net $ns1 addr add $IP1/$PFXL dev veth0
++
++ip netns exec $ns1 iperf3 -s > /dev/null 2>&1&
++if [ $? -ne 0 ];then
++	echo "SKIP: Could not start iperf3"
++	exit $ksft_skip
++fi
++
++# test vrf ingress handling.
++# The incoming connection should be placed in conntrack zone 1,
++# as decided by the first iteration of the ruleset.
++test_ct_zone_in()
++{
++ip netns exec $ns0 nft -f - <<EOF
++table testct {
++	chain rawpre {
++		type filter hook prerouting priority raw;
++
++		iif { veth0, tvrf } counter meta nftrace set 1
++		iif veth0 counter ct zone set 1 counter return
++		iif tvrf counter ct zone set 2 counter return
++		ip protocol icmp counter
++		notrack counter
 +	}
- 
- 	tagging_rule->key_type = OCELOT_VCAP_KEY_ETYPE;
- 	*(__be16 *)tagging_rule->key.etype.etype.value = htons(ETH_P_1588);
++
++	chain rawout {
++		type filter hook output priority raw;
++
++		oif veth0 counter ct zone set 1 counter return
++		oif tvrf counter ct zone set 2 counter return
++		notrack counter
++	}
++}
++EOF
++	ip netns exec $ns1 ping -W 1 -c 1 -I veth0 $IP0 > /dev/null
++
++	# should be in zone 1, not zone 2
++	count=$(ip netns exec $ns0 conntrack -L -s $IP1 -d $IP0 -p icmp --zone 1 2>/dev/null | wc -l)
++	if [ $count -eq 1 ]; then
++		echo "PASS: entry found in conntrack zone 1"
++	else
++		echo "FAIL: entry not found in conntrack zone 1"
++		count=$(ip netns exec $ns0 conntrack -L -s $IP1 -d $IP0 -p icmp --zone 2 2> /dev/null | wc -l)
++		if [ $count -eq 1 ]; then
++			echo "FAIL: entry found in zone 2 instead"
++		else
++			echo "FAIL: entry not in zone 1 or 2, dumping table"
++			ip netns exec $ns0 conntrack -L
++			ip netns exec $ns0 nft list ruleset
++		fi
++	fi
++}
++
++# add masq rule that gets evaluated w. outif set to vrf device.
++# This tests the first iteration of the packet through conntrack,
++# oifname is the vrf device.
++test_masquerade_vrf()
++{
++	ip netns exec $ns0 conntrack -F 2>/dev/null
++
++ip netns exec $ns0 nft -f - <<EOF
++flush ruleset
++table ip nat {
++	chain postrouting {
++		type nat hook postrouting priority 0;
++		# NB: masquerade should always be combined with 'oif(name) bla',
++		# lack of this is intentional here, we want to exercise double-snat.
++		ip saddr 172.30.30.0/30 counter masquerade random
++	}
++}
++EOF
++	ip netns exec $ns0 ip vrf exec tvrf iperf3 -t 1 -c $IP1 >/dev/null
++	if [ $? -ne 0 ]; then
++		echo "FAIL: iperf3 connect failure with masquerade + sport rewrite on vrf device"
++		ret=1
++		return
++	fi
++
++	# must also check that nat table was evaluated on second (lower device) iteration.
++	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2'
++	if [ $? -eq 0 ]; then
++		echo "PASS: iperf3 connect with masquerade + sport rewrite on vrf device"
++	else
++		echo "FAIL: vrf masq rule has unexpected counter value"
++		ret=1
++	fi
++}
++
++# add masq rule that gets evaluated w. outif set to veth device.
++# This tests the 2nd iteration of the packet through conntrack,
++# oifname is the lower device (veth0 in this case).
++test_masquerade_veth()
++{
++	ip netns exec $ns0 conntrack -F 2>/dev/null
++ip netns exec $ns0 nft -f - <<EOF
++flush ruleset
++table ip nat {
++	chain postrouting {
++		type nat hook postrouting priority 0;
++		meta oif veth0 ip saddr 172.30.30.0/30 counter masquerade random
++	}
++}
++EOF
++	ip netns exec $ns0 ip vrf exec tvrf iperf3 -t 1 -c $IP1 > /dev/null
++	if [ $? -ne 0 ]; then
++		echo "FAIL: iperf3 connect failure with masquerade + sport rewrite on veth device"
++		ret=1
++		return
++	fi
++
++	# must also check that nat table was evaluated on second (lower device) iteration.
++	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2'
++	if [ $? -eq 0 ]; then
++		echo "PASS: iperf3 connect with masquerade + sport rewrite on veth device"
++	else
++		echo "FAIL: vrf masq rule has unexpected counter value"
++		ret=1
++	fi
++}
++
++test_ct_zone_in
++test_masquerade_vrf
++test_masquerade_veth
++
++exit $ret
 
 
