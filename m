@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1072472923
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A99A47263A
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241814AbhLMKSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:18:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34970 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235752AbhLMKO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:14:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81298C08ED49;
-        Mon, 13 Dec 2021 01:54:52 -0800 (PST)
+        id S237400AbhLMJtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:39 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:38038 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236453AbhLMJrH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:47:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 07B26B80E26;
-        Mon, 13 Dec 2021 09:54:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73346C34602;
-        Mon, 13 Dec 2021 09:54:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 38BB7CE0E29;
+        Mon, 13 Dec 2021 09:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D841CC00446;
+        Mon, 13 Dec 2021 09:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389289;
-        bh=2p/i4birDKezTK2Hbqca235vLaZKRYYJaWqL109d7J4=;
+        s=korg; t=1639388824;
+        bh=f1z6pgnMtO5cJQlso1Ab2tO1c69kf+mXxCQqm67iGrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cuz0kiiNwLGqHw9wJP5082SrPbIhpfAh/2lPSOw+XQwQs61yik4+RvJLqLfbFhRVJ
-         NZsBOoat1rTS/ru1n5Dj1tMoIhzWNB07Vy8l5oZOjDS94JFhgr7fVucq2OH3r0vxxR
-         PxIus2apu0rvTOQB7MG383SeMT8lQidzTQPhcN2Y=
+        b=pls2Hj2Xoa43QpBUIgzjzp+o03ubC0sYzXdN8aUDWI2TlHAvXyJ+ueeO5vAo8SvEw
+         l3xvB4FYwp6KAzadEE1vu23TYIcdWGCddqjJhPI30EQ5fHx/OvBIWvsuQcFO6zLPUM
+         cinvh295CK6t0xWaIz3FbPcujf8FGlzamhNucPzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 048/171] iavf: restore MSI state on reset
+        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 022/132] drm/amdkfd: separate kfd_iommu_resume from kfd_resume
 Date:   Mon, 13 Dec 2021 10:29:23 +0100
-Message-Id: <20211213092946.695761736@linuxfoundation.org>
+Message-Id: <20211213092939.860749058@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,37 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: James Zhu <James.Zhu@amd.com>
 
-commit 7e4dcc13965c57869684d57a1dc6dd7be589488c upstream.
+commit fefc01f042f44ede373ee66773b8238dd8fdcb55 upstream.
 
-If the PF experiences an FLR, the VF's MSI and MSI-X configuration will
-be conveniently and silently removed in the process. When this happens,
-reset recovery will appear to complete normally but no traffic will
-pass. The netdev watchdog will helpfully notify everyone of this issue.
+Separate kfd_iommu_resume from kfd_resume for fine-tuning
+of amdgpu device init/resume/reset/recovery sequence.
 
-To prevent such public embarrassment, restore MSI configuration at every
-reset. For normal resets, this will do no harm, but for VF resets
-resulting from a PF FLR, this will keep the VF working.
+v2: squash in fix for !CONFIG_HSA_AMD
 
-Fixes: 5eae00c57f5e ("i40evf: main driver core")
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=211277
+Signed-off-by: James Zhu <James.Zhu@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h |    6 ++++++
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c    |   12 ++++++++----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2199,6 +2199,7 @@ static void iavf_reset_task(struct work_
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
+@@ -305,6 +305,7 @@ bool kgd2kfd_device_init(struct kfd_dev
+ 			 const struct kgd2kfd_shared_resources *gpu_resources);
+ void kgd2kfd_device_exit(struct kfd_dev *kfd);
+ void kgd2kfd_suspend(struct kfd_dev *kfd, bool run_pm);
++int kgd2kfd_resume_iommu(struct kfd_dev *kfd);
+ int kgd2kfd_resume(struct kfd_dev *kfd, bool run_pm);
+ int kgd2kfd_pre_reset(struct kfd_dev *kfd);
+ int kgd2kfd_post_reset(struct kfd_dev *kfd);
+@@ -343,6 +344,11 @@ static inline void kgd2kfd_suspend(struc
+ {
+ }
  
- 	pci_set_master(adapter->pdev);
-+	pci_restore_msi_state(adapter->pdev);
++static int __maybe_unused kgd2kfd_resume_iommu(struct kfd_dev *kfd)
++{
++	return 0;
++}
++
+ static inline int kgd2kfd_resume(struct kfd_dev *kfd, bool run_pm)
+ {
+ 	return 0;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -896,17 +896,21 @@ int kgd2kfd_resume(struct kfd_dev *kfd,
+ 	return ret;
+ }
  
- 	if (i == IAVF_RESET_WAIT_COMPLETE_COUNT) {
- 		dev_err(&adapter->pdev->dev, "Reset never finished (%x)\n",
+-static int kfd_resume(struct kfd_dev *kfd)
++int kgd2kfd_resume_iommu(struct kfd_dev *kfd)
+ {
+ 	int err = 0;
+ 
+ 	err = kfd_iommu_resume(kfd);
+-	if (err) {
++	if (err)
+ 		dev_err(kfd_device,
+ 			"Failed to resume IOMMU for device %x:%x\n",
+ 			kfd->pdev->vendor, kfd->pdev->device);
+-		return err;
+-	}
++	return err;
++}
++
++static int kfd_resume(struct kfd_dev *kfd)
++{
++	int err = 0;
+ 
+ 	err = kfd->dqm->ops.start(kfd->dqm);
+ 	if (err) {
 
 
