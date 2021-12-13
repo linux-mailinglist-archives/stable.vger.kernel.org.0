@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C91472770
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 759B04727A9
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237088AbhLMKA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:00:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45162 "EHLO
+        id S236280AbhLMKEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:04:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45284 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239853AbhLMJ64 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:58:56 -0500
+        with ESMTP id S239898AbhLMJ7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:59:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22BA2B80E83;
-        Mon, 13 Dec 2021 09:58:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38045C34601;
-        Mon, 13 Dec 2021 09:58:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C39E5B80EA0;
+        Mon, 13 Dec 2021 09:58:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8299EC34604;
+        Mon, 13 Dec 2021 09:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389529;
-        bh=CaGJg9L+b7+ixx5BF0mYsdNS66KsGLOlP7xuy9QgWP0=;
+        s=korg; t=1639389537;
+        bh=WzlMa0/3NYbjLw5fA/OjUm4ZUClzZdT8yljui0qPCD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hicCgY1erzweNzfYfH4MPolSxN8pQLZ4KdGVKtdNuW6yBO70nY4ikZsqJ/TkVAuHq
-         ukVYk/E0jaH6RvHlByI/y4eIB6Fsfbey+eD81lhm2mh04BzXazBSH4waBT5rQ9M8qX
-         OGoTtCa1Hpm77l+Hb3IcHhBqWUc4YptGYY/usjAw=
+        b=jTprtx+uKZbmURGB1lo5sn/C0rmRPUrkwIajR+K+gECePX8nJpE3rJuK+JwravxN7
+         /n+YwFpxs3a/3urUvtv/x2HX792uOHkhm1ia0rS3vKUA3NPab6Fwgw9Wk73b4HiY38
+         ejjDGn+rHe9RHwZHsx9EW2U34zpxO8gAD6P0/WaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 121/171] mtd: rawnand: fsmc: Fix timing computation
-Date:   Mon, 13 Dec 2021 10:30:36 +0100
-Message-Id: <20211213092949.124725791@linuxfoundation.org>
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.15 122/171] bpf, sockmap: Re-evaluate proto ops when psock is removed from sockmap
+Date:   Mon, 13 Dec 2021 10:30:37 +0100
+Message-Id: <20211213092949.164172809@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -44,106 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herve Codina <herve.codina@bootlin.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-commit 9472335eaa1452b51dc8e8edaa1a342997cb80c7 upstream.
+commit c0d95d3380ee099d735e08618c0d599e72f6c8b0 upstream.
 
-Under certain circumstances, the timing settings calculated by
-the FSMC NAND controller driver were inaccurate.
-These settings led to incorrect data reads or fallback to
-timing mode 0 depending on the NAND chip used.
+When a sock is added to a sock map we evaluate what proto op hooks need to
+be used. However, when the program is removed from the sock map we have not
+been evaluating if that changes the required program layout.
 
-The timing computation did not take into account the following
-constraint given in SPEAr3xx reference manual:
-  twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
+Before the patch listed in the 'fixes' tag this was not causing failures
+because the base program set handles all cases. Specifically, the case with
+a stream parser and the case with out a stream parser are both handled. With
+the fix below we identified a race when running with a proto op that attempts
+to read skbs off both the stream parser and the skb->receive_queue. Namely,
+that a race existed where when the stream parser is empty checking the
+skb->receive_queue from recvmsg at the precies moment when the parser is
+paused and the receive_queue is not empty could result in skipping the stream
+parser. This may break a RX policy depending on the parser to run.
 
-Enhance the timings calculation by taking into account this
-additional constraint.
+The fix tag then loads a specific proto ops that resolved this race. But, we
+missed removing that proto ops recv hook when the sock is removed from the
+sockmap. The result is the stream parser is stopped so no more skbs will be
+aggregated there, but the hook and BPF program continues to be attached on
+the psock. User space will then get an EBUSY when trying to read the socket
+because the recvmsg() handler is now waiting on a stopped stream parser.
 
-This change has no impact on slow timing modes such as mode 0.
-Indeed, on mode 0, computed values are the same with and
-without the patch.
+To fix we rerun the proto ops init() function which will look at the new set
+of progs attached to the psock and rest the proto ops hook to the correct
+handlers. And in the above case where we remove the sock from the sock map
+the RX prog will no longer be listed so the proto ops is removed.
 
-NANDs which previously stayed in mode 0 because of fallback to
-mode 0 can now work at higher speeds and NANDs which were not
-working at all because of the corrupted data work at high
-speeds without troubles.
-
-Overall improvement on a Micron/MT29F1G08 (flash_speed tool):
-                        mode0       mode3
-eraseblock write speed  3220 KiB/s  4511 KiB/s
-eraseblock read speed   4491 KiB/s  7529 KiB/s
-
-Fixes: d9fb079571833 ("mtd: nand: fsmc: add support for SDR timings")
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211119150316.43080-5-herve.codina@bootlin.com
+Fixes: c5d2177a72a16 ("bpf, sockmap: Fix race in ingress receive verdict with redirect to self")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20211119181418.353932-3-john.fastabend@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/fsmc_nand.c |   32 ++++++++++++++++++++++++--------
- 1 file changed, 24 insertions(+), 8 deletions(-)
+ net/core/skmsg.c    |    5 +++++
+ net/core/sock_map.c |    5 ++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/fsmc_nand.c
-+++ b/drivers/mtd/nand/raw/fsmc_nand.c
-@@ -94,6 +94,14 @@
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -1124,6 +1124,8 @@ void sk_psock_start_strp(struct sock *sk
  
- #define FSMC_BUSY_WAIT_TIMEOUT	(1 * HZ)
- 
-+/*
-+ * According to SPEAr300 Reference Manual (RM0082)
-+ *  TOUDEL = 7ns (Output delay from the flip-flops to the board)
-+ *  TINDEL = 5ns (Input delay from the board to the flipflop)
-+ */
-+#define TOUTDEL	7000
-+#define TINDEL	5000
-+
- struct fsmc_nand_timings {
- 	u8 tclr;
- 	u8 tar;
-@@ -278,7 +286,7 @@ static int fsmc_calc_timings(struct fsmc
+ void sk_psock_stop_strp(struct sock *sk, struct sk_psock *psock)
  {
- 	unsigned long hclk = clk_get_rate(host->clk);
- 	unsigned long hclkn = NSEC_PER_SEC / hclk;
--	u32 thiz, thold, twait, tset;
-+	u32 thiz, thold, twait, tset, twait_min;
- 
- 	if (sdrt->tRC_min < 30000)
- 		return -EOPNOTSUPP;
-@@ -310,13 +318,6 @@ static int fsmc_calc_timings(struct fsmc
- 	else if (tims->thold > FSMC_THOLD_MASK)
- 		tims->thold = FSMC_THOLD_MASK;
- 
--	twait = max(sdrt->tRP_min, sdrt->tWP_min);
--	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
--	if (tims->twait == 0)
--		tims->twait = 1;
--	else if (tims->twait > FSMC_TWAIT_MASK)
--		tims->twait = FSMC_TWAIT_MASK;
--
- 	tset = max(sdrt->tCS_min - sdrt->tWP_min,
- 		   sdrt->tCEA_max - sdrt->tREA_max);
- 	tims->tset = DIV_ROUND_UP(tset / 1000, hclkn) - 1;
-@@ -325,6 +326,21 @@ static int fsmc_calc_timings(struct fsmc
- 	else if (tims->tset > FSMC_TSET_MASK)
- 		tims->tset = FSMC_TSET_MASK;
- 
-+	/*
-+	 * According to SPEAr300 Reference Manual (RM0082) which gives more
-+	 * information related to FSMSC timings than the SPEAr600 one (RM0305),
-+	 *   twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
-+	 */
-+	twait_min = sdrt->tCEA_max - ((tims->tset + 1) * hclkn * 1000)
-+		    + TOUTDEL + TINDEL;
-+	twait = max3(sdrt->tRP_min, sdrt->tWP_min, twait_min);
++	psock_set_prog(&psock->progs.stream_parser, NULL);
 +
-+	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
-+	if (tims->twait == 0)
-+		tims->twait = 1;
-+	else if (tims->twait > FSMC_TWAIT_MASK)
-+		tims->twait = FSMC_TWAIT_MASK;
+ 	if (!psock->saved_data_ready)
+ 		return;
+ 
+@@ -1212,6 +1214,9 @@ void sk_psock_start_verdict(struct sock
+ 
+ void sk_psock_stop_verdict(struct sock *sk, struct sk_psock *psock)
+ {
++	psock_set_prog(&psock->progs.stream_verdict, NULL);
++	psock_set_prog(&psock->progs.skb_verdict, NULL);
 +
- 	return 0;
+ 	if (!psock->saved_data_ready)
+ 		return;
+ 
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -167,8 +167,11 @@ static void sock_map_del_link(struct soc
+ 		write_lock_bh(&sk->sk_callback_lock);
+ 		if (strp_stop)
+ 			sk_psock_stop_strp(sk, psock);
+-		else
++		if (verdict_stop)
+ 			sk_psock_stop_verdict(sk, psock);
++
++		if (psock->psock_update_sk_prot)
++			psock->psock_update_sk_prot(sk, psock, false);
+ 		write_unlock_bh(&sk->sk_callback_lock);
+ 	}
  }
- 
 
 
