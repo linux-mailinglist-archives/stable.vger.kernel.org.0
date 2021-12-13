@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B2D47246E
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C1F47255F
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbhLMJgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:36:23 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:59684 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232383AbhLMJfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:25 -0500
+        id S235170AbhLMJne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55852 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235146AbhLMJkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:14 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2747EC079797;
+        Mon, 13 Dec 2021 01:38:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E9BF8CE0B59;
-        Mon, 13 Dec 2021 09:35:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBEAEC00446;
-        Mon, 13 Dec 2021 09:35:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 730E5CE0E63;
+        Mon, 13 Dec 2021 09:38:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23104C00446;
+        Mon, 13 Dec 2021 09:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388121;
-        bh=2qt4EuuFyqq2CR+XlV4DHHNK6qcXhmaQWS/jTj5v4sI=;
+        s=korg; t=1639388311;
+        bh=rlPbh9gxhCyPgkPTHxnT1/0U3yNoE82moenTcsncODU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJvLom43cVQbtHCq2zEscH92jS9lV0mKJhwuuLGJR3fXEferuEziWv2i4vi4iO0fG
-         yAbYVK3tNNAWmv7tCEXd9nAGUgokD+TolEBkJPSnTd51rMdhCmpO5JiDWP8hEecqwJ
-         fi4jiVl5JLMkY30If2BY1szGvnkZMrM8FM9C+goY=
+        b=hxcMQg7I6ofhAqORQMCmAxUf+JW43aLjRzi2SyCyyoh8a9Wl1EDmKfX5bZ947b3dy
+         RYG3OzTIUyYcArYx30Y7hSx2Rg5hhDKqH+tnOcxFycQbX0dKKzBhKYxlhWt0MRJYbX
+         exywWVNXaxe6ahL3h2sDcipMn+h82d9GG+RC2XpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 36/42] iio: kxsd9: Dont return error code in trigger handler
+Subject: [PATCH 4.14 39/53] iio: trigger: Fix reference counting
 Date:   Mon, 13 Dec 2021 10:30:18 +0100
-Message-Id: <20211213092927.733030664@linuxfoundation.org>
+Message-Id: <20211213092929.656739376@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +51,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 45febe0d63917ee908198c5be08511c64ee1790a upstream.
+commit a827a4984664308f13599a0b26c77018176d0c7c upstream.
 
-IIO trigger handlers need to return one of the irqreturn_t values.
-Returning an error code is not supported.
+In viio_trigger_alloc() device_initialize() is used to set the initial
+reference count of the trigger to 1. Then another get_device() is called on
+trigger. This sets the reference count to 2 before the trigger is returned.
 
-The kxsd9 interrupt handler returns an error code if reading the data
-registers fails. In addition when exiting due to an error the trigger
-handler does not call `iio_trigger_notify_done()`. Which when not done
-keeps the triggered disabled forever.
+iio_trigger_free(), which is the matching API to viio_trigger_alloc(),
+calls put_device() which decreases the reference count by 1. But the second
+reference count acquired in viio_trigger_alloc() is never dropped.
 
-Modify the code so that the function returns a valid irqreturn_t value as
-well as calling `iio_trigger_notify_done()` on all exit paths.
+As a result the iio_trigger_release() function is never called and the
+memory associated with the trigger is never freed.
 
-Since we can't return the error code make sure to at least log it as part
-of the error message.
+Since there is no reason for the trigger to start its lifetime with two
+reference counts just remove the extra get_device() in
+viio_trigger_alloc().
 
-Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
+Fixes: 5f9c035cae18 ("staging:iio:triggers. Add a reference get to the core for triggers.")
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20211024171251.22896-2-lars@metafoo.de
+Acked-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20211024092700.6844-2-lars@metafoo.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/kxsd9.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/industrialio-trigger.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/iio/accel/kxsd9.c
-+++ b/drivers/iio/accel/kxsd9.c
-@@ -227,14 +227,14 @@ static irqreturn_t kxsd9_trigger_handler
- 			       hw_values.chan,
- 			       sizeof(hw_values.chan));
- 	if (ret) {
--		dev_err(st->dev,
--			"error reading data\n");
--		return ret;
-+		dev_err(st->dev, "error reading data: %d\n", ret);
-+		goto out;
+--- a/drivers/iio/industrialio-trigger.c
++++ b/drivers/iio/industrialio-trigger.c
+@@ -549,7 +549,6 @@ static struct iio_trigger *viio_trigger_
+ 		irq_modify_status(trig->subirq_base + i,
+ 				  IRQ_NOREQUEST | IRQ_NOAUTOEN, IRQ_NOPROBE);
  	}
+-	get_device(&trig->dev);
  
- 	iio_push_to_buffers_with_timestamp(indio_dev,
- 					   &hw_values,
- 					   iio_get_time_ns(indio_dev));
-+out:
- 	iio_trigger_notify_done(indio_dev->trig);
+ 	return trig;
  
- 	return IRQ_HANDLED;
 
 
