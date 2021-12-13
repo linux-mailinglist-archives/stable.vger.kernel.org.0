@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 957F347245C
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60FE84729B3
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233961AbhLMJfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:35:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
+        id S239595AbhLMKX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:23:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234183AbhLMJe4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:56 -0500
+        with ESMTP id S242369AbhLMKUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:20:31 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC13C061370;
-        Mon, 13 Dec 2021 01:34:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D76EC01388A;
+        Mon, 13 Dec 2021 01:58:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 86BF7CE0E9C;
-        Mon, 13 Dec 2021 09:34:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 314ACC341C5;
-        Mon, 13 Dec 2021 09:34:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 898B2CE0F18;
+        Mon, 13 Dec 2021 09:58:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D713C34600;
+        Mon, 13 Dec 2021 09:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388092;
-        bh=S6Po3pdzAe0BAloUMvVjpVbztRWNyjIqHPRk7NcW/tg=;
+        s=korg; t=1639389492;
+        bh=sUR4msxEilbYVGvj7VU1vHBce5fYvcrIhLnRbNE5VZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwtEWzwjHE2ghhDCjy6SFc3wY2MfhuW+NieBZWCbymSzlmSbx48arWVD20RpOxyAb
-         ZQakWoxa0Kfn7Q7XoKkqsfXeTjEug0x1iz9fzhyktcS4EpMIURI1XUHwicDLz2o2dn
-         O8c4YnvotKfGnZUjkNO5uNSHEwQ8uPKsYSggijTY=
+        b=bv08L7crYyXOmweVn2/3Q7yruLIxAdtwzkvZ1LkKEdYrUYuZdc9Axe6PGE+ZQ9DGH
+         l6KLTKGjPBpjeRZ25APmdMlrRzAaSTekxGGpEz8wKnWpVtnqUu5C1cuWw8QFJgQWNA
+         5mXlxaU2H9wSRYolFQEWpwxOC7dkKCqmJda9EY2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 27/42] net, neigh: clear whole pneigh_entry at alloc time
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        syzbot+21e6887c0be14181206d@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 094/171] io_uring: ensure task_work gets run as part of cancelations
 Date:   Mon, 13 Dec 2021 10:30:09 +0100
-Message-Id: <20211213092927.455646182@linuxfoundation.org>
+Message-Id: <20211213092948.209020876@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,93 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit e195e9b5dee6459d8c8e6a314cc71a644a0537fd upstream.
+commit 78a780602075d8b00c98070fa26e389b3b3efa72 upstream.
 
-Commit 2c611ad97a82 ("net, neigh: Extend neigh->flags to 32 bit
-to allow for extensions") enables a new KMSAM warning [1]
+If we successfully cancel a work item but that work item needs to be
+processed through task_work, then we can be sleeping uninterruptibly
+in io_uring_cancel_generic() and never process it. Hence we don't
+make forward progress and we end up with an uninterruptible sleep
+warning.
 
-I think the bug is actually older, because the following intruction
-only occurred if ndm->ndm_flags had NTF_PROXY set.
+While in there, correct a comment that should be IFF, not IIF.
 
-	pn->flags = ndm->ndm_flags;
-
-Let's clear all pneigh_entry fields at alloc time.
-
-[1]
-BUG: KMSAN: uninit-value in pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
- pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
- pneigh_dump_table net/core/neighbour.c:2715 [inline]
- neigh_dump_info+0x1e3f/0x2c60 net/core/neighbour.c:2832
- netlink_dump+0xaca/0x16a0 net/netlink/af_netlink.c:2265
- __netlink_dump_start+0xd1c/0xee0 net/netlink/af_netlink.c:2370
- netlink_dump_start include/linux/netlink.h:254 [inline]
- rtnetlink_rcv_msg+0x181b/0x18c0 net/core/rtnetlink.c:5534
- netlink_rcv_skb+0x447/0x800 net/netlink/af_netlink.c:2491
- rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5589
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x1095/0x1360 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x16f3/0x1870 net/netlink/af_netlink.c:1916
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg net/socket.c:724 [inline]
- sock_write_iter+0x594/0x690 net/socket.c:1057
- call_write_iter include/linux/fs.h:2162 [inline]
- new_sync_write fs/read_write.c:503 [inline]
- vfs_write+0x1318/0x2030 fs/read_write.c:590
- ksys_write+0x28c/0x520 fs/read_write.c:643
- __do_sys_write fs/read_write.c:655 [inline]
- __se_sys_write fs/read_write.c:652 [inline]
- __x64_sys_write+0xdb/0x120 fs/read_write.c:652
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:524 [inline]
- slab_alloc_node mm/slub.c:3251 [inline]
- slab_alloc mm/slub.c:3259 [inline]
- __kmalloc+0xc3c/0x12d0 mm/slub.c:4437
- kmalloc include/linux/slab.h:595 [inline]
- pneigh_lookup+0x60f/0xd70 net/core/neighbour.c:766
- arp_req_set_public net/ipv4/arp.c:1016 [inline]
- arp_req_set+0x430/0x10a0 net/ipv4/arp.c:1032
- arp_ioctl+0x8d4/0xb60 net/ipv4/arp.c:1232
- inet_ioctl+0x4ef/0x820 net/ipv4/af_inet.c:947
- sock_do_ioctl net/socket.c:1118 [inline]
- sock_ioctl+0xa3f/0x13e0 net/socket.c:1235
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:874 [inline]
- __se_sys_ioctl+0x2df/0x4a0 fs/ioctl.c:860
- __x64_sys_ioctl+0xd8/0x110 fs/ioctl.c:860
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-CPU: 1 PID: 20001 Comm: syz-executor.0 Not tainted 5.16.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 62dd93181aaa ("[IPV6] NDISC: Set per-entry is_router flag in Proxy NA.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211206165329.1049835-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-and-tested-by: syzbot+21e6887c0be14181206d@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -597,7 +597,7 @@ struct pneigh_entry * pneigh_lookup(stru
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -9775,7 +9775,7 @@ static void io_uring_drop_tctx_refs(stru
  
- 	ASSERT_RTNL();
+ /*
+  * Find any io_uring ctx that this task has registered or done IO on, and cancel
+- * requests. @sqd should be not-null IIF it's an SQPOLL thread cancellation.
++ * requests. @sqd should be not-null IFF it's an SQPOLL thread cancellation.
+  */
+ static void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd)
+ {
+@@ -9816,8 +9816,10 @@ static void io_uring_cancel_generic(bool
+ 							     cancel_all);
+ 		}
  
--	n = kmalloc(sizeof(*n) + key_len, GFP_KERNEL);
-+	n = kzalloc(sizeof(*n) + key_len, GFP_KERNEL);
- 	if (!n)
- 		goto out;
- 
+-		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
++		prepare_to_wait(&tctx->wait, &wait, TASK_INTERRUPTIBLE);
++		io_run_task_work();
+ 		io_uring_drop_tctx_refs(current);
++
+ 		/*
+ 		 * If we've seen completions, retry without waiting. This
+ 		 * avoids a race where a completion comes in before we did
 
 
