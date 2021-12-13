@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2754727D7
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB41472A13
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:30:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241774AbhLMKFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:05:16 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46252 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240533AbhLMKCF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:02:05 -0500
+        id S238189AbhLMKaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:30:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39190 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240248AbhLMK23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:28:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFCEC01DF32;
+        Mon, 13 Dec 2021 02:02:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7C67B80E77;
-        Mon, 13 Dec 2021 10:02:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 216B7C34600;
-        Mon, 13 Dec 2021 10:02:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3854CB80E9E;
+        Mon, 13 Dec 2021 10:02:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE0CFC34601;
+        Mon, 13 Dec 2021 10:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389722;
-        bh=whCGHq9Jf7S43kKFy5mkFVyuu5pEgSFlTrb85xag2iY=;
+        s=korg; t=1639389727;
+        bh=7aBTmzFs0Yc5JQWF+HKfurBmN7Lszq5th7rWPvULqgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jR3Eanw3tuy0JQUAWc7WQ2biKtT4Jz952nokXTygTHcXooxBk1KBMax/cxRR6jqdo
-         4VPIBVDT6O8yCSHdKer2Z7qZOuFHovQX1/ZyEmNG1kdnIiWAmxEqUmQJQ24OFfi0Dt
-         VaJXOtGvLhZnspzAquc8vHXNTDtXDFRBTXV/76N4=
+        b=h/Bm8rvdggab1beZCK8MIhXM7a1NhCXzSvt/odHvTqCudzVQ50VFS0Qubz0ioZ5Vs
+         akvdqmu8GBUv9mxzwIpn2GT13uNfWrT6bwZrkhQvaI5/MR9/wYyyh4ff7k8ClTHxO0
+         p5xTTq5Epl2NYIQjH5P/xU89EpdyCNzQBNq/5cOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.15 165/171] irqchip/armada-370-xp: Fix support for Multi-MSI interrupts
-Date:   Mon, 13 Dec 2021 10:31:20 +0100
-Message-Id: <20211213092950.565823474@linuxfoundation.org>
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.15 166/171] aio: Fix incorrect usage of eventfd_signal_allowed()
+Date:   Mon, 13 Dec 2021 10:31:21 +0100
+Message-Id: <20211213092950.596470498@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -45,59 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-commit d0a553502efd545c1ce3fd08fc4d423f8e4ac3d6 upstream.
+commit 4b3749865374899e115aa8c48681709b086fe6d3 upstream.
 
-irq-armada-370-xp driver already sets MSI_FLAG_MULTI_PCI_MSI flag into
-msi_domain_info structure. But allocated interrupt numbers for Multi-MSI
-needs to be properly aligned otherwise devices send MSI interrupt with
-wrong number.
+We should defer eventfd_signal() to the workqueue when
+eventfd_signal_allowed() return false rather than return
+true.
 
-Fix this issue by using function bitmap_find_free_region() instead of
-bitmap_find_next_zero_area() to allocate aligned interrupt numbers.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: a71b9412c90c ("irqchip/armada-370-xp: Allow allocation of multiple MSIs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211125130057.26705-2-pali@kernel.org
+Fixes: b542e383d8c0 ("eventfd: Make signal recursion protection a task bit")
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20210913111928.98-1-xieyongji@bytedance.com
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-armada-370-xp.c |   14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ fs/aio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/irqchip/irq-armada-370-xp.c
-+++ b/drivers/irqchip/irq-armada-370-xp.c
-@@ -232,16 +232,12 @@ static int armada_370_xp_msi_alloc(struc
- 	int hwirq, i;
- 
- 	mutex_lock(&msi_used_lock);
-+	hwirq = bitmap_find_free_region(msi_used, PCI_MSI_DOORBELL_NR,
-+					order_base_2(nr_irqs));
-+	mutex_unlock(&msi_used_lock);
- 
--	hwirq = bitmap_find_next_zero_area(msi_used, PCI_MSI_DOORBELL_NR,
--					   0, nr_irqs, 0);
--	if (hwirq >= PCI_MSI_DOORBELL_NR) {
--		mutex_unlock(&msi_used_lock);
-+	if (hwirq < 0)
- 		return -ENOSPC;
--	}
--
--	bitmap_set(msi_used, hwirq, nr_irqs);
--	mutex_unlock(&msi_used_lock);
- 
- 	for (i = 0; i < nr_irqs; i++) {
- 		irq_domain_set_info(domain, virq + i, hwirq + i,
-@@ -259,7 +255,7 @@ static void armada_370_xp_msi_free(struc
- 	struct irq_data *d = irq_domain_get_irq_data(domain, virq);
- 
- 	mutex_lock(&msi_used_lock);
--	bitmap_clear(msi_used, d->hwirq, nr_irqs);
-+	bitmap_release_region(msi_used, d->hwirq, order_base_2(nr_irqs));
- 	mutex_unlock(&msi_used_lock);
- }
- 
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -1761,7 +1761,7 @@ static int aio_poll_wake(struct wait_que
+ 		list_del_init(&req->wait.entry);
+ 		list_del(&iocb->ki_list);
+ 		iocb->ki_res.res = mangle_poll(mask);
+-		if (iocb->ki_eventfd && eventfd_signal_allowed()) {
++		if (iocb->ki_eventfd && !eventfd_signal_allowed()) {
+ 			iocb = NULL;
+ 			INIT_WORK(&req->work, aio_poll_put_work);
+ 			schedule_work(&req->work);
 
 
