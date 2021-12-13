@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3FE24723E3
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:32:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F82472739
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233796AbhLMJcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:32:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53824 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233758AbhLMJcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:32:33 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98606C061574;
-        Mon, 13 Dec 2021 01:32:32 -0800 (PST)
+        id S240037AbhLMJ7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:14 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42552 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238253AbhLMJ4S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:56:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E1E68CE0B59;
-        Mon, 13 Dec 2021 09:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDCFC00446;
-        Mon, 13 Dec 2021 09:32:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8C69B80E0B;
+        Mon, 13 Dec 2021 09:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE6C8C34602;
+        Mon, 13 Dec 2021 09:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639387949;
-        bh=hwFRtmyEf/mAFJdBB3fQiFSrTYHKvyvgW5eCodCTbH8=;
+        s=korg; t=1639389375;
+        bh=M+1Rc5sJ3BOtysrc1i6I3r4oOlfDqi3KbDChLa3HcUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfvMmvj0d+7P1H70PkxKJlAi7hMSFA+wQCj33HNe/rIQKWCl0qxyfTVDFfY5kY8jX
-         msvk2zNg0ktlMNzpwlLBLmX6YJyHlk9BxM7oYq/JOCsP2FvQ4Cz4CqWTRw8l1mZ3sM
-         F5rdjOjODUDs4fbkpaG1yAzwrowgMJz4JvE7T3AI=
+        b=X5uf26pTgjmOcrCfMow1NdTJVce+OOpDRq8pEQ7PBw4mS49yNX2lqptSahsidq9AJ
+         MkZ0ITj4DvH19PjxuZbrgCZtkFKHOprR8qtTvtfYjlCxbmSjROb2U2IJ9Tc+64RHVq
+         9PQhOOCiQYje3Kuy7pHE8Y8/QpckmhZW15qLoK/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Yabin Cui <yabinc@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 15/37] tracefs: Have new files inherit the ownership of their parent
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 078/171] perf intel-pt: Fix intel_pt_fup_event() assumptions about setting state type
 Date:   Mon, 13 Dec 2021 10:29:53 +0100
-Message-Id: <20211213092925.866810096@linuxfoundation.org>
+Message-Id: <20211213092947.693912232@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +45,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit ee7f3666995d8537dec17b1d35425f28877671a9 upstream.
+commit 4c761d805bb2d2ead1b9baaba75496152b394c80 upstream.
 
-If directories in tracefs have their ownership changed, then any new files
-and directories that are created under those directories should inherit
-the ownership of the director they are created in.
+intel_pt_fup_event() assumes it can overwrite the state type if there has
+been an FUP event, but this is an unnecessary and unexpected constraint on
+callers.
 
-Link: https://lkml.kernel.org/r/20211208075720.4855d180@gandalf.local.home
+Fix by touching only the state type flags that are affected by an FUP
+event.
 
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Yabin Cui <yabinc@google.com>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: stable@vger.kernel.org
-Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
-Reported-by: Kalesh Singh <kaleshsingh@google.com>
-Reported: https://lore.kernel.org/all/CAC_TJve8MMAv+H_NdLSJXZUSoxOEq2zB_pVaJ9p=7H6Bu3X76g@mail.gmail.com/
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: a472e65fc490a ("perf intel-pt: Add decoder support for ptwrite and power event packets")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v5.15+
+Link: https://lore.kernel.org/r/20211210162303.2288710-4-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/tracefs/inode.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   32 ++++++++------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -411,6 +411,8 @@ struct dentry *tracefs_create_file(const
- 	inode->i_mode = mode;
- 	inode->i_fop = fops ? fops : &tracefs_file_operations;
- 	inode->i_private = data;
-+	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
-+	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
- 	d_instantiate(dentry, inode);
- 	fsnotify_create(dentry->d_parent->d_inode, dentry);
- 	return end_creating(dentry);
-@@ -433,6 +435,8 @@ static struct dentry *__create_dir(const
- 	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
- 	inode->i_op = ops;
- 	inode->i_fop = &simple_dir_operations;
-+	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
-+	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -1204,61 +1204,55 @@ out_no_progress:
  
- 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
- 	inc_nlink(inode);
+ static bool intel_pt_fup_event(struct intel_pt_decoder *decoder)
+ {
++	enum intel_pt_sample_type type = decoder->state.type;
+ 	bool ret = false;
+ 
++	decoder->state.type &= ~INTEL_PT_BRANCH;
++
+ 	if (decoder->set_fup_tx_flags) {
+ 		decoder->set_fup_tx_flags = false;
+ 		decoder->tx_flags = decoder->fup_tx_flags;
+-		decoder->state.type = INTEL_PT_TRANSACTION;
++		decoder->state.type |= INTEL_PT_TRANSACTION;
+ 		if (decoder->fup_tx_flags & INTEL_PT_ABORT_TX)
+ 			decoder->state.type |= INTEL_PT_BRANCH;
+-		decoder->state.from_ip = decoder->ip;
+-		decoder->state.to_ip = 0;
+ 		decoder->state.flags = decoder->fup_tx_flags;
+-		return true;
++		ret = true;
+ 	}
+ 	if (decoder->set_fup_ptw) {
+ 		decoder->set_fup_ptw = false;
+-		decoder->state.type = INTEL_PT_PTW;
++		decoder->state.type |= INTEL_PT_PTW;
+ 		decoder->state.flags |= INTEL_PT_FUP_IP;
+-		decoder->state.from_ip = decoder->ip;
+-		decoder->state.to_ip = 0;
+ 		decoder->state.ptw_payload = decoder->fup_ptw_payload;
+-		return true;
++		ret = true;
+ 	}
+ 	if (decoder->set_fup_mwait) {
+ 		decoder->set_fup_mwait = false;
+-		decoder->state.type = INTEL_PT_MWAIT_OP;
+-		decoder->state.from_ip = decoder->ip;
+-		decoder->state.to_ip = 0;
++		decoder->state.type |= INTEL_PT_MWAIT_OP;
+ 		decoder->state.mwait_payload = decoder->fup_mwait_payload;
+ 		ret = true;
+ 	}
+ 	if (decoder->set_fup_pwre) {
+ 		decoder->set_fup_pwre = false;
+ 		decoder->state.type |= INTEL_PT_PWR_ENTRY;
+-		decoder->state.type &= ~INTEL_PT_BRANCH;
+-		decoder->state.from_ip = decoder->ip;
+-		decoder->state.to_ip = 0;
+ 		decoder->state.pwre_payload = decoder->fup_pwre_payload;
+ 		ret = true;
+ 	}
+ 	if (decoder->set_fup_exstop) {
+ 		decoder->set_fup_exstop = false;
+ 		decoder->state.type |= INTEL_PT_EX_STOP;
+-		decoder->state.type &= ~INTEL_PT_BRANCH;
+ 		decoder->state.flags |= INTEL_PT_FUP_IP;
+-		decoder->state.from_ip = decoder->ip;
+-		decoder->state.to_ip = 0;
+ 		ret = true;
+ 	}
+ 	if (decoder->set_fup_bep) {
+ 		decoder->set_fup_bep = false;
+ 		decoder->state.type |= INTEL_PT_BLK_ITEMS;
+-		decoder->state.type &= ~INTEL_PT_BRANCH;
++		ret = true;
++	}
++	if (ret) {
+ 		decoder->state.from_ip = decoder->ip;
+ 		decoder->state.to_ip = 0;
+-		ret = true;
++	} else {
++		decoder->state.type = type;
+ 	}
+ 	return ret;
+ }
 
 
