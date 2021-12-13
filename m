@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6F1B472666
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7550E4724EB
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:39:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234147AbhLMJvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:51:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
+        id S233151AbhLMJjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236284AbhLMJtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:49:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8550C08EA37;
-        Mon, 13 Dec 2021 01:43:31 -0800 (PST)
+        with ESMTP id S230072AbhLMJiM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:38:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28A18C07E5E1;
+        Mon, 13 Dec 2021 01:36:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6365CB80E25;
-        Mon, 13 Dec 2021 09:43:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB874C341C8;
-        Mon, 13 Dec 2021 09:43:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A0FBACE0E76;
+        Mon, 13 Dec 2021 09:36:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25A98C341C5;
+        Mon, 13 Dec 2021 09:36:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388610;
-        bh=dHJcttHZuk/tKF67uUw6oVbo4Ssg9ADjOMzb29PqaRY=;
+        s=korg; t=1639388216;
+        bh=xzVkQ9hdLO29h6SFG2SXAulAR8G5KxM/+U2yM8ovitM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=026ZI+GO5hgXOi9926Ac+Eopafj+Gb0IZ7ruubYgXyuIh5kyeTTg8NbmT0mKFkGn6
-         TV2PPmoBoEZXb0IV6GYf/F9IbVIN1DAZvM59lFlwHmetbV/tu2KzPrSPD484ZsfaU5
-         KVcz9ghe7ztJsZi/8E0vZNc2KJ+MjcgW4f2NE+ZE=
+        b=HtMVEM0UDIDsXnr/szy2ccKs/fOJZ4W1xJoFWAEql1KSPp59WBOBcXHnCzNwfWsG7
+         j6krSjS+M1ZHHCQKihSyvzTFiApSwgkY3+Qy5S29paJ4bTv9cqpMN6kKmZCEkDt7/2
+         hmKHv5P7gGYGaAMJaPSvg8+bMhV6XFQrHwyzatd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.4 35/88] nfsd: Fix nsfd startup race (again)
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Yabin Cui <yabinc@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 26/53] tracefs: Set all files to the same group ownership as the mount option
 Date:   Mon, 13 Dec 2021 10:30:05 +0100
-Message-Id: <20211213092934.449945325@linuxfoundation.org>
+Message-Id: <20211213092929.233129085@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,109 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit b10252c7ae9c9d7c90552f88b544a44ee773af64 upstream.
+commit 48b27b6b5191e2e1f2798cd80877b6e4ef47c351 upstream.
 
-Commit bd5ae9288d64 ("nfsd: register pernet ops last, unregister first")
-has re-opened rpc_pipefs_event() race against nfsd_net_id registration
-(register_pernet_subsys()) which has been fixed by commit bb7ffbf29e76
-("nfsd: fix nsfd startup race triggering BUG_ON").
+As people have been asking to allow non-root processes to have access to
+the tracefs directory, it was considered best to only allow groups to have
+access to the directory, where it is easier to just set the tracefs file
+system to a specific group (as other would be too dangerous), and that way
+the admins could pick which processes would have access to tracefs.
 
-Restore the order of register_pernet_subsys() vs register_cld_notifier().
-Add WARN_ON() to prevent a future regression.
+Unfortunately, this broke tooling on Android that expected the other bit
+to be set. For some special cases, for non-root tools to trace the system,
+tracefs would be mounted and change the permissions of the top level
+directory which gave access to all running tasks permission to the
+tracing directory. Even though this would be dangerous to do in a
+production environment, for testing environments this can be useful.
 
-Crash info:
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000012
-CPU: 8 PID: 345 Comm: mount Not tainted 5.4.144-... #1
-pc : rpc_pipefs_event+0x54/0x120 [nfsd]
-lr : rpc_pipefs_event+0x48/0x120 [nfsd]
-Call trace:
- rpc_pipefs_event+0x54/0x120 [nfsd]
- blocking_notifier_call_chain
- rpc_fill_super
- get_tree_keyed
- rpc_fs_get_tree
- vfs_get_tree
- do_mount
- ksys_mount
- __arm64_sys_mount
- el0_svc_handler
- el0_svc
+Now with the new changes to not allow other (which is still the proper
+thing to do), it breaks the testing tooling. Now more code needs to be
+loaded on the system to change ownership of the tracing directory.
 
-Fixes: bd5ae9288d64 ("nfsd: register pernet ops last, unregister first")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+The real solution is to have tracefs honor the gid=xxx option when
+mounting. That is,
+
+(tracing group tracing has value 1003)
+
+ mount -t tracefs -o gid=1003 tracefs /sys/kernel/tracing
+
+should have it that all files in the tracing directory should be of the
+given group.
+
+Copy the logic from d_walk() from dcache.c and simplify it for the mount
+case of tracefs if gid is set. All the files in tracefs will be walked and
+their group will be set to the value passed in.
+
+Link: https://lkml.kernel.org/r/20211207171729.2a54e1b3@gandalf.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Kalesh Singh <kaleshsingh@google.com>
+Reported-by: Yabin Cui <yabinc@google.com>
+Fixes: 49d67e445742 ("tracefs: Have tracefs directories not set OTH permission bits by default")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4recover.c |    1 +
- fs/nfsd/nfsctl.c      |   14 +++++++-------
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ fs/tracefs/inode.c |   72 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
---- a/fs/nfsd/nfs4recover.c
-+++ b/fs/nfsd/nfs4recover.c
-@@ -2177,6 +2177,7 @@ static struct notifier_block nfsd4_cld_b
- int
- register_cld_notifier(void)
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -162,6 +162,77 @@ struct tracefs_fs_info {
+ 	struct tracefs_mount_opts mount_opts;
+ };
+ 
++static void change_gid(struct dentry *dentry, kgid_t gid)
++{
++	if (!dentry->d_inode)
++		return;
++	dentry->d_inode->i_gid = gid;
++}
++
++/*
++ * Taken from d_walk, but without he need for handling renames.
++ * Nothing can be renamed while walking the list, as tracefs
++ * does not support renames. This is only called when mounting
++ * or remounting the file system, to set all the files to
++ * the given gid.
++ */
++static void set_gid(struct dentry *parent, kgid_t gid)
++{
++	struct dentry *this_parent;
++	struct list_head *next;
++
++	this_parent = parent;
++	spin_lock(&this_parent->d_lock);
++
++	change_gid(this_parent, gid);
++repeat:
++	next = this_parent->d_subdirs.next;
++resume:
++	while (next != &this_parent->d_subdirs) {
++		struct list_head *tmp = next;
++		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
++		next = tmp->next;
++
++		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
++
++		change_gid(dentry, gid);
++
++		if (!list_empty(&dentry->d_subdirs)) {
++			spin_unlock(&this_parent->d_lock);
++			spin_release(&dentry->d_lock.dep_map, 1, _RET_IP_);
++			this_parent = dentry;
++			spin_acquire(&this_parent->d_lock.dep_map, 0, 1, _RET_IP_);
++			goto repeat;
++		}
++		spin_unlock(&dentry->d_lock);
++	}
++	/*
++	 * All done at this level ... ascend and resume the search.
++	 */
++	rcu_read_lock();
++ascend:
++	if (this_parent != parent) {
++		struct dentry *child = this_parent;
++		this_parent = child->d_parent;
++
++		spin_unlock(&child->d_lock);
++		spin_lock(&this_parent->d_lock);
++
++		/* go into the first sibling still alive */
++		do {
++			next = child->d_child.next;
++			if (next == &this_parent->d_subdirs)
++				goto ascend;
++			child = list_entry(next, struct dentry, d_child);
++		} while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED));
++		rcu_read_unlock();
++		goto resume;
++	}
++	rcu_read_unlock();
++	spin_unlock(&this_parent->d_lock);
++	return;
++}
++
+ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
  {
-+	WARN_ON(!nfsd_net_id);
- 	return rpc_pipefs_notifier_register(&nfsd4_cld_block);
- }
- 
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1526,12 +1526,9 @@ static int __init init_nfsd(void)
- 	int retval;
- 	printk(KERN_INFO "Installing knfsd (copyright (C) 1996 okir@monad.swb.de).\n");
- 
--	retval = register_cld_notifier();
--	if (retval)
--		return retval;
- 	retval = nfsd4_init_slabs();
- 	if (retval)
--		goto out_unregister_notifier;
-+		return retval;
- 	retval = nfsd4_init_pnfs();
- 	if (retval)
- 		goto out_free_slabs;
-@@ -1549,9 +1546,14 @@ static int __init init_nfsd(void)
- 		goto out_free_exports;
- 	retval = register_pernet_subsys(&nfsd_net_ops);
- 	if (retval < 0)
-+		goto out_free_filesystem;
-+	retval = register_cld_notifier();
-+	if (retval)
- 		goto out_free_all;
- 	return 0;
- out_free_all:
-+	unregister_pernet_subsys(&nfsd_net_ops);
-+out_free_filesystem:
- 	unregister_filesystem(&nfsd_fs_type);
- out_free_exports:
- 	remove_proc_entry("fs/nfs/exports", NULL);
-@@ -1565,13 +1567,12 @@ out_free_stat:
- 	nfsd4_exit_pnfs();
- out_free_slabs:
- 	nfsd4_free_slabs();
--out_unregister_notifier:
--	unregister_cld_notifier();
- 	return retval;
- }
- 
- static void __exit exit_nfsd(void)
- {
-+	unregister_cld_notifier();
- 	unregister_pernet_subsys(&nfsd_net_ops);
- 	nfsd_drc_slab_free();
- 	remove_proc_entry("fs/nfs/exports", NULL);
-@@ -1582,7 +1583,6 @@ static void __exit exit_nfsd(void)
- 	nfsd4_exit_pnfs();
- 	nfsd_fault_inject_cleanup();
- 	unregister_filesystem(&nfsd_fs_type);
--	unregister_cld_notifier();
- }
- 
- MODULE_AUTHOR("Olaf Kirch <okir@monad.swb.de>");
+ 	substring_t args[MAX_OPT_ARGS];
+@@ -194,6 +265,7 @@ static int tracefs_parse_options(char *d
+ 			if (!gid_valid(gid))
+ 				return -EINVAL;
+ 			opts->gid = gid;
++			set_gid(tracefs_mount->mnt_root, gid);
+ 			break;
+ 		case Opt_mode:
+ 			if (match_octal(&args[0], &option))
 
 
