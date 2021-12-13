@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A6C472718
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:59:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0961472747
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235699AbhLMJ6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:58:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41598 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237407AbhLMJzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:55:44 -0500
+        id S237894AbhLMJ71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59060 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239380AbhLMJ5O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BE7C0698CC;
+        Mon, 13 Dec 2021 01:48:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC692B80E23;
-        Mon, 13 Dec 2021 09:55:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B2D5C34600;
-        Mon, 13 Dec 2021 09:55:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D3CDB80E19;
+        Mon, 13 Dec 2021 09:48:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2F3FC341C5;
+        Mon, 13 Dec 2021 09:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389341;
-        bh=nZULYzr+I9ZBDLmax1pe4YX3kNbyD0jEs3DKzJC9gu8=;
+        s=korg; t=1639388884;
+        bh=/F+GAUK9vTy6+DQbl0Bk3L0NH0FEVhXl+hZix8DPgJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUL9y3OWfQvz/nKIDHbKsUj+0qaMyS2hC6s7oVRM5YktHO2pEF2T60RnYkW8IaF2H
-         +yvJ9jl0UwZAbb+WeqJrVOz7Q8gFEoKQAAEzFrfn0Upk2DpRWx258WJ3UDbDaox4jV
-         Afq4R0Q4FseCNsMfm8HqHGo9+SuSR9a2b2ySa8a0=
+        b=prQqJ+6OATcFDUxBMldQE+YSYTdK8kJMbmPIIZKfy2aiIQN1++tkCyHaroyDS7Q+m
+         9k3oIxJREpyas58arHprngZGdKODx7ocPeId9B2qdeXsubiliFIFSZ7RDUxFc45oW3
+         13ZJtvdvNt3Uz/3C4GKhWOIYHLmRk0XzB4WsqF2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com,
-        Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 067/171] ALSA: pcm: oss: Fix negative period/buffer sizes
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Moshe Shemesh <moshe@mellanox.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 041/132] devlink: fix netns refcount leak in devlink_nl_cmd_reload()
 Date:   Mon, 13 Dec 2021 10:29:42 +0100
-Message-Id: <20211213092947.330992093@linuxfoundation.org>
+Message-Id: <20211213092940.531921310@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +51,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 9d2479c960875ca1239bcb899f386970c13d9cfe upstream.
+commit 4dbb0dad8e63fcd0b5a117c2861d2abe7ff5f186 upstream.
 
-The period size calculation in OSS layer may receive a negative value
-as an error, but the code there assumes only the positive values and
-handle them with size_t.  Due to that, a too big value may be passed
-to the lower layers.
+While preparing my patch series adding netns refcount tracking,
+I spotted bugs in devlink_nl_cmd_reload()
 
-This patch changes the code to handle with ssize_t and adds the proper
-error checks appropriately.
+Some error paths forgot to release a refcount on a netns.
 
-Reported-by: syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com
-Reported-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1638270978-42412-1-git-send-email-cuibixuan@linux.alibaba.com
-Link: https://lore.kernel.org/r/20211201073606.11660-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+To fix this, we can reduce the scope of get_net()/put_net()
+section around the call to devlink_reload().
+
+Fixes: ccdf07219da6 ("devlink: Add reload action option to devlink reload command")
+Fixes: dc64cc7c6310 ("devlink: Add devlink reload limit option")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Moshe Shemesh <moshe@mellanox.com>
+Cc: Jacob Keller <jacob.e.keller@intel.com>
+Cc: Jiri Pirko <jiri@nvidia.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Link: https://lore.kernel.org/r/20211205192822.1741045-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/pcm_oss.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ net/core/devlink.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -147,7 +147,7 @@ snd_pcm_hw_param_value_min(const struct
-  *
-  * Return the maximum value for field PAR.
-  */
--static unsigned int
-+static int
- snd_pcm_hw_param_value_max(const struct snd_pcm_hw_params *params,
- 			   snd_pcm_hw_param_t var, int *dir)
- {
-@@ -682,18 +682,24 @@ static int snd_pcm_oss_period_size(struc
- 				   struct snd_pcm_hw_params *oss_params,
- 				   struct snd_pcm_hw_params *slave_params)
- {
--	size_t s;
--	size_t oss_buffer_size, oss_period_size, oss_periods;
--	size_t min_period_size, max_period_size;
-+	ssize_t s;
-+	ssize_t oss_buffer_size;
-+	ssize_t oss_period_size, oss_periods;
-+	ssize_t min_period_size, max_period_size;
- 	struct snd_pcm_runtime *runtime = substream->runtime;
- 	size_t oss_frame_size;
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -3265,14 +3265,6 @@ static int devlink_nl_cmd_reload(struct
+ 		return err;
+ 	}
  
- 	oss_frame_size = snd_pcm_format_physical_width(params_format(oss_params)) *
- 			 params_channels(oss_params) / 8;
+-	if (info->attrs[DEVLINK_ATTR_NETNS_PID] ||
+-	    info->attrs[DEVLINK_ATTR_NETNS_FD] ||
+-	    info->attrs[DEVLINK_ATTR_NETNS_ID]) {
+-		dest_net = devlink_netns_get(skb, info);
+-		if (IS_ERR(dest_net))
+-			return PTR_ERR(dest_net);
+-	}
+-
+ 	if (info->attrs[DEVLINK_ATTR_RELOAD_ACTION])
+ 		action = nla_get_u8(info->attrs[DEVLINK_ATTR_RELOAD_ACTION]);
+ 	else
+@@ -3315,6 +3307,14 @@ static int devlink_nl_cmd_reload(struct
+ 			return -EINVAL;
+ 		}
+ 	}
++	if (info->attrs[DEVLINK_ATTR_NETNS_PID] ||
++	    info->attrs[DEVLINK_ATTR_NETNS_FD] ||
++	    info->attrs[DEVLINK_ATTR_NETNS_ID]) {
++		dest_net = devlink_netns_get(skb, info);
++		if (IS_ERR(dest_net))
++			return PTR_ERR(dest_net);
++	}
++
+ 	err = devlink_reload(devlink, dest_net, action, limit, &actions_performed, info->extack);
  
-+	oss_buffer_size = snd_pcm_hw_param_value_max(slave_params,
-+						     SNDRV_PCM_HW_PARAM_BUFFER_SIZE,
-+						     NULL);
-+	if (oss_buffer_size <= 0)
-+		return -EINVAL;
- 	oss_buffer_size = snd_pcm_plug_client_size(substream,
--						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_BUFFER_SIZE, NULL)) * oss_frame_size;
--	if (!oss_buffer_size)
-+						   oss_buffer_size * oss_frame_size);
-+	if (oss_buffer_size <= 0)
- 		return -EINVAL;
- 	oss_buffer_size = rounddown_pow_of_two(oss_buffer_size);
- 	if (atomic_read(&substream->mmap_count)) {
-@@ -730,7 +736,7 @@ static int snd_pcm_oss_period_size(struc
- 
- 	min_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_min(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (min_period_size) {
-+	if (min_period_size > 0) {
- 		min_period_size *= oss_frame_size;
- 		min_period_size = roundup_pow_of_two(min_period_size);
- 		if (oss_period_size < min_period_size)
-@@ -739,7 +745,7 @@ static int snd_pcm_oss_period_size(struc
- 
- 	max_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (max_period_size) {
-+	if (max_period_size > 0) {
- 		max_period_size *= oss_frame_size;
- 		max_period_size = rounddown_pow_of_two(max_period_size);
- 		if (oss_period_size > max_period_size)
-@@ -752,7 +758,7 @@ static int snd_pcm_oss_period_size(struc
- 		oss_periods = substream->oss.setup.periods;
- 
- 	s = snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIODS, NULL);
--	if (runtime->oss.maxfrags && s > runtime->oss.maxfrags)
-+	if (s > 0 && runtime->oss.maxfrags && s > runtime->oss.maxfrags)
- 		s = runtime->oss.maxfrags;
- 	if (oss_periods > s)
- 		oss_periods = s;
+ 	if (dest_net)
 
 
