@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E17472512
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC794472560
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234237AbhLMJkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:40:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54732 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233804AbhLMJjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9197C061B38;
-        Mon, 13 Dec 2021 01:37:36 -0800 (PST)
+        id S229656AbhLMJne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:34 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:34862 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235135AbhLMJkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2C573CE0E29;
-        Mon, 13 Dec 2021 09:37:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0D4C00446;
-        Mon, 13 Dec 2021 09:37:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E5924CE0E7C;
+        Mon, 13 Dec 2021 09:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C17CAC341C8;
+        Mon, 13 Dec 2021 09:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388254;
-        bh=RKDhkX+7T9f/Ght+tx7l3645Re/TWot7R27wDqfF9XU=;
+        s=korg; t=1639388411;
+        bh=AlUzJO9r50jKXcylDD9mcBhb/7FjCneZWkuEMinbNSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2SkyByG1waRpqJocjYpMAMmyr9/owTbEGsCNhIEumz1tD34BlGyDQj6Fkq+4kKYOz
-         EOVi/TuERBvtP1mgUi59+yLwYuOdz4XdCKXX90kqVRlY3wDGFebpABv/TDfmkJzLYn
-         iuv+3VUUmceBv7O3RkiM0O3tjcuW+xuxbJZ2Q178=
+        b=NTduYhNuP4aWNj50srBE66kZTsLJS+nFc5rB6An1GZFKEI6YELahHtT4YSpf3OsTZ
+         WkGsKvuTfRzXrTExoW9QB1p6ywId4DeVV/mHuGDmSUx7i02I+4wnNQE3V+1E5qiNpn
+         nflXxDTy1lvNSRIl8suPZ4BfhqX1shlnAfFHOv54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Alok Prasad <palok@marvell.com>,
+        Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 32/53] net, neigh: clear whole pneigh_entry at alloc time
-Date:   Mon, 13 Dec 2021 10:30:11 +0100
-Message-Id: <20211213092929.426783005@linuxfoundation.org>
+Subject: [PATCH 4.19 41/74] qede: validate non LSO skb length
+Date:   Mon, 13 Dec 2021 10:30:12 +0100
+Message-Id: <20211213092932.193956427@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,93 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Manish Chopra <manishc@marvell.com>
 
-commit e195e9b5dee6459d8c8e6a314cc71a644a0537fd upstream.
+commit 8e227b198a55859bf790dc7f4b1e30c0859c6756 upstream.
 
-Commit 2c611ad97a82 ("net, neigh: Extend neigh->flags to 32 bit
-to allow for extensions") enables a new KMSAM warning [1]
+Although it is unlikely that stack could transmit a non LSO
+skb with length > MTU, however in some cases or environment such
+occurrences actually resulted into firmware asserts due to packet
+length being greater than the max supported by the device (~9700B).
 
-I think the bug is actually older, because the following intruction
-only occurred if ndm->ndm_flags had NTF_PROXY set.
+This patch adds the safeguard for such odd cases to avoid firmware
+asserts.
 
-	pn->flags = ndm->ndm_flags;
+v2: Added "Fixes" tag with one of the initial driver commit
+    which enabled the TX traffic actually (as this was probably
+    day1 issue which was discovered recently by some customer
+    environment)
 
-Let's clear all pneigh_entry fields at alloc time.
-
-[1]
-BUG: KMSAN: uninit-value in pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
- pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
- pneigh_dump_table net/core/neighbour.c:2715 [inline]
- neigh_dump_info+0x1e3f/0x2c60 net/core/neighbour.c:2832
- netlink_dump+0xaca/0x16a0 net/netlink/af_netlink.c:2265
- __netlink_dump_start+0xd1c/0xee0 net/netlink/af_netlink.c:2370
- netlink_dump_start include/linux/netlink.h:254 [inline]
- rtnetlink_rcv_msg+0x181b/0x18c0 net/core/rtnetlink.c:5534
- netlink_rcv_skb+0x447/0x800 net/netlink/af_netlink.c:2491
- rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5589
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x1095/0x1360 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x16f3/0x1870 net/netlink/af_netlink.c:1916
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg net/socket.c:724 [inline]
- sock_write_iter+0x594/0x690 net/socket.c:1057
- call_write_iter include/linux/fs.h:2162 [inline]
- new_sync_write fs/read_write.c:503 [inline]
- vfs_write+0x1318/0x2030 fs/read_write.c:590
- ksys_write+0x28c/0x520 fs/read_write.c:643
- __do_sys_write fs/read_write.c:655 [inline]
- __se_sys_write fs/read_write.c:652 [inline]
- __x64_sys_write+0xdb/0x120 fs/read_write.c:652
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:524 [inline]
- slab_alloc_node mm/slub.c:3251 [inline]
- slab_alloc mm/slub.c:3259 [inline]
- __kmalloc+0xc3c/0x12d0 mm/slub.c:4437
- kmalloc include/linux/slab.h:595 [inline]
- pneigh_lookup+0x60f/0xd70 net/core/neighbour.c:766
- arp_req_set_public net/ipv4/arp.c:1016 [inline]
- arp_req_set+0x430/0x10a0 net/ipv4/arp.c:1032
- arp_ioctl+0x8d4/0xb60 net/ipv4/arp.c:1232
- inet_ioctl+0x4ef/0x820 net/ipv4/af_inet.c:947
- sock_do_ioctl net/socket.c:1118 [inline]
- sock_ioctl+0xa3f/0x13e0 net/socket.c:1235
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:874 [inline]
- __se_sys_ioctl+0x2df/0x4a0 fs/ioctl.c:860
- __x64_sys_ioctl+0xd8/0x110 fs/ioctl.c:860
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-CPU: 1 PID: 20001 Comm: syz-executor.0 Not tainted 5.16.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 62dd93181aaa ("[IPV6] NDISC: Set per-entry is_router flag in Proxy NA.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211206165329.1049835-1-eric.dumazet@gmail.com
+Fixes: a2ec6172d29c ("qede: Add support for link")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Alok Prasad <palok@marvell.com>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Link: https://lore.kernel.org/r/20211203174413.13090-1-manishc@marvell.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qede/qede_fp.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -633,7 +633,7 @@ struct pneigh_entry * pneigh_lookup(stru
- 
- 	ASSERT_RTNL();
- 
--	n = kmalloc(sizeof(*n) + key_len, GFP_KERNEL);
-+	n = kzalloc(sizeof(*n) + key_len, GFP_KERNEL);
- 	if (!n)
- 		goto out;
- 
+--- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+@@ -1606,6 +1606,13 @@ netdev_tx_t qede_start_xmit(struct sk_bu
+ 			data_split = true;
+ 		}
+ 	} else {
++		if (unlikely(skb->len > ETH_TX_MAX_NON_LSO_PKT_LEN)) {
++			DP_ERR(edev, "Unexpected non LSO skb length = 0x%x\n", skb->len);
++			qede_free_failed_tx_pkt(txq, first_bd, 0, false);
++			qede_update_tx_producer(txq);
++			return NETDEV_TX_OK;
++		}
++
+ 		val |= ((skb->len & ETH_TX_DATA_1ST_BD_PKT_LEN_MASK) <<
+ 			 ETH_TX_DATA_1ST_BD_PKT_LEN_SHIFT);
+ 	}
 
 
