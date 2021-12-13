@@ -2,95 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5BFB4737DC
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 23:46:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31ED74737F3
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 23:50:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243827AbhLMWq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 17:46:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44404 "EHLO
+        id S243930AbhLMWuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 17:50:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234889AbhLMWq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 17:46:56 -0500
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A5E1C061574
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 14:46:54 -0800 (PST)
-Received: by mail-pf1-x432.google.com with SMTP id u80so16213328pfc.9
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 14:46:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=16ojLEvFQl04Ei9TwQDGXgw5cA9A1Hd04uE1XtujZhE=;
-        b=eH74KyAHe/mA8Q8X+xDnsgG8JgbmqRfEYay6bnUoN7XWh18/SmcVwJvXDQk/TLhl8D
-         zqTl6rWavB+tFr+gEbXQ9pjJqTKKB9WqbIQqAzmp1TTmDRW7QNT13eSZlmnmZcOuTIQ9
-         Q5tjNwxko0FT90JMdpha29ZKy+yeios+hTMHc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=16ojLEvFQl04Ei9TwQDGXgw5cA9A1Hd04uE1XtujZhE=;
-        b=wIRUlBhA7y2+IZYdKZP3tJGiyEwxG4vO7Ztz0Vn6iasTCiax3cL4ssAAv3DLGxM6Ly
-         0cUwMx4rPgRYMJ4ffbrZQ5DAvi0p94NgXCmWpL14iKIn5rb7ksX1rq7XorFs49GH1hXq
-         +tuwmGHqCjo0BWvLfLP1kn2guJgfguYMrFAHiR+4dtM+iKTy1ivN6ytFIwxU8qfoUdao
-         1ExrhqGGfF+YiPeqkr8GfBDi9OGARKG1LszpVZhnVcnw65eM/R1M5jFInNii6KbEDe3k
-         ClQ8Yl7xs4jREXOs7ouxZ5dCqYQSV9kq/ciZ4obp8nZ1fupUpwUIfBU2TMBA4maD/uen
-         P8iw==
-X-Gm-Message-State: AOAM5336vYplhhMDVyuQ/UeZXxX7zPxlqnuP90xZ3kpqyR7UbHinJYrG
-        JGh7JnXwUhy0nt5SCFCXhDCJJNUaGirWyw==
-X-Google-Smtp-Source: ABdhPJyzOzLg9ARyBlGN7LujMGC7LWQm/6ZQ4WiSneDVV9V/fdbVX9Apvz7R9ldOkXPPammi6eiyyw==
-X-Received: by 2002:a05:6a00:1248:b0:4a2:5cba:89cb with SMTP id u8-20020a056a00124800b004a25cba89cbmr1044578pfi.12.1639435613557;
-        Mon, 13 Dec 2021 14:46:53 -0800 (PST)
-Received: from d1609ac33027 ([203.221.136.13])
-        by smtp.gmail.com with ESMTPSA id r16sm11101963pgk.45.2021.12.13.14.46.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Dec 2021 14:46:53 -0800 (PST)
-Date:   Mon, 13 Dec 2021 22:46:45 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.15 000/171] 5.15.8-rc1 review
-Message-ID: <20211213224645.GA8@d1609ac33027>
-References: <20211213092945.091487407@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+        with ESMTP id S243924AbhLMWuB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 17:50:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EFA7C061574;
+        Mon, 13 Dec 2021 14:50:01 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67E7BB816CF;
+        Mon, 13 Dec 2021 22:50:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 24235C34600;
+        Mon, 13 Dec 2021 22:49:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639435799;
+        bh=kn8oxVkJ6yPEUpS8v7x4XjZ+luhJ//RD7OwzUBU08GE=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=FJHAUSVplX9ssZzTKkrdlWgZDn5urUEhpHLspLu0tFD+iwkj6mAsz6CsF6hqbWifn
+         3dHfusbpeJatnLm8ZhTcc+Br0X31isNLqRkqLzZCmYneC9Nb2tFC+wGwNsYa7LzVNj
+         dSiRJggs7Cm8vJJxSY1c30N8h5iwONAiWCjFY6qiDGa3aWPL9aCPOFmg62cQjoSoJw
+         tOcwCzXU0JL+CJKILmIx1Y5kj8rqWhLl6oASrB10nIuQf+oKhdSjdh4ANreMqiT3i9
+         sCAhJgYbrg0yAy8PtF9IBFwyOjw73JT9P+pyW6iZk5SyakGwKTY8DCwcAb+Tlb6o4H
+         vFbMDBNDOsTYg==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 00536609D6;
+        Mon, 13 Dec 2021 22:49:58 +0000 (UTC)
+Subject: Re: [GIT PULL] vhost: cleanups and fixes
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20211212175951-mutt-send-email-mst@kernel.org>
+References: <20211212175951-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20211212175951-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: bb47620be322c5e9e372536cb6b54e17b3a00258
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 5472f14a37421d1bca3dddf33cabd3bd6dbefbbc
+Message-Id: <163943579893.4494.7297461004032490348.pr-tracker-bot@kernel.org>
+Date:   Mon, 13 Dec 2021 22:49:58 +0000
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        arnd@arndb.de, dan.carpenter@oracle.com, hch@lst.de,
+        jasowang@redhat.com, jroedel@suse.de, konrad.wilk@oracle.com,
+        lkp@intel.com, maz@kernel.org, mst@redhat.com, parav@nvidia.com,
+        qperret@google.com, robin.murphy@arm.com, stable@vger.kernel.org,
+        steven.price@arm.com, suzuki.poulose@arm.com, wei.w.wang@intel.com,
+        will@kernel.org, xieyongji@bytedance.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 13, 2021 at 10:28:35AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.8 release.
-> There are 171 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
-> Anything received after that time might be too late.
+The pull request you sent on Sun, 12 Dec 2021 17:59:51 -0500:
 
-Hi Greg,
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Looking good.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/5472f14a37421d1bca3dddf33cabd3bd6dbefbbc
 
-Run tested on:
-- Intel Tiger Lake x86_64 (nuc11 i7-1165G7)
+Thank you!
 
-In addition: build tested on:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- Allwinner H6
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos
-
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
