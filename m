@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F3E472567
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF3BE47266B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235537AbhLMJnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:39 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49914 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235193AbhLMJkb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:31 -0500
+        id S235261AbhLMJvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:51:51 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:38888 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236073AbhLMJtr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:49:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED5C6B80E0D;
-        Mon, 13 Dec 2021 09:40:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE0DC341C5;
-        Mon, 13 Dec 2021 09:40:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9C344CE0E6B;
+        Mon, 13 Dec 2021 09:49:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49596C341CA;
+        Mon, 13 Dec 2021 09:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388428;
-        bh=WIWdys5//IC5POQNm2wp3TJhcElEgJF+rtvRr0nj37I=;
+        s=korg; t=1639388983;
+        bh=xOV9z0AyIUabxqpnSHrReHYlmAhkaUmQJAmOew9aPCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sn4XaV82wtCLuMlSYYSzP7OEl1+ZPrqrOQIK9sEZt2oJf2rzhNZXiCHEA/Dl3fNPW
-         XM56m4tx7gIynCx7sbYi/dIqRKFp4y2aq18J2WqYJzzgBfEG3al+IEkGbHkkFbyme1
-         tMUfp5GxyAHQZZKC6P3Piri5nSNYVIQWKxAkN1Uo=
+        b=HlKBd0IWxcl6G9QMjH55VbYKv/kOmru+yc4OTtd7iuG26QNoqjdJfUknELL550y68
+         d1WvvZqYUTKKhOU20Wj2UOJNIY4vV3/0jWJzbjHOPkxf9vklLdAdEKQrUZRZ3WIIdm
+         fz/99HNajgYHffV5nsT158DiGQoVecFOTKAQaTqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 46/74] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 076/132] ASoC: rt5682: Fix crash due to out of scope stack vars
 Date:   Mon, 13 Dec 2021 10:30:17 +0100
-Message-Id: <20211213092932.359845252@linuxfoundation.org>
+Message-Id: <20211213092941.726545845@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Rob Clark <robdclark@chromium.org>
 
-commit 2be6d4d16a0849455a5c22490e3c5983495fed00 upstream.
+commit 4999d703c0e66f9f196b6edc0b8fdeca8846b8b6 upstream.
 
-Currently, due to the sequential use of min_t() and clamp_t() macros,
-in cdc_ncm_check_tx_max(), if dwNtbOutMaxSize is not set, the logic
-sets tx_max to 0.  This is then used to allocate the data area of the
-SKB requested later in cdc_ncm_fill_tx_frame().
+Move the declaration of temporary arrays to somewhere that won't go out
+of scope before the devm_clk_hw_register() call, lest we be at the whim
+of the compiler for whether those stack variables get overwritten.
 
-This does not cause an issue presently because when memory is
-allocated during initialisation phase of SKB creation, more memory
-(512b) is allocated than is required for the SKB headers alone (320b),
-leaving some space (512b - 320b = 192b) for CDC data (172b).
+Fixes a crash seen with gcc version 11.2.1 20210728 (Red Hat 11.2.1-1)
 
-However, if more elements (for example 3 x u64 = [24b]) were added to
-one of the SKB header structs, say 'struct skb_shared_info',
-increasing its original size (320b [320b aligned]) to something larger
-(344b [384b aligned]), then suddenly the CDC data (172b) no longer
-fits in the spare SKB data area (512b - 384b = 128b).
-
-Consequently the SKB bounds checking semantics fails and panics:
-
-  skbuff: skb_over_panic: text:ffffffff830a5b5f len:184 put:172   \
-     head:ffff888119227c00 data:ffff888119227c00 tail:0xb8 end:0x80 dev:<NULL>
-
-  ------------[ cut here ]------------
-  kernel BUG at net/core/skbuff.c:110!
-  RIP: 0010:skb_panic+0x14f/0x160 net/core/skbuff.c:106
-  <snip>
-  Call Trace:
-   <IRQ>
-   skb_over_panic+0x2c/0x30 net/core/skbuff.c:115
-   skb_put+0x205/0x210 net/core/skbuff.c:1877
-   skb_put_zero include/linux/skbuff.h:2270 [inline]
-   cdc_ncm_ndp16 drivers/net/usb/cdc_ncm.c:1116 [inline]
-   cdc_ncm_fill_tx_frame+0x127f/0x3d50 drivers/net/usb/cdc_ncm.c:1293
-   cdc_ncm_tx_fixup+0x98/0xf0 drivers/net/usb/cdc_ncm.c:1514
-
-By overriding the max value with the default CDC_NCM_NTB_MAX_SIZE_TX
-when not offered through the system provided params, we ensure enough
-data space is allocated to handle the CDC data, meaning no crash will
-occur.
-
-Cc: Oliver Neukum <oliver@neukum.org>
-Fixes: 289507d3364f9 ("net: cdc_ncm: use sysfs for rx/tx aggregation tuning")
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20211202143437.1411410-1-lee.jones@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: edbd24ea1e5c ("ASoC: rt5682: Drop usage of __clk_get_name()")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20211118010453.843286-1-robdclark@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_ncm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/rt5682.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -177,6 +177,8 @@ static u32 cdc_ncm_check_tx_max(struct u
- 	/* clamp new_tx to sane values */
- 	min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth16);
- 	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
-+	if (max == 0)
-+		max = CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -2797,6 +2797,8 @@ static int rt5682_register_dai_clks(stru
  
- 	/* some devices set dwNtbOutMaxSize too low for the above default */
- 	min = min(min, max);
+ 	for (i = 0; i < RT5682_DAI_NUM_CLKS; ++i) {
+ 		struct clk_init_data init = { };
++		struct clk_parent_data parent_data;
++		const struct clk_hw *parent;
+ 
+ 		dai_clk_hw = &rt5682->dai_clks_hw[i];
+ 
+@@ -2804,17 +2806,17 @@ static int rt5682_register_dai_clks(stru
+ 		case RT5682_DAI_WCLK_IDX:
+ 			/* Make MCLK the parent of WCLK */
+ 			if (rt5682->mclk) {
+-				init.parent_data = &(struct clk_parent_data){
++				parent_data = (struct clk_parent_data){
+ 					.fw_name = "mclk",
+ 				};
++				init.parent_data = &parent_data;
+ 				init.num_parents = 1;
+ 			}
+ 			break;
+ 		case RT5682_DAI_BCLK_IDX:
+ 			/* Make WCLK the parent of BCLK */
+-			init.parent_hws = &(const struct clk_hw *){
+-				&rt5682->dai_clks_hw[RT5682_DAI_WCLK_IDX]
+-			};
++			parent = &rt5682->dai_clks_hw[RT5682_DAI_WCLK_IDX];
++			init.parent_hws = &parent;
+ 			init.num_parents = 1;
+ 			break;
+ 		default:
 
 
