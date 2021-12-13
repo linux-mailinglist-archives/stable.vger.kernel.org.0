@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 108ED47276B
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E83C1472579
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232878AbhLMKAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:00:44 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47238 "EHLO
+        id S235411AbhLMJn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:58 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:35996 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238299AbhLMJ6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:58:42 -0500
+        with ESMTP id S235026AbhLMJlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6F4F2CE0F11;
-        Mon, 13 Dec 2021 09:58:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15AD5C34600;
-        Mon, 13 Dec 2021 09:58:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 606BCCE0E83;
+        Mon, 13 Dec 2021 09:41:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00369C341C5;
+        Mon, 13 Dec 2021 09:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389517;
-        bh=p+Yc0az5B0pDFPfnrAmlLkxpQKwDcJx9CkpCLZ5zm1g=;
+        s=korg; t=1639388511;
+        bh=2qt4EuuFyqq2CR+XlV4DHHNK6qcXhmaQWS/jTj5v4sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JBIsgendOy3v7StJ6bxoOGyAA+qp4TnrEvN8mQM9TSFghb8pyuPn1FF7h84xQ/ZRX
-         YSlKM3k1TZZSXmYBJJ2GH5PyrzTTfMzj3B/8PiOI6HuTajL4SqBV7iT7vEG+m62pBx
-         D3YoEx0tfnFfKG0FSm3doRzlHNmLMDMEzOoAXKPo=
+        b=pMQcv45iLDzUVD9bxWgcs9o4jIJ29/y22d63wPitO8SA3s8lA4kRoN0mkaAS9aoRi
+         P/gsYRGh+ZDDKm4+YPonIIlW+2rBgKfgKQ5Ihe/v8f9rUIHdOv1HaxqzWBGE56Ce7x
+         9y8buFGfldFQ8kHt/QfX/Xlyhw3j2VFcAfz4TL2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Karen Sornek <karen.sornek@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.15 118/171] i40e: Fix failed opcode appearing if handling messages from VF
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 62/74] iio: kxsd9: Dont return error code in trigger handler
 Date:   Mon, 13 Dec 2021 10:30:33 +0100
-Message-Id: <20211213092949.031972376@linuxfoundation.org>
+Message-Id: <20211213092932.870208993@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,258 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karen Sornek <karen.sornek@intel.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 61125b8be85dfbc7e9c7fe1cc6c6d631ab603516 upstream.
+commit 45febe0d63917ee908198c5be08511c64ee1790a upstream.
 
-Fix failed operation code appearing if handling messages from VF.
-Implemented by waiting for VF appropriate state if request starts
-handle while VF reset.
-Without this patch the message handling request while VF is in
-a reset state ends with error -5 (I40E_ERR_PARAM).
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
-Fixes: 5c3c48ac6bf5 ("i40e: implement virtual device interface")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Karen Sornek <karen.sornek@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+The kxsd9 interrupt handler returns an error code if reading the data
+registers fails. In addition when exiting due to an error the trigger
+handler does not call `iio_trigger_notify_done()`. Which when not done
+keeps the triggered disabled forever.
+
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
+
+Since we can't return the error code make sure to at least log it as part
+of the error message.
+
+Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20211024171251.22896-2-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   70 ++++++++++++++-------
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h |    2 
- 2 files changed, 50 insertions(+), 22 deletions(-)
+ drivers/iio/accel/kxsd9.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -1949,6 +1949,32 @@ static int i40e_vc_send_resp_to_vf(struc
- }
- 
- /**
-+ * i40e_sync_vf_state
-+ * @vf: pointer to the VF info
-+ * @state: VF state
-+ *
-+ * Called from a VF message to synchronize the service with a potential
-+ * VF reset state
-+ **/
-+static bool i40e_sync_vf_state(struct i40e_vf *vf, enum i40e_vf_states state)
-+{
-+	int i;
-+
-+	/* When handling some messages, it needs VF state to be set.
-+	 * It is possible that this flag is cleared during VF reset,
-+	 * so there is a need to wait until the end of the reset to
-+	 * handle the request message correctly.
-+	 */
-+	for (i = 0; i < I40E_VF_STATE_WAIT_COUNT; i++) {
-+		if (test_bit(state, &vf->vf_states))
-+			return true;
-+		usleep_range(10000, 20000);
-+	}
-+
-+	return test_bit(state, &vf->vf_states);
-+}
-+
-+/**
-  * i40e_vc_get_version_msg
-  * @vf: pointer to the VF info
-  * @msg: pointer to the msg buffer
-@@ -2008,7 +2034,7 @@ static int i40e_vc_get_vf_resources_msg(
- 	size_t len = 0;
- 	int ret;
- 
--	if (!test_bit(I40E_VF_STATE_INIT, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_INIT)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
+--- a/drivers/iio/accel/kxsd9.c
++++ b/drivers/iio/accel/kxsd9.c
+@@ -227,14 +227,14 @@ static irqreturn_t kxsd9_trigger_handler
+ 			       hw_values.chan,
+ 			       sizeof(hw_values.chan));
+ 	if (ret) {
+-		dev_err(st->dev,
+-			"error reading data\n");
+-		return ret;
++		dev_err(st->dev, "error reading data: %d\n", ret);
++		goto out;
  	}
-@@ -2131,7 +2157,7 @@ static int i40e_vc_config_promiscuous_mo
- 	bool allmulti = false;
- 	bool alluni = false;
  
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err_out;
- 	}
-@@ -2219,7 +2245,7 @@ static int i40e_vc_config_queues_msg(str
- 	struct i40e_vsi *vsi;
- 	u16 num_qps_all = 0;
+ 	iio_push_to_buffers_with_timestamp(indio_dev,
+ 					   &hw_values,
+ 					   iio_get_time_ns(indio_dev));
++out:
+ 	iio_trigger_notify_done(indio_dev->trig);
  
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2368,7 +2394,7 @@ static int i40e_vc_config_irq_map_msg(st
- 	i40e_status aq_ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2540,7 +2566,7 @@ static int i40e_vc_disable_queues_msg(st
- 	struct i40e_pf *pf = vf->pf;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2590,7 +2616,7 @@ static int i40e_vc_request_queues_msg(st
- 	u8 cur_pairs = vf->num_queue_pairs;
- 	struct i40e_pf *pf = vf->pf;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states))
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE))
- 		return -EINVAL;
- 
- 	if (req_pairs > I40E_MAX_VF_QUEUES) {
-@@ -2635,7 +2661,7 @@ static int i40e_vc_get_stats_msg(struct
- 
- 	memset(&stats, 0, sizeof(struct i40e_eth_stats));
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
- 	}
-@@ -2752,7 +2778,7 @@ static int i40e_vc_add_mac_addr_msg(stru
- 	i40e_status ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, al->vsi_id)) {
- 		ret = I40E_ERR_PARAM;
- 		goto error_param;
-@@ -2824,7 +2850,7 @@ static int i40e_vc_del_mac_addr_msg(stru
- 	i40e_status ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, al->vsi_id)) {
- 		ret = I40E_ERR_PARAM;
- 		goto error_param;
-@@ -2968,7 +2994,7 @@ static int i40e_vc_remove_vlan_msg(struc
- 	i40e_status aq_ret = 0;
- 	int i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, vfl->vsi_id)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto error_param;
-@@ -3088,9 +3114,9 @@ static int i40e_vc_config_rss_key(struct
- 	struct i40e_vsi *vsi = NULL;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, vrk->vsi_id) ||
--	    (vrk->key_len != I40E_HKEY_ARRAY_SIZE)) {
-+	    vrk->key_len != I40E_HKEY_ARRAY_SIZE) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3119,9 +3145,9 @@ static int i40e_vc_config_rss_lut(struct
- 	i40e_status aq_ret = 0;
- 	u16 i;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states) ||
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE) ||
- 	    !i40e_vc_isvalid_vsi_id(vf, vrl->vsi_id) ||
--	    (vrl->lut_entries != I40E_VF_HLUT_ARRAY_SIZE)) {
-+	    vrl->lut_entries != I40E_VF_HLUT_ARRAY_SIZE) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3154,7 +3180,7 @@ static int i40e_vc_get_rss_hena(struct i
- 	i40e_status aq_ret = 0;
- 	int len = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3190,7 +3216,7 @@ static int i40e_vc_set_rss_hena(struct i
- 	struct i40e_hw *hw = &pf->hw;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3215,7 +3241,7 @@ static int i40e_vc_enable_vlan_stripping
- 	i40e_status aq_ret = 0;
- 	struct i40e_vsi *vsi;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3241,7 +3267,7 @@ static int i40e_vc_disable_vlan_strippin
- 	i40e_status aq_ret = 0;
- 	struct i40e_vsi *vsi;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3468,7 +3494,7 @@ static int i40e_vc_del_cloud_filter(stru
- 	i40e_status aq_ret = 0;
- 	int i, ret;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3599,7 +3625,7 @@ static int i40e_vc_add_cloud_filter(stru
- 	i40e_status aq_ret = 0;
- 	int i, ret;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err_out;
- 	}
-@@ -3708,7 +3734,7 @@ static int i40e_vc_add_qch_msg(struct i4
- 	i40e_status aq_ret = 0;
- 	u64 speed = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
-@@ -3824,7 +3850,7 @@ static int i40e_vc_del_qch_msg(struct i4
- 	struct i40e_pf *pf = vf->pf;
- 	i40e_status aq_ret = 0;
- 
--	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
-+	if (!i40e_sync_vf_state(vf, I40E_VF_STATE_ACTIVE)) {
- 		aq_ret = I40E_ERR_PARAM;
- 		goto err;
- 	}
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.h
-@@ -18,6 +18,8 @@
- 
- #define I40E_MAX_VF_PROMISC_FLAGS	3
- 
-+#define I40E_VF_STATE_WAIT_COUNT	20
-+
- /* Various queue ctrls */
- enum i40e_queue_ctrl {
- 	I40E_QUEUE_CTRL_UNKNOWN = 0,
+ 	return IRQ_HANDLED;
 
 
