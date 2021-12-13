@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D2A347288E
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:14:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EB714723F9
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240305AbhLMKOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:03 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:46136 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239089AbhLMJ4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:56:49 -0500
+        id S233922AbhLMJdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:33:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53974 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233855AbhLMJdA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AB65C06173F;
+        Mon, 13 Dec 2021 01:33:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A3830CE0E85;
-        Mon, 13 Dec 2021 09:56:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50DA1C34601;
-        Mon, 13 Dec 2021 09:56:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22529B80E26;
+        Mon, 13 Dec 2021 09:32:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CA6EC341C5;
+        Mon, 13 Dec 2021 09:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389404;
-        bh=q6kYNjuRyZxJiwplzh8MYrHB3szUhr1KWHr4N1NdtXA=;
+        s=korg; t=1639387977;
+        bh=+BqtltrckDBCrIwhgxZdJy60JLi4NeUnum0BgYQnNfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TwOFaJRHfhz9ZMsHBRbbh5kGdtq9C5ZCLlDsXYs8UZa9ZoPfDxKukGFLIPMwAydqp
-         6zLwDgOezLMr4yi8zfeqdbVyCSxm7eSibzprqWHpkSVvVsJJMVFfUhs92dPqzWoZDc
-         PdP2bYuFnetgCWPjLlAbIT4PspzMPQUH5xl6DQoE=
+        b=1oKKdHZkMcPpq0IHRdLTysAl4dAi833xAM/ohlYoRFN8s2FY9jEak6i3enCCK6tK8
+         OhM5oGqKo0w37qe7w1xowVKzTHwmqYf1a1GJgnx4nHK8IwpPVMmUwGJsXGP5w00mAG
+         YdrfsW73wZ6Sfix+lFEKDiL5NTECRMfe4d9Wf/o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.15 087/171] selftests: KVM: avoid failures due to reserved HyperTransport region
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 24/37] net: altera: set a couple error code in probe()
 Date:   Mon, 13 Dec 2021 10:30:02 +0100
-Message-Id: <20211213092947.985461518@linuxfoundation.org>
+Message-Id: <20211213092926.158782570@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
+References: <20211213092925.380184671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,141 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c8cc43c1eae2910ac96daa4216e0fb3391ad0504 upstream.
+commit badd7857f5c933a3dc34942a2c11d67fdbdc24de upstream.
 
-AMD proceessors define an address range that is reserved by HyperTransport
-and causes a failure if used for guest physical addresses.  Avoid
-selftests failures by reserving those guest physical addresses; the
-rules are:
+There are two error paths which accidentally return success instead of
+a negative error code.
 
-- On parts with <40 bits, its fully hidden from software.
-
-- Before Fam17h, it was always 12G just below 1T, even if there was more
-RAM above this location.  In this case we just not use any RAM above 1T.
-
-- On Fam17h and later, it is variable based on SME, and is either just
-below 2^48 (no encryption) or 2^43 (encryption).
-
-Fixes: ef4c9f4f6546 ("KVM: selftests: Fix 32-bit truncation of vm_get_max_gfn()")
-Cc: stable@vger.kernel.org
-Cc: David Matlack <dmatlack@google.com>
-Reported-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Message-Id: <20210805105423.412878-1-pbonzini@redhat.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Tested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/kvm/include/kvm_util.h     |    9 ++
- tools/testing/selftests/kvm/lib/kvm_util.c         |    2 
- tools/testing/selftests/kvm/lib/x86_64/processor.c |   68 +++++++++++++++++++++
- 3 files changed, 78 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/altera/altera_tse_main.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/tools/testing/selftests/kvm/include/kvm_util.h
-+++ b/tools/testing/selftests/kvm/include/kvm_util.h
-@@ -69,6 +69,15 @@ enum vm_guest_mode {
+--- a/drivers/net/ethernet/altera/altera_tse_main.c
++++ b/drivers/net/ethernet/altera/altera_tse_main.c
+@@ -1383,16 +1383,19 @@ static int altera_tse_probe(struct platf
+ 		priv->rxdescmem_busaddr = dma_res->start;
  
- #endif
+ 	} else {
++		ret = -ENODEV;
+ 		goto err_free_netdev;
+ 	}
  
-+#if defined(__x86_64__)
-+unsigned long vm_compute_max_gfn(struct kvm_vm *vm);
-+#else
-+static inline unsigned long vm_compute_max_gfn(struct kvm_vm *vm)
-+{
-+	return ((1ULL << vm->pa_bits) >> vm->page_shift) - 1;
-+}
-+#endif
-+
- #define MIN_PAGE_SIZE		(1U << MIN_PAGE_SHIFT)
- #define PTES_PER_MIN_PAGE	ptes_per_page(MIN_PAGE_SIZE)
- 
---- a/tools/testing/selftests/kvm/lib/kvm_util.c
-+++ b/tools/testing/selftests/kvm/lib/kvm_util.c
-@@ -307,7 +307,7 @@ struct kvm_vm *vm_create(enum vm_guest_m
- 		(1ULL << (vm->va_bits - 1)) >> vm->page_shift);
- 
- 	/* Limit physical addresses to PA-bits. */
--	vm->max_gfn = ((1ULL << vm->pa_bits) >> vm->page_shift) - 1;
-+	vm->max_gfn = vm_compute_max_gfn(vm);
- 
- 	/* Allocate and setup memory for guest. */
- 	vm->vpages_mapped = sparsebit_alloc();
---- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
-+++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
-@@ -1433,3 +1433,71 @@ struct kvm_cpuid2 *vcpu_get_supported_hv
- 
- 	return cpuid;
- }
-+
-+#define X86EMUL_CPUID_VENDOR_AuthenticAMD_ebx 0x68747541
-+#define X86EMUL_CPUID_VENDOR_AuthenticAMD_ecx 0x444d4163
-+#define X86EMUL_CPUID_VENDOR_AuthenticAMD_edx 0x69746e65
-+
-+static inline unsigned x86_family(unsigned int eax)
-+{
-+        unsigned int x86;
-+
-+        x86 = (eax >> 8) & 0xf;
-+
-+        if (x86 == 0xf)
-+                x86 += (eax >> 20) & 0xff;
-+
-+        return x86;
-+}
-+
-+unsigned long vm_compute_max_gfn(struct kvm_vm *vm)
-+{
-+	const unsigned long num_ht_pages = 12 << (30 - vm->page_shift); /* 12 GiB */
-+	unsigned long ht_gfn, max_gfn, max_pfn;
-+	uint32_t eax, ebx, ecx, edx, max_ext_leaf;
-+
-+	max_gfn = (1ULL << (vm->pa_bits - vm->page_shift)) - 1;
-+
-+	/* Avoid reserved HyperTransport region on AMD processors.  */
-+	eax = ecx = 0;
-+	cpuid(&eax, &ebx, &ecx, &edx);
-+	if (ebx != X86EMUL_CPUID_VENDOR_AuthenticAMD_ebx ||
-+	    ecx != X86EMUL_CPUID_VENDOR_AuthenticAMD_ecx ||
-+	    edx != X86EMUL_CPUID_VENDOR_AuthenticAMD_edx)
-+		return max_gfn;
-+
-+	/* On parts with <40 physical address bits, the area is fully hidden */
-+	if (vm->pa_bits < 40)
-+		return max_gfn;
-+
-+	/* Before family 17h, the HyperTransport area is just below 1T.  */
-+	ht_gfn = (1 << 28) - num_ht_pages;
-+	eax = 1;
-+	cpuid(&eax, &ebx, &ecx, &edx);
-+	if (x86_family(eax) < 0x17)
-+		goto done;
-+
-+	/*
-+	 * Otherwise it's at the top of the physical address space, possibly
-+	 * reduced due to SME by bits 11:6 of CPUID[0x8000001f].EBX.  Use
-+	 * the old conservative value if MAXPHYADDR is not enumerated.
-+	 */
-+	eax = 0x80000000;
-+	cpuid(&eax, &ebx, &ecx, &edx);
-+	max_ext_leaf = eax;
-+	if (max_ext_leaf < 0x80000008)
-+		goto done;
-+
-+	eax = 0x80000008;
-+	cpuid(&eax, &ebx, &ecx, &edx);
-+	max_pfn = (1ULL << ((eax & 0xff) - vm->page_shift)) - 1;
-+	if (max_ext_leaf >= 0x8000001f) {
-+		eax = 0x8000001f;
-+		cpuid(&eax, &ebx, &ecx, &edx);
-+		max_pfn >>= (ebx >> 6) & 0x3f;
+-	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask)))
++	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask))) {
+ 		dma_set_coherent_mask(priv->device,
+ 				      DMA_BIT_MASK(priv->dmaops->dmamask));
+-	else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32)))
++	} else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32))) {
+ 		dma_set_coherent_mask(priv->device, DMA_BIT_MASK(32));
+-	else
++	} else {
++		ret = -EIO;
+ 		goto err_free_netdev;
 +	}
-+
-+	ht_gfn = max_pfn - num_ht_pages;
-+done:
-+	return min(max_gfn, ht_gfn - 1);
-+}
+ 
+ 	/* MAC address space */
+ 	ret = request_and_map(pdev, "control_port", &control_port,
 
 
