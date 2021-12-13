@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A10134728B8
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1F64725EE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:48:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236206AbhLMKOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241618AbhLMKE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:04:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850FFC0A8861;
-        Mon, 13 Dec 2021 01:50:34 -0800 (PST)
+        id S234021AbhLMJsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:48:30 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:37926 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235575AbhLMJo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:44:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 30B56B80E2F;
-        Mon, 13 Dec 2021 09:50:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 696F2C00446;
-        Mon, 13 Dec 2021 09:50:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9E6C3CE0E85;
+        Mon, 13 Dec 2021 09:44:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D390C00446;
+        Mon, 13 Dec 2021 09:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389033;
-        bh=Kuf5ivleTHQnzzKGMV3HkDb+ZfqNvldDPHustQKlQUI=;
+        s=korg; t=1639388695;
+        bh=ME6BtVGABkVjGGLvKCX1AXh33aBLl4rhb6Av3V127xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbFmTt7v05eGnzvoEhAHOKQ6RgifOxaF8XNSLmU/j8OjhoQ9CFsxXZEXGgIf79IuJ
-         nZx7K6AIlqBixj11Z9Rms47J/em2APVaqMOPV2cUoe5pqTuHa+Kb3D/adYqEWHQ4+g
-         ef2FcS5I2S8G+ltZTN8ym3Hq70J5simm2jgMWq6k=
+        b=M9ZWOiqB0an++0RBiX1iRiV+I140WA1+Z3b84OapzkcjnGTm3euHbHFYRydCt0VUP
+         ZdHJBHS9BScRyTFLtS4wf5WsLnn1FCE098SGb/bjkYLPiRnDlkbx3bR7oxh+PK1Kyv
+         HUMwJlY4EKFNaHIxC/qA9Y7EtXDNiCyBWr2tXklM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 095/132] net: altera: set a couple error code in probe()
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Pavel Hofman <pavel.hofman@ivitera.com>
+Subject: [PATCH 5.4 66/88] usb: core: config: fix validation of wMaxPacketValue entries
 Date:   Mon, 13 Dec 2021 10:30:36 +0100
-Message-Id: <20211213092942.370557067@linuxfoundation.org>
+Message-Id: <20211213092935.536947175@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pavel Hofman <pavel.hofman@ivitera.com>
 
-commit badd7857f5c933a3dc34942a2c11d67fdbdc24de upstream.
+commit 1a3910c80966e4a76b25ce812f6bea0ef1b1d530 upstream.
 
-There are two error paths which accidentally return success instead of
-a negative error code.
+The checks performed by commit aed9d65ac327 ("USB: validate
+wMaxPacketValue entries in endpoint descriptors") require that initial
+value of the maxp variable contains both maximum packet size bits
+(10..0) and multiple-transactions bits (12..11). However, the existing
+code assings only the maximum packet size bits. This patch assigns all
+bits of wMaxPacketSize to the variable.
 
-Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: aed9d65ac327 ("USB: validate wMaxPacketValue entries in endpoint descriptors")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
+Link: https://lore.kernel.org/r/20211210085219.16796-1-pavel.hofman@ivitera.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/altera/altera_tse_main.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/usb/core/config.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/altera/altera_tse_main.c
-+++ b/drivers/net/ethernet/altera/altera_tse_main.c
-@@ -1431,16 +1431,19 @@ static int altera_tse_probe(struct platf
- 		priv->rxdescmem_busaddr = dma_res->start;
- 
- 	} else {
-+		ret = -ENODEV;
- 		goto err_free_netdev;
- 	}
- 
--	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask)))
-+	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask))) {
- 		dma_set_coherent_mask(priv->device,
- 				      DMA_BIT_MASK(priv->dmaops->dmamask));
--	else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32)))
-+	} else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32))) {
- 		dma_set_coherent_mask(priv->device, DMA_BIT_MASK(32));
--	else
-+	} else {
-+		ret = -EIO;
- 		goto err_free_netdev;
-+	}
- 
- 	/* MAC address space */
- 	ret = request_and_map(pdev, "control_port", &control_port,
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -409,7 +409,7 @@ static int usb_parse_endpoint(struct dev
+ 	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
+ 	 * (see the end of section 5.6.3), so don't warn about them.
+ 	 */
+-	maxp = usb_endpoint_maxp(&endpoint->desc);
++	maxp = le16_to_cpu(endpoint->desc.wMaxPacketSize);
+ 	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
+ 		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
+ 		    cfgno, inum, asnum, d->bEndpointAddress);
 
 
