@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 243904726AB
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0BC4727AF
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237048AbhLMJxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:53:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37872 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236100AbhLMJva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:51:30 -0500
+        id S240108AbhLMKEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:04:30 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:48198 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240141AbhLMJ7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:59:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00B3FB80E20;
-        Mon, 13 Dec 2021 09:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 485E5C341C8;
-        Mon, 13 Dec 2021 09:51:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 08FBFCE0F5A;
+        Mon, 13 Dec 2021 09:59:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA484C34601;
+        Mon, 13 Dec 2021 09:59:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389087;
-        bh=bT8fZiEE3OsnyRilO4i9hYFSC/yQ/MPlPWJSo/i5iOE=;
+        s=korg; t=1639389587;
+        bh=Vk+cAtJjbarT6hIf/i7eUKGqI55drVQlzH+2KXSsRXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mimjqJUkmOjWNxeVBi0i+NhYASXdDcnVXYXkvscumAv1y0RDWMCZIZ4cjgM3sdb6L
-         7XCBoUtIFtJD8RETaa2q44BHROHtjmX1c6aBTUFRcSgHG8UepVOECQ0hG1q/Moo0A5
-         r/ugi0lm0pHjphXkogPxdnGBThPvlhEupXdvE410=
+        b=zwEVtpkeueJHhbhyFyPav9q2m7rDmZk4HCBYSF99Mkk/yf0lU8TgJkMQC8MEi5Hpp
+         ezqQ+3eS1oR6wd9rGxz+wkeDsThThtt+Mlb9ms6QcN18uMiPXg/Jg9W4SkMIIPkMbb
+         1Mrn1iR4XS24LJvd0yEBB3EPC6XSZ9WHcABkMktg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 112/132] iio: kxsd9: Dont return error code in trigger handler
+        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 5.15 138/171] Revert "usb: dwc3: dwc3-qcom: Enable tx-fifo-resize property by default"
 Date:   Mon, 13 Dec 2021 10:30:53 +0100
-Message-Id: <20211213092942.940765515@linuxfoundation.org>
+Message-Id: <20211213092949.681679426@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 45febe0d63917ee908198c5be08511c64ee1790a upstream.
+commit 6a97cee39d8f2ed4d6e35a09a302dae1d566db36 upstream.
 
-IIO trigger handlers need to return one of the irqreturn_t values.
-Returning an error code is not supported.
+This reverts commit cefdd52fa0455c0555c30927386ee466a108b060.
 
-The kxsd9 interrupt handler returns an error code if reading the data
-registers fails. In addition when exiting due to an error the trigger
-handler does not call `iio_trigger_notify_done()`. Which when not done
-keeps the triggered disabled forever.
+On sc7180-trogdor class devices with 'fw_devlink=permissive' and KASAN
+enabled, you'll see a Use-After-Free reported at bootup.
 
-Modify the code so that the function returns a valid irqreturn_t value as
-well as calling `iio_trigger_notify_done()` on all exit paths.
+The root of the problem is that dwc3_qcom_of_register_core() is adding
+a devm-allocated "tx-fifo-resize" property to its device tree node
+using of_add_property().
 
-Since we can't return the error code make sure to at least log it as part
-of the error message.
+The issue is that of_add_property() makes a _permanent_ addition to
+the device tree that lasts until reboot. That means allocating memory
+for the property using "devm" managed memory is a terrible idea since
+that memory will be freed upon probe deferral or device unbinding.
 
-Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20211024171251.22896-2-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Let's revert the patch since the system is still functional without
+it. The fact that of_add_property() makes a permanent change is extra
+fodder for those folks who were aruging that the device tree isn't
+really the right way to pass information between parts of the
+driver. It is an exercise left to the reader to submit a patch
+re-adding the new feature in a way that makes everyone happier.
+
+Fixes: cefdd52fa045 ("usb: dwc3: dwc3-qcom: Enable tx-fifo-resize property by default")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20211207094327.1.Ie3cde3443039342e2963262a4c3ac36dc2c08b30@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/kxsd9.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/dwc3-qcom.c |   15 ---------------
+ 1 file changed, 15 deletions(-)
 
---- a/drivers/iio/accel/kxsd9.c
-+++ b/drivers/iio/accel/kxsd9.c
-@@ -224,14 +224,14 @@ static irqreturn_t kxsd9_trigger_handler
- 			       hw_values.chan,
- 			       sizeof(hw_values.chan));
- 	if (ret) {
--		dev_err(st->dev,
--			"error reading data\n");
--		return ret;
-+		dev_err(st->dev, "error reading data: %d\n", ret);
-+		goto out;
+--- a/drivers/usb/dwc3/dwc3-qcom.c
++++ b/drivers/usb/dwc3/dwc3-qcom.c
+@@ -649,7 +649,6 @@ static int dwc3_qcom_of_register_core(st
+ 	struct dwc3_qcom	*qcom = platform_get_drvdata(pdev);
+ 	struct device_node	*np = pdev->dev.of_node, *dwc3_np;
+ 	struct device		*dev = &pdev->dev;
+-	struct property		*prop;
+ 	int			ret;
+ 
+ 	dwc3_np = of_get_compatible_child(np, "snps,dwc3");
+@@ -658,20 +657,6 @@ static int dwc3_qcom_of_register_core(st
+ 		return -ENODEV;
  	}
  
- 	iio_push_to_buffers_with_timestamp(indio_dev,
- 					   &hw_values,
- 					   iio_get_time_ns(indio_dev));
-+out:
- 	iio_trigger_notify_done(indio_dev->trig);
- 
- 	return IRQ_HANDLED;
+-	prop = devm_kzalloc(dev, sizeof(*prop), GFP_KERNEL);
+-	if (!prop) {
+-		ret = -ENOMEM;
+-		dev_err(dev, "unable to allocate memory for property\n");
+-		goto node_put;
+-	}
+-
+-	prop->name = "tx-fifo-resize";
+-	ret = of_add_property(dwc3_np, prop);
+-	if (ret) {
+-		dev_err(dev, "unable to add property\n");
+-		goto node_put;
+-	}
+-
+ 	ret = of_platform_populate(np, NULL, NULL, dev);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register dwc3 core - %d\n", ret);
 
 
