@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 140AA472727
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A9847292B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234122AbhLMJ6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:58:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59804 "EHLO
+        id S242391AbhLMKSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:18:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235771AbhLMJ4r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:56:47 -0500
+        with ESMTP id S241410AbhLMKQ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:16:26 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1C7C09427D;
-        Mon, 13 Dec 2021 01:46:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7215FC110F2F;
+        Mon, 13 Dec 2021 01:55:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 88AFACE0E97;
-        Mon, 13 Dec 2021 09:46:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F7FC00446;
-        Mon, 13 Dec 2021 09:46:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BED40CE0DDE;
+        Mon, 13 Dec 2021 09:55:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E94EC34600;
+        Mon, 13 Dec 2021 09:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388795;
-        bh=B/0lhuog/4p/hExcA4Ya23kecHNdgksh2Z/OjRIbdjE=;
+        s=korg; t=1639389333;
+        bh=dBdJHs7ksAkcvPHLNr+nz7ADHUY+P2yCOwXF6qMH+VE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0l5PWgSMYwJ4CcWNtxMNG7DLzsvQvOcqwGvjkfNeww2a+J7Rgy1eGdvsBRG11a2/
-         Fsat4iIUkfLtlHwHNnsdJboXa1KNEjEdojF6pBrQJvh8z1P3Am4D9tcM32zSsOvZwR
-         RnBy/Ain5apIkrr13b/WLblbMu60031jtPszGFns=
+        b=wmfHgB5GoroH4rZwinONt/jg5704OKRu0XHynk+kWFmvaj77RZaua6c9DVsx0bv3E
+         UCYca1LXtqZ81VlwMkNExBi2NVMy2rnMgla+NcWD/wqxuUmPiBTXiArZ/Kjw8K54WU
+         RKwPfz0PvtNgPQcO5m0BT84zua6dNejywZ/KtOfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.10 004/132] HID: quirks: Add quirk for the Microsoft Surface 3 type-cover
+        stable@vger.kernel.org, Martyn Welch <martyn.welch@collabora.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 030/171] net: dsa: mv88e6xxx: allow use of PHYs on CPU and DSA ports
 Date:   Mon, 13 Dec 2021 10:29:05 +0100
-Message-Id: <20211213092939.219487485@linuxfoundation.org>
+Message-Id: <20211213092946.079023692@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +48,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit 9003fbe0f3674b972f56fa7e6bf3ac9dbfc4d0ec upstream.
+commit 04ec4e6250e5f58b525b08f3dca45c7d7427620e upstream.
 
-Add a HID_QUIRK_NO_INIT_REPORTS quirk for the
-Microsoft Surface 3 (non pro) type-cover.
+Martyn Welch reports that his CPU port is unable to link where it has
+been necessary to use one of the switch ports with an internal PHY for
+the CPU port. The reason behind this is the port control register is
+left forcing the link down, preventing traffic flow.
 
-Trying to init the reports seems to confuse the type-cover and
-causes 2 issues:
+This occurs because during initialisation, phylink expects the link to
+be down, and DSA forces the link down by synthesising a call to the
+DSA drivers phylink_mac_link_down() method, but we don't touch the
+forced-link state when we later reconfigure the port.
 
-1. Despite hid-multitouch sending the command to switch the
-touchpad to multitouch mode, it keeps sending events on the
-mouse emulation interface.
+Resolve this by also unforcing the link state when we are operating in
+PHY mode and the PPU is set to poll the PHY to retrieve link status
+information.
 
-2. The touchpad completely stops sending events after a reboot.
-
-Adding the HID_QUIRK_NO_INIT_REPORTS quirk fixes both issues.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: Martyn Welch <martyn.welch@collabora.com>
+Tested-by: Martyn Welch <martyn.welch@collabora.com>
+Fixes: 3be98b2d5fbc ("net: dsa: Down cpu/dsa ports phylink will control")
+Cc: <stable@vger.kernel.org> # 5.7: 2b29cb9e3f7f: net: dsa: mv88e6xxx: fix "don't use PHY_DETECT on internal PHY's"
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/E1mvFhP-00F8Zb-Ul@rmk-PC.armlinux.org.uk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h    |    1 +
- drivers/hid/hid-quirks.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/net/dsa/mv88e6xxx/chip.c |   66 ++++++++++++++++++++-------------------
+ 1 file changed, 35 insertions(+), 31 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -865,6 +865,7 @@
- #define USB_DEVICE_ID_MS_TOUCH_COVER_2   0x07a7
- #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
- #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
-+#define USB_DEVICE_ID_MS_SURFACE3_COVER		0x07de
- #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
- #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
- #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -124,6 +124,7 @@ static const struct hid_device_id hid_qu
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MCS, USB_DEVICE_ID_MCS_GAMEPADBLOCK), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PIXART_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE3_COVER), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_SURFACE_PRO_2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TOUCH_COVER_2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_2), HID_QUIRK_NO_INIT_REPORTS },
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -699,44 +699,48 @@ static void mv88e6xxx_mac_config(struct
+ {
+ 	struct mv88e6xxx_chip *chip = ds->priv;
+ 	struct mv88e6xxx_port *p;
+-	int err;
++	int err = 0;
+ 
+ 	p = &chip->ports[port];
+ 
+-	/* FIXME: is this the correct test? If we're in fixed mode on an
+-	 * internal port, why should we process this any different from
+-	 * PHY mode? On the other hand, the port may be automedia between
+-	 * an internal PHY and the serdes...
+-	 */
+-	if ((mode == MLO_AN_PHY) && mv88e6xxx_phy_is_internal(ds, port))
+-		return;
+-
+ 	mv88e6xxx_reg_lock(chip);
+-	/* In inband mode, the link may come up at any time while the link
+-	 * is not forced down. Force the link down while we reconfigure the
+-	 * interface mode.
+-	 */
+-	if (mode == MLO_AN_INBAND && p->interface != state->interface &&
+-	    chip->info->ops->port_set_link)
+-		chip->info->ops->port_set_link(chip, port, LINK_FORCED_DOWN);
+-
+-	err = mv88e6xxx_port_config_interface(chip, port, state->interface);
+-	if (err && err != -EOPNOTSUPP)
+-		goto err_unlock;
+-
+-	err = mv88e6xxx_serdes_pcs_config(chip, port, mode, state->interface,
+-					  state->advertising);
+-	/* FIXME: we should restart negotiation if something changed - which
+-	 * is something we get if we convert to using phylinks PCS operations.
+-	 */
+-	if (err > 0)
+-		err = 0;
++
++	if (mode != MLO_AN_PHY || !mv88e6xxx_phy_is_internal(ds, port)) {
++		/* In inband mode, the link may come up at any time while the
++		 * link is not forced down. Force the link down while we
++		 * reconfigure the interface mode.
++		 */
++		if (mode == MLO_AN_INBAND &&
++		    p->interface != state->interface &&
++		    chip->info->ops->port_set_link)
++			chip->info->ops->port_set_link(chip, port,
++						       LINK_FORCED_DOWN);
++
++		err = mv88e6xxx_port_config_interface(chip, port,
++						      state->interface);
++		if (err && err != -EOPNOTSUPP)
++			goto err_unlock;
++
++		err = mv88e6xxx_serdes_pcs_config(chip, port, mode,
++						  state->interface,
++						  state->advertising);
++		/* FIXME: we should restart negotiation if something changed -
++		 * which is something we get if we convert to using phylinks
++		 * PCS operations.
++		 */
++		if (err > 0)
++			err = 0;
++	}
+ 
+ 	/* Undo the forced down state above after completing configuration
+-	 * irrespective of its state on entry, which allows the link to come up.
++	 * irrespective of its state on entry, which allows the link to come
++	 * up in the in-band case where there is no separate SERDES. Also
++	 * ensure that the link can come up if the PPU is in use and we are
++	 * in PHY mode (we treat the PPU as an effective in-band mechanism.)
+ 	 */
+-	if (mode == MLO_AN_INBAND && p->interface != state->interface &&
+-	    chip->info->ops->port_set_link)
++	if (chip->info->ops->port_set_link &&
++	    ((mode == MLO_AN_INBAND && p->interface != state->interface) ||
++	     (mode == MLO_AN_PHY && mv88e6xxx_port_ppu_updates(chip, port))))
+ 		chip->info->ops->port_set_link(chip, port, LINK_UNFORCED);
+ 
+ 	p->interface = state->interface;
 
 
