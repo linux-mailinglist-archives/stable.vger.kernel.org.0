@@ -2,41 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E35472444
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA564724A1
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:37:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234010AbhLMJfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:35:22 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58982 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232513AbhLMJeb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:31 -0500
+        id S234540AbhLMJh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:37:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49914 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234571AbhLMJgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:36:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AA596CE0E70;
-        Mon, 13 Dec 2021 09:34:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DFFC00446;
-        Mon, 13 Dec 2021 09:34:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 963E5B80E27;
+        Mon, 13 Dec 2021 09:36:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B41EC341CE;
+        Mon, 13 Dec 2021 09:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388066;
-        bh=I85WPLqAjuye+YmK+7kYqTG429PGU/eLUt+H85yI42s=;
+        s=korg; t=1639388176;
+        bh=8w8S0A2e4urmCYJWOmJKdW49moaUE/UpSGwK1KJUYvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bK5bxsueP8bm97mvdlk0DUgml3nP8xpwR+aWpLFjTd5EP97oSjzlma3h3rt3UFbOX
-         oKXt5f40KiPOWRmCMYxi45U+yYbz6RLkv7ZXnu15wk89CpS5l/wfJCOtJREviRhhdp
-         nPgWgQN3+inpzZYLmYYxZSrXNZqhNBgWquZxxGxs=
+        b=1H9TZp3SzdQHF+arsQ9ThxarubJD3sX7Yp+swOprZB8QCVQUxXEuHgpMVLtD9XOpD
+         5SfQgxgdoxhuOuidH/yGp6huSdMi6cyq1TbgiseoaEcbKvJTvD+VH7hNqO95Bc9DCI
+         6JfxzwZfk9VejDy/jaetoL8YvTm1D0vE+LF6z6Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 09/42] nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
-Date:   Mon, 13 Dec 2021 10:29:51 +0100
-Message-Id: <20211213092926.887689777@linuxfoundation.org>
+        stable@vger.kernel.org, Manjong Lee <mj0123.lee@samsung.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Changheun Lee <nanich.lee@samsung.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Christoph Hellwig <hch@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        seunghwan.hyun@samsung.com, sookwan7.kim@samsung.com,
+        yt0928.kim@samsung.com, junho89.kim@samsung.com,
+        jisoo2146.oh@samsung.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 13/53] mm: bdi: initialize bdi_min_ratio when bdi is unregistered
+Date:   Mon, 13 Dec 2021 10:29:52 +0100
+Message-Id: <20211213092928.803606948@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Manjong Lee <mj0123.lee@samsung.com>
 
-commit 4cd8371a234d051f9c9557fcbb1f8c523b1c0d10 upstream.
+commit 3c376dfafbf7a8ea0dea212d095ddd83e93280bb upstream.
 
-The done() netlink callback nfc_genl_dump_ses_done() should check if
-received argument is non-NULL, because its allocation could fail earlier
-in dumpit() (nfc_genl_dump_ses()).
+Initialize min_ratio if it is set during bdi unregistration.  This can
+prevent problems that may occur a when bdi is removed without resetting
+min_ratio.
 
-Fixes: ac22ac466a65 ("NFC: Add a GET_SE netlink API")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211209081307.57337-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+For example.
+1) insert external sdcard
+2) set external sdcard's min_ratio 70
+3) remove external sdcard without setting min_ratio 0
+4) insert external sdcard
+5) set external sdcard's min_ratio 70 << error occur(can't set)
+
+Because when an sdcard is removed, the present bdi_min_ratio value will
+remain.  Currently, the only way to reset bdi_min_ratio is to reboot.
+
+[akpm@linux-foundation.org: tweak comment and coding style]
+
+Link: https://lkml.kernel.org/r/20211021161942.5983-1-mj0123.lee@samsung.com
+Signed-off-by: Manjong Lee <mj0123.lee@samsung.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Changheun Lee <nanich.lee@samsung.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <seunghwan.hyun@samsung.com>
+Cc: <sookwan7.kim@samsung.com>
+Cc: <yt0928.kim@samsung.com>
+Cc: <junho89.kim@samsung.com>
+Cc: <jisoo2146.oh@samsung.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/netlink.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/backing-dev.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1403,8 +1403,10 @@ static int nfc_genl_dump_ses_done(struct
- {
- 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -942,6 +942,13 @@ void bdi_unregister(struct backing_dev_i
+ 	wb_shutdown(&bdi->wb);
+ 	cgwb_bdi_unregister(bdi);
  
--	nfc_device_iter_exit(iter);
--	kfree(iter);
-+	if (iter) {
-+		nfc_device_iter_exit(iter);
-+		kfree(iter);
-+	}
- 
- 	return 0;
- }
++	/*
++	 * If this BDI's min ratio has been set, use bdi_set_min_ratio() to
++	 * update the global bdi_min_ratio.
++	 */
++	if (bdi->min_ratio)
++		bdi_set_min_ratio(bdi, 0);
++
+ 	if (bdi->dev) {
+ 		bdi_debug_unregister(bdi);
+ 		device_unregister(bdi->dev);
 
 
