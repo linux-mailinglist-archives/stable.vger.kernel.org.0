@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 325AF4725AE
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:45:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 037C447244C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235180AbhLMJp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:45:27 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:36854 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231145AbhLMJnZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:43:25 -0500
+        id S234373AbhLMJf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:35:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48464 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233902AbhLMJel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9CC2ECE0DDE;
-        Mon, 13 Dec 2021 09:43:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EEEC341D9;
-        Mon, 13 Dec 2021 09:43:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE9DAB80E16;
+        Mon, 13 Dec 2021 09:34:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04400C341CA;
+        Mon, 13 Dec 2021 09:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388601;
-        bh=1TH5wYC6mxA/Q6kiTTGKLjo+TNP0CuvzZAtrLuK2/kw=;
+        s=korg; t=1639388078;
+        bh=xzVkQ9hdLO29h6SFG2SXAulAR8G5KxM/+U2yM8ovitM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+xswljOCMaGufaHJuyoAfqb8T8l2eYsRXaJIY/tidihEviMcxtNKeoTpMSBcTNqH
-         gw0RySUxlfJCC9ACC7cmeZ+TpgnH/B7bGZxi3FHq11gaUzyQ6BQDsc21q8eLt9kc/M
-         ZE6JhpzGkCZKJn1l4otqR1Ecv9PFcb6imLPdAmdg=
+        b=rthby03NgExDjGQ7PqGwi2Ru7BhaCzf5GbCWgGV2qpGgdLznlPYmEfstO7IW9xBPB
+         g5CvG/rrX+cC+Pkolj5uVCaxid2NXKjpjlMKTgjzERUC4pMVyEpD1HdlDNf4b2cVK9
+         +kMA++gHkCusWYd07B2uUu/nhUTGivZY/LAU+Mjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 33/88] btrfs: clear extent buffer uptodate when we fail to write it
-Date:   Mon, 13 Dec 2021 10:30:03 +0100
-Message-Id: <20211213092934.378921709@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Yabin Cui <yabinc@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 22/42] tracefs: Set all files to the same group ownership as the mount option
+Date:   Mon, 13 Dec 2021 10:30:04 +0100
+Message-Id: <20211213092927.298812141@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +50,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit c2e39305299f0118298c2201f6d6cc7d3485f29e upstream.
+commit 48b27b6b5191e2e1f2798cd80877b6e4ef47c351 upstream.
 
-I got dmesg errors on generic/281 on our overnight fstests.  Looking at
-the history this happens occasionally, with errors like this
+As people have been asking to allow non-root processes to have access to
+the tracefs directory, it was considered best to only allow groups to have
+access to the directory, where it is easier to just set the tracefs file
+system to a specific group (as other would be too dangerous), and that way
+the admins could pick which processes would have access to tracefs.
 
-  WARNING: CPU: 0 PID: 673217 at fs/btrfs/extent_io.c:6848 assert_eb_page_uptodate+0x3f/0x50
-  CPU: 0 PID: 673217 Comm: kworker/u4:13 Tainted: G        W         5.16.0-rc2+ #469
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  Workqueue: btrfs-cache btrfs_work_helper
-  RIP: 0010:assert_eb_page_uptodate+0x3f/0x50
-  RSP: 0018:ffffae598230bc60 EFLAGS: 00010246
-  RAX: 0017ffffc0002112 RBX: ffffebaec4100900 RCX: 0000000000001000
-  RDX: ffffebaec45733c7 RSI: ffffebaec4100900 RDI: ffff9fd98919f340
-  RBP: 0000000000000d56 R08: ffff9fd98e300000 R09: 0000000000000000
-  R10: 0001207370a91c50 R11: 0000000000000000 R12: 00000000000007b0
-  R13: ffff9fd98919f340 R14: 0000000001500000 R15: 0000000001cb0000
-  FS:  0000000000000000(0000) GS:ffff9fd9fbc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f549fcf8940 CR3: 0000000114908004 CR4: 0000000000370ef0
-  Call Trace:
+Unfortunately, this broke tooling on Android that expected the other bit
+to be set. For some special cases, for non-root tools to trace the system,
+tracefs would be mounted and change the permissions of the top level
+directory which gave access to all running tasks permission to the
+tracing directory. Even though this would be dangerous to do in a
+production environment, for testing environments this can be useful.
 
-   extent_buffer_test_bit+0x3f/0x70
-   free_space_test_bit+0xa6/0xc0
-   load_free_space_tree+0x1d6/0x430
-   caching_thread+0x454/0x630
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? lock_release+0x1f0/0x2d0
-   btrfs_work_helper+0xf2/0x3e0
-   ? lock_release+0x1f0/0x2d0
-   ? finish_task_switch.isra.0+0xf9/0x3a0
-   process_one_work+0x270/0x5a0
-   worker_thread+0x55/0x3c0
-   ? process_one_work+0x5a0/0x5a0
-   kthread+0x174/0x1a0
-   ? set_kthread_struct+0x40/0x40
-   ret_from_fork+0x1f/0x30
+Now with the new changes to not allow other (which is still the proper
+thing to do), it breaks the testing tooling. Now more code needs to be
+loaded on the system to change ownership of the tracing directory.
 
-This happens because we're trying to read from a extent buffer page that
-is !PageUptodate.  This happens because we will clear the page uptodate
-when we have an IO error, but we don't clear the extent buffer uptodate.
-If we do a read later and find this extent buffer we'll think its valid
-and not return an error, and then trip over this warning.
+The real solution is to have tracefs honor the gid=xxx option when
+mounting. That is,
 
-Fix this by also clearing uptodate on the extent buffer when this
-happens, so that we get an error when we do a btrfs_search_slot() and
-find this block later.
+(tracing group tracing has value 1003)
 
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+ mount -t tracefs -o gid=1003 tracefs /sys/kernel/tracing
+
+should have it that all files in the tracing directory should be of the
+given group.
+
+Copy the logic from d_walk() from dcache.c and simplify it for the mount
+case of tracefs if gid is set. All the files in tracefs will be walked and
+their group will be set to the value passed in.
+
+Link: https://lkml.kernel.org/r/20211207171729.2a54e1b3@gandalf.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Kalesh Singh <kaleshsingh@google.com>
+Reported-by: Yabin Cui <yabinc@google.com>
+Fixes: 49d67e445742 ("tracefs: Have tracefs directories not set OTH permission bits by default")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/tracefs/inode.c |   72 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3755,6 +3755,12 @@ static void set_btree_ioerr(struct page
- 		return;
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -162,6 +162,77 @@ struct tracefs_fs_info {
+ 	struct tracefs_mount_opts mount_opts;
+ };
  
- 	/*
-+	 * A read may stumble upon this buffer later, make sure that it gets an
-+	 * error and knows there was an error.
-+	 */
-+	clear_bit(EXTENT_BUFFER_UPTODATE, &eb->bflags);
++static void change_gid(struct dentry *dentry, kgid_t gid)
++{
++	if (!dentry->d_inode)
++		return;
++	dentry->d_inode->i_gid = gid;
++}
 +
++/*
++ * Taken from d_walk, but without he need for handling renames.
++ * Nothing can be renamed while walking the list, as tracefs
++ * does not support renames. This is only called when mounting
++ * or remounting the file system, to set all the files to
++ * the given gid.
++ */
++static void set_gid(struct dentry *parent, kgid_t gid)
++{
++	struct dentry *this_parent;
++	struct list_head *next;
++
++	this_parent = parent;
++	spin_lock(&this_parent->d_lock);
++
++	change_gid(this_parent, gid);
++repeat:
++	next = this_parent->d_subdirs.next;
++resume:
++	while (next != &this_parent->d_subdirs) {
++		struct list_head *tmp = next;
++		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
++		next = tmp->next;
++
++		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
++
++		change_gid(dentry, gid);
++
++		if (!list_empty(&dentry->d_subdirs)) {
++			spin_unlock(&this_parent->d_lock);
++			spin_release(&dentry->d_lock.dep_map, 1, _RET_IP_);
++			this_parent = dentry;
++			spin_acquire(&this_parent->d_lock.dep_map, 0, 1, _RET_IP_);
++			goto repeat;
++		}
++		spin_unlock(&dentry->d_lock);
++	}
 +	/*
- 	 * If we error out, we should add back the dirty_metadata_bytes
- 	 * to make it consistent.
- 	 */
++	 * All done at this level ... ascend and resume the search.
++	 */
++	rcu_read_lock();
++ascend:
++	if (this_parent != parent) {
++		struct dentry *child = this_parent;
++		this_parent = child->d_parent;
++
++		spin_unlock(&child->d_lock);
++		spin_lock(&this_parent->d_lock);
++
++		/* go into the first sibling still alive */
++		do {
++			next = child->d_child.next;
++			if (next == &this_parent->d_subdirs)
++				goto ascend;
++			child = list_entry(next, struct dentry, d_child);
++		} while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED));
++		rcu_read_unlock();
++		goto resume;
++	}
++	rcu_read_unlock();
++	spin_unlock(&this_parent->d_lock);
++	return;
++}
++
+ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ {
+ 	substring_t args[MAX_OPT_ARGS];
+@@ -194,6 +265,7 @@ static int tracefs_parse_options(char *d
+ 			if (!gid_valid(gid))
+ 				return -EINVAL;
+ 			opts->gid = gid;
++			set_gid(tracefs_mount->mnt_root, gid);
+ 			break;
+ 		case Opt_mode:
+ 			if (match_octal(&args[0], &option))
 
 
