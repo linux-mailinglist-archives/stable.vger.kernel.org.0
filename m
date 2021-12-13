@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D99A4472424
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D08247287F
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:14:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234088AbhLMJeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:34:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
+        id S240220AbhLMKNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:13:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234095AbhLMJdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:55 -0500
+        with ESMTP id S236585AbhLMJuk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:50:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01A8C0698CE;
-        Mon, 13 Dec 2021 01:33:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09884C08EA4D;
+        Mon, 13 Dec 2021 01:43:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBE24B80E17;
-        Mon, 13 Dec 2021 09:33:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E660C341C5;
-        Mon, 13 Dec 2021 09:33:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9926B80E0D;
+        Mon, 13 Dec 2021 09:43:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09F55C00446;
+        Mon, 13 Dec 2021 09:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388032;
-        bh=wkxb4IER6WP7MxNqEpaJIXsI5XtSIHnRc7ei7EB40G4=;
+        s=korg; t=1639388635;
+        bh=qaL9hFpM+r5NxmZBL+/90YyyA/lWxAEbd0RxlZd5EM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nsu69mZQwUHuiR8li92g0D105HH76w3oTGPTyd1cEXZYw7+pBUwVpVlMauIwpMZ/o
-         G4ghnPjOP+xyqn6+Sywv88IZ5QylQB2APBnYa8PrKs9EgYvs59H2ratUjS5rOndvVN
-         wrPBEHkdm5W9WXyewD0nynWiFiGsxmYyxbDsa2aQ=
+        b=VTepfc7h0KDM0CkxHw/V6bs6Csc0J1pZT7VwzpZTDwqO4yboUvYXNbcjabww3sZVw
+         +QBvXJs0A+Pa97n9YqC9F8nKo/adGcoTT9JkF8GUB1i6nfX0lCtZTx3YsW7iuuULZU
+         0qhATp7vGMe9EWkQxlBM/rJtHTQ7dQunraHoXBDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wudi Wang <wangwudi@hisilicon.com>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.4 36/37] irqchip/irq-gic-v3-its.c: Force synchronisation when issuing INVALL
+        "linux-kernel@vger.kernel.org, Linus Torvalds" 
+        <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 44/88] binder: use wake_up_pollfree()
 Date:   Mon, 13 Dec 2021 10:30:14 +0100
-Message-Id: <20211213092926.560909720@linuxfoundation.org>
+Message-Id: <20211213092934.782660686@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,38 +49,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wudi Wang <wangwudi@hisilicon.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit b383a42ca523ce54bcbd63f7c8f3cf974abc9b9a upstream.
+commit a880b28a71e39013e357fd3adccd1d8a31bc69a8 upstream.
 
-INVALL CMD specifies that the ITS must ensure any caching associated with
-the interrupt collection defined by ICID is consistent with the LPI
-configuration tables held in memory for all Redistributors. SYNC is
-required to ensure that INVALL is executed.
+wake_up_poll() uses nr_exclusive=1, so it's not guaranteed to wake up
+all exclusive waiters.  Yet, POLLFREE *must* wake up all waiters.  epoll
+and aio poll are fortunately not affected by this, but it's very
+fragile.  Thus, the new function wake_up_pollfree() has been introduced.
 
-Currently, LPI configuration data may be inconsistent with that in the
-memory within a short period of time after the INVALL command is executed.
+Convert binder to use wake_up_pollfree().
 
-Signed-off-by: Wudi Wang <wangwudi@hisilicon.com>
-Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Fixes: cc2d3216f53c ("irqchip: GICv3: ITS command queue")
-Link: https://lore.kernel.org/r/20211208015429.5007-1-zhangshaokun@hisilicon.com
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f5cb779ba163 ("ANDROID: binder: remove waitqueue when thread exits.")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211209010455.42744-3-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/android/binder.c |   21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -356,7 +356,7 @@ static struct its_collection *its_build_
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -4788,23 +4788,20 @@ static int binder_thread_release(struct
+ 	__release(&t->lock);
  
- 	its_fixup_cmd(cmd);
+ 	/*
+-	 * If this thread used poll, make sure we remove the waitqueue
+-	 * from any epoll data structures holding it with POLLFREE.
+-	 * waitqueue_active() is safe to use here because we're holding
+-	 * the inner lock.
++	 * If this thread used poll, make sure we remove the waitqueue from any
++	 * poll data structures holding it.
+ 	 */
+-	if ((thread->looper & BINDER_LOOPER_STATE_POLL) &&
+-	    waitqueue_active(&thread->wait)) {
+-		wake_up_poll(&thread->wait, EPOLLHUP | POLLFREE);
+-	}
++	if (thread->looper & BINDER_LOOPER_STATE_POLL)
++		wake_up_pollfree(&thread->wait);
  
--	return NULL;
-+	return desc->its_invall_cmd.col;
- }
+ 	binder_inner_proc_unlock(thread->proc);
  
- static u64 its_cmd_ptr_to_offset(struct its_node *its,
+ 	/*
+-	 * This is needed to avoid races between wake_up_poll() above and
+-	 * and ep_remove_waitqueue() called for other reasons (eg the epoll file
+-	 * descriptor being closed); ep_remove_waitqueue() holds an RCU read
+-	 * lock, so we can be sure it's done after calling synchronize_rcu().
++	 * This is needed to avoid races between wake_up_pollfree() above and
++	 * someone else removing the last entry from the queue for other reasons
++	 * (e.g. ep_remove_wait_queue() being called due to an epoll file
++	 * descriptor being closed).  Such other users hold an RCU read lock, so
++	 * we can be sure they're done after we call synchronize_rcu().
+ 	 */
+ 	if (thread->looper & BINDER_LOOPER_STATE_POLL)
+ 		synchronize_rcu();
 
 
