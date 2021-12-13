@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 393E24725F0
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:48:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B9EF4727D3
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234778AbhLMJsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:48:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56838 "EHLO
+        id S237699AbhLMKFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:05:11 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47726 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235806AbhLMJpS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:45:18 -0500
+        with ESMTP id S239445AbhLMKBx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2FEEB80E18;
-        Mon, 13 Dec 2021 09:45:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1834C00446;
-        Mon, 13 Dec 2021 09:45:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01A1BB80EAF;
+        Mon, 13 Dec 2021 10:01:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F4EC34601;
+        Mon, 13 Dec 2021 10:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388715;
-        bh=F85d8CnEHwkwiFEZuz/O8msa90o+9mBXZmkJBpSmwl8=;
+        s=korg; t=1639389710;
+        bh=XY+5QjQkfAzoqtBLjsjFlqQGFCZdy4KKgQnncCaeXJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbfHRVr8nxeGbonCraOKdS5AaAgNUrMJDP2Wds9ce3q/lp8IStPpeyVtIdX71viye
-         vCmfZztz2UlcP4ErDphtl3XMHQ1mzbndSuVqnhXbbOta4+NAH1fmBSgYAUbDe3D6xA
-         eU8UKX1t0drJLyeNxhGQizV5T/EGhpQckpPYoFe0=
+        b=x3t5qemKsh/tYE2hh8YHGDa8uuFYqa/L9KTACLD41UyrKq94zkWWytMxZlAo1FirJ
+         Q7YnP2bzrYk2eCllAnmAQLwZtDanhX+OD+Y7ybWBWUXl5GgL9Ea3LqmgviYcbNEoNw
+         wZUsotwyJDQqBBcUCopq1/nfJpJGFxrnd3GEiIgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 72/88] iio: stk3310: Dont return error code in interrupt handler
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.15 127/171] Documentation/locking/locktypes: Update migrate_disable() bits.
 Date:   Mon, 13 Dec 2021 10:30:42 +0100
-Message-Id: <20211213092935.731642387@linuxfoundation.org>
+Message-Id: <20211213092949.320735852@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 8e1eeca5afa7ba84d885987165dbdc5decf15413 upstream.
+commit 6a631c0432dcccbcf45839016a07c015e335e9ae upstream.
 
-Interrupt handlers must return one of the irqreturn_t values. Returning a
-error code is not supported.
+The initial implementation of migrate_disable() for mainline was a
+wrapper around preempt_disable(). RT kernels substituted this with
+a real migrate disable implementation.
 
-The stk3310 event interrupt handler returns an error code when reading the
-flags register fails.
+Later on mainline gained true migrate disable support, but the
+documentation was not updated.
 
-Fix the implementation to always return an irqreturn_t value.
+Update the documentation, remove the claims about migrate_disable()
+mapping to preempt_disable() on non-PREEMPT_RT kernels.
 
-Fixes: 3dd477acbdd1 ("iio: light: Add threshold interrupt support for STK3310")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211024171251.22896-3-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 74d862b682f51 ("sched: Make migrate_disable/enable() independent of RT")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20211127163200.10466-2-bigeasy@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/stk3310.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/locking/locktypes.rst |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/iio/light/stk3310.c
-+++ b/drivers/iio/light/stk3310.c
-@@ -544,9 +544,8 @@ static irqreturn_t stk3310_irq_event_han
- 	mutex_lock(&data->lock);
- 	ret = regmap_field_read(data->reg_flag_nf, &dir);
- 	if (ret < 0) {
--		dev_err(&data->client->dev, "register read failed\n");
--		mutex_unlock(&data->lock);
--		return ret;
-+		dev_err(&data->client->dev, "register read failed: %d\n", ret);
-+		goto out;
- 	}
- 	event = IIO_UNMOD_EVENT_CODE(IIO_PROXIMITY, 1,
- 				     IIO_EV_TYPE_THRESH,
-@@ -558,6 +557,7 @@ static irqreturn_t stk3310_irq_event_han
- 	ret = regmap_field_write(data->reg_flag_psint, 0);
- 	if (ret < 0)
- 		dev_err(&data->client->dev, "failed to reset interrupts\n");
-+out:
- 	mutex_unlock(&data->lock);
+--- a/Documentation/locking/locktypes.rst
++++ b/Documentation/locking/locktypes.rst
+@@ -439,11 +439,9 @@ preemption. The following substitution w
+   spin_lock(&p->lock);
+   p->count += this_cpu_read(var2);
  
- 	return IRQ_HANDLED;
+-On a non-PREEMPT_RT kernel migrate_disable() maps to preempt_disable()
+-which makes the above code fully equivalent. On a PREEMPT_RT kernel
+ migrate_disable() ensures that the task is pinned on the current CPU which
+ in turn guarantees that the per-CPU access to var1 and var2 are staying on
+-the same CPU.
++the same CPU while the task remains preemptible.
+ 
+ The migrate_disable() substitution is not valid for the following
+ scenario::
+@@ -456,9 +454,8 @@ scenario::
+     p = this_cpu_ptr(&var1);
+     p->val = func2();
+ 
+-While correct on a non-PREEMPT_RT kernel, this breaks on PREEMPT_RT because
+-here migrate_disable() does not protect against reentrancy from a
+-preempting task. A correct substitution for this case is::
++This breaks because migrate_disable() does not protect against reentrancy from
++a preempting task. A correct substitution for this case is::
+ 
+   func()
+   {
 
 
