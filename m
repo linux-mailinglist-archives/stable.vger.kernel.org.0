@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E9ED472746
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5C14724BB
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:38:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237873AbhLMJ70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:59:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59454 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239360AbhLMJ5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2C1C0698CB;
-        Mon, 13 Dec 2021 01:48:04 -0800 (PST)
+        id S233049AbhLMJiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:38:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50182 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234674AbhLMJgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:36:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA564B80E16;
-        Mon, 13 Dec 2021 09:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BC3C341C5;
-        Mon, 13 Dec 2021 09:48:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 314FBB80E12;
+        Mon, 13 Dec 2021 09:36:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 537CEC00446;
+        Mon, 13 Dec 2021 09:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388881;
-        bh=2q44ACTmjVvfo/LOu7ULER9yNMXuWZufbbaTR3V7Agk=;
+        s=korg; t=1639388196;
+        bh=pVG+aIstUQhMDIvK8kRJCFQg+6dyiDJ8AdjchX9L9tQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyHTlARbwigvmzRbk9h2N5HaEBRUlPtGTCc1PIDY4JqsDzR07x+8lBYBw84jsh9tq
-         ftv2YK/jVdplTPFJRJr/CgjyEQhUzupdt8eD764Hc4x1a9i1BcA72KjUYHcvsly10s
-         OMIk5okzH8F5hC8fPK+ZR6r5PmvNOF2z/GI/uTh8=
+        b=iJsVb/tqWyQItzBr+8oPXEbmiJ34eeU6Ja8+tP235kiL6KMx9PcAVlWKYDh/+P4qp
+         PWSuQHqLrcRcYmy/Q48j3IbaS+coZyFoW9oOEYbdrF079W8FYlJ8NRLnRx/Ur/dq16
+         PybwF3woqeWOF59ugFEjXtDqi17A1Rme0ivSjqQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 040/132] IB/hfi1: Correct guard on eager buffer deallocation
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.14 02/53] HID: add USB_HID dependancy to hid-prodikeys
 Date:   Mon, 13 Dec 2021 10:29:41 +0100
-Message-Id: <20211213092940.492071914@linuxfoundation.org>
+Message-Id: <20211213092928.435396647@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,35 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 9292f8f9a2ac42eb320bced7153aa2e63d8cc13a upstream.
+commit 30cb3c2ad24b66fb7639a6d1f4390c74d6e68f94 upstream.
 
-The code tests the dma address which legitimately can be 0.
+The prodikeys HID driver only controls USB devices, yet did not have a
+dependancy on USB_HID.  This causes build errors on some configurations
+like nios2 when building due to new changes to the prodikeys driver.
 
-The code should test the kernel logical address to avoid leaking eager
-buffer allocations that happen to map to a dma address of 0.
-
-Fixes: 60368186fd85 ("IB/hfi1: Fix user-space buffers mapping with IOMMU enabled")
-Link: https://lore.kernel.org/r/20211129191952.101968.17137.stgit@awfm-01.cornelisnetworks.com
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20211203081231.2856936-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/init.c |    2 +-
+ drivers/hid/Kconfig |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/hfi1/init.c
-+++ b/drivers/infiniband/hw/hfi1/init.c
-@@ -1148,7 +1148,7 @@ void hfi1_free_ctxtdata(struct hfi1_devd
- 	rcd->egrbufs.rcvtids = NULL;
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -209,7 +209,7 @@ config HID_CORSAIR
  
- 	for (e = 0; e < rcd->egrbufs.alloced; e++) {
--		if (rcd->egrbufs.buffers[e].dma)
-+		if (rcd->egrbufs.buffers[e].addr)
- 			dma_free_coherent(&dd->pcidev->dev,
- 					  rcd->egrbufs.buffers[e].len,
- 					  rcd->egrbufs.buffers[e].addr,
+ config HID_PRODIKEYS
+ 	tristate "Prodikeys PC-MIDI Keyboard support"
+-	depends on HID && SND
++	depends on USB_HID && SND
+ 	select SND_RAWMIDI
+ 	---help---
+ 	Support for Prodikeys PC-MIDI Keyboard device support.
 
 
