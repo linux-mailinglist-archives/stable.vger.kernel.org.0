@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6E747243C
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A7FD4729AA
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234047AbhLMJfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:35:10 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58892 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234058AbhLMJeV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:21 -0500
+        id S239392AbhLMKXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:23:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36414 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239751AbhLMKQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:16:52 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFDAFC0497D9;
+        Mon, 13 Dec 2021 01:56:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 192F6CE0E8B;
-        Mon, 13 Dec 2021 09:34:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B965CC341C8;
-        Mon, 13 Dec 2021 09:34:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 54399CE0F05;
+        Mon, 13 Dec 2021 09:56:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E62C34600;
+        Mon, 13 Dec 2021 09:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388058;
-        bh=2h2SHIPC2S9rx7FduwV2BKAFGGp9otTwfecsbTSF6iw=;
+        s=korg; t=1639389358;
+        bh=a2BFfPbrKbDTfveB/o92aledJHuINTQe80Jc0uFM1W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIdDILMc5FO7oum8uzRALnfHDV5FBm0Bww5DukGTkBeWaeWkR+d0LrpYa6xeh2szH
-         Ypp+C0KhjBs7G4B7MNnYOb0WleCelBxff7nCS7KeWZW59j9AojHZUnamtlgALZwmKy
-         AUamNdWvx8jRHx/WzTy9oERmEdBREjeduSOTaV9I=
+        b=kBCHpwwg13nWL5VJqORLI/RibAehhrdM2bfxdyMnJy7YgqD5pwmMdgS80gohoCn79
+         VrG3lmYI2tO3axQtty0wQsaVE/vXQPr1JbZ3q5B0sxiZhzcrgkEn/Mmw0K/qAjATWk
+         pPfIH/1ENJl8i3chXZk0QhF5ugD33+iiXcJicrPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 4.9 06/42] HID: wacom: fix problems when device is not a valid USB device
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 073/171] btrfs: fix re-dirty process of tree-log nodes
 Date:   Mon, 13 Dec 2021 10:29:48 +0100
-Message-Id: <20211213092926.780562238@linuxfoundation.org>
+Message-Id: <20211213092947.533304578@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +49,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 720ac467204a70308bd687927ed475afb904e11b upstream.
+commit 84c25448929942edacba905cecc0474e91114e7a upstream.
 
-The wacom driver accepts devices of more than just USB types, but some
-code paths can cause problems if the device being controlled is not a
-USB device due to a lack of checking.  Add the needed checks to ensure
-that the USB device accesses are only happening on a "real" USB device,
-and not one on some other bus.
+There is a report of a transaction abort of -EAGAIN with the following
+script.
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Cc: stable@vger.kernel.org
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211201183503.2373082-2-gregkh@linuxfoundation.org
+  #!/bin/sh
+
+  for d in sda sdb; do
+          mkfs.btrfs -d single -m single -f /dev/\${d}
+  done
+
+  mount /dev/sda /mnt/test
+  mount /dev/sdb /mnt/scratch
+
+  for dir in test scratch; do
+          echo 3 >/proc/sys/vm/drop_caches
+          fio --directory=/mnt/\${dir} --name=fio.\${dir} --rw=read --size=50G --bs=64m \
+                  --numjobs=$(nproc) --time_based --ramp_time=5 --runtime=480 \
+                  --group_reporting |& tee /dev/shm/fio.\${dir}
+          echo 3 >/proc/sys/vm/drop_caches
+  done
+
+  for d in sda sdb; do
+          umount /dev/\${d}
+  done
+
+The stack trace is shown in below.
+
+  [3310.967991] BTRFS: error (device sda) in btrfs_commit_transaction:2341: errno=-11 unknown (Error while writing out transaction)
+  [3310.968060] BTRFS info (device sda): forced readonly
+  [3310.968064] BTRFS warning (device sda): Skipping commit of aborted transaction.
+  [3310.968065] ------------[ cut here ]------------
+  [3310.968066] BTRFS: Transaction aborted (error -11)
+  [3310.968074] WARNING: CPU: 14 PID: 1684 at fs/btrfs/transaction.c:1946 btrfs_commit_transaction.cold+0x209/0x2c8
+  [3310.968131] CPU: 14 PID: 1684 Comm: fio Not tainted 5.14.10-300.fc35.x86_64 #1
+  [3310.968135] Hardware name: DIAWAY Tartu/Tartu, BIOS V2.01.B10 04/08/2021
+  [3310.968137] RIP: 0010:btrfs_commit_transaction.cold+0x209/0x2c8
+  [3310.968144] RSP: 0018:ffffb284ce393e10 EFLAGS: 00010282
+  [3310.968147] RAX: 0000000000000026 RBX: ffff973f147b0f60 RCX: 0000000000000027
+  [3310.968149] RDX: ffff974ecf098a08 RSI: 0000000000000001 RDI: ffff974ecf098a00
+  [3310.968150] RBP: ffff973f147b0f08 R08: 0000000000000000 R09: ffffb284ce393c48
+  [3310.968151] R10: ffffb284ce393c40 R11: ffffffff84f47468 R12: ffff973f101bfc00
+  [3310.968153] R13: ffff971f20cf2000 R14: 00000000fffffff5 R15: ffff973f147b0e58
+  [3310.968154] FS:  00007efe65468740(0000) GS:ffff974ecf080000(0000) knlGS:0000000000000000
+  [3310.968157] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [3310.968158] CR2: 000055691bcbe260 CR3: 000000105cfa4001 CR4: 0000000000770ee0
+  [3310.968160] PKRU: 55555554
+  [3310.968161] Call Trace:
+  [3310.968167]  ? dput+0xd4/0x300
+  [3310.968174]  btrfs_sync_file+0x3f1/0x490
+  [3310.968180]  __x64_sys_fsync+0x33/0x60
+  [3310.968185]  do_syscall_64+0x3b/0x90
+  [3310.968190]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [3310.968194] RIP: 0033:0x7efe6557329b
+  [3310.968200] RSP: 002b:00007ffe0236ebc0 EFLAGS: 00000293 ORIG_RAX: 000000000000004a
+  [3310.968203] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007efe6557329b
+  [3310.968204] RDX: 0000000000000000 RSI: 00007efe58d77010 RDI: 0000000000000006
+  [3310.968205] RBP: 0000000004000000 R08: 0000000000000000 R09: 00007efe58d77010
+  [3310.968207] R10: 0000000016cacc0c R11: 0000000000000293 R12: 00007efe5ce95980
+  [3310.968208] R13: 0000000000000000 R14: 00007efe6447c790 R15: 0000000c80000000
+  [3310.968212] ---[ end trace 1a346f4d3c0d96ba ]---
+  [3310.968214] BTRFS: error (device sda) in cleanup_transaction:1946: errno=-11 unknown
+
+The abort occurs because of a write hole while writing out freeing tree
+nodes of a tree-log tree. For zoned btrfs, we re-dirty a freed tree
+node to ensure btrfs can write the region and does not leave a hole on
+write on a zoned device. The current code fails to re-dirty a node
+when the tree-log tree's depth is greater or equal to 2. That leads to
+a transaction abort with -EAGAIN.
+
+Fix the issue by properly re-dirtying a node on walking up the tree.
+
+Fixes: d3575156f662 ("btrfs: zoned: redirty released extent buffers")
+CC: stable@vger.kernel.org # 5.12+
+Link: https://github.com/kdave/btrfs-progs/issues/415
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_sys.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ fs/btrfs/tree-log.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -506,7 +506,7 @@ static void wacom_retrieve_hid_descripto
- 	 * Skip the query for this type and modify defaults based on
- 	 * interface number.
- 	 */
--	if (features->type == WIRELESS) {
-+	if (features->type == WIRELESS && intf) {
- 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
- 			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
- 		else
-@@ -2115,6 +2115,9 @@ static void wacom_wireless_work(struct w
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -2879,6 +2879,8 @@ static noinline int walk_up_log_tree(str
+ 						     path->nodes[*level]->len);
+ 					if (ret)
+ 						return ret;
++					btrfs_redirty_list_add(trans->transaction,
++							       next);
+ 				} else {
+ 					if (test_and_clear_bit(EXTENT_BUFFER_DIRTY, &next->bflags))
+ 						clear_extent_buffer_dirty(next);
+@@ -2959,6 +2961,7 @@ static int walk_log_tree(struct btrfs_tr
+ 						next->start, next->len);
+ 				if (ret)
+ 					goto out;
++				btrfs_redirty_list_add(trans->transaction, next);
+ 			} else {
+ 				if (test_and_clear_bit(EXTENT_BUFFER_DIRTY, &next->bflags))
+ 					clear_extent_buffer_dirty(next);
+@@ -3412,8 +3415,6 @@ static void free_log_tree(struct btrfs_t
+ 			  EXTENT_DIRTY | EXTENT_NEW | EXTENT_NEED_WAIT);
+ 	extent_io_tree_release(&log->log_csum_range);
  
- 	wacom_destroy_battery(wacom);
+-	if (trans && log->node)
+-		btrfs_redirty_list_add(trans->transaction, log->node);
+ 	btrfs_put_root(log);
+ }
  
-+	if (!usbdev)
-+		return;
-+
- 	/* Stylus interface */
- 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
- 	wacom1 = hid_get_drvdata(hdev1);
-@@ -2354,8 +2357,6 @@ static void wacom_remote_work(struct wor
- static int wacom_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
- {
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *dev = interface_to_usbdev(intf);
- 	struct wacom *wacom;
- 	struct wacom_wac *wacom_wac;
- 	struct wacom_features *features;
-@@ -2388,8 +2389,14 @@ static int wacom_probe(struct hid_device
- 	wacom_wac->hid_data.inputmode = -1;
- 	wacom_wac->mode_report = -1;
- 
--	wacom->usbdev = dev;
--	wacom->intf = intf;
-+	if (hid_is_usb(hdev)) {
-+		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+		struct usb_device *dev = interface_to_usbdev(intf);
-+
-+		wacom->usbdev = dev;
-+		wacom->intf = intf;
-+	}
-+
- 	mutex_init(&wacom->lock);
- 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
- 	INIT_WORK(&wacom->battery_work, wacom_battery_work);
 
 
