@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EECDC47269F
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:56:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EFD4726A4
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:56:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236687AbhLMJxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:53:42 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:46645 "EHLO
+        id S236920AbhLMJxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:53:48 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22420 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234093AbhLMJuU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:50:20 -0500
+        by vger.kernel.org with ESMTP id S237272AbhLMJu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:50:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639389019;
+        s=mimecast20190719; t=1639389053;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding;
-        bh=KDYQOwQx4rZacCg3r7QLOnuW80bM6mm0dkDvri3LFO8=;
-        b=AgoKjKglgnVMfnXoydf+Ml7wQ/i/znaVQ1CmUM7GMILK5EDzaGxFpnqEyFY/yoBfJFwN4x
-        ZkHCCyLmGY0it6FIfY2rrWCAWCtt/cSg1BOHmEq70qj/GlE2ELof+2xEMNYg0269OAmOks
-        3z+yZ1jyVW2OeFBEbuBlSYqLloDmyz4=
+        bh=hEYDwiRZdRj8CPwPXNiOfGLs/2n90iYIX4FN3EKBsTE=;
+        b=jWTEIFdkKAm6iIur85uRGFsR6Uptc49SxJbShc8W4Jv6qfcjwr2wASJ+yOwJzNak6Afale
+        Srmvz9wPkLntx0oFxButY+zw2DVfOYLqYJXFnuOTUWOGZJJ4N8Bx+nDmY/gK4mTxzw7wPv
+        5grhMHtaItSB/s9nlfYPageIm9Zz3V8=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-108-x0LyZ0OaMz6JG9zJ-VFRXw-1; Mon, 13 Dec 2021 04:50:15 -0500
-X-MC-Unique: x0LyZ0OaMz6JG9zJ-VFRXw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+ us-mta-466-f3IbZK45PSKOcyvcHXqaTg-1; Mon, 13 Dec 2021 04:50:49 -0500
+X-MC-Unique: f3IbZK45PSKOcyvcHXqaTg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BF187874981;
-        Mon, 13 Dec 2021 09:50:14 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F01AA10151E1;
+        Mon, 13 Dec 2021 09:50:48 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.40.193.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 578335D6BA;
-        Mon, 13 Dec 2021 09:50:13 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 88B7C22E0C;
+        Mon, 13 Dec 2021 09:50:47 +0000 (UTC)
 From:   Vitaly Kuznetsov <vkuznets@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     Paolo Bonzini <pbonzini@redhat.com>,
         Sean Christopherson <seanjc@google.com>,
         gregkh@linuxfoundation.org
-Subject: [PATCH 5.10] KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
-Date:   Mon, 13 Dec 2021 10:50:12 +0100
-Message-Id: <20211213095012.15021-1-vkuznets@redhat.com>
+Subject: [PATCH 5.4] KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
+Date:   Mon, 13 Dec 2021 10:50:46 +0100
+Message-Id: <20211213095046.15147-1-vkuznets@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -78,10 +78,10 @@ Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
  1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index bb39f493447c..328f37e4fd3a 100644
+index 26408434b9bc..be92e8dccda3 100644
 --- a/arch/x86/kvm/hyperv.c
 +++ b/arch/x86/kvm/hyperv.c
-@@ -1641,11 +1641,13 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
+@@ -1501,11 +1501,13 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
  
  		all_cpus = send_ipi_ex.vp_set.format == HV_GENERIC_SET_ALL;
  
@@ -97,7 +97,7 @@ index bb39f493447c..328f37e4fd3a 100644
  				   ingpa + offsetof(struct hv_send_ipi_ex,
  						    vp_set.bank_contents),
  				   sparse_banks,
-@@ -1653,6 +1655,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
+@@ -1513,6 +1515,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
  			return HV_STATUS_INVALID_HYPERCALL_INPUT;
  	}
  
