@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 783314728AD
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59ED4472569
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241341AbhLMKOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60354 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241106AbhLMKDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:03:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCBC0C034611;
-        Mon, 13 Dec 2021 01:49:54 -0800 (PST)
+        id S235222AbhLMJnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:40 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:35180 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234685AbhLMJkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5069BCE0B59;
-        Mon, 13 Dec 2021 09:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC856C341E1;
-        Mon, 13 Dec 2021 09:49:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E9833CE0E90;
+        Mon, 13 Dec 2021 09:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A7A1C00446;
+        Mon, 13 Dec 2021 09:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388992;
-        bh=uIDncuiC/A7Ee30gu0hRPQ5UTY0Qqgw/rzlF2F3pE6E=;
+        s=korg; t=1639388437;
+        bh=6RP7LFbroYQq7YSzXij1ZZIFcV0faInOC+Bzv1HeYf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HB7JvArgvEdQqVwJa0mYGotkRH/gcGnIG/3xpJbZB3lm8oesYZg3cKxtttN6uRLjc
-         e5AYiyly/CnHrWHXPBazFG3dGwBSH92lpe3g/W6KPEjIsS4c16qevKZNbuex1aYKMo
-         nkEAMn55ARhL19Ls23BPycoXV+NkF6fk+C/VgB4c=
+        b=eE+7iMqKou2wqDY64l1QvDSgGo17/VM/4P4RBcNjNW/meyGrCivA9MaU3Vq/fCAMy
+         b9mxCqt0ERiKHw07jeklHpBUyxF+KgMHi3LQzV4A8qRIJF/MJ/Xh7Blv+mpC0WmjjO
+         tD1XMUaY8zHGJnqy5DH8/jrSgCDoJX4+OihDlL7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 079/132] ASoC: codecs: wcd934x: handle channel mappping list correctly
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 49/74] net, neigh: clear whole pneigh_entry at alloc time
 Date:   Mon, 13 Dec 2021 10:30:20 +0100
-Message-Id: <20211213092941.835660859@linuxfoundation.org>
+Message-Id: <20211213092932.453389631@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,196 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 23ba28616d3063bd4c4953598ed5e439ca891101 upstream.
+commit e195e9b5dee6459d8c8e6a314cc71a644a0537fd upstream.
 
-Currently each channel is added as list to dai channel list, however
-there is danger of adding same channel to multiple dai channel list
-which endups corrupting the other list where its already added.
+Commit 2c611ad97a82 ("net, neigh: Extend neigh->flags to 32 bit
+to allow for extensions") enables a new KMSAM warning [1]
 
-This patch ensures that the channel is actually free before adding to
-the dai channel list and also ensures that the channel is on the list
-before deleting it.
+I think the bug is actually older, because the following intruction
+only occurred if ndm->ndm_flags had NTF_PROXY set.
 
-This check was missing previously, and we did not hit this issue as
-we were testing very simple usecases with sequence of amixer commands.
+	pn->flags = ndm->ndm_flags;
 
-Fixes: a70d9245759a ("ASoC: wcd934x: add capture dapm widgets")
-Fixes: dd9eb19b5673 ("ASoC: wcd934x: add playback dapm widgets")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211130160507.22180-2-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Let's clear all pneigh_entry fields at alloc time.
+
+[1]
+BUG: KMSAN: uninit-value in pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
+ pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
+ pneigh_dump_table net/core/neighbour.c:2715 [inline]
+ neigh_dump_info+0x1e3f/0x2c60 net/core/neighbour.c:2832
+ netlink_dump+0xaca/0x16a0 net/netlink/af_netlink.c:2265
+ __netlink_dump_start+0xd1c/0xee0 net/netlink/af_netlink.c:2370
+ netlink_dump_start include/linux/netlink.h:254 [inline]
+ rtnetlink_rcv_msg+0x181b/0x18c0 net/core/rtnetlink.c:5534
+ netlink_rcv_skb+0x447/0x800 net/netlink/af_netlink.c:2491
+ rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5589
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x1095/0x1360 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x16f3/0x1870 net/netlink/af_netlink.c:1916
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ sock_write_iter+0x594/0x690 net/socket.c:1057
+ call_write_iter include/linux/fs.h:2162 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0x1318/0x2030 fs/read_write.c:590
+ ksys_write+0x28c/0x520 fs/read_write.c:643
+ __do_sys_write fs/read_write.c:655 [inline]
+ __se_sys_write fs/read_write.c:652 [inline]
+ __x64_sys_write+0xdb/0x120 fs/read_write.c:652
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ slab_alloc mm/slub.c:3259 [inline]
+ __kmalloc+0xc3c/0x12d0 mm/slub.c:4437
+ kmalloc include/linux/slab.h:595 [inline]
+ pneigh_lookup+0x60f/0xd70 net/core/neighbour.c:766
+ arp_req_set_public net/ipv4/arp.c:1016 [inline]
+ arp_req_set+0x430/0x10a0 net/ipv4/arp.c:1032
+ arp_ioctl+0x8d4/0xb60 net/ipv4/arp.c:1232
+ inet_ioctl+0x4ef/0x820 net/ipv4/af_inet.c:947
+ sock_do_ioctl net/socket.c:1118 [inline]
+ sock_ioctl+0xa3f/0x13e0 net/socket.c:1235
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:874 [inline]
+ __se_sys_ioctl+0x2df/0x4a0 fs/ioctl.c:860
+ __x64_sys_ioctl+0xd8/0x110 fs/ioctl.c:860
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+CPU: 1 PID: 20001 Comm: syz-executor.0 Not tainted 5.16.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 62dd93181aaa ("[IPV6] NDISC: Set per-entry is_router flag in Proxy NA.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20211206165329.1049835-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wcd934x.c |  119 +++++++++++++++++++++++++++++++++------------
- 1 file changed, 88 insertions(+), 31 deletions(-)
+ net/core/neighbour.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/codecs/wcd934x.c
-+++ b/sound/soc/codecs/wcd934x.c
-@@ -2540,6 +2540,31 @@ static int slim_rx_mux_get(struct snd_kc
- 	return 0;
- }
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -635,7 +635,7 @@ struct pneigh_entry * pneigh_lookup(stru
  
-+static int slim_rx_mux_to_dai_id(int mux)
-+{
-+	int aif_id;
-+
-+	switch (mux) {
-+	case 1:
-+		aif_id = AIF1_PB;
-+		break;
-+	case 2:
-+		aif_id = AIF2_PB;
-+		break;
-+	case 3:
-+		aif_id = AIF3_PB;
-+		break;
-+	case 4:
-+		aif_id = AIF4_PB;
-+		break;
-+	default:
-+		aif_id = -1;
-+		break;
-+	}
-+
-+	return aif_id;
-+}
-+
- static int slim_rx_mux_put(struct snd_kcontrol *kc,
- 			   struct snd_ctl_elem_value *ucontrol)
- {
-@@ -2547,43 +2572,59 @@ static int slim_rx_mux_put(struct snd_kc
- 	struct wcd934x_codec *wcd = dev_get_drvdata(w->dapm->dev);
- 	struct soc_enum *e = (struct soc_enum *)kc->private_value;
- 	struct snd_soc_dapm_update *update = NULL;
-+	struct wcd934x_slim_ch *ch, *c;
- 	u32 port_id = w->shift;
-+	bool found = false;
-+	int mux_idx;
-+	int prev_mux_idx = wcd->rx_port_value[port_id];
-+	int aif_id;
+ 	ASSERT_RTNL();
  
--	if (wcd->rx_port_value[port_id] == ucontrol->value.enumerated.item[0])
--		return 0;
-+	mux_idx = ucontrol->value.enumerated.item[0];
+-	n = kmalloc(sizeof(*n) + key_len, GFP_KERNEL);
++	n = kzalloc(sizeof(*n) + key_len, GFP_KERNEL);
+ 	if (!n)
+ 		goto out;
  
--	wcd->rx_port_value[port_id] = ucontrol->value.enumerated.item[0];
-+	if (mux_idx == prev_mux_idx)
-+		return 0;
- 
--	switch (wcd->rx_port_value[port_id]) {
-+	switch(mux_idx) {
- 	case 0:
--		list_del_init(&wcd->rx_chs[port_id].list);
--		break;
--	case 1:
--		list_add_tail(&wcd->rx_chs[port_id].list,
--			      &wcd->dai[AIF1_PB].slim_ch_list);
--		break;
--	case 2:
--		list_add_tail(&wcd->rx_chs[port_id].list,
--			      &wcd->dai[AIF2_PB].slim_ch_list);
--		break;
--	case 3:
--		list_add_tail(&wcd->rx_chs[port_id].list,
--			      &wcd->dai[AIF3_PB].slim_ch_list);
-+		aif_id = slim_rx_mux_to_dai_id(prev_mux_idx);
-+		if (aif_id < 0)
-+			return 0;
-+
-+		list_for_each_entry_safe(ch, c, &wcd->dai[aif_id].slim_ch_list, list) {
-+			if (ch->port == port_id + WCD934X_RX_START) {
-+				found = true;
-+				list_del_init(&ch->list);
-+				break;
-+			}
-+		}
-+		if (!found)
-+			return 0;
-+
- 		break;
--	case 4:
--		list_add_tail(&wcd->rx_chs[port_id].list,
--			      &wcd->dai[AIF4_PB].slim_ch_list);
-+	case 1 ... 4:
-+		aif_id = slim_rx_mux_to_dai_id(mux_idx);
-+		if (aif_id < 0)
-+			return 0;
-+
-+		if (list_empty(&wcd->rx_chs[port_id].list)) {
-+			list_add_tail(&wcd->rx_chs[port_id].list,
-+				      &wcd->dai[aif_id].slim_ch_list);
-+		} else {
-+			dev_err(wcd->dev ,"SLIM_RX%d PORT is busy\n", port_id);
-+			return 0;
-+		}
- 		break;
-+
- 	default:
--		dev_err(wcd->dev, "Unknown AIF %d\n",
--			wcd->rx_port_value[port_id]);
-+		dev_err(wcd->dev, "Unknown AIF %d\n", mux_idx);
- 		goto err;
- 	}
- 
-+	wcd->rx_port_value[port_id] = mux_idx;
- 	snd_soc_dapm_mux_update_power(w->dapm, kc, wcd->rx_port_value[port_id],
- 				      e, update);
- 
--	return 0;
-+	return 1;
- err:
- 	return -EINVAL;
- }
-@@ -3029,6 +3070,7 @@ static int slim_tx_mixer_put(struct snd_
- 	struct soc_mixer_control *mixer =
- 			(struct soc_mixer_control *)kc->private_value;
- 	int enable = ucontrol->value.integer.value[0];
-+	struct wcd934x_slim_ch *ch, *c;
- 	int dai_id = widget->shift;
- 	int port_id = mixer->shift;
- 
-@@ -3036,17 +3078,32 @@ static int slim_tx_mixer_put(struct snd_
- 	if (enable == wcd->tx_port_value[port_id])
- 		return 0;
- 
--	wcd->tx_port_value[port_id] = enable;
--
--	if (enable)
--		list_add_tail(&wcd->tx_chs[port_id].list,
--			      &wcd->dai[dai_id].slim_ch_list);
--	else
--		list_del_init(&wcd->tx_chs[port_id].list);
-+	if (enable) {
-+		if (list_empty(&wcd->tx_chs[port_id].list)) {
-+			list_add_tail(&wcd->tx_chs[port_id].list,
-+				      &wcd->dai[dai_id].slim_ch_list);
-+		} else {
-+			dev_err(wcd->dev ,"SLIM_TX%d PORT is busy\n", port_id);
-+			return 0;
-+		}
-+	 } else {
-+		bool found = false;
-+
-+		list_for_each_entry_safe(ch, c, &wcd->dai[dai_id].slim_ch_list, list) {
-+			if (ch->port == port_id) {
-+				found = true;
-+				list_del_init(&wcd->tx_chs[port_id].list);
-+				break;
-+			}
-+		}
-+		if (!found)
-+			return 0;
-+	 }
- 
-+	wcd->tx_port_value[port_id] = enable;
- 	snd_soc_dapm_mixer_update_power(widget->dapm, kc, enable, update);
- 
--	return 0;
-+	return 1;
- }
- 
- static const struct snd_kcontrol_new aif1_slim_cap_mixer[] = {
 
 
