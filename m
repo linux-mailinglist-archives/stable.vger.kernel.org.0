@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0057047297F
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9ED472746
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245445AbhLMKVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:21:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36942 "EHLO
+        id S237873AbhLMJ70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241338AbhLMKTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:19:13 -0500
+        with ESMTP id S239360AbhLMJ5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E292C07E5E8;
-        Mon, 13 Dec 2021 01:57:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2C1C0698CB;
+        Mon, 13 Dec 2021 01:48:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D93FFB80E3B;
-        Mon, 13 Dec 2021 09:57:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0403EC34602;
-        Mon, 13 Dec 2021 09:57:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA564B80E16;
+        Mon, 13 Dec 2021 09:48:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BC3C341C5;
+        Mon, 13 Dec 2021 09:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389448;
-        bh=WSBMlSj3netYVws4JHsCVsVxkph0WtAYIZlKgy23Xbc=;
+        s=korg; t=1639388881;
+        bh=2q44ACTmjVvfo/LOu7ULER9yNMXuWZufbbaTR3V7Agk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLb/vmb9SEGispZhPaRo2WJjL4IcsTnlEsT+7mKfXsPPqTZHAw2Eye0v2Nx4fUdGG
-         Y5o0En+Uk8XqjN98KYWNffHbQRK8nwnIAPQXQgh+7Rpg3iIrN0X/RTuCUbB/u1oQ16
-         wafRZmtEuVgxnbxuFFqZ+wpAqsW4P+X0VAozD5cg=
+        b=GyHTlARbwigvmzRbk9h2N5HaEBRUlPtGTCc1PIDY4JqsDzR07x+8lBYBw84jsh9tq
+         ftv2YK/jVdplTPFJRJr/CgjyEQhUzupdt8eD764Hc4x1a9i1BcA72KjUYHcvsly10s
+         OMIk5okzH8F5hC8fPK+ZR6r5PmvNOF2z/GI/uTh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 066/171] ALSA: hda/realtek: Fix quirk for TongFang PHxTxX1
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 040/132] IB/hfi1: Correct guard on eager buffer deallocation
 Date:   Mon, 13 Dec 2021 10:29:41 +0100
-Message-Id: <20211213092947.299796514@linuxfoundation.org>
+Message-Id: <20211213092940.492071914@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,102 +49,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit 619764cc2ec9ce1283a8bbcd89a1376a7c68293b upstream.
+commit 9292f8f9a2ac42eb320bced7153aa2e63d8cc13a upstream.
 
-This fixes the SND_PCI_QUIRK(...) of the TongFang PHxTxX1 barebone. This
-fixes the issue of sound not working after s3 suspend.
+The code tests the dma address which legitimately can be 0.
 
-When waking up from s3 suspend the Coef 0x10 is set to 0x0220 instead of
-0x0020. Setting the value manually makes the sound work again. This patch
-does this automatically.
+The code should test the kernel logical address to avoid leaking eager
+buffer allocations that happen to map to a dma address of 0.
 
-While being on it, I also fixed the comment formatting of the quirk and
-shortened variable and function names.
-
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Fixes: dd6dd6e3c791 ("ALSA: hda/realtek: Add quirk for TongFang PHxTxX1")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211202165010.876431-1-wse@tuxedocomputers.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 60368186fd85 ("IB/hfi1: Fix user-space buffers mapping with IOMMU enabled")
+Link: https://lore.kernel.org/r/20211129191952.101968.17137.stgit@awfm-01.cornelisnetworks.com
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   40 ++++++++++++++++++++++------------------
- 1 file changed, 22 insertions(+), 18 deletions(-)
+ drivers/infiniband/hw/hfi1/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6503,22 +6503,26 @@ static void alc287_fixup_legion_15imhg05
- /* for alc285_fixup_ideapad_s740_coef() */
- #include "ideapad_s740_helper.c"
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -1148,7 +1148,7 @@ void hfi1_free_ctxtdata(struct hfi1_devd
+ 	rcd->egrbufs.rcvtids = NULL;
  
--static void alc256_fixup_tongfang_reset_persistent_settings(struct hda_codec *codec,
--							    const struct hda_fixup *fix,
--							    int action)
-+static const struct coef_fw alc256_fixup_set_coef_defaults_coefs[] = {
-+	WRITE_COEF(0x10, 0x0020), WRITE_COEF(0x24, 0x0000),
-+	WRITE_COEF(0x26, 0x0000), WRITE_COEF(0x29, 0x3000),
-+	WRITE_COEF(0x37, 0xfe05), WRITE_COEF(0x45, 0x5089),
-+	{}
-+};
-+
-+static void alc256_fixup_set_coef_defaults(struct hda_codec *codec,
-+					   const struct hda_fixup *fix,
-+					   int action)
- {
- 	/*
--	* A certain other OS sets these coeffs to different values. On at least one TongFang
--	* barebone these settings might survive even a cold reboot. So to restore a clean slate the
--	* values are explicitly reset to default here. Without this, the external microphone is
--	* always in a plugged-in state, while the internal microphone is always in an unplugged
--	* state, breaking the ability to use the internal microphone.
--	*/
--	alc_write_coef_idx(codec, 0x24, 0x0000);
--	alc_write_coef_idx(codec, 0x26, 0x0000);
--	alc_write_coef_idx(codec, 0x29, 0x3000);
--	alc_write_coef_idx(codec, 0x37, 0xfe05);
--	alc_write_coef_idx(codec, 0x45, 0x5089);
-+	 * A certain other OS sets these coeffs to different values. On at least
-+	 * one TongFang barebone these settings might survive even a cold
-+	 * reboot. So to restore a clean slate the values are explicitly reset
-+	 * to default here. Without this, the external microphone is always in a
-+	 * plugged-in state, while the internal microphone is always in an
-+	 * unplugged state, breaking the ability to use the internal microphone.
-+	 */
-+	alc_process_coef_fw(codec, alc256_fixup_set_coef_defaults_coefs);
- }
- 
- static const struct coef_fw alc233_fixup_no_audio_jack_coefs[] = {
-@@ -6759,7 +6763,7 @@ enum {
- 	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
- 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
- 	ALC287_FIXUP_13S_GEN2_SPEAKERS,
--	ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS,
-+	ALC256_FIXUP_SET_COEF_DEFAULTS,
- 	ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE,
- 	ALC233_FIXUP_NO_AUDIO_JACK,
- };
-@@ -8465,9 +8469,9 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MODE,
- 	},
--	[ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS] = {
-+	[ALC256_FIXUP_SET_COEF_DEFAULTS] = {
- 		.type = HDA_FIXUP_FUNC,
--		.v.func = alc256_fixup_tongfang_reset_persistent_settings,
-+		.v.func = alc256_fixup_set_coef_defaults,
- 	},
- 	[ALC245_FIXUP_HP_GPIO_LED] = {
- 		.type = HDA_FIXUP_FUNC,
-@@ -8929,7 +8933,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
- 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
--	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS),
-+	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_SET_COEF_DEFAULTS),
- 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	for (e = 0; e < rcd->egrbufs.alloced; e++) {
+-		if (rcd->egrbufs.buffers[e].dma)
++		if (rcd->egrbufs.buffers[e].addr)
+ 			dma_free_coherent(&dd->pcidev->dev,
+ 					  rcd->egrbufs.buffers[e].len,
+ 					  rcd->egrbufs.buffers[e].addr,
 
 
