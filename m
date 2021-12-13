@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C36147264E
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD410472544
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235286AbhLMJuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:50:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33718 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237265AbhLMJsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:48:12 -0500
+        id S235425AbhLMJnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235194AbhLMJka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145E8C07E5F6;
+        Mon, 13 Dec 2021 01:38:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03B69B80D1F;
-        Mon, 13 Dec 2021 09:48:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FD2BC00446;
-        Mon, 13 Dec 2021 09:48:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE9E0B80E20;
+        Mon, 13 Dec 2021 09:38:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D4DC341CF;
+        Mon, 13 Dec 2021 09:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388889;
-        bh=DL2KAsAXH0kNhRFxNijFLl/ttY2ZlaVeockTmqaVeZo=;
+        s=korg; t=1639388332;
+        bh=/aTyyoiiDOu2LCA5Z3xVfDfAZoVt3F37qzD9mg5LW2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QSWadre8Tv41hcyQdOsdgpFa+noxb79x1TgY6f/t9Qxez91EajYQEImO2kSA8juGy
-         fETxpgrEcWLvn5v4JFh8KH7uBD5cizYCxGcqh5yVqYSFr4JqQdQewg6kjhG8l/CVyY
-         ng3nlwSntZ/r9nVefS99EzGGbIjsnmlsAcXO7Q9Y=
+        b=VQ+qbR8hvKjUIk5xZgOWOlg4zgevYajwTti850snMEE3ZLJ0G4XqftAmtaYxVGlJG
+         AEUukCKgWw3zpGGvYg+30ZEtj2GElrVjo8icnjDyYiUWi9oIMR3+SDuU66H+Bjud+9
+         RrXPZ6LXQpq+sLotx2Ddn2lPhr6AT2mcTheFvubQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, lee.jones@linaro.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 043/132] KVM: x86: Wait for IPIs to be delivered when handling Hyper-V TLB flush hypercall
+        stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 13/74] net: sched: add helper function to take reference to Qdisc
 Date:   Mon, 13 Dec 2021 10:29:44 +0100
-Message-Id: <20211213092940.600722432@linuxfoundation.org>
+Message-Id: <20211213092931.228998644@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +49,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Vlad Buslov <vladbu@mellanox.com>
 
-commit 1ebfaa11ebb5b603a3c3f54b2e84fcf1030f5a14 upstream.
+[ Upstream commit 9d7e82cec35c027756ec97e274f878251f271181 ]
 
-Prior to commit 0baedd792713 ("KVM: x86: make Hyper-V PV TLB flush use
-tlb_flush_guest()"), kvm_hv_flush_tlb() was using 'KVM_REQ_TLB_FLUSH |
-KVM_REQUEST_NO_WAKEUP' when making a request to flush TLBs on other vCPUs
-and KVM_REQ_TLB_FLUSH is/was defined as:
+Implement function to take reference to Qdisc that relies on rcu read lock
+instead of rtnl mutex. Function only takes reference to Qdisc if reference
+counter isn't zero. Intended to be used by unlocked cls API.
 
- (0 | KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
-
-so KVM_REQUEST_WAIT was lost. Hyper-V TLFS, however, requires that
-"This call guarantees that by the time control returns back to the
-caller, the observable effects of all flushes on the specified virtual
-processors have occurred." and without KVM_REQUEST_WAIT there's a small
-chance that the vCPU making the TLB flush will resume running before
-all IPIs get delivered to other vCPUs and a stale mapping can get read
-there.
-
-Fix the issue by adding KVM_REQUEST_WAIT flag to KVM_REQ_TLB_FLUSH_GUEST:
-kvm_hv_flush_tlb() is the sole caller which uses it for
-kvm_make_all_cpus_request()/kvm_make_vcpus_request_mask() where
-KVM_REQUEST_WAIT makes a difference.
-
-Cc: stable@kernel.org
-Fixes: 0baedd792713 ("KVM: x86: make Hyper-V PV TLB flush use tlb_flush_guest()")
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20211209102937.584397-1-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[Lee: Sent to Stable]
+Link: https://syzkaller.appspot.com/bug?id=d7e411c5472dd5da33d8cc921ccadc747743a568
+Reported-by: syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm_host.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/sch_generic.h |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -85,7 +85,7 @@
- 	KVM_ARCH_REQ_FLAGS(25, KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
- #define KVM_REQ_TLB_FLUSH_CURRENT	KVM_ARCH_REQ(26)
- #define KVM_REQ_TLB_FLUSH_GUEST \
--	KVM_ARCH_REQ_FLAGS(27, KVM_REQUEST_NO_WAKEUP)
-+	KVM_ARCH_REQ_FLAGS(27, KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
- #define KVM_REQ_APF_READY		KVM_ARCH_REQ(28)
- #define KVM_REQ_MSR_FILTER_CHANGED	KVM_ARCH_REQ(29)
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -118,6 +118,19 @@ static inline void qdisc_refcount_inc(st
+ 	refcount_inc(&qdisc->refcnt);
+ }
  
++/* Intended to be used by unlocked users, when concurrent qdisc release is
++ * possible.
++ */
++
++static inline struct Qdisc *qdisc_refcount_inc_nz(struct Qdisc *qdisc)
++{
++	if (qdisc->flags & TCQ_F_BUILTIN)
++		return qdisc;
++	if (refcount_inc_not_zero(&qdisc->refcnt))
++		return qdisc;
++	return NULL;
++}
++
+ static inline bool qdisc_is_running(struct Qdisc *qdisc)
+ {
+ 	if (qdisc->flags & TCQ_F_NOLOCK)
 
 
