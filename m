@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B5B4727CB
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF785472599
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241666AbhLMKFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:05:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60418 "EHLO
+        id S235081AbhLMJof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:44:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235516AbhLMKBP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:15 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19529C09B199;
-        Mon, 13 Dec 2021 01:49:16 -0800 (PST)
+        with ESMTP id S236080AbhLMJmu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:42:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F1B0C08E858;
+        Mon, 13 Dec 2021 01:39:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 56B79CE0E80;
-        Mon, 13 Dec 2021 09:49:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3407C00446;
-        Mon, 13 Dec 2021 09:49:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4BAA9B80D1F;
+        Mon, 13 Dec 2021 09:39:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 893CAC341C5;
+        Mon, 13 Dec 2021 09:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388952;
-        bh=88bD+0eVAyErUZ6i+GDacBhgOkMhOWGnzvTtleDap9c=;
+        s=korg; t=1639388397;
+        bh=wFDzVQg1q14Bxkecb1ysJs8MPnCV/er3LoVjFg6sZ+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWvpUuhqSGjJtKpmxJhrkvn21l4NJ5E9VUPGg5fYUTSu4PZvfQKbr97nQ/yOrSQdv
-         tfERV1BCVQ59Jm5PZBqx0rB5GGzs1Pp8DJ70j9Q8Q5UK6j+PGO8hEOoEyEctpLc+zP
-         AUWulReU9NZYk/ClqP33PfgvDgnCxiuAQzd/3YNs=
+        b=j1/07eEvg4HwFg1F8L67B0iBO+2p0cV4XzRvK9zpZ37ijzBOjsCJVSXTJA03kZQ+q
+         62blu9PYFYDlJVOgTF78RwdTadAWXeJnV138X1jxmUw5Z+gUD/rAIS1q98JnQMLQzn
+         7BYFqo7lK5Zgqs8Ry2AkdTWgYwg47nkhcxdxyEek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 066/132] signalfd: use wake_up_pollfree()
+        "linux-kernel@vger.kernel.org, Linus Torvalds" 
+        <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 36/74] signalfd: use wake_up_pollfree()
 Date:   Mon, 13 Dec 2021 10:30:07 +0100
-Message-Id: <20211213092941.379199511@linuxfoundation.org>
+Message-Id: <20211213092932.026311735@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,11 +67,9 @@ Link: https://lore.kernel.org/r/20211209010455.42744-4-ebiggers@kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/signalfd.c | 12 +-----------
+ fs/signalfd.c |   12 +-----------
  1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/fs/signalfd.c b/fs/signalfd.c
-index 040e1cf90528..65ce0e72e7b9 100644
 --- a/fs/signalfd.c
 +++ b/fs/signalfd.c
 @@ -35,17 +35,7 @@
@@ -92,8 +91,5 @@ index 040e1cf90528..65ce0e72e7b9 100644
  }
  
  struct signalfd_ctx {
--- 
-2.34.1
-
 
 
