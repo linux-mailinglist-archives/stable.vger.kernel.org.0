@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C0BC4727AF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 583A6472711
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:59:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240108AbhLMKEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:04:30 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:48198 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240141AbhLMJ7v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:59:51 -0500
+        id S232394AbhLMJ6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:58:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58884 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238896AbhLMJyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:54:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F837C08EE28;
+        Mon, 13 Dec 2021 01:45:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 08FBFCE0F5A;
-        Mon, 13 Dec 2021 09:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA484C34601;
-        Mon, 13 Dec 2021 09:59:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16A74B80E0E;
+        Mon, 13 Dec 2021 09:45:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 406EAC341C5;
+        Mon, 13 Dec 2021 09:45:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389587;
-        bh=Vk+cAtJjbarT6hIf/i7eUKGqI55drVQlzH+2KXSsRXk=;
+        s=korg; t=1639388752;
+        bh=whCGHq9Jf7S43kKFy5mkFVyuu5pEgSFlTrb85xag2iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwEVtpkeueJHhbhyFyPav9q2m7rDmZk4HCBYSF99Mkk/yf0lU8TgJkMQC8MEi5Hpp
-         ezqQ+3eS1oR6wd9rGxz+wkeDsThThtt+Mlb9ms6QcN18uMiPXg/Jg9W4SkMIIPkMbb
-         1Mrn1iR4XS24LJvd0yEBB3EPC6XSZ9WHcABkMktg=
+        b=KEXZWS3wr14C5Jvb2rupGk6mKTfwNQxLWIhc0uye1U/p0gNRWJGeNkSWHxkjk5i6b
+         AmUpX2XK3EnFz1jBBX8CDEJs7tErCkjaCykpbkjQwyPlnMWo1ZJsHPXnedWAr14Sln
+         u6ZBO8L43jqb1fdU/T+E7ZBm0E1cYyVuAGDwgr6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 5.15 138/171] Revert "usb: dwc3: dwc3-qcom: Enable tx-fifo-resize property by default"
-Date:   Mon, 13 Dec 2021 10:30:53 +0100
-Message-Id: <20211213092949.681679426@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 84/88] irqchip/armada-370-xp: Fix support for Multi-MSI interrupts
+Date:   Mon, 13 Dec 2021 10:30:54 +0100
+Message-Id: <20211213092936.105028520@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 6a97cee39d8f2ed4d6e35a09a302dae1d566db36 upstream.
+commit d0a553502efd545c1ce3fd08fc4d423f8e4ac3d6 upstream.
 
-This reverts commit cefdd52fa0455c0555c30927386ee466a108b060.
+irq-armada-370-xp driver already sets MSI_FLAG_MULTI_PCI_MSI flag into
+msi_domain_info structure. But allocated interrupt numbers for Multi-MSI
+needs to be properly aligned otherwise devices send MSI interrupt with
+wrong number.
 
-On sc7180-trogdor class devices with 'fw_devlink=permissive' and KASAN
-enabled, you'll see a Use-After-Free reported at bootup.
+Fix this issue by using function bitmap_find_free_region() instead of
+bitmap_find_next_zero_area() to allocate aligned interrupt numbers.
 
-The root of the problem is that dwc3_qcom_of_register_core() is adding
-a devm-allocated "tx-fifo-resize" property to its device tree node
-using of_add_property().
-
-The issue is that of_add_property() makes a _permanent_ addition to
-the device tree that lasts until reboot. That means allocating memory
-for the property using "devm" managed memory is a terrible idea since
-that memory will be freed upon probe deferral or device unbinding.
-
-Let's revert the patch since the system is still functional without
-it. The fact that of_add_property() makes a permanent change is extra
-fodder for those folks who were aruging that the device tree isn't
-really the right way to pass information between parts of the
-driver. It is an exercise left to the reader to submit a patch
-re-adding the new feature in a way that makes everyone happier.
-
-Fixes: cefdd52fa045 ("usb: dwc3: dwc3-qcom: Enable tx-fifo-resize property by default")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20211207094327.1.Ie3cde3443039342e2963262a4c3ac36dc2c08b30@changeid
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: a71b9412c90c ("irqchip/armada-370-xp: Allow allocation of multiple MSIs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211125130057.26705-2-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c |   15 ---------------
- 1 file changed, 15 deletions(-)
+ drivers/irqchip/irq-armada-370-xp.c |   14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -649,7 +649,6 @@ static int dwc3_qcom_of_register_core(st
- 	struct dwc3_qcom	*qcom = platform_get_drvdata(pdev);
- 	struct device_node	*np = pdev->dev.of_node, *dwc3_np;
- 	struct device		*dev = &pdev->dev;
--	struct property		*prop;
- 	int			ret;
+--- a/drivers/irqchip/irq-armada-370-xp.c
++++ b/drivers/irqchip/irq-armada-370-xp.c
+@@ -232,16 +232,12 @@ static int armada_370_xp_msi_alloc(struc
+ 	int hwirq, i;
  
- 	dwc3_np = of_get_compatible_child(np, "snps,dwc3");
-@@ -658,20 +657,6 @@ static int dwc3_qcom_of_register_core(st
- 		return -ENODEV;
- 	}
+ 	mutex_lock(&msi_used_lock);
++	hwirq = bitmap_find_free_region(msi_used, PCI_MSI_DOORBELL_NR,
++					order_base_2(nr_irqs));
++	mutex_unlock(&msi_used_lock);
  
--	prop = devm_kzalloc(dev, sizeof(*prop), GFP_KERNEL);
--	if (!prop) {
--		ret = -ENOMEM;
--		dev_err(dev, "unable to allocate memory for property\n");
--		goto node_put;
+-	hwirq = bitmap_find_next_zero_area(msi_used, PCI_MSI_DOORBELL_NR,
+-					   0, nr_irqs, 0);
+-	if (hwirq >= PCI_MSI_DOORBELL_NR) {
+-		mutex_unlock(&msi_used_lock);
++	if (hwirq < 0)
+ 		return -ENOSPC;
 -	}
 -
--	prop->name = "tx-fifo-resize";
--	ret = of_add_property(dwc3_np, prop);
--	if (ret) {
--		dev_err(dev, "unable to add property\n");
--		goto node_put;
--	}
--
- 	ret = of_platform_populate(np, NULL, NULL, dev);
- 	if (ret) {
- 		dev_err(dev, "failed to register dwc3 core - %d\n", ret);
+-	bitmap_set(msi_used, hwirq, nr_irqs);
+-	mutex_unlock(&msi_used_lock);
+ 
+ 	for (i = 0; i < nr_irqs; i++) {
+ 		irq_domain_set_info(domain, virq + i, hwirq + i,
+@@ -259,7 +255,7 @@ static void armada_370_xp_msi_free(struc
+ 	struct irq_data *d = irq_domain_get_irq_data(domain, virq);
+ 
+ 	mutex_lock(&msi_used_lock);
+-	bitmap_clear(msi_used, d->hwirq, nr_irqs);
++	bitmap_release_region(msi_used, d->hwirq, order_base_2(nr_irqs));
+ 	mutex_unlock(&msi_used_lock);
+ }
+ 
 
 
