@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B53B47240A
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:33:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE9647292C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbhLMJdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:33:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54016 "EHLO
+        id S242402AbhLMKSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:18:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233961AbhLMJd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CCB7C061A72;
-        Mon, 13 Dec 2021 01:33:27 -0800 (PST)
+        with ESMTP id S238787AbhLMKQa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:16:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 026C2C0497C8;
+        Mon, 13 Dec 2021 01:55:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4F5B6CE0E6B;
-        Mon, 13 Dec 2021 09:33:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C2B6C341C5;
-        Mon, 13 Dec 2021 09:33:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEB2FB80E20;
+        Mon, 13 Dec 2021 09:55:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2794C34603;
+        Mon, 13 Dec 2021 09:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388003;
-        bh=u2W6cyixXsLNkpvsnRYeGVTcZBqqVQfwTdOFWZ7Kn+U=;
+        s=korg; t=1639389344;
+        bh=JZokK1IX38ZQX0xQOH972lDk/0kw0DYe0LPRBfNa570=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ieESoRfrmEhGT+B5oZGPkQ8T5Mp6uX0XnJLOqhxw/uGGVn5NIH/3ZIqlAu18+A6bI
-         rSXKSDX15sh/zT+R9kdjdQxude5VNfvGsykmP4wZaAnQq0xFlkLu8e+g1284vvZQob
-         QsfalNlYJDvXS/2f50EAFVE1tLjr4XxmQk941YKw=
+        b=Uchl/IHwFU0JkwAQcAKAZUr56ZpBQrxroNIvlJdmnS5oRhcz03Z4yJ6gdJq4eudWJ
+         PTIYgINcOTHBnT2fB05/vpBKkLqe3M0cMJAYHo9MW1QGfEu/Mu4BFdGbm3N2ND7Qfa
+         GS2aBBiM7MQaO2DLngnhTeU9+KAilzDFePnAB4/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 4.4 05/37] HID: add USB_HID dependancy on some USB HID drivers
+        stable@vger.kernel.org,
+        syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com,
+        Bixuan Cui <cuibixuan@linux.alibaba.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 068/171] ALSA: pcm: oss: Limit the period size to 16MB
 Date:   Mon, 13 Dec 2021 10:29:43 +0100
-Message-Id: <20211213092925.552892634@linuxfoundation.org>
+Message-Id: <20211213092947.363252054@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f237d9028f844a86955fc9da59d7ac4a5c55d7d5 upstream.
+commit 8839c8c0f77ab8fc0463f4ab8b37fca3f70677c2 upstream.
 
-Some HID drivers are only for USB drivers, yet did not depend on
-CONFIG_USB_HID.  This was hidden by the fact that the USB functions were
-stubbed out in the past, but now that drivers are checking for USB
-devices properly, build errors can occur with some random
-configurations.
+Set the practical limit to the period size (the fragment shift in OSS)
+instead of a full 31bit; a too large value could lead to the exhaust
+of memory as we allocate temporary buffers of the period size, too.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211202114819.2511954-1-gregkh@linuxfoundation.org
+As of this patch, we set to 16MB limit, which should cover all use
+cases.
+
+Reported-by: syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com
+Reported-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1638270978-42412-1-git-send-email-cuibixuan@linux.alibaba.com
+Link: https://lore.kernel.org/r/20211201073606.11660-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/Kconfig |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/core/oss/pcm_oss.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -173,7 +173,7 @@ config HID_CHICONY
- 
- config HID_CORSAIR
- 	tristate "Corsair devices"
--	depends on HID && USB && LEDS_CLASS
-+	depends on USB_HID && LEDS_CLASS
- 	---help---
- 	Support for Corsair devices that are not fully compliant with the
- 	HID standard.
-@@ -389,7 +389,7 @@ config HID_LENOVO
- 
- config HID_LOGITECH
- 	tristate "Logitech devices"
--	depends on HID
-+	depends on USB_HID
- 	default !EXPERT
- 	---help---
- 	Support for Logitech devices that are not fully compliant with HID standard.
-@@ -693,7 +693,7 @@ config HID_SAITEK
- 
- config HID_SAMSUNG
- 	tristate "Samsung InfraRed remote control or keyboards"
--	depends on HID
-+	depends on USB_HID
- 	---help---
- 	Support for Samsung InfraRed remote control or keyboards.
- 
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -1962,7 +1962,7 @@ static int snd_pcm_oss_set_fragment1(str
+ 	if (runtime->oss.subdivision || runtime->oss.fragshift)
+ 		return -EINVAL;
+ 	fragshift = val & 0xffff;
+-	if (fragshift >= 31)
++	if (fragshift >= 25) /* should be large enough */
+ 		return -EINVAL;
+ 	runtime->oss.fragshift = fragshift;
+ 	runtime->oss.maxfrags = (val >> 16) & 0xffff;
 
 
