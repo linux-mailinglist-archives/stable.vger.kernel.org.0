@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E66C472730
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 044AE4727CE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239986AbhLMJ7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:59:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58744 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238693AbhLMJyO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:54:14 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E8EEC08E883;
-        Mon, 13 Dec 2021 01:45:36 -0800 (PST)
+        id S241687AbhLMKFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:05:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47520 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238789AbhLMKBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5AAEECE0E86;
-        Mon, 13 Dec 2021 09:45:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01AD9C341C8;
-        Mon, 13 Dec 2021 09:45:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0B29B80EAE;
+        Mon, 13 Dec 2021 10:01:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E993C34602;
+        Mon, 13 Dec 2021 10:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388732;
-        bh=1ZmzGHdhLAlmdAbVcPqlEkgFwqiJSzpMrF9HdQ2/Cf0=;
+        s=korg; t=1639389693;
+        bh=B02hXA2HNaN8oaPxgTWxPqBUd8PS/ZcUF6Be2GpFiXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQyeMFbxRvEoMSgUPW4cOnWgS6mp7K3ijB7eMQybLFcY9gm5Do2AnK8giMy8ZgqeM
-         gOvDz2s2oWVAjKBxUuwXtx/MPmpZDRU3kjpShYl8YFZh8ES73hhqWgxd/ASCUt6jsN
-         LcH1kVBUL/gpxJ1C5eyPIBakH/x85UJkoFdZktJo=
+        b=1Wb9uwkHCGJ0GYXyVa3K2Dq5SeyVo6MRC+AsEvf1zT+WohEZEhV4eT0G2+7650f4i
+         xh744qQ1MAnf42z0JSq/NqMAIsga8ixRlF5cvJkDVGbcsjFKXwHswZTPM+8iqlfC6x
+         d6QwJnCPowifFxRTA3BQ2hrstrFazDDgwWdFxFZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.4 78/88] iio: dln2: Check return value of devm_iio_trigger_register()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 133/171] net, neigh: clear whole pneigh_entry at alloc time
 Date:   Mon, 13 Dec 2021 10:30:48 +0100
-Message-Id: <20211213092935.919392161@linuxfoundation.org>
+Message-Id: <20211213092949.523659853@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 90751fb9f224e0e1555b49a8aa9e68f6537e4cec upstream.
+commit e195e9b5dee6459d8c8e6a314cc71a644a0537fd upstream.
 
-Registering a trigger can fail and the return value of
-devm_iio_trigger_register() must be checked. Otherwise undefined behavior
-can occur when the trigger is used.
+Commit 2c611ad97a82 ("net, neigh: Extend neigh->flags to 32 bit
+to allow for extensions") enables a new KMSAM warning [1]
 
-Fixes: 7c0299e879dd ("iio: adc: Add support for DLN2 ADC")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211101133043.6974-1-lars@metafoo.de
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+I think the bug is actually older, because the following intruction
+only occurred if ndm->ndm_flags had NTF_PROXY set.
+
+	pn->flags = ndm->ndm_flags;
+
+Let's clear all pneigh_entry fields at alloc time.
+
+[1]
+BUG: KMSAN: uninit-value in pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
+ pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
+ pneigh_dump_table net/core/neighbour.c:2715 [inline]
+ neigh_dump_info+0x1e3f/0x2c60 net/core/neighbour.c:2832
+ netlink_dump+0xaca/0x16a0 net/netlink/af_netlink.c:2265
+ __netlink_dump_start+0xd1c/0xee0 net/netlink/af_netlink.c:2370
+ netlink_dump_start include/linux/netlink.h:254 [inline]
+ rtnetlink_rcv_msg+0x181b/0x18c0 net/core/rtnetlink.c:5534
+ netlink_rcv_skb+0x447/0x800 net/netlink/af_netlink.c:2491
+ rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5589
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x1095/0x1360 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x16f3/0x1870 net/netlink/af_netlink.c:1916
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ sock_write_iter+0x594/0x690 net/socket.c:1057
+ call_write_iter include/linux/fs.h:2162 [inline]
+ new_sync_write fs/read_write.c:503 [inline]
+ vfs_write+0x1318/0x2030 fs/read_write.c:590
+ ksys_write+0x28c/0x520 fs/read_write.c:643
+ __do_sys_write fs/read_write.c:655 [inline]
+ __se_sys_write fs/read_write.c:652 [inline]
+ __x64_sys_write+0xdb/0x120 fs/read_write.c:652
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ slab_alloc mm/slub.c:3259 [inline]
+ __kmalloc+0xc3c/0x12d0 mm/slub.c:4437
+ kmalloc include/linux/slab.h:595 [inline]
+ pneigh_lookup+0x60f/0xd70 net/core/neighbour.c:766
+ arp_req_set_public net/ipv4/arp.c:1016 [inline]
+ arp_req_set+0x430/0x10a0 net/ipv4/arp.c:1032
+ arp_ioctl+0x8d4/0xb60 net/ipv4/arp.c:1232
+ inet_ioctl+0x4ef/0x820 net/ipv4/af_inet.c:947
+ sock_do_ioctl net/socket.c:1118 [inline]
+ sock_ioctl+0xa3f/0x13e0 net/socket.c:1235
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:874 [inline]
+ __se_sys_ioctl+0x2df/0x4a0 fs/ioctl.c:860
+ __x64_sys_ioctl+0xd8/0x110 fs/ioctl.c:860
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+CPU: 1 PID: 20001 Comm: syz-executor.0 Not tainted 5.16.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 62dd93181aaa ("[IPV6] NDISC: Set per-entry is_router flag in Proxy NA.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20211206165329.1049835-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/dln2-adc.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/core/neighbour.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/iio/adc/dln2-adc.c
-+++ b/drivers/iio/adc/dln2-adc.c
-@@ -665,7 +665,11 @@ static int dln2_adc_probe(struct platfor
- 		return -ENOMEM;
- 	}
- 	iio_trigger_set_drvdata(dln2->trig, dln2);
--	devm_iio_trigger_register(dev, dln2->trig);
-+	ret = devm_iio_trigger_register(dev, dln2->trig);
-+	if (ret) {
-+		dev_err(dev, "failed to register trigger: %d\n", ret);
-+		return ret;
-+	}
- 	iio_trigger_set_immutable(indio_dev, dln2->trig);
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -733,11 +733,10 @@ struct pneigh_entry * pneigh_lookup(stru
  
- 	ret = devm_iio_triggered_buffer_setup(dev, indio_dev, NULL,
+ 	ASSERT_RTNL();
+ 
+-	n = kmalloc(sizeof(*n) + key_len, GFP_KERNEL);
++	n = kzalloc(sizeof(*n) + key_len, GFP_KERNEL);
+ 	if (!n)
+ 		goto out;
+ 
+-	n->protocol = 0;
+ 	write_pnet(&n->net, net);
+ 	memcpy(n->key, pkey, key_len);
+ 	n->dev = dev;
 
 
