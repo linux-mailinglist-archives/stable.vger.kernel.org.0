@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3FBE4729FE
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:29:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92AB7472A01
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:29:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241898AbhLMK3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:29:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38364 "EHLO
+        id S240363AbhLMK3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344351AbhLMK1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:27:07 -0500
+        with ESMTP id S1344506AbhLMK1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:27:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4085DC08EB5B;
-        Mon, 13 Dec 2021 02:01:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2D9C08EC0A;
+        Mon, 13 Dec 2021 02:01:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D175B80E9E;
-        Mon, 13 Dec 2021 10:01:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E9FC34600;
-        Mon, 13 Dec 2021 10:01:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE37EB80E7E;
+        Mon, 13 Dec 2021 10:01:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E35C34600;
+        Mon, 13 Dec 2021 10:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389672;
-        bh=Rj8gHYR5w+OZATu63aK9m0T1p7yiSM0z0oc3X0XkVbs=;
+        s=korg; t=1639389676;
+        bh=9szTb82bYnaUXlo4Fvf9IM6pblElhsSanZAWt2gJk5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnwICYoydSsyye4JRwEN+mCMKkQYru80jv6/qbuZ6MLnsiiYrdagO3fAsvVmbGVjT
-         /heSaOn8hS8xi5CRXuDOAQvvHzLkWsKOA4N6svRKM7jDzNNiyZbWy0kBk9dw7+i0es
-         SDjHn2mqoBYMEv2xmPtKk4veeOhBi3Cjd+oSzPdI=
+        b=2XW49nY/MedDeedzeMlMW1a1Z47veQNBhdaWJSIHgn8g8n9umEeTaVq/PcM6As1Lc
+         kg2evzS0ll64NSAc0U8+fT//AdWFNnvzMH9gp8kPfMWRozJNmA2l4aEd5p78yJm4ha
+         09O1KqGG6WXzFySgW5d52j2Wly5AqZCI/6ciqVDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ralph Siemsen <ralph.siemsen@linaro.org>
-Subject: [PATCH 5.15 159/171] nvmem: eeprom: at25: fix FRAM byte_len
-Date:   Mon, 13 Dec 2021 10:31:14 +0100
-Message-Id: <20211213092950.355830285@linuxfoundation.org>
+        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
+        Slark Xiao <slark_xiao@163.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.15 160/171] bus: mhi: pci_generic: Fix device recovery failed issue
+Date:   Mon, 13 Dec 2021 10:31:15 +0100
+Message-Id: <20211213092950.395700521@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -47,131 +48,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ralph Siemsen <ralph.siemsen@linaro.org>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit 9a626577398c24ecab63c0a684436c8928092367 upstream.
+commit e2022cbec9c2606514c4edc4a760e3acb7419d8a upstream.
 
-Commit fd307a4ad332 ("nvmem: prepare basics for FRAM support") added
-support for FRAM devices such as the Cypress FM25V. During testing, it
-was found that the FRAM detects properly, however reads and writes fail.
-Upon further investigation, two problem were found in at25_probe() routine.
+For Foxconn T99W175 device(sdx55 platform) in some host platform,
+it would be unavailable once the host execute the err handler.
 
-1) In the case of an FRAM device without platform data, eg.
-       fram == true && spi->dev.platform_data == NULL
-the stack local variable "struct spi_eeprom chip" is not initialized
-fully, prior to being copied into at25->chip. The chip.flags field in
-particular can cause problems.
+After checking, it's caused by the delay time too short to
+get a successful reset.
 
-2) The byte_len of FRAM is computed from its ID register, and is stored
-into the stack local "struct spi_eeprom chip" structure. This happens
-after the same structure has been copied into at25->chip. As a result,
-at25->chip.byte_len does not contain the correct length of the device.
-In turn this can cause checks at beginning of at25_ee_read() to fail
-(or equally, it could allow reads beyond the end of the device length).
+Please see my test evidence as bewlow(BTW, I add some extra test logs
+in function mhi_pci_reset_prepare and mhi_pci_reset_done):
+  When MHI_POST_RESET_DELAY_MS equals to 500ms:
+   Nov  4 14:30:03 jbd-ThinkEdge kernel: [  146.222477] mhi mhi0: Device MHI is not in valid state
+   Nov  4 14:30:03 jbd-ThinkEdge kernel: [  146.222628] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_prepare reset
+   Nov  4 14:30:03 jbd-ThinkEdge kernel: [  146.222631] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_prepare mhi_soc_reset
+   Nov  4 14:30:03 jbd-ThinkEdge kernel: [  146.222632] mhi mhi0:  mhi_soc_reset write soc to reset
+   Nov  4 14:30:05 jbd-ThinkEdge kernel: [  147.839993] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_done
+   Nov  4 14:30:05 jbd-ThinkEdge kernel: [  147.902063] mhi-pci-generic 0000:2d:00.0: reset failed
 
-Fix both of these issues by eliminating the on-stack struct spi_eeprom.
-Instead use the one inside at25_data structure, which starts of zeroed.
+  When MHI_POST_RESET_DELAY_MS equals to 1000ms or 1500ms:
+   Nov  4 19:07:26 jbd-ThinkEdge kernel: [  157.067857] mhi mhi0: Device MHI is not in valid state
+   Nov  4 19:07:26 jbd-ThinkEdge kernel: [  157.068029] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_prepare reset
+   Nov  4 19:07:26 jbd-ThinkEdge kernel: [  157.068032] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_prepare mhi_soc_reset
+   Nov  4 19:07:26 jbd-ThinkEdge kernel: [  157.068034] mhi mhi0:  mhi_soc_reset write soc to reset
+   Nov  4 19:07:29 jbd-ThinkEdge kernel: [  159.607006] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_done
+   Nov  4 19:07:29 jbd-ThinkEdge kernel: [  159.607152] mhi mhi0: Requested to power ON
+   Nov  4 19:07:51 jbd-ThinkEdge kernel: [  181.302872] mhi mhi0: Failed to reset MHI due to syserr state
+   Nov  4 19:07:51 jbd-ThinkEdge kernel: [  181.303011] mhi-pci-generic 0000:2d:00.0: failed to power up MHI controller
 
-Fixes: fd307a4ad332 ("nvmem: prepare basics for FRAM support")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
-Link: https://lore.kernel.org/r/20211108181627.645638-1-ralph.siemsen@linaro.org
+  When MHI_POST_RESET_DELAY_MS equals to 2000ms:
+   Nov  4 17:51:08 jbd-ThinkEdge kernel: [  147.180527] mhi mhi0: Failed to transition from PM state: Linkdown or Error Fatal Detect to: SYS ERROR Process
+   Nov  4 17:51:08 jbd-ThinkEdge kernel: [  147.180535] mhi mhi0: Device MHI is not in valid state
+   Nov  4 17:51:08 jbd-ThinkEdge kernel: [  147.180722] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_prepare reset
+   Nov  4 17:51:08 jbd-ThinkEdge kernel: [  147.180725] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_prepare mhi_soc_reset
+   Nov  4 17:51:08 jbd-ThinkEdge kernel: [  147.180727] mhi mhi0:  mhi_soc_reset write soc to reset
+   Nov  4 17:51:11 jbd-ThinkEdge kernel: [  150.230787] mhi-pci-generic 0000:2d:00.0: mhi_pci_reset_done
+   Nov  4 17:51:11 jbd-ThinkEdge kernel: [  150.230928] mhi mhi0: Requested to power ON
+   Nov  4 17:51:11 jbd-ThinkEdge kernel: [  150.231173] mhi mhi0: Power on setup success
+   Nov  4 17:51:14 jbd-ThinkEdge kernel: [  153.254747] mhi mhi0: Wait for device to enter SBL or Mission mode
+
+I also tried big data like 3000, and it worked as well. 500ms may not be
+enough for all support mhi device. We shall increase it to 2000ms
+at least.
+
+Link: https://lore.kernel.org/r/20211108113127.3938-1-slark_xiao@163.com
+[mani: massaged commit message little bit, added Fixes tag and CCed stable]
+Fixes: 8ccc3279fcad ("mhi: pci_generic: Add support for reset")
+Cc: stable@vger.kernel.org
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20211126104951.35685-2-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/eeprom/at25.c |   38 ++++++++++++++++++--------------------
- 1 file changed, 18 insertions(+), 20 deletions(-)
+ drivers/bus/mhi/pci_generic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/eeprom/at25.c
-+++ b/drivers/misc/eeprom/at25.c
-@@ -376,7 +376,6 @@ MODULE_DEVICE_TABLE(spi, at25_spi_ids);
- static int at25_probe(struct spi_device *spi)
- {
- 	struct at25_data	*at25 = NULL;
--	struct spi_eeprom	chip;
- 	int			err;
- 	int			sr;
- 	u8 id[FM25_ID_LEN];
-@@ -389,15 +388,18 @@ static int at25_probe(struct spi_device
- 	if (match && !strcmp(match->compatible, "cypress,fm25"))
- 		is_fram = 1;
+diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
+index 59a4896a8030..4c577a731709 100644
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -20,7 +20,7 @@
  
-+	at25 = devm_kzalloc(&spi->dev, sizeof(struct at25_data), GFP_KERNEL);
-+	if (!at25)
-+		return -ENOMEM;
-+
- 	/* Chip description */
--	if (!spi->dev.platform_data) {
--		if (!is_fram) {
--			err = at25_fw_to_chip(&spi->dev, &chip);
--			if (err)
--				return err;
--		}
--	} else
--		chip = *(struct spi_eeprom *)spi->dev.platform_data;
-+	if (spi->dev.platform_data) {
-+		memcpy(&at25->chip, spi->dev.platform_data, sizeof(at25->chip));
-+	} else if (!is_fram) {
-+		err = at25_fw_to_chip(&spi->dev, &at25->chip);
-+		if (err)
-+			return err;
-+	}
+ #define MHI_PCI_DEFAULT_BAR_NUM 0
  
- 	/* Ping the chip ... the status register is pretty portable,
- 	 * unlike probing manufacturer IDs.  We do expect that system
-@@ -409,12 +411,7 @@ static int at25_probe(struct spi_device
- 		return -ENXIO;
- 	}
+-#define MHI_POST_RESET_DELAY_MS 500
++#define MHI_POST_RESET_DELAY_MS 2000
  
--	at25 = devm_kzalloc(&spi->dev, sizeof(struct at25_data), GFP_KERNEL);
--	if (!at25)
--		return -ENOMEM;
--
- 	mutex_init(&at25->lock);
--	at25->chip = chip;
- 	at25->spi = spi;
- 	spi_set_drvdata(spi, at25);
+ #define HEALTH_CHECK_PERIOD (HZ * 2)
  
-@@ -431,7 +428,7 @@ static int at25_probe(struct spi_device
- 			dev_err(&spi->dev, "Error: unsupported size (id %02x)\n", id[7]);
- 			return -ENODEV;
- 		}
--		chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
-+		at25->chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
- 
- 		if (at25->chip.byte_len > 64 * 1024)
- 			at25->chip.flags |= EE_ADDR3;
-@@ -464,7 +461,7 @@ static int at25_probe(struct spi_device
- 	at25->nvmem_config.type = is_fram ? NVMEM_TYPE_FRAM : NVMEM_TYPE_EEPROM;
- 	at25->nvmem_config.name = dev_name(&spi->dev);
- 	at25->nvmem_config.dev = &spi->dev;
--	at25->nvmem_config.read_only = chip.flags & EE_READONLY;
-+	at25->nvmem_config.read_only = at25->chip.flags & EE_READONLY;
- 	at25->nvmem_config.root_only = true;
- 	at25->nvmem_config.owner = THIS_MODULE;
- 	at25->nvmem_config.compat = true;
-@@ -474,17 +471,18 @@ static int at25_probe(struct spi_device
- 	at25->nvmem_config.priv = at25;
- 	at25->nvmem_config.stride = 1;
- 	at25->nvmem_config.word_size = 1;
--	at25->nvmem_config.size = chip.byte_len;
-+	at25->nvmem_config.size = at25->chip.byte_len;
- 
- 	at25->nvmem = devm_nvmem_register(&spi->dev, &at25->nvmem_config);
- 	if (IS_ERR(at25->nvmem))
- 		return PTR_ERR(at25->nvmem);
- 
- 	dev_info(&spi->dev, "%d %s %s %s%s, pagesize %u\n",
--		 (chip.byte_len < 1024) ? chip.byte_len : (chip.byte_len / 1024),
--		 (chip.byte_len < 1024) ? "Byte" : "KByte",
-+		 (at25->chip.byte_len < 1024) ?
-+			at25->chip.byte_len : (at25->chip.byte_len / 1024),
-+		 (at25->chip.byte_len < 1024) ? "Byte" : "KByte",
- 		 at25->chip.name, is_fram ? "fram" : "eeprom",
--		 (chip.flags & EE_READONLY) ? " (readonly)" : "",
-+		 (at25->chip.flags & EE_READONLY) ? " (readonly)" : "",
- 		 at25->chip.page_size);
- 	return 0;
- }
+-- 
+2.34.1
+
 
 
