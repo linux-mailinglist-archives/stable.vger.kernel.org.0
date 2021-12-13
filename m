@@ -2,71 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EF1472427
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DD2472550
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232464AbhLMJe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:34:27 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:46294 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234110AbhLMJd6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Dec 2021 04:33:58 -0500
-Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id BD41C1EC0453;
-        Mon, 13 Dec 2021 10:33:52 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1639388032;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=1huGVmkguuzzMxIZ2Dja7uTDx6LCZKFCFZ0VWUfUYIU=;
-        b=it0BEgU6aEhs9+HfPB1v/QGqueENQox0QLT0EkEyqtCdYJBuT8sVYAEo4af49viEz9bwxH
-        9ZifKJOTKYNreGa3RvnTO/XP3v5kOwQA7D2+ixnhCAHaBxWI8FoGvxlFjbxGGqcUDK9ZN+
-        cpinYkRWyxKRXX/taMzPnsqhHFtEqhA=
-Date:   Mon, 13 Dec 2021 10:33:53 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Juergen Gross <jgross@suse.com>,
-        John Dorminy <jdorminy@redhat.com>, tip-bot2@linutronix.de,
-        anjaneya.chagam@intel.com, dan.j.williams@intel.com,
-        linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
-        stable@vger.kernel.org, x86@kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        "Patrick J. Volkerding" <volkerdi@gmail.com>
-Subject: Re: [tip: x86/urgent] x86/boot: Pull up cmdline preparation and
- early param parsing
-Message-ID: <YbcTgQdTpJAHAZw4@zn.tnic>
-References: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2>
- <20211209143810.452527-1-jdorminy@redhat.com>
- <YbIeYIM6JEBgO3tG@zn.tnic>
- <50f25412-d616-1cc6-f07f-a29d80b4bd3b@suse.com>
- <YbIgsO/7oQW9h6wv@zn.tnic>
- <YbIu55LZKoK3IVaF@kernel.org>
- <YbIw1nUYJ3KlkjJQ@zn.tnic>
- <YbM5yR+Hy+kwmMFU@zn.tnic>
- <YbcCM81Fig3GC4Yi@kernel.org>
+        id S234489AbhLMJnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:20 -0500
+Received: from mailgw01.mediatek.com ([60.244.123.138]:37768 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S233163AbhLMJlp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:45 -0500
+X-UUID: 3a67a27478eb489bba3522b22854af66-20211213
+X-UUID: 3a67a27478eb489bba3522b22854af66-20211213
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <mark-pk.tsai@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 247211187; Mon, 13 Dec 2021 17:41:40 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Mon, 13 Dec 2021 17:41:39 +0800
+Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Mon, 13 Dec 2021 17:41:39 +0800
+From:   Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+To:     <stable@vger.kernel.org>
+CC:     <rppt@kernel.org>, <akpm@linux-foundation.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        <linux@armlinux.org.uk>, <rppt@linux.ibm.com>, <tony@atomide.com>,
+        <wangkefeng.wang@huawei.com>, <mark-pk.tsai@mediatek.com>,
+        <yj.chiang@mediatek.com>
+Subject: [PATCH 5.10 0/5] memblock, arm: fixes for freeing of the memory map
+Date:   Mon, 13 Dec 2021 17:41:30 +0800
+Message-ID: <20211213094135.1798-1-mark-pk.tsai@mediatek.com>
+X-Mailer: git-send-email 2.18.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YbcCM81Fig3GC4Yi@kernel.org>
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 13, 2021 at 10:20:03AM +0200, Mike Rapoport wrote:
-> Thanks for taking care of this!
+When linux memory is not aligned with page block size and have hole in zone,
+the 5.4-lts arm kernel might crash in move_freepages() as Kefen Wang reported in [1].
+Backport the upstream fix commits by Mike Rapoport [2] to 5.4 can fix this issue.
 
-Sure, no probs.
+And free_unused_memmap() of arm and arm64 are moved to generic mm/memblock in
+the below upstream commit, so I applied the first two patches to free_unused_memmap()
+in arch/arm/mm/init.c.
 
-Lemme send them out officially so they're on the list. Will queue them
-this week.
+(4f5b0c178996 arm, arm64: move free_unused_memmap() to generic mm)
 
-Thx.
+[1] https://lore.kernel.org/lkml/2a1592ad-bc9d-4664-fd19-f7448a37edc0@huawei.com/
+[2] https://lore.kernel.org/lkml/20210630071211.21011-1-rppt@kernel.org/#t
+
+Mike Rapoport (5):
+  memblock: free_unused_memmap: use pageblock units instead of MAX_ORDER
+  memblock: align freed memory map on pageblock boundaries with
+    SPARSEMEM
+  memblock: ensure there is no overflow in memblock_overlaps_region()
+  arm: extend pfn_valid to take into account freed memory map alignment
+  arm: ioremap: don't abuse pfn_valid() to check if pfn is in RAM
+
+ arch/arm/mm/init.c    | 37 +++++++++++++++++++++++++------------
+ arch/arm/mm/ioremap.c |  4 +++-
+ mm/memblock.c         |  3 ++-
+ 3 files changed, 30 insertions(+), 14 deletions(-)
 
 -- 
-Regards/Gruss,
-    Boris.
+2.18.0
 
-https://people.kernel.org/tglx/notes-about-netiquette
