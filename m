@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DF654726F2
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0334C472948
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239022AbhLMJ4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:56:22 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:44334 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238719AbhLMJyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:54:18 -0500
+        id S237799AbhLMKTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:19:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34542 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243286AbhLMKMq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:12:46 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B95EC001629;
+        Mon, 13 Dec 2021 01:54:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id ECEFDCE0EB8;
-        Mon, 13 Dec 2021 09:54:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C294C34600;
-        Mon, 13 Dec 2021 09:54:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DC537CE0B59;
+        Mon, 13 Dec 2021 09:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3CCC34601;
+        Mon, 13 Dec 2021 09:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389255;
-        bh=6AyAfLu8T4t1lFRF/aXhp02WCJf+FIa/z1+ODifwKHg=;
+        s=korg; t=1639389258;
+        bh=rsTeZMk7O/u8nSH8mgVqInhb4PGf6dAuTmB3GF4JZNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kDU0BJT+jtD/Fg+dIacVMes03+KHPGXe1Fdf0/xi9+8Tew2TDRDT7FeYgMmW+IO/j
-         7kZBNg3Ux1QCYSY3sGCeoRwNRyrQQj24vuj+2baAH5NTIEXMN8IwK0AS9mWSZ1SFAX
-         CugyeS0q9zrsjtMlmucuuHyARVf6+7BdMPOTkCXA=
+        b=v6M0oFa3oYVDn3VvUYsl6TYkwqHrUk2MDT9aZDfYQwZImC/Tow+XJF5maXCAo6Tvp
+         00qAeJ0ioE2jyypqxABuXm/tqBcfzqND1qKTzA1lrk4fL1sTihValqmI02pLDZIZEo
+         p3vZdiOLutGeQKS49S8sP89zYbRNbkvshOSKCmlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.15 037/171] bpf, sockmap: Attach map progs to psock early for feature probes
-Date:   Mon, 13 Dec 2021 10:29:12 +0100
-Message-Id: <20211213092946.312270068@linuxfoundation.org>
+Subject: [PATCH 5.15 038/171] bpf: Make sure bpf_disable_instrumentation() is safe vs preemption.
+Date:   Mon, 13 Dec 2021 10:29:13 +0100
+Message-Id: <20211213092946.341901910@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -44,74 +48,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 38207a5e81230d6ffbdd51e5fa5681be5116dcae upstream.
+commit 79364031c5b4365ca28ac0fa00acfab5bf465be1 upstream.
 
-When a TCP socket is added to a sock map we look at the programs attached
-to the map to determine what proto op hooks need to be changed. Before
-the patch in the 'fixes' tag there were only two categories -- the empty
-set of programs or a TX policy. In any case the base set handled the
-receive case.
+The initial implementation of migrate_disable() for mainline was a
+wrapper around preempt_disable(). RT kernels substituted this with a
+real migrate disable implementation.
 
-After the fix we have an optimized program for receive that closes a small,
-but possible, race on receive. This program is loaded only when the map the
-psock is being added to includes a RX policy. Otherwise, the race is not
-possible so we don't need to handle the race condition.
+Later on mainline gained true migrate disable support, but neither
+documentation nor affected code were updated.
 
-In order for the call to sk_psock_init() to correctly evaluate the above
-conditions all progs need to be set in the psock before the call. However,
-in the current code this is not the case. We end up evaluating the
-requirements on the old prog state. If your psock is attached to multiple
-maps -- for example a tx map and rx map -- then the second update would pull
-in the correct maps. But, the other pattern with a single rx enabled map
-the correct receive hooks are not used. The result is the race fixed by the
-patch in the fixes tag below may still be seen in this case.
+Remove stale comments claiming that migrate_disable() is PREEMPT_RT only.
 
-To fix we simply set all psock->progs before doing the call into
-sock_map_init(). With this the init() call gets the full list of programs
-and chooses the correct proto ops on the first iteration instead of
-requiring the second update to pull them in. This fixes the race case when
-only a single map is used.
+Don't use __this_cpu_inc() in the !PREEMPT_RT path because preemption is
+not disabled and the RMW operation can be preempted.
 
-Fixes: c5d2177a72a16 ("bpf, sockmap: Fix race in ingress receive verdict with redirect to self")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Fixes: 74d862b682f51 ("sched: Make migrate_disable/enable() independent of RT")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20211119181418.353932-2-john.fastabend@gmail.com
+Link: https://lore.kernel.org/bpf/20211127163200.10466-3-bigeasy@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/sock_map.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ include/linux/bpf.h    |   16 ++--------------
+ include/linux/filter.h |    3 ---
+ 2 files changed, 2 insertions(+), 17 deletions(-)
 
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -282,6 +282,12 @@ static int sock_map_link(struct bpf_map
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1321,28 +1321,16 @@ extern struct mutex bpf_stats_enabled_mu
+  * kprobes, tracepoints) to prevent deadlocks on map operations as any of
+  * these events can happen inside a region which holds a map bucket lock
+  * and can deadlock on it.
+- *
+- * Use the preemption safe inc/dec variants on RT because migrate disable
+- * is preemptible on RT and preemption in the middle of the RMW operation
+- * might lead to inconsistent state. Use the raw variants for non RT
+- * kernels as migrate_disable() maps to preempt_disable() so the slightly
+- * more expensive save operation can be avoided.
+  */
+ static inline void bpf_disable_instrumentation(void)
+ {
+ 	migrate_disable();
+-	if (IS_ENABLED(CONFIG_PREEMPT_RT))
+-		this_cpu_inc(bpf_prog_active);
+-	else
+-		__this_cpu_inc(bpf_prog_active);
++	this_cpu_inc(bpf_prog_active);
+ }
  
- 	if (msg_parser)
- 		psock_set_prog(&psock->progs.msg_parser, msg_parser);
-+	if (stream_parser)
-+		psock_set_prog(&psock->progs.stream_parser, stream_parser);
-+	if (stream_verdict)
-+		psock_set_prog(&psock->progs.stream_verdict, stream_verdict);
-+	if (skb_verdict)
-+		psock_set_prog(&psock->progs.skb_verdict, skb_verdict);
+ static inline void bpf_enable_instrumentation(void)
+ {
+-	if (IS_ENABLED(CONFIG_PREEMPT_RT))
+-		this_cpu_dec(bpf_prog_active);
+-	else
+-		__this_cpu_dec(bpf_prog_active);
++	this_cpu_dec(bpf_prog_active);
+ 	migrate_enable();
+ }
  
- 	ret = sock_map_init_proto(sk, psock);
- 	if (ret < 0)
-@@ -292,14 +298,10 @@ static int sock_map_link(struct bpf_map
- 		ret = sk_psock_init_strp(sk, psock);
- 		if (ret)
- 			goto out_unlock_drop;
--		psock_set_prog(&psock->progs.stream_verdict, stream_verdict);
--		psock_set_prog(&psock->progs.stream_parser, stream_parser);
- 		sk_psock_start_strp(sk, psock);
- 	} else if (!stream_parser && stream_verdict && !psock->saved_data_ready) {
--		psock_set_prog(&psock->progs.stream_verdict, stream_verdict);
- 		sk_psock_start_verdict(sk,psock);
- 	} else if (!stream_verdict && skb_verdict && !psock->saved_data_ready) {
--		psock_set_prog(&psock->progs.skb_verdict, skb_verdict);
- 		sk_psock_start_verdict(sk, psock);
- 	}
- 	write_unlock_bh(&sk->sk_callback_lock);
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -639,9 +639,6 @@ static __always_inline u32 bpf_prog_run(
+  * This uses migrate_disable/enable() explicitly to document that the
+  * invocation of a BPF program does not require reentrancy protection
+  * against a BPF program which is invoked from a preempting task.
+- *
+- * For non RT enabled kernels migrate_disable/enable() maps to
+- * preempt_disable/enable(), i.e. it disables also preemption.
+  */
+ static inline u32 bpf_prog_run_pin_on_cpu(const struct bpf_prog *prog,
+ 					  const void *ctx)
 
 
