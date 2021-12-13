@@ -2,105 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9AE1472EA5
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:18:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B81472EB1
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236228AbhLMOSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 09:18:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34218 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231897AbhLMOSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:18:17 -0500
+        id S233376AbhLMOT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 09:19:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37710 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232397AbhLMOT6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:19:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6996BC061574;
+        Mon, 13 Dec 2021 06:19:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B18CEB81062;
-        Mon, 13 Dec 2021 14:18:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5CBEC34602;
-        Mon, 13 Dec 2021 14:18:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639405094;
-        bh=NtWdzlEjft5tnQeFaBXUVrmubHd8T7HRkrRLfS+HxKc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ef4dtFt35n0BNeZHb5cwHF2nWR84NPJ4B4Ej+DcAmvR7/HzogwktH/W/meMnZnx1/
-         Xg3O6A+RredIYQtKTQ5Xmko6sTk52Ckx/QDevDNiQkd9m6eeVOhNiVRfdPIU5wthcz
-         kslBCgGFDpF4EoLzXiuVfEO/wBb1eXc3RIOJDVQs=
-Date:   Mon, 13 Dec 2021 15:18:11 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Yuwen Ng <yuwen.ng@mediatek.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/3] usb: mtu3: add memory barrier before set GPD's HWO
-Message-ID: <YbdWI5PD3e6uFz8U@kroah.com>
-References: <20211209031424.17842-1-chunfeng.yun@mediatek.com>
- <20211209031424.17842-2-chunfeng.yun@mediatek.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E69306109A;
+        Mon, 13 Dec 2021 14:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DBE5C34603;
+        Mon, 13 Dec 2021 14:19:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639405197;
+        bh=cf6HQpghohc60PqvTuVp83j1DRDmqwoJZ/lY40Posr8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QIeQ4F1RysDTtveJXBSG8Oe+elN2NirLvNCNUWzoNc77bHNngr71mU8BgWYJeeC16
+         kbUdfHkcg8fZaN7QmyyH0sjhuxyMfLkHM4zFlZCGdfgUUIHAu2QhnDkF6Pymm+BdqD
+         WZhjZUtskwP1UtnV6Wmrq2F3D6HPS3yEgPerajQMYslz89fP1Yk9ViMXWf295p77ou
+         xCmaiXqczNSTcqTIiDXvAwKSYrARUsccXPOaWp3uJRTcGwD8lQR05xK0/WGfdRYdDh
+         7OCtEuKtxEH+LO6NpuwHHZaHiqLnSHSlbcmVzqfipdzot5ao8Jp6+9Xd+6UfnfoqFk
+         0BbhfxM0NUBng==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Frederic Weisbecker <frederic@kernel.org>,
+        Hasegawa Hitomi <hasegawa-hitomi@fujitsu.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
+        Phil Auld <pauld@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+        vincent.guittot@linaro.org
+Subject: [PATCH MANUALSEL 5.15 1/9] sched/cputime: Fix getrusage(RUSAGE_THREAD) with nohz_full
+Date:   Mon, 13 Dec 2021 09:19:34 -0500
+Message-Id: <20211213141944.352249-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211209031424.17842-2-chunfeng.yun@mediatek.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 09, 2021 at 11:14:23AM +0800, Chunfeng Yun wrote:
-> There is a seldom issue that the controller access invalid address
-> and trigger devapc or emimpu violation. That is due to memory access
-> is out of order and cause gpd data is not correct.
-> Make sure GPD is fully written before giving it to HW by setting its
-> HWO.
-> 
-> Fixes: 48e0d3735aa5 ("usb: mtu3: supports new QMU format")
-> Cc: stable@vger.kernel.org
-> Reported-by: Eddie Hung <eddie.hung@mediatek.com>
-> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-> ---
->  drivers/usb/mtu3/mtu3_qmu.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/mtu3/mtu3_qmu.c b/drivers/usb/mtu3/mtu3_qmu.c
-> index 3f414f91b589..34bb5ac67efe 100644
-> --- a/drivers/usb/mtu3/mtu3_qmu.c
-> +++ b/drivers/usb/mtu3/mtu3_qmu.c
-> @@ -273,6 +273,8 @@ static int mtu3_prepare_tx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
->  			gpd->dw3_info |= cpu_to_le32(GPD_EXT_FLAG_ZLP);
->  	}
->  
-> +	/* make sure GPD is fully written before giving it to HW */
-> +	mb();
+From: Frederic Weisbecker <frederic@kernel.org>
 
-So this means you are using mmio for this structure?  If so, shouldn't
-you be using normal io memory read/write calls as well and not just
-"raw" pointers like this:
+[ Upstream commit e7f2be115f0746b969c0df14c0d182f65f005ca5 ]
 
->  	gpd->dw0_info |= cpu_to_le32(GPD_FLAGS_IOC | GPD_FLAGS_HWO);
+getrusage(RUSAGE_THREAD) with nohz_full may return shorter utime/stime
+than the actual time.
 
-Are you sure this is ok?
+task_cputime_adjusted() snapshots utime and stime and then adjust their
+sum to match the scheduler maintained cputime.sum_exec_runtime.
+Unfortunately in nohz_full, sum_exec_runtime is only updated once per
+second in the worst case, causing a discrepancy against utime and stime
+that can be updated anytime by the reader using vtime.
 
-Sprinkling around mb() calls is almost never the correct solution.
+To fix this situation, perform an update of cputime.sum_exec_runtime
+when the cputime snapshot reports the task as actually running while
+the tick is disabled. The related overhead is then contained within the
+relevant situations.
 
-If you need to ensure that a write succeeds, shouldn't you do a read
-from it afterward?  Many busses require this, doesn't yours?
+Reported-by: Hasegawa Hitomi <hasegawa-hitomi@fujitsu.com>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Hasegawa Hitomi <hasegawa-hitomi@fujitsu.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Acked-by: Phil Auld <pauld@redhat.com>
+Link: https://lore.kernel.org/r/20211026141055.57358-3-frederic@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/linux/sched/cputime.h |  5 +++--
+ kernel/sched/cputime.c        | 12 +++++++++---
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
+diff --git a/include/linux/sched/cputime.h b/include/linux/sched/cputime.h
+index 6c9f19a33865a..ce3c58286062c 100644
+--- a/include/linux/sched/cputime.h
++++ b/include/linux/sched/cputime.h
+@@ -18,15 +18,16 @@
+ #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
+ 
+ #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
+-extern void task_cputime(struct task_struct *t,
++extern bool task_cputime(struct task_struct *t,
+ 			 u64 *utime, u64 *stime);
+ extern u64 task_gtime(struct task_struct *t);
+ #else
+-static inline void task_cputime(struct task_struct *t,
++static inline bool task_cputime(struct task_struct *t,
+ 				u64 *utime, u64 *stime)
+ {
+ 	*utime = t->utime;
+ 	*stime = t->stime;
++	return false;
+ }
+ 
+ static inline u64 task_gtime(struct task_struct *t)
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+index 872e481d5098c..9392aea1804e5 100644
+--- a/kernel/sched/cputime.c
++++ b/kernel/sched/cputime.c
+@@ -615,7 +615,8 @@ void task_cputime_adjusted(struct task_struct *p, u64 *ut, u64 *st)
+ 		.sum_exec_runtime = p->se.sum_exec_runtime,
+ 	};
+ 
+-	task_cputime(p, &cputime.utime, &cputime.stime);
++	if (task_cputime(p, &cputime.utime, &cputime.stime))
++		cputime.sum_exec_runtime = task_sched_runtime(p);
+ 	cputime_adjust(&cputime, &p->prev_cputime, ut, st);
+ }
+ EXPORT_SYMBOL_GPL(task_cputime_adjusted);
+@@ -828,19 +829,21 @@ u64 task_gtime(struct task_struct *t)
+  * add up the pending nohz execution time since the last
+  * cputime snapshot.
+  */
+-void task_cputime(struct task_struct *t, u64 *utime, u64 *stime)
++bool task_cputime(struct task_struct *t, u64 *utime, u64 *stime)
+ {
+ 	struct vtime *vtime = &t->vtime;
+ 	unsigned int seq;
+ 	u64 delta;
++	int ret;
+ 
+ 	if (!vtime_accounting_enabled()) {
+ 		*utime = t->utime;
+ 		*stime = t->stime;
+-		return;
++		return false;
+ 	}
+ 
+ 	do {
++		ret = false;
+ 		seq = read_seqcount_begin(&vtime->seqcount);
+ 
+ 		*utime = t->utime;
+@@ -850,6 +853,7 @@ void task_cputime(struct task_struct *t, u64 *utime, u64 *stime)
+ 		if (vtime->state < VTIME_SYS)
+ 			continue;
+ 
++		ret = true;
+ 		delta = vtime_delta(vtime);
+ 
+ 		/*
+@@ -861,6 +865,8 @@ void task_cputime(struct task_struct *t, u64 *utime, u64 *stime)
+ 		else
+ 			*utime += vtime->utime + delta;
+ 	} while (read_seqcount_retry(&vtime->seqcount, seq));
++
++	return ret;
+ }
+ 
+ static int vtime_state_fetch(struct vtime *vtime, int cpu)
+-- 
+2.33.0
 
-
->  
->  	mreq->gpd = gpd;
-> @@ -306,6 +308,8 @@ static int mtu3_prepare_rx_gpd(struct mtu3_ep *mep, struct mtu3_request *mreq)
->  	gpd->next_gpd = cpu_to_le32(lower_32_bits(enq_dma));
->  	ext_addr |= GPD_EXT_NGP(mtu, upper_32_bits(enq_dma));
->  	gpd->dw3_info = cpu_to_le32(ext_addr);
-> +	/* make sure GPD is fully written before giving it to HW */
-> +	mb();
-
-Again, mb(); does not ensure that memory-mapped i/o actually hits the
-HW.  Or if it does on your platform, how?
-
-mb() is a compiler barrier, not a memory write to a bus barrier.  Please
-read Documentation/memory-barriers.txt for more details.
-
-thanks,
-
-greg k-h
