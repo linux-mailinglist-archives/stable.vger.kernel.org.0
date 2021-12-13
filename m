@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E8D472EC9
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:21:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D41472EDC
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:21:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238952AbhLMOUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 09:20:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41822 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234107AbhLMOUR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:20:17 -0500
+        id S238967AbhLMOUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 09:20:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37814 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238943AbhLMOUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:20:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4688FC061574;
+        Mon, 13 Dec 2021 06:20:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF63C6109E;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13988B8106C;
+        Mon, 13 Dec 2021 14:20:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B62E3C34602;
         Mon, 13 Dec 2021 14:20:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2258C34603;
-        Mon, 13 Dec 2021 14:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639405216;
-        bh=Emm6T7pwA/+Z6G0W9UiEMZ7qT/ArAlPegWjRyye7VzU=;
+        s=k20201202; t=1639405217;
+        bh=NHNsv+IvqipAutdz45tYJ2eyGvjjQd/vCVH+dR1o/6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDLgAGPwC5QLENpmFQf5l983/clizVqtQGWJ1snlcEtrJfKZFo9HbS8wztoRIzg2W
-         MtLDmk5lOa3zT+hQgUU065EUGcQcVIAyzZHodDfklO1vUs9h6k5nb02iEV3EOQGA9H
-         IWKOOvx7CkL5UnlzZq6vWTC2VKecZEpj1nqoZdfESOneWvjtp2RMqySEEFFfX6r/Be
-         hr8gI0XYt8OKlqrUZeAa5yNJ4T/KjGRd/LuVbs668K4FS1Zvdwak/W1BdSbY7ZUtOu
-         6hXaOiX+dQUsQyDJDRYDzFU6rOfrNtQW2xoxDzTe14qaxEffZ0JnvcN3Np0pU9LtNB
-         3MCmQgl6ulOFA==
+        b=r6ypXCzh8lD0vPqoizeeFpFygytH59zCddynyRD2q0z1QznEYDEondiOFuF1StNCi
+         bwR0qFdXeiXEfYcYDG6xTIJCY1Vy1N1+ocAlpKJ5zg+iG5py2ly6dBrnVOljgPbG6X
+         BqXmCop9HrsaloA1cMPk1lczLysxP/qPkd4sDyEZ8cZg+qCZKdJvqUVV7IGrsKPX4d
+         KCN+lnSFfbDh9GwRNFRQHgskd89GE6uIZPjykoSUrw7CnXIXGfra8MQfM5uvphjt0x
+         L5tnyzWJCLq4DAwfyrgVxUVEZhgYiFUDoGO/XNPo/7aY4uLYv2CqCcBdRVyikqYqGP
+         k6JKQza/kEC8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.15 8/9] KVM: downgrade two BUG_ONs to WARN_ON_ONCE
-Date:   Mon, 13 Dec 2021 09:19:41 -0500
-Message-Id: <20211213141944.352249-8-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.15 9/9] x86/kvm: remove unused ack_notifier callbacks
+Date:   Mon, 13 Dec 2021 09:19:42 -0500
+Message-Id: <20211213141944.352249-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211213141944.352249-1-sashal@kernel.org>
 References: <20211213141944.352249-1-sashal@kernel.org>
@@ -46,44 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 5f25e71e311478f9bb0a8ef49e7d8b95316491d7 ]
+[ Upstream commit 9dba4d24cbb5524dd39ab1e08886373b17f07ff2 ]
 
-This is not an unrecoverable situation.  Users of kvm_read_guest_offset_cached
-and kvm_write_guest_offset_cached must expect the read/write to fail, and
-therefore it is possible to just return early with an error value.
+Commit f52447261bc8c2 ("KVM: irq ack notification") introduced an
+ack_notifier() callback in struct kvm_pic and in struct kvm_ioapic
+without using them anywhere. Remove those callbacks again.
 
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Message-Id: <20211117071617.19504-1-jgross@suse.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kvm/ioapic.h | 1 -
+ arch/x86/kvm/irq.h    | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index ce1847bc898b2..c6bfd4e15d28a 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -3001,7 +3001,8 @@ int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 	int r;
- 	gpa_t gpa = ghc->gpa + offset;
+diff --git a/arch/x86/kvm/ioapic.h b/arch/x86/kvm/ioapic.h
+index 27e61ff3ac3e8..f1b2b2a6ff4db 100644
+--- a/arch/x86/kvm/ioapic.h
++++ b/arch/x86/kvm/ioapic.h
+@@ -81,7 +81,6 @@ struct kvm_ioapic {
+ 	unsigned long irq_states[IOAPIC_NUM_PINS];
+ 	struct kvm_io_device dev;
+ 	struct kvm *kvm;
+-	void (*ack_notifier)(void *opaque, int irq);
+ 	spinlock_t lock;
+ 	struct rtc_status rtc_status;
+ 	struct delayed_work eoi_inject;
+diff --git a/arch/x86/kvm/irq.h b/arch/x86/kvm/irq.h
+index 650642b18d151..c2d7cfe82d004 100644
+--- a/arch/x86/kvm/irq.h
++++ b/arch/x86/kvm/irq.h
+@@ -56,7 +56,6 @@ struct kvm_pic {
+ 	struct kvm_io_device dev_master;
+ 	struct kvm_io_device dev_slave;
+ 	struct kvm_io_device dev_elcr;
+-	void (*ack_notifier)(void *opaque, int irq);
+ 	unsigned long irq_states[PIC_NUM_PINS];
+ };
  
--	BUG_ON(len + offset > ghc->len);
-+	if (WARN_ON_ONCE(len + offset > ghc->len))
-+		return -EINVAL;
- 
- 	if (slots->generation != ghc->generation) {
- 		if (__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len))
-@@ -3038,7 +3039,8 @@ int kvm_read_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 	int r;
- 	gpa_t gpa = ghc->gpa + offset;
- 
--	BUG_ON(len + offset > ghc->len);
-+	if (WARN_ON_ONCE(len + offset > ghc->len))
-+		return -EINVAL;
- 
- 	if (slots->generation != ghc->generation) {
- 		if (__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len))
 -- 
 2.33.0
 
