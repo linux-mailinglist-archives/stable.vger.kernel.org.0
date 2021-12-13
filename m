@@ -2,109 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77EFD4726A4
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:56:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B44E8472925
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236920AbhLMJxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:53:48 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22420 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237272AbhLMJu5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:50:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639389053;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=hEYDwiRZdRj8CPwPXNiOfGLs/2n90iYIX4FN3EKBsTE=;
-        b=jWTEIFdkKAm6iIur85uRGFsR6Uptc49SxJbShc8W4Jv6qfcjwr2wASJ+yOwJzNak6Afale
-        Srmvz9wPkLntx0oFxButY+zw2DVfOYLqYJXFnuOTUWOGZJJ4N8Bx+nDmY/gK4mTxzw7wPv
-        5grhMHtaItSB/s9nlfYPageIm9Zz3V8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-466-f3IbZK45PSKOcyvcHXqaTg-1; Mon, 13 Dec 2021 04:50:49 -0500
-X-MC-Unique: f3IbZK45PSKOcyvcHXqaTg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S242274AbhLMKSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:18:25 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:57970 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237182AbhLMKPO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:15:14 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F01AA10151E1;
-        Mon, 13 Dec 2021 09:50:48 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.40.193.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 88B7C22E0C;
-        Mon, 13 Dec 2021 09:50:47 +0000 (UTC)
-From:   Vitaly Kuznetsov <vkuznets@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        gregkh@linuxfoundation.org
-Subject: [PATCH 5.4] KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
-Date:   Mon, 13 Dec 2021 10:50:46 +0100
-Message-Id: <20211213095046.15147-1-vkuznets@redhat.com>
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6069DCE0F0F;
+        Mon, 13 Dec 2021 10:15:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFE8C34602;
+        Mon, 13 Dec 2021 10:15:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639390509;
+        bh=my/X2S/rJujwq12TrbafCXI5IQ5H0PRDazBL7lL4chE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rrr90osq3QT7vjfjzI8sRS1qNte5Zbt/uQ0IlZUpdUP+byVGy/Ifa3SOBrlbxWoD1
+         8gCIs6+IoVr5SPCtCVy4QW5yRegPx+UGtQcHDvxDbX83rqwo55CrbvVxa9v5gWCV4S
+         HjoaGBKHCReSxny1MXQH72VGPxesg0c3TwMAsuvoRAmqoZrePAzPHHsluS5eTT+dvS
+         0g+gvbGPKbxyeGAg1UOd7lvp6uSKjQi5fvT9AxpUPlUhp5f+UcISrqvbBjtG2u81Lt
+         T7LAS40+AnI3MlO06jNZRmKtW3TYuiV5rZcFIK/Wrf8UrELZ6yV+WRUHUZOR7liRh6
+         8AJ288qJCucdA==
+From:   Antoine Tenart <atenart@kernel.org>
+To:     gregkh@linuxfoundation.org, davem@davemloft.net, kuba@kernel.org
+Cc:     Antoine Tenart <atenart@kernel.org>, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.10] ethtool: do not perform operations on net devices being unregistered
+Date:   Mon, 13 Dec 2021 11:15:06 +0100
+Message-Id: <20211213101506.118377-1-atenart@kernel.org>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+commit dde91ccfa25fd58f64c397d91b81a4b393100ffa upstream
 
-commit 3244867af8c065e51969f1bffe732d3ebfd9a7d2 upstream.
+There is a short period between a net device starts to be unregistered
+and when it is actually gone. In that time frame ethtool operations
+could still be performed, which might end up in unwanted or undefined
+behaviours[1].
 
-Do not bail early if there are no bits set in the sparse banks for a
-non-sparse, a.k.a. "all CPUs", IPI request.  Per the Hyper-V spec, it is
-legal to have a variable length of '0', e.g. VP_SET's BankContents in
-this case, if the request can be serviced without the extra info.
+Do not allow ethtool operations after a net device starts its
+unregistration. This patch targets the netlink part as the ioctl one
+isn't affected: the reference to the net device is taken and the
+operation is executed within an rtnl lock section and the net device
+won't be found after unregister.
 
-  It is possible that for a given invocation of a hypercall that does
-  accept variable sized input headers that all the header input fits
-  entirely within the fixed size header. In such cases the variable sized
-  input header is zero-sized and the corresponding bits in the hypercall
-  input should be set to zero.
+[1] For example adding Tx queues after unregister ends up in NULL
+    pointer exceptions and UaFs, such as:
 
-Bailing early results in KVM failing to send IPIs to all CPUs as expected
-by the guest.
+      BUG: KASAN: use-after-free in kobject_get+0x14/0x90
+      Read of size 1 at addr ffff88801961248c by task ethtool/755
 
-Fixes: 214ff83d4473 ("KVM: x86: hyperv: implement PV IPI send hypercalls")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20211207220926.718794-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+      CPU: 0 PID: 755 Comm: ethtool Not tainted 5.15.0-rc6+ #778
+      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/014
+      Call Trace:
+       dump_stack_lvl+0x57/0x72
+       print_address_description.constprop.0+0x1f/0x140
+       kasan_report.cold+0x7f/0x11b
+       kobject_get+0x14/0x90
+       kobject_add_internal+0x3d1/0x450
+       kobject_init_and_add+0xba/0xf0
+       netdev_queue_update_kobjects+0xcf/0x200
+       netif_set_real_num_tx_queues+0xb4/0x310
+       veth_set_channels+0x1c3/0x550
+       ethnl_set_channels+0x524/0x610
+
+[The patch differs from the upstream one as code was moved around by
+commit 41107ac22fcf ("ethtool: move netif_device_present check from
+ethnl_parse_header_dev_get to ethnl_ops_begin"). The check on the netdev
+state is still done in ethnl_ops_begin as it must be done in an rtnl
+section (the one which performs the op) to not race with
+unregister_netdevice_many.
+Also note the trace in [1] is not possible here as the channel ops for
+veth were added later, but that was just one example.]
+
+Fixes: 041b1c5d4a53 ("ethtool: helper functions for netlink interface")
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Antoine Tenart <atenart@kernel.org>
 ---
- arch/x86/kvm/hyperv.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index 26408434b9bc..be92e8dccda3 100644
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -1501,11 +1501,13 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
+Hello,
+
+This patch is intended for the stable 5.10 tree.
+
+As reported by Greg, patch dde91ccfa25f ("ethtool: do not perform
+operations on net devices being unregistered") did not apply correctly
+on the 5.10 tree. The explanation of this and the approach taken here is
+explained in the above commit log, between [].
+
+I removed the Link tag and Signed-off-by from Jakub from the original
+patch as this one is slightly different in its implementation.
+
+Thanks,
+Antoine
+
+ net/ethtool/netlink.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/net/ethtool/netlink.h b/net/ethtool/netlink.h
+index d8efec516d86..979dee6bb88c 100644
+--- a/net/ethtool/netlink.h
++++ b/net/ethtool/netlink.h
+@@ -249,6 +249,9 @@ struct ethnl_reply_data {
  
- 		all_cpus = send_ipi_ex.vp_set.format == HV_GENERIC_SET_ALL;
- 
-+		if (all_cpus)
-+			goto check_and_send_ipi;
+ static inline int ethnl_ops_begin(struct net_device *dev)
+ {
++	if (dev && dev->reg_state == NETREG_UNREGISTERING)
++		return -ENODEV;
 +
- 		if (!sparse_banks_len)
- 			goto ret_success;
- 
--		if (!all_cpus &&
--		    kvm_read_guest(kvm,
-+		if (kvm_read_guest(kvm,
- 				   ingpa + offsetof(struct hv_send_ipi_ex,
- 						    vp_set.bank_contents),
- 				   sparse_banks,
-@@ -1513,6 +1515,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
- 			return HV_STATUS_INVALID_HYPERCALL_INPUT;
- 	}
- 
-+check_and_send_ipi:
- 	if ((vector < HV_IPI_LOW_VECTOR) || (vector > HV_IPI_HIGH_VECTOR))
- 		return HV_STATUS_INVALID_HYPERCALL_INPUT;
- 
+ 	if (dev && dev->ethtool_ops->begin)
+ 		return dev->ethtool_ops->begin(dev);
+ 	else
 -- 
 2.33.1
 
