@@ -2,134 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1FB472FCF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:52:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02C31472FD0
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:53:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234562AbhLMOwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 09:52:33 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:54354 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231349AbhLMOwc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:52:32 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 652251F3BA;
-        Mon, 13 Dec 2021 14:52:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1639407151; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=43M2it8+IRN7ztvN3MVNcuqsPzC82xu3mXqH42vHp/w=;
-        b=Bha888jUF49BJg0Yx/Q2f/dGOpxdG07cUjW1uJEJAbPnAhE5vYIuAMYgFDrCLxrUFVgn5k
-        2m0DLn6v0cYFG+CBwFFnAxOnkQ5BkSuRMuZHfgymNj2+XcGIGBpiWwQlZOHOeSh6bjzYjb
-        mioZYYjS/7OFMlp6W0oRsML6QT48u5Y=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1639407151;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=43M2it8+IRN7ztvN3MVNcuqsPzC82xu3mXqH42vHp/w=;
-        b=7a+4nkwTbIc+ynCyI7UiIhiu18ei2lYqSvxWypfGadh8I+0X1w4tkbpz4vsa0cVIkLIYuT
-        jzUxR55YuV4L5uBg==
-Received: from quack2.suse.cz (unknown [10.163.28.18])
-        by relay2.suse.de (Postfix) with ESMTP id 53D7DA3B8C;
-        Mon, 13 Dec 2021 14:52:31 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 2E3431E11F3; Mon, 13 Dec 2021 15:52:31 +0100 (CET)
-Date:   Mon, 13 Dec 2021 15:52:31 +0100
-From:   Jan Kara <jack@suse.cz>
-To:     Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-Cc:     Jan Kara <jack@suse.cz>, Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org,
-        fvogt@suse.de, Tejun Heo <tj@kernel.org>, cgroups@vger.kernel.org,
-        stable@vger.kernel.org, Fabian Vogt <fvogt@suse.com>
-Subject: Re: [PATCH] bfq: Fix use-after-free with cgroups
-Message-ID: <20211213145231.GD14044@quack2.suse.cz>
-References: <20211201133439.3309-1-jack@suse.cz>
- <20211207190843.GA40898@blackbody.suse.cz>
+        id S235345AbhLMOxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 09:53:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46416 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231349AbhLMOxZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:53:25 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D13BDC061574
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 06:53:24 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id x131so15100665pfc.12
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 06:53:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qEXotvngrjRV7ht2GIqhe5Tpy7Eaw0cVcn+gYBHfqKg=;
+        b=wkYHzfJwqQvHOL1B/0zWWZ39V4ovP2zRjj4nDmrgXwwf4i4LCKITS0Zoxxs3kMV+nn
+         Mukuc5w+US2qtg9EWLJe7U3qXI6ILhQ00RyDtAAySOn1yCAECGQAhqRMW8mJFnVI+Fq4
+         pnSVTm2YGbkKO7TtOq045/O/S5Aan9ahSw3IA/oPhiF3qS3ypmd9TIGQ1ulzYJ5NgVy1
+         rq+NgHp6JOdIRQ7sn8TmHq5mdEC79IyCwsefj/OoRro/qQXYfVxKmTcZPNscZYeVFX6a
+         quU4yQg2hbWqBuBF665KePbqGM3Z0aT0H4IKef3aZSvKdcPbFXZSYi5ZDLoHo1soLp9i
+         JgPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qEXotvngrjRV7ht2GIqhe5Tpy7Eaw0cVcn+gYBHfqKg=;
+        b=Mz6yjOEa6aSyhykLT9aJzHg/9fscwq5aSFnwO7rMHFj/RHKGMN/MJ5CPMa4NltHHZ2
+         Dl97M+e+6iW2dKKcNt0aVN1r7Ykq2kymK/UE1fiLIVLfBn9ls8AjKgpWu5xkILKYwTlD
+         7MgPlMxdLL22iuEAAm27NMaft4brf0yTO3H+xZb4RvstF6RMETn21gpf3gFSdrMDyZ1W
+         T4guQeTTBDGcYoCRR5n+sBrfFdtTIMw7r26omVvDltcwnehXM3qUzX9/n5hq/HNLQuIY
+         wCEjoBdRlBdAKmwfmzEPreb7VMoeATR9HwN8kzOnS+klZfBkepJYrkMgJXQvLzrBqdb4
+         HE7A==
+X-Gm-Message-State: AOAM5336CU4tIpkD1/gmUDouYnsiZvA6M97QVMlDNLoCzY326YZGB+5D
+        1GVeI0ruT7K/sQo45+nvJgaaXJFZjka2Geoi
+X-Google-Smtp-Source: ABdhPJz8eBrV+yhzSpeNBaGMtd/FYjXJzj/kL1YW23qnkewnwxHEg4H2pkIq7biQWQyseoyxFskv4Q==
+X-Received: by 2002:a63:d054:: with SMTP id s20mr52063068pgi.565.1639407204121;
+        Mon, 13 Dec 2021 06:53:24 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e35sm10398101pgm.92.2021.12.13.06.53.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Dec 2021 06:53:23 -0800 (PST)
+Message-ID: <61b75e63.1c69fb81.84996.cbc2@mx.google.com>
+Date:   Mon, 13 Dec 2021 06:53:23 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20211207190843.GA40898@blackbody.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.84-133-gf6a609e247c6
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 243 runs,
+ 1 regressions (v5.10.84-133-gf6a609e247c6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 07-12-21 20:08:43, Michal Koutný wrote:
-> On Wed, Dec 01, 2021 at 02:34:39PM +0100, Jan Kara <jack@suse.cz> wrote:
-> > After some analysis we've found out that the culprit of the problem is
-> > that some task is reparented from cgroup G to the root cgroup and G is
-> > offlined.
-> 
-> Just sharing my interpretation for context -- (I saw this was a system
-> using the unified cgroup hierarchy, io_cgrp_subsys_on_dfl_key was
-> enabled) and what was observed could also have been disabling the io
-> controller on given level -- that would also manifest similarly -- the
-> task is migrated to parent and the former blkcg is offlined.
+stable-rc/linux-5.10.y baseline: 243 runs, 1 regressions (v5.10.84-133-gf6a=
+609e247c6)
 
-Yes, that's another possibility.
+Regressions Summary
+-------------------
 
-> > +static void bfq_reparent_children(struct bfq_data *bfqd, struct bfq_group *bfqg)
-> > [...]
-> > -	bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
-> > [...]
-> > +	hlist_for_each_entry_safe(bfqq, next, &bfqg->children, children_node)
-> > +		bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
-> 
-> Here I assume root_group is (representing) the global blkcg root and
-> this reparenting thus skips all ancestors between the removed leaf and
-> the root. IIUC the associated io_context would then be treated as if it
-> was running in the root blkcg.
-> (Admittedly, this isn't a change from this patch but it may cause some
-> surprises if the given process runs after the operation.)
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
-Yes, this is what happens in bfq_reparent_children() and basically
-preserves what BFQ was already doing for a subset of bfq queues.
 
-> Reparenting to the immediate ancestors should be safe as cgroup core
-> should ensure children are offlined before parents. Would it make sense
-> to you?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.84-133-gf6a609e247c6/plan/baseline/
 
-I suppose yes, it makes more sense to reparent just to immediate parents
-instead of the root of the blkcg hierarchy. Initially when developing the
-patch I was not sure whether parent has to be still alive but as you write
-it should be safe. I'll modify the patch to:
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.84-133-gf6a609e247c6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f6a609e247c6d6f15ec8c4a87c9aef37b7c8e5a5 =
 
-static void bfq_reparent_children(struct bfq_data *bfqd, struct bfq_group *bfqg)
-{
-        struct bfq_queue *bfqq;
-        struct hlist_node *next;
-        struct bfq_group *parent;
 
-        parent = bfqg_parent(bfqg);
-        if (!parent)
-                parent = bfqd->root_group;
 
-        hlist_for_each_entry_safe(bfqq, next, &bfqg->children, children_node)
-                bfq_bfqq_move(bfqd, bfqq, parent);
-}
+Test Regressions
+---------------- =
 
- 
-> > @@ -897,38 +844,17 @@ static void bfq_pd_offline(struct blkg_policy_data *pd)
-> > [...]
-> > -		 * It may happen that some queues are still active
-> > -		 * (busy) upon group destruction (if the corresponding
-> > -		 * processes have been forced to terminate). We move
-> > -		 * all the leaf entities corresponding to these queues
-> > -		 * to the root_group.
-> 
-> This comment is removed but it seems to me it assumed that the
-> reparented entities are only some transitional remainings of terminated
-> tasks but they may be the processes migrated upwards with a long (IO
-> active) life ahead.
 
-Yes, this seemed to be a misconception of the old code...
 
-								Honza
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+
+  Details:     https://kernelci.org/test/plan/id/61b724bfa32c36338539715c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.8=
+4-133-gf6a609e247c6/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-colla=
+bora/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.8=
+4-133-gf6a609e247c6/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-colla=
+bora/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b724bfa32c363385397=
+15d
+        new failure (last pass: v5.10.81-154-gc7ee3713feb5) =
+
+ =20
