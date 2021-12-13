@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E68C6472827
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91C5D47261B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234640AbhLMKIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:08:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32884 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237577AbhLMKGc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:06:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E95C08E92E;
-        Mon, 13 Dec 2021 01:51:01 -0800 (PST)
+        id S237358AbhLMJtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:06 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:36822 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235868AbhLMJpY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:45:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C934B80E12;
-        Mon, 13 Dec 2021 09:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 716DCC00446;
-        Mon, 13 Dec 2021 09:50:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EFFF8CE0B59;
+        Mon, 13 Dec 2021 09:45:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F694C00446;
+        Mon, 13 Dec 2021 09:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389059;
-        bh=2do02VBQ0EAtfIjgoQ5YBaSP/HB6Cg8sTaaPHb+Vx80=;
+        s=korg; t=1639388721;
+        bh=YWiA+QBowQJ0EZNMIgk+EDuUAyt7OYLBb+pTUZs57Io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AiUGMXA6KQXRFSjD6LFt60yl0nBYIYpsp79CbMhFSUIzzt/hUAGUPfZGPv562vMj9
-         Ptfb0VHBEOgWGhFuZHbEjBd8abDO0cLjxAiZUoV3w4Cy/i/YwfTMCwSCnkvYsbXSdP
-         PHf277PLXeYWlqOlAeD9LVpAvTl1kekVXk0EF5jw=
+        b=plWhsY3cMvvRjQIGhHriszkf/w8JuAM9edtQAWH0h34Q6pUGG5/B09DkrkAY1gxan
+         TDs/JX+OUlnuabgpmFrXfIQQUF+ihYt7RDPDJvJyS3c++WW+QyvI8F5xjIcU+OO7lp
+         pizn4dUMUd7iTw+mruaReU5nGh88DkAX9WeeqlvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 103/132] xhci: Remove CONFIG_USB_DEFAULT_PERSIST to prevent xHCI from runtime suspending
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 74/88] iio: ltr501: Dont return error code in trigger handler
 Date:   Mon, 13 Dec 2021 10:30:44 +0100
-Message-Id: <20211213092942.626329449@linuxfoundation.org>
+Message-Id: <20211213092935.794489444@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,62 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 811ae81320da53a5670c36970cefacca8519f90e upstream.
+commit ef9d67fa72c1b149a420587e435a3e888bdbf74f upstream.
 
-When the xHCI is quirked with XHCI_RESET_ON_RESUME, runtime resume
-routine also resets the controller.
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
-This is bad for USB drivers without reset_resume callback, because
-there's no subsequent call of usb_dev_complete() ->
-usb_resume_complete() to force rebinding the driver to the device. For
-instance, btusb device stops working after xHCI controller is runtime
-resumed, if the controlled is quirked with XHCI_RESET_ON_RESUME.
+The ltr501 interrupt handler gets this right for most error paths, but
+there is one case where it returns the error code.
 
-So always take XHCI_RESET_ON_RESUME into account to solve the issue.
+In addition for this particular case the trigger handler does not call
+`iio_trigger_notify_done()`. Which when not done keeps the triggered
+disabled forever.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211210141735.1384209-2-mathias.nyman@linux.intel.com
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
+
+Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024171251.22896-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/iio/light/ltr501.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -3893,7 +3893,6 @@ static void xhci_free_dev(struct usb_hcd
- 	struct xhci_slot_ctx *slot_ctx;
- 	int i, ret;
- 
--#ifndef CONFIG_USB_DEFAULT_PERSIST
- 	/*
- 	 * We called pm_runtime_get_noresume when the device was attached.
- 	 * Decrement the counter here to allow controller to runtime suspend
-@@ -3901,7 +3900,6 @@ static void xhci_free_dev(struct usb_hcd
- 	 */
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
- 		pm_runtime_put_noidle(hcd->self.controller);
--#endif
- 
- 	ret = xhci_check_args(hcd, udev, NULL, 0, true, __func__);
- 	/* If the host is halted due to driver unload, we still need to free the
-@@ -4053,14 +4051,12 @@ int xhci_alloc_dev(struct usb_hcd *hcd,
- 
- 	xhci_debugfs_create_slot(xhci, slot_id);
- 
--#ifndef CONFIG_USB_DEFAULT_PERSIST
- 	/*
- 	 * If resetting upon resume, we can't put the controller into runtime
- 	 * suspend if there is a device attached.
- 	 */
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
- 		pm_runtime_get_noresume(hcd->self.controller);
--#endif
- 
- 	/* Is this a LS or FS device under a HS hub? */
- 	/* Hub or peripherial? */
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -1272,7 +1272,7 @@ static irqreturn_t ltr501_trigger_handle
+ 		ret = regmap_bulk_read(data->regmap, LTR501_ALS_DATA1,
+ 				       (u8 *)als_buf, sizeof(als_buf));
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 		if (test_bit(0, indio_dev->active_scan_mask))
+ 			scan.channels[j++] = le16_to_cpu(als_buf[1]);
+ 		if (test_bit(1, indio_dev->active_scan_mask))
 
 
