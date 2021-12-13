@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E373A4728AE
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DC0472513
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243715AbhLMKOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32952 "EHLO
+        id S235296AbhLMJkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:40:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241468AbhLMKEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:04:39 -0500
+        with ESMTP id S234717AbhLMJjO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:14 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3202C09CE67;
-        Mon, 13 Dec 2021 01:50:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 404A9C061D5F;
+        Mon, 13 Dec 2021 01:37:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5794DCE0EBC;
-        Mon, 13 Dec 2021 09:50:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A0AC341C8;
-        Mon, 13 Dec 2021 09:50:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8D205CE0E7F;
+        Mon, 13 Dec 2021 09:37:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9E3C341CA;
+        Mon, 13 Dec 2021 09:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389018;
-        bh=p7PfO+Az2Gb7VxA4W2Nv4CkymF12Ggc/UgBoxJWSxHs=;
+        s=korg; t=1639388265;
+        bh=2qt4EuuFyqq2CR+XlV4DHHNK6qcXhmaQWS/jTj5v4sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdbMLP7zoqBFQMFo0ESMnPnMHxURACX1UtJohHA0gC45WXrDALPa/xL16gRCZkZTN
-         UyzTFbF2Cykp7ZC+wYxR+txVxTo36oummNhi2zbgJQX1NOuT9f4+gL8y+5BjeLL15t
-         7EWYe6jeUfBoEmc77ck+18+u+1DJgsclHEooAOkk=
+        b=I2PkJ58oBUJDwhslg3SvszvT6g4a7PboIAUwLuz1YoQPFpZyGAsAJIzuzRywAyIpi
+         Iu1I0HSKVra+evi9al8mR1oFbPkLV+PadRncFsJtZuSls+btIBcP+XNx58f83aU6/V
+         inXn8pRJT3Xp5mhpiTXv9fksYFjreeqS4FfQvf8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 082/132] RDMA/hns: Do not destroy QP resources in the hw resetting phase
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 44/53] iio: kxsd9: Dont return error code in trigger handler
 Date:   Mon, 13 Dec 2021 10:30:23 +0100
-Message-Id: <20211213092941.939901088@linuxfoundation.org>
+Message-Id: <20211213092929.830833221@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,86 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangyang Li <liyangyang20@huawei.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit b0969f83890bf8b47f5c8bd42539599b2b52fdeb upstream.
+commit 45febe0d63917ee908198c5be08511c64ee1790a upstream.
 
-When hns_roce_v2_destroy_qp() is called, the brief calling process of the
-driver is as follows:
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
- ......
- hns_roce_v2_destroy_qp
- hns_roce_v2_qp_modify
-	   hns_roce_cmd_mbox
- hns_roce_qp_destroy
+The kxsd9 interrupt handler returns an error code if reading the data
+registers fails. In addition when exiting due to an error the trigger
+handler does not call `iio_trigger_notify_done()`. Which when not done
+keeps the triggered disabled forever.
 
-If hns_roce_cmd_mbox() detects that the hardware is being reset during the
-execution of the hns_roce_cmd_mbox(), the driver will not be able to get
-the return value from the hardware (the firmware cannot respond to the
-driver's mailbox during the hardware reset phase).
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
 
-The driver needs to wait for the hardware reset to complete before
-continuing to execute hns_roce_qp_destroy(), otherwise it may happen that
-the driver releases the resources but the hardware is still accessing. In
-order to fix this problem, HNS RoCE needs to add a piece of code to wait
-for the hardware reset to complete.
+Since we can't return the error code make sure to at least log it as part
+of the error message.
 
-The original interface get_hw_reset_stat() is the instantaneous state of
-the hardware reset, which cannot accurately reflect whether the hardware
-reset is completed, so it needs to be replaced with the ae_dev_reset_cnt
-interface.
-
-The sign that the hardware reset is complete is that the return value of
-the ae_dev_reset_cnt interface is greater than the original value
-reset_cnt recorded by the driver.
-
-Fixes: 6a04aed6afae ("RDMA/hns: Fix the chip hanging caused by sending mailbox&CMQ during reset")
-Link: https://lore.kernel.org/r/20211123142402.26936-1-liangwenpeng@huawei.com
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20211024171251.22896-2-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/iio/accel/kxsd9.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -33,6 +33,7 @@
- #include <linux/acpi.h>
- #include <linux/etherdevice.h>
- #include <linux/interrupt.h>
-+#include <linux/iopoll.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <net/addrconf.h>
-@@ -964,9 +965,14 @@ static int hns_roce_v2_cmd_hw_resetting(
- 					unsigned long instance_stage,
- 					unsigned long reset_stage)
- {
-+#define HW_RESET_TIMEOUT_US 1000000
-+#define HW_RESET_SLEEP_US 1000
-+
- 	struct hns_roce_v2_priv *priv = hr_dev->priv;
- 	struct hnae3_handle *handle = priv->handle;
- 	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
-+	unsigned long val;
-+	int ret;
+--- a/drivers/iio/accel/kxsd9.c
++++ b/drivers/iio/accel/kxsd9.c
+@@ -227,14 +227,14 @@ static irqreturn_t kxsd9_trigger_handler
+ 			       hw_values.chan,
+ 			       sizeof(hw_values.chan));
+ 	if (ret) {
+-		dev_err(st->dev,
+-			"error reading data\n");
+-		return ret;
++		dev_err(st->dev, "error reading data: %d\n", ret);
++		goto out;
+ 	}
  
- 	/* When hardware reset is detected, we should stop sending mailbox&cmq&
- 	 * doorbell to hardware. If now in .init_instance() function, we should
-@@ -978,7 +984,11 @@ static int hns_roce_v2_cmd_hw_resetting(
- 	 * again.
- 	 */
- 	hr_dev->dis_db = true;
--	if (!ops->get_hw_reset_stat(handle))
-+
-+	ret = read_poll_timeout(ops->ae_dev_reset_cnt, val,
-+				val > hr_dev->reset_cnt, HW_RESET_SLEEP_US,
-+				HW_RESET_TIMEOUT_US, false, handle);
-+	if (!ret)
- 		hr_dev->is_reset = true;
+ 	iio_push_to_buffers_with_timestamp(indio_dev,
+ 					   &hw_values,
+ 					   iio_get_time_ns(indio_dev));
++out:
+ 	iio_trigger_notify_done(indio_dev->trig);
  
- 	if (!hr_dev->is_reset || reset_stage == HNS_ROCE_STATE_RST_INIT ||
+ 	return IRQ_HANDLED;
 
 
