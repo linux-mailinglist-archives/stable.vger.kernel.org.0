@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6736347244F
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4E13472402
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232533AbhLMJfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:35:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48488 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234268AbhLMJen (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:43 -0500
+        id S233885AbhLMJd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:33:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54006 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233924AbhLMJdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D83FBC061A32;
+        Mon, 13 Dec 2021 01:33:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E506B80E07;
-        Mon, 13 Dec 2021 09:34:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9C41C341D9;
-        Mon, 13 Dec 2021 09:34:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F537B80E18;
+        Mon, 13 Dec 2021 09:33:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C07CCC00446;
+        Mon, 13 Dec 2021 09:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388081;
-        bh=6lxXqNWseBnVtGFh0FJVIQIGP0qhOdZ31Hk4L439YdM=;
+        s=korg; t=1639387986;
+        bh=0/TqD2fLN/WfxHKsUjSXtWtrXwGmySEVT/iwwE4ZUVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XLogPnmIlBQUfIwrmut7FY3awJQudSqi61RXb0Qf84Vj3haRqBUNxgY1RTCbm5uYT
-         zgAaiz/t29rkRwbmq6My/QJCgRvTvR2xbZfrZGTIdghIK7ah+0gkau5vFYMof+Hcww
-         HG774PkHYZ8lo/HowFe+GWTYPn4Wn9n5iUAHgUf4=
+        b=k/t1daspQPtU+rE/WaA9LdmG/W3pM9cMxWJ7AJreH1t3Rb7ZEZMOXQFrp9BEwCThv
+         FItn7f1oo5NU61eEjHx1FTI8KKl3TAhaFQDV6f0AKTE+XAyntpLtZ2SGA631RBJEWm
+         aKN9Q8bxEOKwGyHsBBSqSVGw9I7LTdXdsmiyt4X0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 23/42] block: fix ioprio_get(IOPRIO_WHO_PGRP) vs setuid(2)
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 27/37] net/qla3xxx: fix an error code in ql_adapter_up()
 Date:   Mon, 13 Dec 2021 10:30:05 +0100
-Message-Id: <20211213092927.332822590@linuxfoundation.org>
+Message-Id: <20211213092926.266581534@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
+References: <20211213092925.380184671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davidlohr Bueso <dave@stgolabs.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit e6a59aac8a8713f335a37d762db0dbe80e7f6d38 upstream.
+commit d17b9737c2bc09b4ac6caf469826e5a7ce3ffab7 upstream.
 
-do_each_pid_thread(PIDTYPE_PGID) can race with a concurrent
-change_pid(PIDTYPE_PGID) that can move the task from one hlist
-to another while iterating. Serialize ioprio_get to take
-the tasklist_lock in this case, just like it's set counterpart.
+The ql_wait_for_drvr_lock() fails and returns false, then this
+function should return an error code instead of returning success.
 
-Fixes: d69b78ba1de (ioprio: grab rcu_read_lock in sys_ioprio_{set,get}())
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
-Link: https://lore.kernel.org/r/20211210182058.43417-1-dave@stgolabs.net
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The other problem is that the success path prints an error message
+netdev_err(ndev, "Releasing driver lock\n");  Delete that and
+re-order the code a little to make it more clear.
+
+Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211207082416.GA16110@kili
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/ioprio.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/qlogic/qla3xxx.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/block/ioprio.c
-+++ b/block/ioprio.c
-@@ -202,6 +202,7 @@ SYSCALL_DEFINE2(ioprio_get, int, which,
- 				pgrp = task_pgrp(current);
- 			else
- 				pgrp = find_vpid(who);
-+			read_lock(&tasklist_lock);
- 			do_each_pid_thread(pgrp, PIDTYPE_PGID, p) {
- 				tmpio = get_task_ioprio(p);
- 				if (tmpio < 0)
-@@ -211,6 +212,8 @@ SYSCALL_DEFINE2(ioprio_get, int, which,
- 				else
- 					ret = ioprio_best(ret, tmpio);
- 			} while_each_pid_thread(pgrp, PIDTYPE_PGID, p);
-+			read_unlock(&tasklist_lock);
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -3491,20 +3491,19 @@ static int ql_adapter_up(struct ql3_adap
+ 
+ 	spin_lock_irqsave(&qdev->hw_lock, hw_flags);
+ 
+-	err = ql_wait_for_drvr_lock(qdev);
+-	if (err) {
+-		err = ql_adapter_initialize(qdev);
+-		if (err) {
+-			netdev_err(ndev, "Unable to initialize adapter\n");
+-			goto err_init;
+-		}
+-		netdev_err(ndev, "Releasing driver lock\n");
+-		ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
+-	} else {
++	if (!ql_wait_for_drvr_lock(qdev)) {
+ 		netdev_err(ndev, "Could not acquire driver lock\n");
++		err = -ENODEV;
+ 		goto err_lock;
+ 	}
+ 
++	err = ql_adapter_initialize(qdev);
++	if (err) {
++		netdev_err(ndev, "Unable to initialize adapter\n");
++		goto err_init;
++	}
++	ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
 +
- 			break;
- 		case IOPRIO_WHO_USER:
- 			uid = make_kuid(current_user_ns(), who);
+ 	spin_unlock_irqrestore(&qdev->hw_lock, hw_flags);
+ 
+ 	set_bit(QL_ADAPTER_UP, &qdev->flags);
 
 
