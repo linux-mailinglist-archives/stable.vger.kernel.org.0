@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8D80472455
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E3C4724C9
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232374AbhLMJfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:35:44 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48582 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232358AbhLMJeq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:46 -0500
+        id S234189AbhLMJia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:38:30 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:60036 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234823AbhLMJhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:37:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CF9FB80E26;
-        Mon, 13 Dec 2021 09:34:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9B07C00446;
-        Mon, 13 Dec 2021 09:34:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7CD64CE0E63;
+        Mon, 13 Dec 2021 09:37:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 241AAC00446;
+        Mon, 13 Dec 2021 09:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388084;
-        bh=yBU8aZqcgyf3rF+Ru74KEkxwcTH3fdFpzLK0MNQeuh4=;
+        s=korg; t=1639388219;
+        bh=WhRJ93lQCH47aXQZG1pBhGMOA7BbswzRhaj0M5w5zN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAdaAH/TrY5awgoAN/Z11jRKM+EBT5qmyjOPOOgucH16UnSMvZ382g1nlraZwCeua
-         g5/NIT8nT4B3mGozNKOZ3+48l5PE6MMTFBA1//Oxw1U/W0wK3Irz+TgmsPTz/2qG49
-         nPSvO3bB6ema1aiLaleIoWtzkaEHpZPDk2YUZbtg=
+        b=ZrdaPIqMFACJwmDSz1rhl9XiglkKb2NMbNrTo8n8fH/NijBN3AUGqB8CdRr7+G4JS
+         zIyjyRJD1pR/BuRzKelRokjfia7Brikj07WzbbPKhr52L/6RrWR6iVLPZpKhfQv2SP
+         moniX8Wjx0Vs70zlGYfZqsYt92pQA1btSANOXJeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 24/42] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 27/53] block: fix ioprio_get(IOPRIO_WHO_PGRP) vs setuid(2)
 Date:   Mon, 13 Dec 2021 10:30:06 +0100
-Message-Id: <20211213092927.363212705@linuxfoundation.org>
+Message-Id: <20211213092929.265530585@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Davidlohr Bueso <dave@stgolabs.net>
 
-commit 2be6d4d16a0849455a5c22490e3c5983495fed00 upstream.
+commit e6a59aac8a8713f335a37d762db0dbe80e7f6d38 upstream.
 
-Currently, due to the sequential use of min_t() and clamp_t() macros,
-in cdc_ncm_check_tx_max(), if dwNtbOutMaxSize is not set, the logic
-sets tx_max to 0.  This is then used to allocate the data area of the
-SKB requested later in cdc_ncm_fill_tx_frame().
+do_each_pid_thread(PIDTYPE_PGID) can race with a concurrent
+change_pid(PIDTYPE_PGID) that can move the task from one hlist
+to another while iterating. Serialize ioprio_get to take
+the tasklist_lock in this case, just like it's set counterpart.
 
-This does not cause an issue presently because when memory is
-allocated during initialisation phase of SKB creation, more memory
-(512b) is allocated than is required for the SKB headers alone (320b),
-leaving some space (512b - 320b = 192b) for CDC data (172b).
-
-However, if more elements (for example 3 x u64 = [24b]) were added to
-one of the SKB header structs, say 'struct skb_shared_info',
-increasing its original size (320b [320b aligned]) to something larger
-(344b [384b aligned]), then suddenly the CDC data (172b) no longer
-fits in the spare SKB data area (512b - 384b = 128b).
-
-Consequently the SKB bounds checking semantics fails and panics:
-
-  skbuff: skb_over_panic: text:ffffffff830a5b5f len:184 put:172   \
-     head:ffff888119227c00 data:ffff888119227c00 tail:0xb8 end:0x80 dev:<NULL>
-
-  ------------[ cut here ]------------
-  kernel BUG at net/core/skbuff.c:110!
-  RIP: 0010:skb_panic+0x14f/0x160 net/core/skbuff.c:106
-  <snip>
-  Call Trace:
-   <IRQ>
-   skb_over_panic+0x2c/0x30 net/core/skbuff.c:115
-   skb_put+0x205/0x210 net/core/skbuff.c:1877
-   skb_put_zero include/linux/skbuff.h:2270 [inline]
-   cdc_ncm_ndp16 drivers/net/usb/cdc_ncm.c:1116 [inline]
-   cdc_ncm_fill_tx_frame+0x127f/0x3d50 drivers/net/usb/cdc_ncm.c:1293
-   cdc_ncm_tx_fixup+0x98/0xf0 drivers/net/usb/cdc_ncm.c:1514
-
-By overriding the max value with the default CDC_NCM_NTB_MAX_SIZE_TX
-when not offered through the system provided params, we ensure enough
-data space is allocated to handle the CDC data, meaning no crash will
-occur.
-
-Cc: Oliver Neukum <oliver@neukum.org>
-Fixes: 289507d3364f9 ("net: cdc_ncm: use sysfs for rx/tx aggregation tuning")
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20211202143437.1411410-1-lee.jones@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d69b78ba1de (ioprio: grab rcu_read_lock in sys_ioprio_{set,get}())
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
+Link: https://lore.kernel.org/r/20211210182058.43417-1-dave@stgolabs.net
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_ncm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ block/ioprio.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -175,6 +175,8 @@ static u32 cdc_ncm_check_tx_max(struct u
- 	/* clamp new_tx to sane values */
- 	min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth16);
- 	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
-+	if (max == 0)
-+		max = CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
- 
- 	/* some devices set dwNtbOutMaxSize too low for the above default */
- 	min = min(min, max);
+--- a/block/ioprio.c
++++ b/block/ioprio.c
+@@ -196,6 +196,7 @@ SYSCALL_DEFINE2(ioprio_get, int, which,
+ 				pgrp = task_pgrp(current);
+ 			else
+ 				pgrp = find_vpid(who);
++			read_lock(&tasklist_lock);
+ 			do_each_pid_thread(pgrp, PIDTYPE_PGID, p) {
+ 				tmpio = get_task_ioprio(p);
+ 				if (tmpio < 0)
+@@ -205,6 +206,8 @@ SYSCALL_DEFINE2(ioprio_get, int, which,
+ 				else
+ 					ret = ioprio_best(ret, tmpio);
+ 			} while_each_pid_thread(pgrp, PIDTYPE_PGID, p);
++			read_unlock(&tasklist_lock);
++
+ 			break;
+ 		case IOPRIO_WHO_USER:
+ 			uid = make_kuid(current_user_ns(), who);
 
 
