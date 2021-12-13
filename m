@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC7E547296B
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6747472571
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242288AbhLMKU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:20:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35808 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242331AbhLMKS1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:18:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2755BC08E886;
-        Mon, 13 Dec 2021 01:56:34 -0800 (PST)
+        id S234794AbhLMJnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:46 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:35576 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234819AbhLMJlS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6CA3B80E26;
-        Mon, 13 Dec 2021 09:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D58C34600;
-        Mon, 13 Dec 2021 09:56:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3F67ECE0E29;
+        Mon, 13 Dec 2021 09:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F69C341C5;
+        Mon, 13 Dec 2021 09:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389392;
-        bh=5IoAMcQn2H3A3UidQxzgBEW2ApBoDnVsjy6A0G3P3DA=;
+        s=korg; t=1639388474;
+        bh=zatavcxwREI+5Jc3Vrzg5H/iMUWRcUJjtWgyS1cmf44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMPB8vk5bsMlbemv6uqo0sxUpQA8QY1snK00zI9U48FxxAC2sVJgGDeEFxx/rAEGA
-         6Lg9temlqkV40xNaEUY42nKxKOTI1nomz9uvQU4AjJZu8+qf5ZywUG3Y5MY0RJdicV
-         LGRlZ4In4K40TaCEtKO2sUzGp8FgiMyoh+fn6Eu0=
+        b=wrW2IWK9GgkTUOlLpNwYFFXM/218zygHDx3+//jYsBAGDf1X3UngGn95gJuZF/L3f
+         Npk4EA584k28Uef0w/xUwm4ACmPwykGnnfzz/WbQKzWTe0VBdcH5QGyiK8mgjV8Ild
+         0/N7svFxmnrIxUUViU9UQJtwTB410XRmUPsO3Yfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.15 084/171] nfsd: fix use-after-free due to delegation race
-Date:   Mon, 13 Dec 2021 10:29:59 +0100
-Message-Id: <20211213092947.886902966@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.19 29/74] clk: qcom: regmap-mux: fix parent clock lookup
+Date:   Mon, 13 Dec 2021 10:30:00 +0100
+Message-Id: <20211213092931.784850569@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 548ec0805c399c65ed66c6641be467f717833ab5 upstream.
+commit 9a61f813fcc8d56d85fcf9ca6119cf2b5ac91dd5 upstream.
 
-A delegation break could arrive as soon as we've called vfs_setlease.  A
-delegation break runs a callback which immediately (in
-nfsd4_cb_recall_prepare) adds the delegation to del_recall_lru.  If we
-then exit nfs4_set_delegation without hashing the delegation, it will be
-freed as soon as the callback is done with it, without ever being
-removed from del_recall_lru.
+The function mux_get_parent() uses qcom_find_src_index() to find the
+parent clock index, which is incorrect: qcom_find_src_index() uses src
+enum for the lookup, while mux_get_parent() should use cfg field (which
+corresponds to the register value). Add qcom_find_cfg_index() function
+doing this kind of lookup and use it for mux parent lookup.
 
-Symptoms show up later as use-after-free or list corruption warnings,
-usually in the laundromat thread.
-
-I suspect aba2072f4523 "nfsd: grant read delegations to clients holding
-writes" made this bug easier to hit, but I looked as far back as v3.0
-and it looks to me it already had the same problem.  So I'm not sure
-where the bug was introduced; it may have been there from the beginning.
-
+Fixes: df964016490b ("clk: qcom: add parent map for regmap mux")
 Cc: stable@vger.kernel.org
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20211115233407.1046179-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfs4state.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/clk-regmap-mux.c |    2 +-
+ drivers/clk/qcom/common.c         |   12 ++++++++++++
+ drivers/clk/qcom/common.h         |    2 ++
+ 3 files changed, 15 insertions(+), 1 deletion(-)
 
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -1207,6 +1207,11 @@ hash_delegation_locked(struct nfs4_deleg
- 	return 0;
+--- a/drivers/clk/qcom/clk-regmap-mux.c
++++ b/drivers/clk/qcom/clk-regmap-mux.c
+@@ -36,7 +36,7 @@ static u8 mux_get_parent(struct clk_hw *
+ 	val &= mask;
+ 
+ 	if (mux->parent_map)
+-		return qcom_find_src_index(hw, mux->parent_map, val);
++		return qcom_find_cfg_index(hw, mux->parent_map, val);
+ 
+ 	return val;
  }
+--- a/drivers/clk/qcom/common.c
++++ b/drivers/clk/qcom/common.c
+@@ -69,6 +69,18 @@ int qcom_find_src_index(struct clk_hw *h
+ }
+ EXPORT_SYMBOL_GPL(qcom_find_src_index);
  
-+static bool delegation_hashed(struct nfs4_delegation *dp)
++int qcom_find_cfg_index(struct clk_hw *hw, const struct parent_map *map, u8 cfg)
 +{
-+	return !(list_empty(&dp->dl_perfile));
-+}
++	int i, num_parents = clk_hw_get_num_parents(hw);
 +
- static bool
- unhash_delegation_locked(struct nfs4_delegation *dp)
++	for (i = 0; i < num_parents; i++)
++		if (cfg == map[i].cfg)
++			return i;
++
++	return -ENOENT;
++}
++EXPORT_SYMBOL_GPL(qcom_find_cfg_index);
++
+ struct regmap *
+ qcom_cc_map(struct platform_device *pdev, const struct qcom_cc_desc *desc)
  {
-@@ -1214,7 +1219,7 @@ unhash_delegation_locked(struct nfs4_del
+--- a/drivers/clk/qcom/common.h
++++ b/drivers/clk/qcom/common.h
+@@ -47,6 +47,8 @@ extern void
+ qcom_pll_set_fsm_mode(struct regmap *m, u32 reg, u8 bias_count, u8 lock_count);
+ extern int qcom_find_src_index(struct clk_hw *hw, const struct parent_map *map,
+ 			       u8 src);
++extern int qcom_find_cfg_index(struct clk_hw *hw, const struct parent_map *map,
++			       u8 cfg);
  
- 	lockdep_assert_held(&state_lock);
- 
--	if (list_empty(&dp->dl_perfile))
-+	if (!delegation_hashed(dp))
- 		return false;
- 
- 	dp->dl_stid.sc_type = NFS4_CLOSED_DELEG_STID;
-@@ -4598,7 +4603,7 @@ static void nfsd4_cb_recall_prepare(stru
- 	 * queued for a lease break. Don't queue it again.
- 	 */
- 	spin_lock(&state_lock);
--	if (dp->dl_time == 0) {
-+	if (delegation_hashed(dp) && dp->dl_time == 0) {
- 		dp->dl_time = ktime_get_boottime_seconds();
- 		list_add_tail(&dp->dl_recall_lru, &nn->del_recall_lru);
- 	}
+ extern int qcom_cc_register_board_clk(struct device *dev, const char *path,
+ 				      const char *name, unsigned long rate);
 
 
