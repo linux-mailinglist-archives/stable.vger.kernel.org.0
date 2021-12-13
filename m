@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55559472517
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:41:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E887A472430
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235315AbhLMJk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:40:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52734 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234739AbhLMJjU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:20 -0500
+        id S233970AbhLMJeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:34:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231349AbhLMJeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F891C0698DF;
+        Mon, 13 Dec 2021 01:34:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19D85B80E2C;
-        Mon, 13 Dec 2021 09:39:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EC91C00446;
-        Mon, 13 Dec 2021 09:39:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 132FFCE0E6B;
+        Mon, 13 Dec 2021 09:34:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B699EC00446;
+        Mon, 13 Dec 2021 09:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388357;
-        bh=afMLMSWpIRUSLjedBJv/kgE3o/x0o6q2abLpiG3URec=;
+        s=korg; t=1639388044;
+        bh=0yWxunA5Y9GyMGObMKX+xYzYLxqY+ynFD0oM9DUBi1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfCrnGA72eV1g+u8aQnCigfazWFFllJ6sOG+VJPAb2zt35wX5geuz8rvzTTeIiIXx
-         gjhefSlJQKNDgIoiFrVITKJaURqQ8VJmIq3njVEkYZLyX19gDzGJ7OCrDmUGiXkcpH
-         3+vB8KkIcHtr6XW6Pzu0Ggxy98fMU2a8tsDCSGYA=
+        b=YjV2DfpWyXUkHNdlR1h5/gzaJJmCBL+oS8gVdsNbItKQP9POgLiHwbLWumiJu2p4T
+         heAPbeChjTXI7AO8LYonTx04E011+CaQGqdlCwZ6zyPFr0P2E0QRGYUOpCR/9YiMXd
+         RisC3CP4wsjr5zTp/mEvwyaPrs0dq95QP+Eki/Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 21/74] udp: using datalen to cap max gso segments
+        stable@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.9 10/42] IB/hfi1: Correct guard on eager buffer deallocation
 Date:   Mon, 13 Dec 2021 10:29:52 +0100
-Message-Id: <20211213092931.501210644@linuxfoundation.org>
+Message-Id: <20211213092926.918962696@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +49,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianguo Wu <wujianguo@chinatelecom.cn>
+From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-commit 158390e45612ef0fde160af0826f1740c36daf21 upstream.
+commit 9292f8f9a2ac42eb320bced7153aa2e63d8cc13a upstream.
 
-The max number of UDP gso segments is intended to cap to UDP_MAX_SEGMENTS,
-this is checked in udp_send_skb():
+The code tests the dma address which legitimately can be 0.
 
-    if (skb->len > cork->gso_size * UDP_MAX_SEGMENTS) {
-        kfree_skb(skb);
-        return -EINVAL;
-    }
+The code should test the kernel logical address to avoid leaking eager
+buffer allocations that happen to map to a dma address of 0.
 
-skb->len contains network and transport header len here, we should use
-only data len instead.
-
-Fixes: bec1f6f69736 ("udp: generate gso with UDP_SEGMENT")
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/900742e5-81fb-30dc-6e0b-375c6cdd7982@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 60368186fd85 ("IB/hfi1: Fix user-space buffers mapping with IOMMU enabled")
+Link: https://lore.kernel.org/r/20211129191952.101968.17137.stgit@awfm-01.cornelisnetworks.com
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp.c |    2 +-
+ drivers/infiniband/hw/hfi1/init.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -798,7 +798,7 @@ static int udp_send_skb(struct sk_buff *
- 			kfree_skb(skb);
- 			return -EINVAL;
- 		}
--		if (skb->len > cork->gso_size * UDP_MAX_SEGMENTS) {
-+		if (datalen > cork->gso_size * UDP_MAX_SEGMENTS) {
- 			kfree_skb(skb);
- 			return -EINVAL;
- 		}
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -955,7 +955,7 @@ void hfi1_free_ctxtdata(struct hfi1_devd
+ 	kfree(rcd->egrbufs.rcvtids);
+ 
+ 	for (e = 0; e < rcd->egrbufs.alloced; e++) {
+-		if (rcd->egrbufs.buffers[e].dma)
++		if (rcd->egrbufs.buffers[e].addr)
+ 			dma_free_coherent(&dd->pcidev->dev,
+ 					  rcd->egrbufs.buffers[e].len,
+ 					  rcd->egrbufs.buffers[e].addr,
 
 
