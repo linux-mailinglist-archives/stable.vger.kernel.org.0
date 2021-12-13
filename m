@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55CDB47253D
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 415B3472467
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235128AbhLMJnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:01 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:34918 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234325AbhLMJkR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:17 -0500
+        id S233999AbhLMJgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:36:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54260 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234329AbhLMJfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8327DC06115E;
+        Mon, 13 Dec 2021 01:35:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C2CA2CE0E63;
-        Mon, 13 Dec 2021 09:40:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B768C00446;
-        Mon, 13 Dec 2021 09:40:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 290DCB80E18;
+        Mon, 13 Dec 2021 09:35:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 561FCC341C8;
+        Mon, 13 Dec 2021 09:35:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388414;
-        bh=UVHcb43j39Lc9B+5S7oGKiajT5/IKtFEZycUpsqB/IQ=;
+        s=korg; t=1639388106;
+        bh=y7nDjACrNnpwpREusTCbtZz7tGPtWZKpAuzsKlNNvRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uz6UkgyplZUuCwAORY0pA0SCrBSvhBt24gfsHpI6uPUNgwHlGmQjxJf+8vuqq3OwW
-         FJ2QojnBlE2nfvQy/72rrBkajq0I+hpDe4IH/z/MZl1xSU79dWGeV/GIfd47Yntw0c
-         oEI9NO6VKazbMbwvtUv3WZw35BmINA5Ix5daiSZw=
+        b=kIV/1Zvo8am4zS/pb4+JU1KlMQEJVq9cZyOKc1SkKO5+BSsCsG7p8+L9e/8rw+wVE
+         0zTmc89HAA42t7vTQ4e73+xrno4zu73V3fMBJNp/J7/2xYKnlxC4IaAOpwnpFhx3CD
+         QahrWvMXkxiS8ghof7RxAj5XuEzBQJM+gz1S15Rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 42/74] ASoC: qdsp6: q6routing: Fix return value from msm_routing_put_audio_mixer
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Pavel Hofman <pavel.hofman@ivitera.com>
+Subject: [PATCH 4.9 31/42] usb: core: config: fix validation of wMaxPacketValue entries
 Date:   Mon, 13 Dec 2021 10:30:13 +0100
-Message-Id: <20211213092932.227726308@linuxfoundation.org>
+Message-Id: <20211213092927.579286370@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Pavel Hofman <pavel.hofman@ivitera.com>
 
-commit 4739d88ad8e1900f809f8a5c98f3c1b65bf76220 upstream.
+commit 1a3910c80966e4a76b25ce812f6bea0ef1b1d530 upstream.
 
-msm_routing_put_audio_mixer() can return incorrect value in various scenarios.
+The checks performed by commit aed9d65ac327 ("USB: validate
+wMaxPacketValue entries in endpoint descriptors") require that initial
+value of the maxp variable contains both maximum packet size bits
+(10..0) and multiple-transactions bits (12..11). However, the existing
+code assings only the maximum packet size bits. This patch assigns all
+bits of wMaxPacketSize to the variable.
 
-scenario 1:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 0
-
-return value is 0 instead of 1 eventhough value was changed
-
-scenario 2:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
-
-return value is 1 instead of 0 eventhough the value was not changed
-
-scenario 3:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 0
-return value is 1 instead of 0 eventhough the value was not changed
-
-Fix this by adding checks, so that change notifications are sent correctly.
-
-Fixes: e3a33673e845 ("ASoC: qdsp6: q6routing: Add q6routing driver")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211130163110.5628-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: aed9d65ac327 ("USB: validate wMaxPacketValue entries in endpoint descriptors")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
+Link: https://lore.kernel.org/r/20211210085219.16796-1-pavel.hofman@ivitera.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/qdsp6/q6routing.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/core/config.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/qcom/qdsp6/q6routing.c
-+++ b/sound/soc/qcom/qdsp6/q6routing.c
-@@ -440,14 +440,16 @@ static int msm_routing_put_audio_mixer(s
- 	struct session_data *session = &data->sessions[session_id];
- 
- 	if (ucontrol->value.integer.value[0]) {
-+		if (session->port_id == be_id)
-+			return 0;
-+
- 		session->port_id = be_id;
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 1, update);
- 	} else {
--		if (session->port_id == be_id) {
--			session->port_id = -1;
-+		if (session->port_id == -1 || session->port_id != be_id)
- 			return 0;
--		}
- 
-+		session->port_id = -1;
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 0, update);
- 	}
- 
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -404,7 +404,7 @@ static int usb_parse_endpoint(struct dev
+ 	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
+ 	 * (see the end of section 5.6.3), so don't warn about them.
+ 	 */
+-	maxp = usb_endpoint_maxp(&endpoint->desc);
++	maxp = le16_to_cpu(endpoint->desc.wMaxPacketSize);
+ 	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
+ 		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
+ 		    cfgno, inum, asnum, d->bEndpointAddress);
 
 
