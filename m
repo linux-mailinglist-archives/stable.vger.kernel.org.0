@@ -2,172 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6524473164
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 17:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ECA84731C4
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 17:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236838AbhLMQPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 11:15:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37556 "EHLO
+        id S236217AbhLMQ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 11:27:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238112AbhLMQPd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 11:15:33 -0500
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F207C061574
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:15:32 -0800 (PST)
-Received: by mail-pg1-x536.google.com with SMTP id d11so6329542pgl.1
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:15:32 -0800 (PST)
+        with ESMTP id S234495AbhLMQ1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 11:27:55 -0500
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611DFC061574;
+        Mon, 13 Dec 2021 08:27:55 -0800 (PST)
+Received: by mail-yb1-xb2d.google.com with SMTP id v64so39610039ybi.5;
+        Mon, 13 Dec 2021 08:27:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7Pa2XLViY4FBOcP+Thh8PfbYZoXGtH/TK/SbTBlSTQI=;
-        b=dDS2SmwfHtWM9l2ly3kcz2QP+cqoDcuyPTbFEd97SKB0z/wRQhMCm6nKjcFM9hRG83
-         6WHky659cOcN5V5YlwACOL0ilmhQjCLBBw0n32RurrBrjIZpgh2JNOjXhNwJQCu4wWHb
-         BhHrMQsGnj+PffehdNibbxszVVY8GxYRu3isjqruL5WjKUjm3Z/sYVMNcaeqbTx3/eiV
-         B5gicrB1rpNS+pr27vUP5uTQoTOcnrEu6uhyy+CpvqUB7bInK1WZGR09PmTVVvPF6KJ8
-         MgnHwDGE3evLotpvJ+8dfOMGyt/z2NQCYFDkn7hqNki0GItgD4X32hWi3WJMaOXh/+tS
-         QKPA==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hwHeOyBhVF+xpEC9/lpWfLu35Pjic1p8DmLhAMTSq18=;
+        b=Y4yVhJxegWDcu4mQDrq6g5r6zxmLqqoynynNHa1o1ZGJndGbBcdBh+EzF+76J8pqqh
+         A8AhE64hb2g3Y0A8cMtB52Swp/tfDZYcsc3sWCYgT/G9zzrE1mvw2CDwqEQkZpnM/hiq
+         UeN2dAtKQE0KYmSFC6RMijXmtO9y+9+pJcERFaulvFd/vCp+wxbCRf3GaTbk2nwlWg2x
+         CG6w1iSwz5oOh9tT9R6TApr02MNiurL1DEt7fxWps5R2ZvFwLD3/O22C7WW/Z40GUjLR
+         Jzgo06TzyZ9GWExCoswEOcOD8pQir6vD9+Admzhk/qNwpJIhDutbC+sldvLiAm814j3U
+         X0lQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7Pa2XLViY4FBOcP+Thh8PfbYZoXGtH/TK/SbTBlSTQI=;
-        b=7hcg5As+WCbzOQcfZkH+xWAtZLCZggjEScCKfuXjjCX0RyPjs4cWMFYthWLNvRqLD0
-         CmpOenEjvCAuu4I6PxtBGnr7B4169xNFq0XyADQgPbSsXkIEt0Tom12kwSpOIxVWoNNX
-         4ElEdzL/nZt4QT5cJVeNNeWOWEVEh9bzTFrklTEAI8q2+8hDzMxPdWJ0IeiqpdWei4Jr
-         s6nJEwKqz090l9XO0pWVGhJlQBcxGf0UJcGmwsp1WOZy6T2MSfRVZ5JFZJ4PCgf1YljS
-         Ksw6hQDGiMmt42qxFYTt7Y36ukKX1qkZXlukIhbduY0rAsxFjzrcnVyNitRgJl34EDTU
-         G8iA==
-X-Gm-Message-State: AOAM531IO8eK57DL4YQJhTVX43IHcAIGDb6gcxVSwBdPrzbyHuzUmejb
-        9t+MxklbbYaKkFixq8LG80DUEynjvSrcpIzU
-X-Google-Smtp-Source: ABdhPJzBXZbRcV+zHJmWVaGfKpKyPD8SZkOa06YziYlJk10Q4y59R+okUPyBu+HW7ayop+qNqJxcdw==
-X-Received: by 2002:aa7:9207:0:b0:4a4:f59a:9df with SMTP id 7-20020aa79207000000b004a4f59a09dfmr33948645pfo.63.1639412131595;
-        Mon, 13 Dec 2021 08:15:31 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t66sm12937413pfd.150.2021.12.13.08.15.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Dec 2021 08:15:31 -0800 (PST)
-Message-ID: <61b771a3.1c69fb81.2e4e.470e@mx.google.com>
-Date:   Mon, 13 Dec 2021 08:15:31 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hwHeOyBhVF+xpEC9/lpWfLu35Pjic1p8DmLhAMTSq18=;
+        b=m68yIBokk/CStjvw2re5bIYqalfMLSsdQLnqLSyHJE6tdMCbJANoue7WKgJgdyQVR6
+         WBh8D509j8bAi76Gz9IMxHw6SUI6dDxDmAzDovheEj9wLEa0Cb6xEjdpMXQuEWWUg6Ar
+         M5bNOUsiJNBlvHXCBPoWdNj+GAnJOd9GrIuDnkY7LFXM29P6wDyxVwg5e8oAWkEXadbJ
+         GFFa/tMgQshSDxALyivYMT+jlPQOCdR4R4pMHi5Eu3EDGCH7jZslW7XsIQ45nfHMc7P9
+         7lhX7xXFhaSwvYoD/+BMgviUzx7yxUZ7vXgyaDbn5UsDj8FDEkai0Y6r/zlv1ec8CfZz
+         8GrA==
+X-Gm-Message-State: AOAM533Y7Rr7J7P4A/U9DTVLY9HTkj5Bf02btKxCNiYrsktTL8d28KwI
+        n8Ps2qVvXN8234d/F4gDty4dCVT+OO8jSCumCABWuflkhm0=
+X-Google-Smtp-Source: ABdhPJyyXLQj/hPoLkLLRloyy4F+FZbBM6jX1lp6NcEq0V+gpsOFNGIjSTH8jIhDk5iMz1Kigo9cYgplud4KIyKqlfc=
+X-Received: by 2002:a25:d4c:: with SMTP id 73mr32740326ybn.74.1639412874604;
+ Mon, 13 Dec 2021 08:27:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.292-43-gad074ba3bae9
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y baseline: 121 runs,
- 2 regressions (v4.9.292-43-gad074ba3bae9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Mon, 13 Dec 2021 16:27:18 +0000
+Message-ID: <CADVatmPsqW050=k07RDChjnf_F+MJfkLzHiRcdeoWQ7Mws_qMw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/74] 4.19.221-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 121 runs, 2 regressions (v4.9.292-43-gad074=
-ba3bae9)
+HI Greg,
 
-Regressions Summary
--------------------
+On Mon, Dec 13, 2021 at 9:51 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.221 release.
+> There are 74 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
+> Anything received after that time might be too late.
 
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-10   | defconfig+arm64-chrome=
-book | 1          =
+Just an initial report. mips allmodconfig is failing with the following error.
 
-panda           | arm   | lab-collabora | gcc-10   | omap2plus_defconfig   =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.292-43-gad074ba3bae9/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.292-43-gad074ba3bae9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ad074ba3bae9f56fde437a2ef3ecc555430a6f16 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-10   | defconfig+arm64-chrome=
-book | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b73959b4e7ab958a39712f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.292=
--43-gad074ba3bae9/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.292=
--43-gad074ba3bae9/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b73959b4e7ab958a397=
-130
-        new failure (last pass: v4.9.292-29-gdefac0f99886) =
-
- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-panda           | arm   | lab-collabora | gcc-10   | omap2plus_defconfig   =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b7386ed36f95aaba39713a
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.292=
--43-gad074ba3bae9/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.292=
--43-gad074ba3bae9/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+drivers/spi/spi-sh-msiof.c:78: warning: "STR" redefined
+   78 | #define STR     0x40    /* Status Register */
+      |
+In file included from ./arch/mips/include/asm/mach-generic/spaces.h:15,
+                 from ./arch/mips/include/asm/addrspace.h:13,
+                 from ./arch/mips/include/asm/barrier.h:11,
+                 from ./include/linux/compiler.h:320,
+                 from ./arch/mips/include/asm/bitops.h:16,
+                 from ./include/linux/bitops.h:19,
+                 from ./include/linux/bitmap.h:8,
+                 from drivers/spi/spi-sh-msiof.c:14:
+./arch/mips/include/asm/mipsregs.h:30: note: this is the location of
+the previous definition
+   30 | #define STR(x) __STR(x)
+      |
+In file included from ./arch/mips/include/asm/sibyte/sb1250.h:41,
+                 from drivers/watchdog/sb_wdog.c:58:
+./arch/mips/include/asm/sibyte/bcm1480_scd.h:274: warning:
+"M_SPC_CFG_CLEAR" redefined
+  274 | #define M_SPC_CFG_CLEAR                 M_BCM1480_SPC_CFG_CLEAR
+      |
+In file included from ./arch/mips/include/asm/sibyte/sb1250.h:40,
+                 from drivers/watchdog/sb_wdog.c:58:
+./arch/mips/include/asm/sibyte/sb1250_scd.h:405: note: this is the
+location of the previous definition
+  405 | #define M_SPC_CFG_CLEAR         _SB_MAKEMASK1(32)
+      |
+In file included from ./arch/mips/include/asm/sibyte/sb1250.h:41,
+                 from drivers/watchdog/sb_wdog.c:58:
+./arch/mips/include/asm/sibyte/bcm1480_scd.h:275: warning:
+"M_SPC_CFG_ENABLE" redefined
+  275 | #define M_SPC_CFG_ENABLE                M_BCM1480_SPC_CFG_ENABLE
+      |
+In file included from ./arch/mips/include/asm/sibyte/sb1250.h:40,
+                 from drivers/watchdog/sb_wdog.c:58:
+./arch/mips/include/asm/sibyte/sb1250_scd.h:406: note: this is the
+location of the previous definition
+  406 | #define M_SPC_CFG_ENABLE        _SB_MAKEMASK1(33)
+      |
+/src/gcc-10/bin/mips-linux-ld:
+arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o: in function
+`__dtb_ocelot_pcb123_begin':
+(.dtb.init.rodata+0x0): multiple definition of
+`__dtb_ocelot_pcb123_begin';
+arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o:(.dtb.init.rodata+0x0):
+first defined here
+/src/gcc-10/bin/mips-linux-ld:
+arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o: in function
+`__dtb_ocelot_pcb123_end':
+(.dtb.init.rodata+0x1003): multiple definition of
+`__dtb_ocelot_pcb123_end';
+arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o:(.dtb.init.rodata+0x1003):
+first defined here
+/src/gcc-10/bin/mips-linux-ld: arch/mips/boot/dts/mti/sead3.dtb.o: in
+function `__dtb_sead3_begin':
+(.dtb.init.rodata+0x0): multiple definition of `__dtb_sead3_begin';
+arch/mips/boot/dts/mti/sead3.dtb.o:(.dtb.init.rodata+0x0): first
+defined here
+/src/gcc-10/bin/mips-linux-ld: arch/mips/boot/dts/mti/sead3.dtb.o: in
+function `__dtb_sead3_end':
+(.dtb.init.rodata+0x100b): multiple definition of `__dtb_sead3_end';
+arch/mips/boot/dts/mti/sead3.dtb.o:(.dtb.init.rodata+0x100b): first
+defined here
+make: *** [Makefile:1046: vmlinux] Error 1
 
 
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b7386ed36f95a=
-aba39713d
-        new failure (last pass: v4.9.292-29-gdefac0f99886)
-        2 lines
-
-    2021-12-13T12:11:02.997499  [   20.124511] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-13T12:11:03.041654  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/122
-    2021-12-13T12:11:03.051016  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+-- 
+Regards
+Sudip
