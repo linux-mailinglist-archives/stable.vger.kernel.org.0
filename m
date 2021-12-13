@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6E94724EE
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE96472559
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234906AbhLMJjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:39:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51834 "EHLO
+        id S235205AbhLMJn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:26 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55946 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233140AbhLMJiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:38:16 -0500
+        with ESMTP id S234908AbhLMJlv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5504FB80CAB;
-        Mon, 13 Dec 2021 09:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0CFEC00446;
-        Mon, 13 Dec 2021 09:38:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D62A8B80E1C;
+        Mon, 13 Dec 2021 09:41:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C8BC341C8;
+        Mon, 13 Dec 2021 09:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388294;
-        bh=IEH0SgXW32ZJv2QeLrjSktkpfigNy0ReA7GV2QSSPMs=;
+        s=korg; t=1639388508;
+        bh=cMRoBHFAD/Ug1Q1Bfe2egISMVmUxzArhOr3wWTKEg0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a/uAdh3z7b/IVJ1aRmsKPch5JY9CGxgQnRn00DUkTYYl94OsuYShsXnVNW3dN6DPk
-         wJiVHM4tc9uIOsHLdP4MerMSTef4SuTyxnEWFushkjuOlPHMNyWfXTbKLuVr2w8vxU
-         gYIWcDmg5YnXzbleQ/WmV/sZDQ4C7ClY+qohb/L8=
+        b=IGSUXoD8ApKUAgT48l+nkjwemBx6QZRlAQKW4Gk/qlVjow94aJJSO3Btv0AYCHL2N
+         oJEguEJuDVpOxa0n+7Dt46SJyVPDLEwR6GYcv5g4YokXqRDZSS4O5inleOYuStXAIf
+         BM2Oe4lqBpbRhXb2Qxdic1SUV2va9UIVvh5bZZIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.14 53/53] irqchip: nvic: Fix offset for Interrupt Priority Offsets
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 61/74] iio: ltr501: Dont return error code in trigger handler
 Date:   Mon, 13 Dec 2021 10:30:32 +0100
-Message-Id: <20211213092930.121094206@linuxfoundation.org>
+Message-Id: <20211213092932.840186384@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Murzin <vladimir.murzin@arm.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit c5e0cbe2858d278a27d5b3fe31890aea5be064c4 upstream.
+commit ef9d67fa72c1b149a420587e435a3e888bdbf74f upstream.
 
-According to ARM(v7M) ARM Interrupt Priority Offsets located at
-0xE000E400-0xE000E5EC, while 0xE000E300-0xE000E33C covers read-only
-Interrupt Active Bit Registers
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
-Fixes: 292ec080491d ("irqchip: Add support for ARMv7-M NVIC")
-Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211201110259.84857-1-vladimir.murzin@arm.com
+The ltr501 interrupt handler gets this right for most error paths, but
+there is one case where it returns the error code.
+
+In addition for this particular case the trigger handler does not call
+`iio_trigger_notify_done()`. Which when not done keeps the triggered
+disabled forever.
+
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
+
+Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024171251.22896-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-nvic.c |    2 +-
+ drivers/iio/light/ltr501.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/irqchip/irq-nvic.c
-+++ b/drivers/irqchip/irq-nvic.c
-@@ -29,7 +29,7 @@
- 
- #define NVIC_ISER		0x000
- #define NVIC_ICER		0x080
--#define NVIC_IPR		0x300
-+#define NVIC_IPR		0x400
- 
- #define NVIC_MAX_BANKS		16
- /*
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -1275,7 +1275,7 @@ static irqreturn_t ltr501_trigger_handle
+ 		ret = regmap_bulk_read(data->regmap, LTR501_ALS_DATA1,
+ 				       (u8 *)als_buf, sizeof(als_buf));
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 		if (test_bit(0, indio_dev->active_scan_mask))
+ 			scan.channels[j++] = le16_to_cpu(als_buf[1]);
+ 		if (test_bit(1, indio_dev->active_scan_mask))
 
 
