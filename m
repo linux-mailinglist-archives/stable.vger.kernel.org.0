@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5FD47275E
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C59F347283C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235528AbhLMKAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:00:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44780 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236745AbhLMJ6X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:58:23 -0500
+        id S237548AbhLMKJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:09:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33248 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242439AbhLMKHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:07:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1820C08EC3B;
+        Mon, 13 Dec 2021 01:51:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71D41B80E89;
-        Mon, 13 Dec 2021 09:58:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F62C34601;
-        Mon, 13 Dec 2021 09:58:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 17B74CE0B20;
+        Mon, 13 Dec 2021 09:51:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5041C00446;
+        Mon, 13 Dec 2021 09:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389500;
-        bh=0/j9Uls9Pd+3PIPo1IwyMXgiKM5tFYm2ykiUwD8CqE4=;
+        s=korg; t=1639389105;
+        bh=CaGJg9L+b7+ixx5BF0mYsdNS66KsGLOlP7xuy9QgWP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBrmLaTWnV1VGw90/4AAOg40njPK2RJ6GqtlhVKhU3GjyhyL2qCdr8+rqBPiYuZZ/
-         YwTWUisbScqk0Gjp5ZFEE9brABvIaud7WmvNOUlWyBURPhcdM8B2BIzYLlvM/8JiDU
-         gQYjvXU5Dmvd2m5G6aF3QxfR2Am19zFyLgm5Sp+U=
+        b=J7hCs2VXXHT1bSr1bM/2ihv430Q1pCpWF4j0g0NOhJpIFe6ylV04pmCuB110C4pCx
+         0ZsRsGbdlXjcmbREDAnyXcOfdveS2AOmq033R6utVxS7mn7eM5h2mSzZLMnBLNwuYa
+         t2dUocKOz3N+om8C3yk0QkTHkvUyFPCQiFsecnsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 113/171] RDMA/hns: Do not halt commands during reset until later
+        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 087/132] mtd: rawnand: fsmc: Fix timing computation
 Date:   Mon, 13 Dec 2021 10:30:28 +0100
-Message-Id: <20211213092948.860745781@linuxfoundation.org>
+Message-Id: <20211213092942.095636249@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +47,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangyang Li <liyangyang20@huawei.com>
+From: Herve Codina <herve.codina@bootlin.com>
 
-commit 52414e27d6b568120b087d1fbafbb4482b0ccaab upstream.
+commit 9472335eaa1452b51dc8e8edaa1a342997cb80c7 upstream.
 
-is_reset is used to indicate whether the hardware starts to reset. When
-hns_roce_hw_v2_reset_notify_down() is called, the hardware has not yet
-started to reset. If is_reset is set at this time, all mailbox operations
-of resource destroy actions will be intercepted by driver. When the driver
-cleans up resources, but the hardware is still accessed, the following
-errors will appear:
+Under certain circumstances, the timing settings calculated by
+the FSMC NAND controller driver were inaccurate.
+These settings led to incorrect data reads or fallback to
+timing mode 0 depending on the NAND chip used.
 
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000003f
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50e0800
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000043e
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50a0800
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000020880000436
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50a0880
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000043a
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50e0840
-  hns3 0000:35:00.0: INT status: CMDQ(0x0) HW errors(0x0) other(0x0)
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  hns3 0000:35:00.0: received unknown or unhandled event of vector0
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  {34}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 7
+The timing computation did not take into account the following
+constraint given in SPEAr3xx reference manual:
+  twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
 
-is_reset will be set correctly in check_aedev_reset_status(), so the
-setting in hns_roce_hw_v2_reset_notify_down() should be deleted.
+Enhance the timings calculation by taking into account this
+additional constraint.
 
-Fixes: 726be12f5ca0 ("RDMA/hns: Set reset flag when hw resetting")
-Link: https://lore.kernel.org/r/20211123084809.37318-1-liangwenpeng@huawei.com
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This change has no impact on slow timing modes such as mode 0.
+Indeed, on mode 0, computed values are the same with and
+without the patch.
+
+NANDs which previously stayed in mode 0 because of fallback to
+mode 0 can now work at higher speeds and NANDs which were not
+working at all because of the corrupted data work at high
+speeds without troubles.
+
+Overall improvement on a Micron/MT29F1G08 (flash_speed tool):
+                        mode0       mode3
+eraseblock write speed  3220 KiB/s  4511 KiB/s
+eraseblock read speed   4491 KiB/s  7529 KiB/s
+
+Fixes: d9fb079571833 ("mtd: nand: fsmc: add support for SDR timings")
+Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20211119150316.43080-5-herve.codina@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/mtd/nand/raw/fsmc_nand.c |   32 ++++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -6397,10 +6397,8 @@ static int hns_roce_hw_v2_reset_notify_d
- 	if (!hr_dev)
- 		return 0;
+--- a/drivers/mtd/nand/raw/fsmc_nand.c
++++ b/drivers/mtd/nand/raw/fsmc_nand.c
+@@ -94,6 +94,14 @@
  
--	hr_dev->is_reset = true;
- 	hr_dev->active = false;
- 	hr_dev->dis_db = true;
+ #define FSMC_BUSY_WAIT_TIMEOUT	(1 * HZ)
+ 
++/*
++ * According to SPEAr300 Reference Manual (RM0082)
++ *  TOUDEL = 7ns (Output delay from the flip-flops to the board)
++ *  TINDEL = 5ns (Input delay from the board to the flipflop)
++ */
++#define TOUTDEL	7000
++#define TINDEL	5000
++
+ struct fsmc_nand_timings {
+ 	u8 tclr;
+ 	u8 tar;
+@@ -278,7 +286,7 @@ static int fsmc_calc_timings(struct fsmc
+ {
+ 	unsigned long hclk = clk_get_rate(host->clk);
+ 	unsigned long hclkn = NSEC_PER_SEC / hclk;
+-	u32 thiz, thold, twait, tset;
++	u32 thiz, thold, twait, tset, twait_min;
+ 
+ 	if (sdrt->tRC_min < 30000)
+ 		return -EOPNOTSUPP;
+@@ -310,13 +318,6 @@ static int fsmc_calc_timings(struct fsmc
+ 	else if (tims->thold > FSMC_THOLD_MASK)
+ 		tims->thold = FSMC_THOLD_MASK;
+ 
+-	twait = max(sdrt->tRP_min, sdrt->tWP_min);
+-	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
+-	if (tims->twait == 0)
+-		tims->twait = 1;
+-	else if (tims->twait > FSMC_TWAIT_MASK)
+-		tims->twait = FSMC_TWAIT_MASK;
 -
- 	hr_dev->state = HNS_ROCE_DEVICE_STATE_RST_DOWN;
+ 	tset = max(sdrt->tCS_min - sdrt->tWP_min,
+ 		   sdrt->tCEA_max - sdrt->tREA_max);
+ 	tims->tset = DIV_ROUND_UP(tset / 1000, hclkn) - 1;
+@@ -325,6 +326,21 @@ static int fsmc_calc_timings(struct fsmc
+ 	else if (tims->tset > FSMC_TSET_MASK)
+ 		tims->tset = FSMC_TSET_MASK;
  
++	/*
++	 * According to SPEAr300 Reference Manual (RM0082) which gives more
++	 * information related to FSMSC timings than the SPEAr600 one (RM0305),
++	 *   twait >= tCEA - (tset * TCLK) + TOUTDEL + TINDEL
++	 */
++	twait_min = sdrt->tCEA_max - ((tims->tset + 1) * hclkn * 1000)
++		    + TOUTDEL + TINDEL;
++	twait = max3(sdrt->tRP_min, sdrt->tWP_min, twait_min);
++
++	tims->twait = DIV_ROUND_UP(twait / 1000, hclkn) - 1;
++	if (tims->twait == 0)
++		tims->twait = 1;
++	else if (tims->twait > FSMC_TWAIT_MASK)
++		tims->twait = FSMC_TWAIT_MASK;
++
  	return 0;
+ }
+ 
 
 
