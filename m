@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 105364726E3
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F21D647257B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236593AbhLMJze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:55:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58878 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238264AbhLMJwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:52:50 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482FDC08ED4B;
-        Mon, 13 Dec 2021 01:44:55 -0800 (PST)
+        id S234942AbhLMJn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:58 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56088 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235476AbhLMJl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C068ECE0E29;
-        Mon, 13 Dec 2021 09:44:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F716C00446;
-        Mon, 13 Dec 2021 09:44:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 891D4B80E0E;
+        Mon, 13 Dec 2021 09:41:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B180EC00446;
+        Mon, 13 Dec 2021 09:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388693;
-        bh=tbqDddX6n0aiTDtdtor2oO2VapLmWUIKud5GacnsEXM=;
+        s=korg; t=1639388517;
+        bh=cun0ekGg+ci1SkOeyve7mtvh54oHXr5WT4R6s7sbnTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcwlGPSdTL3y7ar/VV0BWZZBJYyOuBv6L5gMZYzO3X/WvKSnf3o/XZ+Vf0N5dcoG4
-         i0NBKqJcraf+uKuSPOn6OJjw6bN8X3uMx8yA8vmNDlcuLaks4lJP+oBcm9RrCfDE+h
-         ir2aH0rX/UK3Pz+5NCXH3DDIU7AIn7zZq/rtMtGY=
+        b=2KdUKnqG0gxMB6RH5QmOHuNXuHqgpR4SEFO0uUQUtizvyLV93gaYpGBUjIequpgZ4
+         XEALNwp2IUDUUy48omGkZu8RTU0iM4G/hQXGsvagVvPZ5PdOepLUv8KvGQwkscLK+Q
+         ESYNMyBLEBIvxSCBbj2ujO6+/ZoaMq/KaMl6ZBhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
-Subject: [PATCH 5.4 65/88] USB: gadget: zero allocate endpoint 0 buffers
+        stable@vger.kernel.org, Jack Andersen <jackoalan@gmail.com>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 64/74] iio: dln2-adc: Fix lockdep complaint
 Date:   Mon, 13 Dec 2021 10:30:35 +0100
-Message-Id: <20211213092935.506110613@linuxfoundation.org>
+Message-Id: <20211213092932.940119965@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Noralf Trønnes <noralf@tronnes.org>
 
-commit 86ebbc11bb3f60908a51f3e41a17e3f477c2eaa3 upstream.
+commit 59f92868176f191eefde70d284bdfc1ed76a84bc upstream.
 
-Under some conditions, USB gadget devices can show allocated buffer
-contents to a host.  Fix this up by zero-allocating them so that any
-extra data will all just be zeros.
+When reading the voltage:
 
-Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+$ cat /sys/bus/iio/devices/iio\:device0/in_voltage0_raw
+
+Lockdep complains:
+
+[  153.910616] ======================================================
+[  153.916918] WARNING: possible circular locking dependency detected
+[  153.923221] 5.14.0+ #5 Not tainted
+[  153.926692] ------------------------------------------------------
+[  153.932992] cat/717 is trying to acquire lock:
+[  153.937525] c2585358 (&indio_dev->mlock){+.+.}-{3:3}, at: iio_device_claim_direct_mode+0x28/0x44
+[  153.946541]
+               but task is already holding lock:
+[  153.952487] c2585860 (&dln2->mutex){+.+.}-{3:3}, at: dln2_adc_read_raw+0x94/0x2bc [dln2_adc]
+[  153.961152]
+               which lock already depends on the new lock.
+
+Fix this by not calling into the iio core underneath the dln2->mutex lock.
+
+Fixes: 7c0299e879dd ("iio: adc: Add support for DLN2 ADC")
+Cc: Jack Andersen <jackoalan@gmail.com>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Link: https://lore.kernel.org/r/20211018113731.25723-1-noralf@tronnes.org
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/composite.c   |    2 +-
- drivers/usb/gadget/legacy/dbgp.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/dln2-adc.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -2173,7 +2173,7 @@ int composite_dev_prepare(struct usb_com
- 	if (!cdev->req)
- 		return -ENOMEM;
+--- a/drivers/iio/adc/dln2-adc.c
++++ b/drivers/iio/adc/dln2-adc.c
+@@ -251,7 +251,6 @@ static int dln2_adc_set_chan_period(stru
+ static int dln2_adc_read(struct dln2_adc *dln2, unsigned int channel)
+ {
+ 	int ret, i;
+-	struct iio_dev *indio_dev = platform_get_drvdata(dln2->pdev);
+ 	u16 conflict;
+ 	__le16 value;
+ 	int olen = sizeof(value);
+@@ -260,13 +259,9 @@ static int dln2_adc_read(struct dln2_adc
+ 		.chan = channel,
+ 	};
  
--	cdev->req->buf = kmalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
-+	cdev->req->buf = kzalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
- 	if (!cdev->req->buf)
- 		goto fail;
+-	ret = iio_device_claim_direct_mode(indio_dev);
+-	if (ret < 0)
+-		return ret;
+-
+ 	ret = dln2_adc_set_chan_enabled(dln2, channel, true);
+ 	if (ret < 0)
+-		goto release_direct;
++		return ret;
  
---- a/drivers/usb/gadget/legacy/dbgp.c
-+++ b/drivers/usb/gadget/legacy/dbgp.c
-@@ -137,7 +137,7 @@ static int dbgp_enable_ep_req(struct usb
- 		goto fail_1;
- 	}
+ 	ret = dln2_adc_set_port_enabled(dln2, true, &conflict);
+ 	if (ret < 0) {
+@@ -303,8 +298,6 @@ disable_port:
+ 	dln2_adc_set_port_enabled(dln2, false, NULL);
+ disable_chan:
+ 	dln2_adc_set_chan_enabled(dln2, channel, false);
+-release_direct:
+-	iio_device_release_direct_mode(indio_dev);
  
--	req->buf = kmalloc(DBGP_REQ_LEN, GFP_KERNEL);
-+	req->buf = kzalloc(DBGP_REQ_LEN, GFP_KERNEL);
- 	if (!req->buf) {
- 		err = -ENOMEM;
- 		stp = 2;
+ 	return ret;
+ }
+@@ -340,10 +333,16 @@ static int dln2_adc_read_raw(struct iio_
+ 
+ 	switch (mask) {
+ 	case IIO_CHAN_INFO_RAW:
++		ret = iio_device_claim_direct_mode(indio_dev);
++		if (ret < 0)
++			return ret;
++
+ 		mutex_lock(&dln2->mutex);
+ 		ret = dln2_adc_read(dln2, chan->channel);
+ 		mutex_unlock(&dln2->mutex);
+ 
++		iio_device_release_direct_mode(indio_dev);
++
+ 		if (ret < 0)
+ 			return ret;
+ 
 
 
