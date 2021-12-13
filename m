@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 915FE4726CC
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9994547254D
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238799AbhLMJyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:54:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58400 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238066AbhLMJwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:52:35 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C1A2C08ED0A;
-        Mon, 13 Dec 2021 01:44:42 -0800 (PST)
+        id S232970AbhLMJnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55494 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234867AbhLMJlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C7D0BCE0B59;
-        Mon, 13 Dec 2021 09:44:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D9CC00446;
-        Mon, 13 Dec 2021 09:44:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECF4EB80E2A;
+        Mon, 13 Dec 2021 09:41:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136AEC00446;
+        Mon, 13 Dec 2021 09:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388679;
-        bh=ybYobvTj9OmFcLqPSyOaUehHwauotJRb9HkaJx4c2N4=;
+        s=korg; t=1639388488;
+        bh=IZp7M0GCPlkcazySjNI+e9di3CnE5zDbc8DLXEjeq9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2C7WlKWKNj3ElbdF8hIbaTozsBD4fATheAbZ6HJbCtLNFjFvFbk/0fGFPtZqErSFR
-         +BQNlDea8vKZJa2WOrIkzVm/kaBPAP445pAjJ6bX/d+6WdoQ2Pk8/O1RB00qn0z4S8
-         R4n0aOsPepvNMIzMk0DQhJTY9jbsSpmv2ZJ1Hzbk=
+        b=Qpx/vCuNZbUiHw7luY2EdoX7NBm8d0OCbYn7CN5w41lXOBl8sIJyDkuv0TWNVE/pm
+         U4kPUp31A50GRtM9hMydOyPY8FffEzWxT+jx2X466JQN1Uu2L6J8jnZEPuYWRXazM4
+         hChjEmHdk7S0HdHeKIjOF++jOBwVcagtddXiGpms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>,
-        Nicolas Diaz <nicolas.diaz@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 60/88] net: fec: only clear interrupt of handling queue in fec_enet_rx_queue()
-Date:   Mon, 13 Dec 2021 10:30:30 +0100
-Message-Id: <20211213092935.330760199@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 60/74] iio: mma8452: Fix trigger reference couting
+Date:   Mon, 13 Dec 2021 10:30:31 +0100
+Message-Id: <20211213092932.807795193@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,61 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit b5bd95d17102b6719e3531d627875b9690371383 upstream.
+commit cd0082235783f814241a1c9483fb89e405f4f892 upstream.
 
-Background:
-We have a customer is running a Profinet stack on the 8MM which receives and
-responds PNIO packets every 4ms and PNIO-CM packets every 40ms. However, from
-time to time the received PNIO-CM package is "stock" and is only handled when
-receiving a new PNIO-CM or DCERPC-Ping packet (tcpdump shows the PNIO-CM and
-the DCERPC-Ping packet at the same time but the PNIO-CM HW timestamp is from
-the expected 40 ms and not the 2s delay of the DCERPC-Ping).
+The mma8452 driver directly assigns a trigger to the struct iio_dev. The
+IIO core when done using this trigger will call `iio_trigger_put()` to drop
+the reference count by 1.
 
-After debugging, we noticed PNIO, PNIO-CM and DCERPC-Ping packets would
-be handled by different RX queues.
+Without the matching `iio_trigger_get()` in the driver the reference count
+can reach 0 too early, the trigger gets freed while still in use and a
+use-after-free occurs.
 
-The root cause should be driver ack all queues' interrupt when handle a
-specific queue in fec_enet_rx_queue(). The blamed patch is introduced to
-receive as much packets as possible once to avoid interrupt flooding.
-But it's unreasonable to clear other queues'interrupt when handling one
-queue, this patch tries to fix it.
+Fix this by getting a reference to the trigger before assigning it to the
+IIO device.
 
-Fixes: ed63f1dcd578 (net: fec: clear receive interrupts before processing a packet)
-Cc: Russell King <rmk+kernel@arm.linux.org.uk>
-Reported-by: Nicolas Diaz <nicolas.diaz@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Link: https://lore.kernel.org/r/20211206135457.15946-1-qiangqing.zhang@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ae6d9ce05691 ("iio: mma8452: Add support for interrupt driven triggers.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024092700.6844-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec.h      |    3 +++
- drivers/net/ethernet/freescale/fec_main.c |    2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/iio/accel/mma8452.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/fec.h
-+++ b/drivers/net/ethernet/freescale/fec.h
-@@ -373,6 +373,9 @@ struct bufdesc_ex {
- #define FEC_ENET_WAKEUP	((uint)0x00020000)	/* Wakeup request */
- #define FEC_ENET_TXF	(FEC_ENET_TXF_0 | FEC_ENET_TXF_1 | FEC_ENET_TXF_2)
- #define FEC_ENET_RXF	(FEC_ENET_RXF_0 | FEC_ENET_RXF_1 | FEC_ENET_RXF_2)
-+#define FEC_ENET_RXF_GET(X)	(((X) == 0) ? FEC_ENET_RXF_0 :	\
-+				(((X) == 1) ? FEC_ENET_RXF_1 :	\
-+				FEC_ENET_RXF_2))
- #define FEC_ENET_TS_AVAIL       ((uint)0x00010000)
- #define FEC_ENET_TS_TIMER       ((uint)0x00008000)
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1470,7 +1470,7 @@ static int mma8452_trigger_setup(struct
+ 	if (ret)
+ 		return ret;
  
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -1444,7 +1444,7 @@ fec_enet_rx_queue(struct net_device *nde
- 			break;
- 		pkt_received++;
+-	indio_dev->trig = trig;
++	indio_dev->trig = iio_trigger_get(trig);
  
--		writel(FEC_ENET_RXF, fep->hwp + FEC_IEVENT);
-+		writel(FEC_ENET_RXF_GET(queue_id), fep->hwp + FEC_IEVENT);
- 
- 		/* Check for errors. */
- 		status ^= BD_ENET_RX_LAST;
+ 	return 0;
+ }
 
 
