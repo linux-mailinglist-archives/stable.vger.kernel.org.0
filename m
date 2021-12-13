@@ -2,82 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8616472CEF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 14:13:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3414472CF7
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 14:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232288AbhLMNNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 08:13:35 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58778 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232266AbhLMNNb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 08:13:31 -0500
+        id S232018AbhLMNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 08:15:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50132 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231960AbhLMNPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 08:15:00 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ACEFC061574;
+        Mon, 13 Dec 2021 05:15:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A4EBBCE101B;
-        Mon, 13 Dec 2021 13:13:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCA35C34601;
-        Mon, 13 Dec 2021 13:13:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C6CA9CE100B;
+        Mon, 13 Dec 2021 13:14:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39DEBC34601;
+        Mon, 13 Dec 2021 13:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639401207;
-        bh=X4bmoQapJ0I3TPfC8ZUVwe2ESJb201VT5dzLbVKlLUE=;
+        s=k20201202; t=1639401297;
+        bh=7YSSAAaM+CIfr3Dc7UnExlLCYseohcOQ5zO7iPdPqqI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fLo6I/ChI1VxCsP9vbh4N8wIid9BZqxyg3ASkQb7yUdj8nu1j2LHV7vfW1AMr7eqx
-         CgV3Gl1VcQcl2Gbs+4hXrP6MQoItug+OgVWjGtCp3h6N9q6ASGU6kX4LK2+vnDBPA2
-         PZMqKmCMOYHArRXHzJSB4MQp0pJbyzs/iz8rGSANxH+7vZ52IZoLb7oa9F88q7TCtx
-         GIUpILO3I2zUhMe7qOUypRcydG56hgCDpDFCbxgkSZtgUW8Qsk05gD2T1+9Mkf7gP3
-         Ja4c/FYIeCoEGK3naHg7NgSdonrmqyq02l54MDPPVoxmh4nj1kV2sCsxu80D+zF3PK
-         Baz6LitRWGTRQ==
-Date:   Mon, 13 Dec 2021 21:13:18 +0800
+        b=aBdowYwbegXVcB74Rj0OepKx3omwXechhqzyXfnipSaiXHkRXrfRqkQ1ZBUC0BpBj
+         uhgef6Bn3P+yq1Vkmozd7KCAkp5bNzY2wAbujkTLCnZ6xWpgBW1k0sIttC8nNE8C7R
+         LfedrXk58veHQUtWwujLNbbWts5kKBn20LhCWnuCIxo7RSmkRH4KI0Gy1ZVRwwrI27
+         Ew8HlKFd1cUFgRriAwxbFmAmV78qY5TYMOEwTgAglbFSIZB1Un4kF7QL1i9pdePQPj
+         deAYjNiVrswiEbqLRO8u7MuHiL8k8CY+7L0P/dTZbRGZt4NwmP/GJehvVQUXi59zzX
+         2+q68hBlOxE7w==
+Date:   Mon, 13 Dec 2021 21:14:47 +0800
 From:   Peter Chen <peter.chen@kernel.org>
 To:     Pawel Laszczak <pawell@cadence.com>
 Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, jianhe@ambarella.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] usb: cdnsp: Fix incorrect calling of cdnsp_died function
-Message-ID: <20211213131318.GB5346@Peter>
-References: <20211210112945.660-1-pawell@gli-login.cadence.com>
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: cdnsp: Fix issue in cdnsp_log_ep trace event
+Message-ID: <20211213131447.GC5346@Peter>
+References: <20211213050609.22640-1-pawell@gli-login.cadence.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211210112945.660-1-pawell@gli-login.cadence.com>
+In-Reply-To: <20211213050609.22640-1-pawell@gli-login.cadence.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-12-10 12:29:45, Pawel Laszczak wrote:
+On 21-12-13 06:06:09, Pawel Laszczak wrote:
 > From: Pawel Laszczak <pawell@cadence.com>
 > 
-> Patch restrict calling of cdnsp_died function during removing modules
-> or software disconnect.
-> This function was called because after transition controller to HALT
-> state the driver starts handling the deferred interrupt.
-> In this case such interrupt can be simple ignored.
+> Patch fixes incorrect order of __entry->stream_id and __entry->state
+> parameters in TP_printk macro.
 > 
 > Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
 > cc: <stable@vger.kernel.org>
 > Signed-off-by: Pawel Laszczak <pawell@cadence.com>
 > ---
->  drivers/usb/cdns3/cdnsp-ring.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
+>  drivers/usb/cdns3/cdnsp-trace.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
-> index e8f5ecbb5c75..e45c3d6e1536 100644
-> --- a/drivers/usb/cdns3/cdnsp-ring.c
-> +++ b/drivers/usb/cdns3/cdnsp-ring.c
-> @@ -1525,7 +1525,14 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
->  	spin_lock_irqsave(&pdev->lock, flags);
->  
->  	if (pdev->cdnsp_state & (CDNSP_STATE_HALTED | CDNSP_STATE_DYING)) {
-> -		cdnsp_died(pdev);
-> +		/*
-> +		 * While removing or stopping driver there may still be deferred
-> +		 * not handled interrupt which should not be treated as error.
-> +		 * Driver should simply ignore it.
-> +		 */
-> +		if (pdev->gadget_driver)
-> +			cdnsp_died(pdev);
-> +
+> diff --git a/drivers/usb/cdns3/cdnsp-trace.h b/drivers/usb/cdns3/cdnsp-trace.h
+> index 5aa88ca012de..13091df9934c 100644
+> --- a/drivers/usb/cdns3/cdnsp-trace.h
+> +++ b/drivers/usb/cdns3/cdnsp-trace.h
+> @@ -57,9 +57,9 @@ DECLARE_EVENT_CLASS(cdnsp_log_ep,
+>  		__entry->first_prime_det = pep->stream_info.first_prime_det;
+>  		__entry->drbls_count = pep->stream_info.drbls_count;
+>  	),
+> -	TP_printk("%s: SID: %08x ep state: %x stream: enabled: %d num  %d "
+> +	TP_printk("%s: SID: %08x, ep state: %x, stream: enabled: %d num %d "
+>  		  "tds %d, first prime: %d drbls %d",
+> -		  __get_str(name), __entry->state, __entry->stream_id,
+> +		  __get_str(name), __entry->stream_id, __entry->state,
+>  		  __entry->enabled, __entry->num_streams, __entry->td_count,
+>  		  __entry->first_prime_det, __entry->drbls_count)
+>  );
+> -- 
 
 Reviewed-by: Peter Chen <peter.chen@kernel.org>
 
