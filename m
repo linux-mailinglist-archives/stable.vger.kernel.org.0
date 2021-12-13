@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26614727B1
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6820B472625
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240456AbhLMKEe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:04:34 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:46660 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238217AbhLMJ74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:59:56 -0500
+        id S234403AbhLMJtR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59404 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236059AbhLMJp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:45:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6C54DCE0F6A;
-        Mon, 13 Dec 2021 09:59:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161DCC34601;
-        Mon, 13 Dec 2021 09:59:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CF3BB80E20;
+        Mon, 13 Dec 2021 09:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3EAC00446;
+        Mon, 13 Dec 2021 09:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389593;
-        bh=SHxgThN458ghhUa5TEIOWxrP6IC1irXZgV05dCPzxEA=;
+        s=korg; t=1639388755;
+        bh=5QDqPgEjyfIFmD4LpKhheaU2zO63QlMFMv46TFADcZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8RbYUf7RqhqNQaku/btlfPF+9uLngngB2jHO29tg1A1fVQYrjHLHAI5nADiZ9YXN
-         /r6EsXTI6axKQJCEPeW1VESbHd3pSjQ7HkkcVDEqq4gnYHa6g7RoRW1/noz063EmMX
-         JuZ0jjsyOcmLAfbwgBrSSAKMR0zNiLrKfvgd0iEc=
+        b=J1hdsETyiLmNa7q93hxXs8MHSJE13PvMeDQyZlA9Ls6+lppQhlIvqjKwFjEigf9w7
+         bH7zo1V/WESfazU31foZ6juKACaf5uirqOSQh7Fw7AcHVZRMxy0N7pBtVwpjE+jh77
+         4jHQqJUaeNGsBLOGLIk5MBee8vHB32FAHWqmxJ7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.15 140/171] xhci: Remove CONFIG_USB_DEFAULT_PERSIST to prevent xHCI from runtime suspending
+        stable@vger.kernel.org, Wudi Wang <wangwudi@hisilicon.com>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 85/88] irqchip/irq-gic-v3-its.c: Force synchronisation when issuing INVALL
 Date:   Mon, 13 Dec 2021 10:30:55 +0100
-Message-Id: <20211213092949.746222889@linuxfoundation.org>
+Message-Id: <20211213092936.136517287@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Wudi Wang <wangwudi@hisilicon.com>
 
-commit 811ae81320da53a5670c36970cefacca8519f90e upstream.
+commit b383a42ca523ce54bcbd63f7c8f3cf974abc9b9a upstream.
 
-When the xHCI is quirked with XHCI_RESET_ON_RESUME, runtime resume
-routine also resets the controller.
+INVALL CMD specifies that the ITS must ensure any caching associated with
+the interrupt collection defined by ICID is consistent with the LPI
+configuration tables held in memory for all Redistributors. SYNC is
+required to ensure that INVALL is executed.
 
-This is bad for USB drivers without reset_resume callback, because
-there's no subsequent call of usb_dev_complete() ->
-usb_resume_complete() to force rebinding the driver to the device. For
-instance, btusb device stops working after xHCI controller is runtime
-resumed, if the controlled is quirked with XHCI_RESET_ON_RESUME.
+Currently, LPI configuration data may be inconsistent with that in the
+memory within a short period of time after the INVALL command is executed.
 
-So always take XHCI_RESET_ON_RESUME into account to solve the issue.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211210141735.1384209-2-mathias.nyman@linux.intel.com
+Signed-off-by: Wudi Wang <wangwudi@hisilicon.com>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: cc2d3216f53c ("irqchip: GICv3: ITS command queue")
+Link: https://lore.kernel.org/r/20211208015429.5007-1-zhangshaokun@hisilicon.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/irqchip/irq-gic-v3-its.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -3934,7 +3934,6 @@ static void xhci_free_dev(struct usb_hcd
- 	struct xhci_slot_ctx *slot_ctx;
- 	int i, ret;
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -574,7 +574,7 @@ static struct its_collection *its_build_
  
--#ifndef CONFIG_USB_DEFAULT_PERSIST
- 	/*
- 	 * We called pm_runtime_get_noresume when the device was attached.
- 	 * Decrement the counter here to allow controller to runtime suspend
-@@ -3942,7 +3941,6 @@ static void xhci_free_dev(struct usb_hcd
- 	 */
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
- 		pm_runtime_put_noidle(hcd->self.controller);
--#endif
+ 	its_fixup_cmd(cmd);
  
- 	ret = xhci_check_args(hcd, udev, NULL, 0, true, __func__);
- 	/* If the host is halted due to driver unload, we still need to free the
-@@ -4094,14 +4092,12 @@ int xhci_alloc_dev(struct usb_hcd *hcd,
+-	return NULL;
++	return desc->its_invall_cmd.col;
+ }
  
- 	xhci_debugfs_create_slot(xhci, slot_id);
- 
--#ifndef CONFIG_USB_DEFAULT_PERSIST
- 	/*
- 	 * If resetting upon resume, we can't put the controller into runtime
- 	 * suspend if there is a device attached.
- 	 */
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
- 		pm_runtime_get_noresume(hcd->self.controller);
--#endif
- 
- 	/* Is this a LS or FS device under a HS hub? */
- 	/* Hub or peripherial? */
+ static struct its_vpe *its_build_vinvall_cmd(struct its_node *its,
 
 
