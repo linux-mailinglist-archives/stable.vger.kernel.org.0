@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31EB2472509
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 498D647250B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234679AbhLMJkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:40:37 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:34030 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234676AbhLMJjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:04 -0500
+        id S235242AbhLMJkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:40:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55578 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234691AbhLMJjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:05 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25722C061372;
+        Mon, 13 Dec 2021 01:37:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A5C3FCE0E29;
-        Mon, 13 Dec 2021 09:39:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F831C341DC;
-        Mon, 13 Dec 2021 09:39:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6D08ECE0E83;
+        Mon, 13 Dec 2021 09:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A599C00446;
+        Mon, 13 Dec 2021 09:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388340;
-        bh=sADD71pTzPBhbLdqJ/7BhSPOJT1D7QZhlqrCQln+H6s=;
+        s=korg; t=1639388245;
+        bh=iov5NoUFnieE7nnGUzIju4copu3+6BiwBAfvAoQiVzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lFiaG1Eib+XV2zUF/fEYkwLB/FeT7rdJU9+w8aSypJ8NSu+ygeRgLiMlRtSq6Ate2
-         aqAv5+5Ity1lYSb7IFqX7EnpdvqS+nGbV5+8TYf5olLx9A4Wnp2rNkpXFbtfAaplLr
-         zXP93NM11bLQl5uyTqPLuuawL7IEcl+3bwlEyJAI=
+        b=NzmRqEmTTg3LfXTNRCy3OItulAoKd6fYLwM6k9Kl41BZl2zavUQigAmL0HwQ+3Oi1
+         8DaaaGyH+qzVkqvJ/h5gXPnExpvEP0ZhXQuahLGXkfhngurvAS9qIHYD+1zvZF+NgM
+         yBpNKcKKqax0llbwA0fkxyuag+9zZE35hNdo8M5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 4.19 16/74] bpf: Fix the off-by-two error in range markings
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 08/53] nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
 Date:   Mon, 13 Dec 2021 10:29:47 +0100
-Message-Id: <20211213092931.340363391@linuxfoundation.org>
+Message-Id: <20211213092928.629889510@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 2fa7d94afc1afbb4d702760c058dc2d7ed30f226 upstream.
+commit 4cd8371a234d051f9c9557fcbb1f8c523b1c0d10 upstream.
 
-The first commit cited below attempts to fix the off-by-one error that
-appeared in some comparisons with an open range. Due to this error,
-arithmetically equivalent pieces of code could get different verdicts
-from the verifier, for example (pseudocode):
+The done() netlink callback nfc_genl_dump_ses_done() should check if
+received argument is non-NULL, because its allocation could fail earlier
+in dumpit() (nfc_genl_dump_ses()).
 
-  // 1. Passes the verifier:
-  if (data + 8 > data_end)
-      return early
-  read *(u64 *)data, i.e. [data; data+7]
-
-  // 2. Rejected by the verifier (should still pass):
-  if (data + 7 >= data_end)
-      return early
-  read *(u64 *)data, i.e. [data; data+7]
-
-The attempted fix, however, shifts the range by one in a wrong
-direction, so the bug not only remains, but also such piece of code
-starts failing in the verifier:
-
-  // 3. Rejected by the verifier, but the check is stricter than in #1.
-  if (data + 8 >= data_end)
-      return early
-  read *(u64 *)data, i.e. [data; data+7]
-
-The change performed by that fix converted an off-by-one bug into
-off-by-two. The second commit cited below added the BPF selftests
-written to ensure than code chunks like #3 are rejected, however,
-they should be accepted.
-
-This commit fixes the off-by-two error by adjusting new_range in the
-right direction and fixes the tests by changing the range into the
-one that should actually fail.
-
-Fixes: fb2a311a31d3 ("bpf: fix off by one for range markings with L{T, E} patterns")
-Fixes: b37242c773b2 ("bpf: add test cases to bpf selftests to cover all access tests")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20211130181607.593149-1-maximmi@nvidia.com
+Fixes: ac22ac466a65 ("NFC: Add a GET_SE netlink API")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211209081307.57337-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/nfc/netlink.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -3761,7 +3761,7 @@ static void find_good_pkt_pointers(struc
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1400,8 +1400,10 @@ static int nfc_genl_dump_ses_done(struct
+ {
+ 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
  
- 	new_range = dst_reg->off;
- 	if (range_right_open)
--		new_range--;
-+		new_range++;
+-	nfc_device_iter_exit(iter);
+-	kfree(iter);
++	if (iter) {
++		nfc_device_iter_exit(iter);
++		kfree(iter);
++	}
  
- 	/* Examples for register markings:
- 	 *
+ 	return 0;
+ }
 
 
