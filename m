@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B2B4726F6
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78873472715
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:59:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234067AbhLMJ4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:56:34 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40552 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235887AbhLMJya (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:54:30 -0500
+        id S234903AbhLMJ6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:58:10 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:44872 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238947AbhLMJzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:55:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 186F0B80E62;
-        Mon, 13 Dec 2021 09:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 465FFC34602;
-        Mon, 13 Dec 2021 09:54:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2B44ACE0B59;
+        Mon, 13 Dec 2021 09:55:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7488C34601;
+        Mon, 13 Dec 2021 09:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389266;
-        bh=Nr/FUe7+bnrkEBnwcHVcN1SVK2Sl+aX4hUUv3BbxLQc=;
+        s=korg; t=1639389298;
+        bh=vLfbsrfu1YDuBJg1GcCh3k5NDnw1r47h40rMvlXP/LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPV607Ojy+HPMJjRYVQoJZXe7K0GTkFe1NKWzVPWNZL979nOifLwjurU8gH+VJCez
-         O5BXmdN1OuKYeNhleSr8Y6Rtvfwnl4DKxtP1wzO5fZHYb+kuIeDFHxlCTl5UWxl1sz
-         lmPycRb7Pp3TE9d+4AheM6FucDbRb8oqm6FqouQ4=
+        b=W/9TIugeZYmBhUEUyuh+ViYdppgH941wka5OaDbPRnSQRA9aFG7aWAqaQ5rtBFu8U
+         kxoxKkWcwMNlME0AJySSr7I3GtfKE0WsjuPvJrExgmbXLwNJsD1O/aeDdB9kdN3aeO
+         crQOVSXIYQZSN0GzjW/4aXxEt016kqURpi+H5fF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 023/171] can: sja1000: fix use after free in ems_pcmcia_add_card()
-Date:   Mon, 13 Dec 2021 10:28:58 +0100
-Message-Id: <20211213092945.852408856@linuxfoundation.org>
+Subject: [PATCH 5.15 024/171] can: pch_can: pch_can_rx_normal: fix use after free
+Date:   Mon, 13 Dec 2021 10:28:59 +0100
+Message-Id: <20211213092945.882966631@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -45,42 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit 3ec6ca6b1a8e64389f0212b5a1b0f6fed1909e45 upstream.
+commit 94cddf1e9227a171b27292509d59691819c458db upstream.
 
-If the last channel is not available then "dev" is freed.  Fortunately,
-we can just use "pdev->irq" instead.
+After calling netif_receive_skb(skb), dereferencing skb is unsafe.
+Especially, the can_frame cf which aliases skb memory is dereferenced
+just after the call netif_receive_skb(skb).
 
-Also we should check if at least one channel was set up.
+Reordering the lines solves the issue.
 
-Fixes: fd734c6f25ae ("can/sja1000: add driver for EMS PCMCIA card")
-Link: https://lore.kernel.org/all/20211124145041.GB13656@kili
+Fixes: b21d18b51b31 ("can: Topcliff: Add PCH_CAN driver.")
+Link: https://lore.kernel.org/all/20211123111654.621610-1-mailhol.vincent@wanadoo.fr
 Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Tested-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/sja1000/ems_pcmcia.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/can/pch_can.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/sja1000/ems_pcmcia.c
-+++ b/drivers/net/can/sja1000/ems_pcmcia.c
-@@ -234,7 +234,12 @@ static int ems_pcmcia_add_card(struct pc
- 			free_sja1000dev(dev);
- 	}
+--- a/drivers/net/can/pch_can.c
++++ b/drivers/net/can/pch_can.c
+@@ -692,11 +692,11 @@ static int pch_can_rx_normal(struct net_
+ 			cf->data[i + 1] = data_reg >> 8;
+ 		}
  
--	err = request_irq(dev->irq, &ems_pcmcia_interrupt, IRQF_SHARED,
-+	if (!card->channels) {
-+		err = -ENODEV;
-+		goto failure_cleanup;
-+	}
-+
-+	err = request_irq(pdev->irq, &ems_pcmcia_interrupt, IRQF_SHARED,
- 			  DRV_NAME, card);
- 	if (!err)
- 		return 0;
+-		netif_receive_skb(skb);
+ 		rcv_pkts++;
+ 		stats->rx_packets++;
+ 		quota--;
+ 		stats->rx_bytes += cf->len;
++		netif_receive_skb(skb);
+ 
+ 		pch_fifo_thresh(priv, obj_num);
+ 		obj_num++;
 
 
