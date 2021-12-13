@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF11E472536
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1480047245B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233865AbhLMJm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:42:59 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:34796 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234389AbhLMJkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:09 -0500
+        id S234456AbhLMJfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:35:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48724 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234187AbhLMJe6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 635E5CE0E85;
-        Mon, 13 Dec 2021 09:40:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAF5EC00446;
-        Mon, 13 Dec 2021 09:40:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B14B2B80E15;
+        Mon, 13 Dec 2021 09:34:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09855C341C8;
+        Mon, 13 Dec 2021 09:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388405;
-        bh=xzVkQ9hdLO29h6SFG2SXAulAR8G5KxM/+U2yM8ovitM=;
+        s=korg; t=1639388095;
+        bh=0/TqD2fLN/WfxHKsUjSXtWtrXwGmySEVT/iwwE4ZUVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uu88eEyTVYQkCbZX26SmeX+dpYkaatBrnC2sFAboHqEJgq2UrnrX8u1opHGi8sQTh
-         iEX3c9WOlvQKOm7V/zk+UMAhPPAKv828eAuex/fOYkhNmRHtfyGKXwqBV+YKW01QWd
-         5jljX3GR0IPh2Fu22g9x4mxFDoR0Snzfsl9lcFj4=
+        b=Ykr21ktHclfqIKnGMpD8UL0lVEHOcbqA8I5aBr2NkKLGc16P0mM8kFNMiDA8U8ty7
+         yrUX/WcXNO5orWJu0YEU9ubYzxBmDwtOptuy8isJ7h7Z1utnlw29EMtLBkzk2Bnn3p
+         N8HIuqeyo6DU9/sQDZkPGtHT9PuTcdJVs8eNVbQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-fsdevel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Yabin Cui <yabinc@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 39/74] tracefs: Set all files to the same group ownership as the mount option
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 28/42] net/qla3xxx: fix an error code in ql_adapter_up()
 Date:   Mon, 13 Dec 2021 10:30:10 +0100
-Message-Id: <20211213092932.124164973@linuxfoundation.org>
+Message-Id: <20211213092927.487719816@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,146 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 48b27b6b5191e2e1f2798cd80877b6e4ef47c351 upstream.
+commit d17b9737c2bc09b4ac6caf469826e5a7ce3ffab7 upstream.
 
-As people have been asking to allow non-root processes to have access to
-the tracefs directory, it was considered best to only allow groups to have
-access to the directory, where it is easier to just set the tracefs file
-system to a specific group (as other would be too dangerous), and that way
-the admins could pick which processes would have access to tracefs.
+The ql_wait_for_drvr_lock() fails and returns false, then this
+function should return an error code instead of returning success.
 
-Unfortunately, this broke tooling on Android that expected the other bit
-to be set. For some special cases, for non-root tools to trace the system,
-tracefs would be mounted and change the permissions of the top level
-directory which gave access to all running tasks permission to the
-tracing directory. Even though this would be dangerous to do in a
-production environment, for testing environments this can be useful.
+The other problem is that the success path prints an error message
+netdev_err(ndev, "Releasing driver lock\n");  Delete that and
+re-order the code a little to make it more clear.
 
-Now with the new changes to not allow other (which is still the proper
-thing to do), it breaks the testing tooling. Now more code needs to be
-loaded on the system to change ownership of the tracing directory.
-
-The real solution is to have tracefs honor the gid=xxx option when
-mounting. That is,
-
-(tracing group tracing has value 1003)
-
- mount -t tracefs -o gid=1003 tracefs /sys/kernel/tracing
-
-should have it that all files in the tracing directory should be of the
-given group.
-
-Copy the logic from d_walk() from dcache.c and simplify it for the mount
-case of tracefs if gid is set. All the files in tracefs will be walked and
-their group will be set to the value passed in.
-
-Link: https://lkml.kernel.org/r/20211207171729.2a54e1b3@gandalf.local.home
-
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reported-by: Kalesh Singh <kaleshsingh@google.com>
-Reported-by: Yabin Cui <yabinc@google.com>
-Fixes: 49d67e445742 ("tracefs: Have tracefs directories not set OTH permission bits by default")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211207082416.GA16110@kili
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/tracefs/inode.c |   72 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 72 insertions(+)
+ drivers/net/ethernet/qlogic/qla3xxx.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -162,6 +162,77 @@ struct tracefs_fs_info {
- 	struct tracefs_mount_opts mount_opts;
- };
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -3491,20 +3491,19 @@ static int ql_adapter_up(struct ql3_adap
  
-+static void change_gid(struct dentry *dentry, kgid_t gid)
-+{
-+	if (!dentry->d_inode)
-+		return;
-+	dentry->d_inode->i_gid = gid;
-+}
-+
-+/*
-+ * Taken from d_walk, but without he need for handling renames.
-+ * Nothing can be renamed while walking the list, as tracefs
-+ * does not support renames. This is only called when mounting
-+ * or remounting the file system, to set all the files to
-+ * the given gid.
-+ */
-+static void set_gid(struct dentry *parent, kgid_t gid)
-+{
-+	struct dentry *this_parent;
-+	struct list_head *next;
-+
-+	this_parent = parent;
-+	spin_lock(&this_parent->d_lock);
-+
-+	change_gid(this_parent, gid);
-+repeat:
-+	next = this_parent->d_subdirs.next;
-+resume:
-+	while (next != &this_parent->d_subdirs) {
-+		struct list_head *tmp = next;
-+		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
-+		next = tmp->next;
-+
-+		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
-+
-+		change_gid(dentry, gid);
-+
-+		if (!list_empty(&dentry->d_subdirs)) {
-+			spin_unlock(&this_parent->d_lock);
-+			spin_release(&dentry->d_lock.dep_map, 1, _RET_IP_);
-+			this_parent = dentry;
-+			spin_acquire(&this_parent->d_lock.dep_map, 0, 1, _RET_IP_);
-+			goto repeat;
-+		}
-+		spin_unlock(&dentry->d_lock);
+ 	spin_lock_irqsave(&qdev->hw_lock, hw_flags);
+ 
+-	err = ql_wait_for_drvr_lock(qdev);
+-	if (err) {
+-		err = ql_adapter_initialize(qdev);
+-		if (err) {
+-			netdev_err(ndev, "Unable to initialize adapter\n");
+-			goto err_init;
+-		}
+-		netdev_err(ndev, "Releasing driver lock\n");
+-		ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
+-	} else {
++	if (!ql_wait_for_drvr_lock(qdev)) {
+ 		netdev_err(ndev, "Could not acquire driver lock\n");
++		err = -ENODEV;
+ 		goto err_lock;
+ 	}
+ 
++	err = ql_adapter_initialize(qdev);
++	if (err) {
++		netdev_err(ndev, "Unable to initialize adapter\n");
++		goto err_init;
 +	}
-+	/*
-+	 * All done at this level ... ascend and resume the search.
-+	 */
-+	rcu_read_lock();
-+ascend:
-+	if (this_parent != parent) {
-+		struct dentry *child = this_parent;
-+		this_parent = child->d_parent;
++	ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
 +
-+		spin_unlock(&child->d_lock);
-+		spin_lock(&this_parent->d_lock);
-+
-+		/* go into the first sibling still alive */
-+		do {
-+			next = child->d_child.next;
-+			if (next == &this_parent->d_subdirs)
-+				goto ascend;
-+			child = list_entry(next, struct dentry, d_child);
-+		} while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED));
-+		rcu_read_unlock();
-+		goto resume;
-+	}
-+	rcu_read_unlock();
-+	spin_unlock(&this_parent->d_lock);
-+	return;
-+}
-+
- static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- {
- 	substring_t args[MAX_OPT_ARGS];
-@@ -194,6 +265,7 @@ static int tracefs_parse_options(char *d
- 			if (!gid_valid(gid))
- 				return -EINVAL;
- 			opts->gid = gid;
-+			set_gid(tracefs_mount->mnt_root, gid);
- 			break;
- 		case Opt_mode:
- 			if (match_octal(&args[0], &option))
+ 	spin_unlock_irqrestore(&qdev->hw_lock, hw_flags);
+ 
+ 	set_bit(QL_ADAPTER_UP, &qdev->flags);
 
 
