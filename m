@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD410472544
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19A9447240E
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235425AbhLMJnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235194AbhLMJka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145E8C07E5F6;
-        Mon, 13 Dec 2021 01:38:54 -0800 (PST)
+        id S233952AbhLMJdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:33:46 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:58212 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232392AbhLMJda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE9E0B80E20;
-        Mon, 13 Dec 2021 09:38:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1D4DC341CF;
-        Mon, 13 Dec 2021 09:38:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 31226CE0E39;
+        Mon, 13 Dec 2021 09:33:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2319C00446;
+        Mon, 13 Dec 2021 09:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388332;
-        bh=/aTyyoiiDOu2LCA5Z3xVfDfAZoVt3F37qzD9mg5LW2c=;
+        s=korg; t=1639388006;
+        bh=jUJrpcUX33dS5UegzQuJQIa0+RJqKxH2CaWsW9LtMWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQ+qbR8hvKjUIk5xZgOWOlg4zgevYajwTti850snMEE3ZLJ0G4XqftAmtaYxVGlJG
-         AEUukCKgWw3zpGGvYg+30ZEtj2GElrVjo8icnjDyYiUWi9oIMR3+SDuU66H+Bjud+9
-         RrXPZ6LXQpq+sLotx2Ddn2lPhr6AT2mcTheFvubQ=
+        b=rhl56SjrKTonRe6hvmTA9C8mLtLXFNrreqVAt6wwiETytrFwtzCKi+YXwtVQwPs0h
+         oXI6hanWyC2o1J5MjBnvgDrxT5eEs53rnQou/bDoiLDZG5/Nb5piGDB8r2tKdlZdx+
+         fT8tiXpdr9LuxlwkCMW7oto0shkFcao1MIe251rA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, lee.jones@linaro.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 13/74] net: sched: add helper function to take reference to Qdisc
+        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 4.4 06/37] HID: wacom: fix problems when device is not a valid USB device
 Date:   Mon, 13 Dec 2021 10:29:44 +0100
-Message-Id: <20211213092931.228998644@linuxfoundation.org>
+Message-Id: <20211213092925.583384960@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
+References: <20211213092925.380184671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,47 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@mellanox.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 9d7e82cec35c027756ec97e274f878251f271181 ]
+commit 720ac467204a70308bd687927ed475afb904e11b upstream.
 
-Implement function to take reference to Qdisc that relies on rcu read lock
-instead of rtnl mutex. Function only takes reference to Qdisc if reference
-counter isn't zero. Intended to be used by unlocked cls API.
+The wacom driver accepts devices of more than just USB types, but some
+code paths can cause problems if the device being controlled is not a
+USB device due to a lack of checking.  Add the needed checks to ensure
+that the USB device accesses are only happening on a "real" USB device,
+and not one on some other bus.
 
-Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[Lee: Sent to Stable]
-Link: https://syzkaller.appspot.com/bug?id=d7e411c5472dd5da33d8cc921ccadc747743a568
-Reported-by: syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org
+Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20211201183503.2373082-2-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sch_generic.h |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/hid/wacom_sys.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -118,6 +118,19 @@ static inline void qdisc_refcount_inc(st
- 	refcount_inc(&qdisc->refcnt);
- }
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -458,7 +458,7 @@ static void wacom_retrieve_hid_descripto
+ 	 * Skip the query for this type and modify defaults based on
+ 	 * interface number.
+ 	 */
+-	if (features->type == WIRELESS) {
++	if (features->type == WIRELESS && intf) {
+ 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
+ 			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
+ 		else
+@@ -1512,6 +1512,9 @@ static void wacom_wireless_work(struct w
  
-+/* Intended to be used by unlocked users, when concurrent qdisc release is
-+ * possible.
-+ */
+ 	wacom_destroy_battery(wacom);
+ 
++	if (!usbdev)
++		return;
 +
-+static inline struct Qdisc *qdisc_refcount_inc_nz(struct Qdisc *qdisc)
-+{
-+	if (qdisc->flags & TCQ_F_BUILTIN)
-+		return qdisc;
-+	if (refcount_inc_not_zero(&qdisc->refcnt))
-+		return qdisc;
-+	return NULL;
-+}
-+
- static inline bool qdisc_is_running(struct Qdisc *qdisc)
+ 	/* Stylus interface */
+ 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
+ 	wacom1 = hid_get_drvdata(hdev1);
+@@ -1689,8 +1692,6 @@ static void wacom_update_name(struct wac
+ static int wacom_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
  {
- 	if (qdisc->flags & TCQ_F_NOLOCK)
+-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+-	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct wacom *wacom;
+ 	struct wacom_wac *wacom_wac;
+ 	struct wacom_features *features;
+@@ -1733,8 +1734,14 @@ static int wacom_probe(struct hid_device
+ 		goto fail_type;
+ 	}
+ 
+-	wacom->usbdev = dev;
+-	wacom->intf = intf;
++	if (hid_is_usb(hdev)) {
++		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++		struct usb_device *dev = interface_to_usbdev(intf);
++
++		wacom->usbdev = dev;
++		wacom->intf = intf;
++	}
++
+ 	mutex_init(&wacom->lock);
+ 	INIT_WORK(&wacom->work, wacom_wireless_work);
+ 
 
 
