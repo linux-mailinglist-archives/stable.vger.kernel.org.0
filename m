@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA509472771
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A2E47253E
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240311AbhLMKBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:01:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45218 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239859AbhLMJ64 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:58:56 -0500
+        id S235099AbhLMJnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55894 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234632AbhLMJkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDE0C07E5EE;
+        Mon, 13 Dec 2021 01:38:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E98D5B80E0E;
-        Mon, 13 Dec 2021 09:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D3AEC34600;
-        Mon, 13 Dec 2021 09:58:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0DA4B80E26;
+        Mon, 13 Dec 2021 09:38:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44E70C00446;
+        Mon, 13 Dec 2021 09:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389533;
-        bh=pJKi27cSTr0x7XYdTRWTxQg+0FLKOWf4U2pq/h4+Kfg=;
+        s=korg; t=1639388317;
+        bh=1SEdY6v/YnLwzIm9ahHk49MhXnE1QHPla0HA5UW2r+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFRRNM8Pvtl9EUJCmSh51KQpiF61CnPGdHLn5qIjdq4m+QKAYHC99ACDYejtZyHCu
-         s8jnGwRrcwgZzDmBB8++uRegLWj9/p8FtBLZ8MfoM3enJ8sfMCQ0Q6dP74t3wXC89W
-         bPrB2SRlT/7QCXDTDWHyrtRDEUf8lWTJ7cT5pzt0=
+        b=rpDFA/Gz3SQ+NBiZGUxzDU7JfUWW+V5uUXYD2nyg0gO9FpRw0BFvCj9OmXi9a9XbX
+         DJ4hwYg/pc+dKKcm9zzRgZz57LE6l/N7Ag7OFvGtvKNbIKqXmViPxZzkUB6LWf3cVE
+         zF9XRDpCaMF3NCTA/SuPJCqzAinGzDHzN3QrcT0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.15 095/171] wait: add wake_up_pollfree()
+        stable@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>,
+        Nicolas Diaz <nicolas.diaz@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 31/53] net: fec: only clear interrupt of handling queue in fec_enet_rx_queue()
 Date:   Mon, 13 Dec 2021 10:30:10 +0100
-Message-Id: <20211213092948.240830190@linuxfoundation.org>
+Message-Id: <20211213092929.395225198@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,105 +49,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit 42288cb44c4b5fff7653bc392b583a2b8bd6a8c0 upstream.
+commit b5bd95d17102b6719e3531d627875b9690371383 upstream.
 
-Several ->poll() implementations are special in that they use a
-waitqueue whose lifetime is the current task, rather than the struct
-file as is normally the case.  This is okay for blocking polls, since a
-blocking poll occurs within one task; however, non-blocking polls
-require another solution.  This solution is for the queue to be cleared
-before it is freed, using 'wake_up_poll(wq, EPOLLHUP | POLLFREE);'.
+Background:
+We have a customer is running a Profinet stack on the 8MM which receives and
+responds PNIO packets every 4ms and PNIO-CM packets every 40ms. However, from
+time to time the received PNIO-CM package is "stock" and is only handled when
+receiving a new PNIO-CM or DCERPC-Ping packet (tcpdump shows the PNIO-CM and
+the DCERPC-Ping packet at the same time but the PNIO-CM HW timestamp is from
+the expected 40 ms and not the 2s delay of the DCERPC-Ping).
 
-However, that has a bug: wake_up_poll() calls __wake_up() with
-nr_exclusive=1.  Therefore, if there are multiple "exclusive" waiters,
-and the wakeup function for the first one returns a positive value, only
-that one will be called.  That's *not* what's needed for POLLFREE;
-POLLFREE is special in that it really needs to wake up everyone.
+After debugging, we noticed PNIO, PNIO-CM and DCERPC-Ping packets would
+be handled by different RX queues.
 
-Considering the three non-blocking poll systems:
+The root cause should be driver ack all queues' interrupt when handle a
+specific queue in fec_enet_rx_queue(). The blamed patch is introduced to
+receive as much packets as possible once to avoid interrupt flooding.
+But it's unreasonable to clear other queues'interrupt when handling one
+queue, this patch tries to fix it.
 
-- io_uring poll doesn't handle POLLFREE at all, so it is broken anyway.
-
-- aio poll is unaffected, since it doesn't support exclusive waits.
-  However, that's fragile, as someone could add this feature later.
-
-- epoll doesn't appear to be broken by this, since its wakeup function
-  returns 0 when it sees POLLFREE.  But this is fragile.
-
-Although there is a workaround (see epoll), it's better to define a
-function which always sends POLLFREE to all waiters.  Add such a
-function.  Also make it verify that the queue really becomes empty after
-all waiters have been woken up.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211209010455.42744-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: ed63f1dcd578 (net: fec: clear receive interrupts before processing a packet)
+Cc: Russell King <rmk+kernel@arm.linux.org.uk>
+Reported-by: Nicolas Diaz <nicolas.diaz@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Link: https://lore.kernel.org/r/20211206135457.15946-1-qiangqing.zhang@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/wait.h |   26 ++++++++++++++++++++++++++
- kernel/sched/wait.c  |    7 +++++++
- 2 files changed, 33 insertions(+)
+ drivers/net/ethernet/freescale/fec.h      |    3 +++
+ drivers/net/ethernet/freescale/fec_main.c |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -217,6 +217,7 @@ void __wake_up_sync_key(struct wait_queu
- void __wake_up_locked_sync_key(struct wait_queue_head *wq_head, unsigned int mode, void *key);
- void __wake_up_locked(struct wait_queue_head *wq_head, unsigned int mode, int nr);
- void __wake_up_sync(struct wait_queue_head *wq_head, unsigned int mode);
-+void __wake_up_pollfree(struct wait_queue_head *wq_head);
+--- a/drivers/net/ethernet/freescale/fec.h
++++ b/drivers/net/ethernet/freescale/fec.h
+@@ -372,6 +372,9 @@ struct bufdesc_ex {
+ #define FEC_ENET_WAKEUP	((uint)0x00020000)	/* Wakeup request */
+ #define FEC_ENET_TXF	(FEC_ENET_TXF_0 | FEC_ENET_TXF_1 | FEC_ENET_TXF_2)
+ #define FEC_ENET_RXF	(FEC_ENET_RXF_0 | FEC_ENET_RXF_1 | FEC_ENET_RXF_2)
++#define FEC_ENET_RXF_GET(X)	(((X) == 0) ? FEC_ENET_RXF_0 :	\
++				(((X) == 1) ? FEC_ENET_RXF_1 :	\
++				FEC_ENET_RXF_2))
+ #define FEC_ENET_TS_AVAIL       ((uint)0x00010000)
+ #define FEC_ENET_TS_TIMER       ((uint)0x00008000)
  
- #define wake_up(x)			__wake_up(x, TASK_NORMAL, 1, NULL)
- #define wake_up_nr(x, nr)		__wake_up(x, TASK_NORMAL, nr, NULL)
-@@ -245,6 +246,31 @@ void __wake_up_sync(struct wait_queue_he
- #define wake_up_interruptible_sync_poll_locked(x, m)				\
- 	__wake_up_locked_sync_key((x), TASK_INTERRUPTIBLE, poll_to_key(m))
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -1385,7 +1385,7 @@ fec_enet_rx_queue(struct net_device *nde
+ 			break;
+ 		pkt_received++;
  
-+/**
-+ * wake_up_pollfree - signal that a polled waitqueue is going away
-+ * @wq_head: the wait queue head
-+ *
-+ * In the very rare cases where a ->poll() implementation uses a waitqueue whose
-+ * lifetime is tied to a task rather than to the 'struct file' being polled,
-+ * this function must be called before the waitqueue is freed so that
-+ * non-blocking polls (e.g. epoll) are notified that the queue is going away.
-+ *
-+ * The caller must also RCU-delay the freeing of the wait_queue_head, e.g. via
-+ * an explicit synchronize_rcu() or call_rcu(), or via SLAB_TYPESAFE_BY_RCU.
-+ */
-+static inline void wake_up_pollfree(struct wait_queue_head *wq_head)
-+{
-+	/*
-+	 * For performance reasons, we don't always take the queue lock here.
-+	 * Therefore, we might race with someone removing the last entry from
-+	 * the queue, and proceed while they still hold the queue lock.
-+	 * However, rcu_read_lock() is required to be held in such cases, so we
-+	 * can safely proceed with an RCU-delayed free.
-+	 */
-+	if (waitqueue_active(wq_head))
-+		__wake_up_pollfree(wq_head);
-+}
-+
- #define ___wait_cond_timeout(condition)						\
- ({										\
- 	bool __cond = (condition);						\
---- a/kernel/sched/wait.c
-+++ b/kernel/sched/wait.c
-@@ -238,6 +238,13 @@ void __wake_up_sync(struct wait_queue_he
- }
- EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
+-		writel(FEC_ENET_RXF, fep->hwp + FEC_IEVENT);
++		writel(FEC_ENET_RXF_GET(queue_id), fep->hwp + FEC_IEVENT);
  
-+void __wake_up_pollfree(struct wait_queue_head *wq_head)
-+{
-+	__wake_up(wq_head, TASK_NORMAL, 0, poll_to_key(EPOLLHUP | POLLFREE));
-+	/* POLLFREE must have cleared the queue. */
-+	WARN_ON_ONCE(waitqueue_active(wq_head));
-+}
-+
- /*
-  * Note: we use "set_current_state()" _after_ the wait-queue add,
-  * because we need a memory barrier there on SMP, so that any
+ 		/* Check for errors. */
+ 		status ^= BD_ENET_RX_LAST;
 
 
