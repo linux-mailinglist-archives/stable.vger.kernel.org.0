@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F25A472F0E
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4ABD472F12
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 15:24:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234786AbhLMOXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 09:23:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38908 "EHLO
+        id S234536AbhLMOYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 09:24:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238700AbhLMOXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:23:53 -0500
+        with ESMTP id S234220AbhLMOYE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 09:24:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A96C061748
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 06:23:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95594C061574
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 06:24:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12112610A4
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 14:23:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E66E1C34601;
-        Mon, 13 Dec 2021 14:23:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 354AB610A0
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 14:24:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11412C34601;
+        Mon, 13 Dec 2021 14:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639405432;
-        bh=kha737Dw3kMdAxNdJyF18A6qiH5ZS3/53TAgJvVASfs=;
+        s=korg; t=1639405443;
+        bh=Ogz7q8dXVlnLTXqoJI9OHtkf0mrSY6EkafWaph89JgQ=;
         h=Subject:To:From:Date:From;
-        b=yjmDYM4fIBj/fnaA9ju8DggaOEJ1bwyIQVVDKgt6sCDjyQDJZJ7Gvg0MscLTYT6kU
-         IoyS0C8Yrqxe4CqR2XEp5k5xoIxisXCOCb0mCOKORo5/aIty6+mxIZmGcHwCq41jjl
-         wcNz9h1s/JGmE2lLrWqgJxKd1HDLc/E1qPLOcRa4=
-Subject: patch "usb: xhci-mtk: fix list_del warning when enable list debug" added to usb-linus
-To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=X8Sl9AgwuXN6HGU/dKA+MX8AgDQOa1OPe8SBIxeBKoTEzXX7ubVrYba2cdWjHVnHp
+         yhgUxlQabG7KDjfUOqvG3zjFTygLPS07SvddLtXaup0mEaJ6Pei+aqAsxd3hVWmKeF
+         CXHfZUNeHl38W8HDul/eI/cwUgXiXyMdND7ezb+U=
+Subject: patch "usb: cdnsp: Fix incorrect calling of cdnsp_died function" added to usb-linus
+To:     pawell@cadence.com, gregkh@linuxfoundation.org,
+        peter.chen@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Dec 2021 15:23:49 +0100
-Message-ID: <16394054291341@kroah.com>
+Date:   Mon, 13 Dec 2021 15:23:50 +0100
+Message-ID: <163940543016846@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci-mtk: fix list_del warning when enable list debug
+    usb: cdnsp: Fix incorrect calling of cdnsp_died function
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -59,36 +59,47 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From ccc14c6cfd346e85c3ecb970975afd5132763437 Mon Sep 17 00:00:00 2001
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Date: Thu, 9 Dec 2021 10:54:22 +0800
-Subject: usb: xhci-mtk: fix list_del warning when enable list debug
+From 16f00d969afe60e233c1a91af7ac840df60d3536 Mon Sep 17 00:00:00 2001
+From: Pawel Laszczak <pawell@cadence.com>
+Date: Fri, 10 Dec 2021 12:29:45 +0100
+Subject: usb: cdnsp: Fix incorrect calling of cdnsp_died function
 
-There is warning of 'list_del corruption' when enable list debug
-(CONFIG_DEBUG_LIST=y), fix it by using list_del_init()
+Patch restrict calling of cdnsp_died function during removing modules
+or software disconnect.
+This function was called because after transition controller to HALT
+state the driver starts handling the deferred interrupt.
+In this case such interrupt can be simple ignored.
 
-Fixes: 4ce186665e7c ("usb: xhci-mtk: Do not use xhci's virt_dev in drop_endpoint")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20211209025422.17108-1-chunfeng.yun@mediatek.com
+Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+cc: <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20211210112945.660-1-pawell@gli-login.cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/cdns3/cdnsp-ring.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-index 1edef7527c11..edbfa82c6565 100644
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -781,7 +781,7 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
+index 1b1438457fb0..e1ac6c398bd3 100644
+--- a/drivers/usb/cdns3/cdnsp-ring.c
++++ b/drivers/usb/cdns3/cdnsp-ring.c
+@@ -1523,7 +1523,14 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
+ 	spin_lock_irqsave(&pdev->lock, flags);
  
- 	ret = xhci_check_bandwidth(hcd, udev);
- 	if (!ret)
--		INIT_LIST_HEAD(&mtk->bw_ep_chk_list);
-+		list_del_init(&mtk->bw_ep_chk_list);
- 
- 	return ret;
- }
+ 	if (pdev->cdnsp_state & (CDNSP_STATE_HALTED | CDNSP_STATE_DYING)) {
+-		cdnsp_died(pdev);
++		/*
++		 * While removing or stopping driver there may still be deferred
++		 * not handled interrupt which should not be treated as error.
++		 * Driver should simply ignore it.
++		 */
++		if (pdev->gadget_driver)
++			cdnsp_died(pdev);
++
+ 		spin_unlock_irqrestore(&pdev->lock, flags);
+ 		return IRQ_HANDLED;
+ 	}
 -- 
 2.34.1
 
