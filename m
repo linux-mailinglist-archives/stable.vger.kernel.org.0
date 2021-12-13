@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B11E147294D
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3ED547298C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235434AbhLMKTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:19:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238948AbhLMKPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:15:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 029EFC0D941E;
-        Mon, 13 Dec 2021 01:55:17 -0800 (PST)
+        id S239163AbhLMKXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:23:22 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39528 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236732AbhLMJr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:47:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D4220CE0E6B;
-        Mon, 13 Dec 2021 09:55:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56A0AC34604;
-        Mon, 13 Dec 2021 09:55:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B6051CE0E83;
+        Mon, 13 Dec 2021 09:47:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A87BC00446;
+        Mon, 13 Dec 2021 09:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389313;
-        bh=odmEsfDm6TOHJpP7tZ6AaJP0+19wi3rkYp8kCQzl87Y=;
+        s=korg; t=1639388844;
+        bh=+9JJ3jtcjXciKg8qzusZUso4LCPYpjIUz3MPfA64un8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irb/uphEYXYIhiBmlkpOc5dE99MNclhLEXpocCHqEEtpG9FFt83c6sz/0qTQ4INx0
-         yIgHMBpMRNRGMnhd2gt3J6N9ITjVHfGNmATOKVTVG+mP0u1In2d7jxdnlBcdlBJMDJ
-         j4O09zWkdQymGPoxsApTxhKnOe3eBAGTG0YILcdo=
+        b=pA/sTHrKBSXmBV+TEVg0TiT+tM9Uiwf7+jogNbu7PlGxADfMU6KLIO2u1KBPb+sIo
+         +STbOISP00Vf9X2cFKJvt2BBIWPLDgQaul2s3gepzN5NDV6e5PuCQB/+1x8jtWTRqj
+         djfHodLdO66WyZj34kr2jhOfy/hPEqd3yXgQwAxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "Mohit P. Tahiliani" <tahiliani@nitk.edu.in>,
-        "Sachin D. Patil" <sdp.sachin@gmail.com>,
-        "V. Saicharan" <vsaicharan1998@gmail.com>,
-        Mohit Bhasi <mohitbhasi1998@gmail.com>,
-        Leslie Monis <lesliemonis@gmail.com>,
-        Gautam Ramakrishnan <gautamramk@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 055/171] net/sched: fq_pie: prevent dismantle issue
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Florian Westphal <fw@strlen.de>,
+        David Ahern <dsahern@kernel.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 029/132] vrf: dont run conntrack on vrf with !dflt qdisc
 Date:   Mon, 13 Dec 2021 10:29:30 +0100
-Message-Id: <20211213092946.937983096@linuxfoundation.org>
+Message-Id: <20211213092940.110694741@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,96 +47,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit 61c2402665f1e10c5742033fce18392e369931d7 upstream.
+commit d43b75fbc23f0ac1ef9c14a5a166d3ccb761a451 upstream.
 
-For some reason, fq_pie_destroy() did not copy
-working code from pie_destroy() and other qdiscs,
-thus causing elusive bug.
+After the below patch, the conntrack attached to skb is set to "notrack" in
+the context of vrf device, for locally generated packets.
+But this is true only when the default qdisc is set to the vrf device. When
+changing the qdisc, notrack is not set anymore.
+In fact, there is a shortcut in the vrf driver, when the default qdisc is
+set, see commit dcdd43c41e60 ("net: vrf: performance improvements for
+IPv4") for more details.
 
-Before calling del_timer_sync(&q->adapt_timer),
-we need to ensure timer will not rearm itself.
+This patch ensures that the behavior is always the same, whatever the qdisc
+is.
 
-rcu: INFO: rcu_preempt self-detected stall on CPU
-rcu:    0-....: (4416 ticks this GP) idle=60d/1/0x4000000000000000 softirq=10433/10434 fqs=2579
-        (t=10501 jiffies g=13085 q=3989)
-NMI backtrace for cpu 0
-CPU: 0 PID: 13 Comm: ksoftirqd/0 Not tainted 5.16.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- nmi_cpu_backtrace.cold+0x47/0x144 lib/nmi_backtrace.c:111
- nmi_trigger_cpumask_backtrace+0x1b3/0x230 lib/nmi_backtrace.c:62
- trigger_single_cpu_backtrace include/linux/nmi.h:164 [inline]
- rcu_dump_cpu_stacks+0x25e/0x3f0 kernel/rcu/tree_stall.h:343
- print_cpu_stall kernel/rcu/tree_stall.h:627 [inline]
- check_cpu_stall kernel/rcu/tree_stall.h:711 [inline]
- rcu_pending kernel/rcu/tree.c:3878 [inline]
- rcu_sched_clock_irq.cold+0x9d/0x746 kernel/rcu/tree.c:2597
- update_process_times+0x16d/0x200 kernel/time/timer.c:1785
- tick_sched_handle+0x9b/0x180 kernel/time/tick-sched.c:226
- tick_sched_timer+0x1b0/0x2d0 kernel/time/tick-sched.c:1428
- __run_hrtimer kernel/time/hrtimer.c:1685 [inline]
- __hrtimer_run_queues+0x1c0/0xe50 kernel/time/hrtimer.c:1749
- hrtimer_interrupt+0x31c/0x790 kernel/time/hrtimer.c:1811
- local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1086 [inline]
- __sysvec_apic_timer_interrupt+0x146/0x530 arch/x86/kernel/apic/apic.c:1103
- sysvec_apic_timer_interrupt+0x8e/0xc0 arch/x86/kernel/apic/apic.c:1097
- </IRQ>
- <TASK>
- asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:638
-RIP: 0010:write_comp_data kernel/kcov.c:221 [inline]
-RIP: 0010:__sanitizer_cov_trace_const_cmp1+0x1d/0x80 kernel/kcov.c:273
-Code: 54 c8 20 48 89 10 c3 66 0f 1f 44 00 00 53 41 89 fb 41 89 f1 bf 03 00 00 00 65 48 8b 0c 25 40 70 02 00 48 89 ce 4c 8b 54 24 08 <e8> 4e f7 ff ff 84 c0 74 51 48 8b 81 88 15 00 00 44 8b 81 84 15 00
-RSP: 0018:ffffc90000d27b28 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffff888064bf1bf0 RCX: ffff888011928000
-RDX: ffff888011928000 RSI: ffff888011928000 RDI: 0000000000000003
-RBP: ffff888064bf1c28 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff875d8295 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff8880783dd300 R14: 0000000000000000 R15: 0000000000000000
- pie_calculate_probability+0x405/0x7c0 net/sched/sch_pie.c:418
- fq_pie_timer+0x170/0x2a0 net/sched/sch_fq_pie.c:383
- call_timer_fn+0x1a5/0x6b0 kernel/time/timer.c:1421
- expire_timers kernel/time/timer.c:1466 [inline]
- __run_timers.part.0+0x675/0xa20 kernel/time/timer.c:1734
- __run_timers kernel/time/timer.c:1715 [inline]
- run_timer_softirq+0xb3/0x1d0 kernel/time/timer.c:1747
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
- run_ksoftirqd kernel/softirq.c:921 [inline]
- run_ksoftirqd+0x2d/0x60 kernel/softirq.c:913
- smpboot_thread_fn+0x645/0x9c0 kernel/smpboot.c:164
- kthread+0x405/0x4f0 kernel/kthread.c:327
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
- </TASK>
+To demonstrate the difference, a new test is added in conntrack_vrf.sh.
 
-Fixes: ec97ecf1ebe4 ("net: sched: add Flow Queue PIE packet scheduler")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Mohit P. Tahiliani <tahiliani@nitk.edu.in>
-Cc: Sachin D. Patil <sdp.sachin@gmail.com>
-Cc: V. Saicharan <vsaicharan1998@gmail.com>
-Cc: Mohit Bhasi <mohitbhasi1998@gmail.com>
-Cc: Leslie Monis <lesliemonis@gmail.com>
-Cc: Gautam Ramakrishnan <gautamramk@gmail.com>
-Link: https://lore.kernel.org/r/20211209084937.3500020-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8c9c296adfae ("vrf: run conntrack only in context of lower/physdev for locally generated packets")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_fq_pie.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/vrf.c                                  |    8 ++---
+ tools/testing/selftests/netfilter/conntrack_vrf.sh |   30 ++++++++++++++++++---
+ 2 files changed, 30 insertions(+), 8 deletions(-)
 
---- a/net/sched/sch_fq_pie.c
-+++ b/net/sched/sch_fq_pie.c
-@@ -531,6 +531,7 @@ static void fq_pie_destroy(struct Qdisc
- 	struct fq_pie_sched_data *q = qdisc_priv(sch);
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -771,8 +771,6 @@ static struct sk_buff *vrf_ip6_out_direc
  
- 	tcf_block_put(q->block);
-+	q->p_params.tupdate = 0;
- 	del_timer_sync(&q->adapt_timer);
- 	kvfree(q->flows);
+ 	skb->dev = vrf_dev;
+ 
+-	vrf_nf_set_untracked(skb);
+-
+ 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk,
+ 		      skb, NULL, vrf_dev, vrf_ip6_out_direct_finish);
+ 
+@@ -793,6 +791,8 @@ static struct sk_buff *vrf_ip6_out(struc
+ 	if (rt6_need_strict(&ipv6_hdr(skb)->daddr))
+ 		return skb;
+ 
++	vrf_nf_set_untracked(skb);
++
+ 	if (qdisc_tx_is_default(vrf_dev) ||
+ 	    IP6CB(skb)->flags & IP6SKB_XFRM_TRANSFORMED)
+ 		return vrf_ip6_out_direct(vrf_dev, sk, skb);
+@@ -1008,8 +1008,6 @@ static struct sk_buff *vrf_ip_out_direct
+ 
+ 	skb->dev = vrf_dev;
+ 
+-	vrf_nf_set_untracked(skb);
+-
+ 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
+ 		      skb, NULL, vrf_dev, vrf_ip_out_direct_finish);
+ 
+@@ -1031,6 +1029,8 @@ static struct sk_buff *vrf_ip_out(struct
+ 	    ipv4_is_lbcast(ip_hdr(skb)->daddr))
+ 		return skb;
+ 
++	vrf_nf_set_untracked(skb);
++
+ 	if (qdisc_tx_is_default(vrf_dev) ||
+ 	    IPCB(skb)->flags & IPSKB_XFRM_TRANSFORMED)
+ 		return vrf_ip_out_direct(vrf_dev, sk, skb);
+--- a/tools/testing/selftests/netfilter/conntrack_vrf.sh
++++ b/tools/testing/selftests/netfilter/conntrack_vrf.sh
+@@ -150,11 +150,27 @@ EOF
+ # oifname is the vrf device.
+ test_masquerade_vrf()
+ {
++	local qdisc=$1
++
++	if [ "$qdisc" != "default" ]; then
++		tc -net $ns0 qdisc add dev tvrf root $qdisc
++	fi
++
+ 	ip netns exec $ns0 conntrack -F 2>/dev/null
+ 
+ ip netns exec $ns0 nft -f - <<EOF
+ flush ruleset
+ table ip nat {
++	chain rawout {
++		type filter hook output priority raw;
++
++		oif tvrf ct state untracked counter
++	}
++	chain postrouting2 {
++		type filter hook postrouting priority mangle;
++
++		oif tvrf ct state untracked counter
++	}
+ 	chain postrouting {
+ 		type nat hook postrouting priority 0;
+ 		# NB: masquerade should always be combined with 'oif(name) bla',
+@@ -171,13 +187,18 @@ EOF
+ 	fi
+ 
+ 	# must also check that nat table was evaluated on second (lower device) iteration.
+-	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2'
++	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2' &&
++	ip netns exec $ns0 nft list table ip nat |grep -q 'untracked counter packets [1-9]'
+ 	if [ $? -eq 0 ]; then
+-		echo "PASS: iperf3 connect with masquerade + sport rewrite on vrf device"
++		echo "PASS: iperf3 connect with masquerade + sport rewrite on vrf device ($qdisc qdisc)"
+ 	else
+-		echo "FAIL: vrf masq rule has unexpected counter value"
++		echo "FAIL: vrf rules have unexpected counter value"
+ 		ret=1
+ 	fi
++
++	if [ "$qdisc" != "default" ]; then
++		tc -net $ns0 qdisc del dev tvrf root
++	fi
  }
+ 
+ # add masq rule that gets evaluated w. outif set to veth device.
+@@ -213,7 +234,8 @@ EOF
+ }
+ 
+ test_ct_zone_in
+-test_masquerade_vrf
++test_masquerade_vrf "default"
++test_masquerade_vrf "pfifo"
+ test_masquerade_veth
+ 
+ exit $ret
 
 
