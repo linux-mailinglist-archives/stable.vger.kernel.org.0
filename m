@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 599294724D5
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:39:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B6E747243C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234327AbhLMJi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:38:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49914 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234546AbhLMJha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:37:30 -0500
+        id S234047AbhLMJfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:35:10 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:58892 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234058AbhLMJeV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7ED7B80E15;
-        Mon, 13 Dec 2021 09:37:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA8F9C00446;
-        Mon, 13 Dec 2021 09:37:27 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 192F6CE0E8B;
+        Mon, 13 Dec 2021 09:34:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B965CC341C8;
+        Mon, 13 Dec 2021 09:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388248;
-        bh=+txLVm7434gQb8qMkJfbHz/qNnk0pSIt2gK4IJbFqpw=;
+        s=korg; t=1639388058;
+        bh=2h2SHIPC2S9rx7FduwV2BKAFGGp9otTwfecsbTSF6iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRxFdqzH4EUVIpRfcLvClcYHhbPpOWLJKsU0rRdrspNvp+C/UWudS1OS2wdCbxEmJ
-         B6tiOxUfWHBptZIE/8XyTvGT5aYYVOj+t1j4UKUWueOwiYjOJ8axCVQpFiDJ40UwBR
-         mFG7lmpXTinJsoMmkNeY/9KGXvzKMh9b5wBuKKfY=
+        b=XIdDILMc5FO7oum8uzRALnfHDV5FBm0Bww5DukGTkBeWaeWkR+d0LrpYa6xeh2szH
+         Ypp+C0KhjBs7G4B7MNnYOb0WleCelBxff7nCS7KeWZW59j9AojHZUnamtlgALZwmKy
+         AUamNdWvx8jRHx/WzTy9oERmEdBREjeduSOTaV9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 4.14 09/53] bpf: Fix the off-by-two error in range markings
+        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 4.9 06/42] HID: wacom: fix problems when device is not a valid USB device
 Date:   Mon, 13 Dec 2021 10:29:48 +0100
-Message-Id: <20211213092928.669463787@linuxfoundation.org>
+Message-Id: <20211213092926.780562238@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 2fa7d94afc1afbb4d702760c058dc2d7ed30f226 upstream.
+commit 720ac467204a70308bd687927ed475afb904e11b upstream.
 
-The first commit cited below attempts to fix the off-by-one error that
-appeared in some comparisons with an open range. Due to this error,
-arithmetically equivalent pieces of code could get different verdicts
-from the verifier, for example (pseudocode):
+The wacom driver accepts devices of more than just USB types, but some
+code paths can cause problems if the device being controlled is not a
+USB device due to a lack of checking.  Add the needed checks to ensure
+that the USB device accesses are only happening on a "real" USB device,
+and not one on some other bus.
 
-  // 1. Passes the verifier:
-  if (data + 8 > data_end)
-      return early
-  read *(u64 *)data, i.e. [data; data+7]
-
-  // 2. Rejected by the verifier (should still pass):
-  if (data + 7 >= data_end)
-      return early
-  read *(u64 *)data, i.e. [data; data+7]
-
-The attempted fix, however, shifts the range by one in a wrong
-direction, so the bug not only remains, but also such piece of code
-starts failing in the verifier:
-
-  // 3. Rejected by the verifier, but the check is stricter than in #1.
-  if (data + 8 >= data_end)
-      return early
-  read *(u64 *)data, i.e. [data; data+7]
-
-The change performed by that fix converted an off-by-one bug into
-off-by-two. The second commit cited below added the BPF selftests
-written to ensure than code chunks like #3 are rejected, however,
-they should be accepted.
-
-This commit fixes the off-by-two error by adjusting new_range in the
-right direction and fixes the tests by changing the range into the
-one that should actually fail.
-
-Fixes: fb2a311a31d3 ("bpf: fix off by one for range markings with L{T, E} patterns")
-Fixes: b37242c773b2 ("bpf: add test cases to bpf selftests to cover all access tests")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20211130181607.593149-1-maximmi@nvidia.com
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org
+Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20211201183503.2373082-2-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/wacom_sys.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2989,7 +2989,7 @@ static void find_good_pkt_pointers(struc
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -506,7 +506,7 @@ static void wacom_retrieve_hid_descripto
+ 	 * Skip the query for this type and modify defaults based on
+ 	 * interface number.
+ 	 */
+-	if (features->type == WIRELESS) {
++	if (features->type == WIRELESS && intf) {
+ 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
+ 			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
+ 		else
+@@ -2115,6 +2115,9 @@ static void wacom_wireless_work(struct w
  
- 	new_range = dst_reg->off;
- 	if (range_right_open)
--		new_range--;
-+		new_range++;
+ 	wacom_destroy_battery(wacom);
  
- 	/* Examples for register markings:
- 	 *
++	if (!usbdev)
++		return;
++
+ 	/* Stylus interface */
+ 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
+ 	wacom1 = hid_get_drvdata(hdev1);
+@@ -2354,8 +2357,6 @@ static void wacom_remote_work(struct wor
+ static int wacom_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+-	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct wacom *wacom;
+ 	struct wacom_wac *wacom_wac;
+ 	struct wacom_features *features;
+@@ -2388,8 +2389,14 @@ static int wacom_probe(struct hid_device
+ 	wacom_wac->hid_data.inputmode = -1;
+ 	wacom_wac->mode_report = -1;
+ 
+-	wacom->usbdev = dev;
+-	wacom->intf = intf;
++	if (hid_is_usb(hdev)) {
++		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++		struct usb_device *dev = interface_to_usbdev(intf);
++
++		wacom->usbdev = dev;
++		wacom->intf = intf;
++	}
++
+ 	mutex_init(&wacom->lock);
+ 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
+ 	INIT_WORK(&wacom->battery_work, wacom_battery_work);
 
 
