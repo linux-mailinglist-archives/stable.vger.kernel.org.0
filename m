@@ -2,112 +2,274 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0961472747
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7DBB472449
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:35:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237894AbhLMJ71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:59:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59060 "EHLO
+        id S234371AbhLMJf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:35:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239380AbhLMJ5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:14 -0500
+        with ESMTP id S232533AbhLMJec (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:34:32 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BE7C0698CC;
-        Mon, 13 Dec 2021 01:48:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E70BC0698D2;
+        Mon, 13 Dec 2021 01:34:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D3CDB80E19;
-        Mon, 13 Dec 2021 09:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2F3FC341C5;
-        Mon, 13 Dec 2021 09:48:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 021B4B80E16;
+        Mon, 13 Dec 2021 09:34:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0192EC341C5;
+        Mon, 13 Dec 2021 09:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388884;
-        bh=/F+GAUK9vTy6+DQbl0Bk3L0NH0FEVhXl+hZix8DPgJY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prQqJ+6OATcFDUxBMldQE+YSYTdK8kJMbmPIIZKfy2aiIQN1++tkCyHaroyDS7Q+m
-         9k3oIxJREpyas58arHprngZGdKODx7ocPeId9B2qdeXsubiliFIFSZ7RDUxFc45oW3
-         13ZJtvdvNt3Uz/3C4GKhWOIYHLmRk0XzB4WsqF2E=
+        s=korg; t=1639388069;
+        bh=Fbq7wHurD/21+N1ykcm9OW9Q3j1ayASMHO8t3w6H+hg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RST2lv/WC5nasBcPogyH4vfjQFeUELi3hTDWct1kvX0J4KWaqF+8p4SORCdvdIxH/
+         rglY+1rqnk88gMHoscwfGefgwnCoMQMp2TUsB0nd8ZcnfPmjmorQMWeC6E/H0OgQRL
+         Zi/k+9Vy4BF5Afl+aFUhRP3tXGRGZgn7/r+mQvEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Moshe Shemesh <moshe@mellanox.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Jiri Pirko <jiri@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 041/132] devlink: fix netns refcount leak in devlink_nl_cmd_reload()
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.9 00/42] 4.9.293-rc1 review
 Date:   Mon, 13 Dec 2021 10:29:42 +0100
-Message-Id: <20211213092940.531921310@linuxfoundation.org>
+Message-Id: <20211213092926.578829548@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.293-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.293-rc1
+X-KernelTest-Deadline: 2021-12-15T09:29+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+This is the start of the stable review cycle for the 4.9.293 release.
+There are 42 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 4dbb0dad8e63fcd0b5a117c2861d2abe7ff5f186 upstream.
+Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
+Anything received after that time might be too late.
 
-While preparing my patch series adding netns refcount tracking,
-I spotted bugs in devlink_nl_cmd_reload()
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.293-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-Some error paths forgot to release a refcount on a netns.
+thanks,
 
-To fix this, we can reduce the scope of get_net()/put_net()
-section around the call to devlink_reload().
+greg k-h
 
-Fixes: ccdf07219da6 ("devlink: Add reload action option to devlink reload command")
-Fixes: dc64cc7c6310 ("devlink: Add devlink reload limit option")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Moshe Shemesh <moshe@mellanox.com>
-Cc: Jacob Keller <jacob.e.keller@intel.com>
-Cc: Jiri Pirko <jiri@nvidia.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Link: https://lore.kernel.org/r/20211205192822.1741045-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/devlink.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -3265,14 +3265,6 @@ static int devlink_nl_cmd_reload(struct
- 		return err;
- 	}
- 
--	if (info->attrs[DEVLINK_ATTR_NETNS_PID] ||
--	    info->attrs[DEVLINK_ATTR_NETNS_FD] ||
--	    info->attrs[DEVLINK_ATTR_NETNS_ID]) {
--		dest_net = devlink_netns_get(skb, info);
--		if (IS_ERR(dest_net))
--			return PTR_ERR(dest_net);
--	}
--
- 	if (info->attrs[DEVLINK_ATTR_RELOAD_ACTION])
- 		action = nla_get_u8(info->attrs[DEVLINK_ATTR_RELOAD_ACTION]);
- 	else
-@@ -3315,6 +3307,14 @@ static int devlink_nl_cmd_reload(struct
- 			return -EINVAL;
- 		}
- 	}
-+	if (info->attrs[DEVLINK_ATTR_NETNS_PID] ||
-+	    info->attrs[DEVLINK_ATTR_NETNS_FD] ||
-+	    info->attrs[DEVLINK_ATTR_NETNS_ID]) {
-+		dest_net = devlink_netns_get(skb, info);
-+		if (IS_ERR(dest_net))
-+			return PTR_ERR(dest_net);
-+	}
-+
- 	err = devlink_reload(devlink, dest_net, action, limit, &actions_performed, info->extack);
- 
- 	if (dest_net)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.293-rc1
+
+Vladimir Murzin <vladimir.murzin@arm.com>
+    irqchip: nvic: Fix offset for Interrupt Priority Offsets
+
+Wudi Wang <wangwudi@hisilicon.com>
+    irqchip/irq-gic-v3-its.c: Force synchronisation when issuing INVALL
+
+Pali Rohár <pali@kernel.org>
+    irqchip/armada-370-xp: Fix support for Multi-MSI interrupts
+
+Pali Rohár <pali@kernel.org>
+    irqchip/armada-370-xp: Fix return value of armada_370_xp_msi_alloc()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: itg3200: Call iio_trigger_notify_done() on error
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: kxsd9: Don't return error code in trigger handler
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: ltr501: Don't return error code in trigger handler
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: mma8452: Fix trigger reference couting
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: stk3310: Don't return error code in interrupt handler
+
+Pavel Hofman <pavel.hofman@ivitera.com>
+    usb: core: config: using bit mask instead of individual bits
+
+Pavel Hofman <pavel.hofman@ivitera.com>
+    usb: core: config: fix validation of wMaxPacketValue entries
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    USB: gadget: zero allocate endpoint 0 buffers
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    USB: gadget: detect too-big endpoint 0 requests
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net/qla3xxx: fix an error code in ql_adapter_up()
+
+Eric Dumazet <edumazet@google.com>
+    net, neigh: clear whole pneigh_entry at alloc time
+
+Joakim Zhang <qiangqing.zhang@nxp.com>
+    net: fec: only clear interrupt of handling queue in fec_enet_rx_queue()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net: altera: set a couple error code in probe()
+
+Lee Jones <lee.jones@linaro.org>
+    net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
+
+Davidlohr Bueso <dave@stgolabs.net>
+    block: fix ioprio_get(IOPRIO_WHO_PGRP) vs setuid(2)
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracefs: Set all files to the same group ownership as the mount option
+
+Eric Biggers <ebiggers@google.com>
+    signalfd: use wake_up_pollfree()
+
+Eric Biggers <ebiggers@google.com>
+    binder: use wake_up_pollfree()
+
+Eric Biggers <ebiggers@kernel.org>
+    wait: add wake_up_pollfree()
+
+Hannes Reinecke <hare@suse.de>
+    libata: add horkage for ASMedia 1092
+
+Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+    can: pch_can: pch_can_rx_normal: fix use after free
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracefs: Have new files inherit the ownership of their parent
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: oss: Handle missing errors in snd_pcm_oss_change_params*()
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: oss: Limit the period size to 16MB
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: oss: Fix negative period/buffer sizes
+
+Alan Young <consult.awy@gmail.com>
+    ALSA: ctl: Fix copy of updated id with element read/write
+
+Manjong Lee <mj0123.lee@samsung.com>
+    mm: bdi: initialize bdi_min_ratio when bdi is unregistered
+
+Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+    IB/hfi1: Correct guard on eager buffer deallocation
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    can: sja1000: fix use after free in ems_pcmcia_add_card()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: check for valid USB device for many HID drivers
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: wacom: fix problems when device is not a valid USB device
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add USB_HID dependancy on some USB HID drivers
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add USB_HID dependancy to hid-chicony
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add USB_HID dependancy to hid-prodikeys
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add hid_is_usb() function to make it simpler for USB detection
+
+Jason Gerecke <killertofu@gmail.com>
+    HID: introduce hid_is_using_ll_driver
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                      |  4 +-
+ block/ioprio.c                                |  3 ++
+ drivers/android/binder.c                      | 21 ++++----
+ drivers/ata/libata-core.c                     |  2 +
+ drivers/hid/Kconfig                           | 10 ++--
+ drivers/hid/hid-chicony.c                     |  8 ++-
+ drivers/hid/hid-corsair.c                     |  7 ++-
+ drivers/hid/hid-elo.c                         |  3 ++
+ drivers/hid/hid-holtek-kbd.c                  |  9 +++-
+ drivers/hid/hid-holtek-mouse.c                |  9 ++++
+ drivers/hid/hid-lg.c                          | 10 +++-
+ drivers/hid/hid-prodikeys.c                   | 10 +++-
+ drivers/hid/hid-roccat-arvo.c                 |  3 ++
+ drivers/hid/hid-roccat-isku.c                 |  3 ++
+ drivers/hid/hid-roccat-kone.c                 |  3 ++
+ drivers/hid/hid-roccat-koneplus.c             |  3 ++
+ drivers/hid/hid-roccat-konepure.c             |  3 ++
+ drivers/hid/hid-roccat-kovaplus.c             |  3 ++
+ drivers/hid/hid-roccat-lua.c                  |  3 ++
+ drivers/hid/hid-roccat-pyra.c                 |  3 ++
+ drivers/hid/hid-roccat-ryos.c                 |  3 ++
+ drivers/hid/hid-roccat-savu.c                 |  3 ++
+ drivers/hid/hid-samsung.c                     |  3 ++
+ drivers/hid/hid-uclogic.c                     |  3 ++
+ drivers/hid/i2c-hid/i2c-hid-core.c            |  3 +-
+ drivers/hid/uhid.c                            |  3 +-
+ drivers/hid/usbhid/hid-core.c                 |  3 +-
+ drivers/hid/wacom_sys.c                       | 17 ++++--
+ drivers/iio/accel/kxcjk-1013.c                |  5 +-
+ drivers/iio/accel/kxsd9.c                     |  6 +--
+ drivers/iio/accel/mma8452.c                   |  2 +-
+ drivers/iio/gyro/itg3200_buffer.c             |  2 +-
+ drivers/iio/light/ltr501.c                    |  2 +-
+ drivers/iio/light/stk3310.c                   |  6 +--
+ drivers/infiniband/hw/hfi1/init.c             |  2 +-
+ drivers/irqchip/irq-armada-370-xp.c           | 16 +++---
+ drivers/irqchip/irq-gic-v3-its.c              |  2 +-
+ drivers/irqchip/irq-nvic.c                    |  2 +-
+ drivers/net/can/pch_can.c                     |  2 +-
+ drivers/net/can/sja1000/ems_pcmcia.c          |  7 ++-
+ drivers/net/ethernet/altera/altera_tse_main.c |  9 ++--
+ drivers/net/ethernet/freescale/fec.h          |  3 ++
+ drivers/net/ethernet/freescale/fec_main.c     |  2 +-
+ drivers/net/ethernet/qlogic/qla3xxx.c         | 19 ++++---
+ drivers/net/usb/cdc_ncm.c                     |  2 +
+ drivers/usb/core/config.c                     |  6 +--
+ drivers/usb/gadget/composite.c                | 14 ++++-
+ drivers/usb/gadget/legacy/dbgp.c              | 15 +++++-
+ drivers/usb/gadget/legacy/inode.c             | 16 +++++-
+ fs/signalfd.c                                 | 12 +----
+ fs/tracefs/inode.c                            | 76 +++++++++++++++++++++++++++
+ include/linux/hid.h                           | 16 ++++++
+ include/linux/wait.h                          | 26 +++++++++
+ kernel/sched/wait.c                           |  8 +++
+ mm/backing-dev.c                              |  7 +++
+ net/bluetooth/hidp/core.c                     |  3 +-
+ net/core/neighbour.c                          |  2 +-
+ net/nfc/netlink.c                             |  6 ++-
+ sound/core/control_compat.c                   |  3 ++
+ sound/core/oss/pcm_oss.c                      | 37 ++++++++-----
+ 60 files changed, 384 insertions(+), 110 deletions(-)
 
 
