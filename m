@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7349D4723F0
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:32:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC47A472404
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:33:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233883AbhLMJcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:32:52 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:57708 "EHLO
+        id S233855AbhLMJdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:33:35 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:58110 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231129AbhLMJcr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:32:47 -0500
+        with ESMTP id S233991AbhLMJdS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9CCFFCE0B59;
-        Mon, 13 Dec 2021 09:32:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49169C00446;
-        Mon, 13 Dec 2021 09:32:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id ACC79CE0E86;
+        Mon, 13 Dec 2021 09:33:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8BCC00446;
+        Mon, 13 Dec 2021 09:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639387963;
-        bh=yZNsbB38mBxllii5KalhyjyHgWKGzXbLmEO5rhDWdkU=;
+        s=korg; t=1639387994;
+        bh=Pitm4067PqLvPReVp5HyAcYBe4Gs7aai478LYbdskmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Vh0gJcidCTKKfprNHZTLDF8KVioXdzOrydMIfPGrFMht4TXRIAS1MEqk+mfu6gpa
-         u1ZMCa5OLVpb/UfEDN7vIpOKoA/tTRZI+LxiLg8e6VfDm6N7YrCC34PST1JkbsN4Yl
-         qVlV/PBncGt6Mf2ZiEQuCigz9CMEw2GtG1LoBU8c=
+        b=DvdRpCzevmCFSdCLZthJlXPhSRitLAPmXj9nXTjJW6/0YRWix466Gbr50Cmr8RoG6
+         Dy51cUwnKRsuZG9r86wUvtVKSWdrKltwcHu3mLBhu+5SN3IaLJlrUnZJJmToRGgvOg
+         RM9+BhDJ5tZbxQ99eyK/PAgfnraRTLI0sLJEV9H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 4.4 02/37] HID: add hid_is_usb() function to make it simpler for USB detection
-Date:   Mon, 13 Dec 2021 10:29:40 +0100
-Message-Id: <20211213092925.456167260@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.4 03/37] HID: add USB_HID dependancy to hid-prodikeys
+Date:   Mon, 13 Dec 2021 10:29:41 +0100
+Message-Id: <20211213092925.487117710@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
 References: <20211213092925.380184671@linuxfoundation.org>
@@ -47,41 +47,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit f83baa0cb6cfc92ebaf7f9d3a99d7e34f2e77a8a upstream.
+commit 30cb3c2ad24b66fb7639a6d1f4390c74d6e68f94 upstream.
 
-A number of HID drivers already call hid_is_using_ll_driver() but only
-for the detection of if this is a USB device or not.  Make this more
-obvious by creating hid_is_usb() and calling the function that way.
+The prodikeys HID driver only controls USB devices, yet did not have a
+dependancy on USB_HID.  This causes build errors on some configurations
+like nios2 when building due to new changes to the prodikeys driver.
 
-Also converts the existing hid_is_using_ll_driver() functions to use the
-new call.
-
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: stable@vger.kernel.org
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Cc: stable@vger.kernel.org
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211201183503.2373082-1-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20211203081231.2856936-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hid.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -765,6 +765,11 @@ static inline bool hid_is_using_ll_drive
- 	return hdev->ll_driver == driver;
- }
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -183,7 +183,7 @@ config HID_CORSAIR
  
-+static inline bool hid_is_usb(struct hid_device *hdev)
-+{
-+	return hid_is_using_ll_driver(hdev, &usb_hid_driver);
-+}
-+
- #define	PM_HINT_FULLON	1<<5
- #define PM_HINT_NORMAL	1<<1
- 
+ config HID_PRODIKEYS
+ 	tristate "Prodikeys PC-MIDI Keyboard support"
+-	depends on HID && SND
++	depends on USB_HID && SND
+ 	select SND_RAWMIDI
+ 	---help---
+ 	Support for Prodikeys PC-MIDI Keyboard device support.
 
 
