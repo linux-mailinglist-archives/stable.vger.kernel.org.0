@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A83D34729A9
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A682F472663
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245292AbhLMKXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:23:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35922 "EHLO
+        id S236161AbhLMJvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:51:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244228AbhLMKQu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:16:50 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E18C0497D6;
-        Mon, 13 Dec 2021 01:55:59 -0800 (PST)
+        with ESMTP id S235541AbhLMJt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:49:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E90F8C08E9BA;
+        Mon, 13 Dec 2021 01:43:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 85068CE0E6B;
-        Mon, 13 Dec 2021 09:55:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 329D4C34601;
-        Mon, 13 Dec 2021 09:55:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1FEBB80E20;
+        Mon, 13 Dec 2021 09:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8979C00446;
+        Mon, 13 Dec 2021 09:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389355;
-        bh=YDb7F5W76h8DiV2NsWjBZctH5itXbCwvfBk7Vq9x9tg=;
+        s=korg; t=1639388607;
+        bh=H0FAacyZRZXXBxm2iWy3+HR1A0BKUuckAm6QSJ+DAkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twee9EmHNsWrT+Md04VdyJ0AQm1/9yf3K2beBnRTspPx44TcET+XnmZUPhLHXxtgX
-         qW0TBXFNG6ZAg26oTaAMF8EwELtAxk4CZ2LR789mf+2nnRw9tEdV8cpkG5n3uGdonl
-         CniGGLoHpWmpQt7bZdNUwUvhR2of56mzjI6GqjUU=
+        b=LHsa+nw8613Y6SsyEM4GLcNVSrGmy0WMt1x0TIAPzTvAX6vBZleUkD7GEIYCi4y5/
+         LoDH28asrmO5iSeeQQPcn0RqcD1dUWOJdI5WO8w4xzlcF2Hga1Am3dKG07c2OrcGe3
+         Un/JfYI5w2QsZYGYPVMhZSETQt/uC/dsimZM6tog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 072/171] btrfs: clear extent buffer uptodate when we fail to write it
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Florian Westphal <fw@strlen.de>,
+        David Ahern <dsahern@kernel.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 17/88] vrf: dont run conntrack on vrf with !dflt qdisc
 Date:   Mon, 13 Dec 2021 10:29:47 +0100
-Message-Id: <20211213092947.493757571@linuxfoundation.org>
+Message-Id: <20211213092933.802352177@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +50,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit c2e39305299f0118298c2201f6d6cc7d3485f29e upstream.
+commit d43b75fbc23f0ac1ef9c14a5a166d3ccb761a451 upstream.
 
-I got dmesg errors on generic/281 on our overnight fstests.  Looking at
-the history this happens occasionally, with errors like this
+After the below patch, the conntrack attached to skb is set to "notrack" in
+the context of vrf device, for locally generated packets.
+But this is true only when the default qdisc is set to the vrf device. When
+changing the qdisc, notrack is not set anymore.
+In fact, there is a shortcut in the vrf driver, when the default qdisc is
+set, see commit dcdd43c41e60 ("net: vrf: performance improvements for
+IPv4") for more details.
 
-  WARNING: CPU: 0 PID: 673217 at fs/btrfs/extent_io.c:6848 assert_eb_page_uptodate+0x3f/0x50
-  CPU: 0 PID: 673217 Comm: kworker/u4:13 Tainted: G        W         5.16.0-rc2+ #469
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  Workqueue: btrfs-cache btrfs_work_helper
-  RIP: 0010:assert_eb_page_uptodate+0x3f/0x50
-  RSP: 0018:ffffae598230bc60 EFLAGS: 00010246
-  RAX: 0017ffffc0002112 RBX: ffffebaec4100900 RCX: 0000000000001000
-  RDX: ffffebaec45733c7 RSI: ffffebaec4100900 RDI: ffff9fd98919f340
-  RBP: 0000000000000d56 R08: ffff9fd98e300000 R09: 0000000000000000
-  R10: 0001207370a91c50 R11: 0000000000000000 R12: 00000000000007b0
-  R13: ffff9fd98919f340 R14: 0000000001500000 R15: 0000000001cb0000
-  FS:  0000000000000000(0000) GS:ffff9fd9fbc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f549fcf8940 CR3: 0000000114908004 CR4: 0000000000370ef0
-  Call Trace:
+This patch ensures that the behavior is always the same, whatever the qdisc
+is.
 
-   extent_buffer_test_bit+0x3f/0x70
-   free_space_test_bit+0xa6/0xc0
-   load_free_space_tree+0x1d6/0x430
-   caching_thread+0x454/0x630
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? rcu_read_lock_sched_held+0x12/0x60
-   ? lock_release+0x1f0/0x2d0
-   btrfs_work_helper+0xf2/0x3e0
-   ? lock_release+0x1f0/0x2d0
-   ? finish_task_switch.isra.0+0xf9/0x3a0
-   process_one_work+0x270/0x5a0
-   worker_thread+0x55/0x3c0
-   ? process_one_work+0x5a0/0x5a0
-   kthread+0x174/0x1a0
-   ? set_kthread_struct+0x40/0x40
-   ret_from_fork+0x1f/0x30
+To demonstrate the difference, a new test is added in conntrack_vrf.sh.
 
-This happens because we're trying to read from a extent buffer page that
-is !PageUptodate.  This happens because we will clear the page uptodate
-when we have an IO error, but we don't clear the extent buffer uptodate.
-If we do a read later and find this extent buffer we'll think its valid
-and not return an error, and then trip over this warning.
-
-Fix this by also clearing uptodate on the extent buffer when this
-happens, so that we get an error when we do a btrfs_search_slot() and
-find this block later.
-
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 8c9c296adfae ("vrf: run conntrack only in context of lower/physdev for locally generated packets")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Acked-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/vrf.c                                  |    8 ++---
+ tools/testing/selftests/netfilter/conntrack_vrf.sh |   30 ++++++++++++++++++---
+ 2 files changed, 30 insertions(+), 8 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4285,6 +4285,12 @@ static void set_btree_ioerr(struct page
- 		return;
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -495,8 +495,6 @@ static struct sk_buff *vrf_ip6_out_direc
  
- 	/*
-+	 * A read may stumble upon this buffer later, make sure that it gets an
-+	 * error and knows there was an error.
-+	 */
-+	clear_bit(EXTENT_BUFFER_UPTODATE, &eb->bflags);
+ 	skb->dev = vrf_dev;
+ 
+-	vrf_nf_set_untracked(skb);
+-
+ 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk,
+ 		      skb, NULL, vrf_dev, vrf_ip6_out_direct_finish);
+ 
+@@ -517,6 +515,8 @@ static struct sk_buff *vrf_ip6_out(struc
+ 	if (rt6_need_strict(&ipv6_hdr(skb)->daddr))
+ 		return skb;
+ 
++	vrf_nf_set_untracked(skb);
 +
-+	/*
- 	 * If we error out, we should add back the dirty_metadata_bytes
- 	 * to make it consistent.
- 	 */
+ 	if (qdisc_tx_is_default(vrf_dev) ||
+ 	    IP6CB(skb)->flags & IP6SKB_XFRM_TRANSFORMED)
+ 		return vrf_ip6_out_direct(vrf_dev, sk, skb);
+@@ -732,8 +732,6 @@ static struct sk_buff *vrf_ip_out_direct
+ 
+ 	skb->dev = vrf_dev;
+ 
+-	vrf_nf_set_untracked(skb);
+-
+ 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
+ 		      skb, NULL, vrf_dev, vrf_ip_out_direct_finish);
+ 
+@@ -755,6 +753,8 @@ static struct sk_buff *vrf_ip_out(struct
+ 	    ipv4_is_lbcast(ip_hdr(skb)->daddr))
+ 		return skb;
+ 
++	vrf_nf_set_untracked(skb);
++
+ 	if (qdisc_tx_is_default(vrf_dev) ||
+ 	    IPCB(skb)->flags & IPSKB_XFRM_TRANSFORMED)
+ 		return vrf_ip_out_direct(vrf_dev, sk, skb);
+--- a/tools/testing/selftests/netfilter/conntrack_vrf.sh
++++ b/tools/testing/selftests/netfilter/conntrack_vrf.sh
+@@ -150,11 +150,27 @@ EOF
+ # oifname is the vrf device.
+ test_masquerade_vrf()
+ {
++	local qdisc=$1
++
++	if [ "$qdisc" != "default" ]; then
++		tc -net $ns0 qdisc add dev tvrf root $qdisc
++	fi
++
+ 	ip netns exec $ns0 conntrack -F 2>/dev/null
+ 
+ ip netns exec $ns0 nft -f - <<EOF
+ flush ruleset
+ table ip nat {
++	chain rawout {
++		type filter hook output priority raw;
++
++		oif tvrf ct state untracked counter
++	}
++	chain postrouting2 {
++		type filter hook postrouting priority mangle;
++
++		oif tvrf ct state untracked counter
++	}
+ 	chain postrouting {
+ 		type nat hook postrouting priority 0;
+ 		# NB: masquerade should always be combined with 'oif(name) bla',
+@@ -171,13 +187,18 @@ EOF
+ 	fi
+ 
+ 	# must also check that nat table was evaluated on second (lower device) iteration.
+-	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2'
++	ip netns exec $ns0 nft list table ip nat |grep -q 'counter packets 2' &&
++	ip netns exec $ns0 nft list table ip nat |grep -q 'untracked counter packets [1-9]'
+ 	if [ $? -eq 0 ]; then
+-		echo "PASS: iperf3 connect with masquerade + sport rewrite on vrf device"
++		echo "PASS: iperf3 connect with masquerade + sport rewrite on vrf device ($qdisc qdisc)"
+ 	else
+-		echo "FAIL: vrf masq rule has unexpected counter value"
++		echo "FAIL: vrf rules have unexpected counter value"
+ 		ret=1
+ 	fi
++
++	if [ "$qdisc" != "default" ]; then
++		tc -net $ns0 qdisc del dev tvrf root
++	fi
+ }
+ 
+ # add masq rule that gets evaluated w. outif set to veth device.
+@@ -213,7 +234,8 @@ EOF
+ }
+ 
+ test_ct_zone_in
+-test_masquerade_vrf
++test_masquerade_vrf "default"
++test_masquerade_vrf "pfifo"
+ test_masquerade_veth
+ 
+ exit $ret
 
 
