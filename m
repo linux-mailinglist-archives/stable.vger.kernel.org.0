@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FCED47247B
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E373A4728AE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbhLMJgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:36:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49348 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234268AbhLMJfl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:41 -0500
+        id S243715AbhLMKOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:14:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32952 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241468AbhLMKEj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:04:39 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3202C09CE67;
+        Mon, 13 Dec 2021 01:50:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37819B80DE8;
-        Mon, 13 Dec 2021 09:35:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82EACC00446;
-        Mon, 13 Dec 2021 09:35:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5794DCE0EBC;
+        Mon, 13 Dec 2021 09:50:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A0AC341C8;
+        Mon, 13 Dec 2021 09:50:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388139;
-        bh=KEwpGxzthSbeRbKlmHcAfEnwBqMBYTZVoND14SFo2j0=;
+        s=korg; t=1639389018;
+        bh=p7PfO+Az2Gb7VxA4W2Nv4CkymF12Ggc/UgBoxJWSxHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXCAKmrl9CxK4igTJbfkEnYHq1zEE7Je+v9QTZ1kS6DOSl8J5+8IHGWiIzh1JeipB
-         HGhtrZfcHHFxr29msUJOO+BZt9Zv3X2WdBvkTsMVo9y94mtIFES60qZNJk10dRwByP
-         aHK1iNLmjA91Fxk0iW6PE3awzf2mXbCBa1i1Mlt4=
+        b=bdbMLP7zoqBFQMFo0ESMnPnMHxURACX1UtJohHA0gC45WXrDALPa/xL16gRCZkZTN
+         UyzTFbF2Cykp7ZC+wYxR+txVxTo36oummNhi2zbgJQX1NOuT9f4+gL8y+5BjeLL15t
+         7EWYe6jeUfBoEmc77ck+18+u+1DJgsclHEooAOkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wudi Wang <wangwudi@hisilicon.com>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.9 41/42] irqchip/irq-gic-v3-its.c: Force synchronisation when issuing INVALL
+        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 082/132] RDMA/hns: Do not destroy QP resources in the hw resetting phase
 Date:   Mon, 13 Dec 2021 10:30:23 +0100
-Message-Id: <20211213092927.893205161@linuxfoundation.org>
+Message-Id: <20211213092941.939901088@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +48,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wudi Wang <wangwudi@hisilicon.com>
+From: Yangyang Li <liyangyang20@huawei.com>
 
-commit b383a42ca523ce54bcbd63f7c8f3cf974abc9b9a upstream.
+commit b0969f83890bf8b47f5c8bd42539599b2b52fdeb upstream.
 
-INVALL CMD specifies that the ITS must ensure any caching associated with
-the interrupt collection defined by ICID is consistent with the LPI
-configuration tables held in memory for all Redistributors. SYNC is
-required to ensure that INVALL is executed.
+When hns_roce_v2_destroy_qp() is called, the brief calling process of the
+driver is as follows:
 
-Currently, LPI configuration data may be inconsistent with that in the
-memory within a short period of time after the INVALL command is executed.
+ ......
+ hns_roce_v2_destroy_qp
+ hns_roce_v2_qp_modify
+	   hns_roce_cmd_mbox
+ hns_roce_qp_destroy
 
-Signed-off-by: Wudi Wang <wangwudi@hisilicon.com>
-Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Fixes: cc2d3216f53c ("irqchip: GICv3: ITS command queue")
-Link: https://lore.kernel.org/r/20211208015429.5007-1-zhangshaokun@hisilicon.com
+If hns_roce_cmd_mbox() detects that the hardware is being reset during the
+execution of the hns_roce_cmd_mbox(), the driver will not be able to get
+the return value from the hardware (the firmware cannot respond to the
+driver's mailbox during the hardware reset phase).
+
+The driver needs to wait for the hardware reset to complete before
+continuing to execute hns_roce_qp_destroy(), otherwise it may happen that
+the driver releases the resources but the hardware is still accessing. In
+order to fix this problem, HNS RoCE needs to add a piece of code to wait
+for the hardware reset to complete.
+
+The original interface get_hw_reset_stat() is the instantaneous state of
+the hardware reset, which cannot accurately reflect whether the hardware
+reset is completed, so it needs to be replaced with the ae_dev_reset_cnt
+interface.
+
+The sign that the hardware reset is complete is that the return value of
+the ae_dev_reset_cnt interface is greater than the original value
+reset_cnt recorded by the driver.
+
+Fixes: 6a04aed6afae ("RDMA/hns: Fix the chip hanging caused by sending mailbox&CMQ during reset")
+Link: https://lore.kernel.org/r/20211123142402.26936-1-liangwenpeng@huawei.com
+Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -369,7 +369,7 @@ static struct its_collection *its_build_
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -33,6 +33,7 @@
+ #include <linux/acpi.h>
+ #include <linux/etherdevice.h>
+ #include <linux/interrupt.h>
++#include <linux/iopoll.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <net/addrconf.h>
+@@ -964,9 +965,14 @@ static int hns_roce_v2_cmd_hw_resetting(
+ 					unsigned long instance_stage,
+ 					unsigned long reset_stage)
+ {
++#define HW_RESET_TIMEOUT_US 1000000
++#define HW_RESET_SLEEP_US 1000
++
+ 	struct hns_roce_v2_priv *priv = hr_dev->priv;
+ 	struct hnae3_handle *handle = priv->handle;
+ 	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
++	unsigned long val;
++	int ret;
  
- 	its_fixup_cmd(cmd);
+ 	/* When hardware reset is detected, we should stop sending mailbox&cmq&
+ 	 * doorbell to hardware. If now in .init_instance() function, we should
+@@ -978,7 +984,11 @@ static int hns_roce_v2_cmd_hw_resetting(
+ 	 * again.
+ 	 */
+ 	hr_dev->dis_db = true;
+-	if (!ops->get_hw_reset_stat(handle))
++
++	ret = read_poll_timeout(ops->ae_dev_reset_cnt, val,
++				val > hr_dev->reset_cnt, HW_RESET_SLEEP_US,
++				HW_RESET_TIMEOUT_US, false, handle);
++	if (!ret)
+ 		hr_dev->is_reset = true;
  
--	return NULL;
-+	return desc->its_invall_cmd.col;
- }
- 
- static u64 its_cmd_ptr_to_offset(struct its_node *its,
+ 	if (!hr_dev->is_reset || reset_stage == HNS_ROCE_STATE_RST_INIT ||
 
 
