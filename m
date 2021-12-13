@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A77D14728A7
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EF254725C2
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:46:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236598AbhLMKOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240856AbhLMKCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:02:45 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99130C079798;
-        Mon, 13 Dec 2021 01:49:37 -0800 (PST)
+        id S234561AbhLMJqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:46:06 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:37374 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235714AbhLMJoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:44:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1CCAFCE0DDE;
-        Mon, 13 Dec 2021 09:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C059CC00446;
-        Mon, 13 Dec 2021 09:49:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 16745CE0E83;
+        Mon, 13 Dec 2021 09:44:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0F0CC00446;
+        Mon, 13 Dec 2021 09:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388975;
-        bh=+c0tSmVCTF3afhlmXow5/hOJgzvAoWpwoAyjNLko6B0=;
+        s=korg; t=1639388641;
+        bh=wFDzVQg1q14Bxkecb1ysJs8MPnCV/er3LoVjFg6sZ+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ln50wELmQYdIIRp4Llxtq6oHGH/Cy12ipni/Rng/5DI+H34wYXEUggpQyXoMiiO9T
-         rN4nn5iq2usVAHmviF1Ts7b3AahRH/bZuS4X1mNwA+gqrlJtif7C2VRFCvlp6u79aZ
-         KtMbAFMTyggB0VGOk1sNH369xYODYA5DMLWEBH7M=
+        b=Cgr6uIPd68aBneoM5rxdw3tD7t71jiSHlMR0xBYrEk9fdqC3v0W6//VLArL7gQkGt
+         a/ryw497sj+UDVjhE7oCXFUZGNY31/hrx81Ql6rTzk1nnQ4uJd9wR1sBEy4YF1IoPt
+         lfLwtcaK/1Knxd6meqDwagCW8hLHmLqBH0Lvqw7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Alok Prasad <palok@marvell.com>,
-        Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 074/132] qede: validate non LSO skb length
+        "linux-kernel@vger.kernel.org, Linus Torvalds" 
+        <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 45/88] signalfd: use wake_up_pollfree()
 Date:   Mon, 13 Dec 2021 10:30:15 +0100
-Message-Id: <20211213092941.650816714@linuxfoundation.org>
+Message-Id: <20211213092934.814691571@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,50 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 8e227b198a55859bf790dc7f4b1e30c0859c6756 upstream.
+commit 9537bae0da1f8d1e2361ab6d0479e8af7824e160 upstream.
 
-Although it is unlikely that stack could transmit a non LSO
-skb with length > MTU, however in some cases or environment such
-occurrences actually resulted into firmware asserts due to packet
-length being greater than the max supported by the device (~9700B).
+wake_up_poll() uses nr_exclusive=1, so it's not guaranteed to wake up
+all exclusive waiters.  Yet, POLLFREE *must* wake up all waiters.  epoll
+and aio poll are fortunately not affected by this, but it's very
+fragile.  Thus, the new function wake_up_pollfree() has been introduced.
 
-This patch adds the safeguard for such odd cases to avoid firmware
-asserts.
+Convert signalfd to use wake_up_pollfree().
 
-v2: Added "Fixes" tag with one of the initial driver commit
-    which enabled the TX traffic actually (as this was probably
-    day1 issue which was discovered recently by some customer
-    environment)
-
-Fixes: a2ec6172d29c ("qede: Add support for link")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Alok Prasad <palok@marvell.com>
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Link: https://lore.kernel.org/r/20211203174413.13090-1-manishc@marvell.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d80e731ecab4 ("epoll: introduce POLLFREE to flush ->signalfd_wqh before kfree()")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211209010455.42744-4-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_fp.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/signalfd.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
-@@ -1659,6 +1659,13 @@ netdev_tx_t qede_start_xmit(struct sk_bu
- 			data_split = true;
- 		}
- 	} else {
-+		if (unlikely(skb->len > ETH_TX_MAX_NON_LSO_PKT_LEN)) {
-+			DP_ERR(edev, "Unexpected non LSO skb length = 0x%x\n", skb->len);
-+			qede_free_failed_tx_pkt(txq, first_bd, 0, false);
-+			qede_update_tx_producer(txq);
-+			return NETDEV_TX_OK;
-+		}
-+
- 		val |= ((skb->len & ETH_TX_DATA_1ST_BD_PKT_LEN_MASK) <<
- 			 ETH_TX_DATA_1ST_BD_PKT_LEN_SHIFT);
- 	}
+--- a/fs/signalfd.c
++++ b/fs/signalfd.c
+@@ -35,17 +35,7 @@
+ 
+ void signalfd_cleanup(struct sighand_struct *sighand)
+ {
+-	wait_queue_head_t *wqh = &sighand->signalfd_wqh;
+-	/*
+-	 * The lockless check can race with remove_wait_queue() in progress,
+-	 * but in this case its caller should run under rcu_read_lock() and
+-	 * sighand_cachep is SLAB_TYPESAFE_BY_RCU, we can safely return.
+-	 */
+-	if (likely(!waitqueue_active(wqh)))
+-		return;
+-
+-	/* wait_queue_entry_t->func(POLLFREE) should do remove_wait_queue() */
+-	wake_up_poll(wqh, EPOLLHUP | POLLFREE);
++	wake_up_pollfree(&sighand->signalfd_wqh);
+ }
+ 
+ struct signalfd_ctx {
 
 
