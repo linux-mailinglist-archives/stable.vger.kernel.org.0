@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23A96472538
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E014724F2
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:39:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235047AbhLMJnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:02 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:33882 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234146AbhLMJkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:22 -0500
+        id S233048AbhLMJjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:39:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51902 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233182AbhLMJiW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:38:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 63C00CE0E96;
-        Mon, 13 Dec 2021 09:40:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D669C00446;
-        Mon, 13 Dec 2021 09:40:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18118B80E0C;
+        Mon, 13 Dec 2021 09:38:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4617BC00446;
+        Mon, 13 Dec 2021 09:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388419;
-        bh=CBr674McNsAPoIZr7+OlnKy5ptBcp9BcM6Fsm5OT0G8=;
+        s=korg; t=1639388299;
+        bh=S9v/ohoaWt+6l3U4cNXf8ccNdw5hMS5XAJjz4scYvYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yKNfZQlv8soHmg3xOL0ezU/0eRAMyOVzFpcwjGrsCDrTaYOhyGM9q3bYwTnloqqgi
-         rLxniaW74LgsZgwq8PHYrTyxxw/TTKjrrmoECNGiyDBZIMBY8YlBo0k+55WeUmHwPj
-         7eiM7ygQ647lVmMbZMKNn+JXhYqR6Mb0rqwqrth0=
+        b=SuyxpCPs9bMS2vEtLKo+jl8glzMKXjcwys4NW9MeMGlnNApKMXDx8EtICVlzyD0j8
+         twcOIQ2XNym7tw3sIuDDA6n/uBgKp5sXstkqQDcVOWG5rhlQA6/7PnlyhsB3JHHKDU
+         WKgz9Y7M6Y7Tn8zKlZZQD8WaKJ7mNZMLirnHqh0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Bindushree P <Bindushree.p@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.19 43/74] i40e: Fix pre-set max number of queues for VF
+        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 4.14 35/53] USB: gadget: zero allocate endpoint 0 buffers
 Date:   Mon, 13 Dec 2021 10:30:14 +0100
-Message-Id: <20211213092932.259198926@linuxfoundation.org>
+Message-Id: <20211213092929.522053911@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 8aa55ab422d9d0d825ebfb877702ed661e96e682 upstream.
+commit 86ebbc11bb3f60908a51f3e41a17e3f477c2eaa3 upstream.
 
-After setting pre-set combined to 16 queues and reserving 16 queues by
-tc qdisc, pre-set maximum combined queues returned to default value
-after VF reset being 4 and this generated errors during removing tc.
-Fixed by removing clear num_req_queues before reset VF.
+Under some conditions, USB gadget devices can show allocated buffer
+contents to a host.  Fix this up by zero-allocating them so that any
+extra data will all just be zeros.
 
-Fixes: e284fc280473 (i40e: Add and delete cloud filter)
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Bindushree P <Bindushree.p@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/gadget/composite.c   |    2 +-
+ drivers/usb/gadget/legacy/dbgp.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -3580,11 +3580,6 @@ static int i40e_vc_add_qch_msg(struct i4
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -2191,7 +2191,7 @@ int composite_dev_prepare(struct usb_com
+ 	if (!cdev->req)
+ 		return -ENOMEM;
  
- 	/* set this flag only after making sure all inputs are sane */
- 	vf->adq_enabled = true;
--	/* num_req_queues is set when user changes number of queues via ethtool
--	 * and this causes issue for default VSI(which depends on this variable)
--	 * when ADq is enabled, hence reset it.
--	 */
--	vf->num_req_queues = 0;
+-	cdev->req->buf = kmalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
++	cdev->req->buf = kzalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
+ 	if (!cdev->req->buf)
+ 		goto fail;
  
- 	/* reset the VF in order to allocate resources */
- 	i40e_vc_notify_vf_reset(vf);
+--- a/drivers/usb/gadget/legacy/dbgp.c
++++ b/drivers/usb/gadget/legacy/dbgp.c
+@@ -136,7 +136,7 @@ static int dbgp_enable_ep_req(struct usb
+ 		goto fail_1;
+ 	}
+ 
+-	req->buf = kmalloc(DBGP_REQ_LEN, GFP_KERNEL);
++	req->buf = kzalloc(DBGP_REQ_LEN, GFP_KERNEL);
+ 	if (!req->buf) {
+ 		err = -ENOMEM;
+ 		stp = 2;
 
 
