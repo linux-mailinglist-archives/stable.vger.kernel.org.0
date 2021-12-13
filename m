@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E13472402
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1ACA472976
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbhLMJd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:33:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54006 "EHLO
+        id S242710AbhLMKVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:21:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233924AbhLMJdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:15 -0500
+        with ESMTP id S244979AbhLMKTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:19:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D83FBC061A32;
-        Mon, 13 Dec 2021 01:33:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF18BC061372;
+        Mon, 13 Dec 2021 01:57:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F537B80E18;
-        Mon, 13 Dec 2021 09:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C07CCC00446;
-        Mon, 13 Dec 2021 09:33:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 655F1B80D1F;
+        Mon, 13 Dec 2021 09:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BBC1C34600;
+        Mon, 13 Dec 2021 09:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639387986;
-        bh=0/TqD2fLN/WfxHKsUjSXtWtrXwGmySEVT/iwwE4ZUVc=;
+        s=korg; t=1639389425;
+        bh=CgMYysd0TA8DhbrcV7B1wea/kp965wimdaqwVSQWBT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/t1daspQPtU+rE/WaA9LdmG/W3pM9cMxWJ7AJreH1t3Rb7ZEZMOXQFrp9BEwCThv
-         FItn7f1oo5NU61eEjHx1FTI8KKl3TAhaFQDV6f0AKTE+XAyntpLtZ2SGA631RBJEWm
-         aKN9Q8bxEOKwGyHsBBSqSVGw9I7LTdXdsmiyt4X0=
+        b=aqNjO9s2KRZgFEDrwZnwoUKVPSO9dvvM17W24jdhjKJ+zpxxj1NiuEw6dZ1qkCaEO
+         dxv3c2+QLIztqPEH8rlKhJnIKQDxy39dGUxA1n4IuS9ky6elrqDnFTYzaaJDxVE/SN
+         Ca6f9YcEv0KDvZcPudGyP0ezurrIXtlG8gu9MCLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 27/37] net/qla3xxx: fix an error code in ql_adapter_up()
-Date:   Mon, 13 Dec 2021 10:30:05 +0100
-Message-Id: <20211213092926.266581534@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.15 091/171] thermal: int340x: Fix VCoRefLow MMIO bit offset for TGL
+Date:   Mon, 13 Dec 2021 10:30:06 +0100
+Message-Id: <20211213092948.110779522@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
 
-commit d17b9737c2bc09b4ac6caf469826e5a7ce3ffab7 upstream.
+commit f872f73601b92c86f3da8bdf3e19abd0f1780eb9 upstream.
 
-The ql_wait_for_drvr_lock() fails and returns false, then this
-function should return an error code instead of returning success.
+The VCoRefLow CPU FIVR register definition for Tiger Lake is incorrect.
 
-The other problem is that the success path prints an error message
-netdev_err(ndev, "Releasing driver lock\n");  Delete that and
-re-order the code a little to make it more clear.
+Current implementation reads it from MMIO offset 0x5A18 and bit
+offset [12:14], but the actual correct register definition is from
+bit offset [11:13].
 
-Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211207082416.GA16110@kili
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Update to fix the bit offset.
+
+Fixes: 473be51142ad ("thermal: int340x: processor_thermal: Add RFIM driver")
+Signed-off-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+Cc: 5.14+ <stable@vger.kernel.org> # 5.14+
+[ rjw: New subject, changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -3491,20 +3491,19 @@ static int ql_adapter_up(struct ql3_adap
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
+@@ -29,7 +29,7 @@ static const char * const fivr_strings[]
+ };
  
- 	spin_lock_irqsave(&qdev->hw_lock, hw_flags);
- 
--	err = ql_wait_for_drvr_lock(qdev);
--	if (err) {
--		err = ql_adapter_initialize(qdev);
--		if (err) {
--			netdev_err(ndev, "Unable to initialize adapter\n");
--			goto err_init;
--		}
--		netdev_err(ndev, "Releasing driver lock\n");
--		ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
--	} else {
-+	if (!ql_wait_for_drvr_lock(qdev)) {
- 		netdev_err(ndev, "Could not acquire driver lock\n");
-+		err = -ENODEV;
- 		goto err_lock;
- 	}
- 
-+	err = ql_adapter_initialize(qdev);
-+	if (err) {
-+		netdev_err(ndev, "Unable to initialize adapter\n");
-+		goto err_init;
-+	}
-+	ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
-+
- 	spin_unlock_irqrestore(&qdev->hw_lock, hw_flags);
- 
- 	set_bit(QL_ADAPTER_UP, &qdev->flags);
+ static const struct mmio_reg tgl_fivr_mmio_regs[] = {
+-	{ 0, 0x5A18, 3, 0x7, 12}, /* vco_ref_code_lo */
++	{ 0, 0x5A18, 3, 0x7, 11}, /* vco_ref_code_lo */
+ 	{ 0, 0x5A18, 8, 0xFF, 16}, /* vco_ref_code_hi */
+ 	{ 0, 0x5A08, 8, 0xFF, 0}, /* spread_spectrum_pct */
+ 	{ 0, 0x5A08, 1, 0x1, 8}, /* spread_spectrum_clk_enable */
 
 
