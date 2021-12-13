@@ -2,72 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7CA2472247
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 09:20:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A41747224D
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 09:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231484AbhLMIUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 03:20:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38854 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232817AbhLMIUg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 03:20:36 -0500
+        id S232837AbhLMIWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 03:22:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36948 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231509AbhLMIWN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 03:22:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 218DFC06173F
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 00:22:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92256B80DD9;
-        Mon, 13 Dec 2021 08:20:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B09FC00446;
-        Mon, 13 Dec 2021 08:20:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639383633;
-        bh=hgp2kfj4sMh9M5IsmMQHKVZep1Z/4vAaLFQJLHd+DHA=;
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDDABB80DD9
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:22:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B35C00446;
+        Mon, 13 Dec 2021 08:22:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639383730;
+        bh=37KO0kpWYRxJWrgwSFey803Bypbw3R/esWP/W9oe+1I=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FN1txgq77CBgC6qc66+DTBt8mKPhyfVt1b3q+XHcpKxyVsxBOIK3CtQZU7nU12sIo
-         kFx7cCjFX61T4rNbPVMx+5mJlhsLHQLq1GW73ZZNmSD52Vr8CvwEufosh8HSgvLnxM
-         Z/lItCbAyhZHXcWJKYP4sUx+YcNND4Via17FZl8PSJDS+JpWnk3vyq+r1nPVDfVEOf
-         OCOrdrA7TtD4xn46PIozSRW2R7Dv+kw9tEUvK9b9D6C7wIsuD/GtFDxCWTXsZuuc9t
-         zLajLSTMCfpsKH9/kLKSrI1aU5PbhbAD5n2ELsE/2fQ6LfZzbSSbwFvXii4PL73+/h
-         BFUoFEwxslc9w==
-Date:   Mon, 13 Dec 2021 10:20:03 +0200
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     Juergen Gross <jgross@suse.com>,
-        John Dorminy <jdorminy@redhat.com>, tip-bot2@linutronix.de,
-        anjaneya.chagam@intel.com, dan.j.williams@intel.com,
-        linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
-        stable@vger.kernel.org, x86@kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        "Patrick J. Volkerding" <volkerdi@gmail.com>
-Subject: Re: [tip: x86/urgent] x86/boot: Pull up cmdline preparation and
- early param parsing
-Message-ID: <YbcCM81Fig3GC4Yi@kernel.org>
-References: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2>
- <20211209143810.452527-1-jdorminy@redhat.com>
- <YbIeYIM6JEBgO3tG@zn.tnic>
- <50f25412-d616-1cc6-f07f-a29d80b4bd3b@suse.com>
- <YbIgsO/7oQW9h6wv@zn.tnic>
- <YbIu55LZKoK3IVaF@kernel.org>
- <YbIw1nUYJ3KlkjJQ@zn.tnic>
- <YbM5yR+Hy+kwmMFU@zn.tnic>
+        b=CGJ+yQz71yHu4ZYZs3HeXgRg7GjH6Vs5fgMkUPLXDq/zyQW6fNIL+wJS73Gkxkt8k
+         Fmdz4PqMY7doiGcCKbJz+0b1DoPL44Db2jVcMkooogw6mzA9HUK3MQkJqrK/3GuIqM
+         yig5wGROizLjif2j/zhXFvTtX2M/YhAaXAomAxEs=
+Date:   Mon, 13 Dec 2021 09:22:08 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
+Cc:     "dsterba@suse.com" <dsterba@suse.com>,
+        Naohiro Aota <Naohiro.Aota@wdc.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] btrfs: zoned: clear data relocation bg on
+ zone finish" failed to apply to 5.15-stable tree
+Message-ID: <YbcCsD5riWyioUyI@kroah.com>
+References: <16393188751463@kroah.com>
+ <PH0PR04MB74161D8CF905FE235521373E9B749@PH0PR04MB7416.namprd04.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YbM5yR+Hy+kwmMFU@zn.tnic>
+In-Reply-To: <PH0PR04MB74161D8CF905FE235521373E9B749@PH0PR04MB7416.namprd04.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 10, 2021 at 12:28:09PM +0100, Borislav Petkov wrote:
-> On Thu, Dec 09, 2021 at 05:37:42PM +0100, Borislav Petkov wrote:
-> > Whatever we do, it needs to be tested by all folks on Cc who already
-> > reported regressions, i.e., Anjaneya, Hugh, John and Patrick.
+On Mon, Dec 13, 2021 at 07:34:37AM +0000, Johannes Thumshirn wrote:
+> On 12/12/2021 15:21, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.15-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
 > 
-> Ok, Mike is busy so here are some patches for testing:
+> Hi Greg, 
 > 
-> https://git.kernel.org/pub/scm/linux/kernel/git/bp/bp.git/log/?h=rc4-boot
+> this patch doesn't need any backporting to stable. The failure can only 
+> happen on v5.16-rcX.
 
-Thanks for taking care of this!
+Really?  The Fixes: tag says otherwise:
+	Fixes: c2707a255623 ("btrfs: zoned: add a dedicated data relocation block group")
+as that commit id is in 5.15.4.
 
--- 
-Sincerely yours,
-Mike.
+Perhaps that tag is incorrect?
+
+thanks,
+
+greg k-h
