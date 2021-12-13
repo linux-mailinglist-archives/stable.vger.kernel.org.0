@@ -2,128 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB01473500
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 20:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3269147352B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 20:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242252AbhLMTbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 14:31:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55260 "EHLO
+        id S242467AbhLMTov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 14:44:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242411AbhLMTbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 14:31:04 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3284CC061751
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 11:31:04 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id q17so11883282plr.11
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 11:31:04 -0800 (PST)
+        with ESMTP id S242464AbhLMTou (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 14:44:50 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306A4C061574
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 11:44:50 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id r11so54996342edd.9
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 11:44:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pdcK5touCCOkO/5kLL3qQsW2NZXmcjEWTttDYNIoViA=;
-        b=hORfbZpHYl8GBttwshkE9EvlXpEuAnCjIXvyrchHffH3wfLJLnMDrKqzJoCJqud+MG
-         dsLn4eVbOqM/8BiydsaCsBpYVrXSCovCje3PIxNAjes7FuIq8SHvg91Wx3iCBpjYFhfO
-         RV+weubd3Wr4OjkQSmiueMQE9OB8hm1gLKOV6qYQP2Alp59vsXwx5rjCCu2cGrvaPF8C
-         S9pOvNNT+NuFAaMPFD5tppyOE8mk2ORao6ynFta05f1yV1+vl1xndwDH9PHO8ZTvrqDu
-         WNq23htD64AVTJLzn1nPff0rPxiWL8Gyn7VXwnc7yHoineLS9d/my62j+1cLr91eZGU2
-         XeOw==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=h/bn2QA4sRokY+lW2mdsTbBERIo47tUeAt+yGqnl3lo=;
+        b=Sh0+xasBUXbS3UacsNmltTp0MkTV/oG+CZVOKrPRjJVjfnIicuuAMfk55RUBcNdHOJ
+         a0LPNIeZDwnZdOGVq4OgGQC4LYdsKQaraEp0aNMWame4VS7gnVm0YgzmNmP7p2NWPgb6
+         A2RmLpAuWMJW1dAopi867SmawQF/hfeeQk1/c=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pdcK5touCCOkO/5kLL3qQsW2NZXmcjEWTttDYNIoViA=;
-        b=b9Bjw+o42c0YUbuooWweqrd8qfrQURcSX8XWLjaXjvn3JdqWMOMmS2/0CnednCv/1G
-         Hwutwx3L06UOeahWzf7AIZLNTBFbQS4bOn6hAnz95XuP5KV2axXsoQiuND4Oy4TBG+m9
-         TuNs660xjsXyGnpgXA+Gs0IYdzfDTGSmEKTM+TBTkIDWtAD5bfi7U4laSpm1ZTk+YnVf
-         URoSWH/SRk8riw6RrKwkshUwDxvx9TSvOVgNT/xVkFOKekmk4r7voPjDNgDUEh+bBIx7
-         Cyja6xBEi6xQpm9tsYAq2ToQeMpeI0SrMmxpOoQeWNjMCbSHtWP+8vQnylNiJgkJ7rF3
-         3CNA==
-X-Gm-Message-State: AOAM531TnwKjkR3fkt1NMUAZV9tgK8BpvwmCExr6WGcfSK8vT2+PYpMe
-        RgbXM616OVDkmkHwETapjXork56osjOjCv1t
-X-Google-Smtp-Source: ABdhPJyv+Vin6EtgE29U/y8EkE8jSUuoob2kVcfPw2W85Eij/Jpf27kqEcwJlyptuGvKO69CMH5rZQ==
-X-Received: by 2002:a17:902:7007:b0:143:c6e8:4117 with SMTP id y7-20020a170902700700b00143c6e84117mr12470plk.55.1639423863527;
-        Mon, 13 Dec 2021 11:31:03 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h13sm12257968pfv.37.2021.12.13.11.31.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Dec 2021 11:31:03 -0800 (PST)
-Message-ID: <61b79f77.1c69fb81.f0b6a.32cb@mx.google.com>
-Date:   Mon, 13 Dec 2021 11:31:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=h/bn2QA4sRokY+lW2mdsTbBERIo47tUeAt+yGqnl3lo=;
+        b=IS/bRHvZ7eARQVVvDrZBMNRnADt31GnkQfPox9p0xd4VIA3ZgDv4xLPFrAQYWaWukA
+         rSHP4yMe0PdghI/RQ64iz1bEZXJ+omzH6Jyh+ctlfJ7gI909FW1zsIMGnnKhcP3Z4hpo
+         y/qQJW78WjIV/FZko1Xks08TjVyK4JnwSRR+yBq29AzRxqVDDjhZwN2LPPNhxkprcd/i
+         2EVmhCjE78/ihNq82AICpr5IMfNpkpwwl/9uvICvwWhiKw+Qb8UsasSBraOHt7XXdrNo
+         SRiNAqv5pIdZdVKqzL8vVQuOJZ3BMMVNAWj2c2uYqaaiSiUoryyNXJ8C2zJzRQ1ZXOtD
+         ET6Q==
+X-Gm-Message-State: AOAM531cTPTHjh0FRvVF+fnwmE7jwhQXYpVz2QBzB1ZuczM4mY6dZdoW
+        ldl8nkcFVWVHBCgqUlu/Ce0HdPbbH56sT8JX
+X-Google-Smtp-Source: ABdhPJxAqiYzbVWeV6MAGL1myJNfT8u97VM79m6PEVCtOiOQRHfIpORpTHIaJFDQRQOR7Yw6hl9lOQ==
+X-Received: by 2002:a17:906:8145:: with SMTP id z5mr407128ejw.519.1639424688645;
+        Mon, 13 Dec 2021 11:44:48 -0800 (PST)
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com. [209.85.221.41])
+        by smtp.gmail.com with ESMTPSA id gz26sm6034350ejc.100.2021.12.13.11.44.47
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Dec 2021 11:44:47 -0800 (PST)
+Received: by mail-wr1-f41.google.com with SMTP id a18so28897332wrn.6
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 11:44:47 -0800 (PST)
+X-Received: by 2002:adf:cc8d:: with SMTP id p13mr611346wrj.274.1639424687470;
+ Mon, 13 Dec 2021 11:44:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.164-89-g0896ccf90364
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y baseline: 195 runs,
- 1 regressions (v5.4.164-89-g0896ccf90364)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211210053743.GA36420@xsang-OptiPlex-9020> <CAHk-=wgxd2DqzM3PAsFmzJDHFggxg7ODTQxfJoGCRDbjgMm8nA@mail.gmail.com>
+ <CAG48ez1pnatAB095dnbrn9LbuQe4+ENwh-WEW36pM40ozhpruw@mail.gmail.com>
+ <CAHk-=wg1uxUTmdEYgTcxWGQ-s6vb_V_Jux+Z+qwoAcVGkCTDYA@mail.gmail.com>
+ <CAHk-=wh5iFv1MOx6r8zyGYkYGfgfxqcPSrUDwfuOCdis+VR+BQ@mail.gmail.com>
+ <20211213083154.GA20853@linux.intel.com> <CAHk-=wjsTk2jym66RYkK9kuq8zOXTd2bWPiOq43-iCF6Qy-xQQ@mail.gmail.com>
+In-Reply-To: <CAHk-=wjsTk2jym66RYkK9kuq8zOXTd2bWPiOq43-iCF6Qy-xQQ@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 13 Dec 2021 11:44:31 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whoMGTAAyah0jH+rHyAXCLnxAHu8KffrR8PrAXGhTxRdA@mail.gmail.com>
+Message-ID: <CAHk-=whoMGTAAyah0jH+rHyAXCLnxAHu8KffrR8PrAXGhTxRdA@mail.gmail.com>
+Subject: Re: [LKP] Re: [fget] 054aa8d439: will-it-scale.per_thread_ops -5.7% regression
+To:     Carel Si <beibei.si@intel.com>
+Cc:     Jann Horn <jannh@google.com>, Miklos Szeredi <mszeredi@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, lkp@lists.01.org,
+        kernel test robot <lkp@intel.com>, fengwei.yin@intel.com,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 195 runs, 1 regressions (v5.4.164-89-g0896c=
-cf90364)
+On Mon, Dec 13, 2021 at 10:37 AM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> So I'll just apply the patch. Thanks for the report and the testing
 
-Regressions Summary
--------------------
+Done, it's commit e386dfc56f83 ("fget: clarify and improve
+__fget_files() implementation") in my tree now.
 
-platform       | arch  | lab          | compiler | defconfig               =
-   | regressions
----------------+-------+--------------+----------+-------------------------=
----+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-10   | defconfig+arm64-chromebo=
-ok | 1          =
+I didn't mark it as "Fixes:" or for stable, because I can't imagine
+that it matters in real life.
 
+But then it  struck me that Greg has mentioned that he ends up getting
+a lot of performance regression reports for people testing stable and
+they can be distracting.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.164-89-g0896ccf90364/plan/baseline/
+So I'm adding a stable cc here just so people are aware of this as a
+"yeah, will-it-scale.poll2 performance regression has been reported,
+has a fix available if somebody cares".
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.164-89-g0896ccf90364
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0896ccf9036401df1f284b0a02b954d71d071d74 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab          | compiler | defconfig               =
-   | regressions
----------------+-------+--------------+----------+-------------------------=
----+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-10   | defconfig+arm64-chromebo=
-ok | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b76ada79cdb49a4639714e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.164=
--89-g0896ccf90364/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-meson-gxm-q200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.164=
--89-g0896ccf90364/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/base=
-line-meson-gxm-q200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b76ada79cdb49a46397=
-14f
-        new failure (last pass: v5.4.164-89-gc50f1e613033) =
-
- =20
+              Linus
