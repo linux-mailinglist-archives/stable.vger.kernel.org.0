@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D1847266D
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:52:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01730472751
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235997AbhLMJvw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:51:52 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:41254 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234387AbhLMJtv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:49:51 -0500
+        id S238769AbhLMJ7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44312 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239697AbhLMJ5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 81197CE0E92;
-        Mon, 13 Dec 2021 09:49:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2874AC00446;
-        Mon, 13 Dec 2021 09:49:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1D30B80E76;
+        Mon, 13 Dec 2021 09:57:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79DBCC34600;
+        Mon, 13 Dec 2021 09:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388986;
-        bh=lg4S7v4029/HtRjnefOciNwGjrb2wEYYpRnvonuWvJw=;
+        s=korg; t=1639389462;
+        bh=gBMK9NaWjKT3OgD+w9CTG/rFha2dHXnb+Hp1/HwWpmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9Ca8x37dK5VkISKIKaLRIOhzFr8RkXgF314JIuyw38b5JSuYycU/0ffHuJ4Buns1
-         FzHXMruL86nTpXyQ+BUPJ6J2ysMABKmxsa1dLTMvIgZerhHqWTClAwzy2NzqIN6pfl
-         iUhU5GDX3GpuNAmrd34GgP2lXfb0FEau2Lt0d/XA=
+        b=VSweljy4aSHX/tHOWsuf6TqVdm8qCDajhOJQLlkxr+vYFIvN+6slGPSBggoMP5d2K
+         Ol6WrebDpNEtbdQ7dJGOGG8lUVGykW7ncSdk0bRwwDXhg5YsSIi1HHuVxZdsX/KD/d
+         KR1nTrWAR4xq9oQ+jakUpSKcRSJjMDavDSYQf2ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 077/132] ASoC: qdsp6: q6routing: Fix return value from msm_routing_put_audio_mixer
+        Vishakha Channapattan <vishakhavc@google.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Igor Pylypiv <ipylypiv@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 103/171] scsi: pm80xx: Do not call scsi_remove_host() in pm8001_alloc()
 Date:   Mon, 13 Dec 2021 10:30:18 +0100
-Message-Id: <20211213092941.759375303@linuxfoundation.org>
+Message-Id: <20211213092948.520204907@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-commit 4739d88ad8e1900f809f8a5c98f3c1b65bf76220 upstream.
+commit 653926205741add87a6cf452e21950eebc6ac10b upstream.
 
-msm_routing_put_audio_mixer() can return incorrect value in various scenarios.
+Calling scsi_remove_host() before scsi_add_host() results in a crash:
 
-scenario 1:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 0
+ BUG: kernel NULL pointer dereference, address: 0000000000000108
+ RIP: 0010:device_del+0x63/0x440
+ Call Trace:
+  device_unregister+0x17/0x60
+  scsi_remove_host+0xee/0x2a0
+  pm8001_pci_probe+0x6ef/0x1b90 [pm80xx]
+  local_pci_probe+0x3f/0x90
 
-return value is 0 instead of 1 eventhough value was changed
+We cannot call scsi_remove_host() in pm8001_alloc() because scsi_add_host()
+has not been called yet at that point in time.
 
-scenario 2:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
+Function call tree:
 
-return value is 1 instead of 0 eventhough the value was not changed
+  pm8001_pci_probe()
+  |
+  `- pm8001_pci_alloc()
+  |  |
+  |  `- pm8001_alloc()
+  |     |
+  |     `- scsi_remove_host()
+  |
+  `- scsi_add_host()
 
-scenario 3:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 0
-return value is 1 instead of 0 eventhough the value was not changed
-
-Fix this by adding checks, so that change notifications are sent correctly.
-
-Fixes: e3a33673e845 ("ASoC: qdsp6: q6routing: Add q6routing driver")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211130163110.5628-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211201041627.1592487-1-ipylypiv@google.com
+Fixes: 05c6c029a44d ("scsi: pm80xx: Increase number of supported queues")
+Reviewed-by: Vishakha Channapattan <vishakhavc@google.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/qcom/qdsp6/q6routing.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/pm8001/pm8001_init.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/sound/soc/qcom/qdsp6/q6routing.c
-+++ b/sound/soc/qcom/qdsp6/q6routing.c
-@@ -488,14 +488,16 @@ static int msm_routing_put_audio_mixer(s
- 	struct session_data *session = &data->sessions[session_id];
- 
- 	if (ucontrol->value.integer.value[0]) {
-+		if (session->port_id == be_id)
-+			return 0;
-+
- 		session->port_id = be_id;
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 1, update);
- 	} else {
--		if (session->port_id == be_id) {
--			session->port_id = -1;
-+		if (session->port_id == -1 || session->port_id != be_id)
- 			return 0;
--		}
- 
-+		session->port_id = -1;
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 0, update);
+--- a/drivers/scsi/pm8001/pm8001_init.c
++++ b/drivers/scsi/pm8001/pm8001_init.c
+@@ -281,12 +281,12 @@ static int pm8001_alloc(struct pm8001_hb
+ 	if (rc) {
+ 		pm8001_dbg(pm8001_ha, FAIL,
+ 			   "pm8001_setup_irq failed [ret: %d]\n", rc);
+-		goto err_out_shost;
++		goto err_out;
  	}
+ 	/* Request Interrupt */
+ 	rc = pm8001_request_irq(pm8001_ha);
+ 	if (rc)
+-		goto err_out_shost;
++		goto err_out;
  
+ 	count = pm8001_ha->max_q_num;
+ 	/* Queues are chosen based on the number of cores/msix availability */
+@@ -422,8 +422,6 @@ static int pm8001_alloc(struct pm8001_hb
+ 	pm8001_tag_init(pm8001_ha);
+ 	return 0;
+ 
+-err_out_shost:
+-	scsi_remove_host(pm8001_ha->shost);
+ err_out_nodev:
+ 	for (i = 0; i < pm8001_ha->max_memcnt; i++) {
+ 		if (pm8001_ha->memoryMap.region[i].virt_ptr != NULL) {
 
 
