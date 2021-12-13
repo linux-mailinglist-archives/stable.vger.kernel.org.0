@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F49D4723D6
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:32:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5B5047263F
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbhLMJcP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:32:15 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:57400 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229494AbhLMJcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:32:15 -0500
+        id S235677AbhLMJtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57626 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236860AbhLMJrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:47:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411C4C07E5F0;
+        Mon, 13 Dec 2021 01:42:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0C1D0CE0E29;
-        Mon, 13 Dec 2021 09:32:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8434C341C8;
-        Mon, 13 Dec 2021 09:32:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E2D6B80E12;
+        Mon, 13 Dec 2021 09:42:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 827DDC00446;
+        Mon, 13 Dec 2021 09:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639387932;
-        bh=/SdA1HN9oyfgJohuAE0t28ar12qvyacTE7d4FdX1278=;
+        s=korg; t=1639388570;
+        bh=ZYIkG1OlBl5wTCUBGTtuVxJfRXCMzdkwZphnncVVmV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BOy9f6F/700XedgGiD0mccEKdaLxg+/acYI3waJzxFlUQ/d6Hl3VGbqz8dQeFRGAZ
-         GKuV+6k1AQPe3huOn5o+PCpgoM+PkOwpluM1icPru6Ys48JH7fdnFLklS7s4CN3Q1e
-         8nVjm59soMz/j2PV1CNKK4SIdvKM3qomoSQrWPHA=
+        b=TPTyVhzdcyGrJqdXNiVEeVKmQYhRdvtSHwTil8siqiEFvMqvN4HG+jOSUqdwoJ80n
+         hYVqlgUwEueBsHTLzd4wXgeGQqxnx+YKh4m6hQEr9bJFL1NQkMYoJiO/wl2FuhK1tp
+         PDs/7HVqrm0GbuECUNbUXA9yH4tCfCAyc2aOdxGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.4 01/37] HID: introduce hid_is_using_ll_driver
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.4 09/88] HID: bigbenff: prevent null pointer dereference
 Date:   Mon, 13 Dec 2021 10:29:39 +0100
-Message-Id: <20211213092925.428214066@linuxfoundation.org>
+Message-Id: <20211213092933.551227122@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,128 +47,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-commit fc2237a724a9e448599076d7d23497f51e2f7441 upstream.
+commit 918aa1ef104d286d16b9e7ef139a463ac7a296f0 upstream.
 
-Although HID itself is transport-agnostic, occasionally a driver may
-want to interact with the low-level transport that a device is connected
-through. To do this, we need to know what kind of bus is in use. The
-first guess may be to look at the 'bus' field of the 'struct hid_device',
-but this field may be emulated in some cases (e.g. uhid).
+When emulating the device through uhid, there is a chance we don't have
+output reports and so report_field is null.
 
-More ideally, we can check which ll_driver a device is using. This
-function introduces a 'hid_is_using_ll_driver' function and makes the
-'struct hid_ll_driver' of the four most common transports accessible
-through hid.h.
-
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: stable@vger.kernel.org
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20211202095334.14399-3-benjamin.tissoires@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/i2c-hid/i2c-hid.c |    3 ++-
- drivers/hid/uhid.c            |    3 ++-
- drivers/hid/usbhid/hid-core.c |    3 ++-
- include/linux/hid.h           |   11 +++++++++++
- net/bluetooth/hidp/core.c     |    3 ++-
- 5 files changed, 19 insertions(+), 4 deletions(-)
+ drivers/hid/hid-bigbenff.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -789,7 +789,7 @@ static int i2c_hid_power(struct hid_devi
- 	return 0;
- }
+--- a/drivers/hid/hid-bigbenff.c
++++ b/drivers/hid/hid-bigbenff.c
+@@ -191,7 +191,7 @@ static void bigben_worker(struct work_st
+ 		struct bigben_device, worker);
+ 	struct hid_field *report_field = bigben->report->field[0];
  
--static struct hid_ll_driver i2c_hid_ll_driver = {
-+struct hid_ll_driver i2c_hid_ll_driver = {
- 	.parse = i2c_hid_parse,
- 	.start = i2c_hid_start,
- 	.stop = i2c_hid_stop,
-@@ -799,6 +799,7 @@ static struct hid_ll_driver i2c_hid_ll_d
- 	.output_report = i2c_hid_output_report,
- 	.raw_request = i2c_hid_raw_request,
- };
-+EXPORT_SYMBOL_GPL(i2c_hid_ll_driver);
+-	if (bigben->removed)
++	if (bigben->removed || !report_field)
+ 		return;
  
- static int i2c_hid_init_irq(struct i2c_client *client)
- {
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -372,7 +372,7 @@ static int uhid_hid_output_report(struct
- 	return uhid_hid_output_raw(hid, buf, count, HID_OUTPUT_REPORT);
- }
- 
--static struct hid_ll_driver uhid_hid_driver = {
-+struct hid_ll_driver uhid_hid_driver = {
- 	.start = uhid_hid_start,
- 	.stop = uhid_hid_stop,
- 	.open = uhid_hid_open,
-@@ -381,6 +381,7 @@ static struct hid_ll_driver uhid_hid_dri
- 	.raw_request = uhid_hid_raw_request,
- 	.output_report = uhid_hid_output_report,
- };
-+EXPORT_SYMBOL_GPL(uhid_hid_driver);
- 
- #ifdef CONFIG_COMPAT
- 
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1272,7 +1272,7 @@ static int usbhid_idle(struct hid_device
- 	return hid_set_idle(dev, ifnum, report, idle);
- }
- 
--static struct hid_ll_driver usb_hid_driver = {
-+struct hid_ll_driver usb_hid_driver = {
- 	.parse = usbhid_parse,
- 	.start = usbhid_start,
- 	.stop = usbhid_stop,
-@@ -1285,6 +1285,7 @@ static struct hid_ll_driver usb_hid_driv
- 	.output_report = usbhid_output_report,
- 	.idle = usbhid_idle,
- };
-+EXPORT_SYMBOL_GPL(usb_hid_driver);
- 
- static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
- {
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -754,6 +754,17 @@ struct hid_ll_driver {
- 	int (*idle)(struct hid_device *hdev, int report, int idle, int reqtype);
- };
- 
-+extern struct hid_ll_driver i2c_hid_ll_driver;
-+extern struct hid_ll_driver hidp_hid_driver;
-+extern struct hid_ll_driver uhid_hid_driver;
-+extern struct hid_ll_driver usb_hid_driver;
-+
-+static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
-+		struct hid_ll_driver *driver)
-+{
-+	return hdev->ll_driver == driver;
-+}
-+
- #define	PM_HINT_FULLON	1<<5
- #define PM_HINT_NORMAL	1<<1
- 
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -734,7 +734,7 @@ static void hidp_stop(struct hid_device
- 	hid->claimed = 0;
- }
- 
--static struct hid_ll_driver hidp_hid_driver = {
-+struct hid_ll_driver hidp_hid_driver = {
- 	.parse = hidp_parse,
- 	.start = hidp_start,
- 	.stop = hidp_stop,
-@@ -743,6 +743,7 @@ static struct hid_ll_driver hidp_hid_dri
- 	.raw_request = hidp_raw_request,
- 	.output_report = hidp_output_report,
- };
-+EXPORT_SYMBOL_GPL(hidp_hid_driver);
- 
- /* This function sets up the hid device. It does not add it
-    to the HID system. That is done in hidp_add_connection(). */
+ 	if (bigben->work_led) {
 
 
