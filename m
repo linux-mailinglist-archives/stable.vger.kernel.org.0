@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FA694729EA
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95185472857
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235233AbhLMK1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:27:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38638 "EHLO
+        id S240253AbhLMKKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:10:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237101AbhLMK0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:26:18 -0500
+        with ESMTP id S242796AbhLMKIu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:08:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F37FC01DF04;
-        Mon, 13 Dec 2021 02:00:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65CBFC08EA72;
+        Mon, 13 Dec 2021 01:52:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18E7BB80DEC;
-        Mon, 13 Dec 2021 10:00:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31B21C34601;
-        Mon, 13 Dec 2021 10:00:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 33500B80E12;
+        Mon, 13 Dec 2021 09:52:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A042C00446;
+        Mon, 13 Dec 2021 09:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389631;
-        bh=9FdpmkzTWuaFh15PEjKrURtIJNq4boE8px8lf9ZVNtU=;
+        s=korg; t=1639389163;
+        bh=whCGHq9Jf7S43kKFy5mkFVyuu5pEgSFlTrb85xag2iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xq+vdjVG6Dg2NcquP43xoGeBP0obVDpO5Gui899do5UDp9MiseoqzT1lzZDmL0RVa
-         yZl89HOZ/g4+yjyCZ4Wmlg5Kw48dThBQywFX69JSE8mv3kremr7oVnav3bcB7xMEOC
-         4mZFfV5uuH6VYCJfS8u/ccpCchwCgICvnUFzxM5Q=
+        b=QngGKu6S+yyxXVWid7gmU29RsGmRw7UGj+DFoFK6cKCj1ANArVqyMMDjUiqovGAg/
+         ztj5OX+Chg0y2Lwms5LfOEYsbwPDyxn5oVFiXb6Wu1G7nt3pqKiQBt8czx5ny+joX+
+         ba2XI/wn0G/YiRZ+jpp92A5uy2cQ2frw5iCjxg78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 150/171] iio: itg3200: Call iio_trigger_notify_done() on error
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 124/132] irqchip/armada-370-xp: Fix support for Multi-MSI interrupts
 Date:   Mon, 13 Dec 2021 10:31:05 +0100
-Message-Id: <20211213092950.058049565@linuxfoundation.org>
+Message-Id: <20211213092943.354156911@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,40 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Pali Rohár <pali@kernel.org>
 
-commit 67fe29583e72b2103abb661bb58036e3c1f00277 upstream.
+commit d0a553502efd545c1ce3fd08fc4d423f8e4ac3d6 upstream.
 
-IIO trigger handlers must call iio_trigger_notify_done() when done. This
-must be done even when an error occurred. Otherwise the trigger will be
-seen as busy indefinitely and the trigger handler will never be called
-again.
+irq-armada-370-xp driver already sets MSI_FLAG_MULTI_PCI_MSI flag into
+msi_domain_info structure. But allocated interrupt numbers for Multi-MSI
+needs to be properly aligned otherwise devices send MSI interrupt with
+wrong number.
 
-The itg3200 driver neglects to call iio_trigger_notify_done() when there is
-an error reading the gyro data. Fix this by making sure that
-iio_trigger_notify_done() is included in the error exit path.
+Fix this issue by using function bitmap_find_free_region() instead of
+bitmap_find_next_zero_area() to allocate aligned interrupt numbers.
 
-Fixes: 9dbf091da080 ("iio: gyro: Add itg3200")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211101144055.13858-1-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: a71b9412c90c ("irqchip/armada-370-xp: Allow allocation of multiple MSIs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211125130057.26705-2-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/gyro/itg3200_buffer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-armada-370-xp.c |   14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
---- a/drivers/iio/gyro/itg3200_buffer.c
-+++ b/drivers/iio/gyro/itg3200_buffer.c
-@@ -61,9 +61,9 @@ static irqreturn_t itg3200_trigger_handl
+--- a/drivers/irqchip/irq-armada-370-xp.c
++++ b/drivers/irqchip/irq-armada-370-xp.c
+@@ -232,16 +232,12 @@ static int armada_370_xp_msi_alloc(struc
+ 	int hwirq, i;
  
- 	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ 	mutex_lock(&msi_used_lock);
++	hwirq = bitmap_find_free_region(msi_used, PCI_MSI_DOORBELL_NR,
++					order_base_2(nr_irqs));
++	mutex_unlock(&msi_used_lock);
  
-+error_ret:
- 	iio_trigger_notify_done(indio_dev->trig);
+-	hwirq = bitmap_find_next_zero_area(msi_used, PCI_MSI_DOORBELL_NR,
+-					   0, nr_irqs, 0);
+-	if (hwirq >= PCI_MSI_DOORBELL_NR) {
+-		mutex_unlock(&msi_used_lock);
++	if (hwirq < 0)
+ 		return -ENOSPC;
+-	}
+-
+-	bitmap_set(msi_used, hwirq, nr_irqs);
+-	mutex_unlock(&msi_used_lock);
  
--error_ret:
- 	return IRQ_HANDLED;
+ 	for (i = 0; i < nr_irqs; i++) {
+ 		irq_domain_set_info(domain, virq + i, hwirq + i,
+@@ -259,7 +255,7 @@ static void armada_370_xp_msi_free(struc
+ 	struct irq_data *d = irq_domain_get_irq_data(domain, virq);
+ 
+ 	mutex_lock(&msi_used_lock);
+-	bitmap_clear(msi_used, d->hwirq, nr_irqs);
++	bitmap_release_region(msi_used, d->hwirq, order_base_2(nr_irqs));
+ 	mutex_unlock(&msi_used_lock);
  }
  
 
