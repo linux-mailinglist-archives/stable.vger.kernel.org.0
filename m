@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B853C472846
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCA74725F1
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238092AbhLMKKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:10:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33508 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241913AbhLMKGz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:06:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F16C0A88D7;
-        Mon, 13 Dec 2021 01:51:19 -0800 (PST)
+        id S235029AbhLMJsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:48:35 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57222 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236005AbhLMJpn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:45:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2ED18B80E16;
-        Mon, 13 Dec 2021 09:51:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88A62C00446;
-        Mon, 13 Dec 2021 09:51:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48ECCB80E22;
+        Mon, 13 Dec 2021 09:45:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A787C341C8;
+        Mon, 13 Dec 2021 09:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389075;
-        bh=lFru/eiJ+opmGuVoOgd6CAflirb7kLAfOtF6fZS+NaQ=;
+        s=korg; t=1639388741;
+        bh=lujrZBCoAyyE7Zc4QDqaa8wcKuPXGjH4z1p1kBbQ8Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S7B4dVHeD3GnvhC2HZQOZcc0m7pxo6SeWUwmN22a07HuCgfvW2MZBvgHH+bUtVL9w
-         Ir1qNWnTCyCOF3XyU9rqImPcTDufMSPbavd1Kzc1YWMArFdsF7mKnBpoTyLwU2qFxR
-         q9QlKISyCSF9EZyBov6D9Mwd3qenj/s7FPpkO/z8=
+        b=foWZ2UDO4jp0ipYfPVrboSya19YRDnpHrxCzcT8tvuEF0O2wh7YCAcMu8rEyQQDQt
+         WUN3KNETxU7GtX1lNx+aFrMNSlxuLrQooWpf6Wyw135cMhAApptPtwQVAVe/S6RdS0
+         Os5IweQXEMQVgubR19TLiFMTaW5jGtugN4H2t2Rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
+        stable@vger.kernel.org, Evgeny Boger <boger@wirenboard.com>,
+        Chen-Yu Tsai <wens@csie.org>, Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 109/132] iio: stk3310: Dont return error code in interrupt handler
+Subject: [PATCH 5.4 80/88] iio: adc: axp20x_adc: fix charging current reporting on AXP22x
 Date:   Mon, 13 Dec 2021 10:30:50 +0100
-Message-Id: <20211213092942.851720023@linuxfoundation.org>
+Message-Id: <20211213092935.979983603@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Evgeny Boger <boger@wirenboard.com>
 
-commit 8e1eeca5afa7ba84d885987165dbdc5decf15413 upstream.
+commit 92beafb76a31bdc02649eb44e93a8e4f4cfcdbe8 upstream.
 
-Interrupt handlers must return one of the irqreturn_t values. Returning a
-error code is not supported.
+Both the charging and discharging currents on AXP22x are stored as
+12-bit integers, in accordance with the datasheet.
+It's also confirmed by vendor BSP (axp20x_adc.c:axp22_icharge_to_mA).
 
-The stk3310 event interrupt handler returns an error code when reading the
-flags register fails.
+The scale factor of 0.5 is never mentioned in datasheet, nor in the
+vendor source code. I think it was here to compensate for
+erroneous addition bit in register width.
 
-Fix the implementation to always return an irqreturn_t value.
+Tested on custom A40i+AXP221s board with external ammeter as
+a reference.
 
-Fixes: 3dd477acbdd1 ("iio: light: Add threshold interrupt support for STK3310")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211024171251.22896-3-lars@metafoo.de
+Fixes: 0e34d5de961d ("iio: adc: add support for X-Powers AXP20X and AXP22X PMICs ADCs")
+Signed-off-by: Evgeny Boger <boger@wirenboard.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20211116213746.264378-1-boger@wirenboard.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/stk3310.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/adc/axp20x_adc.c |   18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
---- a/drivers/iio/light/stk3310.c
-+++ b/drivers/iio/light/stk3310.c
-@@ -546,9 +546,8 @@ static irqreturn_t stk3310_irq_event_han
- 	mutex_lock(&data->lock);
- 	ret = regmap_field_read(data->reg_flag_nf, &dir);
- 	if (ret < 0) {
--		dev_err(&data->client->dev, "register read failed\n");
--		mutex_unlock(&data->lock);
--		return ret;
-+		dev_err(&data->client->dev, "register read failed: %d\n", ret);
-+		goto out;
- 	}
- 	event = IIO_UNMOD_EVENT_CODE(IIO_PROXIMITY, 1,
- 				     IIO_EV_TYPE_THRESH,
-@@ -560,6 +559,7 @@ static irqreturn_t stk3310_irq_event_han
- 	ret = regmap_field_write(data->reg_flag_psint, 0);
- 	if (ret < 0)
- 		dev_err(&data->client->dev, "failed to reset interrupts\n");
-+out:
- 	mutex_unlock(&data->lock);
+--- a/drivers/iio/adc/axp20x_adc.c
++++ b/drivers/iio/adc/axp20x_adc.c
+@@ -251,19 +251,8 @@ static int axp22x_adc_raw(struct iio_dev
+ 			  struct iio_chan_spec const *chan, int *val)
+ {
+ 	struct axp20x_adc_iio *info = iio_priv(indio_dev);
+-	int size;
  
- 	return IRQ_HANDLED;
+-	/*
+-	 * N.B.: Unlike the Chinese datasheets tell, the charging current is
+-	 * stored on 12 bits, not 13 bits. Only discharging current is on 13
+-	 * bits.
+-	 */
+-	if (chan->type == IIO_CURRENT && chan->channel == AXP22X_BATT_DISCHRG_I)
+-		size = 13;
+-	else
+-		size = 12;
+-
+-	*val = axp20x_read_variable_width(info->regmap, chan->address, size);
++	*val = axp20x_read_variable_width(info->regmap, chan->address, 12);
+ 	if (*val < 0)
+ 		return *val;
+ 
+@@ -386,9 +375,8 @@ static int axp22x_adc_scale(struct iio_c
+ 		return IIO_VAL_INT_PLUS_MICRO;
+ 
+ 	case IIO_CURRENT:
+-		*val = 0;
+-		*val2 = 500000;
+-		return IIO_VAL_INT_PLUS_MICRO;
++		*val = 1;
++		return IIO_VAL_INT;
+ 
+ 	case IIO_TEMP:
+ 		*val = 100;
 
 
