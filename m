@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 880ED4725CC
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C37AE47287A
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:14:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232957AbhLMJqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:46:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57926 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235156AbhLMJoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:44:24 -0500
+        id S239457AbhLMKNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:13:46 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39792 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237456AbhLMJuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:50:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9677FB80E2E;
-        Mon, 13 Dec 2021 09:44:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21F1C341C5;
-        Mon, 13 Dec 2021 09:44:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 10F12CE0E83;
+        Mon, 13 Dec 2021 09:50:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6069C00446;
+        Mon, 13 Dec 2021 09:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388661;
-        bh=Cjl9558Twm2F1zWNTCl+x3fwFWrRuwgvzOzv3Ei1jic=;
+        s=korg; t=1639389001;
+        bh=uAiqZR3IvrFrXzJGBI0LYMHFB0Cq9UInD/O8AAugYSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APb2bztRP6q7axz1zmZUcuGxULtTuk/MBh9N6mrQZBnzO92cJe1+JxQwCWm70i6LT
-         GCtsXeMPWX415LMfNv7Jv/OSQfpMRVkJff+lX810+p755tS1mUO2QFD8j5aYOzRz2U
-         ybgTe31HVK71Zo1aZBYTYH/y9U+TEQKijoo55Mkg=
+        b=IPcNCryKnhThZNiOAQEVSKZ6xGkFwvEby2FiHvUe6Gx3U9mJ00vtknnKKsgnX41sp
+         lpRpzNF7pZMWp7I4jhYbeYedVpNUSNCgzKYylPgml8bmxjkwEgMsdiuTDjLKD0x/Nb
+         wValuB5jSi76mGqWBj9Ob1tdv3o5+pihayEnNirs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 21/88] nfp: Fix memory leak in nfp_cpp_area_cache_add()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 050/132] ALSA: pcm: oss: Handle missing errors in snd_pcm_oss_change_params*()
 Date:   Mon, 13 Dec 2021 10:29:51 +0100
-Message-Id: <20211213092933.941600889@linuxfoundation.org>
+Message-Id: <20211213092940.835515687@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c56c96303e9289cc34716b1179597b6f470833de upstream.
+commit 6665bb30a6b1a4a853d52557c05482ee50e71391 upstream.
 
-In line 800 (#1), nfp_cpp_area_alloc() allocates and initializes a
-CPP area structure. But in line 807 (#2), when the cache is allocated
-failed, this CPP area structure is not freed, which will result in
-memory leak.
+A couple of calls in snd_pcm_oss_change_params_locked() ignore the
+possible errors.  Catch those errors and abort the operation for
+avoiding further problems.
 
-We can fix it by freeing the CPP area when the cache is allocated
-failed (#2).
-
-792 int nfp_cpp_area_cache_add(struct nfp_cpp *cpp, size_t size)
-793 {
-794 	struct nfp_cpp_area_cache *cache;
-795 	struct nfp_cpp_area *area;
-
-800	area = nfp_cpp_area_alloc(cpp, NFP_CPP_ID(7, NFP_CPP_ACTION_RW, 0),
-801 				  0, size);
-	// #1: allocates and initializes
-
-802 	if (!area)
-803 		return -ENOMEM;
-
-805 	cache = kzalloc(sizeof(*cache), GFP_KERNEL);
-806 	if (!cache)
-807 		return -ENOMEM; // #2: missing free
-
-817	return 0;
-818 }
-
-Fixes: 4cb584e0ee7d ("nfp: add CPP access core")
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Acked-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20211209061511.122535-1-niejianglei2021@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211201073606.11660-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/core/oss/pcm_oss.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfpcore/nfp_cppcore.c
-@@ -803,8 +803,10 @@ int nfp_cpp_area_cache_add(struct nfp_cp
- 		return -ENOMEM;
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -884,8 +884,15 @@ static int snd_pcm_oss_change_params_loc
+ 		err = -EINVAL;
+ 		goto failure;
+ 	}
+-	choose_rate(substream, sparams, runtime->oss.rate);
+-	snd_pcm_hw_param_near(substream, sparams, SNDRV_PCM_HW_PARAM_CHANNELS, runtime->oss.channels, NULL);
++
++	err = choose_rate(substream, sparams, runtime->oss.rate);
++	if (err < 0)
++		goto failure;
++	err = snd_pcm_hw_param_near(substream, sparams,
++				    SNDRV_PCM_HW_PARAM_CHANNELS,
++				    runtime->oss.channels, NULL);
++	if (err < 0)
++		goto failure;
  
- 	cache = kzalloc(sizeof(*cache), GFP_KERNEL);
--	if (!cache)
-+	if (!cache) {
-+		nfp_cpp_area_free(area);
- 		return -ENOMEM;
-+	}
+ 	format = snd_pcm_oss_format_from(runtime->oss.format);
  
- 	cache->id = 0;
- 	cache->addr = 0;
 
 
