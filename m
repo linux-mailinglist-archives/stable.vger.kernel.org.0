@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC794472560
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37528472461
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbhLMJne (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:34 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:34862 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235135AbhLMJkO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:14 -0500
+        id S232563AbhLMJgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:36:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54258 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233923AbhLMJfH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BE0C061201;
+        Mon, 13 Dec 2021 01:35:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E5924CE0E7C;
-        Mon, 13 Dec 2021 09:40:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C17CAC341C8;
-        Mon, 13 Dec 2021 09:40:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E934B80E1B;
+        Mon, 13 Dec 2021 09:35:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7EF9C341C8;
+        Mon, 13 Dec 2021 09:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388411;
-        bh=AlUzJO9r50jKXcylDD9mcBhb/7FjCneZWkuEMinbNSE=;
+        s=korg; t=1639388101;
+        bh=GApYLK2DZbQrXZ99Rr+yJydvqE1BWEM2Rib7gQzizJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NTduYhNuP4aWNj50srBE66kZTsLJS+nFc5rB6An1GZFKEI6YELahHtT4YSpf3OsTZ
-         WkGsKvuTfRzXrTExoW9QB1p6ywId4DeVV/mHuGDmSUx7i02I+4wnNQE3V+1E5qiNpn
-         nflXxDTy1lvNSRIl8suPZ4BfhqX1shlnAfFHOv54=
+        b=ACECkxs3DqSBoAKH8cVdZqpvlBakyIIb83ij2+Q2wKjazYocoiKfdoZ/TZyJWEErN
+         Bdv2CU4xuOtQExv5kY6DnfR7zuujNqgx9kwhl6XLyiqZBWl/sN7gD7OXe5o+KJGOwv
+         Cy6p50DMMxUzVoIlrjc91gMeUgDkfGsRAEKaBgP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Alok Prasad <palok@marvell.com>,
-        Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 41/74] qede: validate non LSO skb length
+        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 4.9 30/42] USB: gadget: zero allocate endpoint 0 buffers
 Date:   Mon, 13 Dec 2021 10:30:12 +0100
-Message-Id: <20211213092932.193956427@linuxfoundation.org>
+Message-Id: <20211213092927.548865564@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,50 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 8e227b198a55859bf790dc7f4b1e30c0859c6756 upstream.
+commit 86ebbc11bb3f60908a51f3e41a17e3f477c2eaa3 upstream.
 
-Although it is unlikely that stack could transmit a non LSO
-skb with length > MTU, however in some cases or environment such
-occurrences actually resulted into firmware asserts due to packet
-length being greater than the max supported by the device (~9700B).
+Under some conditions, USB gadget devices can show allocated buffer
+contents to a host.  Fix this up by zero-allocating them so that any
+extra data will all just be zeros.
 
-This patch adds the safeguard for such odd cases to avoid firmware
-asserts.
-
-v2: Added "Fixes" tag with one of the initial driver commit
-    which enabled the TX traffic actually (as this was probably
-    day1 issue which was discovered recently by some customer
-    environment)
-
-Fixes: a2ec6172d29c ("qede: Add support for link")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Alok Prasad <palok@marvell.com>
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Link: https://lore.kernel.org/r/20211203174413.13090-1-manishc@marvell.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_fp.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/gadget/composite.c   |    2 +-
+ drivers/usb/gadget/legacy/dbgp.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
-@@ -1606,6 +1606,13 @@ netdev_tx_t qede_start_xmit(struct sk_bu
- 			data_split = true;
- 		}
- 	} else {
-+		if (unlikely(skb->len > ETH_TX_MAX_NON_LSO_PKT_LEN)) {
-+			DP_ERR(edev, "Unexpected non LSO skb length = 0x%x\n", skb->len);
-+			qede_free_failed_tx_pkt(txq, first_bd, 0, false);
-+			qede_update_tx_producer(txq);
-+			return NETDEV_TX_OK;
-+		}
-+
- 		val |= ((skb->len & ETH_TX_DATA_1ST_BD_PKT_LEN_MASK) <<
- 			 ETH_TX_DATA_1ST_BD_PKT_LEN_SHIFT);
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -2183,7 +2183,7 @@ int composite_dev_prepare(struct usb_com
+ 	if (!cdev->req)
+ 		return -ENOMEM;
+ 
+-	cdev->req->buf = kmalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
++	cdev->req->buf = kzalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
+ 	if (!cdev->req->buf)
+ 		goto fail;
+ 
+--- a/drivers/usb/gadget/legacy/dbgp.c
++++ b/drivers/usb/gadget/legacy/dbgp.c
+@@ -136,7 +136,7 @@ static int dbgp_enable_ep_req(struct usb
+ 		goto fail_1;
  	}
+ 
+-	req->buf = kmalloc(DBGP_REQ_LEN, GFP_KERNEL);
++	req->buf = kzalloc(DBGP_REQ_LEN, GFP_KERNEL);
+ 	if (!req->buf) {
+ 		err = -ENOMEM;
+ 		stp = 2;
 
 
