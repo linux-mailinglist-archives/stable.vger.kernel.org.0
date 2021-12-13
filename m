@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBCB4729F4
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77EB54726C7
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238668AbhLMK2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:28:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37776 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241078AbhLMK0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:26:37 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34639C08EB37;
-        Mon, 13 Dec 2021 02:00:54 -0800 (PST)
+        id S235515AbhLMJyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:54:21 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:42924 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237900AbhLMJwQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:52:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8158ECE0F64;
-        Mon, 13 Dec 2021 10:00:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4785C34601;
-        Mon, 13 Dec 2021 10:00:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 01BF9CE0DDE;
+        Mon, 13 Dec 2021 09:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A95E1C00446;
+        Mon, 13 Dec 2021 09:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389650;
-        bh=lujrZBCoAyyE7Zc4QDqaa8wcKuPXGjH4z1p1kBbQ8Ig=;
+        s=korg; t=1639389133;
+        bh=sg68J44qRYs5VJblzylihmVmIW1LKKXSLtAEAQTYjks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CplQfTMkIL8cvK6F4O4jsZhSeEFDi8aO26/gVfkkkB1hipkozCXbP4ti8+spAUP2+
-         ih1UGtEK2LguL/HIHbfb8XB4glIvxK5DvlICMsemJX6zxMeThSDFrH+/FqxYpX/3XI
-         cRFGV5NxjdYQR6yjKsk9rwQluxqFLExn5A8aBIGs=
+        b=WluRqfAFx55mtpU3iwJGBmXFyyySMx0puXN06NRjiATX98qAoKhPNog3M/LSow51f
+         xXyJ9HSNNcrb4fd2qKbcZmuS71BMfDRz1BygZ1TJ10MgvV5igX5NLcuDGuj/Z15CtI
+         GVsaWY7aPtErhnFBBlESvtxnMxU+pSiyPKhcqbnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Boger <boger@wirenboard.com>,
-        Chen-Yu Tsai <wens@csie.org>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 155/171] iio: adc: axp20x_adc: fix charging current reporting on AXP22x
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.10 129/132] kbuild: simplify GCC_PLUGINS enablement in dummy-tools/gcc
 Date:   Mon, 13 Dec 2021 10:31:10 +0100
-Message-Id: <20211213092950.212869112@linuxfoundation.org>
+Message-Id: <20211213092943.523382782@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,66 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Boger <boger@wirenboard.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 92beafb76a31bdc02649eb44e93a8e4f4cfcdbe8 upstream.
+commit f4c3b83b75b91c5059726cb91e3165cc01764ce7 upstream.
 
-Both the charging and discharging currents on AXP22x are stored as
-12-bit integers, in accordance with the datasheet.
-It's also confirmed by vendor BSP (axp20x_adc.c:axp22_icharge_to_mA).
+With commit 1e860048c53e ("gcc-plugins: simplify GCC plugin-dev
+capability test") applied, this hunk can be way simplified because
+now scripts/gcc-plugins/Kconfig only checks plugin-version.h
 
-The scale factor of 0.5 is never mentioned in datasheet, nor in the
-vendor source code. I think it was here to compensate for
-erroneous addition bit in register width.
-
-Tested on custom A40i+AXP221s board with external ammeter as
-a reference.
-
-Fixes: 0e34d5de961d ("iio: adc: add support for X-Powers AXP20X and AXP22X PMICs ADCs")
-Signed-off-by: Evgeny Boger <boger@wirenboard.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20211116213746.264378-1-boger@wirenboard.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/axp20x_adc.c |   18 +++---------------
- 1 file changed, 3 insertions(+), 15 deletions(-)
+ scripts/dummy-tools/gcc |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/drivers/iio/adc/axp20x_adc.c
-+++ b/drivers/iio/adc/axp20x_adc.c
-@@ -251,19 +251,8 @@ static int axp22x_adc_raw(struct iio_dev
- 			  struct iio_chan_spec const *chan, int *val)
- {
- 	struct axp20x_adc_iio *info = iio_priv(indio_dev);
--	int size;
+--- a/scripts/dummy-tools/gcc
++++ b/scripts/dummy-tools/gcc
+@@ -75,16 +75,12 @@ if arg_contain -S "$@"; then
+ 	fi
+ fi
  
--	/*
--	 * N.B.: Unlike the Chinese datasheets tell, the charging current is
--	 * stored on 12 bits, not 13 bits. Only discharging current is on 13
--	 * bits.
--	 */
--	if (chan->type == IIO_CURRENT && chan->channel == AXP22X_BATT_DISCHRG_I)
--		size = 13;
--	else
--		size = 12;
--
--	*val = axp20x_read_variable_width(info->regmap, chan->address, size);
-+	*val = axp20x_read_variable_width(info->regmap, chan->address, 12);
- 	if (*val < 0)
- 		return *val;
+-# For scripts/gcc-plugin.sh
++# To set GCC_PLUGINS
+ if arg_contain -print-file-name=plugin "$@"; then
+ 	plugin_dir=$(mktemp -d)
  
-@@ -386,9 +375,8 @@ static int axp22x_adc_scale(struct iio_c
- 		return IIO_VAL_INT_PLUS_MICRO;
+-	sed -n 's/.*#include "\(.*\)"/\1/p' $(dirname $0)/../gcc-plugins/gcc-common.h |
+-	while read header
+-	do
+-		mkdir -p $plugin_dir/include/$(dirname $header)
+-		touch $plugin_dir/include/$header
+-	done
++	mkdir -p $plugin_dir/include
++	touch $plugin_dir/include/plugin-version.h
  
- 	case IIO_CURRENT:
--		*val = 0;
--		*val2 = 500000;
--		return IIO_VAL_INT_PLUS_MICRO;
-+		*val = 1;
-+		return IIO_VAL_INT;
- 
- 	case IIO_TEMP:
- 		*val = 100;
+ 	echo $plugin_dir
+ 	exit 0
 
 
