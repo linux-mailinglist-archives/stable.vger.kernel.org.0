@@ -2,150 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ECA84731C4
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 17:27:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AF04731DE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 17:33:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236217AbhLMQ14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 11:27:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40740 "EHLO
+        id S237790AbhLMQdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 11:33:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234495AbhLMQ1z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 11:27:55 -0500
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611DFC061574;
-        Mon, 13 Dec 2021 08:27:55 -0800 (PST)
-Received: by mail-yb1-xb2d.google.com with SMTP id v64so39610039ybi.5;
-        Mon, 13 Dec 2021 08:27:55 -0800 (PST)
+        with ESMTP id S233962AbhLMQdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 11:33:19 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36C32C061574
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:33:19 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id h24so12257056pjq.2
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:33:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=hwHeOyBhVF+xpEC9/lpWfLu35Pjic1p8DmLhAMTSq18=;
-        b=Y4yVhJxegWDcu4mQDrq6g5r6zxmLqqoynynNHa1o1ZGJndGbBcdBh+EzF+76J8pqqh
-         A8AhE64hb2g3Y0A8cMtB52Swp/tfDZYcsc3sWCYgT/G9zzrE1mvw2CDwqEQkZpnM/hiq
-         UeN2dAtKQE0KYmSFC6RMijXmtO9y+9+pJcERFaulvFd/vCp+wxbCRf3GaTbk2nwlWg2x
-         CG6w1iSwz5oOh9tT9R6TApr02MNiurL1DEt7fxWps5R2ZvFwLD3/O22C7WW/Z40GUjLR
-         Jzgo06TzyZ9GWExCoswEOcOD8pQir6vD9+Admzhk/qNwpJIhDutbC+sldvLiAm814j3U
-         X0lQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rXBM6wTpJzIaccfPil4ljsHPSZBd6g643I/t3WHZkfs=;
+        b=F0osr4l6vcuQb5LM2tx9aYGdrCajzR9N1Xdj+qZ8hq929DEtGXyz4s3mezKjOJgS1t
+         vHcHAEeIFHxtox2B5Ll7vAkkbFgkc9Smf/R8VX8+TM6yC8AEKGCxQVVQufslEoQwBSyG
+         b7o2hGiPTZc1ABSXaKZPibL2P28XoQiDujV3jzZo6QpYmAt7D2xHS96OQylmf1cN3YB/
+         DT0giQv1XFIO66u7Lctd/mYY7gRP2vfQo1h2t5X6NeKR/pztXuXDUcpWsNW5FgYakJIW
+         Llo/tITO7de0hRD6apdnEAiu/KAnMJjH58ukoixuVTwGZWJhvSFKBbY59O92pvtje1FA
+         UjBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=hwHeOyBhVF+xpEC9/lpWfLu35Pjic1p8DmLhAMTSq18=;
-        b=m68yIBokk/CStjvw2re5bIYqalfMLSsdQLnqLSyHJE6tdMCbJANoue7WKgJgdyQVR6
-         WBh8D509j8bAi76Gz9IMxHw6SUI6dDxDmAzDovheEj9wLEa0Cb6xEjdpMXQuEWWUg6Ar
-         M5bNOUsiJNBlvHXCBPoWdNj+GAnJOd9GrIuDnkY7LFXM29P6wDyxVwg5e8oAWkEXadbJ
-         GFFa/tMgQshSDxALyivYMT+jlPQOCdR4R4pMHi5Eu3EDGCH7jZslW7XsIQ45nfHMc7P9
-         7lhX7xXFhaSwvYoD/+BMgviUzx7yxUZ7vXgyaDbn5UsDj8FDEkai0Y6r/zlv1ec8CfZz
-         8GrA==
-X-Gm-Message-State: AOAM533Y7Rr7J7P4A/U9DTVLY9HTkj5Bf02btKxCNiYrsktTL8d28KwI
-        n8Ps2qVvXN8234d/F4gDty4dCVT+OO8jSCumCABWuflkhm0=
-X-Google-Smtp-Source: ABdhPJyyXLQj/hPoLkLLRloyy4F+FZbBM6jX1lp6NcEq0V+gpsOFNGIjSTH8jIhDk5iMz1Kigo9cYgplud4KIyKqlfc=
-X-Received: by 2002:a25:d4c:: with SMTP id 73mr32740326ybn.74.1639412874604;
- Mon, 13 Dec 2021 08:27:54 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rXBM6wTpJzIaccfPil4ljsHPSZBd6g643I/t3WHZkfs=;
+        b=KKw/xoR0vZg7SKHWLWkdvS3VrVNxQi0/PfMhpA50V5G7OjqEUdJZsjTMP/469ElyP/
+         Fw8DBDmjO8mJOLjMcIso+LhqmDv7AUJp4/atu+mbahPrTzaxDQIeQrN3+fbvyB/DVcqP
+         mpkTYIY/2su/rQcCwExVXrnrcGspqJUssO0CceUrtfYtiLHoImicuyReeMqd0hsyxqX1
+         CZjnQp53hRPX/s/Fe1gYPrrlUZsLuVXQ/Qz2A7frglSo7XjX5BNLdYQRVDySgJjqf922
+         2lahopy8zRr8dthKSWRjpLZBfTGKU4thkBmHs4W9klbu1bbm4WqRnFEsCiqTX9Ia67lG
+         jyzQ==
+X-Gm-Message-State: AOAM530DGbjY2ssMoTXGpZgBR7jYFJ8+o9OZQsYqs+4PuhniWA7cOkv9
+        mRJ8OxSC4C1SGgUZSRDwXfmVOp0P+cSiXsBY
+X-Google-Smtp-Source: ABdhPJydRMl7a1yelohifif95G73qvbrkqooWElQZAOpI7Lg1z2TCDC7Hl5rYnicv/qXJp+l8+jtWQ==
+X-Received: by 2002:a17:902:6b46:b0:142:8470:862e with SMTP id g6-20020a1709026b4600b001428470862emr97170805plt.49.1639413198504;
+        Mon, 13 Dec 2021 08:33:18 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y25sm10680224pgk.47.2021.12.13.08.33.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Dec 2021 08:33:18 -0800 (PST)
+Message-ID: <61b775ce.1c69fb81.ef402.dcdd@mx.google.com>
+Date:   Mon, 13 Dec 2021 08:33:18 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20211213092930.763200615@linuxfoundation.org>
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Mon, 13 Dec 2021 16:27:18 +0000
-Message-ID: <CADVatmPsqW050=k07RDChjnf_F+MJfkLzHiRcdeoWQ7Mws_qMw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/74] 4.19.221-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.220-75-gc65e8cddade7
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y baseline: 195 runs,
+ 3 regressions (v4.19.220-75-gc65e8cddade7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-HI Greg,
+stable-rc/linux-4.19.y baseline: 195 runs, 3 regressions (v4.19.220-75-gc65=
+e8cddade7)
 
-On Mon, Dec 13, 2021 at 9:51 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.221 release.
-> There are 74 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
-> Anything received after that time might be too late.
+Regressions Summary
+-------------------
 
-Just an initial report. mips allmodconfig is failing with the following error.
+platform                 | arch   | lab           | compiler | defconfig   =
+          | regressions
+-------------------------+--------+---------------+----------+-------------=
+----------+------------
+da850-lcdk               | arm    | lab-baylibre  | gcc-10   | davinci_all_=
+defconfig | 2          =
 
-drivers/spi/spi-sh-msiof.c:78: warning: "STR" redefined
-   78 | #define STR     0x40    /* Status Register */
-      |
-In file included from ./arch/mips/include/asm/mach-generic/spaces.h:15,
-                 from ./arch/mips/include/asm/addrspace.h:13,
-                 from ./arch/mips/include/asm/barrier.h:11,
-                 from ./include/linux/compiler.h:320,
-                 from ./arch/mips/include/asm/bitops.h:16,
-                 from ./include/linux/bitops.h:19,
-                 from ./include/linux/bitmap.h:8,
-                 from drivers/spi/spi-sh-msiof.c:14:
-./arch/mips/include/asm/mipsregs.h:30: note: this is the location of
-the previous definition
-   30 | #define STR(x) __STR(x)
-      |
-In file included from ./arch/mips/include/asm/sibyte/sb1250.h:41,
-                 from drivers/watchdog/sb_wdog.c:58:
-./arch/mips/include/asm/sibyte/bcm1480_scd.h:274: warning:
-"M_SPC_CFG_CLEAR" redefined
-  274 | #define M_SPC_CFG_CLEAR                 M_BCM1480_SPC_CFG_CLEAR
-      |
-In file included from ./arch/mips/include/asm/sibyte/sb1250.h:40,
-                 from drivers/watchdog/sb_wdog.c:58:
-./arch/mips/include/asm/sibyte/sb1250_scd.h:405: note: this is the
-location of the previous definition
-  405 | #define M_SPC_CFG_CLEAR         _SB_MAKEMASK1(32)
-      |
-In file included from ./arch/mips/include/asm/sibyte/sb1250.h:41,
-                 from drivers/watchdog/sb_wdog.c:58:
-./arch/mips/include/asm/sibyte/bcm1480_scd.h:275: warning:
-"M_SPC_CFG_ENABLE" redefined
-  275 | #define M_SPC_CFG_ENABLE                M_BCM1480_SPC_CFG_ENABLE
-      |
-In file included from ./arch/mips/include/asm/sibyte/sb1250.h:40,
-                 from drivers/watchdog/sb_wdog.c:58:
-./arch/mips/include/asm/sibyte/sb1250_scd.h:406: note: this is the
-location of the previous definition
-  406 | #define M_SPC_CFG_ENABLE        _SB_MAKEMASK1(33)
-      |
-/src/gcc-10/bin/mips-linux-ld:
-arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o: in function
-`__dtb_ocelot_pcb123_begin':
-(.dtb.init.rodata+0x0): multiple definition of
-`__dtb_ocelot_pcb123_begin';
-arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o:(.dtb.init.rodata+0x0):
-first defined here
-/src/gcc-10/bin/mips-linux-ld:
-arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o: in function
-`__dtb_ocelot_pcb123_end':
-(.dtb.init.rodata+0x1003): multiple definition of
-`__dtb_ocelot_pcb123_end';
-arch/mips/boot/dts/mscc/ocelot_pcb123.dtb.o:(.dtb.init.rodata+0x1003):
-first defined here
-/src/gcc-10/bin/mips-linux-ld: arch/mips/boot/dts/mti/sead3.dtb.o: in
-function `__dtb_sead3_begin':
-(.dtb.init.rodata+0x0): multiple definition of `__dtb_sead3_begin';
-arch/mips/boot/dts/mti/sead3.dtb.o:(.dtb.init.rodata+0x0): first
-defined here
-/src/gcc-10/bin/mips-linux-ld: arch/mips/boot/dts/mti/sead3.dtb.o: in
-function `__dtb_sead3_end':
-(.dtb.init.rodata+0x100b): multiple definition of `__dtb_sead3_end';
-arch/mips/boot/dts/mti/sead3.dtb.o:(.dtb.init.rodata+0x100b): first
-defined here
-make: *** [Makefile:1046: vmlinux] Error 1
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig      | 1          =
 
 
--- 
-Regards
-Sudip
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.220-75-gc65e8cddade7/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.220-75-gc65e8cddade7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c65e8cddade7ba91d6b7438b4746b7b02a83bb72 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+          | regressions
+-------------------------+--------+---------------+----------+-------------=
+----------+------------
+da850-lcdk               | arm    | lab-baylibre  | gcc-10   | davinci_all_=
+defconfig | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b73b860b3150786c39715d
+
+  Results:     4 PASS, 2 FAIL, 0 SKIP
+  Full config: davinci_all_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+20-75-gc65e8cddade7/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-=
+da850-lcdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+20-75-gc65e8cddade7/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-=
+da850-lcdk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61b73b860b31507=
+86c397161
+        new failure (last pass: v4.19.220-51-gab7df26443b3)
+        3 lines
+
+    2021-12-13T12:24:24.829103  kern  :alert : BUG: Bad page state in proce=
+ss swapper  pfn:c3400
+    2021-12-13T12:24:24.829362  kern  :alert : raw: 00000000 00000100 00000=
+200 00000000 00000004 0000000a ffffff7f 00000000
+    2021-12-13T12:24:24.829545  kern  :alert : page dumped because: nonzero=
+ mapcount
+    2021-12-13T12:24:24.887615  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
+rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D3>   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b73b860b31507=
+86c397162
+        new failure (last pass: v4.19.220-51-gab7df26443b3)
+        2 lines
+
+    2021-12-13T12:24:25.025536  kern  :emerg : page:c6f51000 count:0 mapcou=
+nt:-128 mapping:00000000 index:0x4
+    2021-12-13T12:24:25.025786  kern  :emerg : flags: 0x0()
+    2021-12-13T12:24:25.109451  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Deme=
+rg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>
+    2021-12-13T12:24:25.109772  + set +x
+    2021-12-13T12:24:25.109961  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 1235390_1.5.=
+2.4.1>   =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+          | regressions
+-------------------------+--------+---------------+----------+-------------=
+----------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b73d75b92f020c48397127
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+20-75-gc65e8cddade7/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-m=
+innowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+20-75-gc65e8cddade7/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-m=
+innowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b73d75b92f020c48397=
+128
+        new failure (last pass: v4.19.220-51-gab7df26443b3) =
+
+ =20
