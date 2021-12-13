@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 045B64723E7
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1C24724AA
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233818AbhLMJck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:32:40 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:57608 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233823AbhLMJci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:32:38 -0500
+        id S234091AbhLMJhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:37:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54736 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234638AbhLMJgb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:36:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA3EC0617A2;
+        Mon, 13 Dec 2021 01:36:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CA0C3CE0E70;
-        Mon, 13 Dec 2021 09:32:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 780AFC00446;
-        Mon, 13 Dec 2021 09:32:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A8A07CE0E82;
+        Mon, 13 Dec 2021 09:36:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52BA2C00446;
+        Mon, 13 Dec 2021 09:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639387955;
-        bh=7+5zNHN+hDJj+UV/O+NyaKEV3dUoou/DsJfDHGM2JEM=;
+        s=korg; t=1639388184;
+        bh=+PfCJkbJZsskR/GCh/m+ZdAW7iA2MMayYcLX+c/hYpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAtJUHlPClN060siFcMBFNmdah8Jsa1m9E051+Nf1oNMiaNR88FUAE+AUkC+F+hQM
-         GATOXXnu56IjXeSexSIY3FRTtuOyW0PiCbXntCS+t8sGWSvfUsBN8UFLnhKmk9OZkd
-         d6M/6S1fkoiJ3+91un80wS6NOpcy9ZNkB6NKXiVk=
+        b=OKupRid35xfXOsWUpIG0ZtqtShyTlGo/HjAdVvRUz4Wxfg36BGCbWDATOilRYNw4L
+         /JxHnHIryLyqXAmdxdpZvq/D7QNUBP6q/vnSN0VhxAo534cn8LS91lcVfx/XGLbKhh
+         xQy22kJaBiz/nvcq+JjIV56oDEX6+aCOERLNokS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.4 17/37] libata: add horkage for ASMedia 1092
+        stable@vger.kernel.org,
+        syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com,
+        Bixuan Cui <cuibixuan@linux.alibaba.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 16/53] ALSA: pcm: oss: Limit the period size to 16MB
 Date:   Mon, 13 Dec 2021 10:29:55 +0100
-Message-Id: <20211213092925.931096642@linuxfoundation.org>
+Message-Id: <20211213092928.901248256@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit a66307d473077b7aeba74e9b09c841ab3d399c2d upstream.
+commit 8839c8c0f77ab8fc0463f4ab8b37fca3f70677c2 upstream.
 
-The ASMedia 1092 has a configuration mode which will present a
-dummy device; sadly the implementation falsely claims to provide
-a device with 100M which doesn't actually exist.
-So disable this device to avoid errors during boot.
+Set the practical limit to the period size (the fragment shift in OSS)
+instead of a full 31bit; a too large value could lead to the exhaust
+of memory as we allocate temporary buffers of the period size, too.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+As of this patch, we set to 16MB limit, which should cover all use
+cases.
+
+Reported-by: syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com
+Reported-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1638270978-42412-1-git-send-email-cuibixuan@linux.alibaba.com
+Link: https://lore.kernel.org/r/20211201073606.11660-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/oss/pcm_oss.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -4153,6 +4153,8 @@ static const struct ata_blacklist_entry
- 	{ " 2GB ATA Flash Disk", "ADMA428M",	ATA_HORKAGE_NODMA },
- 	/* Odd clown on sil3726/4726 PMPs */
- 	{ "Config  Disk",	NULL,		ATA_HORKAGE_DISABLE },
-+	/* Similar story with ASMedia 1092 */
-+	{ "ASMT109x- Config",	NULL,		ATA_HORKAGE_DISABLE },
- 
- 	/* Weird ATAPI devices */
- 	{ "TORiSAN DVD-ROM DRD-N216", NULL,	ATA_HORKAGE_MAX_SEC_128 },
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -1967,7 +1967,7 @@ static int snd_pcm_oss_set_fragment1(str
+ 	if (runtime->oss.subdivision || runtime->oss.fragshift)
+ 		return -EINVAL;
+ 	fragshift = val & 0xffff;
+-	if (fragshift >= 31)
++	if (fragshift >= 25) /* should be large enough */
+ 		return -EINVAL;
+ 	runtime->oss.fragshift = fragshift;
+ 	runtime->oss.maxfrags = (val >> 16) & 0xffff;
 
 
