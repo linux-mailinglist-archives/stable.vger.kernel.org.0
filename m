@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8848B4725DB
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:46:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10A574728B2
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234086AbhLMJqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:46:51 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58402 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235494AbhLMJou (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:44:50 -0500
+        id S237465AbhLMKO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:14:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241565AbhLMKEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:04:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D61DDC0A884E;
+        Mon, 13 Dec 2021 01:50:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAFDCB80E24;
-        Mon, 13 Dec 2021 09:44:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F14FBC00446;
-        Mon, 13 Dec 2021 09:44:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2D6EACE0E80;
+        Mon, 13 Dec 2021 09:50:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC896C341D1;
+        Mon, 13 Dec 2021 09:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388687;
-        bh=TzRbTAmIN2O4nc2nTlH7ECyI3bJrKjXsUDTA/pyPUrc=;
+        s=korg; t=1639389024;
+        bh=O1rGbeM+QFTKhlttew1jIY/ZN2P9IprCP5VGVSIGuT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkn196UFJ3t2EuCK2wtFmx9u/+bfg9+AAfDTGG8+SciFVCQtSLQFcNzqHrqE+Ebdf
-         imFDEn9Cs/Sqe2Eu++3C3ngZlnIBaqt6EcitV7jQyn0IsUkL82efgle495Mpp5Tt0m
-         Wu+7FqERwiz4bw9uXCQyIcJfCBlCeLYU1Aa+2pkk=
+        b=B2J6s306RwLi+NZCLgtzPbDucvA4ekCrwbU593xV/QXdC1uPqNkZQZjCpOBLK6ioz
+         7rKdw6zYNS+WaD2IwJQr8hE0hA19zHSIY3KsgH+cFRt6oZoKOyjKBk6juPHetY/kTS
+         QPKW4oBO5X6qOA46Q5HETdop5w7kTaMwa43FKQTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 63/88] selftests/fib_tests: Rework fib_rp_filter_test()
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.10 092/132] dt-bindings: net: Reintroduce PHY no lane swap binding
 Date:   Mon, 13 Dec 2021 10:30:33 +0100
-Message-Id: <20211213092935.441206053@linuxfoundation.org>
+Message-Id: <20211213092942.268649660@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,167 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-commit f6071e5e3961eeb5300bd0901c9e128598730ae3 upstream.
+commit 96db48c9d777a73a33b1d516c5cfed7a417a5f40 upstream.
 
-Currently rp_filter tests in fib_tests.sh:fib_rp_filter_test() are
-failing.  ping sockets are bound to dummy1 using the "-I" option
-(SO_BINDTODEVICE), but socket lookup is failing when receiving ping
-replies, since the routing table thinks they belong to dummy0.
+This binding was already documented in phy.txt, commit 252ae5330daa
+("Documentation: devicetree: Add PHY no lane swap binding"), but got
+accidently removed during YAML conversion in commit d8704342c109
+("dt-bindings: net: Add a YAML schemas for the generic PHY options").
 
-For example, suppose ping is using a SOCK_RAW socket for ICMP messages.
-When receiving ping replies, in __raw_v4_lookup(), sk->sk_bound_dev_if
-is 3 (dummy1), but dif (skb_rtable(skb)->rt_iif) says 2 (dummy0), so the
-raw_sk_bound_dev_eq() check fails.  Similar things happen in
-ping_lookup() for SOCK_DGRAM sockets.
+Note: 'enet-phy-lane-no-swap' and the absence of 'enet-phy-lane-swap' are
+not identical, as the former one disable this feature, while the latter
+one doesn't change anything.
 
-These tests used to pass due to a bug [1] in iputils, where "ping -I"
-actually did not bind ICMP message sockets to device.  The bug has been
-fixed by iputils commit f455fee41c07 ("ping: also bind the ICMP socket
-to the specific device") in 2016, which is why our rp_filter tests
-started to fail.  See [2] .
-
-Fixing the tests while keeping everything in one netns turns out to be
-nontrivial.  Rework the tests and build the following topology:
-
- ┌─────────────────────────────┐    ┌─────────────────────────────┐
- │  network namespace 1 (ns1)  │    │  network namespace 2 (ns2)  │
- │                             │    │                             │
- │  ┌────┐     ┌─────┐         │    │  ┌─────┐            ┌────┐  │
- │  │ lo │<───>│veth1│<────────┼────┼─>│veth2│<──────────>│ lo │  │
- │  └────┘     ├─────┴──────┐  │    │  ├─────┴──────┐     └────┘  │
- │             │192.0.2.1/24│  │    │  │192.0.2.1/24│             │
- │             └────────────┘  │    │  └────────────┘             │
- └─────────────────────────────┘    └─────────────────────────────┘
-
-Consider sending an ICMP_ECHO packet A in ns2.  Both source and
-destination IP addresses are 192.0.2.1, and we use strict mode rp_filter
-in both ns1 and ns2:
-
-  1. A is routed to lo since its destination IP address is one of ns2's
-     local addresses (veth2);
-  2. A is redirected from lo's egress to veth2's egress using mirred;
-  3. A arrives at veth1's ingress in ns1;
-  4. A is redirected from veth1's ingress to lo's ingress, again, using
-     mirred;
-  5. In __fib_validate_source(), fib_info_nh_uses_dev() returns false,
-     since A was received on lo, but reverse path lookup says veth1;
-  6. However A is not dropped since we have relaxed this check for lo in
-     commit 66f8209547cc ("fib: relax source validation check for loopback
-     packets");
-
-Making sure A is not dropped here in this corner case is the whole point
-of having this test.
-
-  7. As A reaches the ICMP layer, an ICMP_ECHOREPLY packet, B, is
-     generated;
-  8. Similarly, B is redirected from lo's egress to veth1's egress (in
-     ns1), then redirected once again from veth2's ingress to lo's
-     ingress (in ns2), using mirred.
-
-Also test "ping 127.0.0.1" from ns2.  It does not trigger the relaxed
-check in __fib_validate_source(), but just to make sure the topology
-works with loopback addresses.
-
-Tested with ping from iputils 20210722-41-gf9fb573:
-
-$ ./fib_tests.sh -t rp_filter
-
-IPv4 rp_filter tests
-    TEST: rp_filter passes local packets		[ OK ]
-    TEST: rp_filter passes loopback packets		[ OK ]
-
-[1] https://github.com/iputils/iputils/issues/55
-[2] https://github.com/iputils/iputils/commit/f455fee41c077d4b700a473b2f5b3487b8febc1d
-
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
-Fixes: adb701d6cfa4 ("selftests: add a test case for rp_filter")
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Acked-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211201004720.6357-1-yepeilin.cs@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d8704342c109 ("dt-bindings: net: Add a YAML schemas for the generic PHY options")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20211130082756.713919-1-alexander.stein@ew.tq-group.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/fib_tests.sh |   59 +++++++++++++++++++++++++------
- 1 file changed, 49 insertions(+), 10 deletions(-)
+ Documentation/devicetree/bindings/net/ethernet-phy.yaml |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/tools/testing/selftests/net/fib_tests.sh
-+++ b/tools/testing/selftests/net/fib_tests.sh
-@@ -444,24 +444,63 @@ fib_rp_filter_test()
- 	setup
+--- a/Documentation/devicetree/bindings/net/ethernet-phy.yaml
++++ b/Documentation/devicetree/bindings/net/ethernet-phy.yaml
+@@ -91,6 +91,14 @@ properties:
+       compensate for the board being designed with the lanes
+       swapped.
  
- 	set -e
-+	ip netns add ns2
-+	ip netns set ns2 auto
++  enet-phy-lane-no-swap:
++    $ref: /schemas/types.yaml#/definitions/flag
++    description:
++      If set, indicates that PHY will disable swap of the
++      TX/RX lanes. This property allows the PHY to work correcly after
++      e.g. wrong bootstrap configuration caused by issues in PCB
++      layout design.
 +
-+	ip -netns ns2 link set dev lo up
-+
-+	$IP link add name veth1 type veth peer name veth2
-+	$IP link set dev veth2 netns ns2
-+	$IP address add 192.0.2.1/24 dev veth1
-+	ip -netns ns2 address add 192.0.2.1/24 dev veth2
-+	$IP link set dev veth1 up
-+	ip -netns ns2 link set dev veth2 up
-+
- 	$IP link set dev lo address 52:54:00:6a:c7:5e
--	$IP link set dummy0 address 52:54:00:6a:c7:5e
--	$IP link add dummy1 type dummy
--	$IP link set dummy1 address 52:54:00:6a:c7:5e
--	$IP link set dev dummy1 up
-+	$IP link set dev veth1 address 52:54:00:6a:c7:5e
-+	ip -netns ns2 link set dev lo address 52:54:00:6a:c7:5e
-+	ip -netns ns2 link set dev veth2 address 52:54:00:6a:c7:5e
-+
-+	# 1. (ns2) redirect lo's egress to veth2's egress
-+	ip netns exec ns2 tc qdisc add dev lo parent root handle 1: fq_codel
-+	ip netns exec ns2 tc filter add dev lo parent 1: protocol arp basic \
-+		action mirred egress redirect dev veth2
-+	ip netns exec ns2 tc filter add dev lo parent 1: protocol ip basic \
-+		action mirred egress redirect dev veth2
-+
-+	# 2. (ns1) redirect veth1's ingress to lo's ingress
-+	$NS_EXEC tc qdisc add dev veth1 ingress
-+	$NS_EXEC tc filter add dev veth1 ingress protocol arp basic \
-+		action mirred ingress redirect dev lo
-+	$NS_EXEC tc filter add dev veth1 ingress protocol ip basic \
-+		action mirred ingress redirect dev lo
-+
-+	# 3. (ns1) redirect lo's egress to veth1's egress
-+	$NS_EXEC tc qdisc add dev lo parent root handle 1: fq_codel
-+	$NS_EXEC tc filter add dev lo parent 1: protocol arp basic \
-+		action mirred egress redirect dev veth1
-+	$NS_EXEC tc filter add dev lo parent 1: protocol ip basic \
-+		action mirred egress redirect dev veth1
-+
-+	# 4. (ns2) redirect veth2's ingress to lo's ingress
-+	ip netns exec ns2 tc qdisc add dev veth2 ingress
-+	ip netns exec ns2 tc filter add dev veth2 ingress protocol arp basic \
-+		action mirred ingress redirect dev lo
-+	ip netns exec ns2 tc filter add dev veth2 ingress protocol ip basic \
-+		action mirred ingress redirect dev lo
-+
- 	$NS_EXEC sysctl -qw net.ipv4.conf.all.rp_filter=1
- 	$NS_EXEC sysctl -qw net.ipv4.conf.all.accept_local=1
- 	$NS_EXEC sysctl -qw net.ipv4.conf.all.route_localnet=1
--
--	$NS_EXEC tc qd add dev dummy1 parent root handle 1: fq_codel
--	$NS_EXEC tc filter add dev dummy1 parent 1: protocol arp basic action mirred egress redirect dev lo
--	$NS_EXEC tc filter add dev dummy1 parent 1: protocol ip basic action mirred egress redirect dev lo
-+	ip netns exec ns2 sysctl -qw net.ipv4.conf.all.rp_filter=1
-+	ip netns exec ns2 sysctl -qw net.ipv4.conf.all.accept_local=1
-+	ip netns exec ns2 sysctl -qw net.ipv4.conf.all.route_localnet=1
- 	set +e
- 
--	run_cmd "ip netns exec ns1 ping -I dummy1 -w1 -c1 198.51.100.1"
-+	run_cmd "ip netns exec ns2 ping -w1 -c1 192.0.2.1"
- 	log_test $? 0 "rp_filter passes local packets"
- 
--	run_cmd "ip netns exec ns1 ping -I dummy1 -w1 -c1 127.0.0.1"
-+	run_cmd "ip netns exec ns2 ping -w1 -c1 127.0.0.1"
- 	log_test $? 0 "rp_filter passes loopback packets"
- 
- 	cleanup
+   eee-broken-100tx:
+     $ref: /schemas/types.yaml#definitions/flag
+     description:
 
 
