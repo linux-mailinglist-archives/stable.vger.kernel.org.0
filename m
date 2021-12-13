@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A68984727CD
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 768CD4728BE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236465AbhLMKFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:05:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47430 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235820AbhLMKB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:27 -0500
+        id S239405AbhLMKOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:14:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32984 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241891AbhLMKGr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:06:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0157DC0A8893;
+        Mon, 13 Dec 2021 01:51:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47166B80E7E;
-        Mon, 13 Dec 2021 10:01:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C34AC34604;
-        Mon, 13 Dec 2021 10:01:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4D769CE0B59;
+        Mon, 13 Dec 2021 09:51:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC3D9C341C5;
+        Mon, 13 Dec 2021 09:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389685;
-        bh=+vPKmXZOpbaI6eDKbLOaBp7RHLbNQ+ECGVLPet+BzDI=;
+        s=korg; t=1639389067;
+        bh=IcngUNkqDIZ7UUsfXclrbopSXN3a1H6m5c4J5sEZrWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fVo/5Uc/Udg8hDX5nUFDXFcmPoZZZhFIFY45w6WF4oTr+nTUneYYNuwKzhtMlr3FK
-         rDwMz72Rjhu58fsNFJCclDkkwOH6WMYek5mOYtezIQVpdCLC5Vu1+4IYnC73r3kSGE
-         BT0Qwgho/coonmJMV6dpkqCTCruVorjpo4B1xLKI=
+        b=TbzZpAuN8QgzVLUOFrqjf1C8N0oIyI6Sbf3Httg8DmwcwkJTthocZjZyq+t2TVkpM
+         ruGBrO7i2LaudIl8UObD0JAi0KRDx8S7kj6QOLWDriMzqui46ot3NmhrjdBmmWM+83
+         TNbV6u61jp2Dp2wp9U8RH7cxlgCHCsJ9gad6KLNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 131/171] net: altera: set a couple error code in probe()
-Date:   Mon, 13 Dec 2021 10:30:46 +0100
-Message-Id: <20211213092949.452648228@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kister Genesis Jimenez <kister.jimenez@analog.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 106/132] iio: gyro: adxrs290: fix data signedness
+Date:   Mon, 13 Dec 2021 10:30:47 +0100
+Message-Id: <20211213092942.732305345@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +51,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Kister Genesis Jimenez <kister.jimenez@analog.com>
 
-commit badd7857f5c933a3dc34942a2c11d67fdbdc24de upstream.
+commit fde272e78e004a45c7e4976876277d7e6a5a0ede upstream.
 
-There are two error paths which accidentally return success instead of
-a negative error code.
+Properly sign-extend the rate and temperature data.
 
-Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2c8920fff1457 ("iio: gyro: Add driver support for ADXRS290")
+Signed-off-by: Kister Genesis Jimenez <kister.jimenez@analog.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20211115104147.18669-1-nuno.sa@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/altera/altera_tse_main.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iio/gyro/adxrs290.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/altera/altera_tse_main.c
-+++ b/drivers/net/ethernet/altera/altera_tse_main.c
-@@ -1430,16 +1430,19 @@ static int altera_tse_probe(struct platf
- 		priv->rxdescmem_busaddr = dma_res->start;
+--- a/drivers/iio/gyro/adxrs290.c
++++ b/drivers/iio/gyro/adxrs290.c
+@@ -7,6 +7,7 @@
+  */
  
- 	} else {
-+		ret = -ENODEV;
- 		goto err_free_netdev;
+ #include <linux/bitfield.h>
++#include <linux/bitops.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/kernel.h>
+@@ -124,7 +125,7 @@ static int adxrs290_get_rate_data(struct
+ 		goto err_unlock;
  	}
  
--	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask)))
-+	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask))) {
- 		dma_set_coherent_mask(priv->device,
- 				      DMA_BIT_MASK(priv->dmaops->dmamask));
--	else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32)))
-+	} else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32))) {
- 		dma_set_coherent_mask(priv->device, DMA_BIT_MASK(32));
--	else
-+	} else {
-+		ret = -EIO;
- 		goto err_free_netdev;
-+	}
+-	*val = temp;
++	*val = sign_extend32(temp, 15);
  
- 	/* MAC address space */
- 	ret = request_and_map(pdev, "control_port", &control_port,
+ err_unlock:
+ 	mutex_unlock(&st->lock);
+@@ -146,7 +147,7 @@ static int adxrs290_get_temp_data(struct
+ 	}
+ 
+ 	/* extract lower 12 bits temperature reading */
+-	*val = temp & 0x0FFF;
++	*val = sign_extend32(temp, 11);
+ 
+ err_unlock:
+ 	mutex_unlock(&st->lock);
 
 
