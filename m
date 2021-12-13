@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2858347255C
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0668A472470
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234673AbhLMJna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55822 "EHLO
+        id S234121AbhLMJgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:36:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235111AbhLMJkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:09 -0500
+        with ESMTP id S234103AbhLMJfU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64692C0698FB;
-        Mon, 13 Dec 2021 01:38:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BAD3C0698C6;
+        Mon, 13 Dec 2021 01:35:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CD71B80E23;
-        Mon, 13 Dec 2021 09:38:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55EA6C341CA;
-        Mon, 13 Dec 2021 09:38:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB0BDB80E18;
+        Mon, 13 Dec 2021 09:35:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F68BC00446;
+        Mon, 13 Dec 2021 09:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388308;
-        bh=O1PGDriwSHEBuP3uf4Ecckevvwq7N6/cAK0xB98i31o=;
+        s=korg; t=1639388118;
+        bh=fwKfU68T5Hd0pP7zVDoYkgUMpmAPRlZHPW4STjVw6ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1xm5VO/bk1IP5nNrQWhB0d7bxXl+6330iKkGYQhSYnt8nGrZ39SR42AOzdDV1kyl
-         66PZ+WLa6mOqmx0OId1PLmfwA5nFi3ENTXg71oSmlH90GmflSzu+W6j23FEFAUcV/I
-         tiTxjqdlYaP5NXRUlyq3dSj7Fnt+yoIazitV6POs=
+        b=mFBgn6LorfEBBkxaJsJCCm0aHGtkguvStZb+rb91H7ZgbGZ/71QttzTl2gyZwXzZ8
+         BO+iTEnw3tx/aJsi0lwaxOq48OPe3rav86JxomuIakc5p18VtonLK9KsPZQylJ/QY4
+         qtFHrolZYbcYXsaPB9q9bqTmn0Sbpgrd+4U2NPCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Pavel Hofman <pavel.hofman@ivitera.com>
-Subject: [PATCH 4.14 38/53] usb: core: config: using bit mask instead of individual bits
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 35/42] iio: ltr501: Dont return error code in trigger handler
 Date:   Mon, 13 Dec 2021 10:30:17 +0100
-Message-Id: <20211213092929.626174353@linuxfoundation.org>
+Message-Id: <20211213092927.702177942@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,34 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Hofman <pavel.hofman@ivitera.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit ca5737396927afd4d57b133fd2874bbcf3421cdb upstream.
+commit ef9d67fa72c1b149a420587e435a3e888bdbf74f upstream.
 
-Using standard USB_EP_MAXP_MULT_MASK instead of individual bits for
-extracting multiple-transactions bits from wMaxPacketSize value.
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
-Link: https://lore.kernel.org/r/20211210085219.16796-2-pavel.hofman@ivitera.com
+The ltr501 interrupt handler gets this right for most error paths, but
+there is one case where it returns the error code.
+
+In addition for this particular case the trigger handler does not call
+`iio_trigger_notify_done()`. Which when not done keeps the triggered
+disabled forever.
+
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
+
+Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024171251.22896-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/config.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/light/ltr501.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -425,9 +425,9 @@ static int usb_parse_endpoint(struct dev
- 		maxpacket_maxes = full_speed_maxpacket_maxes;
- 		break;
- 	case USB_SPEED_HIGH:
--		/* Bits 12..11 are allowed only for HS periodic endpoints */
-+		/* Multiple-transactions bits are allowed only for HS periodic endpoints */
- 		if (usb_endpoint_xfer_int(d) || usb_endpoint_xfer_isoc(d)) {
--			i = maxp & (BIT(12) | BIT(11));
-+			i = maxp & USB_EP_MAXP_MULT_MASK;
- 			maxp &= ~i;
- 		}
- 		/* fallthrough */
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -1248,7 +1248,7 @@ static irqreturn_t ltr501_trigger_handle
+ 		ret = regmap_bulk_read(data->regmap, LTR501_ALS_DATA1,
+ 				       (u8 *)als_buf, sizeof(als_buf));
+ 		if (ret < 0)
+-			return ret;
++			goto done;
+ 		if (test_bit(0, indio_dev->active_scan_mask))
+ 			scan.channels[j++] = le16_to_cpu(als_buf[1]);
+ 		if (test_bit(1, indio_dev->active_scan_mask))
 
 
