@@ -2,95 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF4A47372B
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 23:01:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC70B47376A
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 23:24:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239718AbhLMWBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 17:01:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33648 "EHLO
+        id S240519AbhLMWYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 17:24:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239365AbhLMWBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 17:01:21 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE3BAC061574;
-        Mon, 13 Dec 2021 14:01:21 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id n15-20020a17090a160f00b001a75089daa3so15682114pja.1;
-        Mon, 13 Dec 2021 14:01:21 -0800 (PST)
+        with ESMTP id S234623AbhLMWY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 17:24:29 -0500
+Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5394DC061574;
+        Mon, 13 Dec 2021 14:24:29 -0800 (PST)
+Received: by mail-yb1-xb2b.google.com with SMTP id d10so41940260ybe.3;
+        Mon, 13 Dec 2021 14:24:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=plxQ+0bT1KqtrjOceebLFJ1wzwbYVsjS/hfUBTuve5M=;
-        b=e5r4l3AVZ7O99PEa/uHa5/8v+qKBGU32ANvstuuS/y3R7NhuGmU7OhNetXgAjazyY1
-         3Vg76pg/9D0qeunchoUb+P0Pj9zHIX7fVPnKMGVo+mDtEi/j3yfcI/CRM/DosLhr+jeE
-         HGC+ElaWkT9y0VE4hU5fPwGGTCq+petgtbiBtIOq5qoQaWrlyBPapo+phhPcThYD3TuY
-         wcDfVoA+sdvVrTb4sTYzU4qhB5rz4ztaRlYxt8lkAVQpUWI+BB49kIlZhYbQbnq4lQ4X
-         pAo6rxkGL1Y4SXzQB/in4T5T3KLK5i5eRO9rh0TIhyYh/vQDzZN5poMcjlUCdvUiKSnV
-         eitQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Ch2TdgR4AmygX6qQzzvXHiybw81RXUfB559RRg917nA=;
+        b=GatuucZfu0mNLwCzfIXpkTTsM5Gajkhdcnonl4QsnM242XkBgSfYHoRsRSpIcU+8pa
+         5ecakBaGuq0Jx+p+mVTzpzH2iJQqf/l4sxisCIIjYBDG8mQyjUqCn8eXCgiF9+asojXE
+         lpAE5veAX03b8dVUliKhfq3FvYX5EXdRgaw7TW0UbCU17A/XwHYvfpbk1bdgxSGvzy8V
+         6vBPGjKEzqwBHV3sPTUjgtnG2BVs2ZRiSITiksEwBo524QgCX9/HUNKuMgawyszqngHj
+         0aWsJeoVJhXzwZAgtca1c0ZcVAKu6e/T6pFcjmWtK0u4cTnn2pg0/HfornBZY3J0LJ9g
+         bZow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=plxQ+0bT1KqtrjOceebLFJ1wzwbYVsjS/hfUBTuve5M=;
-        b=BM0pR80WGAkQpv27vyG5o5Xp5l6uTSPxxJHnhFQCp0oY4z54J7RtkddlS+RyRpQs9F
-         zFqnOX4XsKqi2O9LYLqaTZDl4bmX/jthImwyGiN+9PWvv+a9577mTv24DeNfy7EkpDju
-         PhvHSS2N9Fb2FtnTlGjHclP60lQxlFUT9PayfPmWnSWDELfOxapQXrLN+Cuc5+7mXpga
-         kWdGbV7kb1VWS9LTOiW0cpLB3XJe+YgU4aO6gEvVDWeYAGYMf3zygFx7Yii5q4UNszdB
-         WascWN9n06ANKlks8OnBjO8730tXpANA6RvJWg2W3huHXmW2kBt4zje6ylaUxcR/xkuA
-         a5IQ==
-X-Gm-Message-State: AOAM532VLxdZF6Fp+Z0WqwBm78LsQ0O/CBkEBTrHCcgN5EbPcBIC+oBm
-        NqVtTMvO7yFCnlE57abJUgGILb85NQc=
-X-Google-Smtp-Source: ABdhPJxf8x6jE0tJ8pBGU5ogCisJoFNLyIbxMoSR+mMDwxR1HTraQPz19nOVID3G4bYTB7jtjZfd7w==
-X-Received: by 2002:a17:90b:3ecd:: with SMTP id rm13mr947957pjb.157.1639432880843;
-        Mon, 13 Dec 2021 14:01:20 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id e35sm10899179pgm.92.2021.12.13.14.01.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Dec 2021 14:01:20 -0800 (PST)
-Subject: Re: [PATCH 5.15 000/171] 5.15.8-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20211213092945.091487407@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <d915b9d8-7ddd-5e71-1278-0e9c59eae2da@gmail.com>
-Date:   Mon, 13 Dec 2021 14:01:18 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ch2TdgR4AmygX6qQzzvXHiybw81RXUfB559RRg917nA=;
+        b=1pl3VVWLUe64CKs+ETM5TNChysfnEpvRrBI5bP39U9BV6Z1PMsYCJYsR8/JFNtMuJ4
+         Qvc6e88+cCqZf8UcwBl+lxDpQqe2WsWR/8RYtSv604LAavhspMwUSYMUWem2mB4zHbC5
+         igWFJYm+Rky0YE+HVCgdocuEur9ZCc6M7X30BwuWlHkZKE8yj1FhvOoyLNHsT3xWqRcy
+         FsfVCFUQ4esWOaHiIxEwI9NoXRwu7JsTMh67D0dLXRmELetPo/AVN+7v3oi206nfJvYE
+         M6QMAab9j/76P+RBjMNtT027rDs4j29Ij4wskUI0evNBjuI8X3Sfk+xi3SJxnJVV9lXj
+         79Rg==
+X-Gm-Message-State: AOAM532xgQS2DtOO/ZongYO1J35+x8dTcsAidq26E76+4Ja3LorpOLCQ
+        Qmh92daKW7TIhuMnuuJpH+pqvytM/UMI+UcIeVn7+0iiKI4=
+X-Google-Smtp-Source: ABdhPJzOT/e6m/v4qmub3IWQ1CPmBQ3dO6l/nuefGYIy79KnYoKwJZK/QjgVqkahLBcG/7uRgmj8OcXZJgqK70LtqHM=
+X-Received: by 2002:a5b:489:: with SMTP id n9mr1419998ybp.721.1639434268468;
+ Mon, 13 Dec 2021 14:24:28 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20211213092930.763200615@linuxfoundation.org> <CADVatmPsqW050=k07RDChjnf_F+MJfkLzHiRcdeoWQ7Mws_qMw@mail.gmail.com>
+ <CADVatmMMe7NGpX9CcViLrhxP69gJ6m+9rViEVuh0E6j1QXGDVg@mail.gmail.com> <CAHk-=wh14HQZHWr=aNjpKrq-dP51iA6YbL3LmZGEVsOkWL-9XA@mail.gmail.com>
+In-Reply-To: <CAHk-=wh14HQZHWr=aNjpKrq-dP51iA6YbL3LmZGEVsOkWL-9XA@mail.gmail.com>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Mon, 13 Dec 2021 22:23:52 +0000
+Message-ID: <CADVatmN2NwdVoR823x8xvOOz2C1rp4k0dOngT+v3MQ1EXw5GZg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/74] 4.19.221-rc1 review
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/13/21 1:28 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.8 release.
-> There are 171 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Mon, Dec 13, 2021 at 7:06 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Mon, Dec 13, 2021 at 10:59 AM Sudip Mukherjee
+> <sudipm.mukherjee@gmail.com> wrote:
+> >
+> > >
+> > > Just an initial report. mips allmodconfig is failing with the following error.
+> >
+> > Ignore this please. I am not seeing the error on a clean build. Need
+> > to check what went wrong with my build script.
+>
+> The gcc plugin builds often fail if there's been a gcc version update,
+> and you need to blow the old plugins away.
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+I have not changed my gcc since 20211112.
+And, I also have "scripts/config -d GCC_PLUGINS" as part of my build script.
+Anyway, I will trigger my build for v4.19.221-rc1 again to verify.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+
 -- 
-Florian
+Regards
+Sudip
