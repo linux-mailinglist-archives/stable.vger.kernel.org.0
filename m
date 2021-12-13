@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB237472A5F
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED34D4727C9
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244237AbhLMKkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:40:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41402 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244231AbhLMKjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:39:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37806C08EC6F;
-        Mon, 13 Dec 2021 01:52:24 -0800 (PST)
+        id S241662AbhLMKFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:05:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47084 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240403AbhLMKBN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01C4EB80E15;
-        Mon, 13 Dec 2021 09:52:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31426C00446;
-        Mon, 13 Dec 2021 09:52:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C224B80E7F;
+        Mon, 13 Dec 2021 10:01:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D5C3C34613;
+        Mon, 13 Dec 2021 10:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389141;
-        bh=ZcebZ99Y1Z/56l7Zw0iTCScFIT12/2EDsZeR3UFRPUs=;
+        s=korg; t=1639389668;
+        bh=NpKzZRmOq8/AJTnwyoIrrbvCMP0Yv0BBRwjMZCDj/84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4RRNAC7tCYm2PFkr4kcUROmG1aptqooljeW9ZdFpip38vueZF6EnmT6OjWWvAAjG
-         pfkO99Z34G5JervjK0qZzlBB+AUkRqzj8zNEejRnXMfQfwF95zBBY9079pAjHE6Eg/
-         iFsAZeG8s+jCFdwr1PFsLLiU5Ve97olmFqW52Zpk=
+        b=sI8yixadpW6NG17BrbuQd8NsgTiV3Y5b1wIIEebOWgmtBuu2ZFDP5UAXwvdjhFhE8
+         g+l1TWmCwF4oRG9zH7cLtd5dzN0XEn7jc+yJs0taUPKzcfmGgd+kz0owjG6m+3uJP6
+         k/T8LfJEcDaahB0KLcXsQfJDRG/P0yRBFg0slTJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Robert Karszniewicz <r.karszniewicz@phytec.de>,
-        Kees Cook <keescook@chromium.org>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 5.10 132/132] Documentation/Kbuild: Remove references to gcc-plugin.sh
+        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 5.15 158/171] misc: rtsx: Avoid mangling IRQ during runtime PM
 Date:   Mon, 13 Dec 2021 10:31:13 +0100
-Message-Id: <20211213092943.611616280@linuxfoundation.org>
+Message-Id: <20211213092950.316672624@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,35 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Karszniewicz <r.karszniewicz@phytec.de>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 1cabe74f148f7b99d9f08274a62467f96c870f07 upstream.
+commit 0edeb8992db8e7de9b8fe3164ace9a4356b17021 upstream.
 
-gcc-plugin.sh has been removed in commit
-1e860048c53e ("gcc-plugins: simplify GCC plugin-dev capability test").
+After commit 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM"), when the
+rtsx controller is runtime suspended, bring CPUs offline and back online, the
+runtime resume of the controller will fail:
 
-Signed-off-by: Robert Karszniewicz <r.karszniewicz@phytec.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[   47.319391] smpboot: CPU 1 is now offline
+[   47.414140] x86: Booting SMP configuration:
+[   47.414147] smpboot: Booting Node 0 Processor 1 APIC 0x2
+[   47.571334] smpboot: CPU 2 is now offline
+[   47.686055] smpboot: Booting Node 0 Processor 2 APIC 0x4
+[   47.808174] smpboot: CPU 3 is now offline
+[   47.878146] smpboot: Booting Node 0 Processor 3 APIC 0x6
+[   48.003679] smpboot: CPU 4 is now offline
+[   48.086187] smpboot: Booting Node 0 Processor 4 APIC 0x1
+[   48.239627] smpboot: CPU 5 is now offline
+[   48.326059] smpboot: Booting Node 0 Processor 5 APIC 0x3
+[   48.472193] smpboot: CPU 6 is now offline
+[   48.574181] smpboot: Booting Node 0 Processor 6 APIC 0x5
+[   48.743375] smpboot: CPU 7 is now offline
+[   48.838047] smpboot: Booting Node 0 Processor 7 APIC 0x7
+[   48.965447] __common_interrupt: 1.35 No irq handler for vector
+[   51.174065] mmc0: error -110 doing runtime resume
+[   54.978088] I/O error, dev mmcblk0, sector 21479 op 0x1:(WRITE) flags 0x0 phys_seg 11 prio class 0
+[   54.978108] Buffer I/O error on dev mmcblk0p1, logical block 19431, lost async page write
+[   54.978129] Buffer I/O error on dev mmcblk0p1, logical block 19432, lost async page write
+[   54.978134] Buffer I/O error on dev mmcblk0p1, logical block 19433, lost async page write
+[   54.978137] Buffer I/O error on dev mmcblk0p1, logical block 19434, lost async page write
+[   54.978141] Buffer I/O error on dev mmcblk0p1, logical block 19435, lost async page write
+[   54.978145] Buffer I/O error on dev mmcblk0p1, logical block 19436, lost async page write
+[   54.978148] Buffer I/O error on dev mmcblk0p1, logical block 19437, lost async page write
+[   54.978152] Buffer I/O error on dev mmcblk0p1, logical block 19438, lost async page write
+[   54.978155] Buffer I/O error on dev mmcblk0p1, logical block 19439, lost async page write
+[   54.978160] Buffer I/O error on dev mmcblk0p1, logical block 19440, lost async page write
+[   54.978244] mmc0: card aaaa removed
+[   54.978452] FAT-fs (mmcblk0p1): FAT read failed (blocknr 4257)
+
+There's interrupt immediately raised on rtsx_pci_write_register() in
+runtime resume routine, but the IRQ handler hasn't registered yet.
+
+So we can either move rtsx_pci_write_register() after rtsx_pci_acquire_irq(),
+or just stop mangling IRQ on runtime PM. Choose the latter to save some
+CPU cycles.
+
+Fixes: 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+BugLink: https://bugs.launchpad.net/bugs/1951784
+Link: https://lore.kernel.org/r/20211126003246.1068770-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/kbuild/gcc-plugins.rst |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/misc/cardreader/rtsx_pcr.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/Documentation/kbuild/gcc-plugins.rst
-+++ b/Documentation/kbuild/gcc-plugins.rst
-@@ -44,12 +44,6 @@ Files
- 	This is a compatibility header for GCC plugins.
- 	It should be always included instead of individual gcc headers.
+--- a/drivers/misc/cardreader/rtsx_pcr.c
++++ b/drivers/misc/cardreader/rtsx_pcr.c
+@@ -1803,8 +1803,6 @@ static int rtsx_pci_runtime_suspend(stru
+ 	mutex_lock(&pcr->pcr_mutex);
+ 	rtsx_pci_power_off(pcr, HOST_ENTER_S3);
  
--**$(src)/scripts/gcc-plugin.sh**
+-	free_irq(pcr->irq, (void *)pcr);
 -
--	This script checks the availability of the included headers in
--	gcc-common.h and chooses the proper host compiler to build the plugins
--	(gcc-4.7 can be built by either gcc or g++).
--
- **$(src)/scripts/gcc-plugins/gcc-generate-gimple-pass.h,
- $(src)/scripts/gcc-plugins/gcc-generate-ipa-pass.h,
- $(src)/scripts/gcc-plugins/gcc-generate-simple_ipa-pass.h,
+ 	mutex_unlock(&pcr->pcr_mutex);
+ 
+ 	pcr->is_runtime_suspended = true;
+@@ -1825,8 +1823,6 @@ static int rtsx_pci_runtime_resume(struc
+ 	mutex_lock(&pcr->pcr_mutex);
+ 
+ 	rtsx_pci_write_register(pcr, HOST_SLEEP_STATE, 0x03, 0x00);
+-	rtsx_pci_acquire_irq(pcr);
+-	synchronize_irq(pcr->irq);
+ 
+ 	if (pcr->ops->fetch_vendor_settings)
+ 		pcr->ops->fetch_vendor_settings(pcr);
 
 
