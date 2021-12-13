@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DC7472609
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CB2472527
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233683AbhLMJst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:48:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59986 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236195AbhLMJqN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:46:13 -0500
+        id S234847AbhLMJl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:41:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234883AbhLMJjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:39 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E6C0698DD;
+        Mon, 13 Dec 2021 01:38:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2356DB80E12;
-        Mon, 13 Dec 2021 09:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6322DC341C5;
-        Mon, 13 Dec 2021 09:46:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B44EDCE0E39;
+        Mon, 13 Dec 2021 09:38:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FEBFC341C5;
+        Mon, 13 Dec 2021 09:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388769;
-        bh=WIWdys5//IC5POQNm2wp3TJhcElEgJF+rtvRr0nj37I=;
+        s=korg; t=1639388279;
+        bh=EMXsWDEEBe/1M5XBOr7AJEtKoVJym7LRnp2sCEeC2kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFwF/9Zh8Ih3Ls4DMFWb3ooAVS/qq/PpPyPz6jcLzyFGNGZ5ItHiprG8FrqTBtnW2
-         28E+fnEwRpNI7jSK7o6NIC8yZPXnoIJo9OHmot9ecI54PLTw6XRS8O1N9o0Job1mzB
-         noi6dh/BqldyHZVnJVCOaPa35dZz3xD3LwUy/DaY=
+        b=lU8c7THCwNJ/cSemGeo5bU1rguIVFK2NP8yxxSzRC5nlzH6LS9Oq2Y2k+/r1K7paa
+         rCxsblAobJkPGW8+nL3V537BDoR0JqyCDgxigYLZoCVnAfh3PacGbKYaag3At5gxF2
+         HkHbibDjXbRMFERrE4Gg2W6GfIlzvFQMtT1SfXxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 58/88] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 49/53] iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
 Date:   Mon, 13 Dec 2021 10:30:28 +0100
-Message-Id: <20211213092935.261612169@linuxfoundation.org>
+Message-Id: <20211213092929.993372000@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,70 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 2be6d4d16a0849455a5c22490e3c5983495fed00 upstream.
+commit 70c9774e180d151abaab358108e3510a8e615215 upstream.
 
-Currently, due to the sequential use of min_t() and clamp_t() macros,
-in cdc_ncm_check_tx_max(), if dwNtbOutMaxSize is not set, the logic
-sets tx_max to 0.  This is then used to allocate the data area of the
-SKB requested later in cdc_ncm_fill_tx_frame().
+When ACPI type is ACPI_SMO8500, the data->dready_trig will not be set, the
+memory allocated by iio_triggered_buffer_setup() will not be freed, and cause
+memory leak as follows:
 
-This does not cause an issue presently because when memory is
-allocated during initialisation phase of SKB creation, more memory
-(512b) is allocated than is required for the SKB headers alone (320b),
-leaving some space (512b - 320b = 192b) for CDC data (172b).
+unreferenced object 0xffff888009551400 (size 512):
+  comm "i2c-SMO8500-125", pid 911, jiffies 4294911787 (age 83.852s)
+  hex dump (first 32 bytes):
+    02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 20 e2 e5 c0 ff ff ff ff  ........ .......
+  backtrace:
+    [<0000000041ce75ee>] kmem_cache_alloc_trace+0x16d/0x360
+    [<000000000aeb17b0>] iio_kfifo_allocate+0x41/0x130 [kfifo_buf]
+    [<000000004b40c1f5>] iio_triggered_buffer_setup_ext+0x2c/0x210 [industrialio_triggered_buffer]
+    [<000000004375b15f>] kxcjk1013_probe+0x10c3/0x1d81 [kxcjk_1013]
 
-However, if more elements (for example 3 x u64 = [24b]) were added to
-one of the SKB header structs, say 'struct skb_shared_info',
-increasing its original size (320b [320b aligned]) to something larger
-(344b [384b aligned]), then suddenly the CDC data (172b) no longer
-fits in the spare SKB data area (512b - 384b = 128b).
+Fix it by remove data->dready_trig condition in probe and remove.
 
-Consequently the SKB bounds checking semantics fails and panics:
-
-  skbuff: skb_over_panic: text:ffffffff830a5b5f len:184 put:172   \
-     head:ffff888119227c00 data:ffff888119227c00 tail:0xb8 end:0x80 dev:<NULL>
-
-  ------------[ cut here ]------------
-  kernel BUG at net/core/skbuff.c:110!
-  RIP: 0010:skb_panic+0x14f/0x160 net/core/skbuff.c:106
-  <snip>
-  Call Trace:
-   <IRQ>
-   skb_over_panic+0x2c/0x30 net/core/skbuff.c:115
-   skb_put+0x205/0x210 net/core/skbuff.c:1877
-   skb_put_zero include/linux/skbuff.h:2270 [inline]
-   cdc_ncm_ndp16 drivers/net/usb/cdc_ncm.c:1116 [inline]
-   cdc_ncm_fill_tx_frame+0x127f/0x3d50 drivers/net/usb/cdc_ncm.c:1293
-   cdc_ncm_tx_fixup+0x98/0xf0 drivers/net/usb/cdc_ncm.c:1514
-
-By overriding the max value with the default CDC_NCM_NTB_MAX_SIZE_TX
-when not offered through the system provided params, we ensure enough
-data space is allocated to handle the CDC data, meaning no crash will
-occur.
-
-Cc: Oliver Neukum <oliver@neukum.org>
-Fixes: 289507d3364f9 ("net: cdc_ncm: use sysfs for rx/tx aggregation tuning")
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Bjørn Mork <bjorn@mork.no>
-Link: https://lore.kernel.org/r/20211202143437.1411410-1-lee.jones@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: a25691c1f967 ("iio: accel: kxcjk1013: allow using an external trigger")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211025124159.2700301-1-yangyingliang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/cdc_ncm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/accel/kxcjk-1013.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -177,6 +177,8 @@ static u32 cdc_ncm_check_tx_max(struct u
- 	/* clamp new_tx to sane values */
- 	min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth16);
- 	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
-+	if (max == 0)
-+		max = CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -1326,8 +1326,7 @@ static int kxcjk1013_probe(struct i2c_cl
+ 	return 0;
  
- 	/* some devices set dwNtbOutMaxSize too low for the above default */
- 	min = min(min, max);
+ err_buffer_cleanup:
+-	if (data->dready_trig)
+-		iio_triggered_buffer_cleanup(indio_dev);
++	iio_triggered_buffer_cleanup(indio_dev);
+ err_trigger_unregister:
+ 	if (data->dready_trig)
+ 		iio_trigger_unregister(data->dready_trig);
+@@ -1350,8 +1349,8 @@ static int kxcjk1013_remove(struct i2c_c
+ 	pm_runtime_set_suspended(&client->dev);
+ 	pm_runtime_put_noidle(&client->dev);
+ 
++	iio_triggered_buffer_cleanup(indio_dev);
+ 	if (data->dready_trig) {
+-		iio_triggered_buffer_cleanup(indio_dev);
+ 		iio_trigger_unregister(data->dready_trig);
+ 		iio_trigger_unregister(data->motion_trig);
+ 	}
 
 
