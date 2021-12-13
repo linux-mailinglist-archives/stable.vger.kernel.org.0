@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A504729C1
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1AF472624
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242963AbhLMKYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:24:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37748 "EHLO
+        id S235983AbhLMJtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343493AbhLMKWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:22:31 -0500
+        with ESMTP id S235790AbhLMJqr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:46:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26C19C09B079;
-        Mon, 13 Dec 2021 01:59:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E68C07E5EB;
+        Mon, 13 Dec 2021 01:41:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD706B80E7E;
-        Mon, 13 Dec 2021 09:59:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D58C34605;
-        Mon, 13 Dec 2021 09:59:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A55D6B80E0E;
+        Mon, 13 Dec 2021 09:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB13C341CD;
+        Mon, 13 Dec 2021 09:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389547;
-        bh=8kFx/03PwMXw2IXS6IthD3YZPFSQH6x1/xMw8p86IO4=;
+        s=korg; t=1639388491;
+        bh=gYagyYNesN1+azpI4k5Dvmoq4mI/SFcMSxDVU8e70us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1uLBARWJ1CfuEhm201spgqtrTzWtIRT4h/mmnSt5bu+vFjdez9S1zhg00XDgPXdtc
-         sr0oGWeC9jdHbgk2VJ3XdYbSXu5Gbk+hjZmGXlpcMVxEeDWygiiRPGUSNxUpQC35GP
-         4FvXCxmWv/iOmJsFuHHx7bySVMxVMsTElk/mwfJM=
+        b=TMWRDca3JFG54fA97UdPgr3NPgMi/3fT64GP4rdxK7WjD8pVithM5/TsSlHUAE92r
+         ZwpnXRIE54Mti7qJtGi2ie+9wu0njHTsWfv36EazB0HzYAUSu/fc1C2AiZS1UJl1fq
+         zJKUXUwrc0JEI0DDriwybea9lC41Iscpqx4m4tKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jude Shih <Jude.Shih@amd.com>,
-        Pavle Kotarac <Pavle.Kotarac@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 125/171] drm/amd/display: Fix DPIA outbox timeout after S3/S4/reset
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 69/74] irqchip/armada-370-xp: Fix return value of armada_370_xp_msi_alloc()
 Date:   Mon, 13 Dec 2021 10:30:40 +0100
-Message-Id: <20211213092949.259883823@linuxfoundation.org>
+Message-Id: <20211213092933.113433326@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,55 +48,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit af6902ec415655236adea91826bd96ed0ab16f42 upstream.
+commit ce20eff57361e72878a772ef08b5239d3ae102b6 upstream.
 
-[Why]
-The HW interrupt gets disabled after S3/S4/reset so we don't receive
-notifications for HPD or AUX from DMUB - leading to timeout and
-black screen with (or without) DPIA links connected.
+IRQ domain alloc function should return zero on success. Non-zero value
+indicates failure.
 
-[How]
-Re-enable the interrupt after S3/S4/reset like we do for the other
-DC interrupts.
-
-Guard both instances of the outbox interrupt enable or we'll hang
-during restore on ASIC that don't support it.
-
-Fixes: 6eff272dbee7ad ("drm/amd/display: Fix DPIA outbox timeout after GPU reset")
-
-Reviewed-by: Jude Shih <Jude.Shih@amd.com>
-Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: fcc392d501bd ("irqchip/armada-370-xp: Use the generic MSI infrastructure")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211125130057.26705-1-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-armada-370-xp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2213,7 +2213,8 @@ static int dm_resume(void *handle)
- 	if (amdgpu_in_reset(adev)) {
- 		dc_state = dm->cached_dc_state;
+--- a/drivers/irqchip/irq-armada-370-xp.c
++++ b/drivers/irqchip/irq-armada-370-xp.c
+@@ -250,7 +250,7 @@ static int armada_370_xp_msi_alloc(struc
+ 				    NULL, NULL);
+ 	}
  
--		amdgpu_dm_outbox_init(adev);
-+		if (dc_enable_dmub_notifications(adev->dm.dc))
-+			amdgpu_dm_outbox_init(adev);
+-	return hwirq;
++	return 0;
+ }
  
- 		r = dm_dmub_hw_init(adev);
- 		if (r)
-@@ -2262,6 +2263,10 @@ static int dm_resume(void *handle)
- 	/* TODO: Remove dc_state->dccg, use dc->dccg directly. */
- 	dc_resource_state_construct(dm->dc, dm_state->context);
- 
-+	/* Re-enable outbox interrupts for DPIA. */
-+	if (dc_enable_dmub_notifications(adev->dm.dc))
-+		amdgpu_dm_outbox_init(adev);
-+
- 	/* Before powering on DC we need to re-initialize DMUB. */
- 	r = dm_dmub_hw_init(adev);
- 	if (r)
+ static void armada_370_xp_msi_free(struct irq_domain *domain,
 
 
