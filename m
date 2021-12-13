@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A2E47253E
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF11E472536
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235099AbhLMJnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55894 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234632AbhLMJkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FDE0C07E5EE;
-        Mon, 13 Dec 2021 01:38:40 -0800 (PST)
+        id S233865AbhLMJm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:42:59 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:34796 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234389AbhLMJkJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0DA4B80E26;
-        Mon, 13 Dec 2021 09:38:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44E70C00446;
-        Mon, 13 Dec 2021 09:38:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 635E5CE0E85;
+        Mon, 13 Dec 2021 09:40:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAF5EC00446;
+        Mon, 13 Dec 2021 09:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388317;
-        bh=1SEdY6v/YnLwzIm9ahHk49MhXnE1QHPla0HA5UW2r+s=;
+        s=korg; t=1639388405;
+        bh=xzVkQ9hdLO29h6SFG2SXAulAR8G5KxM/+U2yM8ovitM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpDFA/Gz3SQ+NBiZGUxzDU7JfUWW+V5uUXYD2nyg0gO9FpRw0BFvCj9OmXi9a9XbX
-         DJ4hwYg/pc+dKKcm9zzRgZz57LE6l/N7Ag7OFvGtvKNbIKqXmViPxZzkUB6LWf3cVE
-         zF9XRDpCaMF3NCTA/SuPJCqzAinGzDHzN3QrcT0I=
+        b=uu88eEyTVYQkCbZX26SmeX+dpYkaatBrnC2sFAboHqEJgq2UrnrX8u1opHGi8sQTh
+         iEX3c9WOlvQKOm7V/zk+UMAhPPAKv828eAuex/fOYkhNmRHtfyGKXwqBV+YKW01QWd
+         5jljX3GR0IPh2Fu22g9x4mxFDoR0Snzfsl9lcFj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@arm.linux.org.uk>,
-        Nicolas Diaz <nicolas.diaz@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 31/53] net: fec: only clear interrupt of handling queue in fec_enet_rx_queue()
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-fsdevel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Yabin Cui <yabinc@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 39/74] tracefs: Set all files to the same group ownership as the mount option
 Date:   Mon, 13 Dec 2021 10:30:10 +0100
-Message-Id: <20211213092929.395225198@linuxfoundation.org>
+Message-Id: <20211213092932.124164973@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,61 +50,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit b5bd95d17102b6719e3531d627875b9690371383 upstream.
+commit 48b27b6b5191e2e1f2798cd80877b6e4ef47c351 upstream.
 
-Background:
-We have a customer is running a Profinet stack on the 8MM which receives and
-responds PNIO packets every 4ms and PNIO-CM packets every 40ms. However, from
-time to time the received PNIO-CM package is "stock" and is only handled when
-receiving a new PNIO-CM or DCERPC-Ping packet (tcpdump shows the PNIO-CM and
-the DCERPC-Ping packet at the same time but the PNIO-CM HW timestamp is from
-the expected 40 ms and not the 2s delay of the DCERPC-Ping).
+As people have been asking to allow non-root processes to have access to
+the tracefs directory, it was considered best to only allow groups to have
+access to the directory, where it is easier to just set the tracefs file
+system to a specific group (as other would be too dangerous), and that way
+the admins could pick which processes would have access to tracefs.
 
-After debugging, we noticed PNIO, PNIO-CM and DCERPC-Ping packets would
-be handled by different RX queues.
+Unfortunately, this broke tooling on Android that expected the other bit
+to be set. For some special cases, for non-root tools to trace the system,
+tracefs would be mounted and change the permissions of the top level
+directory which gave access to all running tasks permission to the
+tracing directory. Even though this would be dangerous to do in a
+production environment, for testing environments this can be useful.
 
-The root cause should be driver ack all queues' interrupt when handle a
-specific queue in fec_enet_rx_queue(). The blamed patch is introduced to
-receive as much packets as possible once to avoid interrupt flooding.
-But it's unreasonable to clear other queues'interrupt when handling one
-queue, this patch tries to fix it.
+Now with the new changes to not allow other (which is still the proper
+thing to do), it breaks the testing tooling. Now more code needs to be
+loaded on the system to change ownership of the tracing directory.
 
-Fixes: ed63f1dcd578 (net: fec: clear receive interrupts before processing a packet)
-Cc: Russell King <rmk+kernel@arm.linux.org.uk>
-Reported-by: Nicolas Diaz <nicolas.diaz@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Link: https://lore.kernel.org/r/20211206135457.15946-1-qiangqing.zhang@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The real solution is to have tracefs honor the gid=xxx option when
+mounting. That is,
+
+(tracing group tracing has value 1003)
+
+ mount -t tracefs -o gid=1003 tracefs /sys/kernel/tracing
+
+should have it that all files in the tracing directory should be of the
+given group.
+
+Copy the logic from d_walk() from dcache.c and simplify it for the mount
+case of tracefs if gid is set. All the files in tracefs will be walked and
+their group will be set to the value passed in.
+
+Link: https://lkml.kernel.org/r/20211207171729.2a54e1b3@gandalf.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Kalesh Singh <kaleshsingh@google.com>
+Reported-by: Yabin Cui <yabinc@google.com>
+Fixes: 49d67e445742 ("tracefs: Have tracefs directories not set OTH permission bits by default")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec.h      |    3 +++
- drivers/net/ethernet/freescale/fec_main.c |    2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ fs/tracefs/inode.c |   72 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
---- a/drivers/net/ethernet/freescale/fec.h
-+++ b/drivers/net/ethernet/freescale/fec.h
-@@ -372,6 +372,9 @@ struct bufdesc_ex {
- #define FEC_ENET_WAKEUP	((uint)0x00020000)	/* Wakeup request */
- #define FEC_ENET_TXF	(FEC_ENET_TXF_0 | FEC_ENET_TXF_1 | FEC_ENET_TXF_2)
- #define FEC_ENET_RXF	(FEC_ENET_RXF_0 | FEC_ENET_RXF_1 | FEC_ENET_RXF_2)
-+#define FEC_ENET_RXF_GET(X)	(((X) == 0) ? FEC_ENET_RXF_0 :	\
-+				(((X) == 1) ? FEC_ENET_RXF_1 :	\
-+				FEC_ENET_RXF_2))
- #define FEC_ENET_TS_AVAIL       ((uint)0x00010000)
- #define FEC_ENET_TS_TIMER       ((uint)0x00008000)
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -162,6 +162,77 @@ struct tracefs_fs_info {
+ 	struct tracefs_mount_opts mount_opts;
+ };
  
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -1385,7 +1385,7 @@ fec_enet_rx_queue(struct net_device *nde
++static void change_gid(struct dentry *dentry, kgid_t gid)
++{
++	if (!dentry->d_inode)
++		return;
++	dentry->d_inode->i_gid = gid;
++}
++
++/*
++ * Taken from d_walk, but without he need for handling renames.
++ * Nothing can be renamed while walking the list, as tracefs
++ * does not support renames. This is only called when mounting
++ * or remounting the file system, to set all the files to
++ * the given gid.
++ */
++static void set_gid(struct dentry *parent, kgid_t gid)
++{
++	struct dentry *this_parent;
++	struct list_head *next;
++
++	this_parent = parent;
++	spin_lock(&this_parent->d_lock);
++
++	change_gid(this_parent, gid);
++repeat:
++	next = this_parent->d_subdirs.next;
++resume:
++	while (next != &this_parent->d_subdirs) {
++		struct list_head *tmp = next;
++		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
++		next = tmp->next;
++
++		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
++
++		change_gid(dentry, gid);
++
++		if (!list_empty(&dentry->d_subdirs)) {
++			spin_unlock(&this_parent->d_lock);
++			spin_release(&dentry->d_lock.dep_map, 1, _RET_IP_);
++			this_parent = dentry;
++			spin_acquire(&this_parent->d_lock.dep_map, 0, 1, _RET_IP_);
++			goto repeat;
++		}
++		spin_unlock(&dentry->d_lock);
++	}
++	/*
++	 * All done at this level ... ascend and resume the search.
++	 */
++	rcu_read_lock();
++ascend:
++	if (this_parent != parent) {
++		struct dentry *child = this_parent;
++		this_parent = child->d_parent;
++
++		spin_unlock(&child->d_lock);
++		spin_lock(&this_parent->d_lock);
++
++		/* go into the first sibling still alive */
++		do {
++			next = child->d_child.next;
++			if (next == &this_parent->d_subdirs)
++				goto ascend;
++			child = list_entry(next, struct dentry, d_child);
++		} while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED));
++		rcu_read_unlock();
++		goto resume;
++	}
++	rcu_read_unlock();
++	spin_unlock(&this_parent->d_lock);
++	return;
++}
++
+ static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
+ {
+ 	substring_t args[MAX_OPT_ARGS];
+@@ -194,6 +265,7 @@ static int tracefs_parse_options(char *d
+ 			if (!gid_valid(gid))
+ 				return -EINVAL;
+ 			opts->gid = gid;
++			set_gid(tracefs_mount->mnt_root, gid);
  			break;
- 		pkt_received++;
- 
--		writel(FEC_ENET_RXF, fep->hwp + FEC_IEVENT);
-+		writel(FEC_ENET_RXF_GET(queue_id), fep->hwp + FEC_IEVENT);
- 
- 		/* Check for errors. */
- 		status ^= BD_ENET_RX_LAST;
+ 		case Opt_mode:
+ 			if (match_octal(&args[0], &option))
 
 
