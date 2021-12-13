@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0C04725D1
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:46:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21CE247287B
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:14:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236287AbhLMJqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:46:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58028 "EHLO
+        id S239920AbhLMKNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:13:48 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35648 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234074AbhLMJob (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:44:31 -0500
+        with ESMTP id S236545AbhLMJuK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:50:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA0EFB80E23;
-        Mon, 13 Dec 2021 09:44:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A762C00446;
-        Mon, 13 Dec 2021 09:44:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C036B80E1D;
+        Mon, 13 Dec 2021 09:50:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71531C341C8;
+        Mon, 13 Dec 2021 09:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388667;
-        bh=v8sDFuNm0OB9rrbzdrg2J85zpwIIIL8wrbxInuL6A5Q=;
+        s=korg; t=1639389007;
+        bh=Kgnw4vBLzx70XjzWhZioUBsaDwAXYssCw+HIvokhjyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjmtiyOeh33h8hdCxoUfJknodAZBFCwWf8zezvat9SfTI3t1cAY0ticwlhkCQ9hU/
-         mI+rm0J50Cu1B7EpYN4mubOS7ojXxFM2YzUOqHnuR3q5KjPLO4+ouK9dR2tRxRTo+S
-         QKjrIoqGn9fEqjghr7+9GGFGs+gk4eKxPSq/Y9f8=
+        b=1JEXi9ciDbfF31ENk9bLn1sxvbpztFpIGuUnmYXpIaHlENTQPyyoZ4YamuPR5rU3e
+         rxDfY9f8P8R5OfW5ZMoi9T0h+7PlZ8m6r/srA4riDaYsHw/QTE8ONu7+k+zAMvIiMN
+         8zNOelb86aQfiLlesBCGJGBoQnmde9poP36BVOkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 23/88] udp: using datalen to cap max gso segments
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 052/132] btrfs: clear extent buffer uptodate when we fail to write it
 Date:   Mon, 13 Dec 2021 10:29:53 +0100
-Message-Id: <20211213092934.015054757@linuxfoundation.org>
+Message-Id: <20211213092940.911900222@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianguo Wu <wujianguo@chinatelecom.cn>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 158390e45612ef0fde160af0826f1740c36daf21 upstream.
+commit c2e39305299f0118298c2201f6d6cc7d3485f29e upstream.
 
-The max number of UDP gso segments is intended to cap to UDP_MAX_SEGMENTS,
-this is checked in udp_send_skb():
+I got dmesg errors on generic/281 on our overnight fstests.  Looking at
+the history this happens occasionally, with errors like this
 
-    if (skb->len > cork->gso_size * UDP_MAX_SEGMENTS) {
-        kfree_skb(skb);
-        return -EINVAL;
-    }
+  WARNING: CPU: 0 PID: 673217 at fs/btrfs/extent_io.c:6848 assert_eb_page_uptodate+0x3f/0x50
+  CPU: 0 PID: 673217 Comm: kworker/u4:13 Tainted: G        W         5.16.0-rc2+ #469
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  Workqueue: btrfs-cache btrfs_work_helper
+  RIP: 0010:assert_eb_page_uptodate+0x3f/0x50
+  RSP: 0018:ffffae598230bc60 EFLAGS: 00010246
+  RAX: 0017ffffc0002112 RBX: ffffebaec4100900 RCX: 0000000000001000
+  RDX: ffffebaec45733c7 RSI: ffffebaec4100900 RDI: ffff9fd98919f340
+  RBP: 0000000000000d56 R08: ffff9fd98e300000 R09: 0000000000000000
+  R10: 0001207370a91c50 R11: 0000000000000000 R12: 00000000000007b0
+  R13: ffff9fd98919f340 R14: 0000000001500000 R15: 0000000001cb0000
+  FS:  0000000000000000(0000) GS:ffff9fd9fbc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f549fcf8940 CR3: 0000000114908004 CR4: 0000000000370ef0
+  Call Trace:
 
-skb->len contains network and transport header len here, we should use
-only data len instead.
+   extent_buffer_test_bit+0x3f/0x70
+   free_space_test_bit+0xa6/0xc0
+   load_free_space_tree+0x1d6/0x430
+   caching_thread+0x454/0x630
+   ? rcu_read_lock_sched_held+0x12/0x60
+   ? rcu_read_lock_sched_held+0x12/0x60
+   ? rcu_read_lock_sched_held+0x12/0x60
+   ? lock_release+0x1f0/0x2d0
+   btrfs_work_helper+0xf2/0x3e0
+   ? lock_release+0x1f0/0x2d0
+   ? finish_task_switch.isra.0+0xf9/0x3a0
+   process_one_work+0x270/0x5a0
+   worker_thread+0x55/0x3c0
+   ? process_one_work+0x5a0/0x5a0
+   kthread+0x174/0x1a0
+   ? set_kthread_struct+0x40/0x40
+   ret_from_fork+0x1f/0x30
 
-Fixes: bec1f6f69736 ("udp: generate gso with UDP_SEGMENT")
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/900742e5-81fb-30dc-6e0b-375c6cdd7982@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This happens because we're trying to read from a extent buffer page that
+is !PageUptodate.  This happens because we will clear the page uptodate
+when we have an IO error, but we don't clear the extent buffer uptodate.
+If we do a read later and find this extent buffer we'll think its valid
+and not return an error, and then trip over this warning.
+
+Fix this by also clearing uptodate on the extent buffer when this
+happens, so that we get an error when we do a btrfs_search_slot() and
+find this block later.
+
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/extent_io.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -845,7 +845,7 @@ static int udp_send_skb(struct sk_buff *
- 			kfree_skb(skb);
- 			return -EINVAL;
- 		}
--		if (skb->len > cork->gso_size * UDP_MAX_SEGMENTS) {
-+		if (datalen > cork->gso_size * UDP_MAX_SEGMENTS) {
- 			kfree_skb(skb);
- 			return -EINVAL;
- 		}
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -3770,6 +3770,12 @@ static void set_btree_ioerr(struct page
+ 		return;
+ 
+ 	/*
++	 * A read may stumble upon this buffer later, make sure that it gets an
++	 * error and knows there was an error.
++	 */
++	clear_bit(EXTENT_BUFFER_UPTODATE, &eb->bflags);
++
++	/*
+ 	 * If we error out, we should add back the dirty_metadata_bytes
+ 	 * to make it consistent.
+ 	 */
 
 
