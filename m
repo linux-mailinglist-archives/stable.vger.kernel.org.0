@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CE647255A
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D16C4727CF
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235227AbhLMJn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53296 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235056AbhLMJkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:02 -0500
+        id S241709AbhLMKFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:05:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60500 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238809AbhLMKBg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEE60C09B1A0;
+        Mon, 13 Dec 2021 01:49:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12B2DB80E0B;
-        Mon, 13 Dec 2021 09:40:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60A56C341C5;
-        Mon, 13 Dec 2021 09:39:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9005BB80E2A;
+        Mon, 13 Dec 2021 09:49:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65CEC341C8;
+        Mon, 13 Dec 2021 09:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388399;
-        bh=DQCUutKUGhabyVeopq3tf13shY82HsGV0JIdWwr6m5k=;
+        s=korg; t=1639388955;
+        bh=A/G4pWgNqFGN8y72orhn8+pHNZMJRQaSiFkHANr3cOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1d7Aa2Q6AaaE6IXUkjHpX2NMeLbnmoF1TOVVgrp/lVL5GQCgMk+VA2XXJBWCe00vn
-         i1Mk9wKkTHFBbkpexSwxySUVdmcYW6ZWtnAUcxUrF5xn+kcefQ0wmXXtUiKX9Sdcwz
-         cnrdutSxcjkKn4WtqihLFQB+He76zWP7PnLf3JEs=
+        b=Pzn7komdr/kJhYB2zwVn+d5xQE35UFd3iXfMGlG/aJj5UDmM5W5fpymWBEZ8h6ukh
+         NEiW03j1Xgru4hzNYySenNEBpHRXd+pmq8mnAZajkcrkrZ2ZUVPZ4G6+iB0sJoj9sr
+         dQ8PvDUeZhz4rP0g3A9HVDe80L30lFXCAHTMtRnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 37/74] aio: keep poll requests on waitqueue until completed
+Subject: [PATCH 5.10 067/132] aio: keep poll requests on waitqueue until completed
 Date:   Mon, 13 Dec 2021 10:30:08 +0100
-Message-Id: <20211213092932.060590322@linuxfoundation.org>
+Message-Id: <20211213092941.410628628@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -84,7 +87,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/aio.c
 +++ b/fs/aio.c
-@@ -176,8 +176,9 @@ struct poll_iocb {
+@@ -182,8 +182,9 @@ struct poll_iocb {
  	struct file		*file;
  	struct wait_queue_head	*head;
  	__poll_t		events;
@@ -95,7 +98,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct wait_queue_entry	wait;
  	struct work_struct	work;
  };
-@@ -1635,14 +1636,26 @@ static void aio_poll_complete_work(struc
+@@ -1640,14 +1641,26 @@ static void aio_poll_complete_work(struc
  	 * avoid further branches in the fast path.
  	 */
  	spin_lock_irq(&ctx->ctx_lock);
@@ -124,7 +127,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	spin_unlock_irq(&ctx->ctx_lock);
  
  	iocb_put(iocb);
-@@ -1656,9 +1669,9 @@ static int aio_poll_cancel(struct kiocb
+@@ -1661,9 +1674,9 @@ static int aio_poll_cancel(struct kiocb
  
  	spin_lock(&req->head->lock);
  	WRITE_ONCE(req->cancelled, true);
@@ -136,7 +139,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  	spin_unlock(&req->head->lock);
  
-@@ -1677,20 +1690,26 @@ static int aio_poll_wake(struct wait_que
+@@ -1682,20 +1695,26 @@ static int aio_poll_wake(struct wait_que
  	if (mask && !(mask & req->events))
  		return 0;
  
@@ -173,7 +176,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		if (iocb->ki_eventfd && eventfd_signal_count()) {
  			iocb = NULL;
  			INIT_WORK(&req->work, aio_poll_put_work);
-@@ -1700,7 +1719,20 @@ static int aio_poll_wake(struct wait_que
+@@ -1705,7 +1724,20 @@ static int aio_poll_wake(struct wait_que
  		if (iocb)
  			iocb_put(iocb);
  	} else {
@@ -195,7 +198,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  	return 1;
  }
-@@ -1747,8 +1779,9 @@ static ssize_t aio_poll(struct aio_kiocb
+@@ -1752,8 +1784,9 @@ static int aio_poll(struct aio_kiocb *ai
  	req->events = demangle_poll(iocb->aio_buf) | EPOLLERR | EPOLLHUP;
  
  	req->head = NULL;
@@ -206,7 +209,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	apt.pt._qproc = aio_poll_queue_proc;
  	apt.pt._key = req->events;
-@@ -1763,17 +1796,27 @@ static ssize_t aio_poll(struct aio_kiocb
+@@ -1768,17 +1801,27 @@ static int aio_poll(struct aio_kiocb *ai
  	spin_lock_irq(&ctx->ctx_lock);
  	if (likely(req->head)) {
  		spin_lock(&req->head->lock);
