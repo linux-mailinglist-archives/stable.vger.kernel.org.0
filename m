@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3AE4726CD
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 527A54728B0
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233888AbhLMJyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:54:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58466 "EHLO
+        id S236653AbhLMKOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:14:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238142AbhLMJwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:52:39 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293D7C08EADC;
-        Mon, 13 Dec 2021 01:44:48 -0800 (PST)
+        with ESMTP id S241519AbhLMKEq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:04:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3377C025493;
+        Mon, 13 Dec 2021 01:50:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 759ABCE0E92;
-        Mon, 13 Dec 2021 09:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27CCEC00446;
-        Mon, 13 Dec 2021 09:44:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA7E9B80E3A;
+        Mon, 13 Dec 2021 09:50:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7C98C341C5;
+        Mon, 13 Dec 2021 09:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388684;
-        bh=IgI7V+rJHEBCgtv5IffGcg8HDrt4Y5DOlbM8kwCl3T4=;
+        s=korg; t=1639389021;
+        bh=XY+5QjQkfAzoqtBLjsjFlqQGFCZdy4KKgQnncCaeXJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8jRyXWU0bvYTeKuCrkC/CuSmrctqtEBIJq7tAs2TI/u3iB7/ynP0gkStncdoc7Ab
-         5PUc60D263bgmuW8OiWJlBoRRSU0ZE3EN8cMYZLzMp7B5495bqiOzThWC9NGi2dJ1G
-         Ypjr4MF6WUV5qcjvKb5o8azmIL4U6V1vqzLKR36w=
+        b=SEbyGa1UP2nxqRK0+x64xH3FSUvRVelv6k13NRmTrt76t16jEOT86NuuMgl7NFiN6
+         diM6VlxrfSm9l3cgtqfq1JwE8U5zVt5jeDPAETA2YUO52lWsucoYjAAfGXgz8Cw17d
+         SapVbV1/f2rFrpMrWPFtyvfAjadMMZo0Omqe9jHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 62/88] net/qla3xxx: fix an error code in ql_adapter_up()
+        stable@vger.kernel.org,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.10 091/132] Documentation/locking/locktypes: Update migrate_disable() bits.
 Date:   Mon, 13 Dec 2021 10:30:32 +0100
-Message-Id: <20211213092935.401565045@linuxfoundation.org>
+Message-Id: <20211213092942.231632373@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit d17b9737c2bc09b4ac6caf469826e5a7ce3ffab7 upstream.
+commit 6a631c0432dcccbcf45839016a07c015e335e9ae upstream.
 
-The ql_wait_for_drvr_lock() fails and returns false, then this
-function should return an error code instead of returning success.
+The initial implementation of migrate_disable() for mainline was a
+wrapper around preempt_disable(). RT kernels substituted this with
+a real migrate disable implementation.
 
-The other problem is that the success path prints an error message
-netdev_err(ndev, "Releasing driver lock\n");  Delete that and
-re-order the code a little to make it more clear.
+Later on mainline gained true migrate disable support, but the
+documentation was not updated.
 
-Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211207082416.GA16110@kili
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Update the documentation, remove the claims about migrate_disable()
+mapping to preempt_disable() on non-PREEMPT_RT kernels.
+
+Fixes: 74d862b682f51 ("sched: Make migrate_disable/enable() independent of RT")
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20211127163200.10466-2-bigeasy@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ Documentation/locking/locktypes.rst |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -3495,20 +3495,19 @@ static int ql_adapter_up(struct ql3_adap
+--- a/Documentation/locking/locktypes.rst
++++ b/Documentation/locking/locktypes.rst
+@@ -439,11 +439,9 @@ preemption. The following substitution w
+   spin_lock(&p->lock);
+   p->count += this_cpu_read(var2);
  
- 	spin_lock_irqsave(&qdev->hw_lock, hw_flags);
+-On a non-PREEMPT_RT kernel migrate_disable() maps to preempt_disable()
+-which makes the above code fully equivalent. On a PREEMPT_RT kernel
+ migrate_disable() ensures that the task is pinned on the current CPU which
+ in turn guarantees that the per-CPU access to var1 and var2 are staying on
+-the same CPU.
++the same CPU while the task remains preemptible.
  
--	err = ql_wait_for_drvr_lock(qdev);
--	if (err) {
--		err = ql_adapter_initialize(qdev);
--		if (err) {
--			netdev_err(ndev, "Unable to initialize adapter\n");
--			goto err_init;
--		}
--		netdev_err(ndev, "Releasing driver lock\n");
--		ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
--	} else {
-+	if (!ql_wait_for_drvr_lock(qdev)) {
- 		netdev_err(ndev, "Could not acquire driver lock\n");
-+		err = -ENODEV;
- 		goto err_lock;
- 	}
+ The migrate_disable() substitution is not valid for the following
+ scenario::
+@@ -456,9 +454,8 @@ scenario::
+     p = this_cpu_ptr(&var1);
+     p->val = func2();
  
-+	err = ql_adapter_initialize(qdev);
-+	if (err) {
-+		netdev_err(ndev, "Unable to initialize adapter\n");
-+		goto err_init;
-+	}
-+	ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
-+
- 	spin_unlock_irqrestore(&qdev->hw_lock, hw_flags);
+-While correct on a non-PREEMPT_RT kernel, this breaks on PREEMPT_RT because
+-here migrate_disable() does not protect against reentrancy from a
+-preempting task. A correct substitution for this case is::
++This breaks because migrate_disable() does not protect against reentrancy from
++a preempting task. A correct substitution for this case is::
  
- 	set_bit(QL_ADAPTER_UP, &qdev->flags);
+   func()
+   {
 
 
