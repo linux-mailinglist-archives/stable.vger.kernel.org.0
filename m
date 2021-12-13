@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D16C4727CF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6004724F6
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241709AbhLMKFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:05:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60500 "EHLO
+        id S234004AbhLMJkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:40:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238809AbhLMKBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:36 -0500
+        with ESMTP id S233200AbhLMJiZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:38:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEE60C09B1A0;
-        Mon, 13 Dec 2021 01:49:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB65C08E856;
+        Mon, 13 Dec 2021 01:37:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9005BB80E2A;
-        Mon, 13 Dec 2021 09:49:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65CEC341C8;
-        Mon, 13 Dec 2021 09:49:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF6C1B80E0B;
+        Mon, 13 Dec 2021 09:37:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32475C341C5;
+        Mon, 13 Dec 2021 09:37:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388955;
-        bh=A/G4pWgNqFGN8y72orhn8+pHNZMJRQaSiFkHANr3cOw=;
+        s=korg; t=1639388225;
+        bh=WIWdys5//IC5POQNm2wp3TJhcElEgJF+rtvRr0nj37I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pzn7komdr/kJhYB2zwVn+d5xQE35UFd3iXfMGlG/aJj5UDmM5W5fpymWBEZ8h6ukh
-         NEiW03j1Xgru4hzNYySenNEBpHRXd+pmq8mnAZajkcrkrZ2ZUVPZ4G6+iB0sJoj9sr
-         dQ8PvDUeZhz4rP0g3A9HVDe80L30lFXCAHTMtRnk=
+        b=SrRuJzUTFETThCODwlmXMXcJ9zsqdSlfKxL7UjPdaFppBThMXHWprERczegHgz41O
+         dC4NA/jbWR6mV5vP4UjMpdfqyAwKKFEfEi/Ia9BdMoXY7M+lQkV81CZctbMZtWE7l6
+         D3AH7Seb0b8iJmme8UEmKJtzJAibaA022EyBtrEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 067/132] aio: keep poll requests on waitqueue until completed
+        stable@vger.kernel.org, Oliver Neukum <oliver@neukum.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 29/53] net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
 Date:   Mon, 13 Dec 2021 10:30:08 +0100
-Message-Id: <20211213092941.410628628@linuxfoundation.org>
+Message-Id: <20211213092929.327616807@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,199 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-commit 363bee27e25804d8981dd1c025b4ad49dc39c530 upstream.
+commit 2be6d4d16a0849455a5c22490e3c5983495fed00 upstream.
 
-Currently, aio_poll_wake() will always remove the poll request from the
-waitqueue.  Then, if aio_poll_complete_work() sees that none of the
-polled events are ready and the request isn't cancelled, it re-adds the
-request to the waitqueue.  (This can easily happen when polling a file
-that doesn't pass an event mask when waking up its waitqueue.)
+Currently, due to the sequential use of min_t() and clamp_t() macros,
+in cdc_ncm_check_tx_max(), if dwNtbOutMaxSize is not set, the logic
+sets tx_max to 0.  This is then used to allocate the data area of the
+SKB requested later in cdc_ncm_fill_tx_frame().
 
-This is fundamentally broken for two reasons:
+This does not cause an issue presently because when memory is
+allocated during initialisation phase of SKB creation, more memory
+(512b) is allocated than is required for the SKB headers alone (320b),
+leaving some space (512b - 320b = 192b) for CDC data (172b).
 
-  1. If a wakeup occurs between vfs_poll() and the request being
-     re-added to the waitqueue, it will be missed because the request
-     wasn't on the waitqueue at the time.  Therefore, IOCB_CMD_POLL
-     might never complete even if the polled file is ready.
+However, if more elements (for example 3 x u64 = [24b]) were added to
+one of the SKB header structs, say 'struct skb_shared_info',
+increasing its original size (320b [320b aligned]) to something larger
+(344b [384b aligned]), then suddenly the CDC data (172b) no longer
+fits in the spare SKB data area (512b - 384b = 128b).
 
-  2. When the request isn't on the waitqueue, there is no way to be
-     notified that the waitqueue is being freed (which happens when its
-     lifetime is shorter than the struct file's).  This is supposed to
-     happen via the waitqueue entries being woken up with POLLFREE.
+Consequently the SKB bounds checking semantics fails and panics:
 
-Therefore, leave the requests on the waitqueue until they are actually
-completed (or cancelled).  To keep track of when aio_poll_complete_work
-needs to be scheduled, use new fields in struct poll_iocb.  Remove the
-'done' field which is now redundant.
+  skbuff: skb_over_panic: text:ffffffff830a5b5f len:184 put:172   \
+     head:ffff888119227c00 data:ffff888119227c00 tail:0xb8 end:0x80 dev:<NULL>
 
-Note that this is consistent with how sys_poll() and eventpoll work;
-their wakeup functions do *not* remove the waitqueue entries.
+  ------------[ cut here ]------------
+  kernel BUG at net/core/skbuff.c:110!
+  RIP: 0010:skb_panic+0x14f/0x160 net/core/skbuff.c:106
+  <snip>
+  Call Trace:
+   <IRQ>
+   skb_over_panic+0x2c/0x30 net/core/skbuff.c:115
+   skb_put+0x205/0x210 net/core/skbuff.c:1877
+   skb_put_zero include/linux/skbuff.h:2270 [inline]
+   cdc_ncm_ndp16 drivers/net/usb/cdc_ncm.c:1116 [inline]
+   cdc_ncm_fill_tx_frame+0x127f/0x3d50 drivers/net/usb/cdc_ncm.c:1293
+   cdc_ncm_tx_fixup+0x98/0xf0 drivers/net/usb/cdc_ncm.c:1514
 
-Fixes: 2c14fa838cbe ("aio: implement IOCB_CMD_POLL")
-Cc: <stable@vger.kernel.org> # v4.18+
-Link: https://lore.kernel.org/r/20211209010455.42744-5-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+By overriding the max value with the default CDC_NCM_NTB_MAX_SIZE_TX
+when not offered through the system provided params, we ensure enough
+data space is allocated to handle the CDC data, meaning no crash will
+occur.
+
+Cc: Oliver Neukum <oliver@neukum.org>
+Fixes: 289507d3364f9 ("net: cdc_ncm: use sysfs for rx/tx aggregation tuning")
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Bjørn Mork <bjorn@mork.no>
+Link: https://lore.kernel.org/r/20211202143437.1411410-1-lee.jones@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/aio.c |   83 +++++++++++++++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 63 insertions(+), 20 deletions(-)
+ drivers/net/usb/cdc_ncm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -182,8 +182,9 @@ struct poll_iocb {
- 	struct file		*file;
- 	struct wait_queue_head	*head;
- 	__poll_t		events;
--	bool			done;
- 	bool			cancelled;
-+	bool			work_scheduled;
-+	bool			work_need_resched;
- 	struct wait_queue_entry	wait;
- 	struct work_struct	work;
- };
-@@ -1640,14 +1641,26 @@ static void aio_poll_complete_work(struc
- 	 * avoid further branches in the fast path.
- 	 */
- 	spin_lock_irq(&ctx->ctx_lock);
-+	spin_lock(&req->head->lock);
- 	if (!mask && !READ_ONCE(req->cancelled)) {
--		add_wait_queue(req->head, &req->wait);
-+		/*
-+		 * The request isn't actually ready to be completed yet.
-+		 * Reschedule completion if another wakeup came in.
-+		 */
-+		if (req->work_need_resched) {
-+			schedule_work(&req->work);
-+			req->work_need_resched = false;
-+		} else {
-+			req->work_scheduled = false;
-+		}
-+		spin_unlock(&req->head->lock);
- 		spin_unlock_irq(&ctx->ctx_lock);
- 		return;
- 	}
-+	list_del_init(&req->wait.entry);
-+	spin_unlock(&req->head->lock);
- 	list_del_init(&iocb->ki_list);
- 	iocb->ki_res.res = mangle_poll(mask);
--	req->done = true;
- 	spin_unlock_irq(&ctx->ctx_lock);
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -177,6 +177,8 @@ static u32 cdc_ncm_check_tx_max(struct u
+ 	/* clamp new_tx to sane values */
+ 	min = ctx->max_datagram_size + ctx->max_ndp_size + sizeof(struct usb_cdc_ncm_nth16);
+ 	max = min_t(u32, CDC_NCM_NTB_MAX_SIZE_TX, le32_to_cpu(ctx->ncm_parm.dwNtbOutMaxSize));
++	if (max == 0)
++		max = CDC_NCM_NTB_MAX_SIZE_TX; /* dwNtbOutMaxSize not set */
  
- 	iocb_put(iocb);
-@@ -1661,9 +1674,9 @@ static int aio_poll_cancel(struct kiocb
- 
- 	spin_lock(&req->head->lock);
- 	WRITE_ONCE(req->cancelled, true);
--	if (!list_empty(&req->wait.entry)) {
--		list_del_init(&req->wait.entry);
-+	if (!req->work_scheduled) {
- 		schedule_work(&aiocb->poll.work);
-+		req->work_scheduled = true;
- 	}
- 	spin_unlock(&req->head->lock);
- 
-@@ -1682,20 +1695,26 @@ static int aio_poll_wake(struct wait_que
- 	if (mask && !(mask & req->events))
- 		return 0;
- 
--	list_del_init(&req->wait.entry);
--
--	if (mask && spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
-+	/*
-+	 * Complete the request inline if possible.  This requires that three
-+	 * conditions be met:
-+	 *   1. An event mask must have been passed.  If a plain wakeup was done
-+	 *	instead, then mask == 0 and we have to call vfs_poll() to get
-+	 *	the events, so inline completion isn't possible.
-+	 *   2. The completion work must not have already been scheduled.
-+	 *   3. ctx_lock must not be busy.  We have to use trylock because we
-+	 *	already hold the waitqueue lock, so this inverts the normal
-+	 *	locking order.  Use irqsave/irqrestore because not all
-+	 *	filesystems (e.g. fuse) call this function with IRQs disabled,
-+	 *	yet IRQs have to be disabled before ctx_lock is obtained.
-+	 */
-+	if (mask && !req->work_scheduled &&
-+	    spin_trylock_irqsave(&iocb->ki_ctx->ctx_lock, flags)) {
- 		struct kioctx *ctx = iocb->ki_ctx;
- 
--		/*
--		 * Try to complete the iocb inline if we can. Use
--		 * irqsave/irqrestore because not all filesystems (e.g. fuse)
--		 * call this function with IRQs disabled and because IRQs
--		 * have to be disabled before ctx_lock is obtained.
--		 */
-+		list_del_init(&req->wait.entry);
- 		list_del(&iocb->ki_list);
- 		iocb->ki_res.res = mangle_poll(mask);
--		req->done = true;
- 		if (iocb->ki_eventfd && eventfd_signal_count()) {
- 			iocb = NULL;
- 			INIT_WORK(&req->work, aio_poll_put_work);
-@@ -1705,7 +1724,20 @@ static int aio_poll_wake(struct wait_que
- 		if (iocb)
- 			iocb_put(iocb);
- 	} else {
--		schedule_work(&req->work);
-+		/*
-+		 * Schedule the completion work if needed.  If it was already
-+		 * scheduled, record that another wakeup came in.
-+		 *
-+		 * Don't remove the request from the waitqueue here, as it might
-+		 * not actually be complete yet (we won't know until vfs_poll()
-+		 * is called), and we must not miss any wakeups.
-+		 */
-+		if (req->work_scheduled) {
-+			req->work_need_resched = true;
-+		} else {
-+			schedule_work(&req->work);
-+			req->work_scheduled = true;
-+		}
- 	}
- 	return 1;
- }
-@@ -1752,8 +1784,9 @@ static int aio_poll(struct aio_kiocb *ai
- 	req->events = demangle_poll(iocb->aio_buf) | EPOLLERR | EPOLLHUP;
- 
- 	req->head = NULL;
--	req->done = false;
- 	req->cancelled = false;
-+	req->work_scheduled = false;
-+	req->work_need_resched = false;
- 
- 	apt.pt._qproc = aio_poll_queue_proc;
- 	apt.pt._key = req->events;
-@@ -1768,17 +1801,27 @@ static int aio_poll(struct aio_kiocb *ai
- 	spin_lock_irq(&ctx->ctx_lock);
- 	if (likely(req->head)) {
- 		spin_lock(&req->head->lock);
--		if (unlikely(list_empty(&req->wait.entry))) {
--			if (apt.error)
-+		if (list_empty(&req->wait.entry) || req->work_scheduled) {
-+			/*
-+			 * aio_poll_wake() already either scheduled the async
-+			 * completion work, or completed the request inline.
-+			 */
-+			if (apt.error) /* unsupported case: multiple queues */
- 				cancel = true;
- 			apt.error = 0;
- 			mask = 0;
- 		}
- 		if (mask || apt.error) {
-+			/* Steal to complete synchronously. */
- 			list_del_init(&req->wait.entry);
- 		} else if (cancel) {
-+			/* Cancel if possible (may be too late though). */
- 			WRITE_ONCE(req->cancelled, true);
--		} else if (!req->done) { /* actually waiting for an event */
-+		} else if (!list_empty(&req->wait.entry)) {
-+			/*
-+			 * Actually waiting for an event, so add the request to
-+			 * active_reqs so that it can be cancelled if needed.
-+			 */
- 			list_add_tail(&aiocb->ki_list, &ctx->active_reqs);
- 			aiocb->ki_cancel = aio_poll_cancel;
- 		}
+ 	/* some devices set dwNtbOutMaxSize too low for the above default */
+ 	min = min(min, max);
 
 
