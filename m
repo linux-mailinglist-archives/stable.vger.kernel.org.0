@@ -2,49 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DA564724A1
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:37:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55559472517
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:41:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234540AbhLMJh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:37:29 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49914 "EHLO
+        id S235315AbhLMJk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:40:58 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52734 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234571AbhLMJgS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:36:18 -0500
+        with ESMTP id S234739AbhLMJjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 963E5B80E27;
-        Mon, 13 Dec 2021 09:36:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B41EC341CE;
-        Mon, 13 Dec 2021 09:36:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19D85B80E2C;
+        Mon, 13 Dec 2021 09:39:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EC91C00446;
+        Mon, 13 Dec 2021 09:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388176;
-        bh=8w8S0A2e4urmCYJWOmJKdW49moaUE/UpSGwK1KJUYvI=;
+        s=korg; t=1639388357;
+        bh=afMLMSWpIRUSLjedBJv/kgE3o/x0o6q2abLpiG3URec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1H9TZp3SzdQHF+arsQ9ThxarubJD3sX7Yp+swOprZB8QCVQUxXEuHgpMVLtD9XOpD
-         5SfQgxgdoxhuOuidH/yGp6huSdMi6cyq1TbgiseoaEcbKvJTvD+VH7hNqO95Bc9DCI
-         6JfxzwZfk9VejDy/jaetoL8YvTm1D0vE+LF6z6Qo=
+        b=JfCrnGA72eV1g+u8aQnCigfazWFFllJ6sOG+VJPAb2zt35wX5geuz8rvzTTeIiIXx
+         gjhefSlJQKNDgIoiFrVITKJaURqQ8VJmIq3njVEkYZLyX19gDzGJ7OCrDmUGiXkcpH
+         3+vB8KkIcHtr6XW6Pzu0Ggxy98fMU2a8tsDCSGYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manjong Lee <mj0123.lee@samsung.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Changheun Lee <nanich.lee@samsung.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@infradead.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        seunghwan.hyun@samsung.com, sookwan7.kim@samsung.com,
-        yt0928.kim@samsung.com, junho89.kim@samsung.com,
-        jisoo2146.oh@samsung.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 13/53] mm: bdi: initialize bdi_min_ratio when bdi is unregistered
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 21/74] udp: using datalen to cap max gso segments
 Date:   Mon, 13 Dec 2021 10:29:52 +0100
-Message-Id: <20211213092928.803606948@linuxfoundation.org>
+Message-Id: <20211213092931.501210644@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manjong Lee <mj0123.lee@samsung.com>
+From: Jianguo Wu <wujianguo@chinatelecom.cn>
 
-commit 3c376dfafbf7a8ea0dea212d095ddd83e93280bb upstream.
+commit 158390e45612ef0fde160af0826f1740c36daf21 upstream.
 
-Initialize min_ratio if it is set during bdi unregistration.  This can
-prevent problems that may occur a when bdi is removed without resetting
-min_ratio.
+The max number of UDP gso segments is intended to cap to UDP_MAX_SEGMENTS,
+this is checked in udp_send_skb():
 
-For example.
-1) insert external sdcard
-2) set external sdcard's min_ratio 70
-3) remove external sdcard without setting min_ratio 0
-4) insert external sdcard
-5) set external sdcard's min_ratio 70 << error occur(can't set)
+    if (skb->len > cork->gso_size * UDP_MAX_SEGMENTS) {
+        kfree_skb(skb);
+        return -EINVAL;
+    }
 
-Because when an sdcard is removed, the present bdi_min_ratio value will
-remain.  Currently, the only way to reset bdi_min_ratio is to reboot.
+skb->len contains network and transport header len here, we should use
+only data len instead.
 
-[akpm@linux-foundation.org: tweak comment and coding style]
-
-Link: https://lkml.kernel.org/r/20211021161942.5983-1-mj0123.lee@samsung.com
-Signed-off-by: Manjong Lee <mj0123.lee@samsung.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Changheun Lee <nanich.lee@samsung.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <seunghwan.hyun@samsung.com>
-Cc: <sookwan7.kim@samsung.com>
-Cc: <yt0928.kim@samsung.com>
-Cc: <junho89.kim@samsung.com>
-Cc: <jisoo2146.oh@samsung.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: bec1f6f69736 ("udp: generate gso with UDP_SEGMENT")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/900742e5-81fb-30dc-6e0b-375c6cdd7982@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/backing-dev.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ net/ipv4/udp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -942,6 +942,13 @@ void bdi_unregister(struct backing_dev_i
- 	wb_shutdown(&bdi->wb);
- 	cgwb_bdi_unregister(bdi);
- 
-+	/*
-+	 * If this BDI's min ratio has been set, use bdi_set_min_ratio() to
-+	 * update the global bdi_min_ratio.
-+	 */
-+	if (bdi->min_ratio)
-+		bdi_set_min_ratio(bdi, 0);
-+
- 	if (bdi->dev) {
- 		bdi_debug_unregister(bdi);
- 		device_unregister(bdi->dev);
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -798,7 +798,7 @@ static int udp_send_skb(struct sk_buff *
+ 			kfree_skb(skb);
+ 			return -EINVAL;
+ 		}
+-		if (skb->len > cork->gso_size * UDP_MAX_SEGMENTS) {
++		if (datalen > cork->gso_size * UDP_MAX_SEGMENTS) {
+ 			kfree_skb(skb);
+ 			return -EINVAL;
+ 		}
 
 
