@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E96D472643
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F1EF47272A
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234700AbhLMJts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:49:48 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:39610 "EHLO
+        id S235925AbhLMJ66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:58:58 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:43698 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236921AbhLMJrk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:47:40 -0500
+        with ESMTP id S237105AbhLMJzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:55:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A1D4CCE0E6B;
-        Mon, 13 Dec 2021 09:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 727F1C341C5;
-        Mon, 13 Dec 2021 09:47:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 96974CE0DDE;
+        Mon, 13 Dec 2021 09:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42ACFC34600;
+        Mon, 13 Dec 2021 09:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388856;
-        bh=nrrb7MP7dMSf02K6yIGdWHNNfljyPexHZmnQ23V9R40=;
+        s=korg; t=1639389338;
+        bh=fUVGyH+XIPMZ1nlNIXBaTxUODMScq46yKspBYddh4gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+/fKGsSUSheyz2r93Q1rqH5lYgA0MLQYHDQbr5ufWD8ZOT7QyBgeteku03QySmAG
-         i+n7b+Vpa4/YnQH63Wn+g7fBEx3aF7sfGj0sROAH1M5hp9X8TFxGRk47075chQ5YtV
-         zwIGH7ijBAOGcg/OudvU07pyh8W06mzGArmXOBV0=
+        b=xEZTc5nEhBpcPh9dzxhPDC5HQYIbuonHrSEncpi9422w9cmyVRrEvTt9Qh/lXysAo
+         Tlt4ILzBWdre1rjKQfbvb+F0G8huTHzWlx9ljEgYh2sT/obAadfxnBcKtdAZDaO639
+         lFxm6A/XX59rHvPZG862jmv0sMFWxApY0CQpEVlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 032/132] ice: ignore dropped packets during init
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 058/171] KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
 Date:   Mon, 13 Dec 2021 10:29:33 +0100
-Message-Id: <20211213092940.222334216@linuxfoundation.org>
+Message-Id: <20211213092947.030664742@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 28dc1b86f8ea9fd6f4c9e0b363db73ecabf84e22 upstream.
+commit 3244867af8c065e51969f1bffe732d3ebfd9a7d2 upstream.
 
-If the hardware is constantly receiving unicast or broadcast packets
-during driver load, the device previously counted many GLV_RDPC (VSI
-dropped packets) events during init. This causes confusing dropped
-packet statistics during driver load. The dropped packets counter
-incrementing does stop once the driver finishes loading.
+Do not bail early if there are no bits set in the sparse banks for a
+non-sparse, a.k.a. "all CPUs", IPI request.  Per the Hyper-V spec, it is
+legal to have a variable length of '0', e.g. VP_SET's BankContents in
+this case, if the request can be serviced without the extra info.
 
-Avoid this problem by baselining our statistics at the end of driver
-open instead of the end of probe.
+  It is possible that for a given invocation of a hypercall that does
+  accept variable sized input headers that all the header input fits
+  entirely within the fixed size header. In such cases the variable sized
+  input header is zero-sized and the corresponding bits in the hypercall
+  input should be set to zero.
 
-Fixes: cdedef59deb0 ("ice: Configure VSIs for Tx/Rx")
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Bailing early results in KVM failing to send IPIs to all CPUs as expected
+by the guest.
+
+Fixes: 214ff83d4473 ("KVM: x86: hyperv: implement PV IPI send hypercalls")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20211207220926.718794-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/hyperv.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5267,6 +5267,9 @@ static int ice_up_complete(struct ice_vs
- 		netif_carrier_on(vsi->netdev);
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -1922,11 +1922,13 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
+ 
+ 		all_cpus = send_ipi_ex.vp_set.format == HV_GENERIC_SET_ALL;
+ 
++		if (all_cpus)
++			goto check_and_send_ipi;
++
+ 		if (!sparse_banks_len)
+ 			goto ret_success;
+ 
+-		if (!all_cpus &&
+-		    kvm_read_guest(kvm,
++		if (kvm_read_guest(kvm,
+ 				   hc->ingpa + offsetof(struct hv_send_ipi_ex,
+ 							vp_set.bank_contents),
+ 				   sparse_banks,
+@@ -1934,6 +1936,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vc
+ 			return HV_STATUS_INVALID_HYPERCALL_INPUT;
  	}
  
-+	/* clear this now, and the first stats read will be used as baseline */
-+	vsi->stat_offsets_loaded = false;
-+
- 	ice_service_task_schedule(pf);
++check_and_send_ipi:
+ 	if ((vector < HV_IPI_LOW_VECTOR) || (vector > HV_IPI_HIGH_VECTOR))
+ 		return HV_STATUS_INVALID_HYPERCALL_INPUT;
  
- 	return 0;
 
 
