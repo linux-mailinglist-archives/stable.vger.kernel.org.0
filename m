@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E7074726CF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA694729EA
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:27:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238868AbhLMJyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:54:46 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:43130 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238167AbhLMJwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:52:43 -0500
+        id S235233AbhLMK1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:27:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38638 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237101AbhLMK0S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:26:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F37FC01DF04;
+        Mon, 13 Dec 2021 02:00:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 68CA3CE0AE2;
-        Mon, 13 Dec 2021 09:52:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 133E1C00446;
-        Mon, 13 Dec 2021 09:52:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18E7BB80DEC;
+        Mon, 13 Dec 2021 10:00:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31B21C34601;
+        Mon, 13 Dec 2021 10:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389159;
-        bh=gYagyYNesN1+azpI4k5Dvmoq4mI/SFcMSxDVU8e70us=;
+        s=korg; t=1639389631;
+        bh=9FdpmkzTWuaFh15PEjKrURtIJNq4boE8px8lf9ZVNtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6TPExUy5rXIUyWCwapuQD46kY3pHdoOh7I4nxp1UUIoxx1WQtdJ645wZTFW0rM3d
-         +DvRsYVGkRNBH9ATtfplhu5wduTChevd3cYQ+wc9q58/EUMhVPRoBmmfJ10kcOEfyz
-         ZX/FtsRvaBtFmqTwpHE0B+xoNDEKxXK0YIwjmm40=
+        b=xq+vdjVG6Dg2NcquP43xoGeBP0obVDpO5Gui899do5UDp9MiseoqzT1lzZDmL0RVa
+         yZl89HOZ/g4+yjyCZ4Wmlg5Kw48dThBQywFX69JSE8mv3kremr7oVnav3bcB7xMEOC
+         4mZFfV5uuH6VYCJfS8u/ccpCchwCgICvnUFzxM5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 123/132] irqchip/armada-370-xp: Fix return value of armada_370_xp_msi_alloc()
-Date:   Mon, 13 Dec 2021 10:31:04 +0100
-Message-Id: <20211213092943.319972884@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 150/171] iio: itg3200: Call iio_trigger_notify_done() on error
+Date:   Mon, 13 Dec 2021 10:31:05 +0100
+Message-Id: <20211213092950.058049565@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit ce20eff57361e72878a772ef08b5239d3ae102b6 upstream.
+commit 67fe29583e72b2103abb661bb58036e3c1f00277 upstream.
 
-IRQ domain alloc function should return zero on success. Non-zero value
-indicates failure.
+IIO trigger handlers must call iio_trigger_notify_done() when done. This
+must be done even when an error occurred. Otherwise the trigger will be
+seen as busy indefinitely and the trigger handler will never be called
+again.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: fcc392d501bd ("irqchip/armada-370-xp: Use the generic MSI infrastructure")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211125130057.26705-1-pali@kernel.org
+The itg3200 driver neglects to call iio_trigger_notify_done() when there is
+an error reading the gyro data. Fix this by making sure that
+iio_trigger_notify_done() is included in the error exit path.
+
+Fixes: 9dbf091da080 ("iio: gyro: Add itg3200")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211101144055.13858-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-armada-370-xp.c |    2 +-
+ drivers/iio/gyro/itg3200_buffer.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/irqchip/irq-armada-370-xp.c
-+++ b/drivers/irqchip/irq-armada-370-xp.c
-@@ -250,7 +250,7 @@ static int armada_370_xp_msi_alloc(struc
- 				    NULL, NULL);
- 	}
+--- a/drivers/iio/gyro/itg3200_buffer.c
++++ b/drivers/iio/gyro/itg3200_buffer.c
+@@ -61,9 +61,9 @@ static irqreturn_t itg3200_trigger_handl
  
--	return hwirq;
-+	return 0;
+ 	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ 
++error_ret:
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
+-error_ret:
+ 	return IRQ_HANDLED;
  }
  
- static void armada_370_xp_msi_free(struct irq_domain *domain,
 
 
