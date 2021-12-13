@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B33A4726FC
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 243904726AB
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236331AbhLMJ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:56:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236152AbhLMJyt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:54:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0FAC08EAED;
-        Mon, 13 Dec 2021 01:45:52 -0800 (PST)
+        id S237048AbhLMJxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:53:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37872 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236100AbhLMJva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:51:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2963FB80E33;
-        Mon, 13 Dec 2021 09:45:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FFB9C00446;
-        Mon, 13 Dec 2021 09:45:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00B3FB80E20;
+        Mon, 13 Dec 2021 09:51:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 485E5C341C8;
+        Mon, 13 Dec 2021 09:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388749;
-        bh=gYagyYNesN1+azpI4k5Dvmoq4mI/SFcMSxDVU8e70us=;
+        s=korg; t=1639389087;
+        bh=bT8fZiEE3OsnyRilO4i9hYFSC/yQ/MPlPWJSo/i5iOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlCHl4du4zsgmoTFVWt1MAk6WZ1d5FQybRUqXG01V+90BsbRNCEwNkdnA5orNgeFG
-         GBT4DhTbWDfIPsXvU9Fqw3k3BHGJmWDvukHJwh+rkPZsahwFUB18hx5gipf5XiXhve
-         rg30jy3euJLCJcsrMxFZXd3+jnqvu+Azqz2Fu+4w=
+        b=mimjqJUkmOjWNxeVBi0i+NhYASXdDcnVXYXkvscumAv1y0RDWMCZIZ4cjgM3sdb6L
+         7XCBoUtIFtJD8RETaa2q44BHROHtjmX1c6aBTUFRcSgHG8UepVOECQ0hG1q/Moo0A5
+         r/ugi0lm0pHjphXkogPxdnGBThPvlhEupXdvE410=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 83/88] irqchip/armada-370-xp: Fix return value of armada_370_xp_msi_alloc()
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 112/132] iio: kxsd9: Dont return error code in trigger handler
 Date:   Mon, 13 Dec 2021 10:30:53 +0100
-Message-Id: <20211213092936.071947544@linuxfoundation.org>
+Message-Id: <20211213092942.940765515@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,33 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit ce20eff57361e72878a772ef08b5239d3ae102b6 upstream.
+commit 45febe0d63917ee908198c5be08511c64ee1790a upstream.
 
-IRQ domain alloc function should return zero on success. Non-zero value
-indicates failure.
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: fcc392d501bd ("irqchip/armada-370-xp: Use the generic MSI infrastructure")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211125130057.26705-1-pali@kernel.org
+The kxsd9 interrupt handler returns an error code if reading the data
+registers fails. In addition when exiting due to an error the trigger
+handler does not call `iio_trigger_notify_done()`. Which when not done
+keeps the triggered disabled forever.
+
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
+
+Since we can't return the error code make sure to at least log it as part
+of the error message.
+
+Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20211024171251.22896-2-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-armada-370-xp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/kxsd9.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/irqchip/irq-armada-370-xp.c
-+++ b/drivers/irqchip/irq-armada-370-xp.c
-@@ -250,7 +250,7 @@ static int armada_370_xp_msi_alloc(struc
- 				    NULL, NULL);
+--- a/drivers/iio/accel/kxsd9.c
++++ b/drivers/iio/accel/kxsd9.c
+@@ -224,14 +224,14 @@ static irqreturn_t kxsd9_trigger_handler
+ 			       hw_values.chan,
+ 			       sizeof(hw_values.chan));
+ 	if (ret) {
+-		dev_err(st->dev,
+-			"error reading data\n");
+-		return ret;
++		dev_err(st->dev, "error reading data: %d\n", ret);
++		goto out;
  	}
  
--	return hwirq;
-+	return 0;
- }
+ 	iio_push_to_buffers_with_timestamp(indio_dev,
+ 					   &hw_values,
+ 					   iio_get_time_ns(indio_dev));
++out:
+ 	iio_trigger_notify_done(indio_dev->trig);
  
- static void armada_370_xp_msi_free(struct irq_domain *domain,
+ 	return IRQ_HANDLED;
 
 
