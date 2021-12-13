@@ -2,111 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 836534731E3
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 17:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E88FD47320D
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 17:42:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236284AbhLMQgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 11:36:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42664 "EHLO
+        id S237306AbhLMQmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 11:42:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234911AbhLMQgG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 11:36:06 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA58C061574
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:36:05 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id u80so15390073pfc.9
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:36:05 -0800 (PST)
+        with ESMTP id S231418AbhLMQmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 11:42:36 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2059C061574
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:42:35 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id z5so54759894edd.3
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 08:42:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=5wyxUOFKzXzWH6KmMgR+HYDbJTzQzijXFBl960+ZGjY=;
-        b=D8O81HGIxMuUln1CvFs5EppKQefv7NmfhODLWT6c95m5ppaYrbylr/8cX4L3KfDPG/
-         KwTwxNpcAZUCpn1+SywI9p6Mo2PwVKUSmKkpKGoiWlgLqY8QzAhdXR4Lxf6Sx8B6KEOl
-         9Y4wvQPORVDvX/Xq9OwUDBf7DgvYBz+tjueGiOed2Rrcz14r0yb+kNN5Vd+u6dHsWc0R
-         XpqeSCjvAjo5yhyTI6ughv6riC68rRsXPaGBa+Xx/5U3yp8lAzBo+JWXzcJfW79E+Kpu
-         kGbFUH4Jf4vKZdlaSqyIqPUQ9L9OG3S71vKMhrj57V8gSru8Qozg4tu/OmEFXTkNRm78
-         MBvA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=OoyZdpbqT5Z3wyU/USbcnWnYz2BKH2cz4anuEz8Evk8=;
+        b=qA1zXgrSpvzhGXFG7CGJebwec0nxStKD07NruMf18N9Gs5PrmW6XU3+/YDnBMryAL0
+         XX66k/V0ZfCdrcKnN1/MrbDmd/BahDYRifVwYP0JAto6LdDWIvEDoGKmgbJfBushys64
+         c94GWhUCxnqxLlT2TDLVoKURhCv/1dxWVFbajiwnqcxNoeMiJpHZRzuIJN9V52M301kT
+         uCWbQpBRWQSlTXIwI8Wa3RYODj2yGmUKpl8uhlx/zM6bP8Q1vaADDJrAfTJmUO7W7mae
+         h4NITDawXF8SqcaRKrYMS8R6htQC0EJK84DW070GQw2vljwoZbeY60QuKIOcFhdhcvcT
+         7KTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=5wyxUOFKzXzWH6KmMgR+HYDbJTzQzijXFBl960+ZGjY=;
-        b=VpBV0+b803yy3Z9MI1jEUhqBYSCEWa0SHI85rwVG3CjJC46wcn0I5Dl+P+2Cj5RF+2
-         t2C5Ftb/qiey0GYctEmbvpIxCsYNdRFB6M4yefCCqQjRdluQGkVqQeVbwB/KKALTIgGC
-         6TWO8MoR7rfTlG0fVDI6LMoU6HNMYJGrOi5tH5Woj1gFNjl9hhtp0UBPjvVSARvTxw/q
-         Xvc3uap+wTeLIcJHrMSAmiyim3HoXzvrfG1GzgbYNZYyOmGkC5/U7ZBvQqO3hgEKa1EX
-         3V6ejmab9pS5SefeU3ZD4bc7l/N1nYS61JPTEDVbNRh5D7kuGrmLmrFVqcNuqxncwo3x
-         4NTg==
-X-Gm-Message-State: AOAM5337kpJxRtMZVoEWGQdUyMSY6swfk8/MZ/fB9gmfbyUdBXmsq70O
-        54r3RbeUtcFF5BVyzTGLDatgag==
-X-Google-Smtp-Source: ABdhPJyXncbWfDcnfXrMsKYIsvJnDH5haMuRwYLqcxc16EUEfKi0gk5UXHBHOqGpstTcilOU7RUBsw==
-X-Received: by 2002:a63:c155:: with SMTP id p21mr46985502pgi.156.1639413364899;
-        Mon, 13 Dec 2021 08:36:04 -0800 (PST)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id y28sm12953221pfa.208.2021.12.13.08.36.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Dec 2021 08:36:04 -0800 (PST)
-Date:   Mon, 13 Dec 2021 16:36:00 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        ignat@cloudflare.com, bgardon@google.com, dmatlack@google.com,
-        stevensd@chromium.org, kernel-team@cloudflare.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] KVM: x86: zap invalid roots in kvm_tdp_mmu_zap_all
-Message-ID: <Ybd2cEqUnxiy/JBd@google.com>
-References: <20211213112514.78552-1-pbonzini@redhat.com>
- <20211213112514.78552-3-pbonzini@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=OoyZdpbqT5Z3wyU/USbcnWnYz2BKH2cz4anuEz8Evk8=;
+        b=sCRzKDe6IueW0oy2aRTbpWhlWSYchNiR5itpDvrt9nMf7dyPDpdzR/NxeeAJQVLdGi
+         brz/SkLpPr8vlcq1PL8VWdUVfZCE3K7S9AFJy/za2oU/tSKkA/wbABLmNUrodt8AhqjX
+         IgLE6uE3/XP1XllJHGJ00eyy9iTCgMjoejW5Ea6ewQwI6kNC8JQaNcRWUtHpDGf6Ma7t
+         odbhOrHVwPH5ER/f5IW1Pl4uhQq9H9a2VTACINFbBKUAvj4qPGyJUFfKbJNK6nkh8/pY
+         YJmWy5ktYkc4x+BCC1Ikvw4qVp9tIyMa+OvegsranhggCnR9kfHO0FYY4OAz8omyg8k6
+         Ig3w==
+X-Gm-Message-State: AOAM5303Y92t8oFSYXDNdgalrximVKAyMVjkI5a5VA5n17PC9L9mE/6Z
+        lIPsebF0vz826H5nzpKcnl12iv/KDcZVbUd7DN9aLQ==
+X-Google-Smtp-Source: ABdhPJwI1xgtoGccXHW3zHjr023WnjqGMlH0Yrrzk9tlXXRKtz2dSqN/DzzTKheiiisqqIazsdEak+wAifzCNCcQ8ws=
+X-Received: by 2002:a05:6402:4b:: with SMTP id f11mr2604824edu.267.1639413754237;
+ Mon, 13 Dec 2021 08:42:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211213112514.78552-3-pbonzini@redhat.com>
+References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 13 Dec 2021 22:12:23 +0530
+Message-ID: <CA+G9fYtW1USHtpgQ0x_iyRg1q2OKX5BXmoq96FuA0gqYnd=L8A@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/171] 5.15.8-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 13, 2021, Paolo Bonzini wrote:
-> kvm_tdp_mmu_zap_all is intended to visit all roots and zap their page
-> tables, which flushes the accessed and dirty bits out to the Linux
-> "struct page"s.  Missing some of the roots has catastrophic effects,
-> because kvm_tdp_mmu_zap_all is called when the MMU notifier is being
-> removed and any PTEs left behind might become dangling by the time
-> kvm-arch_destroy_vm tears down the roots for good.
-> 
-> Unfortunately that is exactly what kvm_tdp_mmu_zap_all is doing: it
-> visits all roots via for_each_tdp_mmu_root_yield_safe, which in turn
-> uses kvm_tdp_mmu_get_root to skip invalid roots.  If the current root is
-> invalid at the time of kvm_tdp_mmu_zap_all, its page tables will remain
-> in place but will later be zapped during kvm_arch_destroy_vm.
+On Mon, 13 Dec 2021 at 15:24, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.8 release.
+> There are 171 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.8-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-As stated in the bug report thread[*], it should be impossible as for the MMU
-notifier to be unregistered while kvm_mmu_zap_all_fast() is running.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I do believe there's a race between set_nx_huge_pages() and kvm_mmu_notifier_release(),
-but that would result in the use-after-free kvm_set_pfn_dirty() tracing back to
-set_nx_huge_pages(), not kvm_destroy_vm().  And for that, I would much prefer we
-elevant mm->users while changing the NX hugepage setting.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 8f0035517450..985df4db8192 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -6092,10 +6092,15 @@ static int set_nx_huge_pages(const char *val, const struct kernel_param *kp)
-                mutex_lock(&kvm_lock);
+## Build
+* kernel: 5.15.8-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.15.y
+* git commit: 5eac0dfa371b154308861ff6fc0d6ae0ad568e56
+* git describe: v5.15.7-172-g5eac0dfa371b
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.7-172-g5eac0dfa371b
 
-                list_for_each_entry(kvm, &vm_list, vm_list) {
-+                       if (!mmget_not_zero(kvm->mm))
-+                               continue;
-+
-                        mutex_lock(&kvm->slots_lock);
-                        kvm_mmu_zap_all_fast(kvm);
-                        mutex_unlock(&kvm->slots_lock);
+## No Test Regressions (compared to v5.15.7)
 
-+                       mmput_async(kvm->mm);
-+
-                        wake_up_process(kvm->arch.nx_lpage_recovery_thread);
-                }
-                mutex_unlock(&kvm_lock);
+## No Test Fixes (compared to v5.15.7)
 
-[*] https://lore.kernel.org/all/Ybdxd7QcJI71UpHm@google.com/
+## Test result summary
+total: 95983, pass: 81995, fail: 721, skip: 12474, xfail: 793
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 259 total, 255 passed, 4 failed
+* arm64: 37 total, 37 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 36 total, 36 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 34 total, 30 passed, 4 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 52 total, 48 passed, 4 failed
+* riscv: 24 total, 16 passed, 8 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 37 total, 37 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
