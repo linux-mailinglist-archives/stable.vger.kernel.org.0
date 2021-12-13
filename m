@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF6C4727B9
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3494F4729E6
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241476AbhLMKEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:04:40 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:48546 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238532AbhLMKAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:00:14 -0500
+        id S235497AbhLMK1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:27:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344252AbhLMKZC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:25:02 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6316DC018B71;
+        Mon, 13 Dec 2021 02:00:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4F56FCE0F12;
+        by sin.source.kernel.org (Postfix) with ESMTPS id AEFB5CE0EB0;
+        Mon, 13 Dec 2021 10:00:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21319C34600;
         Mon, 13 Dec 2021 10:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB9CAC34600;
-        Mon, 13 Dec 2021 10:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389610;
-        bh=JFKatAFNgT/e+blSmBB3M63gzodfwlWxwaBrt75AvLc=;
+        s=korg; t=1639389613;
+        bh=lFru/eiJ+opmGuVoOgd6CAflirb7kLAfOtF6fZS+NaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYMuWOHsca00cSXAGaGs0PH5ZNA5fphH71WQ1bVudLwWee/4k0m5WlHIycCoIsQEq
-         Yv2/K4bSwbbekpQUWlmq4mnUPpf30xDa0WyJ3PAzMXxKgPqqT8QMqRLzrI18KyNcA2
-         HStfXTNEGVWOKM4ayzlu1IjOW5rbq22G8riw9mZo=
+        b=tDctggcPNZF8xsZM7qluBLpuBsn6+UJRen9V8T0Z4l4cT2WlNkiYFlWr8ZSNeRIoc
+         f1D2WD9dKSs1oTJMb70ay6HfRrS6lK8C0DIsCdlgdNTZNHs4CVzOCasUeVSzWuDlBv
+         dS4wv11N930XM0zSdDoYSeW+F2BNYBqYDQpOabsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alyssa Ross <hi@alyssa.is>,
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 145/171] iio: trigger: stm32-timer: fix MODULE_ALIAS
-Date:   Mon, 13 Dec 2021 10:31:00 +0100
-Message-Id: <20211213092949.900701448@linuxfoundation.org>
+Subject: [PATCH 5.15 146/171] iio: stk3310: Dont return error code in interrupt handler
+Date:   Mon, 13 Dec 2021 10:31:01 +0100
+Message-Id: <20211213092949.931996406@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -45,31 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 893621e0606747c5bbefcaf2794d12c7aa6212b7 upstream.
+commit 8e1eeca5afa7ba84d885987165dbdc5decf15413 upstream.
 
-modprobe can't handle spaces in aliases.
+Interrupt handlers must return one of the irqreturn_t values. Returning a
+error code is not supported.
 
-Fixes: 93fbe91b5521 ("iio: Add STM32 timer trigger driver")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Link: https://lore.kernel.org/r/20211125182850.2645424-1-hi@alyssa.is
+The stk3310 event interrupt handler returns an error code when reading the
+flags register fails.
+
+Fix the implementation to always return an irqreturn_t value.
+
+Fixes: 3dd477acbdd1 ("iio: light: Add threshold interrupt support for STK3310")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024171251.22896-3-lars@metafoo.de
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/trigger/stm32-timer-trigger.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/light/stk3310.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/trigger/stm32-timer-trigger.c
-+++ b/drivers/iio/trigger/stm32-timer-trigger.c
-@@ -912,6 +912,6 @@ static struct platform_driver stm32_time
- };
- module_platform_driver(stm32_timer_trigger_driver);
+--- a/drivers/iio/light/stk3310.c
++++ b/drivers/iio/light/stk3310.c
+@@ -546,9 +546,8 @@ static irqreturn_t stk3310_irq_event_han
+ 	mutex_lock(&data->lock);
+ 	ret = regmap_field_read(data->reg_flag_nf, &dir);
+ 	if (ret < 0) {
+-		dev_err(&data->client->dev, "register read failed\n");
+-		mutex_unlock(&data->lock);
+-		return ret;
++		dev_err(&data->client->dev, "register read failed: %d\n", ret);
++		goto out;
+ 	}
+ 	event = IIO_UNMOD_EVENT_CODE(IIO_PROXIMITY, 1,
+ 				     IIO_EV_TYPE_THRESH,
+@@ -560,6 +559,7 @@ static irqreturn_t stk3310_irq_event_han
+ 	ret = regmap_field_write(data->reg_flag_psint, 0);
+ 	if (ret < 0)
+ 		dev_err(&data->client->dev, "failed to reset interrupts\n");
++out:
+ 	mutex_unlock(&data->lock);
  
--MODULE_ALIAS("platform: stm32-timer-trigger");
-+MODULE_ALIAS("platform:stm32-timer-trigger");
- MODULE_DESCRIPTION("STMicroelectronics STM32 Timer Trigger driver");
- MODULE_LICENSE("GPL v2");
+ 	return IRQ_HANDLED;
 
 
