@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CB2472527
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D91472601
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234847AbhLMJl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:41:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54576 "EHLO
+        id S235555AbhLMJsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:48:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234883AbhLMJjj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:39 -0500
+        with ESMTP id S232965AbhLMJqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:46:00 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E6C0698DD;
-        Mon, 13 Dec 2021 01:38:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9523C08EB30;
+        Mon, 13 Dec 2021 01:41:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B44EDCE0E39;
-        Mon, 13 Dec 2021 09:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FEBFC341C5;
-        Mon, 13 Dec 2021 09:37:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 419B2CE0AE2;
+        Mon, 13 Dec 2021 09:41:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5EDFC00446;
+        Mon, 13 Dec 2021 09:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388279;
-        bh=EMXsWDEEBe/1M5XBOr7AJEtKoVJym7LRnp2sCEeC2kg=;
+        s=korg; t=1639388465;
+        bh=pbGKeqSyT3S8vgeYSj2aiYLj+pRwBYeHLrr1VfZCNvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lU8c7THCwNJ/cSemGeo5bU1rguIVFK2NP8yxxSzRC5nlzH6LS9Oq2Y2k+/r1K7paa
-         rCxsblAobJkPGW8+nL3V537BDoR0JqyCDgxigYLZoCVnAfh3PacGbKYaag3At5gxF2
-         HkHbibDjXbRMFERrE4Gg2W6GfIlzvFQMtT1SfXxU=
+        b=N2Oz0iAzEjHX4oMtfC2U2T+JBeBMgjYkAQax9g2caFf117HNX6MANyGxsSjOUiaBm
+         Tkc8SfL9BmCggC8l7PaEz1kxxZX8TUUVKeTHkyf0GiaKifTWlfdqr32ZBYzzpEJEYg
+         MmQJHHHZWCmBosvf/qKsKK4+G1VASqfIAORkbrnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Alyssa Ross <hi@alyssa.is>,
+        Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 49/53] iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
-Date:   Mon, 13 Dec 2021 10:30:28 +0100
-Message-Id: <20211213092929.993372000@linuxfoundation.org>
+Subject: [PATCH 4.19 58/74] iio: trigger: stm32-timer: fix MODULE_ALIAS
+Date:   Mon, 13 Dec 2021 10:30:29 +0100
+Message-Id: <20211213092932.737429494@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,60 +48,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Alyssa Ross <hi@alyssa.is>
 
-commit 70c9774e180d151abaab358108e3510a8e615215 upstream.
+commit 893621e0606747c5bbefcaf2794d12c7aa6212b7 upstream.
 
-When ACPI type is ACPI_SMO8500, the data->dready_trig will not be set, the
-memory allocated by iio_triggered_buffer_setup() will not be freed, and cause
-memory leak as follows:
+modprobe can't handle spaces in aliases.
 
-unreferenced object 0xffff888009551400 (size 512):
-  comm "i2c-SMO8500-125", pid 911, jiffies 4294911787 (age 83.852s)
-  hex dump (first 32 bytes):
-    02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 20 e2 e5 c0 ff ff ff ff  ........ .......
-  backtrace:
-    [<0000000041ce75ee>] kmem_cache_alloc_trace+0x16d/0x360
-    [<000000000aeb17b0>] iio_kfifo_allocate+0x41/0x130 [kfifo_buf]
-    [<000000004b40c1f5>] iio_triggered_buffer_setup_ext+0x2c/0x210 [industrialio_triggered_buffer]
-    [<000000004375b15f>] kxcjk1013_probe+0x10c3/0x1d81 [kxcjk_1013]
-
-Fix it by remove data->dready_trig condition in probe and remove.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: a25691c1f967 ("iio: accel: kxcjk1013: allow using an external trigger")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Fixes: 93fbe91b5521 ("iio: Add STM32 timer trigger driver")
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+Link: https://lore.kernel.org/r/20211125182850.2645424-1-hi@alyssa.is
 Cc: <Stable@vger.kernel.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20211025124159.2700301-1-yangyingliang@huawei.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/kxcjk-1013.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iio/trigger/stm32-timer-trigger.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -1326,8 +1326,7 @@ static int kxcjk1013_probe(struct i2c_cl
- 	return 0;
+--- a/drivers/iio/trigger/stm32-timer-trigger.c
++++ b/drivers/iio/trigger/stm32-timer-trigger.c
+@@ -884,6 +884,6 @@ static struct platform_driver stm32_time
+ };
+ module_platform_driver(stm32_timer_trigger_driver);
  
- err_buffer_cleanup:
--	if (data->dready_trig)
--		iio_triggered_buffer_cleanup(indio_dev);
-+	iio_triggered_buffer_cleanup(indio_dev);
- err_trigger_unregister:
- 	if (data->dready_trig)
- 		iio_trigger_unregister(data->dready_trig);
-@@ -1350,8 +1349,8 @@ static int kxcjk1013_remove(struct i2c_c
- 	pm_runtime_set_suspended(&client->dev);
- 	pm_runtime_put_noidle(&client->dev);
- 
-+	iio_triggered_buffer_cleanup(indio_dev);
- 	if (data->dready_trig) {
--		iio_triggered_buffer_cleanup(indio_dev);
- 		iio_trigger_unregister(data->dready_trig);
- 		iio_trigger_unregister(data->motion_trig);
- 	}
+-MODULE_ALIAS("platform: stm32-timer-trigger");
++MODULE_ALIAS("platform:stm32-timer-trigger");
+ MODULE_DESCRIPTION("STMicroelectronics STM32 Timer Trigger driver");
+ MODULE_LICENSE("GPL v2");
 
 
