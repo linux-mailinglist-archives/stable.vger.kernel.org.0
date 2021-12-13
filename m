@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 407CD472561
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E6614727A6
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235283AbhLMJnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:35 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:34940 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235160AbhLMJkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:20 -0500
+        id S238850AbhLMKES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:04:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235890AbhLMJ65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:58:57 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05170C034020;
+        Mon, 13 Dec 2021 01:48:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 86769CE0E80;
-        Mon, 13 Dec 2021 09:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C312C341C5;
-        Mon, 13 Dec 2021 09:40:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 57201CE0EB9;
+        Mon, 13 Dec 2021 09:48:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2666C33A73;
+        Mon, 13 Dec 2021 09:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388416;
-        bh=FDU+IO1a+zp6PJQ5GudWAxICjq1bHIj+Pi+xtr/yrAI=;
+        s=korg; t=1639388918;
+        bh=NZl2Dy2osvAlg8bLvtue5z3wsm1JSMPqiGShltFH7aY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rtMsLmcnqAyB9EElQHxP2q6M8Kf2ko2P0eiqTiLOKjVrlXCAuI6s1rSnl7lsnXga1
-         HMQkdREyupesdCczxbDnN6CyqTjFfshQOYhy/v1aDllffnp4/PLsGWBmq51LPi73+g
-         bWa+ikZkJMZit7U6WzK1mTeSWyyZ0CMzbruV5iEM=
+        b=14QdPpCGSyMi+7m5RhKjunMcHdplyuIdNipFV4IZRHgTryLnUulwTWQhbxW33+oCq
+         okCB3/Kizl6xIR6CFVbQ5PDVreQ4ipcfM+OvBSm1BqRZSgz7RYoOdwaYz9tOFu/rhs
+         L0HmSHeH6k678Z4U0ie6oK3vGlboAqBOkYYr6VxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com,
-        Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 25/74] ALSA: pcm: oss: Fix negative period/buffer sizes
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 5.10 055/132] nfsd: fix use-after-free due to delegation race
 Date:   Mon, 13 Dec 2021 10:29:56 +0100
-Message-Id: <20211213092931.641344919@linuxfoundation.org>
+Message-Id: <20211213092941.012051953@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: J. Bruce Fields <bfields@redhat.com>
 
-commit 9d2479c960875ca1239bcb899f386970c13d9cfe upstream.
+commit 548ec0805c399c65ed66c6641be467f717833ab5 upstream.
 
-The period size calculation in OSS layer may receive a negative value
-as an error, but the code there assumes only the positive values and
-handle them with size_t.  Due to that, a too big value may be passed
-to the lower layers.
+A delegation break could arrive as soon as we've called vfs_setlease.  A
+delegation break runs a callback which immediately (in
+nfsd4_cb_recall_prepare) adds the delegation to del_recall_lru.  If we
+then exit nfs4_set_delegation without hashing the delegation, it will be
+freed as soon as the callback is done with it, without ever being
+removed from del_recall_lru.
 
-This patch changes the code to handle with ssize_t and adds the proper
-error checks appropriately.
+Symptoms show up later as use-after-free or list corruption warnings,
+usually in the laundromat thread.
 
-Reported-by: syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com
-Reported-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1638270978-42412-1-git-send-email-cuibixuan@linux.alibaba.com
-Link: https://lore.kernel.org/r/20211201073606.11660-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+I suspect aba2072f4523 "nfsd: grant read delegations to clients holding
+writes" made this bug easier to hit, but I looked as far back as v3.0
+and it looks to me it already had the same problem.  So I'm not sure
+where the bug was introduced; it may have been there from the beginning.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/pcm_oss.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ fs/nfsd/nfs4state.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -162,7 +162,7 @@ snd_pcm_hw_param_value_min(const struct
-  *
-  * Return the maximum value for field PAR.
-  */
--static unsigned int
-+static int
- snd_pcm_hw_param_value_max(const struct snd_pcm_hw_params *params,
- 			   snd_pcm_hw_param_t var, int *dir)
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -1089,6 +1089,11 @@ hash_delegation_locked(struct nfs4_deleg
+ 	return 0;
+ }
+ 
++static bool delegation_hashed(struct nfs4_delegation *dp)
++{
++	return !(list_empty(&dp->dl_perfile));
++}
++
+ static bool
+ unhash_delegation_locked(struct nfs4_delegation *dp)
  {
-@@ -697,18 +697,24 @@ static int snd_pcm_oss_period_size(struc
- 				   struct snd_pcm_hw_params *oss_params,
- 				   struct snd_pcm_hw_params *slave_params)
- {
--	size_t s;
--	size_t oss_buffer_size, oss_period_size, oss_periods;
--	size_t min_period_size, max_period_size;
-+	ssize_t s;
-+	ssize_t oss_buffer_size;
-+	ssize_t oss_period_size, oss_periods;
-+	ssize_t min_period_size, max_period_size;
- 	struct snd_pcm_runtime *runtime = substream->runtime;
- 	size_t oss_frame_size;
+@@ -1096,7 +1101,7 @@ unhash_delegation_locked(struct nfs4_del
  
- 	oss_frame_size = snd_pcm_format_physical_width(params_format(oss_params)) *
- 			 params_channels(oss_params) / 8;
+ 	lockdep_assert_held(&state_lock);
  
-+	oss_buffer_size = snd_pcm_hw_param_value_max(slave_params,
-+						     SNDRV_PCM_HW_PARAM_BUFFER_SIZE,
-+						     NULL);
-+	if (oss_buffer_size <= 0)
-+		return -EINVAL;
- 	oss_buffer_size = snd_pcm_plug_client_size(substream,
--						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_BUFFER_SIZE, NULL)) * oss_frame_size;
--	if (!oss_buffer_size)
-+						   oss_buffer_size * oss_frame_size);
-+	if (oss_buffer_size <= 0)
- 		return -EINVAL;
- 	oss_buffer_size = rounddown_pow_of_two(oss_buffer_size);
- 	if (atomic_read(&substream->mmap_count)) {
-@@ -745,7 +751,7 @@ static int snd_pcm_oss_period_size(struc
+-	if (list_empty(&dp->dl_perfile))
++	if (!delegation_hashed(dp))
+ 		return false;
  
- 	min_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_min(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (min_period_size) {
-+	if (min_period_size > 0) {
- 		min_period_size *= oss_frame_size;
- 		min_period_size = roundup_pow_of_two(min_period_size);
- 		if (oss_period_size < min_period_size)
-@@ -754,7 +760,7 @@ static int snd_pcm_oss_period_size(struc
- 
- 	max_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (max_period_size) {
-+	if (max_period_size > 0) {
- 		max_period_size *= oss_frame_size;
- 		max_period_size = rounddown_pow_of_two(max_period_size);
- 		if (oss_period_size > max_period_size)
-@@ -767,7 +773,7 @@ static int snd_pcm_oss_period_size(struc
- 		oss_periods = substream->oss.setup.periods;
- 
- 	s = snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIODS, NULL);
--	if (runtime->oss.maxfrags && s > runtime->oss.maxfrags)
-+	if (s > 0 && runtime->oss.maxfrags && s > runtime->oss.maxfrags)
- 		s = runtime->oss.maxfrags;
- 	if (oss_periods > s)
- 		oss_periods = s;
+ 	dp->dl_stid.sc_type = NFS4_CLOSED_DELEG_STID;
+@@ -4512,7 +4517,7 @@ static void nfsd4_cb_recall_prepare(stru
+ 	 * queued for a lease break. Don't queue it again.
+ 	 */
+ 	spin_lock(&state_lock);
+-	if (dp->dl_time == 0) {
++	if (delegation_hashed(dp) && dp->dl_time == 0) {
+ 		dp->dl_time = ktime_get_boottime_seconds();
+ 		list_add_tail(&dp->dl_recall_lru, &nn->del_recall_lru);
+ 	}
 
 
