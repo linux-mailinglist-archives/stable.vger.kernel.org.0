@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D1F64725EE
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:48:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7BB47257C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234021AbhLMJsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:48:30 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:37926 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235575AbhLMJo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:44:59 -0500
+        id S233113AbhLMJoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:44:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53434 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235518AbhLMJmC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:42:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9E6C3CE0E85;
-        Mon, 13 Dec 2021 09:44:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D390C00446;
-        Mon, 13 Dec 2021 09:44:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FDC0B80D1F;
+        Mon, 13 Dec 2021 09:42:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FC47C00446;
+        Mon, 13 Dec 2021 09:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388695;
-        bh=ME6BtVGABkVjGGLvKCX1AXh33aBLl4rhb6Av3V127xc=;
+        s=korg; t=1639388520;
+        bh=ZYjbgX+BZiyb9z3VDh+GVx9Vz7E313fu+HUzpoW+waY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9ZWOiqB0an++0RBiX1iRiV+I140WA1+Z3b84OapzkcjnGTm3euHbHFYRydCt0VUP
-         ZdHJBHS9BScRyTFLtS4wf5WsLnn1FCE098SGb/bjkYLPiRnDlkbx3bR7oxh+PK1Kyv
-         HUMwJlY4EKFNaHIxC/qA9Y7EtXDNiCyBWr2tXklM=
+        b=QT28/tXvbYeF3460AFKtVdSa+QdEO+ars9DrwUW0gJx1hYLeF1Az/Q7eNcargKw3Q
+         0KzUGZurieuhxt3qbK6W4wKZxIw+4FoB/du4dMRyVcdXhTJGylKfzAHpeEXO52oSrQ
+         1abDXWGLVjrqN0Cd+DgN7xmZyFJ6r5zrRBUP5hQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Pavel Hofman <pavel.hofman@ivitera.com>
-Subject: [PATCH 5.4 66/88] usb: core: config: fix validation of wMaxPacketValue entries
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 65/74] iio: dln2: Check return value of devm_iio_trigger_register()
 Date:   Mon, 13 Dec 2021 10:30:36 +0100
-Message-Id: <20211213092935.536947175@linuxfoundation.org>
+Message-Id: <20211213092932.969581309@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Hofman <pavel.hofman@ivitera.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit 1a3910c80966e4a76b25ce812f6bea0ef1b1d530 upstream.
+commit 90751fb9f224e0e1555b49a8aa9e68f6537e4cec upstream.
 
-The checks performed by commit aed9d65ac327 ("USB: validate
-wMaxPacketValue entries in endpoint descriptors") require that initial
-value of the maxp variable contains both maximum packet size bits
-(10..0) and multiple-transactions bits (12..11). However, the existing
-code assings only the maximum packet size bits. This patch assigns all
-bits of wMaxPacketSize to the variable.
+Registering a trigger can fail and the return value of
+devm_iio_trigger_register() must be checked. Otherwise undefined behavior
+can occur when the trigger is used.
 
-Fixes: aed9d65ac327 ("USB: validate wMaxPacketValue entries in endpoint descriptors")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
-Link: https://lore.kernel.org/r/20211210085219.16796-1-pavel.hofman@ivitera.com
+Fixes: 7c0299e879dd ("iio: adc: Add support for DLN2 ADC")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211101133043.6974-1-lars@metafoo.de
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/config.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/dln2-adc.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -409,7 +409,7 @@ static int usb_parse_endpoint(struct dev
- 	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
- 	 * (see the end of section 5.6.3), so don't warn about them.
- 	 */
--	maxp = usb_endpoint_maxp(&endpoint->desc);
-+	maxp = le16_to_cpu(endpoint->desc.wMaxPacketSize);
- 	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
- 		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress);
+--- a/drivers/iio/adc/dln2-adc.c
++++ b/drivers/iio/adc/dln2-adc.c
+@@ -668,7 +668,11 @@ static int dln2_adc_probe(struct platfor
+ 		return -ENOMEM;
+ 	}
+ 	iio_trigger_set_drvdata(dln2->trig, dln2);
+-	devm_iio_trigger_register(dev, dln2->trig);
++	ret = devm_iio_trigger_register(dev, dln2->trig);
++	if (ret) {
++		dev_err(dev, "failed to register trigger: %d\n", ret);
++		return ret;
++	}
+ 	iio_trigger_set_immutable(indio_dev, dln2->trig);
+ 
+ 	ret = devm_iio_triggered_buffer_setup(dev, indio_dev, NULL,
 
 
