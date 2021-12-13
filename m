@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5EBD4725A7
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABF3472621
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235753AbhLMJpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:45:15 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:36718 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235133AbhLMJnN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:43:13 -0500
+        id S234412AbhLMJtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56398 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236132AbhLMJqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:46:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D55EC08EB3B;
+        Mon, 13 Dec 2021 01:41:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2F28ECE0E7D;
-        Mon, 13 Dec 2021 09:43:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0212C00446;
-        Mon, 13 Dec 2021 09:43:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49CA2B80E1D;
+        Mon, 13 Dec 2021 09:41:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64D5BC00446;
+        Mon, 13 Dec 2021 09:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388590;
-        bh=tZZlQucQqWx04lNjmz8oPk1y3CBbwaY0qOj3x2foWb8=;
+        s=korg; t=1639388471;
+        bh=0p9XQmV2M3kviX6dwt5IIWXClwuY2DBSaPF/Pjv+fGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tkvKoHL/plJp05sab8oG9sSuROKQ5FkOk3kzxKbSbC1+QNg9Fu6u8st/pmeiXLEWI
-         ZgJVpQfqmG5hfxhQGc20uM7o/rg9DmEpH1bkO447EOpZZY5NjRvjyhOd0Y4Vezgdx3
-         BlBJH0eCG0yHHJ3ndLvZkZ0tSrktK4cMX2uM051I=
+        b=CRWZSWCTJtffHiyLcuMxqEsL2LaSeKhq2jAffJZdSGKu+G5m4l//z8OswjkFrlB9p
+         /jnHCfzuZ2xh/X1izCNW5uWwCZL9eMZwqRRqTcGsCz/cpRruMzP9rW8axFU4ejyyv2
+         5egxIgTbHWs6lQ0teUrjkmRFqZ3dbZyOdiC1+rjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 29/88] ALSA: hda/realtek - Add headset Mic support for Lenovo ALC897 platform
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Yabin Cui <yabinc@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 28/74] tracefs: Have new files inherit the ownership of their parent
 Date:   Mon, 13 Dec 2021 10:29:59 +0100
-Message-Id: <20211213092934.223603296@linuxfoundation.org>
+Message-Id: <20211213092931.750556502@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit d7f32791a9fcf0dae8b073cdea9b79e29098c5f4 upstream.
+commit ee7f3666995d8537dec17b1d35425f28877671a9 upstream.
 
-Lenovo ALC897 platform had headset Mic.
-This patch enable supported headset Mic.
+If directories in tracefs have their ownership changed, then any new files
+and directories that are created under those directories should inherit
+the ownership of the director they are created in.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/baab2c2536cb4cc18677a862c6f6d840@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lkml.kernel.org/r/20211208075720.4855d180@gandalf.local.home
+
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Yabin Cui <yabinc@google.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Reported-by: Kalesh Singh <kaleshsingh@google.com>
+Reported: https://lore.kernel.org/all/CAC_TJve8MMAv+H_NdLSJXZUSoxOEq2zB_pVaJ9p=7H6Bu3X76g@mail.gmail.com/
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ fs/tracefs/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9620,6 +9620,27 @@ static void alc671_fixup_hp_headset_mic2
- 	}
- }
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -409,6 +409,8 @@ struct dentry *tracefs_create_file(const
+ 	inode->i_mode = mode;
+ 	inode->i_fop = fops ? fops : &tracefs_file_operations;
+ 	inode->i_private = data;
++	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
++	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+ 	d_instantiate(dentry, inode);
+ 	fsnotify_create(dentry->d_parent->d_inode, dentry);
+ 	return end_creating(dentry);
+@@ -431,6 +433,8 @@ static struct dentry *__create_dir(const
+ 	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
+ 	inode->i_op = ops;
+ 	inode->i_fop = &simple_dir_operations;
++	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
++	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
  
-+static void alc897_hp_automute_hook(struct hda_codec *codec,
-+					 struct hda_jack_callback *jack)
-+{
-+	struct alc_spec *spec = codec->spec;
-+	int vref;
-+
-+	snd_hda_gen_hp_automute(codec, jack);
-+	vref = spec->gen.hp_jack_present ? (PIN_HP | AC_PINCTL_VREF_100) : PIN_HP;
-+	snd_hda_codec_write(codec, 0x1b, 0, AC_VERB_SET_PIN_WIDGET_CONTROL,
-+			    vref);
-+}
-+
-+static void alc897_fixup_lenovo_headset_mic(struct hda_codec *codec,
-+				     const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->gen.hp_automute_hook = alc897_hp_automute_hook;
-+	}
-+}
-+
- static const struct coef_fw alc668_coefs[] = {
- 	WRITE_COEF(0x01, 0xbebe), WRITE_COEF(0x02, 0xaaaa), WRITE_COEF(0x03,    0x0),
- 	WRITE_COEF(0x04, 0x0180), WRITE_COEF(0x06,    0x0), WRITE_COEF(0x07, 0x0f80),
-@@ -9700,6 +9721,8 @@ enum {
- 	ALC668_FIXUP_ASUS_NO_HEADSET_MIC,
- 	ALC668_FIXUP_HEADSET_MIC,
- 	ALC668_FIXUP_MIC_DET_COEF,
-+	ALC897_FIXUP_LENOVO_HEADSET_MIC,
-+	ALC897_FIXUP_HEADSET_MIC_PIN,
- };
- 
- static const struct hda_fixup alc662_fixups[] = {
-@@ -10106,6 +10129,19 @@ static const struct hda_fixup alc662_fix
- 			{}
- 		},
- 	},
-+	[ALC897_FIXUP_LENOVO_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc897_fixup_lenovo_headset_mic,
-+	},
-+	[ALC897_FIXUP_HEADSET_MIC_PIN] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x1a, 0x03a11050 },
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC897_FIXUP_LENOVO_HEADSET_MIC
-+	},
- };
- 
- static const struct snd_pci_quirk alc662_fixup_tbl[] = {
-@@ -10150,6 +10186,10 @@ static const struct snd_pci_quirk alc662
- 	SND_PCI_QUIRK(0x144d, 0xc051, "Samsung R720", ALC662_FIXUP_IDEAPAD),
- 	SND_PCI_QUIRK(0x14cd, 0x5003, "USI", ALC662_FIXUP_USI_HEADSET_MODE),
- 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC662_FIXUP_LENOVO_MULTI_CODECS),
-+	SND_PCI_QUIRK(0x17aa, 0x32ca, "Lenovo ThinkCentre M80", ALC897_FIXUP_HEADSET_MIC_PIN),
-+	SND_PCI_QUIRK(0x17aa, 0x32cb, "Lenovo ThinkCentre M70", ALC897_FIXUP_HEADSET_MIC_PIN),
-+	SND_PCI_QUIRK(0x17aa, 0x32cf, "Lenovo ThinkCentre M950", ALC897_FIXUP_HEADSET_MIC_PIN),
-+	SND_PCI_QUIRK(0x17aa, 0x32f7, "Lenovo ThinkCentre M90", ALC897_FIXUP_HEADSET_MIC_PIN),
- 	SND_PCI_QUIRK(0x17aa, 0x38af, "Lenovo Ideapad Y550P", ALC662_FIXUP_IDEAPAD),
- 	SND_PCI_QUIRK(0x17aa, 0x3a0d, "Lenovo Ideapad Y550", ALC662_FIXUP_IDEAPAD),
- 	SND_PCI_QUIRK(0x1849, 0x5892, "ASRock B150M", ALC892_FIXUP_ASROCK_MOBO),
+ 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 	inc_nlink(inode);
 
 
