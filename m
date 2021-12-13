@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F05EB47284C
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6F9247256A
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238329AbhLMKKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:10:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239385AbhLMKI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:08:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83CBBC08EA47;
-        Mon, 13 Dec 2021 01:51:59 -0800 (PST)
+        id S233018AbhLMJnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53936 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234581AbhLMJkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B67EB80E24;
-        Mon, 13 Dec 2021 09:51:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DAB0C00446;
-        Mon, 13 Dec 2021 09:51:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23AB7B80E1A;
+        Mon, 13 Dec 2021 09:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1A4C00446;
+        Mon, 13 Dec 2021 09:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389117;
-        bh=0Qv702sFT4JtxDvwEbI3P0dHKNtqAv/4/sHU9ykVqBM=;
+        s=korg; t=1639388442;
+        bh=4QjI5x51C9LDZf2QjslVo85HxX18eR7ekmBR8vl3p9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPvnBul5NCyQb3YqxLpLi/1UFzllummo6BA9pMUyhzMPq36GnsTI/CkxeBrlyeOVN
-         o/KuhdSePBzerY3iXz6NIYrJXBqthn8ggIabhGElSmqZJybHZkVq5j5j1/z3DAQpks
-         j/4iIM6fwLMRDmt20JiGwWNltKp26EmfSUkA4R94=
+        b=UcQpoDoTvU3UhZXJpHESoPrycympvi2+iRd58UCRcWP8yEnldatfZD2n60HMS3U3/
+         xoV19sgGUs4Ki4T8MoTBzUcFFYSDK3U9y0bWFhmgT+wYNKXA+p2jocursQz18QOzYT
+         L6rirl0hC956/mDj+CvdA6uPujSIMY9zulLlC5dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 081/132] RDMA/hns: Do not halt commands during reset until later
+        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 4.19 51/74] USB: gadget: detect too-big endpoint 0 requests
 Date:   Mon, 13 Dec 2021 10:30:22 +0100
-Message-Id: <20211213092941.907202500@linuxfoundation.org>
+Message-Id: <20211213092932.514825628@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,68 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangyang Li <liyangyang20@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 52414e27d6b568120b087d1fbafbb4482b0ccaab upstream.
+commit 153a2d7e3350cc89d406ba2d35be8793a64c2038 upstream.
 
-is_reset is used to indicate whether the hardware starts to reset. When
-hns_roce_hw_v2_reset_notify_down() is called, the hardware has not yet
-started to reset. If is_reset is set at this time, all mailbox operations
-of resource destroy actions will be intercepted by driver. When the driver
-cleans up resources, but the hardware is still accessed, the following
-errors will appear:
+Sometimes USB hosts can ask for buffers that are too large from endpoint
+0, which should not be allowed.  If this happens for OUT requests, stall
+the endpoint, but for IN requests, trim the request size to the endpoint
+buffer size.
 
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000003f
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50e0800
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000043e
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50a0800
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000020880000436
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50a0880
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x000002088000043a
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x00000000a50e0840
-  hns3 0000:35:00.0: INT status: CMDQ(0x0) HW errors(0x0) other(0x0)
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000000000000000
-  hns3 0000:35:00.0: received unknown or unhandled event of vector0
-  arm-smmu-v3 arm-smmu-v3.2.auto: event 0x10 received:
-  arm-smmu-v3 arm-smmu-v3.2.auto: 	0x0000350100000010
-  {34}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 7
-
-is_reset will be set correctly in check_aedev_reset_status(), so the
-setting in hns_roce_hw_v2_reset_notify_down() should be deleted.
-
-Fixes: 726be12f5ca0 ("RDMA/hns: Set reset flag when hw resetting")
-Link: https://lore.kernel.org/r/20211123084809.37318-1-liangwenpeng@huawei.com
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Co-developed-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/gadget/composite.c    |   12 ++++++++++++
+ drivers/usb/gadget/legacy/dbgp.c  |   13 +++++++++++++
+ drivers/usb/gadget/legacy/inode.c |   16 +++++++++++++++-
+ 3 files changed, 40 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -6342,10 +6342,8 @@ static int hns_roce_hw_v2_reset_notify_d
- 	if (!hr_dev)
- 		return 0;
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -1634,6 +1634,18 @@ composite_setup(struct usb_gadget *gadge
+ 	struct usb_function		*f = NULL;
+ 	u8				endp;
  
--	hr_dev->is_reset = true;
- 	hr_dev->active = false;
- 	hr_dev->dis_db = true;
--
- 	hr_dev->state = HNS_ROCE_DEVICE_STATE_RST_DOWN;
++	if (w_length > USB_COMP_EP0_BUFSIZ) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			goto done;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(USB_COMP_EP0_BUFSIZ);
++			w_length = USB_COMP_EP0_BUFSIZ;
++		}
++	}
++
+ 	/* partial re-init of the response message; the function or the
+ 	 * gadget might need to intercept e.g. a control-OUT completion
+ 	 * when we delegate to it.
+--- a/drivers/usb/gadget/legacy/dbgp.c
++++ b/drivers/usb/gadget/legacy/dbgp.c
+@@ -345,6 +345,19 @@ static int dbgp_setup(struct usb_gadget
+ 	void *data = NULL;
+ 	u16 len = 0;
  
- 	return 0;
++	if (length > DBGP_REQ_LEN) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			return err;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(DBGP_REQ_LEN);
++			length = DBGP_REQ_LEN;
++		}
++	}
++
++
+ 	if (request == USB_REQ_GET_DESCRIPTOR) {
+ 		switch (value>>8) {
+ 		case USB_DT_DEVICE:
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -109,6 +109,8 @@ enum ep0_state {
+ /* enough for the whole queue: most events invalidate others */
+ #define	N_EVENT			5
+ 
++#define RBUF_SIZE		256
++
+ struct dev_data {
+ 	spinlock_t			lock;
+ 	refcount_t			count;
+@@ -143,7 +145,7 @@ struct dev_data {
+ 	struct dentry			*dentry;
+ 
+ 	/* except this scratch i/o buffer for ep0 */
+-	u8				rbuf [256];
++	u8				rbuf[RBUF_SIZE];
+ };
+ 
+ static inline void get_dev (struct dev_data *data)
+@@ -1332,6 +1334,18 @@ gadgetfs_setup (struct usb_gadget *gadge
+ 	u16				w_value = le16_to_cpu(ctrl->wValue);
+ 	u16				w_length = le16_to_cpu(ctrl->wLength);
+ 
++	if (w_length > RBUF_SIZE) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			return value;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(RBUF_SIZE);
++			w_length = RBUF_SIZE;
++		}
++	}
++
+ 	spin_lock (&dev->lock);
+ 	dev->setup_abort = 0;
+ 	if (dev->state == STATE_DEV_UNCONNECTED) {
 
 
