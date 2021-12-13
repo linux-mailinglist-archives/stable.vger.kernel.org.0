@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 098B04725CD
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:46:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D4D84724DD
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234785AbhLMJqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:46:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56166 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235167AbhLMJoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:44:24 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A86C08EAF8;
-        Mon, 13 Dec 2021 01:40:43 -0800 (PST)
+        id S234614AbhLMJjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:39:12 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:33188 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234916AbhLMJhn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:37:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1E7BCE0E7D;
-        Mon, 13 Dec 2021 09:40:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F849C341C5;
-        Mon, 13 Dec 2021 09:40:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DB3F0CE0AE2;
+        Mon, 13 Dec 2021 09:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80DFCC341CE;
+        Mon, 13 Dec 2021 09:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388440;
-        bh=6DpQ31aG0z+ukyUsg8bVAtl6LBU0L/GQYVMEmQARurs=;
+        s=korg; t=1639388260;
+        bh=oPwb0I/EY2RdhJXQxozcpuGip1/RlJsShWEhk3WHm/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnuBZNz7tvPCDXFnD8OZHM6lXt9ov9C6l+wLhV0vv22M2+Y1ySWAxIl6YjrxLoGVi
-         ja8FHmZ4WgwlgCInuUU2A5872FoxuY5f7O5Bc+TEIv8JKboY28QRqQXzb0Wn3FP0aU
-         Pg3alLzjPI6wO1ffPSLJYdV23UNxhBXVlIvVMITM=
+        b=Vrwwf4CpVEFyGadgjMoCQsi397e2ccvU1LphOmfGXMQBXAuGYXAODi6yLdKxSxuA4
+         IU0cmRy0cdeXhvjt6pcGykp8kk45+nTzcjjGsRJbE832qr9nu9AysmQZ1ygSZqV3jf
+         dn5oslOuuB3K6sNHmFPP8eIDubSWPPDUIw5BQIg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 50/74] net/qla3xxx: fix an error code in ql_adapter_up()
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 42/53] iio: mma8452: Fix trigger reference couting
 Date:   Mon, 13 Dec 2021 10:30:21 +0100
-Message-Id: <20211213092932.485366235@linuxfoundation.org>
+Message-Id: <20211213092929.759714106@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit d17b9737c2bc09b4ac6caf469826e5a7ce3ffab7 upstream.
+commit cd0082235783f814241a1c9483fb89e405f4f892 upstream.
 
-The ql_wait_for_drvr_lock() fails and returns false, then this
-function should return an error code instead of returning success.
+The mma8452 driver directly assigns a trigger to the struct iio_dev. The
+IIO core when done using this trigger will call `iio_trigger_put()` to drop
+the reference count by 1.
 
-The other problem is that the success path prints an error message
-netdev_err(ndev, "Releasing driver lock\n");  Delete that and
-re-order the code a little to make it more clear.
+Without the matching `iio_trigger_get()` in the driver the reference count
+can reach 0 too early, the trigger gets freed while still in use and a
+use-after-free occurs.
 
-Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211207082416.GA16110@kili
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix this by getting a reference to the trigger before assigning it to the
+IIO device.
+
+Fixes: ae6d9ce05691 ("iio: mma8452: Add support for interrupt driven triggers.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024092700.6844-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/iio/accel/mma8452.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -3496,20 +3496,19 @@ static int ql_adapter_up(struct ql3_adap
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1396,7 +1396,7 @@ static int mma8452_trigger_setup(struct
+ 	if (ret)
+ 		return ret;
  
- 	spin_lock_irqsave(&qdev->hw_lock, hw_flags);
+-	indio_dev->trig = trig;
++	indio_dev->trig = iio_trigger_get(trig);
  
--	err = ql_wait_for_drvr_lock(qdev);
--	if (err) {
--		err = ql_adapter_initialize(qdev);
--		if (err) {
--			netdev_err(ndev, "Unable to initialize adapter\n");
--			goto err_init;
--		}
--		netdev_err(ndev, "Releasing driver lock\n");
--		ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
--	} else {
-+	if (!ql_wait_for_drvr_lock(qdev)) {
- 		netdev_err(ndev, "Could not acquire driver lock\n");
-+		err = -ENODEV;
- 		goto err_lock;
- 	}
- 
-+	err = ql_adapter_initialize(qdev);
-+	if (err) {
-+		netdev_err(ndev, "Unable to initialize adapter\n");
-+		goto err_init;
-+	}
-+	ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
-+
- 	spin_unlock_irqrestore(&qdev->hw_lock, hw_flags);
- 
- 	set_bit(QL_ADAPTER_UP, &qdev->flags);
+ 	return 0;
+ }
 
 
