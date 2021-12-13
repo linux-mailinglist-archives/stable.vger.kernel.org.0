@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F13F472420
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BEA4724E7
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232512AbhLMJeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:34:16 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58488 "EHLO
+        id S233015AbhLMJje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:39:34 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:33482 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234027AbhLMJdu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:50 -0500
+        with ESMTP id S233034AbhLMJiJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:38:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 76BBACE0E7D;
-        Mon, 13 Dec 2021 09:33:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21003C00446;
-        Mon, 13 Dec 2021 09:33:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6ECCCCE0E7D;
+        Mon, 13 Dec 2021 09:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D12C00446;
+        Mon, 13 Dec 2021 09:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388026;
-        bh=XCgCkaNWnfUAgYep8/K9yEqrJyH2P5wqGKVpAkqeNKE=;
+        s=korg; t=1639388285;
+        bh=IgI7V+rJHEBCgtv5IffGcg8HDrt4Y5DOlbM8kwCl3T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sE7E0ofkQbwObfGxCD/KGW9BA71tX1GLIBLVrbVDpEXYW+fBMMEv0XbH99EfKBYPx
-         SmxVhQJK0mcZeUpheOMHbukNktQktzba6OUUbbDdl3vov/8Sr+qNqqfL2RnUfqGJJU
-         p2nhK9a/DbqJmobpjdDyN0A4wl6bL4gkEqhkAdjQ=
+        b=uFbLwzHWZNzoX85Qucdpu6r12hWhrIPL7wx8I2wv8IhbdHGJn9WqAwDqV1Ooy7cb9
+         6Oq7VQthHjapV1HD476VidWcchwnJNB+QZaU0Bkx1p6YB3YtHtPZARHxHlHf6Sue87
+         eczCkMQFUE4l1E88zsGBknFLc6wWO0fr1caSs9qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 34/37] iio: itg3200: Call iio_trigger_notify_done() on error
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 33/53] net/qla3xxx: fix an error code in ql_adapter_up()
 Date:   Mon, 13 Dec 2021 10:30:12 +0100
-Message-Id: <20211213092926.500225019@linuxfoundation.org>
+Message-Id: <20211213092929.457955885@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 67fe29583e72b2103abb661bb58036e3c1f00277 upstream.
+commit d17b9737c2bc09b4ac6caf469826e5a7ce3ffab7 upstream.
 
-IIO trigger handlers must call iio_trigger_notify_done() when done. This
-must be done even when an error occurred. Otherwise the trigger will be
-seen as busy indefinitely and the trigger handler will never be called
-again.
+The ql_wait_for_drvr_lock() fails and returns false, then this
+function should return an error code instead of returning success.
 
-The itg3200 driver neglects to call iio_trigger_notify_done() when there is
-an error reading the gyro data. Fix this by making sure that
-iio_trigger_notify_done() is included in the error exit path.
+The other problem is that the success path prints an error message
+netdev_err(ndev, "Releasing driver lock\n");  Delete that and
+re-order the code a little to make it more clear.
 
-Fixes: 9dbf091da080 ("iio: gyro: Add itg3200")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211101144055.13858-1-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211207082416.GA16110@kili
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/gyro/itg3200_buffer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
---- a/drivers/iio/gyro/itg3200_buffer.c
-+++ b/drivers/iio/gyro/itg3200_buffer.c
-@@ -64,9 +64,9 @@ static irqreturn_t itg3200_trigger_handl
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -3495,20 +3495,19 @@ static int ql_adapter_up(struct ql3_adap
  
- 	iio_push_to_buffers_with_timestamp(indio_dev, &scan, pf->timestamp);
+ 	spin_lock_irqsave(&qdev->hw_lock, hw_flags);
  
-+error_ret:
- 	iio_trigger_notify_done(indio_dev->trig);
+-	err = ql_wait_for_drvr_lock(qdev);
+-	if (err) {
+-		err = ql_adapter_initialize(qdev);
+-		if (err) {
+-			netdev_err(ndev, "Unable to initialize adapter\n");
+-			goto err_init;
+-		}
+-		netdev_err(ndev, "Releasing driver lock\n");
+-		ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
+-	} else {
++	if (!ql_wait_for_drvr_lock(qdev)) {
+ 		netdev_err(ndev, "Could not acquire driver lock\n");
++		err = -ENODEV;
+ 		goto err_lock;
+ 	}
  
--error_ret:
- 	return IRQ_HANDLED;
- }
++	err = ql_adapter_initialize(qdev);
++	if (err) {
++		netdev_err(ndev, "Unable to initialize adapter\n");
++		goto err_init;
++	}
++	ql_sem_unlock(qdev, QL_DRVR_SEM_MASK);
++
+ 	spin_unlock_irqrestore(&qdev->hw_lock, hw_flags);
  
+ 	set_bit(QL_ADAPTER_UP, &qdev->flags);
 
 
