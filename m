@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CFBF472595
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F1B472666
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbhLMJoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:44:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55428 "EHLO
+        id S234147AbhLMJvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:51:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236040AbhLMJmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:42:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9673C0698D9;
-        Mon, 13 Dec 2021 01:39:54 -0800 (PST)
+        with ESMTP id S236284AbhLMJtb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:49:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8550C08EA37;
+        Mon, 13 Dec 2021 01:43:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 206C8CE0E63;
-        Mon, 13 Dec 2021 09:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC2A3C00446;
-        Mon, 13 Dec 2021 09:39:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6365CB80E25;
+        Mon, 13 Dec 2021 09:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB874C341C8;
+        Mon, 13 Dec 2021 09:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388391;
-        bh=gbK/2qYDvBqc3yYaJuZt6dWhN3ebXwjuOyORXpNBDA4=;
+        s=korg; t=1639388610;
+        bh=dHJcttHZuk/tKF67uUw6oVbo4Ssg9ADjOMzb29PqaRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFbRqeISEWbn92WQoZ3LZo9tQzVg0U3fZiKBtTKgDuFj84DB8MT4bivw98RMuvOgg
-         RSNAMryYU/mLpb1ySfdwQME6SbvSy/nlA3YjQl41gppXX8YlpIMN57nrX4yAS2n0oF
-         L6j3Rs/lK0w60EhglclbAHLb2plAoEiPj68/UfFw=
+        b=026ZI+GO5hgXOi9926Ac+Eopafj+Gb0IZ7ruubYgXyuIh5kyeTTg8NbmT0mKFkGn6
+         TV2PPmoBoEZXb0IV6GYf/F9IbVIN1DAZvM59lFlwHmetbV/tu2KzPrSPD484ZsfaU5
+         KVcz9ghe7ztJsZi/8E0vZNc2KJ+MjcgW4f2NE+ZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org, Linus Torvalds" 
-        <torvalds@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 34/74] wait: add wake_up_pollfree()
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 5.4 35/88] nfsd: Fix nsfd startup race (again)
 Date:   Mon, 13 Dec 2021 10:30:05 +0100
-Message-Id: <20211213092931.961002448@linuxfoundation.org>
+Message-Id: <20211213092934.449945325@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,105 +48,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-commit 42288cb44c4b5fff7653bc392b583a2b8bd6a8c0 upstream.
+commit b10252c7ae9c9d7c90552f88b544a44ee773af64 upstream.
 
-Several ->poll() implementations are special in that they use a
-waitqueue whose lifetime is the current task, rather than the struct
-file as is normally the case.  This is okay for blocking polls, since a
-blocking poll occurs within one task; however, non-blocking polls
-require another solution.  This solution is for the queue to be cleared
-before it is freed, using 'wake_up_poll(wq, EPOLLHUP | POLLFREE);'.
+Commit bd5ae9288d64 ("nfsd: register pernet ops last, unregister first")
+has re-opened rpc_pipefs_event() race against nfsd_net_id registration
+(register_pernet_subsys()) which has been fixed by commit bb7ffbf29e76
+("nfsd: fix nsfd startup race triggering BUG_ON").
 
-However, that has a bug: wake_up_poll() calls __wake_up() with
-nr_exclusive=1.  Therefore, if there are multiple "exclusive" waiters,
-and the wakeup function for the first one returns a positive value, only
-that one will be called.  That's *not* what's needed for POLLFREE;
-POLLFREE is special in that it really needs to wake up everyone.
+Restore the order of register_pernet_subsys() vs register_cld_notifier().
+Add WARN_ON() to prevent a future regression.
 
-Considering the three non-blocking poll systems:
+Crash info:
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000012
+CPU: 8 PID: 345 Comm: mount Not tainted 5.4.144-... #1
+pc : rpc_pipefs_event+0x54/0x120 [nfsd]
+lr : rpc_pipefs_event+0x48/0x120 [nfsd]
+Call trace:
+ rpc_pipefs_event+0x54/0x120 [nfsd]
+ blocking_notifier_call_chain
+ rpc_fill_super
+ get_tree_keyed
+ rpc_fs_get_tree
+ vfs_get_tree
+ do_mount
+ ksys_mount
+ __arm64_sys_mount
+ el0_svc_handler
+ el0_svc
 
-- io_uring poll doesn't handle POLLFREE at all, so it is broken anyway.
-
-- aio poll is unaffected, since it doesn't support exclusive waits.
-  However, that's fragile, as someone could add this feature later.
-
-- epoll doesn't appear to be broken by this, since its wakeup function
-  returns 0 when it sees POLLFREE.  But this is fragile.
-
-Although there is a workaround (see epoll), it's better to define a
-function which always sends POLLFREE to all waiters.  Add such a
-function.  Also make it verify that the queue really becomes empty after
-all waiters have been woken up.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: bd5ae9288d64 ("nfsd: register pernet ops last, unregister first")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211209010455.42744-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/wait.h |   26 ++++++++++++++++++++++++++
- kernel/sched/wait.c  |    7 +++++++
- 2 files changed, 33 insertions(+)
+ fs/nfsd/nfs4recover.c |    1 +
+ fs/nfsd/nfsctl.c      |   14 +++++++-------
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -191,6 +191,7 @@ void __wake_up_locked_key_bookmark(struc
- void __wake_up_sync_key(struct wait_queue_head *wq_head, unsigned int mode, int nr, void *key);
- void __wake_up_locked(struct wait_queue_head *wq_head, unsigned int mode, int nr);
- void __wake_up_sync(struct wait_queue_head *wq_head, unsigned int mode, int nr);
-+void __wake_up_pollfree(struct wait_queue_head *wq_head);
- 
- #define wake_up(x)			__wake_up(x, TASK_NORMAL, 1, NULL)
- #define wake_up_nr(x, nr)		__wake_up(x, TASK_NORMAL, nr, NULL)
-@@ -217,6 +218,31 @@ void __wake_up_sync(struct wait_queue_he
- #define wake_up_interruptible_sync_poll(x, m)					\
- 	__wake_up_sync_key((x), TASK_INTERRUPTIBLE, 1, poll_to_key(m))
- 
-+/**
-+ * wake_up_pollfree - signal that a polled waitqueue is going away
-+ * @wq_head: the wait queue head
-+ *
-+ * In the very rare cases where a ->poll() implementation uses a waitqueue whose
-+ * lifetime is tied to a task rather than to the 'struct file' being polled,
-+ * this function must be called before the waitqueue is freed so that
-+ * non-blocking polls (e.g. epoll) are notified that the queue is going away.
-+ *
-+ * The caller must also RCU-delay the freeing of the wait_queue_head, e.g. via
-+ * an explicit synchronize_rcu() or call_rcu(), or via SLAB_TYPESAFE_BY_RCU.
-+ */
-+static inline void wake_up_pollfree(struct wait_queue_head *wq_head)
-+{
-+	/*
-+	 * For performance reasons, we don't always take the queue lock here.
-+	 * Therefore, we might race with someone removing the last entry from
-+	 * the queue, and proceed while they still hold the queue lock.
-+	 * However, rcu_read_lock() is required to be held in such cases, so we
-+	 * can safely proceed with an RCU-delayed free.
-+	 */
-+	if (waitqueue_active(wq_head))
-+		__wake_up_pollfree(wq_head);
-+}
-+
- #define ___wait_cond_timeout(condition)						\
- ({										\
- 	bool __cond = (condition);						\
---- a/kernel/sched/wait.c
-+++ b/kernel/sched/wait.c
-@@ -209,6 +209,13 @@ void __wake_up_sync(struct wait_queue_he
+--- a/fs/nfsd/nfs4recover.c
++++ b/fs/nfsd/nfs4recover.c
+@@ -2177,6 +2177,7 @@ static struct notifier_block nfsd4_cld_b
+ int
+ register_cld_notifier(void)
+ {
++	WARN_ON(!nfsd_net_id);
+ 	return rpc_pipefs_notifier_register(&nfsd4_cld_block);
  }
- EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
  
-+void __wake_up_pollfree(struct wait_queue_head *wq_head)
-+{
-+	__wake_up(wq_head, TASK_NORMAL, 0, poll_to_key(EPOLLHUP | POLLFREE));
-+	/* POLLFREE must have cleared the queue. */
-+	WARN_ON_ONCE(waitqueue_active(wq_head));
-+}
-+
- /*
-  * Note: we use "set_current_state()" _after_ the wait-queue add,
-  * because we need a memory barrier there on SMP, so that any
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -1526,12 +1526,9 @@ static int __init init_nfsd(void)
+ 	int retval;
+ 	printk(KERN_INFO "Installing knfsd (copyright (C) 1996 okir@monad.swb.de).\n");
+ 
+-	retval = register_cld_notifier();
+-	if (retval)
+-		return retval;
+ 	retval = nfsd4_init_slabs();
+ 	if (retval)
+-		goto out_unregister_notifier;
++		return retval;
+ 	retval = nfsd4_init_pnfs();
+ 	if (retval)
+ 		goto out_free_slabs;
+@@ -1549,9 +1546,14 @@ static int __init init_nfsd(void)
+ 		goto out_free_exports;
+ 	retval = register_pernet_subsys(&nfsd_net_ops);
+ 	if (retval < 0)
++		goto out_free_filesystem;
++	retval = register_cld_notifier();
++	if (retval)
+ 		goto out_free_all;
+ 	return 0;
+ out_free_all:
++	unregister_pernet_subsys(&nfsd_net_ops);
++out_free_filesystem:
+ 	unregister_filesystem(&nfsd_fs_type);
+ out_free_exports:
+ 	remove_proc_entry("fs/nfs/exports", NULL);
+@@ -1565,13 +1567,12 @@ out_free_stat:
+ 	nfsd4_exit_pnfs();
+ out_free_slabs:
+ 	nfsd4_free_slabs();
+-out_unregister_notifier:
+-	unregister_cld_notifier();
+ 	return retval;
+ }
+ 
+ static void __exit exit_nfsd(void)
+ {
++	unregister_cld_notifier();
+ 	unregister_pernet_subsys(&nfsd_net_ops);
+ 	nfsd_drc_slab_free();
+ 	remove_proc_entry("fs/nfs/exports", NULL);
+@@ -1582,7 +1583,6 @@ static void __exit exit_nfsd(void)
+ 	nfsd4_exit_pnfs();
+ 	nfsd_fault_inject_cleanup();
+ 	unregister_filesystem(&nfsd_fs_type);
+-	unregister_cld_notifier();
+ }
+ 
+ MODULE_AUTHOR("Olaf Kirch <okir@monad.swb.de>");
 
 
