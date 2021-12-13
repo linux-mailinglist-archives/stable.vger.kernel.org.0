@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FC6F472637
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98AB547294A
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236403AbhLMJtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:49:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33248 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236475AbhLMJrJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:47:09 -0500
+        id S237657AbhLMKT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:19:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35820 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243730AbhLMKO2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:14:28 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2928FC08ED69;
+        Mon, 13 Dec 2021 01:54:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75A3BB80E15;
-        Mon, 13 Dec 2021 09:47:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8349C00446;
-        Mon, 13 Dec 2021 09:47:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 72896CE0B59;
+        Mon, 13 Dec 2021 09:54:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1ADC34600;
+        Mon, 13 Dec 2021 09:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388827;
-        bh=3E3OX423FQh6gLQOAsj6KAXh42CNLH33vKaUd/+KEYk=;
+        s=korg; t=1639389292;
+        bh=Td46UptHXi7TGEV2KMVDY/NTvgVU0Tqpue/SrmYxpHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8BGABpJBesktVSMxnh6npSXJq42d/TS/vA2arCO/rk0M7L4l05t3vRmpSjbl3B2H
-         JqfMiGJGUjMhP5hhDsNtZ3X5zTPk/hNdqhJwHQnk/VoPuYXEMi1PEoAyt48luQl3yn
-         fHIWD5oNB9uIRRgcAg29+22eMJaUzxMSYGVsgp/M=
+        b=FTNEJiPBz/OcC2iWrGgctdvtAIMw5bqayD6eHDAzXjV+ovsty30MPbODTHqNtWbv3
+         Y0PhTGMEkmQAGICz5r5F487slZBgIAu77vZ3+7ty6rRotLgRp03hkQbyXxQMKqp5eM
+         ZlQMEyGeDvROUS4FZBb+Au8oU2KtH7FVbzjDtIQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 023/132] drm/amdgpu: add amdgpu_amdkfd_resume_iommu
+        stable@vger.kernel.org,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Michal Maloszewski <michal.maloszewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 049/171] iavf: Fix reporting when setting descriptor count
 Date:   Mon, 13 Dec 2021 10:29:24 +0100
-Message-Id: <20211213092939.897892903@linuxfoundation.org>
+Message-Id: <20211213092946.735890059@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +50,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Michal Maloszewski <michal.maloszewski@intel.com>
 
-commit 8066008482e533e91934bee49765bf8b4a7c40db upstream.
+commit 1a1aa356ddf3f16539f5962c01c5f702686dfc15 upstream.
 
-Add amdgpu_amdkfd_resume_iommu for amdgpu.
+iavf_set_ringparams doesn't communicate to the user that
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=211277
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+1. The user requested descriptor count is out of range. Instead it
+   just quietly sets descriptors to the "clamped" value and calls it
+   done. This makes it look an invalid value was successfully set as
+   the descriptor count when this isn't actually true.
+
+2. The user provided descriptor count needs to be inflated for alignment
+   reasons.
+
+This behavior is confusing. The ice driver has already addressed this
+by rejecting invalid values for descriptor count and
+messaging for alignment adjustments.
+Do the same thing here by adding the error and info messages.
+
+Fixes: fbb7ddfef253 ("i40evf: core ethtool functionality")
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Signed-off-by: Michal Maloszewski <michal.maloszewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c |   10 ++++++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h |    1 +
- 2 files changed, 11 insertions(+)
+ drivers/net/ethernet/intel/iavf/iavf_ethtool.c |   45 ++++++++++++++++++-------
+ 1 file changed, 33 insertions(+), 12 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.c
-@@ -190,6 +190,16 @@ void amdgpu_amdkfd_suspend(struct amdgpu
- 		kgd2kfd_suspend(adev->kfd.dev, run_pm);
- }
+--- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+@@ -615,23 +615,44 @@ static int iavf_set_ringparam(struct net
+ 	if ((ring->rx_mini_pending) || (ring->rx_jumbo_pending))
+ 		return -EINVAL;
  
-+int amdgpu_amdkfd_resume_iommu(struct amdgpu_device *adev)
-+{
-+	int r = 0;
+-	new_tx_count = clamp_t(u32, ring->tx_pending,
+-			       IAVF_MIN_TXD,
+-			       IAVF_MAX_TXD);
+-	new_tx_count = ALIGN(new_tx_count, IAVF_REQ_DESCRIPTOR_MULTIPLE);
+-
+-	new_rx_count = clamp_t(u32, ring->rx_pending,
+-			       IAVF_MIN_RXD,
+-			       IAVF_MAX_RXD);
+-	new_rx_count = ALIGN(new_rx_count, IAVF_REQ_DESCRIPTOR_MULTIPLE);
++	if (ring->tx_pending > IAVF_MAX_TXD ||
++	    ring->tx_pending < IAVF_MIN_TXD ||
++	    ring->rx_pending > IAVF_MAX_RXD ||
++	    ring->rx_pending < IAVF_MIN_RXD) {
++		netdev_err(netdev, "Descriptors requested (Tx: %d / Rx: %d) out of range [%d-%d] (increment %d)\n",
++			   ring->tx_pending, ring->rx_pending, IAVF_MIN_TXD,
++			   IAVF_MAX_RXD, IAVF_REQ_DESCRIPTOR_MULTIPLE);
++		return -EINVAL;
++	}
 +
-+	if (adev->kfd.dev)
-+		r = kgd2kfd_resume_iommu(adev->kfd.dev);
++	new_tx_count = ALIGN(ring->tx_pending, IAVF_REQ_DESCRIPTOR_MULTIPLE);
++	if (new_tx_count != ring->tx_pending)
++		netdev_info(netdev, "Requested Tx descriptor count rounded up to %d\n",
++			    new_tx_count);
 +
-+	return r;
-+}
-+
- int amdgpu_amdkfd_resume(struct amdgpu_device *adev, bool run_pm)
- {
- 	int r = 0;
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-@@ -121,6 +121,7 @@ int amdgpu_amdkfd_init(void);
- void amdgpu_amdkfd_fini(void);
++	new_rx_count = ALIGN(ring->rx_pending, IAVF_REQ_DESCRIPTOR_MULTIPLE);
++	if (new_rx_count != ring->rx_pending)
++		netdev_info(netdev, "Requested Rx descriptor count rounded up to %d\n",
++			    new_rx_count);
  
- void amdgpu_amdkfd_suspend(struct amdgpu_device *adev, bool run_pm);
-+int amdgpu_amdkfd_resume_iommu(struct amdgpu_device *adev);
- int amdgpu_amdkfd_resume(struct amdgpu_device *adev, bool run_pm);
- void amdgpu_amdkfd_interrupt(struct amdgpu_device *adev,
- 			const void *ih_ring_entry);
+ 	/* if nothing to do return success */
+ 	if ((new_tx_count == adapter->tx_desc_count) &&
+-	    (new_rx_count == adapter->rx_desc_count))
++	    (new_rx_count == adapter->rx_desc_count)) {
++		netdev_dbg(netdev, "Nothing to change, descriptor count is same as requested\n");
+ 		return 0;
++	}
++
++	if (new_tx_count != adapter->tx_desc_count) {
++		netdev_dbg(netdev, "Changing Tx descriptor count from %d to %d\n",
++			   adapter->tx_desc_count, new_tx_count);
++		adapter->tx_desc_count = new_tx_count;
++	}
+ 
+-	adapter->tx_desc_count = new_tx_count;
+-	adapter->rx_desc_count = new_rx_count;
++	if (new_rx_count != adapter->rx_desc_count) {
++		netdev_dbg(netdev, "Changing Rx descriptor count from %d to %d\n",
++			   adapter->rx_desc_count, new_rx_count);
++		adapter->rx_desc_count = new_rx_count;
++	}
+ 
+ 	if (netif_running(netdev)) {
+ 		adapter->flags |= IAVF_FLAG_RESET_NEEDED;
 
 
