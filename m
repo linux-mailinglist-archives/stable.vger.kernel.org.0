@@ -2,41 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A5B472524
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C834729AE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233039AbhLMJlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:41:22 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:33454 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233055AbhLMJjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:35 -0500
+        id S1343959AbhLMKXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:23:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35946 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244982AbhLMKTA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:19:00 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49BE9C06115E;
+        Mon, 13 Dec 2021 01:57:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BAF72CE0E83;
-        Mon, 13 Dec 2021 09:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65299C00446;
-        Mon, 13 Dec 2021 09:39:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 95E13CE0EBE;
+        Mon, 13 Dec 2021 09:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D22C34600;
+        Mon, 13 Dec 2021 09:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388372;
-        bh=S/hygQGUET9MIZyjYTY0CDNN5sHGYddTMZYOqSss/Fs=;
+        s=korg; t=1639389435;
+        bh=2TGvWSkkKLptobPI9RE2WsuizoW+s0YnvyS0QNY3rXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoOjTaoXTcS3/+4lHcEg6IZcwB4ovajMNNdqIvAPDg4lbIg/xmQzGfppYjgNoLVEe
-         K4no6Zk1/aHLALPYlKU/M9zh60dMlgHwZwOwyacOAFS4ZSwxmXKXt1QGaXmF4cD87l
-         5kfijAEHt+TeYt/gYKhECLcvgrt8rpm99AWEXWMw=
+        b=magoGFXHWX5xS+8auSQ1ufnlBfxoJBK90p/L0K4WnBLz5wXuWtt/MdK4lTDBy81Nr
+         wWaiD1nuu9IHcSXYqNI/ExVb7j4cIoztnMue30kA3J9tA5wNAZJTwo81xVjBuOc/ua
+         E52EIXoRgRRrZhv6/mx10Prnm/33hcGXYPFmsytU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 4.19 06/74] HID: wacom: fix problems when device is not a valid USB device
+        stable@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Faiyaz Mohammed <faiyazm@codeaurora.org>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 062/171] mm/slub: fix endianness bug for alloc/free_traces attributes
 Date:   Mon, 13 Dec 2021 10:29:37 +0100
-Message-Id: <20211213092930.981333974@linuxfoundation.org>
+Message-Id: <20211213092947.168513763@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 720ac467204a70308bd687927ed475afb904e11b upstream.
+commit 005a79e5c254c3f60ec269a459cc41b55028c798 upstream.
 
-The wacom driver accepts devices of more than just USB types, but some
-code paths can cause problems if the device being controlled is not a
-USB device due to a lack of checking.  Add the needed checks to ensure
-that the USB device accesses are only happening on a "real" USB device,
-and not one on some other bus.
+On big-endian s390, the alloc/free_traces attributes produce endless
+output, because of always 0 idx in slab_debugfs_show().
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Cc: stable@vger.kernel.org
-Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211201183503.2373082-2-gregkh@linuxfoundation.org
+idx is de-referenced from *v, which points to a loff_t value, with
+
+    unsigned int idx = *(unsigned int *)v;
+
+This will only give the upper 32 bits on big-endian, which remain 0.
+
+Instead of only fixing this de-reference, during discussion it seemed
+more appropriate to change the seq_ops so that they use an explicit
+iterator in private loc_track struct.
+
+This patch adds idx to loc_track, which will also fix the endianness
+bug.
+
+Link: https://lore.kernel.org/r/20211117193932.4049412-1-gerald.schaefer@linux.ibm.com
+Link: https://lkml.kernel.org/r/20211126171848.17534-1-gerald.schaefer@linux.ibm.com
+Fixes: 64dd68497be7 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reported-by: Steffen Maier <maier@linux.ibm.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_sys.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ mm/slub.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -697,7 +697,7 @@ static void wacom_retrieve_hid_descripto
- 	 * Skip the query for this type and modify defaults based on
- 	 * interface number.
- 	 */
--	if (features->type == WIRELESS) {
-+	if (features->type == WIRELESS && intf) {
- 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
- 			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
- 		else
-@@ -2419,6 +2419,9 @@ static void wacom_wireless_work(struct w
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5072,6 +5072,7 @@ struct loc_track {
+ 	unsigned long max;
+ 	unsigned long count;
+ 	struct location *loc;
++	loff_t idx;
+ };
  
- 	wacom_destroy_battery(wacom);
- 
-+	if (!usbdev)
-+		return;
-+
- 	/* Stylus interface */
- 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
- 	wacom1 = hid_get_drvdata(hdev1);
-@@ -2698,8 +2701,6 @@ static void wacom_mode_change_work(struc
- static int wacom_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
+ static struct dentry *slab_debugfs_root;
+@@ -6035,11 +6036,11 @@ __initcall(slab_sysfs_init);
+ #if defined(CONFIG_SLUB_DEBUG) && defined(CONFIG_DEBUG_FS)
+ static int slab_debugfs_show(struct seq_file *seq, void *v)
  {
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *dev = interface_to_usbdev(intf);
- 	struct wacom *wacom;
- 	struct wacom_wac *wacom_wac;
- 	struct wacom_features *features;
-@@ -2736,8 +2737,14 @@ static int wacom_probe(struct hid_device
- 	wacom_wac->hid_data.inputmode = -1;
- 	wacom_wac->mode_report = -1;
+-
+-	struct location *l;
+-	unsigned int idx = *(unsigned int *)v;
+ 	struct loc_track *t = seq->private;
++	struct location *l;
++	unsigned long idx;
  
--	wacom->usbdev = dev;
--	wacom->intf = intf;
-+	if (hid_is_usb(hdev)) {
-+		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+		struct usb_device *dev = interface_to_usbdev(intf);
++	idx = (unsigned long) t->idx;
+ 	if (idx < t->count) {
+ 		l = &t->loc[idx];
+ 
+@@ -6088,16 +6089,18 @@ static void *slab_debugfs_next(struct se
+ {
+ 	struct loc_track *t = seq->private;
+ 
+-	v = ppos;
+-	++*ppos;
++	t->idx = ++(*ppos);
+ 	if (*ppos <= t->count)
+-		return v;
++		return ppos;
+ 
+ 	return NULL;
+ }
+ 
+ static void *slab_debugfs_start(struct seq_file *seq, loff_t *ppos)
+ {
++	struct loc_track *t = seq->private;
 +
-+		wacom->usbdev = dev;
-+		wacom->intf = intf;
-+	}
-+
- 	mutex_init(&wacom->lock);
- 	INIT_DELAYED_WORK(&wacom->init_work, wacom_init_work);
- 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
++	t->idx = *ppos;
+ 	return ppos;
+ }
+ 
 
 
