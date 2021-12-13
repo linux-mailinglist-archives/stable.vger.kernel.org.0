@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 415B3472467
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 437DF472530
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:41:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233999AbhLMJgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:36:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54260 "EHLO
+        id S234174AbhLMJlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:41:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234329AbhLMJfJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8327DC06115E;
-        Mon, 13 Dec 2021 01:35:08 -0800 (PST)
+        with ESMTP id S233197AbhLMJjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:54 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A19C0698E2;
+        Mon, 13 Dec 2021 01:38:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 290DCB80E18;
-        Mon, 13 Dec 2021 09:35:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 561FCC341C8;
-        Mon, 13 Dec 2021 09:35:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C0904CE0E82;
+        Mon, 13 Dec 2021 09:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 716F3C00446;
+        Mon, 13 Dec 2021 09:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388106;
-        bh=y7nDjACrNnpwpREusTCbtZz7tGPtWZKpAuzsKlNNvRM=;
+        s=korg; t=1639388297;
+        bh=UbZnTys1GZMxTZygrnhji7SE1qPCpj35E47d23dlbNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kIV/1Zvo8am4zS/pb4+JU1KlMQEJVq9cZyOKc1SkKO5+BSsCsG7p8+L9e/8rw+wVE
-         0zTmc89HAA42t7vTQ4e73+xrno4zu73V3fMBJNp/J7/2xYKnlxC4IaAOpwnpFhx3CD
-         QahrWvMXkxiS8ghof7RxAj5XuEzBQJM+gz1S15Rk=
+        b=d89GLCFJVyE0GR3Wm3nFbPgM11SdiaevXcXn4XEYZ7LID6H5cYoTFuraEWn/v+hrS
+         zm1bb64i5+32R2p+PUjW8/KkA+/GEYVmZNBUgaKo6X+ZCIGeNbEGc2VPziUenWI8RA
+         +yh2V/vRNWtlyivISbPD7R34SplKEd1MuiDIlPp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Pavel Hofman <pavel.hofman@ivitera.com>
-Subject: [PATCH 4.9 31/42] usb: core: config: fix validation of wMaxPacketValue entries
+        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 4.14 34/53] USB: gadget: detect too-big endpoint 0 requests
 Date:   Mon, 13 Dec 2021 10:30:13 +0100
-Message-Id: <20211213092927.579286370@linuxfoundation.org>
+Message-Id: <20211213092929.491084410@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,37 +46,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Hofman <pavel.hofman@ivitera.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 1a3910c80966e4a76b25ce812f6bea0ef1b1d530 upstream.
+commit 153a2d7e3350cc89d406ba2d35be8793a64c2038 upstream.
 
-The checks performed by commit aed9d65ac327 ("USB: validate
-wMaxPacketValue entries in endpoint descriptors") require that initial
-value of the maxp variable contains both maximum packet size bits
-(10..0) and multiple-transactions bits (12..11). However, the existing
-code assings only the maximum packet size bits. This patch assigns all
-bits of wMaxPacketSize to the variable.
+Sometimes USB hosts can ask for buffers that are too large from endpoint
+0, which should not be allowed.  If this happens for OUT requests, stall
+the endpoint, but for IN requests, trim the request size to the endpoint
+buffer size.
 
-Fixes: aed9d65ac327 ("USB: validate wMaxPacketValue entries in endpoint descriptors")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
-Link: https://lore.kernel.org/r/20211210085219.16796-1-pavel.hofman@ivitera.com
+Co-developed-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/config.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/composite.c    |   12 ++++++++++++
+ drivers/usb/gadget/legacy/dbgp.c  |   13 +++++++++++++
+ drivers/usb/gadget/legacy/inode.c |   16 +++++++++++++++-
+ 3 files changed, 40 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/config.c
-+++ b/drivers/usb/core/config.c
-@@ -404,7 +404,7 @@ static int usb_parse_endpoint(struct dev
- 	 * the USB-2 spec requires such endpoints to have wMaxPacketSize = 0
- 	 * (see the end of section 5.6.3), so don't warn about them.
- 	 */
--	maxp = usb_endpoint_maxp(&endpoint->desc);
-+	maxp = le16_to_cpu(endpoint->desc.wMaxPacketSize);
- 	if (maxp == 0 && !(usb_endpoint_xfer_isoc(d) && asnum == 0)) {
- 		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has invalid wMaxPacketSize 0\n",
- 		    cfgno, inum, asnum, d->bEndpointAddress);
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -1635,6 +1635,18 @@ composite_setup(struct usb_gadget *gadge
+ 	struct usb_function		*f = NULL;
+ 	u8				endp;
+ 
++	if (w_length > USB_COMP_EP0_BUFSIZ) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			goto done;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(USB_COMP_EP0_BUFSIZ);
++			w_length = USB_COMP_EP0_BUFSIZ;
++		}
++	}
++
+ 	/* partial re-init of the response message; the function or the
+ 	 * gadget might need to intercept e.g. a control-OUT completion
+ 	 * when we delegate to it.
+--- a/drivers/usb/gadget/legacy/dbgp.c
++++ b/drivers/usb/gadget/legacy/dbgp.c
+@@ -344,6 +344,19 @@ static int dbgp_setup(struct usb_gadget
+ 	void *data = NULL;
+ 	u16 len = 0;
+ 
++	if (length > DBGP_REQ_LEN) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			return err;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(DBGP_REQ_LEN);
++			length = DBGP_REQ_LEN;
++		}
++	}
++
++
+ 	if (request == USB_REQ_GET_DESCRIPTOR) {
+ 		switch (value>>8) {
+ 		case USB_DT_DEVICE:
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -113,6 +113,8 @@ enum ep0_state {
+ /* enough for the whole queue: most events invalidate others */
+ #define	N_EVENT			5
+ 
++#define RBUF_SIZE		256
++
+ struct dev_data {
+ 	spinlock_t			lock;
+ 	refcount_t			count;
+@@ -147,7 +149,7 @@ struct dev_data {
+ 	struct dentry			*dentry;
+ 
+ 	/* except this scratch i/o buffer for ep0 */
+-	u8				rbuf [256];
++	u8				rbuf[RBUF_SIZE];
+ };
+ 
+ static inline void get_dev (struct dev_data *data)
+@@ -1336,6 +1338,18 @@ gadgetfs_setup (struct usb_gadget *gadge
+ 	u16				w_value = le16_to_cpu(ctrl->wValue);
+ 	u16				w_length = le16_to_cpu(ctrl->wLength);
+ 
++	if (w_length > RBUF_SIZE) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			return value;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(RBUF_SIZE);
++			w_length = RBUF_SIZE;
++		}
++	}
++
+ 	spin_lock (&dev->lock);
+ 	dev->setup_abort = 0;
+ 	if (dev->state == STATE_DEV_UNCONNECTED) {
 
 
