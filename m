@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A67424727C3
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CFBF472595
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241592AbhLMKEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:04:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60334 "EHLO
+        id S233420AbhLMJoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:44:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240301AbhLMKBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:01 -0500
+        with ESMTP id S236040AbhLMJmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:42:46 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD6CC09B130;
-        Mon, 13 Dec 2021 01:49:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9673C0698D9;
+        Mon, 13 Dec 2021 01:39:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C52FACE0E88;
-        Mon, 13 Dec 2021 09:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7261FC33A40;
-        Mon, 13 Dec 2021 09:49:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 206C8CE0E63;
+        Mon, 13 Dec 2021 09:39:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC2A3C00446;
+        Mon, 13 Dec 2021 09:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388944;
-        bh=3Txu7gG8qKMNkMfHKTKHp56CtrOE0aJYQbErye6DI8c=;
+        s=korg; t=1639388391;
+        bh=gbK/2qYDvBqc3yYaJuZt6dWhN3ebXwjuOyORXpNBDA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbtZKfCrXIrn0S9ssPjyPvc1oTKh0aF7g4MFGceEwgDFnPf1cSsW+TqBtfA4i4HM8
-         cudgp8CKbaDdppVIH0pdy9iBwu/D/IT6ceBqfPvive6L5UnHbAVY8x9A9Cn+rZg5wR
-         3UIIByDJ4Vgk8nm15dJiDx0DZuBb13R1FtH3R47I=
+        b=sFbRqeISEWbn92WQoZ3LZo9tQzVg0U3fZiKBtTKgDuFj84DB8MT4bivw98RMuvOgg
+         RSNAMryYU/mLpb1ySfdwQME6SbvSy/nlA3YjQl41gppXX8YlpIMN57nrX4yAS2n0oF
+         L6j3Rs/lK0w60EhglclbAHLb2plAoEiPj68/UfFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 064/132] wait: add wake_up_pollfree()
+        "linux-kernel@vger.kernel.org, Linus Torvalds" 
+        <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 34/74] wait: add wake_up_pollfree()
 Date:   Mon, 13 Dec 2021 10:30:05 +0100
-Message-Id: <20211213092941.317031271@linuxfoundation.org>
+Message-Id: <20211213092931.961002448@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -92,17 +93,17 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/linux/wait.h
 +++ b/include/linux/wait.h
-@@ -207,6 +207,7 @@ void __wake_up_sync_key(struct wait_queu
- void __wake_up_locked_sync_key(struct wait_queue_head *wq_head, unsigned int mode, void *key);
+@@ -191,6 +191,7 @@ void __wake_up_locked_key_bookmark(struc
+ void __wake_up_sync_key(struct wait_queue_head *wq_head, unsigned int mode, int nr, void *key);
  void __wake_up_locked(struct wait_queue_head *wq_head, unsigned int mode, int nr);
- void __wake_up_sync(struct wait_queue_head *wq_head, unsigned int mode);
+ void __wake_up_sync(struct wait_queue_head *wq_head, unsigned int mode, int nr);
 +void __wake_up_pollfree(struct wait_queue_head *wq_head);
  
  #define wake_up(x)			__wake_up(x, TASK_NORMAL, 1, NULL)
  #define wake_up_nr(x, nr)		__wake_up(x, TASK_NORMAL, nr, NULL)
-@@ -235,6 +236,31 @@ void __wake_up_sync(struct wait_queue_he
- #define wake_up_interruptible_sync_poll_locked(x, m)				\
- 	__wake_up_locked_sync_key((x), TASK_INTERRUPTIBLE, poll_to_key(m))
+@@ -217,6 +218,31 @@ void __wake_up_sync(struct wait_queue_he
+ #define wake_up_interruptible_sync_poll(x, m)					\
+ 	__wake_up_sync_key((x), TASK_INTERRUPTIBLE, 1, poll_to_key(m))
  
 +/**
 + * wake_up_pollfree - signal that a polled waitqueue is going away
@@ -134,7 +135,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	bool __cond = (condition);						\
 --- a/kernel/sched/wait.c
 +++ b/kernel/sched/wait.c
-@@ -223,6 +223,13 @@ void __wake_up_sync(struct wait_queue_he
+@@ -209,6 +209,13 @@ void __wake_up_sync(struct wait_queue_he
  }
  EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
  
