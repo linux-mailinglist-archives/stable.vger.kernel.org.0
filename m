@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A744723D8
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:32:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 064944727C6
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233745AbhLMJcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:32:19 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:57418 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233741AbhLMJcS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:32:18 -0500
+        id S241641AbhLMKE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240296AbhLMKBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DEB1C09B135;
+        Mon, 13 Dec 2021 01:49:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DF345CE0E29;
-        Mon, 13 Dec 2021 09:32:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64840C00446;
-        Mon, 13 Dec 2021 09:32:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FA37B80E31;
+        Mon, 13 Dec 2021 09:49:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52C91C33A41;
+        Mon, 13 Dec 2021 09:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639387935;
-        bh=PEW5JwRnVWEkYcLV4SbNhbgEEuIYDpogGayn3ZHK2N0=;
+        s=korg; t=1639388946;
+        bh=vLPbh4j4fnrZTcUSzuDpKfy5us0Zdw3SsEIKmEtAIuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvOz8efiype1yO8XqLRpOQS1OHmc+Ewc+H7o1VF+hVdk+7hN1r3oldjtw9zp/uhN5
-         mDF1gv17X0p1Yi72TMViLXTSoJ+D+TBDcEUOiOXfMrcnDguQyFwyZcFTgHoaWXuYpC
-         ng6qBU5+I+WG5mLfcg1r+o7po1co9IxSXVmzU9xk=
+        b=DXG4YUAZZf0Kj82jehx6XUjiNPVd5QaAOs2ADD1g03I41voPFD/g9TrFRYMQK3n/U
+         orUe/s35RF4RY9wdQyWpVDJ1l+SiRrCSxTYsxGcD3qyHexw063vNOb3sbd/97TmRxn
+         lrXcBghLpIlUfwnl16SY3OQs95pThRdFuNui50j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manjong Lee <mj0123.lee@samsung.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Changheun Lee <nanich.lee@samsung.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@infradead.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        seunghwan.hyun@samsung.com, sookwan7.kim@samsung.com,
-        yt0928.kim@samsung.com, junho89.kim@samsung.com,
-        jisoo2146.oh@samsung.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 10/37] mm: bdi: initialize bdi_min_ratio when bdi is unregistered
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 047/132] ALSA: hda/realtek: Fix quirk for TongFang PHxTxX1
 Date:   Mon, 13 Dec 2021 10:29:48 +0100
-Message-Id: <20211213092925.708148558@linuxfoundation.org>
+Message-Id: <20211213092940.737706369@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +47,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manjong Lee <mj0123.lee@samsung.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-commit 3c376dfafbf7a8ea0dea212d095ddd83e93280bb upstream.
+commit 619764cc2ec9ce1283a8bbcd89a1376a7c68293b upstream.
 
-Initialize min_ratio if it is set during bdi unregistration.  This can
-prevent problems that may occur a when bdi is removed without resetting
-min_ratio.
+This fixes the SND_PCI_QUIRK(...) of the TongFang PHxTxX1 barebone. This
+fixes the issue of sound not working after s3 suspend.
 
-For example.
-1) insert external sdcard
-2) set external sdcard's min_ratio 70
-3) remove external sdcard without setting min_ratio 0
-4) insert external sdcard
-5) set external sdcard's min_ratio 70 << error occur(can't set)
+When waking up from s3 suspend the Coef 0x10 is set to 0x0220 instead of
+0x0020. Setting the value manually makes the sound work again. This patch
+does this automatically.
 
-Because when an sdcard is removed, the present bdi_min_ratio value will
-remain.  Currently, the only way to reset bdi_min_ratio is to reboot.
+While being on it, I also fixed the comment formatting of the quirk and
+shortened variable and function names.
 
-[akpm@linux-foundation.org: tweak comment and coding style]
-
-Link: https://lkml.kernel.org/r/20211021161942.5983-1-mj0123.lee@samsung.com
-Signed-off-by: Manjong Lee <mj0123.lee@samsung.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Changheun Lee <nanich.lee@samsung.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <seunghwan.hyun@samsung.com>
-Cc: <sookwan7.kim@samsung.com>
-Cc: <yt0928.kim@samsung.com>
-Cc: <junho89.kim@samsung.com>
-Cc: <jisoo2146.oh@samsung.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Fixes: dd6dd6e3c791 ("ALSA: hda/realtek: Add quirk for TongFang PHxTxX1")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20211202165010.876431-1-wse@tuxedocomputers.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/backing-dev.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/pci/hda/patch_realtek.c |   40 ++++++++++++++++++++++------------------
+ 1 file changed, 22 insertions(+), 18 deletions(-)
 
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -865,6 +865,13 @@ void bdi_unregister(struct backing_dev_i
- 	wb_shutdown(&bdi->wb);
- 	cgwb_bdi_destroy(bdi);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6449,22 +6449,26 @@ static void alc287_fixup_legion_15imhg05
+ /* for alc285_fixup_ideapad_s740_coef() */
+ #include "ideapad_s740_helper.c"
  
-+	/*
-+	 * If this BDI's min ratio has been set, use bdi_set_min_ratio() to
-+	 * update the global bdi_min_ratio.
-+	 */
-+	if (bdi->min_ratio)
-+		bdi_set_min_ratio(bdi, 0);
+-static void alc256_fixup_tongfang_reset_persistent_settings(struct hda_codec *codec,
+-							    const struct hda_fixup *fix,
+-							    int action)
++static const struct coef_fw alc256_fixup_set_coef_defaults_coefs[] = {
++	WRITE_COEF(0x10, 0x0020), WRITE_COEF(0x24, 0x0000),
++	WRITE_COEF(0x26, 0x0000), WRITE_COEF(0x29, 0x3000),
++	WRITE_COEF(0x37, 0xfe05), WRITE_COEF(0x45, 0x5089),
++	{}
++};
 +
- 	if (bdi->dev) {
- 		bdi_debug_unregister(bdi);
- 		device_unregister(bdi->dev);
++static void alc256_fixup_set_coef_defaults(struct hda_codec *codec,
++					   const struct hda_fixup *fix,
++					   int action)
+ {
+ 	/*
+-	* A certain other OS sets these coeffs to different values. On at least one TongFang
+-	* barebone these settings might survive even a cold reboot. So to restore a clean slate the
+-	* values are explicitly reset to default here. Without this, the external microphone is
+-	* always in a plugged-in state, while the internal microphone is always in an unplugged
+-	* state, breaking the ability to use the internal microphone.
+-	*/
+-	alc_write_coef_idx(codec, 0x24, 0x0000);
+-	alc_write_coef_idx(codec, 0x26, 0x0000);
+-	alc_write_coef_idx(codec, 0x29, 0x3000);
+-	alc_write_coef_idx(codec, 0x37, 0xfe05);
+-	alc_write_coef_idx(codec, 0x45, 0x5089);
++	 * A certain other OS sets these coeffs to different values. On at least
++	 * one TongFang barebone these settings might survive even a cold
++	 * reboot. So to restore a clean slate the values are explicitly reset
++	 * to default here. Without this, the external microphone is always in a
++	 * plugged-in state, while the internal microphone is always in an
++	 * unplugged state, breaking the ability to use the internal microphone.
++	 */
++	alc_process_coef_fw(codec, alc256_fixup_set_coef_defaults_coefs);
+ }
+ 
+ static const struct coef_fw alc233_fixup_no_audio_jack_coefs[] = {
+@@ -6704,7 +6708,7 @@ enum {
+ 	ALC287_FIXUP_LEGION_15IMHG05_AUTOMUTE,
+ 	ALC287_FIXUP_YOGA7_14ITL_SPEAKERS,
+ 	ALC287_FIXUP_13S_GEN2_SPEAKERS,
+-	ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS,
++	ALC256_FIXUP_SET_COEF_DEFAULTS,
+ 	ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE,
+ 	ALC233_FIXUP_NO_AUDIO_JACK,
+ };
+@@ -8404,9 +8408,9 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE,
+ 	},
+-	[ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS] = {
++	[ALC256_FIXUP_SET_COEF_DEFAULTS] = {
+ 		.type = HDA_FIXUP_FUNC,
+-		.v.func = alc256_fixup_tongfang_reset_persistent_settings,
++		.v.func = alc256_fixup_set_coef_defaults,
+ 	},
+ 	[ALC245_FIXUP_HP_GPIO_LED] = {
+ 		.type = HDA_FIXUP_FUNC,
+@@ -8866,7 +8870,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+ 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
+-	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_TONGFANG_RESET_PERSISTENT_SETTINGS),
++	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_SET_COEF_DEFAULTS),
+ 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
 
 
