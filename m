@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 572384725B1
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:45:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14A8472493
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:37:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235907AbhLMJpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:45:32 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56838 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236176AbhLMJnQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:43:16 -0500
+        id S234002AbhLMJhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:37:10 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:59388 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232624AbhLMJf4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90A69B80E1C;
-        Mon, 13 Dec 2021 09:43:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B30A9C00446;
-        Mon, 13 Dec 2021 09:43:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E6816CE0E29;
+        Mon, 13 Dec 2021 09:35:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CF6C00446;
+        Mon, 13 Dec 2021 09:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388593;
-        bh=nZULYzr+I9ZBDLmax1pe4YX3kNbyD0jEs3DKzJC9gu8=;
+        s=korg; t=1639388153;
+        bh=XRGdDphZ42VN5lJ/AR5PVorF2IDnYBrJDx2eB+5k5kU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wxGVXenavSd5QMYg2k10ys9C7q1+uaOq9BGwJdmDvUHl2DISN0C0QnSJ8QVBoXKqS
-         tqwS51N6k1YaI6H0a+WrVa2ainPvqb1WEoNZTuLcp1KfMSddtHo17COm6YZkDYFU6B
-         kK5m7buVwcBTeZcqMaC8osXoz0GciFmVKSDTzt3E=
+        b=BGbTp6z6/IIfasvO3q4GqzTTO4h9J3oZCxiDOJ14J/MIvi+NXtJ7J9f6Udj/IUrDN
+         5ZOhNcDp9hQbnF/Jd1qu4axOvkj1E4QKx1PAtksTDEc8aPTo9p+tAJ5peNTe4BsF36
+         2WRGQPXSKyNg7jKqey2zfTboXi8EubKBhl7BouH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com,
-        Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 30/88] ALSA: pcm: oss: Fix negative period/buffer sizes
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 4.9 18/42] libata: add horkage for ASMedia 1092
 Date:   Mon, 13 Dec 2021 10:30:00 +0100
-Message-Id: <20211213092934.261924733@linuxfoundation.org>
+Message-Id: <20211213092927.172962391@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hannes Reinecke <hare@suse.de>
 
-commit 9d2479c960875ca1239bcb899f386970c13d9cfe upstream.
+commit a66307d473077b7aeba74e9b09c841ab3d399c2d upstream.
 
-The period size calculation in OSS layer may receive a negative value
-as an error, but the code there assumes only the positive values and
-handle them with size_t.  Due to that, a too big value may be passed
-to the lower layers.
+The ASMedia 1092 has a configuration mode which will present a
+dummy device; sadly the implementation falsely claims to provide
+a device with 100M which doesn't actually exist.
+So disable this device to avoid errors during boot.
 
-This patch changes the code to handle with ssize_t and adds the proper
-error checks appropriately.
-
-Reported-by: syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com
-Reported-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1638270978-42412-1-git-send-email-cuibixuan@linux.alibaba.com
-Link: https://lore.kernel.org/r/20211201073606.11660-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/pcm_oss.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/ata/libata-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -147,7 +147,7 @@ snd_pcm_hw_param_value_min(const struct
-  *
-  * Return the maximum value for field PAR.
-  */
--static unsigned int
-+static int
- snd_pcm_hw_param_value_max(const struct snd_pcm_hw_params *params,
- 			   snd_pcm_hw_param_t var, int *dir)
- {
-@@ -682,18 +682,24 @@ static int snd_pcm_oss_period_size(struc
- 				   struct snd_pcm_hw_params *oss_params,
- 				   struct snd_pcm_hw_params *slave_params)
- {
--	size_t s;
--	size_t oss_buffer_size, oss_period_size, oss_periods;
--	size_t min_period_size, max_period_size;
-+	ssize_t s;
-+	ssize_t oss_buffer_size;
-+	ssize_t oss_period_size, oss_periods;
-+	ssize_t min_period_size, max_period_size;
- 	struct snd_pcm_runtime *runtime = substream->runtime;
- 	size_t oss_frame_size;
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4332,6 +4332,8 @@ static const struct ata_blacklist_entry
+ 	{ "VRFDFC22048UCHC-TE*", NULL,		ATA_HORKAGE_NODMA },
+ 	/* Odd clown on sil3726/4726 PMPs */
+ 	{ "Config  Disk",	NULL,		ATA_HORKAGE_DISABLE },
++	/* Similar story with ASMedia 1092 */
++	{ "ASMT109x- Config",	NULL,		ATA_HORKAGE_DISABLE },
  
- 	oss_frame_size = snd_pcm_format_physical_width(params_format(oss_params)) *
- 			 params_channels(oss_params) / 8;
- 
-+	oss_buffer_size = snd_pcm_hw_param_value_max(slave_params,
-+						     SNDRV_PCM_HW_PARAM_BUFFER_SIZE,
-+						     NULL);
-+	if (oss_buffer_size <= 0)
-+		return -EINVAL;
- 	oss_buffer_size = snd_pcm_plug_client_size(substream,
--						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_BUFFER_SIZE, NULL)) * oss_frame_size;
--	if (!oss_buffer_size)
-+						   oss_buffer_size * oss_frame_size);
-+	if (oss_buffer_size <= 0)
- 		return -EINVAL;
- 	oss_buffer_size = rounddown_pow_of_two(oss_buffer_size);
- 	if (atomic_read(&substream->mmap_count)) {
-@@ -730,7 +736,7 @@ static int snd_pcm_oss_period_size(struc
- 
- 	min_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_min(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (min_period_size) {
-+	if (min_period_size > 0) {
- 		min_period_size *= oss_frame_size;
- 		min_period_size = roundup_pow_of_two(min_period_size);
- 		if (oss_period_size < min_period_size)
-@@ -739,7 +745,7 @@ static int snd_pcm_oss_period_size(struc
- 
- 	max_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (max_period_size) {
-+	if (max_period_size > 0) {
- 		max_period_size *= oss_frame_size;
- 		max_period_size = rounddown_pow_of_two(max_period_size);
- 		if (oss_period_size > max_period_size)
-@@ -752,7 +758,7 @@ static int snd_pcm_oss_period_size(struc
- 		oss_periods = substream->oss.setup.periods;
- 
- 	s = snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIODS, NULL);
--	if (runtime->oss.maxfrags && s > runtime->oss.maxfrags)
-+	if (s > 0 && runtime->oss.maxfrags && s > runtime->oss.maxfrags)
- 		s = runtime->oss.maxfrags;
- 	if (oss_periods > s)
- 		oss_periods = s;
+ 	/* Weird ATAPI devices */
+ 	{ "TORiSAN DVD-ROM DRD-N216", NULL,	ATA_HORKAGE_MAX_SEC_128 },
 
 
