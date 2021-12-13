@@ -2,115 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD254729AF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DC5F472418
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239603AbhLMKX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:23:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36454 "EHLO
+        id S232227AbhLMJeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244986AbhLMKTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:19:01 -0500
+        with ESMTP id S232339AbhLMJdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:42 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDF5CC0698DB;
-        Mon, 13 Dec 2021 01:57:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FA37C0613FE;
+        Mon, 13 Dec 2021 01:33:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 71881CE0EBE;
-        Mon, 13 Dec 2021 09:57:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2CDC34601;
-        Mon, 13 Dec 2021 09:57:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DC4A0CE0E6F;
+        Mon, 13 Dec 2021 09:33:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF65C341C8;
+        Mon, 13 Dec 2021 09:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389438;
-        bh=Mgksbc7XnrxrkG9XyPVkNJ6rb/2H8GMBBJatfmT8n74=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNkSSCrHv3ri/ikis/JJC6FA8Uf1YBLWhRDOFk+cooSM19oZBu7jZ4DunMHUZfAAB
-         Kry3YHfUeiPBFVuGe1W1yedOaul7mnbTQsb+PCEsxLx3uBBp5juwUhR1VGYlyeeHUJ
-         9/8YRK415j37mMyYKCFEIBJu5gp2HHkWhYyS0TME=
+        s=korg; t=1639388018;
+        bh=FJsuto7G4LcoCpYg4gHFpSaMAJPFQvpbeco5T3WVlmk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fWFJdNpQtKtwxFxd4vV0VAJ5QY4ddm+Bx9DEFl8sWh3G/VFkB9S26W8KRiPaCXhMn
+         6AdPucDeq5jvxNWMfr/weqFL70Bw6G/YoatomIX20BbBvpU4deLJffI8GIlxWF6uTS
+         ZdKrfwhMn4nHAUKNSXDfT8ZFx4Kk07/18E+iifXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manjong Lee <mj0123.lee@samsung.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Changheun Lee <nanich.lee@samsung.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@infradead.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        seunghwan.hyun@samsung.com, sookwan7.kim@samsung.com,
-        yt0928.kim@samsung.com, junho89.kim@samsung.com,
-        jisoo2146.oh@samsung.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 063/171] mm: bdi: initialize bdi_min_ratio when bdi is unregistered
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/37] 4.4.295-rc1 review
 Date:   Mon, 13 Dec 2021 10:29:38 +0100
-Message-Id: <20211213092947.204153620@linuxfoundation.org>
+Message-Id: <20211213092925.380184671@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.295-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.295-rc1
+X-KernelTest-Deadline: 2021-12-15T09:29+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manjong Lee <mj0123.lee@samsung.com>
+This is the start of the stable review cycle for the 4.4.295 release.
+There are 37 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 3c376dfafbf7a8ea0dea212d095ddd83e93280bb upstream.
+Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
+Anything received after that time might be too late.
 
-Initialize min_ratio if it is set during bdi unregistration.  This can
-prevent problems that may occur a when bdi is removed without resetting
-min_ratio.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.295-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-For example.
-1) insert external sdcard
-2) set external sdcard's min_ratio 70
-3) remove external sdcard without setting min_ratio 0
-4) insert external sdcard
-5) set external sdcard's min_ratio 70 << error occur(can't set)
+thanks,
 
-Because when an sdcard is removed, the present bdi_min_ratio value will
-remain.  Currently, the only way to reset bdi_min_ratio is to reboot.
+greg k-h
 
-[akpm@linux-foundation.org: tweak comment and coding style]
+-------------
+Pseudo-Shortlog of commits:
 
-Link: https://lkml.kernel.org/r/20211021161942.5983-1-mj0123.lee@samsung.com
-Signed-off-by: Manjong Lee <mj0123.lee@samsung.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Changheun Lee <nanich.lee@samsung.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <seunghwan.hyun@samsung.com>
-Cc: <sookwan7.kim@samsung.com>
-Cc: <yt0928.kim@samsung.com>
-Cc: <junho89.kim@samsung.com>
-Cc: <jisoo2146.oh@samsung.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/backing-dev.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.295-rc1
 
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -947,6 +947,13 @@ void bdi_unregister(struct backing_dev_i
- 	wb_shutdown(&bdi->wb);
- 	cgwb_bdi_unregister(bdi);
- 
-+	/*
-+	 * If this BDI's min ratio has been set, use bdi_set_min_ratio() to
-+	 * update the global bdi_min_ratio.
-+	 */
-+	if (bdi->min_ratio)
-+		bdi_set_min_ratio(bdi, 0);
-+
- 	if (bdi->dev) {
- 		bdi_debug_unregister(bdi);
- 		device_unregister(bdi->dev);
+Vladimir Murzin <vladimir.murzin@arm.com>
+    irqchip: nvic: Fix offset for Interrupt Priority Offsets
+
+Wudi Wang <wangwudi@hisilicon.com>
+    irqchip/irq-gic-v3-its.c: Force synchronisation when issuing INVALL
+
+Yang Yingliang <yangyingliang@huawei.com>
+    iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: itg3200: Call iio_trigger_notify_done() on error
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: ltr501: Don't return error code in trigger handler
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: mma8452: Fix trigger reference couting
+
+Lars-Peter Clausen <lars@metafoo.de>
+    iio: stk3310: Don't return error code in interrupt handler
+
+Pavel Hofman <pavel.hofman@ivitera.com>
+    usb: core: config: fix validation of wMaxPacketValue entries
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    USB: gadget: zero allocate endpoint 0 buffers
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    USB: gadget: detect too-big endpoint 0 requests
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net/qla3xxx: fix an error code in ql_adapter_up()
+
+Eric Dumazet <edumazet@google.com>
+    net, neigh: clear whole pneigh_entry at alloc time
+
+Joakim Zhang <qiangqing.zhang@nxp.com>
+    net: fec: only clear interrupt of handling queue in fec_enet_rx_queue()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    net: altera: set a couple error code in probe()
+
+Lee Jones <lee.jones@linaro.org>
+    net: cdc_ncm: Allow for dwNtbOutMaxSize to be unset or zero
+
+Davidlohr Bueso <dave@stgolabs.net>
+    block: fix ioprio_get(IOPRIO_WHO_PGRP) vs setuid(2)
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracefs: Set all files to the same group ownership as the mount option
+
+Eric Biggers <ebiggers@google.com>
+    signalfd: use wake_up_pollfree()
+
+Eric Biggers <ebiggers@google.com>
+    binder: use wake_up_pollfree()
+
+Eric Biggers <ebiggers@google.com>
+    wait: add wake_up_pollfree()
+
+Hannes Reinecke <hare@suse.de>
+    libata: add horkage for ASMedia 1092
+
+Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+    can: pch_can: pch_can_rx_normal: fix use after free
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracefs: Have new files inherit the ownership of their parent
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: oss: Handle missing errors in snd_pcm_oss_change_params*()
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: oss: Limit the period size to 16MB
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: pcm: oss: Fix negative period/buffer sizes
+
+Alan Young <consult.awy@gmail.com>
+    ALSA: ctl: Fix copy of updated id with element read/write
+
+Manjong Lee <mj0123.lee@samsung.com>
+    mm: bdi: initialize bdi_min_ratio when bdi is unregistered
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    nfc: fix potential NULL pointer deref in nfc_genl_dump_ses_done
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    can: sja1000: fix use after free in ems_pcmcia_add_card()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: check for valid USB device for many HID drivers
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: wacom: fix problems when device is not a valid USB device
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add USB_HID dependancy on some USB HID drivers
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add USB_HID dependancy to hid-chicony
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add USB_HID dependancy to hid-prodikeys
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    HID: add hid_is_usb() function to make it simpler for USB detection
+
+Jason Gerecke <killertofu@gmail.com>
+    HID: introduce hid_is_using_ll_driver
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                      |  4 +-
+ block/ioprio.c                                |  3 ++
+ drivers/android/binder.c                      | 21 ++++----
+ drivers/ata/libata-core.c                     |  2 +
+ drivers/hid/Kconfig                           | 10 ++--
+ drivers/hid/hid-chicony.c                     |  8 ++-
+ drivers/hid/hid-corsair.c                     |  7 ++-
+ drivers/hid/hid-elo.c                         |  3 ++
+ drivers/hid/hid-holtek-kbd.c                  |  9 +++-
+ drivers/hid/hid-holtek-mouse.c                |  9 ++++
+ drivers/hid/hid-lg.c                          | 10 +++-
+ drivers/hid/hid-prodikeys.c                   | 10 +++-
+ drivers/hid/hid-roccat-arvo.c                 |  3 ++
+ drivers/hid/hid-roccat-isku.c                 |  3 ++
+ drivers/hid/hid-roccat-kone.c                 |  3 ++
+ drivers/hid/hid-roccat-koneplus.c             |  3 ++
+ drivers/hid/hid-roccat-konepure.c             |  3 ++
+ drivers/hid/hid-roccat-kovaplus.c             |  3 ++
+ drivers/hid/hid-roccat-lua.c                  |  3 ++
+ drivers/hid/hid-roccat-pyra.c                 |  3 ++
+ drivers/hid/hid-roccat-ryos.c                 |  3 ++
+ drivers/hid/hid-roccat-savu.c                 |  3 ++
+ drivers/hid/hid-samsung.c                     |  3 ++
+ drivers/hid/hid-uclogic.c                     |  3 ++
+ drivers/hid/i2c-hid/i2c-hid.c                 |  3 +-
+ drivers/hid/uhid.c                            |  3 +-
+ drivers/hid/usbhid/hid-core.c                 |  3 +-
+ drivers/hid/wacom_sys.c                       | 17 ++++--
+ drivers/iio/accel/kxcjk-1013.c                |  5 +-
+ drivers/iio/accel/mma8452.c                   |  2 +-
+ drivers/iio/gyro/itg3200_buffer.c             |  2 +-
+ drivers/iio/light/ltr501.c                    |  2 +-
+ drivers/iio/light/stk3310.c                   |  6 +--
+ drivers/irqchip/irq-gic-v3-its.c              |  2 +-
+ drivers/irqchip/irq-nvic.c                    |  2 +-
+ drivers/net/can/pch_can.c                     |  2 +-
+ drivers/net/can/sja1000/ems_pcmcia.c          |  7 ++-
+ drivers/net/ethernet/altera/altera_tse_main.c |  9 ++--
+ drivers/net/ethernet/freescale/fec.h          |  3 ++
+ drivers/net/ethernet/freescale/fec_main.c     |  2 +-
+ drivers/net/ethernet/qlogic/qla3xxx.c         | 19 ++++---
+ drivers/net/usb/cdc_ncm.c                     |  2 +
+ drivers/usb/core/config.c                     |  2 +-
+ drivers/usb/gadget/composite.c                | 14 ++++-
+ drivers/usb/gadget/legacy/dbgp.c              | 15 +++++-
+ drivers/usb/gadget/legacy/inode.c             | 16 +++++-
+ fs/signalfd.c                                 | 12 +----
+ fs/tracefs/inode.c                            | 76 +++++++++++++++++++++++++++
+ include/linux/hid.h                           | 16 ++++++
+ include/linux/wait.h                          | 26 +++++++++
+ kernel/sched/wait.c                           |  8 +++
+ mm/backing-dev.c                              |  7 +++
+ net/bluetooth/hidp/core.c                     |  3 +-
+ net/core/neighbour.c                          |  2 +-
+ net/nfc/netlink.c                             |  6 ++-
+ sound/core/control_compat.c                   |  3 ++
+ sound/core/oss/pcm_oss.c                      | 37 ++++++++-----
+ 57 files changed, 372 insertions(+), 94 deletions(-)
 
 
