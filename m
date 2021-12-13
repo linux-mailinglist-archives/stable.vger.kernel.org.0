@@ -2,127 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5DB471F30
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 02:46:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E31471F38
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 02:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231174AbhLMBqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Dec 2021 20:46:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34194 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230368AbhLMBqH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Dec 2021 20:46:07 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84551C06173F
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 17:46:07 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id gf14-20020a17090ac7ce00b001a7a2a0b5c3so13521667pjb.5
-        for <stable@vger.kernel.org>; Sun, 12 Dec 2021 17:46:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/DyDnX73544fg8e2wrYyG90K8BWTjq9AABc2gWoLpYw=;
-        b=jwooyEOZAXbgX+1XzYhBi/+bWtYq9N21j0Mhwmflhj2wueFgg03fZfoyx5kYlsE3Wx
-         8k7C9Xcbs1f0Y8iT/JGVPunr9KSdUS7wrclcT3lWFuoqhkRicJZAebb4a+oq/LnGxAxJ
-         xYZSQWWwVH8dSjOEEUmwIGzDiYT5SnB7JUd4JWkHKffv57QZhiQfT6YeLVfdzzqsVmZh
-         W0jMk5//kVvvaHfSK8c0ADWTFZgpPq2Ud8Ye595m0WAyztFkC58t10Z1fR3tbVSpNMoY
-         c1COmxpyoSmRoEj8qF+CfZUrPBF1zNu1O0aCZkjITZ9wAgnf5aOQL8qqEiwsU43eeDRH
-         OOYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/DyDnX73544fg8e2wrYyG90K8BWTjq9AABc2gWoLpYw=;
-        b=Exf0aZB9EOoMXFyb5puI7UbpjJNrZJscsmjXRqZOhJ8sOnfYPJaZIqTaqNOylo11dx
-         une2lnJF1lajB1qABy7dX43/++rzM5Jxidx+6aMd9Lf4a9PqXaumIe1+1CZ9774rSVx+
-         QDzj+2gGJxT0nc7rgTkT3pf+iAiQh5VGhAXtmO9VcjJAgdREmqSNtSk/NGcSwjoIGWm/
-         y+hP4qTTy4It7OVgOaey9B60nMggipqqv+mgHikn50jDPCOrSbwUafGtVBGreEbjfEDn
-         I62OaWYAUmQO3+Jlseaxl1TRbkAUYBqiVxDTqIHVQpo8hZ9+YTKa0raTNIRrtAu0olPz
-         RvZg==
-X-Gm-Message-State: AOAM530IprTPU+qYHVyrMP/5AXEWa/dam3UIPE1KNZ2x17W+/FhWDECZ
-        z6d6CHZs81m6sNkvsbXl1fPbjdV//Eirb7Xx
-X-Google-Smtp-Source: ABdhPJyB8FhCUCHDoLbHURxPecrZ5hRmIuG047yViz4PIake4TkGf/31GZAW9ltXbka/zCVyLx5ZhQ==
-X-Received: by 2002:a17:902:7595:b0:144:ce0e:d42 with SMTP id j21-20020a170902759500b00144ce0e0d42mr93045706pll.39.1639359966751;
-        Sun, 12 Dec 2021 17:46:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a22sm10055458pfh.111.2021.12.12.17.46.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Dec 2021 17:46:06 -0800 (PST)
-Message-ID: <61b6a5de.1c69fb81.73068.dde5@mx.google.com>
-Date:   Sun, 12 Dec 2021 17:46:06 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229586AbhLMB6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Dec 2021 20:58:49 -0500
+Received: from mga02.intel.com ([134.134.136.20]:49991 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229436AbhLMB6t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 12 Dec 2021 20:58:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1639360729; x=1670896729;
+  h=from:to:cc:subject:references:date:in-reply-to:
+   message-id:mime-version;
+  bh=BPIBQRh24j1r5R+LEj2YcwdDa2KSusG9g9vBSZKllJg=;
+  b=Slklm94ZdjClKqLWfLsKM12FGciSCs1pBjyPwdnfaK/w2sbt0+PuwmGr
+   Tt+23HHyI4XZDJo4zex2xqAoPmK9I2oWTXz38KPftLaogPsWNZ7MA5P9N
+   0eQ3xRopLLJsGEJm5kvHwYV2RnQVVtzJKrbi2V28Ooy2iyWCwa2Eku/ZU
+   bN09UZuX4V5HRiBJXfbRNKSirFc2ShbNwDOHC8uxJmEXR2Ul/fFaQkA4h
+   Xv+Ic4+zV/CO+gEkncPTDuz0icqbbzVmXMd+FZ7cFBFeK90TjNf4XRh7N
+   jwtVvA93oU8YrD2/i3/mSB7cwq8yW/uSyDQsWmemyMttdQnyfLL7RqX58
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10196"; a="225923254"
+X-IronPort-AV: E=Sophos;i="5.88,201,1635231600"; 
+   d="scan'208";a="225923254"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2021 17:58:48 -0800
+X-IronPort-AV: E=Sophos;i="5.88,201,1635231600"; 
+   d="scan'208";a="681462946"
+Received: from yhuang6-desk2.sh.intel.com (HELO yhuang6-desk2.ccr.corp.intel.com) ([10.239.159.50])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Dec 2021 17:58:46 -0800
+From:   "Huang, Ying" <ying.huang@intel.com>
+To:     Valentin Schneider <valentin.schneider@arm.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Mel Gorman <mgorman@suse.de>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>
+Subject: Re: [PATCH -V2] numa balancing: move some document to make it
+ consistent with the code
+References: <20211209004442.999696-1-ying.huang@intel.com>
+        <8735n1anw9.mognet@arm.com>
+Date:   Mon, 13 Dec 2021 09:58:44 +0800
+In-Reply-To: <8735n1anw9.mognet@arm.com> (Valentin Schneider's message of
+        "Thu, 9 Dec 2021 13:49:58 +0000")
+Message-ID: <87bl1lw9ij.fsf@yhuang6-desk2.ccr.corp.intel.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.294-28-g4af7e373e6fb
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y baseline: 129 runs,
- 1 regressions (v4.4.294-28-g4af7e373e6fb)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ascii
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 129 runs, 1 regressions (v4.4.294-28-g4af7e=
-373e6fb)
+Valentin Schneider <valentin.schneider@arm.com> writes:
 
-Regressions Summary
--------------------
+> On 09/12/21 08:44, Huang Ying wrote:
+>> After commit 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to
+>> debugfs"), some NUMA balancing sysctls enclosed with SCHED_DEBUG has
+>> been moved to debugfs.  This patch move the document for these
+>> sysctls from
+>>
+>>   Documentation/admin-guide/sysctl/kernel.rst
+>>
+>> to
+>>
+>>   Documentation/scheduler/debug.txt
+>>
+>
+> AFAIA new documentation files should be written in reST, and the "source"
+> file is .rst so the new one should be too (as much as Peter hates it).
+>
+> Also, most files in there are named sched-*.rst, does that want to be
+> sched-debug.rst ?
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
+OK.  Will do that.
 
+>> to make the document consistent with the code.
+>>
+>> Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
+>> Fixes: 8a99b6833c88 ("sched: Move SCHED_DEBUG sysctl to debugfs")
+>> Cc: Mel Gorman <mgorman@techsingularity.net>
+>> Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Cc: Valentin Schneider <valentin.schneider@arm.com>
+>> Cc: stable@vger.kernel.org # since v5.13
+>
+>> diff --git a/Documentation/scheduler/debug.txt b/Documentation/scheduler/debug.txt
+>> new file mode 100644
+>> index 000000000000..848d83c3123c
+>> --- /dev/null
+>> +++ b/Documentation/scheduler/debug.txt
+>> @@ -0,0 +1,48 @@
+>> +Scheduler debugfs
+>> +
+>
+> How about a small intro?
+>
+> ---
+> diff --git a/Documentation/scheduler/debug.txt b/Documentation/scheduler/debug.txt
+> index 848d83c3123c..08600de5b90e 100644
+> --- a/Documentation/scheduler/debug.txt
+> +++ b/Documentation/scheduler/debug.txt
+> @@ -1,4 +1,10 @@
+> +=================
+>  Scheduler debugfs
+> +=================
+> +
+> +Booting a kernel with CONFIG_SCHED_DEBUG=y will give access to scheduler
+> +-specific debug files under /sys/kernel/debug/sched. Some of those files are
+> +described below.
+>  
+>  numa_balancing
+>  --------------
+> ---
+>
+>> +numa_balancing
+>> +--------------
+>
+> I think you got the heading ordering wrong, see
+>   Documentation/doc-guide/sphinx.rst#Specific guidelines for the kernel documentation
+>
+> IIRC Sphinx/reST only requires heading ordering to be consistent within a
+> given file, but having consistency throughout the project simplifies
+> reviewing/contributing. In this case, headings with "=" must appear before
+> headings with "-".
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.294-28-g4af7e373e6fb/plan/baseline/
+Thanks for reminding.  Will change it in the next version.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.294-28-g4af7e373e6fb
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4af7e373e6fb05e868915c64504303b486443864 =
+Best Regards,
+Huang, Ying
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b66bc1d90b189cab397151
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.294=
--28-g4af7e373e6fb/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.294=
--28-g4af7e373e6fb/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b66bc1d90b189cab397=
-152
-        new failure (last pass: v4.4.292-160-g026850c9b4d0) =
-
- =20
+>> +
+>> +`numa_balancing` directory is used to hold files to control NUMA
+>> +balancing feature.  If the system overhead from the feature is too
+>> +high then the rate the kernel samples for NUMA hinting faults may be
+>> +controlled by the `scan_period_min_ms, scan_delay_ms,
+>> +scan_period_max_ms, scan_size_mb` files.
+>> +
+>> +
+>> +scan_period_min_ms, scan_delay_ms, scan_period_max_ms, scan_size_mb
+>> +===================================================================
+>> +
+>> +Automatic NUMA balancing scans tasks address space and unmaps pages to
+>> +detect if pages are properly placed or if the data should be migrated to a
+>> +memory node local to where the task is running.  Every "scan delay" the task
+>> +scans the next "scan size" number of pages in its address space. When the
+>> +end of the address space is reached the scanner restarts from the beginning.
+>> +
+>> +In combination, the "scan delay" and "scan size" determine the scan rate.
+>> +When "scan delay" decreases, the scan rate increases.  The scan delay and
+>> +hence the scan rate of every task is adaptive and depends on historical
+>> +behaviour. If pages are properly placed then the scan delay increases,
+>> +otherwise the scan delay decreases.  The "scan size" is not adaptive but
+>> +the higher the "scan size", the higher the scan rate.
+>> +
+>> +Higher scan rates incur higher system overhead as page faults must be
+>> +trapped and potentially data must be migrated. However, the higher the scan
+>> +rate, the more quickly a tasks memory is migrated to a local node if the
+>> +workload pattern changes and minimises performance impact due to remote
+>> +memory accesses. These files control the thresholds for scan delays and
+>> +the number of pages scanned.
+>> +
+>> +``scan_period_min_ms`` is the minimum time in milliseconds to scan a
+>> +tasks virtual memory. It effectively controls the maximum scanning
+>> +rate for each task.
+>> +
+>> +``scan_delay_ms`` is the starting "scan delay" used for a task when it
+>> +initially forks.
+>> +
+>> +``scan_period_max_ms`` is the maximum time in milliseconds to scan a
+>> +tasks virtual memory. It effectively controls the minimum scanning
+>> +rate for each task.
+>> +
+>> +``scan_size_mb`` is how many megabytes worth of pages are scanned for
+>> +a given scan.
+>> --
+>> 2.30.2
