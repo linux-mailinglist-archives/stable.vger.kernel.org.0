@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 437DF472530
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D26472422
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234174AbhLMJlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:41:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54856 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbhLMJjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:54 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A19C0698E2;
-        Mon, 13 Dec 2021 01:38:20 -0800 (PST)
+        id S234049AbhLMJeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:34:20 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47746 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234047AbhLMJdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C0904CE0E82;
-        Mon, 13 Dec 2021 09:38:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 716F3C00446;
-        Mon, 13 Dec 2021 09:38:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01B6FB80E1A;
+        Mon, 13 Dec 2021 09:33:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 065DBC00446;
+        Mon, 13 Dec 2021 09:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388297;
-        bh=UbZnTys1GZMxTZygrnhji7SE1qPCpj35E47d23dlbNM=;
+        s=korg; t=1639388029;
+        bh=gNe6G1PwecyhbVnVoeTY2X2BSaT1NS6nklPiHbVn5yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d89GLCFJVyE0GR3Wm3nFbPgM11SdiaevXcXn4XEYZ7LID6H5cYoTFuraEWn/v+hrS
-         zm1bb64i5+32R2p+PUjW8/KkA+/GEYVmZNBUgaKo6X+ZCIGeNbEGc2VPziUenWI8RA
-         +yh2V/vRNWtlyivISbPD7R34SplKEd1MuiDIlPp8=
+        b=WCC4cxA1TSx2CRWwRWGMSgKK6ipjYQRA8WTHz9eA24H9+FPbvIG9zvUw2YJQa6pGx
+         zJruBTOqNm/4B/mHd2iQQNEGQYpDGjIeQD6QnclbwxnnG6xn17dj1VL+DmN2clH4P5
+         E5GMJOl59J+BNZaM/JsfNdC5dGLJoEcZ+Zh3GI1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
-Subject: [PATCH 4.14 34/53] USB: gadget: detect too-big endpoint 0 requests
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.4 35/37] iio: accel: kxcjk-1013: Fix possible memory leak in probe and remove
 Date:   Mon, 13 Dec 2021 10:30:13 +0100
-Message-Id: <20211213092929.491084410@linuxfoundation.org>
+Message-Id: <20211213092926.529910919@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
+References: <20211213092925.380184671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,104 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 153a2d7e3350cc89d406ba2d35be8793a64c2038 upstream.
+commit 70c9774e180d151abaab358108e3510a8e615215 upstream.
 
-Sometimes USB hosts can ask for buffers that are too large from endpoint
-0, which should not be allowed.  If this happens for OUT requests, stall
-the endpoint, but for IN requests, trim the request size to the endpoint
-buffer size.
+When ACPI type is ACPI_SMO8500, the data->dready_trig will not be set, the
+memory allocated by iio_triggered_buffer_setup() will not be freed, and cause
+memory leak as follows:
 
-Co-developed-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+unreferenced object 0xffff888009551400 (size 512):
+  comm "i2c-SMO8500-125", pid 911, jiffies 4294911787 (age 83.852s)
+  hex dump (first 32 bytes):
+    02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 20 e2 e5 c0 ff ff ff ff  ........ .......
+  backtrace:
+    [<0000000041ce75ee>] kmem_cache_alloc_trace+0x16d/0x360
+    [<000000000aeb17b0>] iio_kfifo_allocate+0x41/0x130 [kfifo_buf]
+    [<000000004b40c1f5>] iio_triggered_buffer_setup_ext+0x2c/0x210 [industrialio_triggered_buffer]
+    [<000000004375b15f>] kxcjk1013_probe+0x10c3/0x1d81 [kxcjk_1013]
+
+Fix it by remove data->dready_trig condition in probe and remove.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: a25691c1f967 ("iio: accel: kxcjk1013: allow using an external trigger")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211025124159.2700301-1-yangyingliang@huawei.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/composite.c    |   12 ++++++++++++
- drivers/usb/gadget/legacy/dbgp.c  |   13 +++++++++++++
- drivers/usb/gadget/legacy/inode.c |   16 +++++++++++++++-
- 3 files changed, 40 insertions(+), 1 deletion(-)
+ drivers/iio/accel/kxcjk-1013.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1635,6 +1635,18 @@ composite_setup(struct usb_gadget *gadge
- 	struct usb_function		*f = NULL;
- 	u8				endp;
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -1284,8 +1284,7 @@ static int kxcjk1013_probe(struct i2c_cl
+ err_iio_unregister:
+ 	iio_device_unregister(indio_dev);
+ err_buffer_cleanup:
+-	if (data->dready_trig)
+-		iio_triggered_buffer_cleanup(indio_dev);
++	iio_triggered_buffer_cleanup(indio_dev);
+ err_trigger_unregister:
+ 	if (data->dready_trig)
+ 		iio_trigger_unregister(data->dready_trig);
+@@ -1308,8 +1307,8 @@ static int kxcjk1013_remove(struct i2c_c
  
-+	if (w_length > USB_COMP_EP0_BUFSIZ) {
-+		if (ctrl->bRequestType == USB_DIR_OUT) {
-+			goto done;
-+		} else {
-+			/* Cast away the const, we are going to overwrite on purpose. */
-+			__le16 *temp = (__le16 *)&ctrl->wLength;
-+
-+			*temp = cpu_to_le16(USB_COMP_EP0_BUFSIZ);
-+			w_length = USB_COMP_EP0_BUFSIZ;
-+		}
-+	}
-+
- 	/* partial re-init of the response message; the function or the
- 	 * gadget might need to intercept e.g. a control-OUT completion
- 	 * when we delegate to it.
---- a/drivers/usb/gadget/legacy/dbgp.c
-+++ b/drivers/usb/gadget/legacy/dbgp.c
-@@ -344,6 +344,19 @@ static int dbgp_setup(struct usb_gadget
- 	void *data = NULL;
- 	u16 len = 0;
+ 	iio_device_unregister(indio_dev);
  
-+	if (length > DBGP_REQ_LEN) {
-+		if (ctrl->bRequestType == USB_DIR_OUT) {
-+			return err;
-+		} else {
-+			/* Cast away the const, we are going to overwrite on purpose. */
-+			__le16 *temp = (__le16 *)&ctrl->wLength;
-+
-+			*temp = cpu_to_le16(DBGP_REQ_LEN);
-+			length = DBGP_REQ_LEN;
-+		}
-+	}
-+
-+
- 	if (request == USB_REQ_GET_DESCRIPTOR) {
- 		switch (value>>8) {
- 		case USB_DT_DEVICE:
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -113,6 +113,8 @@ enum ep0_state {
- /* enough for the whole queue: most events invalidate others */
- #define	N_EVENT			5
- 
-+#define RBUF_SIZE		256
-+
- struct dev_data {
- 	spinlock_t			lock;
- 	refcount_t			count;
-@@ -147,7 +149,7 @@ struct dev_data {
- 	struct dentry			*dentry;
- 
- 	/* except this scratch i/o buffer for ep0 */
--	u8				rbuf [256];
-+	u8				rbuf[RBUF_SIZE];
- };
- 
- static inline void get_dev (struct dev_data *data)
-@@ -1336,6 +1338,18 @@ gadgetfs_setup (struct usb_gadget *gadge
- 	u16				w_value = le16_to_cpu(ctrl->wValue);
- 	u16				w_length = le16_to_cpu(ctrl->wLength);
- 
-+	if (w_length > RBUF_SIZE) {
-+		if (ctrl->bRequestType == USB_DIR_OUT) {
-+			return value;
-+		} else {
-+			/* Cast away the const, we are going to overwrite on purpose. */
-+			__le16 *temp = (__le16 *)&ctrl->wLength;
-+
-+			*temp = cpu_to_le16(RBUF_SIZE);
-+			w_length = RBUF_SIZE;
-+		}
-+	}
-+
- 	spin_lock (&dev->lock);
- 	dev->setup_abort = 0;
- 	if (dev->state == STATE_DEV_UNCONNECTED) {
++	iio_triggered_buffer_cleanup(indio_dev);
+ 	if (data->dready_trig) {
+-		iio_triggered_buffer_cleanup(indio_dev);
+ 		iio_trigger_unregister(data->dready_trig);
+ 		iio_trigger_unregister(data->motion_trig);
+ 	}
 
 
