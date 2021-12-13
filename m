@@ -2,32 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 598FC472413
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6954724CE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234057AbhLMJdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:33:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54158 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233996AbhLMJdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26502C061D5E;
-        Mon, 13 Dec 2021 01:33:32 -0800 (PST)
+        id S233932AbhLMJio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:38:44 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49772 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234522AbhLMJhW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:37:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C16ADB80DE8;
-        Mon, 13 Dec 2021 09:33:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C858C00446;
-        Mon, 13 Dec 2021 09:33:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E4A9B80E2B;
+        Mon, 13 Dec 2021 09:37:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72318C341DC;
+        Mon, 13 Dec 2021 09:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388009;
-        bh=HfOrbkDD+5mqW8qHD+r0MxnBmRxbNdLaaStUrXM+Kts=;
+        s=korg; t=1639388240;
+        bh=ChuHUdCQyAwFWEoDBF9myeSt+aUzVylG3NwzADQkuq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=knqwlLW75E0+b7qeEoUvo3FclkbOKxbs7HJSMM8Isj6J3ILt4iVfvhQqBKDSaMRbL
-         ELCfE6lX28HEHbbQ/i5Q9X6MJ5W5WHgs8pCKXkw9ODj1K9gGUYNGgAit9YQruMK4qp
-         5pmXeK2CeZV1bYRsnZbgsoYr++O6BVmcSuEnq+bk=
+        b=2nlP7Uk90IruRGy0RN4p2XLwfZ/43NGqVqBw4rZ4dqluopy2ArFD20b77yE7hXVSA
+         raWD1u8fT7BsyFAbHN4qIrnvQMPe3iYnQwDqQOgtGqcKcDqVEeomMHKis++hgZ7Bp9
+         5xJhp/73WZEQEm9bL4cTriJ4dQwHQGWXySYVBr5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Maxime Coquelin <mcoquelin.stm32@gmail.com>,
         Alexandre Torgue <alexandre.torgue@foss.st.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 4.4 07/37] HID: check for valid USB device for many HID drivers
+Subject: [PATCH 4.14 06/53] HID: check for valid USB device for many HID drivers
 Date:   Mon, 13 Dec 2021 10:29:45 +0100
-Message-Id: <20211213092925.614175152@linuxfoundation.org>
+Message-Id: <20211213092928.565630235@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -118,7 +115,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		 * 0x2fff, so they don't exceed HID_MAX_USAGES */
 --- a/drivers/hid/hid-corsair.c
 +++ b/drivers/hid/hid-corsair.c
-@@ -551,7 +551,12 @@ static int corsair_probe(struct hid_devi
+@@ -553,7 +553,12 @@ static int corsair_probe(struct hid_devi
  	int ret;
  	unsigned long quirks = id->driver_data;
  	struct corsair_drvdata *drvdata;
@@ -193,7 +190,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  module_hid_driver(holtek_mouse_driver);
 --- a/drivers/hid/hid-lg.c
 +++ b/drivers/hid/hid-lg.c
-@@ -659,12 +659,18 @@ static int lg_event(struct hid_device *h
+@@ -714,12 +714,18 @@ static int lg_raw_event(struct hid_devic
  
  static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
  {
@@ -239,7 +236,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		hid_err(hdev, "can't alloc descriptor\n");
 --- a/drivers/hid/hid-roccat-arvo.c
 +++ b/drivers/hid/hid-roccat-arvo.c
-@@ -349,6 +349,9 @@ static int arvo_probe(struct hid_device
+@@ -347,6 +347,9 @@ static int arvo_probe(struct hid_device
  {
  	int retval;
  
@@ -251,7 +248,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		hid_err(hdev, "parse failed\n");
 --- a/drivers/hid/hid-roccat-isku.c
 +++ b/drivers/hid/hid-roccat-isku.c
-@@ -329,6 +329,9 @@ static int isku_probe(struct hid_device
+@@ -327,6 +327,9 @@ static int isku_probe(struct hid_device
  {
  	int retval;
  
@@ -263,7 +260,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		hid_err(hdev, "parse failed\n");
 --- a/drivers/hid/hid-roccat-kone.c
 +++ b/drivers/hid/hid-roccat-kone.c
-@@ -756,6 +756,9 @@ static int kone_probe(struct hid_device
+@@ -752,6 +752,9 @@ static int kone_probe(struct hid_device
  {
  	int retval;
  
@@ -275,7 +272,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		hid_err(hdev, "parse failed\n");
 --- a/drivers/hid/hid-roccat-koneplus.c
 +++ b/drivers/hid/hid-roccat-koneplus.c
-@@ -438,6 +438,9 @@ static int koneplus_probe(struct hid_dev
+@@ -434,6 +434,9 @@ static int koneplus_probe(struct hid_dev
  {
  	int retval;
  
@@ -299,7 +296,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		hid_err(hdev, "parse failed\n");
 --- a/drivers/hid/hid-roccat-kovaplus.c
 +++ b/drivers/hid/hid-roccat-kovaplus.c
-@@ -508,6 +508,9 @@ static int kovaplus_probe(struct hid_dev
+@@ -504,6 +504,9 @@ static int kovaplus_probe(struct hid_dev
  {
  	int retval;
  
@@ -323,7 +320,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		hid_err(hdev, "parse failed\n");
 --- a/drivers/hid/hid-roccat-pyra.c
 +++ b/drivers/hid/hid-roccat-pyra.c
-@@ -457,6 +457,9 @@ static int pyra_probe(struct hid_device
+@@ -452,6 +452,9 @@ static int pyra_probe(struct hid_device
  {
  	int retval;
  
@@ -371,7 +368,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		hid_err(hdev, "parse failed\n");
 --- a/drivers/hid/hid-uclogic.c
 +++ b/drivers/hid/hid-uclogic.c
-@@ -795,6 +795,9 @@ static int uclogic_tablet_enable(struct
+@@ -791,6 +791,9 @@ static int uclogic_tablet_enable(struct
  	__u8 *p;
  	s32 v;
  
