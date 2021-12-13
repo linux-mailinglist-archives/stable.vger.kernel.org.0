@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA8F4724DA
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:39:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3839A472753
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234120AbhLMJjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:39:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51116 "EHLO
+        id S238138AbhLMJ7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:59:53 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44338 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234240AbhLMJhj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:37:39 -0500
+        with ESMTP id S239734AbhLMJ5v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:57:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69482B80DE8;
-        Mon, 13 Dec 2021 09:37:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A63C5C341D8;
-        Mon, 13 Dec 2021 09:37:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB201B80E66;
+        Mon, 13 Dec 2021 09:57:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECA1C34600;
+        Mon, 13 Dec 2021 09:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388257;
-        bh=lFru/eiJ+opmGuVoOgd6CAflirb7kLAfOtF6fZS+NaQ=;
+        s=korg; t=1639389468;
+        bh=BWWtnEHKN6jPmSi5QmZYSF6LyQnpOVoDOYF0FPYxRhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otCKsPlXzVbg8rq6CRWugd39ddVZPaVQxFqDV7uUn4OSMSExWCm1Nz69eZagBGeBc
-         sLR4yuljECqe9wbLdjrAbogdiInmZ08WPGAZqmLVXdtIF7YaKw5htBVnryD+BBf9T9
-         nZAA94FVGeZP67Lcf52iUQQ6vhWcOH/r2nMwXz0Y=
+        b=GioUmLAsra6ShMiBK8lt0z0U1MhngGsHDK11Sc5wWPrm06bl9bCSDNYOrrrDCKv9j
+         cNfafKtiIL2+YO1rCUvgXW/WLcn5VJvcb5l+UtZ5OSI/Y0yVU28QpOQv8MZ/e9vf0D
+         v5AjoSYZk5S5TIhuCYOyrxoICvFQQvkaAImdtnaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 41/53] iio: stk3310: Dont return error code in interrupt handler
+        stable@vger.kernel.org, Olivia Mackintosh <livvy@base.nu>,
+        Takashi Iwai <tiwai@suse.de>,
+        Geraldo Nascimento <geraldogabriel@gmail.com>
+Subject: [PATCH 5.15 105/171] ALSA: usb-audio: Reorder snd_djm_devices[] entries
 Date:   Mon, 13 Dec 2021 10:30:20 +0100
-Message-Id: <20211213092929.726816269@linuxfoundation.org>
+Message-Id: <20211213092948.590341009@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Geraldo Nascimento <geraldogabriel@gmail.com>
 
-commit 8e1eeca5afa7ba84d885987165dbdc5decf15413 upstream.
+commit fb1af5bea4670c835e42fc0c14c49d3499468774 upstream.
 
-Interrupt handlers must return one of the irqreturn_t values. Returning a
-error code is not supported.
+Olivia Mackintosh has posted to alsa-devel reporting that
+there's a potential bug that could break mixer quirks for Pioneer
+devices introduced by 6d27788160362a7ee6c0d317636fe4b1ddbe59a7
+"ALSA: usb-audio: Add support for the Pioneer DJM 750MK2
+Mixer/Soundcard".
 
-The stk3310 event interrupt handler returns an error code when reading the
-flags register fails.
+This happened because the DJM 750 MK2 was added last to the Pioneer DJM
+device table index and defined as 0x4 but was added to snd_djm_devices[]
+just after the DJM 750 (MK1) entry instead of last, after the DJM 900
+NXS2. This escaped review.
 
-Fix the implementation to always return an irqreturn_t value.
+To prevent that from ever happening again, Takashi Iwai suggested to use
+C99 array designators in snd_djm_devices[] instead of simply reordering
+the entries.
 
-Fixes: 3dd477acbdd1 ("iio: light: Add threshold interrupt support for STK3310")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211024171251.22896-3-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 6d2778816036 ("ALSA: usb-audio: Add support for the Pioneer DJM 750MK2")
+Reported-by: Olivia Mackintosh <livvy@base.nu>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Geraldo Nascimento <geraldogabriel@gmail.com>
+Link: https://lore.kernel.org/r/Yau46FDzoql0SNnW@geday
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/stk3310.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/usb/mixer_quirks.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/light/stk3310.c
-+++ b/drivers/iio/light/stk3310.c
-@@ -546,9 +546,8 @@ static irqreturn_t stk3310_irq_event_han
- 	mutex_lock(&data->lock);
- 	ret = regmap_field_read(data->reg_flag_nf, &dir);
- 	if (ret < 0) {
--		dev_err(&data->client->dev, "register read failed\n");
--		mutex_unlock(&data->lock);
--		return ret;
-+		dev_err(&data->client->dev, "register read failed: %d\n", ret);
-+		goto out;
- 	}
- 	event = IIO_UNMOD_EVENT_CODE(IIO_PROXIMITY, 1,
- 				     IIO_EV_TYPE_THRESH,
-@@ -560,6 +559,7 @@ static irqreturn_t stk3310_irq_event_han
- 	ret = regmap_field_write(data->reg_flag_psint, 0);
- 	if (ret < 0)
- 		dev_err(&data->client->dev, "failed to reset interrupts\n");
-+out:
- 	mutex_unlock(&data->lock);
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -3016,11 +3016,11 @@ static const struct snd_djm_ctl snd_djm_
  
- 	return IRQ_HANDLED;
+ 
+ static const struct snd_djm_device snd_djm_devices[] = {
+-	SND_DJM_DEVICE(250mk2),
+-	SND_DJM_DEVICE(750),
+-	SND_DJM_DEVICE(750mk2),
+-	SND_DJM_DEVICE(850),
+-	SND_DJM_DEVICE(900nxs2)
++	[SND_DJM_250MK2_IDX] = SND_DJM_DEVICE(250mk2),
++	[SND_DJM_750_IDX] = SND_DJM_DEVICE(750),
++	[SND_DJM_850_IDX] = SND_DJM_DEVICE(850),
++	[SND_DJM_900NXS2_IDX] = SND_DJM_DEVICE(900nxs2),
++	[SND_DJM_750MK2_IDX] = SND_DJM_DEVICE(750mk2),
+ };
+ 
+ 
 
 
