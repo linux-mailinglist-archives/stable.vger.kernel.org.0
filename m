@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1314B472548
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47E6A4726B6
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236168AbhLMJnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56008 "EHLO
+        id S237442AbhLMJyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:54:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233834AbhLMJkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:45 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CA6C034633;
-        Mon, 13 Dec 2021 01:39:10 -0800 (PST)
+        with ESMTP id S237132AbhLMJvj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:51:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DC8FC08ECA9;
+        Mon, 13 Dec 2021 01:44:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 62846CE0E90;
-        Mon, 13 Dec 2021 09:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D1CEC341C5;
-        Mon, 13 Dec 2021 09:39:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCB2EB80E1B;
+        Mon, 13 Dec 2021 09:44:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225A9C00446;
+        Mon, 13 Dec 2021 09:44:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388346;
-        bh=MeRg8lA81d7g4EPB3wdfZZLPlc69DM4wB0KE1IuHVWg=;
+        s=korg; t=1639388658;
+        bh=ylt4XBzjjrhFJBzCSs54aBQ+raqqABPx4pq1rbLz1m0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/7jeDMUfgsOE3H+yl1iPz7lo07/jcXSBYcKQtYx4Be1lyAvhg+lCdzuRCJDZzE9j
-         lfI+qSgdSOXwPp6HYHboqvb+kinY1q+lce2Z1ty/GM18L4PhtQujpeYSecqroeKIwo
-         SJGiMPQMzTZv3eMAsp0CPO9MDy3WPaHL0wwtLGR8=
+        b=KIR9OGMJvizEcmbY5TXuCxtVXQSIHE09si8wQoEnPNmGoOzUEKb4dQMO+CCWu2PZc
+         PHPahBvFHSNmi0Dr/9iYLkbHTDfSHkLM5cIWleEDTvYgJ56OQLWvOvUtdHmnv/XL12
+         SoNcSz58HKSQbh93TKVDr0N2ZpmwWUvezMFTVw5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 18/74] bonding: make tx_rebalance_counter an atomic
-Date:   Mon, 13 Dec 2021 10:29:49 +0100
-Message-Id: <20211213092931.402769941@linuxfoundation.org>
+Subject: [PATCH 5.4 20/88] bonding: make tx_rebalance_counter an atomic
+Date:   Mon, 13 Dec 2021 10:29:50 +0100
+Message-Id: <20211213092933.910826596@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -109,7 +109,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/bonding/bond_alb.c
 +++ b/drivers/net/bonding/bond_alb.c
-@@ -1530,14 +1530,14 @@ void bond_alb_monitor(struct work_struct
+@@ -1514,14 +1514,14 @@ void bond_alb_monitor(struct work_struct
  	struct slave *slave;
  
  	if (!bond_has_slaves(bond)) {
@@ -126,7 +126,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	bond_info->lp_counter++;
  
  	/* send learning packets */
-@@ -1559,7 +1559,7 @@ void bond_alb_monitor(struct work_struct
+@@ -1543,7 +1543,7 @@ void bond_alb_monitor(struct work_struct
  	}
  
  	/* rebalance tx traffic */
@@ -135,7 +135,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		bond_for_each_slave_rcu(bond, slave, iter) {
  			tlb_clear_slave(bond, slave, 1);
  			if (slave == rcu_access_pointer(bond->curr_active_slave)) {
-@@ -1569,7 +1569,7 @@ void bond_alb_monitor(struct work_struct
+@@ -1553,7 +1553,7 @@ void bond_alb_monitor(struct work_struct
  				bond_info->unbalanced_load = 0;
  			}
  		}
@@ -144,7 +144,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  
  	if (bond_info->rlb_enabled) {
-@@ -1639,7 +1639,8 @@ int bond_alb_init_slave(struct bonding *
+@@ -1623,7 +1623,8 @@ int bond_alb_init_slave(struct bonding *
  	tlb_init_slave(slave);
  
  	/* order a rebalance ASAP */
@@ -154,7 +154,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (bond->alb_info.rlb_enabled)
  		bond->alb_info.rlb_rebalance = 1;
-@@ -1676,7 +1677,8 @@ void bond_alb_handle_link_change(struct
+@@ -1660,7 +1661,8 @@ void bond_alb_handle_link_change(struct
  			rlb_clear_slave(bond, slave);
  	} else if (link == BOND_LINK_UP) {
  		/* order a rebalance ASAP */
@@ -166,7 +166,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			/* If the updelay module parameter is smaller than the
 --- a/include/net/bond_alb.h
 +++ b/include/net/bond_alb.h
-@@ -142,7 +142,7 @@ struct tlb_slave_info {
+@@ -126,7 +126,7 @@ struct tlb_slave_info {
  struct alb_bond_info {
  	struct tlb_client_info	*tx_hashtbl; /* Dynamically allocated */
  	u32			unbalanced_load;
