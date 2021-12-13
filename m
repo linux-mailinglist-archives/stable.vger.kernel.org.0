@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA5E4728CF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 810B447248C
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:37:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240905AbhLMKOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:14:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34162 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235939AbhLMJsr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:48:47 -0500
+        id S234159AbhLMJhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:37:02 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:59990 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232580AbhLMJfu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B24FB80E1C;
-        Mon, 13 Dec 2021 09:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E374C33A43;
-        Mon, 13 Dec 2021 09:48:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 40AEACE0E85;
+        Mon, 13 Dec 2021 09:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC2F0C341C5;
+        Mon, 13 Dec 2021 09:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388924;
-        bh=NCVHjMxdMWY4u44MVkllThlRshNbiYBv81/J5IY5qPc=;
+        s=korg; t=1639388147;
+        bh=hwFRtmyEf/mAFJdBB3fQiFSrTYHKvyvgW5eCodCTbH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUxJApdEiY3AGLHZbZss4U+KWD/uxylvOs6iAob4kAGL2tIisbJwuFiLgPR9+0MvO
-         tSUkXWnB57Irr3k0wq+lSSO5HJbzZl3sdQjbj9yGPFpGxniT2/34/xMSVK+0vxlw/r
-         xDNqUfh4D/5TR8hk8MMLdqzihLWiG/MOKw/MeM5Y=
+        b=ZWwqIDYHmo7wcVShq1AZDZNindGYCLiNglRtXo+t7oeziBssjr49VjsEesYELKvS/
+         qZ/zNDTxrMEEvh6TbZgBytBcV4Xr29NK9Y1kuIDWmNt0ZBdu4Q83vIzCX3R25EZKyx
+         u9p/YLMxsIzaI2nYtRXG4jfL2JmrihWs8GONHDOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christian Brauner <christian.brauner@ubuntu.com>,
         Kalesh Singh <kaleshsingh@google.com>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 057/132] tracefs: Have new files inherit the ownership of their parent
+Subject: [PATCH 4.9 16/42] tracefs: Have new files inherit the ownership of their parent
 Date:   Mon, 13 Dec 2021 10:29:58 +0100
-Message-Id: <20211213092941.075739622@linuxfoundation.org>
+Message-Id: <20211213092927.108231338@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/tracefs/inode.c
 +++ b/fs/tracefs/inode.c
-@@ -412,6 +412,8 @@ struct dentry *tracefs_create_file(const
+@@ -411,6 +411,8 @@ struct dentry *tracefs_create_file(const
  	inode->i_mode = mode;
  	inode->i_fop = fops ? fops : &tracefs_file_operations;
  	inode->i_private = data;
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	d_instantiate(dentry, inode);
  	fsnotify_create(dentry->d_parent->d_inode, dentry);
  	return end_creating(dentry);
-@@ -434,6 +436,8 @@ static struct dentry *__create_dir(const
+@@ -433,6 +435,8 @@ static struct dentry *__create_dir(const
  	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
  	inode->i_op = ops;
  	inode->i_fop = &simple_dir_operations;
