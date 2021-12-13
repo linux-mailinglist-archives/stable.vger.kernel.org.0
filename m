@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D34784729DB
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:26:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A77D14728A7
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231901AbhLMKZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:25:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37100 "EHLO
+        id S236598AbhLMKOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:14:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239306AbhLMKXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:23:53 -0500
+        with ESMTP id S240856AbhLMKCp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:02:45 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1176C0138BC;
-        Mon, 13 Dec 2021 01:59:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99130C079798;
+        Mon, 13 Dec 2021 01:49:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 221FACE0F5A;
-        Mon, 13 Dec 2021 09:59:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E1CC34602;
-        Mon, 13 Dec 2021 09:59:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1CCAFCE0DDE;
+        Mon, 13 Dec 2021 09:49:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C059CC00446;
+        Mon, 13 Dec 2021 09:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389570;
-        bh=9UnqZFdGJG2wX05zuY9KTt+B1qffw46sy++tKyOF1Io=;
+        s=korg; t=1639388975;
+        bh=+c0tSmVCTF3afhlmXow5/hOJgzvAoWpwoAyjNLko6B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZQDXok+ciOmUpGLwPsK3XH5NeebD9jXc0yqdMdTiQcaLFhstqXazUlR3Y5kEBjif
-         DUCXC04M3tWjdmu+LiaxU/hhRw1bLi1ZIKLCzmBWDTPvVMWPr25I3J1y3Vpv6PXnFZ
-         dPf1whVB69g+nqvs5GJtDuaAgHTqfuForDqrxtvQ=
+        b=ln50wELmQYdIIRp4Llxtq6oHGH/Cy12ipni/Rng/5DI+H34wYXEUggpQyXoMiiO9T
+         rN4nn5iq2usVAHmviF1Ts7b3AahRH/bZuS4X1mNwA+gqrlJtif7C2VRFCvlp6u79aZ
+         KtMbAFMTyggB0VGOk1sNH369xYODYA5DMLWEBH7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-fsdevel@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        Yabin Cui <yabinc@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 100/171] tracefs: Set all files to the same group ownership as the mount option
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Alok Prasad <palok@marvell.com>,
+        Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 074/132] qede: validate non LSO skb length
 Date:   Mon, 13 Dec 2021 10:30:15 +0100
-Message-Id: <20211213092948.409132667@linuxfoundation.org>
+Message-Id: <20211213092941.650816714@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,146 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Manish Chopra <manishc@marvell.com>
 
-commit 48b27b6b5191e2e1f2798cd80877b6e4ef47c351 upstream.
+commit 8e227b198a55859bf790dc7f4b1e30c0859c6756 upstream.
 
-As people have been asking to allow non-root processes to have access to
-the tracefs directory, it was considered best to only allow groups to have
-access to the directory, where it is easier to just set the tracefs file
-system to a specific group (as other would be too dangerous), and that way
-the admins could pick which processes would have access to tracefs.
+Although it is unlikely that stack could transmit a non LSO
+skb with length > MTU, however in some cases or environment such
+occurrences actually resulted into firmware asserts due to packet
+length being greater than the max supported by the device (~9700B).
 
-Unfortunately, this broke tooling on Android that expected the other bit
-to be set. For some special cases, for non-root tools to trace the system,
-tracefs would be mounted and change the permissions of the top level
-directory which gave access to all running tasks permission to the
-tracing directory. Even though this would be dangerous to do in a
-production environment, for testing environments this can be useful.
+This patch adds the safeguard for such odd cases to avoid firmware
+asserts.
 
-Now with the new changes to not allow other (which is still the proper
-thing to do), it breaks the testing tooling. Now more code needs to be
-loaded on the system to change ownership of the tracing directory.
+v2: Added "Fixes" tag with one of the initial driver commit
+    which enabled the TX traffic actually (as this was probably
+    day1 issue which was discovered recently by some customer
+    environment)
 
-The real solution is to have tracefs honor the gid=xxx option when
-mounting. That is,
-
-(tracing group tracing has value 1003)
-
- mount -t tracefs -o gid=1003 tracefs /sys/kernel/tracing
-
-should have it that all files in the tracing directory should be of the
-given group.
-
-Copy the logic from d_walk() from dcache.c and simplify it for the mount
-case of tracefs if gid is set. All the files in tracefs will be walked and
-their group will be set to the value passed in.
-
-Link: https://lkml.kernel.org/r/20211207171729.2a54e1b3@gandalf.local.home
-
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reported-by: Kalesh Singh <kaleshsingh@google.com>
-Reported-by: Yabin Cui <yabinc@google.com>
-Fixes: 49d67e445742 ("tracefs: Have tracefs directories not set OTH permission bits by default")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: a2ec6172d29c ("qede: Add support for link")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Alok Prasad <palok@marvell.com>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Link: https://lore.kernel.org/r/20211203174413.13090-1-manishc@marvell.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/tracefs/inode.c |   72 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 72 insertions(+)
+ drivers/net/ethernet/qlogic/qede/qede_fp.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -161,6 +161,77 @@ struct tracefs_fs_info {
- 	struct tracefs_mount_opts mount_opts;
- };
- 
-+static void change_gid(struct dentry *dentry, kgid_t gid)
-+{
-+	if (!dentry->d_inode)
-+		return;
-+	dentry->d_inode->i_gid = gid;
-+}
-+
-+/*
-+ * Taken from d_walk, but without he need for handling renames.
-+ * Nothing can be renamed while walking the list, as tracefs
-+ * does not support renames. This is only called when mounting
-+ * or remounting the file system, to set all the files to
-+ * the given gid.
-+ */
-+static void set_gid(struct dentry *parent, kgid_t gid)
-+{
-+	struct dentry *this_parent;
-+	struct list_head *next;
-+
-+	this_parent = parent;
-+	spin_lock(&this_parent->d_lock);
-+
-+	change_gid(this_parent, gid);
-+repeat:
-+	next = this_parent->d_subdirs.next;
-+resume:
-+	while (next != &this_parent->d_subdirs) {
-+		struct list_head *tmp = next;
-+		struct dentry *dentry = list_entry(tmp, struct dentry, d_child);
-+		next = tmp->next;
-+
-+		spin_lock_nested(&dentry->d_lock, DENTRY_D_LOCK_NESTED);
-+
-+		change_gid(dentry, gid);
-+
-+		if (!list_empty(&dentry->d_subdirs)) {
-+			spin_unlock(&this_parent->d_lock);
-+			spin_release(&dentry->d_lock.dep_map, _RET_IP_);
-+			this_parent = dentry;
-+			spin_acquire(&this_parent->d_lock.dep_map, 0, 1, _RET_IP_);
-+			goto repeat;
+--- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+@@ -1659,6 +1659,13 @@ netdev_tx_t qede_start_xmit(struct sk_bu
+ 			data_split = true;
+ 		}
+ 	} else {
++		if (unlikely(skb->len > ETH_TX_MAX_NON_LSO_PKT_LEN)) {
++			DP_ERR(edev, "Unexpected non LSO skb length = 0x%x\n", skb->len);
++			qede_free_failed_tx_pkt(txq, first_bd, 0, false);
++			qede_update_tx_producer(txq);
++			return NETDEV_TX_OK;
 +		}
-+		spin_unlock(&dentry->d_lock);
-+	}
-+	/*
-+	 * All done at this level ... ascend and resume the search.
-+	 */
-+	rcu_read_lock();
-+ascend:
-+	if (this_parent != parent) {
-+		struct dentry *child = this_parent;
-+		this_parent = child->d_parent;
 +
-+		spin_unlock(&child->d_lock);
-+		spin_lock(&this_parent->d_lock);
-+
-+		/* go into the first sibling still alive */
-+		do {
-+			next = child->d_child.next;
-+			if (next == &this_parent->d_subdirs)
-+				goto ascend;
-+			child = list_entry(next, struct dentry, d_child);
-+		} while (unlikely(child->d_flags & DCACHE_DENTRY_KILLED));
-+		rcu_read_unlock();
-+		goto resume;
-+	}
-+	rcu_read_unlock();
-+	spin_unlock(&this_parent->d_lock);
-+	return;
-+}
-+
- static int tracefs_parse_options(char *data, struct tracefs_mount_opts *opts)
- {
- 	substring_t args[MAX_OPT_ARGS];
-@@ -193,6 +264,7 @@ static int tracefs_parse_options(char *d
- 			if (!gid_valid(gid))
- 				return -EINVAL;
- 			opts->gid = gid;
-+			set_gid(tracefs_mount->mnt_root, gid);
- 			break;
- 		case Opt_mode:
- 			if (match_octal(&args[0], &option))
+ 		val |= ((skb->len & ETH_TX_DATA_1ST_BD_PKT_LEN_MASK) <<
+ 			 ETH_TX_DATA_1ST_BD_PKT_LEN_SHIFT);
+ 	}
 
 
