@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED34D4727C9
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3FBE4729FE
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:29:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241662AbhLMKFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:05:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47084 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240403AbhLMKBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:13 -0500
+        id S241898AbhLMK3J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:29:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38364 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344351AbhLMK1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:27:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4085DC08EB5B;
+        Mon, 13 Dec 2021 02:01:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C224B80E7F;
-        Mon, 13 Dec 2021 10:01:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D5C3C34613;
-        Mon, 13 Dec 2021 10:01:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D175B80E9E;
+        Mon, 13 Dec 2021 10:01:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E9FC34600;
+        Mon, 13 Dec 2021 10:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389668;
-        bh=NpKzZRmOq8/AJTnwyoIrrbvCMP0Yv0BBRwjMZCDj/84=;
+        s=korg; t=1639389672;
+        bh=Rj8gHYR5w+OZATu63aK9m0T1p7yiSM0z0oc3X0XkVbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sI8yixadpW6NG17BrbuQd8NsgTiV3Y5b1wIIEebOWgmtBuu2ZFDP5UAXwvdjhFhE8
-         g+l1TWmCwF4oRG9zH7cLtd5dzN0XEn7jc+yJs0taUPKzcfmGgd+kz0owjG6m+3uJP6
-         k/T8LfJEcDaahB0KLcXsQfJDRG/P0yRBFg0slTJw=
+        b=PnwICYoydSsyye4JRwEN+mCMKkQYru80jv6/qbuZ6MLnsiiYrdagO3fAsvVmbGVjT
+         /heSaOn8hS8xi5CRXuDOAQvvHzLkWsKOA4N6svRKM7jDzNNiyZbWy0kBk9dw7+i0es
+         SDjHn2mqoBYMEv2xmPtKk4veeOhBi3Cjd+oSzPdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 5.15 158/171] misc: rtsx: Avoid mangling IRQ during runtime PM
-Date:   Mon, 13 Dec 2021 10:31:13 +0100
-Message-Id: <20211213092950.316672624@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ralph Siemsen <ralph.siemsen@linaro.org>
+Subject: [PATCH 5.15 159/171] nvmem: eeprom: at25: fix FRAM byte_len
+Date:   Mon, 13 Dec 2021 10:31:14 +0100
+Message-Id: <20211213092950.355830285@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
 References: <20211213092945.091487407@linuxfoundation.org>
@@ -43,81 +47,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Ralph Siemsen <ralph.siemsen@linaro.org>
 
-commit 0edeb8992db8e7de9b8fe3164ace9a4356b17021 upstream.
+commit 9a626577398c24ecab63c0a684436c8928092367 upstream.
 
-After commit 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM"), when the
-rtsx controller is runtime suspended, bring CPUs offline and back online, the
-runtime resume of the controller will fail:
+Commit fd307a4ad332 ("nvmem: prepare basics for FRAM support") added
+support for FRAM devices such as the Cypress FM25V. During testing, it
+was found that the FRAM detects properly, however reads and writes fail.
+Upon further investigation, two problem were found in at25_probe() routine.
 
-[   47.319391] smpboot: CPU 1 is now offline
-[   47.414140] x86: Booting SMP configuration:
-[   47.414147] smpboot: Booting Node 0 Processor 1 APIC 0x2
-[   47.571334] smpboot: CPU 2 is now offline
-[   47.686055] smpboot: Booting Node 0 Processor 2 APIC 0x4
-[   47.808174] smpboot: CPU 3 is now offline
-[   47.878146] smpboot: Booting Node 0 Processor 3 APIC 0x6
-[   48.003679] smpboot: CPU 4 is now offline
-[   48.086187] smpboot: Booting Node 0 Processor 4 APIC 0x1
-[   48.239627] smpboot: CPU 5 is now offline
-[   48.326059] smpboot: Booting Node 0 Processor 5 APIC 0x3
-[   48.472193] smpboot: CPU 6 is now offline
-[   48.574181] smpboot: Booting Node 0 Processor 6 APIC 0x5
-[   48.743375] smpboot: CPU 7 is now offline
-[   48.838047] smpboot: Booting Node 0 Processor 7 APIC 0x7
-[   48.965447] __common_interrupt: 1.35 No irq handler for vector
-[   51.174065] mmc0: error -110 doing runtime resume
-[   54.978088] I/O error, dev mmcblk0, sector 21479 op 0x1:(WRITE) flags 0x0 phys_seg 11 prio class 0
-[   54.978108] Buffer I/O error on dev mmcblk0p1, logical block 19431, lost async page write
-[   54.978129] Buffer I/O error on dev mmcblk0p1, logical block 19432, lost async page write
-[   54.978134] Buffer I/O error on dev mmcblk0p1, logical block 19433, lost async page write
-[   54.978137] Buffer I/O error on dev mmcblk0p1, logical block 19434, lost async page write
-[   54.978141] Buffer I/O error on dev mmcblk0p1, logical block 19435, lost async page write
-[   54.978145] Buffer I/O error on dev mmcblk0p1, logical block 19436, lost async page write
-[   54.978148] Buffer I/O error on dev mmcblk0p1, logical block 19437, lost async page write
-[   54.978152] Buffer I/O error on dev mmcblk0p1, logical block 19438, lost async page write
-[   54.978155] Buffer I/O error on dev mmcblk0p1, logical block 19439, lost async page write
-[   54.978160] Buffer I/O error on dev mmcblk0p1, logical block 19440, lost async page write
-[   54.978244] mmc0: card aaaa removed
-[   54.978452] FAT-fs (mmcblk0p1): FAT read failed (blocknr 4257)
+1) In the case of an FRAM device without platform data, eg.
+       fram == true && spi->dev.platform_data == NULL
+the stack local variable "struct spi_eeprom chip" is not initialized
+fully, prior to being copied into at25->chip. The chip.flags field in
+particular can cause problems.
 
-There's interrupt immediately raised on rtsx_pci_write_register() in
-runtime resume routine, but the IRQ handler hasn't registered yet.
+2) The byte_len of FRAM is computed from its ID register, and is stored
+into the stack local "struct spi_eeprom chip" structure. This happens
+after the same structure has been copied into at25->chip. As a result,
+at25->chip.byte_len does not contain the correct length of the device.
+In turn this can cause checks at beginning of at25_ee_read() to fail
+(or equally, it could allow reads beyond the end of the device length).
 
-So we can either move rtsx_pci_write_register() after rtsx_pci_acquire_irq(),
-or just stop mangling IRQ on runtime PM. Choose the latter to save some
-CPU cycles.
+Fix both of these issues by eliminating the on-stack struct spi_eeprom.
+Instead use the one inside at25_data structure, which starts of zeroed.
 
-Fixes: 5b4258f6721f ("misc: rtsx: rts5249 support runtime PM")
+Fixes: fd307a4ad332 ("nvmem: prepare basics for FRAM support")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-BugLink: https://bugs.launchpad.net/bugs/1951784
-Link: https://lore.kernel.org/r/20211126003246.1068770-1-kai.heng.feng@canonical.com
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
+Link: https://lore.kernel.org/r/20211108181627.645638-1-ralph.siemsen@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cardreader/rtsx_pcr.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/misc/eeprom/at25.c |   38 ++++++++++++++++++--------------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
 
---- a/drivers/misc/cardreader/rtsx_pcr.c
-+++ b/drivers/misc/cardreader/rtsx_pcr.c
-@@ -1803,8 +1803,6 @@ static int rtsx_pci_runtime_suspend(stru
- 	mutex_lock(&pcr->pcr_mutex);
- 	rtsx_pci_power_off(pcr, HOST_ENTER_S3);
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -376,7 +376,6 @@ MODULE_DEVICE_TABLE(spi, at25_spi_ids);
+ static int at25_probe(struct spi_device *spi)
+ {
+ 	struct at25_data	*at25 = NULL;
+-	struct spi_eeprom	chip;
+ 	int			err;
+ 	int			sr;
+ 	u8 id[FM25_ID_LEN];
+@@ -389,15 +388,18 @@ static int at25_probe(struct spi_device
+ 	if (match && !strcmp(match->compatible, "cypress,fm25"))
+ 		is_fram = 1;
  
--	free_irq(pcr->irq, (void *)pcr);
++	at25 = devm_kzalloc(&spi->dev, sizeof(struct at25_data), GFP_KERNEL);
++	if (!at25)
++		return -ENOMEM;
++
+ 	/* Chip description */
+-	if (!spi->dev.platform_data) {
+-		if (!is_fram) {
+-			err = at25_fw_to_chip(&spi->dev, &chip);
+-			if (err)
+-				return err;
+-		}
+-	} else
+-		chip = *(struct spi_eeprom *)spi->dev.platform_data;
++	if (spi->dev.platform_data) {
++		memcpy(&at25->chip, spi->dev.platform_data, sizeof(at25->chip));
++	} else if (!is_fram) {
++		err = at25_fw_to_chip(&spi->dev, &at25->chip);
++		if (err)
++			return err;
++	}
+ 
+ 	/* Ping the chip ... the status register is pretty portable,
+ 	 * unlike probing manufacturer IDs.  We do expect that system
+@@ -409,12 +411,7 @@ static int at25_probe(struct spi_device
+ 		return -ENXIO;
+ 	}
+ 
+-	at25 = devm_kzalloc(&spi->dev, sizeof(struct at25_data), GFP_KERNEL);
+-	if (!at25)
+-		return -ENOMEM;
 -
- 	mutex_unlock(&pcr->pcr_mutex);
+ 	mutex_init(&at25->lock);
+-	at25->chip = chip;
+ 	at25->spi = spi;
+ 	spi_set_drvdata(spi, at25);
  
- 	pcr->is_runtime_suspended = true;
-@@ -1825,8 +1823,6 @@ static int rtsx_pci_runtime_resume(struc
- 	mutex_lock(&pcr->pcr_mutex);
+@@ -431,7 +428,7 @@ static int at25_probe(struct spi_device
+ 			dev_err(&spi->dev, "Error: unsupported size (id %02x)\n", id[7]);
+ 			return -ENODEV;
+ 		}
+-		chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
++		at25->chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
  
- 	rtsx_pci_write_register(pcr, HOST_SLEEP_STATE, 0x03, 0x00);
--	rtsx_pci_acquire_irq(pcr);
--	synchronize_irq(pcr->irq);
+ 		if (at25->chip.byte_len > 64 * 1024)
+ 			at25->chip.flags |= EE_ADDR3;
+@@ -464,7 +461,7 @@ static int at25_probe(struct spi_device
+ 	at25->nvmem_config.type = is_fram ? NVMEM_TYPE_FRAM : NVMEM_TYPE_EEPROM;
+ 	at25->nvmem_config.name = dev_name(&spi->dev);
+ 	at25->nvmem_config.dev = &spi->dev;
+-	at25->nvmem_config.read_only = chip.flags & EE_READONLY;
++	at25->nvmem_config.read_only = at25->chip.flags & EE_READONLY;
+ 	at25->nvmem_config.root_only = true;
+ 	at25->nvmem_config.owner = THIS_MODULE;
+ 	at25->nvmem_config.compat = true;
+@@ -474,17 +471,18 @@ static int at25_probe(struct spi_device
+ 	at25->nvmem_config.priv = at25;
+ 	at25->nvmem_config.stride = 1;
+ 	at25->nvmem_config.word_size = 1;
+-	at25->nvmem_config.size = chip.byte_len;
++	at25->nvmem_config.size = at25->chip.byte_len;
  
- 	if (pcr->ops->fetch_vendor_settings)
- 		pcr->ops->fetch_vendor_settings(pcr);
+ 	at25->nvmem = devm_nvmem_register(&spi->dev, &at25->nvmem_config);
+ 	if (IS_ERR(at25->nvmem))
+ 		return PTR_ERR(at25->nvmem);
+ 
+ 	dev_info(&spi->dev, "%d %s %s %s%s, pagesize %u\n",
+-		 (chip.byte_len < 1024) ? chip.byte_len : (chip.byte_len / 1024),
+-		 (chip.byte_len < 1024) ? "Byte" : "KByte",
++		 (at25->chip.byte_len < 1024) ?
++			at25->chip.byte_len : (at25->chip.byte_len / 1024),
++		 (at25->chip.byte_len < 1024) ? "Byte" : "KByte",
+ 		 at25->chip.name, is_fram ? "fram" : "eeprom",
+-		 (chip.flags & EE_READONLY) ? " (readonly)" : "",
++		 (at25->chip.flags & EE_READONLY) ? " (readonly)" : "",
+ 		 at25->chip.page_size);
+ 	return 0;
+ }
 
 
