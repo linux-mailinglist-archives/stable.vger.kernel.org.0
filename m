@@ -2,24 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A72472577
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69DB9472553
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234860AbhLMJnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:53 -0500
-Received: from mailgw02.mediatek.com ([210.61.82.184]:33796 "EHLO
+        id S235172AbhLMJnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:24 -0500
+Received: from mailgw02.mediatek.com ([210.61.82.184]:33858 "EHLO
         mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S234950AbhLMJls (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:48 -0500
-X-UUID: ba4a1c4435b242b8896e9bb9cd2d1f33-20211213
-X-UUID: ba4a1c4435b242b8896e9bb9cd2d1f33-20211213
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+        with ESMTP id S233165AbhLMJlt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:49 -0500
+X-UUID: 5ae59474788643ddbbfff08c069c2b61-20211213
+X-UUID: 5ae59474788643ddbbfff08c069c2b61-20211213
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw02.mediatek.com
         (envelope-from <mark-pk.tsai@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 288194373; Mon, 13 Dec 2021 17:41:44 +0800
+        with ESMTP id 256012185; Mon, 13 Dec 2021 17:41:44 +0800
 Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 13 Dec 2021 17:41:42 +0800
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
+ Mon, 13 Dec 2021 17:41:42 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
  Transport; Mon, 13 Dec 2021 17:41:42 +0800
@@ -31,9 +32,9 @@ CC:     <rppt@kernel.org>, <akpm@linux-foundation.org>,
         <linux@armlinux.org.uk>, <rppt@linux.ibm.com>, <tony@atomide.com>,
         <wangkefeng.wang@huawei.com>, <mark-pk.tsai@mediatek.com>,
         <yj.chiang@mediatek.com>
-Subject: [PATCH 5.10 1/5] memblock: free_unused_memmap: use pageblock units instead of MAX_ORDER
-Date:   Mon, 13 Dec 2021 17:41:31 +0800
-Message-ID: <20211213094135.1798-2-mark-pk.tsai@mediatek.com>
+Subject: [PATCH 5.10 2/5] memblock: align freed memory map on pageblock boundaries with SPARSEMEM
+Date:   Mon, 13 Dec 2021 17:41:32 +0800
+Message-ID: <20211213094135.1798-3-mark-pk.tsai@mediatek.com>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20211213094135.1798-1-mark-pk.tsai@mediatek.com>
 References: <20211213094135.1798-1-mark-pk.tsai@mediatek.com>
@@ -46,23 +47,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit e2a86800d58639b3acde7eaeb9eb393dca066e08 ]
+[ Upstream commit f921f53e089a12a192808ac4319f28727b35dc0f ]
 
-The code that frees unused memory map uses rounds start and end of the
-holes that are freed to MAX_ORDER_NR_PAGES to preserve continuity of the
-memory map for MAX_ORDER regions.
+When CONFIG_SPARSEMEM=y the ranges of the memory map that are freed are not
+aligned to the pageblock boundaries which breaks assumptions about
+homogeneity of the memory map throughout core mm code.
 
-Lots of core memory management functionality relies on homogeneity of the
-memory map within each pageblock which size may differ from MAX_ORDER in
-certain configurations.
-
-Although currently, for the architectures that use free_unused_memmap(),
-pageblock_order and MAX_ORDER are equivalent, it is cleaner to have common
-notation thought mm code.
-
-Replace MAX_ORDER_NR_PAGES with pageblock_nr_pages and update the comments
-to make it more clear why the alignment to pageblock boundaries is
-required.
+Make sure that the freed memory map is always aligned on pageblock
+boundaries regardless of the memory model selection.
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 Tested-by: Tony Lindgren <tony@atomide.com>
@@ -70,45 +62,43 @@ Link: https://lore.kernel.org/lkml/20210630071211.21011-1-rppt@kernel.org/
 [backport upstream modification in mm/memblock.c to arch/arm/mm/init.c]
 Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 ---
- arch/arm/mm/init.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/arm/mm/init.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 75f3ab531bdf..8440b6027598 100644
+index 8440b6027598..7fd049cbc5b0 100644
 --- a/arch/arm/mm/init.c
 +++ b/arch/arm/mm/init.c
-@@ -315,11 +315,11 @@ static void __init free_unused_memmap(void)
- 				 ALIGN(prev_end, PAGES_PER_SECTION));
- #else
- 		/*
--		 * Align down here since the VM subsystem insists that the
--		 * memmap entries are valid from the bank start aligned to
--		 * MAX_ORDER_NR_PAGES.
-+		 * Align down here since many operations in VM subsystem
-+		 * presume that there are no holes in the memory map inside
-+		 * a pageblock
+@@ -313,14 +313,14 @@ static void __init free_unused_memmap(void)
  		 */
--		start = round_down(start, MAX_ORDER_NR_PAGES);
-+		start = round_down(start, pageblock_nr_pages);
- #endif
+ 		start = min(start,
+ 				 ALIGN(prev_end, PAGES_PER_SECTION));
+-#else
++#endif
+ 		/*
+ 		 * Align down here since many operations in VM subsystem
+ 		 * presume that there are no holes in the memory map inside
+ 		 * a pageblock
+ 		 */
+ 		start = round_down(start, pageblock_nr_pages);
+-#endif
++
  		/*
  		 * If we had a previous bank, and there is a space
-@@ -329,11 +329,11 @@ static void __init free_unused_memmap(void)
- 			free_memmap(prev_end, start);
- 
- 		/*
--		 * Align up here since the VM subsystem insists that the
--		 * memmap entries are valid from the bank end aligned to
--		 * MAX_ORDER_NR_PAGES.
-+		 * Align up here since many operations in VM subsystem
-+		 * presume that there are no holes in the memory map inside
-+		 * a pageblock
- 		 */
--		prev_end = ALIGN(end, MAX_ORDER_NR_PAGES);
-+		prev_end = ALIGN(end, pageblock_nr_pages);
+ 		 * between the current bank and the previous, free it.
+@@ -337,9 +337,11 @@ static void __init free_unused_memmap(void)
  	}
  
  #ifdef CONFIG_SPARSEMEM
+-	if (!IS_ALIGNED(prev_end, PAGES_PER_SECTION))
++	if (!IS_ALIGNED(prev_end, PAGES_PER_SECTION)) {
++		prev_end = ALIGN(end, pageblock_nr_pages);
+ 		free_memmap(prev_end,
+ 			    ALIGN(prev_end, PAGES_PER_SECTION));
++	}
+ #endif
+ }
+ 
 -- 
 2.18.0
 
