@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CA6472463
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F2C7472720
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234493AbhLMJgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:36:03 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:59438 "EHLO
+        id S237512AbhLMJ60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:58:26 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:45920 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234321AbhLMJfH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:07 -0500
+        with ESMTP id S239029AbhLMJ4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:56:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D2A8ECE0E7F;
-        Mon, 13 Dec 2021 09:35:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 825F2C341DA;
-        Mon, 13 Dec 2021 09:35:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E54BFCE0EDF;
+        Mon, 13 Dec 2021 09:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 941FDC34601;
+        Mon, 13 Dec 2021 09:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388104;
-        bh=VI8xP7ZuvldA6Iec36rX9eA/AtZCIL+Lvw7PCXDDm8k=;
+        s=korg; t=1639389381;
+        bh=sXUOCeDsNRrp54/TkIY7AFesEnvtOOohdAB/7sguf7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KvdfIVdriLMpb9hE+40gLVFbbvWDHmJ9TE3Dh3zB+kaxeslGYi42i+YjODteHzZjo
-         QYsf5PRNd53cA7FCQeIkUciMLP62qeKgKuwfFWxT6A7cAQ8sSwhBq7YRwjTmavGpHw
-         3gEQE316rIu80rx0jcG9MM1V+io2Tvr5D995o1fU=
+        b=c9XkTE8tw8Ndp4OoVZ+u7PX0mRygyzkObBshCt6XDNSuY0Hn3ScWmceUlzqSQOJTy
+         mnMCRYPAEaQOYWSe70YRWq6ICiBRtZoVDePQOr9NB62HPwCgnWjDQ3GkYJHZsDYOph
+         bTmadazvfOkBOWen8Ik7J49v+cPGX7+0ic2fG/6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com,
-        Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 13/42] ALSA: pcm: oss: Fix negative period/buffer sizes
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 080/171] perf intel-pt: Fix next err value, walking trace
 Date:   Mon, 13 Dec 2021 10:29:55 +0100
-Message-Id: <20211213092927.010408221@linuxfoundation.org>
+Message-Id: <20211213092947.756236581@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 9d2479c960875ca1239bcb899f386970c13d9cfe upstream.
+commit a32e6c5da599dbf49e60622a4dfb5b9b40ece029 upstream.
 
-The period size calculation in OSS layer may receive a negative value
-as an error, but the code there assumes only the positive values and
-handle them with size_t.  Due to that, a too big value may be passed
-to the lower layers.
+Code after label 'next:' in intel_pt_walk_trace() assumes 'err' is zero,
+but it may not be, if arrived at via a 'goto'. Ensure it is zero.
 
-This patch changes the code to handle with ssize_t and adds the proper
-error checks appropriately.
-
-Reported-by: syzbot+bb348e9f9a954d42746f@syzkaller.appspotmail.com
-Reported-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1638270978-42412-1-git-send-email-cuibixuan@linux.alibaba.com
-Link: https://lore.kernel.org/r/20211201073606.11660-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 7c1b16ba0e26e6 ("perf intel-pt: Add support for decoding FUP/TIP only")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v5.15+
+Link: https://lore.kernel.org/r/20211210162303.2288710-6-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/pcm_oss.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -173,7 +173,7 @@ snd_pcm_hw_param_value_min(const struct
-  *
-  * Return the maximum value for field PAR.
-  */
--static unsigned int
-+static int
- snd_pcm_hw_param_value_max(const struct snd_pcm_hw_params *params,
- 			   snd_pcm_hw_param_t var, int *dir)
- {
-@@ -708,18 +708,24 @@ static int snd_pcm_oss_period_size(struc
- 				   struct snd_pcm_hw_params *oss_params,
- 				   struct snd_pcm_hw_params *slave_params)
- {
--	size_t s;
--	size_t oss_buffer_size, oss_period_size, oss_periods;
--	size_t min_period_size, max_period_size;
-+	ssize_t s;
-+	ssize_t oss_buffer_size;
-+	ssize_t oss_period_size, oss_periods;
-+	ssize_t min_period_size, max_period_size;
- 	struct snd_pcm_runtime *runtime = substream->runtime;
- 	size_t oss_frame_size;
- 
- 	oss_frame_size = snd_pcm_format_physical_width(params_format(oss_params)) *
- 			 params_channels(oss_params) / 8;
- 
-+	oss_buffer_size = snd_pcm_hw_param_value_max(slave_params,
-+						     SNDRV_PCM_HW_PARAM_BUFFER_SIZE,
-+						     NULL);
-+	if (oss_buffer_size <= 0)
-+		return -EINVAL;
- 	oss_buffer_size = snd_pcm_plug_client_size(substream,
--						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_BUFFER_SIZE, NULL)) * oss_frame_size;
--	if (!oss_buffer_size)
-+						   oss_buffer_size * oss_frame_size);
-+	if (oss_buffer_size <= 0)
- 		return -EINVAL;
- 	oss_buffer_size = rounddown_pow_of_two(oss_buffer_size);
- 	if (atomic_read(&substream->mmap_count)) {
-@@ -756,7 +762,7 @@ static int snd_pcm_oss_period_size(struc
- 
- 	min_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_min(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (min_period_size) {
-+	if (min_period_size > 0) {
- 		min_period_size *= oss_frame_size;
- 		min_period_size = roundup_pow_of_two(min_period_size);
- 		if (oss_period_size < min_period_size)
-@@ -765,7 +771,7 @@ static int snd_pcm_oss_period_size(struc
- 
- 	max_period_size = snd_pcm_plug_client_size(substream,
- 						   snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIOD_SIZE, NULL));
--	if (max_period_size) {
-+	if (max_period_size > 0) {
- 		max_period_size *= oss_frame_size;
- 		max_period_size = rounddown_pow_of_two(max_period_size);
- 		if (oss_period_size > max_period_size)
-@@ -778,7 +784,7 @@ static int snd_pcm_oss_period_size(struc
- 		oss_periods = substream->oss.setup.periods;
- 
- 	s = snd_pcm_hw_param_value_max(slave_params, SNDRV_PCM_HW_PARAM_PERIODS, NULL);
--	if (runtime->oss.maxfrags && s > runtime->oss.maxfrags)
-+	if (s > 0 && runtime->oss.maxfrags && s > runtime->oss.maxfrags)
- 		s = runtime->oss.maxfrags;
- 	if (oss_periods > s)
- 		oss_periods = s;
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -2941,6 +2941,7 @@ static int intel_pt_walk_trace(struct in
+ 		if (err)
+ 			return err;
+ next:
++		err = 0;
+ 		if (decoder->cyc_threshold) {
+ 			if (decoder->sample_cyc && last_packet_type != INTEL_PT_CYC)
+ 				decoder->sample_cyc = false;
 
 
