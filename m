@@ -2,30 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C292547234C
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 09:57:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E28472350
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 09:57:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbhLMI5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 03:57:22 -0500
-Received: from mailgw02.mediatek.com ([210.61.82.184]:44200 "EHLO
+        id S233459AbhLMI51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 03:57:27 -0500
+Received: from mailgw02.mediatek.com ([210.61.82.184]:44392 "EHLO
         mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S229733AbhLMI5U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 03:57:20 -0500
-X-UUID: c6bfc4140b634c7fbbce11598d059603-20211213
-X-UUID: c6bfc4140b634c7fbbce11598d059603-20211213
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+        with ESMTP id S233396AbhLMI5Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 03:57:24 -0500
+X-UUID: 1337d85adb1e49c39142813cd0d51fa6-20211213
+X-UUID: 1337d85adb1e49c39142813cd0d51fa6-20211213
+Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw02.mediatek.com
         (envelope-from <mark-pk.tsai@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1918819261; Mon, 13 Dec 2021 16:57:18 +0800
-Received: from mtkexhb02.mediatek.inc (172.21.101.103) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 13 Dec 2021 16:57:17 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by mtkexhb02.mediatek.inc
- (172.21.101.103) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 13 Dec
- 2021 16:57:17 +0800
+        with ESMTP id 554406322; Mon, 13 Dec 2021 16:57:20 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Mon, 13 Dec 2021 16:57:18 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 13 Dec 2021 16:57:16 +0800
+ Transport; Mon, 13 Dec 2021 16:57:18 +0800
 From:   Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 To:     <stable@vger.kernel.org>
 CC:     <rppt@kernel.org>, <akpm@linux-foundation.org>,
@@ -34,9 +32,9 @@ CC:     <rppt@kernel.org>, <akpm@linux-foundation.org>,
         <linux@armlinux.org.uk>, <rppt@linux.ibm.com>, <tony@atomide.com>,
         <wangkefeng.wang@huawei.com>, <mark-pk.tsai@mediatek.com>,
         <yj.chiang@mediatek.com>
-Subject: [PATCH 5.4 2/5] memblock: align freed memory map on pageblock boundaries with SPARSEMEM
-Date:   Mon, 13 Dec 2021 16:57:07 +0800
-Message-ID: <20211213085710.28962-3-mark-pk.tsai@mediatek.com>
+Subject: [PATCH 5.4 3/5] memblock: ensure there is no overflow in memblock_overlaps_region()
+Date:   Mon, 13 Dec 2021 16:57:08 +0800
+Message-ID: <20211213085710.28962-4-mark-pk.tsai@mediatek.com>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20211213085710.28962-1-mark-pk.tsai@mediatek.com>
 References: <20211213085710.28962-1-mark-pk.tsai@mediatek.com>
@@ -49,56 +47,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit f921f53e089a12a192808ac4319f28727b35dc0f upstream.
+commit 023accf5cdc1e504a9b04187ec23ff156fe53d90 upstream.
 
-When CONFIG_SPARSEMEM=y the ranges of the memory map that are freed are not
-aligned to the pageblock boundaries which breaks assumptions about
-homogeneity of the memory map throughout core mm code.
+There maybe an overflow in memblock_overlaps_region() if it is called with
+base and size such that
 
-Make sure that the freed memory map is always aligned on pageblock
-boundaries regardless of the memory model selection.
+	base + size > PHYS_ADDR_MAX
+
+Make sure that memblock_overlaps_region() caps the size to prevent such
+overflow and remove now duplicated call to memblock_cap_size() from
+memblock_is_region_reserved().
 
 Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Link: https://lore.kernel.org/lkml/20210630071211.21011-1-rppt@kernel.org/
-[backport upstream modification in mm/memblock.c to arch/arm/mm/init.c]
 Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 ---
- arch/arm/mm/init.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ mm/memblock.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 6905dd8bc03f..c0e70e643f92 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -379,14 +379,14 @@ static void __init free_unused_memmap(void)
- 		 */
- 		start = min(start,
- 				 ALIGN(prev_end, PAGES_PER_SECTION));
--#else
-+#endif
- 		/*
- 		 * Align down here since many operations in VM subsystem
- 		 * presume that there are no holes in the memory map inside
- 		 * a pageblock
- 		 */
- 		start = round_down(start, pageblock_nr_pages);
--#endif
-+
- 		/*
- 		 * If we had a previous bank, and there is a space
- 		 * between the current bank and the previous, free it.
-@@ -404,9 +404,11 @@ static void __init free_unused_memmap(void)
- 	}
+diff --git a/mm/memblock.c b/mm/memblock.c
+index 4de2af293f47..e13003ed6ee7 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -164,6 +164,8 @@ bool __init_memblock memblock_overlaps_region(struct memblock_type *type,
+ {
+ 	unsigned long i;
  
- #ifdef CONFIG_SPARSEMEM
--	if (!IS_ALIGNED(prev_end, PAGES_PER_SECTION))
-+	if (!IS_ALIGNED(prev_end, PAGES_PER_SECTION)) {
-+		prev_end = ALIGN(prev_end, pageblock_nr_pages);
- 		free_memmap(prev_end,
- 			    ALIGN(prev_end, PAGES_PER_SECTION));
-+	}
- #endif
++	memblock_cap_size(base, &size);
++
+ 	for (i = 0; i < type->cnt; i++)
+ 		if (memblock_addrs_overlap(base, size, type->regions[i].base,
+ 					   type->regions[i].size))
+@@ -1764,7 +1766,6 @@ bool __init_memblock memblock_is_region_memory(phys_addr_t base, phys_addr_t siz
+  */
+ bool __init_memblock memblock_is_region_reserved(phys_addr_t base, phys_addr_t size)
+ {
+-	memblock_cap_size(base, &size);
+ 	return memblock_overlaps_region(&memblock.reserved, base, size);
  }
  
 -- 
