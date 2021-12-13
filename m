@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB27472971
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C1104724BF
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242547AbhLMKUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:20:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35836 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242381AbhLMKSb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:18:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88893C08EE18;
-        Mon, 13 Dec 2021 01:56:40 -0800 (PST)
+        id S233114AbhLMJiO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:38:14 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:60704 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234707AbhLMJgt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:36:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0CA3ACE0E82;
-        Mon, 13 Dec 2021 09:56:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972FFC34600;
-        Mon, 13 Dec 2021 09:56:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3E5E1CE0E7A;
+        Mon, 13 Dec 2021 09:36:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE1B2C00446;
+        Mon, 13 Dec 2021 09:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389398;
-        bh=Zg8X3xFvtIRn8bz/MNvF/3kFTKOoHhnAM88W8vZQ7QY=;
+        s=korg; t=1639388205;
+        bh=OZgN9ZcKcqPl4KxPzbqIg/iDXsvL2fZZuK7YsRPASo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0ObX2D0FQZVoRoKcag6OgEPta8BdY4Y6KFAHUWDzyYDWEWXYjkCtzhvdwA2xvwmq
-         bi60mp1AGQD4X82wwAFhBqzHoG5mnt6gmp5fNh/2OcqZ74rbnTsyrSovBtgvtsZ/eR
-         pCTwI9OPlHXyNmwlXhOiDJB9M+wxjh6B+g9dw768=
+        b=SI2CvsA4oA1t36N5T04R829jw3mmGiepKSD/Ux2t4jglUrZ7ZzIO/88TVFb0YdveP
+         2PDi7fGsjqe/L0aF1MlXC5cAt5SAaVBQ0D1EfHPeUb3TyIEfmtJXsKAWTPcArYkdGa
+         0IYhgXDzx+Jn9AsiDD817fmz42BoPq0YPaXIFtWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Yabin Cui <yabinc@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kalesh Singh <kaleshsingh@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 086/171] tracefs: Have new files inherit the ownership of their parent
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 4.14 22/53] libata: add horkage for ASMedia 1092
 Date:   Mon, 13 Dec 2021 10:30:01 +0100
-Message-Id: <20211213092947.947222280@linuxfoundation.org>
+Message-Id: <20211213092929.103203804@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
+References: <20211213092928.349556070@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Hannes Reinecke <hare@suse.de>
 
-commit ee7f3666995d8537dec17b1d35425f28877671a9 upstream.
+commit a66307d473077b7aeba74e9b09c841ab3d399c2d upstream.
 
-If directories in tracefs have their ownership changed, then any new files
-and directories that are created under those directories should inherit
-the ownership of the director they are created in.
+The ASMedia 1092 has a configuration mode which will present a
+dummy device; sadly the implementation falsely claims to provide
+a device with 100M which doesn't actually exist.
+So disable this device to avoid errors during boot.
 
-Link: https://lkml.kernel.org/r/20211208075720.4855d180@gandalf.local.home
-
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Yabin Cui <yabinc@google.com>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
 Cc: stable@vger.kernel.org
-Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
-Reported-by: Kalesh Singh <kaleshsingh@google.com>
-Reported: https://lore.kernel.org/all/CAC_TJve8MMAv+H_NdLSJXZUSoxOEq2zB_pVaJ9p=7H6Bu3X76g@mail.gmail.com/
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/tracefs/inode.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/ata/libata-core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -414,6 +414,8 @@ struct dentry *tracefs_create_file(const
- 	inode->i_mode = mode;
- 	inode->i_fop = fops ? fops : &tracefs_file_operations;
- 	inode->i_private = data;
-+	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
-+	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
- 	d_instantiate(dentry, inode);
- 	fsnotify_create(dentry->d_parent->d_inode, dentry);
- 	return end_creating(dentry);
-@@ -436,6 +438,8 @@ static struct dentry *__create_dir(const
- 	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
- 	inode->i_op = ops;
- 	inode->i_fop = &simple_dir_operations;
-+	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
-+	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4449,6 +4449,8 @@ static const struct ata_blacklist_entry
+ 	{ "VRFDFC22048UCHC-TE*", NULL,		ATA_HORKAGE_NODMA },
+ 	/* Odd clown on sil3726/4726 PMPs */
+ 	{ "Config  Disk",	NULL,		ATA_HORKAGE_DISABLE },
++	/* Similar story with ASMedia 1092 */
++	{ "ASMT109x- Config",	NULL,		ATA_HORKAGE_DISABLE },
  
- 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
- 	inc_nlink(inode);
+ 	/* Weird ATAPI devices */
+ 	{ "TORiSAN DVD-ROM DRD-N216", NULL,	ATA_HORKAGE_MAX_SEC_128 },
 
 
