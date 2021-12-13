@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A6A47245D
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6E0447255E
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234306AbhLMJf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:35:56 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:59388 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230467AbhLMJfB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:01 -0500
+        id S234697AbhLMJnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:43:31 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53434 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234435AbhLMJkL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 36FACCE0E7D;
-        Mon, 13 Dec 2021 09:35:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8A82C00446;
-        Mon, 13 Dec 2021 09:34:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C098B80D1F;
+        Mon, 13 Dec 2021 09:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC921C00446;
+        Mon, 13 Dec 2021 09:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388098;
-        bh=FjB8u9hGsxLMZnkmOfnwddADvaN5d8Fwik2pVsj3iWk=;
+        s=korg; t=1639388408;
+        bh=JRLwND2UqkuX4pdUu0vyXYxhqu2IhbH0Yw0KkiAbsD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2oVMolpyqhIDyxtR/xm7bj6EAyAJRZfix2NIuX1mrGmaPmDe5crH6J54s7f5Pfa8
-         o0PgHVF15xz03i9jlww758kWHbTa/5p1F80SSHygKwTrAeSThdPQBQi+UUqAJyRXuN
-         jSlUSI/nWhND1T8uySTNSJWAYW+02FIiKa1xhw9g=
+        b=izCIKAVWl0UCxNwt8SJkx4FT1/wIPqRqj+0j9rrJQLTunJxSx+UL/ns0toQPfLBdL
+         Cs6VnIPDZsMqjZKoejhLezApUEH2JAjk/XA9jAoUA+52FaDOQd78lNNStPpD6qham6
+         lOgkdjmukud472rbHisnnFfr59De4bIlFgvzNCMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
-Subject: [PATCH 4.9 29/42] USB: gadget: detect too-big endpoint 0 requests
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 40/74] block: fix ioprio_get(IOPRIO_WHO_PGRP) vs setuid(2)
 Date:   Mon, 13 Dec 2021 10:30:11 +0100
-Message-Id: <20211213092927.518264100@linuxfoundation.org>
+Message-Id: <20211213092932.163480192@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
-References: <20211213092926.578829548@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Davidlohr Bueso <dave@stgolabs.net>
 
-commit 153a2d7e3350cc89d406ba2d35be8793a64c2038 upstream.
+commit e6a59aac8a8713f335a37d762db0dbe80e7f6d38 upstream.
 
-Sometimes USB hosts can ask for buffers that are too large from endpoint
-0, which should not be allowed.  If this happens for OUT requests, stall
-the endpoint, but for IN requests, trim the request size to the endpoint
-buffer size.
+do_each_pid_thread(PIDTYPE_PGID) can race with a concurrent
+change_pid(PIDTYPE_PGID) that can move the task from one hlist
+to another while iterating. Serialize ioprio_get to take
+the tasklist_lock in this case, just like it's set counterpart.
 
-Co-developed-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Fixes: d69b78ba1de (ioprio: grab rcu_read_lock in sys_ioprio_{set,get}())
+Acked-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
+Link: https://lore.kernel.org/r/20211210182058.43417-1-dave@stgolabs.net
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/composite.c    |   12 ++++++++++++
- drivers/usb/gadget/legacy/dbgp.c  |   13 +++++++++++++
- drivers/usb/gadget/legacy/inode.c |   16 +++++++++++++++-
- 3 files changed, 40 insertions(+), 1 deletion(-)
+ block/ioprio.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1631,6 +1631,18 @@ composite_setup(struct usb_gadget *gadge
- 	struct usb_function		*f = NULL;
- 	u8				endp;
- 
-+	if (w_length > USB_COMP_EP0_BUFSIZ) {
-+		if (ctrl->bRequestType == USB_DIR_OUT) {
-+			goto done;
-+		} else {
-+			/* Cast away the const, we are going to overwrite on purpose. */
-+			__le16 *temp = (__le16 *)&ctrl->wLength;
+--- a/block/ioprio.c
++++ b/block/ioprio.c
+@@ -206,6 +206,7 @@ SYSCALL_DEFINE2(ioprio_get, int, which,
+ 				pgrp = task_pgrp(current);
+ 			else
+ 				pgrp = find_vpid(who);
++			read_lock(&tasklist_lock);
+ 			do_each_pid_thread(pgrp, PIDTYPE_PGID, p) {
+ 				tmpio = get_task_ioprio(p);
+ 				if (tmpio < 0)
+@@ -215,6 +216,8 @@ SYSCALL_DEFINE2(ioprio_get, int, which,
+ 				else
+ 					ret = ioprio_best(ret, tmpio);
+ 			} while_each_pid_thread(pgrp, PIDTYPE_PGID, p);
++			read_unlock(&tasklist_lock);
 +
-+			*temp = cpu_to_le16(USB_COMP_EP0_BUFSIZ);
-+			w_length = USB_COMP_EP0_BUFSIZ;
-+		}
-+	}
-+
- 	/* partial re-init of the response message; the function or the
- 	 * gadget might need to intercept e.g. a control-OUT completion
- 	 * when we delegate to it.
---- a/drivers/usb/gadget/legacy/dbgp.c
-+++ b/drivers/usb/gadget/legacy/dbgp.c
-@@ -344,6 +344,19 @@ static int dbgp_setup(struct usb_gadget
- 	void *data = NULL;
- 	u16 len = 0;
- 
-+	if (length > DBGP_REQ_LEN) {
-+		if (ctrl->bRequestType == USB_DIR_OUT) {
-+			return err;
-+		} else {
-+			/* Cast away the const, we are going to overwrite on purpose. */
-+			__le16 *temp = (__le16 *)&ctrl->wLength;
-+
-+			*temp = cpu_to_le16(DBGP_REQ_LEN);
-+			length = DBGP_REQ_LEN;
-+		}
-+	}
-+
-+
- 	if (request == USB_REQ_GET_DESCRIPTOR) {
- 		switch (value>>8) {
- 		case USB_DT_DEVICE:
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -113,6 +113,8 @@ enum ep0_state {
- /* enough for the whole queue: most events invalidate others */
- #define	N_EVENT			5
- 
-+#define RBUF_SIZE		256
-+
- struct dev_data {
- 	spinlock_t			lock;
- 	atomic_t			count;
-@@ -147,7 +149,7 @@ struct dev_data {
- 	struct dentry			*dentry;
- 
- 	/* except this scratch i/o buffer for ep0 */
--	u8				rbuf [256];
-+	u8				rbuf[RBUF_SIZE];
- };
- 
- static inline void get_dev (struct dev_data *data)
-@@ -1336,6 +1338,18 @@ gadgetfs_setup (struct usb_gadget *gadge
- 	u16				w_value = le16_to_cpu(ctrl->wValue);
- 	u16				w_length = le16_to_cpu(ctrl->wLength);
- 
-+	if (w_length > RBUF_SIZE) {
-+		if (ctrl->bRequestType == USB_DIR_OUT) {
-+			return value;
-+		} else {
-+			/* Cast away the const, we are going to overwrite on purpose. */
-+			__le16 *temp = (__le16 *)&ctrl->wLength;
-+
-+			*temp = cpu_to_le16(RBUF_SIZE);
-+			w_length = RBUF_SIZE;
-+		}
-+	}
-+
- 	spin_lock (&dev->lock);
- 	dev->setup_abort = 0;
- 	if (dev->state == STATE_DEV_UNCONNECTED) {
+ 			break;
+ 		case IOPRIO_WHO_USER:
+ 			uid = make_kuid(current_user_ns(), who);
 
 
