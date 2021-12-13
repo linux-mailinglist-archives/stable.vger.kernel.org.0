@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F974724FF
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58BAC472419
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbhLMJkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:40:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54284 "EHLO
+        id S233852AbhLMJeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:34:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233032AbhLMJio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:38:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF337C0698DA;
-        Mon, 13 Dec 2021 01:37:13 -0800 (PST)
+        with ESMTP id S232297AbhLMJdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:43 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D42DC061751;
+        Mon, 13 Dec 2021 01:33:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D04FB80E0B;
-        Mon, 13 Dec 2021 09:37:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5374C00446;
-        Mon, 13 Dec 2021 09:37:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C5AC0CE0E70;
+        Mon, 13 Dec 2021 09:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF72C341CA;
+        Mon, 13 Dec 2021 09:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388231;
-        bh=GNgfHegLJPasrwHkpXeo8SR0N5wRRz5yT4PpNL59/As=;
+        s=korg; t=1639388021;
+        bh=Z43GWxX0jqGv5h5dJzgrGmbShbs7BwPByvST6wl32no=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYf8WFjcodB2LRn6pVotJvZQXGz501J72zItp26JHukwUp7C1Q3mLgjOm7XhOI8Wv
-         /h4FCHqHadldbm0EkzpBZvXzz83iCFGwuiwDvMVyitwNovDKDuUWZGiPAwe8OaPX97
-         IQ/B/t45hihc3YDs+Jpx9AXauG2PqI9Gam0+rPXA=
+        b=1osXXlpPM67oNSwDtGJeG8rYAsSI1zeoiUDIGgwJXfqZD0MprtMrEeT0iVwz+Mk8i
+         JdfrdSsG3ikPs7/Fq0s3KT8Un2iBBG8oKJrt8UjP130KHoMaSpqPzuMoXqTQab6bGm
+         OCCssVfL9cGHnSyE85n7tMibMO9Ej8GfnRj/OSlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 30/53] net: altera: set a couple error code in probe()
-Date:   Mon, 13 Dec 2021 10:30:09 +0100
-Message-Id: <20211213092929.360059868@linuxfoundation.org>
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.4 32/37] iio: mma8452: Fix trigger reference couting
+Date:   Mon, 13 Dec 2021 10:30:10 +0100
+Message-Id: <20211213092926.428930075@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
+References: <20211213092925.380184671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit badd7857f5c933a3dc34942a2c11d67fdbdc24de upstream.
+commit cd0082235783f814241a1c9483fb89e405f4f892 upstream.
 
-There are two error paths which accidentally return success instead of
-a negative error code.
+The mma8452 driver directly assigns a trigger to the struct iio_dev. The
+IIO core when done using this trigger will call `iio_trigger_put()` to drop
+the reference count by 1.
 
-Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Without the matching `iio_trigger_get()` in the driver the reference count
+can reach 0 too early, the trigger gets freed while still in use and a
+use-after-free occurs.
+
+Fix this by getting a reference to the trigger before assigning it to the
+IIO device.
+
+Fixes: ae6d9ce05691 ("iio: mma8452: Add support for interrupt driven triggers.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Link: https://lore.kernel.org/r/20211024092700.6844-1-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/altera/altera_tse_main.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iio/accel/mma8452.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/altera/altera_tse_main.c
-+++ b/drivers/net/ethernet/altera/altera_tse_main.c
-@@ -1445,16 +1445,19 @@ static int altera_tse_probe(struct platf
- 		priv->rxdescmem_busaddr = dma_res->start;
+--- a/drivers/iio/accel/mma8452.c
++++ b/drivers/iio/accel/mma8452.c
+@@ -1011,7 +1011,7 @@ static int mma8452_trigger_setup(struct
+ 	if (ret)
+ 		return ret;
  
- 	} else {
-+		ret = -ENODEV;
- 		goto err_free_netdev;
- 	}
+-	indio_dev->trig = trig;
++	indio_dev->trig = iio_trigger_get(trig);
  
--	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask)))
-+	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask))) {
- 		dma_set_coherent_mask(priv->device,
- 				      DMA_BIT_MASK(priv->dmaops->dmamask));
--	else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32)))
-+	} else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32))) {
- 		dma_set_coherent_mask(priv->device, DMA_BIT_MASK(32));
--	else
-+	} else {
-+		ret = -EIO;
- 		goto err_free_netdev;
-+	}
- 
- 	/* MAC address space */
- 	ret = request_and_map(pdev, "control_port", &control_port,
+ 	return 0;
+ }
 
 
