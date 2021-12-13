@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4376472616
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C104728F0
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:16:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237319AbhLMJtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:49:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33306 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236541AbhLMJrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:47:15 -0500
+        id S239574AbhLMKQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:16:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35014 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243792AbhLMKOi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:14:38 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B76C08ED7A;
+        Mon, 13 Dec 2021 01:55:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 870D8B80E1B;
-        Mon, 13 Dec 2021 09:47:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2523C341C5;
-        Mon, 13 Dec 2021 09:47:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 301A0CE0E7D;
+        Mon, 13 Dec 2021 09:55:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC268C34602;
+        Mon, 13 Dec 2021 09:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388833;
-        bh=6an3fPGhD9yba8PBXFRdcH7I6TORl7ue89Jpo4AOfyY=;
+        s=korg; t=1639389304;
+        bh=hCZYLQSYCT8hOZ3Xz14J4RwOHlcJeC+j3s0L/lPGTPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PN4MbT/96sD7191GBC/xsYglvm1J0iUNGv5TnZ3M4QAkhpeOqCcPtv4WulBJ4icaY
-         uDknwp573GyZhVhROwxTNy6uHdGNqRGMKHmi6TfnkajlBjhEUwhdc1wT8c2WtSUf/K
-         myuff2sKCJdOIcOhUTaM9lilN2IsyhAeZJTlR+Z0=
+        b=zprT8oydQoX248ZtNqQIuCvsF3bSkiADV7FpTgGfCazK626EjkR/C1XN51mNu90ZU
+         ThImef8ROQT3+m/Hh+37Z3FUITI60EDTd+6IBxDGQ8qYtuDsqIohKabe+9YxmpN7Zo
+         9DMoP0bRvTgtRNMDw7cL1BoKWmKtkcxCv6/NO2B8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifan Zhang <yifan1.zhang@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 025/132] drm/amdgpu: init iommu after amdkfd device init
-Date:   Mon, 13 Dec 2021 10:29:26 +0100
-Message-Id: <20211213092939.968217354@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 052/171] net: bcm4908: Handle dma_set_coherent_mask error codes
+Date:   Mon, 13 Dec 2021 10:29:27 +0100
+Message-Id: <20211213092946.837914536@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
+References: <20211213092945.091487407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +48,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 714d9e4574d54596973ee3b0624ee4a16264d700 upstream.
+commit 128f6ec95a282b2d8bc1041e59bf65810703fa44 upstream.
 
-This patch is to fix clinfo failure in Raven/Picasso:
+The return value of dma_set_coherent_mask() is not always 0.
+To catch the exception in case that dma is not support the mask.
 
-Number of platforms: 1
-  Platform Profile: FULL_PROFILE
-  Platform Version: OpenCL 2.2 AMD-APP (3364.0)
-  Platform Name: AMD Accelerated Parallel Processing
-  Platform Vendor: Advanced Micro Devices, Inc.
-  Platform Extensions: cl_khr_icd cl_amd_event_callback
-
-  Platform Name: AMD Accelerated Parallel Processing Number of devices: 0
-
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Tested-by: James Zhu <James.Zhu@amd.com>
-Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 9d61d138ab30 ("net: broadcom: rename BCM4908 driver & update DT binding")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/bcm4908_enet.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2220,10 +2220,6 @@ static int amdgpu_device_ip_init(struct
- 	if (r)
- 		goto init_failed;
+--- a/drivers/net/ethernet/broadcom/bcm4908_enet.c
++++ b/drivers/net/ethernet/broadcom/bcm4908_enet.c
+@@ -708,7 +708,9 @@ static int bcm4908_enet_probe(struct pla
  
--	r = amdgpu_amdkfd_resume_iommu(adev);
--	if (r)
--		goto init_failed;
--
- 	r = amdgpu_device_ip_hw_init_phase1(adev);
- 	if (r)
- 		goto init_failed;
-@@ -2259,6 +2255,10 @@ static int amdgpu_device_ip_init(struct
- 		amdgpu_xgmi_add_device(adev);
- 	amdgpu_amdkfd_device_init(adev);
+ 	enet->irq_tx = platform_get_irq_byname(pdev, "tx");
  
-+	r = amdgpu_amdkfd_resume_iommu(adev);
-+	if (r)
-+		goto init_failed;
-+
- 	amdgpu_fru_get_product_info(adev);
+-	dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
++	err = dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
++	if (err)
++		return err;
  
- init_failed:
+ 	err = bcm4908_enet_dma_alloc(enet);
+ 	if (err)
 
 
