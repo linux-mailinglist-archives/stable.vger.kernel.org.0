@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87551472549
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA5E4728CF
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235437AbhLMJnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54800 "EHLO
+        id S240905AbhLMKOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:14:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34162 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234725AbhLMJlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:10 -0500
+        with ESMTP id S235939AbhLMJsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:48:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84ACEB80E12;
-        Mon, 13 Dec 2021 09:41:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFE86C00446;
-        Mon, 13 Dec 2021 09:41:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B24FB80E1C;
+        Mon, 13 Dec 2021 09:48:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E374C33A43;
+        Mon, 13 Dec 2021 09:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388468;
-        bh=57uyWgaH5jURPPzurlPQrjv81pyh0vKqkRObxNSox4I=;
+        s=korg; t=1639388924;
+        bh=NCVHjMxdMWY4u44MVkllThlRshNbiYBv81/J5IY5qPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kj9p8M9ogYvpn59OcrAx4pj+04IcKSulllc7zIgK/MPlpWjhUaOXXNP5sByrJDQgt
-         87oZ597NfFWwgwYSfY30TFgjcxn1Ct22oOGZa1dQAP1v/134/30cXJaZxFqxW8GwLc
-         qJLq8G0wr2HoC2iK4juCAB15RJBvmHL5jxuT/91k=
+        b=mUxJApdEiY3AGLHZbZss4U+KWD/uxylvOs6iAob4kAGL2tIisbJwuFiLgPR9+0MvO
+         tSUkXWnB57Irr3k0wq+lSSO5HJbzZl3sdQjbj9yGPFpGxniT2/34/xMSVK+0vxlw/r
+         xDNqUfh4D/5TR8hk8MMLdqzihLWiG/MOKw/MeM5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 27/74] ALSA: pcm: oss: Handle missing errors in snd_pcm_oss_change_params*()
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Yabin Cui <yabinc@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 057/132] tracefs: Have new files inherit the ownership of their parent
 Date:   Mon, 13 Dec 2021 10:29:58 +0100
-Message-Id: <20211213092931.718726068@linuxfoundation.org>
+Message-Id: <20211213092941.075739622@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +51,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 6665bb30a6b1a4a853d52557c05482ee50e71391 upstream.
+commit ee7f3666995d8537dec17b1d35425f28877671a9 upstream.
 
-A couple of calls in snd_pcm_oss_change_params_locked() ignore the
-possible errors.  Catch those errors and abort the operation for
-avoiding further problems.
+If directories in tracefs have their ownership changed, then any new files
+and directories that are created under those directories should inherit
+the ownership of the director they are created in.
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211201073606.11660-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lkml.kernel.org/r/20211208075720.4855d180@gandalf.local.home
+
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Yabin Cui <yabinc@google.com>
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: stable@vger.kernel.org
+Fixes: 4282d60689d4f ("tracefs: Add new tracefs file system")
+Reported-by: Kalesh Singh <kaleshsingh@google.com>
+Reported: https://lore.kernel.org/all/CAC_TJve8MMAv+H_NdLSJXZUSoxOEq2zB_pVaJ9p=7H6Bu3X76g@mail.gmail.com/
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/pcm_oss.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ fs/tracefs/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -899,8 +899,15 @@ static int snd_pcm_oss_change_params_loc
- 		err = -EINVAL;
- 		goto failure;
- 	}
--	choose_rate(substream, sparams, runtime->oss.rate);
--	snd_pcm_hw_param_near(substream, sparams, SNDRV_PCM_HW_PARAM_CHANNELS, runtime->oss.channels, NULL);
-+
-+	err = choose_rate(substream, sparams, runtime->oss.rate);
-+	if (err < 0)
-+		goto failure;
-+	err = snd_pcm_hw_param_near(substream, sparams,
-+				    SNDRV_PCM_HW_PARAM_CHANNELS,
-+				    runtime->oss.channels, NULL);
-+	if (err < 0)
-+		goto failure;
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -412,6 +412,8 @@ struct dentry *tracefs_create_file(const
+ 	inode->i_mode = mode;
+ 	inode->i_fop = fops ? fops : &tracefs_file_operations;
+ 	inode->i_private = data;
++	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
++	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
+ 	d_instantiate(dentry, inode);
+ 	fsnotify_create(dentry->d_parent->d_inode, dentry);
+ 	return end_creating(dentry);
+@@ -434,6 +436,8 @@ static struct dentry *__create_dir(const
+ 	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
+ 	inode->i_op = ops;
+ 	inode->i_fop = &simple_dir_operations;
++	inode->i_uid = d_inode(dentry->d_parent)->i_uid;
++	inode->i_gid = d_inode(dentry->d_parent)->i_gid;
  
- 	format = snd_pcm_oss_format_from(runtime->oss.format);
- 
+ 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+ 	inc_nlink(inode);
 
 
