@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EC0D472573
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:44:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB58F4728BB
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:15:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233118AbhLMJnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:49 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:35860 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233226AbhLMJlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:41:40 -0500
+        id S237268AbhLMKOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:14:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33250 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239065AbhLMKFs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:05:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C85ECC0A8888;
+        Mon, 13 Dec 2021 01:50:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0F912CE0E8B;
-        Mon, 13 Dec 2021 09:41:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF3A4C341C5;
-        Mon, 13 Dec 2021 09:41:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E2E9B80E1C;
+        Mon, 13 Dec 2021 09:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B83C341C5;
+        Mon, 13 Dec 2021 09:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388497;
-        bh=g7TtM4lZrjv6vxgD9PUn+nEapo7Y78gLjwplUuzXz2g=;
+        s=korg; t=1639389053;
+        bh=tbqDddX6n0aiTDtdtor2oO2VapLmWUIKud5GacnsEXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJEm1XBETptYfesoxmnqtUwsHaFivB4VulDOzIP8WYIfFWlBfI+gAu+nA7lRdO0i2
-         iEjFBeN+bERjatfVrg+uJ5Dw+3MJxooEqjQb9ePYNmg17IHSKahEZLfloTLs21jyzK
-         huV4hE9XWFlMIv4mUJ/fZWus9BbPYcmAfQo8e2go=
+        b=Zm+gNbBldtaagl+Or98UvP28l8ehIgisHYy/3ivkRM845MvChnrnBeu50H4zlS3FU
+         3dS1rUJG88qtFwaDyH+hHAzr5QEXpustDAZ7qGpBgysrvnNy67WcixtCsWu5bk2ypk
+         c+FtZfXZk8Cc+5R9rIt1yxuijWad5iDEtzb94wwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wudi Wang <wangwudi@hisilicon.com>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 71/74] irqchip/irq-gic-v3-its.c: Force synchronisation when issuing INVALL
+        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 5.10 101/132] USB: gadget: zero allocate endpoint 0 buffers
 Date:   Mon, 13 Dec 2021 10:30:42 +0100
-Message-Id: <20211213092933.183337020@linuxfoundation.org>
+Message-Id: <20211213092942.564132187@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wudi Wang <wangwudi@hisilicon.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit b383a42ca523ce54bcbd63f7c8f3cf974abc9b9a upstream.
+commit 86ebbc11bb3f60908a51f3e41a17e3f477c2eaa3 upstream.
 
-INVALL CMD specifies that the ITS must ensure any caching associated with
-the interrupt collection defined by ICID is consistent with the LPI
-configuration tables held in memory for all Redistributors. SYNC is
-required to ensure that INVALL is executed.
+Under some conditions, USB gadget devices can show allocated buffer
+contents to a host.  Fix this up by zero-allocating them so that any
+extra data will all just be zeros.
 
-Currently, LPI configuration data may be inconsistent with that in the
-memory within a short period of time after the INVALL command is executed.
-
-Signed-off-by: Wudi Wang <wangwudi@hisilicon.com>
-Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Fixes: cc2d3216f53c ("irqchip: GICv3: ITS command queue")
-Link: https://lore.kernel.org/r/20211208015429.5007-1-zhangshaokun@hisilicon.com
+Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Tested-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/composite.c   |    2 +-
+ drivers/usb/gadget/legacy/dbgp.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -581,7 +581,7 @@ static struct its_collection *its_build_
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -2173,7 +2173,7 @@ int composite_dev_prepare(struct usb_com
+ 	if (!cdev->req)
+ 		return -ENOMEM;
  
- 	its_fixup_cmd(cmd);
+-	cdev->req->buf = kmalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
++	cdev->req->buf = kzalloc(USB_COMP_EP0_BUFSIZ, GFP_KERNEL);
+ 	if (!cdev->req->buf)
+ 		goto fail;
  
--	return NULL;
-+	return desc->its_invall_cmd.col;
- }
+--- a/drivers/usb/gadget/legacy/dbgp.c
++++ b/drivers/usb/gadget/legacy/dbgp.c
+@@ -137,7 +137,7 @@ static int dbgp_enable_ep_req(struct usb
+ 		goto fail_1;
+ 	}
  
- static struct its_vpe *its_build_vinvall_cmd(struct its_node *its,
+-	req->buf = kmalloc(DBGP_REQ_LEN, GFP_KERNEL);
++	req->buf = kzalloc(DBGP_REQ_LEN, GFP_KERNEL);
+ 	if (!req->buf) {
+ 		err = -ENOMEM;
+ 		stp = 2;
 
 
