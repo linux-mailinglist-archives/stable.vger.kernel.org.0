@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09547472545
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B2D47246E
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234459AbhLMJnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:43:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53786 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235222AbhLMJke (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:40:34 -0500
+        id S230413AbhLMJgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:36:23 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:59684 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232383AbhLMJfZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B30FEB80E15;
-        Mon, 13 Dec 2021 09:40:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3504C00446;
-        Mon, 13 Dec 2021 09:40:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E9BF8CE0B59;
+        Mon, 13 Dec 2021 09:35:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBEAEC00446;
+        Mon, 13 Dec 2021 09:35:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388431;
-        bh=GNgfHegLJPasrwHkpXeo8SR0N5wRRz5yT4PpNL59/As=;
+        s=korg; t=1639388121;
+        bh=2qt4EuuFyqq2CR+XlV4DHHNK6qcXhmaQWS/jTj5v4sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ruffKgw83z+GtiYgKlJbe8CabEbvS8jcmu9tBiSev7AFGHQmyhtp0hKzaVX/8UYj0
-         +Ps/ImbARkMokAst+Yi0LWHYksr1F1ZGJ3ct+6e/Dy+EODPyDAz9AUIisXGxrkQ1RJ
-         gGo5oeRycAntoC0yl2ofUatcOID13TLF+vf38P3c=
+        b=fJvLom43cVQbtHCq2zEscH92jS9lV0mKJhwuuLGJR3fXEferuEziWv2i4vi4iO0fG
+         yAbYVK3tNNAWmv7tCEXd9nAGUgokD+TolEBkJPSnTd51rMdhCmpO5JiDWP8hEecqwJ
+         fi4jiVl5JLMkY30If2BY1szGvnkZMrM8FM9C+goY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 47/74] net: altera: set a couple error code in probe()
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 36/42] iio: kxsd9: Dont return error code in trigger handler
 Date:   Mon, 13 Dec 2021 10:30:18 +0100
-Message-Id: <20211213092932.390902232@linuxfoundation.org>
+Message-Id: <20211213092927.733030664@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
-References: <20211213092930.763200615@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit badd7857f5c933a3dc34942a2c11d67fdbdc24de upstream.
+commit 45febe0d63917ee908198c5be08511c64ee1790a upstream.
 
-There are two error paths which accidentally return success instead of
-a negative error code.
+IIO trigger handlers need to return one of the irqreturn_t values.
+Returning an error code is not supported.
 
-Fixes: bbd2190ce96d ("Altera TSE: Add main and header file for Altera Ethernet Driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The kxsd9 interrupt handler returns an error code if reading the data
+registers fails. In addition when exiting due to an error the trigger
+handler does not call `iio_trigger_notify_done()`. Which when not done
+keeps the triggered disabled forever.
+
+Modify the code so that the function returns a valid irqreturn_t value as
+well as calling `iio_trigger_notify_done()` on all exit paths.
+
+Since we can't return the error code make sure to at least log it as part
+of the error message.
+
+Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20211024171251.22896-2-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/altera/altera_tse_main.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iio/accel/kxsd9.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/altera/altera_tse_main.c
-+++ b/drivers/net/ethernet/altera/altera_tse_main.c
-@@ -1445,16 +1445,19 @@ static int altera_tse_probe(struct platf
- 		priv->rxdescmem_busaddr = dma_res->start;
- 
- 	} else {
-+		ret = -ENODEV;
- 		goto err_free_netdev;
+--- a/drivers/iio/accel/kxsd9.c
++++ b/drivers/iio/accel/kxsd9.c
+@@ -227,14 +227,14 @@ static irqreturn_t kxsd9_trigger_handler
+ 			       hw_values.chan,
+ 			       sizeof(hw_values.chan));
+ 	if (ret) {
+-		dev_err(st->dev,
+-			"error reading data\n");
+-		return ret;
++		dev_err(st->dev, "error reading data: %d\n", ret);
++		goto out;
  	}
  
--	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask)))
-+	if (!dma_set_mask(priv->device, DMA_BIT_MASK(priv->dmaops->dmamask))) {
- 		dma_set_coherent_mask(priv->device,
- 				      DMA_BIT_MASK(priv->dmaops->dmamask));
--	else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32)))
-+	} else if (!dma_set_mask(priv->device, DMA_BIT_MASK(32))) {
- 		dma_set_coherent_mask(priv->device, DMA_BIT_MASK(32));
--	else
-+	} else {
-+		ret = -EIO;
- 		goto err_free_netdev;
-+	}
+ 	iio_push_to_buffers_with_timestamp(indio_dev,
+ 					   &hw_values,
+ 					   iio_get_time_ns(indio_dev));
++out:
+ 	iio_trigger_notify_done(indio_dev->trig);
  
- 	/* MAC address space */
- 	ret = request_and_map(pdev, "control_port", &control_port,
+ 	return IRQ_HANDLED;
 
 
