@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B71704729AB
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D5D4726B3
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240616AbhLMKXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:23:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35948 "EHLO
+        id S237137AbhLMJx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:53:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244351AbhLMKQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:16:59 -0500
+        with ESMTP id S237076AbhLMJvi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:51:38 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F15C0497DD;
-        Mon, 13 Dec 2021 01:56:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54494C08ECA4;
+        Mon, 13 Dec 2021 01:44:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8BD5B80E20;
-        Mon, 13 Dec 2021 09:56:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF121C34600;
-        Mon, 13 Dec 2021 09:56:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3734B80E2E;
+        Mon, 13 Dec 2021 09:44:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47E20C00446;
+        Mon, 13 Dec 2021 09:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389361;
-        bh=60mtdTU7mtPxx8yxDboP61RQQgSrcbwYFeRsFFREP6M=;
+        s=korg; t=1639388655;
+        bh=HuQBqFMQSc6M+LcN2eaG/2/EtqrMxfiHbDgFegvEng0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mu0cOKhqD4z3RYDm2pitBoqRS5BQ4qn2gCgm8hb3vahMXKs9aZnkb9cYaJ//lArjh
-         JDQsOiNyuZqVRc/dZWN0FIxagjRsQOfwOMDOUaP8pz2vyILf9Dq7rEIp700wj1Om/p
-         yPuEVJ5QxeXDteA9XKMUC0O6I8e24I9b10UTgHTE=
+        b=EhoDQDPq8QuN6qhUFLBSVF9L3Hld5GE2YMFjfKiLZSi8qZfdC4O56SgciXRBub3/k
+         uPT+HGPQq4Eo4bnuYgiCM4F7oIwtamtHkWhppDv44hU6C2zpdZCWsoyIvj4nlPKVMT
+         7UEpzaHTn2y4ArzTjcp5MAwr90GbPCNtjyZGDW/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 074/171] btrfs: replace the BUG_ON in btrfs_del_root_ref with proper error handling
+        stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.4 19/88] ice: ignore dropped packets during init
 Date:   Mon, 13 Dec 2021 10:29:49 +0100
-Message-Id: <20211213092947.566564052@linuxfoundation.org>
+Message-Id: <20211213092933.880514740@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,36 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-commit 8289ed9f93bef2762f9184e136d994734b16d997 upstream.
+commit 28dc1b86f8ea9fd6f4c9e0b363db73ecabf84e22 upstream.
 
-I hit the BUG_ON() with generic/475 test case, and to my surprise, all
-callers of btrfs_del_root_ref() are already aborting transaction, thus
-there is not need for such BUG_ON(), just go to @out label and caller
-will properly handle the error.
+If the hardware is constantly receiving unicast or broadcast packets
+during driver load, the device previously counted many GLV_RDPC (VSI
+dropped packets) events during init. This causes confusing dropped
+packet statistics during driver load. The dropped packets counter
+incrementing does stop once the driver finishes loading.
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Avoid this problem by baselining our statistics at the end of driver
+open instead of the end of probe.
+
+Fixes: cdedef59deb0 ("ice: Configure VSIs for Tx/Rx")
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/root-tree.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -336,7 +336,8 @@ int btrfs_del_root_ref(struct btrfs_tran
- 	key.offset = ref_id;
- again:
- 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
--	BUG_ON(ret < 0);
-+	if (ret < 0)
-+		goto out;
- 	if (ret == 0) {
- 		leaf = path->nodes[0];
- 		ref = btrfs_item_ptr(leaf, path->slots[0],
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -3561,6 +3561,9 @@ static int ice_up_complete(struct ice_vs
+ 		netif_carrier_on(vsi->netdev);
+ 	}
+ 
++	/* clear this now, and the first stats read will be used as baseline */
++	vsi->stat_offsets_loaded = false;
++
+ 	ice_service_task_schedule(pf);
+ 
+ 	return 0;
 
 
