@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ECC947241C
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A6A47245D
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234169AbhLMJeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:34:09 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58434 "EHLO
+        id S234306AbhLMJf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:35:56 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:59388 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233682AbhLMJdr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:33:47 -0500
+        with ESMTP id S230467AbhLMJfB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:35:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9CF53CE0E39;
-        Mon, 13 Dec 2021 09:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B07BC00446;
-        Mon, 13 Dec 2021 09:33:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 36FACCE0E7D;
+        Mon, 13 Dec 2021 09:35:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8A82C00446;
+        Mon, 13 Dec 2021 09:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388023;
-        bh=fwKfU68T5Hd0pP7zVDoYkgUMpmAPRlZHPW4STjVw6ks=;
+        s=korg; t=1639388098;
+        bh=FjB8u9hGsxLMZnkmOfnwddADvaN5d8Fwik2pVsj3iWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3O/DSGG1wQLCs41KQVnIAzgq4BU3lFAz7ahE644szok/OE39CW3x51uZ6etJXDTA
-         NUYkIIOEsVZRuMFGPZ0jiZZROQhfjpndcE14dbOTudVeG6v68U8Dd/qUx+4b0giLw+
-         xcRmjvCrdsAOU09aUBjS5FkcDoGxwnL3cQ0x+H1k=
+        b=N2oVMolpyqhIDyxtR/xm7bj6EAyAJRZfix2NIuX1mrGmaPmDe5crH6J54s7f5Pfa8
+         o0PgHVF15xz03i9jlww758kWHbTa/5p1F80SSHygKwTrAeSThdPQBQi+UUqAJyRXuN
+         jSlUSI/nWhND1T8uySTNSJWAYW+02FIiKa1xhw9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.4 33/37] iio: ltr501: Dont return error code in trigger handler
+        stable@vger.kernel.org, Szymon Heidrich <szymon.heidrich@gmail.com>
+Subject: [PATCH 4.9 29/42] USB: gadget: detect too-big endpoint 0 requests
 Date:   Mon, 13 Dec 2021 10:30:11 +0100
-Message-Id: <20211213092926.469234767@linuxfoundation.org>
+Message-Id: <20211213092927.518264100@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-References: <20211213092925.380184671@linuxfoundation.org>
+In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
+References: <20211213092926.578829548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit ef9d67fa72c1b149a420587e435a3e888bdbf74f upstream.
+commit 153a2d7e3350cc89d406ba2d35be8793a64c2038 upstream.
 
-IIO trigger handlers need to return one of the irqreturn_t values.
-Returning an error code is not supported.
+Sometimes USB hosts can ask for buffers that are too large from endpoint
+0, which should not be allowed.  If this happens for OUT requests, stall
+the endpoint, but for IN requests, trim the request size to the endpoint
+buffer size.
 
-The ltr501 interrupt handler gets this right for most error paths, but
-there is one case where it returns the error code.
-
-In addition for this particular case the trigger handler does not call
-`iio_trigger_notify_done()`. Which when not done keeps the triggered
-disabled forever.
-
-Modify the code so that the function returns a valid irqreturn_t value as
-well as calling `iio_trigger_notify_done()` on all exit paths.
-
-Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Link: https://lore.kernel.org/r/20211024171251.22896-1-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Co-developed-by: Szymon Heidrich <szymon.heidrich@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/ltr501.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/composite.c    |   12 ++++++++++++
+ drivers/usb/gadget/legacy/dbgp.c  |   13 +++++++++++++
+ drivers/usb/gadget/legacy/inode.c |   16 +++++++++++++++-
+ 3 files changed, 40 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -1248,7 +1248,7 @@ static irqreturn_t ltr501_trigger_handle
- 		ret = regmap_bulk_read(data->regmap, LTR501_ALS_DATA1,
- 				       (u8 *)als_buf, sizeof(als_buf));
- 		if (ret < 0)
--			return ret;
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -1631,6 +1631,18 @@ composite_setup(struct usb_gadget *gadge
+ 	struct usb_function		*f = NULL;
+ 	u8				endp;
+ 
++	if (w_length > USB_COMP_EP0_BUFSIZ) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
 +			goto done;
- 		if (test_bit(0, indio_dev->active_scan_mask))
- 			scan.channels[j++] = le16_to_cpu(als_buf[1]);
- 		if (test_bit(1, indio_dev->active_scan_mask))
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(USB_COMP_EP0_BUFSIZ);
++			w_length = USB_COMP_EP0_BUFSIZ;
++		}
++	}
++
+ 	/* partial re-init of the response message; the function or the
+ 	 * gadget might need to intercept e.g. a control-OUT completion
+ 	 * when we delegate to it.
+--- a/drivers/usb/gadget/legacy/dbgp.c
++++ b/drivers/usb/gadget/legacy/dbgp.c
+@@ -344,6 +344,19 @@ static int dbgp_setup(struct usb_gadget
+ 	void *data = NULL;
+ 	u16 len = 0;
+ 
++	if (length > DBGP_REQ_LEN) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			return err;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(DBGP_REQ_LEN);
++			length = DBGP_REQ_LEN;
++		}
++	}
++
++
+ 	if (request == USB_REQ_GET_DESCRIPTOR) {
+ 		switch (value>>8) {
+ 		case USB_DT_DEVICE:
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -113,6 +113,8 @@ enum ep0_state {
+ /* enough for the whole queue: most events invalidate others */
+ #define	N_EVENT			5
+ 
++#define RBUF_SIZE		256
++
+ struct dev_data {
+ 	spinlock_t			lock;
+ 	atomic_t			count;
+@@ -147,7 +149,7 @@ struct dev_data {
+ 	struct dentry			*dentry;
+ 
+ 	/* except this scratch i/o buffer for ep0 */
+-	u8				rbuf [256];
++	u8				rbuf[RBUF_SIZE];
+ };
+ 
+ static inline void get_dev (struct dev_data *data)
+@@ -1336,6 +1338,18 @@ gadgetfs_setup (struct usb_gadget *gadge
+ 	u16				w_value = le16_to_cpu(ctrl->wValue);
+ 	u16				w_length = le16_to_cpu(ctrl->wLength);
+ 
++	if (w_length > RBUF_SIZE) {
++		if (ctrl->bRequestType == USB_DIR_OUT) {
++			return value;
++		} else {
++			/* Cast away the const, we are going to overwrite on purpose. */
++			__le16 *temp = (__le16 *)&ctrl->wLength;
++
++			*temp = cpu_to_le16(RBUF_SIZE);
++			w_length = RBUF_SIZE;
++		}
++	}
++
+ 	spin_lock (&dev->lock);
+ 	dev->setup_abort = 0;
+ 	if (dev->state == STATE_DEV_UNCONNECTED) {
 
 
