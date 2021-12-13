@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 044AE4727CE
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B34472854
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241687AbhLMKFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:05:04 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47520 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238789AbhLMKBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:01:36 -0500
+        id S238710AbhLMKKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:10:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32994 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241903AbhLMKGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:06:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D18C0A8897;
+        Mon, 13 Dec 2021 01:51:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0B29B80EAE;
-        Mon, 13 Dec 2021 10:01:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E993C34602;
-        Mon, 13 Dec 2021 10:01:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8F7BB80E1C;
+        Mon, 13 Dec 2021 09:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE72C00446;
+        Mon, 13 Dec 2021 09:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389693;
-        bh=B02hXA2HNaN8oaPxgTWxPqBUd8PS/ZcUF6Be2GpFiXM=;
+        s=korg; t=1639389070;
+        bh=c4PyAvgauIE/r1W3fXe8JPNA4wDziqxWatb/PabbAA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Wb9uwkHCGJ0GYXyVa3K2Dq5SeyVo6MRC+AsEvf1zT+WohEZEhV4eT0G2+7650f4i
-         xh744qQ1MAnf42z0JSq/NqMAIsga8ixRlF5cvJkDVGbcsjFKXwHswZTPM+8iqlfC6x
-         d6QwJnCPowifFxRTA3BQ2hrstrFazDDgwWdFxFZM=
+        b=vWfbcwrv9EDa+lX5Z6f5O12IH2BOxObD85ColmaHBMc7ASDgaYXMnbqM6GRYUzkas
+         VFhYoSyqMIEB/wGo5rMgdGnVjU/Ak7LlUz9tA0mThHF73mqlwd/APxY4cofQsErwOo
+         C7dX5RInxBoxsUHhJL8FKuoLDGqd4yG0zPwPNoLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 133/171] net, neigh: clear whole pneigh_entry at alloc time
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 107/132] iio: trigger: Fix reference counting
 Date:   Mon, 13 Dec 2021 10:30:48 +0100
-Message-Id: <20211213092949.523659853@linuxfoundation.org>
+Message-Id: <20211213092942.772638037@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,97 +49,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-commit e195e9b5dee6459d8c8e6a314cc71a644a0537fd upstream.
+commit a827a4984664308f13599a0b26c77018176d0c7c upstream.
 
-Commit 2c611ad97a82 ("net, neigh: Extend neigh->flags to 32 bit
-to allow for extensions") enables a new KMSAM warning [1]
+In viio_trigger_alloc() device_initialize() is used to set the initial
+reference count of the trigger to 1. Then another get_device() is called on
+trigger. This sets the reference count to 2 before the trigger is returned.
 
-I think the bug is actually older, because the following intruction
-only occurred if ndm->ndm_flags had NTF_PROXY set.
+iio_trigger_free(), which is the matching API to viio_trigger_alloc(),
+calls put_device() which decreases the reference count by 1. But the second
+reference count acquired in viio_trigger_alloc() is never dropped.
 
-	pn->flags = ndm->ndm_flags;
+As a result the iio_trigger_release() function is never called and the
+memory associated with the trigger is never freed.
 
-Let's clear all pneigh_entry fields at alloc time.
+Since there is no reason for the trigger to start its lifetime with two
+reference counts just remove the extra get_device() in
+viio_trigger_alloc().
 
-[1]
-BUG: KMSAN: uninit-value in pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
- pneigh_fill_info+0x986/0xb30 net/core/neighbour.c:2593
- pneigh_dump_table net/core/neighbour.c:2715 [inline]
- neigh_dump_info+0x1e3f/0x2c60 net/core/neighbour.c:2832
- netlink_dump+0xaca/0x16a0 net/netlink/af_netlink.c:2265
- __netlink_dump_start+0xd1c/0xee0 net/netlink/af_netlink.c:2370
- netlink_dump_start include/linux/netlink.h:254 [inline]
- rtnetlink_rcv_msg+0x181b/0x18c0 net/core/rtnetlink.c:5534
- netlink_rcv_skb+0x447/0x800 net/netlink/af_netlink.c:2491
- rtnetlink_rcv+0x50/0x60 net/core/rtnetlink.c:5589
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x1095/0x1360 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x16f3/0x1870 net/netlink/af_netlink.c:1916
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg net/socket.c:724 [inline]
- sock_write_iter+0x594/0x690 net/socket.c:1057
- call_write_iter include/linux/fs.h:2162 [inline]
- new_sync_write fs/read_write.c:503 [inline]
- vfs_write+0x1318/0x2030 fs/read_write.c:590
- ksys_write+0x28c/0x520 fs/read_write.c:643
- __do_sys_write fs/read_write.c:655 [inline]
- __se_sys_write fs/read_write.c:652 [inline]
- __x64_sys_write+0xdb/0x120 fs/read_write.c:652
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:524 [inline]
- slab_alloc_node mm/slub.c:3251 [inline]
- slab_alloc mm/slub.c:3259 [inline]
- __kmalloc+0xc3c/0x12d0 mm/slub.c:4437
- kmalloc include/linux/slab.h:595 [inline]
- pneigh_lookup+0x60f/0xd70 net/core/neighbour.c:766
- arp_req_set_public net/ipv4/arp.c:1016 [inline]
- arp_req_set+0x430/0x10a0 net/ipv4/arp.c:1032
- arp_ioctl+0x8d4/0xb60 net/ipv4/arp.c:1232
- inet_ioctl+0x4ef/0x820 net/ipv4/af_inet.c:947
- sock_do_ioctl net/socket.c:1118 [inline]
- sock_ioctl+0xa3f/0x13e0 net/socket.c:1235
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:874 [inline]
- __se_sys_ioctl+0x2df/0x4a0 fs/ioctl.c:860
- __x64_sys_ioctl+0xd8/0x110 fs/ioctl.c:860
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-CPU: 1 PID: 20001 Comm: syz-executor.0 Not tainted 5.16.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 62dd93181aaa ("[IPV6] NDISC: Set per-entry is_router flag in Proxy NA.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20211206165329.1049835-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 5f9c035cae18 ("staging:iio:triggers. Add a reference get to the core for triggers.")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20211024092700.6844-2-lars@metafoo.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/iio/industrialio-trigger.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -733,11 +733,10 @@ struct pneigh_entry * pneigh_lookup(stru
+--- a/drivers/iio/industrialio-trigger.c
++++ b/drivers/iio/industrialio-trigger.c
+@@ -550,7 +550,6 @@ struct iio_trigger *viio_trigger_alloc(c
+ 		irq_modify_status(trig->subirq_base + i,
+ 				  IRQ_NOREQUEST | IRQ_NOAUTOEN, IRQ_NOPROBE);
+ 	}
+-	get_device(&trig->dev);
  
- 	ASSERT_RTNL();
+ 	return trig;
  
--	n = kmalloc(sizeof(*n) + key_len, GFP_KERNEL);
-+	n = kzalloc(sizeof(*n) + key_len, GFP_KERNEL);
- 	if (!n)
- 		goto out;
- 
--	n->protocol = 0;
- 	write_pnet(&n->net, net);
- 	memcpy(n->key, pkey, key_len);
- 	n->dev = dev;
 
 
