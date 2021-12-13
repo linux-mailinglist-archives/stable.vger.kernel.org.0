@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C59E4733A2
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 19:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0424733B9
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 19:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240967AbhLMSJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 13:09:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36100 "EHLO
+        id S241489AbhLMSOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 13:14:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241719AbhLMSJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 13:09:11 -0500
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6385FC061574
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 10:09:11 -0800 (PST)
-Received: by mail-lj1-x241.google.com with SMTP id 13so24809087ljj.11
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 10:09:11 -0800 (PST)
+        with ESMTP id S240069AbhLMSOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 13:14:02 -0500
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6BF3C061574
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 10:14:01 -0800 (PST)
+Received: by mail-lj1-x242.google.com with SMTP id u22so24888472lju.7
+        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 10:14:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=cogentembedded-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=mQW2ZFhmnqpsnpdPNVH4cTtkoY4ngbDa2/F0iHqH+bY=;
-        b=kDehNABqxYDeLiHJG1O+FlMob3glyIaqxBkYyOBFsj3jRUKxN7KhK+7563l8vW2MhH
-         nGcik84hG5k5J5lkfiTg0ZXYzh8PvRR2aE9GGWieivhPop4xKJOsCJ9LFV0+cbAELSbh
-         gbVgcbuoAz7/uXaLtK3uCcnVbeem4TFh7XadoaclIO8VirOBJfLkC87KH8nC4uL6kRju
-         aiyOJj+H/XzK3Z15csl9ucFicm4YuB+/qR2GC139l0gZ9eN4yLwK9OKM4gxiKMQ4s2Cn
-         jbEIqHFleorFwY1R8BK118nuviK4jd157vO5UBCXfAB8+BPlneG2KyTE/W4/DWNLmiht
-         0Kgg==
+        bh=zaib0DC5AMB+kONLt161AeYReUJW8kK/6r16KtYxd8o=;
+        b=h6I7nCwf6huxCzCdKBoPxyLB7gObeO9FBjaQPGardPcX9dybJyxEaQWtttzBAkXatY
+         lcF5cNEb26G7E4FlYXspWUsOTindhKjuyUUZo5kexgxFcHEbE/FR+2x2aFGj+s5brrOj
+         l0n7ROKySzIMb4uVvslNx7Jp6QGGVl/V4OpRHbrcpUg3GFogt3b87MWumcMqORQ0LcAg
+         tS80LIoHsB3jw94PLClpFNm5zfBi/M6qzNLyGT1h3xu6GPHfIR0zvn1A0pjJLO0esbnI
+         nytIrTaGXWuK80cbeL8Sq7aFbylgK6+OasH19fPu84HkFU56N6QulWgczmHO0Gdsd5wm
+         azMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=mQW2ZFhmnqpsnpdPNVH4cTtkoY4ngbDa2/F0iHqH+bY=;
-        b=AxAr0X3Z8JEV+G6rK/UH/IhLnuTW09+9rHvB+qSOoWZ07fyA5iY0eddw/VXaUIWCnC
-         u4Z5MZ0iycKOPU+9HEZ6AxrTkbpy0cI5fgO/JC9US2U5aJyPsFD/M2SNyH2tysiUywwC
-         kodeifMcx4tYNxSV+g66CmPMFfCM2+EzUXyf88H0I+qjqF5pOPN1nL/zKu6AVashx3Hm
-         MjaosupiaeJUzY7enWNNyF/u5SQha3IjZXe5KbQ3Ne0zAp3B12aBmgTn8CnX0O2feV/h
-         jZfTK/yTy+y9yu1AFS0LkwZyohlCfeqHqc3Y2vW/KLU56YzIWdF86hWn5oHifb/ieQIE
-         NAlg==
-X-Gm-Message-State: AOAM530nEtoxIBNFSwqFUoVLAMxsu6uCaMLip7Ge8Cn1FiNxBrrLfsmE
-        /GILpz5wCTyp46eGG5VE7lKCnPnYh72Enw1/
-X-Google-Smtp-Source: ABdhPJxJkB/Pni8AHU6FGqIeAmy2P7h8c1BhZt7L3mOWOAnkYghmdLnBl+QngMNVzUKWj04FaYQAyw==
-X-Received: by 2002:a2e:9d3:: with SMTP id 202mr98307ljj.165.1639418949675;
-        Mon, 13 Dec 2021 10:09:09 -0800 (PST)
+        bh=zaib0DC5AMB+kONLt161AeYReUJW8kK/6r16KtYxd8o=;
+        b=QwzOQMIFyUnnkSzSbv3IKyddDrTzCx1kkdofe2NBxwuBCKxrCq50XGD9E2GWfOMOFJ
+         RwRf6TkjlW1ofcV2LlzgEIAUGi5ruWc1qExGkl9sZD8oPi+Dqm8TG6ZKTVkb+dKcqNCo
+         dw5WpMI87/XqQA8rTzYz+mfD+mU7YqPE7/iqxho7TrZ7juQ3fsGtf0SUFe6GnJ8RQ+Wk
+         YXB64htxanzfqX1qiu7XLvMMNX73j0UxwH9xCznomL7ZOxbVZUocJPneB0Awms2vshfD
+         MFPmbqMgsc36Phzsg8BYyvCb0mrLHOaBRb+YoL3Wy4+/kNXn01q7ktVFsr6KAez2hXhD
+         yjkQ==
+X-Gm-Message-State: AOAM533W3H8iD8EevV1vqB8DGUma14mjm0ptOwkXbFAb1YUXTCRTYfdr
+        6R6JFjJpTpQ69dxJZYumjMsqZn2IiIvRUynI
+X-Google-Smtp-Source: ABdhPJzxG6yvsZL3W3ztsVmh9ywJz8g5AezaPD0gfWOHuqUWEfeolUamhlvOAncYcN0lVIaeEJpREw==
+X-Received: by 2002:a2e:8502:: with SMTP id j2mr121670lji.191.1639419239917;
+        Mon, 13 Dec 2021 10:13:59 -0800 (PST)
 Received: from cobook.home (nikaet.starlink.ru. [94.141.168.29])
-        by smtp.gmail.com with ESMTPSA id k23sm1562092ljg.139.2021.12.13.10.09.09
+        by smtp.gmail.com with ESMTPSA id p20sm1514388lfu.151.2021.12.13.10.13.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Dec 2021 10:09:09 -0800 (PST)
+        Mon, 13 Dec 2021 10:13:59 -0800 (PST)
 From:   Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 To:     gregkh@linuxfoundation.org
 Cc:     stable@vger.kernel.org, nikita.yoush@cogentembedded.com
-Subject: [PATCH 5.10] staging: most: dim2: use device release method
-Date:   Mon, 13 Dec 2021 21:08:54 +0300
-Message-Id: <20211213180854.987473-1-nikita.yoush@cogentembedded.com>
+Subject: [PATCH 5.15] staging: most: dim2: use device release method
+Date:   Mon, 13 Dec 2021 21:13:46 +0300
+Message-Id: <20211213181346.989171-1-nikita.yoush@cogentembedded.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <163774098424117@kroah.com>
-References: <163774098424117@kroah.com>
+In-Reply-To: <163774098420119@kroah.com>
+References: <163774098420119@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -84,10 +84,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  1 file changed, 30 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/staging/most/dim2/dim2.c b/drivers/staging/most/dim2/dim2.c
-index 8c2f384233aa..2fd6886f7728 100644
+index b72d7b9b45ea..81e062009d27 100644
 --- a/drivers/staging/most/dim2/dim2.c
 +++ b/drivers/staging/most/dim2/dim2.c
-@@ -723,6 +723,23 @@ static int get_dim2_clk_speed(const char *clock_speed, u8 *val)
+@@ -726,6 +726,23 @@ static int get_dim2_clk_speed(const char *clock_speed, u8 *val)
  	return -EINVAL;
  }
  
@@ -111,7 +111,7 @@ index 8c2f384233aa..2fd6886f7728 100644
  /*
   * dim2_probe - dim2 probe handler
   * @pdev: platform device structure
-@@ -743,7 +760,7 @@ static int dim2_probe(struct platform_device *pdev)
+@@ -746,7 +763,7 @@ static int dim2_probe(struct platform_device *pdev)
  
  	enum { MLB_INT_IDX, AHB0_INT_IDX };
  
@@ -120,7 +120,7 @@ index 8c2f384233aa..2fd6886f7728 100644
  	if (!dev)
  		return -ENOMEM;
  
-@@ -755,25 +772,27 @@ static int dim2_probe(struct platform_device *pdev)
+@@ -758,25 +775,27 @@ static int dim2_probe(struct platform_device *pdev)
  				      "microchip,clock-speed", &clock_speed);
  	if (ret) {
  		dev_err(&pdev->dev, "missing dt property clock-speed\n");
@@ -153,7 +153,7 @@ index 8c2f384233aa..2fd6886f7728 100644
  
  	dev->disable_platform = pdata ? pdata->disable : NULL;
  
-@@ -864,24 +883,19 @@ static int dim2_probe(struct platform_device *pdev)
+@@ -867,24 +886,19 @@ static int dim2_probe(struct platform_device *pdev)
  	dev->most_iface.request_netinfo = request_netinfo;
  	dev->most_iface.driver_dev = &pdev->dev;
  	dev->most_iface.dev = &dev->dev;
@@ -183,7 +183,7 @@ index 8c2f384233aa..2fd6886f7728 100644
  
  	return ret;
  }
-@@ -895,17 +909,8 @@ static int dim2_probe(struct platform_device *pdev)
+@@ -898,17 +912,8 @@ static int dim2_probe(struct platform_device *pdev)
  static int dim2_remove(struct platform_device *pdev)
  {
  	struct dim2_hdm *dev = platform_get_drvdata(pdev);
