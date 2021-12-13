@@ -2,114 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 734C847222F
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 09:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CA2472247
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 09:20:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232797AbhLMIOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 03:14:19 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:58675 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232799AbhLMIOS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 03:14:18 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id AAC713200583;
-        Mon, 13 Dec 2021 03:14:17 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Mon, 13 Dec 2021 03:14:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=soQ3ilTPrERLLwBQar8iQeC7XCR
-        VdB9rnOUTHZRl9Ks=; b=FD1GTdXMI0g3UCWXjJRTUcwJ8fJckWusUL+UY48LppS
-        l4oj8IckVEPdh7qtWWEJ/bIWblAmq+mv9vUauQsNJ3BhnHwo81sjeTDK54J7KuCr
-        d5685G/zt+6iG8mBkHqrQm74TwlV+AGPVbfNvzSJ4x+wID6SRNntSxffhbPszXLW
-        hOc/Rz0dbFWEF1Zne0UCMRfYiVv1OBvO9a+0bxmrZmd54Rm12+d2ZB9iFnl9kQon
-        R9e9wj/KwGhjOHr4jz61SbQshSXR4fV2eSYhYkDXspFX2QTqhK5T4VkdO7PuINTH
-        K2BaWraCYhkUCAQzNQVB8Pi50MECndEZwWPdPA/ZMOg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=soQ3il
-        TPrERLLwBQar8iQeC7XCRVdB9rnOUTHZRl9Ks=; b=RBodKUEbnZZhq27sw4bVnh
-        IYn+oQjYP/CwzNtm3KZ1LFAPtcosgkbBGdB5BpLMMUoTwuLQ8uT7Pec9fcxFG3WG
-        QqlZx3vuXSfARif37/BzrP3ziPJNaaDlysnGYLGQiXo+Xzi8gkk4eqPPxAK7zO1X
-        JO4sqVgpJU1RwZQs1do/xx6Nj0xhtIBq06KTYJkd38f8teul4TxnO3i7ClCcMgqo
-        jAgzbXc5hreG82DGgfwgPxzAZK4zb64jp4aPvI5jWQuXog03MdexK/WBf9dPVuOK
-        AO0QVxcf8BTSHmw1RJ7/DeKR8wexxU/WIx1QuUqud4Yab5CwKZQgLSOkzbFPjc3A
-        ==
-X-ME-Sender: <xms:2QC3YcJskT2rnmW9gzH4lgsYEm-3FNs7jfME48YC5apJ6zHR83vD3A>
-    <xme:2QC3YcK2b6UyS3qdsIAVv23CqGUSn9ny9VfFWwHowpXA3u1t85HLfhtPfmSZcyuKa
-    0JNdC2NBZwx8A>
-X-ME-Received: <xmr:2QC3Yct0-3yr2402yi-KmJYjHqxjMBIpcaX_9HdUHQ6yZYQllUrOAEpFXhswqJ_jPlnsL78zIpsfQ3eSZTAccRXLHWFJQvqv>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrkeejgdduudeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:2QC3YZaIBhyWxWOPrNKGCsXVLwS2X2KRzQqBDFwWn-vxx7QyGk-mHQ>
-    <xmx:2QC3YTawCgiLexdUYQ1HNCIKGHvySDow5L64Tx6SewNvN1X-6_EatA>
-    <xmx:2QC3YVAnjM2u8ls2tz-54qPAB_TPtNxqrZ5i6xiLP2EHVO2mHHmk_w>
-    <xmx:2QC3YSW6cAd7aTmZqrYekRN7dj6YrLpQcwYBbIlA5toSrsq1Sv_0mg>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 13 Dec 2021 03:14:16 -0500 (EST)
-Date:   Mon, 13 Dec 2021 09:14:13 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5.10 0/5] aio poll fixes for 5.10
-Message-ID: <YbcA1RRqrnup6IN+@kroah.com>
-References: <20211210234805.39861-1-ebiggers@kernel.org>
- <YbX/JVz768WuoiXd@kroah.com>
- <YbZRe5163BRzb2Vx@sol.localdomain>
+        id S231484AbhLMIUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 03:20:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38854 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232817AbhLMIUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 03:20:36 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92256B80DD9;
+        Mon, 13 Dec 2021 08:20:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B09FC00446;
+        Mon, 13 Dec 2021 08:20:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639383633;
+        bh=hgp2kfj4sMh9M5IsmMQHKVZep1Z/4vAaLFQJLHd+DHA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FN1txgq77CBgC6qc66+DTBt8mKPhyfVt1b3q+XHcpKxyVsxBOIK3CtQZU7nU12sIo
+         kFx7cCjFX61T4rNbPVMx+5mJlhsLHQLq1GW73ZZNmSD52Vr8CvwEufosh8HSgvLnxM
+         Z/lItCbAyhZHXcWJKYP4sUx+YcNND4Via17FZl8PSJDS+JpWnk3vyq+r1nPVDfVEOf
+         OCOrdrA7TtD4xn46PIozSRW2R7Dv+kw9tEUvK9b9D6C7wIsuD/GtFDxCWTXsZuuc9t
+         zLajLSTMCfpsKH9/kLKSrI1aU5PbhbAD5n2ELsE/2fQ6LfZzbSSbwFvXii4PL73+/h
+         BFUoFEwxslc9w==
+Date:   Mon, 13 Dec 2021 10:20:03 +0200
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Juergen Gross <jgross@suse.com>,
+        John Dorminy <jdorminy@redhat.com>, tip-bot2@linutronix.de,
+        anjaneya.chagam@intel.com, dan.j.williams@intel.com,
+        linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+        stable@vger.kernel.org, x86@kernel.org,
+        Hugh Dickins <hughd@google.com>,
+        "Patrick J. Volkerding" <volkerdi@gmail.com>
+Subject: Re: [tip: x86/urgent] x86/boot: Pull up cmdline preparation and
+ early param parsing
+Message-ID: <YbcCM81Fig3GC4Yi@kernel.org>
+References: <163697618022.414.12673958553611696646.tip-bot2@tip-bot2>
+ <20211209143810.452527-1-jdorminy@redhat.com>
+ <YbIeYIM6JEBgO3tG@zn.tnic>
+ <50f25412-d616-1cc6-f07f-a29d80b4bd3b@suse.com>
+ <YbIgsO/7oQW9h6wv@zn.tnic>
+ <YbIu55LZKoK3IVaF@kernel.org>
+ <YbIw1nUYJ3KlkjJQ@zn.tnic>
+ <YbM5yR+Hy+kwmMFU@zn.tnic>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YbZRe5163BRzb2Vx@sol.localdomain>
+In-Reply-To: <YbM5yR+Hy+kwmMFU@zn.tnic>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 12, 2021 at 11:46:03AM -0800, Eric Biggers wrote:
-> On Sun, Dec 12, 2021 at 02:54:45PM +0100, Greg KH wrote:
-> > On Fri, Dec 10, 2021 at 03:48:00PM -0800, Eric Biggers wrote:
-> > > Backport the aio poll fixes to 5.10.  This resolves a conflict in
-> > > aio_poll_wake() in patch 4.  It's a "trivial" conflict, but I'm sending
-> > > this to make sure it doesn't get dropped.
-> > > 
-> > > Eric Biggers (5):
-> > >   wait: add wake_up_pollfree()
-> > >   binder: use wake_up_pollfree()
-> > >   signalfd: use wake_up_pollfree()
-> > >   aio: keep poll requests on waitqueue until completed
-> > >   aio: fix use-after-free due to missing POLLFREE handling
-> > > 
-> > >  drivers/android/binder.c        |  21 ++--
-> > >  fs/aio.c                        | 184 ++++++++++++++++++++++++++------
-> > >  fs/signalfd.c                   |  12 +--
-> > >  include/linux/wait.h            |  26 +++++
-> > >  include/uapi/asm-generic/poll.h |   2 +-
-> > >  kernel/sched/wait.c             |   7 ++
-> > >  6 files changed, 195 insertions(+), 57 deletions(-)
-> > > 
-> > > -- 
-> > > 2.34.1
-> > > 
-> > 
-> > Thanks for all of the backports, much appreciated and now queued up.
-> > 
-> > greg k-h
+On Fri, Dec 10, 2021 at 12:28:09PM +0100, Borislav Petkov wrote:
+> On Thu, Dec 09, 2021 at 05:37:42PM +0100, Borislav Petkov wrote:
+> > Whatever we do, it needs to be tested by all folks on Cc who already
+> > reported regressions, i.e., Anjaneya, Hugh, John and Patrick.
 > 
-> Thanks!  Can you apply the following commit to 5.15-stable too?  I missed that
-> it's needed in 5.15:
+> Ok, Mike is busy so here are some patches for testing:
 > 
-> 	commit 4b3749865374899e115aa8c48681709b086fe6d3
-> 	Author: Xie Yongji <xieyongji@bytedance.com>
-> 	Date:   Mon Sep 13 19:19:28 2021 +0800
-> 
-> 	    aio: Fix incorrect usage of eventfd_signal_allowed()
+> https://git.kernel.org/pub/scm/linux/kernel/git/bp/bp.git/log/?h=rc4-boot
 
-Now queued up, thanks.
+Thanks for taking care of this!
 
-greg k-h
+-- 
+Sincerely yours,
+Mike.
