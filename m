@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5DC0472513
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2515F472629
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235296AbhLMJkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:40:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55620 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234717AbhLMJjO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:39:14 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 404A9C061D5F;
-        Mon, 13 Dec 2021 01:37:49 -0800 (PST)
+        id S233055AbhLMJtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:19 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59116 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235993AbhLMJpk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:45:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8D205CE0E7F;
-        Mon, 13 Dec 2021 09:37:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B9E3C341CA;
-        Mon, 13 Dec 2021 09:37:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65563B80E1C;
+        Mon, 13 Dec 2021 09:45:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACF53C00446;
+        Mon, 13 Dec 2021 09:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388265;
-        bh=2qt4EuuFyqq2CR+XlV4DHHNK6qcXhmaQWS/jTj5v4sI=;
+        s=korg; t=1639388738;
+        bh=EX82P4phzSTVRbumpbv9eKWA9wIaFZQWBL2Dltr1tqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2PkJ58oBUJDwhslg3SvszvT6g4a7PboIAUwLuz1YoQPFpZyGAsAJIzuzRywAyIpi
-         Iu1I0HSKVra+evi9al8mR1oFbPkLV+PadRncFsJtZuSls+btIBcP+XNx58f83aU6/V
-         inXn8pRJT3Xp5mhpiTXv9fksYFjreeqS4FfQvf8w=
+        b=p7f95CqpF1HQcBTQVdxroMMGYIsutm8HsUW5HPHzhktd5QWaM3T3mZA/SrAiCEvzU
+         KxzNhEjgqDQmC1K1gnGq7F3paOis1loL79UjCOH0jUlbRgLP2D2j03b2F6CEhyhwWP
+         Smsham0u6kdkHNGxMloaiF2Nc9jKqSeraoP/7VII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 44/53] iio: kxsd9: Dont return error code in trigger handler
+        stable@vger.kernel.org,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Bindushree P <Bindushree.p@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.4 53/88] i40e: Fix pre-set max number of queues for VF
 Date:   Mon, 13 Dec 2021 10:30:23 +0100
-Message-Id: <20211213092929.830833221@linuxfoundation.org>
+Message-Id: <20211213092935.100005693@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars-Peter Clausen <lars@metafoo.de>
+From: Mateusz Palczewski <mateusz.palczewski@intel.com>
 
-commit 45febe0d63917ee908198c5be08511c64ee1790a upstream.
+commit 8aa55ab422d9d0d825ebfb877702ed661e96e682 upstream.
 
-IIO trigger handlers need to return one of the irqreturn_t values.
-Returning an error code is not supported.
+After setting pre-set combined to 16 queues and reserving 16 queues by
+tc qdisc, pre-set maximum combined queues returned to default value
+after VF reset being 4 and this generated errors during removing tc.
+Fixed by removing clear num_req_queues before reset VF.
 
-The kxsd9 interrupt handler returns an error code if reading the data
-registers fails. In addition when exiting due to an error the trigger
-handler does not call `iio_trigger_notify_done()`. Which when not done
-keeps the triggered disabled forever.
-
-Modify the code so that the function returns a valid irqreturn_t value as
-well as calling `iio_trigger_notify_done()` on all exit paths.
-
-Since we can't return the error code make sure to at least log it as part
-of the error message.
-
-Fixes: 0427a106a98a ("iio: accel: kxsd9: Add triggered buffer handling")
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20211024171251.22896-2-lars@metafoo.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: e284fc280473 (i40e: Add and delete cloud filter)
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Bindushree P <Bindushree.p@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/kxsd9.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/iio/accel/kxsd9.c
-+++ b/drivers/iio/accel/kxsd9.c
-@@ -227,14 +227,14 @@ static irqreturn_t kxsd9_trigger_handler
- 			       hw_values.chan,
- 			       sizeof(hw_values.chan));
- 	if (ret) {
--		dev_err(st->dev,
--			"error reading data\n");
--		return ret;
-+		dev_err(st->dev, "error reading data: %d\n", ret);
-+		goto out;
- 	}
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -3713,11 +3713,6 @@ static int i40e_vc_add_qch_msg(struct i4
  
- 	iio_push_to_buffers_with_timestamp(indio_dev,
- 					   &hw_values,
- 					   iio_get_time_ns(indio_dev));
-+out:
- 	iio_trigger_notify_done(indio_dev->trig);
+ 	/* set this flag only after making sure all inputs are sane */
+ 	vf->adq_enabled = true;
+-	/* num_req_queues is set when user changes number of queues via ethtool
+-	 * and this causes issue for default VSI(which depends on this variable)
+-	 * when ADq is enabled, hence reset it.
+-	 */
+-	vf->num_req_queues = 0;
  
- 	return IRQ_HANDLED;
+ 	/* reset the VF in order to allocate resources */
+ 	i40e_vc_notify_vf_reset(vf);
 
 
