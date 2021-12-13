@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6214726E1
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:57:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8B5A47261F
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:51:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236569AbhLMJzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 04:55:32 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38028 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238269AbhLMJwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:52:51 -0500
+        id S236111AbhLMJtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:49:11 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:38888 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235342AbhLMJqV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:46:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 418A6B80E15;
-        Mon, 13 Dec 2021 09:52:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 639CFC00446;
-        Mon, 13 Dec 2021 09:52:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3483FCE0E77;
+        Mon, 13 Dec 2021 09:46:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9CFEC00446;
+        Mon, 13 Dec 2021 09:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389169;
-        bh=D6a185hB+zAE/f6BWN/i7zM2KUIjdCpDQrqqVvRFy6I=;
+        s=korg; t=1639388778;
+        bh=C88MCJzXDhAZlBJg1u53JQ6H5Sr20zDIjvbrOCYZLhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1LAY6qSPLXknBqJTWbmjEcXb0EsVr9wbDbLDxPc/i8vzSGMrYXSGyI0bD4rP7fJp7
-         gpxvOc3pcKjQE8F9mIt+yfQiTuJcPg3qb+e4vy9w8/4CR9ngofHLOUundxuVtPsE6z
-         22P/hW9d8ao+4dECnV8s/3On1Srhnn7GryEG2PKQ=
+        b=EPWEdxJaS9v7tgFi+rsiuqEXvNcQXt40L6jMjdLShYyw0PQtCvnXZD0flWT3g6ri5
+         MUt4qB5XHJbYlBGKA2Dl6MBvJ/XkAE2lDg+M8u18RL30UZlX4LgFffiklx98R3EfxK
+         QLqwq7tXrWIiXb5QumNf5G1n3plalHj3MNHGbNp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 116/132] iio: at91-sama5d2: Fix incorrect sign extension
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Jeya R <jeyr@codeaurora.org>
+Subject: [PATCH 5.4 87/88] misc: fastrpc: fix improper packet size calculation
 Date:   Mon, 13 Dec 2021 10:30:57 +0100
-Message-Id: <20211213092943.080606542@linuxfoundation.org>
+Message-Id: <20211213092936.204418355@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
-References: <20211213092939.074326017@linuxfoundation.org>
+In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
+References: <20211213092933.250314515@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gwendal Grignou <gwendal@chromium.org>
+From: Jeya R <jeyr@codeaurora.org>
 
-commit 652e7df485c6884d552085ae2c73efa6cfea3547 upstream.
+commit 3a1bf591e9a410f220b7405a142a47407394a1d5 upstream.
 
-Use scan_type when processing raw data which also fixes that the sign
-extension was from the wrong bit.
+The buffer list is sorted and this is not being considered while
+calculating packet size. This would lead to improper copy length
+calculation for non-dmaheap buffers which would eventually cause
+sending improper buffers to DSP.
 
-Use channel definition as root of trust and replace constant
-when reading elements directly using the raw sysfs attributes.
-
-Fixes: 6794e23fa3fe ("iio: adc: at91-sama5d2_adc: add support for oversampling resolution")
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Reviewed-by: Eugen Hristev <eugen.hristev@microchip.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211104082413.3681212-9-gwendal@chromium.org
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Jeya R <jeyr@codeaurora.org>
+Link: https://lore.kernel.org/r/1637771481-4299-1-git-send-email-jeyr@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/at91-sama5d2_adc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/fastrpc.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/adc/at91-sama5d2_adc.c
-+++ b/drivers/iio/adc/at91-sama5d2_adc.c
-@@ -1401,7 +1401,8 @@ static int at91_adc_read_info_raw(struct
- 		*val = st->conversion_value;
- 		ret = at91_adc_adjust_val_osr(st, val);
- 		if (chan->scan_type.sign == 's')
--			*val = sign_extend32(*val, 11);
-+			*val = sign_extend32(*val,
-+					     chan->scan_type.realbits - 1);
- 		st->conversion_done = false;
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -693,16 +693,18 @@ static int fastrpc_get_meta_size(struct
+ static u64 fastrpc_get_payload_size(struct fastrpc_invoke_ctx *ctx, int metalen)
+ {
+ 	u64 size = 0;
+-	int i;
++	int oix;
+ 
+ 	size = ALIGN(metalen, FASTRPC_ALIGN);
+-	for (i = 0; i < ctx->nscalars; i++) {
++	for (oix = 0; oix < ctx->nbufs; oix++) {
++		int i = ctx->olaps[oix].raix;
++
+ 		if (ctx->args[i].fd == 0 || ctx->args[i].fd == -1) {
+ 
+-			if (ctx->olaps[i].offset == 0)
++			if (ctx->olaps[oix].offset == 0)
+ 				size = ALIGN(size, FASTRPC_ALIGN);
+ 
+-			size += (ctx->olaps[i].mend - ctx->olaps[i].mstart);
++			size += (ctx->olaps[oix].mend - ctx->olaps[oix].mstart);
+ 		}
  	}
  
 
