@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C07F472763
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:00:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DB7472840
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238190AbhLMKAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:00:33 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:45920 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237552AbhLMJ61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:58:27 -0500
+        id S237936AbhLMKJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 05:09:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33266 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242504AbhLMKHj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 05:07:39 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E05BC08EC3E;
+        Mon, 13 Dec 2021 01:51:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EEEA9CE0F55;
-        Mon, 13 Dec 2021 09:58:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86C78C34602;
-        Mon, 13 Dec 2021 09:58:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1240CCE0E82;
+        Mon, 13 Dec 2021 09:51:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7D13C00446;
+        Mon, 13 Dec 2021 09:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639389504;
-        bh=4HCJNBqIX3ntQXXkLc1N/WUuVyimm6/0jFxR97gMZFA=;
+        s=korg; t=1639389108;
+        bh=BsTAnJceb6nl69zlrAqXY2nKun49rSGHx6DmPhVI1xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jV2TrHWv37M9J5z6tf3QWYyCwZ6V1h+KcQi1fbcl2DQXFezn2FaKw6LA0j0+pzRR1
-         nVVuoDrxXf49xEjsvcvY8hWdLXAWi+B0X6n7/uv8ie/nE+mwEUe5sbXQWFyzw1CVeE
-         nwbtufiz3lRjpSUHdOsRr0Du6uVfBRS/9GgwCkTE=
+        b=xLBg8sVcRjsKFJMZZVboVWr+AJ7FVjJ+qrZJnVPDD19SuSGSQK2K8EMG+oGnuzpYo
+         ook7EUC35oZNY/1dQ7RLAKdTy0bbDMOrK74Rj4F1yj/JW6HxAFfs76xXVRxfwp+Uew
+         iflrKYqEbGEzXTzJCwm6HVnQ+/p6o8WW75t/PyDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yangyang Li <liyangyang20@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 114/171] RDMA/hns: Do not destroy QP resources in the hw resetting phase
+        stable@vger.kernel.org,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Norbert Zulinski <norbertx.zulinski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 088/132] i40e: Fix NULL pointer dereference in i40e_dbg_dump_desc
 Date:   Mon, 13 Dec 2021 10:30:29 +0100
-Message-Id: <20211213092948.898682761@linuxfoundation.org>
+Message-Id: <20211213092942.134083484@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092945.091487407@linuxfoundation.org>
-References: <20211213092945.091487407@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,86 +51,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yangyang Li <liyangyang20@huawei.com>
+From: Norbert Zulinski <norbertx.zulinski@intel.com>
 
-commit b0969f83890bf8b47f5c8bd42539599b2b52fdeb upstream.
+commit 23ec111bf3549aae37140330c31a16abfc172421 upstream.
 
-When hns_roce_v2_destroy_qp() is called, the brief calling process of the
-driver is as follows:
+When trying to dump VFs VSI RX/TX descriptors
+using debugfs there was a crash
+due to NULL pointer dereference in i40e_dbg_dump_desc.
+Added a check to i40e_dbg_dump_desc that checks if
+VSI type is correct for dumping RX/TX descriptors.
 
- ......
- hns_roce_v2_destroy_qp
- hns_roce_v2_qp_modify
-	   hns_roce_cmd_mbox
- hns_roce_qp_destroy
-
-If hns_roce_cmd_mbox() detects that the hardware is being reset during the
-execution of the hns_roce_cmd_mbox(), the driver will not be able to get
-the return value from the hardware (the firmware cannot respond to the
-driver's mailbox during the hardware reset phase).
-
-The driver needs to wait for the hardware reset to complete before
-continuing to execute hns_roce_qp_destroy(), otherwise it may happen that
-the driver releases the resources but the hardware is still accessing. In
-order to fix this problem, HNS RoCE needs to add a piece of code to wait
-for the hardware reset to complete.
-
-The original interface get_hw_reset_stat() is the instantaneous state of
-the hardware reset, which cannot accurately reflect whether the hardware
-reset is completed, so it needs to be replaced with the ae_dev_reset_cnt
-interface.
-
-The sign that the hardware reset is complete is that the return value of
-the ae_dev_reset_cnt interface is greater than the original value
-reset_cnt recorded by the driver.
-
-Fixes: 6a04aed6afae ("RDMA/hns: Fix the chip hanging caused by sending mailbox&CMQ during reset")
-Link: https://lore.kernel.org/r/20211123142402.26936-1-liangwenpeng@huawei.com
-Signed-off-by: Yangyang Li <liyangyang20@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 02e9c290814c ("i40e: debugfs interface")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Signed-off-by: Norbert Zulinski <norbertx.zulinski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_debugfs.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -33,6 +33,7 @@
- #include <linux/acpi.h>
- #include <linux/etherdevice.h>
- #include <linux/interrupt.h>
-+#include <linux/iopoll.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <net/addrconf.h>
-@@ -1050,9 +1051,14 @@ static u32 hns_roce_v2_cmd_hw_resetting(
- 					unsigned long instance_stage,
- 					unsigned long reset_stage)
- {
-+#define HW_RESET_TIMEOUT_US 1000000
-+#define HW_RESET_SLEEP_US 1000
-+
- 	struct hns_roce_v2_priv *priv = hr_dev->priv;
- 	struct hnae3_handle *handle = priv->handle;
- 	const struct hnae3_ae_ops *ops = handle->ae_algo->ops;
-+	unsigned long val;
-+	int ret;
- 
- 	/* When hardware reset is detected, we should stop sending mailbox&cmq&
- 	 * doorbell to hardware. If now in .init_instance() function, we should
-@@ -1064,7 +1070,11 @@ static u32 hns_roce_v2_cmd_hw_resetting(
- 	 * again.
- 	 */
- 	hr_dev->dis_db = true;
--	if (!ops->get_hw_reset_stat(handle))
-+
-+	ret = read_poll_timeout(ops->ae_dev_reset_cnt, val,
-+				val > hr_dev->reset_cnt, HW_RESET_SLEEP_US,
-+				HW_RESET_TIMEOUT_US, false, handle);
-+	if (!ret)
- 		hr_dev->is_reset = true;
- 
- 	if (!hr_dev->is_reset || reset_stage == HNS_ROCE_STATE_RST_INIT ||
+--- a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
+@@ -553,6 +553,14 @@ static void i40e_dbg_dump_desc(int cnt,
+ 		dev_info(&pf->pdev->dev, "vsi %d not found\n", vsi_seid);
+ 		return;
+ 	}
++	if (vsi->type != I40E_VSI_MAIN &&
++	    vsi->type != I40E_VSI_FDIR &&
++	    vsi->type != I40E_VSI_VMDQ2) {
++		dev_info(&pf->pdev->dev,
++			 "vsi %d type %d descriptor rings not available\n",
++			 vsi_seid, vsi->type);
++		return;
++	}
+ 	if (type == RING_TYPE_XDP && !i40e_enabled_xdp_vsi(vsi)) {
+ 		dev_info(&pf->pdev->dev, "XDP not enabled on VSI %d\n", vsi_seid);
+ 		return;
 
 
