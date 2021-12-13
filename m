@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 960284729A0
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 11:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 837EE4723E9
+	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 10:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239548AbhLMKXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 05:23:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57638 "EHLO
+        id S233840AbhLMJcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 04:32:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236868AbhLMJrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:47:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6A2C07E5DB;
-        Mon, 13 Dec 2021 01:43:01 -0800 (PST)
+        with ESMTP id S233835AbhLMJcm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 04:32:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E5B9C061748;
+        Mon, 13 Dec 2021 01:32:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 96393B80E1B;
-        Mon, 13 Dec 2021 09:43:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB04C341C8;
-        Mon, 13 Dec 2021 09:42:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EB0EECE0E76;
+        Mon, 13 Dec 2021 09:32:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDFCAC00446;
+        Mon, 13 Dec 2021 09:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388579;
-        bh=1PI75Fm7LMFPUYy0Y8jZ3JmJUveYJsFnz9/VvhGPj6k=;
+        s=korg; t=1639387958;
+        bh=RNlqFwdnHAUfVWXFh+nePRsxyDteqxpCjalYjgr9g/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IgcsM+SqSyZkYgDbS7UfjY71a/rr+u7XpsJIDxWoaPODc2oZMEMcEwbWofn70w8uM
-         YJ8DInBzr20Dd/5g2vw0fCn/fZiVWRE7aSIitN64qI6Lh0M7mjsG8F9BtZMBeMjHYQ
-         FQkAIqcfXgvzrQugOprI3UvJoASSvNmE1XqAf65k=
+        b=IJjO/xZxFVas5aOANRmwn6Shj7S4Bix82cG9MH/eL4zpjqGyX7rDOPNDV3XFo6j+0
+         GqKyB4iPVztcZyCWXHayG/W9jgkTMfp313VU0mmrN7Rwfq7KFVBnSpWSzi5n78h15f
+         N/35B8RpdHurZfnlldJMugT8N3/fr+jJVHvIMgfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Michal Maloszewski <michal.maloszewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 25/88] iavf: Fix reporting when setting descriptor count
-Date:   Mon, 13 Dec 2021 10:29:55 +0100
-Message-Id: <20211213092934.094178462@linuxfoundation.org>
+        "linux-kernel@vger.kernel.org, Linus Torvalds" 
+        <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 18/37] wait: add wake_up_pollfree()
+Date:   Mon, 13 Dec 2021 10:29:56 +0100
+Message-Id: <20211213092925.964491075@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
+References: <20211213092925.380184671@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,93 +49,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Maloszewski <michal.maloszewski@intel.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 1a1aa356ddf3f16539f5962c01c5f702686dfc15 upstream.
+commit 42288cb44c4b5fff7653bc392b583a2b8bd6a8c0 upstream.
 
-iavf_set_ringparams doesn't communicate to the user that
+Several ->poll() implementations are special in that they use a
+waitqueue whose lifetime is the current task, rather than the struct
+file as is normally the case.  This is okay for blocking polls, since a
+blocking poll occurs within one task; however, non-blocking polls
+require another solution.  This solution is for the queue to be cleared
+before it is freed, using 'wake_up_poll(wq, EPOLLHUP | POLLFREE);'.
 
-1. The user requested descriptor count is out of range. Instead it
-   just quietly sets descriptors to the "clamped" value and calls it
-   done. This makes it look an invalid value was successfully set as
-   the descriptor count when this isn't actually true.
+However, that has a bug: wake_up_poll() calls __wake_up() with
+nr_exclusive=1.  Therefore, if there are multiple "exclusive" waiters,
+and the wakeup function for the first one returns a positive value, only
+that one will be called.  That's *not* what's needed for POLLFREE;
+POLLFREE is special in that it really needs to wake up everyone.
 
-2. The user provided descriptor count needs to be inflated for alignment
-   reasons.
+Considering the three non-blocking poll systems:
 
-This behavior is confusing. The ice driver has already addressed this
-by rejecting invalid values for descriptor count and
-messaging for alignment adjustments.
-Do the same thing here by adding the error and info messages.
+- io_uring poll doesn't handle POLLFREE at all, so it is broken anyway.
 
-Fixes: fbb7ddfef253 ("i40evf: core ethtool functionality")
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Signed-off-by: Michal Maloszewski <michal.maloszewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+- aio poll is unaffected, since it doesn't support exclusive waits.
+  However, that's fragile, as someone could add this feature later.
+
+- epoll doesn't appear to be broken by this, since its wakeup function
+  returns 0 when it sees POLLFREE.  But this is fragile.
+
+Although there is a workaround (see epoll), it's better to define a
+function which always sends POLLFREE to all waiters.  Add such a
+function.  Also make it verify that the queue really becomes empty after
+all waiters have been woken up.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211209010455.42744-2-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_ethtool.c |   45 ++++++++++++++++++-------
- 1 file changed, 33 insertions(+), 12 deletions(-)
+ include/linux/wait.h |   26 ++++++++++++++++++++++++++
+ kernel/sched/wait.c  |    8 ++++++++
+ 2 files changed, 34 insertions(+)
 
---- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-@@ -612,23 +612,44 @@ static int iavf_set_ringparam(struct net
- 	if ((ring->rx_mini_pending) || (ring->rx_jumbo_pending))
- 		return -EINVAL;
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -151,6 +151,7 @@ void __wake_up_locked_key(wait_queue_hea
+ void __wake_up_sync_key(wait_queue_head_t *q, unsigned int mode, int nr, void *key);
+ void __wake_up_locked(wait_queue_head_t *q, unsigned int mode, int nr);
+ void __wake_up_sync(wait_queue_head_t *q, unsigned int mode, int nr);
++void __wake_up_pollfree(wait_queue_head_t *wq_head);
+ void __wake_up_bit(wait_queue_head_t *, void *, int);
+ int __wait_on_bit(wait_queue_head_t *, struct wait_bit_queue *, wait_bit_action_f *, unsigned);
+ int __wait_on_bit_lock(wait_queue_head_t *, struct wait_bit_queue *, wait_bit_action_f *, unsigned);
+@@ -185,6 +186,31 @@ wait_queue_head_t *bit_waitqueue(void *,
+ #define wake_up_interruptible_sync_poll(x, m)				\
+ 	__wake_up_sync_key((x), TASK_INTERRUPTIBLE, 1, (void *) (m))
  
--	new_tx_count = clamp_t(u32, ring->tx_pending,
--			       IAVF_MIN_TXD,
--			       IAVF_MAX_TXD);
--	new_tx_count = ALIGN(new_tx_count, IAVF_REQ_DESCRIPTOR_MULTIPLE);
--
--	new_rx_count = clamp_t(u32, ring->rx_pending,
--			       IAVF_MIN_RXD,
--			       IAVF_MAX_RXD);
--	new_rx_count = ALIGN(new_rx_count, IAVF_REQ_DESCRIPTOR_MULTIPLE);
-+	if (ring->tx_pending > IAVF_MAX_TXD ||
-+	    ring->tx_pending < IAVF_MIN_TXD ||
-+	    ring->rx_pending > IAVF_MAX_RXD ||
-+	    ring->rx_pending < IAVF_MIN_RXD) {
-+		netdev_err(netdev, "Descriptors requested (Tx: %d / Rx: %d) out of range [%d-%d] (increment %d)\n",
-+			   ring->tx_pending, ring->rx_pending, IAVF_MIN_TXD,
-+			   IAVF_MAX_RXD, IAVF_REQ_DESCRIPTOR_MULTIPLE);
-+		return -EINVAL;
-+	}
++/**
++ * wake_up_pollfree - signal that a polled waitqueue is going away
++ * @wq_head: the wait queue head
++ *
++ * In the very rare cases where a ->poll() implementation uses a waitqueue whose
++ * lifetime is tied to a task rather than to the 'struct file' being polled,
++ * this function must be called before the waitqueue is freed so that
++ * non-blocking polls (e.g. epoll) are notified that the queue is going away.
++ *
++ * The caller must also RCU-delay the freeing of the wait_queue_head, e.g. via
++ * an explicit synchronize_rcu() or call_rcu(), or via SLAB_DESTROY_BY_RCU.
++ */
++static inline void wake_up_pollfree(wait_queue_head_t *wq_head)
++{
++	/*
++	 * For performance reasons, we don't always take the queue lock here.
++	 * Therefore, we might race with someone removing the last entry from
++	 * the queue, and proceed while they still hold the queue lock.
++	 * However, rcu_read_lock() is required to be held in such cases, so we
++	 * can safely proceed with an RCU-delayed free.
++	 */
++	if (waitqueue_active(wq_head))
++		__wake_up_pollfree(wq_head);
++}
 +
-+	new_tx_count = ALIGN(ring->tx_pending, IAVF_REQ_DESCRIPTOR_MULTIPLE);
-+	if (new_tx_count != ring->tx_pending)
-+		netdev_info(netdev, "Requested Tx descriptor count rounded up to %d\n",
-+			    new_tx_count);
+ #define ___wait_cond_timeout(condition)					\
+ ({									\
+ 	bool __cond = (condition);					\
+--- a/kernel/sched/wait.c
++++ b/kernel/sched/wait.c
+@@ -10,6 +10,7 @@
+ #include <linux/wait.h>
+ #include <linux/hash.h>
+ #include <linux/kthread.h>
++#include <linux/poll.h>
+ 
+ void __init_waitqueue_head(wait_queue_head_t *q, const char *name, struct lock_class_key *key)
+ {
+@@ -156,6 +157,13 @@ void __wake_up_sync(wait_queue_head_t *q
+ }
+ EXPORT_SYMBOL_GPL(__wake_up_sync);	/* For internal use only */
+ 
++void __wake_up_pollfree(wait_queue_head_t *wq_head)
++{
++	__wake_up(wq_head, TASK_NORMAL, 0, (void *)(POLLHUP | POLLFREE));
++	/* POLLFREE must have cleared the queue. */
++	WARN_ON_ONCE(waitqueue_active(wq_head));
++}
 +
-+	new_rx_count = ALIGN(ring->rx_pending, IAVF_REQ_DESCRIPTOR_MULTIPLE);
-+	if (new_rx_count != ring->rx_pending)
-+		netdev_info(netdev, "Requested Rx descriptor count rounded up to %d\n",
-+			    new_rx_count);
- 
- 	/* if nothing to do return success */
- 	if ((new_tx_count == adapter->tx_desc_count) &&
--	    (new_rx_count == adapter->rx_desc_count))
-+	    (new_rx_count == adapter->rx_desc_count)) {
-+		netdev_dbg(netdev, "Nothing to change, descriptor count is same as requested\n");
- 		return 0;
-+	}
-+
-+	if (new_tx_count != adapter->tx_desc_count) {
-+		netdev_dbg(netdev, "Changing Tx descriptor count from %d to %d\n",
-+			   adapter->tx_desc_count, new_tx_count);
-+		adapter->tx_desc_count = new_tx_count;
-+	}
- 
--	adapter->tx_desc_count = new_tx_count;
--	adapter->rx_desc_count = new_rx_count;
-+	if (new_rx_count != adapter->rx_desc_count) {
-+		netdev_dbg(netdev, "Changing Rx descriptor count from %d to %d\n",
-+			   adapter->rx_desc_count, new_rx_count);
-+		adapter->rx_desc_count = new_rx_count;
-+	}
- 
- 	if (netif_running(netdev)) {
- 		adapter->flags |= IAVF_FLAG_RESET_NEEDED;
+ /*
+  * Note: we use "set_current_state()" _after_ the wait-queue add,
+  * because we need a memory barrier there on SMP, so that any
 
 
