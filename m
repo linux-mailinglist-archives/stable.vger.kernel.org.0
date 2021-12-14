@@ -2,251 +2,215 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A3FE473C63
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 06:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66873473C95
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 06:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbhLNFXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 00:23:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49010 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229877AbhLNFXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 00:23:32 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA7CC06173F
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 21:23:32 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id g14so58311248edb.8
-        for <stable@vger.kernel.org>; Mon, 13 Dec 2021 21:23:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=TV0uUbmxxDHZYjoS8P/dMM3E90EuJKs5tADXJuoy4Ts=;
-        b=xwb/NEcfWpwo4WyiAVK0HXZX3nEdVjJszIYYEw1V2sA3JSabLA4fPB8JJ3e2OjVzQW
-         ZWxU4YQov9BmH1vRSXnYFZoYWfIHhl7BwUoGTMpRID60oo7+WfJwVUQf86DtTgqGwyZB
-         KOYR9IkMFNMNBNjCVVln0qq9bivsClrunUrcSE+p80ggmJEdjJIbBwcEwSMA6i99BY11
-         vngaYud3CycloGQeG9gSm+YwM2AXv7Y5RzucjsI96Zd1M/k3vfC01YBTxkBGwN4i0sGt
-         +57h6rZjeotTRTuwOWxr46NhQeFgWYTPiGDoVTeJxI0ulsDEXCJJk25ozb8i6/e7Gv0s
-         IEFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=TV0uUbmxxDHZYjoS8P/dMM3E90EuJKs5tADXJuoy4Ts=;
-        b=00hc6Xg61zmI+wjmO4R7wThZ7lFkZuApoT7p/3Wv+JvLRXmEsNqUqDnxzcGBQo4pJ1
-         w69Da4k/PeDKqtHKUNgMpym80H69ZvcJGbih11R+kET2U/TyFC1CKddDEdyntVfya18Z
-         2w5BgZIAXS5JVm/cc5PLBE0JzUyJ6SsAsgk+5I2qnElPxThjbbKjW0BE8+fVq4wvjdvH
-         vDnQ76hiFNaqFnlQCnRS0Fg+TrC0O9rAqJ3IrYkgTNl7TuwQXZq0eAYw1+VPgpokwpev
-         0Z6jS+s0qjdKqnrSYd0RThuoC5xthZKzQePGim07x7n/LkYKsgp77UMlTSV8FRwkNGQF
-         z8mw==
-X-Gm-Message-State: AOAM532EMeidlMHVfTXpistY0lfs5zQ57D55uYB4cINMbF9+HymoLgY2
-        +flC7v1rk3bySopk9g5cKuP7V0VVXc1RImDml812Fg==
-X-Google-Smtp-Source: ABdhPJz/ycIbxOVPzEvsVhxVzLn6EXeUMUBVZJqt6Z9Ddjme8Jj4YX1nLkNlamg5CtQDaidbu4u4X33ZYNgDGPb9RU0=
-X-Received: by 2002:a05:6402:4b:: with SMTP id f11mr4703456edu.267.1639459410651;
- Mon, 13 Dec 2021 21:23:30 -0800 (PST)
+        id S229667AbhLNFdI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 00:33:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:28607 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229755AbhLNFdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 00:33:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639459985;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=qzPuoxmhl9R1joV2Vr/eAEM2eHRaFudBjTs3SC6+ubI=;
+        b=gEbPZS873yd9mvTLdiim/O3kacYSYjsOcGIUo4V8I4IqLkANAilvBpGm/Bd+vI1s+xpXoh
+        WUR0+Lz94V+0qxuukQpB3rsJBgBFjNyQjyE5mv0x+jC9Py33iTcrZOdSFAjJ8yFu/HFNz9
+        FO/w391zpFlXPjMsDUXKiDymvCpR9CQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-185-IZ7-g2zqPqilfsO58k_QYA-1; Tue, 14 Dec 2021 00:33:02 -0500
+X-MC-Unique: IZ7-g2zqPqilfsO58k_QYA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4A1BC101AFA7;
+        Tue, 14 Dec 2021 05:33:00 +0000 (UTC)
+Received: from localhost (ovpn-12-46.pek2.redhat.com [10.72.12.46])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2FBD5100E125;
+        Tue, 14 Dec 2021 05:32:56 +0000 (UTC)
+Date:   Tue, 14 Dec 2021 13:32:53 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        akpm@linux-foundation.org, hch@lst.de, cl@linux.com,
+        John.p.donnelly@oracle.com, kexec@lists.infradead.org,
+        stable@vger.kernel.org, Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v3 5/5] mm/slub: do not create dma-kmalloc if no managed
+ pages in DMA zone
+Message-ID: <20211214053253.GB2216@MiWiFi-R3L-srv>
+References: <20211213122712.23805-1-bhe@redhat.com>
+ <20211213122712.23805-6-bhe@redhat.com>
+ <20211213134319.GA997240@odroid>
 MIME-Version: 1.0
-References: <20211213092928.349556070@linuxfoundation.org>
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 14 Dec 2021 10:53:19 +0530
-Message-ID: <CA+G9fYsEQCjOi_58WcMb4i-2t1Gv=KjPuWa6L792YAZF=zzinw@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/53] 4.14.258-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211213134319.GA997240@odroid>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Dec 2021 at 15:07, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.258 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.258-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On 12/13/21 at 01:43pm, Hyeonggon Yoo wrote:
+> Hello Baoquan. I have a question on your code.
+> 
+> On Mon, Dec 13, 2021 at 08:27:12PM +0800, Baoquan He wrote:
+> > Dma-kmalloc will be created as long as CONFIG_ZONE_DMA is enabled.
+> > However, it will fail if DMA zone has no managed pages. The failure
+> > can be seen in kdump kernel of x86_64 as below:
+> > 
+> >  CPU: 0 PID: 65 Comm: kworker/u2:1 Not tainted 5.14.0-rc2+ #9
+> >  Hardware name: Intel Corporation SandyBridge Platform/To be filled by O.E.M., BIOS RMLSDP.86I.R2.28.D690.1306271008 06/27/2013
+> >  Workqueue: events_unbound async_run_entry_fn
+> >  Call Trace:
+> >   dump_stack_lvl+0x57/0x72
+> >   warn_alloc.cold+0x72/0xd6
+> >   __alloc_pages_slowpath.constprop.0+0xf56/0xf70
+> >   __alloc_pages+0x23b/0x2b0
+> >   allocate_slab+0x406/0x630
+> >   ___slab_alloc+0x4b1/0x7e0
+> >   ? sr_probe+0x200/0x600
+> >   ? lock_acquire+0xc4/0x2e0
+> >   ? fs_reclaim_acquire+0x4d/0xe0
+> >   ? lock_is_held_type+0xa7/0x120
+> >   ? sr_probe+0x200/0x600
+> >   ? __slab_alloc+0x67/0x90
+> >   __slab_alloc+0x67/0x90
+> >   ? sr_probe+0x200/0x600
+> >   ? sr_probe+0x200/0x600
+> >   kmem_cache_alloc_trace+0x259/0x270
+> >   sr_probe+0x200/0x600
+> >   ......
+> >   bus_probe_device+0x9f/0xb0
+> >   device_add+0x3d2/0x970
+> >   ......
+> >   __scsi_add_device+0xea/0x100
+> >   ata_scsi_scan_host+0x97/0x1d0
+> >   async_run_entry_fn+0x30/0x130
+> >   process_one_work+0x2b0/0x5c0
+> >   worker_thread+0x55/0x3c0
+> >   ? process_one_work+0x5c0/0x5c0
+> >   kthread+0x149/0x170
+> >   ? set_kthread_struct+0x40/0x40
+> >   ret_from_fork+0x22/0x30
+> >  Mem-Info:
+> >  ......
+> > 
+> > The above failure happened when calling kmalloc() to allocate buffer with
+> > GFP_DMA. It requests to allocate slab page from DMA zone while no managed
+> > pages in there.
+> >  sr_probe()
+> >  --> get_capabilities()
+> >      --> buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
+> > 
+> > The DMA zone should be checked if it has managed pages, then try to create
+> > dma-kmalloc.
+> >
+> 
+> What is problem here?
+> 
+> The slab allocator requested buddy allocator with GFP_DMA,
+> and then buddy allocator failed to allocate page in DMA zone because
+> there was no page in DMA zone. and then the buddy allocator called warn_alloc
+> because it failed at allocating page.
+> 
+> Looking at warn, I don't understand what the problem is.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-NOTE:
-Following warnings noticed on x86_64 and i386 with defconfig
-building with gcc-8/9/10/11 and clang-11/12/13 and nightly.
-
-make --silent --keep-going --jobs=3D8
-O=3D/home/tuxbuild/.cache/tuxmake/builds/current ARCH=3Dx86_64
-CROSS_COMPILE=3Dx86_64-linux-gnu- 'CC=3Dsccache x86_64-linux-gnu-gcc'
-'HOSTCC=3Dsccache gcc' defconfig
-warning: (EFI) selects ARCH_USE_MEMREMAP_PROT which has unmet direct
-dependencies (AMD_MEM_ENCRYPT)
-warning: (EFI) selects ARCH_USE_MEMREMAP_PROT which has unmet direct
-dependencies (AMD_MEM_ENCRYPT)
+The problem is this is a generic issue on x86_64, and will be warned out
+always on all x86_64 systems, but not on a certain machine or a certain
+type of machine. If not fixed, we can always see it in kdump kernel. The
+way things are, it doesn't casue system or device collapse even if
+dma-kmalloc can't provide buffer or provide buffer from zone NORMAL.
 
 
-build link,
-https://builds.tuxbuild.com/22E1lTwjlXKmMoDPpESc96Cszdo/
+I have got bug reports several times from different people, and we have
+several bugs tracking this inside Redhat. I think nobody want to see
+this appearing in customers' monitor w or w/o a note. If we have to
+leave it with that, it's a little embrassing.
 
-## Build
-* kernel: 4.14.258-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.14.y
-* git commit: 5aef54c7f9c79b66de0fc4ee21754c4336cb927e
-* git describe: v4.14.257-54-g5aef54c7f9c7
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.257-54-g5aef54c7f9c7
 
-## No Test Regressions (compared to v4.14.257)
+> 
+> > ---
+> >  mm/slab_common.c | 9 +++++++++
+> >  1 file changed, 9 insertions(+)
+> > 
+> > diff --git a/mm/slab_common.c b/mm/slab_common.c
+> > index e5d080a93009..ae4ef0f8903a 100644
+> > --- a/mm/slab_common.c
+> > +++ b/mm/slab_common.c
+> > @@ -878,6 +878,9 @@ void __init create_kmalloc_caches(slab_flags_t flags)
+> >  {
+> >  	int i;
+> >  	enum kmalloc_cache_type type;
+> > +#ifdef CONFIG_ZONE_DMA
+> > +	bool managed_dma;
+> > +#endif
+> >  
+> >  	/*
+> >  	 * Including KMALLOC_CGROUP if CONFIG_MEMCG_KMEM defined
+> > @@ -905,10 +908,16 @@ void __init create_kmalloc_caches(slab_flags_t flags)
+> >  	slab_state = UP;
+> >  
+> >  #ifdef CONFIG_ZONE_DMA
+> > +	managed_dma = has_managed_dma();
+> > +
+> >  	for (i = 0; i <= KMALLOC_SHIFT_HIGH; i++) {
+> >  		struct kmem_cache *s = kmalloc_caches[KMALLOC_NORMAL][i];
+> >  
+> >  		if (s) {
+> > +			if (!managed_dma) {
+> > +				kmalloc_caches[KMALLOC_DMA][i] = kmalloc_caches[KMALLOC_NORMAL][i];
+> > +				continue;
+> > +			}
+> 
+> This code is copying normal kmalloc caches to DMA kmalloc caches.
+> With this code, the kmalloc() with GFP_DMA will succeed even if allocated
+> memory is not actually from DMA zone. Is that really what you want?
 
-## No Test Fixes (compared to v4.14.257)
+This is a great question. Honestly, no,
 
-## Test result summary
-total: 76832, pass: 61693, fail: 668, skip: 12387, xfail: 2084
+On the surface, it's obviously not what we want, We should never give
+user a zone NORMAL memory when they ask for zone DMA memory. If going to
+this specific x86_64 ARCH where this problem is observed, I prefer to give
+it zone DMA32 memory if zone DMA allocation failed. Because we rarely
+have ISA device deployed which requires low 16M DMA buffer. The zone DMA
+is just in case. Thus, for kdump kernel, we have been trying to make sure
+zone DMA32 has enough memory to satisfy PCIe device DMA buffer allocation,
+I don't remember we made any effort to do that for zone DMA.
 
-## Build Summary
-* arm: 254 total, 186 passed, 68 failed
-* arm64: 32 total, 32 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* powerpc: 52 total, 0 passed, 52 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 31 total, 31 passed, 0 failed
+Now the thing is that the nothing serious happened even if sr_probe()
+doesn't get DMA buffer from zone DMA. And it works well when I feed it
+with zone NORMAL memory instead with this patch applied.
+> 
+> Maybe the function get_capabilities() want to allocate memory
+> even if it's not from DMA zone, but other callers will not expect that.
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+Yeah, I have the same guess too for get_capabilities(), not sure about other
+callers. Or, as ChristophL and ChristophH said(Sorry, not sure if this is
+the right way to call people when the first name is the same. Correct me if
+it's wrong), any buffer requested from kmalloc can be used by device driver.
+Means device enforces getting memory inside addressing limit for those
+DMA transferring buffer which is usually large, Megabytes level with
+vmalloc() or alloc_pages(), but doesn't care about this kind of small
+piece buffer memory allocated with kmalloc()? Just a guess, please tell
+a counter example if anyone happens to know, it could be easy.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+
+> 
+> >  			kmalloc_caches[KMALLOC_DMA][i] = create_kmalloc_cache(
+> >  				kmalloc_info[i].name[KMALLOC_DMA],
+> >  				kmalloc_info[i].size,
+> > -- 
+> > 2.17.2
+> > 
+> > 
+> 
+
