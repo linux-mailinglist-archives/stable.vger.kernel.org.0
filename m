@@ -2,199 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8557E473DE4
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 09:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E53473E4F
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 09:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230438AbhLNIBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 03:01:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55910 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231644AbhLNIB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 03:01:29 -0500
-Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51767C061574
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 00:01:29 -0800 (PST)
-Received: by mail-ed1-x533.google.com with SMTP id y13so59709065edd.13
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 00:01:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=B3ObPEDvbNhMRSidj2AnG8dSMRHJAaonHYD5kHYlWk8=;
-        b=W3W+Khx1r1BTsrQTXQ1n/aZnHbB7LEQfsCmhU9GaLh7y2DS2I5SxR4X1TmCJj/XZcK
-         FrytQj9tJSxREuyBzItGLlTT4GMOQwCuawP8MGhBY8Kbu+fvvDl711m+fFjCjcZ2PQVl
-         lL/xIOpmYLLUUBqjbIvHfO2G3KmRQNiHuwgQo1Gf44DmERkOl3oWYSezf0u7ByfSh7Tv
-         xfXRike+/uuAwvfJrjdRJk+Nmm+fsqr0MJnEWe0uSga/7HdcwDTWh4UMsKQ/TKW7lFnF
-         usYMG5pA/ZIfdyzc8W8+UuUqgYRakEMZI1wsNpOQuxjxRJfBxtsK0kL91uZanatmtjn3
-         EQoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=B3ObPEDvbNhMRSidj2AnG8dSMRHJAaonHYD5kHYlWk8=;
-        b=b2MZPxi3WtBJ8MTOQ6M003gUMfEQTTCDbp8WwTgTmkELMIwpv8FG/jgRwBcXoBv8T+
-         0iqRQCZJfjCTH2wGN8giRe6xGpSIk84A1XD59ReHBB1TLLngUKi3C5DnycUa72HC7cGE
-         tneFJbBosk5jFWXpqTMNBPBq19LmDs6ArmqA6Jbjl7rR+13YbtTHnsJMBC8Jf4udMeTT
-         oZ85fhAwYJDHW9UUilK4wDjpGBq83ycY1zKriqdLzD/JqKsIuC8hvoM3MOtk9oHaZvLN
-         1BDaXQ1PJue3LcuXRKABZo/rpNW7r2LPSML9fvfWnW+DT4JREwGXNygRIZ4iW0jiBOLQ
-         JIYA==
-X-Gm-Message-State: AOAM533tIR2S9JMZsq/Y9Z9lc1KGn6GLHOKXXHfPp0+e7O9+/jwU7JbL
-        ZSE/lHVHsmvWjhVWdHeFfH0jSiklPth3pG0YWhdTmecR+4nO2Q==
-X-Google-Smtp-Source: ABdhPJzf2F9jts1gqiQ5noRm02vgpLMJNYyXxYNM3xO40IeVF39ghjW37EXQjiRwdLYYoGMqDGNoA43404ffVVe1uus=
-X-Received: by 2002:a17:906:300e:: with SMTP id 14mr4047316ejz.732.1639468886822;
- Tue, 14 Dec 2021 00:01:26 -0800 (PST)
+        id S231862AbhLNIif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 03:38:35 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:49628 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229622AbhLNIif (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 03:38:35 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id E076C1F3C4;
+        Tue, 14 Dec 2021 08:38:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1639471113; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=YxBgd60xxvmPh600wNZTY4w7KXnu0mHxHrDaqy+o98A=;
+        b=vVvheb2IkU+9MQvKe8kp/a+f0guikXyJAnX57LL0b9Spp1rmzBXcKVMYv7AC3h/HpFhznH
+        4wr8dnj3mj449LOYEcW1JhvRrJkjkhCS9WRL0TP5R29ZUhahxJicw5MR8xPg6AqsJNJF9A
+        YPeyptfBpPp3onsg+s/QHeycWIFUXgo=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 97D7DA3B88;
+        Tue, 14 Dec 2021 08:38:33 +0000 (UTC)
+Date:   Tue, 14 Dec 2021 09:38:33 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Alexey Makhalov <amakhalov@vmware.com>,
+        Dennis Zhou <dennis@kernel.org>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Nico Pache <npache@redhat.com>
+Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
+Message-ID: <YbhYCT0z04la1vjZ@dhcp22.suse.cz>
+References: <YYrGpn/52HaLCAyo@fedora>
+ <YYrSC7vtSQXz652a@dhcp22.suse.cz>
+ <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
+ <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
+ <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
+ <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
+ <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
+ <YbHfBgPQMkjtuHYF@dhcp22.suse.cz>
+ <YbdhdySBaHJ/UxBZ@dhcp22.suse.cz>
+ <ba5f460b-fc6c-601b-053c-086185fd3049@redhat.com>
 MIME-Version: 1.0
-References: <20211213092925.380184671@linuxfoundation.org>
-In-Reply-To: <20211213092925.380184671@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 14 Dec 2021 13:31:15 +0530
-Message-ID: <CA+G9fYsLZwRgxK0S5Xshv6zu9mgvq=naJQRVHPJpDDoARkktrg@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/37] 4.4.295-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ba5f460b-fc6c-601b-053c-086185fd3049@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Dec 2021 at 15:03, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.295 release.
-> There are 37 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.295-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon 13-12-21 16:07:18, David Hildenbrand wrote:
+> On 13.12.21 16:06, Michal Hocko wrote:
+> > On Thu 09-12-21 11:48:42, Michal Hocko wrote:
+> > [...]
+> >> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> >> index 852041f6be41..2d38a431f62f 100644
+> >> --- a/mm/memory_hotplug.c
+> >> +++ b/mm/memory_hotplug.c
+> >> @@ -1161,19 +1161,21 @@ static void reset_node_present_pages(pg_data_t *pgdat)
+> >>  }
+> >>  
+> >>  /* we are OK calling __meminit stuff here - we have CONFIG_MEMORY_HOTPLUG */
+> >> -static pg_data_t __ref *hotadd_new_pgdat(int nid)
+> >> +static pg_data_t __ref *hotadd_init_pgdat(int nid)
+> >>  {
+> >>  	struct pglist_data *pgdat;
+> >>  
+> >>  	pgdat = NODE_DATA(nid);
+> >> -	if (!pgdat) {
+> >> -		pgdat = arch_alloc_nodedata(nid);
+> >> -		if (!pgdat)
+> >> -			return NULL;
+> >>  
+> >> +	/*
+> >> +	 * NODE_DATA is preallocated (free_area_init) but its internal
+> >> +	 * state is not allocated completely. Add missing pieces.
+> >> +	 * Completely offline nodes stay around and they just need
+> >> +	 * reintialization.
+> >> +	 */
+> >> +	if (!pgdat->per_cpu_nodestats) {
+> >>  		pgdat->per_cpu_nodestats =
+> >>  			alloc_percpu(struct per_cpu_nodestat);
+> >> -		arch_refresh_nodedata(nid, pgdat);
+> > 
+> > This should really be 
+> > diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> > index 42211485bcf3..2daa88ce8c80 100644
+> > --- a/mm/memory_hotplug.c
+> > +++ b/mm/memory_hotplug.c
+> > @@ -1173,7 +1173,7 @@ static pg_data_t __ref *hotadd_init_pgdat(int nid)
+> >  	 * Completely offline nodes stay around and they just need
+> >  	 * reintialization.
+> >  	 */
+> > -	if (!pgdat->per_cpu_nodestats) {
+> > +	if (pgdat->per_cpu_nodestats == &boot_nodestats) {
+> >  		pgdat->per_cpu_nodestats =
+> >  			alloc_percpu(struct per_cpu_nodestat);
+> >  	} else {
+> > 
+> 
+> I'll try giving this some churn later this week -- busy with other stuff.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 4.4.295-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.4.y
-* git commit: 597c1677683ab7609f1804211e824a3cab9802e9
-* git describe: v4.4.294-38-g597c1677683a
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.y/build/v4.4.2=
-94-38-g597c1677683a
-
-## No Test Regressions (compared to v4.4.294)
-
-## No Test Fixes (compared to v4.4.294)
-
-## Test result summary
-total: 44585, pass: 36076, fail: 150, skip: 7382, xfail: 977
-
-## Build Summary
-* arm: 129 total, 129 passed, 0 failed
-* arm64: 31 total, 31 passed, 0 failed
-* i386: 18 total, 18 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 30 total, 24 passed, 6 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-livepatch
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Please hang on, this needs to be done yet slightly differently. I will
+post something more resembling a final patch later today. For the
+purpose of the testing this should be sufficient for now.
+-- 
+Michal Hocko
+SUSE Labs
