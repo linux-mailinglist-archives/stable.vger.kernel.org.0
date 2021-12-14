@@ -2,74 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31ED74737F3
-	for <lists+stable@lfdr.de>; Mon, 13 Dec 2021 23:50:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCC7473AE1
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 03:49:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243930AbhLMWuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Dec 2021 17:50:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45172 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243924AbhLMWuB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 17:50:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EFA7C061574;
-        Mon, 13 Dec 2021 14:50:01 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67E7BB816CF;
-        Mon, 13 Dec 2021 22:50:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 24235C34600;
-        Mon, 13 Dec 2021 22:49:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639435799;
-        bh=kn8oxVkJ6yPEUpS8v7x4XjZ+luhJ//RD7OwzUBU08GE=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=FJHAUSVplX9ssZzTKkrdlWgZDn5urUEhpHLspLu0tFD+iwkj6mAsz6CsF6hqbWifn
-         3dHfusbpeJatnLm8ZhTcc+Br0X31isNLqRkqLzZCmYneC9Nb2tFC+wGwNsYa7LzVNj
-         dSiRJggs7Cm8vJJxSY1c30N8h5iwONAiWCjFY6qiDGa3aWPL9aCPOFmg62cQjoSoJw
-         tOcwCzXU0JL+CJKILmIx1Y5kj8rqWhLl6oASrB10nIuQf+oKhdSjdh4ANreMqiT3i9
-         sCAhJgYbrg0yAy8PtF9IBFwyOjw73JT9P+pyW6iZk5SyakGwKTY8DCwcAb+Tlb6o4H
-         vFbMDBNDOsTYg==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 00536609D6;
-        Mon, 13 Dec 2021 22:49:58 +0000 (UTC)
-Subject: Re: [GIT PULL] vhost: cleanups and fixes
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <20211212175951-mutt-send-email-mst@kernel.org>
-References: <20211212175951-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20211212175951-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: bb47620be322c5e9e372536cb6b54e17b3a00258
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 5472f14a37421d1bca3dddf33cabd3bd6dbefbbc
-Message-Id: <163943579893.4494.7297461004032490348.pr-tracker-bot@kernel.org>
-Date:   Mon, 13 Dec 2021 22:49:58 +0000
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        arnd@arndb.de, dan.carpenter@oracle.com, hch@lst.de,
-        jasowang@redhat.com, jroedel@suse.de, konrad.wilk@oracle.com,
-        lkp@intel.com, maz@kernel.org, mst@redhat.com, parav@nvidia.com,
-        qperret@google.com, robin.murphy@arm.com, stable@vger.kernel.org,
-        steven.price@arm.com, suzuki.poulose@arm.com, wei.w.wang@intel.com,
-        will@kernel.org, xieyongji@bytedance.com
+        id S229616AbhLNCtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Dec 2021 21:49:46 -0500
+Received: from condef-07.nifty.com ([202.248.20.72]:53520 "EHLO
+        condef-07.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232754AbhLNCtp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Dec 2021 21:49:45 -0500
+Received: from conssluserg-05.nifty.com ([10.126.8.84])by condef-07.nifty.com with ESMTP id 1BE2hnee015595
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 11:43:49 +0900
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169]) (authenticated)
+        by conssluserg-05.nifty.com with ESMTP id 1BE2hKX6029367;
+        Tue, 14 Dec 2021 11:43:20 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-05.nifty.com 1BE2hKX6029367
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1639449800;
+        bh=zWqJkJ3Yer8HZi2smObNDPfx03+U9OxUYa5hXSXfyaQ=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=KlDH3nQZxLc00O2/ojRRSkPKbMHJwoJ+9glPrPZ/xHnelPuCc1QpiPwpR+30cLugF
+         iYR7yCwYC7639ql4xtW8JYVZjCY5rDwCv3snD5P1j2RN322fU4jkWvQjtKDMs5DIAZ
+         JvNhwduGgPRdOZtgzcsruFTaHjuWlgwZuisABffnBxffedW/aRxb7t4/sC2rN+lmjR
+         iscrjA8cpvRcUutKCRsuyRzzGJSAf9Mvq/xpMGAAEmcddeLAZDVyLI3063t/gBZtJQ
+         Q2lHOlMKHvUYJirwawrMGkmQcv8rx4rcEP866xZukFl1RTjEBBhcYFgdisx6q+hZ0T
+         z9qNi/HgZaMEw==
+X-Nifty-SrcIP: [209.85.210.169]
+Received: by mail-pf1-f169.google.com with SMTP id k26so16615919pfp.10;
+        Mon, 13 Dec 2021 18:43:20 -0800 (PST)
+X-Gm-Message-State: AOAM531oiHT85jqDGcreGNcKKZUNkNnNX0BfNhxxgiC1e+8SPcoLG1iy
+        j+Kja9Co5zV/bomkj8LusS433tLoarbcG5a8y34=
+X-Google-Smtp-Source: ABdhPJzDOB73Nb3ghIR/shFcM9taeEmYxVyIAEUWqwjrtD8gW7JVcPgHQkWoCDG4QAswQn4c40AYgIdzmFXXSlM66GE=
+X-Received: by 2002:a65:430a:: with SMTP id j10mr1850778pgq.126.1639449799860;
+ Mon, 13 Dec 2021 18:43:19 -0800 (PST)
+MIME-Version: 1.0
+References: <20211213092939.074326017@linuxfoundation.org> <20211213103536.GC17683@duo.ucw.cz>
+In-Reply-To: <20211213103536.GC17683@duo.ucw.cz>
+From:   Masahiro Yamada <masahiroy@kernel.org>
+Date:   Tue, 14 Dec 2021 11:42:43 +0900
+X-Gmail-Original-Message-ID: <CAK7LNASQ=m5jN3_fcD7B=-30V4S=XUf9axcQHjDJkihoDzn2mA@mail.gmail.com>
+Message-ID: <CAK7LNASQ=m5jN3_fcD7B=-30V4S=XUf9axcQHjDJkihoDzn2mA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/132] 5.10.85-rc1 review
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "Cc: Shuah Khan" <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The pull request you sent on Sun, 12 Dec 2021 17:59:51 -0500:
+On Mon, Dec 13, 2021 at 7:36 PM Pavel Machek <pavel@denx.de> wrote:
+>
+> Hi!
+>
+> > This is the start of the stable review cycle for the 5.10.85 release.
+> > There are 132 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+>
+> I'm getting a lot of build failures -- missing gmp.h:
+>
+>   UPD     include/generated/utsrelease.h
+> 1317In file included from /builds/hVatwYBy/68/cip-project/cip-testing/linux-stable-rc-ci/gcc/gcc-8.1.0-nolibc/arm-linux-gnueabi/bin/../lib/gcc/arm-linux-gnueabi/8.1.0/plugin/include/gcc-plugin.h:28:0,
+> 1318                 from scripts/gcc-plugins/gcc-common.h:7,
+> 1319                 from scripts/gcc-plugins/arm_ssp_per_task_plugin.c:3:
+> 1320/builds/hVatwYBy/68/cip-project/cip-testing/linux-stable-rc-ci/gcc/gcc-8.1.0-nolibc/arm-linux-gnueabi/bin/../lib/gcc/arm-linux-gnueabi/8.1.0/plugin/include/system.h:687:10: fatal error: gmp.h: No such file or directory
+> 1321 #include <gmp.h>
+> 1322          ^~~~~~~
+> 1323compilation terminated.
+> 1324scripts/gcc-plugins/Makefile:47: recipe for target 'scripts/gcc-plugins/arm_ssp_per_task_plugin.so' failed
+> 1325
+>
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-5.10.y
+>
+> Best regards,
+>                                                                 Pavel
+>
+>
+> --
+> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/5472f14a37421d1bca3dddf33cabd3bd6dbefbbc
+Does "apt install libgmp-dev" or
+"dnf install gmp-devel" help you?
 
-Thank you!
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Best Regards
+Masahiro Yamada
