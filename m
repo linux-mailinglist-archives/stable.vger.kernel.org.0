@@ -2,93 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E1BB474C36
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 20:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDB2474CDD
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 21:57:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237495AbhLNTpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 14:45:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50876 "EHLO
+        id S231560AbhLNU5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 15:57:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232206AbhLNTpo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 14:45:44 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10B51C061574
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 11:45:44 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id l18so13451194pgj.9
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 11:45:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=5Z3UBTl7jPBQ/S77snk8IVzLmGP+ErnAZOzUMW8UTq8=;
-        b=HQyBo4dU6xQwWMptNtxQhOBNd3KOQMO22T5cBp/sfKJbYIQ9b8TBYWqzbVJw2pktXI
-         XnGx9xoczWwZeflQyEUu39rb0VKEd0dCI9sCtuq/ixotURahbkMmD4kNyDMXITI+As1K
-         DEkxXv+26zNmoCDE6LqJ1do2FaTZzV7Wz0MIe1Jg0xbjB1o0eDKTsJl6rt8mZra40ExO
-         KJ8yEhFbJIiRSD7xletEENNaa2fzadQNjli1rlMb1xr73q3rVyCf09n1gI7S40fr3o6R
-         +VAbhaBId1qZnyEsB0n+GqhwBu1UcpPVmrbon5mJfUWmKsMiFrSj052g5HoLNQUGPER3
-         iSCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=5Z3UBTl7jPBQ/S77snk8IVzLmGP+ErnAZOzUMW8UTq8=;
-        b=NKgSWustEyzyIqZVvk/FFG+xIkzOwrBO+N3xj9y8kcFrYoBVMl+lIaLVQ8pZXW2qeT
-         02BPz1/fEoRpchLWBMi8NiYeXMqIqWDiTQ3M7ALljGYTrt1V72RS0oku/+Iua7oju76e
-         9DdWl7s1+/8sAcI4L35fj4EDvhzIdc8CKf8cl2Fi61JFBLnl7/LWpPc+AEH1E0/YUvKf
-         2lUdOFY1+MchVdtSfjm+E7bG67ewTi0vGYFMqMn4qio92grnbesub3FiDz5VsOj0evgy
-         CtqzeP5tcL+XKoAo754RBH/Lb0YkiznxDSZfONgkaAetV46YEBBWZtJwLNB4X8Gz8SjY
-         AHmw==
-X-Gm-Message-State: AOAM530KyeQTPPoXJcDs7Nd7JpcMI8udlWoqRoDaXgMFSqpn6/XIFfXO
-        jatKlcOhGWvhRE0+gKHzqjkeuQ==
-X-Google-Smtp-Source: ABdhPJx8bDekdaRVb6HNjxh3olkWUHPaGJdisWXeDRilvZ4B6gdcgX6jH46fsqkDStdycbDbM0C9tg==
-X-Received: by 2002:a63:4559:: with SMTP id u25mr5012691pgk.15.1639511143347;
-        Tue, 14 Dec 2021 11:45:43 -0800 (PST)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id m15sm3126304pjc.35.2021.12.14.11.45.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Dec 2021 11:45:42 -0800 (PST)
-Date:   Tue, 14 Dec 2021 19:45:39 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        ignat@cloudflare.com, bgardon@google.com, dmatlack@google.com,
-        stevensd@chromium.org, kernel-team@cloudflare.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] KVM: x86: zap invalid roots in kvm_tdp_mmu_zap_all
-Message-ID: <Ybj0Yx17u0MmiOdi@google.com>
-References: <20211213112514.78552-1-pbonzini@redhat.com>
- <20211213112514.78552-3-pbonzini@redhat.com>
- <Ybd2cEqUnxiy/JBd@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Ybd2cEqUnxiy/JBd@google.com>
+        with ESMTP id S230382AbhLNU5v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 15:57:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A34B3C061574;
+        Tue, 14 Dec 2021 12:57:51 -0800 (PST)
+Received: from mail.kernel.org (unknown [198.145.29.99])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4415A616F3;
+        Tue, 14 Dec 2021 20:57:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5265A60385;
+        Tue, 14 Dec 2021 20:57:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1639515470;
+        bh=R9qmZKpcT5w0VsfJbKQW4+XRAWTvMIUvc+QUmb73qc8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=qkPbNuPXw203FLrZEFtUEahnpUOxFmOk2L3oT9K4CLSyOgiR6GX4LNCsTttcIfG2a
+         nviKWftaaWKl4q4oexeadnqveVPKmev7+zRmj3deZqEf/CLSOQFYjtBC77RYNu5MII
+         E9XOQ9/TENrvRwyBdqA2YOZhhjEFyXlyPhmE4HcQ=
+Date:   Tue, 14 Dec 2021 12:57:48 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Michal Hocko <mhocko@suse.com>
+Cc:     Dennis Zhou <dennis@kernel.org>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "cl@linux.com" <cl@linux.com>,
+        "mm-commits@vger.kernel.org" <mm-commits@vger.kernel.org>,
+        "osalvador@suse.de" <osalvador@suse.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "tj@kernel.org" <tj@kernel.org>
+Subject: Re: + mm-fix-panic-in-__alloc_pages.patch added to -mm tree
+Message-Id: <20211214125748.974a400f0b05a633f9b971b7@linux-foundation.org>
+In-Reply-To: <Ybht6kqwI0aPx3Jr@dhcp22.suse.cz>
+References: <20211108205031.UxDPHBZWa%akpm@linux-foundation.org>
+        <YYozLsIECu0Jnv0p@dhcp22.suse.cz>
+        <af7ab3ce-fed2-1ffc-13a8-f9acbd201841@redhat.com>
+        <YYpTy9eXZucxuRO/@dhcp22.suse.cz>
+        <YY6wZMcx/BeddUnH@fedora>
+        <YZI5TEW2BkBjOtC1@dhcp22.suse.cz>
+        <B8B7E3FA-6EAB-46B7-95EB-5A31395C8ADE@vmware.com>
+        <YZJZes9Gz9fe7bCC@dhcp22.suse.cz>
+        <ABEDED57-93A9-4601-8EB6-2FF348A0E0BB@vmware.com>
+        <YZMq++inSmJegJmj@fedora>
+        <Ybht6kqwI0aPx3Jr@dhcp22.suse.cz>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 13, 2021, Sean Christopherson wrote:
-> On Mon, Dec 13, 2021, Paolo Bonzini wrote:
-> > kvm_tdp_mmu_zap_all is intended to visit all roots and zap their page
-> > tables, which flushes the accessed and dirty bits out to the Linux
-> > "struct page"s.  Missing some of the roots has catastrophic effects,
-> > because kvm_tdp_mmu_zap_all is called when the MMU notifier is being
-> > removed and any PTEs left behind might become dangling by the time
-> > kvm-arch_destroy_vm tears down the roots for good.
-> > 
-> > Unfortunately that is exactly what kvm_tdp_mmu_zap_all is doing: it
-> > visits all roots via for_each_tdp_mmu_root_yield_safe, which in turn
-> > uses kvm_tdp_mmu_get_root to skip invalid roots.  If the current root is
-> > invalid at the time of kvm_tdp_mmu_zap_all, its page tables will remain
-> > in place but will later be zapped during kvm_arch_destroy_vm.
-> 
-> As stated in the bug report thread[*], it should be impossible as for the MMU
-> notifier to be unregistered while kvm_mmu_zap_all_fast() is running.
-> 
-> I do believe there's a race between set_nx_huge_pages() and kvm_mmu_notifier_release(),
-> but that would result in the use-after-free kvm_set_pfn_dirty() tracing back to
-> set_nx_huge_pages(), not kvm_destroy_vm().  And for that, I would much prefer we
-> elevant mm->users while changing the NX hugepage setting.
+On Tue, 14 Dec 2021 11:11:54 +0100 Michal Hocko <mhocko@suse.com> wrote:
 
-Mwhahaha, race confirmed with a bit of hacking to force the issue.  I'll get a
-patch out.
+> > I need some clarification here. It sounds like memoryless nodes work on
+> > x86, but hotplug + memoryless nodes isn't a supported use case or you're
+> > introducing it as a new use case?
+> > 
+> > If this is a new use case, then I'm inclined to say this patch should
+> > NOT go in and a proper fix should be implemented on hotplug's side. I
+> > don't want to be in the business of having/seeing this conversation
+> > reoccur because we just papered over this issue in percpu.
+> 
+> The patch still seems to be in the mmotm tree. I have sent a different
+> fix candidate [1] which should be more robust and cover also other potential
+> places.
+> 
+> [1] http://lkml.kernel.org/r/20211214100732.26335-1-mhocko@kernel.org
+
+Is cool, I'm paying attention.
+
+We do want something short and simple for backporting to -stable (like
+Alexey's patch) so please bear that in mind while preparing an
+alternative.
