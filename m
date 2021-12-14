@@ -2,163 +2,438 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CABBD47481C
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 17:31:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 903D7474887
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 17:52:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234067AbhLNQbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 11:31:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233971AbhLNQbt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 11:31:49 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253F6C06173F
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 08:31:49 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id q17so13900038plr.11
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 08:31:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6sUe2gGKHbBesotFC/8whh7dlnoXGNt/SIiIBOCYeSQ=;
-        b=F7Cxuu1NZe+r5DJocqCLRcFgbJABGCkNTU/+9SJa7sPBl/xDp4gVa97GW+7QUeqxiW
-         o6/72+IJ9NPYcQT66egvs9+eTd0LCgD0wvGBHWYuZU0A2PyOdU4KDQwlWEb1GL8Y5xqF
-         CFpdkXnaln7zWOE48/+TrDgkxZXAUPJF2nGeguIzB7o09QBrtkbkIywg1whskkCf1sfZ
-         rLT8emgc8WqvO138903fs4QJ/I7d036OQEg9ORtvlN3WZ4D5XK9AAxiyAkcWrecZL4tO
-         lwU53JCTvzSI9AAySeuSn/mpRjREJRokW/jlqxnX+rrZBAoY2qflpZ7o7wmZxJihhXmV
-         OFCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6sUe2gGKHbBesotFC/8whh7dlnoXGNt/SIiIBOCYeSQ=;
-        b=WqqCYjHWP4Fw0svfRd05IQtCLlWngcffCc0evhUdBxT13hYBCS1ZHeL0X1+ZN7GVzp
-         ULstR0tsxALWatQkElBy+5JVqyL9NNQ4goYG5zyAAOer+CBv47Y1yu0ObcG2zAxIC/tf
-         iEAtCM8KYXbjOBpM0XKry0bDcF8aALMg9BA8VtIJp3V2vRw1j5k/0tSHZDLQgounVK+b
-         6kojKuqR7e305DK9Pwa7HJX8lmr3hjIPtSNhBH3NyJ3hDBOOYDTa5ak4UkYVRM2eS0/e
-         rtxiDnj2ogq6/PzQvUQy8rXtj40lwtIhTvcBnKWR15unG8q4NmSYlAnsIFpt5xVnBYI7
-         v1oQ==
-X-Gm-Message-State: AOAM531JZHYWdd/7+DeiSZrTykAqbSNz/aw5AMYBZmuXGS0y+msWVjX3
-        k+bkr7Q/njSFKqg4nOZ9z/Ekf3mL/9u3pIpx
-X-Google-Smtp-Source: ABdhPJxF/lYnfO4OVhZ3fYvKTS/7fVNMzVe54toaL5GUJWev5rIuUTklRnhOY16366vhusiIQhBxbw==
-X-Received: by 2002:a17:902:db01:b0:141:ea12:2176 with SMTP id m1-20020a170902db0100b00141ea122176mr7370193plx.44.1639499508471;
-        Tue, 14 Dec 2021 08:31:48 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b19sm343326pfv.63.2021.12.14.08.31.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Dec 2021 08:31:48 -0800 (PST)
-Message-ID: <61b8c6f4.1c69fb81.2d63f.0fc8@mx.google.com>
-Date:   Tue, 14 Dec 2021 08:31:48 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S236054AbhLNQwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 11:52:04 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:43946 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229685AbhLNQwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 11:52:04 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 48A3DCE18EA;
+        Tue, 14 Dec 2021 16:52:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2144AC34604;
+        Tue, 14 Dec 2021 16:51:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639500720;
+        bh=pyoBACzrUmB5juU9ExNsHxHkXrOvET7DT/01YLhbGmY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rGhfdMIHLb1KacFmdx7bmQlWIBB+IgcXHndtRdsOhRlNuhH7veRGZy0yTeLhzrSij
+         xfTmsZpPT8E9zik0uI6vHJs9Mda7pPGKUNTwAQhQOWTLUodOewKeGvwwqTDc0txUVH
+         PIPcC96t2XVi+vWwfjsFcojkb1pwB2OhjTvIVeb4=
+Date:   Tue, 14 Dec 2021 17:51:58 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jens Wiklander <jens.wiklander@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, op-tee@lists.trustedfirmware.org,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        Rijo Thomas <Rijo-john.Thomas@amd.com>,
+        Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>,
+        stable@vger.kernel.org, Lars Persson <larper@axis.com>,
+        Patrik Lantz <patrik.lantz@axis.com>
+Subject: Re: [PATCH] tee: handle lookup of shm with reference count 0
+Message-ID: <YbjLrkTcveIqD8PL@kroah.com>
+References: <20211214123540.1789434-1-jens.wiklander@linaro.org>
+ <YbifvnSBjW5m19hZ@kroah.com>
+ <20211214145957.GA1800868@jade>
+ <Ybi3Vx1UzJ/tpTHq@kroah.com>
+ <20211214163144.GA1807724@jade>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.84-132-g7154d0f70682
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 175 runs,
- 2 regressions (v5.10.84-132-g7154d0f70682)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211214163144.GA1807724@jade>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 175 runs, 2 regressions (v5.10.84-132-g7154d=
-0f70682)
+On Tue, Dec 14, 2021 at 05:31:44PM +0100, Jens Wiklander wrote:
+> On Tue, Dec 14, 2021 at 04:25:11PM +0100, Greg KH wrote:
+> > On Tue, Dec 14, 2021 at 03:59:57PM +0100, Jens Wiklander wrote:
+> > > On Tue, Dec 14, 2021 at 02:44:30PM +0100, Greg KH wrote:
+> > > > On Tue, Dec 14, 2021 at 01:35:40PM +0100, Jens Wiklander wrote:
+> > > > > Since the tee subsystem does not keep a strong reference to its idle
+> > > > > shared memory buffers, it races with other threads that try to destroy a
+> > > > > shared memory through a close of its dma-buf fd or by unmapping the
+> > > > > memory.
+> > > > > 
+> > > > > In tee_shm_get_from_id() when a lookup in teedev->idr has been
+> > > > > successful, it is possible that the tee_shm is in the dma-buf teardown
+> > > > > path, but that path is blocked by the teedev mutex. Since we don't have
+> > > > > an API to tell if the tee_shm is in the dma-buf teardown path or not we
+> > > > > must find another way of detecting this condition.
+> > > > > 
+> > > > > Fix this by doing the reference counting directly on the tee_shm using a
+> > > > > new refcount_t refcount field. dma-buf is replaced by using
+> > > > > anon_inode_getfd() instead, this separates the life-cycle of the
+> > > > > underlying file from the tee_shm. tee_shm_put() is updated to hold the
+> > > > > mutex when decreasing the refcount to 0 and then remove the tee_shm from
+> > > > > teedev->idr before releasing the mutex. This means that the tee_shm can
+> > > > > never be found unless it has a refcount larger than 0.
+> > > > 
+> > > > So you are dropping dma-buf support entirely?  And anon_inode_getfd()
+> > > > works instead?  Why do more people not do this as well?
+> > > 
+> > > I don't know, but it should be noted that we're not doing very much with
+> > > this file descriptor. We're only using it with mmap() and close().
+> > > 
+> > > > 
+> > > > > 
+> > > > > Fixes: 967c9cca2cc5 ("tee: generic TEE subsystem")
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Reviewed-by: Lars Persson <larper@axis.com>
+> > > > > Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+> > > > > Reported-by: Patrik Lantz <patrik.lantz@axis.com>
+> > > > > Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+> > > > > ---
+> > > > >  drivers/tee/tee_shm.c   | 174 +++++++++++++++-------------------------
+> > > > >  include/linux/tee_drv.h |   2 +-
+> > > > >  2 files changed, 67 insertions(+), 109 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+> > > > > index 8a8deb95e918..0c82cf981c46 100644
+> > > > > --- a/drivers/tee/tee_shm.c
+> > > > > +++ b/drivers/tee/tee_shm.c
+> > > > > @@ -1,20 +1,17 @@
+> > > > >  // SPDX-License-Identifier: GPL-2.0-only
+> > > > >  /*
+> > > > > - * Copyright (c) 2015-2016, Linaro Limited
+> > > > > + * Copyright (c) 2015-2021, Linaro Limited
+> > > > 
+> > > > Nit, did Linaro really make a copyrightable change in 2017, 2018, 2019
+> > > > and 2020 as well?  If not, please do not claim it.
+> > > 
+> > > Fair enough, I was a bit lazy 2018 shouldn't be there now that I've
+> > > checked the log. I'll fix.
+> > > 
+> > > > 
+> > > > >   */
+> > > > > +#include <linux/anon_inodes.h>
+> > > > >  #include <linux/device.h>
+> > > > > -#include <linux/dma-buf.h>
+> > > > > -#include <linux/fdtable.h>
+> > > > >  #include <linux/idr.h>
+> > > > > +#include <linux/mm.h>
+> > > > >  #include <linux/sched.h>
+> > > > >  #include <linux/slab.h>
+> > > > >  #include <linux/tee_drv.h>
+> > > > >  #include <linux/uio.h>
+> > > > > -#include <linux/module.h>
+> > > > >  #include "tee_private.h"
+> > > > >  
+> > > > > -MODULE_IMPORT_NS(DMA_BUF);
+> > > > > -
+> > > > >  static void release_registered_pages(struct tee_shm *shm)
+> > > > >  {
+> > > > >  	if (shm->pages) {
+> > > > > @@ -31,16 +28,8 @@ static void release_registered_pages(struct tee_shm *shm)
+> > > > >  	}
+> > > > >  }
+> > > > >  
+> > > > > -static void tee_shm_release(struct tee_shm *shm)
+> > > > > +static void tee_shm_release(struct tee_device *teedev, struct tee_shm *shm)
+> > > > >  {
+> > > > > -	struct tee_device *teedev = shm->ctx->teedev;
+> > > > > -
+> > > > > -	if (shm->flags & TEE_SHM_DMA_BUF) {
+> > > > > -		mutex_lock(&teedev->mutex);
+> > > > > -		idr_remove(&teedev->idr, shm->id);
+> > > > > -		mutex_unlock(&teedev->mutex);
+> > > > > -	}
+> > > > > -
+> > > > >  	if (shm->flags & TEE_SHM_POOL) {
+> > > > >  		struct tee_shm_pool_mgr *poolm;
+> > > > >  
+> > > > > @@ -67,45 +56,6 @@ static void tee_shm_release(struct tee_shm *shm)
+> > > > >  	tee_device_put(teedev);
+> > > > >  }
+> > > > >  
+> > > > > -static struct sg_table *tee_shm_op_map_dma_buf(struct dma_buf_attachment
+> > > > > -			*attach, enum dma_data_direction dir)
+> > > > > -{
+> > > > > -	return NULL;
+> > > > > -}
+> > > > > -
+> > > > > -static void tee_shm_op_unmap_dma_buf(struct dma_buf_attachment *attach,
+> > > > > -				     struct sg_table *table,
+> > > > > -				     enum dma_data_direction dir)
+> > > > > -{
+> > > > > -}
+> > > > > -
+> > > > > -static void tee_shm_op_release(struct dma_buf *dmabuf)
+> > > > > -{
+> > > > > -	struct tee_shm *shm = dmabuf->priv;
+> > > > > -
+> > > > > -	tee_shm_release(shm);
+> > > > > -}
+> > > > > -
+> > > > > -static int tee_shm_op_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma)
+> > > > > -{
+> > > > > -	struct tee_shm *shm = dmabuf->priv;
+> > > > > -	size_t size = vma->vm_end - vma->vm_start;
+> > > > > -
+> > > > > -	/* Refuse sharing shared memory provided by application */
+> > > > > -	if (shm->flags & TEE_SHM_USER_MAPPED)
+> > > > > -		return -EINVAL;
+> > > > > -
+> > > > > -	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
+> > > > > -			       size, vma->vm_page_prot);
+> > > > > -}
+> > > > > -
+> > > > > -static const struct dma_buf_ops tee_shm_dma_buf_ops = {
+> > > > > -	.map_dma_buf = tee_shm_op_map_dma_buf,
+> > > > > -	.unmap_dma_buf = tee_shm_op_unmap_dma_buf,
+> > > > > -	.release = tee_shm_op_release,
+> > > > > -	.mmap = tee_shm_op_mmap,
+> > > > > -};
+> > > > > -
+> > > > >  struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+> > > > >  {
+> > > > >  	struct tee_device *teedev = ctx->teedev;
+> > > > > @@ -140,6 +90,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+> > > > >  		goto err_dev_put;
+> > > > >  	}
+> > > > >  
+> > > > > +	refcount_set(&shm->refcount, 1);
+> > > > >  	shm->flags = flags | TEE_SHM_POOL;
+> > > > >  	shm->ctx = ctx;
+> > > > >  	if (flags & TEE_SHM_DMA_BUF)
+> > > > > @@ -153,10 +104,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+> > > > >  		goto err_kfree;
+> > > > >  	}
+> > > > >  
+> > > > > -
+> > > > >  	if (flags & TEE_SHM_DMA_BUF) {
+> > > > > -		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
+> > > > > -
+> > > > >  		mutex_lock(&teedev->mutex);
+> > > > >  		shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
+> > > > >  		mutex_unlock(&teedev->mutex);
+> > > > > @@ -164,28 +112,11 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+> > > > >  			ret = ERR_PTR(shm->id);
+> > > > >  			goto err_pool_free;
+> > > > >  		}
+> > > > > -
+> > > > > -		exp_info.ops = &tee_shm_dma_buf_ops;
+> > > > > -		exp_info.size = shm->size;
+> > > > > -		exp_info.flags = O_RDWR;
+> > > > > -		exp_info.priv = shm;
+> > > > > -
+> > > > > -		shm->dmabuf = dma_buf_export(&exp_info);
+> > > > > -		if (IS_ERR(shm->dmabuf)) {
+> > > > > -			ret = ERR_CAST(shm->dmabuf);
+> > > > > -			goto err_rem;
+> > > > > -		}
+> > > > >  	}
+> > > > >  
+> > > > >  	teedev_ctx_get(ctx);
+> > > > >  
+> > > > >  	return shm;
+> > > > > -err_rem:
+> > > > > -	if (flags & TEE_SHM_DMA_BUF) {
+> > > > > -		mutex_lock(&teedev->mutex);
+> > > > > -		idr_remove(&teedev->idr, shm->id);
+> > > > > -		mutex_unlock(&teedev->mutex);
+> > > > > -	}
+> > > > >  err_pool_free:
+> > > > >  	poolm->ops->free(poolm, shm);
+> > > > >  err_kfree:
+> > > > > @@ -246,6 +177,7 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+> > > > >  		goto err;
+> > > > >  	}
+> > > > >  
+> > > > > +	refcount_set(&shm->refcount, 1);
+> > > > >  	shm->flags = flags | TEE_SHM_REGISTER;
+> > > > >  	shm->ctx = ctx;
+> > > > >  	shm->id = -1;
+> > > > > @@ -306,22 +238,6 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+> > > > >  		goto err;
+> > > > >  	}
+> > > > >  
+> > > > > -	if (flags & TEE_SHM_DMA_BUF) {
+> > > > > -		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
+> > > > > -
+> > > > > -		exp_info.ops = &tee_shm_dma_buf_ops;
+> > > > > -		exp_info.size = shm->size;
+> > > > > -		exp_info.flags = O_RDWR;
+> > > > > -		exp_info.priv = shm;
+> > > > > -
+> > > > > -		shm->dmabuf = dma_buf_export(&exp_info);
+> > > > > -		if (IS_ERR(shm->dmabuf)) {
+> > > > > -			ret = ERR_CAST(shm->dmabuf);
+> > > > > -			teedev->desc->ops->shm_unregister(ctx, shm);
+> > > > > -			goto err;
+> > > > > -		}
+> > > > > -	}
+> > > > > -
+> > > > >  	return shm;
+> > > > >  err:
+> > > > >  	if (shm) {
+> > > > > @@ -339,6 +255,35 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+> > > > >  }
+> > > > >  EXPORT_SYMBOL_GPL(tee_shm_register);
+> > > > >  
+> > > > > +static int tee_shm_fop_release(struct inode *inode, struct file *filp)
+> > > > > +{
+> > > > > +	tee_shm_put(filp->private_data);
+> > > > > +	return 0;
+> > > > > +}
+> > > > > +
+> > > > > +static int tee_shm_fop_mmap(struct file *filp, struct vm_area_struct *vma)
+> > > > > +{
+> > > > > +	struct tee_shm *shm = filp->private_data;
+> > > > > +	size_t size = vma->vm_end - vma->vm_start;
+> > > > > +
+> > > > > +	/* Refuse sharing shared memory provided by application */
+> > > > > +	if (shm->flags & TEE_SHM_USER_MAPPED)
+> > > > > +		return -EINVAL;
+> > > > > +
+> > > > > +	/* check for overflowing the buffer's size */
+> > > > > +	if (vma->vm_pgoff + vma_pages(vma) > shm->size >> PAGE_SHIFT)
+> > > > > +		return -EINVAL;
+> > > > > +
+> > > > > +	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
+> > > > > +			       size, vma->vm_page_prot);
+> > > > > +}
+> > > > > +
+> > > > > +static const struct file_operations tee_shm_fops = {
+> > > > > +	.owner = THIS_MODULE,
+> > > > > +	.release = tee_shm_fop_release,
+> > > > > +	.mmap = tee_shm_fop_mmap,
+> > > > > +};
+> > > > > +
+> > > > >  /**
+> > > > >   * tee_shm_get_fd() - Increase reference count and return file descriptor
+> > > > >   * @shm:	Shared memory handle
+> > > > > @@ -351,10 +296,11 @@ int tee_shm_get_fd(struct tee_shm *shm)
+> > > > >  	if (!(shm->flags & TEE_SHM_DMA_BUF))
+> > > > >  		return -EINVAL;
+> > > > >  
+> > > > > -	get_dma_buf(shm->dmabuf);
+> > > > > -	fd = dma_buf_fd(shm->dmabuf, O_CLOEXEC);
+> > > > > +	/* matched by tee_shm_put() in tee_shm_op_release() */
+> > > > > +	refcount_inc(&shm->refcount);
+> > > > > +	fd = anon_inode_getfd("tee_shm", &tee_shm_fops, shm, O_RDWR);
+> > > > >  	if (fd < 0)
+> > > > > -		dma_buf_put(shm->dmabuf);
+> > > > > +		tee_shm_put(shm);
+> > > > >  	return fd;
+> > > > >  }
+> > > > >  
+> > > > > @@ -364,17 +310,7 @@ int tee_shm_get_fd(struct tee_shm *shm)
+> > > > >   */
+> > > > >  void tee_shm_free(struct tee_shm *shm)
+> > > > >  {
+> > > > > -	/*
+> > > > > -	 * dma_buf_put() decreases the dmabuf reference counter and will
+> > > > > -	 * call tee_shm_release() when the last reference is gone.
+> > > > > -	 *
+> > > > > -	 * In the case of driver private memory we call tee_shm_release
+> > > > > -	 * directly instead as it doesn't have a reference counter.
+> > > > > -	 */
+> > > > > -	if (shm->flags & TEE_SHM_DMA_BUF)
+> > > > > -		dma_buf_put(shm->dmabuf);
+> > > > > -	else
+> > > > > -		tee_shm_release(shm);
+> > > > > +	tee_shm_put(shm);
+> > > > >  }
+> > > > >  EXPORT_SYMBOL_GPL(tee_shm_free);
+> > > > >  
+> > > > > @@ -481,10 +417,15 @@ struct tee_shm *tee_shm_get_from_id(struct tee_context *ctx, int id)
+> > > > >  	teedev = ctx->teedev;
+> > > > >  	mutex_lock(&teedev->mutex);
+> > > > >  	shm = idr_find(&teedev->idr, id);
+> > > > > +	/*
+> > > > > +	 * If the tee_shm was found in the IDR it must have a refcount
+> > > > > +	 * larger than 0 due to the guarantee in tee_shm_put() below. So
+> > > > > +	 * it's safe to use refcount_inc().
+> > > > > +	 */
+> > > > >  	if (!shm || shm->ctx != ctx)
+> > > > >  		shm = ERR_PTR(-EINVAL);
+> > > > > -	else if (shm->flags & TEE_SHM_DMA_BUF)
+> > > > > -		get_dma_buf(shm->dmabuf);
+> > > > > +	else
+> > > > > +		refcount_inc(&shm->refcount);
+> > > > >  	mutex_unlock(&teedev->mutex);
+> > > > >  	return shm;
+> > > > >  }
+> > > > > @@ -496,7 +437,24 @@ EXPORT_SYMBOL_GPL(tee_shm_get_from_id);
+> > > > >   */
+> > > > >  void tee_shm_put(struct tee_shm *shm)
+> > > > >  {
+> > > > > -	if (shm->flags & TEE_SHM_DMA_BUF)
+> > > > > -		dma_buf_put(shm->dmabuf);
+> > > > > +	struct tee_device *teedev = shm->ctx->teedev;
+> > > > > +	bool do_release = false;
+> > > > > +
+> > > > > +	mutex_lock(&teedev->mutex);
+> > > > > +	if (refcount_dec_and_test(&shm->refcount)) {
+> > > > > +		/*
+> > > > > +		 * refcount has reached 0, we must now remove it from the
+> > > > > +		 * IDR before releasing the mutex. This will guarantee that
+> > > > > +		 * the refcount_inc() in tee_shm_get_from_id() never starts
+> > > > > +		 * from 0.
+> > > > > +		 */
+> > > > > +		if (shm->flags & TEE_SHM_DMA_BUF)
+> > > > > +			idr_remove(&teedev->idr, shm->id);
+> > > > > +		do_release = true;
+> > > > 
+> > > > As you are using a refcount in the "traditional" way, why not just use a
+> > > > kref instead?  That solves your "do_release" mess here.
+> > > 
+> > > Yes, but it adds another problem. I don't want to hold the mutex when
+> > > calling tee_shm_release() so that would mean moving idr_remove() to
+> > > tee_shm_release() again and then use kref_get_unless_zero() in
+> > > tee_shm_get_from_id() instead.
+> > 
+> > Why does the idr have anything to do with it here?  Once you are "done"
+> > with the object, remove the entry from the idr and that's it.  You
+> > should never have to mess with kref_get_unless_zero(), that's what locks
+> > are for.
+> 
+> I hope it becomes more clear below.
+> 
+> > > With this approach the tee_shm is removed from the IDR so it cannot be
+> > > seen any longer when the refcount is 0. I tried implementing it in both
+> > > ways before and in my opinion this turned out better.
+> > 
+> > Really?  Something feels wrong here.  tee_release_device() should drop
+> > the reference from the idr structure as then you know that userspace can
+> > not grab any new references to it and should not need to look it up
+> > again from anything.  Then in your final kref_put() call, in the release
+> > callback for that, free the memory.
+> 
+> I assume you mean tee_shm_release().
+> 
+> As I understand it you're describing more or less how it worked before
+> this patch, the only significant difference I see is that it was the
+> release callback from the DMA-buf that called tee_shm_release() instead
+> of kref_put() as you suggest. With that we have a window where the
+> reference counter is 0, but the tee_shm is still in the IDR. If another
+> thread, perhaps malicious, calls tee_shm_get_from_id() it may be able to
+> grab the mutex before tee_shm_release(). If we just increase the
+> reference counter without checking if it's 0 to start with or not then
+> we're in trouble.
 
-Regressions Summary
--------------------
+Your device has to have a lock outside of it in order for this to work
+no matter what.  Your patch doesn't change that, you can't grab a lock
+for yourself to then check if that pointer was valid or not :)
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
+Why not properly reference count your shm objects in the tee object?
+That way when the last reference to a shm object is dropped, it cleans
+itself up and gets rid of the idr entry (under the device mutex).  Then
+it drops the reference to the tee object, and if that was the last
+reference on the tee object, it too will be freed.
 
-r8a77950-salvator-x      | arm64  | lab-baylibre  | gcc-10   | defconfig   =
-                 | 1          =
+That's what kobjects do, and while you probably don't want to use a full
+kobject here, the same idea is relevant.
 
+If people can randomly grab shm objects, then they need to be reference
+counted properly.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.84-132-g7154d0f70682/plan/baseline/
+thanks,
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.84-132-g7154d0f70682
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7154d0f7068228b7cd42d7d46de568958d1e06b9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b88cc725d7464cf8397131
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.84-=
-132-g7154d0f70682/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.84-=
-132-g7154d0f70682/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b88cc725d7464cf8397=
-132
-        new failure (last pass: v5.10.84-132-g4821c82036b6) =
-
- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-r8a77950-salvator-x      | arm64  | lab-baylibre  | gcc-10   | defconfig   =
-                 | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b88f6c97774920a739714b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.84-=
-132-g7154d0f70682/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sal=
-vator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.84-=
-132-g7154d0f70682/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sal=
-vator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b88f6c97774920a7397=
-14c
-        new failure (last pass: v5.10.84-132-g4821c82036b6) =
-
- =20
+greg k-h
