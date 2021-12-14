@@ -2,293 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8355E473F2B
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 10:17:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56808473EF9
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 10:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232333AbhLNJRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 04:17:44 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:38620 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232318AbhLNJRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Dec 2021 04:17:44 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1mx3wM-002aUM-HM; Tue, 14 Dec 2021 09:17:42 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Tue, 07 Dec 2021 10:29:56 +0000
-Subject: [git:media_tree/master] media: cec: fix a deadlock situation
-To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1mx3wM-002aUM-HM@www.linuxtv.org>
+        id S229953AbhLNJJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 04:09:45 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59110 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229888AbhLNJJo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 04:09:44 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7529261389;
+        Tue, 14 Dec 2021 09:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D4AFC34606;
+        Tue, 14 Dec 2021 09:09:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639472983;
+        bh=llw7LsPX1mxgbByEATtQ7IKOogRD++SK1ta+hWTJ1bE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=grsuabsOg0F4YP4YndVEAH5Mcpw8s8+ms7TU5t+GnAf1Ykj6Yq0x3FDPshT4i8Sg2
+         TAyOLQpWVXYSzDzqmOnezZM5ryhEl9QpnhzUvp63n4yMrLmo3TBqcNp42lJcw399Xx
+         4dnBNpj9uI6l/BOf0ia5qxwuwqOn0QnbTfK0mpLU=
+Date:   Tue, 14 Dec 2021 10:09:41 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Subject: Re: [PATCH 4.14 00/53] 4.14.258-rc1 review
+Message-ID: <YbhfVe5j6reAR+hX@kroah.com>
+References: <20211213092928.349556070@linuxfoundation.org>
+ <CA+G9fYsEQCjOi_58WcMb4i-2t1Gv=KjPuWa6L792YAZF=zzinw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYsEQCjOi_58WcMb4i-2t1Gv=KjPuWa6L792YAZF=zzinw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+On Tue, Dec 14, 2021 at 10:53:19AM +0530, Naresh Kamboju wrote:
+> On Mon, 13 Dec 2021 at 15:07, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 4.14.258 release.
+> > There are 53 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 15 Dec 2021 09:29:16 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.258-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+> 
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> NOTE:
+> Following warnings noticed on x86_64 and i386 with defconfig
+> building with gcc-8/9/10/11 and clang-11/12/13 and nightly.
+> 
+> make --silent --keep-going --jobs=8
+> O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=x86_64
+> CROSS_COMPILE=x86_64-linux-gnu- 'CC=sccache x86_64-linux-gnu-gcc'
+> 'HOSTCC=sccache gcc' defconfig
+> warning: (EFI) selects ARCH_USE_MEMREMAP_PROT which has unmet direct
+> dependencies (AMD_MEM_ENCRYPT)
+> warning: (EFI) selects ARCH_USE_MEMREMAP_PROT which has unmet direct
+> dependencies (AMD_MEM_ENCRYPT)
 
-Subject: media: cec: fix a deadlock situation
-Author:  Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Date:    Wed Dec 1 13:41:26 2021 +0100
+I'll go drop the offending commit from all trees, thanks.
 
-The cec_devnode struct has a lock meant to serialize access
-to the fields of this struct. This lock is taken during
-device node (un)registration and when opening or releasing a
-filehandle to the device node. When the last open filehandle
-is closed the cec adapter might be disabled by calling the
-adap_enable driver callback with the devnode.lock held.
-
-However, if during that callback a message or event arrives
-then the driver will call one of the cec_queue_event()
-variants in cec-adap.c, and those will take the same devnode.lock
-to walk the open filehandle list.
-
-This obviously causes a deadlock.
-
-This is quite easy to reproduce with the cec-gpio driver since that
-uses the cec-pin framework which generated lots of events and uses
-a kernel thread for the processing, so when adap_enable is called
-the thread is still running and can generate events.
-
-But I suspect that it might also happen with other drivers if an
-interrupt arrives signaling e.g. a received message before adap_enable
-had a chance to disable the interrupts.
-
-This patch adds a new mutex to serialize access to the fhs list.
-When adap_enable() is called the devnode.lock mutex is held, but
-not devnode.lock_fhs. The event functions in cec-adap.c will now
-use devnode.lock_fhs instead of devnode.lock, ensuring that it is
-safe to call those functions from the adap_enable callback.
-
-This specific issue only happens if the last open filehandle is closed
-and the physical address is invalid. This is not something that
-happens during normal operation, but it does happen when monitoring
-CEC traffic (e.g. cec-ctl --monitor) with an unconfigured CEC adapter.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>  # for v5.13 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/cec/core/cec-adap.c | 38 +++++++++++++++++++++-----------------
- drivers/media/cec/core/cec-api.c  |  6 ++++++
- drivers/media/cec/core/cec-core.c |  3 +++
- include/media/cec.h               | 11 +++++++++--
- 4 files changed, 39 insertions(+), 19 deletions(-)
-
----
-
-diff --git a/drivers/media/cec/core/cec-adap.c b/drivers/media/cec/core/cec-adap.c
-index 0546650b3853..2e12331c12a9 100644
---- a/drivers/media/cec/core/cec-adap.c
-+++ b/drivers/media/cec/core/cec-adap.c
-@@ -161,10 +161,10 @@ static void cec_queue_event(struct cec_adapter *adap,
- 	u64 ts = ktime_get_ns();
- 	struct cec_fh *fh;
- 
--	mutex_lock(&adap->devnode.lock);
-+	mutex_lock(&adap->devnode.lock_fhs);
- 	list_for_each_entry(fh, &adap->devnode.fhs, list)
- 		cec_queue_event_fh(fh, ev, ts);
--	mutex_unlock(&adap->devnode.lock);
-+	mutex_unlock(&adap->devnode.lock_fhs);
- }
- 
- /* Notify userspace that the CEC pin changed state at the given time. */
-@@ -178,11 +178,12 @@ void cec_queue_pin_cec_event(struct cec_adapter *adap, bool is_high,
- 	};
- 	struct cec_fh *fh;
- 
--	mutex_lock(&adap->devnode.lock);
--	list_for_each_entry(fh, &adap->devnode.fhs, list)
-+	mutex_lock(&adap->devnode.lock_fhs);
-+	list_for_each_entry(fh, &adap->devnode.fhs, list) {
- 		if (fh->mode_follower == CEC_MODE_MONITOR_PIN)
- 			cec_queue_event_fh(fh, &ev, ktime_to_ns(ts));
--	mutex_unlock(&adap->devnode.lock);
-+	}
-+	mutex_unlock(&adap->devnode.lock_fhs);
- }
- EXPORT_SYMBOL_GPL(cec_queue_pin_cec_event);
- 
-@@ -195,10 +196,10 @@ void cec_queue_pin_hpd_event(struct cec_adapter *adap, bool is_high, ktime_t ts)
- 	};
- 	struct cec_fh *fh;
- 
--	mutex_lock(&adap->devnode.lock);
-+	mutex_lock(&adap->devnode.lock_fhs);
- 	list_for_each_entry(fh, &adap->devnode.fhs, list)
- 		cec_queue_event_fh(fh, &ev, ktime_to_ns(ts));
--	mutex_unlock(&adap->devnode.lock);
-+	mutex_unlock(&adap->devnode.lock_fhs);
- }
- EXPORT_SYMBOL_GPL(cec_queue_pin_hpd_event);
- 
-@@ -211,10 +212,10 @@ void cec_queue_pin_5v_event(struct cec_adapter *adap, bool is_high, ktime_t ts)
- 	};
- 	struct cec_fh *fh;
- 
--	mutex_lock(&adap->devnode.lock);
-+	mutex_lock(&adap->devnode.lock_fhs);
- 	list_for_each_entry(fh, &adap->devnode.fhs, list)
- 		cec_queue_event_fh(fh, &ev, ktime_to_ns(ts));
--	mutex_unlock(&adap->devnode.lock);
-+	mutex_unlock(&adap->devnode.lock_fhs);
- }
- EXPORT_SYMBOL_GPL(cec_queue_pin_5v_event);
- 
-@@ -286,12 +287,12 @@ static void cec_queue_msg_monitor(struct cec_adapter *adap,
- 	u32 monitor_mode = valid_la ? CEC_MODE_MONITOR :
- 				      CEC_MODE_MONITOR_ALL;
- 
--	mutex_lock(&adap->devnode.lock);
-+	mutex_lock(&adap->devnode.lock_fhs);
- 	list_for_each_entry(fh, &adap->devnode.fhs, list) {
- 		if (fh->mode_follower >= monitor_mode)
- 			cec_queue_msg_fh(fh, msg);
- 	}
--	mutex_unlock(&adap->devnode.lock);
-+	mutex_unlock(&adap->devnode.lock_fhs);
- }
- 
- /*
-@@ -302,12 +303,12 @@ static void cec_queue_msg_followers(struct cec_adapter *adap,
- {
- 	struct cec_fh *fh;
- 
--	mutex_lock(&adap->devnode.lock);
-+	mutex_lock(&adap->devnode.lock_fhs);
- 	list_for_each_entry(fh, &adap->devnode.fhs, list) {
- 		if (fh->mode_follower == CEC_MODE_FOLLOWER)
- 			cec_queue_msg_fh(fh, msg);
- 	}
--	mutex_unlock(&adap->devnode.lock);
-+	mutex_unlock(&adap->devnode.lock_fhs);
- }
- 
- /* Notify userspace of an adapter state change. */
-@@ -1579,6 +1580,7 @@ void __cec_s_phys_addr(struct cec_adapter *adap, u16 phys_addr, bool block)
- 		/* Disabling monitor all mode should always succeed */
- 		if (adap->monitor_all_cnt)
- 			WARN_ON(call_op(adap, adap_monitor_all_enable, false));
-+		/* serialize adap_enable */
- 		mutex_lock(&adap->devnode.lock);
- 		if (adap->needs_hpd || list_empty(&adap->devnode.fhs)) {
- 			WARN_ON(adap->ops->adap_enable(adap, false));
-@@ -1590,14 +1592,16 @@ void __cec_s_phys_addr(struct cec_adapter *adap, u16 phys_addr, bool block)
- 			return;
- 	}
- 
-+	/* serialize adap_enable */
- 	mutex_lock(&adap->devnode.lock);
- 	adap->last_initiator = 0xff;
- 	adap->transmit_in_progress = false;
- 
--	if ((adap->needs_hpd || list_empty(&adap->devnode.fhs)) &&
--	    adap->ops->adap_enable(adap, true)) {
--		mutex_unlock(&adap->devnode.lock);
--		return;
-+	if (adap->needs_hpd || list_empty(&adap->devnode.fhs)) {
-+		if (adap->ops->adap_enable(adap, true)) {
-+			mutex_unlock(&adap->devnode.lock);
-+			return;
-+		}
- 	}
- 
- 	if (adap->monitor_all_cnt &&
-diff --git a/drivers/media/cec/core/cec-api.c b/drivers/media/cec/core/cec-api.c
-index 0edb7142afdb..d72ad48c9898 100644
---- a/drivers/media/cec/core/cec-api.c
-+++ b/drivers/media/cec/core/cec-api.c
-@@ -586,6 +586,7 @@ static int cec_open(struct inode *inode, struct file *filp)
- 		return err;
- 	}
- 
-+	/* serialize adap_enable */
- 	mutex_lock(&devnode->lock);
- 	if (list_empty(&devnode->fhs) &&
- 	    !adap->needs_hpd &&
-@@ -624,7 +625,9 @@ static int cec_open(struct inode *inode, struct file *filp)
- 	}
- #endif
- 
-+	mutex_lock(&devnode->lock_fhs);
- 	list_add(&fh->list, &devnode->fhs);
-+	mutex_unlock(&devnode->lock_fhs);
- 	mutex_unlock(&devnode->lock);
- 
- 	return 0;
-@@ -653,8 +656,11 @@ static int cec_release(struct inode *inode, struct file *filp)
- 		cec_monitor_all_cnt_dec(adap);
- 	mutex_unlock(&adap->lock);
- 
-+	/* serialize adap_enable */
- 	mutex_lock(&devnode->lock);
-+	mutex_lock(&devnode->lock_fhs);
- 	list_del(&fh->list);
-+	mutex_unlock(&devnode->lock_fhs);
- 	if (cec_is_registered(adap) && list_empty(&devnode->fhs) &&
- 	    !adap->needs_hpd && adap->phys_addr == CEC_PHYS_ADDR_INVALID) {
- 		WARN_ON(adap->ops->adap_enable(adap, false));
-diff --git a/drivers/media/cec/core/cec-core.c b/drivers/media/cec/core/cec-core.c
-index 551689d371a7..ec67065d5202 100644
---- a/drivers/media/cec/core/cec-core.c
-+++ b/drivers/media/cec/core/cec-core.c
-@@ -169,8 +169,10 @@ static void cec_devnode_unregister(struct cec_adapter *adap)
- 	devnode->registered = false;
- 	devnode->unregistered = true;
- 
-+	mutex_lock(&devnode->lock_fhs);
- 	list_for_each_entry(fh, &devnode->fhs, list)
- 		wake_up_interruptible(&fh->wait);
-+	mutex_unlock(&devnode->lock_fhs);
- 
- 	mutex_unlock(&devnode->lock);
- 
-@@ -272,6 +274,7 @@ struct cec_adapter *cec_allocate_adapter(const struct cec_adap_ops *ops,
- 
- 	/* adap->devnode initialization */
- 	INIT_LIST_HEAD(&adap->devnode.fhs);
-+	mutex_init(&adap->devnode.lock_fhs);
- 	mutex_init(&adap->devnode.lock);
- 
- 	adap->kthread = kthread_run(cec_thread_func, adap, "cec-%s", name);
-diff --git a/include/media/cec.h b/include/media/cec.h
-index 208c9613c07e..77346f757036 100644
---- a/include/media/cec.h
-+++ b/include/media/cec.h
-@@ -26,13 +26,17 @@
-  * @dev:	cec device
-  * @cdev:	cec character device
-  * @minor:	device node minor number
-+ * @lock:	lock to serialize open/release and registration
-  * @registered:	the device was correctly registered
-  * @unregistered: the device was unregistered
-+ * @lock_fhs:	lock to control access to @fhs
-  * @fhs:	the list of open filehandles (cec_fh)
-- * @lock:	lock to control access to this structure
-  *
-  * This structure represents a cec-related device node.
-  *
-+ * To add or remove filehandles from @fhs the @lock must be taken first,
-+ * followed by @lock_fhs. It is safe to access @fhs if either lock is held.
-+ *
-  * The @parent is a physical device. It must be set by core or device drivers
-  * before registering the node.
-  */
-@@ -43,10 +47,13 @@ struct cec_devnode {
- 
- 	/* device info */
- 	int minor;
-+	/* serialize open/release and registration */
-+	struct mutex lock;
- 	bool registered;
- 	bool unregistered;
-+	/* protect access to fhs */
-+	struct mutex lock_fhs;
- 	struct list_head fhs;
--	struct mutex lock;
- };
- 
- struct cec_adapter;
+greg k-h
