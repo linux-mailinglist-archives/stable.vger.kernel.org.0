@@ -2,119 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E53473E4F
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 09:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2875473EBD
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 09:51:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231862AbhLNIif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 03:38:35 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:49628 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbhLNIif (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 03:38:35 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id E076C1F3C4;
-        Tue, 14 Dec 2021 08:38:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1639471113; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=YxBgd60xxvmPh600wNZTY4w7KXnu0mHxHrDaqy+o98A=;
-        b=vVvheb2IkU+9MQvKe8kp/a+f0guikXyJAnX57LL0b9Spp1rmzBXcKVMYv7AC3h/HpFhznH
-        4wr8dnj3mj449LOYEcW1JhvRrJkjkhCS9WRL0TP5R29ZUhahxJicw5MR8xPg6AqsJNJF9A
-        YPeyptfBpPp3onsg+s/QHeycWIFUXgo=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 97D7DA3B88;
-        Tue, 14 Dec 2021 08:38:33 +0000 (UTC)
-Date:   Tue, 14 Dec 2021 09:38:33 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Alexey Makhalov <amakhalov@vmware.com>,
-        Dennis Zhou <dennis@kernel.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Nico Pache <npache@redhat.com>
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Message-ID: <YbhYCT0z04la1vjZ@dhcp22.suse.cz>
-References: <YYrGpn/52HaLCAyo@fedora>
- <YYrSC7vtSQXz652a@dhcp22.suse.cz>
- <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
- <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
- <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
- <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
- <Ya89aqij6nMwJrIZ@dhcp22.suse.cz>
- <YbHfBgPQMkjtuHYF@dhcp22.suse.cz>
- <YbdhdySBaHJ/UxBZ@dhcp22.suse.cz>
- <ba5f460b-fc6c-601b-053c-086185fd3049@redhat.com>
+        id S231855AbhLNIvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 03:51:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38824 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230214AbhLNIvR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 03:51:17 -0500
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0E33C061574
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 00:51:16 -0800 (PST)
+Received: by mail-lf1-x144.google.com with SMTP id b1so35492798lfs.13
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 00:51:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=lLKg5+si4bkxsbvGeNcSKDL9joZRAGyEtpR0PZy5CaM=;
+        b=Cl8LLWby/8KdABcGyeh0MkycZ6Bne7o3W4EQ1aLhfzqoIB93wwu6Omcu8d7IPLZg2y
+         ZeKJ4sPS+WM3T1+L/I2NPfeTGSFJ92n3q4GVcvljAPP7LNonT+u6hO/7uPzE6kEpQ5ui
+         IoWRZh4ta+RenvyOwXl7EQ+dVsks1MP5KrA4b60WpfADaghNRTV/Zap0xzKagC8t5ice
+         uN7Al+Irebm+kosNU9BMLVq3HO6sgrwbfI6shlOBkd412/IEwbuPlZBGQWVuOR4Xd+Ga
+         h3jSELCXHUg2nlzUR+eS9+I8DZbj/61BpikaOjTI1R6k5e2v69qA5l+ywAiPatCNJ0Ec
+         MI3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=lLKg5+si4bkxsbvGeNcSKDL9joZRAGyEtpR0PZy5CaM=;
+        b=UJvXZN03fFXCnEghN6JciU+SoSUSuzH+woQdyaw9WVt5EQ29MS36tlLCJaiO1Zykag
+         UL/7JTk5tVqnJEE5VLlPL7u+F7TT+dMAahePfCt/EzIdPQggWJqVu3MLE42+j2k7vwJn
+         gGHs0KUKYJ8d3SmgOlDWTnJn4GG9J8c1bZX5bDtJh75wAgbVTK7VhyTeMwWLh4GFSi0P
+         B9IB5FQw1t3hZF/aDoO709nQ1FECjP/uex49sftIYPJg00FC8deJEChvuVKsc2GLkzaK
+         UpqG/xoWc0+/HnMfMjyOMi3QncRnMZXeThT72crQ/jPVHu1Y0VQdGnhsu1q/1DdLb1Tr
+         1bow==
+X-Gm-Message-State: AOAM533I7yd9NeX5rYd5xcdR2d+Oyyf7KN1QYsncJchpugd1rOKg3wws
+        3TQnOwR66x3LWXPbBgqtmoq9BMKwR7fL+9ifOusGhi7zpB8=
+X-Google-Smtp-Source: ABdhPJyRC4cZwCG/oed0ui/tyS+4ZNcqyHPkxC6u212W0JORUw5H9JefZGKXSKzfQoBY2S5QhuDCCOxU2kAkISSO1Bw=
+X-Received: by 2002:a05:6512:370b:: with SMTP id z11mr3718297lfr.260.1639471875194;
+ Tue, 14 Dec 2021 00:51:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ba5f460b-fc6c-601b-053c-086185fd3049@redhat.com>
+Received: by 2002:a2e:978c:0:0:0:0:0 with HTTP; Tue, 14 Dec 2021 00:51:14
+ -0800 (PST)
+Reply-To: mrs.aishaa@yahoo.com
+From:   Mrs Aisha Al-Qaddafi <adamam489@gmail.com>
+Date:   Tue, 14 Dec 2021 08:51:14 +0000
+Message-ID: <CAH-qvqUGtdC6-qJ749MfYw5Jp-knF-s1zRmcz1-mGreFW=KNKA@mail.gmail.com>
+Subject: Dear Partner,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 13-12-21 16:07:18, David Hildenbrand wrote:
-> On 13.12.21 16:06, Michal Hocko wrote:
-> > On Thu 09-12-21 11:48:42, Michal Hocko wrote:
-> > [...]
-> >> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> >> index 852041f6be41..2d38a431f62f 100644
-> >> --- a/mm/memory_hotplug.c
-> >> +++ b/mm/memory_hotplug.c
-> >> @@ -1161,19 +1161,21 @@ static void reset_node_present_pages(pg_data_t *pgdat)
-> >>  }
-> >>  
-> >>  /* we are OK calling __meminit stuff here - we have CONFIG_MEMORY_HOTPLUG */
-> >> -static pg_data_t __ref *hotadd_new_pgdat(int nid)
-> >> +static pg_data_t __ref *hotadd_init_pgdat(int nid)
-> >>  {
-> >>  	struct pglist_data *pgdat;
-> >>  
-> >>  	pgdat = NODE_DATA(nid);
-> >> -	if (!pgdat) {
-> >> -		pgdat = arch_alloc_nodedata(nid);
-> >> -		if (!pgdat)
-> >> -			return NULL;
-> >>  
-> >> +	/*
-> >> +	 * NODE_DATA is preallocated (free_area_init) but its internal
-> >> +	 * state is not allocated completely. Add missing pieces.
-> >> +	 * Completely offline nodes stay around and they just need
-> >> +	 * reintialization.
-> >> +	 */
-> >> +	if (!pgdat->per_cpu_nodestats) {
-> >>  		pgdat->per_cpu_nodestats =
-> >>  			alloc_percpu(struct per_cpu_nodestat);
-> >> -		arch_refresh_nodedata(nid, pgdat);
-> > 
-> > This should really be 
-> > diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> > index 42211485bcf3..2daa88ce8c80 100644
-> > --- a/mm/memory_hotplug.c
-> > +++ b/mm/memory_hotplug.c
-> > @@ -1173,7 +1173,7 @@ static pg_data_t __ref *hotadd_init_pgdat(int nid)
-> >  	 * Completely offline nodes stay around and they just need
-> >  	 * reintialization.
-> >  	 */
-> > -	if (!pgdat->per_cpu_nodestats) {
-> > +	if (pgdat->per_cpu_nodestats == &boot_nodestats) {
-> >  		pgdat->per_cpu_nodestats =
-> >  			alloc_percpu(struct per_cpu_nodestat);
-> >  	} else {
-> > 
-> 
-> I'll try giving this some churn later this week -- busy with other stuff.
+Dear Partner,
 
-Please hang on, this needs to be done yet slightly differently. I will
-post something more resembling a final patch later today. For the
-purpose of the testing this should be sufficient for now.
--- 
-Michal Hocko
-SUSE Labs
+I came across your contact during my private search Mrs Aisha Al-Qaddafi is
+my name, the only daughter of late Libyan president, I have funds the sum
+of $27.5 million USD for investment, I am interested in you for investment
+project assistance in your country, i shall compensate you 30% of the total
+sum after the funds are transfer into your account, Reply me urgent for
+more details. Please kindly respond quickly for further details through my
+private e_mail address:mrs.aishaa@yahoo.com
+
+Mrs Aisha Al-Qaddafi.
