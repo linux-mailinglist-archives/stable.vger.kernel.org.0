@@ -2,172 +2,456 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7CC2473D85
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 08:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44258473DD6
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 08:57:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231409AbhLNHWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 02:22:40 -0500
-Received: from mail-bn8nam12on2047.outbound.protection.outlook.com ([40.107.237.47]:6401
-        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230000AbhLNHWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Dec 2021 02:22:39 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BpT+PNu9r/Nx9D+HkjSZ2VKdGIKwAwp8sLKpyS754rAwRk3fsUFey5Cz6dWKYIFOpvl5NwIdRIZquV8gcCMqeeMJapL0xAhyijnlEqOHwNZb0ylDMUDZXfy1PFq4c8Bdh/cSR021jV6q0jaJwUVADIwy5tl2U/Fll3Yv4AP9ekhLz1V4iJdeU11cOqgxCaU5HEir86PHWFzD5kNUPH7zHlXRy5sRIdq/j5Pv6KrmUx7dzoziaCGAzYeiJdKQiHaQzweJONDCCEAFSCRLm2Lw8Sx/DkrDCVONmCAuqCLfFeBpUAPnjVrM3Ahou2+uSxbKJY4zZCqdGME31Xi2KbiMoQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=EVgOrRO6rh6eAxz/3q1ufyQF1OeV1GqI6Q68lVGJhY0=;
- b=MfYFJz4SrmM4J8lNm6Q96QL17WW8cagF4sggDADfSAfiAQPmyWqNNNbeKib5WSRldH333KMhJYYz5guJ5wHXqsO4gHtrhOQdG7mAm0cfZ6OU2L+1NoX3TZ68yog5MudWSEzt4qLs03DYD1bp2u1JPkkUXLmzaQ30kC61RzaeURD9PGqg9cSRnM/sgDcu92y1/moYufB7VYR3clfs2M2HsT/T/bS5XRHXPmaTgcFdEilR/CTk2sBdTIJ304UDLkmKUTxUbB9XKdpkox1cHbJg494HzCTIDJopnSyKZJEBbug5QYtjwQ5dPpnvVd+mA5LUKwgruL8oVVA06ujPA3ErAg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=EVgOrRO6rh6eAxz/3q1ufyQF1OeV1GqI6Q68lVGJhY0=;
- b=Dje+EDPq3Gq7tPimDD95wuqMQ3JhRqog6ATVAtjr34yPNds46gOYmdElvONvGp4oygHS3/THjf/61m8/Ag3np57kp251MJNaKFlDgv4Sz20aRy1tXN2v9hFi/M2viXKQqSQoxUiyMroDnOkpj1rqlZAPLoR91DPL+UomWgqEPz2krAiaJVPz8eLwB545hfz8ttX3qofiDA7rbjlxIrY2w2YnFV2A0Mcb93e9R/9LofP4S87MpUxOH1Cpq7jpCQ6nJn8rTRZ3SOHj8G3AN6yiwA4nY5NqovgMfpt7zo5rA9kON1UXWnMH8zX8NXY8TiYtNAshnrm7Lb0b71J4nLpcUw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY4PR12MB1576.namprd12.prod.outlook.com (2603:10b6:910:10::9)
- by CY4PR12MB1654.namprd12.prod.outlook.com (2603:10b6:910:3::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.16; Tue, 14 Dec
- 2021 07:22:37 +0000
-Received: from CY4PR12MB1576.namprd12.prod.outlook.com
- ([fe80::24b0:46e7:d3c0:a77b]) by CY4PR12MB1576.namprd12.prod.outlook.com
- ([fe80::24b0:46e7:d3c0:a77b%7]) with mapi id 15.20.4778.018; Tue, 14 Dec 2021
- 07:22:37 +0000
-Subject: Re: [PATCH 1/3] ALSA: hda/tegra: Skip reset on BPMP devices
-To:     Dmitry Osipenko <digetx@gmail.com>, tiwai@suse.com,
-        broonie@kernel.org, lgirdwood@gmail.com, thierry.reding@gmail.com,
-        perex@perex.cz
-Cc:     jonathanh@nvidia.com, alsa-devel@alsa-project.org,
-        devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mohan Kumar <mkumard@nvidia.com>, robh+dt@kernel.org
-References: <1638858770-22594-1-git-send-email-spujar@nvidia.com>
- <1638858770-22594-2-git-send-email-spujar@nvidia.com>
- <7742adae-cdbe-a9ea-2cef-f63363298d73@gmail.com>
- <8fd704d9-43ce-e34a-a3c0-b48381ef0cd8@nvidia.com>
- <56bb43b6-8d72-b1de-4402-a2cb31707bd9@gmail.com>
- <4855e9c4-e4c2-528b-c9ad-2be7209dc62a@nvidia.com>
- <5d441571-c1c2-5433-729f-86d6396c2853@gmail.com>
- <f32cde65-63dc-67f8-ded8-b58ea5e89f4e@nvidia.com>
- <95cc7efa-251c-690b-9afa-53ee9e052c34@gmail.com>
- <148fba18-5d14-d342-0eb9-4ff224cc58ad@nvidia.com>
- <3b0de739-7866-3886-be9c-a853c746f8b7@gmail.com>
- <73d04377-9898-930b-09db-bb6c4b3eb90a@nvidia.com>
- <ad388f5e-6f60-cf78-8510-87aec8524e33@gmail.com>
- <50bf5a83-051e-8c12-6502-aabd8edd0a72@nvidia.com>
- <7230ad0b-2b04-4f1b-b616-b7d98789ded0@gmail.com>
-From:   Sameer Pujar <spujar@nvidia.com>
-Message-ID: <48f891bc-d8f6-2634-6dd1-6ea4f14ae6a3@nvidia.com>
-Date:   Tue, 14 Dec 2021 12:52:24 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
-In-Reply-To: <7230ad0b-2b04-4f1b-b616-b7d98789ded0@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-GB
-X-ClientProxiedBy: MA1PR01CA0171.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a01:d::17) To CY4PR12MB1576.namprd12.prod.outlook.com
- (2603:10b6:910:10::9)
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 20d21862-5133-4114-13f8-08d9bed28148
-X-MS-TrafficTypeDiagnostic: CY4PR12MB1654:EE_
-X-Microsoft-Antispam-PRVS: <CY4PR12MB1654D64E3A8702A1D58B285AA7759@CY4PR12MB1654.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: baIN69Y6DIIc0rAtKt5EqhXB0ic/yS9mdosRjLL7Wn9GhAJl3qmdqq6YEhHZVo8uZmcfNWpcwB2It/tpGe3/iV311H2iq9CmCUVnZY84JW7K4h1tpZlXm36crLVmGrfVyl+lBlmCAB9wOL9tRMkb5vXRtcNv0873qZy+vk+aWHmWOw4pipGlsz2tPkvMRAFa1KbrB2lAVnPkv4YWgdljYegOElTQCctiHVzdpYoHOYHTMH34zigatASSomw0JFXjfEJ9emjJcbUwSwOThItaoC1T1s8B+KLdlpS+wLJ6yG/eVjoRC89QdcrPjKOhYIBElWJUGdHDBv4OMLZbvRC4DT+UEXrl+keBD6g6mS9rqUH3RYNr5KjahFIZwvvZLNQSstQJjOPJXXBeeCVySJJ9uOXJjzGsdF68wRHvyhyiZzpekHj2OaIMTynq60ppr6lXmnxiK2cjEB56J68IMo2fZzd+pTkK+GbpK2/u46AXyU5dQpaHlnAolgJUEdP0PcPLNxtMgZEHPFZEJJEatReYSkFW+pzCVkOuyHUFfrstEsiqCkDEPMbBc9bmvdkDBgXGybrc4sl+Rp69yf3yMSSCWm2qSbKRmiWdLaAHDxgGbnzzXCOrwI9ZDJ7bUUwOsVP/aOJa8EGNNSw0ye1P22NjYAdXLRa/dguXhUO8CH0dLCgSkgQsvStM4S9CN5Tw2ec0390fEpWRGh0mK6o3659C67QE9K1rAn/VQm2XpMOSHys=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY4PR12MB1576.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2906002)(6512007)(66476007)(31686004)(66556008)(66946007)(8936002)(7416002)(6486002)(38100700002)(508600001)(2616005)(5660300002)(86362001)(36756003)(4326008)(53546011)(6506007)(8676002)(31696002)(186003)(316002)(26005)(6666004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?VTVTaU82cktScThpcWdRQzc1MjNobVcvTDRvdGZjNmFUcUpsd3Z0UUtlM3lV?=
- =?utf-8?B?aHFXRU1hOXozVGpaL3pLREc5ZkJZeitFRVJjcDg5a2VKU2tMSkhQOGVLaW44?=
- =?utf-8?B?alozZjllTmRvT3IzTDdkb3ZIL3FoQTJwTG14M0pzT2VzNDJvOVExa3NsdWNB?=
- =?utf-8?B?S2M1S1p0OUZoU1c2RXpML2NBQ0F0dURNamU4Y3ZrbTN2cC9MNHJxeSs0eDhS?=
- =?utf-8?B?RWEyRlc3SWpNMkZ4N2NyZ3crZHZ2RThkUTd3S054ZFlsUUlGemUvbEFoUEMv?=
- =?utf-8?B?QzNVYThIRWNKOU8vQ3kyYkRIN01zR2NlQThicG11UmoybENDUXVvZzY3RjdX?=
- =?utf-8?B?OEwwQmJkM3RpTDJoTnBUam01ekJ6OXV0S2w3Y1pkbEN2NWY0NUh0MmhTR3pX?=
- =?utf-8?B?bm9WUFZRSVY4QzFFaGNTSDdwL3grSGJQSnFESXNRTFFzME5hV2lEVkdHZVpR?=
- =?utf-8?B?ZUtPai9nbVJjdTRYLzQzeTZaTUlWLy82QjMxd29HU0dvZlRvMEJYZ1poUmlp?=
- =?utf-8?B?T29YTkVWTWlIcjZwWEIrVlhwTjFYb3VWS2t4SU1jWDhSWFpzb3duYU92UCtV?=
- =?utf-8?B?RGRjOEdUa1JNeEl3dUpibjJUNlF5Vy9VdkhUMXVFQ3JrYXAyQmFKQ0NQZTBF?=
- =?utf-8?B?STJGZTdoTDlnL3JVZW9MVE96UzlSVi94ZnR3UEVyTERRQStja0krLzFBd2Mx?=
- =?utf-8?B?Z21WRnBwNDdWRXJ4cUpKM29QZm1KZm9aKzRVRDFGU0cxTkQrbzJGOW41MjdG?=
- =?utf-8?B?eEZDQ3lpK1FiZlFNMUVVSjA4YnRHc3NzTHJEcGVFNk9weDhQNG9lYXdEbmNv?=
- =?utf-8?B?MVlEWHdKUjBTdGVoRHJCVnkzMFExVENhZTVmbC9yY284VHNodlRqd2hOMXlO?=
- =?utf-8?B?VE9kS1JsVmZQNStIbjVSVklnS3Njb1hNMkRJREpnMkp2RW14VTBSN0tVWDlz?=
- =?utf-8?B?Uzc0cm9MNmo2eHgxaGdXR2ZHYVlnclptY1BxRmlNRHZmNUF4Rk53SE5FZTBt?=
- =?utf-8?B?Tm1EMXFuUUlRbXBZOWUxcjQrc1FOVm9mWVJUMWprTE56R0dwck5hRlBWRFJl?=
- =?utf-8?B?TDVUL00vcTZJWlBDVk05MVg3ZzdVTEk0Zi9nU3EvTG5DdndnUXJFNUlOMmN1?=
- =?utf-8?B?dVpuekprTDY5VWhick1PaWszd1ZteXNDd0QwN0ZOc21BaWpOdk5YYUdlUk9z?=
- =?utf-8?B?N3dCVVFaNXp5VXMydDZyN3VNNFBXdm1LOUk0R0xPQWoxcmtRa0RmV0tPanZ4?=
- =?utf-8?B?NEVUelZsMjlhbVR3b1hpeXE0ZnZ2NTRnR0xDZ01iaVhRWW03VXVvYzZQNjlt?=
- =?utf-8?B?QWJ3RklpSXpmaGJDcGJ6dll0N0kveVZKeW9WbnNzUEJ1Njc5dEk1Y1pkVVlS?=
- =?utf-8?B?a3V6cmxZYjd5ZFo5bFFHUTRwQzQ2RTAwNk1CVEdJQTdXcmVwZS9MckNlK1NO?=
- =?utf-8?B?ZXdZTkVkM1FZUHpWaU92MVh0U0hKWmtXU28vWVMyY3NqUlJyQW8wU1k2Qmla?=
- =?utf-8?B?L0I0Nk9zdEpFcitGZ1k1YWtrSGFCYUxEVXhIOHMxV28yVE9ZZDZHRkNrVjAx?=
- =?utf-8?B?aFEyQXRpaXdHVW56a2xReTFGdWlMOFoyZHBjYk41ZDBnTmh1UlJyOGJtdWNu?=
- =?utf-8?B?S2crd2pqRCt0blFZRGw2ZmRRRDdyK090b2dQM0dsMHZLZjZEa1ZUZ1ROU3cw?=
- =?utf-8?B?Z0xyekpWeUcyc09JYTFocGU2bjUvT0JoTHJ6RlZYeVFtTlZiNEVrc1V2Qko4?=
- =?utf-8?B?Sjg4U3BZYnNBWlFYK3lqcUUzYkI0ZHlBeEZ2UVdBdEFXZGRyNytxNHYwK050?=
- =?utf-8?B?emFpY05POWtqQ001SWM2ZWEzbms5N0RFeTN6QWtiVGtRc3RTbTI1RmdIRnNO?=
- =?utf-8?B?aVlVVnBwUjJMZjErbGxMbFBsa2dHR1M3OEtCU0JHNWRubmVudVVjZ0tUZUFH?=
- =?utf-8?B?TTcrb1RvQnFQNWlGNEFEM2d1Z0lGN2hPbG45VDVRRWpLRks0azZCSFl0UnI3?=
- =?utf-8?B?QjJta3JBcktaZTN6elRoVGdHdEcvcXQ2NU8zYTdqaW45RmE0bkpvUTAwbFZY?=
- =?utf-8?B?Y2t4cEhZalo2MWZkbUNuZFNlMm5oejFIbE1kbEc4QUt5YVVuKzFMbzZJNGxT?=
- =?utf-8?B?NDdudjVEbTBoUUFUM2d0VXhERy9NV1JKVmNQV01JQVRHbWhkOTdneHBQMzA4?=
- =?utf-8?Q?wB6uuwZzepD5aSzBLgW/rT8=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 20d21862-5133-4114-13f8-08d9bed28148
-X-MS-Exchange-CrossTenant-AuthSource: CY4PR12MB1576.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Dec 2021 07:22:37.2369
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: JxqhfE/17CU0+KoHw7LfGIu+ehkhN8cPfgRTEvHrlu7QHhTZvafcKQEDf11e/GFKyj3OhKP6QhGWPaVncJ4eEw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1654
+        id S231506AbhLNH5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 02:57:04 -0500
+Received: from linux.microsoft.com ([13.77.154.182]:55578 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231618AbhLNH5C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 02:57:02 -0500
+Received: from linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net (linux.microsoft.com [13.77.154.182])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 425FE20B7179;
+        Mon, 13 Dec 2021 23:57:02 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 425FE20B7179
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1639468622;
+        bh=EoWq2F0uPs1hqGTQBP0dqE4KbO1aReFLIITReEqN7gE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TR/fw5PI7WQ1tzNwGjLyEc8V08bGLjPvCXO8lcAn4UIYAsq7wiUNfy6oKj4aSPo8a
+         JdXzRt3AHj4pbY9HHgPFf9IQ593a85Mu0nJwN9F5TG3EPx5+hwqJh59MRdo9fGKygM
+         OVEWUH/KnqGmCuwlYZcg6aq6TgGPBVzY8lYEj6B0=
+From:   Vijay Balakrishna <vijayb@linux.microsoft.com>
+To:     stable@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Subject: [PATCH 5.4] selinux: fix race condition when computing ocontext SIDs
+Date:   Mon, 13 Dec 2021 23:56:51 -0800
+Message-Id: <1639468611-9753-1-git-send-email-vijayb@linux.microsoft.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
+commit cbfcd13be5cb2a07868afe67520ed181956579a7 upstream.
 
-On 12/14/2021 11:39 AM, Dmitry Osipenko wrote:
-> 14.12.2021 09:02, Sameer Pujar пишет:
->>
->> On 12/8/2021 5:35 PM, Dmitry Osipenko wrote:
->>> 08.12.2021 08:22, Sameer Pujar пишет:
->>>> On 12/7/2021 11:32 PM, Dmitry Osipenko wrote
->>>>> If display is already active, then shared power domain is already
->>>>> ungated.
->>>> If display is already active, then shared power domain is already
->>>> ungated. HDA reset is already applied during this ungate. In other
->>>> words, HDA would be reset as well when display ungates power-domain.
->>> Now, if you'll reload the HDA driver module while display is active,
->>> you'll get a different reset behaviour. HDA hardware will be reset on
->>> pre-T186, on T186+ it won't be reset.
->> How the reset behavior is different? At this point when HDA driver is
->> loaded the HW is already reset during display ungate. What matters,
->> during HDA driver load, is whether the HW is in predictable state or not
->> and the answer is yes. So I am not sure what problem you are referring
->> to. Question is, if BPMP already ensures this, then why driver needs to
->> take care of it.
-> 1. Enable display
-> 2. Play audio over HDMI
+Current code contains a lot of racy patterns when converting an
+ocontext's context structure to an SID. This is being done in a "lazy"
+fashion, such that the SID is looked up in the SID table only when it's
+first needed and then cached in the "sid" field of the ocontext
+structure. However, this is done without any locking or memory barriers
+and is thus unsafe.
 
-> 3. HDA hardware now is in dirty state
+Between commits 24ed7fdae669 ("selinux: use separate table for initial
+SID lookup") and 66f8e2f03c02 ("selinux: sidtab reverse lookup hash
+table"), this race condition lead to an actual observable bug, because a
+pointer to the shared sid field was passed directly to
+sidtab_context_to_sid(), which was using this location to also store an
+intermediate value, which could have been read by other threads and
+interpreted as an SID. In practice this caused e.g. new mounts to get a
+wrong (seemingly random) filesystem context, leading to strange denials.
+This bug has been spotted in the wild at least twice, see [1] and [2].
 
-Why this would be a dirty state? It is rather a functional state. Isn't 
-it? Power-domain is ON while all this happens.
+Fix the race condition by making all the racy functions use a common
+helper that ensures the ocontext::sid accesses are made safely using the
+appropriate SMP constructs.
 
-Another point is, with present logic the reset is not applied for every 
-runtime PM resume of HDA device, which is confusing. It depends on the 
-state of 'chip->running' flag and I don't see this getting cleared 
-anywhere. Would you say subsequent HDA playback happen under a dirty state?
+Note that security_netif_sid() was populating the sid field of both
+contexts stored in the ocontext, but only the first one was actually
+used. The SELinux wiki's documentation on the "netifcon" policy
+statement [3] suggests that using only the first context is intentional.
+I kept only the handling of the first context here, as there is really
+no point in doing the SID lookup for the unused one.
+
+I wasn't able to reproduce the bug mentioned above on any kernel that
+includes commit 66f8e2f03c02, even though it has been reported that the
+issue occurs with that commit, too, just less frequently. Thus, I wasn't
+able to verify that this patch fixes the issue, but it makes sense to
+avoid the race condition regardless.
+
+[1] https://github.com/containers/container-selinux/issues/89
+[2] https://lists.fedoraproject.org/archives/list/selinux@lists.fedoraproject.org/thread/6DMTAMHIOAOEMUAVTULJD45JZU7IBAFM/
+[3] https://selinuxproject.org/page/NetworkStatements#netifcon
+
+Cc: stable@vger.kernel.org
+Cc: Xinjie Zheng <xinjie@google.com>
+Reported-by: Sujithra Periasamy <sujithra@google.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+(cherry picked from commit cbfcd13be5cb2a07868afe67520ed181956579a7)
+[vijayb: Backport contextual differences are due to v5.10 RCU related
+ changes are not in 5.4]
+Signed-off-by: Vijay Balakrishna <vijayb@linux.microsoft.com>
+---
+
+We have kernel crashes with stack traces related to selinux security
+context to sid in 5.4 --
+https://lore.kernel.org/all/af058f59-ce8a-7648-25e8-f8b8a2dbb0ba@linux.microsoft.com/#t
+Unfortunately we don't have a on-demand repro.  We are hoping this
+patch would help in addressing a possible race in 5.4.
+
+[    6.222870] Unable to handle kernel access to user memory outside uaccess routines at virtual address 000000000000000c
+[    6.222875] Mem abort info:
+[    6.222876]   ESR = 0x96000004
+[    6.222878]   EC = 0x25: DABT (current EL), IL = 32 bits
+[    6.222879]   SET = 0, FnV = 0
+[    6.222881]   EA = 0, S1PTW = 0
+[    6.222881] Data abort info:
+[    6.222883]   ISV = 0, ISS = 0x00000004
+[    6.222884]   CM = 0, WnR = 0
+[    6.222887] user pgtable: 4k pages, 48-bit VAs, pgdp=0000000965148000
+[    6.222888] [000000000000000c] pgd=0000000000000000
+[    6.222893] Internal error: Oops: 96000004 [#1] SMP
+[    6.227931] Modules linked in: bnxt_en pcie_iproc_platform pcie_iproc diagbe(O)
+[    6.235480] CPU: 6 PID: 1 Comm: systemd Tainted: G           O      5.4.144-xx #1
+[    6.244632] Hardware name: Overlake (DT)
+[    6.248677] pstate: 80400005 (Nzcv daif +PAN -UAO)
+[    6.253629] pc : sidtab_context_to_sid+0x154/0x600
+[    6.258570] lr : sidtab_context_to_sid+0x150/0x600
+[    6.263510] sp : ffff80001005b7e0
+[    6.266928] x29: ffff80001005b7e0 x28: 0000000000000000
+[    6.272406] x27: 0000000000000000 x26: ffff80001005b8d8
+[    6.277884] x25: ffff80001005b8f0 x24: ffff250b25230000
+[    6.283362] x23: ffff80001005b9a4 x22: ffffd429fedb9808
+[    6.288841] x21: ffff80001005b8c0 x20: 0000000000000118
+[    6.294319] x19: 0000000000000000 x18: 0000000000000000
+[    6.299797] x17: 0000000000000000 x16: 0000000000000000
+[    6.305275] x15: 0000000000000000 x14: 0000000000000000
+[    6.310753] x13: 0000000000000000 x12: 0000000000000010
+[    6.316231] x11: 0000000000000010 x10: 0101010101010101
+[    6.321710] x9 : fffffffffffffffe x8 : 7f7f7f7f7f7f7f7f
+[    6.327188] x7 : fefefefefeff735e x6 : 0000808080808080
+[    6.332667] x5 : 0000000000000000 x4 : ffff250b25230000
+[    6.338144] x3 : ffff80001005b8c0 x2 : 0000000000000000
+[    6.343622] x1 : 0000000000000119 x0 : 0000000000000000
+[    6.349100] Call trace:
+[    6.351625]  sidtab_context_to_sid+0x154/0x600
+[    6.356207]  security_context_to_sid_core.isra.21+0x190/0x250
+[    6.362133]  security_context_to_sid+0x54/0x68
+[    6.366715]  selinux_kernfs_init_security+0xd0/0x210
+[    6.371838]  security_kernfs_init_security+0x40/0x60
+[    6.376961]  __kernfs_new_node+0x174/0x218
+[    6.381185]  kernfs_new_node+0x60/0x90
+[    6.385051]  __kernfs_create_file+0x60/0x300
+[    6.389457]  cgroup_addrm_files+0x14c/0x308
+[    6.393770]  css_populate_dir+0x7c/0x168
+[    6.397815]  cgroup_apply_control_enable+0x100/0x348
+[    6.402934]  cgroup_mkdir+0x380/0x520
+[    6.406710]  kernfs_iop_mkdir+0x94/0xf0
+[    6.410666]  vfs_mkdir+0xf4/0x1c0
+[    6.414084]  do_mkdirat+0x98/0x110
+[    6.417590]  __arm64_sys_mkdirat+0x28/0x38
+[    6.421817]  el0_svc_handler+0x90/0x138
+[    6.425773]  el0_svc+0x8/0x208
+[    6.428925] Code: 2a1403e1 aa1803e0 97fffd81 aa0003fc (b9400c00)
+[    6.435219] ---[ end trace bb81d12a8eb77133 ]---
+---
+ security/selinux/ss/services.c | 159 ++++++++++++++++++---------------
+ 1 file changed, 87 insertions(+), 72 deletions(-)
+
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f62adf3cfce8..a0afe49309c8 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2250,6 +2250,43 @@ size_t security_policydb_len(struct selinux_state *state)
+ 	return len;
+ }
+ 
++/**
++ * ocontext_to_sid - Helper to safely get sid for an ocontext
++ * @sidtab: SID table
++ * @c: ocontext structure
++ * @index: index of the context entry (0 or 1)
++ * @out_sid: pointer to the resulting SID value
++ *
++ * For all ocontexts except OCON_ISID the SID fields are populated
++ * on-demand when needed. Since updating the SID value is an SMP-sensitive
++ * operation, this helper must be used to do that safely.
++ *
++ * WARNING: This function may return -ESTALE, indicating that the caller
++ * must retry the operation after re-acquiring the policy pointer!
++ */
++static int ocontext_to_sid(struct sidtab *sidtab, struct ocontext *c,
++			   size_t index, u32 *out_sid)
++{
++	int rc;
++	u32 sid;
++
++	/* Ensure the associated sidtab entry is visible to this thread. */
++	sid = smp_load_acquire(&c->sid[index]);
++	if (!sid) {
++		rc = sidtab_context_to_sid(sidtab, &c->context[index], &sid);
++		if (rc)
++			return rc;
++
++		/*
++		 * Ensure the new sidtab entry is visible to other threads
++		 * when they see the SID.
++		 */
++		smp_store_release(&c->sid[index], sid);
++	}
++	*out_sid = sid;
++	return 0;
++}
++
+ /**
+  * security_port_sid - Obtain the SID for a port.
+  * @protocol: protocol number
+@@ -2262,10 +2299,12 @@ int security_port_sid(struct selinux_state *state,
+ 	struct policydb *policydb;
+ 	struct sidtab *sidtab;
+ 	struct ocontext *c;
+-	int rc = 0;
++	int rc;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
++retry:
++	rc = 0;
+ 	policydb = &state->ss->policydb;
+ 	sidtab = state->ss->sidtab;
+ 
+@@ -2279,14 +2318,11 @@ int security_port_sid(struct selinux_state *state,
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
+-			if (rc)
+-				goto out;
+-		}
+-		*out_sid = c->sid[0];
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE)
++			goto retry;
++		if (rc)
++			goto out;
+ 	} else {
+ 		*out_sid = SECINITSID_PORT;
+ 	}
+@@ -2308,10 +2344,12 @@ int security_ib_pkey_sid(struct selinux_state *state,
+ 	struct policydb *policydb;
+ 	struct sidtab *sidtab;
+ 	struct ocontext *c;
+-	int rc = 0;
++	int rc;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
++retry:
++	rc = 0;
+ 	policydb = &state->ss->policydb;
+ 	sidtab = state->ss->sidtab;
+ 
+@@ -2326,14 +2364,11 @@ int security_ib_pkey_sid(struct selinux_state *state,
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
+-			if (rc)
+-				goto out;
+-		}
+-		*out_sid = c->sid[0];
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE)
++			goto retry;
++		if (rc)
++			goto out;
+ 	} else
+ 		*out_sid = SECINITSID_UNLABELED;
+ 
+@@ -2354,10 +2389,12 @@ int security_ib_endport_sid(struct selinux_state *state,
+ 	struct policydb *policydb;
+ 	struct sidtab *sidtab;
+ 	struct ocontext *c;
+-	int rc = 0;
++	int rc;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
++retry:
++	rc = 0;
+ 	policydb = &state->ss->policydb;
+ 	sidtab = state->ss->sidtab;
+ 
+@@ -2373,14 +2410,11 @@ int security_ib_endport_sid(struct selinux_state *state,
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
+-			if (rc)
+-				goto out;
+-		}
+-		*out_sid = c->sid[0];
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE)
++			goto retry;
++		if (rc)
++			goto out;
+ 	} else
+ 		*out_sid = SECINITSID_UNLABELED;
+ 
+@@ -2399,11 +2433,13 @@ int security_netif_sid(struct selinux_state *state,
+ {
+ 	struct policydb *policydb;
+ 	struct sidtab *sidtab;
+-	int rc = 0;
++	int rc;
+ 	struct ocontext *c;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
++retry:
++	rc = 0;
+ 	policydb = &state->ss->policydb;
+ 	sidtab = state->ss->sidtab;
+ 
+@@ -2415,19 +2451,11 @@ int security_netif_sid(struct selinux_state *state,
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0] || !c->sid[1]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						  &c->context[0],
+-						  &c->sid[0]);
+-			if (rc)
+-				goto out;
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[1],
+-						   &c->sid[1]);
+-			if (rc)
+-				goto out;
+-		}
+-		*if_sid = c->sid[0];
++		rc = ocontext_to_sid(sidtab, c, 0, if_sid);
++		if (rc == -ESTALE)
++			goto retry;
++		if (rc)
++			goto out;
+ 	} else
+ 		*if_sid = SECINITSID_NETIF;
+ 
+@@ -2469,6 +2497,7 @@ int security_node_sid(struct selinux_state *state,
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
++retry:
+ 	policydb = &state->ss->policydb;
+ 	sidtab = state->ss->sidtab;
+ 
+@@ -2511,14 +2540,11 @@ int security_node_sid(struct selinux_state *state,
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
+-			if (rc)
+-				goto out;
+-		}
+-		*out_sid = c->sid[0];
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE)
++			goto retry;
++		if (rc)
++			goto out;
+ 	} else {
+ 		*out_sid = SECINITSID_NODE;
+ 	}
+@@ -2677,7 +2703,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
+ 	u16 sclass;
+ 	struct genfs *genfs;
+ 	struct ocontext *c;
+-	int rc, cmp = 0;
++	int cmp = 0;
+ 
+ 	while (path[0] == '/' && path[1] == '/')
+ 		path++;
+@@ -2691,9 +2717,8 @@ static inline int __security_genfs_sid(struct selinux_state *state,
+ 			break;
+ 	}
+ 
+-	rc = -ENOENT;
+ 	if (!genfs || cmp)
+-		goto out;
++		return -ENOENT;
+ 
+ 	for (c = genfs->head; c; c = c->next) {
+ 		len = strlen(c->u.name);
+@@ -2702,20 +2727,10 @@ static inline int __security_genfs_sid(struct selinux_state *state,
+ 			break;
+ 	}
+ 
+-	rc = -ENOENT;
+ 	if (!c)
+-		goto out;
+-
+-	if (!c->sid[0]) {
+-		rc = sidtab_context_to_sid(sidtab, &c->context[0], &c->sid[0]);
+-		if (rc)
+-			goto out;
+-	}
++		return -ENOENT;
+ 
+-	*sid = c->sid[0];
+-	rc = 0;
+-out:
+-	return rc;
++	return ocontext_to_sid(sidtab, c, 0, sid);
+ }
+ 
+ /**
+@@ -2750,13 +2765,15 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ {
+ 	struct policydb *policydb;
+ 	struct sidtab *sidtab;
+-	int rc = 0;
++	int rc;
+ 	struct ocontext *c;
+ 	struct superblock_security_struct *sbsec = sb->s_security;
+ 	const char *fstype = sb->s_type->name;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
++retry:
++	rc = 0;
+ 	policydb = &state->ss->policydb;
+ 	sidtab = state->ss->sidtab;
+ 
+@@ -2769,13 +2786,11 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ 
+ 	if (c) {
+ 		sbsec->behavior = c->v.behavior;
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+-						   &c->sid[0]);
+-			if (rc)
+-				goto out;
+-		}
+-		sbsec->sid = c->sid[0];
++		rc = ocontext_to_sid(sidtab, c, 0, &sbsec->sid);
++		if (rc == -ESTALE)
++			goto retry;
++		if (rc)
++			goto out;
+ 	} else {
+ 		rc = __security_genfs_sid(state, fstype, "/", SECCLASS_DIR,
+ 					  &sbsec->sid);
+-- 
+2.30.2
+
