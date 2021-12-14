@@ -2,173 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 418CB474732
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 17:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D82D474749
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 17:14:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233282AbhLNQKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 11:10:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56528 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233351AbhLNQKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 11:10:50 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA214C061574
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 08:10:50 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id k64so18209637pfd.11
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 08:10:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MJYs2tC5jAfNnoPJ7DBE5nBHL6spHCo+pOciLWd+TuM=;
-        b=8Kt3j59jnKCKQCyZA9sbtoBU98+RVLia3EFxJ+U96FVcydTZUcab04k9jXhjJTrci6
-         IJkDQ6uySuPKgTA2ZZD2MhTpgjrcoxVxcyEpV3Jx4laLa74W9OzOdMnGRVeXlJ3cjxcy
-         zLsdnz7jmUO3A8D6ISv6eOK7xoPP+HoVVcfPKw8GJOja3coNELK/fuQxbHRmAsWhSHjN
-         rZm2QQW0C61EgW96VgOAoAakXd/vXuVpHBGx0xytsF2VcHlyDZTy3gBXAUEKGXnFcsff
-         24ZC1OHklY16EM+ttK7s5M7XZjz0jOkd+3mLAf0gc5PY2QGH/07pj33ueU60IHy7NUq6
-         t6yA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MJYs2tC5jAfNnoPJ7DBE5nBHL6spHCo+pOciLWd+TuM=;
-        b=obSKy2T3YCgVMKYYZdUE0Oz5v9JFZc9gvD6xskzCVjsthGWmHmKj9uwz8BtvozGcIe
-         egS3gJTwRA3pho5meh794VPfW8hIBYzZn2v2hpFy0RW7sXP4P4GonDxPXhEh6aHRHqg+
-         rXAKvCT1hHPsMQIGSq5C0ZYNNkEz1KPh9nJVUzT/5pZlq3EZeaaxu6BLM7sDggb21jvk
-         cKDFze8MFt14oadgN8Zq/iXPY6g+tuXr21aCm1juaTViWbgKaTJZbzMGaINJ4CRX1jLg
-         8viBWoQMxFmL6p+4Anjwc3/iy99giTMlcqkGmkAutKi903Mh+kOrQ5XsqqsuFaTIhR6o
-         nEPw==
-X-Gm-Message-State: AOAM531Rgvzc5yWisG9gvfEs+KR3DMOVU7GujNwQvs1qfeplAAClxYOB
-        F5gqZqrOnLOb39xqR3t5f/YtSi7WfjJRuiy4
-X-Google-Smtp-Source: ABdhPJzCxQe5VMFUVxm93LCIqbnNJ2WEsEbrp3Vw8jCFzhBhu2HDfTGUpmF2N+sNtgU09x4gCpArmQ==
-X-Received: by 2002:a63:7c1b:: with SMTP id x27mr4356637pgc.176.1639498250167;
-        Tue, 14 Dec 2021 08:10:50 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ls14sm3303801pjb.49.2021.12.14.08.10.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Dec 2021 08:10:49 -0800 (PST)
-Message-ID: <61b8c209.1c69fb81.a6479.82ec@mx.google.com>
-Date:   Tue, 14 Dec 2021 08:10:49 -0800 (PST)
+        id S235575AbhLNQOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 11:14:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:60254 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231215AbhLNQOl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 11:14:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639498481;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=NbV3UT54OSlwfHTBHr8C1CM7BD5wuCaVAFYuZZp+EmY=;
+        b=ZLo1l0kUErteZwUIpRi+mcfrzKkEhrFVHjx5BDHZzqWr9SsbQ8y6iOaISBGCZdQopX08J+
+        ljdYSTsgIxz0KscRetE9S1S5Mpf8NxBhKN+SelkbCtPEzgoYV/NqzgOpDI9cyeUzpKT/86
+        p+vz7DbwzKPCRyzJYSI+Kb2KjGGKblw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-160-GYIQMCZ3NJ20gUtHJ2r7TA-1; Tue, 14 Dec 2021 11:14:39 -0500
+X-MC-Unique: GYIQMCZ3NJ20gUtHJ2r7TA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C1154101AFA8
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 16:14:38 +0000 (UTC)
+Received: from [172.64.9.13] (unknown [10.30.33.187])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 940ED1059166;
+        Tue, 14 Dec 2021 16:14:38 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.220-73-g3a5a4233740e
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 111 runs,
- 2 regressions (v4.19.220-73-g3a5a4233740e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.15.8 (stable,
+ 43e577d7)
+Date:   Tue, 14 Dec 2021 16:14:37 -0000
+Message-ID: <cki.H8487VZIWEN3NZMT6QFX@redhat.com>
+X-Gitlab-Pipeline-ID: 429402796
+X-Gitlab-Url: https://gitlab.com
+X-Gitlab-Path: =?utf-8?q?/redhat/red-hat-ci-tools/kernel/cki-internal-pipeli?=
+ =?utf-8?q?nes/cki-trusted-contributors/pipelines/429402796?=
+X-DataWarehouse-Checkout-IID: 26983
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 111 runs, 2 regressions (v4.19.220-73-g3a5a4=
-233740e)
-
-Regressions Summary
--------------------
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig          | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.220-73-g3a5a4233740e/plan/baseline/
+Check out this report and any autotriaged failures in our web dashboard:
+    https://datawarehouse.cki-project.org/kcidb/checkouts/26983
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.220-73-g3a5a4233740e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3a5a4233740ef12d80baa6b876767af35621b671 =
+Hello,
 
+We ran automated tests on a recent commit from this kernel tree:
 
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 43e577d7a2cb - Linux 5.15.8
 
-Test Regressions
----------------- =
+The results of these automated tests are provided below.
 
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+    Targeted tests: NO
 
+All kernel binaries, config files, and logs are available for download here:
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/12/14/429402796
 
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-  Details:     https://kernelci.org/test/plan/id/61b8869afb085b877c397146
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.220=
--73-g3a5a4233740e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.220=
--73-g3a5a4233740e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/61b8869afb085b877c397=
-147
-        failing since 0 day (last pass: v4.19.220-50-g08088af69537, first f=
-ail: v4.19.220-74-g36a00096e704) =
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
 
- =
+  aarch64:
 
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (mar=
+ked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
 
+  ppc64le:
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig          | 1          =
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (mar=
+ked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
 
+  s390x:
 
-  Details:     https://kernelci.org/test/plan/id/61b886465ed03825b1397131
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (mar=
+ked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
 
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.220=
--73-g3a5a4233740e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.220=
--73-g3a5a4233740e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
+  x86_64:
 
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (mar=
+ked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
 
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b886465ed0382=
-5b1397134
-        failing since 1 day (last pass: v4.19.220-27-g87731ec9404c, first f=
-ail: v4.19.220-50-g08088af69537)
-        2 lines
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
 
-    2021-12-14T11:55:35.968923  <8>[   21.191894] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-14T11:55:36.013416  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/109
-    2021-12-14T11:55:36.023056  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
 
- =20
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
+Targeted tests
+--------------
+Test runs for patches always include a set of base tests, plus some
+tests chosen based on the file paths modified by the patch. The latter
+are called "targeted tests". If no targeted tests are run, that means
+no patch-specific tests are available. Please, consider contributing a
+targeted test for related patches to increase test coverage. See
+https://docs.engineering.redhat.com/x/_wEZB for more details.
+
