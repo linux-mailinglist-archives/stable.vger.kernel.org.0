@@ -2,134 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB62474521
-	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 15:32:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E695474526
+	for <lists+stable@lfdr.de>; Tue, 14 Dec 2021 15:33:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233025AbhLNOcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 09:32:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33432 "EHLO
+        id S234103AbhLNOd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 09:33:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233015AbhLNOcf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 09:32:35 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912F3C061574
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 06:32:35 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id q17so13655475plr.11
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 06:32:35 -0800 (PST)
+        with ESMTP id S232427AbhLNOdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 09:33:25 -0500
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 195EBC061574
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 06:33:25 -0800 (PST)
+Received: by mail-pf1-x42c.google.com with SMTP id g19so17993081pfb.8
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 06:33:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=GyLrTh0rB9klxTBq3pNtk88n/4F6Dihd+Sh5QVIi9Ro=;
-        b=6zA9FCgA4jxlqrxpUfK1IBKgFYmjhEgO43M7RYGtcVXpg9GZelcmvdvv4f3Lr0C7QC
-         fqoSv0TTRACx0Vg9cVAfkD8+0jY/BVmFyM/Fylas2ikw1cCk7AWSeOYp6VBNrHYzLXHa
-         rK+YJiZGneYEpCODwpjxk/JeDjjwbYbJ/NH4TZphFVhk4W6vAGIOzaBsTwMYHydZViNS
-         fQorYIoYfoWUEIuXhaHWm8eJxnGv9tLt1OWwjc1BjcxAy44NgaNDJEKGJhsezM0P9g6Q
-         Eyjnz9yBG0XvPuYWJg7yf7pN8cdXXq1zgqwhqZ2ZekRSI/tHpFeCy+ACmvZr6cZCofTU
-         Wziw==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=3Su2h8J7wN9OHATLxBWct7r37928Fz6lUxG5bNh6PiY=;
+        b=l5IrqqD0XMN50q/G1P5lY6i1VKtCEG6F3eXaI2Bc/aFlCxeEA8LnuPDyQFuN51/KOZ
+         741E8Grl3z3E2U2CVQ7sBGqyckZKvH3/vCOXmJGRFdBBNNazKDBnbkN9DtOz553R3m72
+         pT58sfBE5bYOKAvONJ1Fld+PP3up/0y/o1T1CnCEHNpnQYIPHJyMKKRWwc/jQZYqDv11
+         VC99N7drSfVdnRTNKclcqrwS6m3C+A10MftOq+AuTcZqWQ4xhUS2z3mbp2jvLOatMSM7
+         tKqsHeCtUHH+tFyKCzKefVuXg/5K7iySrpzEALDoqD73NezGauJt7zAQa9Lbdbw4kBT2
+         1dZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=GyLrTh0rB9klxTBq3pNtk88n/4F6Dihd+Sh5QVIi9Ro=;
-        b=Be1ciHvFe27iiSMVFeGqWDCNhlGUtKdDgnEmt8PLCTmwOXDVlLydhWqL/Wg6DzlAJX
-         apOhz7/oXgA40My5Tz9aiuN/tB3N99U4gcYjbSQlBcla4vkrzXU8zLAaCcvsBLxfWm/L
-         rP26w4UwVqrQqCoZLgjjhekrj83iCffNjc0V9NeCvhQAb6//l8f5BUym932vyd68Vg8P
-         WHK/6GV6LQPv/oEGaq+ny4cSCja0Hy3cro/ag4M9TYVSS++NEesw7nacWTaQ43daGn6j
-         GBeuiHcZKUKZN9FbyK2o3oiI2BDMaXEqk4hBOaht+NcDfC+r6T/+U+bz6EXlgJd5I2zU
-         k8eA==
-X-Gm-Message-State: AOAM533FDLAgSnbJ2bZHg22tE6mfpcu7rVPJbkepMAlLcd/iX8XxuNu8
-        YjCE3xIe9fvxsbuOimJPCONO4xefZ7D6JVp1
-X-Google-Smtp-Source: ABdhPJzmhbe3ek4VEHyCxWTznBm6rh4odF/NFEjwacY1DQgysxLpKJzDEeel2vWS2Nk4hdkMgNyCNA==
-X-Received: by 2002:a17:903:408c:b0:142:45a9:672c with SMTP id z12-20020a170903408c00b0014245a9672cmr6527544plc.7.1639492354921;
-        Tue, 14 Dec 2021 06:32:34 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d12sm57069pfu.91.2021.12.14.06.32.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Dec 2021 06:32:34 -0800 (PST)
-Message-ID: <61b8ab02.1c69fb81.e8d73.026a@mx.google.com>
-Date:   Tue, 14 Dec 2021 06:32:34 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=3Su2h8J7wN9OHATLxBWct7r37928Fz6lUxG5bNh6PiY=;
+        b=iBn2M0fPpvhH4+OXrNg2EJ1B4Ov13JL/Dw5s/LGdQPZTONaXBEz49fcNO2+FEDYVcY
+         Ere7siMsT1xMYUBoaAwr6h2ESW4rEJJzxFYT3hMGuAEaAloHDIlhyCSm2iOxFT3/0mVx
+         8VsLZp0C46/qo7/Ezzv7LqHRFjhDnfmJmAqoVcTaz/Dp0In8RGm4OpMR1G3N0jpWxQi1
+         Wsk/KXLvgCqXcEQwnw9BIpxMMuGbEx8MZII9IFMb5G+iEmNsiFf8TSo8TFyUZuKgqKxO
+         TpANopg8xVKVcntkkuoCT3GCHQoY8o8lMJdXRxRjdw1Vg1h9f1YRrV4KBusUqpvYPRqf
+         3fdQ==
+X-Gm-Message-State: AOAM531fpNYIsBquLkMse5AEbiT6mhPalqhOxGUl2wDVClVAN9Y+q+wE
+        88qYcJNUsdiKoB4GHi2bLhv8o07O55NgSUJZQEg=
+X-Google-Smtp-Source: ABdhPJyWn0FwQbJh7izv2z2VNX3tyvRjAMFmoZQFLqNOyFPWo8DzqHKzy5rSBmZEL/GphyA8bKTV5ZvvmPAUu1jnc7M=
+X-Received: by 2002:a62:b418:0:b0:4a0:3696:dec0 with SMTP id
+ h24-20020a62b418000000b004a03696dec0mr4427765pfn.73.1639492404614; Tue, 14
+ Dec 2021 06:33:24 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.292-42-gb3e34e530f60
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 91 runs,
- 1 regressions (v4.9.292-42-gb3e34e530f60)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a17:90a:a78f:0:0:0:0 with HTTP; Tue, 14 Dec 2021 06:33:24
+ -0800 (PST)
+Reply-To: rolandcjons@gmail.com
+From:   Roland Jones <officeboxmail009@gmail.com>
+Date:   Tue, 14 Dec 2021 15:33:24 +0100
+Message-ID: <CAL-0zyTooUv+DiqM2GorQaGmyW87RQ4XpmN1Qs6Yaq24FwqDSQ@mail.gmail.com>
+Subject: Next of Kin & Inheritance
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 91 runs, 1 regressions (v4.9.292-42-gb3e34e53=
-0f60)
+From Desk Of Attorney Roland Jones (Esq)
+#7, Boulevard Laetrile 25 B p 945
+Abidjan Cote Ivoire
+(+225) 22 40 64 3
 
-Regressions Summary
--------------------
+To whom it may concern,
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Please kindly accept my apology for sending unsolicited letter to you.
+I believe you are a highly respected personality, considering the fact
+that I sourced your profile from your Country Business Directory which
+i have a business proposal for you, this however is not mandatory nor
+will I in any manner compel you to honor against your wish.
 
+Well, I am Attorney and a Solicitor at Law and the Personal Lawyer to
+M.s.Nelda Parker Pace (LATE), Who is the Director and owner of
+Sawgrass Realty, LLC Real Estate company in Abidjan - Cote Ivoire.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.292-42-gb3e34e530f60/plan/baseline/
+On the 3rd of July 2017, my client, a single mother of two Children
+were involved in a car accident along express-high way. Unfortunately,
+they all lost their lives. Since then I have made several inquiries to
+her Country Embassy in United States of America to locate any of my
+client's extended relatives, this has also proved unsuccessful and in
+total vain.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.292-42-gb3e34e530f60
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b3e34e530f60d4a5e6cbe79a3b5dea426667ddbf =
+After these several unsuccessful attempts, I decided to trace his
+relatives over the Internet but to no avail, hence i have contacted
+you to assist in repatriating her money and property left behind by my
+deceased client before they get confiscated or declared unserviceable
+by the Bank here. These huge deposits were lodged particularly with a
+Bank in Abidjan - Cote Ivoire (Banque Atlantique), where the Deceased
+had an account valued at Twelve Million Five Hundred Thousand United
+States Dollars ($12.5 million dollars)
 
+The Bank has issued me a final notice to provide the next of
+Inheritance within one month or have the account confiscated. Since I
+have been unsuccessful in locating the relatives for over three years,
+I seek your consent to present you as the next of kin of my deceased
+client so the proceeds of this account valued at $12.5 million dollars
+can be transferred to you and then our sharing ratio should be 50% for
+you and 50% for me. I have all the necessary legal documents that can
+be used to back up our claim with the Bank.
 
+All I require is your honest and sincere co-operation to enable us see
+this Deal through and I guarantee 100% risk free that this will be
+executed under a legitimate arrangement that will protect you from any
+breach of the law and to achieve this i will need your kind efforts
+and support.
 
-Test Regressions
----------------- =
+I wait for your immediate reply as soon as possible if you are willing
+and interested to assist me claim this fund for our sharing and
+investment projects in your Country.Thank you.
 
+Yours faithfully,
 
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b875d9c526c0d49839711f
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-4=
-2-gb3e34e530f60/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.292-4=
-2-gb3e34e530f60/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b875dac526c0d=
-498397122
-        new failure (last pass: v4.9.292-42-g7b8a51e9ff81)
-        2 lines
-
-    2021-12-14T10:45:26.777758  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/128
-    2021-12-14T10:45:26.787183  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+Attorney Roland Jones Esq
+#7, Boulevard Latrille 25 Bp 945
+Abidjan Cote d'Ivoire
+(+225) 22 40 64 3
