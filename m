@@ -2,131 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35BAF475A03
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 14:55:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D243475A06
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 14:56:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237617AbhLONzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 08:55:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232338AbhLONzn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 08:55:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5A34C061574;
-        Wed, 15 Dec 2021 05:55:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91093B81F05;
-        Wed, 15 Dec 2021 13:55:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0CC8C34604;
-        Wed, 15 Dec 2021 13:55:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639576540;
-        bh=Xw/T47Xd/1MGbXKzyKiQWGb6WlKQuClEoedkpf+Imv4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K/WnvhvtWXHeiHZHHdrPqHT7Vy2uisx2DoMXd+WDk8SGeFGxZP08aktJR/iufmjtk
-         lGUPk6MrT172tdni9yM3lJ3nI6y4ru8FBRM9q05EcSAdjElq85j0dNBo9kC7NQeCrV
-         QORHS3xyP7nFdFdfTQJbWzogtuLtpN0cQOzmwrG4=
-Date:   Wed, 15 Dec 2021 14:55:37 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Antoine Tenart <atenart@kernel.org>
-Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.10] ethtool: do not perform operations on net devices
- being unregistered
-Message-ID: <Ybnz2agUcwHE8hRH@kroah.com>
-References: <20211213101506.118377-1-atenart@kernel.org>
+        id S243020AbhLON40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 08:56:26 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:42667 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237608AbhLON40 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 08:56:26 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id 528DB320091B;
+        Wed, 15 Dec 2021 08:56:25 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Wed, 15 Dec 2021 08:56:25 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=6XUgNn1O5IRfHhgXXFLNHM6V69b
+        lpy9ZfuCeSFymZGc=; b=pgwIugzcOWI2KBDZjPxZFeFnEYZy5kmRgYSP0hffND5
+        43P8DhJWoYoMQGNOf4RB3vW85K65CGRqEidnGI+PMgxHtM79YUuyG2GZ8Sjj1MaV
+        N7XwBGS4NA1mkK0yDBpV8D1lkkXSPCP78b94w2b7IL6OoIBQsl2fvcffN+SlQDYm
+        LYqdZv5YzgNvyICbiItEjaH8cHZSnYhlYQ61lVHkdkf828thiFhmlfFpdslRmOzY
+        8HlPXS+I7v5zlX61xPMlzGyXsttKh0reBnC/uwh680yj2KWuEHwaqCa8YiOxStRG
+        sW7pTAfmRzOUTNFNk/Ee8mgkg+/YPD6jhtOrTYDB05Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=6XUgNn
+        1O5IRfHhgXXFLNHM6V69blpy9ZfuCeSFymZGc=; b=eUnH51e4wbS7XKDZAz/tdu
+        krSMrPJMKV3Z4MmlulsCVFE6UTV9BaMg1iYMl/DEOdSy1ArMQQh79uUwJyMzypit
+        VDH27DzeTS9XkoHEej+NHTtz7pu42sJQefoMjlKB8GTUARJdLgqDgfNqDUrnL48c
+        3tw4pIuMqi6ZnE3rLVh9TIRS5rQPdyDCNBBETsIPS32dlsz44cm95185Z6jHdsS5
+        ceOXoHvzF2of1SaS/woYzEjx1tz4fBvYjsrf2eensLVAkGyFTTJwgaQdVWRAQJKi
+        7jscMKjzjml9plRBr/zE5Vzcg1zBg/utjuBQ/nRzrKjv2l8YHf24wS9jQYfJAL3w
+        ==
+X-ME-Sender: <xms:CPS5YcDB-HGkDE0dfotgZbDibwOblDybpJpc_GmCM5gGzIfzl4fnkw>
+    <xme:CPS5Yega82l3ZzshqVcfTT8x1O8wvodD1VnkMwOnXZForahdvxdo13oC90BM_TXLc
+    BnzM6Cfjcn6ag>
+X-ME-Received: <xmr:CPS5Yfk873u1HIcRFc-f-7ba6b72Y9tb7CtJ53fN2ljQ6OrvD_Wchuy_d2DEgrGyl-Erne48D6GvWD-K7gpuffhHoloLJZru>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrledvgdehlecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:CPS5YSwYFB6HVJXbBflBcBVbbxYIF7GxuUDV4F22x57eQrZ8DbcEOA>
+    <xmx:CPS5YRSXGYnZPCiQBgdu2s6HJeScrHlW5zlNOwEy6jSBx2A1cj2wuA>
+    <xmx:CPS5Ydbn93xZfKKaJjSivTFZvtA5EIQnSzStiulY9Aqvui1OnpB3Ng>
+    <xmx:CPS5Ycfy0I8CY7UGreCZ9hfYLIclAZZKnKf03AohSufUhUg4Le-m7A>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 15 Dec 2021 08:56:24 -0500 (EST)
+Date:   Wed, 15 Dec 2021 14:56:22 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Adrian Hunter <adrian.hunter@intel.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v5.15] perf inject: Fix itrace space allowed for new
+ attributes
+Message-ID: <Ybn0BsCEXqdccckE@kroah.com>
+References: <20211214061641.125977-1-adrian.hunter@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211213101506.118377-1-atenart@kernel.org>
+In-Reply-To: <20211214061641.125977-1-adrian.hunter@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 13, 2021 at 11:15:06AM +0100, Antoine Tenart wrote:
-> commit dde91ccfa25fd58f64c397d91b81a4b393100ffa upstream
+On Tue, Dec 14, 2021 at 08:16:41AM +0200, Adrian Hunter wrote:
+> commit c29d9792607e67ed8a3f6e9db0d96836d885a8c5 upstream.
 > 
-> There is a short period between a net device starts to be unregistered
-> and when it is actually gone. In that time frame ethtool operations
-> could still be performed, which might end up in unwanted or undefined
-> behaviours[1].
+> The space allowed for new attributes can be too small if existing header
+> information is large. That can happen, for example, if there are very
+> many CPUs, due to having an event ID per CPU per event being stored in the
+> header information.
 > 
-> Do not allow ethtool operations after a net device starts its
-> unregistration. This patch targets the netlink part as the ioctl one
-> isn't affected: the reference to the net device is taken and the
-> operation is executed within an rtnl lock section and the net device
-> won't be found after unregister.
+> Fix by adding the existing header.data_offset. Also increase the extra
+> space allowed to 8KiB and align to a 4KiB boundary for neatness.
 > 
-> [1] For example adding Tx queues after unregister ends up in NULL
->     pointer exceptions and UaFs, such as:
-> 
->       BUG: KASAN: use-after-free in kobject_get+0x14/0x90
->       Read of size 1 at addr ffff88801961248c by task ethtool/755
-> 
->       CPU: 0 PID: 755 Comm: ethtool Not tainted 5.15.0-rc6+ #778
->       Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/014
->       Call Trace:
->        dump_stack_lvl+0x57/0x72
->        print_address_description.constprop.0+0x1f/0x140
->        kasan_report.cold+0x7f/0x11b
->        kobject_get+0x14/0x90
->        kobject_add_internal+0x3d1/0x450
->        kobject_init_and_add+0xba/0xf0
->        netdev_queue_update_kobjects+0xcf/0x200
->        netif_set_real_num_tx_queues+0xb4/0x310
->        veth_set_channels+0x1c3/0x550
->        ethnl_set_channels+0x524/0x610
-> 
-> [The patch differs from the upstream one as code was moved around by
-> commit 41107ac22fcf ("ethtool: move netif_device_present check from
-> ethnl_parse_header_dev_get to ethnl_ops_begin"). The check on the netdev
-> state is still done in ethnl_ops_begin as it must be done in an rtnl
-> section (the one which performs the op) to not race with
-> unregister_netdevice_many.
-> Also note the trace in [1] is not possible here as the channel ops for
-> veth were added later, but that was just one example.]
-> 
-> Fixes: 041b1c5d4a53 ("ethtool: helper functions for netlink interface")
-> Suggested-by: Jakub Kicinski <kuba@kernel.org>
-> Signed-off-by: Antoine Tenart <atenart@kernel.org>
+> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+> Cc: Jiri Olsa <jolsa@redhat.com>
+> Link: http://lore.kernel.org/lkml/20211125071457.2066863-1-adrian.hunter@intel.com
+> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+> [Adrian: Backport to v5.15]
+> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 > ---
+>  tools/perf/builtin-inject.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Hello,
-> 
-> This patch is intended for the stable 5.10 tree.
-> 
-> As reported by Greg, patch dde91ccfa25f ("ethtool: do not perform
-> operations on net devices being unregistered") did not apply correctly
-> on the 5.10 tree. The explanation of this and the approach taken here is
-> explained in the above commit log, between [].
-> 
-> I removed the Link tag and Signed-off-by from Jakub from the original
-> patch as this one is slightly different in its implementation.
-> 
-> Thanks,
-> Antoine
-> 
->  net/ethtool/netlink.h | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/net/ethtool/netlink.h b/net/ethtool/netlink.h
-> index d8efec516d86..979dee6bb88c 100644
-> --- a/net/ethtool/netlink.h
-> +++ b/net/ethtool/netlink.h
-> @@ -249,6 +249,9 @@ struct ethnl_reply_data {
->  
->  static inline int ethnl_ops_begin(struct net_device *dev)
->  {
-> +	if (dev && dev->reg_state == NETREG_UNREGISTERING)
-> +		return -ENODEV;
-> +
->  	if (dev && dev->ethtool_ops->begin)
->  		return dev->ethtool_ops->begin(dev);
->  	else
+> diff --git a/tools/perf/builtin-inject.c b/tools/perf/builtin-inject.c
+> index 6ad191e731fc..d454f5a7af93 100644
+> --- a/tools/perf/builtin-inject.c
+> +++ b/tools/perf/builtin-inject.c
+> @@ -819,7 +819,7 @@ static int __cmd_inject(struct perf_inject *inject)
+>  		inject->tool.ordered_events = true;
+>  		inject->tool.ordering_requires_timestamps = true;
+>  		/* Allow space in the header for new attributes */
+> -		output_data_offset = 4096;
+> +		output_data_offset = roundup(8192 + session->header.data_offset, 4096);
+>  		if (inject->strip)
+>  			strip_init(inject);
+>  	}
 > -- 
-> 2.33.1
+> 2.25.1
 > 
 
 Now queued up, thanks.
