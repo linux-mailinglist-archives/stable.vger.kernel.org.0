@@ -2,169 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A939C475ACE
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 15:42:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA33D475C91
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 17:02:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242239AbhLOOmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 09:42:38 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52781 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243427AbhLOOmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 09:42:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639579357;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=DRVbhue+YBe2AzpJnQbC+hJztV++FER/EJMMHEHF/mE=;
-        b=MKNsWdFhVc8rZrbywSKwovKLCFcoETE408NrKmHGHqrEUB5CBLVe72wLtjlTSnUZvnPWeE
-        LOLr1ppTcI2k50z9sharK/TgTAAOYNC7BW4ayrWylbNZ8SBEc6w4PiRswvBur9lW+qbTo3
-        T+GtGKbIhlOOn0B3a79bmNSZasCzArM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-396-A5H6TXp3OLCkFI-8D18BaA-1; Wed, 15 Dec 2021 09:42:35 -0500
-X-MC-Unique: A5H6TXp3OLCkFI-8D18BaA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S232587AbhLOQBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 11:01:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43750 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229899AbhLOQBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 11:01:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F140C061574;
+        Wed, 15 Dec 2021 08:01:48 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A5DA31927830;
-        Wed, 15 Dec 2021 14:42:33 +0000 (UTC)
-Received: from localhost (ovpn-12-120.pek2.redhat.com [10.72.12.120])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 759A370D58;
-        Wed, 15 Dec 2021 14:42:31 +0000 (UTC)
-Date:   Wed, 15 Dec 2021 22:42:28 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Cc:     Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, akpm@linux-foundation.org, hch@lst.de,
-        cl@linux.com, John.p.donnelly@oracle.com,
-        kexec@lists.infradead.org, stable@vger.kernel.org,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Subject: Re: [PATCH v3 5/5] mm/slub: do not create dma-kmalloc if no managed
- pages in DMA zone
-Message-ID: <20211215144228.GF10336@MiWiFi-R3L-srv>
-References: <20211213122712.23805-1-bhe@redhat.com>
- <20211213122712.23805-6-bhe@redhat.com>
- <20211213134319.GA997240@odroid>
- <20211214053253.GB2216@MiWiFi-R3L-srv>
- <f5ff82eb-73b6-55b5-53d7-04ab73ce5035@suse.cz>
- <20211215044818.GB1097530@odroid>
- <20211215070335.GA1165926@odroid>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA2F4618A9;
+        Wed, 15 Dec 2021 16:01:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3D8C36B1E;
+        Wed, 15 Dec 2021 16:01:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639584107;
+        bh=GBwdoRdSPGRpBbNNoPSHpiQpTtDQIVFhDXrpKtzl0jU=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=uce6mGOKP2vE6+M+8Tr9l9xYoqNQDdsTbqGoJJNTkYxhaz5j2uiB+oxyYbARQwkwn
+         NEBFRFZTW8Z3vIGbfCWnCWSq0QHuJeqkUQB1P2cYN7bRVlC/SUIK8nHxdHo5Q8Vb5M
+         v/8wPaLoxwKuZSvDatYuyh5xIlDPBxU/eVsGOFGEEzYApmFKlkHGsVnnpdkugZjVq2
+         OCzAZQ8hiHP1qkVgG5g0feZcC6eRiDHyFQ9foTyfQGEsBFhLtHIkrjjHBMKc4V8+Fj
+         oRf6g6vxvkTABqhvbXdo3lTWKnh4jVzGtkjD9R9Up9Jfnfr7KoDD6qmqPWG5OPFSn4
+         /61GWk1+QmDdQ==
+Date:   Wed, 15 Dec 2021 10:01:45 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org,
+        linux-pci@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org,
+        Benoit =?iso-8859-1?Q?Gr=E9goire?= <benoitg@coeus.ca>,
+        Hui Wang <hui.wang@canonical.com>, stable@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH v5 1/2] x86/PCI: Ignore E820 reservations for bridge
+ windows on newer systems
+Message-ID: <20211215160145.GA695366@bhelgaas>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211215070335.GA1165926@odroid>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <8cfab16c-5edc-dbff-b73e-65419a649ac2@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/15/21 at 07:03am, Hyeonggon Yoo wrote:
-> On Wed, Dec 15, 2021 at 04:48:26AM +0000, Hyeonggon Yoo wrote:
+On Tue, Dec 07, 2021 at 05:52:40PM +0100, Hans de Goede wrote:
+> On 11/10/21 14:05, Hans de Goede wrote:
+> > On 11/10/21 09:45, Hans de Goede wrote:
+> >> On 11/9/21 23:07, Bjorn Helgaas wrote:
+> >>> On Sat, Nov 06, 2021 at 11:15:07AM +0100, Hans de Goede wrote:
+> >>>> On 10/20/21 23:14, Bjorn Helgaas wrote:
+> >>>>> On Wed, Oct 20, 2021 at 12:23:26PM +0200, Hans de Goede wrote:
+> >>>>>> On 10/19/21 23:52, Bjorn Helgaas wrote:
+> >>>>>>> On Thu, Oct 14, 2021 at 08:39:42PM +0200, Hans de Goede wrote:
+> >>>>>>>> Some BIOS-es contain a bug where they add addresses which map to system
+> >>>>>>>> RAM in the PCI host bridge window returned by the ACPI _CRS method, see
+> >>>>>>>> commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
+> >>>>>>>> space").
+> >>>>>>>>
+> >>>>>>>> To work around this bug Linux excludes E820 reserved addresses when
+> >>>>>>>> allocating addresses from the PCI host bridge window since 2010.
+> >>>>>>>> ...
+> >>>>>
+> >>>>>>> I haven't seen anybody else eager to merge this, so I guess I'll stick
+> >>>>>>> my neck out here.
+> >>>>>>>
+> >>>>>>> I applied this to my for-linus branch for v5.15.
+> >>>>>>
+> >>>>>> Thank you, and sorry about the build-errors which the lkp
+> >>>>>> kernel-test-robot found.
+> >>>>>>
+> >>>>>> I've just send out a patch which fixes these build-errors
+> >>>>>> (verified with both .config-s from the lkp reports).
+> >>>>>> Feel free to squash this into the original patch (or keep
+> >>>>>> them separate, whatever works for you).
+> >>>>>
+> >>>>> Thanks, I squashed the fix in.
+> >>>>>
+> >>>>> HOWEVER, I think it would be fairly risky to push this into v5.15.
+> >>>>> We would be relying on the assumption that current machines have all
+> >>>>> fixed the BIOS defect that 4dc2287c1805 addressed, and we have little
+> >>>>> evidence for that.
+> >>>>>
+> >>>>> I'm not sure there's significant benefit to having this in v5.15.
+> >>>>> Yes, the mainline v5.15 kernel would work on the affected machines,
+> >>>>> but I suspect most people with those machines are running distro
+> >>>>> kernels, not mainline kernels.
+> >>>>
+> >>>> I understand that you were reluctant to add this to 5.15 so close
+> >>>> near the end of the 5.15 cycle, but can we please get this into
+> >>>> 5.16 now ?
+> >>>>
+> >>>> I know you ultimately want to see if there is a better fix,
+> >>>> but this is hitting a *lot* of users right now and if we come up
+> >>>> with a better fix we can always use that to replace this one
+> >>>> later.
+> >>>
+> >>> I don't know whether there's a "better" fix, but I do know that if we
+> >>> merge what we have right now, nobody will be looking for a better
+> >>> one.
+> >>>
+> >>> We're in the middle of the merge window, so the v5.16 development
+> >>> cycle is over.  The v5.17 cycle is just starting, so we have time to
+> >>> hit that.  Obviously a fix can be backported to older kernels as
+> >>> needed.
+> >>>
+> >>>> So can we please just go with this fix now, so that we can
+> >>>> fix the issues a lot of users are seeing caused by the current
+> >>>> *wrong* behavior of taking the e820 reservations into account ?
+> >>>
+> >>> I think the fix on the table is "ignore E820 for BIOS date >= 2018"
+> >>> plus the obvious parameters to force it both ways.
+> >>
+> >> Correct.
+> >>
+> >>> The thing I don't like is that this isn't connected at all to the
+> >>> actual BIOS defect.  We have no indication that current BIOSes have
+> >>> fixed the defect,
+> >>
+> >> We also have no indication that that defect from 10 years ago, from
+> >> pre UEFI firmware is still present in modern day UEFI firmware which
+> >> is basically an entire different code-base.
+> >>
+> >> And even 10 years ago the problem was only happening to a single
+> >> family of laptop models (Dell Precision laptops) so this clearly
+> >> was a bug in that specific implementation and not some generic
+> >> issue which is likely to be carried forward.
+> >>
+> >>> and we have no assurance that future ones will not
+> >>> have the defect.  It would be better if we had some algorithmic way of
+> >>> figuring out what to do.
+> >>
+> >> You yourself have said that in hindsight taking E820 reservations
+> >> into account for PCI bridge host windows was a mistake. So what
+> >> the "ignore E820 for BIOS date >= 2018" is doing is letting the
+> >> past be the past (without regressing on older models) while fixing
+> >> that mistake on any hardware going forward.
+> >>
+> >> In the unlikely case that we hit that BIOS bug again on 1 or 2 models,
+> >> we can simply DMI quirk those models, as we do for countless other
+> >> BIOS issues.
+> >>
+> >>> Thank you very much for chasing down the dmesg log archive
+> >>> (https://github.com/linuxhw/Dmesg; see
+> >>> https://lore.kernel.org/r/82035130-d810-9f0b-259e-61280de1d81f@redhat.com).
+> >>> Unfortunately I haven't had time to look through it myself, and I
+> >>> haven't heard of anybody else doing it either.
+> >>
+> >> Right, I'm afraid that I already have spend way too much time on this
+> >> myself. Note that I've been working with users on this bug on and off
+> >> for over a year now.
+> >>
+> >> This is hitting many users and now that we have a viable fix, this
+> >> really needs to be fixed now.
+> >>
+> >> I believe that the "ignore E820 for BIOS date >= 2018" fix is good
+> >> enough and that you are letting perfect be the enemy of good here.
+> >>
+> >> As an upstream kernel maintainer myself, I'm sorry to say this,
+> >> but if we don't get some fix for this merged soon you are leaving
+> >> my no choice but to add my fix to the Fedora kernels as a downstream
+> >> patch (and to advise other distros to do the same).
+> >>
+> >> Note that if you are still afraid of regressions going the downstream
+> >> route is also an opportunity, Fedora will start testing moving users
+> >> to 5.15.y soon, so I could add the patch to Fedora's 5.15.y builds and
+> >> see how that goes ?
 > > 
-> > Hello Baoquan and Vlastimil.
+> > So I've discussed this with the Fedora kernel maintainers and they have
+> > agreed to add the patch to the Fedora 5.15 kernels, which we will ask
+> > our users to start testing soon (we first run some voluntary testing
+> > before eventually moving all users over).
 > > 
-> > I'm not sure allowing ZONE_DMA32 for kdump kernel is nice way to solve
-> > this problem. Devices that requires ZONE_DMA is rare but we still
-> > support them.
+> > This will provide us with valuable feedback wrt this patch causing
+> > regressions as you are worried about, or not.
 > > 
-> > If we allow ZONE_DMA32 for ZONE_DMA in kdump kernels,
-> > the problem will be hard to find.
-> > 
+> > Assuming no regressions show up I hope that this will give you
+> > some assurance that there the patch causes no regressions and that
+> > you will then be willing to pick this up later during the 5.16
+> > cycle so that Fedora only deviates from upstream for 1 cycle.
 > 
-> Sorry, I sometimes forget validating my english writing :(
+> 5.15.y kernels with this patch added have been in Fedora's
+> stable updates repo for a while now without any reports of the
+> regressions you feared this may cause.
 > 
-> What I meant:
-> 
-> I'm not sure that allocating from ZONE_DMA32 instead of ZONE_DMA
-> for kdump kernel is nice way to solve this problem.
+> Bjorn, I hope that you are willing to merge this patch now that it has
+> seen some more wide spread testing ?
 
-Yeah, if it's really <32bit addressing limit on device, it doesn't solve
-problem. Not sure if devices really has the limitation when
-kmalloc(GFP_DMA) is invoked kernel driver.
+I'm still not happy about the idea of basing this on BIOS dates.  I
+did this with 7bc5e3f2be32 ("x86/PCI: use host bridge _CRS info by
+default on 2008 and newer machines"), and it was a mistake.
 
-> 
-> Devices that requires ZONE_DMA memory is rare but we still support them.
-> 
-> If we use ZONE_DMA32 memory instead of ZONE_DMA in kdump kernels,
-> It will be hard to the problem when we use devices that can use only
-> ZONE_DMA memory.
-> 
-> > What about one of those?:
-> > 
-> >     1) Do not call warn_alloc in page allocator if will always fail
-> >     to allocate ZONE_DMA pages.
-> > 
+Because of that mistake, we now have the use_crs/nocrs kernel
+parameters, which confuse users and lead to them being passed around
+as "fixes" on random bulletin boards.
 
-Seems we can do like below.
+Adding another BIOS date check and use_e820/no_e820 kernel parameters
+feels like it's layering on more complexity to cover up another major
+mistake I made, 4dc2287c1805 ("x86: avoid E820 regions when allocating
+address space").
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 7c7a0b5de2ff..843bc8e5550a 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4204,7 +4204,8 @@ void warn_alloc(gfp_t gfp_mask, nodemask_t *nodemask, const char *fmt, ...)
- 	va_list args;
- 	static DEFINE_RATELIMIT_STATE(nopage_rs, 10*HZ, 1);
- 
--	if ((gfp_mask & __GFP_NOWARN) || !__ratelimit(&nopage_rs))
-+	if ((gfp_mask & __GFP_NOWARN) || !__ratelimit(&nopage_rs) ||
-+		(gfp_mask & __GFP_DMA) && !has_managed_dma())
- 		return;
- 
-> > 
-> >     2) let's check all callers of kmalloc with GFP_DMA
-> >     if they really need GFP_DMA flag and replace those by DMA API or
-> >     just remove GFP_DMA from kmalloc()
+I think it would be better for the code to recognize the situation
+addressed by 4dc2287c1805 and deal with it directly.  Is that
+possible?  I dunno; I don't think we've really tried.
 
-I grepped and got a list, I will try to start with several easy place,
-see if we can do something to improve.
-start with.
-
-
-> > 
-> >     3) Drop support for allocating DMA memory from slab allocator
-> >     (as Christoph Hellwig said) and convert them to use DMA32
-> 
-> 	(as Christoph Hellwig said) and convert them to use *DMA API*
-
-Yes, that will be ideal result. This is equivalent to 2), or depends
-on 2).
-
-> 
-> >     and see what happens
-> > 
-> > Thanks,
-> > Hyeonggon.
-> > 
-> > > >> 
-> > > >> Maybe the function get_capabilities() want to allocate memory
-> > > >> even if it's not from DMA zone, but other callers will not expect that.
-> > > > 
-> > > > Yeah, I have the same guess too for get_capabilities(), not sure about other
-> > > > callers. Or, as ChristophL and ChristophH said(Sorry, not sure if this is
-> > > > the right way to call people when the first name is the same. Correct me if
-> > > > it's wrong), any buffer requested from kmalloc can be used by device driver.
-> > > > Means device enforces getting memory inside addressing limit for those
-> > > > DMA transferring buffer which is usually large, Megabytes level with
-> > > > vmalloc() or alloc_pages(), but doesn't care about this kind of small
-> > > > piece buffer memory allocated with kmalloc()? Just a guess, please tell
-> > > > a counter example if anyone happens to know, it could be easy.
-> > > > 
-> > > > 
-> > > >> 
-> > > >> >  			kmalloc_caches[KMALLOC_DMA][i] = create_kmalloc_cache(
-> > > >> >  				kmalloc_info[i].name[KMALLOC_DMA],
-> > > >> >  				kmalloc_info[i].size,
-> > > >> > -- 
-> > > >> > 2.17.2
-> > > >> > 
-> > > >> > 
-> > > >> 
-> > > > 
-> > > 
-> 
-
+Bjorn
