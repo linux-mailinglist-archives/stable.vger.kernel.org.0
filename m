@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B137A475F46
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC97C475F0F
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245722AbhLOR3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:29:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35756 "EHLO
+        id S232860AbhLOR13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:27:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344134AbhLOR1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:27:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F636C061A72;
-        Wed, 15 Dec 2021 09:26:35 -0800 (PST)
+        with ESMTP id S1343861AbhLOR0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86401C07E5C1;
+        Wed, 15 Dec 2021 09:25:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E49CF619E8;
-        Wed, 15 Dec 2021 17:26:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D60C36AE2;
-        Wed, 15 Dec 2021 17:26:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51A94B82047;
+        Wed, 15 Dec 2021 17:25:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A64C36AE0;
+        Wed, 15 Dec 2021 17:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589194;
-        bh=eDprUhMM8vftWzn2Cl89AMWfd58wb49TmTCNevGQdHc=;
+        s=korg; t=1639589141;
+        bh=0ovH+hXSGBAbQI4s0PnxEuc5eM6VSTgDxobveFB4+nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oA7R9uQGl3//oWNC8UTODpqOanGR3yEThiJokD41o7eKG9rm7BsmCOIhJUathAlIq
-         YMp0aKWCqck+2w4Pj7VNHCqSIcR1POP+8iNEQOoZ1qeSJNTx3m1OhTZcmqHxpFUIyJ
-         yUJEd9Vhr5ymxD5v9BPMWHgAMRw7OjfItm2WOnGE=
+        b=T66zZImQ8JbRSlDpMGr4qqKkreFYaXBc304ogOcvCD9NSYst0SB8EyUoaDFwnDS2h
+         5QVewFKKB7VspytUjeeu3brCDtvi8tHZAwXXK6zWErbjD97exm1NftDR7l1mT1MDiI
+         EGSaHqlwElmxV1AZwEHCP1H8Fozao+b+r3jPDZeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/18] parisc/agp: Annotate parisc agp init functions with __init
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 27/33] perf intel-pt: Fix missing instruction events with q option
 Date:   Wed, 15 Dec 2021 18:21:25 +0100
-Message-Id: <20211215172022.959076270@linuxfoundation.org>
+Message-Id: <20211215172025.709112854@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
-References: <20211215172022.795825673@linuxfoundation.org>
+In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
+References: <20211215172024.787958154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,50 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 8d88382b7436551a9ebb78475c546b670790cbf6 ]
+commit a882cc94971093e146ffa1163b140ad956236754 upstream.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+FUP packets contain IP information, which makes them also an 'instruction'
+event in 'hop' mode i.e. the itrace 'q' option.  That wasn't happening, so
+restructure the logic so that FUP events are added along with appropriate
+'instruction' and 'branch' events.
+
+Fixes: 7c1b16ba0e26e6 ("perf intel-pt: Add support for decoding FUP/TIP only")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v5.15+
+Link: https://lore.kernel.org/r/20211210162303.2288710-7-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[Adrian: Backport to v5.10]
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/agp/parisc-agp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/agp/parisc-agp.c b/drivers/char/agp/parisc-agp.c
-index ed3c4c42fc23b..d68d05d5d3838 100644
---- a/drivers/char/agp/parisc-agp.c
-+++ b/drivers/char/agp/parisc-agp.c
-@@ -281,7 +281,7 @@ agp_ioc_init(void __iomem *ioc_regs)
-         return 0;
- }
- 
--static int
-+static int __init
- lba_find_capability(int cap)
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -1954,6 +1954,8 @@ static int intel_pt_scan_for_psb(struct
+ /* Hop mode: Ignore TNT, do not walk code, but get ip from FUPs and TIPs */
+ static int intel_pt_hop_trace(struct intel_pt_decoder *decoder, bool *no_tip, int *err)
  {
- 	struct _parisc_agp_info *info = &parisc_agp_info;
-@@ -366,7 +366,7 @@ parisc_agp_setup(void __iomem *ioc_hpa, void __iomem *lba_hpa)
- 	return error;
- }
++	*err = 0;
++
+ 	/* Leap from PSB to PSB, getting ip from FUP within PSB+ */
+ 	if (decoder->leap && !decoder->in_psb && decoder->packet.type != INTEL_PT_PSB) {
+ 		*err = intel_pt_scan_for_psb(decoder);
+@@ -1988,18 +1990,21 @@ static int intel_pt_hop_trace(struct int
+ 		if (!decoder->packet.count)
+ 			return HOP_IGNORE;
+ 		intel_pt_set_ip(decoder);
+-		if (intel_pt_fup_event(decoder))
+-			return HOP_RETURN;
++		if (decoder->set_fup_mwait || decoder->set_fup_pwre)
++			*no_tip = true;
+ 		if (!decoder->branch_enable || !decoder->pge)
+ 			*no_tip = true;
+ 		if (*no_tip) {
+ 			decoder->state.type = INTEL_PT_INSTRUCTION;
+ 			decoder->state.from_ip = decoder->ip;
+ 			decoder->state.to_ip = 0;
++			intel_pt_fup_event(decoder);
+ 			return HOP_RETURN;
+ 		}
++		intel_pt_fup_event(decoder);
++		decoder->state.type |= INTEL_PT_INSTRUCTION | INTEL_PT_BRANCH;
+ 		*err = intel_pt_walk_fup_tip(decoder);
+-		if (!*err)
++		if (!*err && decoder->state.to_ip)
+ 			decoder->pkt_state = INTEL_PT_STATE_RESAMPLE;
+ 		return HOP_RETURN;
  
--static int
-+static int __init
- find_quicksilver(struct device *dev, void *data)
- {
- 	struct parisc_device **lba = data;
-@@ -378,7 +378,7 @@ find_quicksilver(struct device *dev, void *data)
- 	return 0;
- }
- 
--static int
-+static int __init
- parisc_agp_init(void)
- {
- 	extern struct sba_device *sba_list;
--- 
-2.33.0
-
 
 
