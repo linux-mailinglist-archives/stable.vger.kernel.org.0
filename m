@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CB8B475EEE
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F769475EF0
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238515AbhLORZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:25:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:45440 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235166AbhLORYt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:49 -0500
+        id S1343832AbhLOR0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:26:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343540AbhLORYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01F8C0613A5;
+        Wed, 15 Dec 2021 09:24:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E2D2619DD;
-        Wed, 15 Dec 2021 17:24:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739FDC36AE0;
-        Wed, 15 Dec 2021 17:24:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66227619EB;
+        Wed, 15 Dec 2021 17:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48839C36AE0;
+        Wed, 15 Dec 2021 17:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589088;
-        bh=f+ZAaHO/Uw8lNNM48VIXYJMJ8GxJhHK5Pvp5PAUH7Po=;
+        s=korg; t=1639589090;
+        bh=0ZEX3o5vARSblHCi+Lys9eUWU8pfmJlFd3UJAJtZpUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoNiZ3mHcASiRMAFHgINeyLfS5FxlzVsMVlnEfkkVvK434oCkK6lNAFE+5yNtCr/D
-         q+FDiGBfgRMuJlpGXezxx0B79w5XkKxEN1eYBbmP+ifEVi8zgirg2+CaavwbG/R1hX
-         ZcZW/p72WZQ6LjMju4uQNcy1V4lxQDQrYN6i6kY4=
+        b=aYYTV5XmdMcan0D2/VYFohLqM4azGHiAYfRjTzah2iyF3M9MGT+xL7stHAKodBcON
+         wrDrTnYNNQa7Ane6SOKCYFBN9TNgIxzh+d4zR4VXAMj0P7XggOp4Ac6JRskuHV/TbL
+         miivmlWhCDKWhqmZUs3vwBlba1v8JOAWZnjlvKmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Subject: [PATCH 5.10 16/33] staging: most: dim2: use device release method
-Date:   Wed, 15 Dec 2021 18:21:14 +0100
-Message-Id: <20211215172025.327176102@linuxfoundation.org>
+        stable@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Connor OBrien <connoro@google.com>
+Subject: [PATCH 5.10 17/33] bpf: Fix integer overflow in argument calculation for bpf_map_area_alloc
+Date:   Wed, 15 Dec 2021 18:21:15 +0100
+Message-Id: <20211215172025.369360055@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
 References: <20211215172024.787958154@linuxfoundation.org>
@@ -44,144 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+From: Bui Quang Minh <minhquangbui99@gmail.com>
 
-commit d445aa402d60014a37a199fae2bba379696b007d upstream.
+commit 7dd5d437c258bbf4cc15b35229e5208b87b8b4e0 upstream.
 
-Commit 723de0f9171e ("staging: most: remove device from interface
-structure") moved registration of driver-provided struct device to
-the most subsystem. This updated dim2 driver as well.
+In 32-bit architecture, the result of sizeof() is a 32-bit integer so
+the expression becomes the multiplication between 2 32-bit integer which
+can potentially leads to integer overflow. As a result,
+bpf_map_area_alloc() allocates less memory than needed.
 
-However, struct device passed to register_device() becomes refcounted,
-and must not be explicitly deallocated, but must provide release method
-instead. Which is incompatible with managing it via devres.
+Fix this by casting 1 operand to u64.
 
-This patch makes the device structure allocated without devres, adds
-device release method, and moves device destruction there.
-
-Fixes: 723de0f9171e ("staging: most: remove device from interface structure")
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Link: https://lore.kernel.org/r/20211005143448.8660-2-nikita.yoush@cogentembedded.com
+Fixes: 0d2c4f964050 ("bpf: Eliminate rlimit-based memory accounting for sockmap and sockhash maps")
+Fixes: 99c51064fb06 ("devmap: Use bpf_map_area_alloc() for allocating hash buckets")
+Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210613143440.71975-1-minhquangbui99@gmail.com
+Signed-off-by: Connor O'Brien <connoro@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/most/dim2/dim2.c |   55 +++++++++++++++++++++------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+ kernel/bpf/devmap.c |    4 ++--
+ net/core/sock_map.c |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/most/dim2/dim2.c
-+++ b/drivers/staging/most/dim2/dim2.c
-@@ -723,6 +723,23 @@ static int get_dim2_clk_speed(const char
- 	return -EINVAL;
- }
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -92,7 +92,7 @@ static struct hlist_head *dev_map_create
+ 	int i;
+ 	struct hlist_head *hash;
  
-+static void dim2_release(struct device *d)
-+{
-+	struct dim2_hdm *dev = container_of(d, struct dim2_hdm, dev);
-+	unsigned long flags;
-+
-+	kthread_stop(dev->netinfo_task);
-+
-+	spin_lock_irqsave(&dim_lock, flags);
-+	dim_shutdown();
-+	spin_unlock_irqrestore(&dim_lock, flags);
-+
-+	if (dev->disable_platform)
-+		dev->disable_platform(to_platform_device(d->parent));
-+
-+	kfree(dev);
-+}
-+
- /*
-  * dim2_probe - dim2 probe handler
-  * @pdev: platform device structure
-@@ -743,7 +760,7 @@ static int dim2_probe(struct platform_de
+-	hash = bpf_map_area_alloc(entries * sizeof(*hash), numa_node);
++	hash = bpf_map_area_alloc((u64) entries * sizeof(*hash), numa_node);
+ 	if (hash != NULL)
+ 		for (i = 0; i < entries; i++)
+ 			INIT_HLIST_HEAD(&hash[i]);
+@@ -153,7 +153,7 @@ static int dev_map_init_map(struct bpf_d
  
- 	enum { MLB_INT_IDX, AHB0_INT_IDX };
+ 		spin_lock_init(&dtab->index_lock);
+ 	} else {
+-		dtab->netdev_map = bpf_map_area_alloc(dtab->map.max_entries *
++		dtab->netdev_map = bpf_map_area_alloc((u64) dtab->map.max_entries *
+ 						      sizeof(struct bpf_dtab_netdev *),
+ 						      dtab->map.numa_node);
+ 		if (!dtab->netdev_map)
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -52,7 +52,7 @@ static struct bpf_map *sock_map_alloc(un
+ 	if (err)
+ 		goto free_stab;
  
--	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
- 		return -ENOMEM;
- 
-@@ -755,25 +772,27 @@ static int dim2_probe(struct platform_de
- 				      "microchip,clock-speed", &clock_speed);
- 	if (ret) {
- 		dev_err(&pdev->dev, "missing dt property clock-speed\n");
--		return ret;
-+		goto err_free_dev;
- 	}
- 
- 	ret = get_dim2_clk_speed(clock_speed, &dev->clk_speed);
- 	if (ret) {
- 		dev_err(&pdev->dev, "bad dt property clock-speed\n");
--		return ret;
-+		goto err_free_dev;
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dev->io_base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(dev->io_base))
--		return PTR_ERR(dev->io_base);
-+	if (IS_ERR(dev->io_base)) {
-+		ret = PTR_ERR(dev->io_base);
-+		goto err_free_dev;
-+	}
- 
- 	of_id = of_match_node(dim2_of_match, pdev->dev.of_node);
- 	pdata = of_id->data;
- 	ret = pdata && pdata->enable ? pdata->enable(pdev) : 0;
- 	if (ret)
--		return ret;
-+		goto err_free_dev;
- 
- 	dev->disable_platform = pdata ? pdata->disable : NULL;
- 
-@@ -864,24 +883,19 @@ static int dim2_probe(struct platform_de
- 	dev->most_iface.request_netinfo = request_netinfo;
- 	dev->most_iface.driver_dev = &pdev->dev;
- 	dev->most_iface.dev = &dev->dev;
--	dev->dev.init_name = "dim2_state";
-+	dev->dev.init_name = dev->name;
- 	dev->dev.parent = &pdev->dev;
-+	dev->dev.release = dim2_release;
- 
--	ret = most_register_interface(&dev->most_iface);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to register MOST interface\n");
--		goto err_stop_thread;
--	}
--
--	return 0;
-+	return most_register_interface(&dev->most_iface);
- 
--err_stop_thread:
--	kthread_stop(dev->netinfo_task);
- err_shutdown_dim:
- 	dim_shutdown();
- err_disable_platform:
- 	if (dev->disable_platform)
- 		dev->disable_platform(pdev);
-+err_free_dev:
-+	kfree(dev);
- 
- 	return ret;
- }
-@@ -895,17 +909,8 @@ err_disable_platform:
- static int dim2_remove(struct platform_device *pdev)
- {
- 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
--	unsigned long flags;
- 
- 	most_deregister_interface(&dev->most_iface);
--	kthread_stop(dev->netinfo_task);
--
--	spin_lock_irqsave(&dim_lock, flags);
--	dim_shutdown();
--	spin_unlock_irqrestore(&dim_lock, flags);
--
--	if (dev->disable_platform)
--		dev->disable_platform(pdev);
- 
- 	return 0;
- }
+-	stab->sks = bpf_map_area_alloc(stab->map.max_entries *
++	stab->sks = bpf_map_area_alloc((u64) stab->map.max_entries *
+ 				       sizeof(struct sock *),
+ 				       stab->map.numa_node);
+ 	if (stab->sks)
 
 
