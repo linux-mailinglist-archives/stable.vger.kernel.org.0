@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2BE4475EF6
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FDC5475EBC
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245473AbhLOR0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:26:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42340 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245648AbhLORZB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:25:01 -0500
+        id S235349AbhLORYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:24:19 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44568 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245603AbhLORXx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A58CB82029;
-        Wed, 15 Dec 2021 17:25:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0F9C36AE2;
-        Wed, 15 Dec 2021 17:24:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2BCB619E5;
+        Wed, 15 Dec 2021 17:23:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 992EAC36AE3;
+        Wed, 15 Dec 2021 17:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589099;
-        bh=14PYgjOPcuznMxdJlqia4LIKiz+cpLfgtJRpyJVX5TE=;
+        s=korg; t=1639589032;
+        bh=p4q2jJiqmTvTg/BQqSl9uEEFfH48wa23OnPgltutTCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cM0jaSbL4xa5nVdGEK5IVMLcGW94KPHYFS7SP3JpFUU4Ovtd2q2uoOppfP1iDjG+p
-         ur8shT2ffiNKWzd36ukckKcx/D4wor3W12N8/pWjpViqRhx/DdGQFBOBfDYizQs3iQ
-         mRsQUJRgVRxRR/zjLX4PTQNujU75Qi+LGTom00JA=
+        b=LbAZ3ixlUWKrL87Fg4zQcviRHcBk6g/95RuuWH8ZHrih8pP46DkKtP+3AGHVxYOK8
+         0wfbFi0gExqkbLdOHNZYF+gNitwCc5HnN5y8v80bHb5xWoyFTFr9M/j2a8Dffj2bpT
+         /bMGs6iUqh1qNzv77NQmVjWuceLgG/YOEOHZPyko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Antoine Tenart <atenart@kernel.org>
-Subject: [PATCH 5.10 20/33] ethtool: do not perform operations on net devices being unregistered
-Date:   Wed, 15 Dec 2021 18:21:18 +0100
-Message-Id: <20211215172025.469159159@linuxfoundation.org>
+        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 38/42] drm/amdkfd: process_info lock not needed for svm
+Date:   Wed, 15 Dec 2021 18:21:19 +0100
+Message-Id: <20211215172027.951056559@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
+References: <20211215172026.641863587@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Philip Yang <Philip.Yang@amd.com>
 
-commit dde91ccfa25fd58f64c397d91b81a4b393100ffa upstream.
+[ Upstream commit 3abfe30d803e62cc75dec254eefab3b04d69219b ]
 
-There is a short period between a net device starts to be unregistered
-and when it is actually gone. In that time frame ethtool operations
-could still be performed, which might end up in unwanted or undefined
-behaviours[1].
+process_info->lock is used to protect kfd_bo_list, vm_list_head, n_vms
+and userptr valid/inval list, svm_range_restore_work and
+svm_range_set_attr don't access those, so do not need to take
+process_info lock. This will avoid potential circular locking issue.
 
-Do not allow ethtool operations after a net device starts its
-unregistration. This patch targets the netlink part as the ioctl one
-isn't affected: the reference to the net device is taken and the
-operation is executed within an rtnl lock section and the net device
-won't be found after unregister.
-
-[1] For example adding Tx queues after unregister ends up in NULL
-    pointer exceptions and UaFs, such as:
-
-      BUG: KASAN: use-after-free in kobject_get+0x14/0x90
-      Read of size 1 at addr ffff88801961248c by task ethtool/755
-
-      CPU: 0 PID: 755 Comm: ethtool Not tainted 5.15.0-rc6+ #778
-      Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/014
-      Call Trace:
-       dump_stack_lvl+0x57/0x72
-       print_address_description.constprop.0+0x1f/0x140
-       kasan_report.cold+0x7f/0x11b
-       kobject_get+0x14/0x90
-       kobject_add_internal+0x3d1/0x450
-       kobject_init_and_add+0xba/0xf0
-       netdev_queue_update_kobjects+0xcf/0x200
-       netif_set_real_num_tx_queues+0xb4/0x310
-       veth_set_channels+0x1c3/0x550
-       ethnl_set_channels+0x524/0x610
-
-Fixes: 041b1c5d4a53 ("ethtool: helper functions for netlink interface")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Link: https://lore.kernel.org/r/20211203101318.435618-1-atenart@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ethtool/netlink.h |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/net/ethtool/netlink.h
-+++ b/net/ethtool/netlink.h
-@@ -249,6 +249,9 @@ struct ethnl_reply_data {
- 
- static inline int ethnl_ops_begin(struct net_device *dev)
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+index 179080329af89..5a674235ae41a 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+@@ -1565,7 +1565,6 @@ svm_range_list_lock_and_flush_work(struct svm_range_list *svms,
+ static void svm_range_restore_work(struct work_struct *work)
  {
-+	if (dev && dev->reg_state == NETREG_UNREGISTERING)
-+		return -ENODEV;
-+
- 	if (dev && dev->ethtool_ops->begin)
- 		return dev->ethtool_ops->begin(dev);
- 	else
+ 	struct delayed_work *dwork = to_delayed_work(work);
+-	struct amdkfd_process_info *process_info;
+ 	struct svm_range_list *svms;
+ 	struct svm_range *prange;
+ 	struct kfd_process *p;
+@@ -1585,12 +1584,10 @@ static void svm_range_restore_work(struct work_struct *work)
+ 	 * the lifetime of this thread, kfd_process and mm will be valid.
+ 	 */
+ 	p = container_of(svms, struct kfd_process, svms);
+-	process_info = p->kgd_process_info;
+ 	mm = p->mm;
+ 	if (!mm)
+ 		return;
+ 
+-	mutex_lock(&process_info->lock);
+ 	svm_range_list_lock_and_flush_work(svms, mm);
+ 	mutex_lock(&svms->lock);
+ 
+@@ -1643,7 +1640,6 @@ static void svm_range_restore_work(struct work_struct *work)
+ out_reschedule:
+ 	mutex_unlock(&svms->lock);
+ 	mmap_write_unlock(mm);
+-	mutex_unlock(&process_info->lock);
+ 
+ 	/* If validation failed, reschedule another attempt */
+ 	if (evicted_ranges) {
+@@ -2974,7 +2970,6 @@ static int
+ svm_range_set_attr(struct kfd_process *p, uint64_t start, uint64_t size,
+ 		   uint32_t nattr, struct kfd_ioctl_svm_attribute *attrs)
+ {
+-	struct amdkfd_process_info *process_info = p->kgd_process_info;
+ 	struct mm_struct *mm = current->mm;
+ 	struct list_head update_list;
+ 	struct list_head insert_list;
+@@ -2993,8 +2988,6 @@ svm_range_set_attr(struct kfd_process *p, uint64_t start, uint64_t size,
+ 
+ 	svms = &p->svms;
+ 
+-	mutex_lock(&process_info->lock);
+-
+ 	svm_range_list_lock_and_flush_work(svms, mm);
+ 
+ 	if (!svm_range_is_valid(mm, start, size)) {
+@@ -3070,8 +3063,6 @@ svm_range_set_attr(struct kfd_process *p, uint64_t start, uint64_t size,
+ 	mutex_unlock(&svms->lock);
+ 	mmap_read_unlock(mm);
+ out:
+-	mutex_unlock(&process_info->lock);
+-
+ 	pr_debug("pasid 0x%x svms 0x%p [0x%llx 0x%llx] done, r=%d\n", p->pasid,
+ 		 &p->svms, start, start + size - 1, r);
+ 
+-- 
+2.33.0
+
 
 
