@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C59475EB0
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46530475EB2
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245630AbhLORYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:24:01 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41020 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238345AbhLORX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:26 -0500
+        id S238424AbhLORYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:24:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245564AbhLORXk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10F23C061759;
+        Wed, 15 Dec 2021 09:23:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EA7DB82047;
-        Wed, 15 Dec 2021 17:23:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B84A7C36AE2;
-        Wed, 15 Dec 2021 17:23:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A35C461A0A;
+        Wed, 15 Dec 2021 17:23:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88B12C36AE2;
+        Wed, 15 Dec 2021 17:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589004;
-        bh=goW8oIG28WV3KZJVc82GGxoWcMS+FNrG4DxLeoFlqWM=;
+        s=korg; t=1639589007;
+        bh=eDprUhMM8vftWzn2Cl89AMWfd58wb49TmTCNevGQdHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAhREPEAuTCoaciBqFWpQ/BQZGhTy4LWgnYnm59iA66xDNTsxZFSa9l/VcyPtl3+Y
-         BMJPAyzRj/Le1GGElKiD0SOYvFL0K+l5wXLgIsrGDg98THF5qIqs6E7k44HkJlRu1W
-         /bpVz1aVv50/VFncl6d9cRxsl5Bx9kalSwmYwXMw=
+        b=JWshmmDFU4LaLGa2ksjSBc3Gn+FEbL5wrnEKGvkhAucet3opkucniipc+uo6A+YMG
+         gs/XVP/kZfAn43TMzk1tfGL6qsq0k7XWNZ4F94F9TAieIdMKZ8sd3C+RoaMJebtjjW
+         1JFUs/b8SkOamx1wJWO/7bJP0zku8QGEaYXm6qQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 29/42] ALSA: hda/hdmi: fix HDA codec entry table order for ADL-P
-Date:   Wed, 15 Dec 2021 18:21:10 +0100
-Message-Id: <20211215172027.661445673@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        kernel test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 30/42] parisc/agp: Annotate parisc agp init functions with __init
+Date:   Wed, 15 Dec 2021 18:21:11 +0100
+Message-Id: <20211215172027.692415082@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
 References: <20211215172026.641863587@linuxfoundation.org>
@@ -45,38 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 289047db1143c42c81820352f195a393ff639a52 ]
+[ Upstream commit 8d88382b7436551a9ebb78475c546b670790cbf6 ]
 
-Keep the HDA_CODEC_ENTRY entries sorted by the codec VID. ADL-P
-is the only misplaced Intel HDMI codec.
-
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211130124732.696896-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/agp/parisc-agp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 98633d2684deb..415701bd10ac8 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -4380,11 +4380,11 @@ HDA_CODEC_ENTRY(0x8086280f, "Icelake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x80862812, "Tigerlake HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862814, "DG1 HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862815, "Alderlake HDMI",	patch_i915_tgl_hdmi),
--HDA_CODEC_ENTRY(0x8086281c, "Alderlake-P HDMI", patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862816, "Rocketlake HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862819, "DG2 HDMI",	patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
- HDA_CODEC_ENTRY(0x8086281b, "Elkhartlake HDMI",	patch_i915_icl_hdmi),
-+HDA_CODEC_ENTRY(0x8086281c, "Alderlake-P HDMI", patch_i915_tgl_hdmi),
- HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
- HDA_CODEC_ENTRY(0x80862882, "Valleyview2 HDMI",	patch_i915_byt_hdmi),
- HDA_CODEC_ENTRY(0x80862883, "Braswell HDMI",	patch_i915_byt_hdmi),
+diff --git a/drivers/char/agp/parisc-agp.c b/drivers/char/agp/parisc-agp.c
+index ed3c4c42fc23b..d68d05d5d3838 100644
+--- a/drivers/char/agp/parisc-agp.c
++++ b/drivers/char/agp/parisc-agp.c
+@@ -281,7 +281,7 @@ agp_ioc_init(void __iomem *ioc_regs)
+         return 0;
+ }
+ 
+-static int
++static int __init
+ lba_find_capability(int cap)
+ {
+ 	struct _parisc_agp_info *info = &parisc_agp_info;
+@@ -366,7 +366,7 @@ parisc_agp_setup(void __iomem *ioc_hpa, void __iomem *lba_hpa)
+ 	return error;
+ }
+ 
+-static int
++static int __init
+ find_quicksilver(struct device *dev, void *data)
+ {
+ 	struct parisc_device **lba = data;
+@@ -378,7 +378,7 @@ find_quicksilver(struct device *dev, void *data)
+ 	return 0;
+ }
+ 
+-static int
++static int __init
+ parisc_agp_init(void)
+ {
+ 	extern struct sba_device *sba_list;
 -- 
 2.33.0
 
