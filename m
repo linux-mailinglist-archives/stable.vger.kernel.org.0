@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CF0475EC6
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E986D475EC2
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245499AbhLORYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:24:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35464 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245403AbhLORX6 (ORCPT
+        id S245492AbhLORYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:24:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44652 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234660AbhLORX6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46EB0C06175E;
-        Wed, 15 Dec 2021 09:23:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11F03B81F1C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 438AE619DD;
+        Wed, 15 Dec 2021 17:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8B5C36AE3;
         Wed, 15 Dec 2021 17:23:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A1C3C36AF8;
-        Wed, 15 Dec 2021 17:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589034;
-        bh=ggDjupL8YiE3e+LHks8GD/2HNtxOpGyAlI5o4sPWzMc=;
+        s=korg; t=1639589037;
+        bh=7nfrDWaJfCPiO3lAwswAj5ZbLTewMnU2tdwfUmRCoCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXd6O6POd/x36+WB6Ftjo8tGhwhy8+35gKRRCEVeGPve653qZ4T6yD2RQ4EX94G9N
-         2Nw+wzPYxAWA2k/DXlMriZY9M1Bg35RrAhst01I/520lHTVb+n+8v0PkSeNI4CYJSc
-         4D055HJ5XJR5byG5i+FVv35jTjuU0BFGCOb5pzmY=
+        b=ogLerrs/v8J+rwpzT4p5CAX3NtefjE4N0J7iJ2KAIul8blaN0hysIeu7/hNOOrDRm
+         75+HKECO2VGkXFsU0wmvUHQCL+I/MGFQ+KKLhj5RfgExzGKVvVJl+zmyOYJ7Drv9we
+         LMIxpjd2Z97Mm/2GqUeT2XN0PbR+uSlRRouR5QV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 39/42] tracing: Fix a kmemleak false positive in tracing_map
-Date:   Wed, 15 Dec 2021 18:21:20 +0100
-Message-Id: <20211215172027.983910010@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Subject: [PATCH 5.15 40/42] staging: most: dim2: use device release method
+Date:   Wed, 15 Dec 2021 18:21:21 +0100
+Message-Id: <20211215172028.015339773@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
 References: <20211215172026.641863587@linuxfoundation.org>
@@ -48,103 +44,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jun <chenjun102@huawei.com>
+From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 
-[ Upstream commit f25667e5980a4333729cac3101e5de1bb851f71a ]
+commit d445aa402d60014a37a199fae2bba379696b007d upstream.
 
-Doing the command:
-  echo 'hist:key=common_pid.execname,common_timestamp' > /sys/kernel/debug/tracing/events/xxx/trigger
+Commit 723de0f9171e ("staging: most: remove device from interface
+structure") moved registration of driver-provided struct device to
+the most subsystem. This updated dim2 driver as well.
 
-Triggers many kmemleak reports:
+However, struct device passed to register_device() becomes refcounted,
+and must not be explicitly deallocated, but must provide release method
+instead. Which is incompatible with managing it via devres.
 
-unreferenced object 0xffff0000c7ea4980 (size 128):
-  comm "bash", pid 338, jiffies 4294912626 (age 9339.324s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000f3469921>] kmem_cache_alloc_trace+0x4c0/0x6f0
-    [<0000000054ca40c3>] hist_trigger_elt_data_alloc+0x140/0x178
-    [<00000000633bd154>] tracing_map_init+0x1f8/0x268
-    [<000000007e814ab9>] event_hist_trigger_func+0xca0/0x1ad0
-    [<00000000bf8520ed>] trigger_process_regex+0xd4/0x128
-    [<00000000f549355a>] event_trigger_write+0x7c/0x120
-    [<00000000b80f898d>] vfs_write+0xc4/0x380
-    [<00000000823e1055>] ksys_write+0x74/0xf8
-    [<000000008a9374aa>] __arm64_sys_write+0x24/0x30
-    [<0000000087124017>] do_el0_svc+0x88/0x1c0
-    [<00000000efd0dcd1>] el0_svc+0x1c/0x28
-    [<00000000dbfba9b3>] el0_sync_handler+0x88/0xc0
-    [<00000000e7399680>] el0_sync+0x148/0x180
-unreferenced object 0xffff0000c7ea4980 (size 128):
-  comm "bash", pid 338, jiffies 4294912626 (age 9339.324s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000f3469921>] kmem_cache_alloc_trace+0x4c0/0x6f0
-    [<0000000054ca40c3>] hist_trigger_elt_data_alloc+0x140/0x178
-    [<00000000633bd154>] tracing_map_init+0x1f8/0x268
-    [<000000007e814ab9>] event_hist_trigger_func+0xca0/0x1ad0
-    [<00000000bf8520ed>] trigger_process_regex+0xd4/0x128
-    [<00000000f549355a>] event_trigger_write+0x7c/0x120
-    [<00000000b80f898d>] vfs_write+0xc4/0x380
-    [<00000000823e1055>] ksys_write+0x74/0xf8
-    [<000000008a9374aa>] __arm64_sys_write+0x24/0x30
-    [<0000000087124017>] do_el0_svc+0x88/0x1c0
-    [<00000000efd0dcd1>] el0_svc+0x1c/0x28
-    [<00000000dbfba9b3>] el0_sync_handler+0x88/0xc0
-    [<00000000e7399680>] el0_sync+0x148/0x180
+This patch makes the device structure allocated without devres, adds
+device release method, and moves device destruction there.
 
-The reason is elts->pages[i] is alloced by get_zeroed_page.
-and kmemleak will not scan the area alloced by get_zeroed_page.
-The address stored in elts->pages will be regarded as leaked.
-
-That is, the elts->pages[i] will have pointers loaded onto it as well, and
-without telling kmemleak about it, those pointers will look like memory
-without a reference.
-
-To fix this, call kmemleak_alloc to tell kmemleak to scan elts->pages[i]
-
-Link: https://lkml.kernel.org/r/20211124140801.87121-1-chenjun102@huawei.com
-
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 723de0f9171e ("staging: most: remove device from interface structure")
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Link: https://lore.kernel.org/r/20211005143448.8660-2-nikita.yoush@cogentembedded.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/tracing_map.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/staging/most/dim2/dim2.c |   55 +++++++++++++++++++++------------------
+ 1 file changed, 30 insertions(+), 25 deletions(-)
 
-diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
-index 39bb56d2dcbef..9628b55718468 100644
---- a/kernel/trace/tracing_map.c
-+++ b/kernel/trace/tracing_map.c
-@@ -15,6 +15,7 @@
- #include <linux/jhash.h>
- #include <linux/slab.h>
- #include <linux/sort.h>
-+#include <linux/kmemleak.h>
+--- a/drivers/staging/most/dim2/dim2.c
++++ b/drivers/staging/most/dim2/dim2.c
+@@ -726,6 +726,23 @@ static int get_dim2_clk_speed(const char
+ 	return -EINVAL;
+ }
  
- #include "tracing_map.h"
- #include "trace.h"
-@@ -307,6 +308,7 @@ static void tracing_map_array_free(struct tracing_map_array *a)
- 	for (i = 0; i < a->n_pages; i++) {
- 		if (!a->pages[i])
- 			break;
-+		kmemleak_free(a->pages[i]);
- 		free_page((unsigned long)a->pages[i]);
++static void dim2_release(struct device *d)
++{
++	struct dim2_hdm *dev = container_of(d, struct dim2_hdm, dev);
++	unsigned long flags;
++
++	kthread_stop(dev->netinfo_task);
++
++	spin_lock_irqsave(&dim_lock, flags);
++	dim_shutdown();
++	spin_unlock_irqrestore(&dim_lock, flags);
++
++	if (dev->disable_platform)
++		dev->disable_platform(to_platform_device(d->parent));
++
++	kfree(dev);
++}
++
+ /*
+  * dim2_probe - dim2 probe handler
+  * @pdev: platform device structure
+@@ -746,7 +763,7 @@ static int dim2_probe(struct platform_de
+ 
+ 	enum { MLB_INT_IDX, AHB0_INT_IDX };
+ 
+-	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
+@@ -758,25 +775,27 @@ static int dim2_probe(struct platform_de
+ 				      "microchip,clock-speed", &clock_speed);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "missing dt property clock-speed\n");
+-		return ret;
++		goto err_free_dev;
  	}
  
-@@ -342,6 +344,7 @@ static struct tracing_map_array *tracing_map_array_alloc(unsigned int n_elts,
- 		a->pages[i] = (void *)get_zeroed_page(GFP_KERNEL);
- 		if (!a->pages[i])
- 			goto free;
-+		kmemleak_alloc(a->pages[i], PAGE_SIZE, 1, GFP_KERNEL);
+ 	ret = get_dim2_clk_speed(clock_speed, &dev->clk_speed);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "bad dt property clock-speed\n");
+-		return ret;
++		goto err_free_dev;
  	}
-  out:
- 	return a;
--- 
-2.33.0
-
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	dev->io_base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(dev->io_base))
+-		return PTR_ERR(dev->io_base);
++	if (IS_ERR(dev->io_base)) {
++		ret = PTR_ERR(dev->io_base);
++		goto err_free_dev;
++	}
+ 
+ 	of_id = of_match_node(dim2_of_match, pdev->dev.of_node);
+ 	pdata = of_id->data;
+ 	ret = pdata && pdata->enable ? pdata->enable(pdev) : 0;
+ 	if (ret)
+-		return ret;
++		goto err_free_dev;
+ 
+ 	dev->disable_platform = pdata ? pdata->disable : NULL;
+ 
+@@ -867,24 +886,19 @@ static int dim2_probe(struct platform_de
+ 	dev->most_iface.request_netinfo = request_netinfo;
+ 	dev->most_iface.driver_dev = &pdev->dev;
+ 	dev->most_iface.dev = &dev->dev;
+-	dev->dev.init_name = "dim2_state";
++	dev->dev.init_name = dev->name;
+ 	dev->dev.parent = &pdev->dev;
++	dev->dev.release = dim2_release;
+ 
+-	ret = most_register_interface(&dev->most_iface);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to register MOST interface\n");
+-		goto err_stop_thread;
+-	}
+-
+-	return 0;
++	return most_register_interface(&dev->most_iface);
+ 
+-err_stop_thread:
+-	kthread_stop(dev->netinfo_task);
+ err_shutdown_dim:
+ 	dim_shutdown();
+ err_disable_platform:
+ 	if (dev->disable_platform)
+ 		dev->disable_platform(pdev);
++err_free_dev:
++	kfree(dev);
+ 
+ 	return ret;
+ }
+@@ -898,17 +912,8 @@ err_disable_platform:
+ static int dim2_remove(struct platform_device *pdev)
+ {
+ 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
+-	unsigned long flags;
+ 
+ 	most_deregister_interface(&dev->most_iface);
+-	kthread_stop(dev->netinfo_task);
+-
+-	spin_lock_irqsave(&dim_lock, flags);
+-	dim_shutdown();
+-	spin_unlock_irqrestore(&dim_lock, flags);
+-
+-	if (dev->disable_platform)
+-		dev->disable_platform(pdev);
+ 
+ 	return 0;
+ }
 
 
