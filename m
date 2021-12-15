@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0782F475ED0
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22475475EF7
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238282AbhLORY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:24:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44790 "EHLO
+        id S1343576AbhLOR0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:26:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45698 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238399AbhLORYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:10 -0500
+        with ESMTP id S245584AbhLORZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:25:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 840AA61A08;
-        Wed, 15 Dec 2021 17:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A750C36AE0;
-        Wed, 15 Dec 2021 17:24:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81B71619F2;
+        Wed, 15 Dec 2021 17:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66B28C36AE6;
+        Wed, 15 Dec 2021 17:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589049;
-        bh=unlC7HLWyW/ytc26HnASg751ADcMZewyNkZGzmL/MyE=;
+        s=korg; t=1639589101;
+        bh=vi5UnlwFaAsMltw2f/EZrq89g/w9jyCTRXA2jFOVkD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eD8TrZwbbi2+BDVqbjLl/8ofdWTg0R+C/1UPpvvYzeWu+RHG042BLvQXZWTgRng5M
-         2gRmS1uNJl7pWNXsv3l4l9zZhvkWodP1mVu3nrQ3oSDfFgGzYnUOq1Nwfq5Wi0rs27
-         t7Tueg39ur1cruMWmSSwYyy/J36Vj5Zo2Yay3nKM=
+        b=VsermUOLzL2Yg8AZEssfa79VteQQdXnrNlyEZFrLSToL5A521oiuVUrcbo6G/Z1Sc
+         Yr3nPMlWhzPEQBuVUBnlm+mwglizJOBfU0vyOLZunSYAoP/AMw9ewe6AazLap6m0A7
+         jgdJT0QCME5ZswONyRyzU/+V8FG00/uhfuOGM2xI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Akhil P Oommen <akhilpo@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 20/42] drm/msm/a6xx: Fix uinitialized use of gpu_scid
+        stable@vger.kernel.org, Fuad Tabba <tabba@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 03/33] KVM: arm64: Save PSTATE early on exit
 Date:   Wed, 15 Dec 2021 18:21:01 +0100
-Message-Id: <20211215172027.358720980@linuxfoundation.org>
+Message-Id: <20211215172024.900099232@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
-References: <20211215172026.641863587@linuxfoundation.org>
+In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
+References: <20211215172024.787958154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <akhilpo@codeaurora.org>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 9ba873e66ed317a1ff645d5e52c2e72597ff3d18 ]
+[ Upstream commit 83bb2c1a01d7127d5adc7d69d7aaa3f7072de2b4 ]
 
-Avoid a possible uninitialized use of gpu_scid variable to fix the
-below smatch warning:
-	drivers/gpu/drm/msm/adreno/a6xx_gpu.c:1480 a6xx_llc_activate()
-	error: uninitialized symbol 'gpu_scid'.
+In order to be able to use primitives such as vcpu_mode_is_32bit(),
+we need to synchronize the guest PSTATE. However, this is currently
+done deep into the bowels of the world-switch code, and we do have
+helpers evaluating this much earlier (__vgic_v3_perform_cpuif_access
+and handle_aarch32_guest, for example).
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Akhil P Oommen <akhilpo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211118154903.3.Ie4ac321feb10168af569d9c2b4cf6828bed8122c@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Move the saving of the guest pstate into the early fixups, which
+cures the first issue. The second one will be addressed separately.
+
+Tested-by: Fuad Tabba <tabba@google.com>
+Reviewed-by: Fuad Tabba <tabba@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/arm64/kvm/hyp/include/hyp/switch.h    | 6 ++++++
+ arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h | 7 ++++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 267a880811d65..723074aae5b63 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1424,17 +1424,24 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
+diff --git a/arch/arm64/kvm/hyp/include/hyp/switch.h b/arch/arm64/kvm/hyp/include/hyp/switch.h
+index 1f875a8f20c47..8116ae1e636a2 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/switch.h
++++ b/arch/arm64/kvm/hyp/include/hyp/switch.h
+@@ -406,6 +406,12 @@ static inline bool __hyp_handle_ptrauth(struct kvm_vcpu *vcpu)
+  */
+ static inline bool fixup_guest_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
  {
- 	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
- 	struct msm_gpu *gpu = &adreno_gpu->base;
--	u32 gpu_scid, cntl1_regval = 0;
-+	u32 cntl1_regval = 0;
- 
- 	if (IS_ERR(a6xx_gpu->llc_mmio))
- 		return;
- 
- 	if (!llcc_slice_activate(a6xx_gpu->llc_slice)) {
--		gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
-+		u32 gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
- 
- 		gpu_scid &= 0x1f;
- 		cntl1_regval = (gpu_scid << 0) | (gpu_scid << 5) | (gpu_scid << 10) |
- 			       (gpu_scid << 15) | (gpu_scid << 20);
++	/*
++	 * Save PSTATE early so that we can evaluate the vcpu mode
++	 * early on.
++	 */
++	vcpu->arch.ctxt.regs.pstate = read_sysreg_el2(SYS_SPSR);
 +
-+		/* On A660, the SCID programming for UCHE traffic is done in
-+		 * A6XX_GBIF_SCACHE_CNTL0[14:10]
-+		 */
-+		if (adreno_is_a660_family(adreno_gpu))
-+			gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
-+				(1 << 8), (gpu_scid << 10) | (1 << 8));
- 	}
+ 	if (ARM_EXCEPTION_CODE(*exit_code) != ARM_EXCEPTION_IRQ)
+ 		vcpu->arch.fault.esr_el2 = read_sysreg_el2(SYS_ESR);
  
- 	/*
-@@ -1471,13 +1478,6 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
- 	}
+diff --git a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
+index cce43bfe158fa..0eacfb9d17b02 100644
+--- a/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
++++ b/arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h
+@@ -54,7 +54,12 @@ static inline void __sysreg_save_el1_state(struct kvm_cpu_context *ctxt)
+ static inline void __sysreg_save_el2_return_state(struct kvm_cpu_context *ctxt)
+ {
+ 	ctxt->regs.pc			= read_sysreg_el2(SYS_ELR);
+-	ctxt->regs.pstate		= read_sysreg_el2(SYS_SPSR);
++	/*
++	 * Guest PSTATE gets saved at guest fixup time in all
++	 * cases. We still need to handle the nVHE host side here.
++	 */
++	if (!has_vhe() && ctxt->__hyp_running_vcpu)
++		ctxt->regs.pstate	= read_sysreg_el2(SYS_SPSR);
  
- 	gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL1, GENMASK(24, 0), cntl1_regval);
--
--	/* On A660, the SCID programming for UCHE traffic is done in
--	 * A6XX_GBIF_SCACHE_CNTL0[14:10]
--	 */
--	if (adreno_is_a660_family(adreno_gpu))
--		gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
--			(1 << 8), (gpu_scid << 10) | (1 << 8));
- }
- 
- static void a6xx_llc_slices_destroy(struct a6xx_gpu *a6xx_gpu)
+ 	if (cpus_have_final_cap(ARM64_HAS_RAS_EXTN))
+ 		ctxt_sys_reg(ctxt, DISR_EL1) = read_sysreg_s(SYS_VDISR_EL2);
 -- 
 2.33.0
 
