@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB58C475F43
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:32:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A82475F12
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233157AbhLOR3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:29:06 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46996 "EHLO
+        id S238692AbhLOR1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:27:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47020 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245583AbhLOR0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:16 -0500
+        with ESMTP id S1343870AbhLOR0T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6001F619E5;
-        Wed, 15 Dec 2021 17:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48482C36AE0;
-        Wed, 15 Dec 2021 17:26:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DB54619C9;
+        Wed, 15 Dec 2021 17:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BF60C36AE2;
+        Wed, 15 Dec 2021 17:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589174;
-        bh=HLAnwe27aqyD2NF+CqJU491kv2QJeG07NWGo/qz7i6E=;
+        s=korg; t=1639589177;
+        bh=fAE9/ddDMcBj5ODExvjdGpl9n7pr4qdE04SoHfwEi6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9fE0IXLmCGi9u9HRhu93LtMsuIqTidsKJUbG7Qf52e6mWiBUHwnTp+DMMXuUvxHU
-         upAiRo7jf+BKXVIaEUM3NvXKgDjD57ioD7qOhtrfeixvMdhtvuB68FmLUvfrSK843K
-         e/JTYRedbI4O1PUURU5m2QGMzblJEpO8fH8+5Gqw=
+        b=Klk1TP5O/FPPSF402hKLotoPKlfZDvg+ZROuxkVKRDxbe21I7hbzxOF+BPYszBECC
+         jRbVMI8Ml//ILfBmphtoAcJ2dgx18YDBoELVT7rwZYyr9U5SrwcPd4u+LXnO102S9M
+         2XHXM3gjm6FFH2PtLPM0wW+OLDKgdgBvuUyaiBlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 13/18] hwmon: (dell-smm) Fix warning on /proc/i8k creation error
-Date:   Wed, 15 Dec 2021 18:21:34 +0100
-Message-Id: <20211215172023.264891956@linuxfoundation.org>
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+Subject: [PATCH 5.4 14/18] memblock: free_unused_memmap: use pageblock units instead of MAX_ORDER
+Date:   Wed, 15 Dec 2021 18:21:35 +0100
+Message-Id: <20211215172023.296167632@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
 References: <20211215172022.795825673@linuxfoundation.org>
@@ -45,50 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit dbd3e6eaf3d813939b28e8a66e29d81cdc836445 upstream.
+commit e2a86800d58639b3acde7eaeb9eb393dca066e08 upstream.
 
-The removal function is called regardless of whether
-/proc/i8k was created successfully or not, the later
-causing a WARN() on module removal.
-Fix that by only registering the removal function
-if /proc/i8k was created successfully.
+The code that frees unused memory map uses rounds start and end of the
+holes that are freed to MAX_ORDER_NR_PAGES to preserve continuity of the
+memory map for MAX_ORDER regions.
 
-Tested on a Inspiron 3505.
+Lots of core memory management functionality relies on homogeneity of the
+memory map within each pageblock which size may differ from MAX_ORDER in
+certain configurations.
 
-Fixes: 039ae58503f3 ("hwmon: Allow to compile dell-smm-hwmon driver without /proc/i8k")
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Acked-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20211112171440.59006-1-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Although currently, for the architectures that use free_unused_memmap(),
+pageblock_order and MAX_ORDER are equivalent, it is cleaner to have common
+notation thought mm code.
+
+Replace MAX_ORDER_NR_PAGES with pageblock_nr_pages and update the comments
+to make it more clear why the alignment to pageblock boundaries is
+required.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/lkml/20210630071211.21011-1-rppt@kernel.org/
+[backport upstream modification in mm/memblock.c to arch/arm/mm/init.c]
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/dell-smm-hwmon.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm/mm/init.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -588,15 +588,18 @@ static const struct file_operations i8k_
- 	.unlocked_ioctl	= i8k_ioctl,
- };
- 
-+static struct proc_dir_entry *entry;
-+
- static void __init i8k_init_procfs(void)
- {
- 	/* Register the proc entry */
--	proc_create("i8k", 0, NULL, &i8k_fops);
-+	entry = proc_create("i8k", 0, NULL, &i8k_fops);
- }
- 
- static void __exit i8k_exit_procfs(void)
- {
--	remove_proc_entry("i8k", NULL);
-+	if (entry)
-+		remove_proc_entry("i8k", NULL);
- }
- 
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -373,11 +373,11 @@ static void __init free_unused_memmap(vo
+ 				 ALIGN(prev_end, PAGES_PER_SECTION));
  #else
+ 		/*
+-		 * Align down here since the VM subsystem insists that the
+-		 * memmap entries are valid from the bank start aligned to
+-		 * MAX_ORDER_NR_PAGES.
++		 * Align down here since many operations in VM subsystem
++		 * presume that there are no holes in the memory map inside
++		 * a pageblock
+ 		 */
+-		start = round_down(start, MAX_ORDER_NR_PAGES);
++		start = round_down(start, pageblock_nr_pages);
+ #endif
+ 		/*
+ 		 * If we had a previous bank, and there is a space
+@@ -387,12 +387,12 @@ static void __init free_unused_memmap(vo
+ 			free_memmap(prev_end, start);
+ 
+ 		/*
+-		 * Align up here since the VM subsystem insists that the
+-		 * memmap entries are valid from the bank end aligned to
+-		 * MAX_ORDER_NR_PAGES.
++		 * Align up here since many operations in VM subsystem
++		 * presume that there are no holes in the memory map inside
++		 * a pageblock
+ 		 */
+ 		prev_end = ALIGN(memblock_region_memory_end_pfn(reg),
+-				 MAX_ORDER_NR_PAGES);
++				 pageblock_nr_pages);
+ 	}
+ 
+ #ifdef CONFIG_SPARSEMEM
 
 
