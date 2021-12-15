@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8D60475F25
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBB3475F16
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237628AbhLOR2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:28:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343659AbhLOR0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF6A7C07E5E3;
-        Wed, 15 Dec 2021 09:26:01 -0800 (PST)
+        id S245625AbhLOR1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:27:37 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47184 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245720AbhLOR03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F12361A08;
-        Wed, 15 Dec 2021 17:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C84C36AE2;
-        Wed, 15 Dec 2021 17:26:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CE9F61A1D;
+        Wed, 15 Dec 2021 17:26:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B857C36AF5;
+        Wed, 15 Dec 2021 17:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589160;
-        bh=PqqQmART0691xGxwedt0tQGrGlD6Xok4ZPFflHKlJJk=;
+        s=korg; t=1639589188;
+        bh=GQokSa4i+2CGdyoT/xYJ7/ZpQkkuAmTHc9GaFqI9gjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0EyjO2CHo5T1O0M/nE82+DDeAO/l2E/5Mjps0X7L0ZdseDxR9OGNREFfNoQJ+ee2
-         lunwYEgknAqDUA9S4WcJBh0nOh5LaVL72CGRJoW0RI3fO7ckNvJWDYh62KenPX6UCr
-         t7UnmGzzqZfNWD6xSgfZQ5ixnLFR28pA96NjDDs8=
+        b=EjeEElBbCtaIJEmx1Ttb+UIGJjS1ar4acze3iRxnHSVrfu8hLuKpvEehPkZWc3IdD
+         whukdVQn3DGp1XhQ5Mtl60gFvT4W87AyG5SgI/7kPP5KaYuFtq6bE16wOD4EMcPXRt
+         egJl3h5BZMoQUhKhGFwnFVr9DbOBpCH+Wu3IwNso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 25/33] perf intel-pt: Fix state setting when receiving overflow (OVF) packet
+        stable@vger.kernel.org, Philip Chen <philipchen@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 02/18] drm/msm/dsi: set default num_data_lanes
 Date:   Wed, 15 Dec 2021 18:21:23 +0100
-Message-Id: <20211215172025.641797704@linuxfoundation.org>
+Message-Id: <20211215172022.885526193@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
+References: <20211215172022.795825673@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,108 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Philip Chen <philipchen@chromium.org>
 
-commit c79ee2b2160909889df67c8801352d3e69d43a1a upstream.
+[ Upstream commit cd92cc187c053ab010a1570e2d61d68394a5c725 ]
 
-An overflow (OVF packet) is treated as an error because it represents a
-loss of trace data, but there is no loss of synchronization, so the packet
-state should be INTEL_PT_STATE_IN_SYNC not INTEL_PT_STATE_ERR_RESYNC.
+If "data_lanes" property of the dsi output endpoint is missing in
+the DT, num_data_lanes would be 0 by default, which could cause
+dsi_host_attach() to fail if dsi->lanes is set to a non-zero value
+by the bridge driver.
 
-To support that, some additional variables must be reset, and the FUP
-packet that may follow OVF is treated as an FUP event.
+According to the binding document of msm dsi controller, the
+input/output endpoint of the controller is expected to have 4 lanes.
+So let's set num_data_lanes to 4 by default.
 
-Fixes: f4aa081949e7b6 ("perf tools: Add Intel PT decoder")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org # v5.15+
-Link: https://lore.kernel.org/r/20211210162303.2288710-5-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-[Adrian: Backport to v5.10]
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Philip Chen <philipchen@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20211030100812.1.I6cd9af36b723fed277d34539d3b2ba4ca233ad2d@changeid
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   32 +++++++++++++++++---
- 1 file changed, 28 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1158,6 +1158,20 @@ static bool intel_pt_fup_event(struct in
- 		decoder->state.type |= INTEL_PT_BLK_ITEMS;
- 		ret = true;
- 	}
-+	if (decoder->overflow) {
-+		decoder->overflow = false;
-+		if (!ret && !decoder->pge) {
-+			if (decoder->hop) {
-+				decoder->state.type = 0;
-+				decoder->pkt_state = INTEL_PT_STATE_RESAMPLE;
-+			}
-+			decoder->pge = true;
-+			decoder->state.type |= INTEL_PT_BRANCH | INTEL_PT_TRACE_BEGIN;
-+			decoder->state.from_ip = 0;
-+			decoder->state.to_ip = decoder->ip;
-+			return true;
-+		}
-+	}
- 	if (ret) {
- 		decoder->state.from_ip = decoder->ip;
- 		decoder->state.to_ip = 0;
-@@ -1480,7 +1494,16 @@ static int intel_pt_overflow(struct inte
- 	intel_pt_log("ERROR: Buffer overflow\n");
- 	intel_pt_clear_tx_flags(decoder);
- 	decoder->timestamp_insn_cnt = 0;
--	decoder->pkt_state = INTEL_PT_STATE_ERR_RESYNC;
-+	decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
-+	decoder->state.from_ip = decoder->ip;
-+	decoder->ip = 0;
-+	decoder->pge = false;
-+	decoder->set_fup_tx_flags = false;
-+	decoder->set_fup_ptw = false;
-+	decoder->set_fup_mwait = false;
-+	decoder->set_fup_pwre = false;
-+	decoder->set_fup_exstop = false;
-+	decoder->set_fup_bep = false;
- 	decoder->overflow = true;
- 	return -EOVERFLOW;
- }
-@@ -2083,6 +2106,7 @@ next:
- 
- 		case INTEL_PT_TIP_PGE: {
- 			decoder->pge = true;
-+			decoder->overflow = false;
- 			intel_pt_mtc_cyc_cnt_pge(decoder);
- 			if (decoder->packet.count == 0) {
- 				intel_pt_log_at("Skipping zero TIP.PGE",
-@@ -2596,10 +2620,10 @@ static int intel_pt_sync_ip(struct intel
- 	decoder->set_fup_pwre = false;
- 	decoder->set_fup_exstop = false;
- 	decoder->set_fup_bep = false;
-+	decoder->overflow = false;
- 
- 	if (!decoder->branch_enable) {
- 		decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
--		decoder->overflow = false;
- 		decoder->state.type = 0; /* Do not have a sample */
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 5613234823f7d..423c4ae2be10d 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1669,6 +1669,8 @@ static int dsi_host_parse_lane_data(struct msm_dsi_host *msm_host,
+ 	if (!prop) {
+ 		DRM_DEV_DEBUG(dev,
+ 			"failed to find data lane mapping, using default\n");
++		/* Set the number of date lanes to 4 by default. */
++		msm_host->num_data_lanes = 4;
  		return 0;
  	}
-@@ -2614,7 +2638,6 @@ static int intel_pt_sync_ip(struct intel
- 		decoder->pkt_state = INTEL_PT_STATE_RESAMPLE;
- 	else
- 		decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
--	decoder->overflow = false;
  
- 	decoder->state.from_ip = 0;
- 	decoder->state.to_ip = decoder->ip;
-@@ -2823,7 +2846,8 @@ const struct intel_pt_state *intel_pt_de
- 
- 	if (err) {
- 		decoder->state.err = intel_pt_ext_err(err);
--		decoder->state.from_ip = decoder->ip;
-+		if (err != -EOVERFLOW)
-+			decoder->state.from_ip = decoder->ip;
- 		intel_pt_update_sample_time(decoder);
- 		decoder->sample_tot_cyc_cnt = decoder->tot_cyc_cnt;
- 	} else {
+-- 
+2.33.0
+
 
 
