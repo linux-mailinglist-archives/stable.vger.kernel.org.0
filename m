@@ -2,107 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A3824760E3
+	by mail.lfdr.de (Postfix) with ESMTP id C275B4760E4
 	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 19:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238880AbhLOSkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 13:40:22 -0500
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.217]:14366 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234977AbhLOSkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 13:40:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1639593604;
-    s=strato-dkim-0002; d=goldelico.com;
-    h=Message-Id:To:Cc:Subject:Date:From:Cc:Date:From:Subject:Sender;
-    bh=dKbgH0vR+QJjU7spojHrVUphFvJo+KgTCqf0bJ8RLJU=;
-    b=E40hQOpKqrStZROQs6g4HoYcO8ifEPYuGHf7WPaFRHh0/udaBcX9wDIzfwls00IgB+
-    EycckmDDJu/XNdrS/vnEi4hl4qWIsrtfXaroFSKuoAYAEhHRMRzZkYaTGQyeLGvyKL/u
-    VQaCGA45w9Jr/5JW8QJ/i6hR9yGzCIxP0Bi4FsthO5dMA4FGRAtOy4fqoMzAbbL+AdSI
-    oHXTp6hiWpMISn4bXM/3AFwXpdRfcFFJKmfWuZN2P6CDg+Z4y9BBlVr3p/O3kVD0Bt51
-    Qxiq9Ju9V3d/iA5ZchGcjCXnayIi+bZQx75CfEmxnJkrKjyh2nbY6oDq7g00qCOzxWFW
-    f5kA==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NIGH/jrwDSqhg=="
-X-RZG-CLASS-ID: mo00
-Received: from imac.fritz.box
-    by smtp.strato.de (RZmta 47.35.3 DYNA|AUTH)
-    with ESMTPSA id 404833xBFIe3AFj
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-        (Client did not present a certificate);
-    Wed, 15 Dec 2021 19:40:03 +0100 (CET)
-From:   "H. Nikolaus Schaller" <hns@goldelico.com>
-Content-Type: text/plain;
-        charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.21\))
-Date:   Wed, 15 Dec 2021 19:40:02 +0100
-Subject: Bug with KVM: arm64: Avoid setting the upper 32 bits of TCR_EL2 and
- CPTR_EL2 to 1
-Cc:     Discussions about the Letux Kernel <letux-kernel@openphoenux.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Chris January <Chris.January@arm.com>, stable@vger.kernel.org,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        reg Kroah-Hartman <gregkh@linuxfoundation.org>
-Message-Id: <DB8835B4-8F04-4669-87EA-D348FA47A79D@goldelico.com>
-X-Mailer: Apple Mail (2.3445.104.21)
+        id S1343874AbhLOSk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 13:40:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53546 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234977AbhLOSk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 13:40:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1477C061574;
+        Wed, 15 Dec 2021 10:40:27 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21B5DB8207B;
+        Wed, 15 Dec 2021 18:40:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AC84C36AE3;
+        Wed, 15 Dec 2021 18:40:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639593624;
+        bh=VgZti/Y1MwzTJlMCoNXKf6jL3JZ03GEy/PdqNgRSkmU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mjOYArg39ZiVAkwpRDtBKDUA2VIZimzD5YSsDHeY4rI+CJH8OO8zIVgEjtiSvnXuC
+         mCC8ZbKhFjhnhBo970fi60rFsb8+f+myJtdGcIpPMiDZ2lREJ0jO1hvnyp6xkk4u/Q
+         6V2toStCYoRToUwxBNp/30bWYjEjrADlvYT9uLn4=
+Date:   Wed, 15 Dec 2021 19:40:21 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     chris.paterson2@renesas.com, alice.ferrazzi@miraclelinux.com,
+        nobuhiro1.iwamatsu@toshiba.co.jp, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: 5.10.85 breaks CIP testing Re: [PATCH 5.10 00/33] 5.10.86-rc1
+ review
+Message-ID: <Ybo2lbHVaASDyAcC@kroah.com>
+References: <20211215172024.787958154@linuxfoundation.org>
+ <20211215183223.GB10909@duo.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211215183223.GB10909@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-this seems to break build of 5.10.y (and maybe earlier) for me:
+On Wed, Dec 15, 2021 at 07:32:23PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > This is the start of the stable review cycle for the 5.10.86 release.
+> > There are 33 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> 
+> I'm getting the gmp.h failures :-(.
+> 
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/430434332
+> 
+> I believe we should not change build requirements in the middle of
+> stable series.
+> 
+> To our testing team: 5.10.85 introduced new requirements for the
+> build. gmp.h is now required in our configs, and maybe something else.
+> 
+> Easiest fix might be to add
+> 
+> # CONFIG_GCC_PLUGINS is not set
+> 
+> to our configs. Alternatively I know which patch to revert.
+> 
+> But I believe -stable should be the one doing the revert, as the patch
+> does not fix serious bug and introduces problem. Faster compile is
+> nice but let mainline have those kind of changes.
 
-  CALL    scripts/checksyscalls.sh - due to target missing
-  CALL    scripts/atomic/check-atomics.sh - due to target missing
-  CHK     include/generated/compile.h
-  AS      arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o - due to target =
-missing
-arch/arm64/kvm/hyp/nvhe/hyp-init.S: Assembler messages:
-arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: unexpected characters =
-following instruction at operand 2 -- `mov x1,#((1U<<31)|(1<<23))'
-arch/arm64/kvm/hyp/nvhe/Makefile:28: recipe for target =
-'arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o' failed
-make[5]: *** [arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o] Error 1
-scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm/hyp/nvhe' =
-failed
-make[4]: *** [arch/arm64/kvm/hyp/nvhe] Error 2
-scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm/hyp' =
-failed
-make[3]: *** [arch/arm64/kvm/hyp] Error 2
-scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm' failed
-make[2]: *** [arch/arm64/kvm] Error 2
-Makefile:1822: recipe for target 'arch/arm64' failed
-make[1]: *** [arch/arm64] Error 2
-Makefile:336: recipe for target '__build_one_by_one' failed
-make: *** [__build_one_by_one] Error 2
+But that commit is needed to get gcc11 plugins to work with the 5.10.y
+kernel tree.  So either we "break" it for old and obsolete gcc versions
+(i.e. gcc7), or newer supported versions break.
 
-Looking at the problematic line 87 of hyp-init.S shows that
-there is a macro expansion:
+We are not in the business of keeping older versions of gcc always
+working, right?
 
-      mov     x1, #TCR_EL2_RES1
+thanks,
 
-This macro was modified by the $subject patch
-(commit c71b5f37b5ff1a673b2e4a91d1b34ea027546e23 in v5.10.y)
-and reverting the patch makes the compile succeed.
-
-Now: why does it build for me for v5.15.y and v5.16-rc5?
-I think it is because my build system switches to gcc 6.3
-instead of gcc 4.9 depending on scripts/min-tool-version.sh.
-
-So I assume that the fix is not compatible with the minimum
-requirement for 5.10.y of gcc 4.9 (or even less - I don't know exactly).
-Earlier kernels may also be affected if $subject patch was also
-backported there, but I have not tested.
-
-This should somehow be fixed so that arch/arm64/include/asm/kvm_arm.h
-can be included by older assemblers.
-
-BR and thanks,
-Nikolaus Schaller
-
+greg k-h
