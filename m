@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E218475F3D
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83637475EAE
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238239AbhLOR3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:29:00 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46214 "EHLO
+        id S245342AbhLORXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:23:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44094 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343747AbhLORZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:25:33 -0500
+        with ESMTP id S245343AbhLORXW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D67A619EE;
-        Wed, 15 Dec 2021 17:25:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D5F6C36AE0;
-        Wed, 15 Dec 2021 17:25:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 130FD61A1E;
+        Wed, 15 Dec 2021 17:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF4C6C36AE4;
+        Wed, 15 Dec 2021 17:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589132;
-        bh=hPhWCMSayHBcfhH1bYNvUK2TzdlMPbkcPiari3gUW8c=;
+        s=korg; t=1639589001;
+        bh=DZXMIF+OEY1uELNTkn4ftoL8YdEPy7GtZ/kmBT6WmGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AXQPcwD11z1EX2ppRCjK5FUcU8E8lnwxSopqUylo6gWvCIiGtjqGcMgy/MCnZiYh
-         wo2wmC8FLXIfdwIlfxgqMnp0mJRQk5naG1cFG6Dxp8w0IMRwyOEx/JTFWEGovhJBTM
-         nwpVTve/kpgrDaUA3mymftHcmD+N0rGuhk0jx0tA=
+        b=huoeTDEwooiZHIZcLljGvBGQsTWu12QBDR51GhM6lVmZX9O9xZsBrigG6LIy0Pz9X
+         uruMXf1CUENIPV6C4VkccJf8eDrgBzS8If+sO+fMRIxUH5l6OV6Cbu6Ce+xKxYo4Ha
+         J4SI7EPju+asKjXAvNhqt3MpiRKnCJ798BOt6bAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
-        John Keeping <john@metanate.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/33] i2c: rk3x: Handle a spurious start completion interrupt flag
-Date:   Wed, 15 Dec 2021 18:21:08 +0100
-Message-Id: <20211215172025.123941905@linuxfoundation.org>
+        stable@vger.kernel.org, Uma Shankar <uma.shankar@intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 28/42] ALSA: hda: Add Intel DG2 PCI ID and HDMI codec vid
+Date:   Wed, 15 Dec 2021 18:21:09 +0100
+Message-Id: <20211215172027.629822992@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
+References: <20211215172026.641863587@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 02fe0fbd8a21e183687925c3a266ae27dda9840f ]
+[ Upstream commit d85ffff5302b1509efc482e8877c253b0a668b33 ]
 
-In a typical read transfer, start completion flag is being set after
-read finishes (notice ipd bit 4 being set):
+Add HD Audio PCI ID and HDMI codec vendor ID for Intel DG2.
 
-trasnfer poll=0
-i2c start
-rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
-i2c read
-rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
-i2c stop
-rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 33
-
-This causes I2C transfer being aborted in polled mode from a stop completion
-handler:
-
-trasnfer poll=1
-i2c start
-rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
-i2c read
-rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 0
-rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
-i2c stop
-rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 13
-i2c stop
-rk3x-i2c fdd40000.i2c: unexpected irq in STOP: 0x10
-
-Clearing the START flag after read fixes the issue without any obvious
-side effects.
-
-This issue was dicovered on RK3566 when adding support for powering
-off the RK817 PMIC.
-
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211130124732.696896-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rk3x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_intel.c  | 12 +++++++++++-
+ sound/pci/hda/patch_hdmi.c |  1 +
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 819ab4ee517e1..02ddb237f69af 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -423,8 +423,8 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
- 	if (!(ipd & REG_INT_MBRF))
- 		return;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 90e9263ac0bd7..21fec82489bd7 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -335,7 +335,10 @@ enum {
+ 					((pci)->device == 0x0c0c) || \
+ 					((pci)->device == 0x0d0c) || \
+ 					((pci)->device == 0x160c) || \
+-					((pci)->device == 0x490d))
++					((pci)->device == 0x490d) || \
++					((pci)->device == 0x4f90) || \
++					((pci)->device == 0x4f91) || \
++					((pci)->device == 0x4f92))
  
--	/* ack interrupt */
--	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
-+	/* ack interrupt (read also produces a spurious START flag, clear it too) */
-+	i2c_writel(i2c, REG_INT_MBRF | REG_INT_START, REG_IPD);
+ #define IS_BXT(pci) ((pci)->vendor == 0x8086 && (pci)->device == 0x5a98)
  
- 	/* Can only handle a maximum of 32 bytes at a time */
- 	if (len > 32)
+@@ -2472,6 +2475,13 @@ static const struct pci_device_id azx_ids[] = {
+ 	/* DG1 */
+ 	{ PCI_DEVICE(0x8086, 0x490d),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	/* DG2 */
++	{ PCI_DEVICE(0x8086, 0x4f90),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	{ PCI_DEVICE(0x8086, 0x4f91),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	{ PCI_DEVICE(0x8086, 0x4f92),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+ 	/* Alderlake-S */
+ 	{ PCI_DEVICE(0x8086, 0x7ad0),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 65d2c55399195..98633d2684deb 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -4382,6 +4382,7 @@ HDA_CODEC_ENTRY(0x80862814, "DG1 HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862815, "Alderlake HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281c, "Alderlake-P HDMI", patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x80862816, "Rocketlake HDMI",	patch_i915_tgl_hdmi),
++HDA_CODEC_ENTRY(0x80862819, "DG2 HDMI",	patch_i915_tgl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281a, "Jasperlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x8086281b, "Elkhartlake HDMI",	patch_i915_icl_hdmi),
+ HDA_CODEC_ENTRY(0x80862880, "CedarTrail HDMI",	patch_generic_hdmi),
 -- 
 2.33.0
 
