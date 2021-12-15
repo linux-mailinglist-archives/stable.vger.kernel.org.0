@@ -2,95 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFAC8476627
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 23:47:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A91147662D
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 23:48:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbhLOWrz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 17:47:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54918 "EHLO
+        id S229908AbhLOWsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 17:48:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229820AbhLOWry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 17:47:54 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92A00C061574;
-        Wed, 15 Dec 2021 14:47:54 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id 200so12488110pgg.3;
-        Wed, 15 Dec 2021 14:47:54 -0800 (PST)
+        with ESMTP id S230214AbhLOWsU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 17:48:20 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6C19C061574
+        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 14:48:20 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id f74so4597197pfa.3
+        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 14:48:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=RHqGM5KaVx4aanEHt68tqYagkFbd+faffRCxKAJuME8=;
-        b=n3QOGfVjVSngBc98aSouNBFqW1iJMZ8U28WYvbKDYo4PdpLx8mszyjPnh3Tru5O0rj
-         cKCAtH7Rx76En0zhaZ73BKcbkVYyyi0gRY4BukOKNAkhIMqSucajp83hbO09/2KECt5w
-         EvFEYjYb8gUPYwmuukqCoWpEbmykYvlBQT0BlyOE+D4sXSmZfTskkjMo8CyN2HEbO60w
-         grMFSX5b5fTJRwWNHFD9+FN1kjr40GgSCZ74tCTFJ3u99FgoXv3guj4TY/8qtO2CFUrW
-         p8br+kVSvvWqGxpv8q/9Vd9cJdrTTXMgcDl0dCbTPNzFuiNvBeoKD41uuIlkP19djdVl
-         qkGg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=km/EKTVd3IYtWU2GwFv6mjO9ZJnCVHbwHtlxKW+B/s0=;
+        b=c8QttbAP5OAuoFH6K4//YH/OBhmgSRoxvFI9eR5M0icI7b3AU4/1wNJQ843aBowALs
+         Nabc42ZUBDnBzWMeE6P3zpS0sGXs1DQKMKI1yhj3QXFuAnOvyJDT0yFmTbfntwMbPgds
+         re+pBX9fviDv+7bo79gvcpT8gz2CufPEk2BGQA3fd3TZD3H1dVShQRTtADPYuJBQktU3
+         nleEwkWBa9ZwxWGkof8JzEsBTa/+dwKt+NEYbWf0TmurBhnFeU9QW/p9fYzmGJtXanMO
+         NoWZNA1vrT6Iiv6JUjniPv7/7rwPOfVfrH+Bg2VcY2hXFtOOsWzmdDnd5bp9vgFLhikB
+         Wugw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RHqGM5KaVx4aanEHt68tqYagkFbd+faffRCxKAJuME8=;
-        b=Y9jgGV9VeAyVGo/juebjZxGB38ebija+iDA7tmWootGzm+ShLni3dCiYXuKICcrmwi
-         WxQgD6zasglYfKjWBynjmvFjnwjW2Ued7Cn79K77vXdiSBWjZzJKKVMKJi2BudC88NgM
-         ooLnFSd5XpN02vd6StOUVw81RPwSH2MUb7mqo98AoEw8WEVYpnvLYu3XxoFLBGY98dBu
-         Yk4IHf58Z2tILWzRYpSR+ngo1tb86+DtA4VJN0r/dqiQoIq/cynJ8qKM1kJDlpNOv8T1
-         WVIkXLIqo2c87V4GE3Nvb9g/9jIBSL1o99Pm2NIjkJfHBsA7QsBKYvlI1kvuSufhbkrU
-         dhjg==
-X-Gm-Message-State: AOAM532ypZnUYN5FpqfAEfo/lyn7HQVPmvidmt8MaJpxm328UNm5H58Q
-        jiKD6PDCdlK117IgtWyIvMgFA63nN8E=
-X-Google-Smtp-Source: ABdhPJx9DILb5VAXYPQ41GIthiTDQk83woDWHRy0x2yhvskIBd+TfVsHJxC2QelWQcKJL6V3pe8Ycg==
-X-Received: by 2002:a63:190b:: with SMTP id z11mr9519442pgl.414.1639608473370;
-        Wed, 15 Dec 2021 14:47:53 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id h191sm3190700pge.55.2021.12.15.14.47.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Dec 2021 14:47:52 -0800 (PST)
-Subject: Re: [PATCH 5.4 00/18] 5.4.166-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20211215172022.795825673@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <324adb61-1ab5-4b66-80f8-d942f6421dcb@gmail.com>
-Date:   Wed, 15 Dec 2021 14:47:49 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=km/EKTVd3IYtWU2GwFv6mjO9ZJnCVHbwHtlxKW+B/s0=;
+        b=b3NV3G/i3zJZRoBBwz+X7D/B+0jVHZABdxuBpATVxyaf+VTqyH2TsPktUgPdm8NF4u
+         snF3Ett9tB5z3ZtaXL6NpRUacMK8N8wnNdnmu+Qxng1LrjH0MPnZMRtrJanpA217cygp
+         5sBf1AHJpWxLNxPeJWt0uCgZaKVmKofRU0rRUluxgAS31oA37HPDEyScQtMrpmPYzWAE
+         LFBO1ySMEhPONoRNlc79iqzRIA5IEd5GS+5e/62B3HH1BG7d+3srSkyEmQnmq6mkjqsZ
+         mbFKNt2WlAXlttaqyeVXcPNp1zxPhyqMQP5ngDT/EFEkhyCSNwz056uR5bu0J3qir1O7
+         FelA==
+X-Gm-Message-State: AOAM531JCknOG7SZdMAO2ir1fu5Uf69E4B7/EKBRhrw5SYDS6/XvxgCW
+        VpTaKyyErcRS7ktnGi84KGtyjKMiVoP/UbaP
+X-Google-Smtp-Source: ABdhPJzpCNhlIuyqRz6lBcWGVBVVdxawaA8jhxE1LqFoM97W14UA6MQlBXZ3D6tC3O2HVX1f1e+wlg==
+X-Received: by 2002:a62:7a92:0:b0:49f:9a0f:6bcd with SMTP id v140-20020a627a92000000b0049f9a0f6bcdmr11069545pfc.43.1639608500082;
+        Wed, 15 Dec 2021 14:48:20 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k70sm3162526pgd.19.2021.12.15.14.48.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Dec 2021 14:48:19 -0800 (PST)
+Message-ID: <61ba70b3.1c69fb81.fc96e.93ad@mx.google.com>
+Date:   Wed, 15 Dec 2021 14:48:19 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.295-6-g76eaee78184e
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y baseline: 123 runs,
+ 1 regressions (v4.4.295-6-g76eaee78184e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/15/21 9:21 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.166 release.
-> There are 18 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 17 Dec 2021 17:20:14 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.166-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/linux-4.4.y baseline: 123 runs, 1 regressions (v4.4.295-6-g76eaee=
+78184e)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Regressions Summary
+-------------------
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.295-6-g76eaee78184e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.295-6-g76eaee78184e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      76eaee78184efdd97914cf0965b43dc28284f5a1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ba3903fce7cd871c39712a
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.295=
+-6-g76eaee78184e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.295=
+-6-g76eaee78184e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ba3903fce7cd8=
+71c39712d
+        failing since 2 days (last pass: v4.4.294-28-g4af7e373e6fb, first f=
+ail: v4.4.294-38-g597c1677683a)
+        2 lines
+
+    2021-12-15T18:50:22.972166  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/122
+    2021-12-15T18:50:22.980898  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
