@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAAE1475EE6
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D0E475EB9
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343728AbhLORZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:25:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35660 "EHLO
+        id S245653AbhLORYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:24:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245744AbhLORYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91C21C06175F;
-        Wed, 15 Dec 2021 09:24:40 -0800 (PST)
+        with ESMTP id S245581AbhLORXs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56089C06139E;
+        Wed, 15 Dec 2021 09:23:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3026F619DD;
-        Wed, 15 Dec 2021 17:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18600C36AE0;
-        Wed, 15 Dec 2021 17:24:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EF91B82032;
+        Wed, 15 Dec 2021 17:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 586B4C36AE0;
+        Wed, 15 Dec 2021 17:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589079;
-        bh=AyoHifn+/ImfQlTAtfaiyUdaCTt/T06uqlHG0spFmN0=;
+        s=korg; t=1639589009;
+        bh=hPhWCMSayHBcfhH1bYNvUK2TzdlMPbkcPiari3gUW8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsaFPY0KTlybPQyIe/jdBMUL4aSo+DrR45HgLteFrnV9T89Cj/bs2FPJeYUVZG86l
-         bRTIII6vrid/zjCD84mDYpd7x5/AKcNLJO4yVC2E0KTZ7aeVnhr27wmjhADY2n58X1
-         JtzRWRh78G+ZSiNwWNHF0X1ZUYztztDjX9cqh2RQ=
+        b=CV5ys2T6G2kRh7tnH67vooC7EMsb6ZXhxxQVpRRvHg+3WBEuDYYTBcRHZcfxlaEjh
+         7bBy/06B7swFfBOWhwQA7LgGXIvbXXGJLjdkINK5BbEfOEpNQm9X5vkcwFsIME0e1d
+         24pqWhxldfPe4gX6EihbqPTZkQEAukNubTso0RTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Perry Yuan <Perry.Yuan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 13/33] drm/amd/display: add connector type check for CRC source set
-Date:   Wed, 15 Dec 2021 18:21:11 +0100
-Message-Id: <20211215172025.230572511@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        John Keeping <john@metanate.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 31/42] i2c: rk3x: Handle a spurious start completion interrupt flag
+Date:   Wed, 15 Dec 2021 18:21:12 +0100
+Message-Id: <20211215172027.721811352@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
+References: <20211215172026.641863587@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,76 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Perry Yuan <Perry.Yuan@amd.com>
+From: Ondrej Jirman <megous@megous.com>
 
-[ Upstream commit 2da34b7bb59e1caa9a336e0e20a76b8b6a4abea2 ]
+[ Upstream commit 02fe0fbd8a21e183687925c3a266ae27dda9840f ]
 
-[Why]
-IGT bypass test will set crc source as DPRX,and display DM didn`t check
-connection type, it run the test on the HDMI connector ,then the kernel
-will be crashed because aux->transfer is set null for HDMI connection.
-This patch will skip the invalid connection test and fix kernel crash issue.
+In a typical read transfer, start completion flag is being set after
+read finishes (notice ipd bit 4 being set):
 
-[How]
-Check the connector type while setting the pipe crc source as DPRX or
-auto,if the type is not DP or eDP, the crtc crc source will not be set
-and report error code to IGT test,IGT will show the this subtest as no
-valid crtc/connector combinations found.
+trasnfer poll=0
+i2c start
+rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
+i2c read
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
+i2c stop
+rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 33
 
-116.779714] [IGT] amd_bypass: starting subtest 8bpc-bypass-mode
-[ 117.730996] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[ 117.731001] #PF: supervisor instruction fetch in kernel mode
-[ 117.731003] #PF: error_code(0x0010) - not-present page
-[ 117.731004] PGD 0 P4D 0
-[ 117.731006] Oops: 0010 [#1] SMP NOPTI
-[ 117.731009] CPU: 11 PID: 2428 Comm: amd_bypass Tainted: G OE 5.11.0-34-generic #36~20.04.1-Ubuntu
-[ 117.731011] Hardware name: AMD CZN/, BIOS AB.FD 09/07/2021
-[ 117.731012] RIP: 0010:0x0
-[ 117.731015] Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
-[ 117.731016] RSP: 0018:ffffa8d64225bab8 EFLAGS: 00010246
-[ 117.731017] RAX: 0000000000000000 RBX: 0000000000000020 RCX: ffffa8d64225bb5e
-[ 117.731018] RDX: ffff93151d921880 RSI: ffffa8d64225bac8 RDI: ffff931511a1a9d8
-[ 117.731022] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 117.731023] CR2: ffffffffffffffd6 CR3: 000000010d5a4000 CR4: 0000000000750ee0
-[ 117.731023] PKRU: 55555554
-[ 117.731024] Call Trace:
-[ 117.731027] drm_dp_dpcd_access+0x72/0x110 [drm_kms_helper]
-[ 117.731036] drm_dp_dpcd_read+0xb7/0xf0 [drm_kms_helper]
-[ 117.731040] drm_dp_start_crc+0x38/0xb0 [drm_kms_helper]
-[ 117.731047] amdgpu_dm_crtc_set_crc_source+0x1ae/0x3e0 [amdgpu]
-[ 117.731149] crtc_crc_open+0x174/0x220 [drm]
-[ 117.731162] full_proxy_open+0x168/0x1f0
-[ 117.731165] ? open_proxy_open+0x100/0x100
+This causes I2C transfer being aborted in polled mode from a stop completion
+handler:
 
-BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1546
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+trasnfer poll=1
+i2c start
+rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
+i2c read
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 0
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
+i2c stop
+rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 13
+i2c stop
+rk3x-i2c fdd40000.i2c: unexpected irq in STOP: 0x10
+
+Clearing the START flag after read fixes the issue without any obvious
+side effects.
+
+This issue was dicovered on RK3566 when adding support for powering
+off the RK817 PMIC.
+
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/i2c/busses/i2c-rk3x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-index e00a30e7d2529..04c20ce6e94df 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-@@ -226,6 +226,14 @@ int amdgpu_dm_crtc_set_crc_source(struct drm_crtc *crtc, const char *src_name)
- 			ret = -EINVAL;
- 			goto cleanup;
- 		}
-+
-+		if ((aconn->base.connector_type != DRM_MODE_CONNECTOR_DisplayPort) &&
-+				(aconn->base.connector_type != DRM_MODE_CONNECTOR_eDP)) {
-+			DRM_DEBUG_DRIVER("No DP connector available for CRC source\n");
-+			ret = -EINVAL;
-+			goto cleanup;
-+		}
-+
- 	}
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 819ab4ee517e1..02ddb237f69af 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -423,8 +423,8 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
+ 	if (!(ipd & REG_INT_MBRF))
+ 		return;
  
- 	if (amdgpu_dm_crtc_configure_crc_source(crtc, crtc_state, source)) {
+-	/* ack interrupt */
+-	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
++	/* ack interrupt (read also produces a spurious START flag, clear it too) */
++	i2c_writel(i2c, REG_INT_MBRF | REG_INT_START, REG_IPD);
+ 
+ 	/* Can only handle a maximum of 32 bytes at a time */
+ 	if (len > 32)
 -- 
 2.33.0
 
