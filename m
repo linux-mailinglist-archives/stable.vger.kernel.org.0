@@ -2,112 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D243475A06
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 14:56:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4276A475A2E
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 15:00:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243020AbhLON40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 08:56:26 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:42667 "EHLO
+        id S234669AbhLOOAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 09:00:40 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:43919 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237608AbhLON40 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 08:56:26 -0500
+        by vger.kernel.org with ESMTP id S230310AbhLOOAj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 09:00:39 -0500
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 528DB320091B;
-        Wed, 15 Dec 2021 08:56:25 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id DD606320091B;
+        Wed, 15 Dec 2021 09:00:38 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Wed, 15 Dec 2021 08:56:25 -0500
+  by compute3.internal (MEProxy); Wed, 15 Dec 2021 09:00:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=6XUgNn1O5IRfHhgXXFLNHM6V69b
-        lpy9ZfuCeSFymZGc=; b=pgwIugzcOWI2KBDZjPxZFeFnEYZy5kmRgYSP0hffND5
-        43P8DhJWoYoMQGNOf4RB3vW85K65CGRqEidnGI+PMgxHtM79YUuyG2GZ8Sjj1MaV
-        N7XwBGS4NA1mkK0yDBpV8D1lkkXSPCP78b94w2b7IL6OoIBQsl2fvcffN+SlQDYm
-        LYqdZv5YzgNvyICbiItEjaH8cHZSnYhlYQ61lVHkdkf828thiFhmlfFpdslRmOzY
-        8HlPXS+I7v5zlX61xPMlzGyXsttKh0reBnC/uwh680yj2KWuEHwaqCa8YiOxStRG
-        sW7pTAfmRzOUTNFNk/Ee8mgkg+/YPD6jhtOrTYDB05Q==
+        :content-type:in-reply-to; s=fm2; bh=sV5o3T5HROcwm2zR5BnWYul3YIL
+        mRQft/kreh5EUEtI=; b=dUfER0JUsdX2UtSBZEO2JXJV06mfEdV4jfmT6MM2yQj
+        el+q1sYb8jtJ4cS6DEEbppvgttBCQ2G4AIBZ7xSFSfvjkfrk8KGvra6rfwzQEW/e
+        MWo5i+tawkYGjl8aMNu2cgh03as7t0g+jcBtgx4Lgq6BDu1llu596nS9pki5oiR0
+        0Iu9SZbUgQBOqPuzSjPyMXZPsZ5CqhfiT9lYq4cgze1cWWEG/aZz/TYYDkX5Tiou
+        gU9+uJE/jGkJOkFIR2EeC07fKINHvU7AYPZnRzSlaKIVukCC1Lkfx8afizfkvKKz
+        tIj7nEpkmBjK7rSe3VtO0Zk7sNiq9jmLW3t4oy900rg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=6XUgNn
-        1O5IRfHhgXXFLNHM6V69blpy9ZfuCeSFymZGc=; b=eUnH51e4wbS7XKDZAz/tdu
-        krSMrPJMKV3Z4MmlulsCVFE6UTV9BaMg1iYMl/DEOdSy1ArMQQh79uUwJyMzypit
-        VDH27DzeTS9XkoHEej+NHTtz7pu42sJQefoMjlKB8GTUARJdLgqDgfNqDUrnL48c
-        3tw4pIuMqi6ZnE3rLVh9TIRS5rQPdyDCNBBETsIPS32dlsz44cm95185Z6jHdsS5
-        ceOXoHvzF2of1SaS/woYzEjx1tz4fBvYjsrf2eensLVAkGyFTTJwgaQdVWRAQJKi
-        7jscMKjzjml9plRBr/zE5Vzcg1zBg/utjuBQ/nRzrKjv2l8YHf24wS9jQYfJAL3w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=sV5o3T
+        5HROcwm2zR5BnWYul3YILmRQft/kreh5EUEtI=; b=jMSG738XxGIQHOeatgWBrn
+        v/rrqyU8PqasDByqfp3LGRViIL+aiHvrb6vQmxkEYiqJDyjmoLs5E3Ic6BWu6F7Z
+        Gyf8aP3ubVdqMjETwWHgpazMMxsolhmmImritzGzPWlVFe1ZZ3YRTQFE4Jlhkgml
+        UIyb9ImVuZkwcc+s3RvC2CiOc3k5AXoehRhiDiIcOQ/6AA+uDNEJ0iXx3JLAf6uT
+        0+dKfWw4SFy+sW2g592jiAexwNEPj4IT0CuqMlgHYQRF/jSsMhMeQgkrqJfrsuMi
+        YG5+A8ZQnwcBUqqyyxvR6Tmef4Ikw2tsQyj28+6YE/FzWvtT35lMKksJGWkErPyA
         ==
-X-ME-Sender: <xms:CPS5YcDB-HGkDE0dfotgZbDibwOblDybpJpc_GmCM5gGzIfzl4fnkw>
-    <xme:CPS5Yega82l3ZzshqVcfTT8x1O8wvodD1VnkMwOnXZForahdvxdo13oC90BM_TXLc
-    BnzM6Cfjcn6ag>
-X-ME-Received: <xmr:CPS5Yfk873u1HIcRFc-f-7ba6b72Y9tb7CtJ53fN2ljQ6OrvD_Wchuy_d2DEgrGyl-Erne48D6GvWD-K7gpuffhHoloLJZru>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrledvgdehlecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:BvW5YWjOin_Vd3Lk767B6BYWgcV0VOzK-6TPEwMGA8QcPSKZszd1rQ>
+    <xme:BvW5YXBuYcNezyaY2Lu8FfWeUSzdvnDJ3TQXGlINNRKQTmnkxKRtfdAZTDvVAWpvq
+    JfYABFu7ecOcQ>
+X-ME-Received: <xmr:BvW5YeH9VKBm2IeYS_hNGgqTHz8-pbGZ4BNZomejsKLPTTi7N00IO0gBvk1hb5QpuDq6aMdJuT1cXmU0RrtXdoB0te95CbRs>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrledvgdeitdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:CPS5YSwYFB6HVJXbBflBcBVbbxYIF7GxuUDV4F22x57eQrZ8DbcEOA>
-    <xmx:CPS5YRSXGYnZPCiQBgdu2s6HJeScrHlW5zlNOwEy6jSBx2A1cj2wuA>
-    <xmx:CPS5Ydbn93xZfKKaJjSivTFZvtA5EIQnSzStiulY9Aqvui1OnpB3Ng>
-    <xmx:CPS5Ycfy0I8CY7UGreCZ9hfYLIclAZZKnKf03AohSufUhUg4Le-m7A>
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:BvW5YfSqlw46U38l8jNVkZecmhG6fYuop39UKqkzV-hMeVD0urXD3g>
+    <xmx:BvW5YTzGXuf12KLEuYe-U-zffCc1qeINiQfZuGCNiIc54kulbL3EaA>
+    <xmx:BvW5Yd7rqvF_hL5nJBFwLUomftcRUunVpgFJC4VJsP60ujqivreX2Q>
+    <xmx:BvW5Ye_ezVdYAxLigBU8CJ97KEC3HH175uzvbGNqu5bWtR3fbaTnUA>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 15 Dec 2021 08:56:24 -0500 (EST)
-Date:   Wed, 15 Dec 2021 14:56:22 +0100
+ 15 Dec 2021 09:00:37 -0500 (EST)
+Date:   Wed, 15 Dec 2021 15:00:36 +0100
 From:   Greg KH <greg@kroah.com>
 To:     Adrian Hunter <adrian.hunter@intel.com>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v5.15] perf inject: Fix itrace space allowed for new
- attributes
-Message-ID: <Ybn0BsCEXqdccckE@kroah.com>
-References: <20211214061641.125977-1-adrian.hunter@intel.com>
+Subject: Re: [PATCH 5.10 0/8] perf intel_pt: Fixes for v5.10
+Message-ID: <Ybn1BCaTb5fVwTeS@kroah.com>
+References: <20211213154548.122728-1-adrian.hunter@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211214061641.125977-1-adrian.hunter@intel.com>
+In-Reply-To: <20211213154548.122728-1-adrian.hunter@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 14, 2021 at 08:16:41AM +0200, Adrian Hunter wrote:
-> commit c29d9792607e67ed8a3f6e9db0d96836d885a8c5 upstream.
+On Mon, Dec 13, 2021 at 05:45:40PM +0200, Adrian Hunter wrote:
+> Here are some fixes backported to v5.10.
 > 
-> The space allowed for new attributes can be too small if existing header
-> information is large. That can happen, for example, if there are very
-> many CPUs, due to having an event ID per CPU per event being stored in the
-> header information.
+> Adrian Hunter (8):
+>       perf inject: Fix itrace space allowed for new attributes
+>       perf intel-pt: Fix some PGE (packet generation enable/control flow packets) usage
+>       perf intel-pt: Fix sync state when a PSB (synchronization) packet is found
+>       perf intel-pt: Fix intel_pt_fup_event() assumptions about setting state type
+>       perf intel-pt: Fix state setting when receiving overflow (OVF) packet
+>       perf intel-pt: Fix next 'err' value, walking trace
+>       perf intel-pt: Fix missing 'instruction' events with 'q' option
+>       perf intel-pt: Fix error timestamp setting on the decoder error path
 > 
-> Fix by adding the existing header.data_offset. Also increase the extra
-> space allowed to 8KiB and align to a 4KiB boundary for neatness.
-> 
-> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-> Cc: Jiri Olsa <jolsa@redhat.com>
-> Link: http://lore.kernel.org/lkml/20211125071457.2066863-1-adrian.hunter@intel.com
-> Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> [Adrian: Backport to v5.15]
-> Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-> ---
->  tools/perf/builtin-inject.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/tools/perf/builtin-inject.c b/tools/perf/builtin-inject.c
-> index 6ad191e731fc..d454f5a7af93 100644
-> --- a/tools/perf/builtin-inject.c
-> +++ b/tools/perf/builtin-inject.c
-> @@ -819,7 +819,7 @@ static int __cmd_inject(struct perf_inject *inject)
->  		inject->tool.ordered_events = true;
->  		inject->tool.ordering_requires_timestamps = true;
->  		/* Allow space in the header for new attributes */
-> -		output_data_offset = 4096;
-> +		output_data_offset = roundup(8192 + session->header.data_offset, 4096);
->  		if (inject->strip)
->  			strip_init(inject);
->  	}
-> -- 
-> 2.25.1
-> 
+>  tools/perf/builtin-inject.c                        |  2 +-
+>  .../perf/util/intel-pt-decoder/intel-pt-decoder.c  | 83 ++++++++++++++--------
+>  tools/perf/util/intel-pt.c                         |  1 +
+>  3 files changed, 56 insertions(+), 30 deletions(-)
 
-Now queued up, thanks.
+All now queued up, thanks.
 
 greg k-h
