@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CB3475EB7
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C438C475EF4
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245445AbhLORYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:24:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44490 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245350AbhLORXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:47 -0500
+        id S1343578AbhLOR0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:26:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245408AbhLORY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05BB3C06137E;
+        Wed, 15 Dec 2021 09:24:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DB45619C9;
-        Wed, 15 Dec 2021 17:23:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15531C36AE2;
-        Wed, 15 Dec 2021 17:23:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E579B82027;
+        Wed, 15 Dec 2021 17:24:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCDEEC36AE2;
+        Wed, 15 Dec 2021 17:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589026;
-        bh=43vaTSWzCeqdaVI0fvsU4SSsHbOGCmzqdI+/gtOBR5c=;
+        s=korg; t=1639589096;
+        bh=V2Bc+BIyktiVIK+CEB6NMZWPDWV6KxalB0gmH8FlNAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1o6PSh6m25IM2urr5s3efVGb7So/bhEHYt3WjpqKtQF2w6hX8fOVlpaZhn8wyrlO
-         TB5hs4OwNpzrNaKV7PD68Au4YWmeODaBrBh1a2QDZOJ0SDgBgXj7B1bloS+dbnTY35
-         w7tk1SQNfujMoasJP4nX7TKAlOYhi1goDmUE9RnU=
+        b=HOuOh659/e7BL8FwfogA3QtQYOb/6jHHuA6aUbEnwNEKYmqG+f6/AOqMTc/S2qHKc
+         OhKCEhA2ttusFlGTZ+kq3Gb2hVbCV7wHzHTexF6uy8hQePTvPd4lyFWj3//5B8B5ll
+         udpbruyjThOlhKo1XPzxkDs3zu8VYbzH/1UH2lIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 36/42] drm/amdkfd: fix double free mem structure
+        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.10 19/33] hwmon: (dell-smm) Fix warning on /proc/i8k creation error
 Date:   Wed, 15 Dec 2021 18:21:17 +0100
-Message-Id: <20211215172027.886545805@linuxfoundation.org>
+Message-Id: <20211215172025.437030420@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
-References: <20211215172026.641863587@linuxfoundation.org>
+In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
+References: <20211215172024.787958154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 494f2e42ce4a9ddffb5d8c5b2db816425ef90397 ]
+commit dbd3e6eaf3d813939b28e8a66e29d81cdc836445 upstream.
 
-drm_gem_object_put calls release_notify callback to free the mem
-structure and unreserve_mem_limit, move it down after the last access
-of mem and make it conditional call.
+The removal function is called regardless of whether
+/proc/i8k was created successfully or not, the later
+causing a WARN() on module removal.
+Fix that by only registering the removal function
+if /proc/i8k was created successfully.
 
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested on a Inspiron 3505.
+
+Fixes: 039ae58503f3 ("hwmon: Allow to compile dell-smm-hwmon driver without /proc/i8k")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Acked-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211112171440.59006-1-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/hwmon/dell-smm-hwmon.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index cdf46bd0d8d5b..ab36cce59d2e4 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1393,7 +1393,7 @@ int amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu(
- 	struct sg_table *sg = NULL;
- 	uint64_t user_addr = 0;
- 	struct amdgpu_bo *bo;
--	struct drm_gem_object *gobj;
-+	struct drm_gem_object *gobj = NULL;
- 	u32 domain, alloc_domain;
- 	u64 alloc_flags;
- 	int ret;
-@@ -1503,14 +1503,16 @@ int amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu(
- 	remove_kgd_mem_from_kfd_bo_list(*mem, avm->process_info);
- 	drm_vma_node_revoke(&gobj->vma_node, drm_priv);
- err_node_allow:
--	drm_gem_object_put(gobj);
- 	/* Don't unreserve system mem limit twice */
- 	goto err_reserve_limit;
- err_bo_create:
- 	unreserve_mem_limit(adev, size, alloc_domain, !!sg);
- err_reserve_limit:
- 	mutex_destroy(&(*mem)->lock);
--	kfree(*mem);
-+	if (gobj)
-+		drm_gem_object_put(gobj);
-+	else
-+		kfree(*mem);
- err:
- 	if (sg) {
- 		sg_free_table(sg);
--- 
-2.33.0
-
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -603,15 +603,18 @@ static const struct proc_ops i8k_proc_op
+ 	.proc_ioctl	= i8k_ioctl,
+ };
+ 
++static struct proc_dir_entry *entry;
++
+ static void __init i8k_init_procfs(void)
+ {
+ 	/* Register the proc entry */
+-	proc_create("i8k", 0, NULL, &i8k_proc_ops);
++	entry = proc_create("i8k", 0, NULL, &i8k_proc_ops);
+ }
+ 
+ static void __exit i8k_exit_procfs(void)
+ {
+-	remove_proc_entry("i8k", NULL);
++	if (entry)
++		remove_proc_entry("i8k", NULL);
+ }
+ 
+ #else
 
 
