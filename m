@@ -2,102 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDFB9475F96
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 174E8475FEB
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:54:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234583AbhLORnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:43:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40394 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232645AbhLORnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:43:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060DFC061574
-        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 09:43:39 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2DE1B82029
-        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 17:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2FD5C36AE3;
-        Wed, 15 Dec 2021 17:43:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639590216;
-        bh=Y5W29O5vV0a1LXLzha/4bU6Pk/PCYcouJ5VqIs7q7sI=;
-        h=Subject:To:From:Date:From;
-        b=a6BHZXGg6TXWM0iV1pyZFISBG9Db8HY15SXXUU6ZPTtASGmeUyhE+gvOId8kYwbG+
-         j6t1ntWTJCqgkb42sI/2bpAB85UsGcOdgftwhLVmnNZCopj6coW0T1m0ak/2QUyaiK
-         NQYvcfFGrvpS+5U9HiqfjqbH6q8YeeC3aT1UrKRY=
-Subject: patch "usb: dwc2: fix STM ID/VBUS detection startup delay in" added to usb-linus
-To:     amelie.delaunay@foss.st.com, Minas.Harutyunyan@synopsys.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Dec 2021 18:43:33 +0100
-Message-ID: <163959021395244@kroah.com>
+        id S238268AbhLORyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:54:44 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:58718 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238498AbhLORyo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:54:44 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id C55791C0B98; Wed, 15 Dec 2021 18:54:42 +0100 (CET)
+Date:   Wed, 15 Dec 2021 18:54:41 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: Re: [PATCH 4.19 29/74] clk: qcom: regmap-mux: fix parent clock lookup
+Message-ID: <20211215175440.GA10909@duo.ucw.cz>
+References: <20211213092930.763200615@linuxfoundation.org>
+ <20211213092931.784850569@linuxfoundation.org>
+ <20211215091623.GA15796@amd>
+ <67a77fc5-6db4-ba26-cacb-9758336ad074@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+Content-Disposition: inline
+In-Reply-To: <67a77fc5-6db4-ba26-cacb-9758336ad074@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-    usb: dwc2: fix STM ID/VBUS detection startup delay in
+Hi!
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+> > > The function mux_get_parent() uses qcom_find_src_index() to find the
+> > > parent clock index, which is incorrect: qcom_find_src_index() uses src
+> > > enum for the lookup, while mux_get_parent() should use cfg field (whi=
+ch
+> > > corresponds to the register value). Add qcom_find_cfg_index() function
+> > > doing this kind of lookup and use it for mux parent lookup.
+> >=20
+> > This appears to have problems with error handling.
+> >=20
+> > > +++ b/drivers/clk/qcom/clk-regmap-mux.c
+> > > @@ -36,7 +36,7 @@ static u8 mux_get_parent(struct clk_hw *
+> > >   	val &=3D mask;
+> > >   	if (mux->parent_map)
+> > > -		return qcom_find_src_index(hw, mux->parent_map, val);
+> > > +		return qcom_find_cfg_index(hw, mux->parent_map, val);
+> > >   	return val;
+> > >   }
+> >=20
+> > So this returns u8.
+> >=20
+> > > +int qcom_find_cfg_index(struct clk_hw *hw, const struct parent_map *=
+map, u8 cfg)
+> > > +{
+> > > +	int i, num_parents =3D clk_hw_get_num_parents(hw);
+> > > +
+> > > +	for (i =3D 0; i < num_parents; i++)
+> > > +		if (cfg =3D=3D map[i].cfg)
+> > > +			return i;
+> > > +
+> > > +	return -ENOENT;
+> > > +}
+> >=20
+> > In case of error, -ENOENT will be cast to u8 in caller. I don't
+> > believe that is correct.
+>=20
+> Unfortunately there is no way to return proper error code from
+> clk_ops->get_parent() callback. However returning -ENOENT would translate=
+ to
+> 254. Then clk_core_get_parent_by_index() would determine that there is no
+> such parent and return NULL. A call to clk_set_parent would reparent the
+> clock.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Yeah, I guess it happens to work.
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+> Returning some sensible default (e.g. 0) would be much worse, since then =
+the
+> clock subsystem would assume that the clock has correct parent. A call to
+> clk_set_parent would always result in ops->set_parent() call, reparenting
+> the clock correctly.
 
-If you have any questions about this process, please let me know.
+Well ~0 would be sensible in this case. And a comment with explanation.
 
+> Most probably it would be correct to make ops->get_parent() return int
+> instead of u8 (either an index or an -ERROR). However this was out of sco=
+pe
+> for this patch.
 
-From fac6bf87c55f7f0733efb0375565fb6a50cf2caf Mon Sep 17 00:00:00 2001
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Date: Tue, 7 Dec 2021 13:45:10 +0100
-Subject: usb: dwc2: fix STM ID/VBUS detection startup delay in
- dwc2_driver_probe
+Yep, I believe that should happen, long-term.
 
-When activate_stm_id_vb_detection is enabled, ID and Vbus detection relies
-on sensing comparators. This detection needs time to stabilize.
-A delay was already applied in dwc2_resume() when reactivating the
-detection, but it wasn't done in dwc2_probe().
-This patch adds delay after enabling STM ID/VBUS detection. Then, ID state
-is good when initializing gadget and host, and avoid to get a wrong
-Connector ID Status Change interrupt.
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-Fixes: a415083a11cc ("usb: dwc2: add support for STM32MP15 SoCs USB OTG HS and FS")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211207124510.268841-1-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc2/platform.c | 3 +++
- 1 file changed, 3 insertions(+)
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
-index c8f18f3ba9e3..c331a5128c2c 100644
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -575,6 +575,9 @@ static int dwc2_driver_probe(struct platform_device *dev)
- 		ggpio |= GGPIO_STM32_OTG_GCCFG_IDEN;
- 		ggpio |= GGPIO_STM32_OTG_GCCFG_VBDEN;
- 		dwc2_writel(hsotg, ggpio, GGPIO);
-+
-+		/* ID/VBUS detection startup time */
-+		usleep_range(5000, 7000);
- 	}
- 
- 	retval = dwc2_drd_init(hsotg);
--- 
-2.34.1
+-----BEGIN PGP SIGNATURE-----
 
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYbor4AAKCRAw5/Bqldv6
+8uxpAKCsBhfEeIr2SDoaCwDe7fv+dnbuwACgrZi/2bZGHKAjmv7On4EfwiTdBpg=
+=2beZ
+-----END PGP SIGNATURE-----
 
+--VbJkn9YxBvnuCH5J--
