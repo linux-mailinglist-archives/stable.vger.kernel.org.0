@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C191476622
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 23:45:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00072476623
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 23:46:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbhLOWpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 17:45:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49212 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231172AbhLOWpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 17:45:50 -0500
+        id S231452AbhLOWp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 17:45:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231172AbhLOWp7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 17:45:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86F75C061574
+        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 14:45:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5364F61B6B
-        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 22:45:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 608F3C36AE3;
-        Wed, 15 Dec 2021 22:45:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2588861B6C
+        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 22:45:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07AD9C36AE3;
+        Wed, 15 Dec 2021 22:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639608349;
-        bh=/JbZe17/MDebT7W1yx28THFrUrKQMC85loluCzIu5AM=;
+        s=korg; t=1639608358;
+        bh=hfdTVJAQBQLjgsniYzChV5H2IHn9TbMimNxpHShheOk=;
         h=Subject:To:From:Date:From;
-        b=S3sKHI7PX4DPhTnrNnuygctcOfPpYNqxdP51njdrQljUBByi4+Ok20PsZVEYfXuM/
-         PRK0khYlOSk6vFMmKuBfH1cxorB3OWkfuM5eVfAU/kx6KZSCnseAf7k6jY7gD5pbzp
-         qWAolngdEi0sSn03yelrJyBrG4qF70PyHLUqIF2Q=
-Subject: patch "usb: cdnsp: Fix lack of spin_lock_irqsave/spin_lock_restore" added to usb-linus
-To:     pawell@cadence.com, gregkh@linuxfoundation.org,
-        jianhe@ambarella.com, peter.chen@kernel.org, stable@vger.kernel.org
+        b=R+tijxW6sGsYb/t/7YFfnpyfNARqCAKR9FkTADlJAovml85KdAAlyCpR20Ja2T/32
+         /xG+WOodkK4ovt0CIk9Nofsta2RPfxM9Wcq6ZF5REgcC1XnUQ1xgeJSZMQt91zNq+X
+         Oltk+z9vYEZAVwz/oSK9KL3UAuQj7V3W8j00CTMU=
+Subject: patch "usb: typec: tcpm: fix tcpm unregister port but leave a pending timer" added to usb-linus
+To:     xu.yang_2@nxp.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Dec 2021 23:45:47 +0100
-Message-ID: <1639608347224112@kroah.com>
+Date:   Wed, 15 Dec 2021 23:45:48 +0100
+Message-ID: <1639608348189233@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +45,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: cdnsp: Fix lack of spin_lock_irqsave/spin_lock_restore
+    usb: typec: tcpm: fix tcpm unregister port but leave a pending timer
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -56,67 +60,109 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 4c4e162d9cf38528c4f13df09d5755cbc06f6c77 Mon Sep 17 00:00:00 2001
-From: Pawel Laszczak <pawell@cadence.com>
-Date: Tue, 14 Dec 2021 05:55:27 +0100
-Subject: usb: cdnsp: Fix lack of spin_lock_irqsave/spin_lock_restore
+From ca4d8344a72b91fb9d4c8bfbc22204b4c09c5d8f Mon Sep 17 00:00:00 2001
+From: Xu Yang <xu.yang_2@nxp.com>
+Date: Thu, 9 Dec 2021 18:15:07 +0800
+Subject: usb: typec: tcpm: fix tcpm unregister port but leave a pending timer
 
-Patch puts content of cdnsp_gadget_pullup function inside
-spin_lock_irqsave and spin_lock_restore section.
-This construction is required here to keep the data consistency,
-otherwise some data can be changed e.g. from interrupt context.
+In current design, when the tcpm port is unregisterd, the kthread_worker
+will be destroyed in the last step. Inside the kthread_destroy_worker(),
+the worker will flush all the works and wait for them to end. However, if
+one of the works calls hrtimer_start(), this hrtimer will be pending until
+timeout even though tcpm port is removed. Once the hrtimer timeout, many
+strange kernel dumps appear.
 
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Reported-by: Ken (Jian) He <jianhe@ambarella.com>
+Thus, we can first complete kthread_destroy_worker(), then cancel all the
+hrtimers. This will guarantee that no hrtimer is pending at the end.
+
+Fixes: 3ed8e1c2ac99 ("usb: typec: tcpm: Migrate workqueue to RT priority for processing events")
 cc: <stable@vger.kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
---
-
-Changelog:
-v2:
-- added disable_irq/enable_irq as sugester by Peter Chen
-
-drivers/usb/cdns3/cdnsp-gadget.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20211214045527.26823-1-pawell@gli-login.cadence.com
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
+Link: https://lore.kernel.org/r/20211209101507.499096-1-xu.yang_2@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-gadget.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/usb/typec/tcpm/tcpm.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdnsp-gadget.c b/drivers/usb/cdns3/cdnsp-gadget.c
-index 27df0c697897..e85bf768c66d 100644
---- a/drivers/usb/cdns3/cdnsp-gadget.c
-+++ b/drivers/usb/cdns3/cdnsp-gadget.c
-@@ -1541,15 +1541,27 @@ static int cdnsp_gadget_pullup(struct usb_gadget *gadget, int is_on)
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 6010b9901126..59d4fa2443f2 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -324,6 +324,7 @@ struct tcpm_port {
+ 
+ 	bool attached;
+ 	bool connected;
++	bool registered;
+ 	bool pd_supported;
+ 	enum typec_port_type port_type;
+ 
+@@ -6291,7 +6292,8 @@ static enum hrtimer_restart state_machine_timer_handler(struct hrtimer *timer)
  {
- 	struct cdnsp_device *pdev = gadget_to_cdnsp(gadget);
- 	struct cdns *cdns = dev_get_drvdata(pdev->dev);
-+	unsigned long flags;
+ 	struct tcpm_port *port = container_of(timer, struct tcpm_port, state_machine_timer);
  
- 	trace_cdnsp_pullup(is_on);
- 
-+	/*
-+	 * Disable events handling while controller is being
-+	 * enabled/disabled.
-+	 */
-+	disable_irq(cdns->dev_irq);
-+	spin_lock_irqsave(&pdev->lock, flags);
-+
- 	if (!is_on) {
- 		cdnsp_reset_device(pdev);
- 		cdns_clear_vbus(cdns);
- 	} else {
- 		cdns_set_vbus(cdns);
- 	}
-+
-+	spin_unlock_irqrestore(&pdev->lock, flags);
-+	enable_irq(cdns->dev_irq);
-+
- 	return 0;
+-	kthread_queue_work(port->wq, &port->state_machine);
++	if (port->registered)
++		kthread_queue_work(port->wq, &port->state_machine);
+ 	return HRTIMER_NORESTART;
  }
+ 
+@@ -6299,7 +6301,8 @@ static enum hrtimer_restart vdm_state_machine_timer_handler(struct hrtimer *time
+ {
+ 	struct tcpm_port *port = container_of(timer, struct tcpm_port, vdm_state_machine_timer);
+ 
+-	kthread_queue_work(port->wq, &port->vdm_state_machine);
++	if (port->registered)
++		kthread_queue_work(port->wq, &port->vdm_state_machine);
+ 	return HRTIMER_NORESTART;
+ }
+ 
+@@ -6307,7 +6310,8 @@ static enum hrtimer_restart enable_frs_timer_handler(struct hrtimer *timer)
+ {
+ 	struct tcpm_port *port = container_of(timer, struct tcpm_port, enable_frs_timer);
+ 
+-	kthread_queue_work(port->wq, &port->enable_frs);
++	if (port->registered)
++		kthread_queue_work(port->wq, &port->enable_frs);
+ 	return HRTIMER_NORESTART;
+ }
+ 
+@@ -6315,7 +6319,8 @@ static enum hrtimer_restart send_discover_timer_handler(struct hrtimer *timer)
+ {
+ 	struct tcpm_port *port = container_of(timer, struct tcpm_port, send_discover_timer);
+ 
+-	kthread_queue_work(port->wq, &port->send_discover_work);
++	if (port->registered)
++		kthread_queue_work(port->wq, &port->send_discover_work);
+ 	return HRTIMER_NORESTART;
+ }
+ 
+@@ -6403,6 +6408,7 @@ struct tcpm_port *tcpm_register_port(struct device *dev, struct tcpc_dev *tcpc)
+ 	typec_port_register_altmodes(port->typec_port,
+ 				     &tcpm_altmode_ops, port,
+ 				     port->port_altmode, ALTMODE_DISCOVERY_MAX);
++	port->registered = true;
+ 
+ 	mutex_lock(&port->lock);
+ 	tcpm_init(port);
+@@ -6424,6 +6430,9 @@ void tcpm_unregister_port(struct tcpm_port *port)
+ {
+ 	int i;
+ 
++	port->registered = false;
++	kthread_destroy_worker(port->wq);
++
+ 	hrtimer_cancel(&port->send_discover_timer);
+ 	hrtimer_cancel(&port->enable_frs_timer);
+ 	hrtimer_cancel(&port->vdm_state_machine_timer);
+@@ -6435,7 +6444,6 @@ void tcpm_unregister_port(struct tcpm_port *port)
+ 	typec_unregister_port(port->typec_port);
+ 	usb_role_switch_put(port->role_sw);
+ 	tcpm_debugfs_exit(port);
+-	kthread_destroy_worker(port->wq);
+ }
+ EXPORT_SYMBOL_GPL(tcpm_unregister_port);
  
 -- 
 2.34.1
