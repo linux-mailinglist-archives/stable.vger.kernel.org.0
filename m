@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A4A0475F24
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12658475F4A
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238078AbhLOR2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:28:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47380 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343657AbhLOR0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:43 -0500
+        id S1343715AbhLOR3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:29:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35442 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245755AbhLOR1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:27:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A00C061747;
+        Wed, 15 Dec 2021 09:26:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 588ED61A05;
-        Wed, 15 Dec 2021 17:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C763C36AE0;
-        Wed, 15 Dec 2021 17:26:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1461061A04;
+        Wed, 15 Dec 2021 17:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC21C36AE0;
+        Wed, 15 Dec 2021 17:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589202;
-        bh=ijfdEIMXipzfofjjcBwYmFaTIINZkUL3W1yDWk+poaM=;
+        s=korg; t=1639589205;
+        bh=90oVr+l1nw0SKDOGAbCUXHNjVu4a5/eCBcOj63Rg83E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1WlBOpEF1Rxb8l5JroIp/cfRGirb3R+idYu+dpKgHBa1zwF2yz++8vHaumHl1v1A
-         VRrl+q23R1I1O0G8D70YFf5pCjUha4xH3YYyQusX6wIsDjMQ3pr6jqNQ4qBjZBUM2N
-         uQ6jbZFAzbZQ91v4/g1Oj/MP+9jHOZWO+cyWAfQM=
+        b=VtjF1WD82kCUVDurhQWyzOs9o7CP2LSSjrlUPzJ38/k1p4PjqK4l9B5axFlwnFjiN
+         JGaE4z4oxs3cAFTsaAF1i/gVe7A+oFIGdQAe5Jx1Swzfc/qHxgi+1HefGeeJgllunP
+         hIugfZmCdsozRej+K8ix62VS0ctKUsGsCzxDVSsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Lei <Jun.Lei@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Mustapha Ghaddar <mustapha.ghaddar@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Perry Yuan <Perry.Yuan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/18] drm/amd/display: Fix for the no Audio bug with Tiled Displays
-Date:   Wed, 15 Dec 2021 18:21:28 +0100
-Message-Id: <20211215172023.064501876@linuxfoundation.org>
+Subject: [PATCH 5.4 08/18] drm/amd/display: add connector type check for CRC source set
+Date:   Wed, 15 Dec 2021 18:21:29 +0100
+Message-Id: <20211215172023.096486424@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
 References: <20211215172022.795825673@linuxfoundation.org>
@@ -48,44 +50,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mustapha Ghaddar <mghaddar@amd.com>
+From: Perry Yuan <Perry.Yuan@amd.com>
 
-[ Upstream commit 5ceaebcda9061c04f439c93961f0819878365c0f ]
+[ Upstream commit 2da34b7bb59e1caa9a336e0e20a76b8b6a4abea2 ]
 
-[WHY]
-It seems like after a series of plug/unplugs we end up in a situation
-where tiled display doesnt support Audio.
+[Why]
+IGT bypass test will set crc source as DPRX,and display DM didn`t check
+connection type, it run the test on the HDMI connector ,then the kernel
+will be crashed because aux->transfer is set null for HDMI connection.
+This patch will skip the invalid connection test and fix kernel crash issue.
 
-[HOW]
-The issue seems to be related to when we check streams changed after an
-HPD, we should be checking the audio_struct as well to see if any of its
-values changed.
+[How]
+Check the connector type while setting the pipe crc source as DPRX or
+auto,if the type is not DP or eDP, the crtc crc source will not be set
+and report error code to IGT test,IGT will show the this subtest as no
+valid crtc/connector combinations found.
 
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Mustapha Ghaddar <mustapha.ghaddar@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+116.779714] [IGT] amd_bypass: starting subtest 8bpc-bypass-mode
+[ 117.730996] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[ 117.731001] #PF: supervisor instruction fetch in kernel mode
+[ 117.731003] #PF: error_code(0x0010) - not-present page
+[ 117.731004] PGD 0 P4D 0
+[ 117.731006] Oops: 0010 [#1] SMP NOPTI
+[ 117.731009] CPU: 11 PID: 2428 Comm: amd_bypass Tainted: G OE 5.11.0-34-generic #36~20.04.1-Ubuntu
+[ 117.731011] Hardware name: AMD CZN/, BIOS AB.FD 09/07/2021
+[ 117.731012] RIP: 0010:0x0
+[ 117.731015] Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+[ 117.731016] RSP: 0018:ffffa8d64225bab8 EFLAGS: 00010246
+[ 117.731017] RAX: 0000000000000000 RBX: 0000000000000020 RCX: ffffa8d64225bb5e
+[ 117.731018] RDX: ffff93151d921880 RSI: ffffa8d64225bac8 RDI: ffff931511a1a9d8
+[ 117.731022] CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 117.731023] CR2: ffffffffffffffd6 CR3: 000000010d5a4000 CR4: 0000000000750ee0
+[ 117.731023] PKRU: 55555554
+[ 117.731024] Call Trace:
+[ 117.731027] drm_dp_dpcd_access+0x72/0x110 [drm_kms_helper]
+[ 117.731036] drm_dp_dpcd_read+0xb7/0xf0 [drm_kms_helper]
+[ 117.731040] drm_dp_start_crc+0x38/0xb0 [drm_kms_helper]
+[ 117.731047] amdgpu_dm_crtc_set_crc_source+0x1ae/0x3e0 [amdgpu]
+[ 117.731149] crtc_crc_open+0x174/0x220 [drm]
+[ 117.731162] full_proxy_open+0x168/0x1f0
+[ 117.731165] ? open_proxy_open+0x100/0x100
+
+BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1546
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index f25ac17f47fa9..95a5310e9e661 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1546,6 +1546,10 @@ bool dc_is_stream_unchanged(
- 	if (old_stream->ignore_msa_timing_param != stream->ignore_msa_timing_param)
- 		return false;
- 
-+	// Only Have Audio left to check whether it is same or not. This is a corner case for Tiled sinks
-+	if (old_stream->audio_info.mode_count != stream->audio_info.mode_count)
-+		return false;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
+index f0b001b3af578..883ee517673bd 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
+@@ -221,6 +221,14 @@ int amdgpu_dm_crtc_set_crc_source(struct drm_crtc *crtc, const char *src_name)
+ 			ret = -EINVAL;
+ 			goto cleanup;
+ 		}
 +
- 	return true;
- }
++		if ((aconn->base.connector_type != DRM_MODE_CONNECTOR_DisplayPort) &&
++				(aconn->base.connector_type != DRM_MODE_CONNECTOR_eDP)) {
++			DRM_DEBUG_DRIVER("No DP connector available for CRC source\n");
++			ret = -EINVAL;
++			goto cleanup;
++		}
++
+ 	}
  
+ 	if (amdgpu_dm_crtc_configure_crc_source(crtc, crtc_state, source)) {
 -- 
 2.33.0
 
