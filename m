@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D25475F1F
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4184475F28
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245720AbhLOR1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:27:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35470 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238265AbhLOR0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B925C07E5DC;
-        Wed, 15 Dec 2021 09:25:57 -0800 (PST)
+        id S237738AbhLOR2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:28:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47470 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343939AbhLOR0t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C4FDB82048;
-        Wed, 15 Dec 2021 17:25:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0430C36AE2;
-        Wed, 15 Dec 2021 17:25:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D759E61A0D;
+        Wed, 15 Dec 2021 17:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1C7C36AE0;
+        Wed, 15 Dec 2021 17:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589155;
-        bh=EqvERww/BhaFO8YwmR4L98PI41/pt+NmCmNRM0huSQE=;
+        s=korg; t=1639589208;
+        bh=67IQHyjtgvsS8cup5Ojt+DPWEsjdJNnKB4Pxob3ISXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMq+WTnIwnk04mlZjznTERJb439tRwzBo8M+L/WxrO3CPvR1cKh/iiItamD4/kGD7
-         ifR9zagFUdUNP7rQULlpnMs1UlY8ied6Ge5ynmIVAC5nw5aMhdhW+rbqtSeo0kbBPF
-         fwaicDNgWlUO5esYWi/6bbMGW9OuMOa7YyFM8lIw=
+        b=TJei2CwhLpIKEdmkGf2uWKZZgifEqYtLwnPjSHor5zgmojwOS6HiLaAkIL8N+VI5s
+         ED9GSX+g+TxowYERTcUjWwhU1ylM+y3SsKKgQIjgvHTrWFFm7Zzbmzyr+EeM7OQePU
+         VlouIi3tBBXZYQvTF3tnPs9GnK3stmikN+IVr5HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Subject: [PATCH 5.10 32/33] arm: extend pfn_valid to take into account freed memory map alignment
+        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 09/18] tracing: Fix a kmemleak false positive in tracing_map
 Date:   Wed, 15 Dec 2021 18:21:30 +0100
-Message-Id: <20211215172025.908681012@linuxfoundation.org>
+Message-Id: <20211215172023.127635880@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
+References: <20211215172022.795825673@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +45,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-[ Upstream commit a4d5613c4dc6d413e0733e37db9d116a2a36b9f3 ]
+[ Upstream commit f25667e5980a4333729cac3101e5de1bb851f71a ]
 
-When unused memory map is freed the preserved part of the memory map is
-extended to match pageblock boundaries because lots of core mm
-functionality relies on homogeneity of the memory map within pageblock
-boundaries.
+Doing the command:
+  echo 'hist:key=common_pid.execname,common_timestamp' > /sys/kernel/debug/tracing/events/xxx/trigger
 
-Since pfn_valid() is used to check whether there is a valid memory map
-entry for a PFN, make it return true also for PFNs that have memory map
-entries even if there is no actual memory populated there.
+Triggers many kmemleak reports:
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Tested-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/lkml/20210630071211.21011-1-rppt@kernel.org/
-Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+unreferenced object 0xffff0000c7ea4980 (size 128):
+  comm "bash", pid 338, jiffies 4294912626 (age 9339.324s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000f3469921>] kmem_cache_alloc_trace+0x4c0/0x6f0
+    [<0000000054ca40c3>] hist_trigger_elt_data_alloc+0x140/0x178
+    [<00000000633bd154>] tracing_map_init+0x1f8/0x268
+    [<000000007e814ab9>] event_hist_trigger_func+0xca0/0x1ad0
+    [<00000000bf8520ed>] trigger_process_regex+0xd4/0x128
+    [<00000000f549355a>] event_trigger_write+0x7c/0x120
+    [<00000000b80f898d>] vfs_write+0xc4/0x380
+    [<00000000823e1055>] ksys_write+0x74/0xf8
+    [<000000008a9374aa>] __arm64_sys_write+0x24/0x30
+    [<0000000087124017>] do_el0_svc+0x88/0x1c0
+    [<00000000efd0dcd1>] el0_svc+0x1c/0x28
+    [<00000000dbfba9b3>] el0_sync_handler+0x88/0xc0
+    [<00000000e7399680>] el0_sync+0x148/0x180
+unreferenced object 0xffff0000c7ea4980 (size 128):
+  comm "bash", pid 338, jiffies 4294912626 (age 9339.324s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000f3469921>] kmem_cache_alloc_trace+0x4c0/0x6f0
+    [<0000000054ca40c3>] hist_trigger_elt_data_alloc+0x140/0x178
+    [<00000000633bd154>] tracing_map_init+0x1f8/0x268
+    [<000000007e814ab9>] event_hist_trigger_func+0xca0/0x1ad0
+    [<00000000bf8520ed>] trigger_process_regex+0xd4/0x128
+    [<00000000f549355a>] event_trigger_write+0x7c/0x120
+    [<00000000b80f898d>] vfs_write+0xc4/0x380
+    [<00000000823e1055>] ksys_write+0x74/0xf8
+    [<000000008a9374aa>] __arm64_sys_write+0x24/0x30
+    [<0000000087124017>] do_el0_svc+0x88/0x1c0
+    [<00000000efd0dcd1>] el0_svc+0x1c/0x28
+    [<00000000dbfba9b3>] el0_sync_handler+0x88/0xc0
+    [<00000000e7399680>] el0_sync+0x148/0x180
+
+The reason is elts->pages[i] is alloced by get_zeroed_page.
+and kmemleak will not scan the area alloced by get_zeroed_page.
+The address stored in elts->pages will be regarded as leaked.
+
+That is, the elts->pages[i] will have pointers loaded onto it as well, and
+without telling kmemleak about it, those pointers will look like memory
+without a reference.
+
+To fix this, call kmemleak_alloc to tell kmemleak to scan elts->pages[i]
+
+Link: https://lkml.kernel.org/r/20211124140801.87121-1-chenjun102@huawei.com
+
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/init.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ kernel/trace/tracing_map.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -125,11 +125,22 @@ static void __init zone_sizes_init(unsig
- int pfn_valid(unsigned long pfn)
- {
- 	phys_addr_t addr = __pfn_to_phys(pfn);
-+	unsigned long pageblock_size = PAGE_SIZE * pageblock_nr_pages;
+diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
+index 10657b8dc2c2d..83c2a0598c648 100644
+--- a/kernel/trace/tracing_map.c
++++ b/kernel/trace/tracing_map.c
+@@ -15,6 +15,7 @@
+ #include <linux/jhash.h>
+ #include <linux/slab.h>
+ #include <linux/sort.h>
++#include <linux/kmemleak.h>
  
- 	if (__phys_to_pfn(addr) != pfn)
- 		return 0;
+ #include "tracing_map.h"
+ #include "trace.h"
+@@ -307,6 +308,7 @@ void tracing_map_array_free(struct tracing_map_array *a)
+ 	for (i = 0; i < a->n_pages; i++) {
+ 		if (!a->pages[i])
+ 			break;
++		kmemleak_free(a->pages[i]);
+ 		free_page((unsigned long)a->pages[i]);
+ 	}
  
--	return memblock_is_map_memory(addr);
-+	/*
-+	 * If address less than pageblock_size bytes away from a present
-+	 * memory chunk there still will be a memory map entry for it
-+	 * because we round freed memory map to the pageblock boundaries.
-+	 */
-+	if (memblock_overlaps_region(&memblock.memory,
-+				     ALIGN_DOWN(addr, pageblock_size),
-+				     pageblock_size))
-+		return 1;
-+
-+	return 0;
- }
- EXPORT_SYMBOL(pfn_valid);
- #endif
+@@ -342,6 +344,7 @@ struct tracing_map_array *tracing_map_array_alloc(unsigned int n_elts,
+ 		a->pages[i] = (void *)get_zeroed_page(GFP_KERNEL);
+ 		if (!a->pages[i])
+ 			goto free;
++		kmemleak_alloc(a->pages[i], PAGE_SIZE, 1, GFP_KERNEL);
+ 	}
+  out:
+ 	return a;
+-- 
+2.33.0
+
 
 
