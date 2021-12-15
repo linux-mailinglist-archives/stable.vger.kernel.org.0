@@ -2,424 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E283475432
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 09:22:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01307475451
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 09:33:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240791AbhLOIWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 03:22:19 -0500
-Received: from mailgw01.mediatek.com ([60.244.123.138]:50418 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S240783AbhLOIWT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 03:22:19 -0500
-X-UUID: d792b6e1cce0461682edc83858752f51-20211215
-X-UUID: d792b6e1cce0461682edc83858752f51-20211215
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
-        (envelope-from <ed.tsai@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1029014839; Wed, 15 Dec 2021 16:22:13 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 15 Dec 2021 16:22:12 +0800
-Received: from mtksdccf07 (172.21.84.99) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 15 Dec 2021 16:22:12 +0800
-Message-ID: <75833704ac3ffff38a781c582f144c34dcef0e16.camel@mediatek.com>
-Subject: Re: [PATCH] [fuse] alloc_page nofs avoid deadlock
-From:   Ed Tsai <ed.tsai@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Miklos Szeredi <miklos@szeredi.hu>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        chenguanyou <chenguanyou9338@gmail.com>,
-        Stanley Chu =?UTF-8?Q?=28=E6=9C=B1=E5=8E=9F=E9=99=9E=29?= 
-        <stanley.chu@mediatek.com>,
-        "Yong-xuan Wang =?UTF-8?Q?=28=E7=8E=8B=E8=A9=A0=E8=90=B1=29?=" 
-        <Yong-xuan.Wang@mediatek.com>
-Date:   Wed, 15 Dec 2021 16:22:12 +0800
-In-Reply-To: <YbhmF2mVUqNw16x9@kroah.com>
-References: <20210603125242.31699-1-chenguanyou@xiaomi.com>
-         <CAJfpegsEkRnU26Vvo4BTQUmx89Hahp6=RTuyEcPm=rqz8icwUQ@mail.gmail.com>
-         <1fabb91167a86990f4723e9036a0e006293518f4.camel@mediatek.com>
-         <CAJfpegsOSWZpKHqDNE_B489dGCzLr-RVAhimVOsFkxJwMYmj9A@mail.gmail.com>
-         <07c5f2f1e10671bc462f88717f84aae9ee1e4d2b.camel@mediatek.com>
-         <CAJfpegvAJS=An+hyAshkNcTS8A2TM28V2UP4SYycXUw3awOR+g@mail.gmail.com>
-         <YVMz8E1Lg/GZQcjw@miu.piliscsaba.redhat.com>
-         <0cd20f8c582dd0288472408800a02f6093000f1e.camel@mediatek.com>
-         <YbhmF2mVUqNw16x9@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+        id S240828AbhLOIdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 03:33:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53000 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236165AbhLOIdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 03:33:45 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77CCAC061574
+        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 00:33:45 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id n8so15822452plf.4
+        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 00:33:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=wUgZRJri6rSBH8AzlUzB1cBTzCUXT/YInHx31uzKBQ0=;
+        b=wQV3BvI/eyw+DrQ/RIzDZPTRKygBjoUV0as8meDM7Gq3YABsMi/TyloSck7ZDXMzHh
+         N5kRWIMnat3y0BT/2Z4y8t9tszecX6p0XzTUGQamUrVjeLWXIkapebHvJjRQx8IrtHK7
+         RFLvgb4xRdAUHQkCR0c0a/GR2zhMHfmmdZJJON6zKBLHmHkwHN+Blw3+Pu3XpP1Twcqy
+         AGPmCMVw78j+Pz4vorpn2mP04LwcAEJxXgOQWWIsC75dubg7dHq41XrwqJ/G+xbaMDAk
+         lUmS9lKfpWgJHFpXYxA7L8F32mrEyoK9k3AQW8/NDq8dHSNOAFfEXQr3HsamEnBhBy2Q
+         jQCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=wUgZRJri6rSBH8AzlUzB1cBTzCUXT/YInHx31uzKBQ0=;
+        b=fGCodk6pxjg8Xf7GhWttNORulD72WYHrI9bTNNRCXfSzumJW5StXY2gm9CKku3gJyZ
+         fGDOZY8ylzzFekbpHk7uJIhrUBklb4SgXBJlTbALr1JeqKP7fYT5WBJXOsPxrNhPn1ax
+         aUeLuPUWAxMcnAJOGx9GrP86g5KqPUB2OcqUDF75l+2tegdsUe1ife5MDRbbOLeXdgOt
+         PFjV5Lkqp4813weId8eEMCoYEfOaZydS6aPYreqzxua4LknD/A78ZeXr33RL9c4DV8/u
+         kyXL9nXRe/MqdiYWlGD8N4nVjLgyiKf6wa+3IAi93YtTFLhR/IiyR/+fvjN9z4vg+jw3
+         njqg==
+X-Gm-Message-State: AOAM5321yc7EiO6Z8oqezuqk6BX3xEWltxItxP/PAfFA9lzZnkCUmbxS
+        IxjkwI/tlGnTSs4AfcILic+JwlybzsdWiN2X
+X-Google-Smtp-Source: ABdhPJyvFgh6SuknMDnmHpErIpLPCTKnaQR6rVGDNmiZPVnreb7QUyE8t0qehvGC1/cV9JquV1tevQ==
+X-Received: by 2002:a17:902:f783:b0:148:a2f7:9d6a with SMTP id q3-20020a170902f78300b00148a2f79d6amr3422665pln.137.1639557224865;
+        Wed, 15 Dec 2021 00:33:44 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p49sm1560018pfw.43.2021.12.15.00.33.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Dec 2021 00:33:44 -0800 (PST)
+Message-ID: <61b9a868.1c69fb81.63b4c.4606@mx.google.com>
+Date:   Wed, 15 Dec 2021 00:33:44 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-MTK:  N
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.165-9-g27d736c7bdee
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 baseline: 168 runs,
+ 1 regressions (v5.4.165-9-g27d736c7bdee)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2021-12-14 at 17:38 +0800, Greg Kroah-Hartman wrote:
-> On Tue, Dec 14, 2021 at 05:25:01PM +0800, Ed Tsai wrote:
-> > On Tue, 2021-09-28 at 23:25 +0800, Miklos Szeredi wrote:
-> > > On Fri, Sep 24, 2021 at 09:52:35AM +0200, Miklos Szeredi wrote:
-> > > > On Fri, 24 Sept 2021 at 05:52, Ed Tsai <ed.tsai@mediatek.com>
-> > > > wrote:
-> > > > > 
-> > > > > On Wed, 2021-08-18 at 17:24 +0800, Miklos Szeredi wrote:
-> > > > > > On Tue, 13 Jul 2021 at 04:42, Ed Tsai <ed.tsai@mediatek.com
-> > > > > > >
-> > > > > > wrote:
-> > > > > > > 
-> > > > > > > On Tue, 2021-06-08 at 17:30 +0200, Miklos Szeredi wrote:
-> > > > > > > > On Thu, 3 Jun 2021 at 14:52, chenguanyou <
-> > > > > > > > chenguanyou9338@gmail.com>
-> > > > > > > > wrote:
-> > > > > > > > > 
-> > > > > > > > > ABA deadlock
-> > > > > > > > > 
-> > > > > > > > > PID: 17172 TASK: ffffffc0c162c000 CPU: 6 COMMAND:
-> > > > > > > > > "Thread-21"
-> > > > > > > > > 0 [ffffff802d16b400] __switch_to at ffffff8008086a4c
-> > > > > > > > > 1 [ffffff802d16b470] __schedule at ffffff80091ffe58
-> > > > > > > > > 2 [ffffff802d16b4d0] schedule at ffffff8009200348
-> > > > > > > > > 3 [ffffff802d16b4f0] bit_wait at ffffff8009201098
-> > > > > > > > > 4 [ffffff802d16b510] __wait_on_bit at
-> > > > > > > > > ffffff8009200a34
-> > > > > > > > > 5 [ffffff802d16b5b0] inode_wait_for_writeback at
-> > > > > > > > > ffffff800830e1e8
-> > > > > > > > > 6 [ffffff802d16b5e0] evict at ffffff80082fb15c
-> > > > > > > > > 7 [ffffff802d16b620] iput at ffffff80082f9270
-> > > > > > > > > 8 [ffffff802d16b680] dentry_unlink_inode at
-> > > > > > > > > ffffff80082f4c90
-> > > > > > > > > 9 [ffffff802d16b6a0] __dentry_kill at
-> > > > > > > > > ffffff80082f1710
-> > > > > > > > > 10 [ffffff802d16b6d0] shrink_dentry_list at
-> > > > > > > > > ffffff80082f1c34
-> > > > > > > > > 11 [ffffff802d16b750] prune_dcache_sb at
-> > > > > > > > > ffffff80082f18a8
-> > > > > > > > > 12 [ffffff802d16b770] super_cache_scan at
-> > > > > > > > > ffffff80082d55ac
-> > > > > > > > > 13 [ffffff802d16b860] shrink_slab at ffffff8008266170
-> > > > > > > > > 14 [ffffff802d16b900] shrink_node at ffffff800826b420
-> > > > > > > > > 15 [ffffff802d16b980] do_try_to_free_pages at
-> > > > > > > > > ffffff8008268460
-> > > > > > > > > 16 [ffffff802d16ba60] try_to_free_pages at
-> > > > > > > > > ffffff80082680d0
-> > > > > > > > > 17 [ffffff802d16bbe0] __alloc_pages_nodemask at
-> > > > > > > > > ffffff8008256514
-> > > > > > > > > 18 [ffffff802d16bc60] fuse_copy_fill at
-> > > > > > > > > ffffff8008438268
-> > > > > > > > > 19 [ffffff802d16bd00] fuse_dev_do_read at
-> > > > > > > > > ffffff8008437654
-> > > > > > > > > 20 [ffffff802d16bdc0] fuse_dev_splice_read at
-> > > > > > > > > ffffff8008436f40
-> > > > > > > > > 21 [ffffff802d16be60] sys_splice at ffffff8008315d18
-> > > > > > > > > 22 [ffffff802d16bff0] __sys_trace at ffffff8008084014
-> > > > > > > > > 
-> > > > > > > > > PID: 9652 TASK: ffffffc0c9ce0000 CPU: 4 COMMAND:
-> > > > > > > > > "kworker/u16:8"
-> > > > > > > > > 0 [ffffff802e793650] __switch_to at ffffff8008086a4c
-> > > > > > > > > 1 [ffffff802e7936c0] __schedule at ffffff80091ffe58
-> > > > > > > > > 2 [ffffff802e793720] schedule at ffffff8009200348
-> > > > > > > > > 3 [ffffff802e793770] __fuse_request_send at
-> > > > > > > > > ffffff8008435760
-> > > > > > > > > 4 [ffffff802e7937b0] fuse_simple_request at
-> > > > > > > > > ffffff8008435b14
-> > > > > > > > > 5 [ffffff802e793930] fuse_flush_times at
-> > > > > > > > > ffffff800843a7a0
-> > > > > > > > > 6 [ffffff802e793950] fuse_write_inode at
-> > > > > > > > > ffffff800843e4dc
-> > > > > > > > > 7 [ffffff802e793980] __writeback_single_inode at
-> > > > > > > > > ffffff8008312740
-> > > > > > > > > 8 [ffffff802e793aa0] writeback_sb_inodes at
-> > > > > > > > > ffffff80083117e4
-> > > > > > > > > 9 [ffffff802e793b00] __writeback_inodes_wb at
-> > > > > > > > > ffffff8008311d98
-> > > > > > > > > 10 [ffffff802e793c00] wb_writeback at
-> > > > > > > > > ffffff8008310cfc
-> > > > > > > > > 11 [ffffff802e793d00] wb_workfn at ffffff800830e4a8
-> > > > > > > > > 12 [ffffff802e793d90] process_one_work at
-> > > > > > > > > ffffff80080e4fac
-> > > > > > > > > 13 [ffffff802e793e00] worker_thread at
-> > > > > > > > > ffffff80080e5670
-> > > > > > > > > 14 [ffffff802e793e60] kthread at ffffff80080eb650
-> > > > > > > > 
-> > > > > > > > The issue is real.
-> > > > > > > > 
-> > > > > > > > The fix, however, is not the right one.  The
-> > > > > > > > fundamental
-> > > > > > > > problem
-> > > > > > > > is
-> > > > > > > > that fuse_write_inode() blocks on a request to
-> > > > > > > > userspace.
-> > > > > > > > 
-> > > > > > > > This is the same issue that
-> > > > > > > > fuse_writepage/fuse_writepages
-> > > > > > > > face.  In
-> > > > > > > > that case the solution was to copy the page contents to
-> > > > > > > > a
-> > > > > > > > temporary
-> > > > > > > > buffer and return immediately as if the writeback
-> > > > > > > > already
-> > > > > > > > completed.
-> > > > > > > > 
-> > > > > > > > Something similar needs to be done here: send the
-> > > > > > > > FUSE_SETATTR
-> > > > > > > > request
-> > > > > > > > asynchronously and return immediately from
-> > > > > > > > fuse_write_inode().  The
-> > > > > > > > tricky part is to make sure that multiple time updates
-> > > > > > > > for
-> > > > > > > > the
-> > > > > > > > same
-> > > > > > > > inode aren't mixed up...
-> > > > > > > > 
-> > > > > > > > Thanks,
-> > > > > > > > Miklos
-> > > > > > > 
-> > > > > > > Dear Szeredi,
-> > > > > > > 
-> > > > > > > Writeback thread calls fuse_write_inode() and wait for
-> > > > > > > user
-> > > > > > > Daemon
-> > > > > > > to
-> > > > > > > complete this write inode request. The user daemon will
-> > > > > > > alloc_page()
-> > > > > > > after taking this request, and a deadlock could happen
-> > > > > > > when
-> > > > > > > we try
-> > > > > > > to
-> > > > > > > shrink dentry list under memory pressure.
-> > > > > > > 
-> > > > > > > We (Mediatek) glad to work on this issue for mainline and
-> > > > > > > also LTS.
-> > > > > > > So
-> > > > > > > another problem is that we should not change the protocol
-> > > > > > > or
-> > > > > > > feature
-> > > > > > > for stable kernel.
-> > > > > > > 
-> > > > > > > Use GFP_NOFS | __GFP_HIGHMEM can really avoid this by
-> > > > > > > skip
-> > > > > > > the
-> > > > > > > dentry
-> > > > > > > shirnker. It works but degrade the alloc_page success
-> > > > > > > rate.
-> > > > > > > In a
-> > > > > > > more
-> > > > > > > fundamental way, we could cache the contents and return
-> > > > > > > immediately.
-> > > > > > > But how to ensure the request will be done successfully,
-> > > > > > > e.g.,
-> > > > > > > always
-> > > > > > > retry if it fails from daemon.
-> > > > > > 
-> > > > > > Key is where the the dirty metadata is flushed.  To prevent
-> > > > > > deadlock
-> > > > > > it must not be flushed from memory reclaim, so must make
-> > > > > > sure
-> > > > > > that it
-> > > > > > is flushed on close(2) and munmap(2) and not dirtied after
-> > > > > > that.
-> > > > > > 
-> > > > > > I'm working on this currently and hope to get it ready for
-> > > > > > the
-> > > > > > next
-> > > > > > merge window.
-> > > > > > 
-> > > > > > Thanks,
-> > > > > > Miklos
-> > > > > 
-> > > > > Hi Miklos,
-> > > > > 
-> > > > > I'm not sure whether it has already been resolved in
-> > > > > mainline.
-> > > > > If it still WIP, please cc me on future emails.
-> > > > 
-> > > > Hi,
-> > > > 
-> > > > This is taking a bit longer, unfortunately, but I already have
-> > > > something in testing and currently cleaning it up for
-> > > > review.  Hope
-> > > > to
-> > > > post a series today or early next week.
-> > > 
-> > > 
-> > > Here's a minimal patch.  It's been through some iterations and
-> > > some
-> > > testing, but
-> > > more review and testing is definitely welcome.
-> > > 
-> > > Chenguanyou, can you please verify that it fixes the deadlock?
-> > > 
-> > > Thanks,
-> > > Miklos
-> > > 
-> > > ---
-> > > From: Miklos Szeredi <mszeredi@redhat.com>
-> > > Subject: fuse: make sure reclaim doesn't write the inode
-> > > 
-> > > In writeback cache mode mtime/ctime updates are cached, and
-> > > flushed
-> > > to the
-> > > server using the ->write_inode() callback.
-> > > 
-> > > Closing the file will result in a dirty inode being immediately
-> > > written,
-> > > but in other cases the inode can remain dirty after all
-> > > references
-> > > are
-> > > dropped.  This result in the inode being written back from
-> > > reclaim,
-> > > which
-> > > can deadlock on a regular allocation while the request is being
-> > > served.
-> > > 
-> > > The usual mechanisms (GFP_NOFS/PF_MEMALLOC*) don't work for FUSE,
-> > > because
-> > > serving a request involves unrelated userspace process(es).
-> > > 
-> > > Instead do the same as for dirty pages: make sure the inode is
-> > > written
-> > > before the last reference is gone.
-> > > 
-> > >  - fuse_vma_close(): flush times in addition to the dirty pages
-> > > 
-> > >  - fallocate(2)/copy_file_range(2): these call file_update_time()
-> > > or
-> > >    file_modified(), so flush the inode before returning from the
-> > > call
-> > > 
-> > >  - unlink(2), link(2) and rename(2): these call
-> > > fuse_update_ctime(),
-> > > so
-> > >    flush the ctime directly from this helper
-> > > 
-> > > Reported-by: chenguanyou <chenguanyou@xiaomi.com>
-> > > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> > > ---
-> > >  fs/fuse/dir.c    |    8 ++++++++
-> > >  fs/fuse/file.c   |   24 +++++++++++++++++++++---
-> > >  fs/fuse/fuse_i.h |    1 +
-> > >  3 files changed, 30 insertions(+), 3 deletions(-)
-> > > 
-> > > --- a/fs/fuse/dir.c
-> > > +++ b/fs/fuse/dir.c
-> > > @@ -738,12 +738,20 @@ static int fuse_symlink(struct user_name
-> > >  	return create_new_entry(fm, &args, dir, entry, S_IFLNK);
-> > >  }
-> > >  
-> > > +void fuse_flush_time_update(struct inode *inode)
-> > > +{
-> > > +	int err = sync_inode_metadata(inode, 1);
-> > > +
-> > > +	mapping_set_error(inode->i_mapping, err);
-> > > +}
-> > > +
-> > >  void fuse_update_ctime(struct inode *inode)
-> > >  {
-> > >  	fuse_invalidate_attr(inode);
-> > >  	if (!IS_NOCMTIME(inode)) {
-> > >  		inode->i_ctime = current_time(inode);
-> > >  		mark_inode_dirty_sync(inode);
-> > > +		fuse_flush_time_update(inode);
-> > >  	}
-> > >  }
-> > >  
-> > > --- a/fs/fuse/file.c
-> > > +++ b/fs/fuse/file.c
-> > > @@ -1847,6 +1847,17 @@ int fuse_write_inode(struct inode *inode
-> > >  	struct fuse_file *ff;
-> > >  	int err;
-> > >  
-> > > +	/*
-> > > +	 * Inode is always written before the last reference is dropped
-> > > and
-> > > +	 * hence this should not be reached from reclaim.
-> > > +	 *
-> > > +	 * Writing back the inode from reclaim can deadlock if the
-> > > request
-> > > +	 * processing itself needs an allocation.  Allocations
-> > > triggering
-> > > +	 * reclaim while serving a request can't be prevented, because
-> > > it can
-> > > +	 * involve any number of unrelated userspace processes.
-> > > +	 */
-> > > +	WARN_ON(wbc->for_reclaim);
-> > > +
-> > >  	ff = __fuse_write_file_get(fi);
-> > >  	err = fuse_flush_times(inode, ff);
-> > >  	if (ff)
-> > > @@ -2339,12 +2350,15 @@ static int fuse_launder_page(struct page
-> > >  }
-> > >  
-> > >  /*
-> > > - * Write back dirty pages now, because there may not be any
-> > > suitable
-> > > - * open files later
-> > > + * Write back dirty data/metadata now (there may not be any
-> > > suitable
-> > > + * open files later for data)
-> > >   */
-> > >  static void fuse_vma_close(struct vm_area_struct *vma)
-> > >  {
-> > > -	filemap_write_and_wait(vma->vm_file->f_mapping);
-> > > +	int err;
-> > > +
-> > > +	err = write_inode_now(vma->vm_file->f_mapping->host, 1);
-> > > +	mapping_set_error(vma->vm_file->f_mapping, err);
-> > >  }
-> > >  
-> > >  /*
-> > > @@ -3001,6 +3015,8 @@ static long fuse_file_fallocate(struct f
-> > >  	if (lock_inode)
-> > >  		inode_unlock(inode);
-> > >  
-> > > +	fuse_flush_time_update(inode);
-> > > +
-> > >  	return err;
-> > >  }
-> > >  
-> > > @@ -3110,6 +3126,8 @@ static ssize_t __fuse_copy_file_range(st
-> > >  	inode_unlock(inode_out);
-> > >  	file_accessed(file_in);
-> > >  
-> > > +	fuse_flush_time_update(inode_out);
-> > > +
-> > >  	return err;
-> > >  }
-> > >  
-> > > --- a/fs/fuse/fuse_i.h
-> > > +++ b/fs/fuse/fuse_i.h
-> > > @@ -1145,6 +1145,7 @@ int fuse_allow_current_process(struct fu
-> > >  
-> > >  u64 fuse_lock_owner_id(struct fuse_conn *fc, fl_owner_t id);
-> > >  
-> > > +void fuse_flush_time_update(struct inode *inode);
-> > >  void fuse_update_ctime(struct inode *inode);
-> > >  
-> > >  int fuse_update_attributes(struct inode *inode, struct file
-> > > *file);
-> > 
-> > Hi Mikloz, Greg,
-> > 
-> > This deadlock issue could be raised in high memory pressure and the
-> > patch has been merged in commit 5c791fe ("fuse: make sure reclaim
-> > doesn't write the inode").
-> > 
-> > Can we take it to the LTS version?
-> 
-> What kernel tree(s) do you want this backported to?  Have you tested
-> it
-> that it will apply cleanly and work?
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/5.4 baseline: 168 runs, 1 regressions (v5.4.165-9-g27d736c7=
+bdee)
 
-Hi Greg, I want to take this commit to 5.10 LTS. This can be work to
-resolve the deadlock issue. Also, I have done some monkey tests on our
-ACK 5.10 phone to confirm the stability.
+Regressions Summary
+-------------------
 
-Best,
+platform                 | arch   | lab           | compiler | defconfig   =
+     | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig | 1          =
 
-Ed Tsai
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.165-9-g27d736c7bdee/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.165-9-g27d736c7bdee
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      27d736c7bdeeb639f3be76a7b73b887987e55db2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+     | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b96ea46a4be8d40d397185
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.165-9=
+-g27d736c7bdee/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnow=
+board-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.165-9=
+-g27d736c7bdee/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnow=
+board-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b96ea46a4be8d40d397=
+186
+        failing since 0 day (last pass: v5.4.164-88-gb4f7c3a061a8, first fa=
+il: v5.4.165-1-g0847763b98b8) =
+
+ =20
