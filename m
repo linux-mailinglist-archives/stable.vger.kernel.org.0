@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45421475F3C
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04565475ED7
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343553AbhLOR27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:28:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35704 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343516AbhLORZy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:25:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03C4C0698CD;
-        Wed, 15 Dec 2021 09:25:22 -0800 (PST)
+        id S245455AbhLORZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:25:07 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44982 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245350AbhLORYV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 318DC619EE;
-        Wed, 15 Dec 2021 17:25:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1645EC36AE2;
-        Wed, 15 Dec 2021 17:25:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 881F2619C9;
+        Wed, 15 Dec 2021 17:24:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D0E1C36AE0;
+        Wed, 15 Dec 2021 17:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589121;
-        bh=oI7QOW09TqrgqqDrmRnFro9Q0kmZYFmfUTM0lBxZ0vY=;
+        s=korg; t=1639589060;
+        bh=ewmuxsY11nEr8SFgDbQVXcVDgcxMTM324HMwRtemalk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUGDLan7IHBwbeH+Ew+gNQpXP++9v0ivB9SJodQmrAtIbmYMpqxA0bgzBSyPD7K7x
-         gU8GuK3wKPXlaaGTEmzoNOWMIA04RaN4Vdf59TwWGOmBepfWvyLIkUOR3h9B2cVWO0
-         WQOepnPdMA8c8u5e1RqyFmEjslekzR0sP1fOFoYA=
+        b=r89Kcwbv3K6+TrUmzB6hvSgddannppaIuH7GqKGJxef/z9MTfweq5kLyy59Gf/2EY
+         EZC/xjS+4+ShCzWuXzfdta6aCUUw6yHgjA8CFe1Uou+mKSE4zwPukHaDKurJMfcd3o
+         Qe6K+bnD02YS9cpJK7+3p7SIItil1YVBq4nlXZzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Stapelberg <michael@stapelberg.ch>,
-        Erik Ekman <erik@kryo.se>, Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/33] net/mlx4_en: Update reported link modes for 1/10G
-Date:   Wed, 15 Dec 2021 18:21:04 +0100
-Message-Id: <20211215172025.000074485@linuxfoundation.org>
+Subject: [PATCH 5.15 24/42] s390/test_unwind: use raw opcode instead of invalid instruction
+Date:   Wed, 15 Dec 2021 18:21:05 +0100
+Message-Id: <20211215172027.500272490@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
+References: <20211215172026.641863587@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,112 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Ilie Halip <ilie.halip@gmail.com>
 
-[ Upstream commit 2191b1dfef7d45f44b5008d2148676d9f2c82874 ]
+[ Upstream commit 53ae7230918154d1f4281d7aa3aae9650436eadf ]
 
-When link modes were initially added in commit 2c762679435dc
-("net/mlx4_en: Use PTYS register to query ethtool settings") and
-later updated for the new ethtool API in commit 3d8f7cc78d0eb
-("net: mlx4: use new ETHTOOL_G/SSETTINGS API") the only 1/10G non-baseT
-link modes configured were 1000baseKX, 10000baseKX4 and 10000baseKR.
-It looks like these got picked to represent other modes since nothing
-better was available.
+Building with clang & LLVM_IAS=1 leads to an error:
+    arch/s390/lib/test_unwind.c:179:4: error: invalid register pair
+                        "       mvcl    %%r1,%%r1\n"
+                        ^
 
-Switch to using more specific link modes added in commit 5711a98221443
-("net: ethtool: add support for 1000BaseX and missing 10G link modes").
+The test creates an invalid instruction that would trap at runtime, but the
+LLVM inline assembler tries to validate it at compile time too.
 
-Tested with MCX311A-XCAT connected via DAC.
-Before:
+Use the raw instruction opcode instead.
 
-% sudo ethtool enp3s0
-Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseKX/Full
-	                        10000baseKR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseKX/Full
-	                        10000baseKR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-With this change:
-
-% sudo ethtool enp3s0
-	Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseX/Full
-	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseX/Full
- 	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-Tested-by: Michael Stapelberg <michael@stapelberg.ch>
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Suggested-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1421
+Link: https://lore.kernel.org/r/20211117174822.3632412-1-ilie.halip@gmail.com
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[hca@linux.ibm.com: use illegal opcode, and update comment]
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/lib/test_unwind.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-index 3616b77caa0ad..01275c376721c 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -663,7 +663,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
--				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
-+				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
-@@ -675,9 +675,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
- 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
- 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
- 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
+diff --git a/arch/s390/lib/test_unwind.c b/arch/s390/lib/test_unwind.c
+index ecf327d743a03..c0635cf787e31 100644
+--- a/arch/s390/lib/test_unwind.c
++++ b/arch/s390/lib/test_unwind.c
+@@ -171,10 +171,11 @@ static noinline int unwindme_func4(struct unwindme *u)
+ 		}
+ 
+ 		/*
+-		 * trigger specification exception
++		 * Trigger operation exception; use insn notation to bypass
++		 * llvm's integrated assembler sanity checks.
+ 		 */
+ 		asm volatile(
+-			"	mvcl	%%r1,%%r1\n"
++			"	.insn	e,0x0000\n"	/* illegal opcode */
+ 			"0:	nopr	%%r7\n"
+ 			EX_TABLE(0b, 0b)
+ 			:);
 -- 
 2.33.0
 
