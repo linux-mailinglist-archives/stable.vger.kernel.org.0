@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C4F47540B
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 09:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5262247540D
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 09:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240712AbhLOIEA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 03:04:00 -0500
-Received: from mail-am6eur05on2064.outbound.protection.outlook.com ([40.107.22.64]:28641
-        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        id S240739AbhLOIEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 03:04:13 -0500
+Received: from mail-eopbgr130079.outbound.protection.outlook.com ([40.107.13.79]:3870
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S240711AbhLOID7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Dec 2021 03:03:59 -0500
+        id S240719AbhLOIEF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Dec 2021 03:04:05 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VeIMLMncErScwTeKvkjDItPfzvpPj1DD1tVFEB1/dyxMBJQ2Hy0zsnEkOC7VtxxZRStPEXvjA+yIamxMRt+FZshlXjMbl4Od7m4COndJsIFk0qUMFw4H0U1c2tfs2GJj2r5ZCsj0VMKGSQTXFxX05ao2TIi3KciZQSWAE8GSB/u5qIWggomlKhshRcfRsjib00gmSXlKUgk4YnqCYxbXFsRlP8Zba4c0ZK/VHhLBRcpzUpBnT0srC8NjKqYRre26BZMhu4B5qRK4L6Ua9cbFDxzm455k/N1Mp7RPESemgtZZsthRIFsaA4yA8qQmy0auE+7JYqFaFg2Od1qLznhc+w==
+ b=iElnFogqoV/FQ/lN5RXszTvWvkddbaQ2pbmNncktb2hqo/5Ot+VzDA6uf7zrrq7iRv17rwUdxcRbr6Ke4e/2DUJDoIIFq+T1L2zayTSdrER4WhT8EYmEZImROEzfKkBO754HTP3+mK5pv6NH6YV0S9z4g7TYy6WaEPz3Ce5mKeut9xtx2xTTsIbhjzH3CdEXKicTWE5Bo1El4V8HanYl7uOcx2UxySYR0m8tDzYrGF0R5OsIQ2YSRNLwMaGvTq5+1ASuV/VmcK+fpa/9gXerjdls7B/6etT4kHqMMHTWwhHOgClRTGw8ua/zCo4Y3xBG078sqOso5FW2You4x/LWnQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NdeX/TdGNcL+TO3ShgoWOuwV7afZZfePb5JR3c+GLGU=;
- b=XY2luz2lKBSagjTZdprrZ7SwBiuPP7p63UPhDP7DO8+hSkIHM2JvPVTtsjkg9QxiIzXV8Ng7ENs0WDeBET0cuAyTxh2AKeoPensB9TQdxoo72GGXqgkXbKU/JYgrG+BU62xdHTaIf/mCifDxxyjYK68Z42vzYxA+89Qhl8ZEewSvpaDKSvDmLYxZcH2bBavgclVz6eodONHz2cwgOGkG6qENVzGlRiv5zq5IVRDStx1Xh6k6Ei0FUljayCh30YRoy2RjOwdSeDkF2OXKMs4W/emeXYk6Sf5lh9bnaDouO5DH3UtfdNvVXMbSZpT79Ml9HihQqalInlzW/+3WtsLpbg==
+ bh=86ZzTMGlao7UUs+VZSPkNo0TBddflHFTbpwdw9+OD9w=;
+ b=cfiwZf/y80b0oXsRU/9hbeJ2fqKfO51RVWSFhhd28Du+62N8+RiN544dVr+cv5oua7ZdTsKpkyZuAdCHWNsLpO3KkdD4p5tI/3SgV9by91DpwzjoZ6hF/r+/pXRhQWr5w3Yqh2nfXBl/CYVfEJwWGqA9ndAbGBIT9au667obWE8vItrZyB8EEYto6/hKtawhMBmIdCec2PqsiMh3NvUgCmnqvFblBtE4rqmztQqJ3c5jZMZHsQu82nyqdp3LGzqWYK5uM6x0TFKzsoumtO/7DcFSMKR5Nuh9McrSrElZKEJPs+SN2SkGKqZEnIqv24rMIHVQ5JZeCsi8gKKE4Y5h3A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
  header.d=nxp.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NdeX/TdGNcL+TO3ShgoWOuwV7afZZfePb5JR3c+GLGU=;
- b=Tu2LtmHJcS7NMH7MlGs4rA7zQhU3LU6xxgBu5xQqV9nEAAsKe/0PXDvqwhQkKXxEWYJujMQiT9rrq7s39mrVXg2+B+ev6yy1hoK/BJ0sBfZNMNlN/YlZX1ss/gznwuk1V7uWsL8+YOd9qGWQF9K6s4FKv8DmBEIrogfHZ2QsGr8=
+ bh=86ZzTMGlao7UUs+VZSPkNo0TBddflHFTbpwdw9+OD9w=;
+ b=c/n5y17I0S4pfVYU6dXo6NVAK8wAh/gwslKiEXekW9ZGVofax9OKWlIiB/8kue0nJ0LIGnCho3Se62y2PFm5oPZe5Dl3ASQaU1WJ4yova99I2Xhzkx3F3fGQs/czDu3iTD2hDFvrVYU1aCbwgB+dGi5YdYyqdaSmFAs2+eJ48ZE=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nxp.com;
 Received: from DB9PR04MB8477.eurprd04.prod.outlook.com (2603:10a6:10:2c3::11)
- by DB9PR04MB9355.eurprd04.prod.outlook.com (2603:10a6:10:36b::18) with
+ by DU2PR04MB8725.eurprd04.prod.outlook.com (2603:10a6:10:2dc::18) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.17; Wed, 15 Dec
- 2021 08:03:57 +0000
+ 2021 08:04:03 +0000
 Received: from DB9PR04MB8477.eurprd04.prod.outlook.com
  ([fe80::872:b248:c9e1:151c]) by DB9PR04MB8477.eurprd04.prod.outlook.com
  ([fe80::872:b248:c9e1:151c%3]) with mapi id 15.20.4778.018; Wed, 15 Dec 2021
- 08:03:57 +0000
+ 08:04:03 +0000
 From:   Dong Aisheng <aisheng.dong@nxp.com>
 To:     linux-mm@kvack.org
 Cc:     linux-kernel@vger.kernel.org, dongas86@gmail.com,
@@ -46,9 +46,9 @@ Cc:     linux-kernel@vger.kernel.org, dongas86@gmail.com,
         m.szyprowski@samsung.com, lecopzer.chen@mediatek.com,
         david@redhat.com, vbabka@suse.cz, stable@vger.kernel.org,
         shijie.qin@nxp.com, Dong Aisheng <aisheng.dong@nxp.com>
-Subject: [PATCH 1/2] mm: cma: fix allocation may fail sometimes
-Date:   Wed, 15 Dec 2021 16:02:41 +0800
-Message-Id: <20211215080242.3034856-2-aisheng.dong@nxp.com>
+Subject: [PATCH 2/2] mm: cma: try next pageblock during retry
+Date:   Wed, 15 Dec 2021 16:02:42 +0800
+Message-Id: <20211215080242.3034856-3-aisheng.dong@nxp.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211215080242.3034856-1-aisheng.dong@nxp.com>
 References: <20211215080242.3034856-1-aisheng.dong@nxp.com>
@@ -58,106 +58,95 @@ X-ClientProxiedBy: SGBP274CA0004.SGPP274.PROD.OUTLOOK.COM (2603:1096:4:b0::16)
  To DB9PR04MB8477.eurprd04.prod.outlook.com (2603:10a6:10:2c3::11)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b2d9ec65-4e56-4452-dd4d-08d9bfa171b7
-X-MS-TrafficTypeDiagnostic: DB9PR04MB9355:EE_
-X-Microsoft-Antispam-PRVS: <DB9PR04MB93557EBB39790C5F43BEB8B880769@DB9PR04MB9355.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1227;
+X-MS-Office365-Filtering-Correlation-Id: 118447be-be79-418f-e57b-08d9bfa17543
+X-MS-TrafficTypeDiagnostic: DU2PR04MB8725:EE_
+X-Microsoft-Antispam-PRVS: <DU2PR04MB87259E01EF1BD8E04BF8950380769@DU2PR04MB8725.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2733;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: /fb3/wc1KocUwZLS11FaE0Nrm89xppNZ+c/+dl4okZbwe399x1YQ/T5kSweWGvxbjmJ81kEvU3pzdD1rtXlYLr2hqKg1hTxJTx71lmi42iF3SbkOMT2nKrpkgv+vvJvfrmuWu4VdOAK9FPB4F5fL+WLHkWTIPGPmLkyRztdN1PMfOhKct2d0fYO8GuB9A45v/d2Xt2ercIaX4L9pBbVO6JH5Z8rwloAu/MT7nCx2kmOuY4uZMZp5omuLg5pxqyYzXKZtrELLZiy9xeOpLYYmMwiSeJvs+McigmQspusEfuaUcfvD0s8usMfq6DLb0JtFhToNdHj3ixf7uThdm9irtZSRxpz8cbPzb0ok4SDdCpc24Uy8xRHJxXdOwFIfxAbbG1ebm+H623iLlCWNPokKwjhiPV7vCnP5mgXz/390ICzpo8mQqLil2z8/ZLGMVkx7yn6SaZcpXf3E2/Sv9keMhF3St4OrylnVAU9sMMCw/noEaSoH6z7l33Rw8OhRpVoBBFe7PiEWZDRvux6vyTdKeE0Bs8U+YCEr3aM+rjgAhvH4uAFV7DLAQz21FRgiT9YhsVTKx53nvs6crxtu7W8Oj7c2brgYqgeWDdoXZnb96hvsdNEwwffiEKja5H5AmaBDcVqJrvb8tTAgyi9OOgiYJjQuePoLcR+tkSTPEPtOhFyZYH6ndRnMw65DYKSaC0dFIBNAz9uhzWvgwt/8zGnkiA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR04MB8477.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(8676002)(6512007)(6486002)(2906002)(66556008)(1076003)(7416002)(8936002)(4326008)(66476007)(2616005)(6666004)(83380400001)(26005)(66946007)(6916009)(316002)(38350700002)(38100700002)(36756003)(5660300002)(508600001)(86362001)(52116002)(186003)(6506007);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 7Jet7kkxn7Wdi95nFh3a75oCC8SUy3X5vLA0/I6BsSD/PeWKB3TmfCaA0+3DAlxhkoa5hjYh11mRogWPZukhB7GNviTSv4JHyhsS7QKbmUpxnRnMkLkxTOBPbueMx/nHBUsLTRqaqQJkoBms2ufM7F4OQXJYcEDdgvJUQbkVPFsuLBq97b3VIRRCoIqDeFXxe43f1uasTGSZwElImhN8NHX+TS9KoEPHnwRtA/u723THZDrrbfyiYtmqM8EGOZ81FhpGFA+IRmL+2pRNrzlF/SwzkYlncqWuB1oUYiTX/2587iZ2O2UmV4u4rs0pkzwk7nUDQ5XE6gPW0DRRW7qDwsXKHfM4qan67sSHw10bIEiH158GxZMAOn2YICMc1msZcLkCt1EENApyI2UfXrVIfvvIrExgX7gkSkL17ijo9bYGuV0lLsqy2Qjdld8UafyNxGdwlx/Tq+K9upnJTqkvoF4bFqW417pM0L4e8bBaR9JVFa7ZKY5On4xaL6qXTtSxI8/usb2zW66EtNLjzSJSDnludVIAM+7PA3GuTVMLsdXPcyuQPIXzTGBQM3DEo9rbrhORbjrahDvQg9U2f8azPVu3QvGXVn0xdr+MRqYaIVZlBWAgB4Yg+kktDEQnWSMx4dneIUyuVSQ+/yDxiVYHGcRW9+aTepGfuHbFJWyQuJF/4wsz2jPfpNmD4F6+xwWU17i92zHuNoDN57ocq6I9yg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR04MB8477.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(6512007)(26005)(8936002)(83380400001)(66476007)(66556008)(6506007)(2616005)(7416002)(186003)(508600001)(2906002)(66946007)(6486002)(1076003)(4326008)(5660300002)(6666004)(316002)(86362001)(8676002)(6916009)(52116002)(38100700002)(36756003)(38350700002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?H/6K/LhkH80hwVZMuhSJt0xdfcx/Ag0Q3KsXZ4DiLrScQFCHBN7sU2Yqzvch?=
- =?us-ascii?Q?NTw77augvuTJzwpBGniTm12VSyx3HszZpI5m+br9Nbck7TIvTdHuilP1z2uv?=
- =?us-ascii?Q?whlBTOq1Bo8/3ozDtD79o3eppPNX+edr5slXaF0cVsEmt3GcjKB8o8psVno8?=
- =?us-ascii?Q?LBkvHs5YHZ9A12Wos5MWYMO4smaH71B2UUrlGaIV+Mh5QRU4d7OjUENhenP8?=
- =?us-ascii?Q?n+O+Vb3/zwgeo7Hmi+9fja4cFyNALK1QbpGvGmZhRRiavAQfXNw06lEwl9OQ?=
- =?us-ascii?Q?zYoDpHgBH2YkmrL0f0tf8OMmBPHHyjF+JnMANrm0IQUE2kKwyanJSfLe9Lp+?=
- =?us-ascii?Q?iqcgfADtsCfCJmB+fqfNxTznZpJUM6v9wuuZevQJFeKiT3ghFWPd3mRKtzsC?=
- =?us-ascii?Q?9a2HkRhNBBXKdv70r/UGQBRJqJWj4kcyabHbpabrh0q+jpar0BwyyCuIEUs9?=
- =?us-ascii?Q?WpKnEM6gQBAdyzsl4KnCzTumFOtL/LZ3KP7iWO/uJXDT+qN1DDkmU3YdNDqj?=
- =?us-ascii?Q?IjWQ3yH5tRpg3X5JjdkPHEW4b57M8EstpGvO3//q2/KFUWrLLhVWX0Coqpcr?=
- =?us-ascii?Q?+lNBbs/vnmqeC2qpFmVgPpWfJgI3KlgJpA5bcHilDEGHTqfF8j5r0rZka/l8?=
- =?us-ascii?Q?UCRj6O9K4Pzr3WyWMX33XBF9EVXj5uVqptMUFWbBREozs9w5ftDBVEteoB/C?=
- =?us-ascii?Q?mDr1T5GJKB8lOq2yiy0F2d4KG/SN7GD4goxWEc8gzzDj4j7xpDDErpo50ayx?=
- =?us-ascii?Q?p+s58Hkaax5Coky1QCz8gIga8nea6WCwHmRIITA4rFPv06328JqWgMBAnQvB?=
- =?us-ascii?Q?gWgUEBN7v+QVrdjDd/0LgKXAKU1mH6hgoiHMGkcb08o/80B9Xw5BLzn7LnBL?=
- =?us-ascii?Q?A26rckvihOaLIURtiYK0XcXvpXfFgFmbclv8PD/b13oJSXMXevijbxDq04W6?=
- =?us-ascii?Q?6euEZtR63LvhaFGM8YbxD4b7dItpUEtYj0+aDOcIHGwEt5Y5sBmv8Br9m50X?=
- =?us-ascii?Q?5wVt5vYX9NMptRk3lPej4xlXcaZhwl58+1a7oEeGS1hzUwm9Pa5rDXugCb8B?=
- =?us-ascii?Q?ncviLPqMkxzRNb6ik+RwLwKer+bqoH63DLB9xxbc2mNIRUpm5X8zb3aQ7ypS?=
- =?us-ascii?Q?nzg2+g0DiRTrp5i2VGDxEAQ8TuhE+F5W3vKCYWLI2oxYdpDDX/uG9qkrFe13?=
- =?us-ascii?Q?s7yC30LKL043nVj3VbVrZYS3vCy73jRqIAzCtR6KNw27lRaCzPxZ8sLYgsEW?=
- =?us-ascii?Q?eUn7CMbRBTBdPmCq7csE+YsCTFdJLxGuiLXeZpOA/NqSR0o44Zduhg/9rXlv?=
- =?us-ascii?Q?/hfroP0Q57UML/3rzhhICjfH2lQsXMEyAdH7JoNU+E5uqhC0XlS8YfUpYkf8?=
- =?us-ascii?Q?vEYu73GDa+lId+XVsObtYLcwVsqU4cSafvS/LAJK+j9Pi6Y9HNXfmT5X6oQP?=
- =?us-ascii?Q?I0788u/QVC57iTd8Rlv1gENcqnwSnCiXAZwy+mTp9CfBza4gl7tAOJVMzuwv?=
- =?us-ascii?Q?Jo7NzNYpQm8rBEc3oGmU2jyAg/Y+axeM9d66lG2wOkWV8RScEjZc1ny4/X5V?=
- =?us-ascii?Q?erlkw6XI2RCEVxWc8sfFnd6P2HA7s7tKB+WdxEZaJHh9jmBJ3VX7x85CG42U?=
- =?us-ascii?Q?SH3bwy4pPptqDpgB6e9X7ak=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?xvQ5CFy4vvd45vhyd5Cwfd59cVQAURjZntAoy3cQxncHI2lZAo+uvlL9n3ys?=
+ =?us-ascii?Q?k9KRvahZgVqjY1Tj2hKbn0LcXM17TUWnNu1T5Ju9og2j7q98D7YNMGR66ID4?=
+ =?us-ascii?Q?YQspHYHbf/ih+3HtuoOtIcuBNJ2lDlOPwLVXbPi3DQfAxhv44xTSYO9RgJgm?=
+ =?us-ascii?Q?urjW2kHjDFKtSbEPb7tvfbhH5k6kcC7Ow37otZEJLn1N2CnUg0IRumQNUVXU?=
+ =?us-ascii?Q?tLNQmuJ4W4pScRVHGtiozmMbIz+hIqzMq+ZV1LGR4UE5FZTVFVYoa4J7NKtb?=
+ =?us-ascii?Q?2/Ug3XmsQXvS5KLrTtYqpRilple2ecn3xSVWhLzZHdnsPVSa8Zlhvqnqy3Ce?=
+ =?us-ascii?Q?4NBeneU9I1Yi3wXYUldEFoX1XN6pXV4SlB/NPv3tbsfpo8ATIUmOe3IDwWUD?=
+ =?us-ascii?Q?/9Ht0EPjwBt8drM5wC5SpJooAYlp7cmWDQ/1/36CLbkr9favuq9xqbNCzjAN?=
+ =?us-ascii?Q?YjbcN0416Ceeed0dOuM3nbFIgrTkSfKvq/qSgQzqF7zOtqPxE0D3aX+2x/ea?=
+ =?us-ascii?Q?M4is1wr3KZEFTET9TwY6AzRPk8zxuuYWYZyPmqPjf3eJjkAsJh6F5ey3UwQS?=
+ =?us-ascii?Q?auBj4ZHoprjeGNOLEwCLSKA+MlMmm0Z0SbTa5QOVxMN8HM/+LQmwF+bIb/uO?=
+ =?us-ascii?Q?RT3Z48AUx+8zv/pWMn9seUeE5CAdlje2TrIFDV373meyRa0th/0o38L4jpcq?=
+ =?us-ascii?Q?EKisyMr+zAsHO8pNVNcideoVj1AxqqAaM8FEK85tOZ2MMNnPrweOqB05WfBQ?=
+ =?us-ascii?Q?u3jFSjtslrSFkJvYEEdgZG3jVLmxY8DB5N95NV4PswiYsjWp62DIGSbi66Bl?=
+ =?us-ascii?Q?vbtk10+CbqQc98CODH03P1u5eNSVIrmODbyyPUM2Qm9AoSAcYdOYI/tus/PJ?=
+ =?us-ascii?Q?ZmzqSC7tGYSRNu53KVg4AqtIucP07uRfYblXGfpWjEmsqlpfDswmvYwrj2YX?=
+ =?us-ascii?Q?vUCQa/9F5ZSNfEHEq7AOGWEy9vWu/Oy04+hcCBi1l3gzJ9PpIOe8vfQBl/57?=
+ =?us-ascii?Q?VDWTUIIwufNmUp6UFSANysi8/okHsKYWBeWfqMeXFZ6qA7lqc7UgjUcqkEgc?=
+ =?us-ascii?Q?uzmVjmr9Xe+t+mgIFKnDFDPxtka/dYFp13baZlUafiOFC/rKKGGX6zE2wo9u?=
+ =?us-ascii?Q?pYN9TV9SCL2TD+sUBa2rPS6U9TNusz+Yevg8cAaansoyGQ14RTyM6JbshxPc?=
+ =?us-ascii?Q?4oap9U1ivI23A6RltDUpy8ynvV3sL/N2sAhzW0LrX+8ZDqI+fJvugR+tzu8e?=
+ =?us-ascii?Q?D+T6yeQR/WJPEoK6gGFuGC++O9qta6Ty6qPyHx95kQOqnmEEqRL3yxQdINuV?=
+ =?us-ascii?Q?mc5MQo0ai0KUdDiCYdpDNaFuiJS84ijSIVmQmAd4E+JWOlTMHYPyjKHctXA/?=
+ =?us-ascii?Q?kF/ZmPSqf/UEpz0Gq4kn7JkFY9UBra+F0nNs/1vWr/QatJcuLCP7EahKWMoU?=
+ =?us-ascii?Q?ZkbJ+oHux91o+NQp0bb+Eg+z5dmIKK4lEcohyEilOko1VrrY+V5dk9cULcTc?=
+ =?us-ascii?Q?FOP36jUYBiuWBx5JC1HKe+Luvm0ncSMvvHkrD0W6X2EBPqxqM9QsBY8iapIh?=
+ =?us-ascii?Q?6bW8Gzd+XfqFkXMij9Q3j2mTelZsMHDQ9Fgsaio+CLhdpbaY8w7j3uPCV7MZ?=
+ =?us-ascii?Q?MlSMHzjmtu1xpVOkbHSzP8E=3D?=
 X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b2d9ec65-4e56-4452-dd4d-08d9bfa171b7
+X-MS-Exchange-CrossTenant-Network-Message-Id: 118447be-be79-418f-e57b-08d9bfa17543
 X-MS-Exchange-CrossTenant-AuthSource: DB9PR04MB8477.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Dec 2021 08:03:57.0819
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Dec 2021 08:04:03.0278
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: hfz/hEG0KgnUYt2+hcSIb22oTXPKONQAu9GfG5HgGqYUkwPfXyDiUpF4IFf+ftIMeUwAt6s5c1Qda9wIz048qw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR04MB9355
+X-MS-Exchange-CrossTenant-UserPrincipalName: A0ba5/s2jB5hIVZcCCG393nWYSeQi5FhLZnLZ3sUCky1Dj6BBHbCQXtHvQ8RR677Or+kEnjUrVf/aECUHEbv6g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU2PR04MB8725
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We met dma_alloc_coherent() fail sometimes when doing 8 VPU decoder
-test in parallel on a MX6Q SDB board.
+On an ARMv7 platform with 32M pageblock(MAX_ORDER 14), we observed a
+huge number of retries of CMA allocation (1k+) during booting when
+allocating one page for each of 3 mmc instance probe.
 
-Error log:
-cma: cma_alloc: linux,cma: alloc failed, req-size: 148 pages, ret: -16
-cma: number of available pages:
-3@125+20@172+12@236+4@380+32@736+17@2287+23@2473+20@36076+99@40477+108@40852+44@41108+20@41196+108@41364+108@41620+
-108@42900+108@43156+483@44061+1763@45341+1440@47712+20@49324+20@49388+5076@49452+2304@55040+35@58141+20@58220+20@58284+
-7188@58348+84@66220+7276@66452+227@74525+6371@75549=> 33161 free of 81920 total pages
+This is caused by CMA now supports cocurrent allocation since commit
+a4efc174b382 ("mm/cma.c: remove redundant cma_mutex lock").
+The pageblock we tried to allocate may have already been
+acquired and isolated by others, then cma_alloc() will retry the next
+area of the same size by bitmap_no + mask + 1. However, the pageblock
+order could be big and pageblock_nr_pages is huge (e.g. 8192),
+then keep retrying in a small step become meaningless because
+it's likely known to fail again due to within the same pageblock.
 
-When issue happened, we saw there were still 33161 pages (129M) free CMA
-memory and a lot available free slots for 148 pages in CMA bitmap that we
-want to allocate.
+Instread of looping in the same pageblock and wasting CPU
+mips, especially for big pageblock system (e.g. 16M or 32M),
+we try the next pageblock directly.
 
-If dumping memory info, we found that there was also ~342M normal memory,
-but only 1352K CMA memory left in buddy system while a lot of pageblocks
-were isolated.
+Doing this way can greatly mitigate the situtation.
 
-Memory info log:
-Normal free:351096kB min:30000kB low:37500kB high:45000kB reserved_highatomic:0KB
-	    active_anon:98060kB inactive_anon:98948kB active_file:60864kB inactive_file:31776kB
-	    unevictable:0kB writepending:0kB present:1048576kB managed:1018328kB mlocked:0kB
-	    bounce:0kB free_pcp:220kB local_pcp:192kB free_cma:1352kB lowmem_reserve[]: 0 0 0
-Normal: 78*4kB (UECI) 1772*8kB (UMECI) 1335*16kB (UMECI) 360*32kB (UMECI) 65*64kB (UMCI)
-	36*128kB (UMECI) 16*256kB (UMCI) 6*512kB (EI) 8*1024kB (UEI) 4*2048kB (MI) 8*4096kB (EI)
-	8*8192kB (UI) 3*16384kB (EI) 8*32768kB (M) = 489288kB
+Below is the original error log during booting:
+[    2.004804] cma: cma_alloc(cma (ptrval), count 1, align 0)
+[    2.010318] cma: cma_alloc(cma (ptrval), count 1, align 0)
+[    2.010776] cma: cma_alloc(): memory range at (ptrval) is busy, retrying
+[    2.010785] cma: cma_alloc(): memory range at (ptrval) is busy, retrying
+[    2.010793] cma: cma_alloc(): memory range at (ptrval) is busy, retrying
+[    2.010800] cma: cma_alloc(): memory range at (ptrval) is busy, retrying
+[    2.010807] cma: cma_alloc(): memory range at (ptrval) is busy, retrying
+[    2.010814] cma: cma_alloc(): memory range at (ptrval) is busy, retrying
+.... (+1K retries)
 
-The root cause of this issue is that since commit a4efc174b382
-("mm/cma.c: remove redundant cma_mutex lock"), CMA supports concurrent
-memory allocation. It's possible that the pageblock process A try to alloc
-has already been isolated by the allocation of process B during memory
-migration.
+After fix, the 1200+ reties can be reduced to 0.
+Another test running 8 VPU decoder in parallel shows that 1500+ retries
+dropped to ~145.
 
-When there're multi process allocating CMA memory in parallel, it's
-likely that other the remain pageblocks may have also been isolated,
-then CMA alloc fail finally during the first round of scanning of the
-whole available CMA bitmap.
-
-This patch introduces a retry mechanism to rescan CMA bitmap for -EBUSY
-error in case the target pageblock may has been temporarily isolated
-by others and released later.
-
-Theoretically, this issue can be easily reproduced on ARMv7 platforms
-with big MAX_ORDER/pageblock
-e.g. 1G RAM(320M reserved CMA) and 32M pageblock ARM platform:
-Page block order: 13
-Pages per block:  8192
+IOW this patch can improve the CMA allocation speed a lot when there're
+enough CMA memory by reducing retries significantly.
 
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: Marek Szyprowski <m.szyprowski@samsung.com>
@@ -168,38 +157,24 @@ CC: stable@vger.kernel.org # 5.11+
 Fixes: a4efc174b382 ("mm/cma.c: remove redundant cma_mutex lock")
 Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
 ---
- mm/cma.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ mm/cma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/mm/cma.c b/mm/cma.c
-index bc9ca8f3c487..1c13a729d274 100644
+index 1c13a729d274..108a1ceacbe7 100644
 --- a/mm/cma.c
 +++ b/mm/cma.c
-@@ -433,6 +433,7 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
- 	unsigned long i;
- 	struct page *page = NULL;
- 	int ret = -ENOMEM;
-+	int loop = 0;
+@@ -500,7 +500,9 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
+ 		trace_cma_alloc_busy_retry(cma->name, pfn, pfn_to_page(pfn),
+ 					   count, align);
+ 		/* try again with a bit different memory target */
+-		start = bitmap_no + mask + 1;
++		start = ALIGN(bitmap_no + mask + 1,
++			      pageblock_nr_pages >> cma->order_per_bit);
++
+ 	}
  
- 	if (!cma || !cma->count || !cma->bitmap)
- 		goto out;
-@@ -460,6 +461,16 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
- 				offset);
- 		if (bitmap_no >= bitmap_maxno) {
- 			spin_unlock_irq(&cma->lock);
-+			pr_debug("%s(): alloc fail, retry loop %d\n", __func__, loop++);
-+			/*
-+			 * rescan as others may finish the memory migration
-+			 * and quit if no available CMA memory found finally
-+			 */
-+			if (start) {
-+				schedule();
-+				start = 0;
-+				continue;
-+			}
- 			break;
- 		}
- 		bitmap_set(cma->bitmap, bitmap_no, bitmap_count);
+ 	trace_cma_alloc_finish(cma->name, pfn, page, count, align);
 -- 
 2.25.1
 
