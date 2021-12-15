@@ -2,87 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E164760C6
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 19:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A3824760E3
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 19:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343805AbhLOSc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 13:32:28 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:33532 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234977AbhLOSc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 13:32:26 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 393861C0B98; Wed, 15 Dec 2021 19:32:25 +0100 (CET)
-Date:   Wed, 15 Dec 2021 19:32:23 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        chris.paterson2@renesas.com, alice.ferrazzi@miraclelinux.com,
-        nobuhiro1.iwamatsu@toshiba.co.jp
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: 5.10.85 breaks CIP testing Re: [PATCH 5.10 00/33] 5.10.86-rc1 review
-Message-ID: <20211215183223.GB10909@duo.ucw.cz>
-References: <20211215172024.787958154@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
-Content-Disposition: inline
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S238880AbhLOSkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 13:40:22 -0500
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.217]:14366 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234977AbhLOSkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 13:40:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1639593604;
+    s=strato-dkim-0002; d=goldelico.com;
+    h=Message-Id:To:Cc:Subject:Date:From:Cc:Date:From:Subject:Sender;
+    bh=dKbgH0vR+QJjU7spojHrVUphFvJo+KgTCqf0bJ8RLJU=;
+    b=E40hQOpKqrStZROQs6g4HoYcO8ifEPYuGHf7WPaFRHh0/udaBcX9wDIzfwls00IgB+
+    EycckmDDJu/XNdrS/vnEi4hl4qWIsrtfXaroFSKuoAYAEhHRMRzZkYaTGQyeLGvyKL/u
+    VQaCGA45w9Jr/5JW8QJ/i6hR9yGzCIxP0Bi4FsthO5dMA4FGRAtOy4fqoMzAbbL+AdSI
+    oHXTp6hiWpMISn4bXM/3AFwXpdRfcFFJKmfWuZN2P6CDg+Z4y9BBlVr3p/O3kVD0Bt51
+    Qxiq9Ju9V3d/iA5ZchGcjCXnayIi+bZQx75CfEmxnJkrKjyh2nbY6oDq7g00qCOzxWFW
+    f5kA==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NIGH/jrwDSqhg=="
+X-RZG-CLASS-ID: mo00
+Received: from imac.fritz.box
+    by smtp.strato.de (RZmta 47.35.3 DYNA|AUTH)
+    with ESMTPSA id 404833xBFIe3AFj
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+        (Client did not present a certificate);
+    Wed, 15 Dec 2021 19:40:03 +0100 (CET)
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+Content-Type: text/plain;
+        charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.21\))
+Date:   Wed, 15 Dec 2021 19:40:02 +0100
+Subject: Bug with KVM: arm64: Avoid setting the upper 32 bits of TCR_EL2 and
+ CPTR_EL2 to 1
+Cc:     Discussions about the Letux Kernel <letux-kernel@openphoenux.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Chris January <Chris.January@arm.com>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        reg Kroah-Hartman <gregkh@linuxfoundation.org>
+Message-Id: <DB8835B4-8F04-4669-87EA-D348FA47A79D@goldelico.com>
+X-Mailer: Apple Mail (2.3445.104.21)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+this seems to break build of 5.10.y (and maybe earlier) for me:
 
---qcHopEYAB45HaUaB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  CALL    scripts/checksyscalls.sh - due to target missing
+  CALL    scripts/atomic/check-atomics.sh - due to target missing
+  CHK     include/generated/compile.h
+  AS      arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o - due to target =
+missing
+arch/arm64/kvm/hyp/nvhe/hyp-init.S: Assembler messages:
+arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: unexpected characters =
+following instruction at operand 2 -- `mov x1,#((1U<<31)|(1<<23))'
+arch/arm64/kvm/hyp/nvhe/Makefile:28: recipe for target =
+'arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o' failed
+make[5]: *** [arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o] Error 1
+scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm/hyp/nvhe' =
+failed
+make[4]: *** [arch/arm64/kvm/hyp/nvhe] Error 2
+scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm/hyp' =
+failed
+make[3]: *** [arch/arm64/kvm/hyp] Error 2
+scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm' failed
+make[2]: *** [arch/arm64/kvm] Error 2
+Makefile:1822: recipe for target 'arch/arm64' failed
+make[1]: *** [arch/arm64] Error 2
+Makefile:336: recipe for target '__build_one_by_one' failed
+make: *** [__build_one_by_one] Error 2
 
-Hi!
+Looking at the problematic line 87 of hyp-init.S shows that
+there is a macro expansion:
 
-> This is the start of the stable review cycle for the 5.10.86 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+      mov     x1, #TCR_EL2_RES1
 
-I'm getting the gmp.h failures :-(.
+This macro was modified by the $subject patch
+(commit c71b5f37b5ff1a673b2e4a91d1b34ea027546e23 in v5.10.y)
+and reverting the patch makes the compile succeed.
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/4=
-30434332
+Now: why does it build for me for v5.15.y and v5.16-rc5?
+I think it is because my build system switches to gcc 6.3
+instead of gcc 4.9 depending on scripts/min-tool-version.sh.
 
-I believe we should not change build requirements in the middle of
-stable series.
+So I assume that the fix is not compatible with the minimum
+requirement for 5.10.y of gcc 4.9 (or even less - I don't know exactly).
+Earlier kernels may also be affected if $subject patch was also
+backported there, but I have not tested.
 
-To our testing team: 5.10.85 introduced new requirements for the
-build. gmp.h is now required in our configs, and maybe something else.
+This should somehow be fixed so that arch/arm64/include/asm/kvm_arm.h
+can be included by older assemblers.
 
-Easiest fix might be to add
+BR and thanks,
+Nikolaus Schaller
 
-# CONFIG_GCC_PLUGINS is not set
-
-to our configs. Alternatively I know which patch to revert.
-
-But I believe -stable should be the one doing the revert, as the patch
-does not fix serious bug and introduces problem. Faster compile is
-nice but let mainline have those kind of changes.
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---qcHopEYAB45HaUaB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYbo0twAKCRAw5/Bqldv6
-8jYjAJ424ukuK6MQ2EFM7wTIGH3l1dRfuQCgjfRQIoQTDjinstOOYoqoCTgzZhM=
-=aU6i
------END PGP SIGNATURE-----
-
---qcHopEYAB45HaUaB--
