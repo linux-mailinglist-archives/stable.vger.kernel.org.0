@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8119475ECD
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50253475F1B
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238371AbhLORYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:24:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44724 "EHLO
+        id S245449AbhLOR1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:27:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47230 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245365AbhLORYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:04 -0500
+        with ESMTP id S1343902AbhLOR0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3D1F619E8;
-        Wed, 15 Dec 2021 17:24:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83DAC36AE2;
-        Wed, 15 Dec 2021 17:24:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A0EE619F2;
+        Wed, 15 Dec 2021 17:26:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CBFAC36AE0;
+        Wed, 15 Dec 2021 17:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589043;
-        bh=+q9LINZAMnju/J1RN8FmBJT3/5KdKmOLPEEphQu5i1A=;
+        s=korg; t=1639589191;
+        bh=sX7UhzPJ4H9WBt7wxIbx9QexK09hqwkNtTwVlGFbYx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHiRgUXHpMBWLaSGrLgManr3fVUcT03NlA5Sxq9DY+CDsWEGBhYCv4MxKLx/76b+Q
-         rxseY0fb/O9qtzSex7cGYyj0RG9d+4QxJuj/UezWH2LINrA+SzsunJQlCXNHD2Eyee
-         GgpcDh8lqGAER8+0DNlDsQEVsIHPKmpnJ9rttFxA=
+        b=JQVdtRPYtzOm4ODptbEqEmYWp9vT2YkqXQXqFjsMlM5NKMwy9bjdE3vIJkEaj1W4u
+         NCZ/v/+9uX+bBHpMjx3jPX0yN6zUHnjzQdbdRDDPIj9jzXfpG4f/QPwKYYdSucZsgX
+         y3PPFDK5EZxkHFER07rjkAJbIc1v4IETDlvjmitg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 42/42] perf inject: Fix itrace space allowed for new attributes
-Date:   Wed, 15 Dec 2021 18:21:23 +0100
-Message-Id: <20211215172028.076413106@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Stapelberg <michael@stapelberg.ch>,
+        Erik Ekman <erik@kryo.se>, Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 03/18] net/mlx4_en: Update reported link modes for 1/10G
+Date:   Wed, 15 Dec 2021 18:21:24 +0100
+Message-Id: <20211215172022.926003439@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
-References: <20211215172026.641863587@linuxfoundation.org>
+In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
+References: <20211215172022.795825673@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +46,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Erik Ekman <erik@kryo.se>
 
-commit c29d9792607e67ed8a3f6e9db0d96836d885a8c5 upstream.
+[ Upstream commit 2191b1dfef7d45f44b5008d2148676d9f2c82874 ]
 
-The space allowed for new attributes can be too small if existing header
-information is large. That can happen, for example, if there are very
-many CPUs, due to having an event ID per CPU per event being stored in the
-header information.
+When link modes were initially added in commit 2c762679435dc
+("net/mlx4_en: Use PTYS register to query ethtool settings") and
+later updated for the new ethtool API in commit 3d8f7cc78d0eb
+("net: mlx4: use new ETHTOOL_G/SSETTINGS API") the only 1/10G non-baseT
+link modes configured were 1000baseKX, 10000baseKX4 and 10000baseKR.
+It looks like these got picked to represent other modes since nothing
+better was available.
 
-Fix by adding the existing header.data_offset. Also increase the extra
-space allowed to 8KiB and align to a 4KiB boundary for neatness.
+Switch to using more specific link modes added in commit 5711a98221443
+("net: ethtool: add support for 1000BaseX and missing 10G link modes").
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: http://lore.kernel.org/lkml/20211125071457.2066863-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-[Adrian: Backport to v5.15]
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested with MCX311A-XCAT connected via DAC.
+Before:
+
+% sudo ethtool enp3s0
+Settings for enp3s0:
+	Supported ports: [ FIBRE ]
+	Supported link modes:   1000baseKX/Full
+	                        10000baseKR/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: No
+	Supported FEC modes: Not reported
+	Advertised link modes:  1000baseKX/Full
+	                        10000baseKR/Full
+	Advertised pause frame use: Symmetric
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: 10000Mb/s
+	Duplex: Full
+	Auto-negotiation: off
+	Port: Direct Attach Copper
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: d
+	Wake-on: d
+        Current message level: 0x00000014 (20)
+                               link ifdown
+	Link detected: yes
+
+With this change:
+
+% sudo ethtool enp3s0
+	Settings for enp3s0:
+	Supported ports: [ FIBRE ]
+	Supported link modes:   1000baseX/Full
+	                        10000baseCR/Full
+ 	                        10000baseSR/Full
+	Supported pause frame use: Symmetric Receive-only
+	Supports auto-negotiation: No
+	Supported FEC modes: Not reported
+	Advertised link modes:  1000baseX/Full
+ 	                        10000baseCR/Full
+ 	                        10000baseSR/Full
+	Advertised pause frame use: Symmetric
+	Advertised auto-negotiation: No
+	Advertised FEC modes: Not reported
+	Speed: 10000Mb/s
+	Duplex: Full
+	Auto-negotiation: off
+	Port: Direct Attach Copper
+	PHYAD: 0
+	Transceiver: internal
+	Supports Wake-on: d
+	Wake-on: d
+        Current message level: 0x00000014 (20)
+                               link ifdown
+	Link detected: yes
+
+Tested-by: Michael Stapelberg <michael@stapelberg.ch>
+Signed-off-by: Erik Ekman <erik@kryo.se>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-inject.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/tools/perf/builtin-inject.c
-+++ b/tools/perf/builtin-inject.c
-@@ -819,7 +819,7 @@ static int __cmd_inject(struct perf_inje
- 		inject->tool.ordered_events = true;
- 		inject->tool.ordering_requires_timestamps = true;
- 		/* Allow space in the header for new attributes */
--		output_data_offset = 4096;
-+		output_data_offset = roundup(8192 + session->header.data_offset, 4096);
- 		if (inject->strip)
- 			strip_init(inject);
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+index 426786a349c3c..dd029d91bbc2d 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+@@ -663,7 +663,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
+ 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
+-				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
++				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
+ 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
+@@ -675,9 +675,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
+ 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
+-				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
++				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
+-				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
++				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
+ 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
+ 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
+ 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
+-- 
+2.33.0
+
 
 
