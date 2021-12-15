@@ -2,128 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EEC74750AA
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 03:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C021C4750E7
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 03:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239033AbhLOCC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 21:02:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
+        id S231443AbhLOCSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 21:18:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238990AbhLOCC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 21:02:29 -0500
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 018D5C061574
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:02:29 -0800 (PST)
-Received: by mail-pl1-x64a.google.com with SMTP id 4-20020a170902c20400b0014381f710d5so5902518pll.11
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:02:28 -0800 (PST)
+        with ESMTP id S233182AbhLOCR6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 21:17:58 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB19C06173F
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:17:57 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id mj19so1068271pjb.3
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:17:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=FlzDF6nhPiY5bpjYDzWkdMAw8xJHwqi+9SwOSC1TqQQ=;
-        b=gvMHn2DKFP4sGv3qDKGW4d2ABdFHAP/SO68b4r5vHIiBfLoa4fG1kxYAs24WArfRgr
-         ehh+TLuTJloXru2UugbSR72EScRJ3ItKrCKXURfbZzoA57/KeIl7J4m5QI7vEB+RFBhe
-         Vluw+vadg51IoXreaJdIZYwRUbnvj8rWBLCqlEA3EeuxVCX3J8jamznEeMnLo++wrsL4
-         GF4oDs8+gJfRVNYMBjGFyUreuJjqgaskIxzKIXC+wxRjdNzqgg6mRi2WHjDtGYAxLyX4
-         nLUxg0NIdC185huuAfb/rIQepW8Fl+Zao3Sa07BYYIzvvePtu32Pwa+M/U9sLfyY4Sh/
-         uBuA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rYK9jkU1DoxfVDM0/LFEOFIR7GRRhJB0hC7ZjcGI3XU=;
+        b=ZA/+hVIaz3PvAMIHrcBbz8IrS1AxXYogtzACnyMeq8Lp3Y7Gg/qXT8kh36+9JRm9i4
+         eg/f49JGpdyZf7sTAVIYZrJsgYhKLGuY9W5NqdIV48sJZcM4c8zC5m5sfkh8F3BSR7tQ
+         ast4TjSj7yPQDlpKgcZ335e/kAtCXGGvpdjgyC+BJ7epuOXW0IQk7GlARufeiQHEWLQr
+         H/hOIXI4IaVzh+1fOTxwDoH5uX7uxt93FYmBCabw2utup/nSbPpkRrIVQq+ZQKdBwf9J
+         7RRdSau2cdEopYfmey7IYVhToxWZfaCdhRADO+x5z9XJCtymZR2qAsCrvGev7GZ7GG1m
+         4BPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=FlzDF6nhPiY5bpjYDzWkdMAw8xJHwqi+9SwOSC1TqQQ=;
-        b=RttxVjFMcaoon3Dr1bKkiE7iFTCRPvPP4CwUYyvK2ofWv6q24hOwomODJXmejBSYwx
-         1627vdRNJGw4IeMoJcPy/VoUmZtELkXwLR38Y3F+ExDQ/TbQ5sYavM4YTfDUTSXtII9c
-         8JkI5MHXOjcxutAq7hoZCL2QmlLcPpRY2sVFcrU4wjPHE0whuvcYImeCXf9HZ4ObPuDx
-         7B4m5c2mF4zG/ccPNb73Wody3+tSxHNkp+U51uZ0zrZfDn5Ju0NfIb/i+l1XpxI70VWp
-         Gq2vDCU94S5IsL9ZsUu2YPckgI2j5mlelupZ4sdGGuTl+v9wwsWXVsrDkSTBePNbybiA
-         JlFQ==
-X-Gm-Message-State: AOAM530DND1dARkW7cusEQzdLBcjJD+5SXAd4jpp/Bzw9td88M8YMr6Q
-        w01TPiNSHe0fDhs9n3W1l9VVYQfDX+mwZlz4DHx44may/eNiutyQPSok6G2dklJ9EEVQDGcLtWQ
-        qwu41IvrT5pqWnqpZSFV5mwHTVUIsPZcGG9R3R+45qEHc5Dz1all0mPlTQ4DX1v7h
-X-Google-Smtp-Source: ABdhPJzw9oJGnCP36DXfaVtGwaxqRjknFat5Dl4UPiWUHAHc6VZnWQeQ5cKUn5t8IQWa3xkMDDZe6WaKeJjN
-X-Received: from connoro.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:a99])
- (user=connoro job=sendgmr) by 2002:aa7:9d1e:0:b0:494:6dec:6425 with SMTP id
- k30-20020aa79d1e000000b004946dec6425mr6906711pfp.83.1639533748295; Tue, 14
- Dec 2021 18:02:28 -0800 (PST)
-Date:   Wed, 15 Dec 2021 02:01:39 +0000
-Message-Id: <20211215020139.126521-1-connoro@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.34.1.173.g76aa8bc2d0-goog
-Subject: [PATCH] bpf: Fix integer overflow in argument calculation for bpf_map_area_alloc
-From:   "Connor O'Brien" <connoro@google.com>
-To:     stable@vger.kernel.org
-Cc:     Bui Quang Minh <minhquangbui99@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "Connor O'Brien" <connoro@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rYK9jkU1DoxfVDM0/LFEOFIR7GRRhJB0hC7ZjcGI3XU=;
+        b=jUuYBSQ0ATbOIOJ7T3Oc+/gsbIKxcon+2pmjLhtQBwJBO+oamvAaTBI4RdiJwuF0rY
+         sv/LOb5imriSHMsWwC17zNo+5baI94Q78Gv9ehpNjP4zsDRKx5ZXGWVNL9UQkoJ9MI7U
+         MdMLxVzionV+WTHJjkFzoB4aPFSVMX1OHHPJX8836MpMS8SaJ18GqRpDf7gofNdgAz4k
+         vzdtDkE4dxbuPYEg7TZWWKLiWjfgLQYofgoR6q5Ub7gdaYILEmkJ7lUiJlT6JOX8/YIg
+         gnjgosPo1jWp+6TK8xF8m27ojzDNbmoIor7t/p8moDqzEE7AObYbJTi5mSDvz9s41MUD
+         wT7w==
+X-Gm-Message-State: AOAM531nV4BJGeTZVEzwzT9byIVyWHJq8shXqWPRR2qGv5xROOer5vvq
+        km/xb7BmVRggxHRQNwmk3uVqIAHoNO0E9Mds
+X-Google-Smtp-Source: ABdhPJxs3haHhztx7A7lGfp9dwFYmHS1zvEr9WxBMZJ8EemFcjhnxHqIERhyKI/VFowN/gTmEsmiSA==
+X-Received: by 2002:a17:902:860b:b0:143:87bf:648f with SMTP id f11-20020a170902860b00b0014387bf648fmr8832767plo.11.1639534677159;
+        Tue, 14 Dec 2021 18:17:57 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b15sm380515pfl.118.2021.12.14.18.17.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Dec 2021 18:17:56 -0800 (PST)
+Message-ID: <61b95054.1c69fb81.cb106.1e39@mx.google.com>
+Date:   Tue, 14 Dec 2021 18:17:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.293
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y baseline: 87 runs, 2 regressions (v4.9.293)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bui Quang Minh <minhquangbui99@gmail.com>
+stable-rc/linux-4.9.y baseline: 87 runs, 2 regressions (v4.9.293)
 
-commit 7dd5d437c258bbf4cc15b35229e5208b87b8b4e0 upstream.
+Regressions Summary
+-------------------
 
-In 32-bit architecture, the result of sizeof() is a 32-bit integer so
-the expression becomes the multiplication between 2 32-bit integer which
-can potentially leads to integer overflow. As a result,
-bpf_map_area_alloc() allocates less memory than needed.
+platform                 | arch   | lab           | compiler | defconfig   =
+        | regressions
+-------------------------+--------+---------------+----------+-------------=
+--------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig    | 1          =
 
-Fix this by casting 1 operand to u64.
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig | 1          =
 
-Fixes: 0d2c4f964050 ("bpf: Eliminate rlimit-based memory accounting for sockmap and sockhash maps")
-Fixes: 99c51064fb06 ("devmap: Use bpf_map_area_alloc() for allocating hash buckets")
-Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210613143440.71975-1-minhquangbui99@gmail.com
-Signed-off-by: Connor O'Brien <connoro@google.com>
----
-Hello,
 
-This is for the 5.4 and 5.10 kernels.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.293/plan/baseline/
 
-Thanks,
-Connor
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.293
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      98d396d082d499d85ea373e3f8d6e7906c232cda =
 
- kernel/bpf/devmap.c | 4 ++--
- net/core/sock_map.c | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
-index 6684696fa457..4b2819b0a05a 100644
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -94,7 +94,7 @@ static struct hlist_head *dev_map_create_hash(unsigned int entries,
- 	int i;
- 	struct hlist_head *hash;
- 
--	hash = bpf_map_area_alloc(entries * sizeof(*hash), numa_node);
-+	hash = bpf_map_area_alloc((u64) entries * sizeof(*hash), numa_node);
- 	if (hash != NULL)
- 		for (i = 0; i < entries; i++)
- 			INIT_HLIST_HEAD(&hash[i]);
-@@ -159,7 +159,7 @@ static int dev_map_init_map(struct bpf_dtab *dtab, union bpf_attr *attr)
- 
- 		spin_lock_init(&dtab->index_lock);
- 	} else {
--		dtab->netdev_map = bpf_map_area_alloc(dtab->map.max_entries *
-+		dtab->netdev_map = bpf_map_area_alloc((u64) dtab->map.max_entries *
- 						      sizeof(struct bpf_dtab_netdev *),
- 						      dtab->map.numa_node);
- 		if (!dtab->netdev_map)
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index df52061f99f7..2646e8f98f67 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -48,7 +48,7 @@ static struct bpf_map *sock_map_alloc(union bpf_attr *attr)
- 	if (err)
- 		goto free_stab;
- 
--	stab->sks = bpf_map_area_alloc(stab->map.max_entries *
-+	stab->sks = bpf_map_area_alloc((u64) stab->map.max_entries *
- 				       sizeof(struct sock *),
- 				       stab->map.numa_node);
- 	if (stab->sks)
--- 
-2.34.1.173.g76aa8bc2d0-goog
 
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+        | regressions
+-------------------------+--------+---------------+----------+-------------=
+--------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b916405758464b53397126
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.293=
+/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnowboard-turbot-E=
+3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.293=
+/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnowboard-turbot-E=
+3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61b916405758464b53397=
+127
+        new failure (last pass: v4.9.291-63-gb14dcd4dade2) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+        | regressions
+-------------------------+--------+---------------+----------+-------------=
+--------+------------
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61b9157961cf57aeab397174
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.293=
+/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.293=
+/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61b9157961cf57a=
+eab397177
+        failing since 1 day (last pass: v4.9.292-29-gdefac0f99886, first fa=
+il: v4.9.292-43-gad074ba3bae9)
+        2 lines
+
+    2021-12-14T22:06:22.402601  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/130
+    2021-12-14T22:06:22.412038  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-12-14T22:06:22.427726  [   20.483978] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
