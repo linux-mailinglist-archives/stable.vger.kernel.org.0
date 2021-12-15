@@ -2,127 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54ED2475552
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 10:39:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 176124755C2
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 11:05:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241246AbhLOJjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 04:39:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39546 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241235AbhLOJjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 04:39:07 -0500
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144C3C06173E
-        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 01:39:07 -0800 (PST)
-Received: by mail-pf1-x434.google.com with SMTP id g18so20208426pfk.5
-        for <stable@vger.kernel.org>; Wed, 15 Dec 2021 01:39:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=eRAr2IM5FVzkugu59H7/gTWM4xo2FVMW3rmSCTTJJ4Q=;
-        b=eT+kQXwmJJPl5RkAOqDmOOxx6rArRIDzTgs4FYdENWDqEyBZWJgNcKJcLvUbwUHXht
-         0mF8HqR4hyqgMBFECBXuDTVV5XXgG2PdBEuaTPPr7ruOmpXjs801T2Gd9NghqzIwFE/0
-         RCnwqKoVP1thWYtocVvfe5Czyfq4PgSF9hAPvd3rSrExkLrbY4JVdQmu1VtrWkNgtkID
-         qebOYyDwNWpGQLJrTNsGWcObljA0bmCizM4p8Cw9ivjNZI+xj/6ybqIkustR50CaZ0eI
-         HYxHTD65EfJeUqQjvoeE1C+5e1gNliKZPm9+Vm3EkTC6fYtvMCEL1Ex5RoscGO11OkJ4
-         4rnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=eRAr2IM5FVzkugu59H7/gTWM4xo2FVMW3rmSCTTJJ4Q=;
-        b=NqBmjlU6XCe3RiRnWWb3MRe5SGRvAUwPBzqr2fzTdgnNQgLPR/gxFR0cIiImvX7Tee
-         ag4BvJv2x43uw1jdrN0daWb6UrSRRuHbY127dktQ32ME2fZ0JkGtav8/zJZJ1Mi4k78i
-         JTWqbeYd1swTW0f4dj8MYki1N1DlNaU+r+KBaLLSm252vgz1e7lzBojZyIfaPD37O0xt
-         +CUPrxya78TGy82enivRbNIMZm8+xEl5ScTpwuYDI6oCfign/sYMENOj1owdIAn0Aavn
-         G0stbnpDU8mICfljDdcZFOxbNQi1xyAlyi8lbAw5HD+rMdjwt0pmtGDVKTIHdFQL6JYk
-         EIeQ==
-X-Gm-Message-State: AOAM531qKyzA0EePd+kG/Sj5O23m4eE4nUDAvLsZp5ABN4d1eMc2JPPI
-        TxU7KmjwiC0/FTMNGtD+H51+eXVh5wWAPiat
-X-Google-Smtp-Source: ABdhPJwc9ur1m+BO2NJ1AwTjpzfxGbFDro9dnVq1/GNuZDyQlXIxhTbmNnuTVow18XhiWXxtNA3Q9A==
-X-Received: by 2002:a62:8fcc:0:b0:4a2:5a1f:6752 with SMTP id n195-20020a628fcc000000b004a25a1f6752mr8166150pfd.77.1639561146489;
-        Wed, 15 Dec 2021 01:39:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o124sm1840117pfb.177.2021.12.15.01.39.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Dec 2021 01:39:06 -0800 (PST)
-Message-ID: <61b9b7ba.1c69fb81.8d5a9.503f@mx.google.com>
-Date:   Wed, 15 Dec 2021 01:39:06 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S233805AbhLOKFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 05:05:14 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:35514 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233723AbhLOKFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 05:05:13 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 5955F1F382;
+        Wed, 15 Dec 2021 10:05:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1639562712; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=OAAzviErppZGCS8tC7thMjgNf1ikMh2wNe6PPnH5tIU=;
+        b=SW29Usn8ahZEdr7Pb16D31fYyr1zZk8aBIHkD0IBgfvQzyaBgkRoevLfMJtjnzX7iPndpT
+        8nz8VGl+BHZ7DnHWAevRMiWvK1KzHeQ3nHVQ0znoGVvQe37MyP7VSKKXkpWpIW7yNnMADz
+        cmSOJsFpE0E6dvbI2lf9sIDFv2UtZWo=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 21AF9A3B83;
+        Wed, 15 Dec 2021 10:05:12 +0000 (UTC)
+Date:   Wed, 15 Dec 2021 11:05:11 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Dennis Zhou <dennis@kernel.org>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        "cl@linux.com" <cl@linux.com>,
+        "mm-commits@vger.kernel.org" <mm-commits@vger.kernel.org>,
+        "osalvador@suse.de" <osalvador@suse.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "tj@kernel.org" <tj@kernel.org>
+Subject: Re: + mm-fix-panic-in-__alloc_pages.patch added to -mm tree
+Message-ID: <Ybm91+/z8hKuiHYr@dhcp22.suse.cz>
+References: <af7ab3ce-fed2-1ffc-13a8-f9acbd201841@redhat.com>
+ <YYpTy9eXZucxuRO/@dhcp22.suse.cz>
+ <YY6wZMcx/BeddUnH@fedora>
+ <YZI5TEW2BkBjOtC1@dhcp22.suse.cz>
+ <B8B7E3FA-6EAB-46B7-95EB-5A31395C8ADE@vmware.com>
+ <YZJZes9Gz9fe7bCC@dhcp22.suse.cz>
+ <ABEDED57-93A9-4601-8EB6-2FF348A0E0BB@vmware.com>
+ <YZMq++inSmJegJmj@fedora>
+ <Ybht6kqwI0aPx3Jr@dhcp22.suse.cz>
+ <20211214125748.974a400f0b05a633f9b971b7@linux-foundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.221-8-g9f411771d292
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 131 runs,
- 1 regressions (v4.19.221-8-g9f411771d292)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211214125748.974a400f0b05a633f9b971b7@linux-foundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 131 runs, 1 regressions (v4.19.221-8-g9f4117=
-71d292)
+On Tue 14-12-21 12:57:48, Andrew Morton wrote:
+> On Tue, 14 Dec 2021 11:11:54 +0100 Michal Hocko <mhocko@suse.com> wrote:
+> 
+> > > I need some clarification here. It sounds like memoryless nodes work on
+> > > x86, but hotplug + memoryless nodes isn't a supported use case or you're
+> > > introducing it as a new use case?
+> > > 
+> > > If this is a new use case, then I'm inclined to say this patch should
+> > > NOT go in and a proper fix should be implemented on hotplug's side. I
+> > > don't want to be in the business of having/seeing this conversation
+> > > reoccur because we just papered over this issue in percpu.
+> > 
+> > The patch still seems to be in the mmotm tree. I have sent a different
+> > fix candidate [1] which should be more robust and cover also other potential
+> > places.
+> > 
+> > [1] http://lkml.kernel.org/r/20211214100732.26335-1-mhocko@kernel.org
+> 
+> Is cool, I'm paying attention.
+> 
+> We do want something short and simple for backporting to -stable (like
+> Alexey's patch) so please bear that in mind while preparing an
+> alternative.
 
-Regressions Summary
--------------------
+I think we want something that fixes the underlying problem. Please keep
+in mind that the pcp allocation is not the only place to hit the issue.
+We have more. I do not want we want to handle each and every one
+separately.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-     | regressions
--------------------------+--------+---------------+----------+-------------=
------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig | 1          =
+I am definitly not going to push for my solution but if there is a
+consensus this is the right approach then I do not think we really want
+to implement these partial workarounds.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.221-8-g9f411771d292/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.221-8-g9f411771d292
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9f411771d2924dfabe1071cc23e0d13d69ee8fb3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-     | regressions
--------------------------+--------+---------------+----------+-------------=
------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b97e0c3ada43462b397144
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.221=
--8-g9f411771d292/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minn=
-owboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.221=
--8-g9f411771d292/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minn=
-owboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b97e0c3ada43462b397=
-145
-        new failure (last pass: v4.19.220-73-g3a5a4233740e) =
-
- =20
+-- 
+Michal Hocko
+SUSE Labs
