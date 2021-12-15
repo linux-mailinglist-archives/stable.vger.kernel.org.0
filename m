@@ -2,89 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0974475A38
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 15:02:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A939C475ACE
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 15:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243123AbhLOOCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 09:02:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40384 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243122AbhLOOCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 09:02:21 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S242239AbhLOOmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 09:42:38 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52781 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243427AbhLOOmi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 09:42:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639579357;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=DRVbhue+YBe2AzpJnQbC+hJztV++FER/EJMMHEHF/mE=;
+        b=MKNsWdFhVc8rZrbywSKwovKLCFcoETE408NrKmHGHqrEUB5CBLVe72wLtjlTSnUZvnPWeE
+        LOLr1ppTcI2k50z9sharK/TgTAAOYNC7BW4ayrWylbNZ8SBEc6w4PiRswvBur9lW+qbTo3
+        T+GtGKbIhlOOn0B3a79bmNSZasCzArM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-396-A5H6TXp3OLCkFI-8D18BaA-1; Wed, 15 Dec 2021 09:42:35 -0500
+X-MC-Unique: A5H6TXp3OLCkFI-8D18BaA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFBDE618FB;
-        Wed, 15 Dec 2021 14:02:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B76C34604;
-        Wed, 15 Dec 2021 14:02:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639576940;
-        bh=gjJDfN4/cwB6Q6D83aEK1EKtI3r4pBKQK7vK6fns9kk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PoOscxMO+sVvikJP4LXu4/0jpqIWAE5DP2d35uAR1yZrRBvK/Cffyq+NujzUeKLfQ
-         ifPtaJrL/6qTapFVRUrwgO8eVYHrMWwa/rL9vD2/vZqdvtzx9xyAOzSN6+UIKpnjLo
-         Rr3MxilQmtuxcjhBr17n4CJ/roYV70fmX783KWnE=
-Date:   Wed, 15 Dec 2021 15:02:17 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Cc:     stable@vger.kernel.org, rppt@kernel.org, akpm@linux-foundation.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux@armlinux.org.uk, rppt@linux.ibm.com,
-        tony@atomide.com, wangkefeng.wang@huawei.com,
-        yj.chiang@mediatek.com
-Subject: Re: [PATCH 5.4 0/5] memblock, arm: fixes for freeing of the memory
- map
-Message-ID: <Ybn1aSo/pMq2tMPm@kroah.com>
-References: <20211213085710.28962-1-mark-pk.tsai@mediatek.com>
- <YbcNXBj+FIwuQd/8@kroah.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A5DA31927830;
+        Wed, 15 Dec 2021 14:42:33 +0000 (UTC)
+Received: from localhost (ovpn-12-120.pek2.redhat.com [10.72.12.120])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 759A370D58;
+        Wed, 15 Dec 2021 14:42:31 +0000 (UTC)
+Date:   Wed, 15 Dec 2021 22:42:28 +0800
+From:   Baoquan He <bhe@redhat.com>
+To:     Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Cc:     Vlastimil Babka <vbabka@suse.cz>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, akpm@linux-foundation.org, hch@lst.de,
+        cl@linux.com, John.p.donnelly@oracle.com,
+        kexec@lists.infradead.org, stable@vger.kernel.org,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Subject: Re: [PATCH v3 5/5] mm/slub: do not create dma-kmalloc if no managed
+ pages in DMA zone
+Message-ID: <20211215144228.GF10336@MiWiFi-R3L-srv>
+References: <20211213122712.23805-1-bhe@redhat.com>
+ <20211213122712.23805-6-bhe@redhat.com>
+ <20211213134319.GA997240@odroid>
+ <20211214053253.GB2216@MiWiFi-R3L-srv>
+ <f5ff82eb-73b6-55b5-53d7-04ab73ce5035@suse.cz>
+ <20211215044818.GB1097530@odroid>
+ <20211215070335.GA1165926@odroid>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YbcNXBj+FIwuQd/8@kroah.com>
+In-Reply-To: <20211215070335.GA1165926@odroid>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 13, 2021 at 10:07:40AM +0100, Greg KH wrote:
-> On Mon, Dec 13, 2021 at 04:57:05PM +0800, Mark-PK Tsai wrote:
-> > When linux memory is not aligned with page block size and have hole in zone,
-> > the 5.4-lts arm kernel might crash in move_freepages() as Kefen Wang reported in [1].
-> > Backport the upstream fix commits by Mike Rapoport [2] to 5.4 can fix this issue.
+On 12/15/21 at 07:03am, Hyeonggon Yoo wrote:
+> On Wed, Dec 15, 2021 at 04:48:26AM +0000, Hyeonggon Yoo wrote:
 > > 
-> > And free_unused_memmap() of arm and arm64 are moved to generic mm/memblock in
-> > the below upstream commit, so I applied the first two patches to free_unused_memmap()
-> > in arch/arm/mm/init.c.
+> > Hello Baoquan and Vlastimil.
 > > 
-> > (4f5b0c178996 arm, arm64: move free_unused_memmap() to generic mm)
+> > I'm not sure allowing ZONE_DMA32 for kdump kernel is nice way to solve
+> > this problem. Devices that requires ZONE_DMA is rare but we still
+> > support them.
 > > 
-> > [1] https://lore.kernel.org/lkml/2a1592ad-bc9d-4664-fd19-f7448a37edc0@huawei.com/
-> > [2] https://lore.kernel.org/lkml/20210630071211.21011-1-rppt@kernel.org/#t
-> > 
-> > Mike Rapoport (5):
-> >   memblock: free_unused_memmap: use pageblock units instead of MAX_ORDER
-> >   memblock: align freed memory map on pageblock boundaries with
-> >     SPARSEMEM
-> >   memblock: ensure there is no overflow in memblock_overlaps_region()
-> >   arm: extend pfn_valid to take into account freed memory map alignment
-> >   arm: ioremap: don't abuse pfn_valid() to check if pfn is in RAM
-> > 
-> >  arch/arm/mm/init.c    | 37 +++++++++++++++++++++++++------------
-> >  arch/arm/mm/ioremap.c |  4 +++-
-> >  mm/memblock.c         |  3 ++-
-> >  3 files changed, 30 insertions(+), 14 deletions(-)
-> > 
-> > -- 
-> > 2.18.0
+> > If we allow ZONE_DMA32 for ZONE_DMA in kdump kernels,
+> > the problem will be hard to find.
 > > 
 > 
-> These look like they also are required in 5.10.y as well, right?  Please
-> also provide a backported series for that tree, we can not have users
-> moving to a newer kernel version and having regressions.
+> Sorry, I sometimes forget validating my english writing :(
 > 
-> I can't take this series until then, sorry.
+> What I meant:
+> 
+> I'm not sure that allocating from ZONE_DMA32 instead of ZONE_DMA
+> for kdump kernel is nice way to solve this problem.
 
-Ah, now I see your 5.10 series, thanks.  I'll go queue both of these
-series up now, thanks for the backports.
+Yeah, if it's really <32bit addressing limit on device, it doesn't solve
+problem. Not sure if devices really has the limitation when
+kmalloc(GFP_DMA) is invoked kernel driver.
 
-greg k-h
+> 
+> Devices that requires ZONE_DMA memory is rare but we still support them.
+> 
+> If we use ZONE_DMA32 memory instead of ZONE_DMA in kdump kernels,
+> It will be hard to the problem when we use devices that can use only
+> ZONE_DMA memory.
+> 
+> > What about one of those?:
+> > 
+> >     1) Do not call warn_alloc in page allocator if will always fail
+> >     to allocate ZONE_DMA pages.
+> > 
+
+Seems we can do like below.
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 7c7a0b5de2ff..843bc8e5550a 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4204,7 +4204,8 @@ void warn_alloc(gfp_t gfp_mask, nodemask_t *nodemask, const char *fmt, ...)
+ 	va_list args;
+ 	static DEFINE_RATELIMIT_STATE(nopage_rs, 10*HZ, 1);
+ 
+-	if ((gfp_mask & __GFP_NOWARN) || !__ratelimit(&nopage_rs))
++	if ((gfp_mask & __GFP_NOWARN) || !__ratelimit(&nopage_rs) ||
++		(gfp_mask & __GFP_DMA) && !has_managed_dma())
+ 		return;
+ 
+> > 
+> >     2) let's check all callers of kmalloc with GFP_DMA
+> >     if they really need GFP_DMA flag and replace those by DMA API or
+> >     just remove GFP_DMA from kmalloc()
+
+I grepped and got a list, I will try to start with several easy place,
+see if we can do something to improve.
+start with.
+
+
+> > 
+> >     3) Drop support for allocating DMA memory from slab allocator
+> >     (as Christoph Hellwig said) and convert them to use DMA32
+> 
+> 	(as Christoph Hellwig said) and convert them to use *DMA API*
+
+Yes, that will be ideal result. This is equivalent to 2), or depends
+on 2).
+
+> 
+> >     and see what happens
+> > 
+> > Thanks,
+> > Hyeonggon.
+> > 
+> > > >> 
+> > > >> Maybe the function get_capabilities() want to allocate memory
+> > > >> even if it's not from DMA zone, but other callers will not expect that.
+> > > > 
+> > > > Yeah, I have the same guess too for get_capabilities(), not sure about other
+> > > > callers. Or, as ChristophL and ChristophH said(Sorry, not sure if this is
+> > > > the right way to call people when the first name is the same. Correct me if
+> > > > it's wrong), any buffer requested from kmalloc can be used by device driver.
+> > > > Means device enforces getting memory inside addressing limit for those
+> > > > DMA transferring buffer which is usually large, Megabytes level with
+> > > > vmalloc() or alloc_pages(), but doesn't care about this kind of small
+> > > > piece buffer memory allocated with kmalloc()? Just a guess, please tell
+> > > > a counter example if anyone happens to know, it could be easy.
+> > > > 
+> > > > 
+> > > >> 
+> > > >> >  			kmalloc_caches[KMALLOC_DMA][i] = create_kmalloc_cache(
+> > > >> >  				kmalloc_info[i].name[KMALLOC_DMA],
+> > > >> >  				kmalloc_info[i].size,
+> > > >> > -- 
+> > > >> > 2.17.2
+> > > >> > 
+> > > >> > 
+> > > >> 
+> > > > 
+> > > 
+> 
+
