@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 826C0475EB5
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E07475EE0
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245549AbhLORYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:24:11 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44428 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245455AbhLORXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:44 -0500
+        id S245603AbhLORZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35308 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245712AbhLORYc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B193C061751;
+        Wed, 15 Dec 2021 09:24:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67A9C619EC;
-        Wed, 15 Dec 2021 17:23:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54742C36AE0;
-        Wed, 15 Dec 2021 17:23:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC56861A02;
+        Wed, 15 Dec 2021 17:24:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF8BCC36AE2;
+        Wed, 15 Dec 2021 17:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589023;
-        bh=HnjnTL4zZHHQ+VFoto04Ih9muIhb+ppyDumSyy/kres=;
+        s=korg; t=1639589071;
+        bh=Sa+KGCq2/sHFHnova0dYBBp7RPzJf/V7LKGoUhjeFd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pOrurqZSCiXR1q5zeP57/TK4Z5VYCr0PJFrKpE0cVEbo4pisVSYUrF4UucAqs1dkE
-         Foh1yahbndh9/ojkH1hr///ex0kxo7dtO919WC8tZE6ZcYeA4pyQOmA4PWk4BVaZtE
-         hqXC1/egMzx/bi/kUlgSTkS+qYpTZVTxjZ3fqq/4=
+        b=MFTLggvC5mpzW+PsQIEEPZjKToox7cldtK8sEeE2a4QsQuyyGIMO4ABX9MVq777eM
+         mnT4twv57MsZEeiG3YZ355LfhRm6+XIp8XCO/0cf2uG3PNNTDLsdHF8CQZ74OCFru9
+         oo02qULKv6zSgytD8hfHNwErnv1hdVLA30A5UxyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 18/42] i2c: virtio: fix completion handling
-Date:   Wed, 15 Dec 2021 18:20:59 +0100
-Message-Id: <20211215172027.281185877@linuxfoundation.org>
+        stable@vger.kernel.org, Philip Chen <philipchen@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 02/33] drm/msm/dsi: set default num_data_lanes
+Date:   Wed, 15 Dec 2021 18:21:00 +0100
+Message-Id: <20211215172024.869997288@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
-References: <20211215172026.641863587@linuxfoundation.org>
+In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
+References: <20211215172024.787958154@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,154 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Philip Chen <philipchen@chromium.org>
 
-[ Upstream commit b503de239f62eca898cfb7e820d9a35499137d22 ]
+[ Upstream commit cd92cc187c053ab010a1570e2d61d68394a5c725 ]
 
-The driver currently assumes that the notify callback is only received
-when the device is done with all the queued buffers.
+If "data_lanes" property of the dsi output endpoint is missing in
+the DT, num_data_lanes would be 0 by default, which could cause
+dsi_host_attach() to fail if dsi->lanes is set to a non-zero value
+by the bridge driver.
 
-However, this is not true, since the notify callback could be called
-without any of the queued buffers being completed (for example, with
-virtio-pci and shared interrupts) or with only some of the buffers being
-completed (since the driver makes them available to the device in
-multiple separate virtqueue_add_sgs() calls).
+According to the binding document of msm dsi controller, the
+input/output endpoint of the controller is expected to have 4 lanes.
+So let's set num_data_lanes to 4 by default.
 
-This can lead to incorrect data on the I2C bus or memory corruption in
-the guest if the device operates on buffers which are have been freed by
-the driver.  (The WARN_ON in the driver is also triggered.)
-
- BUG kmalloc-128 (Tainted: G        W        ): Poison overwritten
- First byte 0x0 instead of 0x6b
- Allocated in i2cdev_ioctl_rdwr+0x9d/0x1de age=243 cpu=0 pid=28
- 	memdup_user+0x2e/0xbd
- 	i2cdev_ioctl_rdwr+0x9d/0x1de
- 	i2cdev_ioctl+0x247/0x2ed
- 	vfs_ioctl+0x21/0x30
- 	sys_ioctl+0xb18/0xb41
- Freed in i2cdev_ioctl_rdwr+0x1bb/0x1de age=68 cpu=0 pid=28
- 	kfree+0x1bd/0x1cc
- 	i2cdev_ioctl_rdwr+0x1bb/0x1de
- 	i2cdev_ioctl+0x247/0x2ed
- 	vfs_ioctl+0x21/0x30
- 	sys_ioctl+0xb18/0xb41
-
-Fix this by calling virtio_get_buf() from the notify handler like other
-virtio drivers and by actually waiting for all the buffers to be
-completed.
-
-Fixes: 3cfc88380413d20f ("i2c: virtio: add a virtio i2c frontend driver")
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Philip Chen <philipchen@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20211030100812.1.I6cd9af36b723fed277d34539d3b2ba4ca233ad2d@changeid
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-virtio.c | 32 ++++++++++++--------------------
- 1 file changed, 12 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index 7b2474e6876f4..5cb21d7da05b6 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -22,24 +22,24 @@
- /**
-  * struct virtio_i2c - virtio I2C data
-  * @vdev: virtio device for this controller
-- * @completion: completion of virtio I2C message
-  * @adap: I2C adapter for this controller
-  * @vq: the virtio virtqueue for communication
-  */
- struct virtio_i2c {
- 	struct virtio_device *vdev;
--	struct completion completion;
- 	struct i2c_adapter adap;
- 	struct virtqueue *vq;
- };
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 96b5dcf8e4540..64454a63bbacf 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1692,6 +1692,8 @@ static int dsi_host_parse_lane_data(struct msm_dsi_host *msm_host,
+ 	if (!prop) {
+ 		DRM_DEV_DEBUG(dev,
+ 			"failed to find data lane mapping, using default\n");
++		/* Set the number of date lanes to 4 by default. */
++		msm_host->num_data_lanes = 4;
+ 		return 0;
+ 	}
  
- /**
-  * struct virtio_i2c_req - the virtio I2C request structure
-+ * @completion: completion of virtio I2C message
-  * @out_hdr: the OUT header of the virtio I2C message
-  * @buf: the buffer into which data is read, or from which it's written
-  * @in_hdr: the IN header of the virtio I2C message
-  */
- struct virtio_i2c_req {
-+	struct completion completion;
- 	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
- 	uint8_t *buf				____cacheline_aligned;
- 	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
-@@ -47,9 +47,11 @@ struct virtio_i2c_req {
- 
- static void virtio_i2c_msg_done(struct virtqueue *vq)
- {
--	struct virtio_i2c *vi = vq->vdev->priv;
-+	struct virtio_i2c_req *req;
-+	unsigned int len;
- 
--	complete(&vi->completion);
-+	while ((req = virtqueue_get_buf(vq, &len)))
-+		complete(&req->completion);
- }
- 
- static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
-@@ -62,6 +64,8 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
- 	for (i = 0; i < num; i++) {
- 		int outcnt = 0, incnt = 0;
- 
-+		init_completion(&reqs[i].completion);
-+
- 		/*
- 		 * We don't support 0 length messages and so filter out
- 		 * 0 length transfers by using i2c_adapter_quirks.
-@@ -108,21 +112,15 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
- 				    struct virtio_i2c_req *reqs,
- 				    struct i2c_msg *msgs, int num)
- {
--	struct virtio_i2c_req *req;
- 	bool failed = false;
--	unsigned int len;
- 	int i, j = 0;
- 
- 	for (i = 0; i < num; i++) {
--		/* Detach the ith request from the vq */
--		req = virtqueue_get_buf(vq, &len);
-+		struct virtio_i2c_req *req = &reqs[i];
- 
--		/*
--		 * Condition req == &reqs[i] should always meet since we have
--		 * total num requests in the vq. reqs[i] can never be NULL here.
--		 */
--		if (!failed && (WARN_ON(req != &reqs[i]) ||
--				req->in_hdr.status != VIRTIO_I2C_MSG_OK))
-+		wait_for_completion(&req->completion);
-+
-+		if (!failed && req->in_hdr.status != VIRTIO_I2C_MSG_OK)
- 			failed = true;
- 
- 		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
-@@ -158,12 +156,8 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	 * remote here to clear the virtqueue, so we can try another set of
- 	 * messages later on.
- 	 */
--
--	reinit_completion(&vi->completion);
- 	virtqueue_kick(vq);
- 
--	wait_for_completion(&vi->completion);
--
- 	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
- 
- err_free:
-@@ -211,8 +205,6 @@ static int virtio_i2c_probe(struct virtio_device *vdev)
- 	vdev->priv = vi;
- 	vi->vdev = vdev;
- 
--	init_completion(&vi->completion);
--
- 	ret = virtio_i2c_setup_vqs(vi);
- 	if (ret)
- 		return ret;
 -- 
 2.33.0
 
