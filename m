@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A8B7475F07
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59EBD475F42
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:32:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343665AbhLOR0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:26:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343672AbhLORZV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:25:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83CEEC0698C5;
-        Wed, 15 Dec 2021 09:25:15 -0800 (PST)
+        id S231486AbhLOR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:29:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43074 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235573AbhLOR0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44795B8202B;
-        Wed, 15 Dec 2021 17:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E170C36AE2;
-        Wed, 15 Dec 2021 17:25:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A84F8B81F1C;
+        Wed, 15 Dec 2021 17:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFAA2C36AE4;
+        Wed, 15 Dec 2021 17:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589113;
-        bh=lY58zCJaNfQ3ES7Jy6v+wdk9jJ5VOZ+EsXN8Z4hsOnI=;
+        s=korg; t=1639589163;
+        bh=uQ71ymvsLObC1MxyD5OYIQF7b6+fPeug+XJ63B3dg4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TxnIxxnx8M7iNxsSlOjTEw9CgoZ6qEG8VUS4VUJZwTQ/4sIFm3no9AdN3utN3I9I
-         P+gCozabEokRBd3FEt/8Qjx9T5zVyE06INyC92mIUxkFLArOhaMwKDFNP2+Y0/inC2
-         OR2sDVv1yJXsztA/83BsPjgaIzGQ47Ia4VD/uC5c=
+        b=kd+MZnWuNHVGIROWsBDkxogzgG6e+g3q2z2a1KGbTSrSI3ofe2aRONrJ6mepLgD9X
+         83/TymGZk2jsnFrNXyuWske0mZuh1U9gc1FCN65bHrZsJJD7pobfdTdsZIdMuoiw4m
+         RGNJrPO27fUXvfWhkvz1p/25tznJy9Q9hUlcTe1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 24/33] perf intel-pt: Fix intel_pt_fup_event() assumptions about setting state type
+        stable@vger.kernel.org,
+        syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 01/18] nfc: fix segfault in nfc_genl_dump_devices_done
 Date:   Wed, 15 Dec 2021 18:21:22 +0100
-Message-Id: <20211215172025.599224706@linuxfoundation.org>
+Message-Id: <20211215172022.845618851@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
+References: <20211215172022.795825673@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,106 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-commit 4c761d805bb2d2ead1b9baaba75496152b394c80 upstream.
+commit fd79a0cbf0b2e34bcc45b13acf962e2032a82203 upstream.
 
-intel_pt_fup_event() assumes it can overwrite the state type if there has
-been an FUP event, but this is an unnecessary and unexpected constraint on
-callers.
+When kmalloc in nfc_genl_dump_devices() fails then
+nfc_genl_dump_devices_done() segfaults as below
 
-Fix by touching only the state type flags that are affected by an FUP
-event.
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 25 Comm: kworker/0:1 Not tainted 5.16.0-rc4-01180-g2a987e65025e-dirty #5
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
+Workqueue: events netlink_sock_destruct_work
+RIP: 0010:klist_iter_exit+0x26/0x80
+Call Trace:
+<TASK>
+class_dev_iter_exit+0x15/0x20
+nfc_genl_dump_devices_done+0x3b/0x50
+genl_lock_done+0x84/0xd0
+netlink_sock_destruct+0x8f/0x270
+__sk_destruct+0x64/0x3b0
+sk_destruct+0xa8/0xd0
+__sk_free+0x2e8/0x3d0
+sk_free+0x51/0x90
+netlink_sock_destruct_work+0x1c/0x20
+process_one_work+0x411/0x710
+worker_thread+0x6fd/0xa80
 
-Fixes: a472e65fc490a ("perf intel-pt: Add decoder support for ptwrite and power event packets")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org # v5.15+
-Link: https://lore.kernel.org/r/20211210162303.2288710-4-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-[Adrian: Backport to v5.10]
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://syzkaller.appspot.com/bug?id=fc0fa5a53db9edd261d56e74325419faf18bd0df
+Reported-by: syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211208182742.340542-1-tadeusz.struk@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   32 ++++++++------------
- 1 file changed, 13 insertions(+), 19 deletions(-)
+ net/nfc/netlink.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1114,61 +1114,55 @@ out_no_progress:
- 
- static bool intel_pt_fup_event(struct intel_pt_decoder *decoder)
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -644,8 +644,10 @@ static int nfc_genl_dump_devices_done(st
  {
-+	enum intel_pt_sample_type type = decoder->state.type;
- 	bool ret = false;
+ 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
  
-+	decoder->state.type &= ~INTEL_PT_BRANCH;
-+
- 	if (decoder->set_fup_tx_flags) {
- 		decoder->set_fup_tx_flags = false;
- 		decoder->tx_flags = decoder->fup_tx_flags;
--		decoder->state.type = INTEL_PT_TRANSACTION;
-+		decoder->state.type |= INTEL_PT_TRANSACTION;
- 		if (decoder->fup_tx_flags & INTEL_PT_ABORT_TX)
- 			decoder->state.type |= INTEL_PT_BRANCH;
--		decoder->state.from_ip = decoder->ip;
--		decoder->state.to_ip = 0;
- 		decoder->state.flags = decoder->fup_tx_flags;
--		return true;
-+		ret = true;
- 	}
- 	if (decoder->set_fup_ptw) {
- 		decoder->set_fup_ptw = false;
--		decoder->state.type = INTEL_PT_PTW;
-+		decoder->state.type |= INTEL_PT_PTW;
- 		decoder->state.flags |= INTEL_PT_FUP_IP;
--		decoder->state.from_ip = decoder->ip;
--		decoder->state.to_ip = 0;
- 		decoder->state.ptw_payload = decoder->fup_ptw_payload;
--		return true;
-+		ret = true;
- 	}
- 	if (decoder->set_fup_mwait) {
- 		decoder->set_fup_mwait = false;
--		decoder->state.type = INTEL_PT_MWAIT_OP;
--		decoder->state.from_ip = decoder->ip;
--		decoder->state.to_ip = 0;
-+		decoder->state.type |= INTEL_PT_MWAIT_OP;
- 		decoder->state.mwait_payload = decoder->fup_mwait_payload;
- 		ret = true;
- 	}
- 	if (decoder->set_fup_pwre) {
- 		decoder->set_fup_pwre = false;
- 		decoder->state.type |= INTEL_PT_PWR_ENTRY;
--		decoder->state.type &= ~INTEL_PT_BRANCH;
--		decoder->state.from_ip = decoder->ip;
--		decoder->state.to_ip = 0;
- 		decoder->state.pwre_payload = decoder->fup_pwre_payload;
- 		ret = true;
- 	}
- 	if (decoder->set_fup_exstop) {
- 		decoder->set_fup_exstop = false;
- 		decoder->state.type |= INTEL_PT_EX_STOP;
--		decoder->state.type &= ~INTEL_PT_BRANCH;
- 		decoder->state.flags |= INTEL_PT_FUP_IP;
--		decoder->state.from_ip = decoder->ip;
--		decoder->state.to_ip = 0;
- 		ret = true;
- 	}
- 	if (decoder->set_fup_bep) {
- 		decoder->set_fup_bep = false;
- 		decoder->state.type |= INTEL_PT_BLK_ITEMS;
--		decoder->state.type &= ~INTEL_PT_BRANCH;
-+		ret = true;
+-	nfc_device_iter_exit(iter);
+-	kfree(iter);
++	if (iter) {
++		nfc_device_iter_exit(iter);
++		kfree(iter);
 +	}
-+	if (ret) {
- 		decoder->state.from_ip = decoder->ip;
- 		decoder->state.to_ip = 0;
--		ret = true;
-+	} else {
-+		decoder->state.type = type;
- 	}
- 	return ret;
+ 
+ 	return 0;
  }
 
 
