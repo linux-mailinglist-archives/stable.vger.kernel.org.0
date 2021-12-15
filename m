@@ -2,157 +2,425 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F3094759CE
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 14:41:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93A0F4759FC
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 14:53:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242924AbhLONlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 08:41:19 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:46650 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234413AbhLONlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 08:41:19 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639575678;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=boKoEDTcSf2tYQEzUv2J2xaejzwtduTfvQXExXc35jk=;
-        b=M8owPHbS7mKLBQJHV0xwOl14olQih2N38TyAf+WYzx8MyZwovJh2atsQgVjuvmZpl/pFjV
-        VYxIIRzVldPxJn/962bKLOXQvkYGmDuKKi3R7ZWZz0Ks9npHVIcDJjuX6NzOtsBecGvjm1
-        bDewouquzWj1JZvpl0Aq5QYAHKXW2vE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-671-kQ6hF5TRMFW6kBnOWFe8Pw-1; Wed, 15 Dec 2021 08:41:13 -0500
-X-MC-Unique: kQ6hF5TRMFW6kBnOWFe8Pw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S237590AbhLONxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 08:53:05 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36574 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242995AbhLONxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 08:53:01 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C9153100C663;
-        Wed, 15 Dec 2021 13:41:10 +0000 (UTC)
-Received: from localhost (ovpn-12-120.pek2.redhat.com [10.72.12.120])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9C7316FB8A;
-        Wed, 15 Dec 2021 13:41:09 +0000 (UTC)
-Date:   Wed, 15 Dec 2021 21:41:06 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     Vlastimil Babka <vbabka@suse.cz>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        akpm@linux-foundation.org, cl@linux.com,
-        John.p.donnelly@oracle.com, kexec@lists.infradead.org,
-        stable@vger.kernel.org, Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Subject: Re: [PATCH v3 5/5] mm/slub: do not create dma-kmalloc if no managed
- pages in DMA zone
-Message-ID: <20211215134106.GE10336@MiWiFi-R3L-srv>
-References: <20211213122712.23805-1-bhe@redhat.com>
- <20211213122712.23805-6-bhe@redhat.com>
- <20211213134319.GA997240@odroid>
- <20211214053253.GB2216@MiWiFi-R3L-srv>
- <f5ff82eb-73b6-55b5-53d7-04ab73ce5035@suse.cz>
- <20211215044818.GB1097530@odroid>
- <20211215070335.GA1165926@odroid>
- <20211215072710.GA3010@lst.de>
- <f7c1f169-f9b3-6930-f933-d69ab0287069@suse.cz>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2408A61880;
+        Wed, 15 Dec 2021 13:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05A06C34605;
+        Wed, 15 Dec 2021 13:52:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639576380;
+        bh=119VNzAkORctr7YTAuIIllmMzk6Q8fgrclgE8m6SNkQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MvzWOk6XhmBaWfQ1JLHILwQa5aXsJWIJr4yNQTiHuZUXRJ+BxlNMIgZuzUknOwXD3
+         Ym4Rq2lUyxvf92CmeyfiwmXr79YmhYqPiDa/RJBP1KEmHw2dte16IHOL+jJKEh4t1m
+         VSNlRHmIlKI+zD1XPrl3el3o5cotEX9dmnLQ5uPM=
+Date:   Wed, 15 Dec 2021 14:52:57 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ed Tsai <ed.tsai@mediatek.com>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        chenguanyou <chenguanyou9338@gmail.com>,
+        Stanley Chu =?utf-8?B?KOacseWOn+mZnik=?= 
+        <stanley.chu@mediatek.com>,
+        Yong-xuan Wang =?utf-8?B?KOeOi+ipoOiQsSk=?= 
+        <Yong-xuan.Wang@mediatek.com>
+Subject: Re: [PATCH] [fuse] alloc_page nofs avoid deadlock
+Message-ID: <YbnzOQx0TXADXWcW@kroah.com>
+References: <20210603125242.31699-1-chenguanyou@xiaomi.com>
+ <CAJfpegsEkRnU26Vvo4BTQUmx89Hahp6=RTuyEcPm=rqz8icwUQ@mail.gmail.com>
+ <1fabb91167a86990f4723e9036a0e006293518f4.camel@mediatek.com>
+ <CAJfpegsOSWZpKHqDNE_B489dGCzLr-RVAhimVOsFkxJwMYmj9A@mail.gmail.com>
+ <07c5f2f1e10671bc462f88717f84aae9ee1e4d2b.camel@mediatek.com>
+ <CAJfpegvAJS=An+hyAshkNcTS8A2TM28V2UP4SYycXUw3awOR+g@mail.gmail.com>
+ <YVMz8E1Lg/GZQcjw@miu.piliscsaba.redhat.com>
+ <0cd20f8c582dd0288472408800a02f6093000f1e.camel@mediatek.com>
+ <YbhmF2mVUqNw16x9@kroah.com>
+ <75833704ac3ffff38a781c582f144c34dcef0e16.camel@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f7c1f169-f9b3-6930-f933-d69ab0287069@suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+In-Reply-To: <75833704ac3ffff38a781c582f144c34dcef0e16.camel@mediatek.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/15/21 at 11:34am, Vlastimil Babka wrote:
-> On 12/15/21 08:27, Christoph Hellwig wrote:
-> > On Wed, Dec 15, 2021 at 07:03:35AM +0000, Hyeonggon Yoo wrote:
-> >> I'm not sure that allocating from ZONE_DMA32 instead of ZONE_DMA
-> >> for kdump kernel is nice way to solve this problem.
+On Wed, Dec 15, 2021 at 04:22:12PM +0800, Ed Tsai wrote:
+> On Tue, 2021-12-14 at 17:38 +0800, Greg Kroah-Hartman wrote:
+> > On Tue, Dec 14, 2021 at 05:25:01PM +0800, Ed Tsai wrote:
+> > > On Tue, 2021-09-28 at 23:25 +0800, Miklos Szeredi wrote:
+> > > > On Fri, Sep 24, 2021 at 09:52:35AM +0200, Miklos Szeredi wrote:
+> > > > > On Fri, 24 Sept 2021 at 05:52, Ed Tsai <ed.tsai@mediatek.com>
+> > > > > wrote:
+> > > > > > 
+> > > > > > On Wed, 2021-08-18 at 17:24 +0800, Miklos Szeredi wrote:
+> > > > > > > On Tue, 13 Jul 2021 at 04:42, Ed Tsai <ed.tsai@mediatek.com
+> > > > > > > >
+> > > > > > > wrote:
+> > > > > > > > 
+> > > > > > > > On Tue, 2021-06-08 at 17:30 +0200, Miklos Szeredi wrote:
+> > > > > > > > > On Thu, 3 Jun 2021 at 14:52, chenguanyou <
+> > > > > > > > > chenguanyou9338@gmail.com>
+> > > > > > > > > wrote:
+> > > > > > > > > > 
+> > > > > > > > > > ABA deadlock
+> > > > > > > > > > 
+> > > > > > > > > > PID: 17172 TASK: ffffffc0c162c000 CPU: 6 COMMAND:
+> > > > > > > > > > "Thread-21"
+> > > > > > > > > > 0 [ffffff802d16b400] __switch_to at ffffff8008086a4c
+> > > > > > > > > > 1 [ffffff802d16b470] __schedule at ffffff80091ffe58
+> > > > > > > > > > 2 [ffffff802d16b4d0] schedule at ffffff8009200348
+> > > > > > > > > > 3 [ffffff802d16b4f0] bit_wait at ffffff8009201098
+> > > > > > > > > > 4 [ffffff802d16b510] __wait_on_bit at
+> > > > > > > > > > ffffff8009200a34
+> > > > > > > > > > 5 [ffffff802d16b5b0] inode_wait_for_writeback at
+> > > > > > > > > > ffffff800830e1e8
+> > > > > > > > > > 6 [ffffff802d16b5e0] evict at ffffff80082fb15c
+> > > > > > > > > > 7 [ffffff802d16b620] iput at ffffff80082f9270
+> > > > > > > > > > 8 [ffffff802d16b680] dentry_unlink_inode at
+> > > > > > > > > > ffffff80082f4c90
+> > > > > > > > > > 9 [ffffff802d16b6a0] __dentry_kill at
+> > > > > > > > > > ffffff80082f1710
+> > > > > > > > > > 10 [ffffff802d16b6d0] shrink_dentry_list at
+> > > > > > > > > > ffffff80082f1c34
+> > > > > > > > > > 11 [ffffff802d16b750] prune_dcache_sb at
+> > > > > > > > > > ffffff80082f18a8
+> > > > > > > > > > 12 [ffffff802d16b770] super_cache_scan at
+> > > > > > > > > > ffffff80082d55ac
+> > > > > > > > > > 13 [ffffff802d16b860] shrink_slab at ffffff8008266170
+> > > > > > > > > > 14 [ffffff802d16b900] shrink_node at ffffff800826b420
+> > > > > > > > > > 15 [ffffff802d16b980] do_try_to_free_pages at
+> > > > > > > > > > ffffff8008268460
+> > > > > > > > > > 16 [ffffff802d16ba60] try_to_free_pages at
+> > > > > > > > > > ffffff80082680d0
+> > > > > > > > > > 17 [ffffff802d16bbe0] __alloc_pages_nodemask at
+> > > > > > > > > > ffffff8008256514
+> > > > > > > > > > 18 [ffffff802d16bc60] fuse_copy_fill at
+> > > > > > > > > > ffffff8008438268
+> > > > > > > > > > 19 [ffffff802d16bd00] fuse_dev_do_read at
+> > > > > > > > > > ffffff8008437654
+> > > > > > > > > > 20 [ffffff802d16bdc0] fuse_dev_splice_read at
+> > > > > > > > > > ffffff8008436f40
+> > > > > > > > > > 21 [ffffff802d16be60] sys_splice at ffffff8008315d18
+> > > > > > > > > > 22 [ffffff802d16bff0] __sys_trace at ffffff8008084014
+> > > > > > > > > > 
+> > > > > > > > > > PID: 9652 TASK: ffffffc0c9ce0000 CPU: 4 COMMAND:
+> > > > > > > > > > "kworker/u16:8"
+> > > > > > > > > > 0 [ffffff802e793650] __switch_to at ffffff8008086a4c
+> > > > > > > > > > 1 [ffffff802e7936c0] __schedule at ffffff80091ffe58
+> > > > > > > > > > 2 [ffffff802e793720] schedule at ffffff8009200348
+> > > > > > > > > > 3 [ffffff802e793770] __fuse_request_send at
+> > > > > > > > > > ffffff8008435760
+> > > > > > > > > > 4 [ffffff802e7937b0] fuse_simple_request at
+> > > > > > > > > > ffffff8008435b14
+> > > > > > > > > > 5 [ffffff802e793930] fuse_flush_times at
+> > > > > > > > > > ffffff800843a7a0
+> > > > > > > > > > 6 [ffffff802e793950] fuse_write_inode at
+> > > > > > > > > > ffffff800843e4dc
+> > > > > > > > > > 7 [ffffff802e793980] __writeback_single_inode at
+> > > > > > > > > > ffffff8008312740
+> > > > > > > > > > 8 [ffffff802e793aa0] writeback_sb_inodes at
+> > > > > > > > > > ffffff80083117e4
+> > > > > > > > > > 9 [ffffff802e793b00] __writeback_inodes_wb at
+> > > > > > > > > > ffffff8008311d98
+> > > > > > > > > > 10 [ffffff802e793c00] wb_writeback at
+> > > > > > > > > > ffffff8008310cfc
+> > > > > > > > > > 11 [ffffff802e793d00] wb_workfn at ffffff800830e4a8
+> > > > > > > > > > 12 [ffffff802e793d90] process_one_work at
+> > > > > > > > > > ffffff80080e4fac
+> > > > > > > > > > 13 [ffffff802e793e00] worker_thread at
+> > > > > > > > > > ffffff80080e5670
+> > > > > > > > > > 14 [ffffff802e793e60] kthread at ffffff80080eb650
+> > > > > > > > > 
+> > > > > > > > > The issue is real.
+> > > > > > > > > 
+> > > > > > > > > The fix, however, is not the right one.  The
+> > > > > > > > > fundamental
+> > > > > > > > > problem
+> > > > > > > > > is
+> > > > > > > > > that fuse_write_inode() blocks on a request to
+> > > > > > > > > userspace.
+> > > > > > > > > 
+> > > > > > > > > This is the same issue that
+> > > > > > > > > fuse_writepage/fuse_writepages
+> > > > > > > > > face.  In
+> > > > > > > > > that case the solution was to copy the page contents to
+> > > > > > > > > a
+> > > > > > > > > temporary
+> > > > > > > > > buffer and return immediately as if the writeback
+> > > > > > > > > already
+> > > > > > > > > completed.
+> > > > > > > > > 
+> > > > > > > > > Something similar needs to be done here: send the
+> > > > > > > > > FUSE_SETATTR
+> > > > > > > > > request
+> > > > > > > > > asynchronously and return immediately from
+> > > > > > > > > fuse_write_inode().  The
+> > > > > > > > > tricky part is to make sure that multiple time updates
+> > > > > > > > > for
+> > > > > > > > > the
+> > > > > > > > > same
+> > > > > > > > > inode aren't mixed up...
+> > > > > > > > > 
+> > > > > > > > > Thanks,
+> > > > > > > > > Miklos
+> > > > > > > > 
+> > > > > > > > Dear Szeredi,
+> > > > > > > > 
+> > > > > > > > Writeback thread calls fuse_write_inode() and wait for
+> > > > > > > > user
+> > > > > > > > Daemon
+> > > > > > > > to
+> > > > > > > > complete this write inode request. The user daemon will
+> > > > > > > > alloc_page()
+> > > > > > > > after taking this request, and a deadlock could happen
+> > > > > > > > when
+> > > > > > > > we try
+> > > > > > > > to
+> > > > > > > > shrink dentry list under memory pressure.
+> > > > > > > > 
+> > > > > > > > We (Mediatek) glad to work on this issue for mainline and
+> > > > > > > > also LTS.
+> > > > > > > > So
+> > > > > > > > another problem is that we should not change the protocol
+> > > > > > > > or
+> > > > > > > > feature
+> > > > > > > > for stable kernel.
+> > > > > > > > 
+> > > > > > > > Use GFP_NOFS | __GFP_HIGHMEM can really avoid this by
+> > > > > > > > skip
+> > > > > > > > the
+> > > > > > > > dentry
+> > > > > > > > shirnker. It works but degrade the alloc_page success
+> > > > > > > > rate.
+> > > > > > > > In a
+> > > > > > > > more
+> > > > > > > > fundamental way, we could cache the contents and return
+> > > > > > > > immediately.
+> > > > > > > > But how to ensure the request will be done successfully,
+> > > > > > > > e.g.,
+> > > > > > > > always
+> > > > > > > > retry if it fails from daemon.
+> > > > > > > 
+> > > > > > > Key is where the the dirty metadata is flushed.  To prevent
+> > > > > > > deadlock
+> > > > > > > it must not be flushed from memory reclaim, so must make
+> > > > > > > sure
+> > > > > > > that it
+> > > > > > > is flushed on close(2) and munmap(2) and not dirtied after
+> > > > > > > that.
+> > > > > > > 
+> > > > > > > I'm working on this currently and hope to get it ready for
+> > > > > > > the
+> > > > > > > next
+> > > > > > > merge window.
+> > > > > > > 
+> > > > > > > Thanks,
+> > > > > > > Miklos
+> > > > > > 
+> > > > > > Hi Miklos,
+> > > > > > 
+> > > > > > I'm not sure whether it has already been resolved in
+> > > > > > mainline.
+> > > > > > If it still WIP, please cc me on future emails.
+> > > > > 
+> > > > > Hi,
+> > > > > 
+> > > > > This is taking a bit longer, unfortunately, but I already have
+> > > > > something in testing and currently cleaning it up for
+> > > > > review.  Hope
+> > > > > to
+> > > > > post a series today or early next week.
+> > > > 
+> > > > 
+> > > > Here's a minimal patch.  It's been through some iterations and
+> > > > some
+> > > > testing, but
+> > > > more review and testing is definitely welcome.
+> > > > 
+> > > > Chenguanyou, can you please verify that it fixes the deadlock?
+> > > > 
+> > > > Thanks,
+> > > > Miklos
+> > > > 
+> > > > ---
+> > > > From: Miklos Szeredi <mszeredi@redhat.com>
+> > > > Subject: fuse: make sure reclaim doesn't write the inode
+> > > > 
+> > > > In writeback cache mode mtime/ctime updates are cached, and
+> > > > flushed
+> > > > to the
+> > > > server using the ->write_inode() callback.
+> > > > 
+> > > > Closing the file will result in a dirty inode being immediately
+> > > > written,
+> > > > but in other cases the inode can remain dirty after all
+> > > > references
+> > > > are
+> > > > dropped.  This result in the inode being written back from
+> > > > reclaim,
+> > > > which
+> > > > can deadlock on a regular allocation while the request is being
+> > > > served.
+> > > > 
+> > > > The usual mechanisms (GFP_NOFS/PF_MEMALLOC*) don't work for FUSE,
+> > > > because
+> > > > serving a request involves unrelated userspace process(es).
+> > > > 
+> > > > Instead do the same as for dirty pages: make sure the inode is
+> > > > written
+> > > > before the last reference is gone.
+> > > > 
+> > > >  - fuse_vma_close(): flush times in addition to the dirty pages
+> > > > 
+> > > >  - fallocate(2)/copy_file_range(2): these call file_update_time()
+> > > > or
+> > > >    file_modified(), so flush the inode before returning from the
+> > > > call
+> > > > 
+> > > >  - unlink(2), link(2) and rename(2): these call
+> > > > fuse_update_ctime(),
+> > > > so
+> > > >    flush the ctime directly from this helper
+> > > > 
+> > > > Reported-by: chenguanyou <chenguanyou@xiaomi.com>
+> > > > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> > > > ---
+> > > >  fs/fuse/dir.c    |    8 ++++++++
+> > > >  fs/fuse/file.c   |   24 +++++++++++++++++++++---
+> > > >  fs/fuse/fuse_i.h |    1 +
+> > > >  3 files changed, 30 insertions(+), 3 deletions(-)
+> > > > 
+> > > > --- a/fs/fuse/dir.c
+> > > > +++ b/fs/fuse/dir.c
+> > > > @@ -738,12 +738,20 @@ static int fuse_symlink(struct user_name
+> > > >  	return create_new_entry(fm, &args, dir, entry, S_IFLNK);
+> > > >  }
+> > > >  
+> > > > +void fuse_flush_time_update(struct inode *inode)
+> > > > +{
+> > > > +	int err = sync_inode_metadata(inode, 1);
+> > > > +
+> > > > +	mapping_set_error(inode->i_mapping, err);
+> > > > +}
+> > > > +
+> > > >  void fuse_update_ctime(struct inode *inode)
+> > > >  {
+> > > >  	fuse_invalidate_attr(inode);
+> > > >  	if (!IS_NOCMTIME(inode)) {
+> > > >  		inode->i_ctime = current_time(inode);
+> > > >  		mark_inode_dirty_sync(inode);
+> > > > +		fuse_flush_time_update(inode);
+> > > >  	}
+> > > >  }
+> > > >  
+> > > > --- a/fs/fuse/file.c
+> > > > +++ b/fs/fuse/file.c
+> > > > @@ -1847,6 +1847,17 @@ int fuse_write_inode(struct inode *inode
+> > > >  	struct fuse_file *ff;
+> > > >  	int err;
+> > > >  
+> > > > +	/*
+> > > > +	 * Inode is always written before the last reference is dropped
+> > > > and
+> > > > +	 * hence this should not be reached from reclaim.
+> > > > +	 *
+> > > > +	 * Writing back the inode from reclaim can deadlock if the
+> > > > request
+> > > > +	 * processing itself needs an allocation.  Allocations
+> > > > triggering
+> > > > +	 * reclaim while serving a request can't be prevented, because
+> > > > it can
+> > > > +	 * involve any number of unrelated userspace processes.
+> > > > +	 */
+> > > > +	WARN_ON(wbc->for_reclaim);
+> > > > +
+> > > >  	ff = __fuse_write_file_get(fi);
+> > > >  	err = fuse_flush_times(inode, ff);
+> > > >  	if (ff)
+> > > > @@ -2339,12 +2350,15 @@ static int fuse_launder_page(struct page
+> > > >  }
+> > > >  
+> > > >  /*
+> > > > - * Write back dirty pages now, because there may not be any
+> > > > suitable
+> > > > - * open files later
+> > > > + * Write back dirty data/metadata now (there may not be any
+> > > > suitable
+> > > > + * open files later for data)
+> > > >   */
+> > > >  static void fuse_vma_close(struct vm_area_struct *vma)
+> > > >  {
+> > > > -	filemap_write_and_wait(vma->vm_file->f_mapping);
+> > > > +	int err;
+> > > > +
+> > > > +	err = write_inode_now(vma->vm_file->f_mapping->host, 1);
+> > > > +	mapping_set_error(vma->vm_file->f_mapping, err);
+> > > >  }
+> > > >  
+> > > >  /*
+> > > > @@ -3001,6 +3015,8 @@ static long fuse_file_fallocate(struct f
+> > > >  	if (lock_inode)
+> > > >  		inode_unlock(inode);
+> > > >  
+> > > > +	fuse_flush_time_update(inode);
+> > > > +
+> > > >  	return err;
+> > > >  }
+> > > >  
+> > > > @@ -3110,6 +3126,8 @@ static ssize_t __fuse_copy_file_range(st
+> > > >  	inode_unlock(inode_out);
+> > > >  	file_accessed(file_in);
+> > > >  
+> > > > +	fuse_flush_time_update(inode_out);
+> > > > +
+> > > >  	return err;
+> > > >  }
+> > > >  
+> > > > --- a/fs/fuse/fuse_i.h
+> > > > +++ b/fs/fuse/fuse_i.h
+> > > > @@ -1145,6 +1145,7 @@ int fuse_allow_current_process(struct fu
+> > > >  
+> > > >  u64 fuse_lock_owner_id(struct fuse_conn *fc, fl_owner_t id);
+> > > >  
+> > > > +void fuse_flush_time_update(struct inode *inode);
+> > > >  void fuse_update_ctime(struct inode *inode);
+> > > >  
+> > > >  int fuse_update_attributes(struct inode *inode, struct file
+> > > > *file);
+> > > 
+> > > Hi Mikloz, Greg,
+> > > 
+> > > This deadlock issue could be raised in high memory pressure and the
+> > > patch has been merged in commit 5c791fe ("fuse: make sure reclaim
+> > > doesn't write the inode").
+> > > 
+> > > Can we take it to the LTS version?
 > > 
-> > What is the problem with zones in kdump kernels?
+> > What kernel tree(s) do you want this backported to?  Have you tested
+> > it
+> > that it will apply cleanly and work?
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> My understanding is that kdump kernel can only use physical memory that it
-> got reserved by the main kernel, and the main kernel will reserve some block
-> of memory that doesn't include any pages from ZONE_DMA (first 16MB of
-> physical memory or whatnot). By looking at the "crashkernel" parameter
-> documentation in kernel-parameters.txt it seems we only care about
-> below-4GB/above-4GB split.
-> So it can easily happen that ZONE_DMA in the kdump kernel will be completely
-> empty because the main kernel was using all of it.
+> Hi Greg, I want to take this commit to 5.10 LTS. This can be work to
+> resolve the deadlock issue. Also, I have done some monkey tests on our
+> ACK 5.10 phone to confirm the stability.
 
-Exactly as you said. Even before below regression commit added, we only
-have 0~640K reused in kdump kernel. We resued the 1st 640K not because
-we need it for zone DMA, just the 1st 640K is needed by BIOS/firmwre
-during early stage of system bootup. So there are tens of or several
-hundred KB left for managed pages in zone DMA except of those firmware
-reserved area in the 1st 640K. After below commit, the 1st 1M is
-reserved with memblock_reserve(), so no any physicall memory added to
-zone DMA. Then we see the allocation failure.
+Queued up for 5.15.y and 5.10.y now, thanks.
 
-When we prepare environment for kdump kernel, usually we will customize
-a initramfs to includes those necessary ko. E.g a storage device is dump
-target, its driver must be loaded. If a network dump specified, network
-driver is needed. I never see a ISA device or a device of 24bit
-addressing limit is needed in kdump kernel.
-
-6f599d84231f ("x86/kdump: Always reserve the low 1M when the crashkernel option is specified")
-
-> 
-> >> Devices that requires ZONE_DMA memory is rare but we still support them.
-> > 
-> > Indeed.
-> > 
-> >> >     1) Do not call warn_alloc in page allocator if will always fail
-> >> >     to allocate ZONE_DMA pages.
-> >> > 
-> >> > 
-> >> >     2) let's check all callers of kmalloc with GFP_DMA
-> >> >     if they really need GFP_DMA flag and replace those by DMA API or
-> >> >     just remove GFP_DMA from kmalloc()
-> >> > 
-> >> >     3) Drop support for allocating DMA memory from slab allocator
-> >> >     (as Christoph Hellwig said) and convert them to use DMA32
-> >> 
-> >> 	(as Christoph Hellwig said) and convert them to use *DMA API*
-> >> 
-> >> >     and see what happens
-> > 
-> > This is the right thing to do, but it will take a while.  In fact
-> > I dont think we really need the warning in step 1, a simple grep
-> > already allows to go over them.  I just looked at the uses of GFP_DMA
-> > in drivers/scsi for example, and all but one look bogus.
-> > 
-> >> > > > Yeah, I have the same guess too for get_capabilities(), not sure about other
-> >> > > > callers. Or, as ChristophL and ChristophH said(Sorry, not sure if this is
-> >> > > > the right way to call people when the first name is the same. Correct me if
-> >> > > > it's wrong), any buffer requested from kmalloc can be used by device driver.
-> >> > > > Means device enforces getting memory inside addressing limit for those
-> >> > > > DMA transferring buffer which is usually large, Megabytes level with
-> >> > > > vmalloc() or alloc_pages(), but doesn't care about this kind of small
-> >> > > > piece buffer memory allocated with kmalloc()? Just a guess, please tell
-> >> > > > a counter example if anyone happens to know, it could be easy.
-> > 
-> > The way this works is that the dma_map* calls will bounce buffer memory
-> 
-> But if ZONE_DMA is not populated, where will it get the bounce buffer from?
-> I guess nowhere and the problem still exists?
-
-Agree. When I investigated other ARCHs, arm64 has a fascinating setup
-for zone DMA/DMA32. It defaults to have all low 4G memory into zone DMA,
-but empty zone DMA32. Only if ACPI/DT reports <32 bit addressing
-devices, it will set it as limit of zone DMA.
-
-        ZONE_DMA       ZONE_DMA32
-arm64   0~X            X~4G  (X is got from ACPI or DT. Otherwise it's 4G by default, DMA32 is empty)
-
-> 
-> > that does to fall into the addressing limitations.  This is a performance
-> > overhead, but allows drivers to address all memory in a system.  If the
-> > driver controls memory allocation it should use one of the dma_alloc_*
-> > APIs that allocate addressable memory from the start.  The allocator
-> > will dip into ZONE_DMA and ZONE_DMA32 when needed.
-> 
-
+greg k-h
