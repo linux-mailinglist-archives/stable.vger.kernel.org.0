@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47809475F2F
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB58C475F43
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:32:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238495AbhLOR2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:28:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35490 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344059AbhLOR1K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:27:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D310C0613B5;
-        Wed, 15 Dec 2021 09:26:13 -0800 (PST)
+        id S233157AbhLOR3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:29:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46996 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245583AbhLOR0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45606B8204A;
-        Wed, 15 Dec 2021 17:26:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F59EC36AE2;
-        Wed, 15 Dec 2021 17:26:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6001F619E5;
+        Wed, 15 Dec 2021 17:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48482C36AE0;
+        Wed, 15 Dec 2021 17:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589172;
-        bh=emMZ2g/cfMNEvsT0EsNPtAE7YXkJz8+dxp22diq2jh8=;
+        s=korg; t=1639589174;
+        bh=HLAnwe27aqyD2NF+CqJU491kv2QJeG07NWGo/qz7i6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXVQmnT1W7V9/QAPJHbjFsV3lRyqDJuwgN1Xt4DQVLRAC/pXFW1OzmJcLrprQzXo3
-         4T/WfJ9jJQqiEgWj3bdzViNr+fPcjyAn3WSoAbGzTWnj1B5vtMNo7YWF9sJC4Nltqe
-         IVKbWwhZmrSvNFWarTBHRyK+XiNseCr/ZcDysz0k=
+        b=I9fE0IXLmCGi9u9HRhu93LtMsuIqTidsKJUbG7Qf52e6mWiBUHwnTp+DMMXuUvxHU
+         upAiRo7jf+BKXVIaEUM3NvXKgDjD57ioD7qOhtrfeixvMdhtvuB68FmLUvfrSK843K
+         e/JTYRedbI4O1PUURU5m2QGMzblJEpO8fH8+5Gqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Connor OBrien <connoro@google.com>
-Subject: [PATCH 5.4 12/18] bpf: Fix integer overflow in argument calculation for bpf_map_area_alloc
-Date:   Wed, 15 Dec 2021 18:21:33 +0100
-Message-Id: <20211215172023.233762350@linuxfoundation.org>
+        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.4 13/18] hwmon: (dell-smm) Fix warning on /proc/i8k creation error
+Date:   Wed, 15 Dec 2021 18:21:34 +0100
+Message-Id: <20211215172023.264891956@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
 References: <20211215172022.795825673@linuxfoundation.org>
@@ -48,60 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bui Quang Minh <minhquangbui99@gmail.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-commit 7dd5d437c258bbf4cc15b35229e5208b87b8b4e0 upstream.
+commit dbd3e6eaf3d813939b28e8a66e29d81cdc836445 upstream.
 
-In 32-bit architecture, the result of sizeof() is a 32-bit integer so
-the expression becomes the multiplication between 2 32-bit integer which
-can potentially leads to integer overflow. As a result,
-bpf_map_area_alloc() allocates less memory than needed.
+The removal function is called regardless of whether
+/proc/i8k was created successfully or not, the later
+causing a WARN() on module removal.
+Fix that by only registering the removal function
+if /proc/i8k was created successfully.
 
-Fix this by casting 1 operand to u64.
+Tested on a Inspiron 3505.
 
-Fixes: 0d2c4f964050 ("bpf: Eliminate rlimit-based memory accounting for sockmap and sockhash maps")
-Fixes: 99c51064fb06 ("devmap: Use bpf_map_area_alloc() for allocating hash buckets")
-Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
-Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210613143440.71975-1-minhquangbui99@gmail.com
-Signed-off-by: Connor O'Brien <connoro@google.com>
+Fixes: 039ae58503f3 ("hwmon: Allow to compile dell-smm-hwmon driver without /proc/i8k")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Acked-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211112171440.59006-1-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/devmap.c |    4 ++--
- net/core/sock_map.c |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/hwmon/dell-smm-hwmon.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -94,7 +94,7 @@ static struct hlist_head *dev_map_create
- 	int i;
- 	struct hlist_head *hash;
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -588,15 +588,18 @@ static const struct file_operations i8k_
+ 	.unlocked_ioctl	= i8k_ioctl,
+ };
  
--	hash = bpf_map_area_alloc(entries * sizeof(*hash), numa_node);
-+	hash = bpf_map_area_alloc((u64) entries * sizeof(*hash), numa_node);
- 	if (hash != NULL)
- 		for (i = 0; i < entries; i++)
- 			INIT_HLIST_HEAD(&hash[i]);
-@@ -159,7 +159,7 @@ static int dev_map_init_map(struct bpf_d
++static struct proc_dir_entry *entry;
++
+ static void __init i8k_init_procfs(void)
+ {
+ 	/* Register the proc entry */
+-	proc_create("i8k", 0, NULL, &i8k_fops);
++	entry = proc_create("i8k", 0, NULL, &i8k_fops);
+ }
  
- 		spin_lock_init(&dtab->index_lock);
- 	} else {
--		dtab->netdev_map = bpf_map_area_alloc(dtab->map.max_entries *
-+		dtab->netdev_map = bpf_map_area_alloc((u64) dtab->map.max_entries *
- 						      sizeof(struct bpf_dtab_netdev *),
- 						      dtab->map.numa_node);
- 		if (!dtab->netdev_map)
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -48,7 +48,7 @@ static struct bpf_map *sock_map_alloc(un
- 	if (err)
- 		goto free_stab;
+ static void __exit i8k_exit_procfs(void)
+ {
+-	remove_proc_entry("i8k", NULL);
++	if (entry)
++		remove_proc_entry("i8k", NULL);
+ }
  
--	stab->sks = bpf_map_area_alloc(stab->map.max_entries *
-+	stab->sks = bpf_map_area_alloc((u64) stab->map.max_entries *
- 				       sizeof(struct sock *),
- 				       stab->map.numa_node);
- 	if (stab->sks)
+ #else
 
 
