@@ -2,186 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E986D475EC2
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91DCF475F2A
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245492AbhLORYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:24:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44652 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234660AbhLORX6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:23:58 -0500
+        id S238216AbhLOR2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:28:21 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43512 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343953AbhLOR0y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 438AE619DD;
-        Wed, 15 Dec 2021 17:23:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8B5C36AE3;
-        Wed, 15 Dec 2021 17:23:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45211B82032;
+        Wed, 15 Dec 2021 17:26:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5291AC36AE2;
+        Wed, 15 Dec 2021 17:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589037;
-        bh=7nfrDWaJfCPiO3lAwswAj5ZbLTewMnU2tdwfUmRCoCQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogLerrs/v8J+rwpzT4p5CAX3NtefjE4N0J7iJ2KAIul8blaN0hysIeu7/hNOOrDRm
-         75+HKECO2VGkXFsU0wmvUHQCL+I/MGFQ+KKLhj5RfgExzGKVvVJl+zmyOYJ7Drv9we
-         LMIxpjd2Z97Mm/2GqUeT2XN0PbR+uSlRRouR5QV8=
+        s=korg; t=1639589211;
+        bh=iq96+Oisq3hLwALZjatJrHKyYhwPIn4BaXsCypheb3s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Sp3jQKYvAwNUyrs3HaaYnsTmyNIIf7xwzDp2r5nDGEnr32ML4dHJXKsbqeGJ6BZMJ
+         trEsT+MW/ucaoAtRssYEtFihYoVoX3ZmfomC84p8B0mO55Jd9L3doMPNCwZN5x2s47
+         0rVCICnM4Zk80Prbt7Jy1Me1pPggqA4hmP6q9cr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Subject: [PATCH 5.15 40/42] staging: most: dim2: use device release method
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/18] 5.4.166-rc1 review
 Date:   Wed, 15 Dec 2021 18:21:21 +0100
-Message-Id: <20211215172028.015339773@linuxfoundation.org>
+Message-Id: <20211215172022.795825673@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
-References: <20211215172026.641863587@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.166-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.166-rc1
+X-KernelTest-Deadline: 2021-12-17T17:20+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+This is the start of the stable review cycle for the 5.4.166 release.
+There are 18 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit d445aa402d60014a37a199fae2bba379696b007d upstream.
+Responses should be made by Fri, 17 Dec 2021 17:20:14 +0000.
+Anything received after that time might be too late.
 
-Commit 723de0f9171e ("staging: most: remove device from interface
-structure") moved registration of driver-provided struct device to
-the most subsystem. This updated dim2 driver as well.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.166-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-However, struct device passed to register_device() becomes refcounted,
-and must not be explicitly deallocated, but must provide release method
-instead. Which is incompatible with managing it via devres.
+thanks,
 
-This patch makes the device structure allocated without devres, adds
-device release method, and moves device destruction there.
+greg k-h
 
-Fixes: 723de0f9171e ("staging: most: remove device from interface structure")
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Link: https://lore.kernel.org/r/20211005143448.8660-2-nikita.yoush@cogentembedded.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/most/dim2/dim2.c |   55 +++++++++++++++++++++------------------
- 1 file changed, 30 insertions(+), 25 deletions(-)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/drivers/staging/most/dim2/dim2.c
-+++ b/drivers/staging/most/dim2/dim2.c
-@@ -726,6 +726,23 @@ static int get_dim2_clk_speed(const char
- 	return -EINVAL;
- }
- 
-+static void dim2_release(struct device *d)
-+{
-+	struct dim2_hdm *dev = container_of(d, struct dim2_hdm, dev);
-+	unsigned long flags;
-+
-+	kthread_stop(dev->netinfo_task);
-+
-+	spin_lock_irqsave(&dim_lock, flags);
-+	dim_shutdown();
-+	spin_unlock_irqrestore(&dim_lock, flags);
-+
-+	if (dev->disable_platform)
-+		dev->disable_platform(to_platform_device(d->parent));
-+
-+	kfree(dev);
-+}
-+
- /*
-  * dim2_probe - dim2 probe handler
-  * @pdev: platform device structure
-@@ -746,7 +763,7 @@ static int dim2_probe(struct platform_de
- 
- 	enum { MLB_INT_IDX, AHB0_INT_IDX };
- 
--	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
- 		return -ENOMEM;
- 
-@@ -758,25 +775,27 @@ static int dim2_probe(struct platform_de
- 				      "microchip,clock-speed", &clock_speed);
- 	if (ret) {
- 		dev_err(&pdev->dev, "missing dt property clock-speed\n");
--		return ret;
-+		goto err_free_dev;
- 	}
- 
- 	ret = get_dim2_clk_speed(clock_speed, &dev->clk_speed);
- 	if (ret) {
- 		dev_err(&pdev->dev, "bad dt property clock-speed\n");
--		return ret;
-+		goto err_free_dev;
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dev->io_base = devm_ioremap_resource(&pdev->dev, res);
--	if (IS_ERR(dev->io_base))
--		return PTR_ERR(dev->io_base);
-+	if (IS_ERR(dev->io_base)) {
-+		ret = PTR_ERR(dev->io_base);
-+		goto err_free_dev;
-+	}
- 
- 	of_id = of_match_node(dim2_of_match, pdev->dev.of_node);
- 	pdata = of_id->data;
- 	ret = pdata && pdata->enable ? pdata->enable(pdev) : 0;
- 	if (ret)
--		return ret;
-+		goto err_free_dev;
- 
- 	dev->disable_platform = pdata ? pdata->disable : NULL;
- 
-@@ -867,24 +886,19 @@ static int dim2_probe(struct platform_de
- 	dev->most_iface.request_netinfo = request_netinfo;
- 	dev->most_iface.driver_dev = &pdev->dev;
- 	dev->most_iface.dev = &dev->dev;
--	dev->dev.init_name = "dim2_state";
-+	dev->dev.init_name = dev->name;
- 	dev->dev.parent = &pdev->dev;
-+	dev->dev.release = dim2_release;
- 
--	ret = most_register_interface(&dev->most_iface);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to register MOST interface\n");
--		goto err_stop_thread;
--	}
--
--	return 0;
-+	return most_register_interface(&dev->most_iface);
- 
--err_stop_thread:
--	kthread_stop(dev->netinfo_task);
- err_shutdown_dim:
- 	dim_shutdown();
- err_disable_platform:
- 	if (dev->disable_platform)
- 		dev->disable_platform(pdev);
-+err_free_dev:
-+	kfree(dev);
- 
- 	return ret;
- }
-@@ -898,17 +912,8 @@ err_disable_platform:
- static int dim2_remove(struct platform_device *pdev)
- {
- 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
--	unsigned long flags;
- 
- 	most_deregister_interface(&dev->most_iface);
--	kthread_stop(dev->netinfo_task);
--
--	spin_lock_irqsave(&dim_lock, flags);
--	dim_shutdown();
--	spin_unlock_irqrestore(&dim_lock, flags);
--
--	if (dev->disable_platform)
--		dev->disable_platform(pdev);
- 
- 	return 0;
- }
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.166-rc1
+
+Mike Rapoport <rppt@linux.ibm.com>
+    arm: ioremap: don't abuse pfn_valid() to check if pfn is in RAM
+
+Mike Rapoport <rppt@linux.ibm.com>
+    arm: extend pfn_valid to take into account freed memory map alignment
+
+Mike Rapoport <rppt@linux.ibm.com>
+    memblock: ensure there is no overflow in memblock_overlaps_region()
+
+Mike Rapoport <rppt@linux.ibm.com>
+    memblock: align freed memory map on pageblock boundaries with SPARSEMEM
+
+Mike Rapoport <rppt@linux.ibm.com>
+    memblock: free_unused_memmap: use pageblock units instead of MAX_ORDER
+
+Armin Wolf <W_Armin@gmx.de>
+    hwmon: (dell-smm) Fix warning on /proc/i8k creation error
+
+Bui Quang Minh <minhquangbui99@gmail.com>
+    bpf: Fix integer overflow in argument calculation for bpf_map_area_alloc
+
+Ondrej Mosnacek <omosnace@redhat.com>
+    selinux: fix race condition when computing ocontext SIDs
+
+Sean Christopherson <seanjc@google.com>
+    KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
+
+Chen Jun <chenjun102@huawei.com>
+    tracing: Fix a kmemleak false positive in tracing_map
+
+Perry Yuan <Perry.Yuan@amd.com>
+    drm/amd/display: add connector type check for CRC source set
+
+Mustapha Ghaddar <mghaddar@amd.com>
+    drm/amd/display: Fix for the no Audio bug with Tiled Displays
+
+Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+    net: netlink: af_netlink: Prevent empty skb by adding a check on len.
+
+Ondrej Jirman <megous@megous.com>
+    i2c: rk3x: Handle a spurious start completion interrupt flag
+
+Helge Deller <deller@gmx.de>
+    parisc/agp: Annotate parisc agp init functions with __init
+
+Erik Ekman <erik@kryo.se>
+    net/mlx4_en: Update reported link modes for 1/10G
+
+Philip Chen <philipchen@chromium.org>
+    drm/msm/dsi: set default num_data_lanes
+
+Tadeusz Struk <tadeusz.struk@linaro.org>
+    nfc: fix segfault in nfc_genl_dump_devices_done
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm/mm/init.c                                 |  37 +++--
+ arch/arm/mm/ioremap.c                              |   4 +-
+ arch/x86/kvm/hyperv.c                              |   7 +-
+ drivers/char/agp/parisc-agp.c                      |   6 +-
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c  |   8 ++
+ drivers/gpu/drm/amd/display/dc/core/dc_resource.c  |   4 +
+ drivers/gpu/drm/msm/dsi/dsi_host.c                 |   2 +
+ drivers/hwmon/dell-smm-hwmon.c                     |   7 +-
+ drivers/i2c/busses/i2c-rk3x.c                      |   4 +-
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c    |   6 +-
+ kernel/bpf/devmap.c                                |   4 +-
+ kernel/trace/tracing_map.c                         |   3 +
+ mm/memblock.c                                      |   3 +-
+ net/core/sock_map.c                                |   2 +-
+ net/netlink/af_netlink.c                           |   5 +
+ net/nfc/netlink.c                                  |   6 +-
+ security/selinux/ss/services.c                     | 159 +++++++++++----------
+ 18 files changed, 166 insertions(+), 105 deletions(-)
 
 
