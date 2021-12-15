@@ -2,94 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A7D475830
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 12:51:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9AC34758BC
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 13:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242197AbhLOLvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 06:51:54 -0500
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:20935 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240633AbhLOLvy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 06:51:54 -0500
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-124-_dpB1O-2NOunUQz0c53HRA-1; Wed, 15 Dec 2021 11:51:51 +0000
-X-MC-Unique: _dpB1O-2NOunUQz0c53HRA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.26; Wed, 15 Dec 2021 11:51:50 +0000
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.026; Wed, 15 Dec 2021 11:51:50 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Vlastimil Babka' <vbabka@suse.cz>, Christoph Hellwig <hch@lst.de>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>
-CC:     Baoquan He <bhe@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        id S242338AbhLOMVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 07:21:13 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:57922 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242384AbhLOMVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 07:21:08 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 0F3DF212C1;
+        Wed, 15 Dec 2021 12:21:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1639570862; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=sCQuKlEuH5PJS4RgJOInUUe+I9iRj43vidhR7aKJ1wk=;
+        b=AuQ7HusEJBwwsUOHdHqobSrnXD2eF0GLsHke7nrjev1p2Sx5f5rIPJd0oKcASUkGLLMeq7
+        QplHpL2iC97GHxeUCk1eyTQ17uiILeI1PxYmQpS49xCWa0w5TrUvqW6Z+NeBySPCYEMMx9
+        hf5/13lOTk5qNcP7EbVAkSBH0SlFFMI=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id D1234A3B81;
+        Wed, 15 Dec 2021 12:21:01 +0000 (UTC)
+Date:   Wed, 15 Dec 2021 13:20:58 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Dennis Zhou <dennis@kernel.org>,
+        Alexey Makhalov <amakhalov@vmware.com>,
         "cl@linux.com" <cl@linux.com>,
-        "John.p.donnelly@oracle.com" <John.p.donnelly@oracle.com>,
-        "kexec@lists.infradead.org" <kexec@lists.infradead.org>,
+        "mm-commits@vger.kernel.org" <mm-commits@vger.kernel.org>,
+        "osalvador@suse.de" <osalvador@suse.de>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Subject: RE: [PATCH v3 5/5] mm/slub: do not create dma-kmalloc if no managed
- pages in DMA zone
-Thread-Topic: [PATCH v3 5/5] mm/slub: do not create dma-kmalloc if no managed
- pages in DMA zone
-Thread-Index: AQHX8Z9KFPBHK7AOm0iccdN5CkYjd6wzbbQg
-Date:   Wed, 15 Dec 2021 11:51:50 +0000
-Message-ID: <67ff367b7a90452f8c009707a00e67b2@AcuMS.aculab.com>
-References: <20211213122712.23805-1-bhe@redhat.com>
- <20211213122712.23805-6-bhe@redhat.com> <20211213134319.GA997240@odroid>
- <20211214053253.GB2216@MiWiFi-R3L-srv>
- <f5ff82eb-73b6-55b5-53d7-04ab73ce5035@suse.cz>
- <20211215044818.GB1097530@odroid> <20211215070335.GA1165926@odroid>
- <20211215072710.GA3010@lst.de> <f7c1f169-f9b3-6930-f933-d69ab0287069@suse.cz>
-In-Reply-To: <f7c1f169-f9b3-6930-f933-d69ab0287069@suse.cz>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        "tj@kernel.org" <tj@kernel.org>
+Subject: Re: + mm-fix-panic-in-__alloc_pages.patch added to -mm tree
+Message-ID: <Ybndqj/15Mc+GfU2@dhcp22.suse.cz>
+References: <YYpTy9eXZucxuRO/@dhcp22.suse.cz>
+ <YY6wZMcx/BeddUnH@fedora>
+ <YZI5TEW2BkBjOtC1@dhcp22.suse.cz>
+ <B8B7E3FA-6EAB-46B7-95EB-5A31395C8ADE@vmware.com>
+ <YZJZes9Gz9fe7bCC@dhcp22.suse.cz>
+ <ABEDED57-93A9-4601-8EB6-2FF348A0E0BB@vmware.com>
+ <YZMq++inSmJegJmj@fedora>
+ <Ybht6kqwI0aPx3Jr@dhcp22.suse.cz>
+ <20211214125748.974a400f0b05a633f9b971b7@linux-foundation.org>
+ <Ybm91+/z8hKuiHYr@dhcp22.suse.cz>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Ybm91+/z8hKuiHYr@dhcp22.suse.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogVmxhc3RpbWlsIEJhYmthDQo+IFNlbnQ6IDE1IERlY2VtYmVyIDIwMjEgMTA6MzQNCj4g
-DQo+IE9uIDEyLzE1LzIxIDA4OjI3LCBDaHJpc3RvcGggSGVsbHdpZyB3cm90ZToNCj4gPiBPbiBX
-ZWQsIERlYyAxNSwgMjAyMSBhdCAwNzowMzozNUFNICswMDAwLCBIeWVvbmdnb24gWW9vIHdyb3Rl
-Og0KPiA+PiBJJ20gbm90IHN1cmUgdGhhdCBhbGxvY2F0aW5nIGZyb20gWk9ORV9ETUEzMiBpbnN0
-ZWFkIG9mIFpPTkVfRE1BDQo+ID4+IGZvciBrZHVtcCBrZXJuZWwgaXMgbmljZSB3YXkgdG8gc29s
-dmUgdGhpcyBwcm9ibGVtLg0KPiA+DQo+ID4gV2hhdCBpcyB0aGUgcHJvYmxlbSB3aXRoIHpvbmVz
-IGluIGtkdW1wIGtlcm5lbHM/DQo+IA0KPiBNeSB1bmRlcnN0YW5kaW5nIGlzIHRoYXQga2R1bXAg
-a2VybmVsIGNhbiBvbmx5IHVzZSBwaHlzaWNhbCBtZW1vcnkgdGhhdCBpdA0KPiBnb3QgcmVzZXJ2
-ZWQgYnkgdGhlIG1haW4ga2VybmVsLCBhbmQgdGhlIG1haW4ga2VybmVsIHdpbGwgcmVzZXJ2ZSBz
-b21lIGJsb2NrDQo+IG9mIG1lbW9yeSB0aGF0IGRvZXNuJ3QgaW5jbHVkZSBhbnkgcGFnZXMgZnJv
-bSBaT05FX0RNQSAoZmlyc3QgMTZNQiBvZg0KPiBwaHlzaWNhbCBtZW1vcnkgb3Igd2hhdG5vdCku
-IA0KLi4uDQoNCklzIHRoZXJlIHN0aWxsIGFueSBzdXBwb3J0IGZvciBhbnkgb2YgdGhlIHZlcnkg
-b2xkIGhhcmR3YXJlIHRoYXQgY291bGQgb25seQ0Kc3VwcG9ydCAyNGJpdCBETUE/DQoNCkkgdGhp
-bmsgdGhlIEFNRCBQQ25ldC1JU0EgYW5kIFBDbmV0LVBDSSBldGhlcm5ldCAobGFuY2UpIHdlcmUg
-Ym90aCAzMmJpdCBtYXN0ZXJzLg0KKEkgZG9uJ3QgcmVtZW1iZXIgZXZlciBoYXZpbmcgdG8gd29y
-cnkgYWJvdXQgcGh5c2ljYWwgYWRkcmVzc2VzLikNCkknbSBzdXJlIEkgcmVtZW1iZXIgc29tZSBv
-bGQgU0NTSSBib2FyZHMgb25seSBiZWluZyBhYmxlIHRvIGRvIDI0Yml0IERNQS4NCkJ1dCBJIGNh
-bid0IHJlbWVtYmVyIHdoaWNoIGJ1cyBpbnRlcmZhY2UgdGhleSB3ZXJlLg0KVW5saWtlbHkgdG8g
-YmUgSVNBIGJlY2F1c2UgaXQgaGFzIGFsd2F5cyBiZWVuIGhhcmQgdG8gZ2V0IGEgbW90aGVyYm9h
-cmQNCkRNQSBjaGFubmVsIGludG8gJ2Nhc2NhZGUgbW9kZScuDQoNCk1pZ2h0IGhhdmUgYmVlbiBz
-b21lIEVJU0EgYm9hcmRzIC0gYW55b25lIHN0aWxsIHVzZSB0aG9zZT8NClNvIHdlIGFyZSBsZWZ0
-IHdpdGggZWFybHkgUENJIGJvYXJkcy4NCg0KSXQgcmVhbGx5IGlzIHdvcnRoIGxvb2tpbmcgYXQg
-d2hhdCBhY3R1YWxseSBuZWVkcyBpdCBhdCBhbGwuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVk
-IEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5l
-cywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
+On Wed 15-12-21 11:05:12, Michal Hocko wrote:
+> On Tue 14-12-21 12:57:48, Andrew Morton wrote:
+> > On Tue, 14 Dec 2021 11:11:54 +0100 Michal Hocko <mhocko@suse.com> wrote:
+> > 
+> > > > I need some clarification here. It sounds like memoryless nodes work on
+> > > > x86, but hotplug + memoryless nodes isn't a supported use case or you're
+> > > > introducing it as a new use case?
+> > > > 
+> > > > If this is a new use case, then I'm inclined to say this patch should
+> > > > NOT go in and a proper fix should be implemented on hotplug's side. I
+> > > > don't want to be in the business of having/seeing this conversation
+> > > > reoccur because we just papered over this issue in percpu.
+> > > 
+> > > The patch still seems to be in the mmotm tree. I have sent a different
+> > > fix candidate [1] which should be more robust and cover also other potential
+> > > places.
+> > > 
+> > > [1] http://lkml.kernel.org/r/20211214100732.26335-1-mhocko@kernel.org
+> > 
+> > Is cool, I'm paying attention.
+> > 
+> > We do want something short and simple for backporting to -stable (like
+> > Alexey's patch) so please bear that in mind while preparing an
+> > alternative.
+> 
+> I think we want something that fixes the underlying problem. Please keep
+> in mind that the pcp allocation is not the only place to hit the issue.
+> We have more. I do not want we want to handle each and every one
+> separately.
+> 
+> I am definitly not going to push for my solution but if there is a
+> consensus this is the right approach then I do not think we really want
+> to implement these partial workarounds.
 
+Btw. I forgot to add that if we do not agree on the preallocation
+approach then the approach should be something like 
+http://lkml.kernel.org/r/51c65635-1dae-6ba4-daf9-db9df0ec35d8@redhat.com
+proposed by David.
+-- 
+Michal Hocko
+SUSE Labs
