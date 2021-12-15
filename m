@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EBB3475F16
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:31:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8119475ECD
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 18:26:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245625AbhLOR1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Dec 2021 12:27:37 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47184 "EHLO
+        id S238371AbhLORYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Dec 2021 12:24:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44724 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245720AbhLOR03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:26:29 -0500
+        with ESMTP id S245365AbhLORYE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Dec 2021 12:24:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CE9F61A1D;
-        Wed, 15 Dec 2021 17:26:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B857C36AF5;
-        Wed, 15 Dec 2021 17:26:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3D1F619E8;
+        Wed, 15 Dec 2021 17:24:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C83DAC36AE2;
+        Wed, 15 Dec 2021 17:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639589188;
-        bh=GQokSa4i+2CGdyoT/xYJ7/ZpQkkuAmTHc9GaFqI9gjM=;
+        s=korg; t=1639589043;
+        bh=+q9LINZAMnju/J1RN8FmBJT3/5KdKmOLPEEphQu5i1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EjeEElBbCtaIJEmx1Ttb+UIGJjS1ar4acze3iRxnHSVrfu8hLuKpvEehPkZWc3IdD
-         whukdVQn3DGp1XhQ5Mtl60gFvT4W87AyG5SgI/7kPP5KaYuFtq6bE16wOD4EMcPXRt
-         egJl3h5BZMoQUhKhGFwnFVr9DbOBpCH+Wu3IwNso=
+        b=hHiRgUXHpMBWLaSGrLgManr3fVUcT03NlA5Sxq9DY+CDsWEGBhYCv4MxKLx/76b+Q
+         rxseY0fb/O9qtzSex7cGYyj0RG9d+4QxJuj/UezWH2LINrA+SzsunJQlCXNHD2Eyee
+         GgpcDh8lqGAER8+0DNlDsQEVsIHPKmpnJ9rttFxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Chen <philipchen@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/18] drm/msm/dsi: set default num_data_lanes
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 42/42] perf inject: Fix itrace space allowed for new attributes
 Date:   Wed, 15 Dec 2021 18:21:23 +0100
-Message-Id: <20211215172022.885526193@linuxfoundation.org>
+Message-Id: <20211215172028.076413106@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
-References: <20211215172022.795825673@linuxfoundation.org>
+In-Reply-To: <20211215172026.641863587@linuxfoundation.org>
+References: <20211215172026.641863587@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Chen <philipchen@chromium.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit cd92cc187c053ab010a1570e2d61d68394a5c725 ]
+commit c29d9792607e67ed8a3f6e9db0d96836d885a8c5 upstream.
 
-If "data_lanes" property of the dsi output endpoint is missing in
-the DT, num_data_lanes would be 0 by default, which could cause
-dsi_host_attach() to fail if dsi->lanes is set to a non-zero value
-by the bridge driver.
+The space allowed for new attributes can be too small if existing header
+information is large. That can happen, for example, if there are very
+many CPUs, due to having an event ID per CPU per event being stored in the
+header information.
 
-According to the binding document of msm dsi controller, the
-input/output endpoint of the controller is expected to have 4 lanes.
-So let's set num_data_lanes to 4 by default.
+Fix by adding the existing header.data_offset. Also increase the extra
+space allowed to 8KiB and align to a 4KiB boundary for neatness.
 
-Signed-off-by: Philip Chen <philipchen@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20211030100812.1.I6cd9af36b723fed277d34539d3b2ba4ca233ad2d@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Link: http://lore.kernel.org/lkml/20211125071457.2066863-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[Adrian: Backport to v5.15]
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/builtin-inject.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 5613234823f7d..423c4ae2be10d 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -1669,6 +1669,8 @@ static int dsi_host_parse_lane_data(struct msm_dsi_host *msm_host,
- 	if (!prop) {
- 		DRM_DEV_DEBUG(dev,
- 			"failed to find data lane mapping, using default\n");
-+		/* Set the number of date lanes to 4 by default. */
-+		msm_host->num_data_lanes = 4;
- 		return 0;
+--- a/tools/perf/builtin-inject.c
++++ b/tools/perf/builtin-inject.c
+@@ -819,7 +819,7 @@ static int __cmd_inject(struct perf_inje
+ 		inject->tool.ordered_events = true;
+ 		inject->tool.ordering_requires_timestamps = true;
+ 		/* Allow space in the header for new attributes */
+-		output_data_offset = 4096;
++		output_data_offset = roundup(8192 + session->header.data_offset, 4096);
+ 		if (inject->strip)
+ 			strip_init(inject);
  	}
- 
--- 
-2.33.0
-
 
 
