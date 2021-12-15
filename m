@@ -2,125 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4105D4750A5
-	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 03:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EEC74750AA
+	for <lists+stable@lfdr.de>; Wed, 15 Dec 2021 03:02:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233702AbhLOCBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Dec 2021 21:01:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50808 "EHLO
+        id S239033AbhLOCC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Dec 2021 21:02:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238990AbhLOCBY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 21:01:24 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5C8C06173E
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:01:24 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id p18so210244pld.13
-        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:01:24 -0800 (PST)
+        with ESMTP id S238990AbhLOCC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Dec 2021 21:02:29 -0500
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 018D5C061574
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:02:29 -0800 (PST)
+Received: by mail-pl1-x64a.google.com with SMTP id 4-20020a170902c20400b0014381f710d5so5902518pll.11
+        for <stable@vger.kernel.org>; Tue, 14 Dec 2021 18:02:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=XbZD/ApI8OtcmEb1EkLPdVuA6GjZgPXPBlZxywvg3Sg=;
-        b=VA2yOZgRmlFBQd7vHOsH9Afgm9dmb/mzGItLxFZOJDt4Sels6s+ehDWZwiAJlvPavz
-         BW3NISs5jnuINwifE4xZ97tzkLGqepFQja9PpoGCKhuGiYfy07pxPPAHIQO5tHTtWGip
-         E7w+YXchye2J3LmbvUGlL/ZLiZybsx+J4V+L/N1Ijw0ZUku/bSXbMSQHLQeucJn+IlRG
-         hSHUub9/huxR2Y9D5P3nj+OZvvOmxmIEvjU3Yr621WNlN1w7iXM2RJjJ3zYVEFlNgwWS
-         6RJgjsL1QZT5TjCdYEaAOQlB3WmaQfBfv2kLGLAD70k7M9+puHPjLoJAJS49/+pgpLS9
-         G1ag==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=FlzDF6nhPiY5bpjYDzWkdMAw8xJHwqi+9SwOSC1TqQQ=;
+        b=gvMHn2DKFP4sGv3qDKGW4d2ABdFHAP/SO68b4r5vHIiBfLoa4fG1kxYAs24WArfRgr
+         ehh+TLuTJloXru2UugbSR72EScRJ3ItKrCKXURfbZzoA57/KeIl7J4m5QI7vEB+RFBhe
+         Vluw+vadg51IoXreaJdIZYwRUbnvj8rWBLCqlEA3EeuxVCX3J8jamznEeMnLo++wrsL4
+         GF4oDs8+gJfRVNYMBjGFyUreuJjqgaskIxzKIXC+wxRjdNzqgg6mRi2WHjDtGYAxLyX4
+         nLUxg0NIdC185huuAfb/rIQepW8Fl+Zao3Sa07BYYIzvvePtu32Pwa+M/U9sLfyY4Sh/
+         uBuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=XbZD/ApI8OtcmEb1EkLPdVuA6GjZgPXPBlZxywvg3Sg=;
-        b=7bHzwCJkUhHB23b0d6LCyvSsPnvrZTIhZFplYKMMbrfBd6DnNHho/xVLjNJtD2Cq3c
-         qR3cnDhRXCd8VIc2MosrxV5MThhrg8chbVFPSvgfe5CwjdIp0GxUr5lsPcglDepw4RxK
-         VDeAjuEFsyyqaWnIq3dugIrCTJa9PKxnzaK6oTDX9EHr//LWEoLgjWDCL30qRaSEneRT
-         RZAZDwOBWD+IAM/DKuqgFoQ50Zm7QbGiTIfwTJ3rnpPAt41gOuw5bE7cjaHbSGdBpNkA
-         13CJ58qi6mfUE+Kr0odmejQgMRwueHb3Dh6taWpk2JkA9zRduvu0b7UGG0wMxpgj5VFV
-         5fFA==
-X-Gm-Message-State: AOAM531Zjb24eZFNn1CnCwjBw9B5B3dBDFE+rFQoeXpb9GQ55o6Gdu4G
-        G0UJI8x2F5I3kT1/eDojcsVVIHcKwwFgnopY
-X-Google-Smtp-Source: ABdhPJzLZ+g0RQtXELwDHNB1cWGXjEdnohuZxLsFiEtVFl1agX+trxmvNnKm4DAilkv241Ot0NmsAg==
-X-Received: by 2002:a17:903:230d:b0:141:e3ce:2738 with SMTP id d13-20020a170903230d00b00141e3ce2738mr8705731plh.57.1639533683853;
-        Tue, 14 Dec 2021 18:01:23 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q19sm292781pgb.77.2021.12.14.18.01.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Dec 2021 18:01:23 -0800 (PST)
-Message-ID: <61b94c73.1c69fb81.bfbd8.1817@mx.google.com>
-Date:   Tue, 14 Dec 2021 18:01:23 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.165
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.4.y baseline: 168 runs, 1 regressions (v5.4.165)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=FlzDF6nhPiY5bpjYDzWkdMAw8xJHwqi+9SwOSC1TqQQ=;
+        b=RttxVjFMcaoon3Dr1bKkiE7iFTCRPvPP4CwUYyvK2ofWv6q24hOwomODJXmejBSYwx
+         1627vdRNJGw4IeMoJcPy/VoUmZtELkXwLR38Y3F+ExDQ/TbQ5sYavM4YTfDUTSXtII9c
+         8JkI5MHXOjcxutAq7hoZCL2QmlLcPpRY2sVFcrU4wjPHE0whuvcYImeCXf9HZ4ObPuDx
+         7B4m5c2mF4zG/ccPNb73Wody3+tSxHNkp+U51uZ0zrZfDn5Ju0NfIb/i+l1XpxI70VWp
+         Gq2vDCU94S5IsL9ZsUu2YPckgI2j5mlelupZ4sdGGuTl+v9wwsWXVsrDkSTBePNbybiA
+         JlFQ==
+X-Gm-Message-State: AOAM530DND1dARkW7cusEQzdLBcjJD+5SXAd4jpp/Bzw9td88M8YMr6Q
+        w01TPiNSHe0fDhs9n3W1l9VVYQfDX+mwZlz4DHx44may/eNiutyQPSok6G2dklJ9EEVQDGcLtWQ
+        qwu41IvrT5pqWnqpZSFV5mwHTVUIsPZcGG9R3R+45qEHc5Dz1all0mPlTQ4DX1v7h
+X-Google-Smtp-Source: ABdhPJzw9oJGnCP36DXfaVtGwaxqRjknFat5Dl4UPiWUHAHc6VZnWQeQ5cKUn5t8IQWa3xkMDDZe6WaKeJjN
+X-Received: from connoro.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:a99])
+ (user=connoro job=sendgmr) by 2002:aa7:9d1e:0:b0:494:6dec:6425 with SMTP id
+ k30-20020aa79d1e000000b004946dec6425mr6906711pfp.83.1639533748295; Tue, 14
+ Dec 2021 18:02:28 -0800 (PST)
+Date:   Wed, 15 Dec 2021 02:01:39 +0000
+Message-Id: <20211215020139.126521-1-connoro@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.34.1.173.g76aa8bc2d0-goog
+Subject: [PATCH] bpf: Fix integer overflow in argument calculation for bpf_map_area_alloc
+From:   "Connor O'Brien" <connoro@google.com>
+To:     stable@vger.kernel.org
+Cc:     Bui Quang Minh <minhquangbui99@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "Connor O'Brien" <connoro@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 168 runs, 1 regressions (v5.4.165)
+From: Bui Quang Minh <minhquangbui99@gmail.com>
 
-Regressions Summary
--------------------
+commit 7dd5d437c258bbf4cc15b35229e5208b87b8b4e0 upstream.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
+In 32-bit architecture, the result of sizeof() is a 32-bit integer so
+the expression becomes the multiplication between 2 32-bit integer which
+can potentially leads to integer overflow. As a result,
+bpf_map_area_alloc() allocates less memory than needed.
 
+Fix this by casting 1 operand to u64.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.165/plan/baseline/
+Fixes: 0d2c4f964050 ("bpf: Eliminate rlimit-based memory accounting for sockmap and sockhash maps")
+Fixes: 99c51064fb06 ("devmap: Use bpf_map_area_alloc() for allocating hash buckets")
+Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210613143440.71975-1-minhquangbui99@gmail.com
+Signed-off-by: Connor O'Brien <connoro@google.com>
+---
+Hello,
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.165
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      7f70428f0109470aa9177d1a9e5ce02de736f480 =
+This is for the 5.4 and 5.10 kernels.
 
+Thanks,
+Connor
 
+ kernel/bpf/devmap.c | 4 ++--
+ net/core/sock_map.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-Test Regressions
----------------- =
+diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
+index 6684696fa457..4b2819b0a05a 100644
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -94,7 +94,7 @@ static struct hlist_head *dev_map_create_hash(unsigned int entries,
+ 	int i;
+ 	struct hlist_head *hash;
+ 
+-	hash = bpf_map_area_alloc(entries * sizeof(*hash), numa_node);
++	hash = bpf_map_area_alloc((u64) entries * sizeof(*hash), numa_node);
+ 	if (hash != NULL)
+ 		for (i = 0; i < entries; i++)
+ 			INIT_HLIST_HEAD(&hash[i]);
+@@ -159,7 +159,7 @@ static int dev_map_init_map(struct bpf_dtab *dtab, union bpf_attr *attr)
+ 
+ 		spin_lock_init(&dtab->index_lock);
+ 	} else {
+-		dtab->netdev_map = bpf_map_area_alloc(dtab->map.max_entries *
++		dtab->netdev_map = bpf_map_area_alloc((u64) dtab->map.max_entries *
+ 						      sizeof(struct bpf_dtab_netdev *),
+ 						      dtab->map.numa_node);
+ 		if (!dtab->netdev_map)
+diff --git a/net/core/sock_map.c b/net/core/sock_map.c
+index df52061f99f7..2646e8f98f67 100644
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -48,7 +48,7 @@ static struct bpf_map *sock_map_alloc(union bpf_attr *attr)
+ 	if (err)
+ 		goto free_stab;
+ 
+-	stab->sks = bpf_map_area_alloc(stab->map.max_entries *
++	stab->sks = bpf_map_area_alloc((u64) stab->map.max_entries *
+ 				       sizeof(struct sock *),
+ 				       stab->map.numa_node);
+ 	if (stab->sks)
+-- 
+2.34.1.173.g76aa8bc2d0-goog
 
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61b91384065d2b5bb539711e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.165/x8=
-6_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-minnowbo=
-ard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.165/x8=
-6_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-minnowbo=
-ard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61b91384065d2b5bb5397=
-11f
-        new failure (last pass: v5.4.164) =
-
- =20
