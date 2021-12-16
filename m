@@ -2,103 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C2947756C
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 16:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D129477661
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 16:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbhLPPMj convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 16 Dec 2021 10:12:39 -0500
-Received: from frasgout.his.huawei.com ([185.176.79.56]:4300 "EHLO
-        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbhLPPMh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 10:12:37 -0500
-Received: from fraeml715-chm.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4JFFtb1m2gz67DWp;
-        Thu, 16 Dec 2021 23:11:03 +0800 (CST)
-Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
- fraeml715-chm.china.huawei.com (10.206.15.34) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 16 Dec 2021 16:12:35 +0100
-Received: from fraeml714-chm.china.huawei.com ([10.206.15.33]) by
- fraeml714-chm.china.huawei.com ([10.206.15.33]) with mapi id 15.01.2308.020;
- Thu, 16 Dec 2021 16:12:35 +0100
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     "airlied@linux.ie" <airlied@linux.ie>,
-        "kraxel@redhat.com" <kraxel@redhat.com>,
-        "daniel@ffwll.ch" <daniel@ffwll.ch>
-CC:     "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        "virtualization@lists.linux-foundation.org" 
-        <virtualization@lists.linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "syzbot+e9072e90624a31dfa85f@syzkaller.appspotmail.com" 
-        <syzbot+e9072e90624a31dfa85f@syzkaller.appspotmail.com>
-Subject: RE: [PATCH] drm/virtio: Ensure that objs is not NULL in
- virtio_gpu_array_put_free()
-Thread-Topic: [PATCH] drm/virtio: Ensure that objs is not NULL in
- virtio_gpu_array_put_free()
-Thread-Index: AQHX8E+19jelqmPilEqoid7n1sYbcaw1Pc8Q
-Date:   Thu, 16 Dec 2021 15:12:35 +0000
-Message-ID: <4b0d93611e8740afbf25870e8b54a8e9@huawei.com>
-References: <20211213183122.838119-1-roberto.sassu@huawei.com>
-In-Reply-To: <20211213183122.838119-1-roberto.sassu@huawei.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.204.63.33]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S232619AbhLPPwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 10:52:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35062 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232732AbhLPPwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 10:52:34 -0500
+Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07379C061574
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 07:52:33 -0800 (PST)
+Received: by mail-ua1-x934.google.com with SMTP id w23so47892559uao.5
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 07:52:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=LJ8XUDV7hoENpxO8kjw2umOK4MxDsQkthmGqK7RC6DU=;
+        b=M0LDlA+ZHoVkU8cYlyKd8L7O1Do2tBArOhvzZMC9uZYM0eaYRDr0627KJgrAAKOfqy
+         VxVfiJ4lK1QJEtDQA6Ce6ckGWO5mI3ABDtF1Ajh3kmOlMoPNTK+cRbQJogkm/axTVumh
+         1Z0JxlCHbvfRdb/hQkz52tHiCKKQt2/z0XrG2qBdoHBwkQ7S6RxlGJx//moqWVCnxuNL
+         G8nyESB++oUq0DF3t7ahKU3WEBjoC/yR61BO+G/yMgba4DitkMhGSfkRIRUzsIM/fI00
+         LKAz4xUXRp/0XiaJDTFuukpQ/WWfOMEjt4ZRGzm/Bgr7hQrmhPh2l5bL7VXWeBcMUHSy
+         xUrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=LJ8XUDV7hoENpxO8kjw2umOK4MxDsQkthmGqK7RC6DU=;
+        b=6LbmGist4B3qpdLMtjRLY2RwnTHS5IzGBf3P1c4uYKLW4+ude0lvmqXBhRWFCPwd1+
+         mqCIwTlKcgLU2kF7axtrD5tSf2XZzj6VlHqxrJuNe7MU9c6CCEGwqTiwNGusJsvHj7pq
+         /Aaux5PNvryJk4KCRecbFN5e8NHI3jMF7m++cq4qaFIgjA9if7Zi7QanbBMdwGT1ma7u
+         Ku+5m2ZxA+/ZNMj/UxZq79Sc0arQydRY9hhmZDr62K1rx+hgKGu449F+ZSmxBSHbGWlD
+         1iZ2ARlVBOeGRYM4GkKs9ZA8MCz+ikwlA6nBBRis8apS+JFh25koMgXvxLTplczdnian
+         hTmQ==
+X-Gm-Message-State: AOAM530898q7rLOO2YEkQHfkwlA6M/5kHLowRP3RNQgri60zR/JZczGb
+        39UHIlVolwTBnECD/OOGmWdtHiMqEcev9KbpKec=
+X-Google-Smtp-Source: ABdhPJzdsNiO0pa/jJ5jxavG61t8RQZzTdItZ0/I+Zr75fSMwTm/L13CETM1DBmEoWXxlw+0Pak7+IhbqGh5mJ3My4k=
+X-Received: by 2002:a67:be0f:: with SMTP id x15mr5885069vsq.86.1639669951890;
+ Thu, 16 Dec 2021 07:52:31 -0800 (PST)
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+Received: by 2002:a59:d64d:0:b0:23d:ba5c:c0eb with HTTP; Thu, 16 Dec 2021
+ 07:52:31 -0800 (PST)
+Reply-To: beaumierraymond@hotmail.com
+From:   Raymond <carolle.ludes@gmail.com>
+Date:   Thu, 16 Dec 2021 16:52:31 +0100
+Message-ID: <CAHG0xKjLWUv_sqq=0aj3ghR2A8EG2BWPr+p_pLCfuP=qfQB2CA@mail.gmail.com>
+Subject: Re : Bonjour,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Roberto Sassu
-> Sent: Monday, December 13, 2021 7:31 PM
-> If virtio_gpu_object_shmem_init() fails (e.g. due to fault injection, as it
-> happened in the bug report by syzbot), virtio_gpu_array_put_free() could be
-> called with objs equal to NULL.
-> 
-> Ensure that objs is not NULL in virtio_gpu_array_put_free(), or otherwise
-> return from the function.
-
-Hello
-
-did you have the chance to look at this patch?
-
-Thanks
-
-Roberto
-
-HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
-Managing Director: Li Peng, Zhong Ronghua
-
-> Cc: stable@vger.kernel.org # 5.13.x
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> Reported-by: syzbot+e9072e90624a31dfa85f@syzkaller.appspotmail.com
-> Fixes: 377f8331d0565 ("drm/virtio: fix possible leak/unlock
-> virtio_gpu_object_array")
-> ---
->  drivers/gpu/drm/virtio/virtgpu_gem.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c
-> b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> index 2de61b63ef91..48d3c9955f0d 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-> @@ -248,6 +248,9 @@ void virtio_gpu_array_put_free(struct
-> virtio_gpu_object_array *objs)
->  {
->  	u32 i;
-> 
-> +	if (!objs)
-> +		return;
-> +
->  	for (i = 0; i < objs->nents; i++)
->  		drm_gem_object_put(objs->objs[i]);
->  	virtio_gpu_array_free(objs);
-> --
-> 2.32.0
-
+--=20
+Re : Bonjour,
+Je me pr=C3=A9sente Monsieur Raymond BEAUMIER, je vous contacte suite =C3=
+=A0 un
+don que je veux vous offrir, il s=E2=80=99agit d=E2=80=99une somme d'argent=
+ de
+(3.975.000 =E2=82=AC) que je vous donne du fond de mon c=C5=93ur ; car mes =
+jours
+sont compt=C3=A9s sur cette terre et je n'ai pas de famille ni d'enfant
+pour h=C3=A9riter ces fonds. Pour plus de renseignements, je vous prie de
+bien vouloir me contacter =C3=A0 mon adresse e-mail priv=C3=A9e ci-dessous.
+E-mail : beaumierraymond@hotmail.com .
+Cordialement,
+Raymond BEAUMIER.
