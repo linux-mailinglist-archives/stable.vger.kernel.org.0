@@ -2,95 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5DE3477A84
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 18:25:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B792A477AD4
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 18:44:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235509AbhLPRZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 12:25:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239933AbhLPRZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 12:25:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E3CDC061574
-        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 09:25:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA67161EED
-        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 17:25:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6838C36AE4;
-        Thu, 16 Dec 2021 17:25:52 +0000 (UTC)
-Date:   Thu, 16 Dec 2021 17:25:49 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Chris January <Chris.January@arm.com>, stable@vger.kernel.org,
-        Will Deacon <will@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Discussions about the Letux Kernel 
-        <letux-kernel@openphoenux.org>
-Subject: Re: Bug with KVM: arm64: Avoid setting the upper 32 bits of TCR_EL2
- and CPTR_EL2 to 1
-Message-ID: <Ybt2nd33H/pgKfpm@arm.com>
-References: <DB8835B4-8F04-4669-87EA-D348FA47A79D@goldelico.com>
- <8C04B3CF-4B26-4EA1-B6BD-A7AB30078FCE@goldelico.com>
- <be707d0d8fa0419470cb07b47e6f0464@kernel.org>
- <CD07B147-6798-46C8-A01C-6CBDB73A44B2@goldelico.com>
+        id S239936AbhLPRoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 12:44:37 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:55776 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239435AbhLPRoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 12:44:37 -0500
+Date:   Thu, 16 Dec 2021 17:44:34 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639676676;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rMNzzdFVvHgGqj5PmCY/yhVB4p6193MGDumN7XAAmQI=;
+        b=umO2xTcPm7QhyESP7qn9sYzEzUbFtCFVTydl7c5BPjjDJKqngq/e4D1QyW1hpJm/C4nk4z
+        MdmBIh5+4O0D6jvDl38Pqt0nt1sIpHoewihaQCyHtXJTmVWDywk4z46YnKAAPGVoWRH/EI
+        sOfWjI+RUS0xpw3fSmCpYC5C5OTC5nTbKCH+wNhH6EleX6K1cTOp1fDBvWWjSa9xIwE1G2
+        y/t5fQPbIAYogDw3GlX8yi3+pA45teHuj7FRJQ7X42A5wDFk0wD+0x4+NgRyZZxgU6g0ZE
+        Fuu6hL9JTiN/7cV8Qe7c/MG9SXp8RLrWHvymzGobj+wRodWOquFLBMQB/NU7+w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639676676;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rMNzzdFVvHgGqj5PmCY/yhVB4p6193MGDumN7XAAmQI=;
+        b=4K4LSGLuW7shkYTptQ2Ydg3Rew5jHpEpGxEfq81Wh2kjnoC9cadhw1a4Qy6HEE1wwD1e8F
+        CaYto0AmTPkY3bBw==
+From:   "tip-bot2 for Andrew Cooper" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
+Cc:     Andrew Cooper <andrew.cooper3@citrix.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20211216000856.4480-1-andrew.cooper3@citrix.com>
+References: <20211216000856.4480-1-andrew.cooper3@citrix.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CD07B147-6798-46C8-A01C-6CBDB73A44B2@goldelico.com>
+Message-ID: <163967667491.23020.16476392644769811399.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 16, 2021 at 03:30:40PM +0100, H. Nikolaus Schaller wrote:
-> > Am 16.12.2021 um 09:43 schrieb Marc Zyngier <maz@kernel.org>:
-> > On 2021-12-16 06:58, H. Nikolaus Schaller wrote:
-> >>> Am 15.12.2021 um 19:40 schrieb H. Nikolaus Schaller <hns@goldelico.com>:
-> >>> this seems to break build of 5.10.y (and maybe earlier) for me:
-> >>> CALL    scripts/checksyscalls.sh - due to target missing
-> >>> CALL    scripts/atomic/check-atomics.sh - due to target missing
-> >>> CHK     include/generated/compile.h
-> >>> AS      arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o - due to target missing
-> >>> arch/arm64/kvm/hyp/nvhe/hyp-init.S: Assembler messages:
-> >>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-> >>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
-> >>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'This should somehow be fixed so that arch/arm64/include/asm/kvm_arm.h
-> >>> can be included by older assemblers.
-> > 
-> > GCC versions prior to 5.1 are known to miscompile the kernel,
-> > and the minimal GCC version was bumped in dca5244d2f5b.
-> 
-> > I am surprised this requirement wasn't backported to 5.10-stable,
-> > as this results in all sorts of terrible bugs that are hard to
-> > diagnose (see the horror story in the commit message).
-> 
-> Indeed.
-> 
-> My build system checks for existence of scripts/min-tool-version.sh
-> and if it exists it chooses the right gcc version. If it does not exist
-> it assumes that gcc 4.9 is still good enough...
+The following commit has been merged into the x86/urgent branch of tip:
 
-I wonder whether the problem is binutils rather than gcc. We have a
-minimum requirement of 2.23 but it looks like it failed to build for you
-with 2.25. Unless the compiler got smarter and it drops the 'U' from 1U
-when passing it to gas.
+Commit-ID:     7aa3e3011ef3e0a9c36417eafca7894a028e5df6
+Gitweb:        https://git.kernel.org/tip/7aa3e3011ef3e0a9c36417eafca7894a028e5df6
+Author:        Andrew Cooper <andrew.cooper3@citrix.com>
+AuthorDate:    Thu, 16 Dec 2021 00:08:56 
+Committer:     Dave Hansen <dave.hansen@linux.intel.com>
+CommitterDate: Thu, 16 Dec 2021 09:39:40 -08:00
 
-> Yes, it does! This can be compiled with gcc 4.9 (resp. binutils).
-> 
-> So IMHO there are 3 different ways to solve it:
-> a) your fix applied to 5.10.y
-> b) someone backports scripts/min-tool-version.sh
-> to allow for dependable automation...
-> c) we leave 5.10.y unfixed and I just add a special
-> rule for arm64 to choose a newer gcc (it is no problem to
-> use 4.9 for other architectures) in my build setup.
+x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
 
-Another option is to merge Marc's fix in 5.16 (there are two more 1U in
-the same file) with a Fixes tag and cc stable so that it gets backported
-to 5.10.y.
+Both __pkru_allows_write() and arch_set_user_pkey_access() shift
+PKRU_WD_BIT (a signed constant) by up to 30 bits, hitting the
+sign bit.
 
--- 
-Catalin
+Use unsigned constants instead.
+
+Clearly pkey 15 has not been used in combination with UBSAN yet.
+
+Noticed by code inspection only.  I can't actually provoke the
+compiler into generating incorrect logic as far as this shift is
+concerned, so haven't included a fixes tag.
+
+[
+  dhansen: add stable@ tag, plus minor changelog massaging,
+
+           For anyone doing backports, these #defines were in
+	   arch/x86/include/asm/pgtable.h before 784a46618f6.
+]
+
+Fixes: 33a709b25a76 ("mm/gup, x86/mm/pkeys: Check VMAs and PTEs for protection keys")
+Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20211216000856.4480-1-andrew.cooper3@citrix.com
+---
+ arch/x86/include/asm/pkru.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/include/asm/pkru.h b/arch/x86/include/asm/pkru.h
+index 4cd49af..74f0a2d 100644
+--- a/arch/x86/include/asm/pkru.h
++++ b/arch/x86/include/asm/pkru.h
+@@ -4,8 +4,8 @@
+ 
+ #include <asm/cpufeature.h>
+ 
+-#define PKRU_AD_BIT 0x1
+-#define PKRU_WD_BIT 0x2
++#define PKRU_AD_BIT 0x1u
++#define PKRU_WD_BIT 0x2u
+ #define PKRU_BITS_PER_PKEY 2
+ 
+ #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
