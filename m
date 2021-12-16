@@ -2,73 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D129477661
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 16:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB9F477680
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 17:00:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232619AbhLPPwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 10:52:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35062 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232732AbhLPPwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 10:52:34 -0500
-Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07379C061574
-        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 07:52:33 -0800 (PST)
-Received: by mail-ua1-x934.google.com with SMTP id w23so47892559uao.5
-        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 07:52:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=LJ8XUDV7hoENpxO8kjw2umOK4MxDsQkthmGqK7RC6DU=;
-        b=M0LDlA+ZHoVkU8cYlyKd8L7O1Do2tBArOhvzZMC9uZYM0eaYRDr0627KJgrAAKOfqy
-         VxVfiJ4lK1QJEtDQA6Ce6ckGWO5mI3ABDtF1Ajh3kmOlMoPNTK+cRbQJogkm/axTVumh
-         1Z0JxlCHbvfRdb/hQkz52tHiCKKQt2/z0XrG2qBdoHBwkQ7S6RxlGJx//moqWVCnxuNL
-         G8nyESB++oUq0DF3t7ahKU3WEBjoC/yR61BO+G/yMgba4DitkMhGSfkRIRUzsIM/fI00
-         LKAz4xUXRp/0XiaJDTFuukpQ/WWfOMEjt4ZRGzm/Bgr7hQrmhPh2l5bL7VXWeBcMUHSy
-         xUrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=LJ8XUDV7hoENpxO8kjw2umOK4MxDsQkthmGqK7RC6DU=;
-        b=6LbmGist4B3qpdLMtjRLY2RwnTHS5IzGBf3P1c4uYKLW4+ude0lvmqXBhRWFCPwd1+
-         mqCIwTlKcgLU2kF7axtrD5tSf2XZzj6VlHqxrJuNe7MU9c6CCEGwqTiwNGusJsvHj7pq
-         /Aaux5PNvryJk4KCRecbFN5e8NHI3jMF7m++cq4qaFIgjA9if7Zi7QanbBMdwGT1ma7u
-         Ku+5m2ZxA+/ZNMj/UxZq79Sc0arQydRY9hhmZDr62K1rx+hgKGu449F+ZSmxBSHbGWlD
-         1iZ2ARlVBOeGRYM4GkKs9ZA8MCz+ikwlA6nBBRis8apS+JFh25koMgXvxLTplczdnian
-         hTmQ==
-X-Gm-Message-State: AOAM530898q7rLOO2YEkQHfkwlA6M/5kHLowRP3RNQgri60zR/JZczGb
-        39UHIlVolwTBnECD/OOGmWdtHiMqEcev9KbpKec=
-X-Google-Smtp-Source: ABdhPJzdsNiO0pa/jJ5jxavG61t8RQZzTdItZ0/I+Zr75fSMwTm/L13CETM1DBmEoWXxlw+0Pak7+IhbqGh5mJ3My4k=
-X-Received: by 2002:a67:be0f:: with SMTP id x15mr5885069vsq.86.1639669951890;
- Thu, 16 Dec 2021 07:52:31 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a59:d64d:0:b0:23d:ba5c:c0eb with HTTP; Thu, 16 Dec 2021
- 07:52:31 -0800 (PST)
-Reply-To: beaumierraymond@hotmail.com
-From:   Raymond <carolle.ludes@gmail.com>
-Date:   Thu, 16 Dec 2021 16:52:31 +0100
-Message-ID: <CAHG0xKjLWUv_sqq=0aj3ghR2A8EG2BWPr+p_pLCfuP=qfQB2CA@mail.gmail.com>
-Subject: Re : Bonjour,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S238670AbhLPQAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 11:00:31 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:37746 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238661AbhLPQAa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Dec 2021 11:00:30 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1mxtBF-005dh2-Fa; Thu, 16 Dec 2021 16:00:29 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Thu, 16 Dec 2021 15:54:40 +0000
+Subject: [git:media_stage/master] media: ov8865: Disable only enabled regulators on error path
+To:     linuxtv-commits@linuxtv.org
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1mxtBF-005dh2-Fa@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Re : Bonjour,
-Je me pr=C3=A9sente Monsieur Raymond BEAUMIER, je vous contacte suite =C3=
-=A0 un
-don que je veux vous offrir, il s=E2=80=99agit d=E2=80=99une somme d'argent=
- de
-(3.975.000 =E2=82=AC) que je vous donne du fond de mon c=C5=93ur ; car mes =
-jours
-sont compt=C3=A9s sur cette terre et je n'ai pas de famille ni d'enfant
-pour h=C3=A9riter ces fonds. Pour plus de renseignements, je vous prie de
-bien vouloir me contacter =C3=A0 mon adresse e-mail priv=C3=A9e ci-dessous.
-E-mail : beaumierraymond@hotmail.com .
-Cordialement,
-Raymond BEAUMIER.
+This is an automatic generated email to let you know that the following patch were queued:
+
+Subject: media: ov8865: Disable only enabled regulators on error path
+Author:  Sakari Ailus <sakari.ailus@linux.intel.com>
+Date:    Wed Dec 15 09:38:48 2021 +0100
+
+If powering on the sensor failed, the entire power-off sequence was run
+independently of how far the power-on sequence proceeded before the error.
+This lead to disabling regulators and/or clock that was not enabled.
+
+Fix this by disabling only clocks and regulators that were enabled
+previously.
+
+Fixes: 11c0d8fdccc5 ("media: i2c: Add support for the OV8865 image sensor")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/i2c/ov8865.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+---
+
+diff --git a/drivers/media/i2c/ov8865.c b/drivers/media/i2c/ov8865.c
+index ebdb20d3fe9d..d9d016cfa9ac 100644
+--- a/drivers/media/i2c/ov8865.c
++++ b/drivers/media/i2c/ov8865.c
+@@ -2407,27 +2407,27 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DOVDD regulator\n");
+-			goto disable;
++			return ret;
+ 		}
+ 
+ 		ret = regulator_enable(sensor->avdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable AVDD regulator\n");
+-			goto disable;
++			goto disable_dovdd;
+ 		}
+ 
+ 		ret = regulator_enable(sensor->dvdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DVDD regulator\n");
+-			goto disable;
++			goto disable_avdd;
+ 		}
+ 
+ 		ret = clk_prepare_enable(sensor->extclk);
+ 		if (ret) {
+ 			dev_err(sensor->dev, "failed to enable EXTCLK clock\n");
+-			goto disable;
++			goto disable_dvdd;
+ 		}
+ 
+ 		gpiod_set_value_cansleep(sensor->reset, 0);
+@@ -2436,14 +2436,16 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
+ 		/* Time to enter streaming mode according to power timings. */
+ 		usleep_range(10000, 12000);
+ 	} else {
+-disable:
+ 		gpiod_set_value_cansleep(sensor->powerdown, 1);
+ 		gpiod_set_value_cansleep(sensor->reset, 1);
+ 
+ 		clk_disable_unprepare(sensor->extclk);
+ 
++disable_dvdd:
+ 		regulator_disable(sensor->dvdd);
++disable_avdd:
+ 		regulator_disable(sensor->avdd);
++disable_dovdd:
+ 		regulator_disable(sensor->dovdd);
+ 	}
+ 
