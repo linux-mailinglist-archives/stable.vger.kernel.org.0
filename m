@@ -2,77 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 583F247D050
-	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 11:51:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5A647D13E
+	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 12:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244288AbhLVKvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 05:51:11 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47248 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239538AbhLVKvK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 05:51:10 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70FC9B81B9D;
-        Wed, 22 Dec 2021 10:51:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B7A3C36AE5;
-        Wed, 22 Dec 2021 10:51:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640170268;
-        bh=MUIobF7kB+qoPfsVPCz/wGBHLj3A4hegrXWkDmi1LyM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=O1LV6JpQIRCWokfKZPuCMBXN1Wys6cIn7l2qgwdGKEDb67x8y3llTpVariRUGoPS+
-         hslFSJ+Z5j4KVAJna9sU4uh3NAWa4LZ2+F1RC4jXvfddxsOwBgBgGzxkH0TPgwJ6uY
-         l1/atFQzOyq6cgQm8krQn47TpPk5qNLvPnihWYJ3hQBp5nlgQFPEbJBPXta1VITJ0+
-         kxsGylc1qdYHOE8sPBKDHmwq3MKXhNbGYN7vaxYJM0Pi4PgxGwqJIevp8d0d09s88h
-         ESLNuxoqaNBr2exOza5hvohQ9VZCBnp1X5smPX4iiS82VIVL5gya7m3XPx2N4TdAxO
-         x5lIcY4S2PKVw==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1mzzD2-0001dJ-Dy; Wed, 22 Dec 2021 11:51:00 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
-        David E Box <david.e.box@intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] platform/x86: intel_pmc_core: fix memleak on registration failure
-Date:   Wed, 22 Dec 2021 11:50:23 +0100
-Message-Id: <20211222105023.6205-1-johan@kernel.org>
-X-Mailer: git-send-email 2.32.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S238140AbhLVLqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 06:46:37 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:54170 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244740AbhLVLqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Dec 2021 06:46:37 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1n004p-00DLD4-Sv; Wed, 22 Dec 2021 11:46:35 +0000
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+Date:   Thu, 16 Dec 2021 19:54:52 +0000
+Subject: [git:media_tree/master] media: ov8865: Disable only enabled regulators on error path
+To:     linuxtv-commits@linuxtv.org
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1n004p-00DLD4-Sv@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In case device registration fails during module initialisation, the
-platform device structure needs to be freed using platform_device_put()
-to properly free all resources (e.g. the device name).
+This is an automatic generated email to let you know that the following patch were queued:
 
-Fixes: 938835aa903a ("platform/x86: intel_pmc_core: do not create a static struct device")
-Cc: stable@vger.kernel.org      # 5.9
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Subject: media: ov8865: Disable only enabled regulators on error path
+Author:  Sakari Ailus <sakari.ailus@linux.intel.com>
+Date:    Wed Dec 15 09:38:48 2021 +0100
+
+If powering on the sensor failed, the entire power-off sequence was run
+independently of how far the power-on sequence proceeded before the error.
+This lead to disabling regulators and/or clock that was not enabled.
+
+Fix this by disabling only clocks and regulators that were enabled
+previously.
+
+Fixes: 11c0d8fdccc5 ("media: i2c: Add support for the OV8865 image sensor")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/i2c/ov8865.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
 ---
- drivers/platform/x86/intel/pmc/pltdrv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/intel/pmc/pltdrv.c b/drivers/platform/x86/intel/pmc/pltdrv.c
-index 73797680b895..15ca8afdd973 100644
---- a/drivers/platform/x86/intel/pmc/pltdrv.c
-+++ b/drivers/platform/x86/intel/pmc/pltdrv.c
-@@ -65,7 +65,7 @@ static int __init pmc_core_platform_init(void)
+diff --git a/drivers/media/i2c/ov8865.c b/drivers/media/i2c/ov8865.c
+index ebdb20d3fe9d..d9d016cfa9ac 100644
+--- a/drivers/media/i2c/ov8865.c
++++ b/drivers/media/i2c/ov8865.c
+@@ -2407,27 +2407,27 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DOVDD regulator\n");
+-			goto disable;
++			return ret;
+ 		}
  
- 	retval = platform_device_register(pmc_core_device);
- 	if (retval)
--		kfree(pmc_core_device);
-+		platform_device_put(pmc_core_device);
+ 		ret = regulator_enable(sensor->avdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable AVDD regulator\n");
+-			goto disable;
++			goto disable_dovdd;
+ 		}
  
- 	return retval;
- }
--- 
-2.32.0
-
+ 		ret = regulator_enable(sensor->dvdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DVDD regulator\n");
+-			goto disable;
++			goto disable_avdd;
+ 		}
+ 
+ 		ret = clk_prepare_enable(sensor->extclk);
+ 		if (ret) {
+ 			dev_err(sensor->dev, "failed to enable EXTCLK clock\n");
+-			goto disable;
++			goto disable_dvdd;
+ 		}
+ 
+ 		gpiod_set_value_cansleep(sensor->reset, 0);
+@@ -2436,14 +2436,16 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
+ 		/* Time to enter streaming mode according to power timings. */
+ 		usleep_range(10000, 12000);
+ 	} else {
+-disable:
+ 		gpiod_set_value_cansleep(sensor->powerdown, 1);
+ 		gpiod_set_value_cansleep(sensor->reset, 1);
+ 
+ 		clk_disable_unprepare(sensor->extclk);
+ 
++disable_dvdd:
+ 		regulator_disable(sensor->dvdd);
++disable_avdd:
+ 		regulator_disable(sensor->avdd);
++disable_dovdd:
+ 		regulator_disable(sensor->dovdd);
+ 	}
+ 
