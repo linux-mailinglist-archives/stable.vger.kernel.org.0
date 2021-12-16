@@ -2,91 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89EA5477CD8
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 20:52:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7CF477CF0
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 21:01:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231479AbhLPTwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 14:52:47 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:59462 "EHLO www.linuxtv.org"
+        id S241179AbhLPUA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 15:00:59 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:34482 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229909AbhLPTwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Dec 2021 14:52:47 -0500
+        id S241161AbhLPUA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Dec 2021 15:00:59 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1mxwo1-005rns-HL; Thu, 16 Dec 2021 19:52:45 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Tue, 14 Dec 2021 15:19:03 +0000
-Subject: [git:media_tree/master] media: Revert "media: uvcvideo: Set unique vdev name based in type"
+        id 1mxwvx-005tBR-8h; Thu, 16 Dec 2021 20:00:57 +0000
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+Date:   Thu, 16 Dec 2021 19:54:52 +0000
+Subject: [git:media_stage/master] media: ov8865: Disable only enabled regulators on error path
 To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        stable@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1mxwo1-005rns-HL@www.linuxtv.org>
+Message-Id: <E1mxwvx-005tBR-8h@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: Revert "media: uvcvideo: Set unique vdev name based in type"
-Author:  Ricardo Ribalda <ribalda@chromium.org>
-Date:    Tue Dec 7 01:38:37 2021 +0100
+Subject: media: ov8865: Disable only enabled regulators on error path
+Author:  Sakari Ailus <sakari.ailus@linux.intel.com>
+Date:    Wed Dec 15 09:38:48 2021 +0100
 
-A lot of userspace depends on a descriptive name for vdev. Without this
-patch, users have a hard time figuring out which camera shall they use
-for their video conferencing.
+If powering on the sensor failed, the entire power-off sequence was run
+independently of how far the power-on sequence proceeded before the error.
+This lead to disabling regulators and/or clock that was not enabled.
 
-This reverts commit e3f60e7e1a2b451f538f9926763432249bcf39c4.
+Fix this by disabling only clocks and regulators that were enabled
+previously.
 
-Link: https://lore.kernel.org/linux-media/20211207003840.1212374-2-ribalda@chromium.org
-Cc: <stable@vger.kernel.org>
-Fixes: e3f60e7e1a2b ("media: uvcvideo: Set unique vdev name based in type")
-Reported-by: Nicolas Dufresne <nicolas@ndufresne.ca>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 11c0d8fdccc5 ("media: i2c: Add support for the OV8865 image sensor")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
- drivers/media/usb/uvc/uvc_driver.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/media/i2c/ov8865.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
 ---
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 57152648d8ae..5f394d4efc21 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -2195,7 +2195,6 @@ int uvc_register_video_device(struct uvc_device *dev,
- 			      const struct v4l2_file_operations *fops,
- 			      const struct v4l2_ioctl_ops *ioctl_ops)
- {
--	const char *name;
- 	int ret;
+diff --git a/drivers/media/i2c/ov8865.c b/drivers/media/i2c/ov8865.c
+index ebdb20d3fe9d..d9d016cfa9ac 100644
+--- a/drivers/media/i2c/ov8865.c
++++ b/drivers/media/i2c/ov8865.c
+@@ -2407,27 +2407,27 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DOVDD regulator\n");
+-			goto disable;
++			return ret;
+ 		}
  
- 	/* Initialize the video buffers queue. */
-@@ -2224,20 +2223,16 @@ int uvc_register_video_device(struct uvc_device *dev,
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
- 	default:
- 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
--		name = "Video Capture";
- 		break;
- 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
- 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
--		name = "Video Output";
- 		break;
- 	case V4L2_BUF_TYPE_META_CAPTURE:
- 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
--		name = "Metadata";
- 		break;
+ 		ret = regulator_enable(sensor->avdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable AVDD regulator\n");
+-			goto disable;
++			goto disable_dovdd;
+ 		}
+ 
+ 		ret = regulator_enable(sensor->dvdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DVDD regulator\n");
+-			goto disable;
++			goto disable_avdd;
+ 		}
+ 
+ 		ret = clk_prepare_enable(sensor->extclk);
+ 		if (ret) {
+ 			dev_err(sensor->dev, "failed to enable EXTCLK clock\n");
+-			goto disable;
++			goto disable_dvdd;
+ 		}
+ 
+ 		gpiod_set_value_cansleep(sensor->reset, 0);
+@@ -2436,14 +2436,16 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
+ 		/* Time to enter streaming mode according to power timings. */
+ 		usleep_range(10000, 12000);
+ 	} else {
+-disable:
+ 		gpiod_set_value_cansleep(sensor->powerdown, 1);
+ 		gpiod_set_value_cansleep(sensor->reset, 1);
+ 
+ 		clk_disable_unprepare(sensor->extclk);
+ 
++disable_dvdd:
+ 		regulator_disable(sensor->dvdd);
++disable_avdd:
+ 		regulator_disable(sensor->avdd);
++disable_dovdd:
+ 		regulator_disable(sensor->dovdd);
  	}
  
--	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
--		 stream->header.bTerminalLink);
-+	strscpy(vdev->name, dev->name, sizeof(vdev->name));
- 
- 	/*
- 	 * Set the driver data before calling video_register_device, otherwise
