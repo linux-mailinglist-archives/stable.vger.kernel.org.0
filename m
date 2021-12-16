@@ -2,104 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 794B647700E
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 12:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DA44770C2
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 12:42:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233966AbhLPLRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 06:17:42 -0500
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:43117 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233967AbhLPLRl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 06:17:41 -0500
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 8CB58E0010;
-        Thu, 16 Dec 2021 11:17:38 +0000 (UTC)
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Mark Brown <broonie@kernel.org>, <linux-spi@vger.kernel.org>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Michael Walle <michael@walle.cc>,
-        <linux-mtd@lists.infradead.org>, Rob Herring <robh+dt@kernel.org>,
-        <devicetree@vger.kernel.org>
-Cc:     Julien Su <juliensu@mxic.com.tw>,
-        Jaime Liao <jaimeliao@mxic.com.tw>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        stable@vger.kernel.org, Mason Yang <masonccyang@mxic.com.tw>,
-        Zhengxun Li <zhengxunli@mxic.com.tw>
-Subject: [PATCH v6 24/28] spi: mxic: Fix the transmit path
-Date:   Thu, 16 Dec 2021 12:16:50 +0100
-Message-Id: <20211216111654.238086-25-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20211216111654.238086-1-miquel.raynal@bootlin.com>
-References: <20211216111654.238086-1-miquel.raynal@bootlin.com>
+        id S231721AbhLPLmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 06:42:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60202 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233668AbhLPLmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 06:42:42 -0500
+Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com [IPv6:2607:f8b0:4864:20::f2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07BC3C0613B5
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 03:42:40 -0800 (PST)
+Received: by mail-qv1-xf2f.google.com with SMTP id kj6so7818126qvb.2
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 03:42:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=xre5um49Rnqa1tZMCD58Cd6UlD4MleswKAp3tzt2gjo=;
+        b=K+n9/Q643hF06qaRTfNZAWda8LVlgLOG5CgJcxFPWIFoMhWM1EYpXAS64XJojMwQQx
+         EqR+WcL8ZKNdKxI1rlI6J1X97CAv/GhyzN+frFPEhWEVujbKy2tsQcjkeqXCKP3RT5yd
+         lKeuN0Xs1P/9DhC82fVpgIS54J8emMt0iaVxeunUZuwWzCiKeFFLaXjlQtjXsDp+7Fh/
+         B+VWl/xgmUtxz+BtFM5UhxSltD/0zH4S4seawy0715by/jAvKD9YON3PqOtBI62SbWBD
+         jWpeya/GzA0ycvExWcOcBmWl/DCk9yUsFN2bNj9QfFGM6FIFkaKrPoGkEqRJBjgcerBq
+         tR0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=xre5um49Rnqa1tZMCD58Cd6UlD4MleswKAp3tzt2gjo=;
+        b=J/JQ0ePPIj2hjzMBEXWIqQFm1IQ8mwX/U6KP8aBvwqkkx3iKeV8EPCh4KR+DIqetnU
+         aq8fbqIeo8Fcve0KmpKQV0Y3tkj7EUK1S9L7nF+dcZ1+Vg7yGnv+nCqxIsw0bPFhsdP5
+         zDwouXR/CsdFWtLEVuYCcmsXW5i3YZ1Nr1mO+wy/3XowYb1RqrY1rVCIvFeJiPuJqi3x
+         k1Jq0/LWTJr1XEr1uZ2k18afjNFjQNJuK/KBHybUwD0U28jejx6aU0175QlpYL6KQPH1
+         I1gFWPN+UVfsAZjrTclU0vCxOITYDX94eUAU3QQVyVqezxRHpPEiTj2ZhPFA/jiR276i
+         5q8A==
+X-Gm-Message-State: AOAM5314kbbxbO7jImxCVsQUIzJ02aZXHlOwrPKA7ohjm01kr5f4NafH
+        fGsp0thEy2TpHAJSVBBeqYNnBAtxG+HwmMgCkQI=
+X-Google-Smtp-Source: ABdhPJw1cRuUMMVas+y+QgdrxBW0LuhuWfZ+tfQTS0xFMTT3zW1pjnPXSYKcurxzVoeaOVJevX3+oCe2P65vw9z9/aU=
+X-Received: by 2002:a0c:e5d1:: with SMTP id u17mr15209801qvm.120.1639654958961;
+ Thu, 16 Dec 2021 03:42:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:622a:199c:0:0:0:0 with HTTP; Thu, 16 Dec 2021 03:42:38
+ -0800 (PST)
+Reply-To: selviasantiago1@gmail.com
+From:   Selvia Santiago <mariamatinez119@gmail.com>
+Date:   Thu, 16 Dec 2021 11:42:38 +0000
+Message-ID: <CAONDhKPEx+GKyJvnzbcBxs-brt1E0c+b0jdG7u7Uf+rYJ1N+fA@mail.gmail.com>
+Subject: Urgent
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-By working with external hardware ECC engines, we figured out that
-Under certain circumstances, it is needed for the SPI controller to
-check INT_TX_EMPTY and INT_RX_NOT_EMPTY in both receive and transmit
-path (not only in the receive path). The delay penalty being
-negligible, move this code in the common path.
-
-Fixes: b942d80b0a39 ("spi: Add MXIC controller driver")
-Cc: stable@vger.kernel.org
-Suggested-by: Mason Yang <masonccyang@mxic.com.tw>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Zhengxun Li <zhengxunli@mxic.com.tw>
-Reviewed-by: Mark Brown <broonie@kernel.org>
----
- drivers/spi/spi-mxic.c | 28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/spi/spi-mxic.c b/drivers/spi/spi-mxic.c
-index 8c8c929c87b5..3d6561a3ff8b 100644
---- a/drivers/spi/spi-mxic.c
-+++ b/drivers/spi/spi-mxic.c
-@@ -304,25 +304,21 @@ static int mxic_spi_data_xfer(struct mxic_spi *mxic, const void *txbuf,
- 
- 		writel(data, mxic->regs + TXD(nbytes % 4));
- 
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_TX_EMPTY, 0, USEC_PER_SEC);
-+		if (ret)
-+			return ret;
-+
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_RX_NOT_EMPTY, 0,
-+					 USEC_PER_SEC);
-+		if (ret)
-+			return ret;
-+
-+		data = readl(mxic->regs + RXD);
- 		if (rxbuf) {
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_TX_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
--
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_RX_NOT_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
--
--			data = readl(mxic->regs + RXD);
- 			data >>= (8 * (4 - nbytes));
- 			memcpy(rxbuf + pos, &data, nbytes);
--			WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
--		} else {
--			readl(mxic->regs + RXD);
- 		}
- 		WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
- 
 -- 
-2.27.0
+Urgent
 
+I am Mrs. Selvia Santiago from Abidjan, Cote D'Ivoire, I am a widow
+suffering from long time illness (Cancer), there is funds I inherited
+from my late loving husband Mr. Santiago Carlos, the sum of (US$2.7
+Million Dollars) which he deposited in bank before his death, I need a
+honest and Faithful person that can use these funds for humanity work.
+
+I took this decision because I don't have any child that will inherit
+this money and I don't want a situation where this money will be used
+in an ungodly way. That is why I am taking this decision, and my
+doctor has confirmed to me that I have less than two weeks to live,
+having known my condition I decided to donate this fund to a charity
+or individual that will utilize this money to assist the poor and the
+needy in accordance to my instructions.
+
+I want you to use 70% of this funds for orphanages, school, church,
+widows, propagating the word and other humanity works,The remaining
+30% should be yours for your efforts as the new beneficiary.
+
+Please if you would be able to use these funds for humanity work
+kindly reply me. As soon as I have received your response, I will give
+you further directives on how you are to go about the claims of the
+said funds.
+
+Remain blessed.
+Mrs Selvia Santiago.
