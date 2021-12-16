@@ -2,100 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC7E476CD5
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 10:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0F4476D8A
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 10:40:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231149AbhLPJGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 04:06:30 -0500
-Received: from szxga02-in.huawei.com ([45.249.212.188]:16822 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230228AbhLPJGa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 04:06:30 -0500
-Received: from kwepemi500001.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4JF5n25fdvz91PJ;
-        Thu, 16 Dec 2021 17:05:42 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- kwepemi500001.china.huawei.com (7.221.188.114) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 16 Dec 2021 17:06:27 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 16 Dec 2021 17:06:26 +0800
-Subject: Re: [PATCH 5.10 00/33] 5.10.86-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20211215172024.787958154@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <dfc958b8-5dab-2502-187e-5566bcbb5e5a@huawei.com>
-Date:   Thu, 16 Dec 2021 17:06:26 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S235475AbhLPJkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 04:40:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59738 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232667AbhLPJkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 04:40:20 -0500
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99DBC061574
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 01:40:20 -0800 (PST)
+Received: by mail-io1-xd30.google.com with SMTP id b187so34310725iof.11
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 01:40:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=SWc3yyZEaFLTXBk8NYLxEovZS1OKDxNzdDjBY9IhGyk=;
+        b=ma7jc1m1EwkUd91uyagElT+by/ESRPt3PUWCLj+A+bupp4oapn11hIcKnTpmvnYKf8
+         aIzh0YkInx2AmyUuRCCfbYjdiYxaPGe34AbtnLpx1ewFBeGS0FZypundh4I4AAw37ifs
+         hyDYiPdTGeXVqHp0QvqAa7XObS/bJvKeehl3u232tIyFzGKU36FYM5E+BuFuCthYELUv
+         zZc4k1FeoLl+duQRBDGlzT8NYQS1VQS9bBdYQ7FDwFze/I8joakWE2CjskIIv6SZfdxT
+         xjIc9FNyU15V8u9rco9xSyPOVcnCvoclJBKiAPRa0YHpq32iSw4e4LtTdFv8SGZbE9U3
+         6QzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=SWc3yyZEaFLTXBk8NYLxEovZS1OKDxNzdDjBY9IhGyk=;
+        b=NzGy9DOB1JgCCNE5PlkOZqSofxVv+30BhVB7/w85PPOW9gYrbDiQEH+v0u53bEQizT
+         pyzQnendhig+tPr8GaNElLSF/1G0MsWFsAjKOOqAh5uQYqtG7lCjkxXEtZn91URtPtLh
+         aEQeU2LILZw/R5lvlWbVKhcYx+aMufwagNKvj+DnI4SdTsShFOcpV+GcOoIqXlC831uf
+         sCABuCjI+BihaxALnidt1ylNNfd74vS+1+xgAEZNd/h7GP+LauLYP/KkVzo5ZzRbo39S
+         u0HTZhha1ODO+v2nzzMriAPj1IBfkI6lI4zpslRVMsZX4dxn0JZ+xT1X/MNJDAKVNjJd
+         n9gQ==
+X-Gm-Message-State: AOAM531ibd3wRHN7yHQwyKQ/gW5YduIRZmZESTrXfcE7n1AylOL7OBmj
+        HeJ7zHss3RlHyQzC4JGj1F+xanYXi4QJyYdX3O8=
+X-Google-Smtp-Source: ABdhPJxkDrRij0mJyYn6oMWN6jsv4wyV2PrHvK9HQ8AUmarAdpyepz8Sx0+y1NV+ZSLQawLRSjGPHE5m7gSpe/4UDY0=
+X-Received: by 2002:a05:6638:2585:: with SMTP id s5mr8830330jat.68.1639647620193;
+ Thu, 16 Dec 2021 01:40:20 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
+Reply-To: garnerjulianne63@gmail.com
+Sender: manuelcrouch4@gmail.com
+Received: by 2002:a05:6602:3c7:0:0:0:0 with HTTP; Thu, 16 Dec 2021 01:40:19
+ -0800 (PST)
+From:   Garner Julianne <robertalex2017@gmail.com>
+Date:   Thu, 16 Dec 2021 09:40:19 +0000
+X-Google-Sender-Auth: FgS98dgjO_OyvGCqiRk8Izvpmfk
+Message-ID: <CAGLfTVc-HVG2P82PmYCdhJ9TtB43X5FjvrbiaPA5DWngLGVJOQ@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/12/16 1:20, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.86 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 17 Dec 2021 17:20:14 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.86-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-Tested on arm64 and x86 for 5.10.86-rc1,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.86-rc1
-Commit: fb04daaadf03a67265eaa54966f45e30b83f1049
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9018
-passed: 9018
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9018
-passed: 9018
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Hello Dear, did you receive my previous email?
