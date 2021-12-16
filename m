@@ -2,241 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1408E477107
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 12:47:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF27247710B
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 12:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232804AbhLPLrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 06:47:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33368 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231639AbhLPLrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 06:47:41 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6599BC06173E
-        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 03:47:41 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id z7so24425854edc.11
-        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 03:47:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=XCEmBcYZzRIN6OKtRB2AeETTwqwp1B43Rh6YS4Pk4vI=;
-        b=PhysAmhygWwuOaltk3bjYqbLTNmswu5AMbRzCMWACHlOOBITfhxJySZBYqBiP/AsMK
-         oBq3ZkNpwhS5ZGMJKqvOj6q8AYq+kok+unZSgwKtIhtlkLKg+TT9Akuyt5KsPTEgB30Z
-         0dJWlq7I+2OZ+b2bol5qLpC+uGQj8aYs9NVsrFXOZ9tj055OOFPcBrrspzAwa9+1YRNJ
-         0P5u+xDPybN2X6ZsqItfAYxCot6zTyPvX8/+N9DkzCof4NZKxGrXeRLhYwyIs4JEVZV5
-         6LRMQBxCGje0oJLVO0Xe7V889kik6s7ARvhV43AAjXkh/PtIMeAK2DWvSGpEiStGFMo+
-         WCgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=XCEmBcYZzRIN6OKtRB2AeETTwqwp1B43Rh6YS4Pk4vI=;
-        b=ggxmMA8EOIhM/xP1X4ZpVQPBn9UKzlFOby6zyjOOZ16v4ZXhzUfKJ9u6P5TNPPsn3Q
-         mpWKnR4329aSfyThNypNPiodnC9ee58OwB762UQHQE+LgcYSkrnr9/s3Hyn4pPqa7OtR
-         QjhTfn5blCf57ur/x/H1SjT2D/gDGpMzNZEWg/aT/f3F6YzJGjNIzp6cXY6EvWvFn8Pf
-         4i9M0bBYn/pyr5IhJJYYAUJetAzyMxMUUBx1pdGhhhtwVuy24UQAtmybwGjg2CitOAxa
-         kLoKly/67BDHfzPHfjjkapXUdlMKrs0yfHGjbQrdA/r6TK3VWems1nBJ93YugwhjuTtA
-         48uw==
-X-Gm-Message-State: AOAM532yfoHHq9hqMYASWAxyrLsZs6mk9J+PyrS1sqe3y199kQSCK+Ts
-        MsmUe7kpmxqdbJLLfsP8kt73BLJQpQBZYiZnHUBt+A==
-X-Google-Smtp-Source: ABdhPJx5kmU4qZesErWYNPX7/IQcqg6D/B158M+8r1cIhF6jaNBYxPV2Xe8KP9eAmwRQBUEZnFIvlgtUZ5C1SM01mpY=
-X-Received: by 2002:a17:907:7da5:: with SMTP id oz37mr15895831ejc.586.1639655259747;
- Thu, 16 Dec 2021 03:47:39 -0800 (PST)
+        id S233689AbhLPLsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 06:48:02 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:45636 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232052AbhLPLr7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 06:47:59 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 133A821125;
+        Thu, 16 Dec 2021 11:47:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1639655278; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=rsBX4wutKe9mRVpZaMba57dO9duB2x/I0X75JghO1iU=;
+        b=C08JTmmfiLylxazC5rkkJEvd5rJIbML2Ew7Xogc+hAXJIKk0oH3RiHQLdQfm90URxB6L2B
+        K+HQyTAAM71HkAaapVNt7FfcGjCSm8lM6aeNLu6m9msF+Kv2YBXWjalC2owMGpzvZB8Noa
+        qEF84JpykTDbvsVTMwdIoU9XP7oDmh4=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 12BD413B4B;
+        Thu, 16 Dec 2021 11:47:56 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 2KBaMWwnu2FvQwAAMHmgww
+        (envelope-from <wqu@suse.com>); Thu, 16 Dec 2021 11:47:56 +0000
+From:   Qu Wenruo <wqu@suse.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 1/2] btrfs: don't start transaction for scrub if the fs is mounted read-only
+Date:   Thu, 16 Dec 2021 19:47:35 +0800
+Message-Id: <20211216114736.69757-2-wqu@suse.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211216114736.69757-1-wqu@suse.com>
+References: <20211216114736.69757-1-wqu@suse.com>
 MIME-Version: 1.0
-References: <20211215172022.795825673@linuxfoundation.org>
-In-Reply-To: <20211215172022.795825673@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 16 Dec 2021 17:17:28 +0530
-Message-ID: <CA+G9fYt=myg0Xpxn5NqjRvL23oFKYsbsqvVPSi_c-2kqsRuSUA@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/18] 5.4.166-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 15 Dec 2021 at 22:56, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.166 release.
-> There are 18 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 17 Dec 2021 17:20:14 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.166-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+[BUG]
+The following super simple script would crash btrfs at unmount time, if
+CONFIG_BTRFS_ASSERT() is set.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+ mkfs.btrfs -f $dev
+ mount $dev $mnt
+ xfs_io -f -c "pwrite 0 4k" $mnt/file
+ umount $mnt
+ mount -r ro $dev $mnt
+ btrfs scrub start -Br $mnt
+ umount $mnt
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+This will trigger the following ASSERT() introduced by commit
+0a31daa4b602 ("btrfs: add assertion for empty list of transactions at
+late stage of umount").
 
-## Build
-* kernel: 5.4.166-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: b780ab989d6045e3a7f03d21348c50a4ac4fb2c5
-* git describe: v5.4.165-19-gb780ab989d60
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-65-19-gb780ab989d60
+That patch is deifnitely not the cause, it just makes enough noise for
+us developer.
 
-## No Test Regressions (compared to v5.4.164-89-gc50f1e613033)
+[CAUSE]
+We will start transaction for the following call chain during scrub:
 
-## No Test Fixes (compared to v5.4.164-89-gc50f1e613033)
+  scrub_enumerate_chunks()
+  |- btrfs_inc_block_group_ro()
+     |- btrfs_join_transaction()
 
-## Test result summary
-total: 82641, pass: 68845, fail: 666, skip: 12220, xfail: 910
+However for RO mount, there is no running transaction at all, thus
+btrfs_join_transaction() will start a new transaction.
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 258 total, 254 passed, 4 failed
-* arm64: 36 total, 31 passed, 5 failed
-* dragonboard-410c: 2 total, 1 passed, 1 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 20 total, 20 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 34 total, 34 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 52 total, 48 passed, 4 failed
-* riscv: 24 total, 24 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 36 total, 36 passed, 0 failed
+Furthermore, since it's read-only mount, btrfs_sync_fs() will not call
+btrfs_commit_super() to commit the new but empty transaction.
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+And lead to the ASSERT() being triggered.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+The bug should be there for a long time. Only the new ASSERT() makes it
+noisy enough to be noticed.
+
+[FIX]
+For read-only scrub on read-only mount, there is no need to start a
+transaction nor to allocate new chunks in btrfs_inc_block_group_ro().
+
+Just do extra read-only mount check in btrfs_inc_block_group_ro(), and
+if it's read-only, skip all chunk allocation and go inc_block_group_ro()
+directly.
+
+Since we're here, also add extra debug message at unmount for
+btrfs_fs_info::trans_list.
+Sometimes just knowing that there is no dirty metadata bytes for a
+uncommitted transaction can tell us a lot of things.
+
+Cc: stable@vger.kernel.org # 5.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+---
+ fs/btrfs/block-group.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 1db24e6d6d90..702219361b12 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -2544,6 +2544,19 @@ int btrfs_inc_block_group_ro(struct btrfs_block_group *cache,
+ 	int ret;
+ 	bool dirty_bg_running;
+ 
++	/*
++	 * This can only happen when we are doing read-only scrub on read-only
++	 * mount.
++	 * In that case we should not start a new transaction on read-only fs.
++	 * Thus here we skip all chunk allocation.
++	 */
++	if (sb_rdonly(fs_info->sb)) {
++		mutex_lock(&fs_info->ro_block_group_mutex);
++		ret = inc_block_group_ro(cache, 0);
++		mutex_unlock(&fs_info->ro_block_group_mutex);
++		return ret;
++	}
++
+ 	do {
+ 		trans = btrfs_join_transaction(root);
+ 		if (IS_ERR(trans))
+-- 
+2.34.1
+
