@@ -2,105 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AB9F477680
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 17:00:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E57DB4778D0
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 17:25:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238670AbhLPQAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 11:00:31 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:37746 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238661AbhLPQAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Dec 2021 11:00:30 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1mxtBF-005dh2-Fa; Thu, 16 Dec 2021 16:00:29 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Thu, 16 Dec 2021 15:54:40 +0000
-Subject: [git:media_stage/master] media: ov8865: Disable only enabled regulators on error path
-To:     linuxtv-commits@linuxtv.org
-Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>, stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1mxtBF-005dh2-Fa@www.linuxtv.org>
+        id S239705AbhLPQZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 11:25:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43988 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239675AbhLPQZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 11:25:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2B7C061747;
+        Thu, 16 Dec 2021 08:24:59 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5039B824BA;
+        Thu, 16 Dec 2021 16:24:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3289C36AE4;
+        Thu, 16 Dec 2021 16:24:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639671897;
+        bh=CnCI8qhi2jz7oSWFVspcGp2BSzGnWyugY9kc3qnG69U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=g1X6Lwf+2BwJUQckbRNy5ft5bJ3mW6EQCWWP6Ur8XFgRygrCpg/e3wJPFe0AfRy8e
+         3BifabkPiwSRBk5oNXZAzZBfKCXdyWxTAkLnJR1ynYt5k66HwTOjMbqAK5LWQhcxgt
+         nL9mbxggWYLzs1DEQKS/tgGL5fjcEkdWqawhVMTw=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.10.86
+Date:   Thu, 16 Dec 2021 17:24:53 +0100
+Message-Id: <1639671855244236@kroah.com>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+I'm announcing the release of the 5.10.86 kernel.
 
-Subject: media: ov8865: Disable only enabled regulators on error path
-Author:  Sakari Ailus <sakari.ailus@linux.intel.com>
-Date:    Wed Dec 15 09:38:48 2021 +0100
+Only change here is a permission setting of a netfilter selftest file.
+No need to upgrade if this problem is not bothering you.
 
-If powering on the sensor failed, the entire power-off sequence was run
-independently of how far the power-on sequence proceeded before the error.
-This lead to disabling regulators and/or clock that was not enabled.
+The updated 5.10.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-Fix this by disabling only clocks and regulators that were enabled
-previously.
+thanks,
 
-Fixes: 11c0d8fdccc5 ("media: i2c: Add support for the OV8865 image sensor")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+greg k-h
 
- drivers/media/i2c/ov8865.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+------------
 
----
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ov8865.c b/drivers/media/i2c/ov8865.c
-index ebdb20d3fe9d..d9d016cfa9ac 100644
---- a/drivers/media/i2c/ov8865.c
-+++ b/drivers/media/i2c/ov8865.c
-@@ -2407,27 +2407,27 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
- 		if (ret) {
- 			dev_err(sensor->dev,
- 				"failed to enable DOVDD regulator\n");
--			goto disable;
-+			return ret;
- 		}
- 
- 		ret = regulator_enable(sensor->avdd);
- 		if (ret) {
- 			dev_err(sensor->dev,
- 				"failed to enable AVDD regulator\n");
--			goto disable;
-+			goto disable_dovdd;
- 		}
- 
- 		ret = regulator_enable(sensor->dvdd);
- 		if (ret) {
- 			dev_err(sensor->dev,
- 				"failed to enable DVDD regulator\n");
--			goto disable;
-+			goto disable_avdd;
- 		}
- 
- 		ret = clk_prepare_enable(sensor->extclk);
- 		if (ret) {
- 			dev_err(sensor->dev, "failed to enable EXTCLK clock\n");
--			goto disable;
-+			goto disable_dvdd;
- 		}
- 
- 		gpiod_set_value_cansleep(sensor->reset, 0);
-@@ -2436,14 +2436,16 @@ static int ov8865_sensor_power(struct ov8865_sensor *sensor, bool on)
- 		/* Time to enter streaming mode according to power timings. */
- 		usleep_range(10000, 12000);
- 	} else {
--disable:
- 		gpiod_set_value_cansleep(sensor->powerdown, 1);
- 		gpiod_set_value_cansleep(sensor->reset, 1);
- 
- 		clk_disable_unprepare(sensor->extclk);
- 
-+disable_dvdd:
- 		regulator_disable(sensor->dvdd);
-+disable_avdd:
- 		regulator_disable(sensor->avdd);
-+disable_dovdd:
- 		regulator_disable(sensor->dovdd);
- 	}
- 
+Greg Kroah-Hartman (2):
+      netfilter: selftest: conntrack_vrf.sh: fix file permission
+      Linux 5.10.86
+
