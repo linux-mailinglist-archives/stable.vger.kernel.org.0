@@ -2,152 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E845B476F29
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 11:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55964476F3A
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 11:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233491AbhLPKwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 05:52:31 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:47614 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231640AbhLPKwb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 05:52:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1639651951;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=K8uTzGYoOBRJY7w+8Ql8RIVF0k5wL483NDOt+n6WV+4=;
-        b=K0yjGxetYG0wi3kMZYwWL1tsYpqw/t/wa81aXTVYmvy2LtiwAEUjaGsAS4zRG9WOrLhiCL
-        gJUQxLmfBQAIkabdD1SG/t487PmCt5EMnbWl/EyS7Hrq7loKoV2HGqDfT/M6ENYbWaIdt0
-        DluTJC5KEjO0VYPVncPbXhrkfYG6rCk=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-655-ofr9kNEcOoGr4AI0FKIiLg-1; Thu, 16 Dec 2021 05:52:29 -0500
-X-MC-Unique: ofr9kNEcOoGr4AI0FKIiLg-1
-Received: by mail-wr1-f72.google.com with SMTP id k11-20020adfc70b000000b001a2333d9406so1171906wrg.3
-        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 02:52:29 -0800 (PST)
+        id S233527AbhLPKyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 05:54:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233516AbhLPKyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 05:54:22 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB24EC06173E
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 02:54:21 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id g14so84463282edb.8
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 02:54:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=NzMGgtHLVkL7Zoni4ZKWdaDDzYlWc7/QvgZKMJdK/Jg=;
+        b=nDIa1YIPfbmjy6W4A9M6vsAXp4t06DD3oIpi3i9W9ddrVZHdrism1eMnItOw5R4Nox
+         ThD5ZsDGQgtvjKavmlrkffj+c1WOLTVa+QSZ7ndgcvVk1WlplUaQ/cikHVeLIabjChzx
+         DwGzMrjSkegK3g5CERbpOA0VwtPQB4TrI7WWitsUN/EGRdgSvV+FgkxJEnhw/gLQ+Yng
+         EqBeJFtYHMnMdK2kOnfYvsLVPRE7YOKrYpGFSECgYu4kQNPvkuosPU3uPf7NaDFEIF7Q
+         vy4k1orwslb4Jo/hFYX0bCb94ELhB5kBq6ynsUGzHTZo04VIMiRATUmxLnoRHydT01TB
+         5X4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=K8uTzGYoOBRJY7w+8Ql8RIVF0k5wL483NDOt+n6WV+4=;
-        b=pd4j4skHlSMk4MRzfp1WaDKrUD9Ws0BcNAr31EzgL9cP2u73HAuzdwJJdGPJM6VJ/j
-         dfg8nSzizBlNC3M57CIlxo4ylCVxehHCAXAACeYUaHd1jZ0oLXYCru6SopDrWefqc9US
-         pRWiyy1YvhGqQl9v22uKFooiJu82V5kaFCj3qr41LmU7sQVfnDWCsKjL8xhff50/pyjE
-         MwtMEiPka2og8Y9mhYYixPHa/n/b+FFO+PGBF0Oinb8ukWRHeqgKzBzfEppm933ZikWp
-         p0wRuB9HKUAvwIbirvObYV61s6Zi/+DpKV+8KeogFQHT77HCEdxZe85TYl2iMtpVGsLk
-         6Lbw==
-X-Gm-Message-State: AOAM530AutF904oy9Ow75Gj+SD8QF2mB5XtGf/QU3j1DNSfSVL3J4Tny
-        6PCkYtQ6lSX/QM4eF9Ots1gVOQDUj8Lzdf4QErSfNpKhLUB9WKpVVs8umPyGU05xhmvAcYAI8BO
-        AQeYiSmiYRZ9Uglvd
-X-Received: by 2002:a5d:6b81:: with SMTP id n1mr8498338wrx.56.1639651948620;
-        Thu, 16 Dec 2021 02:52:28 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyHuwZkDO7xDTGVXnkIzmCOOqyhEHNs5qWSXjlASQ9huiT2CqWmGIwoAlwyq1QAUc8hqk8taw==
-X-Received: by 2002:a5d:6b81:: with SMTP id n1mr8498324wrx.56.1639651948362;
-        Thu, 16 Dec 2021 02:52:28 -0800 (PST)
-Received: from [192.168.3.132] (p4ff23dcd.dip0.t-ipconnect.de. [79.242.61.205])
-        by smtp.gmail.com with ESMTPSA id e11sm5582137wrq.28.2021.12.16.02.52.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Dec 2021 02:52:27 -0800 (PST)
-Message-ID: <0091b689-54b6-7cc9-d5ee-ae12a2f8376d@redhat.com>
-Date:   Thu, 16 Dec 2021 11:52:27 +0100
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=NzMGgtHLVkL7Zoni4ZKWdaDDzYlWc7/QvgZKMJdK/Jg=;
+        b=5d4/aBvoJQM/KQp8aug2TSMJrPrfybV35LEebz4tzW+fKTDDo/O9IKSDtxCcVlpazR
+         3zDkOYocp9RGfeTQjd8DnHe1tJ/oPZATOkmOnUiqLgCHFcV6EKr8hWiMI8F6hZQ3XoLF
+         AJ6pj1FloDxMJtjaAig7QqUnM/hIF1kfVa6jDqYkOP1ke4HER37JxZe+iY6Nv9pbiZhL
+         qjnKw1tg6yP/tQAOnZeaDHfndEGyWRFnYuNhFn+yzcDvdJ4ohGMz0qzVQ1oHvzJFbgEX
+         PpLO/X1xllJAiqhIW1iqVkvM8JsQVCNqmVWUNuuIVQ0zwqMXvCVOIvIDJKj1ajnZzahV
+         svvQ==
+X-Gm-Message-State: AOAM532UEWTRIzCTDbxEnE85cFzBladNs19g70kYRsa9ZvPdtDucmlRp
+        RXtz7dX1u6y5jqgmWJJyx7CHrfUBHh/1FsvKqpeZjQ==
+X-Google-Smtp-Source: ABdhPJxpeX1sQ5t3tCT7e0duXvHHxHhGX/RvqKYXjPcACTyrPJdWCPx0iXiUqm/J/NKHrd1QnUJR6pQRZxWARoIMRnA=
+X-Received: by 2002:a05:6402:4b:: with SMTP id f11mr19626141edu.267.1639652060086;
+ Thu, 16 Dec 2021 02:54:20 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH v3 3/5] mm_zone: add function to check if managed dma zone
- exists
-Content-Language: en-US
-To:     Baoquan He <bhe@redhat.com>, linux-kernel@vger.kernel.org
-Cc:     linux-mm@kvack.org, akpm@linux-foundation.org, hch@lst.de,
-        cl@linux.com, John.p.donnelly@oracle.com,
-        kexec@lists.infradead.org, stable@vger.kernel.org
-References: <20211213122712.23805-1-bhe@redhat.com>
- <20211213122712.23805-4-bhe@redhat.com>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20211213122712.23805-4-bhe@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20211215172024.787958154@linuxfoundation.org>
+In-Reply-To: <20211215172024.787958154@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 16 Dec 2021 16:24:08 +0530
+Message-ID: <CA+G9fYuTJdgN2MHPB3YSQobn5DMrczu_GOkPwv9NgxRnDfZvAA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/33] 5.10.86-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13.12.21 13:27, Baoquan He wrote:
-> In some places of the current kernel, it assumes that dma zone must have
-> managed pages if CONFIG_ZONE_DMA is enabled. While this is not always true.
-> E.g in kdump kernel of x86_64, only low 1M is presented and locked down
-> at very early stage of boot, so that there's no managed pages at all in
-> DMA zone. This exception will always cause page allocation failure if page
-> is requested from DMA zone.
-> 
-> Here add function has_managed_dma() and the relevant helper functions to
-> check if there's DMA zone with managed pages. It will be used in later
-> patches.
-> 
-> Fixes: 6f599d84231f ("x86/kdump: Always reserve the low 1M when the crashkernel option is specified")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Baoquan He <bhe@redhat.com>
-> ---
-> v2->v3:
->  Rewrite has_managed_dma() in a simpler and more efficient way which is
->  sugggested by DavidH. 
-> 
->  include/linux/mmzone.h |  9 +++++++++
->  mm/page_alloc.c        | 15 +++++++++++++++
->  2 files changed, 24 insertions(+)
-> 
-> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-> index 58e744b78c2c..6e1b726e9adf 100644
-> --- a/include/linux/mmzone.h
-> +++ b/include/linux/mmzone.h
-> @@ -1046,6 +1046,15 @@ static inline int is_highmem_idx(enum zone_type idx)
->  #endif
->  }
->  
-> +#ifdef CONFIG_ZONE_DMA
-> +bool has_managed_dma(void);
-> +#else
-> +static inline bool has_managed_dma(void)
-> +{
-> +	return false;
-> +}
-> +#endif
-> +
->  /**
->   * is_highmem - helper function to quickly check if a struct zone is a
->   *              highmem zone or not.  This is an attempt to keep references
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index c5952749ad40..7c7a0b5de2ff 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -9460,3 +9460,18 @@ bool take_page_off_buddy(struct page *page)
->  	return ret;
->  }
->  #endif
-> +
-> +#ifdef CONFIG_ZONE_DMA
-> +bool has_managed_dma(void)
-> +{
-> +	struct pglist_data *pgdat;
-> +
-> +	for_each_online_pgdat(pgdat) {
-> +		struct zone *zone = &pgdat->node_zones[ZONE_DMA];
-> +
-> +		if (managed_zone(zone))
-> +			return true;
-> +	}
-> +	return false;
-> +}
-> +#endif /* CONFIG_ZONE_DMA */
-> 
+On Wed, 15 Dec 2021 at 22:54, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.86 release.
+> There are 33 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 17 Dec 2021 17:20:14 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.86-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
 
--- 
-Thanks,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-David / dhildenb
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+## Build
+* kernel: 5.10.86-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: fb04daaadf03a67265eaa54966f45e30b83f1049
+* git describe: v5.10.85-34-gfb04daaadf03
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.85-34-gfb04daaadf03
+
+## No Test Regressions (compared to v5.10.84-128-g24961377099e)
+
+## No Test Fixes (compared to v5.10.84-128-g24961377099e)
+
+## Test result summary
+total: 91173, pass: 78137, fail: 562, skip: 11764, xfail: 710
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 259 total, 255 passed, 4 failed
+* arm64: 37 total, 37 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 36 total, 36 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 34 total, 30 passed, 4 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 52 total, 46 passed, 6 failed
+* riscv: 24 total, 16 passed, 8 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 2 total, 1 passed, 1 failed
+* x86_64: 37 total, 37 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
