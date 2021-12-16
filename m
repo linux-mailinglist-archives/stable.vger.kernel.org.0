@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C69B477D3A
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 21:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED4A0477D3B
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 21:16:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbhLPUPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 15:15:51 -0500
-Received: from mail-co1nam11on2047.outbound.protection.outlook.com ([40.107.220.47]:3744
-        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        id S233573AbhLPUQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 15:16:31 -0500
+Received: from mail-dm6nam11on2071.outbound.protection.outlook.com ([40.107.223.71]:37557
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S241281AbhLPUPu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Dec 2021 15:15:50 -0500
+        id S233571AbhLPUQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Dec 2021 15:16:30 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=b7JfBYP2LSW3G1a0qVwVRyGWE9dgl2UzF4HZnpWqtdxVwvilgjbyejyVMstrgo6mwcJEHfdg/ztqYcrB9cb0tM81yVzXjBQiE4SRPCwEvjnuo9UaP3KFzXA/x8BhDZkAwyEpMSXEVCpdtSVkU7Y/6NkNuUIIFCwEasaOBtc/KPfB1COPx38IAE+BfWaga2w4Lzo6dL9LJ3bzgx8yt+Kb+t60dd0cIHrVmF9XKXoQRfmUhekMfwAU/gHxV6jVdWe0YVVfPN2nE1knfAzriun7JW4wJ9hTEsaTND/zfvkXKxXedTZIPky3NCBH2OJKuQK1+PQDOJEOkXOs/10rvp1Bsw==
+ b=HD1Z+CR2JeXewuDeiwXn/6H67WwHbjh24ZOC9nWBPzRo4uLwEyBF6P2uSMN3ZkU1Wp+J2fzCVeNQkq4rXmAlZOmEGttwWqYU3lSMRYesG7igRxKMpx/gHlUOgvUtsmZjB4O1vU+p7liQuf89GxUG3P+G0rS7XtTOjMktEoS4Te/qVColK28IKnGSbneLtHAbPL+jIAhNnKBaeJ6lIKzfOVWBEJEoq6qOiLm5AiVrFFCIXT4vu03s3t7OwzuS16yGSJR36DZr8eZzwBCNKyatkfB8YbXC9qgnjrQ6342NigR7FapR4ebVMsiTtzB8/wWhgYDxCbUuTg0DuFErfspNjw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ts1IYf1P3QkMG6MI4b91cqdwvaqt0+ugAbvE9aksAaU=;
- b=L1jMMq62n36+s888V3TqEns0WVp3xsPRL9IjzRNlknwHUv/mE1jveIFzVwMOr6MtESKr14ZWWk7DOVk0fzvwyuVyiH3sANjVmalD4cixXS1MiakURWgfCeMmHE047GBN27U6eDDjs59CQGKqQ1eKoOdB8HyINXUSGm7saqEq5EgiPKmQRx7tbqO81riseo9VPfMiagEnAylNuBOCMlIMZMjQMEzXhtyJmZe80SHtO484W3E8Je3Julku9j0bFXwyY9TcNrG7mNtfFo/wcLgJD4HsHCs/vPXzqD2yRLt8peBeo70Y69SGMVpXJHqecjH4g08sfS4yc91+2MowiLstMw==
+ bh=LRg7X4W0k/09ArnQh5Ebbq3a699D2dWR5oc/Df3g+e4=;
+ b=HzN1p0MAjXCz1Wxj93m3uKYu5+413tdIiA0wTuyyO38WpE3TJiTntnXkeWKJRwU55ULmueO3beZcPDjdp7mrDL9ih0fw4oiCZtLDxiYzXT0AKxRJeMAemF/bJfFIak6eoT/jW0mGssRZyh1BiEUpstMt1+iJqe3zVMqBxMUW5d8M+HfKy+Hak4PVJzPUgBT6UEwYWqigZPMBZjzQmvE1D/BeS7p/Uw8oLiryoFEpcXiRFk3Xjrm4Fh/sl5CifnoCrAS9Bgiwja+0SwzbhoqnHNYvns4VBC8orr+1pml0vYSan8MYDhD5Y2McGxmSYk2JOv32zC76acRmCBw3CewQdg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
  dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
  header.from=amd.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ts1IYf1P3QkMG6MI4b91cqdwvaqt0+ugAbvE9aksAaU=;
- b=tMtVh73VH7wFaX4O0hE/gr1sm0TI/Woo2NQkIEAGE6+UJkuSqZ/L0qfObZi+9oWH4AgeRHuWLuAgVGo6G7PZMa3T0y+lL4ZrLZiUKvZJinEhN2cv0G3KHkbZRmsgi6wcIlkjtSekqmMoi3my/QD1hAW4EdieqmxEV7SHoJDaTMI=
-Received: from DS7PR03CA0272.namprd03.prod.outlook.com (2603:10b6:5:3ad::7) by
- CH2PR12MB4953.namprd12.prod.outlook.com (2603:10b6:610:36::8) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4801.14; Thu, 16 Dec 2021 20:15:44 +0000
-Received: from DM6NAM11FT018.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:3ad:cafe::43) by DS7PR03CA0272.outlook.office365.com
- (2603:10b6:5:3ad::7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4801.15 via Frontend
- Transport; Thu, 16 Dec 2021 20:15:44 +0000
+ bh=LRg7X4W0k/09ArnQh5Ebbq3a699D2dWR5oc/Df3g+e4=;
+ b=IDfkD2fmsWh03MDPQCeekgIyeCb+ISwVgIsyeZgEqnVw9Fnrd/385WLf2NNjnCDMb5UcLNvc1Gc8aLbbVnSsl7i6dsuQxiN0rQsbm8ALpxhR8j0zajC15M2doOGCKyTiZGunb3XTk8CRhJvbNrojWdeoGgWZMo9G4yGi+8NWZJU=
+Received: from DS7PR03CA0167.namprd03.prod.outlook.com (2603:10b6:5:3b2::22)
+ by CY4PR12MB1511.namprd12.prod.outlook.com (2603:10b6:910:4::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4801.14; Thu, 16 Dec
+ 2021 20:16:27 +0000
+Received: from DM6NAM11FT013.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:3b2:cafe::3e) by DS7PR03CA0167.outlook.office365.com
+ (2603:10b6:5:3b2::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.16 via Frontend
+ Transport; Thu, 16 Dec 2021 20:16:27 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -43,23 +44,21 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=SATLEXMB03.amd.com;
 Received: from SATLEXMB03.amd.com (165.204.84.17) by
- DM6NAM11FT018.mail.protection.outlook.com (10.13.172.110) with Microsoft SMTP
+ DM6NAM11FT013.mail.protection.outlook.com (10.13.173.142) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4801.14 via Frontend Transport; Thu, 16 Dec 2021 20:15:43 +0000
+ 15.20.4801.14 via Frontend Transport; Thu, 16 Dec 2021 20:16:27 +0000
 Received: from tlendack-t1.amd.com (10.180.168.240) by SATLEXMB03.amd.com
  (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Thu, 16 Dec
- 2021 14:15:42 -0600
+ 2021 14:16:25 -0600
 From:   Tom Lendacky <thomas.lendacky@amd.com>
 To:     <stable@vger.kernel.org>
 CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 2/2] x86/sme: Explicitly map new EFI memmap table as encrypted
-Date:   Thu, 16 Dec 2021 14:15:20 -0600
-Message-ID: <9ec3287cf33d59463c14143de583ecb5016ee34e.1639685720.git.thomas.lendacky@amd.com>
+Subject: [PATCH 1/2] x86: Make ARCH_USE_MEMREMAP_PROT a generic Kconfig symbol
+Date:   Thu, 16 Dec 2021 14:16:18 -0600
+Message-ID: <e08545b502f177e5905aeba45ef31fab3e933e3b.1639685779.git.thomas.lendacky@amd.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20aa49e158bf5ad18df99febdac0a93790e1a746.1639685720.git.thomas.lendacky@amd.com>
-References: <20aa49e158bf5ad18df99febdac0a93790e1a746.1639685720.git.thomas.lendacky@amd.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
@@ -68,86 +67,142 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB03.amd.com
  (10.181.40.144)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a6e43227-2ee9-43fd-7f6b-08d9c0d0d6db
-X-MS-TrafficTypeDiagnostic: CH2PR12MB4953:EE_
-X-Microsoft-Antispam-PRVS: <CH2PR12MB49539FA3C71D5D18490ADA7CEC779@CH2PR12MB4953.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5797;
+X-MS-Office365-Filtering-Correlation-Id: f1c83884-a06e-4341-95b9-08d9c0d0f088
+X-MS-TrafficTypeDiagnostic: CY4PR12MB1511:EE_
+X-Microsoft-Antispam-PRVS: <CY4PR12MB1511730282AEBBCB3112063BEC779@CY4PR12MB1511.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: QGuhL36SfAeyoXMQcDsbj24fYDYJMO3P4asE8VGSLbW+H3dQB+pBlW+aVZWlnvDzFzZBRO5qUIGnSKNHiz4yOVko38EeTmbJJ0mnZft7XZGXAcAA7YHwRjVrn2hUahBSqk3EmBwUgGcTWNc8DfuzWVGLYHWLME/N2cbl1f93G6fO5rFRFUUk+f+e4sKDydJoXGhRXE/249cEAvV6xKaPsM68ri80gQtAeZUNnkKMRZd4KM5BIHQDrd5qXO4NxBhfSrYDzY0LAvumMnUXuOAErZumDjFCHsWvpEnAX/yyrPY2OxlRHLX4V/dI4zMytBkZAjgXFUo6P72Jk5WgnuKbLzdZ9qSgPe/3C6wyZWKHkdRM+86a1Da2vB7Gz+KPSeMGYqcB0Ig1RA/h8QJmG2rSxOS+y+4HiTfw9UxzQmnPCwnNZ1L1SRs7j5kt6UH02iqzBdEoswngTZDUgZ6lQSCLanARodxVZJC75DmyAFOA5JowOLQOImK9J526UqJRERIxbKGSpYiWMKi8oOcLEMHL4lqau45WgSKlkQ9BlCIXuxyuwH/h25VjEk9VuY7FldE2L0Huv0V6M/Ee5pAd5rKz5tTUjDia8WXx1JBukezRmuAvUCMPXHNqz2Hkjw4FfWYboO0lQGenIXiT1lRxqqo3CPosCYtFAc8YEAolda/Pb/WuLZYNm5IYJqNnndBaUYCYTbXBgGfrbF1s0IOef2fO8aAZ5T9XNycsBHCeWUmhUAMR3Q6TeYjhdDId1R8DfxLOJh9NJ5FUgoIvCztnLifcj+8xQENF7vpLWL8H/UrD5yScEWfG3/rO5VjeAblUErD38e1PiNZPncnjzvjJAdEDq9imWqd5Y99wh6oXrZGh9aPke5C+b+vo1OUWxqHNejuu
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(40470700001)(83380400001)(7696005)(82310400004)(40460700001)(54906003)(6666004)(81166007)(426003)(86362001)(966005)(5660300002)(336012)(316002)(8676002)(6916009)(508600001)(36756003)(8936002)(2906002)(4326008)(47076005)(186003)(2616005)(70206006)(70586007)(356005)(36860700001)(26005)(16526019)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: gjDtDMHUhblksXMGAjYdmpUSNN1YkyTRusRCG53csCBebJZ07T96ZYAi6fg0xwEpXIXyI0syUMkrMLUN5Ep0OfUiUk8IHAUcr/9lW0ufuaa294nPXGwxV0wXKsnCEZ4okGT+XUAch3hsHKnaKBU7PSrZmd6XdRmi82F2BSwXkBhDVZgrOBwOHSGmHmbD4RuZqiK7raVOfd2WPCd1mtscdwTv16v6Eu5T90FKSu+OqQW2P9/SISJrPkuXg7f3gOusXwWnublr4G4UZ5bv7iurl/vgjEH0ZAhzteEa8KcJgJbc0/qy7eikKjZ1KFmGHZag/faj/IBU2+KsUeZtzG7ySTAzRrUbBCG+GY0bNcFPersvy3KkAiNF3JZW0QioHeUs2w0UpwPO0MSrhiNuKS1ALvmj51VYtks8hSrUSoSrpR/C0tuGfpIedFfTT8tGsT6OLs739dsDFinOTraGYl5lPV0zgsd8oUeeCyMbyhq2dnaJNVV/YI2e67bihouOsmOobR1190AuhGtEdSMOok9ZaUp06otWCANXqP97XBLoGwD8ezP9FvlXf9HBedxEErQsA3JkvcAg5YbUF+V5sbNb+7/K/pSC+OZAufmmiepaXpWf1TzgFBRJtIL1aWEd4deOVEHgXIHku/zzLjt6pshxz/omJUOrUo/wET27T9uhEdA4ED0oj404bh7KugN4J+duNyy+RjERQLsUs3xqjGmCGKrx6zJz2bCf0PJXP9oiuq9ReRDbG/8ACJrNp+2qYwtlQdKYo/1FhTZSCz6nN6TJyimBMwPMfL35NqfqWl7p7gJg2Q1Fel/j8IynUd1opnBPNe5j7knlrZYfqz1eZS0M26495lHP7pZ9Pr3JQBLaWnYST98F38D0eAH2yTZEaX9+0mfrUIU7wJyFVAD0cNbFRQ==
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(40470700001)(54906003)(8676002)(4326008)(36860700001)(356005)(426003)(8936002)(2616005)(47076005)(508600001)(966005)(81166007)(6916009)(70586007)(40460700001)(316002)(26005)(86362001)(186003)(2906002)(82310400004)(70206006)(16526019)(7696005)(5660300002)(336012)(36756003)(83380400001)(6666004)(41533002)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Dec 2021 20:15:43.9294
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Dec 2021 20:16:27.0068
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a6e43227-2ee9-43fd-7f6b-08d9c0d0d6db
+X-MS-Exchange-CrossTenant-Network-Message-Id: f1c83884-a06e-4341-95b9-08d9c0d0f088
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT018.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT013.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4953
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1511
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 1ff2fc02862d52e18fd3daabcfe840ec27e920a8 upstream
-to be applied to 4.14.
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-Reserving memory using efi_mem_reserve() calls into the x86
-efi_arch_mem_reserve() function. This function will insert a new EFI
-memory descriptor into the EFI memory map representing the area of
-memory to be reserved and marking it as EFI runtime memory. As part
-of adding this new entry, a new EFI memory map is allocated and mapped.
-The mapping is where a problem can occur. This new memory map is mapped
-using early_memremap() and generally mapped encrypted, unless the new
-memory for the mapping happens to come from an area of memory that is
-marked as EFI_BOOT_SERVICES_DATA memory. In this case, the new memory will
-be mapped unencrypted. However, during replacement of the old memory map,
-efi_mem_type() is disabled, so the new memory map will now be long-term
-mapped encrypted (in efi.memmap), resulting in the map containing invalid
-data and causing the kernel boot to crash.
+commit ce9084ba0d1d8030adee7038ace32f8d9d423d0f upstream
+to be applied to 4.19.
 
-Since it is known that the area will be mapped encrypted going forward,
-explicitly map the new memory map as encrypted using early_memremap_prot().
+Turn ARCH_USE_MEMREMAP_PROT into a generic Kconfig symbol, and fix the
+dependency expression to reflect that AMD_MEM_ENCRYPT depends on it,
+instead of the other way around. This will permit ARCH_USE_MEMREMAP_PROT
+to be selected by other architectures.
 
-Cc: <stable@vger.kernel.org> # 4.14.x
-Fixes: 8f716c9b5feb ("x86/mm: Add support to access boot related data in the clear")
-Link: https://lore.kernel.org/all/ebf1eb2940405438a09d51d121ec0d02c8755558.1634752931.git.thomas.lendacky@amd.com/
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ardb: incorporate Kconfig fix by Arnd]
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Note that the encryption related early memremap routines in
+arch/x86/mm/ioremap.c cannot be built for 32-bit x86 without triggering
+the following warning:
+
+     arch/x86//mm/ioremap.c: In function 'early_memremap_encrypted':
+  >> arch/x86/include/asm/pgtable_types.h:193:27: warning: conversion from
+                     'long long unsigned int' to 'long unsigned int' changes
+                     value from '9223372036854776163' to '355' [-Woverflow]
+      #define __PAGE_KERNEL_ENC (__PAGE_KERNEL | _PAGE_ENC)
+                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+     arch/x86//mm/ioremap.c:713:46: note: in expansion of macro '__PAGE_KERNEL_ENC'
+       return early_memremap_prot(phys_addr, size, __PAGE_KERNEL_ENC);
+
+which essentially means they are 64-bit only anyway. However, we cannot
+make them dependent on CONFIG_ARCH_HAS_MEM_ENCRYPT, since that is always
+defined, even for i386 (and changing that results in a slew of build errors)
+
+So instead, build those routines only if CONFIG_AMD_MEM_ENCRYPT is
+defined.
+
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Cc: Alexander Graf <agraf@suse.de>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Cc: Jeffrey Hugo <jhugo@codeaurora.org>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Leif Lindholm <leif.lindholm@linaro.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Peter Jones <pjones@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Link: http://lkml.kernel.org/r/20190202094119.13230-9-ard.biesheuvel@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/Kconfig               | 1 +
- arch/x86/platform/efi/quirks.c | 3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/Kconfig          | 3 +++
+ arch/x86/Kconfig      | 5 +----
+ arch/x86/mm/ioremap.c | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/arch/Kconfig b/arch/Kconfig
+index e3a030f7a722..dd71b34fe4f5 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -870,6 +870,9 @@ config HAVE_ARCH_PREL32_RELOCATIONS
+ 	  architectures, and don't require runtime relocation on relocatable
+ 	  kernels.
+ 
++config ARCH_USE_MEMREMAP_PROT
++	bool
++
+ source "kernel/gcov/Kconfig"
+ 
+ source "scripts/gcc-plugins/Kconfig"
 diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index dc1a94c1ac3e..6301a8d2b87e 100644
+index 6348b0964e9c..3bbd47a7d495 100644
 --- a/arch/x86/Kconfig
 +++ b/arch/x86/Kconfig
-@@ -1900,6 +1900,7 @@ config EFI
- 	depends on ACPI
- 	select UCS2_STRING
- 	select EFI_RUNTIME_WRAPPERS
+@@ -1489,6 +1489,7 @@ config AMD_MEM_ENCRYPT
+ 	bool "AMD Secure Memory Encryption (SME) support"
+ 	depends on X86_64 && CPU_SUP_AMD
+ 	select DYNAMIC_PHYSICAL_MASK
 +	select ARCH_USE_MEMREMAP_PROT
  	---help---
- 	  This enables the kernel to use EFI runtime services that are
- 	  available (such as the EFI variable services).
-diff --git a/arch/x86/platform/efi/quirks.c b/arch/x86/platform/efi/quirks.c
-index cadd7fd290fa..2a4ad0606fa3 100644
---- a/arch/x86/platform/efi/quirks.c
-+++ b/arch/x86/platform/efi/quirks.c
-@@ -276,7 +276,8 @@ void __init efi_arch_mem_reserve(phys_addr_t addr, u64 size)
- 		return;
- 	}
+ 	  Say yes to enable support for the encryption of system memory.
+ 	  This requires an AMD processor that supports Secure Memory
+@@ -1507,10 +1508,6 @@ config AMD_MEM_ENCRYPT_ACTIVE_BY_DEFAULT
+ 	  If set to N, then the encryption of system memory can be
+ 	  activated with the mem_encrypt=on command line option.
  
--	new = early_memremap(new_phys, new_size);
-+	new = early_memremap_prot(new_phys, new_size,
-+				  pgprot_val(pgprot_encrypted(FIXMAP_PAGE_NORMAL)));
- 	if (!new) {
- 		pr_err("Failed to map new boot services memmap\n");
- 		return;
+-config ARCH_USE_MEMREMAP_PROT
+-	def_bool y
+-	depends on AMD_MEM_ENCRYPT
+-
+ # Common NUMA Features
+ config NUMA
+ 	bool "Numa Memory Allocation and Scheduler Support"
+diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
+index c63a545ec199..adc77904fc3e 100644
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -697,7 +697,7 @@ bool phys_mem_access_encrypted(unsigned long phys_addr, unsigned long size)
+ 	return arch_memremap_can_ram_remap(phys_addr, size, 0);
+ }
+ 
+-#ifdef CONFIG_ARCH_USE_MEMREMAP_PROT
++#ifdef CONFIG_AMD_MEM_ENCRYPT
+ /* Remap memory with encryption */
+ void __init *early_memremap_encrypted(resource_size_t phys_addr,
+ 				      unsigned long size)
+@@ -739,7 +739,7 @@ void __init *early_memremap_decrypted_wp(resource_size_t phys_addr,
+ 
+ 	return early_memremap_prot(phys_addr, size, __PAGE_KERNEL_NOENC_WP);
+ }
+-#endif	/* CONFIG_ARCH_USE_MEMREMAP_PROT */
++#endif	/* CONFIG_AMD_MEM_ENCRYPT */
+ 
+ static pte_t bm_pte[PAGE_SIZE/sizeof(pte_t)] __page_aligned_bss;
+ 
 -- 
 2.33.1
 
