@@ -2,103 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5820476BF8
-	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 09:32:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B89E476C18
+	for <lists+stable@lfdr.de>; Thu, 16 Dec 2021 09:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234750AbhLPIca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Dec 2021 03:32:30 -0500
-Received: from mailgw01.mediatek.com ([60.244.123.138]:45478 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S234747AbhLPIca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 03:32:30 -0500
-X-UUID: e91765e00fb440f5801d3ce6ef4f0c2b-20211216
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=dmUwalDvL5wMFfVnZd9V2DFI7Cl0Jt//E7VNQ49dQ00=;
-        b=ZmUxca8LvJaqOUf3RUohF2slPBDoKKe89O3ijLciy5//m2Wqljc0caU4mNGfGRNTG1nk0cZ/Pggxb3PbVfm7XNBTNyXj7DfDNn8iscUJiWqYvMp9MTuaOPzuHysL971CQxbtZFLKSjwgUjpNwzza1ImqqdsvRJMRYUYE5aJFjyw=;
-X-UUID: e91765e00fb440f5801d3ce6ef4f0c2b-20211216
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw01.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1323285606; Thu, 16 Dec 2021 16:32:26 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Thu, 16 Dec 2021 16:32:25 +0800
-Received: from mhfsdcap04 (10.17.3.154) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 16 Dec 2021 16:32:25 +0800
-Message-ID: <aff31f9073b7c0a9a5500ded69ddaab27cd5e879.camel@mediatek.com>
-Subject: Re: [PATCH 2/3] usb: mtu3: add memory barrier before set GPD's HWO
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        "Yuwen Ng" <yuwen.ng@mediatek.com>, <stable@vger.kernel.org>
-Date:   Thu, 16 Dec 2021 16:32:26 +0800
-In-Reply-To: <YbdWI5PD3e6uFz8U@kroah.com>
-References: <20211209031424.17842-1-chunfeng.yun@mediatek.com>
-         <20211209031424.17842-2-chunfeng.yun@mediatek.com>
-         <YbdWI5PD3e6uFz8U@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+        id S234939AbhLPInI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Dec 2021 03:43:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46278 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234935AbhLPInH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Dec 2021 03:43:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD49DC061574
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 00:43:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AA3E61CB8
+        for <stable@vger.kernel.org>; Thu, 16 Dec 2021 08:43:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1F67C36AE2;
+        Thu, 16 Dec 2021 08:43:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639644186;
+        bh=yhnCpU/1/OVNF+UrBbgOOFfFgCiXyQYAcfhyyddz3R0=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=EpNesQ4/Y/RMuVXLaMGSuN1ric9wo+ZRSr8nUPpEsdUZFbpI40ygJmIPNnreOB9Pz
+         i1U1ClJr4R0on8NE8rkXrO/oM5dM5XF0Y6UnYP160EWQbvL61Pp6waLBJI5jyYN4ps
+         CbuJEBwvZ/Hfi177qtDPLtUd+ArhglECfE8KeSIozKs0hf+lG4fcPDEC1t65+l1LlX
+         TaGIUbv4lUQE6QspHAgFieRrfMVpkLpGN7gg3d6m5SN68uomvlBZndfU/sgIFsNs+a
+         FSjPle/XTi+qh+w/HsUzIe1lcWeO9XXavnzk/v6XktLFro2cdVKfrZMj0RjV+9YDum
+         SUXEfebh4T2OQ==
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1mxmLw-00CT8P-Dy; Thu, 16 Dec 2021 08:43:04 +0000
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Date:   Thu, 16 Dec 2021 08:43:04 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Chris January <Chris.January@arm.com>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>,
+        reg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>
+Subject: Re: Bug with KVM: arm64: Avoid setting the upper 32 bits of TCR_EL2
+ and CPTR_EL2 to 1
+In-Reply-To: <8C04B3CF-4B26-4EA1-B6BD-A7AB30078FCE@goldelico.com>
+References: <DB8835B4-8F04-4669-87EA-D348FA47A79D@goldelico.com>
+ <8C04B3CF-4B26-4EA1-B6BD-A7AB30078FCE@goldelico.com>
+User-Agent: Roundcube Webmail/1.4.12
+Message-ID: <be707d0d8fa0419470cb07b47e6f0464@kernel.org>
+X-Sender: maz@kernel.org
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: hns@goldelico.com, catalin.marinas@arm.com, Chris.January@arm.com, stable@vger.kernel.org, will@kernel.org, gregkh@linuxfoundation.org, letux-kernel@openphoenux.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gTW9uLCAyMDIxLTEyLTEzIGF0IDE1OjE4ICswMTAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
-dGU6DQo+IE9uIFRodSwgRGVjIDA5LCAyMDIxIGF0IDExOjE0OjIzQU0gKzA4MDAsIENodW5mZW5n
-IFl1biB3cm90ZToNCj4gPiBUaGVyZSBpcyBhIHNlbGRvbSBpc3N1ZSB0aGF0IHRoZSBjb250cm9s
-bGVyIGFjY2VzcyBpbnZhbGlkIGFkZHJlc3MNCj4gPiBhbmQgdHJpZ2dlciBkZXZhcGMgb3IgZW1p
-bXB1IHZpb2xhdGlvbi4gVGhhdCBpcyBkdWUgdG8gbWVtb3J5DQo+ID4gYWNjZXNzDQo+ID4gaXMg
-b3V0IG9mIG9yZGVyIGFuZCBjYXVzZSBncGQgZGF0YSBpcyBub3QgY29ycmVjdC4NCj4gPiBNYWtl
-IHN1cmUgR1BEIGlzIGZ1bGx5IHdyaXR0ZW4gYmVmb3JlIGdpdmluZyBpdCB0byBIVyBieSBzZXR0
-aW5nDQo+ID4gaXRzDQo+ID4gSFdPLg0KPiA+IA0KPiA+IEZpeGVzOiA0OGUwZDM3MzVhYTUgKCJ1
-c2I6IG10dTM6IHN1cHBvcnRzIG5ldyBRTVUgZm9ybWF0IikNCj4gPiBDYzogc3RhYmxlQHZnZXIu
-a2VybmVsLm9yZw0KPiA+IFJlcG9ydGVkLWJ5OiBFZGRpZSBIdW5nIDxlZGRpZS5odW5nQG1lZGlh
-dGVrLmNvbT4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBDaHVuZmVuZyBZdW4gPGNodW5mZW5nLnl1bkBt
-ZWRpYXRlay5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvdXNiL210dTMvbXR1M19xbXUuYyB8
-IDcgKysrKysrLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspLCAxIGRlbGV0
-aW9uKC0pDQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdXNiL210dTMvbXR1M19xbXUu
-Yw0KPiA+IGIvZHJpdmVycy91c2IvbXR1My9tdHUzX3FtdS5jDQo+ID4gaW5kZXggM2Y0MTRmOTFi
-NTg5Li4zNGJiNWFjNjdlZmUgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy91c2IvbXR1My9tdHUz
-X3FtdS5jDQo+ID4gKysrIGIvZHJpdmVycy91c2IvbXR1My9tdHUzX3FtdS5jDQo+ID4gQEAgLTI3
-Myw2ICsyNzMsOCBAQCBzdGF0aWMgaW50IG10dTNfcHJlcGFyZV90eF9ncGQoc3RydWN0IG10dTNf
-ZXANCj4gPiAqbWVwLCBzdHJ1Y3QgbXR1M19yZXF1ZXN0ICptcmVxKQ0KPiA+ICAJCQlncGQtPmR3
-M19pbmZvIHw9IGNwdV90b19sZTMyKEdQRF9FWFRfRkxBR19aTFApOw0KPiA+ICAJfQ0KPiA+ICAN
-Cj4gPiArCS8qIG1ha2Ugc3VyZSBHUEQgaXMgZnVsbHkgd3JpdHRlbiBiZWZvcmUgZ2l2aW5nIGl0
-IHRvIEhXICovDQo+ID4gKwltYigpOw0KPiANCj4gU28gdGhpcyBtZWFucyB5b3UgYXJlIHVzaW5n
-IG1taW8gZm9yIHRoaXMgc3RydWN0dXJlPyANCk5vLCBpdCdzIGEgbm9uY2FjaGVkIG1lbW9yeS4N
-Cg0KPiAgSWYgc28sIHNob3VsZG4ndA0KPiB5b3UgYmUgdXNpbmcgbm9ybWFsIGlvIG1lbW9yeSBy
-ZWFkL3dyaXRlIGNhbGxzIGFzIHdlbGwgYW5kIG5vdCBqdXN0DQo+ICJyYXciIHBvaW50ZXJzIGxp
-a2UgdGhpczoNCj4gDQo+ID4gIAlncGQtPmR3MF9pbmZvIHw9IGNwdV90b19sZTMyKEdQRF9GTEFH
-U19JT0MgfCBHUERfRkxBR1NfSFdPKTsNCj4gDQo+IEFyZSB5b3Ugc3VyZSB0aGlzIGlzIG9rPw0K
-PiANCj4gU3ByaW5rbGluZyBhcm91bmQgbWIoKSBjYWxscyBpcyBhbG1vc3QgbmV2ZXIgdGhlIGNv
-cnJlY3Qgc29sdXRpb24uDQo+IA0KPiBJZiB5b3UgbmVlZCB0byBlbnN1cmUgdGhhdCBhIHdyaXRl
-IHN1Y2NlZWRzLCBzaG91bGRuJ3QgeW91IGRvIGEgcmVhZA0KPiBmcm9tIGl0IGFmdGVyd2FyZD8g
-IE1hbnkgYnVzc2VzIHJlcXVpcmUgdGhpcywgZG9lc24ndCB5b3Vycz8NCkl0IHdvcmtzIGZvciBy
-ZWdpc3RlciBhY2Nlc3MuDQpIZXJlIGlzIG5vbmNhY2hlIG1lbW9yeSBhY2Nlc3MsIGFkZCBtYigp
-LCBqdXN0IHdhbnQgdG8gcHJvaGliaXRlIGJvdGgNCnRoZSBjb21waWxlciBhbmQgQ1BVIGZyb20g
-cmVvcmRlcmluZyByZWFkL3dyaXRlcy4NCg0KPiANCj4gDQo+IA0KPiA+ICANCj4gPiAgCW1yZXEt
-PmdwZCA9IGdwZDsNCj4gPiBAQCAtMzA2LDYgKzMwOCw4IEBAIHN0YXRpYyBpbnQgbXR1M19wcmVw
-YXJlX3J4X2dwZChzdHJ1Y3QgbXR1M19lcA0KPiA+ICptZXAsIHN0cnVjdCBtdHUzX3JlcXVlc3Qg
-Km1yZXEpDQo+ID4gIAlncGQtPm5leHRfZ3BkID0gY3B1X3RvX2xlMzIobG93ZXJfMzJfYml0cyhl
-bnFfZG1hKSk7DQo+ID4gIAlleHRfYWRkciB8PSBHUERfRVhUX05HUChtdHUsIHVwcGVyXzMyX2Jp
-dHMoZW5xX2RtYSkpOw0KPiA+ICAJZ3BkLT5kdzNfaW5mbyA9IGNwdV90b19sZTMyKGV4dF9hZGRy
-KTsNCj4gPiArCS8qIG1ha2Ugc3VyZSBHUEQgaXMgZnVsbHkgd3JpdHRlbiBiZWZvcmUgZ2l2aW5n
-IGl0IHRvIEhXICovDQo+ID4gKwltYigpOw0KPiANCj4gQWdhaW4sIG1iKCk7IGRvZXMgbm90IGVu
-c3VyZSB0aGF0IG1lbW9yeS1tYXBwZWQgaS9vIGFjdHVhbGx5IGhpdHMgdGhlDQo+IEhXLiAgT3Ig
-aWYgaXQgZG9lcyBvbiB5b3VyIHBsYXRmb3JtLCBob3c/DQpNYXliZSB0aGUgY29tbWVudCBpcyBt
-aXNsZWFkaW5nLCBJJ2xsIGNoYW5nZSBpdCwgaGVyZSBqdXN0IHdhbnQgdG8NCnByZXZlbnQgcmVv
-cmRlcmluZyBvZiBjb21waWxlciBhbmQgY3B1Lg0KPiANCj4gbWIoKSBpcyBhIGNvbXBpbGVyIGJh
-cnJpZXIsIG5vdCBhIG1lbW9yeSB3cml0ZSB0byBhIGJ1cw0KPiBiYXJyaWVyLiAgUGxlYXNlDQo+
-IHJlYWQgRG9jdW1lbnRhdGlvbi9tZW1vcnktYmFycmllcnMudHh0IGZvciBtb3JlIGRldGFpbHMu
-DQpPaywgSSdsbCBkby4NCg0KVGhhbmtzIGEgbG90DQoNCj4gDQo+IHRoYW5rcywNCj4gDQo+IGdy
-ZWcgay1oDQo=
+Hi Nikolaus,
 
+On 2021-12-16 06:58, H. Nikolaus Schaller wrote:
+> Hi Catalin,
+> 
+>> Am 15.12.2021 um 19:40 schrieb H. Nikolaus Schaller 
+>> <hns@goldelico.com>:
+>> 
+>> this seems to break build of 5.10.y (and maybe earlier) for me:
+>> 
+>>  CALL    scripts/checksyscalls.sh - due to target missing
+>>  CALL    scripts/atomic/check-atomics.sh - due to target missing
+>>  CHK     include/generated/compile.h
+>>  AS      arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o - due to target 
+>> missing
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S: Assembler messages:
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: missing ')'
+>> arch/arm64/kvm/hyp/nvhe/hyp-init.S:87: Error: unexpected characters 
+>> following instruction at operand 2 -- `mov x1,#((1U<<31)|(1<<23))'
+>> arch/arm64/kvm/hyp/nvhe/Makefile:28: recipe for target 
+>> 'arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o' failed
+>> make[5]: *** [arch/arm64/kvm/hyp/nvhe/hyp-init.nvhe.o] Error 1
+>> scripts/Makefile.build:497: recipe for target 
+>> 'arch/arm64/kvm/hyp/nvhe' failed
+>> make[4]: *** [arch/arm64/kvm/hyp/nvhe] Error 2
+>> scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm/hyp' 
+>> failed
+>> make[3]: *** [arch/arm64/kvm/hyp] Error 2
+>> scripts/Makefile.build:497: recipe for target 'arch/arm64/kvm' failed
+>> make[2]: *** [arch/arm64/kvm] Error 2
+>> Makefile:1822: recipe for target 'arch/arm64' failed
+>> make[1]: *** [arch/arm64] Error 2
+>> Makefile:336: recipe for target '__build_one_by_one' failed
+>> make: *** [__build_one_by_one] Error 2
+>> 
+>> Looking at the problematic line 87 of hyp-init.S shows that
+>> there is a macro expansion:
+>> 
+>>      mov     x1, #TCR_EL2_RES1
+>> 
+>> This macro was modified by the $subject patch
+>> (commit c71b5f37b5ff1a673b2e4a91d1b34ea027546e23 in v5.10.y)
+>> and reverting the patch makes the compile succeed.
+>> 
+>> Now: why does it build for me for v5.15.y and v5.16-rc5?
+>> I think it is because my build system switches to gcc 6.3
+>> instead of gcc 4.9 depending on scripts/min-tool-version.sh.
+> 
+> I have run the cross-check and it
+> - fails with gcc 4.9.2 + binutils 2.25 (compatible to jessie)
+> - works with gcc 6.3.0 + binutils 2.28.1 (compatible to stretch)
+> 
+>> 
+>> So I assume that the fix is not compatible with the minimum
+>> requirement for 5.10.y of gcc 4.9 (or even less - I don't know 
+>> exactly).
+>> Earlier kernels may also be affected if $subject patch was also
+>> backported there, but I have not tested.
+>> 
+>> This should somehow be fixed so that arch/arm64/include/asm/kvm_arm.h
+>> can be included by older assemblers.
+
+GCC versions prior to 5.1 are known to miscompile the kernel,
+and the minimal GCC version was bumped in dca5244d2f5b.
+
+I am surprised this requirement wasn't backported to 5.10-stable,
+as this results in all sorts of terrible bugs that are hard to
+diagnose (see the horror story in the commit message).
+
+As for the issue you describe, does the following help?
+
+Thanks,
+
+         M.
+
+diff --git a/arch/arm64/include/asm/kvm_arm.h 
+b/arch/arm64/include/asm/kvm_arm.h
+index 01d47c5886dc..d03087308ab5 100644
+--- a/arch/arm64/include/asm/kvm_arm.h
++++ b/arch/arm64/include/asm/kvm_arm.h
+@@ -91,7 +91,7 @@
+  #define HCR_HOST_VHE_FLAGS (HCR_RW | HCR_TGE | HCR_E2H)
+
+  /* TCR_EL2 Registers bits */
+-#define TCR_EL2_RES1		((1U << 31) | (1 << 23))
++#define TCR_EL2_RES1		((UL(1) << 31) | (UL(1) << 23))
+  #define TCR_EL2_TBI		(1 << 20)
+  #define TCR_EL2_PS_SHIFT	16
+  #define TCR_EL2_PS_MASK		(7 << TCR_EL2_PS_SHIFT)
+
+-- 
+Jazz is not dead. It just smells funny...
