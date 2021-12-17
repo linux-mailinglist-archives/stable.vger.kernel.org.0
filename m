@@ -2,164 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B333479576
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 21:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB71479585
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 21:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240765AbhLQU24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 15:28:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42606 "EHLO
+        id S236983AbhLQUf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 15:35:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240718AbhLQU2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 15:28:53 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C96C061574
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:28:53 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id n8so2832613plf.4
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:28:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=GhOPX82kx7BRg3sCeb285wWODkewO+ztJC3J3XCTY7w=;
-        b=cyxZTnpPuSNapf3RWODkmoEfxyhKjS2vtIZvYz30rbNk3DVkn6f1/p9Oa1VA44MV4M
-         G+sARg4aGmFyUXo4co9kJXka1l6d2oij4WGE4EiqrjWF0UQYNM2KH4X/5q2CEgGsqfC/
-         JeykDZ/kUCNvfwbe3mlmMy0+UTLnvMrM0Ypxm5nCvfgenLBW7LTJXZjKfMQVM1SwWxao
-         4hkYwk6MnF6U4ohcIINR9rU8WKxrPNu+MxsdbYGtGMPdx1SujW5Ce4HxMK9dFhTpW5+w
-         Q7qI+Y14MumVuD2iQUBotZtTxb0fMN+L7+KLagj50BlmCPCd5CsbujO6aIvhfXusEmBn
-         VnYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=GhOPX82kx7BRg3sCeb285wWODkewO+ztJC3J3XCTY7w=;
-        b=JuGmvhKHbX/zoGiKQCMA3v34UrZCgSE3eUxZUmShL4JyLhiCrKuZR7x6oJ+SDWJyck
-         wyK3cuO0MGaVI8s6du45CuUjv6+54U7m6e1WBzoD34PXhE+cp7QHWWiO3LFxTvYQFGsp
-         1BSVFvjhxKNgnP6oMnfUX7Td/hGlMJ0Guc8WD1bk/f2pAuQJ7X0xmHGL4NRH/fZ1Nh6T
-         ARY0Aqn8+frTDhJb+r5sOR3V6n3MHilsOZOA76EHk6pCwE2jo7zIXm+J+91pYGa7qkWM
-         C0EniB2qylWD5An2/de/xhfQPmsCORIZredb6t4gwwRpw2PmAV1YrVl2P8Px50mPpMNM
-         L4tQ==
-X-Gm-Message-State: AOAM532P7DVPRQY681uOjKGFpJe3EddWwzd6HI3CJU269A5kfvu1RzPL
-        dpNf57QwkVYp+8dUajgoIEHWG8WP/lQz0Yu/
-X-Google-Smtp-Source: ABdhPJxOJjOrcJqDQujhWlxfqd9cObGN1PaxlH8AE7hX6Y6YLI7Wl1PZZKBx+zKVKu/x58RquI2rdw==
-X-Received: by 2002:a17:902:cec4:b0:141:cfa1:f7e with SMTP id d4-20020a170902cec400b00141cfa10f7emr4618862plg.13.1639772932780;
-        Fri, 17 Dec 2021 12:28:52 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l16sm6718533pfu.115.2021.12.17.12.28.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Dec 2021 12:28:52 -0800 (PST)
-Message-ID: <61bcf304.1c69fb81.da1bc.380f@mx.google.com>
-Date:   Fri, 17 Dec 2021 12:28:52 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232816AbhLQUf7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 15:35:59 -0500
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF13CC061574
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:35:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
+        Resent-Message-ID:In-Reply-To:References;
+        bh=fY6U2z1wNeEEmGE07qqsNsDX+k6IlT7A8v0LAH+5vwE=; t=1639773358; x=1640982958; 
+        b=hhww9JVvmS5VV5kYcUU78TupOgY2XgAziq10/peBpxL4IjejG81FgYWehAngaOWi2787qMd+3dM
+        owUNZmzqogi8Czgbp33l4oQhYnc0W+eu+pmgavEfbC1QzdXw+Qc6+v6pT4uwbA4aLRpxE0BNmHbhe
+        7uw4PwCV3HmV5la+89K0OiSTPZRTyvyLMJfP8RvobwIcQQPiTIThwvhYMUlhT+EXjehsxqU5vTrRM
+        0dDLAB6mRONaBcqHuzdoL78EPsUw8gotdhVOe9TaqVa6P3pX7q+wWmt8oCT5aKdcKW/Qriji1beLE
+        QiqYtoCA7qK8iYVaxWk3aHrFRo8lH6MumXZg==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.95)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1myJxK-00CuHI-L1;
+        Fri, 17 Dec 2021 21:35:54 +0100
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     stable@vger.kernel.org
+Cc:     Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH v4.19 1/2] mac80211: mark TX-during-stop for TX in in_reconfig
+Date:   Fri, 17 Dec 2021 21:35:49 +0100
+Message-Id: <20211217203550.54684-1-johannes@sipsolutions.net>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.10-37-g0041cbeff09d
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 174 runs,
- 2 regressions (v5.15.10-37-g0041cbeff09d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 174 runs, 2 regressions (v5.15.10-37-g0041cb=
-eff09d)
+From: Johannes Berg <johannes.berg@intel.com>
 
-Regressions Summary
--------------------
+Commit db7205af049d230e7e0abf61c1e74c1aab40f390 upstream.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-     | regressions
--------------------------+--------+---------------+----------+-------------=
------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig | 1          =
+Mark TXQs as having seen transmit while they were stopped if
+we bail out of drv_wake_tx_queue() due to reconfig, so that
+the queue wake after this will make them catch up. This is
+particularly necessary for when TXQs are used for management
+packets since those TXQs won't see a lot of traffic that'd
+make them catch up later.
 
-r8a77950-salvator-x      | arm64  | lab-baylibre  | gcc-10   | defconfig   =
-     | 1          =
+Cc: stable@vger.kernel.org
+Fixes: 4856bfd23098 ("mac80211: do not call driver wake_tx_queue op during reconfig")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211129152938.4573a221c0e1.I0d1d5daea3089be3fc0dccc92991b0f8c5677f0c@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+I'm not sure why you say it doesn't apply - it did for me?
+---
+ net/mac80211/driver-ops.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
+diff --git a/net/mac80211/driver-ops.h b/net/mac80211/driver-ops.h
+index 2123f6e90fc0..8f71c271653f 100644
+--- a/net/mac80211/driver-ops.h
++++ b/net/mac80211/driver-ops.h
+@@ -1166,8 +1166,11 @@ static inline void drv_wake_tx_queue(struct ieee80211_local *local,
+ {
+ 	struct ieee80211_sub_if_data *sdata = vif_to_sdata(txq->txq.vif);
+ 
+-	if (local->in_reconfig)
++	/* In reconfig don't transmit now, but mark for waking later */
++	if (local->in_reconfig) {
++		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txq->flags);
+ 		return;
++	}
+ 
+ 	if (!check_sdata_in_driver(sdata))
+ 		return;
+-- 
+2.33.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.10-37-g0041cbeff09d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.10-37-g0041cbeff09d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0041cbeff09d39ccfb2bbc0a00573d675030e229 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-     | regressions
--------------------------+--------+---------------+----------+-------------=
------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61bcb79e192b461a90397127
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-37-g0041cbeff09d/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minn=
-owboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-37-g0041cbeff09d/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minn=
-owboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61bcb79e192b461a90397=
-128
-        failing since 0 day (last pass: v5.15.8-42-gadd3d697af60, first fai=
-l: v5.15.8-42-g0a07fadfda6d) =
-
- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-     | regressions
--------------------------+--------+---------------+----------+-------------=
------+------------
-r8a77950-salvator-x      | arm64  | lab-baylibre  | gcc-10   | defconfig   =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61bcbf433bb65c09f4397133
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-37-g0041cbeff09d/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
-ator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-37-g0041cbeff09d/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
-ator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61bcbf433bb65c09f4397=
-134
-        new failure (last pass: v5.15.8-42-gd38bf047f9df) =
-
- =20
