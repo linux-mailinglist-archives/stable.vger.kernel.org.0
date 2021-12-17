@@ -2,58 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6378B478EF6
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 16:04:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E890478EFD
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 16:06:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237827AbhLQPEy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 10:04:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47890 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237809AbhLQPEy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 10:04:54 -0500
+        id S237850AbhLQPG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 10:06:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51286 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237848AbhLQPG2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 10:06:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1EF0C061574;
+        Fri, 17 Dec 2021 07:06:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25186B828A8
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 15:04:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF8FC36AE7;
-        Fri, 17 Dec 2021 15:04:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639753491;
-        bh=1xFubDrH4Uoq80yTbPvEc3pwI1MnkJjvFmpHYW2Eiqg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wLHTOtY+2Wv8Dm+mFKGzAy/AI4MsfcDBD3bqjvSUZmZu+LoWCaCtp/dXX21yG6vs8
-         C3XXjahvmKS78zzaawWyLuildbUdZTHXuP6qlyUAplwjjdrLuJZ9S4C5+8Q5v0fs2M
-         mIKHUI97X8hP2Hrl4dvGFG/JOmbMCSbwjdinvNN8=
-Date:   Fri, 17 Dec 2021 16:04:49 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     idryomov@gmail.com, jlayton@kernel.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ceph: fix up non-directory creation in
- SGID directories" failed to apply to 5.10-stable tree
-Message-ID: <YbynEbAeWpB5A2sj@kroah.com>
-References: <163974910684103@kroah.com>
- <20211217142301.a5y45b54ut3ika4v@wittgenstein>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5014862258;
+        Fri, 17 Dec 2021 15:06:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02804C36AE7;
+        Fri, 17 Dec 2021 15:06:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639753587;
+        bh=reSbYJsb2lp4YkJ36gpZzEnh+V1VGf/jaqK9usFoEPE=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=jnTkSMMbUX0E4r7fq7fLheHX71+ibSEGk3+4BjQRMNluPyw8HQi0RLWXUlqPqOT5y
+         Pqj3qMedcF7cBPMtey0kEo9LB5eoxdBBzsxA1OvHDYZhxRaCpepAf5ec35tU89m2uY
+         5kw/217MJDC5GS9vGmS053m9XnjHueIwcnZLw13LiZtU+2P0EJLehLOM/vN5D1vLgY
+         7H5MDZ1Y21NSV+HxEBtYcdJuGvj7vkSoZAPlYJDiUEEUC1/P8Jb/kPr++rvDrzC4NK
+         0By1l2ewSIwogNC8udO0scT35o0X0VrJ2B4k6bkAw/S4W1U9F9aGMvwFcQIUeKUkCb
+         VuLvlY7Tln1UA==
+Date:   Fri, 17 Dec 2021 07:06:26 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        lksctp developers <linux-sctp@vger.kernel.org>,
+        "H.P. Yarroll" <piggy@acm.org>,
+        Karl Knutson <karl@athena.chicago.il.us>,
+        Jon Grimm <jgrimm@us.ibm.com>,
+        Xingang Guo <xingang.guo@intel.com>,
+        Hui Huang <hui.huang@nokia.com>,
+        Sridhar Samudrala <sri@us.ibm.com>,
+        Daisy Chang <daisyc@us.ibm.com>,
+        Ryan Layer <rmlayer@us.ibm.com>,
+        Kevin Gao <kevin.gao@intel.com>, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] sctp: export sctp_endpoint_{hold,put}() and
+ return incremented endpoint
+Message-ID: <20211217070626.790b8340@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20211217134607.74983-1-lee.jones@linaro.org>
+References: <20211217134607.74983-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211217142301.a5y45b54ut3ika4v@wittgenstein>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 17, 2021 at 03:23:01PM +0100, Christian Brauner wrote:
-> On Fri, Dec 17, 2021 at 02:51:46PM +0100, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.10-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+On Fri, 17 Dec 2021 13:46:06 +0000 Lee Jones wrote:
+> For example, in sctp_sock_dump(), we could have the following hunk:
 > 
-> Oh? I just applied the patch on top of:
+> 	sctp_endpoint_hold(tsp->asoc->ep);
+> 	ep = tsp->asoc->ep;
+> 	sk = ep->base.sk
+> 	lock_sock(ep->base.sk);
 > 
-> commit 272aedd4a305 ("Linux 5.10.87")
+> It is possible for this task to be swapped out immediately following
+> the call into sctp_endpoint_hold() that would change the address of
+> tsp->asoc->ep to point to a completely different endpoint.  This means
+> a reference could be taken to the old endpoint and the new one would
+> be processed without a reference taken, moreover the new endpoint
+> could then be freed whilst still processing as a result, causing a
+> use-after-free.
 > 
-> without any issues. Not sure what failed for you.
+> If we return the exact pointer that was held, we ensure this task
+> processes only the endpoint we have taken a reference to.  The
+> resultant hunk now looks like this:
+> 
+>       ep = sctp_endpoint_hold(tsp->asoc->ep);
+> 	sk = ep->base.sk
+> 	lock_sock(sk);
 
-It fails to build :(
+If you have to explain what the next patch will do to make sense 
+of this one it really is better to merge the two patches.
+Exporting something is not a functional change, nor does it make
+the changes easier to review, in fact the opposite is true.
+
+> Fixes: 8f840e47f190c ("sctp: add the sctp_diag.c file")
+
+This patch in itself fixes exactly nothing.
