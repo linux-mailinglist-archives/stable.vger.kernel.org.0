@@ -2,157 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8309478DE1
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 15:35:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 264BF478DEC
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 15:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237248AbhLQOfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 09:35:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43874 "EHLO
+        id S237322AbhLQOin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 09:38:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237139AbhLQOfT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 09:35:19 -0500
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE024C06173F
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 06:35:18 -0800 (PST)
-Received: by mail-wm1-x32f.google.com with SMTP id y83-20020a1c7d56000000b003456dfe7c5cso3264374wmc.1
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 06:35:18 -0800 (PST)
+        with ESMTP id S230248AbhLQOin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 09:38:43 -0500
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D347FC061574
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 06:38:42 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id g13so2461458pfv.5
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 06:38:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=fMc2v4K0kX8aTPiSum+unuVGgdc5yJF7LINDGiGWUew=;
-        b=fLOXS9FhsTNV9RSn2jJgKHrgfZsBKIOk6Zng68+o441kBjLUkzkFnj15TTQHxcLdQc
-         pjKw0rpv457ulgWkqE3PzIq5xYDL3g5cx41ZxyPHpOsYP+X5IUzN+5uQfnTszxPmWKSy
-         w47WRu+/P8FwDUnXo2lvAQ6DqyYhY3i4XkFKXA0cRJxhl8vSCbVW4qVGxuGYHYa3vmoU
-         xj+NOKfGIkt0YzbQDSrj2UVZA1r0bWdqIDSmAG+QrngKPBumfrn0jFsEjfedw233f5vR
-         Hbsvn5el4csxPNgCl8RgA35k9A2KgzuD/bzutJtXKK8yEFGdmQQ/WgZntajEXafRqXl6
-         kENA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KMzMik5a5+YvFJK20z36kQ6XOyYmPhs0Nbv9S86NPaA=;
+        b=yriHfc6S88bZlx9wMzUqVVuQhnaDYZK5TpUzn3OKSRRDBwlHA9XO1nIFTYppLaFsss
+         M7LCWUYNnA2ogVfZJxyZVjtfeqhbJmMkTgSRqFlHbzhzhM5PR5noAgDc4Q1FTLsZ/r+0
+         qgRehXdL2NwpAaTmdvp7x3KFhBGNp3098XjZJ1EYxY9bdzCKf/5JxThwS5uGTE8vSov/
+         ug5788MQ8ysvnjyEXC0ZsDMAESiMtXYqchgv9UF3kXRlJBiA+ULPL8+BsrM0pcDM6y6h
+         3tNhTrwCHtcgowAOI+OFvZtO4VOP4ucmx4G6yoMCtZPUUcOik/uekzV++mKt7fyxYaT9
+         tDBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=fMc2v4K0kX8aTPiSum+unuVGgdc5yJF7LINDGiGWUew=;
-        b=kjR2M/Sgx2n5PREeSXOfAtaNTlT0BbItqnvn0z/aXDKaf04wza5RT38fz4qskrj2Ti
-         xtSDvvjyguIh4CWXYr1LDQQ8FxeawkURzjph3P3vEluAz6PQFzKjyd3CpOzTjQBjSrsf
-         OjLAGtevWRWMrVdSmT821uzSanUlFI5oWqEjL+lGunNWYjT7OqI+IpR1zTGK8NB+xnRs
-         +jW1hbMUEvW3eIlLsIIT5/hncj5p6URg6tE5f5TJMQL6IpyXUdQ4IcoDKBsCq9VIHrUM
-         12zsxD4B27Uat9X5jJ9X3JeMsPKFM7NyHXXwDqCOIwyZmQk7korQjYhKpTdeKrzGlSTH
-         m77g==
-X-Gm-Message-State: AOAM530yrKiDfIoht1yLK50tR1D2Wo+NvcLpiyb5vKDRk7kRgIr27tLJ
-        91UtkgrYZYh0/rIAjvasv/KR0A==
-X-Google-Smtp-Source: ABdhPJzbKCEHjADe51tS6VDfOuaX6CXkgQz1c2MofRXJbYQ7ugSokbF05hcC9VmLN5sBSTghlR1Plw==
-X-Received: by 2002:a05:600c:3c9b:: with SMTP id bg27mr2909352wmb.163.1639751717439;
-        Fri, 17 Dec 2021 06:35:17 -0800 (PST)
-Received: from google.com ([2.31.167.18])
-        by smtp.gmail.com with ESMTPSA id d2sm3707114wrw.26.2021.12.17.06.35.16
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KMzMik5a5+YvFJK20z36kQ6XOyYmPhs0Nbv9S86NPaA=;
+        b=KcBvi+OhspZ2r9DMNdaDIj/wwbm2WoamNeUpvLWVZ68fEGmM7Ce1x1KaDPUaU3Pd9z
+         UCzpaWVq/g8nN8SyRHoqyq0QOWCeTzx+9bg7GPUN6f7l8DmWLtKtj4KIyEtatdxCBLcP
+         s8NMZTs6bmOTLBEs1rnNzdUA2xuE113RmcSnUO+7gXXQ5r0bDz1t3xiEOM1xFLmtAKNh
+         sLS2a6OwQQkUt+bkOLYcTJj54ADbtiCgUY4mJ4PJHLoEwvFKjKwj75e4sKvkzCLqwvTl
+         ojeVoXhUyv7aKqfXlaD5/2TGZHUNO8IoQe3Rc/TnUgIt9rLcHMolmU3DcvniStguv0Vd
+         7OXg==
+X-Gm-Message-State: AOAM532bJZGBw9JPAy9ctPH1FtAtHn9ywLq1JYqlGdhb1yGoN1wXFteH
+        5V72JqA18WGgGJsj6texqdrV9IeEgmetXREJ
+X-Google-Smtp-Source: ABdhPJwjzY1nHGxwu7Uus0NMTil1G4ZkXl8SitJGlT1/aZdbmfvPg4e7+u47LbTm2vVW4dGIW3h+yw==
+X-Received: by 2002:a63:1001:: with SMTP id f1mr3123782pgl.353.1639751922201;
+        Fri, 17 Dec 2021 06:38:42 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id om5sm9205514pjb.5.2021.12.17.06.38.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Dec 2021 06:35:16 -0800 (PST)
-Date:   Fri, 17 Dec 2021 14:35:15 +0000
-From:   Lee Jones <lee.jones@linaro.org>
-To:     David Laight <David.Laight@aculab.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Vlad Yasevich <vyasevich@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        lksctp developers <linux-sctp@vger.kernel.org>,
-        "H.P. Yarroll" <piggy@acm.org>,
-        Karl Knutson <karl@athena.chicago.il.us>,
-        Jon Grimm <jgrimm@us.ibm.com>,
-        Xingang Guo <xingang.guo@intel.com>,
-        Hui Huang <hui.huang@nokia.com>,
-        Sridhar Samudrala <sri@us.ibm.com>,
-        Daisy Chang <daisyc@us.ibm.com>,
-        Ryan Layer <rmlayer@us.ibm.com>,
-        Kevin Gao <kevin.gao@intel.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] sctp: export sctp_endpoint_{hold,put}() and
- return incremented endpoint
-Message-ID: <YbygIz4oqlTkrQgD@google.com>
-References: <20211217134607.74983-1-lee.jones@linaro.org>
- <1458e6e239e2493e9147fd95ec32d9fd@AcuMS.aculab.com>
+        Fri, 17 Dec 2021 06:38:41 -0800 (PST)
+Message-ID: <61bca0f1.1c69fb81.2ef6.8bd6@mx.google.com>
+Date:   Fri, 17 Dec 2021 06:38:41 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1458e6e239e2493e9147fd95ec32d9fd@AcuMS.aculab.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.8-42-g0a07fadfda6d
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 184 runs,
+ 1 regressions (v5.15.8-42-g0a07fadfda6d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 17 Dec 2021, David Laight wrote:
+stable-rc/queue/5.15 baseline: 184 runs, 1 regressions (v5.15.8-42-g0a07fad=
+fda6d)
 
-> From: Lee Jones
-> > Sent: 17 December 2021 13:46
-> > 
-> > net/sctp/diag.c for instance is built into its own separate module
-> > (sctp_diag.ko) and requires the use of sctp_endpoint_{hold,put}() in
-> > order to prevent a recently found use-after-free issue.
-> > 
-> > In order to prevent data corruption of the pointer used to take a
-> > reference on a specific endpoint, between the time of calling
-> > sctp_endpoint_hold() and it returning, the API now returns a pointer
-> > to the exact endpoint that was incremented.
-> > 
-> > For example, in sctp_sock_dump(), we could have the following hunk:
-> > 
-> > 	sctp_endpoint_hold(tsp->asoc->ep);
-> > 	ep = tsp->asoc->ep;
-> > 	sk = ep->base.sk
-> > 	lock_sock(ep->base.sk);
-> > 
-> > It is possible for this task to be swapped out immediately following
-> > the call into sctp_endpoint_hold() that would change the address of
-> > tsp->asoc->ep to point to a completely different endpoint.  This means
-> > a reference could be taken to the old endpoint and the new one would
-> > be processed without a reference taken, moreover the new endpoint
-> > could then be freed whilst still processing as a result, causing a
-> > use-after-free.
-> > 
-> > If we return the exact pointer that was held, we ensure this task
-> > processes only the endpoint we have taken a reference to.  The
-> > resultant hunk now looks like this:
-> > 
-> > 	ep = sctp_endpoint_hold(tsp->asoc->ep);
-> > 	sk = ep->base.sk
-> > 	lock_sock(sk);
-> 
-> Isn't that just the same as doing things in the other order?
-> 	ep = tsp->assoc->ep;
-> 	sctp_endpoint_hold(ep);
+Regressions Summary
+-------------------
 
-Sleep for a few milliseconds between those lines and see what happens.
+platform                 | arch   | lab           | compiler | defconfig   =
+     | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig | 1          =
 
-'ep' could still be freed between the assignment and the call.
 
-> But if tsp->assoc->ep is allowed to change, can't it also change to
-> something invalid?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.8-42-g0a07fadfda6d/plan/baseline/
 
-Not sure I follow.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.8-42-g0a07fadfda6d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0a07fadfda6db692413b2f1eee209f21fdab3d04 =
 
-> So I've have thought you should be holding some kind of lock that
-> stops the data being changed before being 'allowed' to follow the pointers.
-> In which case the current code is just a missing optimisatoion.
 
-Locking would be another potential solution.
 
-The current code already tries to lock.
+Test Regressions
+---------------- =
 
-	lock_sock(sk);
 
-The difficultly here is that we don't know whether 'sk' is still valid
-at this point.  I've seen the current code panic here.  Xin Long
-suggested something similar using the RCU infrastructure, but this
-code can sleep, so it wasn't suitable.
 
-If we were to use locking, we'd need to figure out a) what to apply
-the lock to and b) where to apply the lock.
+platform                 | arch   | lab           | compiler | defconfig   =
+     | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig | 1          =
 
--- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+
+  Details:     https://kernelci.org/test/plan/id/61bc6c4f8fde59679939712c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.8-4=
+2-g0a07fadfda6d/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minno=
+wboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.8-4=
+2-g0a07fadfda6d/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minno=
+wboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61bc6c4f8fde596799397=
+12d
+        new failure (last pass: v5.15.8-42-gadd3d697af60) =
+
+ =20
