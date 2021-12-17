@@ -2,135 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9745D47898D
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 12:13:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DFA478A22
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 12:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233227AbhLQLM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 06:12:59 -0500
-Received: from mail-sn1anam02on2085.outbound.protection.outlook.com ([40.107.96.85]:8718
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S235276AbhLQLM6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Dec 2021 06:12:58 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KmHAp5AVnowK3Y5JAbpBGqO16ur/mGSFvtHa0/wzEU3qQGPnSm6nroN6N5f0qnL4/wb9xkcbmD0B4hJaVa3gkRLVsbRVFJ69LCsQ+pNUOZR26COSXJ9VzlXeJIuywd2yJr5BT/fjAe/HvXUigWKA+c8M8BGp0GnPekLnlZ8+5mwvNaJfcuRI0PJ9rVvfiBWJlbDxxqYZ4aY44yMB7OXxEK5a3M+BLgO6azaQIRNLGiqtEihn+5V0D67Z15NsJFURY3ka1X8U/PfRK0z7haxdxw0wCwwlORiYc/5ghzKaTQ6i+SUGiHFxQOm/pdGBOfeKrnE5Wr6x/pppPSi6Kk24gQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4yMLyBmWU3OPaKLt1LDY51pcvqdWEJYnmjU546Cplfw=;
- b=YteQyBzXGimg5x5yYjvEZWeYksgsauAzD+Rt+FrqcnQVFQcgcJ1A1g+SlIqj/uoYXwQgidpB4J9nAz6meRyNwRZQA256r1CQ6unJ33jJLWwSkM5TyUCFdlPxJuGGtA7LN7vbUk4yNTC5cUrDCXJ1InDl3C2b6S/GJ3XVrgshNDZr7NGGJd9sBb+RO3Mh8MwlEX2YHagJJ/uUz6DAxy2dRg8cAGUW4cFRkT4yerQjRF3KZZ65hYhPwXDjB42bRLaM+OjtgEMMwWFT7qIOSkf9YvR4ez1wMqZITipPHr7kyrxu7Zm0juwyBgJ1qjus3ycQqp/HPSl22JylaiIfGsp7Cw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4yMLyBmWU3OPaKLt1LDY51pcvqdWEJYnmjU546Cplfw=;
- b=tQI6hsINK7mFq1qBjplF5VV5qFy7jZt6e1efmuLOaXHFB1Eg0+uqOJ1idNaTGYu00EVALwL+aT164xSHKglMh+hRQoI55iaMw6pFp9QvWcy/ZEH1u8b2Z0sGqM5+fefVm8ar8xTDidhDsRLwqRy7lW/0JAqcWxcxV5g7886cewOZS8Pwd5nF2XrkaPDDZiXtSKSZhI9jYet1+eqXRlGg/9xgXksEavp+yqgw8Brx/p5xblAFGRSLC1GKb1Va7PS1hcExh0Y2+MdNB1umKtsScWSFj+PgTathVrm1XbqgjNbV72+IQGVCUnc/hi4FEjRnrt/1jMDQdwGJSITASSUcOA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CO6PR12MB5444.namprd12.prod.outlook.com (2603:10b6:5:35e::8) by
- CO6PR12MB5441.namprd12.prod.outlook.com (2603:10b6:303:13b::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.16; Fri, 17 Dec
- 2021 11:12:57 +0000
-Received: from CO6PR12MB5444.namprd12.prod.outlook.com
- ([fe80::ecac:528f:e36c:39d0]) by CO6PR12MB5444.namprd12.prod.outlook.com
- ([fe80::ecac:528f:e36c:39d0%5]) with mapi id 15.20.4801.015; Fri, 17 Dec 2021
- 11:12:56 +0000
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Subject: stable request: 5.15.y: reset: tegra-bpmp: Revert Handle errors in
- BPMP response
-Message-ID: <d917c97d-8023-419c-06c3-d471097fbd7b@nvidia.com>
-Date:   Fri, 17 Dec 2021 11:12:50 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: AM6P194CA0040.EURP194.PROD.OUTLOOK.COM
- (2603:10a6:209:84::17) To CO6PR12MB5444.namprd12.prod.outlook.com
- (2603:10b6:5:35e::8)
+        id S231373AbhLQLie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 06:38:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230396AbhLQLid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 06:38:33 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7465CC061574;
+        Fri, 17 Dec 2021 03:38:33 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id z9-20020a17090a7b8900b001b13558eadaso3784512pjc.4;
+        Fri, 17 Dec 2021 03:38:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=+VzCpz2F1GVoeLExPia6PldmklhZ9FrugF0MvQltIMg=;
+        b=GM8BvOzGxMzq3qDwprZzeyoQLcPQoqmLOH3DWFPnnHcPX9DOmNxhELHPeLxk+Wuz2F
+         rNbbHGlrDmcASnKhX6YkM7/uayMa+cSTfFo9ZFuaPaE9ROscyqC3wKfDLrI6wAASqByK
+         rXgQOpMv5W8elb7Fli43FcTIeQDWEPL/FJPaIjVSRwsyu3FwlK11plADQWAvgN5YN2L+
+         4UNiCTySfyH/Vk/f5n09rbZoOhjvcyKsnLYdPFO7yH+7ucrXCKxykhTPUWANKKrHdZLp
+         1+z9GDn7vC+CHerz/hvsv3WzCaIP9+NYl0sjT9kk4a8BvMeCYQKXPv6FlZ2AHNeRnCJ3
+         4szQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=+VzCpz2F1GVoeLExPia6PldmklhZ9FrugF0MvQltIMg=;
+        b=5QygYELJYB+c9mcqUNayvqa8l/+q9FP+Mbu55rRbY4zPyinXl+iO3Lt0jXL1lPyKbO
+         YIFUgqxnHFYe5oP1A3ipWfSPU4cimvlmUjCRxNIoAnX9QP7WvPi1xbyMLMRLwbL4wCtA
+         1W7IDrT6GeVUsRd1jPFvE6HPsm3UKE/Gt22bs/N0G05e2DsUO6sLNweEW6LQ9D2SAhmm
+         BpKWIs7TCxMu0zqnkU7ek7ZuItxEveYUc35j8UEuTLk8ngwfY7efwYW8IXvBM+eajaU6
+         LOzOI1N8LvyrYp6L+7ngP9Nhjyxa7r0KhiIHaSVXDujReS4j7t+invyAkPeB9c20PD5n
+         pJdA==
+X-Gm-Message-State: AOAM5307EFaVvcyvo0Yne6V6ZXo7A3pvrwGZBIP3+Zz+I+/Fer5XlL6V
+        BM2HZ/JY45167DBJ9I1tg7Q=
+X-Google-Smtp-Source: ABdhPJwDDw6apEAqMLd3yFtbe3ZWKweE3lIa/k54uBVcB1bFyADiOoe2ypz6l9MLp/QsBVoZZmWbEw==
+X-Received: by 2002:a17:902:f54e:b0:148:e76e:a5 with SMTP id h14-20020a170902f54e00b00148e76e00a5mr232292plf.135.1639741112823;
+        Fri, 17 Dec 2021 03:38:32 -0800 (PST)
+Received: from ip-172-31-30-232.ap-northeast-1.compute.internal (ec2-18-181-137-102.ap-northeast-1.compute.amazonaws.com. [18.181.137.102])
+        by smtp.gmail.com with ESMTPSA id g13sm8171488pjc.39.2021.12.17.03.38.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Dec 2021 03:38:32 -0800 (PST)
+Date:   Fri, 17 Dec 2021 11:38:27 +0000
+From:   Hyeonggon Yoo <42.hyeyoo@gmail.com>
+To:     Baoquan He <bhe@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        akpm@linux-foundation.org, hch@lst.de, cl@linux.com,
+        John.p.donnelly@oracle.com, kexec@lists.infradead.org,
+        stable@vger.kernel.org, Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [PATCH v3 5/5] mm/slub: do not create dma-kmalloc if no managed
+ pages in DMA zone
+Message-ID: <Ybx2szXEgl1tN4MD@ip-172-31-30-232.ap-northeast-1.compute.internal>
+References: <20211213122712.23805-1-bhe@redhat.com>
+ <20211213122712.23805-6-bhe@redhat.com>
+ <20211213134319.GA997240@odroid>
+ <20211214053253.GB2216@MiWiFi-R3L-srv>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4e6a32e5-1d53-480a-4882-08d9c14e2d8c
-X-MS-TrafficTypeDiagnostic: CO6PR12MB5441:EE_
-X-Microsoft-Antispam-PRVS: <CO6PR12MB5441BCE955EEDD6EA3748373D9789@CO6PR12MB5441.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1360;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: RGX/s0oOSnfmoZ2IxIxlhQ79noh8+/rJYnPdDpDqRDr+fmcv2nVZONnTEJOu1anIeDS3WK6FuuGATbR4pyWaD5UW0PZy2rOz1WCKv3H9d23g9SASIhVtos1NznViWSpuvqiQknNpmb4/GaHZBSkPQmZxnL71/3LFoIk5wYSmAHpIpf/f9YmEtb8n8TcVYHDH+BgXd+U6eMsede3gOWDa3u5kVLz3w47yAIxFleaL05DyhfLIWXyS8DPrR0K/PLhqO/N/yAV1UP8jkcVXNgPc93cLAiA0QP7GrBPfqQqZNrWXhWXFUahWvLWEitCVPmfd5Nn7uyfbgViIsWoNNBB5eyhfFstxn0eGhO6dFB8hwazMBEtxlayMDZQsBvsrt7l3N+IASf0O1IllcYch9dpJ+kXKnz2SD1P7XMYavNwqgsvltZSz6R0tifhu1uY9yF7gDItHHhrW0nKS1vFWPH2p4C6wCk3JGYObMjTun7qUPmWvZxZ/D2NKnM6Q0Z9zcqcpMSOJIBioGcwnBh8h5kydfwuZevow5a+nVIwWzaQXqncdWaM4yIx5i7TTeyIOZP1MX8Y9jhWPF3Ux1FU3FZG8vvt9ew43h9joj0Dz/q4XEHLXpm4uERygWifYNpYQF7+aBqMTLhZ/B5WOwRl2ow2/vI/dWwxgBBwHqWlLI66nA+NacHvSvf60QFlR0Bf2vEdo4KM5cnIf+muDrwNG+hPkULWVn/9sfhtx6zbOFNukw4c=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO6PR12MB5444.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(316002)(55236004)(6666004)(4326008)(508600001)(6512007)(8936002)(5660300002)(2906002)(31686004)(8676002)(6486002)(86362001)(66946007)(38100700002)(31696002)(186003)(66476007)(4744005)(26005)(6506007)(36756003)(2616005)(66556008)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZlJQZTJHaU5wQlRtSTV6SnpURTFqUmpnQUgxMjJwbHA0MGVIY0t4c2ZmcEtE?=
- =?utf-8?B?a0luNEIvckg4clF1TDE4WkNmQ0d2S2Y1aG9MTWdtYytlVXpLamdoRmdWTXdI?=
- =?utf-8?B?Z2hIUG5BUk5kVWJscmlqajRkazREMS92RENWWE15Z2RJNVlEblF5YzBtNERy?=
- =?utf-8?B?RElxSlJ3YVJscThhdFBiTGI2QXM2eFlqOWdJMmV3RGJCNnR5WVlOdFBxWEtv?=
- =?utf-8?B?VytyaTBQR1ZMWkl4VFcrdUUxSm9Zbjk5UUs4QUJYOGJrTkNxbHVVbzA0UjZQ?=
- =?utf-8?B?RXgvUnRhRmJ4cXhUa2lHdE81UFFMMTgyWWhQeXg5cXdURkkySzdhSkJodEhj?=
- =?utf-8?B?Zk1ZUlA2dHlaaHAyL09FQnZZZFlLQkhqYlBsV2g3SVRTS3BHZVJJU3ZhUE51?=
- =?utf-8?B?bThpc2xWR2IrWFMrRzdFTGhDSHJVV3JvaXlGdHZ0NUJHQTl1eHZ2Rm5xb0Fp?=
- =?utf-8?B?QUV0OGNkazJUbmVyRHhGNWFiZENyREt2YjF0bktTL0cwTGRWNVZTMEJ6VXNH?=
- =?utf-8?B?MTduWnpqamp3SlFUYmR6NTZrV1IyRDY4bGN4azdTZ2Q5YWJ6aU8rM1owVlE1?=
- =?utf-8?B?eHhDNHFVMU5abWVkaVRnMEU4am56WXhEcmVaVEpwakNIa3drelViVHZ6c1po?=
- =?utf-8?B?TFFmZHVSOE5aREU5cGF0b3NUaHNzcVVUZnlWajJKZTNnbnVDeUVEOFVqa29G?=
- =?utf-8?B?UlhNRTQxaS93TCtwVzhEUWcxcTIvSktEdmE4OGdiVUEyTUxKSWJWY2tJc1h6?=
- =?utf-8?B?TGVOdTBGc2JPVU5oeFdySWhRNTRNVHMyTDUydmEzT04yWXZ3YnN5WmIvOHNw?=
- =?utf-8?B?Nkx1d215aUN6by9vV1NXWDNNdTU3V2VMREU5QXdvZ1VTMHg2MXhHUTU5R2M3?=
- =?utf-8?B?cHNTVWp2Q0RqM3MvSWsxQ1FoTklvK21ydnJCbzhTY0k4S3dwSncyeW1PWTEr?=
- =?utf-8?B?TUZGZnJIaS9QZTVGazNKZ0ZCT2xjQmxxQ1pJVkU3OXN0QWxyQlN6aFZZTHBl?=
- =?utf-8?B?WUZ5M1gzRFNMLzBLb1E1UnYzaVpuRHVSa1YrV3k5Tno5TGh5c2lvL3g2QStL?=
- =?utf-8?B?T2NLOG5uTmluR1dZeVdzYkFoSTZXRWl6cWxjdS8vVmN0QkJBdmowbzIwMXVF?=
- =?utf-8?B?M29yaGNDc3hyZnBHSHRXMEVYaTA2RThLbDhQNjVjcmhSNWU5Z0IzSW5JazRp?=
- =?utf-8?B?UHZ2UzFTMzhncXh0R21yUUYvanZvakJicjFLUjZRMHVoVy83em1WUklpVnBj?=
- =?utf-8?B?VE9qMFIwSTdIZ3NxVUU0bnk0QVVDYmpybExoY2lSQXFFUnRHR3pLb1ZkcSs4?=
- =?utf-8?B?dTBZUDYyQXR3bFVEUDFzZU5uSjNCQ3RsMTZoYlFMaFUwdm5zN0J6Y3l1dFpU?=
- =?utf-8?B?MFBNTm1sbERMOWRqUURhOFlpelhsazhDK01EcEVVRzhNelVPaHM1elBMeExt?=
- =?utf-8?B?OEp4Q2ljVVNKUWd3aCtVVDhreWdKcmxvWk0xcmE3UWxmL1BKYTgwai84NThB?=
- =?utf-8?B?NHZnTU80RFludUsvL3RYUzUwLzFTUVYxRFN2Rkc3S2dWQmNzSTdYd1NKT0JG?=
- =?utf-8?B?WTEvYWxmWGNLOVBha1ByWjZxTExoOTBkTG9uNDQvL3g2bFEzUStBc2g4alV0?=
- =?utf-8?B?QXlOS2V2R0tsYUlBVEM1alg4bGtYRjJqQ1p2bCtjK2FLbnF5YjU4blZjTlhp?=
- =?utf-8?B?a0xISFcrSW85THdqY2lNUVQ5eGJVUEE1VHBHdFhlb21KMnZYY1MybGljdlVF?=
- =?utf-8?B?b21yOEVicmpVd2Q5VE1rNmFYVU56d2lWRk9FN3NPK1hlcWZKRndyVmlsNmZL?=
- =?utf-8?B?Zkphck1kK09VOUJCa1B0U3RCT2dvVHJIVno5NVM4TXJkK1V4S2dWNE5adkta?=
- =?utf-8?B?ajlHOWxPdExrNmFJcC9mYmYvbGpMck1yR2t2MTdYVW53WFBwemVzZ2hRUXZi?=
- =?utf-8?B?V2xIWUtyVlhVYTN1QzZuMzhGbmczRnJlNVA1aFQxV3ZuaXJhNWZ1VmNLTnVh?=
- =?utf-8?B?dEJWMkNXR2N3Wk9qeUo5Ny82Z05hUjBZNW9MZkJDL1R5bGdDZTBLRWlNbzR1?=
- =?utf-8?B?Y2tSVkRSZ29FVnRoakJaWFdJdGFONG9GRlk3ZTZGclY0bVZpYVhFcGM3MTVp?=
- =?utf-8?B?VmFVWU4rYWNVcTdlUmlkMFRlSFJuaVpYNFloTFYxd1htTW9PUDl0djBycGds?=
- =?utf-8?Q?4C8o6cue2mLgWWb1zy4oZw0=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4e6a32e5-1d53-480a-4882-08d9c14e2d8c
-X-MS-Exchange-CrossTenant-AuthSource: CO6PR12MB5444.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2021 11:12:56.7474
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: peQbG7rlC6ywyA3GsSvc4RbnjPl4qic1kHIysIWSk1vJN3ilUSjLKshvvE6DDyO+NBrLFs8iO9uiWLMG1Fuzaw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR12MB5441
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211214053253.GB2216@MiWiFi-R3L-srv>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Tue, Dec 14, 2021 at 01:32:53PM +0800, Baoquan He wrote:
+> On 12/13/21 at 01:43pm, Hyeonggon Yoo wrote:
+> > Hello Baoquan. I have a question on your code.
+> > 
+> > On Mon, Dec 13, 2021 at 08:27:12PM +0800, Baoquan He wrote:
+> > > Dma-kmalloc will be created as long as CONFIG_ZONE_DMA is enabled.
+> > > However, it will fail if DMA zone has no managed pages. The failure
+> > > can be seen in kdump kernel of x86_64 as below:
+> > > 
+> > >  CPU: 0 PID: 65 Comm: kworker/u2:1 Not tainted 5.14.0-rc2+ #9
+> > >  Hardware name: Intel Corporation SandyBridge Platform/To be filled by O.E.M., BIOS RMLSDP.86I.R2.28.D690.1306271008 06/27/2013
+> > >  Workqueue: events_unbound async_run_entry_fn
+> > >  Call Trace:
+> > >   dump_stack_lvl+0x57/0x72
+> > >   warn_alloc.cold+0x72/0xd6
+> > >   __alloc_pages_slowpath.constprop.0+0xf56/0xf70
+> > >   __alloc_pages+0x23b/0x2b0
+> > >   allocate_slab+0x406/0x630
+> > >   ___slab_alloc+0x4b1/0x7e0
+> > >   ? sr_probe+0x200/0x600
+> > >   ? lock_acquire+0xc4/0x2e0
+> > >   ? fs_reclaim_acquire+0x4d/0xe0
+> > >   ? lock_is_held_type+0xa7/0x120
+> > >   ? sr_probe+0x200/0x600
+> > >   ? __slab_alloc+0x67/0x90
+> > >   __slab_alloc+0x67/0x90
+> > >   ? sr_probe+0x200/0x600
+> > >   ? sr_probe+0x200/0x600
+> > >   kmem_cache_alloc_trace+0x259/0x270
+> > >   sr_probe+0x200/0x600
+> > >   ......
+> > >   bus_probe_device+0x9f/0xb0
+> > >   device_add+0x3d2/0x970
+> > >   ......
+> > >   __scsi_add_device+0xea/0x100
+> > >   ata_scsi_scan_host+0x97/0x1d0
+> > >   async_run_entry_fn+0x30/0x130
+> > >   process_one_work+0x2b0/0x5c0
+> > >   worker_thread+0x55/0x3c0
+> > >   ? process_one_work+0x5c0/0x5c0
+> > >   kthread+0x149/0x170
+> > >   ? set_kthread_struct+0x40/0x40
+> > >   ret_from_fork+0x22/0x30
+> > >  Mem-Info:
+> > >  ......
+> > > 
+> > > The above failure happened when calling kmalloc() to allocate buffer with
+> > > GFP_DMA. It requests to allocate slab page from DMA zone while no managed
+> > > pages in there.
+> > >  sr_probe()
+> > >  --> get_capabilities()
+> > >      --> buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
+> > > 
+> > > The DMA zone should be checked if it has managed pages, then try to create
+> > > dma-kmalloc.
+> > >
+> > 
+> > What is problem here?
+> > 
+> > The slab allocator requested buddy allocator with GFP_DMA,
+> > and then buddy allocator failed to allocate page in DMA zone because
+> > there was no page in DMA zone. and then the buddy allocator called warn_alloc
+> > because it failed at allocating page.
+> > 
+> > Looking at warn, I don't understand what the problem is.
+> 
+> The problem is this is a generic issue on x86_64, and will be warned out
+> always on all x86_64 systems, but not on a certain machine or a certain
+> type of machine. If not fixed, we can always see it in kdump kernel. The
+> way things are, it doesn't casue system or device collapse even if
+> dma-kmalloc can't provide buffer or provide buffer from zone NORMAL.
+> 
+> 
+> I have got bug reports several times from different people, and we have
+> several bugs tracking this inside Redhat. I think nobody want to see
+> this appearing in customers' monitor w or w/o a note. If we have to
+> leave it with that, it's a little embrassing.
+> 
+> 
+> > 
+> > > ---
+> > >  mm/slab_common.c | 9 +++++++++
+> > >  1 file changed, 9 insertions(+)
+> > > 
+> > > diff --git a/mm/slab_common.c b/mm/slab_common.c
+> > > index e5d080a93009..ae4ef0f8903a 100644
+> > > --- a/mm/slab_common.c
+> > > +++ b/mm/slab_common.c
+> > > @@ -878,6 +878,9 @@ void __init create_kmalloc_caches(slab_flags_t flags)
+> > >  {
+> > >  	int i;
+> > >  	enum kmalloc_cache_type type;
+> > > +#ifdef CONFIG_ZONE_DMA
+> > > +	bool managed_dma;
+> > > +#endif
+> > >  
+> > >  	/*
+> > >  	 * Including KMALLOC_CGROUP if CONFIG_MEMCG_KMEM defined
+> > > @@ -905,10 +908,16 @@ void __init create_kmalloc_caches(slab_flags_t flags)
+> > >  	slab_state = UP;
+> > >  
+> > >  #ifdef CONFIG_ZONE_DMA
+> > > +	managed_dma = has_managed_dma();
+> > > +
+> > >  	for (i = 0; i <= KMALLOC_SHIFT_HIGH; i++) {
+> > >  		struct kmem_cache *s = kmalloc_caches[KMALLOC_NORMAL][i];
+> > >  
+> > >  		if (s) {
+> > > +			if (!managed_dma) {
+> > > +				kmalloc_caches[KMALLOC_DMA][i] = kmalloc_caches[KMALLOC_NORMAL][i];
+> > > +				continue;
+> > > +			}
+> > 
+> > This code is copying normal kmalloc caches to DMA kmalloc caches.
+> > With this code, the kmalloc() with GFP_DMA will succeed even if allocated
+> > memory is not actually from DMA zone. Is that really what you want?
+> 
+> This is a great question. Honestly, no,
+> 
+> On the surface, it's obviously not what we want, We should never give
+> user a zone NORMAL memory when they ask for zone DMA memory. If going to
+> this specific x86_64 ARCH where this problem is observed, I prefer to give
+> it zone DMA32 memory if zone DMA allocation failed. Because we rarely
+> have ISA device deployed which requires low 16M DMA buffer. The zone DMA
+> is just in case. Thus, for kdump kernel, we have been trying to make sure
+> zone DMA32 has enough memory to satisfy PCIe device DMA buffer allocation,
+> I don't remember we made any effort to do that for zone DMA.
+> 
+> Now the thing is that the nothing serious happened even if sr_probe()
+> doesn't get DMA buffer from zone DMA. And it works well when I feed it
+> with zone NORMAL memory instead with this patch applied.
+> > 
+> > Maybe the function get_capabilities() want to allocate memory
+> > even if it's not from DMA zone, but other callers will not expect that.
+> 
+> Yeah, I have the same guess too for get_capabilities(), not sure about other
+> callers. Or, as ChristophL and ChristophH said(Sorry, not sure if this is
+> the right way to call people when the first name is the same. Correct me if
+> it's wrong), any buffer requested from kmalloc can be used by device driver.
+> Means device enforces getting memory inside addressing limit for those
+> DMA transferring buffer which is usually large, Megabytes level with
+> vmalloc() or alloc_pages(), but doesn't care about this kind of small
+> piece buffer memory allocated with kmalloc()? Just a guess, please tell
+> a counter example if anyone happens to know, it could be easy.
+>
 
-Please can you include the following commit for 5.15.y? This is the last 
-one that we have been waiting for :-)
+My understanding is any buffer requested from kmalloc (without
+GFP_DMA/DMA32) can be used by device driver because it allocates
+continuous physical memory. It doesn't mean that buffer allocated
+with kmalloc is free of addressing limitation.
 
-commit 69125b4b9440be015783312e1b8753ec96febde0
-Author: Jon Hunter <jonathanh@nvidia.com>
-Date:   Fri Nov 12 11:27:12 2021 +0000
+the addressing limitation comes from the capability of device, not
+allocation size. if you allocate memory using alloc_pages() or kmalloc(),
+the device has same limitation. and vmalloc can't be used for
+devices because they have no MMU.
 
-     reset: tegra-bpmp: Revert Handle errors in BPMP response
+But we can map memory outside DMA zone into bounce buffer (which resides
+in DMA zone) using DMA API.
 
-Cheers!
-Jon
+Thanks,
+Hyeonggon.
 
--- 
-nvpublic
+> 
+> > 
+> > >  			kmalloc_caches[KMALLOC_DMA][i] = create_kmalloc_cache(
+> > >  				kmalloc_info[i].name[KMALLOC_DMA],
+> > >  				kmalloc_info[i].size,
+> > > -- 
+> > > 2.17.2
+> > > 
+> > > 
+> > 
+> 
