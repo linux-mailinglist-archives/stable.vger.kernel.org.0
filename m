@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E284479586
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 21:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9533147958C
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 21:37:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232816AbhLQUf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 15:35:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44210 "EHLO
+        id S236644AbhLQUhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 15:37:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236873AbhLQUf7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 15:35:59 -0500
+        with ESMTP id S236749AbhLQUhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 15:37:12 -0500
 Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5200C06173E
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:35:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E15C06173F
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:37:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=Q7Nax3PxMl3HjWfdHLh+2+AV949t4rDho0Xmp3u7kTc=;
-        t=1639773358; x=1640982958; b=HI1Yj1zHD0DOtboV5OCS3K31cSoltwo1cGXx/wXcjnciUv6
-        qqxpCMaESBr1sgp5b8o0m60wH7lkcyp0vt3pGx69Wc/Scdpexm9olprTvxAzO3kLjVg+0U6cQ/DFE
-        ZPiZgWC6G3SQcRLBi8xOSjnCdB4RqMvP0o7JVdecRyqpoMasOs8EPHbtqnFfvr8TbWgGb+LCC2KMZ
-        oIAR/BZAyKUKlP4O4SKnn4LoVqcnPSgmjMZUyGRy0mTcFUxheMBhQObFpBUJKAKBbcoCsHAA81ESc
-        +6NF2mG60pd54hADe5uVGZJrhg5mC67zmffvD4usmr0H207OLg5Wm+ZFC2ErpZGg==;
+        Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
+        Resent-Message-ID:In-Reply-To:References;
+        bh=Z1xBn0cs7TXYEXG4OGQRC/Rdhf35EUc8w3X++b+JvcA=; t=1639773432; x=1640983032; 
+        b=scDGe+y1fYDurqpOgTnFt9RAw8YuL1KM11AqCL4Qe7n+/hUhrS4Z8DmtKj+yzCuB77R+qVA+kJI
+        9PkYiRU3EVfZXw9vSzmcFgxdBN1JCauqDAf46mIgz/ZvOwmfGj0tfETkcYKh6TRw4HKvzcM5NCmuO
+        ARukRxmdQw6ttWqM5am0lrn2GVnDO5MBQm6AguhwbG5QBughZmYgIVrMSbwlA0M9e0lHz0fQknIfC
+        gksopovLz1kiQNF5uZz0uB3t4CtjVa2Frmg51E/qwePzd6M0BckpOlE13jWf8ikM7pPaZ9EFULmlo
+        /WshBMu/gMyERcqvx9zezztiMNXcqdS/rjHw==;
 Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
         (Exim 4.95)
         (envelope-from <johannes@sipsolutions.net>)
-        id 1myJxL-00CuHI-0T;
-        Fri, 17 Dec 2021 21:35:55 +0100
+        id 1myJyX-00CuJN-A6;
+        Fri, 17 Dec 2021 21:37:09 +0100
 From:   Johannes Berg <johannes@sipsolutions.net>
 To:     stable@vger.kernel.org
 Cc:     Johannes Berg <johannes.berg@intel.com>,
         syzbot+59bdff68edce82e393b6@syzkaller.appspotmail.com
-Subject: [PATCH v4.19 2/2] mac80211: validate extended element ID is present
-Date:   Fri, 17 Dec 2021 21:35:50 +0100
-Message-Id: <20211217203550.54684-2-johannes@sipsolutions.net>
+Subject: [PATCH v5.4] mac80211: validate extended element ID is present
+Date:   Fri, 17 Dec 2021 21:37:06 +0100
+Message-Id: <20211217203706.55031-1-johannes@sipsolutions.net>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211217203550.54684-1-johannes@sipsolutions.net>
-References: <20211217203550.54684-1-johannes@sipsolutions.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -62,10 +61,10 @@ Signed-off-by: Johannes Berg <johannes.berg@intel.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/net/mac80211/util.c b/net/mac80211/util.c
-index 7fa9871b1db9..9c1a20ca6344 100644
+index decd46b38393..c1c117fdf318 100644
 --- a/net/mac80211/util.c
 +++ b/net/mac80211/util.c
-@@ -1102,6 +1102,8 @@ u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
+@@ -1227,6 +1227,8 @@ _ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
  				elems->max_idle_period_ie = (void *)pos;
  			break;
  		case WLAN_EID_EXTENSION:
