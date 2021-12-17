@@ -2,81 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D81F84790CA
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 16:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04F7B4790F5
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 17:06:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233484AbhLQP6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 10:58:06 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:46858 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235457AbhLQP6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 10:58:05 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 19D54CE253E
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 15:58:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CFBC36AE8;
-        Fri, 17 Dec 2021 15:58:00 +0000 (UTC)
-Date:   Fri, 17 Dec 2021 16:57:58 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Jeff Layton <jlayton@kernel.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, idryomov@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ceph: fix up non-directory creation in
- SGID directories" failed to apply to 5.10-stable tree
-Message-ID: <20211217155758.3f5em47lqntft2we@wittgenstein>
-References: <163974910684103@kroah.com>
- <20211217142301.a5y45b54ut3ika4v@wittgenstein>
- <YbynEbAeWpB5A2sj@kroah.com>
- <41797c9b2bfbd977427bd531db2337edfbcb4c92.camel@kernel.org>
+        id S238749AbhLQQGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 11:06:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38310 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235251AbhLQQGs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 11:06:48 -0500
+Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57008C061574
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 08:06:48 -0800 (PST)
+Received: by mail-io1-xd44.google.com with SMTP id c3so3624785iob.6
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 08:06:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=U+wvXPwvhucTVlxnfZp7fdTxV1dqI6RrlYLlpej7n+A=;
+        b=YUNyl6X1aOuNX0Zbv5o0SSJroo2f7qXWhGWhymmXexL8bFmeCHewg7/nbSEn3kGaCp
+         Yon0xvhF/EpQv1UH0R+YxczwOCH1+8GDnrtroJvu3Y2w2mbLAKf92Uu4IAoaMAeaVLeS
+         SxsnUxhj8R4S3m4M6+XYsZZeEQnLesRVOUB+IV/PgYYToEuJ/T25xS586YHoOzmauq94
+         Hw3z+fs9z4hfRC2JmjJM7NknDu1YwsS4X3yuo7TnWpCCuFbFCO6tJhwThr9PR+Fvx6La
+         /wnSswEeASWp2HeZTq41dInej/PH7y0QEVZQUyZqkjhnC51VamLvQjZVgKeH7jIpMmk1
+         rNPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=U+wvXPwvhucTVlxnfZp7fdTxV1dqI6RrlYLlpej7n+A=;
+        b=YA0t1kGnlHXhq1A8/CCtB6MD/6x4kc1H1RLAUWpn8wShk99eAySyjJ0G2avh+gh5rK
+         LyM6WYcI9iaVanXXIwOGgGe0Yac18T2lY6v5Yf1U1rpPksbHpCQHopp86Ze602yRxleb
+         2yMRdNVti4nHLPvjw90cHPjYH4ggLmgFtn89loCH1rRMFzacAeN43Uu5F2S2fQgo/q7b
+         BEkyMak1IMbydVqLZaNkEyGgOXgvhLkiwwE9JiS51sNZlxPhjUWcwqNNZI740eDOiXTV
+         Zs2leLaEyYKCDtVyIMvH+b1qiT4lulOytjxA7ThYFkjz0huFQ5663+zUR0R+C9My01Ip
+         G+Fg==
+X-Gm-Message-State: AOAM530iv1Cw+vJyFCI5vLwv6mbFGXUAQvX7HTIOx9XdAYJrJzjibeny
+        L8syfrkzIj1XwSSHRpgH6DW0c7N2X2sQquty78o=
+X-Google-Smtp-Source: ABdhPJwC2IjTLvVz1uHzGQnUbIInTQPb0xl8fiqsDI0S0ktdEOwbBVR0EWxAEzMHFUxd/w2kVL0WFA6l63VUM0bpwFc=
+X-Received: by 2002:a5e:c645:: with SMTP id s5mr1966693ioo.154.1639757207899;
+ Fri, 17 Dec 2021 08:06:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <41797c9b2bfbd977427bd531db2337edfbcb4c92.camel@kernel.org>
+Received: by 2002:a5e:c915:0:0:0:0:0 with HTTP; Fri, 17 Dec 2021 08:06:47
+ -0800 (PST)
+Reply-To: mauhin13@gmail.com
+From:   Maureen Hinckley <josephinmnyinge70@gmail.com>
+Date:   Fri, 17 Dec 2021 19:06:47 +0300
+Message-ID: <CAEH2Oo=6bnNwbVkjrKBG99wik6g3ZX8sjiT43mYL-pSy7uQZhg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 17, 2021 at 10:55:23AM -0500, Jeff Layton wrote:
-> On Fri, 2021-12-17 at 16:04 +0100, Greg KH wrote:
-> > On Fri, Dec 17, 2021 at 03:23:01PM +0100, Christian Brauner wrote:
-> > > On Fri, Dec 17, 2021 at 02:51:46PM +0100, gregkh@linuxfoundation.org wrote:
-> > > > 
-> > > > The patch below does not apply to the 5.10-stable tree.
-> > > > If someone wants it applied there, or to any other stable or longterm
-> > > > tree, then please email the backport, including the original git commit
-> > > > id to <stable@vger.kernel.org>.
-> > > 
-> > > Oh? I just applied the patch on top of:
-> > > 
-> > > commit 272aedd4a305 ("Linux 5.10.87")
-> > > 
-> > > without any issues. Not sure what failed for you.
-> > 
-> > It fails to build :(
-> 
-> I think the issue is probably that capable_wrt_inode_uidgid in kernels
-> of that era didn't take a userns arg. I had to do a similar fixup for
-> the RHEL8 backport.
+--=20
+Hello,
 
-Yes, I think this is:
+I am Maureen Hinckley and my foundation is donating ($2.2 Million.
+Dollars) to you. Contact us via my email at (mauhin13@gmail.com) for
+further details.
 
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 5eddee27a688..8ed881fd7440 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -615,7 +615,7 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
-                        mode |= S_ISGID;
-                else if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP) &&
-                         !in_group_p(dir->i_gid) &&
--                        !capable_wrt_inode_uidgid(&init_user_ns, dir, CAP_FSETID))
-+                        !capable_wrt_inode_uidgid(dir, CAP_FSETID))
-                        mode &= ~S_ISGID;
-        } else {
-                in.gid = cpu_to_le32(from_kgid(&init_user_ns, current_fsgid()));
-
-on top of my patch.
-
-Thanks!
-Christian
+Best Regards,
+Mrs. Maureen Hinckley,
+Copyright =C2=A92021 The Maureen Hinckley Foundation All Rights Reserved.
