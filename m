@@ -2,66 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59874478BC6
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 13:51:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07A58478BC8
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 13:52:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236092AbhLQMv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 07:51:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48148 "EHLO
+        id S235941AbhLQMwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 07:52:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233838AbhLQMv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 07:51:27 -0500
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93FE4C061574
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 04:51:26 -0800 (PST)
-Received: by mail-lf1-x129.google.com with SMTP id g11so4448131lfu.2
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 04:51:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=WyCWp+B+Jt1+B4acpM1F8D6ryNuXVqqVEfm5P4Gsav0=;
-        b=jZJMIiJFiuu3aO9efy4jT1ub4Bwrs1F30Mm48DEvaSzagEuAdlCV/0CWnVmQQNWLs9
-         Odw+l9OKtVg59mW3P+pRR63WYgczb+geAgR09/TO3vNg7Kor1qMZ4xIRxgFRc9SfxiB/
-         NimvZ+oclYzA+MDpRhkJK3eF3Z1wWAslOn7DuW/EKowp7eRQ9t9EVAR/1OBiSBBpeZWV
-         aRRQSlRH6lyuYlLQe48XkB1MALM4nAdd6imXWR2bw+U/P1idBcXltEkpNHwY8mvawImf
-         vhXNPaav9yhvjfyCN8GKoRfNw3lQzicPn06+pHTaH2xWy8bSe/hmEGaPTHUg6xhkMxCh
-         chlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=WyCWp+B+Jt1+B4acpM1F8D6ryNuXVqqVEfm5P4Gsav0=;
-        b=uDC9GLg5zPtL1C+L8oY9GYYNPB9S4e3h6SqO42mIebAL7fDYyzU1vdHoYLvDdfABR1
-         XeIgBc7P7luV6bsO/5FpqnI1L98iy2swGDnjpdCvubrL574hoTgTJYUPCmsd/H2/kq7u
-         p++Z1kUcX7/6DNS3HrqApfjT6wZf7SWGyEV981+0fVSwBjO+G0TRXoq48gfZ/JZ/tGjJ
-         WPAdPbnlfgoq81Ang5BlA8IhZaIQCzEn51XzS0SGTX/zVDdysgaIsn6RIBlTSy9w9A6R
-         HbRF94g16bftMBQj1nzHZIQL3R1B4Mj897NIgV1F6aT++yNXnJYT4rH00CuQDqnBRKg5
-         8TUA==
-X-Gm-Message-State: AOAM532/bXFv//3EZ5IvwDmqAADUG9MGJkiIIg1TrXrUCcAbxzXYtGK3
-        VNTFvS4EWfjkD5huf5AY8/5QPN83yxaCkcI1l/Y=
-X-Google-Smtp-Source: ABdhPJykMJIslTpFITowv1phwgIDyRrlGeRRSs+HWDvy1xVils/yvPgtzLzQUKjz+n7mmkpR2x6Ga/qLCVqg+YkzbB8=
-X-Received: by 2002:a19:6f0c:: with SMTP id k12mr2843528lfc.381.1639745484862;
- Fri, 17 Dec 2021 04:51:24 -0800 (PST)
+        with ESMTP id S233838AbhLQMwU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 07:52:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03FC5C061574
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 04:52:20 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6A81B82737
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:52:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAA26C36AE2;
+        Fri, 17 Dec 2021 12:52:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639745537;
+        bh=PEykXMr46dkY4qzYFn2XWV4gCCte+XJLl+6S5bU25vw=;
+        h=Subject:To:Cc:From:Date:From;
+        b=0uw2JFam+fkqqq2CsO2korc1aOLUEX81STRSTdwYTwGeBatILhTb8c0HUswhH48kt
+         sdrFdFAlqvYI2b7C6/j52pMYwR/Mg1SgPTs6L8JU0csIjzYvxu80hkhCPckKKmy18w
+         ZFd6jOtHFpyVG9iItAhyKIOJinqwkdk593R3kaBg=
+Subject: FAILED: patch "[PATCH] mac80211: mark TX-during-stop for TX in in_reconfig" failed to apply to 4.4-stable tree
+To:     johannes.berg@intel.com, luciano.coelho@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 17 Dec 2021 13:52:14 +0100
+Message-ID: <163974553498148@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6504:14d0:0:0:0:0 with HTTP; Fri, 17 Dec 2021 04:51:24
- -0800 (PST)
-Reply-To: alhajidankofebry@gmail.com
-From:   "Alhaji.Danko Febry" <meettcristy@gmail.com>
-Date:   Fri, 17 Dec 2021 04:51:24 -0800
-Message-ID: <CACGTwwiWntnwHVeDh0nnfcfRaLUT0DGrq+pJHP0g-kcZOUxOrw@mail.gmail.com>
-Subject: Assalam alaikum,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Assalam alaikum,
 
-I am the former executive director with Arab Tunisian bank, I bring an
-forth urgent proposal of gold and funds for investment in your country.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Your urgent respond is needed for more details.
-regards
-Alhaji.Danko Febry.
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From db7205af049d230e7e0abf61c1e74c1aab40f390 Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Mon, 29 Nov 2021 15:32:39 +0200
+Subject: [PATCH] mac80211: mark TX-during-stop for TX in in_reconfig
+
+Mark TXQs as having seen transmit while they were stopped if
+we bail out of drv_wake_tx_queue() due to reconfig, so that
+the queue wake after this will make them catch up. This is
+particularly necessary for when TXQs are used for management
+packets since those TXQs won't see a lot of traffic that'd
+make them catch up later.
+
+Cc: stable@vger.kernel.org
+Fixes: 4856bfd23098 ("mac80211: do not call driver wake_tx_queue op during reconfig")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211129152938.4573a221c0e1.I0d1d5daea3089be3fc0dccc92991b0f8c5677f0c@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+
+diff --git a/net/mac80211/driver-ops.h b/net/mac80211/driver-ops.h
+index cd3731cbf6c6..c336267f4599 100644
+--- a/net/mac80211/driver-ops.h
++++ b/net/mac80211/driver-ops.h
+@@ -1219,8 +1219,11 @@ static inline void drv_wake_tx_queue(struct ieee80211_local *local,
+ {
+ 	struct ieee80211_sub_if_data *sdata = vif_to_sdata(txq->txq.vif);
+ 
+-	if (local->in_reconfig)
++	/* In reconfig don't transmit now, but mark for waking later */
++	if (local->in_reconfig) {
++		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txq->flags);
+ 		return;
++	}
+ 
+ 	if (!check_sdata_in_driver(sdata))
+ 		return;
+
