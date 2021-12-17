@@ -2,741 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 141FD4788A3
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 11:21:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8464788A4
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 11:21:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234628AbhLQKVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 05:21:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41158 "EHLO
+        id S234654AbhLQKVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 05:21:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234811AbhLQKVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 05:21:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 237C6C061574;
-        Fri, 17 Dec 2021 02:21:08 -0800 (PST)
+        with ESMTP id S234549AbhLQKVJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 05:21:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29386C061574;
+        Fri, 17 Dec 2021 02:21:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BBC5FB82786;
-        Fri, 17 Dec 2021 10:21:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C11C36AE5;
-        Fri, 17 Dec 2021 10:21:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C061E620E1;
+        Fri, 17 Dec 2021 10:21:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCC95C36AE5;
+        Fri, 17 Dec 2021 10:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639736465;
-        bh=ceRS96kxdRxlRJbAkr6rdzxJVlpUMAnnmk+LoS1lTcc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfavCAFjbtfC665/vgwrdC2iaYyy2aPFp+R71hMCJPT4Z3V9V5jIyUKFiNeNE3qip
-         nNkNih5kTfrwxPOkirkjukNlCBdL5C03iCq9dwKfdG2gwZx+tWbEEudsBCiNPS/axN
-         +PXm/BsRt9GYCMrGSfwqbVkX5laaB2mHjEw57vQQ=
+        s=korg; t=1639736468;
+        bh=wcKMaeTGHgPR1PxGNoomApsF/kSUy/bHyGtrv2JA8dQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=je9zhtvYbNTZ1wRHNDaL5bkmliATw8sQVIhJY6abWzdVnLRmuTyP8/sEzSpVVsdcF
+         VN2uwkk4Ntj38l6xy8LnG68ScodiubM0g8mfkiFh9UMiT0tEGK/DGU/esqOa77muLT
+         zYoBZUsKkAb83fSxS0NG4wTUoIGJbcnd8KNs4KdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.4.167
-Date:   Fri, 17 Dec 2021 11:20:58 +0100
-Message-Id: <163973645765236@kroah.com>
+Subject: Linux 5.10.87
+Date:   Fri, 17 Dec 2021 11:21:01 +0100
+Message-Id: <163973646218123@kroah.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <16397364573237@kroah.com>
-References: <16397364573237@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index b1e5f7c6206e..1045f7fc0850 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 4
--SUBLEVEL = 166
-+SUBLEVEL = 167
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 5a3641b5ec2c..ff2cd985d20e 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -176,11 +176,22 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
- int pfn_valid(unsigned long pfn)
- {
- 	phys_addr_t addr = __pfn_to_phys(pfn);
-+	unsigned long pageblock_size = PAGE_SIZE * pageblock_nr_pages;
- 
- 	if (__phys_to_pfn(addr) != pfn)
- 		return 0;
- 
--	return memblock_is_map_memory(__pfn_to_phys(pfn));
-+	/*
-+	 * If address less than pageblock_size bytes away from a present
-+	 * memory chunk there still will be a memory map entry for it
-+	 * because we round freed memory map to the pageblock boundaries.
-+	 */
-+	if (memblock_overlaps_region(&memblock.memory,
-+				     ALIGN_DOWN(addr, pageblock_size),
-+				     pageblock_size))
-+		return 1;
-+
-+	return 0;
- }
- EXPORT_SYMBOL(pfn_valid);
- #endif
-@@ -371,14 +382,14 @@ static void __init free_unused_memmap(void)
- 		 */
- 		start = min(start,
- 				 ALIGN(prev_end, PAGES_PER_SECTION));
--#else
-+#endif
- 		/*
--		 * Align down here since the VM subsystem insists that the
--		 * memmap entries are valid from the bank start aligned to
--		 * MAX_ORDER_NR_PAGES.
-+		 * Align down here since many operations in VM subsystem
-+		 * presume that there are no holes in the memory map inside
-+		 * a pageblock
- 		 */
--		start = round_down(start, MAX_ORDER_NR_PAGES);
--#endif
-+		start = round_down(start, pageblock_nr_pages);
-+
- 		/*
- 		 * If we had a previous bank, and there is a space
- 		 * between the current bank and the previous, free it.
-@@ -387,18 +398,20 @@ static void __init free_unused_memmap(void)
- 			free_memmap(prev_end, start);
- 
- 		/*
--		 * Align up here since the VM subsystem insists that the
--		 * memmap entries are valid from the bank end aligned to
--		 * MAX_ORDER_NR_PAGES.
-+		 * Align up here since many operations in VM subsystem
-+		 * presume that there are no holes in the memory map inside
-+		 * a pageblock
- 		 */
- 		prev_end = ALIGN(memblock_region_memory_end_pfn(reg),
--				 MAX_ORDER_NR_PAGES);
-+				 pageblock_nr_pages);
- 	}
- 
- #ifdef CONFIG_SPARSEMEM
--	if (!IS_ALIGNED(prev_end, PAGES_PER_SECTION))
-+	if (!IS_ALIGNED(prev_end, PAGES_PER_SECTION)) {
-+		prev_end = ALIGN(prev_end, pageblock_nr_pages);
- 		free_memmap(prev_end,
- 			    ALIGN(prev_end, PAGES_PER_SECTION));
-+	}
- #endif
- }
- 
-diff --git a/arch/arm/mm/ioremap.c b/arch/arm/mm/ioremap.c
-index d42b93316183..513c26b46db3 100644
---- a/arch/arm/mm/ioremap.c
-+++ b/arch/arm/mm/ioremap.c
-@@ -27,6 +27,7 @@
- #include <linux/vmalloc.h>
- #include <linux/io.h>
- #include <linux/sizes.h>
-+#include <linux/memblock.h>
- 
- #include <asm/cp15.h>
- #include <asm/cputype.h>
-@@ -301,7 +302,8 @@ static void __iomem * __arm_ioremap_pfn_caller(unsigned long pfn,
- 	 * Don't allow RAM to be mapped with mismatched attributes - this
- 	 * causes problems with ARMv6+
- 	 */
--	if (WARN_ON(pfn_valid(pfn) && mtype != MT_MEMORY_RW))
-+	if (WARN_ON(memblock_is_map_memory(PFN_PHYS(pfn)) &&
-+		    mtype != MT_MEMORY_RW))
- 		return NULL;
- 
- 	area = get_vm_area_caller(size, VM_IOREMAP, caller);
-diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index 26408434b9bc..be92e8dccda3 100644
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -1501,11 +1501,13 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
- 
- 		all_cpus = send_ipi_ex.vp_set.format == HV_GENERIC_SET_ALL;
- 
-+		if (all_cpus)
-+			goto check_and_send_ipi;
-+
- 		if (!sparse_banks_len)
- 			goto ret_success;
- 
--		if (!all_cpus &&
--		    kvm_read_guest(kvm,
-+		if (kvm_read_guest(kvm,
- 				   ingpa + offsetof(struct hv_send_ipi_ex,
- 						    vp_set.bank_contents),
- 				   sparse_banks,
-@@ -1513,6 +1515,7 @@ static u64 kvm_hv_send_ipi(struct kvm_vcpu *current_vcpu, u64 ingpa, u64 outgpa,
- 			return HV_STATUS_INVALID_HYPERCALL_INPUT;
- 	}
- 
-+check_and_send_ipi:
- 	if ((vector < HV_IPI_LOW_VECTOR) || (vector > HV_IPI_HIGH_VECTOR))
- 		return HV_STATUS_INVALID_HYPERCALL_INPUT;
- 
-diff --git a/drivers/char/agp/parisc-agp.c b/drivers/char/agp/parisc-agp.c
-index ed3c4c42fc23..d68d05d5d383 100644
---- a/drivers/char/agp/parisc-agp.c
-+++ b/drivers/char/agp/parisc-agp.c
-@@ -281,7 +281,7 @@ agp_ioc_init(void __iomem *ioc_regs)
-         return 0;
- }
- 
--static int
-+static int __init
- lba_find_capability(int cap)
- {
- 	struct _parisc_agp_info *info = &parisc_agp_info;
-@@ -366,7 +366,7 @@ parisc_agp_setup(void __iomem *ioc_hpa, void __iomem *lba_hpa)
- 	return error;
- }
- 
--static int
-+static int __init
- find_quicksilver(struct device *dev, void *data)
- {
- 	struct parisc_device **lba = data;
-@@ -378,7 +378,7 @@ find_quicksilver(struct device *dev, void *data)
- 	return 0;
- }
- 
--static int
-+static int __init
- parisc_agp_init(void)
- {
- 	extern struct sba_device *sba_list;
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-index f0b001b3af57..883ee517673b 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c
-@@ -221,6 +221,14 @@ int amdgpu_dm_crtc_set_crc_source(struct drm_crtc *crtc, const char *src_name)
- 			ret = -EINVAL;
- 			goto cleanup;
- 		}
-+
-+		if ((aconn->base.connector_type != DRM_MODE_CONNECTOR_DisplayPort) &&
-+				(aconn->base.connector_type != DRM_MODE_CONNECTOR_eDP)) {
-+			DRM_DEBUG_DRIVER("No DP connector available for CRC source\n");
-+			ret = -EINVAL;
-+			goto cleanup;
-+		}
-+
- 	}
- 
- 	if (amdgpu_dm_crtc_configure_crc_source(crtc, crtc_state, source)) {
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index f25ac17f47fa..95a5310e9e66 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1546,6 +1546,10 @@ bool dc_is_stream_unchanged(
- 	if (old_stream->ignore_msa_timing_param != stream->ignore_msa_timing_param)
- 		return false;
- 
-+	// Only Have Audio left to check whether it is same or not. This is a corner case for Tiled sinks
-+	if (old_stream->audio_info.mode_count != stream->audio_info.mode_count)
-+		return false;
-+
- 	return true;
- }
- 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 5613234823f7..423c4ae2be10 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -1669,6 +1669,8 @@ static int dsi_host_parse_lane_data(struct msm_dsi_host *msm_host,
- 	if (!prop) {
- 		DRM_DEV_DEBUG(dev,
- 			"failed to find data lane mapping, using default\n");
-+		/* Set the number of date lanes to 4 by default. */
-+		msm_host->num_data_lanes = 4;
- 		return 0;
- 	}
- 
-diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-index 35c00420d855..2eaed0008f37 100644
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -588,15 +588,18 @@ static const struct file_operations i8k_fops = {
- 	.unlocked_ioctl	= i8k_ioctl,
- };
- 
-+static struct proc_dir_entry *entry;
-+
- static void __init i8k_init_procfs(void)
- {
- 	/* Register the proc entry */
--	proc_create("i8k", 0, NULL, &i8k_fops);
-+	entry = proc_create("i8k", 0, NULL, &i8k_fops);
- }
- 
- static void __exit i8k_exit_procfs(void)
- {
--	remove_proc_entry("i8k", NULL);
-+	if (entry)
-+		remove_proc_entry("i8k", NULL);
- }
- 
- #else
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 1a33007b03e9..1107a5e7229e 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -422,8 +422,8 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
- 	if (!(ipd & REG_INT_MBRF))
- 		return;
- 
--	/* ack interrupt */
--	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
-+	/* ack interrupt (read also produces a spurious START flag, clear it too) */
-+	i2c_writel(i2c, REG_INT_MBRF | REG_INT_START, REG_IPD);
- 
- 	/* Can only handle a maximum of 32 bytes at a time */
- 	if (len > 32)
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-index 426786a349c3..dd029d91bbc2 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -663,7 +663,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
--				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
-+				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
-@@ -675,9 +675,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
- 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
- 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
- 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
-diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
-index 6684696fa457..4b2819b0a05a 100644
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -94,7 +94,7 @@ static struct hlist_head *dev_map_create_hash(unsigned int entries,
- 	int i;
- 	struct hlist_head *hash;
- 
--	hash = bpf_map_area_alloc(entries * sizeof(*hash), numa_node);
-+	hash = bpf_map_area_alloc((u64) entries * sizeof(*hash), numa_node);
- 	if (hash != NULL)
- 		for (i = 0; i < entries; i++)
- 			INIT_HLIST_HEAD(&hash[i]);
-@@ -159,7 +159,7 @@ static int dev_map_init_map(struct bpf_dtab *dtab, union bpf_attr *attr)
- 
- 		spin_lock_init(&dtab->index_lock);
- 	} else {
--		dtab->netdev_map = bpf_map_area_alloc(dtab->map.max_entries *
-+		dtab->netdev_map = bpf_map_area_alloc((u64) dtab->map.max_entries *
- 						      sizeof(struct bpf_dtab_netdev *),
- 						      dtab->map.numa_node);
- 		if (!dtab->netdev_map)
-diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
-index 10657b8dc2c2..83c2a0598c64 100644
---- a/kernel/trace/tracing_map.c
-+++ b/kernel/trace/tracing_map.c
-@@ -15,6 +15,7 @@
- #include <linux/jhash.h>
- #include <linux/slab.h>
- #include <linux/sort.h>
-+#include <linux/kmemleak.h>
- 
- #include "tracing_map.h"
- #include "trace.h"
-@@ -307,6 +308,7 @@ void tracing_map_array_free(struct tracing_map_array *a)
- 	for (i = 0; i < a->n_pages; i++) {
- 		if (!a->pages[i])
- 			break;
-+		kmemleak_free(a->pages[i]);
- 		free_page((unsigned long)a->pages[i]);
- 	}
- 
-@@ -342,6 +344,7 @@ struct tracing_map_array *tracing_map_array_alloc(unsigned int n_elts,
- 		a->pages[i] = (void *)get_zeroed_page(GFP_KERNEL);
- 		if (!a->pages[i])
- 			goto free;
-+		kmemleak_alloc(a->pages[i], PAGE_SIZE, 1, GFP_KERNEL);
- 	}
-  out:
- 	return a;
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 11f6ae37d669..38cef8b6df05 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -164,6 +164,8 @@ bool __init_memblock memblock_overlaps_region(struct memblock_type *type,
- {
- 	unsigned long i;
- 
-+	memblock_cap_size(base, &size);
-+
- 	for (i = 0; i < type->cnt; i++)
- 		if (memblock_addrs_overlap(base, size, type->regions[i].base,
- 					   type->regions[i].size))
-@@ -1760,7 +1762,6 @@ bool __init_memblock memblock_is_region_memory(phys_addr_t base, phys_addr_t siz
-  */
- bool __init_memblock memblock_is_region_reserved(phys_addr_t base, phys_addr_t size)
- {
--	memblock_cap_size(base, &size);
- 	return memblock_overlaps_region(&memblock.reserved, base, size);
- }
- 
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index df52061f99f7..2646e8f98f67 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -48,7 +48,7 @@ static struct bpf_map *sock_map_alloc(union bpf_attr *attr)
- 	if (err)
- 		goto free_stab;
- 
--	stab->sks = bpf_map_area_alloc(stab->map.max_entries *
-+	stab->sks = bpf_map_area_alloc((u64) stab->map.max_entries *
- 				       sizeof(struct sock *),
- 				       stab->map.numa_node);
- 	if (stab->sks)
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index cb35680db9b2..891e029ad0f8 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1862,6 +1862,11 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 	if (msg->msg_flags&MSG_OOB)
- 		return -EOPNOTSUPP;
- 
-+	if (len == 0) {
-+		pr_warn_once("Zero length message leads to an empty skb\n");
-+		return -ENODATA;
-+	}
-+
- 	err = scm_send(sock, msg, &scm, true);
- 	if (err < 0)
- 		return err;
-diff --git a/net/nfc/netlink.c b/net/nfc/netlink.c
-index 0f61dad7256b..4d90cbdc083b 100644
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -644,8 +644,10 @@ static int nfc_genl_dump_devices_done(struct netlink_callback *cb)
- {
- 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
- 
--	nfc_device_iter_exit(iter);
--	kfree(iter);
-+	if (iter) {
-+		nfc_device_iter_exit(iter);
-+		kfree(iter);
-+	}
- 
- 	return 0;
- }
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f62adf3cfce8..a0afe49309c8 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2250,6 +2250,43 @@ size_t security_policydb_len(struct selinux_state *state)
- 	return len;
- }
- 
-+/**
-+ * ocontext_to_sid - Helper to safely get sid for an ocontext
-+ * @sidtab: SID table
-+ * @c: ocontext structure
-+ * @index: index of the context entry (0 or 1)
-+ * @out_sid: pointer to the resulting SID value
-+ *
-+ * For all ocontexts except OCON_ISID the SID fields are populated
-+ * on-demand when needed. Since updating the SID value is an SMP-sensitive
-+ * operation, this helper must be used to do that safely.
-+ *
-+ * WARNING: This function may return -ESTALE, indicating that the caller
-+ * must retry the operation after re-acquiring the policy pointer!
-+ */
-+static int ocontext_to_sid(struct sidtab *sidtab, struct ocontext *c,
-+			   size_t index, u32 *out_sid)
-+{
-+	int rc;
-+	u32 sid;
-+
-+	/* Ensure the associated sidtab entry is visible to this thread. */
-+	sid = smp_load_acquire(&c->sid[index]);
-+	if (!sid) {
-+		rc = sidtab_context_to_sid(sidtab, &c->context[index], &sid);
-+		if (rc)
-+			return rc;
-+
-+		/*
-+		 * Ensure the new sidtab entry is visible to other threads
-+		 * when they see the SID.
-+		 */
-+		smp_store_release(&c->sid[index], sid);
-+	}
-+	*out_sid = sid;
-+	return 0;
-+}
-+
- /**
-  * security_port_sid - Obtain the SID for a port.
-  * @protocol: protocol number
-@@ -2262,10 +2299,12 @@ int security_port_sid(struct selinux_state *state,
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
- 	struct ocontext *c;
--	int rc = 0;
-+	int rc;
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+retry:
-+	rc = 0;
- 	policydb = &state->ss->policydb;
- 	sidtab = state->ss->sidtab;
- 
-@@ -2279,14 +2318,11 @@ int security_port_sid(struct selinux_state *state,
- 	}
- 
- 	if (c) {
--		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(sidtab,
--						   &c->context[0],
--						   &c->sid[0]);
--			if (rc)
--				goto out;
--		}
--		*out_sid = c->sid[0];
-+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
-+		if (rc == -ESTALE)
-+			goto retry;
-+		if (rc)
-+			goto out;
- 	} else {
- 		*out_sid = SECINITSID_PORT;
- 	}
-@@ -2308,10 +2344,12 @@ int security_ib_pkey_sid(struct selinux_state *state,
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
- 	struct ocontext *c;
--	int rc = 0;
-+	int rc;
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+retry:
-+	rc = 0;
- 	policydb = &state->ss->policydb;
- 	sidtab = state->ss->sidtab;
- 
-@@ -2326,14 +2364,11 @@ int security_ib_pkey_sid(struct selinux_state *state,
- 	}
- 
- 	if (c) {
--		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(sidtab,
--						   &c->context[0],
--						   &c->sid[0]);
--			if (rc)
--				goto out;
--		}
--		*out_sid = c->sid[0];
-+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
-+		if (rc == -ESTALE)
-+			goto retry;
-+		if (rc)
-+			goto out;
- 	} else
- 		*out_sid = SECINITSID_UNLABELED;
- 
-@@ -2354,10 +2389,12 @@ int security_ib_endport_sid(struct selinux_state *state,
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
- 	struct ocontext *c;
--	int rc = 0;
-+	int rc;
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+retry:
-+	rc = 0;
- 	policydb = &state->ss->policydb;
- 	sidtab = state->ss->sidtab;
- 
-@@ -2373,14 +2410,11 @@ int security_ib_endport_sid(struct selinux_state *state,
- 	}
- 
- 	if (c) {
--		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(sidtab,
--						   &c->context[0],
--						   &c->sid[0]);
--			if (rc)
--				goto out;
--		}
--		*out_sid = c->sid[0];
-+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
-+		if (rc == -ESTALE)
-+			goto retry;
-+		if (rc)
-+			goto out;
- 	} else
- 		*out_sid = SECINITSID_UNLABELED;
- 
-@@ -2399,11 +2433,13 @@ int security_netif_sid(struct selinux_state *state,
- {
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
--	int rc = 0;
-+	int rc;
- 	struct ocontext *c;
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+retry:
-+	rc = 0;
- 	policydb = &state->ss->policydb;
- 	sidtab = state->ss->sidtab;
- 
-@@ -2415,19 +2451,11 @@ int security_netif_sid(struct selinux_state *state,
- 	}
- 
- 	if (c) {
--		if (!c->sid[0] || !c->sid[1]) {
--			rc = sidtab_context_to_sid(sidtab,
--						  &c->context[0],
--						  &c->sid[0]);
--			if (rc)
--				goto out;
--			rc = sidtab_context_to_sid(sidtab,
--						   &c->context[1],
--						   &c->sid[1]);
--			if (rc)
--				goto out;
--		}
--		*if_sid = c->sid[0];
-+		rc = ocontext_to_sid(sidtab, c, 0, if_sid);
-+		if (rc == -ESTALE)
-+			goto retry;
-+		if (rc)
-+			goto out;
- 	} else
- 		*if_sid = SECINITSID_NETIF;
- 
-@@ -2469,6 +2497,7 @@ int security_node_sid(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+retry:
- 	policydb = &state->ss->policydb;
- 	sidtab = state->ss->sidtab;
- 
-@@ -2511,14 +2540,11 @@ int security_node_sid(struct selinux_state *state,
- 	}
- 
- 	if (c) {
--		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(sidtab,
--						   &c->context[0],
--						   &c->sid[0]);
--			if (rc)
--				goto out;
--		}
--		*out_sid = c->sid[0];
-+		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
-+		if (rc == -ESTALE)
-+			goto retry;
-+		if (rc)
-+			goto out;
- 	} else {
- 		*out_sid = SECINITSID_NODE;
- 	}
-@@ -2677,7 +2703,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
- 	u16 sclass;
- 	struct genfs *genfs;
- 	struct ocontext *c;
--	int rc, cmp = 0;
-+	int cmp = 0;
- 
- 	while (path[0] == '/' && path[1] == '/')
- 		path++;
-@@ -2691,9 +2717,8 @@ static inline int __security_genfs_sid(struct selinux_state *state,
- 			break;
- 	}
- 
--	rc = -ENOENT;
- 	if (!genfs || cmp)
--		goto out;
-+		return -ENOENT;
- 
- 	for (c = genfs->head; c; c = c->next) {
- 		len = strlen(c->u.name);
-@@ -2702,20 +2727,10 @@ static inline int __security_genfs_sid(struct selinux_state *state,
- 			break;
- 	}
- 
--	rc = -ENOENT;
- 	if (!c)
--		goto out;
--
--	if (!c->sid[0]) {
--		rc = sidtab_context_to_sid(sidtab, &c->context[0], &c->sid[0]);
--		if (rc)
--			goto out;
--	}
-+		return -ENOENT;
- 
--	*sid = c->sid[0];
--	rc = 0;
--out:
--	return rc;
-+	return ocontext_to_sid(sidtab, c, 0, sid);
- }
- 
- /**
-@@ -2750,13 +2765,15 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
- {
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
--	int rc = 0;
-+	int rc;
- 	struct ocontext *c;
- 	struct superblock_security_struct *sbsec = sb->s_security;
- 	const char *fstype = sb->s_type->name;
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+retry:
-+	rc = 0;
- 	policydb = &state->ss->policydb;
- 	sidtab = state->ss->sidtab;
- 
-@@ -2769,13 +2786,11 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
- 
- 	if (c) {
- 		sbsec->behavior = c->v.behavior;
--		if (!c->sid[0]) {
--			rc = sidtab_context_to_sid(sidtab, &c->context[0],
--						   &c->sid[0]);
--			if (rc)
--				goto out;
--		}
--		sbsec->sid = c->sid[0];
-+		rc = ocontext_to_sid(sidtab, c, 0, &sbsec->sid);
-+		if (rc == -ESTALE)
-+			goto retry;
-+		if (rc)
-+			goto out;
- 	} else {
- 		rc = __security_genfs_sid(state, fstype, "/", SECCLASS_DIR,
- 					  &sbsec->sid);
+I'm announcing the release of the 5.10.87 kernel.
+
+All users of the 5.10 kernel series must upgrade.
+
+The updated 5.10.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                              |    2 
+ arch/arm/mm/init.c                                    |   37 +++++---
+ arch/arm/mm/ioremap.c                                 |    4 
+ arch/arm64/kvm/hyp/include/hyp/switch.h               |    6 +
+ arch/arm64/kvm/hyp/include/hyp/sysreg-sr.h            |    7 +
+ arch/s390/lib/test_unwind.c                           |    5 -
+ arch/x86/kvm/hyperv.c                                 |    7 +
+ drivers/char/agp/parisc-agp.c                         |    6 -
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_crc.c |    8 +
+ drivers/gpu/drm/amd/display/dc/core/dc_resource.c     |    4 
+ drivers/gpu/drm/msm/dsi/dsi_host.c                    |    2 
+ drivers/hwmon/dell-smm-hwmon.c                        |    7 +
+ drivers/i2c/busses/i2c-rk3x.c                         |    4 
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c       |    6 -
+ drivers/staging/most/dim2/dim2.c                      |   55 ++++++-----
+ drivers/tty/serial/fsl_lpuart.c                       |    1 
+ fs/fuse/dir.c                                         |    8 +
+ fs/fuse/file.c                                        |   15 +++
+ fs/fuse/fuse_i.h                                      |    1 
+ fs/fuse/inode.c                                       |    3 
+ kernel/bpf/devmap.c                                   |    4 
+ kernel/trace/tracing_map.c                            |    3 
+ mm/memblock.c                                         |    3 
+ net/core/sock_map.c                                   |    2 
+ net/ethtool/netlink.h                                 |    3 
+ net/netlink/af_netlink.c                              |    5 +
+ net/nfc/netlink.c                                     |    6 -
+ sound/pci/hda/hda_intel.c                             |   12 ++
+ sound/pci/hda/patch_hdmi.c                            |    3 
+ tools/perf/builtin-inject.c                           |    2 
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c   |   83 +++++++++++-------
+ tools/perf/util/intel-pt.c                            |    1 
+ 32 files changed, 223 insertions(+), 92 deletions(-)
+
+Adrian Hunter (8):
+      perf inject: Fix itrace space allowed for new attributes
+      perf intel-pt: Fix some PGE (packet generation enable/control flow packets) usage
+      perf intel-pt: Fix sync state when a PSB (synchronization) packet is found
+      perf intel-pt: Fix intel_pt_fup_event() assumptions about setting state type
+      perf intel-pt: Fix state setting when receiving overflow (OVF) packet
+      perf intel-pt: Fix next 'err' value, walking trace
+      perf intel-pt: Fix missing 'instruction' events with 'q' option
+      perf intel-pt: Fix error timestamp setting on the decoder error path
+
+Alexander Stein (1):
+      Revert "tty: serial: fsl_lpuart: drop earlycon entry for i.MX8QXP"
+
+Antoine Tenart (1):
+      ethtool: do not perform operations on net devices being unregistered
+
+Armin Wolf (1):
+      hwmon: (dell-smm) Fix warning on /proc/i8k creation error
+
+Bui Quang Minh (1):
+      bpf: Fix integer overflow in argument calculation for bpf_map_area_alloc
+
+Chen Jun (1):
+      tracing: Fix a kmemleak false positive in tracing_map
+
+Erik Ekman (1):
+      net/mlx4_en: Update reported link modes for 1/10G
+
+Greg Kroah-Hartman (1):
+      Linux 5.10.87
+
+Harshit Mogalapalli (1):
+      net: netlink: af_netlink: Prevent empty skb by adding a check on len.
+
+Helge Deller (1):
+      parisc/agp: Annotate parisc agp init functions with __init
+
+Ilie Halip (1):
+      s390/test_unwind: use raw opcode instead of invalid instruction
+
+Kai Vehmanen (2):
+      ALSA: hda: Add Intel DG2 PCI ID and HDMI codec vid
+      ALSA: hda/hdmi: fix HDA codec entry table order for ADL-P
+
+Marc Zyngier (1):
+      KVM: arm64: Save PSTATE early on exit
+
+Mike Rapoport (5):
+      memblock: free_unused_memmap: use pageblock units instead of MAX_ORDER
+      memblock: align freed memory map on pageblock boundaries with SPARSEMEM
+      memblock: ensure there is no overflow in memblock_overlaps_region()
+      arm: extend pfn_valid to take into account freed memory map alignment
+      arm: ioremap: don't abuse pfn_valid() to check if pfn is in RAM
+
+Miklos Szeredi (1):
+      fuse: make sure reclaim doesn't write the inode
+
+Mustapha Ghaddar (1):
+      drm/amd/display: Fix for the no Audio bug with Tiled Displays
+
+Nikita Yushchenko (1):
+      staging: most: dim2: use device release method
+
+Ondrej Jirman (1):
+      i2c: rk3x: Handle a spurious start completion interrupt flag
+
+Perry Yuan (1):
+      drm/amd/display: add connector type check for CRC source set
+
+Philip Chen (1):
+      drm/msm/dsi: set default num_data_lanes
+
+Sean Christopherson (1):
+      KVM: x86: Ignore sparse banks size for an "all CPUs", non-sparse IPI req
+
+Tadeusz Struk (1):
+      nfc: fix segfault in nfc_genl_dump_devices_done
+
