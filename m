@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB71479585
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 21:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E284479586
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 21:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236983AbhLQUf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232816AbhLQUf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 17 Dec 2021 15:35:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44208 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232816AbhLQUf7 (ORCPT
+        with ESMTP id S236873AbhLQUf7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 15:35:59 -0500
 Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF13CC061574
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5200C06173E
         for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:35:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
-        Resent-Message-ID:In-Reply-To:References;
-        bh=fY6U2z1wNeEEmGE07qqsNsDX+k6IlT7A8v0LAH+5vwE=; t=1639773358; x=1640982958; 
-        b=hhww9JVvmS5VV5kYcUU78TupOgY2XgAziq10/peBpxL4IjejG81FgYWehAngaOWi2787qMd+3dM
-        owUNZmzqogi8Czgbp33l4oQhYnc0W+eu+pmgavEfbC1QzdXw+Qc6+v6pT4uwbA4aLRpxE0BNmHbhe
-        7uw4PwCV3HmV5la+89K0OiSTPZRTyvyLMJfP8RvobwIcQQPiTIThwvhYMUlhT+EXjehsxqU5vTrRM
-        0dDLAB6mRONaBcqHuzdoL78EPsUw8gotdhVOe9TaqVa6P3pX7q+wWmt8oCT5aKdcKW/Qriji1beLE
-        QiqYtoCA7qK8iYVaxWk3aHrFRo8lH6MumXZg==;
+        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+        Resent-Cc:Resent-Message-ID; bh=Q7Nax3PxMl3HjWfdHLh+2+AV949t4rDho0Xmp3u7kTc=;
+        t=1639773358; x=1640982958; b=HI1Yj1zHD0DOtboV5OCS3K31cSoltwo1cGXx/wXcjnciUv6
+        qqxpCMaESBr1sgp5b8o0m60wH7lkcyp0vt3pGx69Wc/Scdpexm9olprTvxAzO3kLjVg+0U6cQ/DFE
+        ZPiZgWC6G3SQcRLBi8xOSjnCdB4RqMvP0o7JVdecRyqpoMasOs8EPHbtqnFfvr8TbWgGb+LCC2KMZ
+        oIAR/BZAyKUKlP4O4SKnn4LoVqcnPSgmjMZUyGRy0mTcFUxheMBhQObFpBUJKAKBbcoCsHAA81ESc
+        +6NF2mG60pd54hADe5uVGZJrhg5mC67zmffvD4usmr0H207OLg5Wm+ZFC2ErpZGg==;
 Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
         (Exim 4.95)
         (envelope-from <johannes@sipsolutions.net>)
-        id 1myJxK-00CuHI-L1;
-        Fri, 17 Dec 2021 21:35:54 +0100
+        id 1myJxL-00CuHI-0T;
+        Fri, 17 Dec 2021 21:35:55 +0100
 From:   Johannes Berg <johannes@sipsolutions.net>
 To:     stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH v4.19 1/2] mac80211: mark TX-during-stop for TX in in_reconfig
-Date:   Fri, 17 Dec 2021 21:35:49 +0100
-Message-Id: <20211217203550.54684-1-johannes@sipsolutions.net>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        syzbot+59bdff68edce82e393b6@syzkaller.appspotmail.com
+Subject: [PATCH v4.19 2/2] mac80211: validate extended element ID is present
+Date:   Fri, 17 Dec 2021 21:35:50 +0100
+Message-Id: <20211217203550.54684-2-johannes@sipsolutions.net>
 X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20211217203550.54684-1-johannes@sipsolutions.net>
+References: <20211217203550.54684-1-johannes@sipsolutions.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -45,44 +47,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-Commit db7205af049d230e7e0abf61c1e74c1aab40f390 upstream.
+Commit 768c0b19b50665e337c96858aa2b7928d6dcf756 upstream.
 
-Mark TXQs as having seen transmit while they were stopped if
-we bail out of drv_wake_tx_queue() due to reconfig, so that
-the queue wake after this will make them catch up. This is
-particularly necessary for when TXQs are used for management
-packets since those TXQs won't see a lot of traffic that'd
-make them catch up later.
+Before attempting to parse an extended element, verify that
+the extended element ID is present.
 
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Reported-by: syzbot+59bdff68edce82e393b6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20211211201023.f30a1b128c07.I5cacc176da94ba316877c6e10fe3ceec8b4dbd7d@changeid
 Cc: stable@vger.kernel.org
-Fixes: 4856bfd23098 ("mac80211: do not call driver wake_tx_queue op during reconfig")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211129152938.4573a221c0e1.I0d1d5daea3089be3fc0dccc92991b0f8c5677f0c@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 ---
-I'm not sure why you say it doesn't apply - it did for me?
----
- net/mac80211/driver-ops.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/mac80211/util.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/mac80211/driver-ops.h b/net/mac80211/driver-ops.h
-index 2123f6e90fc0..8f71c271653f 100644
---- a/net/mac80211/driver-ops.h
-+++ b/net/mac80211/driver-ops.h
-@@ -1166,8 +1166,11 @@ static inline void drv_wake_tx_queue(struct ieee80211_local *local,
- {
- 	struct ieee80211_sub_if_data *sdata = vif_to_sdata(txq->txq.vif);
- 
--	if (local->in_reconfig)
-+	/* In reconfig don't transmit now, but mark for waking later */
-+	if (local->in_reconfig) {
-+		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txq->flags);
- 		return;
-+	}
- 
- 	if (!check_sdata_in_driver(sdata))
- 		return;
+diff --git a/net/mac80211/util.c b/net/mac80211/util.c
+index 7fa9871b1db9..9c1a20ca6344 100644
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -1102,6 +1102,8 @@ u32 ieee802_11_parse_elems_crc(const u8 *start, size_t len, bool action,
+ 				elems->max_idle_period_ie = (void *)pos;
+ 			break;
+ 		case WLAN_EID_EXTENSION:
++			if (!elen)
++				break;
+ 			if (pos[0] == WLAN_EID_EXT_HE_MU_EDCA &&
+ 			    elen >= (sizeof(*elems->mu_edca_param_set) + 1)) {
+ 				elems->mu_edca_param_set = (void *)&pos[1];
 -- 
 2.33.1
 
