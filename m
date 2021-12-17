@@ -2,85 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94EE0478D50
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 15:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D1B478DB5
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 15:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232629AbhLQOVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 09:21:07 -0500
-Received: from foss.arm.com ([217.140.110.172]:57954 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234555AbhLQOVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 17 Dec 2021 09:21:07 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EC7F91474;
-        Fri, 17 Dec 2021 06:21:06 -0800 (PST)
-Received: from usa.arm.com (e103737-lin.cambridge.arm.com [10.1.197.49])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id EA63C3F5A1;
-        Fri, 17 Dec 2021 06:21:05 -0800 (PST)
-From:   Sudeep Holla <sudeep.holla@arm.com>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>, linux-kernel@vger.kernel.org,
-        Pedro Batista <pedbap.g@gmail.com>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] [BACKPORT v4.9 - v4.19] firmware: arm_scpi: Fix string overflow in SCPI genpd driver
-Date:   Fri, 17 Dec 2021 14:20:56 +0000
-Message-Id: <20211217142056.866487-1-sudeep.holla@arm.com>
-X-Mailer: git-send-email 2.25.1
+        id S234698AbhLQOXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 09:23:09 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57692 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237281AbhLQOXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 09:23:07 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 618FCB82877
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 14:23:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94B8C36AE7;
+        Fri, 17 Dec 2021 14:23:03 +0000 (UTC)
+Date:   Fri, 17 Dec 2021 15:23:01 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     gregkh@linuxfoundation.org
+Cc:     idryomov@gmail.com, jlayton@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ceph: fix up non-directory creation in
+ SGID directories" failed to apply to 5.10-stable tree
+Message-ID: <20211217142301.a5y45b54ut3ika4v@wittgenstein>
+References: <163974910684103@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <163974910684103@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 865ed67ab955428b9aa771d8b4f1e4fb7fd08945 upstream.
+On Fri, Dec 17, 2021 at 02:51:46PM +0100, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Without the bound checks for scpi_pd->name, it could result in the buffer
-overflow when copying the SCPI device name from the corresponding device
-tree node as the name string is set at maximum size of 30.
+Oh? I just applied the patch on top of:
 
-Let us fix it by using devm_kasprintf so that the string buffer is
-allocated dynamically.
+commit 272aedd4a305 ("Linux 5.10.87")
 
-Fixes: 8bec4337ad40 ("firmware: scpi: add device power domain support using genpd")
-Reported-by: Pedro Batista <pedbap.g@gmail.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Cc: stable@vger.kernel.org #v4.9, v4.14, v4.19
-Cc: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20211209120456.696879-1-sudeep.holla@arm.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/firmware/scpi_pm_domain.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+without any issues. Not sure what failed for you.
 
-diff --git a/drivers/firmware/scpi_pm_domain.c b/drivers/firmware/scpi_pm_domain.c
-index f395dec27113..a6e62a793fbe 100644
---- a/drivers/firmware/scpi_pm_domain.c
-+++ b/drivers/firmware/scpi_pm_domain.c
-@@ -27,7 +27,6 @@ struct scpi_pm_domain {
- 	struct generic_pm_domain genpd;
- 	struct scpi_ops *ops;
- 	u32 domain;
--	char name[30];
- };
- 
- /*
-@@ -121,8 +120,13 @@ static int scpi_pm_domain_probe(struct platform_device *pdev)
- 
- 		scpi_pd->domain = i;
- 		scpi_pd->ops = scpi_ops;
--		sprintf(scpi_pd->name, "%s.%d", np->name, i);
--		scpi_pd->genpd.name = scpi_pd->name;
-+		scpi_pd->genpd.name = devm_kasprintf(dev, GFP_KERNEL,
-+						     "%s.%d", np->name, i);
-+		if (!scpi_pd->genpd.name) {
-+			dev_err(dev, "Failed to allocate genpd name:%s.%d\n",
-+				np->name, i);
-+			continue;
-+		}
- 		scpi_pd->genpd.power_off = scpi_pd_power_off;
- 		scpi_pd->genpd.power_on = scpi_pd_power_on;
- 
--- 
-2.25.1
-
+Thanks!
+Christian
