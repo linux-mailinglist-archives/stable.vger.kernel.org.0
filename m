@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2721478C74
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 14:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9EB4478C75
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 14:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234431AbhLQNjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 08:39:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59024 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234428AbhLQNjd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 08:39:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAA85C061574
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 05:39:32 -0800 (PST)
+        id S232802AbhLQNjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 08:39:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41974 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234435AbhLQNjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 08:39:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77615621E8
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 13:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DEF1C36AE1;
-        Fri, 17 Dec 2021 13:39:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93C20621FB
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 13:39:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79EB0C36AEA;
+        Fri, 17 Dec 2021 13:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639748371;
-        bh=meVpKRZI62H++9peNF+illF18OUevMI9CDksbCDEOTc=;
+        s=korg; t=1639748375;
+        bh=upIB4cKo2BhLfzBntpSqtIqL/tydPxqfZGk1QXgTvPA=;
         h=Subject:To:Cc:From:Date:From;
-        b=2rQJ0+xJogs+DxAd2Git+TVR4tgh11fCr4tPr1KodS04g3IU9caT3NHrdnNDw+HyJ
-         lkQvwRz8SMVQtdkjxuapG0lEtXY47Wk7lX2lL5ht4Y1iNwVfsm0atmztbx9okvdy9Q
-         lT8XNek3DAdgEK3mJwKSGmwjK/gOWfMPv5BgqAew=
-Subject: FAILED: patch "[PATCH] ceph: fix up non-directory creation in SGID directories" failed to apply to 4.4-stable tree
+        b=V/Ml2dVMwPCmLXzteH0xIZ2T4SOikoJ+XirAJqM766ouNdREjYMrI+G5Eo4nJSLYQ
+         ks2RNNlba4H0NfkcvdgJLxEJAZLBLSg5gFiwfiw9Ugj4gxDwUltZUmO0gdtxgJDyiX
+         Tt4+NTzExeWFnhHqhQaXVc049xEmUDtSbrDHAzm4=
+Subject: FAILED: patch "[PATCH] ceph: fix up non-directory creation in SGID directories" failed to apply to 4.14-stable tree
 To:     christian.brauner@ubuntu.com, idryomov@gmail.com,
         jlayton@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 Dec 2021 14:39:29 +0100
-Message-ID: <16397483696471@kroah.com>
+Date:   Fri, 17 Dec 2021 14:39:30 +0100
+Message-ID: <163974837035233@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
