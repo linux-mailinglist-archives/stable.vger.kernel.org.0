@@ -2,116 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E528478C79
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 14:39:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A849478C8A
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 14:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234447AbhLQNjo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 08:39:44 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42128 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234153AbhLQNjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 08:39:44 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB262621E8
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 13:39:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC466C36AE1;
-        Fri, 17 Dec 2021 13:39:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639748383;
-        bh=sweGHUcawdBMYzNrONIRMuceUY9oUs0Dx+N638qdtR8=;
-        h=Subject:To:Cc:From:Date:From;
-        b=pgpkbxnQkpwmWkQUg2LrQ8e1sOhdMwuC1fd5m7FNaODZt3JGWgFxg1kQswqirYhZK
-         m5Po4D68uame2OzkL6434e49MDJABTRDbkh3wt2rw04wmuDwnyw1/G5d9NybdZ+zsP
-         x1+xIGiJuuudfOmI+b4JyqRYXB/7fTBeAal3Jm1k=
-Subject: FAILED: patch "[PATCH] ceph: fix up non-directory creation in SGID directories" failed to apply to 5.4-stable tree
-To:     christian.brauner@ubuntu.com, idryomov@gmail.com,
-        jlayton@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 Dec 2021 14:39:32 +0100
-Message-ID: <1639748372127184@kroah.com>
+        id S236692AbhLQNmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 08:42:21 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:33360 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231375AbhLQNmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 08:42:20 -0500
+Date:   Fri, 17 Dec 2021 14:42:17 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639748539;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=y9t3us+BAk9470BAEhbmBUCeSGzoYQ7LS0Tsk6tNMXY=;
+        b=c+B1b8JaAQoEvO43R2R6bRsFgYeE3YSp4vWxLWZU3xOfdlAnmEwte/hjSx468Vzm0HkCDz
+        q2i/IKbJIBh4zDPJlBheB0HkXsMzAjUtPN1rJQ4xTkZbH5bQjpiDVv7iRPUIUm3emapHxT
+        2r6+FqO40r2sIjedtNWxyreM0Q9O93AsrpUWq8DDZ2rtJfQSDQ/tWNXtMeXgziBSzDUQ10
+        YqpplUEJpihQRUYa93/LM5Bcobz/hdcywuTg85FDtEP+eqlRGnI4CopwSm1LgMVxvrS2WB
+        xsxtUn3WcghLnJXWh6qe47sWtvMcSZGUPKzGCeWfiA0AG5D3vAQAr1JRmY+yPA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639748539;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=y9t3us+BAk9470BAEhbmBUCeSGzoYQ7LS0Tsk6tNMXY=;
+        b=1HvD9OCjzb8K+rydxGcStwI2YQMC5j6haYHY0xcYDRhOJ1YQEyCNoR2KH/4TvnUcxcWBW4
+        xLUEs8YOC5oMUUBA==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     Yajun Deng <yajun.deng@linux.dev>
+Cc:     song@kernel.org, masahiroy@kernel.org, williams@redhat.com,
+        pmenzel@molgen.mpg.de, linux-kernel@vger.kernel.org,
+        linux-rt-users@vger.kernel.org, linux-raid@vger.kernel.org,
+        stable@vger.kernel.org, tglx@linutronix.de
+Subject: Re: [PATCH v3] lib/raid6: Reduce high latency by using migrate
+ instead of preempt
+Message-ID: <YbyTuRWkB0gYbn7x@linutronix.de>
+References: <20211217021610.12801-1-yajun.deng@linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20211217021610.12801-1-yajun.deng@linux.dev>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2021-12-17 10:16:10 [+0800], Yajun Deng wrote:
+> We found an abnormally high latency when executing modprobe raid6_pq, the
+> latency is greater than 1.2s when CONFIG_PREEMPT_VOLUNTARY=y, greater than
+> 67ms when CONFIG_PREEMPT=y, and greater than 16ms when CONFIG_PREEMPT_RT=y.
+> 
+> How to reproduce:
+>  - Install cyclictest
+>      sudo apt install rt-tests
+>  - Run cyclictest example in one terminal
+>      sudo cyclictest -S -p 95 -d 0 -i 1000 -D 24h -m
+>  - Modprobe raid6_pq in another terminal
+>      sudo modprobe raid6_pq
+> 
+> This is caused by ksoftirqd fail to scheduled due to disable preemption,
+> this time is too long and unreasonable.
+> 
+> Reduce high latency by using migrate_disabl()/emigrate_enable() instead of
+> preempt_disable()/preempt_enable(), the latency won't greater than 100us.
+> 
+> This patch beneficial for CONFIG_PREEMPT=y or CONFIG_PREEMPT_RT=y, but no
+> effect for CONFIG_PREEMPT_VOLUNTARY=y.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Why does it matter? This is only during boot-up/ module loading or do I
+miss something? 
+The delay is a jiffy so it depends on CONFIG_HZ. You do benchmark for
+the best algorithm and if you get preempted during that period then your
+results may be wrong and you make a bad selection.
 
-thanks,
+You can either enable one algorithm and or disable
+CONFIG_RAID6_PQ_BENCHMARK. I don't see the need for this patch not to
+mention the stable tree.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From fd84bfdddd169c219c3a637889a8b87f70a072c2 Mon Sep 17 00:00:00 2001
-From: Christian Brauner <christian.brauner@ubuntu.com>
-Date: Mon, 29 Nov 2021 12:16:39 +0100
-Subject: [PATCH] ceph: fix up non-directory creation in SGID directories
-
-Ceph always inherits the SGID bit if it is set on the parent inode,
-while the generic inode_init_owner does not do this in a few cases where
-it can create a possible security problem (cf. [1]).
-
-Update ceph to strip the SGID bit just as inode_init_owner would.
-
-This bug was detected by the mapped mount testsuite in [3]. The
-testsuite tests all core VFS functionality and semantics with and
-without mapped mounts. That is to say it functions as a generic VFS
-testsuite in addition to a mapped mount testsuite. While working on
-mapped mount support for ceph, SIGD inheritance was the only failing
-test for ceph after the port.
-
-The same bug was detected by the mapped mount testsuite in XFS in
-January 2021 (cf. [2]).
-
-[1]: commit 0fa3ecd87848 ("Fix up non-directory creation in SGID directories")
-[2]: commit 01ea173e103e ("xfs: fix up non-directory creation in SGID directories")
-[3]: https://git.kernel.org/fs/xfs/xfstests-dev.git
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index b24442e27e4e..c138e8126286 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -605,13 +605,25 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
- 	in.cap.realm = cpu_to_le64(ci->i_snap_realm->ino);
- 	in.cap.flags = CEPH_CAP_FLAG_AUTH;
- 	in.ctime = in.mtime = in.atime = iinfo.btime;
--	in.mode = cpu_to_le32((u32)mode);
- 	in.truncate_seq = cpu_to_le32(1);
- 	in.truncate_size = cpu_to_le64(-1ULL);
- 	in.xattr_version = cpu_to_le64(1);
- 	in.uid = cpu_to_le32(from_kuid(&init_user_ns, current_fsuid()));
--	in.gid = cpu_to_le32(from_kgid(&init_user_ns, dir->i_mode & S_ISGID ?
--				dir->i_gid : current_fsgid()));
-+	if (dir->i_mode & S_ISGID) {
-+		in.gid = cpu_to_le32(from_kgid(&init_user_ns, dir->i_gid));
-+
-+		/* Directories always inherit the setgid bit. */
-+		if (S_ISDIR(mode))
-+			mode |= S_ISGID;
-+		else if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP) &&
-+			 !in_group_p(dir->i_gid) &&
-+			 !capable_wrt_inode_uidgid(&init_user_ns, dir, CAP_FSETID))
-+			mode &= ~S_ISGID;
-+	} else {
-+		in.gid = cpu_to_le32(from_kgid(&init_user_ns, current_fsgid()));
-+	}
-+	in.mode = cpu_to_le32((u32)mode);
-+
- 	in.nlink = cpu_to_le32(1);
- 	in.max_size = cpu_to_le64(lo->stripe_unit);
- 
-
+Sebastian
