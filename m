@@ -2,123 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 433784796B2
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 23:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 830AB4796ED
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 23:16:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229930AbhLQWBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 17:01:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35826 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229708AbhLQWBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 17:01:36 -0500
-Received: from mail-ua1-x92c.google.com (mail-ua1-x92c.google.com [IPv6:2607:f8b0:4864:20::92c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A246C061574;
-        Fri, 17 Dec 2021 14:01:36 -0800 (PST)
-Received: by mail-ua1-x92c.google.com with SMTP id 107so6852212uaj.10;
-        Fri, 17 Dec 2021 14:01:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uoEwO82N8JEJoXnSUG+GSVerpCTUhZOMlIkAkpcH0vQ=;
-        b=Xo5yARbZhf+HJHyZ9+lD5Ng7hKxiuYlix90Nptjkg4t9MI+hDvUf1acjGabAWwR1Hh
-         vpVxZqovEKlGWkRm1uXZex7OnD/6rEMYUsTnfGHj7G9fqIFjSy4pjjuABQLfAnX1R3ng
-         mwDwLcRByce69MErW0yO8jAcvcTe9nj/c5CF//Jw/OdI0T2DJbvxnelSgZthDns9Q/uU
-         wjqCpGrRKaTOIWG4yTVGJ8IEV773cnNnkLt+6Siohn0AbLESe90gJZyL+JcBOnE1aMD0
-         fhFbX/9apLmNNQTDLXN2c/OXJ4oGhiEw5J9SDYvc8k+yXte5aAWl43kCb9Szl6mw0LiK
-         J7KA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uoEwO82N8JEJoXnSUG+GSVerpCTUhZOMlIkAkpcH0vQ=;
-        b=GHy293IB30kELNHhbbqX09C1uDW1OHy9fl/0itNDZalnhlIxSvPLP/wGRUpso2Gsg8
-         92mQeizkl8H6s0HCPZxJmiCCOIGUxHq/C7VBlUZtq6oi4t7OyvVRcY/XqymQJQcmLnV0
-         sHe+jXVGC0w/XiYduJLIOlhZlIaDzhkGEWXivJN5x3UNxnNabEIx9KQqyjfUG4FrUL4Y
-         s1W9rDcGKXWcB5F3P568ul0K0ls0zfxsCRNw8jJkgiy9lf4IFmvZ4dK55HjdeEV6sTzW
-         /deq2XLzbDQuV5C0wMMFgstU2eqWstl6lTDe2zbZxRwl68dcRVkY0DOPPp3MY24Ljn7N
-         AvtQ==
-X-Gm-Message-State: AOAM531rrK0fQ4+9+IoryIgLIXOqWtTJm7IWvZCbDDjFknx50i4EwX84
-        1eLizlxjggjvjgTJWpNbUiiTBPZSrtFK+OOjFKU=
-X-Google-Smtp-Source: ABdhPJyOQlZt+douINckO8KsRS1LBU/hwg7J4MMY8sqbCzTxE/Bdgg6fVJIB4GfB50fc8S0OBdUnDebj2Wgrk+LU4vQ=
-X-Received: by 2002:a05:6102:316c:: with SMTP id l12mr2040300vsm.1.1639778495180;
- Fri, 17 Dec 2021 14:01:35 -0800 (PST)
+        id S229970AbhLQWQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 17:16:04 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:36080 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229500AbhLQWQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 17:16:03 -0500
+Date:   Fri, 17 Dec 2021 22:16:00 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639779362;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LwucGkdHW2AGD5uQLtH16eVlF+0ZkoFxd0RELR7jY/I=;
+        b=MifcnrkXm5YazgnCPBRrhPTdyg9bAS+7ugyOdEnpExMzkF8Nc1hI7KL4jCNg45btFEjIfN
+        NorCPG9F0lMAejAOBrecNV4irPZekRTHO0siDJ+H2ppRbjOWUqbDgdPC4pDYK7pjV0Bw7o
+        dQyBU0j6TmMP4ISwtFoFJYgQ7X2PZdNCVF5YADLK3Dfb2KnkiNgIb111wrovGLHzRMT3/X
+        YgNOFjNFXKoUv46eY3M+Vu+ie7aQpGqIuV7KRmWDJtMVk+ExgyFZr/UJmDk9EeLZ0t3zLj
+        UoKWdsZgXPgydQBQTatVpQqPEoj8UTXt9MDKmr6iLjGCHIv9saERP6hLBZKN3w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639779362;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LwucGkdHW2AGD5uQLtH16eVlF+0ZkoFxd0RELR7jY/I=;
+        b=hhLZ01sTJSEwovB8cwxoBtu5RKqqNpI0zyrf3G4KR8mmHuviWzOY8pQMGEP6t+C7WD3efP
+        MbOz5rjjM7yK3ZCA==
+From:   "tip-bot2 for Yu Liao" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/urgent] timekeeping: Really make sure wall_to_monotonic
+ isn't positive
+Cc:     Yu Liao <liaoyu15@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20211213135727.1656662-1-liaoyu15@huawei.com>
+References: <20211213135727.1656662-1-liaoyu15@huawei.com>
 MIME-Version: 1.0
-References: <20211217021610.12801-1-yajun.deng@linux.dev> <YbyTuRWkB0gYbn7x@linutronix.de>
- <CAPhsuW7GhYyfNOQg3VovU7cqC0nnRTbm1B7bFkWWa75k8YgHew@mail.gmail.com>
-In-Reply-To: <CAPhsuW7GhYyfNOQg3VovU7cqC0nnRTbm1B7bFkWWa75k8YgHew@mail.gmail.com>
-From:   Daniel Vacek <neelx.g@gmail.com>
-Date:   Fri, 17 Dec 2021 23:01:23 +0100
-Message-ID: <CAA7rmPFvJbK_3fx3cphMNGCMBGYobNSyscKbct1g_g5xZYet8w@mail.gmail.com>
-Subject: Re: [PATCH v3] lib/raid6: Reduce high latency by using migrate
- instead of preempt
-To:     Song Liu <song@kernel.org>
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Yajun Deng <yajun.deng@linux.dev>, masahiroy@kernel.org,
-        williams@redhat.com, Paul Menzel <pmenzel@molgen.mpg.de>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-rt-users <linux-rt-users@vger.kernel.org>,
-        linux-raid <linux-raid@vger.kernel.org>, stable@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <163977936091.23020.4635277365571231741.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 17, 2021 at 10:57 PM Song Liu <song@kernel.org> wrote:
->
-> On Fri, Dec 17, 2021 at 5:42 AM Sebastian Andrzej Siewior
-> <bigeasy@linutronix.de> wrote:
-> >
-> > On 2021-12-17 10:16:10 [+0800], Yajun Deng wrote:
-> > > We found an abnormally high latency when executing modprobe raid6_pq, the
-> > > latency is greater than 1.2s when CONFIG_PREEMPT_VOLUNTARY=y, greater than
-> > > 67ms when CONFIG_PREEMPT=y, and greater than 16ms when CONFIG_PREEMPT_RT=y.
-> > >
-> > > How to reproduce:
-> > >  - Install cyclictest
-> > >      sudo apt install rt-tests
-> > >  - Run cyclictest example in one terminal
-> > >      sudo cyclictest -S -p 95 -d 0 -i 1000 -D 24h -m
-> > >  - Modprobe raid6_pq in another terminal
-> > >      sudo modprobe raid6_pq
-> > >
-> > > This is caused by ksoftirqd fail to scheduled due to disable preemption,
-> > > this time is too long and unreasonable.
-> > >
-> > > Reduce high latency by using migrate_disabl()/emigrate_enable() instead of
-> > > preempt_disable()/preempt_enable(), the latency won't greater than 100us.
-> > >
-> > > This patch beneficial for CONFIG_PREEMPT=y or CONFIG_PREEMPT_RT=y, but no
-> > > effect for CONFIG_PREEMPT_VOLUNTARY=y.
-> >
-> > Why does it matter? This is only during boot-up/ module loading or do I
-> > miss something?
->
-> Yes this only happens on boot-up and module loading.I don't know RT well
-> enough to tell whether latency during module loading is an issue.
+The following commit has been merged into the timers/urgent branch of tip:
 
-Nope. It is not.
+Commit-ID:     4e8c11b6b3f0b6a283e898344f154641eda94266
+Gitweb:        https://git.kernel.org/tip/4e8c11b6b3f0b6a283e898344f154641eda94266
+Author:        Yu Liao <liaoyu15@huawei.com>
+AuthorDate:    Mon, 13 Dec 2021 21:57:27 +08:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Fri, 17 Dec 2021 23:06:22 +01:00
 
-> > The delay is a jiffy so it depends on CONFIG_HZ. You do benchmark for
-> > the best algorithm and if you get preempted during that period then your
-> > results may be wrong and you make a bad selection.
->
-> With current code, the delay _should be_ 16 jiffies. However, the experiment
-> hits way longer latencies. I agree this may cause inaccurate benchmark results
-> and thus suboptimal RAID algorithm.
+timekeeping: Really make sure wall_to_monotonic isn't positive
 
-I explained this in the original thread. All the observed latencies
-are really expected.
+Even after commit e1d7ba873555 ("time: Always make sure wall_to_monotonic
+isn't positive") it is still possible to make wall_to_monotonic positive
+by running the following code:
 
-> I guess the key question is whether long latency at module loading time matters.
-> If that doesn't matter, we should just drop this.
+    int main(void)
+    {
+        struct timespec time;
 
-Again, it does not matter at all and here it is rather desired by design.
+        clock_gettime(CLOCK_MONOTONIC, &time);
+        time.tv_nsec = 0;
+        clock_settime(CLOCK_REALTIME, &time);
+        return 0;
+    }
 
-Drop this, please.
+The reason is that the second parameter of timespec64_compare(), ts_delta,
+may be unnormalized because the delta is calculated with an open coded
+substraction which causes the comparison of tv_sec to yield the wrong
+result:
 
---nX
+  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
+  ts_delta 	    = { .tv_sec =  -9, .tv_nsec = -900000000 }
 
-> Thanks,
-> Song
+That makes timespec64_compare() claim that wall_to_monotonic < ts_delta,
+but actually the result should be wall_to_monotonic > ts_delta.
+
+After normalization, the result of timespec64_compare() is correct because
+the tv_sec comparison is not longer misleading:
+
+  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
+  ts_delta 	    = { .tv_sec = -10, .tv_nsec =  100000000 }
+
+Use timespec64_sub() to ensure that ts_delta is normalized, which fixes the
+issue.
+
+Fixes: e1d7ba873555 ("time: Always make sure wall_to_monotonic isn't positive")
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211213135727.1656662-1-liaoyu15@huawei.com
+---
+ kernel/time/timekeeping.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index b348749..dcdcb85 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -1306,8 +1306,7 @@ int do_settimeofday64(const struct timespec64 *ts)
+ 	timekeeping_forward_now(tk);
+ 
+ 	xt = tk_xtime(tk);
+-	ts_delta.tv_sec = ts->tv_sec - xt.tv_sec;
+-	ts_delta.tv_nsec = ts->tv_nsec - xt.tv_nsec;
++	ts_delta = timespec64_sub(*ts, xt);
+ 
+ 	if (timespec64_compare(&tk->wall_to_monotonic, &ts_delta) > 0) {
+ 		ret = -EINVAL;
