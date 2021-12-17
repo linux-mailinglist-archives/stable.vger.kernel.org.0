@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 238D7478B62
-	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 13:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 240B8478B63
+	for <lists+stable@lfdr.de>; Fri, 17 Dec 2021 13:32:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236229AbhLQMcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Dec 2021 07:32:36 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39784 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236039AbhLQMcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 07:32:36 -0500
+        id S236039AbhLQMcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Dec 2021 07:32:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42562 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236240AbhLQMcr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Dec 2021 07:32:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D86CE6219D
-        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2053C36AE9;
-        Fri, 17 Dec 2021 12:32:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2904EB827D6
+        for <stable@vger.kernel.org>; Fri, 17 Dec 2021 12:32:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C535C36AE2;
+        Fri, 17 Dec 2021 12:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639744355;
-        bh=9trU7XudT++PSpW1wUqKgeobGbvlpUIOrBG84bXooro=;
+        s=korg; t=1639744364;
+        bh=7bAVVZZk8kibdexZ5C5gGIYAig08N8zdW2P4oqrBxRs=;
         h=Subject:To:Cc:From:Date:From;
-        b=LPAPt7RD5Ikvm9hJOPZkjL+VqtuAtn67oMoY6ZSWsXjiUh0RwHGqCbM9s5JPDdRgD
-         SmYBq5kbV+YZRFcS2EVpWvM7eVRz/kGDp+X9fsLbc+ca765HNvaBCd2bP/GNlvAYoF
-         hUgweFdS46pSJQWGxfkNgXTIMJhSTHKsF9pRS0oY=
-Subject: FAILED: patch "[PATCH] mac80211: validate extended element ID is present" failed to apply to 5.4-stable tree
+        b=blB8amWAp0/il2ZnkMmJzxQtosegEMTEzaZBCzw1QGf8xqgz1fZx1VYAd5ysWLNnS
+         b7Do/PdB86KQTIkj8NrgQ9OBb1eH/VkCtAFIjRyABD5bFWQng6dWJi7zTZ+OqAU8Y0
+         vk/gDnLT6uuSBtgqBUv5jmPMWJE766lLYVsAPh2M=
+Subject: FAILED: patch "[PATCH] mac80211: validate extended element ID is present" failed to apply to 4.19-stable tree
 To:     johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 17 Dec 2021 13:32:32 +0100
-Message-ID: <1639744352117139@kroah.com>
+Date:   Fri, 17 Dec 2021 13:32:34 +0100
+Message-ID: <1639744354206133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
