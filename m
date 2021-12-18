@@ -2,80 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2232D479A13
-	for <lists+stable@lfdr.de>; Sat, 18 Dec 2021 10:58:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A32B479A1B
+	for <lists+stable@lfdr.de>; Sat, 18 Dec 2021 11:01:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232583AbhLRJ6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Dec 2021 04:58:06 -0500
-Received: from mailgw02.mediatek.com ([210.61.82.184]:39500 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S232594AbhLRJ6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Dec 2021 04:58:04 -0500
-X-UUID: 272902186423452288a06ab38d2e5bf1-20211218
-X-UUID: 272902186423452288a06ab38d2e5bf1-20211218
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1751638334; Sat, 18 Dec 2021 17:58:00 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Sat, 18 Dec 2021 17:57:58 +0800
-Received: from mhfsdcap04.gcn.mediatek.inc (10.17.3.154) by
- mtkcas10.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.0.1497.2 via Frontend Transport; Sat, 18 Dec 2021 17:57:57 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eddie Hung <eddie.hung@mediatek.com>, <stable@vger.kernel.org>
-Subject: [PATCH v2 4/4] usb: mtu3: set interval of FS intr and isoc endpoint
-Date:   Sat, 18 Dec 2021 17:57:49 +0800
-Message-ID: <20211218095749.6250-4-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211218095749.6250-1-chunfeng.yun@mediatek.com>
-References: <20211218095749.6250-1-chunfeng.yun@mediatek.com>
+        id S229670AbhLRKBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Dec 2021 05:01:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50472 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229632AbhLRKBN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Dec 2021 05:01:13 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBFA5C061574;
+        Sat, 18 Dec 2021 02:01:12 -0800 (PST)
+Date:   Sat, 18 Dec 2021 10:01:10 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639821671;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0yCvEbsyrvJ6VKe6uQfIaWCsjbOQ79tyCCplqP0sFUs=;
+        b=tPTJSbgppy133SNzO2IRrhgr/eZ6X3jcEza/z+0b+OG7OoQpJk3Pb5HeZaBS30sYpaRunt
+        AKc7z+EmZ4Cebj5tOkU8aU28x9vzXE6I53BH4rt2Wd0tyYgIKcColJgF+JC/chnjAUMC7r
+        iMpH9KXHWUyQ8GhxDuMipyjtSpax40Qfvii6Vz9pATDU5U9HAf6h9bp2+s7JYyl7cOoKeJ
+        aslRxAWNXFEgfMxezpxi5atB2qmvVefik99mGt/uaE1zeb+wj6ZHam6TfDfSRQ98KbRfsD
+        2y9WnRndy8cFxdJj7KxBBcCHNCJWgyJIcCaqXaBlDMhCs/84tciFmDgkdbvo8A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639821671;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=0yCvEbsyrvJ6VKe6uQfIaWCsjbOQ79tyCCplqP0sFUs=;
+        b=VcIJiAkQAjfiGFZuTn6PlHVsU96IAOfR9rtdBupwxM/0DJad3ADvkY8s08vqI5OxSf7pZt
+        +/B5ffMPq78EB8BQ==
+From:   "tip-bot2 for Zqiang" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: locking/core] locking/rtmutex: Fix incorrect condition in
+ rtmutex_spin_on_owner()
+Cc:     Zqiang <qiang1.zhang@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20211217074207.77425-1-qiang1.zhang@intel.com>
+References: <20211217074207.77425-1-qiang1.zhang@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-MTK:  N
+Message-ID: <163982167017.23020.3158863463249807527.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add support to set interval also for FS intr and isoc endpoint.
+The following commit has been merged into the locking/core branch of tip:
 
-Fixes: 4d79e042ed8b ("usb: mtu3: add support for usb3.1 IP")
+Commit-ID:     8f556a326c93213927e683fc32bbf5be1b62540a
+Gitweb:        https://git.kernel.org/tip/8f556a326c93213927e683fc32bbf5be1b62540a
+Author:        Zqiang <qiang1.zhang@intel.com>
+AuthorDate:    Fri, 17 Dec 2021 15:42:07 +08:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 18 Dec 2021 10:55:51 +01:00
+
+locking/rtmutex: Fix incorrect condition in rtmutex_spin_on_owner()
+
+Optimistic spinning needs to be terminated when the spinning waiter is not
+longer the top waiter on the lock, but the condition is negated. It
+terminates if the waiter is the top waiter, which is defeating the whole
+purpose.
+
+Fixes: c3123c431447 ("locking/rtmutex: Dont dereference waiter lockless")
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20211217074207.77425-1-qiang1.zhang@intel.com
 ---
-v2: new patch
----
- drivers/usb/mtu3/mtu3_gadget.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/locking/rtmutex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
-index b6c8a4a99c4d..9977600616d7 100644
---- a/drivers/usb/mtu3/mtu3_gadget.c
-+++ b/drivers/usb/mtu3/mtu3_gadget.c
-@@ -92,6 +92,13 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
- 			interval = clamp_val(interval, 1, 16);
- 			mult = usb_endpoint_maxp_mult(desc) - 1;
- 		}
-+		break;
-+	case USB_SPEED_FULL:
-+		if (usb_endpoint_xfer_isoc(desc))
-+			interval = clamp_val(desc->bInterval, 1, 16);
-+		else if (usb_endpoint_xfer_int(desc))
-+			interval = clamp_val(desc->bInterval, 1, 255);
-+
- 		break;
- 	default:
- 		break; /*others are ignored */
--- 
-2.18.0
-
+diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
+index 0c6a48d..1f25a4d 100644
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1380,7 +1380,7 @@ static bool rtmutex_spin_on_owner(struct rt_mutex_base *lock,
+ 		 *  - the VCPU on which owner runs is preempted
+ 		 */
+ 		if (!owner->on_cpu || need_resched() ||
+-		    rt_mutex_waiter_is_top_waiter(lock, waiter) ||
++		    !rt_mutex_waiter_is_top_waiter(lock, waiter) ||
+ 		    vcpu_is_preempted(task_cpu(owner))) {
+ 			res = false;
+ 			break;
