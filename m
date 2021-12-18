@@ -2,216 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1877E47992F
-	for <lists+stable@lfdr.de>; Sat, 18 Dec 2021 07:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2EF4799C8
+	for <lists+stable@lfdr.de>; Sat, 18 Dec 2021 09:56:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232192AbhLRG2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Dec 2021 01:28:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32966 "EHLO
+        id S232381AbhLRI4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Dec 2021 03:56:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232191AbhLRG2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Dec 2021 01:28:45 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CDAC061574;
-        Fri, 17 Dec 2021 22:28:44 -0800 (PST)
-Received: from ip4d173d4a.dynamic.kabel-deutschland.de ([77.23.61.74] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1myTD0-0007w5-0u; Sat, 18 Dec 2021 07:28:42 +0100
-Message-ID: <a7fbb773-eb85-ccc7-8bfb-0bfab062ffe1@leemhuis.info>
-Date:   Sat, 18 Dec 2021 07:28:41 +0100
+        with ESMTP id S232378AbhLRI4E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Dec 2021 03:56:04 -0500
+Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9770C061574
+        for <stable@vger.kernel.org>; Sat, 18 Dec 2021 00:56:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
+        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+        Resent-Cc:Resent-Message-ID; bh=hSgtc8h/M/z51yQ8AYw27NsQpOuduE7OtPSsiZsOv/k=;
+        t=1639817763; x=1641027363; b=FMl7WSCL+wDUnLw6QTTlO8nwNEn8Y7Y2ALPZS+NAFwDc9mD
+        wdibbZyihJsT9sP3coErKqhK5dfXHSIdROcsYB+XcZm5eJbiSaM6lYylZxUYUdeUhz2m6r3CZEolS
+        Krx57tPUiIsyiXc3U6q52dUFKf9F+IuDW2evzOsl07mQGkruJrdXLQViR98UWPRHp37Gog4eFcwof
+        LOE0b9xBi1/4IjYiDM3KwFumoh3mh5Vqhf7cmedCdtuYCVz5d2gxau/IrSqA6WcEobPIUuKlCR38W
+        aMr4oSeVx1fVd0SRZHOXTunAXHOGxVJLFdTsitGgG5lsiR3jBmcHs1VZth/1tdfw==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.95)
+        (envelope-from <johannes@sipsolutions.net>)
+        id 1myVVZ-00D7ui-4g;
+        Sat, 18 Dec 2021 09:56:01 +0100
+Message-ID: <d224b7c664182221bc2209ce5107ff3fd65be9d3.camel@sipsolutions.net>
+Subject: Re: [PATCH v4.19 1/2] mac80211: mark TX-during-stop for TX in
+ in_reconfig
+From:   Johannes Berg <johannes@sipsolutions.net>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Sat, 18 Dec 2021 09:56:00 +0100
+In-Reply-To: <Yb0e8mSZZT0jxgSl@kroah.com>
+References: <20211217203550.54684-1-johannes@sipsolutions.net>
+         <3ce00af3568e08d25b88ba9c7d27638d95c95536.camel@sipsolutions.net>
+         <Yb0e8mSZZT0jxgSl@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.2 (3.42.2-1.fc35) 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-Content-Language: en-BS
-To:     Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
-        stable@vger.kernel.org, regressions@lists.linux.dev,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        linux-gpio@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Edmond Chung <edmondchung@google.com>,
-        Andrew Chant <achant@google.com>,
-        Will McVicker <willmcvicker@google.com>,
-        Sergio Tanzilli <tanzilli@acmesystems.it>
-References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1639808925;596d9f34;
-X-HE-SMSGID: 1myTD0-0007w5-0u
+X-malware-bazaar: not-scanned
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[TLDR: I'm adding this regression to regzbot, the Linux kernel
-regression tracking bot; most text you find below is compiled from a few
-templates paragraphs some of you might have seen already.]
-
-On 17.12.21 16:35, Marcelo Roberto Jimenez wrote:
-> Some GPIO lines have stopped working after the patch
-> commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+On Sat, 2021-12-18 at 00:36 +0100, Greg KH wrote:
 > 
-> And this has supposedly been fixed in the following patches
-> commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
-> commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
-
-There seems to be a backstory here. Are there any entries and bug
-trackers or earlier discussions everyone that looks into this should be
-aware of?
-
-> But an erratic behavior where some GPIO lines work while others do not work
-> has been introduced.
-> 
-> This patch reverts those changes so that the sysfs-gpio interface works
-> properly again.
-> 
-> Signed-off-by: Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
-> ---
-> 
-> Hi,
-> 
-> My system is ARM926EJ-S rev 5 (v5l) (AT91SAM9G25), the board is an ACME Systems Arietta.
-> 
-> The system used sysfs-gpio to manage a few gpio lines, and I have noticed that some have stopped working.
-> 
-> The test script is very simple:
-> 
-> 	#! /bin/bash
-> 
-> 	cd /sys/class/gpio/
-> 	echo 24 > export 
-> 
-> 	cd pioA24
-> 	echo out > direction
-> 
-> 	echo 0 > value
-> 	cat value
-> 	echo 1 > value
-> 	cat value
-> 	echo 0 > value
-> 	cat value
-> 	echo 1 > value
-> 	cat value
-> 
-> 	cd ..
-> 	echo 24 > unexport
-> 
-> In a "good" kernel, this script outputs 0, 1, 0, 1. In a bad kernel, the output result is 1, 1, 1, 1. Also it must be possible to run this script twice without errors, that was the issue with the gpiochip_generic_free() call that had been addressed in another patch.
-> 
-> In my system PINCTRL is automatically selected by 
-> SOC_AT91SAM9 [=y] && ARCH_AT91 [=y] && ARCH_MULTI_V5 [=y]
-> 
-> So it is not an option to disable it to make it work.
-> 
-> Best regards,
-> Marcelo.
-> 
-> 
->  drivers/gpio/gpiolib.c | 10 ----------
->  1 file changed, 10 deletions(-)
-> 
-> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-> index af5bb8fedfea..ac69ec8fb37a 100644
-> --- a/drivers/gpio/gpiolib.c
-> +++ b/drivers/gpio/gpiolib.c
-> @@ -1804,11 +1804,6 @@ static inline void gpiochip_irqchip_free_valid_mask(struct gpio_chip *gc)
->   */
->  int gpiochip_generic_request(struct gpio_chip *gc, unsigned offset)
->  {
-> -#ifdef CONFIG_PINCTRL
-> -	if (list_empty(&gc->gpiodev->pin_ranges))
-> -		return 0;
-> -#endif
-> -
->  	return pinctrl_gpio_request(gc->gpiodev->base + offset);
->  }
->  EXPORT_SYMBOL_GPL(gpiochip_generic_request);
-> @@ -1820,11 +1815,6 @@ EXPORT_SYMBOL_GPL(gpiochip_generic_request);
->   */
->  void gpiochip_generic_free(struct gpio_chip *gc, unsigned offset)
->  {
-> -#ifdef CONFIG_PINCTRL
-> -	if (list_empty(&gc->gpiodev->pin_ranges))
-> -		return;
-> -#endif
-> -
->  	pinctrl_gpio_free(gc->gpiodev->base + offset);
->  }
->  EXPORT_SYMBOL_GPL(gpiochip_generic_free);
+> Yeah, I don't think it's needed, but as it was marked to go back really
+> far, I wanted to give you the option to do so or not.
 > 
 
-Hi, this is your Linux kernel regression tracker speaking.
+Yeah I marked it because I'm pretty sure that problem _was_ introduced
+that far back with the TXQ code, but OTOH I'm not even sure initially it
+had users there, and then users that would run into the restart issue
+... probably not, otherwise I'd think we'd have heard about it earlier?
 
-Thanks for the report.
+Backporting the IEEE80211_TXQ_STOP_NETIF_TX stuff doesn't seem that
+problematic either, but I'm not convinced it's worth it, and I suppose
+somebody whose driver actually uses it on those kernels would better
+take a look - I'm not familiar with all the drivers in detail, and
+iwlwifi doesn't use it yet there.
 
-To be sure this issue doesn't fall through the cracks unnoticed, I'm
-adding it to regzbot, my Linux kernel regression tracking bot:
-
-#regzbot ^introduced 2ab73c6d8323f
-#regzbot title gpio: some GPIO lines have stopped working
-#regzbot ignore-activity
-
-Reminder: when fixing the issue, please add a 'Link:' tag with the URL
-to the report (the parent of this mail), as explained in
-'Documentation/process/submitting-patches.rst' (reminder: you should use
-the kernel.org redirector). Regzbot then will automatically mark the
-regression as resolved once the fix lands in the appropriate tree. For
-more details about regzbot see footer.
-
-Sending this to everyone that got the initial report, to make all aware
-of the tracking. I also hope that messages like this motivate people to
-directly get at least the regression mailing list and ideally even
-regzbot involved when dealing with regressions, as messages like this
-wouldn't be needed then.
-
-Don't worry, I'll send further messages wrt to this regression just to
-the lists (with a tag in the subject so people can filter them away), as
-long as they are intended just for regzbot. With a bit of luck no such
-messages will be needed anyway.
-
-Ciao, Thorsten (wearing his 'Linux kernel regression tracker' hat).
-
-P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
-on my table. I can only look briefly into most of them. Unfortunately
-therefore I sometimes will get things wrong or miss something important.
-I hope that's not the case here; if you think it is, don't hesitate to
-tell me about it in a public reply. That's in everyone's interest, as
-what I wrote above might be misleading to everyone reading this; any
-suggestion I gave thus might sent someone reading this down the wrong
-rabbit hole, which none of us wants.
-
-BTW, I have no personal interest in this issue, which is tracked using
-regzbot, my Linux kernel regression tracking bot
-(https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
-this mail to get things rolling again and hence don't need to be CC on
-all further activities wrt to this regression.
-
----
-Additional information about regzbot:
-
-If you want to know more about regzbot, check out its web-interface, the
-getting start guide, and/or the references documentation:
-
-https://linux-regtracking.leemhuis.info/regzbot/
-https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md
-https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md
-
-The last two documents will explain how you can interact with regzbot
-yourself if your want to.
-
-Hint for reporters: when reporting a regression it's in your interest to
-tell #regzbot about it in the report, as that will ensure the regression
-gets on the radar of regzbot and the regression tracker. That's in your
-interest, as they will make sure the report won't fall through the
-cracks unnoticed.
-
-Hint for developers: you normally don't need to care about regzbot once
-it's involved. Fix the issue as you normally would, just remember to
-include a 'Link:' tag to the report in the commit message, as explained
-in Documentation/process/submitting-patches.rst
-That aspect was recently was made more explicit in commit 1f57bd42b77c:
-https://git.kernel.org/linus/1f57bd42b77c
+johannes
