@@ -2,64 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BEB8479C9F
-	for <lists+stable@lfdr.de>; Sat, 18 Dec 2021 21:45:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2164479E17
+	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 00:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234171AbhLRUpE convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 18 Dec 2021 15:45:04 -0500
-Received: from u12.atthost.pl ([185.255.40.32]:33176 "EHLO u12.atthost.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232208AbhLRUpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 18 Dec 2021 15:45:04 -0500
-X-Greylist: delayed 323 seconds by postgrey-1.27 at vger.kernel.org; Sat, 18 Dec 2021 15:45:03 EST
-Received: from localhost (unknown [127.0.0.1])
-        by u12.atthost.pl (Postfix) with ESMTP id 8A59D634AC;
-        Sat, 18 Dec 2021 20:39:35 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at atthost.pl
-Received: from u12.atthost.pl ([185.255.40.32])
-        by localhost (atthost.pl [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id ANJuBeLBD5iv; Sat, 18 Dec 2021 21:39:27 +0100 (CET)
-Received: from dell.localnet (staticline-195-234-21-179.toya.net.pl [195.234.21.179])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: tomasz@cebula.eu.org)
-        by u12.atthost.pl (Postfix) with ESMTPSA id E19AE63809;
-        Sat, 18 Dec 2021 21:39:26 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.11.0 u12.atthost.pl E19AE63809
-From:   "Tomasz C." <tlinux@cebula.eu.org>
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     tlinux@cebula.eu.org, linux-input@vger.kernel.org,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
-Subject: Re: FWD: Holtek mouse stopped working after kernel upgrade from 5.15.7 to 5.15.8
-Date:   Sat, 18 Dec 2021 21:39:25 +0100
-Message-ID: <4366861.LvFx2qVVIh@dell>
-In-Reply-To: <fc7e6040-b760-02f1-57ef-71aa4b88aea6@leemhuis.info>
-References: <e4efbf13-bd8d-0370-629b-6c80c0044b15@leemhuis.info> <42903605-7e8b-4e84-fcd6-1b23169b8639@redhat.com> <fc7e6040-b760-02f1-57ef-71aa4b88aea6@leemhuis.info>
+        id S231804AbhLRXLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Dec 2021 18:11:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52572 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231788AbhLRXLv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Dec 2021 18:11:51 -0500
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609FAC061574
+        for <stable@vger.kernel.org>; Sat, 18 Dec 2021 15:11:51 -0800 (PST)
+Received: by mail-pf1-x42d.google.com with SMTP id f11so5360182pfc.9
+        for <stable@vger.kernel.org>; Sat, 18 Dec 2021 15:11:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=NKfzAz02to+HLBJJBx80vvf3VbWcNBYKs5kBDpooUK4=;
+        b=Ah3bqpaq+kTklj9fEr/PJ8AzhxOo4aaajBvwBudtoUJudrcoFtIWitdOehSQm9r3H/
+         MWYDZyfqW0MJzZhNZNEG/tDrTR3pCQibJaayfBOOdktZMg/kfGkS+5qLtzDzqNFaU170
+         3iDGiuxiGLlSB1S3Ew85mVgI/Zxm6CwjcNDcgOudRlU52akV+YEYe9UtOmQ+2xN5/+xe
+         YwyLqnQo7GMu2e6H98bQoQ3JF4WcAcHrm9DoGuC9Z0vWCgbKfvCyopAGJ8UuX1/rl0PD
+         5LSGXmLL8QOOcZsPbH06x6Hzzw1JWywq2G+yPOoo6vWjCrFnITrR+N5DJk8xNYv0ngbr
+         Eteg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
+         :from:date:message-id:subject:to:content-transfer-encoding;
+        bh=NKfzAz02to+HLBJJBx80vvf3VbWcNBYKs5kBDpooUK4=;
+        b=MnBkLf2PkQGuvgMGEQ7DGzlWZLipb9T8He1ziQ1EpDzUmDOfRnZSjo6Fsksv7LdXc0
+         gK54N12MP78Z4/qjGSoCHbtyQ1UvWKyo30aHIqx/LxJHs4vOgFsq708+IxX698zMgau9
+         7a+XEQ3aKyiOzfVqQDuOmTvBReAV+sb/acUFuqxVzsc2UlbrIGaqhNXznxvPRWw1ECbV
+         QRDxapsghcU10HOepCGBc7MJ2iFUpv8uLEFT7uwhauSYlggmJoyNgDgmUQsSqyd6xhT9
+         6VWGg3jcOlzqHx7aqzbKqzDhHIdIx+ZDfgJ1vrFPnpTwYWMJx1w5LP0RifENm12cYKgb
+         oLSQ==
+X-Gm-Message-State: AOAM530XLAQWWm7VxOoQOXMAcDEs6vyaLEUFW1hBxzPgrysZPoCZ0uLn
+        CjdmnrSRSkkgxyrgwEZlhAeYDJxh2+9aaEnQnIpNob9QA3Tlb4lq
+X-Google-Smtp-Source: ABdhPJyFwg0NbVPjDFdoqehXvhUV/rkLM0HmOV80D1Xff/mXLhKYK7ZjEH04ZxUUFCRhds1lwexCZKpY2j3r3HCk1Jg=
+X-Received: by 2002:a63:414:: with SMTP id 20mr8593663pge.178.1639869110470;
+ Sat, 18 Dec 2021 15:11:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
+Received: by 2002:a05:6a11:10b:0:0:0:0 with HTTP; Sat, 18 Dec 2021 15:11:49
+ -0800 (PST)
+Reply-To: claimdepartmentfb1@brazilmail.com
+In-Reply-To: <CA+OARtvubeQd9ndP7diMm_+TSzYn7oDHKvJLokX0YnJuF0UCeQ@mail.gmail.com>
+References: <CA+OARtsc9_yY0kNuKBwr78j-2U0LMu7v5w4G7mbQOe4=kSHXNg@mail.gmail.com>
+ <CA+OARtvmwUm6MOUXcw3n_HYL376eajA3ayT=zNWLetYYcyraKg@mail.gmail.com> <CA+OARtvubeQd9ndP7diMm_+TSzYn7oDHKvJLokX0YnJuF0UCeQ@mail.gmail.com>
+From:   =?UTF-8?B?b2RkxJtsZW7DrSBwcm8gb2TFoWtvZG7Em27DrSBjb3ZpZCAxOQ==?= 
+        <riverminerscompany@gmail.com>
+Date:   Sat, 18 Dec 2021 15:11:49 -0800
+Message-ID: <CA+OARtvgoaAPNGYNE+Fdh0LdV4TcFcjaX3FjCYpCVQmJ0Ke=1w@mail.gmail.com>
+Subject: =?UTF-8?B?SnN0ZSBvZMWha29kbsSbbmk=?=
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+V=C3=A1=C5=BEen=C3=BD p=C5=99=C3=ADjemce,
 
-I haven't had time to test it yet. But I see that another ArchLinux user has 
-compiled kernel 5.15.10 with this patch and confirms that the mouse works.
-Details on:
-https://bugs.archlinux.org/task/73048#comment204441
+Fond pro od=C5=A1kodn=C4=9Bn=C3=AD ob=C4=9Bt=C3=AD COVID-19 a zbrusu nov=C3=
+=A9 auto.
+M=C5=AF=C5=BEete si prohl=C3=A9dnout na=C5=A1e webov=C3=A9 str=C3=A1nky a p=
+rohl=C3=A9dnout si sv=C5=AFj nov=C3=BD
+v=C5=AFz p=C5=99ipraven=C3=BD k odesl=C3=A1n=C3=AD k v=C3=A1m.
 
-Is this enough for you as a test?
+http://www.toyota.com/prius
 
--- 
-Tomasz Cebula
-Dnia piątek, 17 grudnia 2021 09:37:11 CET Thorsten Leemhuis pisze:
+Odpov=C4=9Bzte rychle.
 
-> Tomasz, could you give it a try please?
-
+S pozdravem
+Lisa Jacksonov=C3=A1
 
 
+
+...........................................................................=
+.................................................................
+
+Dear Beneficiary,
+
+COVID=E2=80=9319 Victims Compensation Fund and a brand new car.
+You can view our website to view your new car ready for shipment to you.
+
+http://www.toyota.com/prius
+
+Reply back quickly.
+
+Regards,
+Lisa Jackson
