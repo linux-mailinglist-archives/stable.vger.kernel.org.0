@@ -2,97 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 382FA47A046
-	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 12:00:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6EDC47A09A
+	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 14:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233179AbhLSLAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Dec 2021 06:00:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34514 "EHLO
+        id S233139AbhLSNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Dec 2021 08:15:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229801AbhLSLAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 06:00:17 -0500
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C543C061574;
-        Sun, 19 Dec 2021 03:00:16 -0800 (PST)
-Received: by mail-lj1-x231.google.com with SMTP id v15so11140708ljc.0;
-        Sun, 19 Dec 2021 03:00:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=28WUq9Jt90oxX2or2ReiiYs2kHyyTZ89Ut+mmcfXAPQ=;
-        b=MvA2FRT3P60D5yjezwKIFYMSfSHRZp5IRVxMk0BdJWl2zzxHNVkQuwPx184OZ/VIL4
-         inJUvjLQNSa9mu40ePpg2Af/dAMNsQ2LYQ5kgf036j3CgQw65Bd3hBhudnTrSx/xr1AX
-         7heIbvMCVnuesRNta2lfAUhZP80ZRAcoH7wvnixxNPaOOE47xOw5d0pYM3K8RKb5hHJW
-         Q6JdH2vvV6T4bHIJQiGlGqlukSiOlhjDwiLY6TS0SxgIBoE6gIjsB9LMrTerZ0c6yjIG
-         5IWDPvcwnqizBNACYxB67R81bv+3MusJOwhmbciukFs/ZqAwpA3Vo2TibijgUG1fKfgK
-         oj2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:organization:in-reply-to
-         :content-transfer-encoding;
-        bh=28WUq9Jt90oxX2or2ReiiYs2kHyyTZ89Ut+mmcfXAPQ=;
-        b=si8MFF8rYo9RdD97yi/a9wSAJ+a9xwLGp25WQqUTxe4lmcWdodhrIExEjnfWlSnjP6
-         axHTvGgtuuZfYQJlR77Y2t40jYJpcuEU6EPRpooUH7KKL6+ABV12FlDNtWO2JIpf1JI0
-         fYzRwZ5zRKAdsDizJDA8JzGQuzP9yExxN+JWSkrHyxHp4YOnuDI4fZZ5OnMDo8XcLESc
-         kE/GaeVKAc+Ixnn97wCAPE5bTsgx8U0hm2jYEHJU3if/hoyoxBiM4remcAemPKW2mXvM
-         zUXIzEpE/yPcdorvtDPUFs23v6TCcvoDJnAFr+v/SOPLdH+Q8FvZO0MsAZhymsTbqJ+f
-         4SEQ==
-X-Gm-Message-State: AOAM532R64gKIrIM+Csr0HcQFWxi7g3JC1PbtTgwySpcYA27HSurKIhw
-        WXRDhUj0EWQjwmInROUM7e82Uj7mNd4=
-X-Google-Smtp-Source: ABdhPJy4q1W3IfUk3iv7+OV74YqxVPB6VWyBubwKM1rhmCigLlyhq+AHZfeU8BKn2WNBeKFGCEbnBw==
-X-Received: by 2002:a2e:5c86:: with SMTP id q128mr9866205ljb.245.1639911613992;
-        Sun, 19 Dec 2021 03:00:13 -0800 (PST)
-Received: from [192.168.1.100] ([31.173.85.16])
-        by smtp.gmail.com with ESMTPSA id z28sm2223309ljn.77.2021.12.19.03.00.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 19 Dec 2021 03:00:13 -0800 (PST)
-Message-ID: <9c5417f7-3cd9-472d-5b04-f831135ffd78@gmail.com>
-Date:   Sun, 19 Dec 2021 14:00:09 +0300
+        with ESMTP id S233030AbhLSNPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 08:15:00 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D72CC061574;
+        Sun, 19 Dec 2021 05:14:58 -0800 (PST)
+Date:   Sun, 19 Dec 2021 13:14:53 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639919695;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=H+eLJBjyuR5qzC+EozPbCmqHBG49A4VYeh6FDJw/5Mk=;
+        b=zQzDBPxaGNA6LfyusHplw2SAiqLxkAiKXeZzCuei7siiBIkluQMdBiBCwb/GVJmNEkfYjM
+        k970SE5HxTMEdF2E5boNT49LzoPoH8W9agr7J641QgMcZw2Ds2y50tBsIIs1uCT7JLpXL8
+        jdH7t3OM493GKdNbP+iOKOPreDXl0AHLWKQGRNWWeC7GrgDwLVCVW9/haXoSbtcJeQLhp0
+        85NIxUEglTdTg6b/N0898MuOvrW1QojIf7OOyLju+Gc/TSyGNHSdn/DZn2a8W8ttxVeU2n
+        zJ5rbQuk2KD+SPcBMWvVhtfcd/oTo2EGP1p0IZsPJf8bkMaxW3SJ8C4/JEbfAg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639919695;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=H+eLJBjyuR5qzC+EozPbCmqHBG49A4VYeh6FDJw/5Mk=;
+        b=+H4JDw2CLvwGikqY8dRDparYdFdcXC/BV+d/GT1euEy2QMisy2A7PXvdyTM35rep3a8qlg
+        zbDkcunDYjHC8lDw==
+From:   "tip-bot2 for Andrew Cooper" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
+Cc:     Andrew Cooper <andrew.cooper3@citrix.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20211216000856.4480-1-andrew.cooper3@citrix.com>
+References: <20211216000856.4480-1-andrew.cooper3@citrix.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v2 3/4] usb: mtu3: fix list_head check warning
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Eddie Hung <eddie.hung@mediatek.com>, stable@vger.kernel.org,
-        Yuwen Ng <yuwen.ng@mediatek.com>
-References: <20211218095749.6250-1-chunfeng.yun@mediatek.com>
- <20211218095749.6250-3-chunfeng.yun@mediatek.com>
- <64b9453a-84c5-8d41-26d5-698d1ae9d473@gmail.com> <Yb8MM2zL2Ecfzv1/@kroah.com>
-From:   Sergei Shtylyov <sergei.shtylyov@gmail.com>
-Organization: Brain-dead Software
-In-Reply-To: <Yb8MM2zL2Ecfzv1/@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Message-ID: <163991969397.23020.2147480727226316518.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19.12.2021 13:40, Greg Kroah-Hartman wrote:
-[...]
+The following commit has been merged into the x86/urgent branch of tip:
 
->>> This is caused by uninitialization of list_head.
->>
->>     Again, there's no such word as "uninitialization" (even if it existed, it
->> wouldn't mean what you wanted to say); please replace by "not initializing".
-> 
-> We are not English language scholars, most of us do not have English as
-> their native language.  We all can understand what is being said here,
-> there's no need for any change, please do not be so critical.
+Commit-ID:     aa1701e20a847dba6c406545dcba6a8755fa6406
+Gitweb:        https://git.kernel.org/tip/aa1701e20a847dba6c406545dcba6a8755fa6406
+Author:        Andrew Cooper <andrew.cooper3@citrix.com>
+AuthorDate:    Thu, 16 Dec 2021 00:08:56 
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Sun, 19 Dec 2021 14:09:41 +01:00
 
-    OK, noted...
-    I was just somewhat upset that my 1st comment was ignored. :-/
+x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
 
-> thanks,
-> 
-> greg k-h
+Both __pkru_allows_write() and arch_set_user_pkey_access() shift
+PKRU_WD_BIT (a signed constant) by up to 30 bits, hitting the
+sign bit.
 
-MBR, Sergey
+Use unsigned constants instead.
+
+Clearly pkey 15 has not been used in combination with UBSAN yet.
+
+Noticed by code inspection only.  I can't actually provoke the
+compiler into generating incorrect logic as far as this shift is
+concerned.
+
+[
+  dhansen: add stable@ tag, plus minor changelog massaging,
+
+           For anyone doing backports, these #defines were in
+	   arch/x86/include/asm/pgtable.h before 784a46618f6.
+]
+
+Fixes: 33a709b25a76 ("mm/gup, x86/mm/pkeys: Check VMAs and PTEs for protection keys")
+Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20211216000856.4480-1-andrew.cooper3@citrix.com
+---
+ arch/x86/include/asm/pkru.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/include/asm/pkru.h b/arch/x86/include/asm/pkru.h
+index 4cd49af..74f0a2d 100644
+--- a/arch/x86/include/asm/pkru.h
++++ b/arch/x86/include/asm/pkru.h
+@@ -4,8 +4,8 @@
+ 
+ #include <asm/cpufeature.h>
+ 
+-#define PKRU_AD_BIT 0x1
+-#define PKRU_WD_BIT 0x2
++#define PKRU_AD_BIT 0x1u
++#define PKRU_WD_BIT 0x2u
+ #define PKRU_BITS_PER_PKEY 2
+ 
+ #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
