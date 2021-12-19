@@ -2,127 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE0447A014
-	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 10:49:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCAD547A021
+	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 11:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235507AbhLSJtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Dec 2021 04:49:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47546 "EHLO
+        id S235553AbhLSKOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Dec 2021 05:14:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229585AbhLSJtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 04:49:04 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D418C061574
-        for <stable@vger.kernel.org>; Sun, 19 Dec 2021 01:49:04 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id c6so5696104plg.3
-        for <stable@vger.kernel.org>; Sun, 19 Dec 2021 01:49:04 -0800 (PST)
+        with ESMTP id S229585AbhLSKOd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 05:14:33 -0500
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F81C061574;
+        Sun, 19 Dec 2021 02:14:33 -0800 (PST)
+Received: by mail-lj1-x22c.google.com with SMTP id p8so10938448ljo.5;
+        Sun, 19 Dec 2021 02:14:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0tW7pSD1b9BjkgJIzt1sC3g+0W9ziZ5nFib4825WODk=;
-        b=3xhFqVhvvl/hiBqjUqLDt0uXWHSAFQternLzvjBJnh/JKaAQkb8JNVe+e/FTficK3w
-         UUjWjp63+r/cvtDyxdrJpkgccvWAZEkYU6BHLMMD3KEBenvtXS7GS6E+KOLLYcAPmowz
-         x51qZ4Zo2DagJjo/yzckZuIGkB6OF/Vtbg77rd7Ys8lKBekbv8nZtlZ+rKRJMbSCWsFP
-         5PNKTR3v6bWIw2B0sLFtPTiimdJMQs8bjFoZ8tREDGS4+p/WUjUjhq8ho5Vv2q4ksEU2
-         h+ESMbe7ATEXuLXgkHAmESEpyf6s5XbUnNm+pzJ79nmywqhJwkPqLlngw8gmvzt62PeQ
-         nyAQ==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=hKGb9w8KG5b73eiq1K1JTU4pcyHL51jKG9VctVhGJnk=;
+        b=f+V0CkkhnztRfIT54g00ZqQAvSLl+KO47996Tdp/Xbuyp/BONbEN3cUVfOPuFaJ7KZ
+         A/fPHKlM3X6cBGT84cxhGyZzyiUqF8HEnlsJf1zX+kfG/mwF1pU72FFqtMTt6+pWaHEX
+         gPEhgcmuPqwrusKFv7FErNaiV6tv8Z++YdmFP0zbJBHFr7Ym6/hJFcNzRPc0zfkDpP1h
+         yLC6rvgTLv+1qNnFCckatJavDMIa6+WWz6JAaYUUKMf9m9bp+s315BlSd0lSb0rn0MH9
+         bA/QqiOLzIR+MvBhwijqjcQy9n/05vmG11m3WknjOxBTALlcZCKMzb+0EzI+iFGdQf6p
+         V8PA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0tW7pSD1b9BjkgJIzt1sC3g+0W9ziZ5nFib4825WODk=;
-        b=2XGR9/sqEePHwf3h+TB5mFuvdJki58FxpjfqdWfYOGcD0kHIc6yK4Rr1FIU0qqsfii
-         ttAqXP0B/dHis5dxkxar8EtO3UbwX8fYBWNZA3+0c9BX9RboOhj/23m9JfMMp/PeKwXy
-         ZL1O/0zqn2Aovp7FTrhTeyJgEjQwoYMEzbBLrhHW77Uqjty1z/iVbaQQmpWvpVIDDlvR
-         Qjq/w9zu+ao+xDFSi+ZTeFYgNn6q9OEZ7PHrMDrOfAnslKjSdpH3jLq9USbwqZQCRzuM
-         cvxvTIrNPEr90znNTGhE7cG5KgeUC5Q328BXZ5w4k92fmqlH2i+mtw5/3WlrXDq6VDEm
-         Tohw==
-X-Gm-Message-State: AOAM530O0yetPtx8a6I+9KFRjnvYKfhi6VEAxVsChtn1OIE4MRv3WMwM
-        L4CJ+HMGum11MThICm0lsAvcj/cl4Jf2KSSb
-X-Google-Smtp-Source: ABdhPJwskZtFRsZcUedKt4ITXJCzPN9u5AED0nZ5SURx5GiUNCwScc8/lqmU5ARF6KskVhFtIvh5ww==
-X-Received: by 2002:a17:90a:5d8e:: with SMTP id t14mr22035004pji.95.1639907343552;
-        Sun, 19 Dec 2021 01:49:03 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o7sm13976120pjf.33.2021.12.19.01.49.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Dec 2021 01:49:03 -0800 (PST)
-Message-ID: <61bf000f.1c69fb81.207a.652b@mx.google.com>
-Date:   Sun, 19 Dec 2021 01:49:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=hKGb9w8KG5b73eiq1K1JTU4pcyHL51jKG9VctVhGJnk=;
+        b=Q6IhtulleN11VrasbH7BYsEiF1+0WKItceR3MqV1SvWJStL+HHqkVWIvnl3sMOO6o2
+         09A6aAFSR9P2hR3U/Si6tL3g2dCVYSIjwbRrKqDhlmvNUJHO+jRBE+WuzZ5gdWMjly53
+         hhLpr+TrZ8//NAT8bs/VAR9inZqS1EcD/SXrftvib9AELaWpa7iSEFHSs8DNPXBDID/u
+         R0Z22zgHUzq7IOJQvTAUKh29gOUPhM2XU42khn0yLrgGCDmz+CLhNsBAhNAR99COz8qb
+         mn//L3BdPEtziL7bzHo5KXI+TQ/3vdtmSKD1qtPUiSZuRAIWHWZ7DNClqr7F9t+1VHLC
+         Wz/g==
+X-Gm-Message-State: AOAM530RnNUtiDM07t3rgiMkkWPvVOtxitRaKKBoQZ3M4JpQFJbFFltP
+        TiCzCubfkJBP2wvgOXCeTpU=
+X-Google-Smtp-Source: ABdhPJw2YSsSu09c3sO8K26eMzGbJwXH2EBNbCGZHGfeNhI3hKtXngb2r9yWYq4379t6U+LBk27HEQ==
+X-Received: by 2002:a2e:9703:: with SMTP id r3mr9953312lji.422.1639908870993;
+        Sun, 19 Dec 2021 02:14:30 -0800 (PST)
+Received: from [192.168.1.100] ([178.176.77.193])
+        by smtp.gmail.com with ESMTPSA id h17sm2009168lfv.62.2021.12.19.02.14.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 19 Dec 2021 02:14:30 -0800 (PST)
+Message-ID: <64b9453a-84c5-8d41-26d5-698d1ae9d473@gmail.com>
+Date:   Sun, 19 Dec 2021 13:14:25 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.87-63-g1b969379182f
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 197 runs,
- 1 regressions (v5.10.87-63-g1b969379182f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH v2 3/4] usb: mtu3: fix list_head check warning
+Content-Language: en-US
+To:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Eddie Hung <eddie.hung@mediatek.com>, stable@vger.kernel.org,
+        Yuwen Ng <yuwen.ng@mediatek.com>
+References: <20211218095749.6250-1-chunfeng.yun@mediatek.com>
+ <20211218095749.6250-3-chunfeng.yun@mediatek.com>
+From:   Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Organization: Brain-dead Software
+In-Reply-To: <20211218095749.6250-3-chunfeng.yun@mediatek.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 197 runs, 1 regressions (v5.10.87-63-g1b9693=
-79182f)
+On 18.12.2021 12:57, Chunfeng Yun wrote:
 
-Regressions Summary
--------------------
+> This is caused by uninitialization of list_head.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
+    Again, there's no such word as "uninitialization" (even if it existed, it 
+wouldn't mean what you wanted to say); please replace by "not initializing".
 
+> BUG: KASAN: use-after-free in __list_del_entry_valid+0x34/0xe4
+> 
+> Call trace:
+> dump_backtrace+0x0/0x298
+> show_stack+0x24/0x34
+> dump_stack+0x130/0x1a8
+> print_address_description+0x88/0x56c
+> __kasan_report+0x1b8/0x2a0
+> kasan_report+0x14/0x20
+> __asan_load8+0x9c/0xa0
+> __list_del_entry_valid+0x34/0xe4
+> mtu3_req_complete+0x4c/0x300 [mtu3]
+> mtu3_gadget_stop+0x168/0x448 [mtu3]
+> usb_gadget_unregister_driver+0x204/0x3a0
+> unregister_gadget_item+0x44/0xa4
+> 
+> Fixes: 83374e035b62 ("usb: mtu3: add tracepoints to help debug")
+> Cc: stable@vger.kernel.org
+> Reported-by: Yuwen Ng <yuwen.ng@mediatek.com>
+> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+[...]
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.87-63-g1b969379182f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.87-63-g1b969379182f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1b969379182f637b7667fd680e580c24e9d04722 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61bec6f09500a5e15e39713a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
-63-g1b969379182f/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-minnowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
-63-g1b969379182f/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-minnowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61bec6f09500a5e15e397=
-13b
-        new failure (last pass: v5.10.85-33-g115cc53743f7) =
-
- =20
+MBR, Sergey
