@@ -2,128 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7769547A26D
-	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 22:51:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8559747A26F
+	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 22:52:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236706AbhLSVv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Dec 2021 16:51:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33792 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231821AbhLSVv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 16:51:28 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA753C061574
-        for <stable@vger.kernel.org>; Sun, 19 Dec 2021 13:51:27 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id gj24so7556424pjb.0
-        for <stable@vger.kernel.org>; Sun, 19 Dec 2021 13:51:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=wAIGXs/JaB3MzBlX2Mqf8XLxiQu3i8fEopmQoj4YcJc=;
-        b=JOnP1MID5jT6FeSbb+HHRdxJruKURpBVlUv9wfeAaIQRamNewuSVabzl155EtIu8RE
-         kZ/K/aOUOtuwdvD8opfKKgta3UDQnjeivTm0MbHlNWFVeKYT6EBnvh30HwCcT8FQ+ws3
-         y6NosmoZazu2zlqbhSA79PKuGiCuoaQy42/8wvv0ndgrt6T9/gEsQZaBIzRFrDnh6ciX
-         CYcY1BWLA8YfF4zfeVj5m+/Cc5N+sSoQrVQMI0RrvuJ4vzWOBuapN+numsX9HOHnnjPA
-         kc2vrbHWiCRNP+y0VIdpKoYhRKwh2v8CK8SG+xdSf7g6EtvfCn0sMFVv4qUBSm1LpD+d
-         NsdA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=wAIGXs/JaB3MzBlX2Mqf8XLxiQu3i8fEopmQoj4YcJc=;
-        b=OjenikzBNTHuPEKq+mrRXoEyTP4Av9cySG64WDG3BzpBz+Dxe66naXEpABCeb0hrYw
-         LfUe2rCkP8bRqmkVOzyGUpkCSfoIgozbMcamneQEEpbTGP/vI3qySNQ+hAXD6IDdJOqd
-         VSRcdkitXmiWFdhC2wLcsfMIq3qkEr9htCrFFHn9ndyDFXFyLFUekPsy+HZ9L9YSnamT
-         FlqSH0hlif49h4etgvnt9rBcDZih72x1v/92n4KGxVq3PslEdsdY12AHjFLNoHaXG5tq
-         x5hREATstpAgXDSBhDxsh2oP3yCV378tvOL742gzQZhSq8lypWXNKrbRYInzbAoLIEWf
-         dudA==
-X-Gm-Message-State: AOAM532Gr/tG3pbcefzyBHFCWhsWeRYr8sGBnJlmPjtbwmd65GNs6xgI
-        b1ncCEV6BnvpY9/V6qYFZge3l3Zi3fpUJuBU
-X-Google-Smtp-Source: ABdhPJy6028aOb2ANNi0iY/tVwhde3Mp147LWfXpHIPvL/yiZYrIuVp3qiy6A3fu+FNhO2EVsezVlQ==
-X-Received: by 2002:a17:90b:360e:: with SMTP id ml14mr7375706pjb.135.1639950687266;
-        Sun, 19 Dec 2021 13:51:27 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h22sm5725539pfv.184.2021.12.19.13.51.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Dec 2021 13:51:27 -0800 (PST)
-Message-ID: <61bfa95f.1c69fb81.f044.05ac@mx.google.com>
-Date:   Sun, 19 Dec 2021 13:51:27 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S236687AbhLSVwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Dec 2021 16:52:02 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:44284 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231821AbhLSVwC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 16:52:02 -0500
+Date:   Sun, 19 Dec 2021 21:51:59 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1639950720;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=kS5DQpA8phtBhbUduZG8Ao20a8ODo/sZsaA4W03+iQw=;
+        b=iXyi052YqjM9LOfmM/zl+aIlTmxy6vgy+JmoT4hHwnNDF8iPX+xhLJ8qp1MLAet5fcRjBX
+        3o4M6viGrdf5UWg9Iyts/4+rpoB0l8WfyP5UCf8PioY0bLaGAuI3eA5HDaQwmX8Xs+EGT2
+        0nq4vWNy2paMDJCkTEqIXIyHPPX10Xv4V+BZoHluko1I1Jou6Ev4iruNPVXWVkkneK4IOx
+        Q6vHxlayH17B32aPmZ6o0VEp/QDseR76tG7wvEX/8Y7uuhdf+ljb91FIILWUF/I91WAqTA
+        eqm3sAfzbc/iE4ZCGMk21E8GGhK6CX7XUJR9T7QRkYZtXG3EfxeTwTMK/UBCeA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1639950720;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=kS5DQpA8phtBhbUduZG8Ao20a8ODo/sZsaA4W03+iQw=;
+        b=dTjKlHRhSEAFtwc7e+F4M/VX+deNg356h0La7cv3Ju7QNSBhZi79o3llyOimFAAqBBzMOT
+        fx/AsravM/M7mvBg==
+From:   "tip-bot2 for Andrew Cooper" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
+Cc:     Andrew Cooper <andrew.cooper3@citrix.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20211216000856.4480-1-andrew.cooper3@citrix.com>
+References: <20211216000856.4480-1-andrew.cooper3@citrix.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.87-62-gec26c797e6cc
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 187 runs,
- 1 regressions (v5.10.87-62-gec26c797e6cc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <163995071955.23020.16415039634514233755.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 187 runs, 1 regressions (v5.10.87-62-gec26c7=
-97e6cc)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     57690554abe135fee81d6ac33cc94d75a7e224bb
+Gitweb:        https://git.kernel.org/tip/57690554abe135fee81d6ac33cc94d75a7e224bb
+Author:        Andrew Cooper <andrew.cooper3@citrix.com>
+AuthorDate:    Thu, 16 Dec 2021 00:08:56 
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Sun, 19 Dec 2021 22:44:34 +01:00
 
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
+x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
 
+Both __pkru_allows_write() and arch_set_user_pkey_access() shift
+PKRU_WD_BIT (a signed constant) by up to 30 bits, hitting the
+sign bit.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.87-62-gec26c797e6cc/plan/baseline/
+Use unsigned constants instead.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.87-62-gec26c797e6cc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ec26c797e6ccde58aeb28f59676a20e40985303b =
+Clearly pkey 15 has not been used in combination with UBSAN yet.
 
+Noticed by code inspection only.  I can't actually provoke the
+compiler into generating incorrect logic as far as this shift is
+concerned.
 
+[
+  dhansen: add stable@ tag, plus minor changelog massaging,
 
-Test Regressions
----------------- =
+           For anyone doing backports, these #defines were in
+	   arch/x86/include/asm/pgtable.h before 784a46618f6.
+]
 
+Fixes: 33a709b25a76 ("mm/gup, x86/mm/pkeys: Check VMAs and PTEs for protection keys")
+Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20211216000856.4480-1-andrew.cooper3@citrix.com
+---
+ arch/x86/include/asm/pkru.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61bf714bd39d38bd0239711e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
-62-gec26c797e6cc/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
-ator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
-62-gec26c797e6cc/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salv=
-ator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61bf714bd39d38bd02397=
-11f
-        new failure (last pass: v5.10.87-63-g1b969379182f) =
-
- =20
+diff --git a/arch/x86/include/asm/pkru.h b/arch/x86/include/asm/pkru.h
+index 4cd49af..74f0a2d 100644
+--- a/arch/x86/include/asm/pkru.h
++++ b/arch/x86/include/asm/pkru.h
+@@ -4,8 +4,8 @@
+ 
+ #include <asm/cpufeature.h>
+ 
+-#define PKRU_AD_BIT 0x1
+-#define PKRU_WD_BIT 0x2
++#define PKRU_AD_BIT 0x1u
++#define PKRU_WD_BIT 0x2u
+ #define PKRU_BITS_PER_PKEY 2
+ 
+ #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
