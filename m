@@ -2,114 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EDC47A09A
-	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 14:15:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6B447A0B9
+	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 14:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233139AbhLSNPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Dec 2021 08:15:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35026 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233030AbhLSNPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 08:15:00 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D72CC061574;
-        Sun, 19 Dec 2021 05:14:58 -0800 (PST)
-Date:   Sun, 19 Dec 2021 13:14:53 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1639919695;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
+        id S234719AbhLSNxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Dec 2021 08:53:14 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:20691 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234475AbhLSNxN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 08:53:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639921992;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=H+eLJBjyuR5qzC+EozPbCmqHBG49A4VYeh6FDJw/5Mk=;
-        b=zQzDBPxaGNA6LfyusHplw2SAiqLxkAiKXeZzCuei7siiBIkluQMdBiBCwb/GVJmNEkfYjM
-        k970SE5HxTMEdF2E5boNT49LzoPoH8W9agr7J641QgMcZw2Ds2y50tBsIIs1uCT7JLpXL8
-        jdH7t3OM493GKdNbP+iOKOPreDXl0AHLWKQGRNWWeC7GrgDwLVCVW9/haXoSbtcJeQLhp0
-        85NIxUEglTdTg6b/N0898MuOvrW1QojIf7OOyLju+Gc/TSyGNHSdn/DZn2a8W8ttxVeU2n
-        zJ5rbQuk2KD+SPcBMWvVhtfcd/oTo2EGP1p0IZsPJf8bkMaxW3SJ8C4/JEbfAg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1639919695;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=H+eLJBjyuR5qzC+EozPbCmqHBG49A4VYeh6FDJw/5Mk=;
-        b=+H4JDw2CLvwGikqY8dRDparYdFdcXC/BV+d/GT1euEy2QMisy2A7PXvdyTM35rep3a8qlg
-        zbDkcunDYjHC8lDw==
-From:   "tip-bot2 for Andrew Cooper" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
-Cc:     Andrew Cooper <andrew.cooper3@citrix.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20211216000856.4480-1-andrew.cooper3@citrix.com>
-References: <20211216000856.4480-1-andrew.cooper3@citrix.com>
+        bh=6y4s59fRDhRXZ+MFWbqd48C+ut3PapB8I0wNJafkmy8=;
+        b=Dh6A97MN4jEPXiJoa7bWXbaDTJ5cX6mQjOpJqc5c+N3fL3Kk3sgurLrHiFAZJYqWkyKvI1
+        zZ5rrsBwDX4pZf8yUFJbndIcUZ38hYOcpbNMnC7gMtMapgNZ8JVPAVGFoB8E/Py+E2xzD+
+        RBZFIsLJ8CPTxZqtJHGFm7O0p/SpzH0=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-368--UIWnGR4NfqaPTaPdt_5Vw-1; Sun, 19 Dec 2021 08:53:11 -0500
+X-MC-Unique: -UIWnGR4NfqaPTaPdt_5Vw-1
+Received: by mail-wr1-f69.google.com with SMTP id v6-20020adfa1c6000000b001a26d0c3e32so1207325wrv.14
+        for <stable@vger.kernel.org>; Sun, 19 Dec 2021 05:53:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=6y4s59fRDhRXZ+MFWbqd48C+ut3PapB8I0wNJafkmy8=;
+        b=hRDQ3jiOPFbF3iJfqtLGSoYwAjPXaOcvBQoirQ1hhC8U6sreU4cYRvJ70aSpmsvZYf
+         1bgyvv3OhPWnu4nPSi5qojjV7FoRZ/PLS1LlG5wRfhxoJ0HcphwRYbQsoi5xSImG0zKq
+         7qaABT8QUDfQNGdDkuZRIl7FN56UXx/pil2+KdH2xfASKjXbigljlp55xpte3T7lhUOi
+         i92QfRUlBUIz3+S97xrjHht1Mqu794aPZ03gjdK/fkTieg1cmo+rTsJC8XmL8YbEAAZy
+         1bcjWU1pIVmI2axEhOHVqvWa2b60PvlsOfN37dVtxFvsNOPiH6zILVQdssCHDWJjkA3e
+         rsvA==
+X-Gm-Message-State: AOAM530j8Za5TiAI+qE2TuJsd/aQ3RlooomqIzdlTveZBPkFOlPlTM2V
+        Z9SPqTFmx06RGSKefMjnFR6AvkOdLoPMJvSXBzpSQQyf3hz/jhLK+j+c5Ntz7ldFRqTIYL8TCKd
+        tvHuKEUOyVot5EnGD
+X-Received: by 2002:adf:9004:: with SMTP id h4mr9692858wrh.593.1639921990365;
+        Sun, 19 Dec 2021 05:53:10 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyypGLj1tKxFj+LSvvFpiaauxTLO+snS8pEJl5hCgc9MrMvK2mCfttd2iYEcvhftK55oUc5Fw==
+X-Received: by 2002:adf:9004:: with SMTP id h4mr9692849wrh.593.1639921990179;
+        Sun, 19 Dec 2021 05:53:10 -0800 (PST)
+Received: from [192.168.10.118] ([93.56.170.41])
+        by smtp.googlemail.com with ESMTPSA id w17sm14564116wmc.14.2021.12.19.05.53.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 19 Dec 2021 05:53:09 -0800 (PST)
+Message-ID: <54749944-d33d-8364-ad17-6297abf883f5@redhat.com>
+Date:   Sun, 19 Dec 2021 14:49:52 +0100
 MIME-Version: 1.0
-Message-ID: <163991969397.23020.2147480727226316518.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [regression] kvm: Kernel OOPS in vmx.c when starting a kvm VM
+ since v5.15.7
+Content-Language: en-US
+To:     Thorsten Leemhuis <regressions@leemhuis.info>, kvm@vger.kernel.org,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     doc@lame.org
+References: <f1ea22d3-cff8-406a-ad6a-cb8e0124a9b4@leemhuis.info>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <f1ea22d3-cff8-406a-ad6a-cb8e0124a9b4@leemhuis.info>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On 12/19/21 06:01, Thorsten Leemhuis wrote:
+> Hi, this is your Linux kernel regression tracker speaking.
+> 
+> TWIMC, I stumbled on a bug report from George Shearer about a KVM
+> problem I couldn't find any further discussions about, that's why I'm
+> forwarding it manually here.
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=215351
+> 
+> George, BTW: if reverting the change you suspect doesn't help, please
+> consider doing a bisection to find the culprit.
 
-Commit-ID:     aa1701e20a847dba6c406545dcba6a8755fa6406
-Gitweb:        https://git.kernel.org/tip/aa1701e20a847dba6c406545dcba6a8755fa6406
-Author:        Andrew Cooper <andrew.cooper3@citrix.com>
-AuthorDate:    Thu, 16 Dec 2021 00:08:56 
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Sun, 19 Dec 2021 14:09:41 +01:00
+This should be fixed by commit e90e51d5f01d.  I'll send it to 
+stable@vger.kernel.org.
 
-x86/pkey: Fix undefined behaviour with PKRU_WD_BIT
+Thanks,
 
-Both __pkru_allows_write() and arch_set_user_pkey_access() shift
-PKRU_WD_BIT (a signed constant) by up to 30 bits, hitting the
-sign bit.
+Paolo
 
-Use unsigned constants instead.
-
-Clearly pkey 15 has not been used in combination with UBSAN yet.
-
-Noticed by code inspection only.  I can't actually provoke the
-compiler into generating incorrect logic as far as this shift is
-concerned.
-
-[
-  dhansen: add stable@ tag, plus minor changelog massaging,
-
-           For anyone doing backports, these #defines were in
-	   arch/x86/include/asm/pgtable.h before 784a46618f6.
-]
-
-Fixes: 33a709b25a76 ("mm/gup, x86/mm/pkeys: Check VMAs and PTEs for protection keys")
-Signed-off-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211216000856.4480-1-andrew.cooper3@citrix.com
----
- arch/x86/include/asm/pkru.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/include/asm/pkru.h b/arch/x86/include/asm/pkru.h
-index 4cd49af..74f0a2d 100644
---- a/arch/x86/include/asm/pkru.h
-+++ b/arch/x86/include/asm/pkru.h
-@@ -4,8 +4,8 @@
- 
- #include <asm/cpufeature.h>
- 
--#define PKRU_AD_BIT 0x1
--#define PKRU_WD_BIT 0x2
-+#define PKRU_AD_BIT 0x1u
-+#define PKRU_WD_BIT 0x2u
- #define PKRU_BITS_PER_PKEY 2
- 
- #ifdef CONFIG_X86_INTEL_MEMORY_PROTECTION_KEYS
