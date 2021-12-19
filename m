@@ -2,109 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14C847A0C4
-	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 15:02:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD8347A0CB
+	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 15:04:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233239AbhLSOCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 19 Dec 2021 09:02:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45370 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231822AbhLSOCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 09:02:35 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6DBBC061574
-        for <stable@vger.kernel.org>; Sun, 19 Dec 2021 06:02:34 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id g14so27646163edb.8
-        for <stable@vger.kernel.org>; Sun, 19 Dec 2021 06:02:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=8Rn7MzjWfN2l13l2VUjM7MiiPLjH10XqIwfX7gmND9g=;
-        b=tmT2x5VLkXrLywwrkT2gY8UM8F0jdpYos6wTPRn6wD+tiwo1AVYPrDOFzAU6hkO58h
-         v9naRUU+Sl84Y69wc3kLGrbxPp6KOjEeEn9w1mhwVC0NQD2XyBp4AsmlI7JhJhB0YVHw
-         dE+cg8k+fyv/6WI9m4YzbSmfpyXOv4jsmk6HwzZQJHGcgcNR1IDNL+fZeFz6wDWg0oE8
-         L+Tpza73CJImHN9zDJEOTcqm/wSujBbuXrJmoGyrULUdNJo2Z13bo9TFLL09SLGcaTLS
-         VffZwgQ9qEkuI5heVWE6pju4rdpkcicsaBhrh1/CHa/+grTEyKCGnanzCH++O/M+dahu
-         N/uA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=8Rn7MzjWfN2l13l2VUjM7MiiPLjH10XqIwfX7gmND9g=;
-        b=rXAqxPwi5RFDCcW222A65cffPGdazc3CPWx+5z/f/12Taemp1sfNUi/Te2IkwYJE4U
-         wJmz6Fx6LKI7dR9bF2H0CKKuFTBrvAbbOhP2O1yCe7zXk5s2nncc45VBYu/+maNIJ4hw
-         JW7PfZuoarsj2yWZ5HIy0UKlR8YfKO2PO3E0dqBipJpPvmdvtE5Si9djDhsqScSrJGAK
-         mTclbg1v1xpuCukblEkNV7JM0J7yhlhd0ZdqQmkd9quRKeFDaWbLeaXIkcexm+jVgFty
-         lUcA1iiakq9+fbQw2SXT669yj+9cey5IL92tQKjA3uFCdnRTBw7Z92PfEDajdpGQ7mEf
-         IY3A==
-X-Gm-Message-State: AOAM530ct3g5WUpLdSMZ4zwMPTpWDdkbUPWZJATpHAm7Uo8BFtfnoh08
-        iXN+86I8FXgLzHx6sPeqGgLmy6nT5cWvyAf/PtpbkLsSloiARg==
-X-Google-Smtp-Source: ABdhPJxGRncr7cZAZNhqgBIxWgY7w7hv5Styt1A51kAQl7Qy1MNrtWkL1qQj7D38WlbzPbP7ue+vvBkHTPI+cJ9c5/o=
-X-Received: by 2002:a17:906:249a:: with SMTP id e26mr9520277ejb.492.1639922553118;
- Sun, 19 Dec 2021 06:02:33 -0800 (PST)
+        id S235844AbhLSOEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 19 Dec 2021 09:04:20 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:25775 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235891AbhLSOEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 19 Dec 2021 09:04:13 -0500
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-281-UDWdNUDTNgaebzpPJPcDfQ-1; Sun, 19 Dec 2021 14:04:09 +0000
+X-MC-Unique: UDWdNUDTNgaebzpPJPcDfQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.26; Sun, 19 Dec 2021 14:04:08 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.026; Sun, 19 Dec 2021 14:04:08 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Lee Jones' <lee.jones@linaro.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Vlad Yasevich" <vyasevich@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        "Marcelo Ricardo Leitner" <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        lksctp developers <linux-sctp@vger.kernel.org>,
+        "H.P. Yarroll" <piggy@acm.org>,
+        Karl Knutson <karl@athena.chicago.il.us>,
+        Jon Grimm <jgrimm@us.ibm.com>,
+        Xingang Guo <xingang.guo@intel.com>,
+        Hui Huang <hui.huang@nokia.com>,
+        Sridhar Samudrala <sri@us.ibm.com>,
+        Daisy Chang <daisyc@us.ibm.com>,
+        Ryan Layer <rmlayer@us.ibm.com>,
+        Kevin Gao <kevin.gao@intel.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2 1/2] sctp: export sctp_endpoint_{hold,put}() and return
+ incremented endpoint
+Thread-Topic: [PATCH v2 1/2] sctp: export sctp_endpoint_{hold,put}() and
+ return incremented endpoint
+Thread-Index: AQHX80yDhnx49qqwrkWmSXPA3hUXMKw2ugEAgAAGAoCAAxo9gA==
+Date:   Sun, 19 Dec 2021 14:04:08 +0000
+Message-ID: <20ea50c910654fa0abc601bbddc37eaf@AcuMS.aculab.com>
+References: <20211217134607.74983-1-lee.jones@linaro.org>
+ <1458e6e239e2493e9147fd95ec32d9fd@AcuMS.aculab.com>
+ <YbygIz4oqlTkrQgD@google.com>
+In-Reply-To: <YbygIz4oqlTkrQgD@google.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-References: <20211018112201.25424-1-noralf@tronnes.org> <CACRpkdZQSB+McOGK9HZUNAr2p+FX=6ddbY=5-sQ8difh1pEqGg@mail.gmail.com>
- <1e95e757-a0e3-a1e9-8430-3accc25d0f84@tronnes.org>
-In-Reply-To: <1e95e757-a0e3-a1e9-8430-3accc25d0f84@tronnes.org>
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Sun, 19 Dec 2021 15:02:22 +0100
-Message-ID: <CAMRc=Mdwn3=n7j1hPsadzSRegA23RTiWEabiJPWJs67UTYDuCw@mail.gmail.com>
-Subject: Re: [PATCH] gpio: dln2: Fix interrupts when replugging the device
-To:     =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>
-Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Daniel Baluta <daniel.baluta@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 19, 2021 at 1:01 AM Noralf Tr=C3=B8nnes <noralf@tronnes.org> wr=
-ote:
->
->
->
-> Den 24.10.2021 23.09, skrev Linus Walleij:
-> > On Mon, Oct 18, 2021 at 1:23 PM Noralf Tr=C3=B8nnes <noralf@tronnes.org=
-> wrote:
-> >
-> >> When replugging the device the following message shows up:
-> >>
-> >> gpio gpiochip2: (dln2): detected irqchip that is shared with multiple =
-gpiochips: please fix the driver.
-> >>
-> >> This also has the effect that interrupts won't work.
-> >> The same problem would also show up if multiple devices where plugged =
-in.
-> >>
-> >> Fix this by allocating the irq_chip data structure per instance like o=
-ther
-> >> drivers do.
-> >>
-> >> I don't know when this problem appeared, but it is present in 5.10.
-> >>
-> >> Cc: <stable@vger.kernel.org> # 5.10+
-> >> Cc: Daniel Baluta <daniel.baluta@gmail.com>
-> >> Signed-off-by: Noralf Tr=C3=B8nnes <noralf@tronnes.org>
-> >
-> > Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> >
->
-> Ping, has this been forgotten? Can't see it in -next.
->
-> Noralf.
+RnJvbTogTGVlIEpvbmVzDQo+IFNlbnQ6IDE3IERlY2VtYmVyIDIwMjEgMTQ6MzUNCj4gDQo+IE9u
+IEZyaSwgMTcgRGVjIDIwMjEsIERhdmlkIExhaWdodCB3cm90ZToNCj4gDQo+ID4gRnJvbTogTGVl
+IEpvbmVzDQo+ID4gPiBTZW50OiAxNyBEZWNlbWJlciAyMDIxIDEzOjQ2DQo+ID4gPg0KPiA+ID4g
+bmV0L3NjdHAvZGlhZy5jIGZvciBpbnN0YW5jZSBpcyBidWlsdCBpbnRvIGl0cyBvd24gc2VwYXJh
+dGUgbW9kdWxlDQo+ID4gPiAoc2N0cF9kaWFnLmtvKSBhbmQgcmVxdWlyZXMgdGhlIHVzZSBvZiBz
+Y3RwX2VuZHBvaW50X3tob2xkLHB1dH0oKSBpbg0KPiA+ID4gb3JkZXIgdG8gcHJldmVudCBhIHJl
+Y2VudGx5IGZvdW5kIHVzZS1hZnRlci1mcmVlIGlzc3VlLg0KPiA+ID4NCj4gPiA+IEluIG9yZGVy
+IHRvIHByZXZlbnQgZGF0YSBjb3JydXB0aW9uIG9mIHRoZSBwb2ludGVyIHVzZWQgdG8gdGFrZSBh
+DQo+ID4gPiByZWZlcmVuY2Ugb24gYSBzcGVjaWZpYyBlbmRwb2ludCwgYmV0d2VlbiB0aGUgdGlt
+ZSBvZiBjYWxsaW5nDQo+ID4gPiBzY3RwX2VuZHBvaW50X2hvbGQoKSBhbmQgaXQgcmV0dXJuaW5n
+LCB0aGUgQVBJIG5vdyByZXR1cm5zIGEgcG9pbnRlcg0KPiA+ID4gdG8gdGhlIGV4YWN0IGVuZHBv
+aW50IHRoYXQgd2FzIGluY3JlbWVudGVkLg0KPiA+ID4NCj4gPiA+IEZvciBleGFtcGxlLCBpbiBz
+Y3RwX3NvY2tfZHVtcCgpLCB3ZSBjb3VsZCBoYXZlIHRoZSBmb2xsb3dpbmcgaHVuazoNCj4gPiA+
+DQo+ID4gPiAJc2N0cF9lbmRwb2ludF9ob2xkKHRzcC0+YXNvYy0+ZXApOw0KPiA+ID4gCWVwID0g
+dHNwLT5hc29jLT5lcDsNCj4gPiA+IAlzayA9IGVwLT5iYXNlLnNrDQo+ID4gPiAJbG9ja19zb2Nr
+KGVwLT5iYXNlLnNrKTsNCj4gPiA+DQo+ID4gPiBJdCBpcyBwb3NzaWJsZSBmb3IgdGhpcyB0YXNr
+IHRvIGJlIHN3YXBwZWQgb3V0IGltbWVkaWF0ZWx5IGZvbGxvd2luZw0KPiA+ID4gdGhlIGNhbGwg
+aW50byBzY3RwX2VuZHBvaW50X2hvbGQoKSB0aGF0IHdvdWxkIGNoYW5nZSB0aGUgYWRkcmVzcyBv
+Zg0KPiA+ID4gdHNwLT5hc29jLT5lcCB0byBwb2ludCB0byBhIGNvbXBsZXRlbHkgZGlmZmVyZW50
+IGVuZHBvaW50LiAgVGhpcyBtZWFucw0KPiA+ID4gYSByZWZlcmVuY2UgY291bGQgYmUgdGFrZW4g
+dG8gdGhlIG9sZCBlbmRwb2ludCBhbmQgdGhlIG5ldyBvbmUgd291bGQNCj4gPiA+IGJlIHByb2Nl
+c3NlZCB3aXRob3V0IGEgcmVmZXJlbmNlIHRha2VuLCBtb3Jlb3ZlciB0aGUgbmV3IGVuZHBvaW50
+DQo+ID4gPiBjb3VsZCB0aGVuIGJlIGZyZWVkIHdoaWxzdCBzdGlsbCBwcm9jZXNzaW5nIGFzIGEg
+cmVzdWx0LCBjYXVzaW5nIGENCj4gPiA+IHVzZS1hZnRlci1mcmVlLg0KPiA+ID4NCj4gPiA+IElm
+IHdlIHJldHVybiB0aGUgZXhhY3QgcG9pbnRlciB0aGF0IHdhcyBoZWxkLCB3ZSBlbnN1cmUgdGhp
+cyB0YXNrDQo+ID4gPiBwcm9jZXNzZXMgb25seSB0aGUgZW5kcG9pbnQgd2UgaGF2ZSB0YWtlbiBh
+IHJlZmVyZW5jZSB0by4gIFRoZQ0KPiA+ID4gcmVzdWx0YW50IGh1bmsgbm93IGxvb2tzIGxpa2Ug
+dGhpczoNCj4gPiA+DQo+ID4gPiAJZXAgPSBzY3RwX2VuZHBvaW50X2hvbGQodHNwLT5hc29jLT5l
+cCk7DQo+ID4gPiAJc2sgPSBlcC0+YmFzZS5zaw0KPiA+ID4gCWxvY2tfc29jayhzayk7DQo+ID4N
+Cj4gPiBJc24ndCB0aGF0IGp1c3QgdGhlIHNhbWUgYXMgZG9pbmcgdGhpbmdzIGluIHRoZSBvdGhl
+ciBvcmRlcj8NCj4gPiAJZXAgPSB0c3AtPmFzb2MtPmVwOw0KPiA+IAlzY3RwX2VuZHBvaW50X2hv
+bGQoZXApOw0KPiANCj4gU2xlZXAgZm9yIGEgZmV3IG1pbGxpc2Vjb25kcyBiZXR3ZWVuIHRob3Nl
+IGxpbmVzIGFuZCBzZWUgd2hhdCBoYXBwZW5zLg0KPiANCj4gJ2VwJyBjb3VsZCBzdGlsbCBiZSBm
+cmVlZCBiZXR3ZWVuIHRoZSBhc3NpZ25tZW50IGFuZCB0aGUgY2FsbC4NCg0KSXQgY2FuIGFsc28g
+YmUgZnJlZWQgaGFsZiB3YXkgdGhyb3VnaCBzZXR0aW5nIHVwIHRoZSBhcmd1bWVudHMgdG8gdGhl
+IGNhbGwuDQpTbyBhbnkgY2FsbDoNCgkJeHh4KHRzcC0+YXNvYy0+ZXApOw0KaXMgb25seSByZWFs
+bHkgdmFsaWQgaWYgYm90aCB0c3AtPmFzb2MgYW5kIGFzb2MtPmVwIGFyZSBzdGFibGUuDQpTbyBp
+dCBpcyBleGFjdGx5IHRoZSBzYW1lIGFzIGRvaW5nOg0KCQllcCA9IHRzcC0+YXNvYy0+ZXA7DQoJ
+CXh4eChlcCk7DQpSZXR1cm5pbmcgdGhlIHZhbHVlIG9mIHRoZSBhcmd1bWVudCBkb2Vzbid0IGhl
+bHAgaWYgYW55IG9mIHRoZSBwb2ludGVkLXRvDQppdGVtcyBjYW4gZ2V0IGZyZWVkLg0KDQoJRGF2
+aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50
+IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTcz
+ODYgKFdhbGVzKQ0K
 
-Hi Noralf,
-
-As of commit d1d598104336075e7475d932d200b33108399225 my email address
-has changed and the relevant commit has been in mainline for a while
-now. I only by accident noticed this patch now. Please use
-scripts/get_maintainer.pl in the future.
-
-Now queued, thanks!
-
-Bart
