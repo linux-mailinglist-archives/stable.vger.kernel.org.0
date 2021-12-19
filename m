@@ -2,80 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ECB2479E7F
-	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 01:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D8B8479EE4
+	for <lists+stable@lfdr.de>; Sun, 19 Dec 2021 03:52:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229903AbhLSAB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Dec 2021 19:01:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229641AbhLSAB2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Dec 2021 19:01:28 -0500
-Received: from smtp.domeneshop.no (smtp.domeneshop.no [IPv6:2a01:5b40:0:3005::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C25C061574;
-        Sat, 18 Dec 2021 16:01:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
-        ; s=ds202112; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=BG4C7QRJ227T6gfSl2abCwK4zoPig3VkuYG7jnALxtc=; b=Y8vT0fnAiuLrYuud4qfOSXHtFH
-        Ua6IMVr9r6PsY/s2UgB6w66vP047yII1DLc8NWW+5pIjLOpJpxpQcefNqpsP4m1VS5NrAcHMAvvNk
-        T7lcB5CJnao4ms7aJlJ+c3OZ0ooM6WaapNgA/JywiXf1LoLcfgTrHvg8cDRn49EikHQU0x8hbD+pm
-        2+96AmpREzmdb4FXgYtbRVbxFAyBQjy8oulDP15KUFPeccJheJv8y9XqZhqyfrvuzPJepVIqOS7tY
-        t1kYMZcyO6htrVTyzSBcSURXIqhGP6rnfIyl0Xrs6hfaIW1j9aZ1QQzrfMCmwS9Sqko86UqMCsOI7
-        Eha7QUbQ==;
-Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:59007 helo=[192.168.10.61])
-        by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <noralf@tronnes.org>)
-        id 1myjdl-0000sb-2S; Sun, 19 Dec 2021 01:01:25 +0100
-Message-ID: <1e95e757-a0e3-a1e9-8430-3accc25d0f84@tronnes.org>
-Date:   Sun, 19 Dec 2021 01:01:23 +0100
+        id S230116AbhLSCwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Dec 2021 21:52:09 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37208 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229804AbhLSCwI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Dec 2021 21:52:08 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3353C60C36;
+        Sun, 19 Dec 2021 02:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BFE0C36AE1;
+        Sun, 19 Dec 2021 02:52:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1639882327;
+        bh=LL/DQcC2N9azPevEEwI7fD5zh/Svk3aIPF7eb5otGdQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JdrEgo3p0YIVADumT+fDaJGTfd8+FIry4DqKXny80l8ERdQk63CiOO9HChX9zznVv
+         6U2pJfCqP+p27rSg8TKHAtFs1d1PWiPK/nK8EytJuH7k+tn4Dkr+bSdTkaANq6GvtE
+         OToqqfKzx2zGqMOtQGAkxcTRLcYDPVFUJv1qFO2rTe4n/iZLkJ2co9efWg8l3ypOMC
+         8Yl7R0I5VqBdVfKYF/kOFrj0JfYciUjysekvMoYf8tfRBGCHok/f89o7v/0F+MZjsV
+         5JfqU3XTiR33Knx3j+7Lul/Fg/Gx3/Ensg0Lp6yc3HLGU3IBQPqtmVckqzO0L6Pmq8
+         zAlPsbR2V279g==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Theodore Ts'o <tytso@mit.edu>,
+        "Jason A . Donenfeld " <Jason@zx2c4.com>
+Cc:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        "Paul E . McKenney" <paulmck@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH RESEND] random: use correct memory barriers for crng_node_pool
+Date:   Sat, 18 Dec 2021 20:51:39 -0600
+Message-Id: <20211219025139.31085-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH] gpio: dln2: Fix interrupts when replugging the device
-To:     Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Daniel Baluta <daniel.baluta@gmail.com>
-References: <20211018112201.25424-1-noralf@tronnes.org>
- <CACRpkdZQSB+McOGK9HZUNAr2p+FX=6ddbY=5-sQ8difh1pEqGg@mail.gmail.com>
-From:   =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-In-Reply-To: <CACRpkdZQSB+McOGK9HZUNAr2p+FX=6ddbY=5-sQ8difh1pEqGg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Eric Biggers <ebiggers@google.com>
 
+When a CPU selects which CRNG to use, it accesses crng_node_pool without
+a memory barrier.  That's wrong, because crng_node_pool can be set by
+another CPU concurrently.  Without a memory barrier, the crng_state that
+is used might not appear to be fully initialized.
 
-Den 24.10.2021 23.09, skrev Linus Walleij:
-> On Mon, Oct 18, 2021 at 1:23 PM Noralf Trønnes <noralf@tronnes.org> wrote:
-> 
->> When replugging the device the following message shows up:
->>
->> gpio gpiochip2: (dln2): detected irqchip that is shared with multiple gpiochips: please fix the driver.
->>
->> This also has the effect that interrupts won't work.
->> The same problem would also show up if multiple devices where plugged in.
->>
->> Fix this by allocating the irq_chip data structure per instance like other
->> drivers do.
->>
->> I don't know when this problem appeared, but it is present in 5.10.
->>
->> Cc: <stable@vger.kernel.org> # 5.10+
->> Cc: Daniel Baluta <daniel.baluta@gmail.com>
->> Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-> 
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> 
+There's an explicit mb() on the write side, but it's redundant with
+cmpxchg() (or cmpxchg_release()) and does nothing to fix the read side.
 
-Ping, has this been forgotten? Can't see it in -next.
+Implement this correctly by using a cmpxchg_release() +
+smp_load_acquire() pair.
 
-Noralf.
+Note: READ_ONCE() could be used instead of smp_load_acquire(), but it is
+harder to verify that it is correct, so I'd prefer not to use it here.
+
+Fixes: 1e7f583af67b ("random: make /dev/urandom scalable for silly userspace programs")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+
+I sent this fix about a year ago
+(https://lore.kernel.org/lkml/20200916233042.51634-1-ebiggers@kernel.org/T/#u),
+and though it's a correct fix, it was derailed by a debate about whether
+it's safe to use READ_ONCE() instead of smp_load_acquire() or not.
+Therefore, the current code, which (AFAIK) everyone agrees is buggy, was
+never actually fixed.  Since random.c has a new maintainer now, I think
+it's worth sending this fix for reconsideration.
+
+ drivers/char/random.c | 42 ++++++++++++++++++++++--------------------
+ 1 file changed, 22 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 605969ed0f96..349a6f235c61 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -843,8 +843,8 @@ static void do_numa_crng_init(struct work_struct *work)
+ 		crng_initialize_secondary(crng);
+ 		pool[i] = crng;
+ 	}
+-	mb();
+-	if (cmpxchg(&crng_node_pool, NULL, pool)) {
++	/* pairs with smp_load_acquire() in select_crng() */
++	if (cmpxchg_release(&crng_node_pool, NULL, pool) != NULL) {
+ 		for_each_node(i)
+ 			kfree(pool[i]);
+ 		kfree(pool);
+@@ -857,8 +857,26 @@ static void numa_crng_init(void)
+ {
+ 	schedule_work(&numa_crng_init_work);
+ }
++
++static inline struct crng_state *select_crng(void)
++{
++	struct crng_state **pool;
++	int nid = numa_node_id();
++
++	/* pairs with cmpxchg_release() in do_numa_crng_init() */
++	pool = smp_load_acquire(&crng_node_pool);
++	if (pool && pool[nid])
++		return pool[nid];
++
++	return &primary_crng;
++}
+ #else
+ static void numa_crng_init(void) {}
++
++static inline struct crng_state *select_crng(void)
++{
++	return &primary_crng;
++}
+ #endif
+ 
+ /*
+@@ -1005,15 +1023,7 @@ static void _extract_crng(struct crng_state *crng,
+ 
+ static void extract_crng(__u8 out[CHACHA_BLOCK_SIZE])
+ {
+-	struct crng_state *crng = NULL;
+-
+-#ifdef CONFIG_NUMA
+-	if (crng_node_pool)
+-		crng = crng_node_pool[numa_node_id()];
+-	if (crng == NULL)
+-#endif
+-		crng = &primary_crng;
+-	_extract_crng(crng, out);
++	_extract_crng(select_crng(), out);
+ }
+ 
+ /*
+@@ -1042,15 +1052,7 @@ static void _crng_backtrack_protect(struct crng_state *crng,
+ 
+ static void crng_backtrack_protect(__u8 tmp[CHACHA_BLOCK_SIZE], int used)
+ {
+-	struct crng_state *crng = NULL;
+-
+-#ifdef CONFIG_NUMA
+-	if (crng_node_pool)
+-		crng = crng_node_pool[numa_node_id()];
+-	if (crng == NULL)
+-#endif
+-		crng = &primary_crng;
+-	_crng_backtrack_protect(crng, tmp, used);
++	_crng_backtrack_protect(select_crng(), tmp, used);
+ }
+ 
+ static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
+-- 
+2.34.1
+
