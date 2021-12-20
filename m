@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D5A47ACF7
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C5E47AC75
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236760AbhLTOsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:48:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38566 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236275AbhLTOqC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:46:02 -0500
+        id S235286AbhLTOn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:43:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235565AbhLTOmd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9E92C0698CC;
+        Mon, 20 Dec 2021 06:41:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77B1661165;
-        Mon, 20 Dec 2021 14:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8778AC36AE9;
-        Mon, 20 Dec 2021 14:46:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88F0DB80EF2;
+        Mon, 20 Dec 2021 14:41:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC85FC36AE8;
+        Mon, 20 Dec 2021 14:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011560;
-        bh=d+/gY9c2xA9+eLrDX51PkG3V/Y/0vFW+9FoAWStkb2E=;
+        s=korg; t=1640011299;
+        bh=5XSKQ8g7F1h8jTOBQTqezki1VD4GMuPKUpFD6aWNz8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9U2g0n1z6ww9uOIEfgzBHX8w6DPLA5543EW+SuskeBKHMN/g62aFEQ0Tx3pcAfwh
-         tyJhyyPjHg31Q7YaUFK7XgaXdn/scLa0aktsaICOSy/Ac280bFRCUOCTiLND6AWCgD
-         AtBS9pBN4MQwfOS4FrVRCpR+WmoaEaEVYbPPhNrc=
+        b=GNb78GwHyKEJZeCiwavnuMRLtw4j9pAfBDPsuGih3SZ7PsjORiDqY90jUVBUxkS7x
+         q/Zk6bMS4XmXbGy2gsVKAx6vJrqLk+KhDxFf3/HqGSJyWOpcXSObkL6i92HTqyqohj
+         SH+Ljsn7nsEkaDfkVmwtyyD3rD1n9vFGH+wnJUYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baowen Zheng <baowen.zheng@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Syzbot <syzbot+1ac0994a0a0c55151121@syzkaller.appspotmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/71] flow_offload: return EOPNOTSUPP for the unsupported mpls action type
+Subject: [PATCH 4.19 28/56] net/packet: rx_owner_map depends on pg_vec
 Date:   Mon, 20 Dec 2021 15:34:21 +0100
-Message-Id: <20211220143026.765103269@linuxfoundation.org>
+Message-Id: <20211220143024.372268312@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +51,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baowen Zheng <baowen.zheng@corigine.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 166b6a46b78bf8b9559a6620c3032f9fe492e082 ]
+[ Upstream commit ec6af094ea28f0f2dda1a6a33b14cd57e36a9755 ]
 
-We need to return EOPNOTSUPP for the unsupported mpls action type when
-setup the flow action.
+Packet sockets may switch ring versions. Avoid misinterpreting state
+between versions, whose fields share a union. rx_owner_map is only
+allocated with a packet ring (pg_vec) and both are swapped together.
+If pg_vec is NULL, meaning no packet ring was allocated, then neither
+was rx_owner_map. And the field may be old state from a tpacket_v3.
 
-In the original implement, we will return 0 for the unsupported mpls
-action type, actually we do not setup it and the following actions
-to the flow action entry.
-
-Fixes: 9838b20a7fb2 ("net: sched: take rtnl lock in tc_setup_flow_action()")
-Signed-off-by: Baowen Zheng <baowen.zheng@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 61fad6816fc1 ("net/packet: tpacket_rcv: avoid a producer race condition")
+Reported-by: Syzbot <syzbot+1ac0994a0a0c55151121@syzkaller.appspotmail.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20211215143937.106178-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_api.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/packet/af_packet.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 61aa63cc170b4..a4c61205462ac 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -3562,6 +3562,7 @@ int tc_setup_flow_action(struct flow_action *flow_action,
- 				entry->mpls_mangle.ttl = tcf_mpls_ttl(act);
- 				break;
- 			default:
-+				err = -EOPNOTSUPP;
- 				goto err_out_locked;
- 			}
- 		} else if (is_tcf_skbedit_ptype(act)) {
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index 8d9005019ef78..1309161032d50 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -4439,9 +4439,10 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
+ 	}
+ 
+ out_free_pg_vec:
+-	bitmap_free(rx_owner_map);
+-	if (pg_vec)
++	if (pg_vec) {
++		bitmap_free(rx_owner_map);
+ 		free_pg_vec(pg_vec, order, req->tp_block_nr);
++	}
+ out:
+ 	return err;
+ }
 -- 
 2.33.0
 
