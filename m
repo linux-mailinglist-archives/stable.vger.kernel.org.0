@@ -2,128 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5A8847A864
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 12:08:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 077DA47A894
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 12:26:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230224AbhLTLIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 06:08:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
+        id S231769AbhLTL0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 06:26:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230159AbhLTLIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 06:08:31 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE673C061574
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 03:08:30 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id z9-20020a17090a7b8900b001b13558eadaso10844196pjc.4
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 03:08:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=UvA0VwvF/h6uXpoj8ief9LEDTmC8hm9BbvN603/cueo=;
-        b=A/M7yEHVZsn1HDUXaGnTDI2/a9BlBjNyJNP0UAmLoc+fj6kgsKXmnDFoZ1HtwxFJ71
-         fS1EtkChYq9P7Lai4lAyhFqyVQjAG/iGoTHl0sGNL2RxPriJUs0Xx8EHYfW9OVaYwwqB
-         fbIKM5mH6ByO/ctXB0uyLZyEiL+yJG5t1HPOnZd/Dn+6agHK76t8LwhmkF08AaUCURZc
-         8TqVl5nizuZBrEFnvGLczdC1Rr51RzvQSs2rHx03enKjH/KyeTjwtFNli1seTdcMa9zj
-         yoekKOJL/tml14JLhYL5trbqivv2ZU4zQ5JJxlZnUdjcIs8Z/wKJwajtgpCR2hrBeAPt
-         siHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=UvA0VwvF/h6uXpoj8ief9LEDTmC8hm9BbvN603/cueo=;
-        b=6HKGsAU0QYhMXtdI2FZqJe/ketqdpkh41MBBXMQj+YsUV7evnZH+0RioqqHhU4/zgL
-         DTB3SOhn2TG9+ghdNoJxX6LQrDPXEZy9Hjl+dMT+yUo9tsiSuunOvZTWVXrgmUNTkA1b
-         vBlkFvPGoDFghDApMCMgiI1/6kJd+oBumJUTFHnjNxQV1+yWl3APz8HnZoh2bbLZmO5M
-         iJaQmNUy3GNdMqQhxOdVCksTm+5W0f/90160eaBcm9zX+Fkr0yPCe1LTRIzlTLUowZwb
-         T4TjE03bcGQB3GKQC9aJcBFbxDTyXyNFhYu+SCaLkb+X0VCiEnlZ5PpCz+tX45X3jojR
-         EUEQ==
-X-Gm-Message-State: AOAM533ibFsr+AWATxxB6+J0SkPkUvr9uQHnkFXmzFd1MnFqEdAl6vK7
-        LPf0MM/T3NomzmGEnBll5wc5KYzAKuevyWTH
-X-Google-Smtp-Source: ABdhPJzIt6ip9aRLE+txSwEUQKFKX+Z1cnAqSZ+hn3SCzgNWuGTl9gKMXft9A0O8li+42twQmvScLw==
-X-Received: by 2002:a17:902:ed85:b0:148:adf6:cbe1 with SMTP id e5-20020a170902ed8500b00148adf6cbe1mr15842724plj.170.1639998510307;
-        Mon, 20 Dec 2021 03:08:30 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e15sm10084282pga.53.2021.12.20.03.08.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Dec 2021 03:08:30 -0800 (PST)
-Message-ID: <61c0642e.1c69fb81.e5c0.b713@mx.google.com>
-Date:   Mon, 20 Dec 2021 03:08:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230469AbhLTL0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 06:26:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56ACDC061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 03:26:17 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53D51B80E28
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 11:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5134C36AE7;
+        Mon, 20 Dec 2021 11:26:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639999574;
+        bh=JUxvi/D1Pyh02FlEdp1vCY5nGSCl3O3HMLbtfqw/C94=;
+        h=Subject:To:Cc:From:Date:From;
+        b=rVcPYEkfE7wtlq9v+oDza1DCNzh2UnRFMrfBFuYxUARXbmppaO3xP0qXAHShrCeFC
+         HGzABw+5IBuoXKJ8Ymwq35lNIi2pYznh6rnJzINPDZp8AgUcA9/sV0b9CSzgJlhmF4
+         JMddF1Gbm4oc2RolNJTr19kNL6B9zpXG4J85nEFw=
+Subject: FAILED: patch "[PATCH] media: mxl111sf: change mutex_init() location" failed to apply to 4.4-stable tree
+To:     paskripkin@gmail.com, mchehab+huawei@kernel.org, sean@mess.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 20 Dec 2021 12:26:11 +0100
+Message-ID: <1639999571101178@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.10-115-g72f2e86659b7
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 199 runs,
- 1 regressions (v5.15.10-115-g72f2e86659b7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 199 runs, 1 regressions (v5.15.10-115-g72f2e=
-86659b7)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-     | regressions
--------------------------+--------+---------------+----------+-------------=
------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig | 1          =
+thanks,
 
+greg k-h
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.10-115-g72f2e86659b7/plan/baseline/
+------------------ original commit in Linus's tree ------------------
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.10-115-g72f2e86659b7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      72f2e86659b77a1de93b76f0ca12780dd39194ff =
+From 44870a9e7a3c24acbb3f888b2a7cc22c9bdf7e7f Mon Sep 17 00:00:00 2001
+From: Pavel Skripkin <paskripkin@gmail.com>
+Date: Thu, 19 Aug 2021 12:42:21 +0200
+Subject: [PATCH] media: mxl111sf: change mutex_init() location
 
+Syzbot reported, that mxl111sf_ctrl_msg() uses uninitialized
+mutex. The problem was in wrong mutex_init() location.
 
+Previous mutex_init(&state->msg_lock) call was in ->init() function, but
+dvb_usbv2_init() has this order of calls:
 
-Test Regressions
----------------- =
+	dvb_usbv2_init()
+	  dvb_usbv2_adapter_init()
+	    dvb_usbv2_adapter_frontend_init()
+	      props->frontend_attach()
 
+	  props->init()
 
+Since mxl111sf_* devices call mxl111sf_ctrl_msg() in ->frontend_attach()
+internally we need to initialize state->msg_lock before
+frontend_attach(). To achieve it, ->probe() call added to all mxl111sf_*
+devices, which will simply initiaize mutex.
 
-platform                 | arch   | lab           | compiler | defconfig   =
-     | regressions
--------------------------+--------+---------------+----------+-------------=
------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig | 1          =
+Reported-and-tested-by: syzbot+5ca0bf339f13c4243001@syzkaller.appspotmail.com
 
+Fixes: 8572211842af ("[media] mxl111sf: convert to new DVB USB")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-  Details:     https://kernelci.org/test/plan/id/61c02b8de97f4eed45397143
+diff --git a/drivers/media/usb/dvb-usb-v2/mxl111sf.c b/drivers/media/usb/dvb-usb-v2/mxl111sf.c
+index 7865fa0a8295..cd5861a30b6f 100644
+--- a/drivers/media/usb/dvb-usb-v2/mxl111sf.c
++++ b/drivers/media/usb/dvb-usb-v2/mxl111sf.c
+@@ -931,8 +931,6 @@ static int mxl111sf_init(struct dvb_usb_device *d)
+ 		  .len = sizeof(eeprom), .buf = eeprom },
+ 	};
+ 
+-	mutex_init(&state->msg_lock);
+-
+ 	ret = get_chip_info(state);
+ 	if (mxl_fail(ret))
+ 		pr_err("failed to get chip info during probe");
+@@ -1074,6 +1072,14 @@ static int mxl111sf_get_stream_config_dvbt(struct dvb_frontend *fe,
+ 	return 0;
+ }
+ 
++static int mxl111sf_probe(struct dvb_usb_device *dev)
++{
++	struct mxl111sf_state *state = d_to_priv(dev);
++
++	mutex_init(&state->msg_lock);
++	return 0;
++}
++
+ static struct dvb_usb_device_properties mxl111sf_props_dvbt = {
+ 	.driver_name = KBUILD_MODNAME,
+ 	.owner = THIS_MODULE,
+@@ -1083,6 +1089,7 @@ static struct dvb_usb_device_properties mxl111sf_props_dvbt = {
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_dvbt,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1124,6 +1131,7 @@ static struct dvb_usb_device_properties mxl111sf_props_atsc = {
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_atsc,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1165,6 +1173,7 @@ static struct dvb_usb_device_properties mxl111sf_props_mh = {
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_mh,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1233,6 +1242,7 @@ static struct dvb_usb_device_properties mxl111sf_props_atsc_mh = {
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_atsc_mh,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1311,6 +1321,7 @@ static struct dvb_usb_device_properties mxl111sf_props_mercury = {
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_mercury,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1381,6 +1392,7 @@ static struct dvb_usb_device_properties mxl111sf_props_mercury_mh = {
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_mercury_mh,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-115-g72f2e86659b7/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-min=
-nowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-115-g72f2e86659b7/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-min=
-nowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61c02b8de97f4eed45397=
-144
-        failing since 2 days (last pass: v5.15.8-42-gadd3d697af60, first fa=
-il: v5.15.8-42-g0a07fadfda6d) =
-
- =20
