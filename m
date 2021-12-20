@@ -2,97 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE62E47AFA5
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ABC247AF14
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236927AbhLTPQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:16:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39726 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237068AbhLTPOb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:14:31 -0500
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379EFC0D940C
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 06:57:40 -0800 (PST)
-Received: by mail-ed1-x52a.google.com with SMTP id e3so39456879edu.4
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 06:57:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HUHmWuXX8VlTF9hpA1y1c+iXS8fi7L43NGXx9Hiegjg=;
-        b=dvs02sSsAlxhiB6e0PVeHzVhBcEy2reW7+Wj9pgM3BKiZ/Gjqf8TFrL6XaVgX4k2HS
-         ap3rX8JYih7erDXKhcGrmWwesnfbgjInwgVz6xHzv80g88dKY98/ke7o2GkeXbFvhLuG
-         XZp3zYy0h/alewh36FJK29g0IxhZsEU8nsl+vCEP23gL/tf03swDjvG7KrM/ZyLLomjz
-         Tw99P2+OhpdT3ADZD3wwlo+0ppbE7S1tqHD1tglcdmSivbKrKQZC8LN748Q9cfgLwc8h
-         cyb+Y6c2gBfmq+eS/SHjTliQCRXg5SMEqfVqUtHaCXQVaIHhtA4UrJScca/BLpyfcprj
-         wwQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HUHmWuXX8VlTF9hpA1y1c+iXS8fi7L43NGXx9Hiegjg=;
-        b=BGiL2cs4JOLqackoW77LPtpsXL7jLfAEejGjx1I9GiY3Iiai1gyhIOofk/DDsLLtE+
-         CVSksXrka4vWcG9Mzx1mqxaYAobUckL1H1mPvC07Mw+2MD6bKGF/n4GUe7lhvs7/7OjI
-         kw0bwtefeCXfdinjCO4rfZZK0GUsd6tvw8jJFiGDGXGM2RTMEUH0kJqzMv0icKWW60Sk
-         Uv+Er/8aYlKqX9Xmri3LFq2cp64wZksdbN+ERCT31JmaZxxBjxGXC96lEsKlfOcQrMQx
-         e20uoLHc+68iQSkqMX6/AVQ6sMgJiICGdFbqRU8Sc9p2ev6/02KSpGo3kH8UMiPWT5xK
-         qesQ==
-X-Gm-Message-State: AOAM531qTV9uDBh6oEqHvCkzJGES23VLNxcDg9m63sNd1tyMalfosDNd
-        Z489p2XRwjsUsyliRqYY1nl0eKm7cjoNOuYC1voz2w==
-X-Google-Smtp-Source: ABdhPJz9B8jdW71VfZkn6ik656/P3HPcergQlD1ReF7ru9atjKHTO6NZEt3lypROwqtqHQM4b1hb7fZyG+IO7ljSSQw=
-X-Received: by 2002:a17:907:6289:: with SMTP id nd9mr13119600ejc.101.1640012258769;
- Mon, 20 Dec 2021 06:57:38 -0800 (PST)
+        id S238368AbhLTPI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:08:56 -0500
+Received: from mout.gmx.net ([212.227.17.22]:49909 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239460AbhLTPHH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Dec 2021 10:07:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1640012819;
+        bh=ExqcfdSeorMvGLnSOWloYS8Zi49Z7vZRjhyfXFGBUvQ=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=ki6ZglJkBXGNDhH1DL2MepnpTq1ZldsmvUhJvaWo4tqABiQhBCYT7V96Xy1gwhLnE
+         lS2fIdP95sff+ES3r/Nn13QVihXe7AdOr/S0uM2mMZls2ql5Weok6Jgq3Lf58j9ki2
+         xk1WZmxMs2isE9foxsMP0CwSkg4VIxLdgPDTs2vo=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from Venus.fritz.box ([46.223.119.124]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MY68T-1myZiw1Xzx-00YRJE; Mon, 20
+ Dec 2021 16:06:59 +0100
+From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
+To:     peterhuewe@gmx.de, jarkko@kernel.org, jgg@ziepe.ca
+Cc:     p.rosenberger@kunbus.com, linux-integrity@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>, stable@vger.kernel.org
+Subject: [PATCH v2] tpm: fix potential NULL pointer access in tpm_del_char_device
+Date:   Mon, 20 Dec 2021 16:06:35 +0100
+Message-Id: <20211220150635.8545-1-LinoSanfilippo@gmx.de>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20211217153555.9413-1-marcelo.jimenez@gmail.com> <a7fbb773-eb85-ccc7-8bfb-0bfab062ffe1@leemhuis.info>
-In-Reply-To: <a7fbb773-eb85-ccc7-8bfb-0bfab062ffe1@leemhuis.info>
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Mon, 20 Dec 2021 15:57:28 +0100
-Message-ID: <CAMRc=MfAxzmAfATV2NwfTgpfmyxFx8bgTbaAfWxSi9zmBecPng@mail.gmail.com>
-Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-To:     Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Edmond Chung <edmondchung@google.com>,
-        Andrew Chant <achant@google.com>,
-        Will McVicker <willmcvicker@google.com>,
-        Sergio Tanzilli <tanzilli@acmesystems.it>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+X-Provags-ID: V03:K1:VSpIHCjSucsOxWy7hG0cnMrBZMjWeQPXOCuFT7kbNWhNYgw+i0X
+ +CaUAC6eG6MOYpZO2RTbi6VG04Qs0myIADbBdMpcyIVMp7DyhCg/lkKgWv/Y6kdCbNcJRNy
+ 6GXdiutVvQapWqR47twaTVx6tudTQfhH6+3FQ7rLmrNlkHwF6FxyRCz9HtGdJX8OiMQ+d1/
+ 1FHXhg8EOqzfZiJR3TCng==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:TctFUmfyLJY=:eLT2w9B4HdIdxDpih17snI
+ Kw/327TQhPfCfUDPlYBo/sNKjCXvpBrTeU7Hf/qFy7zqBloKfsIOmdciwkjbODARVvXwoFNd8
+ T64ICHmyPYJuBWwohgZd0BEZt/gnVQxbESWZtTYzYD2rsaWKtUtZFYDBWVMFyGzllbhOTkeYE
+ JXZq0JB7OU2BnQT5BZPHhnXX/8LbPesny6KqSFXheld463Wc5Us8HRDjlvsfwqF9D8iU8f/Am
+ y8OvKdEGW6xqgR2pJJ2lwnYZvCxxCqLiaVm6Q04k1Z4gUFwqY2sPoSj67Z0q8i1IKHUumuZhw
+ 2bJ5sdbr3S67WGxblzo7KMen85AuH1tCuSFfSS/lxLWPSBkqYla1vpSBnux82ifU94mSuEbsD
+ RWc1AdkI0QO523OcyMTFiEkoHIqEpJpox4mL5okmPDRi8isKp2PPYG01ZyWXUeqEcjefI0Tob
+ 7r8h3vZ96Q7e0a8B/fAPU8MWwtnF2+ZcBo/NY7mLoobioizud9QigSwhboRdt4B4nDyqJoOLD
+ rE3YwNVNrUGTEI9jH1ylJllYplhhSHX7lH89XhoVCyer+ArebEUSgm0YIS6B0OYwc9WvLu0Pf
+ hOTd/0UgapWrniar/FRbxtsJ66p+DgATq/peUMo6JB4pfnjust4IF73N0KSWJBf8XNxBXZZuf
+ aoBFtmFSCnxQqi81pYtJrIRn6BrUe8Xl1NU+t7ls21BkLXS1d7XJpkkjF6wsjnuPxT4i22V08
+ UmQVywGtvvA6xbPdNTmeSHmpzB6uBINzHUoQfp0XontgFpZItmgy1My4pwoWqwB9iIKiByWa3
+ XWfvvrdbajupHAQv5fJir2VuR5uEtyTqH1hprpTPE1rjA1vmQQI3AhxN4GJPtNdrIVC6xE7v6
+ NxckYr3pRAFNJw9wi2WNI6hu3sCvmKrjRVsSgd+m2GkhMvS5Eh9XHy4rsHzcCDw1exAPF18i8
+ xDoGeASVeOGWN0d3lsAMuu9RBhnIF7NmMS86Q8aL/m9Zm/YCsNkGRxeNRLhNIO7qP3blQ6Rjb
+ 2Mo105fdkYslT6nUdhU36CPg5zZvXPEFK+5q7muIABnwoxPbiHhNI6fz0hy+IR2i1euZT/iNT
+ fbZkdEdrCceDTo=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Dec 18, 2021 at 7:28 AM Thorsten Leemhuis
-<regressions@leemhuis.info> wrote:
->
-> [TLDR: I'm adding this regression to regzbot, the Linux kernel
-> regression tracking bot; most text you find below is compiled from a few
-> templates paragraphs some of you might have seen already.]
->
-> On 17.12.21 16:35, Marcelo Roberto Jimenez wrote:
-> > Some GPIO lines have stopped working after the patch
-> > commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
-> >
-> > And this has supposedly been fixed in the following patches
-> > commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
-> > commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
->
-> There seems to be a backstory here. Are there any entries and bug
-> trackers or earlier discussions everyone that looks into this should be
-> aware of?
->
-
-Agreed with Thorsten. I'd like to first try to determine what's wrong
-before reverting those, as they are correct in theory but maybe the
-implementation missed something.
-
-Have you tried tracing the execution on your platform in order to see
-what the driver is doing?
-
-Bart
+U29tZSBTUEkgY29udHJvbGxlciBkcml2ZXJzIHVucmVnaXN0ZXIgdGhlIGNvbnRyb2xsZXIgaW4g
+dGhlIHNodXRkb3duCmhhbmRsZXIgKGUuZy4gQkNNMjgzNSkuIElmIHN1Y2ggYSBjb250cm9sbGVy
+IGlzIHVzZWQgd2l0aCBhIFRQTSAyIHNsYXZlCmNoaXAtPm9wcyBtYXkgYmUgYWNjZXNzZWQgd2hl
+biBpdCBpcyBhbHJlYWR5IE5VTEw6CgpBdCBzeXN0ZW0gc2h1dGRvd24gdGhlIHByZS1zaHV0ZG93
+biBoYW5kbGVyIHRwbV9jbGFzc19zaHV0ZG93bigpIHNodXRzIGRvd24KVFBNIDIgYW5kIHNldHMg
+Y2hpcC0+b3BzIHRvIE5VTEwuIFRoZW4gYXQgU1BJIGNvbnRyb2xsZXIgdW5yZWdpc3RyYXRpb24K
+dHBtX3Rpc19zcGlfcmVtb3ZlKCkgaXMgY2FsbGVkIGFuZCBldmVudHVhbGx5IGNhbGxzIHRwbV9k
+ZWxfY2hhcl9kZXZpY2UoKQp3aGljaCB0cmllcyB0byBzaHV0IGRvd24gVFBNIDIgYWdhaW4uIFRo
+ZXJlYnkgaXQgYWNjZXNzZXMgY2hpcC0+b3BzIGFnYWluOgoodHBtX2RlbF9jaGFyX2RldmljZSBj
+YWxscyB0cG1fY2hpcF9zdGFydCB3aGljaCBjYWxscyB0cG1fY2xrX2VuYWJsZSB3aGljaApjYWxs
+cyBjaGlwLT5vcHMtPmNsa19lbmFibGUpLgoKQXZvaWQgdGhlIE5VTEwgcG9pbnRlciBhY2Nlc3Mg
+YnkgdGVzdGluZyBpZiBjaGlwLT5vcHMgaXMgdmFsaWQgYW5kIHNraXBwaW5nCnRoZSBUUE0gMiBz
+aHV0ZG93biBwcm9jZWR1cmUgaW4gY2FzZSBpdCBpcyBOVUxMLgoKRml4ZXM6IGRjYmVhYjE5NDY0
+NTQgKCJ0cG06IGZpeCBjcmFzaCBpbiB0cG1fdGlzIGRlaW5pdGlhbGl6YXRpb24iKQpDYzogc3Rh
+YmxlQHZnZXIua2VybmVsLm9yZwpTaWduZWQtb2ZmLWJ5OiBMaW5vIFNhbmZpbGlwcG8gPExpbm9T
+YW5maWxpcHBvQGdteC5kZT4KLS0tCgpDaGFuZ2VzIHRvIHYyOgotIHJlcGhyYXNlZCB0aGUgY29t
+bWl0IG1lc3NhZ2UgdG8gY2xhcmlmeSB0aGUgY2lyY3Vtc3RhbmNlcyB1bmRlciB3aGljaAogIHRo
+aXMgYnVnIHRyaWdnZXJzIChhcyByZXF1ZXN0ZWQgYnkgSmFya2tvKQoKCkkgd2FzIGFibGUgdG8g
+cmVwcm9kdWNlIHRoaXMgaXNzdWUgd2l0aCBhIFNMQiA5NjcwIFRQTSBjaGlwIGNvbnRyb2xsZWQg
+YnkgCmEgQkNNMjgzNSBTUEkgY29udHJvbGxlci4gCgpUaGUgYXBwcm9hY2ggdG8gZml4IHRoaXMg
+aXNzdWUgaW4gdGhlIEJDTTI4MzUgZHJpdmVyIHdhcyByZWplY3RlZCBhZnRlciBhCmRpc2N1c3Np
+b24gb24gdGhlIG1haWxpbmcgbGlzdDoKCmh0dHBzOi8vbWFyYy5pbmZvLz9sPWxpbnV4LWludGVn
+cml0eSZtPTE2MzI4NTkwNjcyNTM2NyZ3PTIKClRoZSByZWFzb24gZm9yIHRoZSByZWplY3Rpb24g
+d2FzIHRoZSByZWFsaXphdGlvbiwgdGhhdCB0aGlzIGlzc3VlIHNob3VsZCByYXRoZXIKYmUgZml4
+ZWQgaW4gdGhlIFRQTSBjb2RlOgoKaHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtc3BpJm09MTYz
+MzExMDg3NDIzMjcxJnc9MgoKU28gdGhpcyBpcyB0aGUgcmV3b3JrZWQgdmVyc2lvbiBvZiBhIHBh
+dGNoIHRoYXQgaXMgc3VwcG9zZWQgdG8gZG8gdGhhdC4KCgogZHJpdmVycy9jaGFyL3RwbS90cG0t
+Y2hpcC5jIHwgMTYgKysrKysrKysrKystLS0tLQogMSBmaWxlIGNoYW5nZWQsIDExIGluc2VydGlv
+bnMoKyksIDUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFyL3RwbS90cG0t
+Y2hpcC5jIGIvZHJpdmVycy9jaGFyL3RwbS90cG0tY2hpcC5jCmluZGV4IGRkYWVjZWI3ZTEwOS4u
+Nzk2MGRhNDkwZTcyIDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdHBtL3RwbS1jaGlwLmMKKysr
+IGIvZHJpdmVycy9jaGFyL3RwbS90cG0tY2hpcC5jCkBAIC00NzQsMTMgKzQ3NCwxOSBAQCBzdGF0
+aWMgdm9pZCB0cG1fZGVsX2NoYXJfZGV2aWNlKHN0cnVjdCB0cG1fY2hpcCAqY2hpcCkKIAogCS8q
+IE1ha2UgdGhlIGRyaXZlciB1bmNhbGxhYmxlLiAqLwogCWRvd25fd3JpdGUoJmNoaXAtPm9wc19z
+ZW0pOwotCWlmIChjaGlwLT5mbGFncyAmIFRQTV9DSElQX0ZMQUdfVFBNMikgewotCQlpZiAoIXRw
+bV9jaGlwX3N0YXJ0KGNoaXApKSB7Ci0JCQl0cG0yX3NodXRkb3duKGNoaXAsIFRQTTJfU1VfQ0xF
+QVIpOwotCQkJdHBtX2NoaXBfc3RvcChjaGlwKTsKKwkvKiBDaGVjayBpZiBjaGlwLT5vcHMgaXMg
+c3RpbGwgdmFsaWQ6IEluIGNhc2UgdGhhdCB0aGUgY29udHJvbGxlcgorCSAqIGRyaXZlcnMgc2h1
+dGRvd24gaGFuZGxlciB1bnJlZ2lzdGVycyB0aGUgY29udHJvbGxlciBpbiBpdHMKKwkgKiBzaHV0
+ZG93biBoYW5kbGVyIHdlIGFyZSBjYWxsZWQgdHdpY2UgYW5kIGNoaXAtPm9wcyB0byBOVUxMLgor
+CSAqLworCWlmIChjaGlwLT5vcHMpIHsKKwkJaWYgKGNoaXAtPmZsYWdzICYgVFBNX0NISVBfRkxB
+R19UUE0yKSB7CisJCQlpZiAoIXRwbV9jaGlwX3N0YXJ0KGNoaXApKSB7CisJCQkJdHBtMl9zaHV0
+ZG93bihjaGlwLCBUUE0yX1NVX0NMRUFSKTsKKwkJCQl0cG1fY2hpcF9zdG9wKGNoaXApOworCQkJ
+fQogCQl9CisJCWNoaXAtPm9wcyA9IE5VTEw7CiAJfQotCWNoaXAtPm9wcyA9IE5VTEw7CiAJdXBf
+d3JpdGUoJmNoaXAtPm9wc19zZW0pOwogfQogCgpiYXNlLWNvbW1pdDogYTc5MDRhNTM4OTMzYzUy
+NTA5NmNhMmNjZGUxZTYwZDBlZTYyYzA4ZQotLSAKMi4zNC4xCgo=
