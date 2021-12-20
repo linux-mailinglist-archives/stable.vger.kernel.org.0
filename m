@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1D9A47AD25
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE51047AC0A
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235958AbhLTOuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:50:40 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39986 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234908AbhLTOrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:47:33 -0500
+        id S235282AbhLTOlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:41:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60180 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234648AbhLTOju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC1F7C0613B1;
+        Mon, 20 Dec 2021 06:39:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D8946119C;
-        Mon, 20 Dec 2021 14:47:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1821EC36AE7;
-        Mon, 20 Dec 2021 14:47:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6410BCE111A;
+        Mon, 20 Dec 2021 14:39:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32A63C36AE9;
+        Mon, 20 Dec 2021 14:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011652;
-        bh=of4g4xbmSWLmDJmQfaSf6INV1XEbOTKozP5KPSB2Owg=;
+        s=korg; t=1640011187;
+        bh=IOp27fWHEyFabm28nK96fSbGm+oP2n3zr0PYA2P6JFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8C88NntobkvoA4hQcTwm19moI2Bz9someyCR24CkP4y8olXayYDrBGsPkf25zw+1
-         szYV1R3Jt62QIe14GPDTrokpBxuYUUtRrYjIpiKDzev/WTrc0GHR48battGd7hsgKj
-         Cf15y4N2Rd3bu0GgtVM9HwagQWqbfWn5vLLr/bQw=
+        b=bbzTP649PbuUlU5l2Dk4/NkZnAntdzoF0LNNl1NBrPmNnuVzP6usAVsvOCvuOYSNa
+         NuAh0BKypFG4hOBUjlYdrMxqB9Eoc4aO4o1C8RMsgd2L9M1aZLpWVWomLVqBAFcV84
+         lDQaQ+Egs97d/OTxNznYl+4lBjolqKidoO3lt3hE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Xiubo Li <xiubli@redhat.com>, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/99] ceph: initialize pathlen variable in reconnect_caps_cb
-Date:   Mon, 20 Dec 2021 15:33:59 +0100
-Message-Id: <20211220143030.227569446@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        John Keeping <john@metanate.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/45] i2c: rk3x: Handle a spurious start completion interrupt flag
+Date:   Mon, 20 Dec 2021 15:34:00 +0100
+Message-Id: <20211220143022.446190196@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Ondrej Jirman <megous@megous.com>
 
-[ Upstream commit ee2a095d3b24f300a5e11944d208801e928f108c ]
+[ Upstream commit 02fe0fbd8a21e183687925c3a266ae27dda9840f ]
 
-The smatch static checker warned about an uninitialized symbol usage in
-this function, in the case where ceph_mdsc_build_path returns an error.
+In a typical read transfer, start completion flag is being set after
+read finishes (notice ipd bit 4 being set):
 
-It turns out that that case is harmless, but it just looks sketchy.
-Initialize the variable at declaration time, and remove the unneeded
-setting of it later.
+trasnfer poll=0
+i2c start
+rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
+i2c read
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
+i2c stop
+rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 33
 
-Fixes: a33f6432b3a6 ("ceph: encode inodes' parent/d_name in cap reconnect message")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+This causes I2C transfer being aborted in polled mode from a stop completion
+handler:
+
+trasnfer poll=1
+i2c start
+rk3x-i2c fdd40000.i2c: IRQ: state 1, ipd: 10
+i2c read
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 0
+rk3x-i2c fdd40000.i2c: IRQ: state 2, ipd: 1b
+i2c stop
+rk3x-i2c fdd40000.i2c: IRQ: state 4, ipd: 13
+i2c stop
+rk3x-i2c fdd40000.i2c: unexpected irq in STOP: 0x10
+
+Clearing the START flag after read fixes the issue without any obvious
+side effects.
+
+This issue was dicovered on RK3566 when adding support for powering
+off the RK817 PMIC.
+
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-rk3x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index 76e347a8cf088..981a915906314 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -3696,7 +3696,7 @@ static int reconnect_caps_cb(struct inode *inode, struct ceph_cap *cap,
- 	struct ceph_pagelist *pagelist = recon_state->pagelist;
- 	struct dentry *dentry;
- 	char *path;
--	int pathlen, err;
-+	int pathlen = 0, err;
- 	u64 pathbase;
- 	u64 snap_follows;
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index fe234578380ac..548089aa9aba5 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -424,8 +424,8 @@ static void rk3x_i2c_handle_read(struct rk3x_i2c *i2c, unsigned int ipd)
+ 	if (!(ipd & REG_INT_MBRF))
+ 		return;
  
-@@ -3716,7 +3716,6 @@ static int reconnect_caps_cb(struct inode *inode, struct ceph_cap *cap,
- 		}
- 	} else {
- 		path = NULL;
--		pathlen = 0;
- 		pathbase = 0;
- 	}
+-	/* ack interrupt */
+-	i2c_writel(i2c, REG_INT_MBRF, REG_IPD);
++	/* ack interrupt (read also produces a spurious START flag, clear it too) */
++	i2c_writel(i2c, REG_INT_MBRF | REG_INT_START, REG_IPD);
  
+ 	/* Can only handle a maximum of 32 bytes at a time */
+ 	if (len > 32)
 -- 
 2.33.0
 
