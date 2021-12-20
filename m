@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F24F147AD85
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34D7D47AE81
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237595AbhLTOwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:52:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34154 "EHLO
+        id S239712AbhLTPBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:01:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238359AbhLTOu1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:27 -0500
+        with ESMTP id S239748AbhLTO6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2625C08EACD;
-        Mon, 20 Dec 2021 06:46:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FED2C06137C;
+        Mon, 20 Dec 2021 06:50:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B43AEB80EB3;
-        Mon, 20 Dec 2021 14:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D90C36AE9;
-        Mon, 20 Dec 2021 14:46:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C16B7B80EE3;
+        Mon, 20 Dec 2021 14:50:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3137C36AE8;
+        Mon, 20 Dec 2021 14:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011591;
-        bh=xcvZNtq5DQJ1q7ae4zzeHJ+vdr7hWYLhtFeJ7q+YubA=;
+        s=korg; t=1640011836;
+        bh=3uYhQb3bWY54x9fRpOlW0W4fux/f2ZgTlxdNGkLbGnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wt8bA/1RrbU8O9AkB57eAETwwUfV65UyCuHqgf0PcmhX6Ttz9nGW1HkNiRQG4NOIk
-         Cn8N5uxC3yOj85fujd75LZ5dpbWqgeB48/q2Mn1BsIHjj8qgenx8SBH9ZadyAUxlRu
-         X09u8S5KYSUnlPmSRLTzU4mA/ldVqzFfmFqiMnTY=
+        b=LHnc1d4eQVLhCoriIEMfGPwT3CBfjdUfS8YLjAZzOVBVSz0SRKmWo6tmpg1bgemI5
+         esSsb312Km0uCu30oqqP2AZHVHERX/5/4S1r/ZVxQa/r+u3Hd1AsaorW2u2rMn0zGS
+         EPHKxja9gLv9+veY4LJlySFSJRrxF4qoGRlSEhRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.4 67/71] xen/blkfront: harden blkfront against event channel storms
-Date:   Mon, 20 Dec 2021 15:34:56 +0100
-Message-Id: <20211220143027.941275094@linuxfoundation.org>
+        stable@vger.kernel.org, George Makarov <georgemakarov1@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.10 84/99] ARM: dts: imx6ull-pinfunc: Fix CSI_DATA07__ESAI_TX0 pad name
+Date:   Mon, 20 Dec 2021 15:34:57 +0100
+Message-Id: <20211220143032.227494408@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,76 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit 0fd08a34e8e3b67ec9bd8287ac0facf8374b844a upstream.
+commit 737e65c7956795b3553781fb7bc82fce1c39503f upstream.
 
-The Xen blkfront driver is still vulnerable for an attack via excessive
-number of events sent by the backend. Fix that by using lateeoi event
-channels.
+According to the i.MX6ULL Reference Manual, pad CSI_DATA07 may
+have the ESAI_TX0 functionality, not ESAI_T0.
 
-This is part of XSA-391
+Also, NXP's i.MX Config Tools 10.0 generates dtsi with the
+MX6ULL_PAD_CSI_DATA07__ESAI_TX0 naming, so fix it accordingly.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+There are no devicetree users in mainline that use the old name,
+so just remove the old entry.
+
+Fixes: c201369d4aa5 ("ARM: dts: imx6ull: add imx6ull support")
+Reported-by: George Makarov <georgemakarov1@gmail.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/imx6ull-pinfunc.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -1565,9 +1565,12 @@ static irqreturn_t blkif_interrupt(int i
- 	unsigned long flags;
- 	struct blkfront_ring_info *rinfo = (struct blkfront_ring_info *)dev_id;
- 	struct blkfront_info *info = rinfo->dev_info;
-+	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
+--- a/arch/arm/boot/dts/imx6ull-pinfunc.h
++++ b/arch/arm/boot/dts/imx6ull-pinfunc.h
+@@ -82,6 +82,6 @@
+ #define MX6ULL_PAD_CSI_DATA04__ESAI_TX_FS                         0x01F4 0x0480 0x0000 0x9 0x0
+ #define MX6ULL_PAD_CSI_DATA05__ESAI_TX_CLK                        0x01F8 0x0484 0x0000 0x9 0x0
+ #define MX6ULL_PAD_CSI_DATA06__ESAI_TX5_RX0                       0x01FC 0x0488 0x0000 0x9 0x0
+-#define MX6ULL_PAD_CSI_DATA07__ESAI_T0                            0x0200 0x048C 0x0000 0x9 0x0
++#define MX6ULL_PAD_CSI_DATA07__ESAI_TX0                           0x0200 0x048C 0x0000 0x9 0x0
  
--	if (unlikely(info->connected != BLKIF_STATE_CONNECTED))
-+	if (unlikely(info->connected != BLKIF_STATE_CONNECTED)) {
-+		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
- 		return IRQ_HANDLED;
-+	}
- 
- 	spin_lock_irqsave(&rinfo->ring_lock, flags);
-  again:
-@@ -1583,6 +1586,8 @@ static irqreturn_t blkif_interrupt(int i
- 		unsigned long id;
- 		unsigned int op;
- 
-+		eoiflag = 0;
-+
- 		RING_COPY_RESPONSE(&rinfo->ring, i, &bret);
- 		id = bret.id;
- 
-@@ -1698,6 +1703,8 @@ static irqreturn_t blkif_interrupt(int i
- 
- 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
- 
-+	xen_irq_lateeoi(irq, eoiflag);
-+
- 	return IRQ_HANDLED;
- 
-  err:
-@@ -1705,6 +1712,8 @@ static irqreturn_t blkif_interrupt(int i
- 
- 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
- 
-+	/* No EOI in order to avoid further interrupts. */
-+
- 	pr_alert("%s disabled for further use\n", info->gd->disk_name);
- 	return IRQ_HANDLED;
- }
-@@ -1744,8 +1753,8 @@ static int setup_blkring(struct xenbus_d
- 	if (err)
- 		goto fail;
- 
--	err = bind_evtchn_to_irqhandler(rinfo->evtchn, blkif_interrupt, 0,
--					"blkif", rinfo);
-+	err = bind_evtchn_to_irqhandler_lateeoi(rinfo->evtchn, blkif_interrupt,
-+						0, "blkif", rinfo);
- 	if (err <= 0) {
- 		xenbus_dev_fatal(dev, err,
- 				 "bind_evtchn_to_irqhandler failed");
+ #endif /* __DTS_IMX6ULL_PINFUNC_H */
 
 
