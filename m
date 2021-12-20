@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 049B147AEE0
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD48C47AEF1
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231272AbhLTPFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:05:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37172 "EHLO
+        id S240085AbhLTPGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:06:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239251AbhLTPD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:03:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D39C08E84A;
-        Mon, 20 Dec 2021 06:52:24 -0800 (PST)
+        with ESMTP id S238171AbhLTPEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:04:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694A3C0613B3;
+        Mon, 20 Dec 2021 06:52:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 803DC611B9;
-        Mon, 20 Dec 2021 14:52:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 687A0C36AE9;
-        Mon, 20 Dec 2021 14:52:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E266BB80EE5;
+        Mon, 20 Dec 2021 14:52:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 373F1C36AE7;
+        Mon, 20 Dec 2021 14:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011944;
-        bh=tjf3jWyhXK0F3lgb0w/NbcxSgn/y/h2Bj74LPNc8MPg=;
+        s=korg; t=1640011946;
+        bh=Efl4B0OU/hQtolbPwo5fICrUBijafGjm3Jb2ld6/uV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NzJNsKVwd8DBLRl9UhtDMSQiMogtuTPdYQMRWxMHUpfozzsOnvTHDxphJwX3V0jS+
-         KgPVgLLsnXiwlGdSLurd7FZEONmt85tAs5LrH+jcLzD7KXZIESpnvfHnopfeEMqQmP
-         uqlv0ia466MwJaSsQ74aSu7V1rZvBcK5wNPb93Ps=
+        b=gg6Dkl4+zWWK9EM4tlkM/XarJIJZg+QDJETRK5vqE9U7ZNf0j/ubDafnT6IR6Z5N7
+         AjEr2IBV91JtE8STBBzMosFW8HAeZF1pC9UDpzAvNaSHTLnc42dw2Qup2u0Y24lGOo
+         XnCiz16+nOwiWEdO6ZesuZh90jvu1MfURrfA2PBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
+        stable@vger.kernel.org, Jerome Marchand <jmarchan@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.15 024/177] s390/entry: fix duplicate tracking of irq nesting level
-Date:   Mon, 20 Dec 2021 15:32:54 +0100
-Message-Id: <20211220143040.896251354@linuxfoundation.org>
+Subject: [PATCH 5.15 025/177] recordmcount.pl: look for jgnop instruction as well as bcrl on s390
+Date:   Mon, 20 Dec 2021 15:32:55 +0100
+Message-Id: <20211220143040.927771657@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -48,68 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Jerome Marchand <jmarchan@redhat.com>
 
-commit c9b12b59e2ea4c3c7cedec7efb071b649652f3a9 upstream.
+commit 85bf17b28f97ca2749968d8786dc423db320d9c2 upstream.
 
-In the current code, when exiting from idle, rcu_irq_enter() is
-called twice during irq entry:
+On s390, recordmcount.pl is looking for "bcrl 0,<xxx>" instructions in
+the objdump -d outpout. However since binutils 2.37, objdump -d
+display "jgnop <xxx>" for the same instruction. Update the
+mcount_regex so that it accepts both.
 
-irq_entry_enter()-> rcu_irq_enter()
-irq_enter() -> rcu_irq_enter()
-
-This may lead to wrong results from rcu_is_cpu_rrupt_from_idle()
-because of a wrong dynticks nmi nesting count. Fix this by only
-calling irq_enter_rcu().
-
-Cc: <stable@vger.kernel.org> # 5.12+
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Fixes: 56e62a737028 ("s390: convert to generic entry")
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211210093827.1623286-1-jmarchan@redhat.com
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/irq.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ scripts/recordmcount.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -138,7 +138,7 @@ void noinstr do_io_irq(struct pt_regs *r
- 	struct pt_regs *old_regs = set_irq_regs(regs);
- 	int from_idle;
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -219,7 +219,7 @@ if ($arch eq "x86_64") {
  
--	irq_enter();
-+	irq_enter_rcu();
- 
- 	if (user_mode(regs))
- 		update_timer_sys();
-@@ -155,7 +155,8 @@ void noinstr do_io_irq(struct pt_regs *r
- 			do_irq_async(regs, IO_INTERRUPT);
- 	} while (MACHINE_IS_LPAR && irq_pending(regs));
- 
--	irq_exit();
-+	irq_exit_rcu();
-+
- 	set_irq_regs(old_regs);
- 	irqentry_exit(regs, state);
- 
-@@ -169,7 +170,7 @@ void noinstr do_ext_irq(struct pt_regs *
- 	struct pt_regs *old_regs = set_irq_regs(regs);
- 	int from_idle;
- 
--	irq_enter();
-+	irq_enter_rcu();
- 
- 	if (user_mode(regs))
- 		update_timer_sys();
-@@ -184,7 +185,7 @@ void noinstr do_ext_irq(struct pt_regs *
- 
- 	do_irq_async(regs, EXT_INTERRUPT);
- 
--	irq_exit();
-+	irq_exit_rcu();
- 	set_irq_regs(old_regs);
- 	irqentry_exit(regs, state);
- 
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*brcl\\s*0,[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     }
+     $alignment = 8;
 
 
