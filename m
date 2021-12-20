@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5AF47AE15
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A86F47ABD6
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236610AbhLTO57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:57:59 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46566 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236675AbhLTOzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:55:55 -0500
+        id S232924AbhLTOjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:39:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59666 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234337AbhLTOit (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C85C06179B;
+        Mon, 20 Dec 2021 06:38:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 543A8611AA;
-        Mon, 20 Dec 2021 14:55:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38669C36AE9;
-        Mon, 20 Dec 2021 14:55:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 444D0B80EDF;
+        Mon, 20 Dec 2021 14:38:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7786BC36AE7;
+        Mon, 20 Dec 2021 14:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012153;
-        bh=kDYyP6FYfVJBTPVvRIiBaAmfNJfx6oxrvIGPI2ru+yQ=;
+        s=korg; t=1640011126;
+        bh=2kQHDllTwI5ZtS9CT3pN+y+7mL1+8NB3RFGX0mO+InU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1wZkbe9e+WePwcODR985LRnN0uOHi0CNisEhQZBUXZ5DJE29Xcf2ez1Nll8vhQBaG
-         rPjN/h4c+6dMT7fbHbznCV9Ub3lOfDpKJ0ErPL5Fzg8OksISNqtxDJM8iXHZqNjlZW
-         qP22WB+1/wyfDYDS7Mys/YeMGmIBXrTzpQllPWW0=
+        b=eCTaaP8nGD14FRU9ebLzvsQYBZt/IR38mr4AtnBgY/GsSo0zaiHFLh83kQyvRV9Lp
+         mIeTvTmYnqgt8ba1jzSIi+sl8HudLAmkk27JHehOG2Hqa3i1xOVxh6zw3A2c2FZ1dd
+         nlT3l9+TWb3/eIQNDsaI/ZqODAojKlekyDCYrQNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyril Novikov <cnovikov@lynx.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 098/177] ixgbe: set X550 MDIO speed before talking to PHY
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.14 13/45] audit: improve robustness of the audit queue handling
 Date:   Mon, 20 Dec 2021 15:34:08 +0100
-Message-Id: <20211220143043.391512800@linuxfoundation.org>
+Message-Id: <20211220143022.710673909@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
-References: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +48,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cyril Novikov <cnovikov@lynx.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit bf0a375055bd1afbbf02a0ef45f7655da7b71317 ]
+commit f4b3ee3c85551d2d343a3ba159304066523f730f upstream.
 
-The MDIO bus speed must be initialized before talking to the PHY the first
-time in order to avoid talking to it using a speed that the PHY doesn't
-support.
+If the audit daemon were ever to get stuck in a stopped state the
+kernel's kauditd_thread() could get blocked attempting to send audit
+records to the userspace audit daemon.  With the kernel thread
+blocked it is possible that the audit queue could grow unbounded as
+certain audit record generating events must be exempt from the queue
+limits else the system enter a deadlock state.
 
-This fixes HW initialization error -17 (IXGBE_ERR_PHY_ADDR_INVALID) on
-Denverton CPUs (a.k.a. the Atom C3000 family) on ports with a 10Gb network
-plugged in. On those devices, HLREG0[MDCSPD] resets to 1, which combined
-with the 10Gb network results in a 24MHz MDIO speed, which is apparently
-too fast for the connected PHY. PHY register reads over MDIO bus return
-garbage, leading to initialization failure.
+This patch resolves this problem by lowering the kernel thread's
+socket sending timeout from MAX_SCHEDULE_TIMEOUT to HZ/10 and tweaks
+the kauditd_send_queue() function to better manage the various audit
+queues when connection problems occur between the kernel and the
+audit daemon.  With this patch, the backlog may temporarily grow
+beyond the defined limits when the audit daemon is stopped and the
+system is under heavy audit pressure, but kauditd_thread() will
+continue to make progress and drain the queues as it would for other
+connection problems.  For example, with the audit daemon put into a
+stopped state and the system configured to audit every syscall it
+was still possible to shutdown the system without a kernel panic,
+deadlock, etc.; granted, the system was slow to shutdown but that is
+to be expected given the extreme pressure of recording every syscall.
 
-Reproduced with Linux kernel 4.19 and 5.15-rc7. Can be reproduced using
-the following setup:
+The timeout value of HZ/10 was chosen primarily through
+experimentation and this developer's "gut feeling".  There is likely
+no one perfect value, but as this scenario is limited in scope (root
+privileges would be needed to send SIGSTOP to the audit daemon), it
+is likely not worth exposing this as a tunable at present.  This can
+always be done at a later date if it proves necessary.
 
-* Use an Atom C3000 family system with at least one X552 LAN on the SoC
-* Disable PXE or other BIOS network initialization if possible
-  (the interface must not be initialized before Linux boots)
-* Connect a live 10Gb Ethernet cable to an X550 port
-* Power cycle (not reset, doesn't always work) the system and boot Linux
-* Observe: ixgbe interfaces w/ 10GbE cables plugged in fail with error -17
-
-Fixes: e84db7272798 ("ixgbe: Introduce function to control MDIO speed")
-Signed-off-by: Cyril Novikov <cnovikov@lynx.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
+Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/audit.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-index 9724ffb165189..e4b50c7781ffa 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-@@ -3405,6 +3405,9 @@ static s32 ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
- 	/* flush pending Tx transactions */
- 	ixgbe_clear_tx_pending(hw);
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -686,7 +686,7 @@ static int kauditd_send_queue(struct soc
+ {
+ 	int rc = 0;
+ 	struct sk_buff *skb;
+-	static unsigned int failed = 0;
++	unsigned int failed = 0;
  
-+	/* set MDIO speed before talking to the PHY in case it's the 1st time */
-+	ixgbe_set_mdio_speed(hw);
-+
- 	/* PHY ops must be identified and initialized prior to reset */
- 	status = hw->phy.ops.init(hw);
- 	if (status == IXGBE_ERR_SFP_NOT_SUPPORTED ||
--- 
-2.33.0
-
+ 	/* NOTE: kauditd_thread takes care of all our locking, we just use
+ 	 *       the netlink info passed to us (e.g. sk and portid) */
+@@ -703,32 +703,30 @@ static int kauditd_send_queue(struct soc
+ 			continue;
+ 		}
+ 
++retry:
+ 		/* grab an extra skb reference in case of error */
+ 		skb_get(skb);
+ 		rc = netlink_unicast(sk, skb, portid, 0);
+ 		if (rc < 0) {
+-			/* fatal failure for our queue flush attempt? */
++			/* send failed - try a few times unless fatal error */
+ 			if (++failed >= retry_limit ||
+ 			    rc == -ECONNREFUSED || rc == -EPERM) {
+-				/* yes - error processing for the queue */
+ 				sk = NULL;
+ 				if (err_hook)
+ 					(*err_hook)(skb);
+-				if (!skb_hook)
+-					goto out;
+-				/* keep processing with the skb_hook */
++				if (rc == -EAGAIN)
++					rc = 0;
++				/* continue to drain the queue */
+ 				continue;
+ 			} else
+-				/* no - requeue to preserve ordering */
+-				skb_queue_head(queue, skb);
++				goto retry;
+ 		} else {
+-			/* it worked - drop the extra reference and continue */
++			/* skb sent - drop the extra reference and continue */
+ 			consume_skb(skb);
+ 			failed = 0;
+ 		}
+ 	}
+ 
+-out:
+ 	return (rc >= 0 ? 0 : rc);
+ }
+ 
+@@ -1518,7 +1516,8 @@ static int __net_init audit_net_init(str
+ 		audit_panic("cannot initialize netlink socket in namespace");
+ 		return -ENOMEM;
+ 	}
+-	aunet->sk->sk_sndtimeo = MAX_SCHEDULE_TIMEOUT;
++	/* limit the timeout in case auditd is blocked/stopped */
++	aunet->sk->sk_sndtimeo = HZ / 10;
+ 
+ 	return 0;
+ }
 
 
