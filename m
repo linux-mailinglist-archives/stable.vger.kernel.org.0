@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E70D847AD0C
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:48:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C93147AD92
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235070AbhLTOsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:48:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53892 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236374AbhLTOqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:46:43 -0500
+        id S237928AbhLTOxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:53:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42476 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235004AbhLTOvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BB9CB80EDE;
-        Mon, 20 Dec 2021 14:46:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E036C36AE7;
-        Mon, 20 Dec 2021 14:46:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F94C611D0;
+        Mon, 20 Dec 2021 14:51:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BEDC36AE7;
+        Mon, 20 Dec 2021 14:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011599;
-        bh=xLfAzJapR99aoDr1OkaqMFKcg4sP3b9gJh5EUUpcH38=;
+        s=korg; t=1640011861;
+        bh=ODWJTRXKy8xSS4+g6COkmOYMLdb0LQomb8Z3YB/r018=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uh0qorufFMtYeMGB8imE8W042RIAIH66b5XVaKylpcZ+kM1EHBy0jktGrlddOD2JB
-         gOl3vmKL9e7FHnfbbkoxI8YmVY9Y5psGC3/3gYA3JdmzWb+7A2YXxB8vzPXhaafQ0N
-         mkYg1VuRAOwhA8abtNqX13TCebfW1jO4ZaGIt4AE=
+        b=DKO0r3ZjBIhLOYXJEzVyKIq1AiSYQHf+3+6JAkZCZ7Wis+z+ZrankuLjQnAScP0uk
+         muklrsT6LgKMJMpoYTwaULof9f5y+Qih70b0/l701l/dnFuWeOP14GFCgviHEloqen
+         76P3MvQcFifWY6t0Z4htxUtpHdxc1cWhkd8h1+eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.4 70/71] xen/netback: fix rx queue stall detection
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        syzbot+5ca0bf339f13c4243001@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 86/99] media: mxl111sf: change mutex_init() location
 Date:   Mon, 20 Dec 2021 15:34:59 +0100
-Message-Id: <20211220143028.054421314@linuxfoundation.org>
+Message-Id: <20211220143032.289591032@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,163 +46,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 6032046ec4b70176d247a71836186d47b25d1684 upstream.
+commit 44870a9e7a3c24acbb3f888b2a7cc22c9bdf7e7f upstream.
 
-Commit 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when
-not using GSO") introduced a security problem in netback, as an
-interface would only be regarded to be stalled if no slot is available
-in the rx queue ring page. In case the SKB at the head of the queued
-requests will need more than one rx slot and only one slot is free the
-stall detection logic will never trigger, as the test for that is only
-looking for at least one slot to be free.
+Syzbot reported, that mxl111sf_ctrl_msg() uses uninitialized
+mutex. The problem was in wrong mutex_init() location.
 
-Fix that by testing for the needed number of slots instead of only one
-slot being available.
+Previous mutex_init(&state->msg_lock) call was in ->init() function, but
+dvb_usbv2_init() has this order of calls:
 
-In order to not have to take the rx queue lock that often, store the
-number of needed slots in the queue data. As all SKB dequeue operations
-happen in the rx queue kernel thread this is safe, as long as the
-number of needed slots is accessed via READ/WRITE_ONCE() only and
-updates are always done with the rx queue lock held.
+	dvb_usbv2_init()
+	  dvb_usbv2_adapter_init()
+	    dvb_usbv2_adapter_frontend_init()
+	      props->frontend_attach()
 
-Add a small helper for obtaining the number of free slots.
+	  props->init()
 
-This is part of XSA-392
+Since mxl111sf_* devices call mxl111sf_ctrl_msg() in ->frontend_attach()
+internally we need to initialize state->msg_lock before
+frontend_attach(). To achieve it, ->probe() call added to all mxl111sf_*
+devices, which will simply initiaize mutex.
 
-Fixes: 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when not using GSO")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reported-and-tested-by: syzbot+5ca0bf339f13c4243001@syzkaller.appspotmail.com
+
+Fixes: 8572211842af ("[media] mxl111sf: convert to new DVB USB")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/common.h |    1 
- drivers/net/xen-netback/rx.c     |   65 ++++++++++++++++++++++++---------------
- 2 files changed, 42 insertions(+), 24 deletions(-)
+ drivers/media/usb/dvb-usb-v2/mxl111sf.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -203,6 +203,7 @@ struct xenvif_queue { /* Per-queue data
- 	unsigned int rx_queue_max;
- 	unsigned int rx_queue_len;
- 	unsigned long last_rx_time;
-+	unsigned int rx_slots_needed;
- 	bool stalled;
+--- a/drivers/media/usb/dvb-usb-v2/mxl111sf.c
++++ b/drivers/media/usb/dvb-usb-v2/mxl111sf.c
+@@ -931,8 +931,6 @@ static int mxl111sf_init(struct dvb_usb_
+ 		  .len = sizeof(eeprom), .buf = eeprom },
+ 	};
  
- 	struct xenvif_copy_state rx_copy;
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -33,28 +33,36 @@
- #include <xen/xen.h>
- #include <xen/events.h>
- 
--static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+/*
-+ * Update the needed ring page slots for the first SKB queued.
-+ * Note that any call sequence outside the RX thread calling this function
-+ * needs to wake up the RX thread via a call of xenvif_kick_thread()
-+ * afterwards in order to avoid a race with putting the thread to sleep.
-+ */
-+static void xenvif_update_needed_slots(struct xenvif_queue *queue,
-+				       const struct sk_buff *skb)
- {
--	RING_IDX prod, cons;
--	struct sk_buff *skb;
--	int needed;
--	unsigned long flags;
-+	unsigned int needed = 0;
- 
--	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+-	mutex_init(&state->msg_lock);
 -
--	skb = skb_peek(&queue->rx_queue);
--	if (!skb) {
--		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
--		return false;
-+	if (skb) {
-+		needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
-+		if (skb_is_gso(skb))
-+			needed++;
-+		if (skb->sw_hash)
-+			needed++;
- 	}
- 
--	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
--	if (skb_is_gso(skb))
--		needed++;
--	if (skb->sw_hash)
--		needed++;
-+	WRITE_ONCE(queue->rx_slots_needed, needed);
-+}
- 
--	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+{
-+	RING_IDX prod, cons;
-+	unsigned int needed;
-+
-+	needed = READ_ONCE(queue->rx_slots_needed);
-+	if (!needed)
-+		return false;
- 
- 	do {
- 		prod = queue->rx.sring->req_prod;
-@@ -80,6 +88,9 @@ void xenvif_rx_queue_tail(struct xenvif_
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
-+	if (skb_queue_empty(&queue->rx_queue))
-+		xenvif_update_needed_slots(queue, skb);
-+
- 	__skb_queue_tail(&queue->rx_queue, skb);
- 
- 	queue->rx_queue_len += skb->len;
-@@ -100,6 +111,8 @@ static struct sk_buff *xenvif_rx_dequeue
- 
- 	skb = __skb_dequeue(&queue->rx_queue);
- 	if (skb) {
-+		xenvif_update_needed_slots(queue, skb_peek(&queue->rx_queue));
-+
- 		queue->rx_queue_len -= skb->len;
- 		if (queue->rx_queue_len < queue->rx_queue_max) {
- 			struct netdev_queue *txq;
-@@ -474,27 +487,31 @@ void xenvif_rx_action(struct xenvif_queu
- 	xenvif_rx_copy_flush(queue);
+ 	ret = get_chip_info(state);
+ 	if (mxl_fail(ret))
+ 		pr_err("failed to get chip info during probe");
+@@ -1074,6 +1072,14 @@ static int mxl111sf_get_stream_config_dv
+ 	return 0;
  }
  
--static bool xenvif_rx_queue_stalled(struct xenvif_queue *queue)
-+static RING_IDX xenvif_rx_queue_slots(const struct xenvif_queue *queue)
- {
- 	RING_IDX prod, cons;
- 
- 	prod = queue->rx.sring->req_prod;
- 	cons = queue->rx.req_cons;
- 
-+	return prod - cons;
++static int mxl111sf_probe(struct dvb_usb_device *dev)
++{
++	struct mxl111sf_state *state = d_to_priv(dev);
++
++	mutex_init(&state->msg_lock);
++	return 0;
 +}
 +
-+static bool xenvif_rx_queue_stalled(const struct xenvif_queue *queue)
-+{
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
-+
- 	return !queue->stalled &&
--		prod - cons < 1 &&
-+		xenvif_rx_queue_slots(queue) < needed &&
- 		time_after(jiffies,
- 			   queue->last_rx_time + queue->vif->stall_timeout);
- }
+ static struct dvb_usb_device_properties mxl111sf_props_dvbt = {
+ 	.driver_name = KBUILD_MODNAME,
+ 	.owner = THIS_MODULE,
+@@ -1083,6 +1089,7 @@ static struct dvb_usb_device_properties
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
  
- static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
- {
--	RING_IDX prod, cons;
--
--	prod = queue->rx.sring->req_prod;
--	cons = queue->rx.req_cons;
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_dvbt,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1124,6 +1131,7 @@ static struct dvb_usb_device_properties
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
  
--	return queue->stalled && prod - cons >= 1;
-+	return queue->stalled && xenvif_rx_queue_slots(queue) >= needed;
- }
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_atsc,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1165,6 +1173,7 @@ static struct dvb_usb_device_properties
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
  
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_mh,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1233,6 +1242,7 @@ static struct dvb_usb_device_properties
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_atsc_mh,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1311,6 +1321,7 @@ static struct dvb_usb_device_properties
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_mercury,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
+@@ -1381,6 +1392,7 @@ static struct dvb_usb_device_properties
+ 	.generic_bulk_ctrl_endpoint = 0x02,
+ 	.generic_bulk_ctrl_endpoint_response = 0x81,
+ 
++	.probe             = mxl111sf_probe,
+ 	.i2c_algo          = &mxl111sf_i2c_algo,
+ 	.frontend_attach   = mxl111sf_frontend_attach_mercury_mh,
+ 	.tuner_attach      = mxl111sf_attach_tuner,
 
 
