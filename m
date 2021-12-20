@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7C747AE33
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:00:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B66647AD24
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238469AbhLTO67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:58:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35370 "EHLO
+        id S235445AbhLTOuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:50:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237642AbhLTO41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:56:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52077C08EA37;
-        Mon, 20 Dec 2021 06:48:50 -0800 (PST)
+        with ESMTP id S236895AbhLTOrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:47:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19EBFC06179C;
+        Mon, 20 Dec 2021 06:44:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A844B80EDE;
-        Mon, 20 Dec 2021 14:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F15C36AE8;
-        Mon, 20 Dec 2021 14:48:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD6F561141;
+        Mon, 20 Dec 2021 14:44:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D9E1C36AE8;
+        Mon, 20 Dec 2021 14:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011727;
-        bh=sYtmSo8yKTrnB/zttcUeCWUcZzIKeQBoVWe0g7T3qzI=;
+        s=korg; t=1640011457;
+        bh=Xmm2tj+fVy9fNRrVL5KGyrgGJ6AJWAx9oEGIQvBm7ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qxk1ly0kUVhEKKNR2K0f0OlxMZ1OEiHjTpqpfm8iZkiPoSFlUHUOWv1x7mCHvDsZc
-         YrsPyWqLU7VWVgmxI12Ux96j/OMjIm3H9Kcgpo3Qr0qYl5p54UcWMtQkCtjtu2F0Qk
-         73s0nR/ve9KKiGQeNrPws+nY+xMZRWFTd15/0D44=
+        b=md8ODJ2NqLlO7jnUBy5hV8lIQ1AXdQHybP9v0GmFjxNac3eR7z/VsnsEK43u2m9gW
+         y+JOw+sRNqUWsZUkA1gBlawnMzd8Tzx46ytAqLYIsYZZ6Yd3XgtBFXV/TSPwiFp/KR
+         ukrnf91LGUYeAuVJ6KFyFAgaVuQdgN3cC+loO8mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/99] arm64: dts: rockchip: fix rk3399-leez-p710 vcc3v3-lan supply
+        stable@vger.kernel.org, Pedro Batista <pedbap.g@gmail.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.4 04/71] firmware: arm_scpi: Fix string overflow in SCPI genpd driver
 Date:   Mon, 20 Dec 2021 15:33:53 +0100
-Message-Id: <20211220143030.039862336@linuxfoundation.org>
+Message-Id: <20211220143025.827140494@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,38 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 2b454a90e2ccdd6e03f88f930036da4df577be76 ]
+commit 865ed67ab955428b9aa771d8b4f1e4fb7fd08945 upstream.
 
-Correct a typo in the vin-supply property.  The input supply is
-always-on, so this mistake doesn't affect whether the supply is actually
-enabled correctly.
+Without the bound checks for scpi_pd->name, it could result in the buffer
+overflow when copying the SCPI device name from the corresponding device
+tree node as the name string is set at maximum size of 30.
 
-Fixes: fc702ed49a86 ("arm64: dts: rockchip: Add dts for Leez RK3399 P710 SBC")
-Signed-off-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20211102182908.3409670-3-john@metanate.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Let us fix it by using devm_kasprintf so that the string buffer is
+allocated dynamically.
+
+Fixes: 8bec4337ad40 ("firmware: scpi: add device power domain support using genpd")
+Reported-by: Pedro Batista <pedbap.g@gmail.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20211209120456.696879-1-sudeep.holla@arm.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/scpi_pm_domain.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts b/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-index 1fa80ac15464b..88984b5e67b6e 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-@@ -49,7 +49,7 @@ vcc3v3_lan: vcc3v3-lan {
- 		regulator-boot-on;
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
--		vim-supply = <&vcc3v3_sys>;
-+		vin-supply = <&vcc3v3_sys>;
- 	};
+--- a/drivers/firmware/scpi_pm_domain.c
++++ b/drivers/firmware/scpi_pm_domain.c
+@@ -16,7 +16,6 @@ struct scpi_pm_domain {
+ 	struct generic_pm_domain genpd;
+ 	struct scpi_ops *ops;
+ 	u32 domain;
+-	char name[30];
+ };
  
- 	vcc3v3_sys: vcc3v3-sys {
--- 
-2.33.0
-
+ /*
+@@ -110,8 +109,13 @@ static int scpi_pm_domain_probe(struct p
+ 
+ 		scpi_pd->domain = i;
+ 		scpi_pd->ops = scpi_ops;
+-		sprintf(scpi_pd->name, "%pOFn.%d", np, i);
+-		scpi_pd->genpd.name = scpi_pd->name;
++		scpi_pd->genpd.name = devm_kasprintf(dev, GFP_KERNEL,
++						     "%pOFn.%d", np, i);
++		if (!scpi_pd->genpd.name) {
++			dev_err(dev, "Failed to allocate genpd name:%pOFn.%d\n",
++				np, i);
++			continue;
++		}
+ 		scpi_pd->genpd.power_off = scpi_pd_power_off;
+ 		scpi_pd->genpd.power_on = scpi_pd_power_on;
+ 
 
 
