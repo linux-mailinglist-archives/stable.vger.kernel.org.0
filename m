@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C5E47AC75
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F260647AB6C
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:37:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235286AbhLTOn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:43:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60222 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235565AbhLTOmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9E92C0698CC;
-        Mon, 20 Dec 2021 06:41:41 -0800 (PST)
+        id S233754AbhLTOgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:36:40 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:51734 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233763AbhLTOge (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88F0DB80EF2;
-        Mon, 20 Dec 2021 14:41:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC85FC36AE8;
-        Mon, 20 Dec 2021 14:41:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9DD18CE110C;
+        Mon, 20 Dec 2021 14:36:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67607C36AE8;
+        Mon, 20 Dec 2021 14:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011299;
-        bh=5XSKQ8g7F1h8jTOBQTqezki1VD4GMuPKUpFD6aWNz8s=;
+        s=korg; t=1640010991;
+        bh=man+0ueV1g91q32w1KcrSorf6LfwBGLx54Op6ZT18s4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNb78GwHyKEJZeCiwavnuMRLtw4j9pAfBDPsuGih3SZ7PsjORiDqY90jUVBUxkS7x
-         q/Zk6bMS4XmXbGy2gsVKAx6vJrqLk+KhDxFf3/HqGSJyWOpcXSObkL6i92HTqyqohj
-         SH+Ljsn7nsEkaDfkVmwtyyD3rD1n9vFGH+wnJUYI=
+        b=CbJXdhjgIQvos4Oh4bXmAolek1fH5MI7L+TovZZ1ok5H/WGcwCsWGAbkH9/cYxsJ6
+         tKfpWQQ7wqJuq52x9hE6cBk2Lo67eUH9W81lkDOvAH1wHEOurVFEuriNjDByOyql6i
+         5bsNM9wyCMnU/DhX+RI6eUaFSxW85ia6uartOkj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Syzbot <syzbot+1ac0994a0a0c55151121@syzkaller.appspotmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/56] net/packet: rx_owner_map depends on pg_vec
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.4 20/23] xen/blkfront: harden blkfront against event channel storms
 Date:   Mon, 20 Dec 2021 15:34:21 +0100
-Message-Id: <20211220143024.372268312@linuxfoundation.org>
+Message-Id: <20211220143018.496834879@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
+References: <20211220143017.842390782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,46 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit ec6af094ea28f0f2dda1a6a33b14cd57e36a9755 ]
+commit 0fd08a34e8e3b67ec9bd8287ac0facf8374b844a upstream.
 
-Packet sockets may switch ring versions. Avoid misinterpreting state
-between versions, whose fields share a union. rx_owner_map is only
-allocated with a packet ring (pg_vec) and both are swapped together.
-If pg_vec is NULL, meaning no packet ring was allocated, then neither
-was rx_owner_map. And the field may be old state from a tpacket_v3.
+The Xen blkfront driver is still vulnerable for an attack via excessive
+number of events sent by the backend. Fix that by using lateeoi event
+channels.
 
-Fixes: 61fad6816fc1 ("net/packet: tpacket_rcv: avoid a producer race condition")
-Reported-by: Syzbot <syzbot+1ac0994a0a0c55151121@syzkaller.appspotmail.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20211215143937.106178-1-willemdebruijn.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is part of XSA-391
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/packet/af_packet.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/block/xen-blkfront.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 8d9005019ef78..1309161032d50 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -4439,9 +4439,10 @@ static int packet_set_ring(struct sock *sk, union tpacket_req_u *req_u,
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1319,11 +1319,13 @@ static irqreturn_t blkif_interrupt(int i
+ 	unsigned long flags;
+ 	struct blkfront_info *info = (struct blkfront_info *)dev_id;
+ 	int error;
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
+ 
+ 	spin_lock_irqsave(&info->io_lock, flags);
+ 
+ 	if (unlikely(info->connected != BLKIF_STATE_CONNECTED)) {
+ 		spin_unlock_irqrestore(&info->io_lock, flags);
++		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
+ 		return IRQ_HANDLED;
  	}
  
- out_free_pg_vec:
--	bitmap_free(rx_owner_map);
--	if (pg_vec)
-+	if (pg_vec) {
-+		bitmap_free(rx_owner_map);
- 		free_pg_vec(pg_vec, order, req->tp_block_nr);
-+	}
- out:
- 	return err;
+@@ -1340,6 +1342,8 @@ static irqreturn_t blkif_interrupt(int i
+ 		unsigned long id;
+ 		unsigned int op;
+ 
++		eoiflag = 0;
++
+ 		RING_COPY_RESPONSE(&info->ring, i, &bret);
+ 		id   = bret.id;
+ 
+@@ -1444,6 +1448,8 @@ static irqreturn_t blkif_interrupt(int i
+ 
+ 	spin_unlock_irqrestore(&info->io_lock, flags);
+ 
++	xen_irq_lateeoi(irq, eoiflag);
++
+ 	return IRQ_HANDLED;
+ 
+  err:
+@@ -1451,6 +1457,8 @@ static irqreturn_t blkif_interrupt(int i
+ 
+ 	spin_unlock_irqrestore(&info->io_lock, flags);
+ 
++	/* No EOI in order to avoid further interrupts. */
++
+ 	pr_alert("%s disabled for further use\n", info->gd->disk_name);
+ 	return IRQ_HANDLED;
  }
--- 
-2.33.0
-
+@@ -1489,8 +1497,8 @@ static int setup_blkring(struct xenbus_d
+ 	if (err)
+ 		goto fail;
+ 
+-	err = bind_evtchn_to_irqhandler(info->evtchn, blkif_interrupt, 0,
+-					"blkif", info);
++	err = bind_evtchn_to_irqhandler_lateeoi(info->evtchn, blkif_interrupt,
++						0, "blkif", info);
+ 	if (err <= 0) {
+ 		xenbus_dev_fatal(dev, err,
+ 				 "bind_evtchn_to_irqhandler failed");
 
 
