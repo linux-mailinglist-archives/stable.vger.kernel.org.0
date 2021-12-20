@@ -2,38 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45B0147AD0E
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC41B47ADA5
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235268AbhLTOsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:48:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39326 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236482AbhLTOqw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:46:52 -0500
+        id S238414AbhLTOxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:53:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34702 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235521AbhLTOvZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF204C08EAF5;
+        Mon, 20 Dec 2021 06:46:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8E8C611B4;
-        Mon, 20 Dec 2021 14:46:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDCBAC36AE8;
-        Mon, 20 Dec 2021 14:46:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 908B461183;
+        Mon, 20 Dec 2021 14:46:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7754CC36AE7;
+        Mon, 20 Dec 2021 14:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011608;
-        bh=BLj9lSAJ1gNFSwvyI6xadsJ28Rp3mP/PAvMg7UZU7BU=;
+        s=korg; t=1640011611;
+        bh=b6NgPVRwfRgKLmvnSqpgc95a8jTgmREj3B5OR1Wry2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AzmelDDOlGcwGJNOzWc15sEF7DKe4SndXG40HdnVI7AZ1vqiM/utx5jMuY8eKWmrS
-         PxA/9UNwl/QHHJRvXqz2uQAoNXPW1ZBWFj1OmfEiF4nnqbxUp3jLSdZmfu0tH08gP6
-         Mw6Ic/3fGiRL1OYZKUWfsq5tD84AMfEraeuvoV2Q=
+        b=icwOfnX+tLIL9ULnsR6KXpHS42vY4d5HYUSvlX3e3MpH/S+2tmBwIocA94hQftGG7
+         cEr2DkXgOvACVmR0ct1v5ayciCPD9tzW2bP+WLTb6LtGlmed/sWdTmDVwfVv6iNlSx
+         +1MwrBm5Wjg55TbIsQGgBS94cvbmAwNnYz+d6KuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.10 10/99] bpf, selftests: Add test case trying to taint map value pointer
-Date:   Mon, 20 Dec 2021 15:33:43 +0100
-Message-Id: <20211220143029.698365332@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Quentin Perret <qperret@google.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH 5.10 11/99] virtio_ring: Fix querying of maximum DMA mapping size for virtio device
+Date:   Mon, 20 Dec 2021 15:33:44 +0100
+Message-Id: <20211220143029.731318935@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -45,74 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Will Deacon <will@kernel.org>
 
-commit b1a7288dedc6caf9023f2676b4f5ed34cf0d4029 upstream.
+commit 817fc978b5a29b039db0418a91072b31c9aab152 upstream.
 
-Add a test case which tries to taint map value pointer arithmetic into a
-unknown scalar with subsequent export through the map.
+virtio_max_dma_size() returns the maximum DMA mapping size of the virtio
+device by querying dma_max_mapping_size() for the device when the DMA
+API is in use for the vring. Unfortunately, the device passed is
+initialised by register_virtio_device() and does not inherit the DMA
+configuration from its parent, resulting in SWIOTLB errors when bouncing
+is enabled and the default 256K mapping limit (IO_TLB_SEGSIZE) is not
+respected:
 
-Before fix:
+  | virtio-pci 0000:00:01.0: swiotlb buffer is full (sz: 294912 bytes), total 1024 (slots), used 725 (slots)
 
-  # ./test_verifier 1186
-  #1186/u map access: trying to leak tained dst reg FAIL
-  Unexpected success to load!
-  verification time 24 usec
-  stack depth 8
-  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
-  #1186/p map access: trying to leak tained dst reg FAIL
-  Unexpected success to load!
-  verification time 8 usec
-  stack depth 8
-  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
-  Summary: 0 PASSED, 0 SKIPPED, 2 FAILED
+Follow the pattern used elsewhere in the virtio_ring code when calling
+into the DMA layer and pass the parent device to dma_max_mapping_size()
+instead.
 
-After fix:
-
-  # ./test_verifier 1186
-  #1186/u map access: trying to leak tained dst reg OK
-  #1186/p map access: trying to leak tained dst reg OK
-  Summary: 2 PASSED, 0 SKIPPED, 0 FAILED
-
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Quentin Perret <qperret@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20211201112018.25276-1-will@kernel.org
+Acked-by: Jason Wang <jasowang@redhat.com>
+Tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Fixes: e6d6dd6c875e ("virtio: Introduce virtio_max_dma_size()")
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/verifier/value_ptr_arith.c |   23 +++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/virtio/virtio_ring.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-+++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-@@ -849,6 +849,29 @@
- 	.errstr_unpriv = "R0 pointer -= pointer prohibited",
- },
- {
-+	"map access: trying to leak tained dst reg",
-+	.insns = {
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_ST_MEM(BPF_DW, BPF_REG_10, -8, 0),
-+	BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
-+	BPF_LD_MAP_FD(BPF_REG_1, 0),
-+	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_map_lookup_elem),
-+	BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
-+	BPF_EXIT_INSN(),
-+	BPF_MOV64_REG(BPF_REG_2, BPF_REG_0),
-+	BPF_MOV32_IMM(BPF_REG_1, 0xFFFFFFFF),
-+	BPF_MOV32_REG(BPF_REG_1, BPF_REG_1),
-+	BPF_ALU64_REG(BPF_SUB, BPF_REG_2, BPF_REG_1),
-+	BPF_STX_MEM(BPF_DW, BPF_REG_0, BPF_REG_2, 0),
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.fixup_map_array_48b = { 4 },
-+	.result = REJECT,
-+	.errstr = "math between map_value pointer and 4294967295 is not allowed",
-+},
-+{
- 	"32bit pkt_ptr -= scalar",
- 	.insns = {
- 	BPF_LDX_MEM(BPF_W, BPF_REG_8, BPF_REG_1,
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -263,7 +263,7 @@ size_t virtio_max_dma_size(struct virtio
+ 	size_t max_segment_size = SIZE_MAX;
+ 
+ 	if (vring_use_dma_api(vdev))
+-		max_segment_size = dma_max_mapping_size(&vdev->dev);
++		max_segment_size = dma_max_mapping_size(vdev->dev.parent);
+ 
+ 	return max_segment_size;
+ }
 
 
