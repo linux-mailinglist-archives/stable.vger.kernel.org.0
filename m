@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B7147AE56
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9230147AC95
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239210AbhLTPAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:00:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35378 "EHLO
+        id S235363AbhLTOpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:45:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239168AbhLTO63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5475FC0617A0;
-        Mon, 20 Dec 2021 06:49:43 -0800 (PST)
+        with ESMTP id S236176AbhLTOoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26567C0698DA;
+        Mon, 20 Dec 2021 06:42:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1510CB80EE7;
-        Mon, 20 Dec 2021 14:49:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61192C36AE8;
-        Mon, 20 Dec 2021 14:49:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA58E611B8;
+        Mon, 20 Dec 2021 14:42:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C49AC36AE7;
+        Mon, 20 Dec 2021 14:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011780;
-        bh=1k6lPIqdNusG1NReznnMavSBD6vtxZ72VCOx+i7W7ZE=;
+        s=korg; t=1640011361;
+        bh=O2sc6bukGQgl1WjREE0YrM5IHqjXYwwXD5Psk9U/Rz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/GfN/bsU+jUpnt+hEqkn11X5xe3WKcsdLxE/cWBM0Gl5gNUr5dSjMUaa/iHa38EF
-         aBh6DHLWE+KlfRf8FI+xY9YP1S18PXJ/r4YuETknLh31hQ7l57cUsxaz9CUl5O9Ohp
-         uUQNxMqEF8osoOyUtsJSRJn1rfyKkLgpvfu/ErwI=
+        b=jOxA3PVGJTdelzwM0Py3EX4qCCVz1hJrffIiq+GSgfsZowMfwllgB+ce2Tg8jX22h
+         hheuNZdyjIMWeDOjAoLY+Ao0Iizif88s/OgR+AVOy7JdwVqh0bH4GvDA/r3a9ku02G
+         iDQT2C/zwv+f7PIY5khscTc36jqxKd6OSeUzwVFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Marek Vasut <marex@denx.de>
-Subject: [PATCH 5.10 71/99] PCI/MSI: Mask MSI-X vectors only on success
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 51/56] scsi: scsi_debug: Sanity check block descriptor length in resp_mode_select()
 Date:   Mon, 20 Dec 2021 15:34:44 +0100
-Message-Id: <20211220143031.779120408@linuxfoundation.org>
+Message-Id: <20211220143025.146070980@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,74 +49,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Roese <sr@denx.de>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 83dbf898a2d45289be875deb580e93050ba67529 upstream.
+commit e0a2c28da11e2c2b963fc01d50acbf03045ac732 upstream.
 
-Masking all unused MSI-X entries is done to ensure that a crash kernel
-starts from a clean slate, which correponds to the reset state of the
-device as defined in the PCI-E specificion 3.0 and later:
+In resp_mode_select() sanity check the block descriptor len to avoid UAF.
 
- Vector Control for MSI-X Table Entries
- --------------------------------------
+BUG: KASAN: use-after-free in resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+Read of size 1 at addr ffff888026670f50 by task scsicmd/15032
 
- "00: Mask bit:  When this bit is set, the function is prohibited from
-                 sending a message using this MSI-X Table entry.
-                 ...
-                 This bit’s state after reset is 1 (entry is masked)."
+CPU: 1 PID: 15032 Comm: scsicmd Not tainted 5.15.0-01d0625 #15
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:107
+ print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:257
+ kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:443
+ __asan_report_load1_noabort+0x14/0x20 mm/kasan/report_generic.c:306
+ resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+ schedule_resp+0x4af/0x1a10 drivers/scsi/scsi_debug.c:5483
+ scsi_debug_queuecommand+0x8c9/0x1e70 drivers/scsi/scsi_debug.c:7537
+ scsi_queue_rq+0x16b4/0x2d10 drivers/scsi/scsi_lib.c:1521
+ blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1640
+ __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
+ blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
+ __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1762
+ __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1839
+ blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
+ blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
+ blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:63
+ sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:837
+ sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:775
+ sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:941
+ sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1166
+ __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:52
+ do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:50
+ entry_SYSCALL_64_after_hwframe+0x44/0xae arch/x86/entry/entry_64.S:113
 
-A Marvell NVME device fails to deliver MSI interrupts after trying to
-enable MSI-X interrupts due to that masking. It seems to take the MSI-X
-mask bits into account even when MSI-X is disabled.
-
-While not specification compliant, this can be cured by moving the masking
-into the success path, so that the MSI-X table entries stay in device reset
-state when the MSI-X setup fails.
-
-[ tglx: Move it into the success path, add comment and amend changelog ]
-
-Fixes: aa8092c1d1f1 ("PCI/MSI: Mask all unused MSI-X entries")
-Signed-off-by: Stefan Roese <sr@denx.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-pci@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: Marek Vasut <marex@denx.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211210161025.3287927-1-sr@denx.de
+Link: https://lore.kernel.org/r/1637262208-28850-1-git-send-email-george.kennedy@oracle.com
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/msi.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_debug.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -828,9 +828,6 @@ static int msix_capability_init(struct p
- 		goto out_disable;
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -2300,11 +2300,11 @@ static int resp_mode_select(struct scsi_
+ 			    __func__, param_len, res);
+ 	md_len = mselect6 ? (arr[0] + 1) : (get_unaligned_be16(arr + 0) + 2);
+ 	bd_len = mselect6 ? arr[3] : get_unaligned_be16(arr + 6);
+-	if (md_len > 2) {
++	off = bd_len + (mselect6 ? 4 : 8);
++	if (md_len > 2 || off >= res) {
+ 		mk_sense_invalid_fld(scp, SDEB_IN_DATA, 0, -1);
+ 		return check_condition_result;
  	}
- 
--	/* Ensure that all table entries are masked. */
--	msix_mask_all(base, tsize);
--
- 	ret = msix_setup_entries(dev, base, entries, nvec, affd);
- 	if (ret)
- 		goto out_disable;
-@@ -853,6 +850,16 @@ static int msix_capability_init(struct p
- 	/* Set MSI-X enabled bits and unmask the function */
- 	pci_intx_for_msi(dev, 0);
- 	dev->msix_enabled = 1;
-+
-+	/*
-+	 * Ensure that all table entries are masked to prevent
-+	 * stale entries from firing in a crash kernel.
-+	 *
-+	 * Done late to deal with a broken Marvell NVME device
-+	 * which takes the MSI-X mask bits into account even
-+	 * when MSI-X is disabled, which prevents MSI delivery.
-+	 */
-+	msix_mask_all(base, tsize);
- 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
- 
- 	pcibios_free_irq(dev);
+-	off = bd_len + (mselect6 ? 4 : 8);
+ 	mpage = arr[off] & 0x3f;
+ 	ps = !!(arr[off] & 0x80);
+ 	if (ps) {
 
 
