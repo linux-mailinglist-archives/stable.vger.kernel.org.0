@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9CD147AC5B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6C4647AE07
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235408AbhLTOnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:43:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59892 "EHLO
+        id S235772AbhLTO5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:57:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234898AbhLTOlx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:41:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C47BC07E5C5;
-        Mon, 20 Dec 2021 06:41:19 -0800 (PST)
+        with ESMTP id S238933AbhLTOys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:54:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7854DC08EC36;
+        Mon, 20 Dec 2021 06:48:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B925B80EE2;
-        Mon, 20 Dec 2021 14:41:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F28AC36AE8;
-        Mon, 20 Dec 2021 14:41:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1932F611BD;
+        Mon, 20 Dec 2021 14:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF6A7C36AE7;
+        Mon, 20 Dec 2021 14:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011276;
-        bh=EMvOOfM+S6gyX2iKmGMILn27yt9qvpoU7CdlYGdbg9M=;
+        s=korg; t=1640011694;
+        bh=PKyMA7TVCmgHt8RPJrq1wMBbzbnAuv+gvjER/I12yEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHtz8/2ny2nBvQqOUCQortPRTlNMVbhKzk2qb7wiWBDvCO8Fw/ekNaJgdQ+jM6H/f
-         qtEUSSXHo4dn1pL9NrbZRg9QTl7+ekHH2CtQEZo+ifsAsIez20/atJM/kPOCt+kQMH
-         s7oxNCeSQMGk8+EOOXHcS1cAw7UBGHcX+fP8apBU=
+        b=kFX29uyoeBBb56CgN9yTuoFr5g8rNWhzwof0obDl8rLc2isQpGWMORJ4BoQSXWQ5A
+         PQx7JGlm0CDHo4BNWsYjwVAN29xCtZn1+e3Km9jx6Q3uNLJMk/+LXw5MHhzkTcN9uy
+         HdN3H9cVKQaMZG5A+38rPtPEEBSJSssVJ6koa6qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/56] sch_cake: do not call cake_destroy() from cake_init()
+Subject: [PATCH 5.10 40/99] net/sched: sch_ets: dont remove idle classes from the round-robin list
 Date:   Mon, 20 Dec 2021 15:34:13 +0100
-Message-Id: <20211220143024.110207770@linuxfoundation.org>
+Message-Id: <20211220143030.726002151@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,100 +49,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit ab443c53916730862cec202078d36fd4008bea79 ]
+[ Upstream commit c062f2a0b04d86c5b8c9d973bea43493eaca3d32 ]
 
-qdiscs are not supposed to call their own destroy() method
-from init(), because core stack already does that.
+Shuang reported that the following script:
 
-syzbot was able to trigger use after free:
+ 1) tc qdisc add dev ddd0 handle 10: parent 1: ets bands 8 strict 4 priomap 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
+ 2) mausezahn ddd0  -A 10.10.10.1 -B 10.10.10.2 -c 0 -a own -b 00:c1:a0:c1:a0:00 -t udp &
+ 3) tc qdisc change dev ddd0 handle 10: ets bands 4 strict 2 quanta 2500 2500 priomap 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
 
-DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-WARNING: CPU: 0 PID: 21902 at kernel/locking/mutex.c:586 __mutex_lock_common kernel/locking/mutex.c:586 [inline]
-WARNING: CPU: 0 PID: 21902 at kernel/locking/mutex.c:586 __mutex_lock+0x9ec/0x12f0 kernel/locking/mutex.c:740
-Modules linked in:
-CPU: 0 PID: 21902 Comm: syz-executor189 Not tainted 5.16.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__mutex_lock_common kernel/locking/mutex.c:586 [inline]
-RIP: 0010:__mutex_lock+0x9ec/0x12f0 kernel/locking/mutex.c:740
-Code: 08 84 d2 0f 85 19 08 00 00 8b 05 97 38 4b 04 85 c0 0f 85 27 f7 ff ff 48 c7 c6 20 00 ac 89 48 c7 c7 a0 fe ab 89 e8 bf 76 ba ff <0f> 0b e9 0d f7 ff ff 48 8b 44 24 40 48 8d b8 c8 08 00 00 48 89 f8
-RSP: 0018:ffffc9000627f290 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88802315d700 RSI: ffffffff815f1db8 RDI: fffff52000c4fe44
-RBP: ffff88818f28e000 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff815ebb5e R11: 0000000000000000 R12: 0000000000000000
-R13: dffffc0000000000 R14: ffffc9000627f458 R15: 0000000093c30000
-FS:  0000555556abc400(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fda689c3303 CR3: 000000001cfbb000 CR4: 0000000000350ef0
-Call Trace:
- <TASK>
- tcf_chain0_head_change_cb_del+0x2e/0x3d0 net/sched/cls_api.c:810
- tcf_block_put_ext net/sched/cls_api.c:1381 [inline]
- tcf_block_put_ext net/sched/cls_api.c:1376 [inline]
- tcf_block_put+0xbc/0x130 net/sched/cls_api.c:1394
- cake_destroy+0x3f/0x80 net/sched/sch_cake.c:2695
- qdisc_create.constprop.0+0x9da/0x10f0 net/sched/sch_api.c:1293
- tc_modify_qdisc+0x4c5/0x1980 net/sched/sch_api.c:1660
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5571
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2496
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x904/0xdf0 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f1bb06badb9
-Code: Unable to access opcode bytes at RIP 0x7f1bb06bad8f.
-RSP: 002b:00007fff3012a658 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f1bb06badb9
-RDX: 0000000000000000 RSI: 00000000200007c0 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000003
-R10: 0000000000000003 R11: 0000000000000246 R12: 00007fff3012a688
-R13: 00007fff3012a6a0 R14: 00007fff3012a6e0 R15: 00000000000013c2
- </TASK>
+crashes systematically when line 2) is commented:
 
-Fixes: 046f6fd5daef ("sched: Add Common Applications Kept Enhanced (cake) qdisc")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Link: https://lore.kernel.org/r/20211210142046.698336-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ list_del corruption, ffff8e028404bd30->next is LIST_POISON1 (dead000000000100)
+ ------------[ cut here ]------------
+ kernel BUG at lib/list_debug.c:47!
+ invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+ CPU: 0 PID: 954 Comm: tc Not tainted 5.16.0-rc4+ #478
+ Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+ RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x47
+ Code: fe ff 0f 0b 48 89 c1 4c 89 c6 48 c7 c7 08 42 1b 87 e8 1d c5 fe ff 0f 0b 48 89 fe 48 89 c2 48 c7 c7 98 42 1b 87 e8 09 c5 fe ff <0f> 0b 48 c7 c7 48 43 1b 87 e8 fb c4 fe ff 0f 0b 48 89 f2 48 89 fe
+ RSP: 0018:ffffae46807a3888 EFLAGS: 00010246
+ RAX: 000000000000004e RBX: 0000000000000007 RCX: 0000000000000202
+ RDX: 0000000000000000 RSI: ffffffff871ac536 RDI: 00000000ffffffff
+ RBP: ffffae46807a3a10 R08: 0000000000000000 R09: c0000000ffff7fff
+ R10: 0000000000000001 R11: ffffae46807a36a8 R12: ffff8e028404b800
+ R13: ffff8e028404bd30 R14: dead000000000100 R15: ffff8e02fafa2400
+ FS:  00007efdc92e4480(0000) GS:ffff8e02fb600000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000682f48 CR3: 00000001058be000 CR4: 0000000000350ef0
+ Call Trace:
+  <TASK>
+  ets_qdisc_change+0x58b/0xa70 [sch_ets]
+  tc_modify_qdisc+0x323/0x880
+  rtnetlink_rcv_msg+0x169/0x4a0
+  netlink_rcv_skb+0x50/0x100
+  netlink_unicast+0x1a5/0x280
+  netlink_sendmsg+0x257/0x4d0
+  sock_sendmsg+0x5b/0x60
+  ____sys_sendmsg+0x1f2/0x260
+  ___sys_sendmsg+0x7c/0xc0
+  __sys_sendmsg+0x57/0xa0
+  do_syscall_64+0x3a/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7efdc8031338
+ Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 43 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
+ RSP: 002b:00007ffdf1ce9828 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 0000000061b37a97 RCX: 00007efdc8031338
+ RDX: 0000000000000000 RSI: 00007ffdf1ce9890 RDI: 0000000000000003
+ RBP: 0000000000000000 R08: 0000000000000001 R09: 000000000078a940
+ R10: 000000000000000c R11: 0000000000000246 R12: 0000000000000001
+ R13: 0000000000688880 R14: 0000000000000000 R15: 0000000000000000
+  </TASK>
+ Modules linked in: sch_ets sch_tbf dummy rfkill iTCO_wdt iTCO_vendor_support intel_rapl_msr intel_rapl_common joydev pcspkr i2c_i801 virtio_balloon i2c_smbus lpc_ich ip_tables xfs libcrc32c crct10dif_pclmul crc32_pclmul crc32c_intel serio_raw ghash_clmulni_intel ahci libahci libata virtio_blk virtio_console virtio_net net_failover failover sunrpc dm_mirror dm_region_hash dm_log dm_mod [last unloaded: sch_ets]
+ ---[ end trace f35878d1912655c2 ]---
+ RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x47
+ Code: fe ff 0f 0b 48 89 c1 4c 89 c6 48 c7 c7 08 42 1b 87 e8 1d c5 fe ff 0f 0b 48 89 fe 48 89 c2 48 c7 c7 98 42 1b 87 e8 09 c5 fe ff <0f> 0b 48 c7 c7 48 43 1b 87 e8 fb c4 fe ff 0f 0b 48 89 f2 48 89 fe
+ RSP: 0018:ffffae46807a3888 EFLAGS: 00010246
+ RAX: 000000000000004e RBX: 0000000000000007 RCX: 0000000000000202
+ RDX: 0000000000000000 RSI: ffffffff871ac536 RDI: 00000000ffffffff
+ RBP: ffffae46807a3a10 R08: 0000000000000000 R09: c0000000ffff7fff
+ R10: 0000000000000001 R11: ffffae46807a36a8 R12: ffff8e028404b800
+ R13: ffff8e028404bd30 R14: dead000000000100 R15: ffff8e02fafa2400
+ FS:  00007efdc92e4480(0000) GS:ffff8e02fb600000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000682f48 CR3: 00000001058be000 CR4: 0000000000350ef0
+ Kernel panic - not syncing: Fatal exception in interrupt
+ Kernel Offset: 0x4e00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+ ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
+
+we can remove 'q->classes[i].alist' only if DRR class 'i' was part of the
+active list. In the ETS scheduler DRR classes belong to that list only if
+the queue length is greater than zero: we need to test for non-zero value
+of 'q->classes[i].qdisc->q.qlen' before removing from the list, similarly
+to what has been done elsewhere in the ETS code.
+
+Fixes: de6d25924c2a ("net/sched: sch_ets: don't peek at classes beyond 'nbands'")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cake.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ net/sched/sch_ets.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index 2025f0f559deb..18c207b85d513 100644
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -2675,7 +2675,7 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
- 	q->tins = kvcalloc(CAKE_MAX_TINS, sizeof(struct cake_tin_data),
- 			   GFP_KERNEL);
- 	if (!q->tins)
--		goto nomem;
-+		return -ENOMEM;
- 
- 	for (i = 0; i < CAKE_MAX_TINS; i++) {
- 		struct cake_tin_data *b = q->tins + i;
-@@ -2705,10 +2705,6 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
- 	q->min_netlen = ~0;
- 	q->min_adjlen = ~0;
- 	return 0;
--
--nomem:
--	cake_destroy(sch);
--	return -ENOMEM;
- }
- 
- static int cake_dump(struct Qdisc *sch, struct sk_buff *skb)
+diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
+index c34cb6e81d855..9c224872ef035 100644
+--- a/net/sched/sch_ets.c
++++ b/net/sched/sch_ets.c
+@@ -668,9 +668,9 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
+ 		}
+ 	}
+ 	for (i = q->nbands; i < oldbands; i++) {
+-		qdisc_tree_flush_backlog(q->classes[i].qdisc);
+-		if (i >= q->nstrict)
++		if (i >= q->nstrict && q->classes[i].qdisc->q.qlen)
+ 			list_del(&q->classes[i].alist);
++		qdisc_tree_flush_backlog(q->classes[i].qdisc);
+ 	}
+ 	q->nstrict = nstrict;
+ 	memcpy(q->prio2band, priomap, sizeof(priomap));
 -- 
 2.33.0
 
