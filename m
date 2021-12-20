@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E3A47AC22
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B85A047ACA4
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234328AbhLTOlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:41:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60062 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234606AbhLTOk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:26 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6745AC061763;
-        Mon, 20 Dec 2021 06:40:24 -0800 (PST)
+        id S234379AbhLTOqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:46:01 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37912 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236561AbhLTOoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B9C93CE1119;
-        Mon, 20 Dec 2021 14:40:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A836C36AE9;
-        Mon, 20 Dec 2021 14:40:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C12A461165;
+        Mon, 20 Dec 2021 14:44:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FCDC36AE7;
+        Mon, 20 Dec 2021 14:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011221;
-        bh=+IZsznwNOk88L/tx/wHgld6KFPO+Y7Pv0Lsh/KzGDKU=;
+        s=korg; t=1640011493;
+        bh=0Ef9eswxrkBiSQY9W3YBAESSTC4iNG5GMsGY3/HzruU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8Xd/9FxIdW8/sH3wHKwUled1D4fjFoOBcl35eKSB5n7DQpjfH/22IVWXhQPO++8f
-         glQrWuRrrhYse7CfL+fxMxyf2GPAxMi0CzuWHLpzXM/xn6n6AFYXm21AgmtRYes5ko
-         xE+bXgYolSLbBsRXKnHiwy+mJbWxKFfN3Skw26oo=
+        b=QKLsBkWId5PkRkPke/Meri0i1lnfjBka2SmJULRTwsKjTDhe3LBXDKtO7ZkZJMAAE
+         FpvQGE/RtzIb2EFvrMLL/XoApX04Ce+OA4JTJVLAx7Qm0Ja7ne1OZG87uQJoF2unPT
+         JbGjc6eGWJX1PNbtnkUEGrLMinW/BNBIX3l39Q7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 35/45] scsi: scsi_debug: Sanity check block descriptor length in resp_mode_select()
+        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 41/71] net/smc: Prevent smc_release() from long blocking
 Date:   Mon, 20 Dec 2021 15:34:30 +0100
-Message-Id: <20211220143023.440173202@linuxfoundation.org>
+Message-Id: <20211220143027.060261271@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,68 +48,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-commit e0a2c28da11e2c2b963fc01d50acbf03045ac732 upstream.
+[ Upstream commit 5c15b3123f65f8fbb1b445d9a7e8812e0e435df2 ]
 
-In resp_mode_select() sanity check the block descriptor len to avoid UAF.
+In nginx/wrk benchmark, there's a hung problem with high probability
+on case likes that: (client will last several minutes to exit)
 
-BUG: KASAN: use-after-free in resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
-Read of size 1 at addr ffff888026670f50 by task scsicmd/15032
+server: smc_run nginx
 
-CPU: 1 PID: 15032 Comm: scsicmd Not tainted 5.15.0-01d0625 #15
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-Call Trace:
- <TASK>
- dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:107
- print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:257
- kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:443
- __asan_report_load1_noabort+0x14/0x20 mm/kasan/report_generic.c:306
- resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
- schedule_resp+0x4af/0x1a10 drivers/scsi/scsi_debug.c:5483
- scsi_debug_queuecommand+0x8c9/0x1e70 drivers/scsi/scsi_debug.c:7537
- scsi_queue_rq+0x16b4/0x2d10 drivers/scsi/scsi_lib.c:1521
- blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1640
- __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
- blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
- __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1762
- __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1839
- blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
- blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
- blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:63
- sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:837
- sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:775
- sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:941
- sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1166
- __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:52
- do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:50
- entry_SYSCALL_64_after_hwframe+0x44/0xae arch/x86/entry/entry_64.S:113
+client: smc_run wrk -c 10000 -t 1 http://server
 
-Link: https://lore.kernel.org/r/1637262208-28850-1-git-send-email-george.kennedy@oracle.com
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Client hangs with the following backtrace:
+
+0 [ffffa7ce8Of3bbf8] __schedule at ffffffff9f9eOd5f
+1 [ffffa7ce8Of3bc88] schedule at ffffffff9f9eløe6
+2 [ffffa7ce8Of3bcaO] schedule_timeout at ffffffff9f9e3f3c
+3 [ffffa7ce8Of3bd2O] wait_for_common at ffffffff9f9el9de
+4 [ffffa7ce8Of3bd8O] __flush_work at ffffffff9fOfeOl3
+5 [ffffa7ce8øf3bdfO] smc_release at ffffffffcO697d24 [smc]
+6 [ffffa7ce8Of3be2O] __sock_release at ffffffff9f8O2e2d
+7 [ffffa7ce8Of3be4ø] sock_close at ffffffff9f8ø2ebl
+8 [ffffa7ce8øf3be48] __fput at ffffffff9f334f93
+9 [ffffa7ce8Of3be78] task_work_run at ffffffff9flOlff5
+10 [ffffa7ce8Of3beaO] do_exit at ffffffff9fOe5Ol2
+11 [ffffa7ce8Of3bflO] do_group_exit at ffffffff9fOe592a
+12 [ffffa7ce8Of3bf38] __x64_sys_exit_group at ffffffff9fOe5994
+13 [ffffa7ce8Of3bf4O] do_syscall_64 at ffffffff9f9d4373
+14 [ffffa7ce8Of3bfsO] entry_SYSCALL_64_after_hwframe at ffffffff9fa0007c
+
+This issue dues to flush_work(), which is used to wait for
+smc_connect_work() to finish in smc_release(). Once lots of
+smc_connect_work() was pending or all executing work dangling,
+smc_release() has to block until one worker comes to free, which
+is equivalent to wait another smc_connnect_work() to finish.
+
+In order to fix this, There are two changes:
+
+1. For those idle smc_connect_work(), cancel it from the workqueue; for
+   executing smc_connect_work(), waiting for it to finish. For that
+   purpose, replace flush_work() with cancel_work_sync().
+
+2. Since smc_connect() hold a reference for passive closing, if
+   smc_connect_work() has been cancelled, release the reference.
+
+Fixes: 24ac3a08e658 ("net/smc: rebuild nonblocking connect")
+Reported-by: Tony Lu <tonylu@linux.alibaba.com>
+Tested-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://lore.kernel.org/r/1639571361-101128-1-git-send-email-alibuda@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/smc/af_smc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -2181,11 +2181,11 @@ static int resp_mode_select(struct scsi_
- 			    __func__, param_len, res);
- 	md_len = mselect6 ? (arr[0] + 1) : (get_unaligned_be16(arr + 0) + 2);
- 	bd_len = mselect6 ? arr[3] : get_unaligned_be16(arr + 6);
--	if (md_len > 2) {
-+	off = bd_len + (mselect6 ? 4 : 8);
-+	if (md_len > 2 || off >= res) {
- 		mk_sense_invalid_fld(scp, SDEB_IN_DATA, 0, -1);
- 		return check_condition_result;
- 	}
--	off = bd_len + (mselect6 ? 4 : 8);
- 	mpage = arr[off] & 0x3f;
- 	ps = !!(arr[off] & 0x80);
- 	if (ps) {
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index fa3b20e5f4608..06684ac346abd 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -183,7 +183,9 @@ static int smc_release(struct socket *sock)
+ 	/* cleanup for a dangling non-blocking connect */
+ 	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
+ 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
+-	flush_work(&smc->connect_work);
++
++	if (cancel_work_sync(&smc->connect_work))
++		sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
+ 
+ 	if (sk->sk_state == SMC_LISTEN)
+ 		/* smc_close_non_accepted() is called and acquires
+-- 
+2.33.0
+
 
 
