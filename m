@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 318FA47AD80
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E11347ABCC
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237549AbhLTOwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:52:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42058 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238437AbhLTOub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:31 -0500
+        id S234493AbhLTOjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:39:13 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:52946 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234100AbhLTOic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92525611A4;
-        Mon, 20 Dec 2021 14:50:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73B8CC36AE7;
-        Mon, 20 Dec 2021 14:50:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DD50BCE10FE;
+        Mon, 20 Dec 2021 14:38:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABF7DC36AEB;
+        Mon, 20 Dec 2021 14:38:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011831;
-        bh=uY5ypyLGENVFu/AfdQ5m9JGp5nazfWqo3Onu1CXI8PI=;
+        s=korg; t=1640011109;
+        bh=xLfAzJapR99aoDr1OkaqMFKcg4sP3b9gJh5EUUpcH38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnYheI0fk6g/JBQedTw3vxEMuQo3wLTa8ZNB7lCLk5j+pDTrrglT01Vfa7MkAwodj
-         zUSuMy5swKeBmzevLQCXoZwLhE642wLDmpPx12pxLoyoVRRTaGPBVjH9N3ttQ80dkr
-         PHgeO9L+Ozqf6jzVLUY6wD12UmRVO++ZQyD1VYJk=
+        b=zJwjtDJz4IVysKfutZcLq2o80UPy/fOUiOSWRQMnqvFH+bb6JmE3LY2q/cT9SXQIp
+         3aIkfDCaeKWgKFxyYk9koF+ES5Ci9WeE1/cHm1BlOflUSzBRSL+zLeU7T9YzJUF4zJ
+         +xkaqesVxeRANGzDPK7I0YYpfJG3deGBbxy9gCDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        kernel test robot <lkp@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 57/99] sfc_ef100: potential dereference of null pointer
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.9 30/31] xen/netback: fix rx queue stall detection
 Date:   Mon, 20 Dec 2021 15:34:30 +0100
-Message-Id: <20211220143031.308507794@linuxfoundation.org>
+Message-Id: <20211220143020.933337536@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
+References: <20211220143019.974513085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +44,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 407ecd1bd726f240123f704620d46e285ff30dd9 ]
+commit 6032046ec4b70176d247a71836186d47b25d1684 upstream.
 
-The return value of kmalloc() needs to be checked.
-To avoid use in efx_nic_update_stats() in case of the failure of alloc.
+Commit 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when
+not using GSO") introduced a security problem in netback, as an
+interface would only be regarded to be stalled if no slot is available
+in the rx queue ring page. In case the SKB at the head of the queued
+requests will need more than one rx slot and only one slot is free the
+stall detection logic will never trigger, as the test for that is only
+looking for at least one slot to be free.
 
-Fixes: b593b6f1b492 ("sfc_ef100: statistics gathering")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix that by testing for the needed number of slots instead of only one
+slot being available.
+
+In order to not have to take the rx queue lock that often, store the
+number of needed slots in the queue data. As all SKB dequeue operations
+happen in the rx queue kernel thread this is safe, as long as the
+number of needed slots is accessed via READ/WRITE_ONCE() only and
+updates are always done with the rx queue lock held.
+
+Add a small helper for obtaining the number of free slots.
+
+This is part of XSA-392
+
+Fixes: 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when not using GSO")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/ef100_nic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/xen-netback/common.h |    1 
+ drivers/net/xen-netback/rx.c     |   65 ++++++++++++++++++++++++---------------
+ 2 files changed, 42 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef100_nic.c b/drivers/net/ethernet/sfc/ef100_nic.c
-index 3148fe7703564..cb6897c2193c2 100644
---- a/drivers/net/ethernet/sfc/ef100_nic.c
-+++ b/drivers/net/ethernet/sfc/ef100_nic.c
-@@ -597,6 +597,9 @@ static size_t ef100_update_stats(struct efx_nic *efx,
- 	ef100_common_stat_mask(mask);
- 	ef100_ethtool_stat_mask(mask);
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -203,6 +203,7 @@ struct xenvif_queue { /* Per-queue data
+ 	unsigned int rx_queue_max;
+ 	unsigned int rx_queue_len;
+ 	unsigned long last_rx_time;
++	unsigned int rx_slots_needed;
+ 	bool stalled;
  
-+	if (!mc_stats)
-+		return 0;
+ 	struct xenvif_copy_state rx_copy;
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -33,28 +33,36 @@
+ #include <xen/xen.h>
+ #include <xen/events.h>
+ 
+-static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
++/*
++ * Update the needed ring page slots for the first SKB queued.
++ * Note that any call sequence outside the RX thread calling this function
++ * needs to wake up the RX thread via a call of xenvif_kick_thread()
++ * afterwards in order to avoid a race with putting the thread to sleep.
++ */
++static void xenvif_update_needed_slots(struct xenvif_queue *queue,
++				       const struct sk_buff *skb)
+ {
+-	RING_IDX prod, cons;
+-	struct sk_buff *skb;
+-	int needed;
+-	unsigned long flags;
++	unsigned int needed = 0;
+ 
+-	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+-
+-	skb = skb_peek(&queue->rx_queue);
+-	if (!skb) {
+-		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+-		return false;
++	if (skb) {
++		needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
++		if (skb_is_gso(skb))
++			needed++;
++		if (skb->sw_hash)
++			needed++;
+ 	}
+ 
+-	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
+-	if (skb_is_gso(skb))
+-		needed++;
+-	if (skb->sw_hash)
+-		needed++;
++	WRITE_ONCE(queue->rx_slots_needed, needed);
++}
+ 
+-	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
++static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
++{
++	RING_IDX prod, cons;
++	unsigned int needed;
 +
- 	efx_nic_copy_stats(efx, mc_stats);
- 	efx_nic_update_stats(ef100_stat_desc, EF100_STAT_COUNT, mask,
- 			     stats, mc_stats, false);
--- 
-2.33.0
-
++	needed = READ_ONCE(queue->rx_slots_needed);
++	if (!needed)
++		return false;
+ 
+ 	do {
+ 		prod = queue->rx.sring->req_prod;
+@@ -80,6 +88,9 @@ void xenvif_rx_queue_tail(struct xenvif_
+ 
+ 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ 
++	if (skb_queue_empty(&queue->rx_queue))
++		xenvif_update_needed_slots(queue, skb);
++
+ 	__skb_queue_tail(&queue->rx_queue, skb);
+ 
+ 	queue->rx_queue_len += skb->len;
+@@ -100,6 +111,8 @@ static struct sk_buff *xenvif_rx_dequeue
+ 
+ 	skb = __skb_dequeue(&queue->rx_queue);
+ 	if (skb) {
++		xenvif_update_needed_slots(queue, skb_peek(&queue->rx_queue));
++
+ 		queue->rx_queue_len -= skb->len;
+ 		if (queue->rx_queue_len < queue->rx_queue_max) {
+ 			struct netdev_queue *txq;
+@@ -474,27 +487,31 @@ void xenvif_rx_action(struct xenvif_queu
+ 	xenvif_rx_copy_flush(queue);
+ }
+ 
+-static bool xenvif_rx_queue_stalled(struct xenvif_queue *queue)
++static RING_IDX xenvif_rx_queue_slots(const struct xenvif_queue *queue)
+ {
+ 	RING_IDX prod, cons;
+ 
+ 	prod = queue->rx.sring->req_prod;
+ 	cons = queue->rx.req_cons;
+ 
++	return prod - cons;
++}
++
++static bool xenvif_rx_queue_stalled(const struct xenvif_queue *queue)
++{
++	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
++
+ 	return !queue->stalled &&
+-		prod - cons < 1 &&
++		xenvif_rx_queue_slots(queue) < needed &&
+ 		time_after(jiffies,
+ 			   queue->last_rx_time + queue->vif->stall_timeout);
+ }
+ 
+ static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
+ {
+-	RING_IDX prod, cons;
+-
+-	prod = queue->rx.sring->req_prod;
+-	cons = queue->rx.req_cons;
++	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
+ 
+-	return queue->stalled && prod - cons >= 1;
++	return queue->stalled && xenvif_rx_queue_slots(queue) >= needed;
+ }
+ 
+ bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
 
 
