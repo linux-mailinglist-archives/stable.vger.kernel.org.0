@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14ADA47AC05
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B381947ABC2
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232776AbhLTOk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:40:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48546 "EHLO
+        id S234432AbhLTOi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:38:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47370 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232743AbhLTOjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:44 -0500
+        with ESMTP id S234435AbhLTOiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A1B3B80EB3;
-        Mon, 20 Dec 2021 14:39:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91763C36AE7;
-        Mon, 20 Dec 2021 14:39:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4AA5CB80EE2;
+        Mon, 20 Dec 2021 14:38:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79FE1C36AE8;
+        Mon, 20 Dec 2021 14:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011182;
-        bh=YRcSG+OzEruk/iVXAFsqA0Md2RyA7GHNZKGXnYVG80Q=;
+        s=korg; t=1640011098;
+        bh=+2CORKnuWusfOSE29PywiLyWAt+P1S1QVvMxS69/RRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSFlpHgkqu+CMvmgGclU0SZs/HvXZhP+eHzBnUbVoEY0A+q/i7z8ISOTBD0ZI512r
-         cFu630JQ9GHg2ukMX9T+UzuhqB3AGb8AXUiM97luzFj5oAqxjUBXuuOgf2sCtoAz/g
-         AG+dkuKJu3Sbxndpn7PY0wVR545RZOUz/Ajfi1Nc=
+        b=lrVJoU2rjq3uVXL3YP14W1cNr7+Li0ur3CSit4ZOxKOjKdNH//Ww94FPw8jSkjF87
+         hmjUiGI4CYKIWLV479l11i4ZZ0+hn/wnkMFjc7tHxEAn4+qHswZLE2pSkLWVQcWmzi
+         MwVZLd3/M7TyZeNVBexmdLwpGDqtcmM/ynC66988=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 31/45] net: systemport: Add global locking for descriptor lifecycle
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 4.9 26/31] Input: touchscreen - avoid bitwise vs logical OR warning
 Date:   Mon, 20 Dec 2021 15:34:26 +0100
-Message-Id: <20211220143023.308960527@linuxfoundation.org>
+Message-Id: <20211220143020.811786269@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
+References: <20211220143019.974513085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 8b8e6e782456f1ce02a7ae914bbd5b1053f0b034 upstream.
+commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
 
-The descriptor list is a shared resource across all of the transmit queues, and
-the locking mechanism used today only protects concurrency across a given
-transmit queue between the transmit and reclaiming. This creates an opportunity
-for the SYSTEMPORT hardware to work on corrupted descriptors if we have
-multiple producers at once which is the case when using multiple transmit
-queues.
+A new warning in clang points out a few places in this driver where a
+bitwise OR is being used with boolean types:
 
-This was particularly noticeable when using multiple flows/transmit queues and
-it showed up in interesting ways in that UDP packets would get a correct UDP
-header checksum being calculated over an incorrect packet length. Similarly TCP
-packets would get an equally correct checksum computed by the hardware over an
-incorrect packet length.
+drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The SYSTEMPORT hardware maintains an internal descriptor list that it re-arranges
-when the driver produces a new descriptor anytime it writes to the
-WRITE_PORT_{HI,LO} registers, there is however some delay in the hardware to
-re-organize its descriptors and it is possible that concurrent TX queues
-eventually break this internal allocation scheme to the point where the
-length/status part of the descriptor gets used for an incorrect data buffer.
+This use of a bitwise OR is intentional, as bitwise operations do not
+short circuit, which allows all the calls to touchscreen_get_prop_u32()
+to happen so that the last parameter is initialized while coalescing the
+results of the calls to make a decision after they are all evaluated.
 
-The fix is to impose a global serialization for all TX queues in the short
-section where we are writing to the WRITE_PORT_{HI,LO} registers which solves
-the corruption even with multiple concurrent TX queues being used.
+To make this clearer to the compiler, use the '|=' operator to assign
+the result of each touchscreen_get_prop_u32() call to data_present,
+which keeps the meaning of the code the same but makes it obvious that
+every one of these calls is expected to happen.
 
-Fixes: 80105befdb4b ("net: systemport: add Broadcom SYSTEMPORT Ethernet MAC driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20211215202450.4086240-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c |    5 +++++
- drivers/net/ethernet/broadcom/bcmsysport.h |    1 +
- 2 files changed, 6 insertions(+)
+ drivers/input/touchscreen/of_touchscreen.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -120,9 +120,13 @@ static inline void tdma_port_write_desc_
- 					     struct dma_desc *desc,
- 					     unsigned int port)
- {
-+	unsigned long desc_flags;
-+
- 	/* Ports are latched, so write upper address first */
-+	spin_lock_irqsave(&priv->desc_lock, desc_flags);
- 	tdma_writel(priv, desc->addr_status_len, TDMA_WRITE_PORT_HI(port));
- 	tdma_writel(priv, desc->addr_lo, TDMA_WRITE_PORT_LO(port));
-+	spin_unlock_irqrestore(&priv->desc_lock, desc_flags);
- }
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -79,8 +79,8 @@ void touchscreen_parse_properties(struct
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-size-x",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -90,8 +90,8 @@ void touchscreen_parse_properties(struct
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-size-y",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -101,11 +101,11 @@ void touchscreen_parse_properties(struct
+ 	data_present = touchscreen_get_prop_u32(dev,
+ 						"touchscreen-max-pressure",
+ 						input_abs_get_max(input, axis),
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev,
+-						"touchscreen-fuzz-pressure",
+-						input_abs_get_fuzz(input, axis),
+-						&fuzz);
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev,
++						 "touchscreen-fuzz-pressure",
++						 input_abs_get_fuzz(input, axis),
++						 &fuzz);
+ 	if (data_present)
+ 		touchscreen_set_params(input, axis, maximum, fuzz);
  
- /* Ethtool operations */
-@@ -1880,6 +1884,7 @@ static int bcm_sysport_open(struct net_d
- 	}
- 
- 	/* Initialize both hardware and software ring */
-+	spin_lock_init(&priv->desc_lock);
- 	for (i = 0; i < dev->num_tx_queues; i++) {
- 		ret = bcm_sysport_init_tx_ring(priv, i);
- 		if (ret) {
---- a/drivers/net/ethernet/broadcom/bcmsysport.h
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.h
-@@ -733,6 +733,7 @@ struct bcm_sysport_priv {
- 	int			wol_irq;
- 
- 	/* Transmit rings */
-+	spinlock_t		desc_lock;
- 	struct bcm_sysport_tx_ring *tx_rings;
- 
- 	/* Receive queue */
 
 
