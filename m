@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBAE47AC30
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:42:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC6D247AD10
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:49:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235417AbhLTOmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:42:04 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49558 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233224AbhLTOk4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:56 -0500
+        id S234472AbhLTOsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:48:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236572AbhLTOq4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:46:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C292CC08E9BF;
+        Mon, 20 Dec 2021 06:43:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2075B80EE9;
-        Mon, 20 Dec 2021 14:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5F5EC36AE7;
-        Mon, 20 Dec 2021 14:40:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82290B80EE3;
+        Mon, 20 Dec 2021 14:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3E5C36AE7;
+        Mon, 20 Dec 2021 14:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011254;
-        bh=AftJyowQAsUsfuJ0uI4F8Mwu1SL7IWxG0P78QcusfuU=;
+        s=korg; t=1640011426;
+        bh=gJ30C+0+M4xaoc52uiuC4aC7ELxW962R9YQTbLcjfUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TpJ0lLajzx9bXH0sNkdn2aXspKFprnNjXf3VCYTYPFa1NSaD5V8x5B6eq+3i8UtRd
-         bazd8AeN+dMYwP10IwfJ1iqh2ULMcPISXj830NUFJXIBSik6j/8hV+KxzNkSiXZbZN
-         VMsHsSBX6Y9LJFZyVrftyAPqqBuG+MuNfZ2vzeXs=
+        b=kxVY6+MLQ1MHapc8ixE5eE9bnZ+nQG0RHCidHSLQ0tOoXjpu916q+rOnVHP41YXEc
+         2vuy2s88xkLPGqM1DjmccA2txB0vVc9r4QXpO+mfGQDmGUyQFXmburToQ5lcI1z74z
+         nvSz3OvZfZB7lLLFeYBvYGra8qlewatic6KzWz28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.19 13/56] audit: improve robustness of the audit queue handling
+        stable@vger.kernel.org, Mike Tipton <quic_mdtipton@quicinc.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 17/71] clk: Dont parent clks until the parent is fully registered
 Date:   Mon, 20 Dec 2021 15:34:06 +0100
-Message-Id: <20211220143023.887452872@linuxfoundation.org>
+Message-Id: <20211220143026.271470026@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,109 +48,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Mike Tipton <quic_mdtipton@quicinc.com>
 
-commit f4b3ee3c85551d2d343a3ba159304066523f730f upstream.
+[ Upstream commit 54baf56eaa40aa5cdcd02b3c20d593e4e1211220 ]
 
-If the audit daemon were ever to get stuck in a stopped state the
-kernel's kauditd_thread() could get blocked attempting to send audit
-records to the userspace audit daemon.  With the kernel thread
-blocked it is possible that the audit queue could grow unbounded as
-certain audit record generating events must be exempt from the queue
-limits else the system enter a deadlock state.
+Before commit fc0c209c147f ("clk: Allow parents to be specified without
+string names") child clks couldn't find their parent until the parent
+clk was added to a list in __clk_core_init(). After that commit, child
+clks can reference their parent clks directly via a clk_hw pointer, or
+they can lookup that clk_hw pointer via DT if the parent clk is
+registered with an OF clk provider.
 
-This patch resolves this problem by lowering the kernel thread's
-socket sending timeout from MAX_SCHEDULE_TIMEOUT to HZ/10 and tweaks
-the kauditd_send_queue() function to better manage the various audit
-queues when connection problems occur between the kernel and the
-audit daemon.  With this patch, the backlog may temporarily grow
-beyond the defined limits when the audit daemon is stopped and the
-system is under heavy audit pressure, but kauditd_thread() will
-continue to make progress and drain the queues as it would for other
-connection problems.  For example, with the audit daemon put into a
-stopped state and the system configured to audit every syscall it
-was still possible to shutdown the system without a kernel panic,
-deadlock, etc.; granted, the system was slow to shutdown but that is
-to be expected given the extreme pressure of recording every syscall.
+The common clk framework treats hw->core being non-NULL as "the clk is
+registered" per the logic within clk_core_fill_parent_index():
 
-The timeout value of HZ/10 was chosen primarily through
-experimentation and this developer's "gut feeling".  There is likely
-no one perfect value, but as this scenario is limited in scope (root
-privileges would be needed to send SIGSTOP to the audit daemon), it
-is likely not worth exposing this as a tunable at present.  This can
-always be done at a later date if it proves necessary.
+	parent = entry->hw->core;
+	/*
+	 * We have a direct reference but it isn't registered yet?
+	 * Orphan it and let clk_reparent() update the orphan status
+	 * when the parent is registered.
+	 */
+	if (!parent)
 
-Cc: stable@vger.kernel.org
-Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
-Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Therefore we need to be extra careful to not set hw->core until the clk
+is fully registered with the clk framework. Otherwise we can get into a
+situation where a child finds a parent clk and we move the child clk off
+the orphan list when the parent isn't actually registered, wrecking our
+enable accounting and breaking critical clks.
+
+Consider the following scenario:
+
+  CPU0                                     CPU1
+  ----                                     ----
+  struct clk_hw clkBad;
+  struct clk_hw clkA;
+
+  clkA.init.parent_hws = { &clkBad };
+
+  clk_hw_register(&clkA)                   clk_hw_register(&clkBad)
+   ...                                      __clk_register()
+					     hw->core = core
+					     ...
+   __clk_register()
+    __clk_core_init()
+     clk_prepare_lock()
+     __clk_init_parent()
+      clk_core_get_parent_by_index()
+       clk_core_fill_parent_index()
+        if (entry->hw) {
+	 parent = entry->hw->core;
+
+At this point, 'parent' points to clkBad even though clkBad hasn't been
+fully registered yet. Ouch! A similar problem can happen if a clk
+controller registers orphan clks that are referenced in the DT node of
+another clk controller.
+
+Let's fix all this by only setting the hw->core pointer underneath the
+clk prepare lock in __clk_core_init(). This way we know that
+clk_core_fill_parent_index() can't see hw->core be non-NULL until the
+clk is fully registered.
+
+Fixes: fc0c209c147f ("clk: Allow parents to be specified without string names")
+Signed-off-by: Mike Tipton <quic_mdtipton@quicinc.com>
+Link: https://lore.kernel.org/r/20211109043438.4639-1-quic_mdtipton@quicinc.com
+[sboyd@kernel.org: Reword commit text, update comment]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/clk/clk.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -726,7 +726,7 @@ static int kauditd_send_queue(struct soc
- {
- 	int rc = 0;
- 	struct sk_buff *skb;
--	static unsigned int failed = 0;
-+	unsigned int failed = 0;
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index 6ff87cd867121..e4e1b4e94a67b 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3299,6 +3299,14 @@ static int __clk_core_init(struct clk_core *core)
  
- 	/* NOTE: kauditd_thread takes care of all our locking, we just use
- 	 *       the netlink info passed to us (e.g. sk and portid) */
-@@ -743,32 +743,30 @@ static int kauditd_send_queue(struct soc
- 			continue;
- 		}
+ 	clk_prepare_lock();
  
-+retry:
- 		/* grab an extra skb reference in case of error */
- 		skb_get(skb);
- 		rc = netlink_unicast(sk, skb, portid, 0);
- 		if (rc < 0) {
--			/* fatal failure for our queue flush attempt? */
-+			/* send failed - try a few times unless fatal error */
- 			if (++failed >= retry_limit ||
- 			    rc == -ECONNREFUSED || rc == -EPERM) {
--				/* yes - error processing for the queue */
- 				sk = NULL;
- 				if (err_hook)
- 					(*err_hook)(skb);
--				if (!skb_hook)
--					goto out;
--				/* keep processing with the skb_hook */
-+				if (rc == -EAGAIN)
-+					rc = 0;
-+				/* continue to drain the queue */
- 				continue;
- 			} else
--				/* no - requeue to preserve ordering */
--				skb_queue_head(queue, skb);
-+				goto retry;
- 		} else {
--			/* it worked - drop the extra reference and continue */
-+			/* skb sent - drop the extra reference and continue */
- 			consume_skb(skb);
- 			failed = 0;
- 		}
++	/*
++	 * Set hw->core after grabbing the prepare_lock to synchronize with
++	 * callers of clk_core_fill_parent_index() where we treat hw->core
++	 * being NULL as the clk not being registered yet. This is crucial so
++	 * that clks aren't parented until their parent is fully registered.
++	 */
++	core->hw->core = core;
++
+ 	ret = clk_pm_runtime_get(core);
+ 	if (ret)
+ 		goto unlock;
+@@ -3452,8 +3460,10 @@ static int __clk_core_init(struct clk_core *core)
+ out:
+ 	clk_pm_runtime_put(core);
+ unlock:
+-	if (ret)
++	if (ret) {
+ 		hlist_del_init(&core->child_node);
++		core->hw->core = NULL;
++	}
+ 
+ 	clk_prepare_unlock();
+ 
+@@ -3699,7 +3709,6 @@ __clk_register(struct device *dev, struct device_node *np, struct clk_hw *hw)
+ 	core->num_parents = init->num_parents;
+ 	core->min_rate = 0;
+ 	core->max_rate = ULONG_MAX;
+-	hw->core = core;
+ 
+ 	ret = clk_core_populate_parent_map(core, init);
+ 	if (ret)
+@@ -3717,7 +3726,7 @@ __clk_register(struct device *dev, struct device_node *np, struct clk_hw *hw)
+ 		goto fail_create_clk;
  	}
  
--out:
- 	return (rc >= 0 ? 0 : rc);
- }
+-	clk_core_link_consumer(hw->core, hw->clk);
++	clk_core_link_consumer(core, hw->clk);
  
-@@ -1557,7 +1555,8 @@ static int __net_init audit_net_init(str
- 		audit_panic("cannot initialize netlink socket in namespace");
- 		return -ENOMEM;
- 	}
--	aunet->sk->sk_sndtimeo = MAX_SCHEDULE_TIMEOUT;
-+	/* limit the timeout in case auditd is blocked/stopped */
-+	aunet->sk->sk_sndtimeo = HZ / 10;
- 
- 	return 0;
- }
+ 	ret = __clk_core_init(core);
+ 	if (!ret)
+-- 
+2.33.0
+
 
 
