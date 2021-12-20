@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B78F47AD3B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B222D47AC66
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236119AbhLTOu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:50:59 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38258 "EHLO
+        id S235415AbhLTOng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:43:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35816 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234290AbhLTOrm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:47:42 -0500
+        with ESMTP id S234408AbhLTOmI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C43761183;
-        Mon, 20 Dec 2021 14:47:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C9EAC36AE7;
-        Mon, 20 Dec 2021 14:47:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 16EF26119E;
+        Mon, 20 Dec 2021 14:42:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF34EC36AE7;
+        Mon, 20 Dec 2021 14:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011661;
-        bh=2VZYAjDh2+Van8zbu7oHUdMt0tYFJ4PQ0mWVnpSlVtI=;
+        s=korg; t=1640011327;
+        bh=eNaSp5OCuTzXQFDWQsOH85NuNgQelaHJNnUjEhbEnFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C9S1LrSLIvyhkP/6qFu33cAWpsenZr7H+9LQyEJ8rQX5FE8hmJT9PEmYqnTbjTPfJ
-         ikpd3B20voIDQMaX5ynC1/Pq7hmhGuFqDGqCSO0zv0GXq2IZ9DHdJOUWS1Sm/pYISf
-         8CySEqV7E3YJvUwp/DCTncjMbV5M35enmKY7lCHU=
+        b=P+tuw56BtNHRUMMm0zZozZ3560/GIJWkFb3hLDQYxkZr6PCW70FNCDiC/rX3Im6V5
+         Dnq2T7oWtPsrk+KXKH4xPJRgszCyLWzKMvcaktX9KaaifWHq5KAVPJw3Yqt8+TCnsr
+         7bXKgIkcbDirYid2tG/G1LLZqM6PLEcZcOj9Z1Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 29/99] soc: imx: Register SoC device only on i.MX boards
+        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 09/56] hwmon: (dell-smm) Fix warning on /proc/i8k creation error
 Date:   Mon, 20 Dec 2021 15:34:02 +0100
-Message-Id: <20211220143030.331563805@linuxfoundation.org>
+Message-Id: <20211220143023.748460497@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,65 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 4ebd29f91629e69da7d57390cdc953772eee03ab ]
+commit dbd3e6eaf3d813939b28e8a66e29d81cdc836445 upstream.
 
-At the moment, using the ARM32 multi_v7_defconfig always results in two
-SoCs being exposed in sysfs. This is wrong, as far as I'm aware the
-Qualcomm DragonBoard 410c does not actually make use of a i.MX SoC. :)
+The removal function is called regardless of whether
+/proc/i8k was created successfully or not, the later
+causing a WARN() on module removal.
+Fix that by only registering the removal function
+if /proc/i8k was created successfully.
 
-  qcom-db410c:/sys/devices/soc0$ grep . *
-  family:Freescale i.MX
-  machine:Qualcomm Technologies, Inc. APQ 8016 SBC
-  revision:0.0
-  serial_number:0000000000000000
-  soc_id:Unknown
+Tested on a Inspiron 3505.
 
-  qcom-db410c:/sys/devices/soc1$ grep . *
-  family:Snapdragon
-  machine:APQ8016
-  ...
-
-This happens because imx_soc_device_init() registers the soc device
-unconditionally, even when running on devices that do not make use of i.MX.
-Arnd already reported this more than a year ago and even suggested a fix
-similar to this commit, but for some reason it was never submitted.
-
-Fix it by checking if the "__mxc_cpu_type" variable was actually
-initialized by earlier platform code. On devices without i.MX it will
-simply stay 0.
-
-Cc: Peng Fan <peng.fan@nxp.com>
-Fixes: d2199b34871b ("ARM: imx: use device_initcall for imx_soc_device_init")
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/CAK8P3a0hxO1TmK6oOMQ70AHSWJnP_CAq57YMOutrxkSYNjFeuw@mail.gmail.com/
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 039ae58503f3 ("hwmon: Allow to compile dell-smm-hwmon driver without /proc/i8k")
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Acked-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211112171440.59006-1-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/imx/soc-imx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hwmon/dell-smm-hwmon.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/imx/soc-imx.c b/drivers/soc/imx/soc-imx.c
-index 01bfea1cb64a8..1e8780299d5c4 100644
---- a/drivers/soc/imx/soc-imx.c
-+++ b/drivers/soc/imx/soc-imx.c
-@@ -33,6 +33,10 @@ static int __init imx_soc_device_init(void)
- 	u32 val;
- 	int ret;
+--- a/drivers/hwmon/dell-smm-hwmon.c
++++ b/drivers/hwmon/dell-smm-hwmon.c
+@@ -591,15 +591,18 @@ static const struct file_operations i8k_
+ 	.unlocked_ioctl	= i8k_ioctl,
+ };
  
-+	/* Return early if this is running on devices with different SoCs */
-+	if (!__mxc_cpu_type)
-+		return 0;
++static struct proc_dir_entry *entry;
 +
- 	if (of_machine_is_compatible("fsl,ls1021a"))
- 		return 0;
+ static void __init i8k_init_procfs(void)
+ {
+ 	/* Register the proc entry */
+-	proc_create("i8k", 0, NULL, &i8k_fops);
++	entry = proc_create("i8k", 0, NULL, &i8k_fops);
+ }
  
--- 
-2.33.0
-
+ static void __exit i8k_exit_procfs(void)
+ {
+-	remove_proc_entry("i8k", NULL);
++	if (entry)
++		remove_proc_entry("i8k", NULL);
+ }
+ 
+ #else
 
 
