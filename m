@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A5047AC1B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15E1247ACDE
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:47:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234760AbhLTOlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:41:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59642 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235051AbhLTOkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77008C0619D9;
-        Mon, 20 Dec 2021 06:40:10 -0800 (PST)
+        id S234408AbhLTOrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:47:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51966 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237023AbhLTOpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:45:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C85B9CE0F8B;
-        Mon, 20 Dec 2021 14:40:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961B4C36AE8;
-        Mon, 20 Dec 2021 14:40:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1595AB80EE0;
+        Mon, 20 Dec 2021 14:45:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A5F3C36AE9;
+        Mon, 20 Dec 2021 14:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011207;
-        bh=f3b3PvKG86Cw8ijIbf91tL5ACZu+3RlJTx+wQzb5bq0=;
+        s=korg; t=1640011518;
+        bh=Vfl2yrApby7IcI+H+BmRslZs2lxYMUFvbIMxurJbrSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFqj5Py9Zvq01v4VtjacW9b4b840AB0Wvk153WF1dzHIvHrFu3iIOfe+R6Du2q8Ro
-         0KIx4K2x0tpiO5OsZEIzgpCE3deW1No35Mq9KM84fb6Sf2mx6FdWSptiShlRVPFtiQ
-         76Tq9zZIN/hiND5SSBXey8PBkpXMaM6WLsSKEgs4=
+        b=gKOlzeZpzcGgkAQiUGwxsu9nYsaWimTHpsXm3JKTVWMjtnxResmKhHj0DPhzWJKvv
+         ojuK28bqCTbRW3OsYC8hrEqx0oKnAUkPH5BauUkaFhv0n3wnlRNK86FNK502orR+OU
+         xe7k4PjuAUbs4zGUM9ci4fCzCKjxFvPTGFbdk6pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.14 42/45] xen/netfront: harden netfront against event channel storms
-Date:   Mon, 20 Dec 2021 15:34:37 +0100
-Message-Id: <20211220143023.670346423@linuxfoundation.org>
+        stable@vger.kernel.org, Maarten Brock <m.brock@vanmierlo.com>,
+        Karoly Pados <pados@pados.hu>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 49/71] USB: serial: cp210x: fix CP2105 GPIO registration
+Date:   Mon, 20 Dec 2021 15:34:38 +0100
+Message-Id: <20211220143027.333115661@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,293 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b27d47950e481f292c0a5ad57357edb9d95d03ba upstream.
+commit 83b67041f3eaf33f98a075249aa7f4c7617c2f85 upstream.
 
-The Xen netfront driver is still vulnerable for an attack via excessive
-number of events sent by the backend. Fix that by using lateeoi event
-channels.
+When generalising GPIO support and adding support for CP2102N, the GPIO
+registration for some CP2105 devices accidentally broke. Specifically,
+when all the pins of a port are in "modem" mode, and thus unavailable
+for GPIO use, the GPIO chip would now be registered without having
+initialised the number of GPIO lines. This would in turn be rejected by
+gpiolib and some errors messages would be printed (but importantly probe
+would still succeed).
 
-For being able to detect the case of no rx responses being added while
-the carrier is down a new lock is needed in order to update and test
-rsp_cons and the number of seen unconsumed responses atomically.
+Fix this by initialising the number of GPIO lines before registering the
+GPIO chip.
 
-This is part of XSA-391
+Note that as for the other device types, and as when all CP2105 pins are
+muxed for LED function, the GPIO chip is registered also when no pins
+are available for GPIO use.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Reported-by: Maarten Brock <m.brock@vanmierlo.com>
+Link: https://lore.kernel.org/r/5eb560c81d2ea1a2b4602a92d9f48a89@vanmierlo.com
+Fixes: c8acfe0aadbe ("USB: serial: cp210x: implement GPIO support for CP2102N")
+Cc: stable@vger.kernel.org      # 4.19
+Cc: Karoly Pados <pados@pados.hu>
+Link: https://lore.kernel.org/r/20211126094348.31698-1-johan@kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Maarten Brock <m.brock@vanmierlo.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |  125 +++++++++++++++++++++++++++++++++------------
- 1 file changed, 94 insertions(+), 31 deletions(-)
+ drivers/usb/serial/cp210x.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -142,6 +142,9 @@ struct netfront_queue {
- 	struct sk_buff *rx_skbs[NET_RX_RING_SIZE];
- 	grant_ref_t gref_rx_head;
- 	grant_ref_t grant_rx_ref[NET_RX_RING_SIZE];
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -1552,6 +1552,8 @@ static int cp2105_gpioconf_init(struct u
+ 
+ 	/*  2 banks of GPIO - One for the pins taken from each serial port */
+ 	if (intf_num == 0) {
++		priv->gc.ngpio = 2;
 +
-+	unsigned int rx_rsp_unconsumed;
-+	spinlock_t rx_cons_lock;
- };
- 
- struct netfront_info {
-@@ -366,12 +369,13 @@ static int xennet_open(struct net_device
- 	return 0;
- }
- 
--static void xennet_tx_buf_gc(struct netfront_queue *queue)
-+static bool xennet_tx_buf_gc(struct netfront_queue *queue)
- {
- 	RING_IDX cons, prod;
- 	unsigned short id;
- 	struct sk_buff *skb;
- 	bool more_to_do;
-+	bool work_done = false;
- 	const struct device *dev = &queue->info->netdev->dev;
- 
- 	BUG_ON(!netif_carrier_ok(queue->info->netdev));
-@@ -388,6 +392,8 @@ static void xennet_tx_buf_gc(struct netf
- 		for (cons = queue->tx.rsp_cons; cons != prod; cons++) {
- 			struct xen_netif_tx_response txrsp;
- 
-+			work_done = true;
+ 		if (mode.eci == CP210X_PIN_MODE_MODEM) {
+ 			/* mark all GPIOs of this interface as reserved */
+ 			priv->gpio_altfunc = 0xff;
+@@ -1562,8 +1564,9 @@ static int cp2105_gpioconf_init(struct u
+ 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
+ 						CP210X_ECI_GPIO_MODE_MASK) >>
+ 						CP210X_ECI_GPIO_MODE_OFFSET);
+-		priv->gc.ngpio = 2;
+ 	} else if (intf_num == 1) {
++		priv->gc.ngpio = 3;
 +
- 			RING_COPY_RESPONSE(&queue->tx, cons, &txrsp);
- 			if (txrsp.status == XEN_NETIF_RSP_NULL)
- 				continue;
-@@ -431,11 +437,13 @@ static void xennet_tx_buf_gc(struct netf
- 
- 	xennet_maybe_wake_tx(queue);
- 
--	return;
-+	return work_done;
- 
-  err:
- 	queue->info->broken = true;
- 	dev_alert(dev, "Disabled for further use\n");
-+
-+	return work_done;
- }
- 
- struct xennet_gnttab_make_txreq {
-@@ -755,6 +763,16 @@ static int xennet_close(struct net_devic
- 	return 0;
- }
- 
-+static void xennet_set_rx_rsp_cons(struct netfront_queue *queue, RING_IDX val)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&queue->rx_cons_lock, flags);
-+	queue->rx.rsp_cons = val;
-+	queue->rx_rsp_unconsumed = RING_HAS_UNCONSUMED_RESPONSES(&queue->rx);
-+	spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
-+}
-+
- static void xennet_move_rx_slot(struct netfront_queue *queue, struct sk_buff *skb,
- 				grant_ref_t ref)
- {
-@@ -806,7 +824,7 @@ static int xennet_get_extras(struct netf
- 		xennet_move_rx_slot(queue, skb, ref);
- 	} while (extra.flags & XEN_NETIF_EXTRA_FLAG_MORE);
- 
--	queue->rx.rsp_cons = cons;
-+	xennet_set_rx_rsp_cons(queue, cons);
- 	return err;
- }
- 
-@@ -886,7 +904,7 @@ next:
+ 		if (mode.sci == CP210X_PIN_MODE_MODEM) {
+ 			/* mark all GPIOs of this interface as reserved */
+ 			priv->gpio_altfunc = 0xff;
+@@ -1574,7 +1577,6 @@ static int cp2105_gpioconf_init(struct u
+ 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
+ 						CP210X_SCI_GPIO_MODE_MASK) >>
+ 						CP210X_SCI_GPIO_MODE_OFFSET);
+-		priv->gc.ngpio = 3;
+ 	} else {
+ 		return -ENODEV;
  	}
- 
- 	if (unlikely(err))
--		queue->rx.rsp_cons = cons + slots;
-+		xennet_set_rx_rsp_cons(queue, cons + slots);
- 
- 	return err;
- }
-@@ -940,7 +958,8 @@ static int xennet_fill_frags(struct netf
- 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
- 		}
- 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
--			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
-+			xennet_set_rx_rsp_cons(queue,
-+					       ++cons + skb_queue_len(list));
- 			kfree_skb(nskb);
- 			return -ENOENT;
- 		}
-@@ -953,7 +972,7 @@ static int xennet_fill_frags(struct netf
- 		kfree_skb(nskb);
- 	}
- 
--	queue->rx.rsp_cons = cons;
-+	xennet_set_rx_rsp_cons(queue, cons);
- 
- 	return 0;
- }
-@@ -1074,7 +1093,9 @@ err:
- 
- 			if (unlikely(xennet_set_skb_gso(skb, gso))) {
- 				__skb_queue_head(&tmpq, skb);
--				queue->rx.rsp_cons += skb_queue_len(&tmpq);
-+				xennet_set_rx_rsp_cons(queue,
-+						       queue->rx.rsp_cons +
-+						       skb_queue_len(&tmpq));
- 				goto err;
- 			}
- 		}
-@@ -1098,7 +1119,8 @@ err:
- 
- 		__skb_queue_tail(&rxq, skb);
- 
--		i = ++queue->rx.rsp_cons;
-+		i = queue->rx.rsp_cons + 1;
-+		xennet_set_rx_rsp_cons(queue, i);
- 		work_done++;
- 	}
- 
-@@ -1260,40 +1282,79 @@ static int xennet_set_features(struct ne
- 	return 0;
- }
- 
--static irqreturn_t xennet_tx_interrupt(int irq, void *dev_id)
-+static bool xennet_handle_tx(struct netfront_queue *queue, unsigned int *eoi)
- {
--	struct netfront_queue *queue = dev_id;
- 	unsigned long flags;
- 
--	if (queue->info->broken)
--		return IRQ_HANDLED;
-+	if (unlikely(queue->info->broken))
-+		return false;
- 
- 	spin_lock_irqsave(&queue->tx_lock, flags);
--	xennet_tx_buf_gc(queue);
-+	if (xennet_tx_buf_gc(queue))
-+		*eoi = 0;
- 	spin_unlock_irqrestore(&queue->tx_lock, flags);
- 
-+	return true;
-+}
-+
-+static irqreturn_t xennet_tx_interrupt(int irq, void *dev_id)
-+{
-+	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
-+
-+	if (likely(xennet_handle_tx(dev_id, &eoiflag)))
-+		xen_irq_lateeoi(irq, eoiflag);
-+
- 	return IRQ_HANDLED;
- }
- 
--static irqreturn_t xennet_rx_interrupt(int irq, void *dev_id)
-+static bool xennet_handle_rx(struct netfront_queue *queue, unsigned int *eoi)
- {
--	struct netfront_queue *queue = dev_id;
--	struct net_device *dev = queue->info->netdev;
-+	unsigned int work_queued;
-+	unsigned long flags;
-+
-+	if (unlikely(queue->info->broken))
-+		return false;
- 
--	if (queue->info->broken)
--		return IRQ_HANDLED;
-+	spin_lock_irqsave(&queue->rx_cons_lock, flags);
-+	work_queued = RING_HAS_UNCONSUMED_RESPONSES(&queue->rx);
-+	if (work_queued > queue->rx_rsp_unconsumed) {
-+		queue->rx_rsp_unconsumed = work_queued;
-+		*eoi = 0;
-+	} else if (unlikely(work_queued < queue->rx_rsp_unconsumed)) {
-+		const struct device *dev = &queue->info->netdev->dev;
-+
-+		spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
-+		dev_alert(dev, "RX producer index going backwards\n");
-+		dev_alert(dev, "Disabled for further use\n");
-+		queue->info->broken = true;
-+		return false;
-+	}
-+	spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
- 
--	if (likely(netif_carrier_ok(dev) &&
--		   RING_HAS_UNCONSUMED_RESPONSES(&queue->rx)))
-+	if (likely(netif_carrier_ok(queue->info->netdev) && work_queued))
- 		napi_schedule(&queue->napi);
- 
-+	return true;
-+}
-+
-+static irqreturn_t xennet_rx_interrupt(int irq, void *dev_id)
-+{
-+	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
-+
-+	if (likely(xennet_handle_rx(dev_id, &eoiflag)))
-+		xen_irq_lateeoi(irq, eoiflag);
-+
- 	return IRQ_HANDLED;
- }
- 
- static irqreturn_t xennet_interrupt(int irq, void *dev_id)
- {
--	xennet_tx_interrupt(irq, dev_id);
--	xennet_rx_interrupt(irq, dev_id);
-+	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
-+
-+	if (xennet_handle_tx(dev_id, &eoiflag) &&
-+	    xennet_handle_rx(dev_id, &eoiflag))
-+		xen_irq_lateeoi(irq, eoiflag);
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -1527,9 +1588,10 @@ static int setup_netfront_single(struct
- 	if (err < 0)
- 		goto fail;
- 
--	err = bind_evtchn_to_irqhandler(queue->tx_evtchn,
--					xennet_interrupt,
--					0, queue->info->netdev->name, queue);
-+	err = bind_evtchn_to_irqhandler_lateeoi(queue->tx_evtchn,
-+						xennet_interrupt, 0,
-+						queue->info->netdev->name,
-+						queue);
- 	if (err < 0)
- 		goto bind_fail;
- 	queue->rx_evtchn = queue->tx_evtchn;
-@@ -1557,18 +1619,18 @@ static int setup_netfront_split(struct n
- 
- 	snprintf(queue->tx_irq_name, sizeof(queue->tx_irq_name),
- 		 "%s-tx", queue->name);
--	err = bind_evtchn_to_irqhandler(queue->tx_evtchn,
--					xennet_tx_interrupt,
--					0, queue->tx_irq_name, queue);
-+	err = bind_evtchn_to_irqhandler_lateeoi(queue->tx_evtchn,
-+						xennet_tx_interrupt, 0,
-+						queue->tx_irq_name, queue);
- 	if (err < 0)
- 		goto bind_tx_fail;
- 	queue->tx_irq = err;
- 
- 	snprintf(queue->rx_irq_name, sizeof(queue->rx_irq_name),
- 		 "%s-rx", queue->name);
--	err = bind_evtchn_to_irqhandler(queue->rx_evtchn,
--					xennet_rx_interrupt,
--					0, queue->rx_irq_name, queue);
-+	err = bind_evtchn_to_irqhandler_lateeoi(queue->rx_evtchn,
-+						xennet_rx_interrupt, 0,
-+						queue->rx_irq_name, queue);
- 	if (err < 0)
- 		goto bind_rx_fail;
- 	queue->rx_irq = err;
-@@ -1670,6 +1732,7 @@ static int xennet_init_queue(struct netf
- 
- 	spin_lock_init(&queue->tx_lock);
- 	spin_lock_init(&queue->rx_lock);
-+	spin_lock_init(&queue->rx_cons_lock);
- 
- 	setup_timer(&queue->rx_refill_timer, rx_refill_timeout,
- 		    (unsigned long)queue);
 
 
