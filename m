@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1055E47A709
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:31:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2529647A70D
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229460AbhLTJb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:31:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45176 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbhLTJb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:31:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA690C061574
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:31:25 -0800 (PST)
+        id S229553AbhLTJbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:31:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53864 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229461AbhLTJbg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:31:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68FDF60EB1
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:31:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B2CC36AE5;
-        Mon, 20 Dec 2021 09:31:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01597B80E22
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:31:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36403C36AE8;
+        Mon, 20 Dec 2021 09:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639992684;
-        bh=oMAeynN13jE7TVZq/zaUVdSbyX5mGERhL8yFNqn5FlY=;
+        s=korg; t=1639992693;
+        bh=UdcIIZaryR65ZObsbhhtmERcvNHbmEBGkRsboqx2fak=;
         h=Subject:To:Cc:From:Date:From;
-        b=Agh2SuJvziRsZTOiis1bxUQy7df9h9CKQI51a5U3rpGqiKyTw4TaFRcydFj6NjR4F
-         mF7v+tSWIwidI1nCCgPUI0iB8U8/kj3t3KCPFk01b5xpEO1VMMm0QqpL540yasTl7U
-         t5zOOoMoLGwloPwrf/yJkJcxeDtlmpxEB1Q0kvJA=
-Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix race in setting MAC address in" failed to apply to 4.4-stable tree
+        b=rZJzL/1a6WMarKdkmUHQ6Rj7teU2R9hbFzVr0Dpjo1J5TFGe0SW3lg8U2idrvJk4i
+         FwUvEFA3xvhPVUwZMNrdXbdHdsosBzhKROJ0GnZq90rd2Qaf6vSJyZ9P58YdhfuT6c
+         qy2QzAt3cwV42vBeZL/quuQjC+5LBv8QDKL20yNA=
+Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix race in setting MAC address in" failed to apply to 4.9-stable tree
 To:     posteuca@mutex.one, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:31:22 +0100
-Message-ID: <163999268222696@kroah.com>
+Date:   Mon, 20 Dec 2021 10:31:23 +0100
+Message-ID: <1639992683248214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
