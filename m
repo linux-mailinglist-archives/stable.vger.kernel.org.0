@@ -2,52 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC41B47ADA5
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8A1347AE1E
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238414AbhLTOxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:53:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235521AbhLTOvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF204C08EAF5;
-        Mon, 20 Dec 2021 06:46:51 -0800 (PST)
+        id S237337AbhLTO6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:58:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46858 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237249AbhLTO4O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:56:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 908B461183;
-        Mon, 20 Dec 2021 14:46:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7754CC36AE7;
-        Mon, 20 Dec 2021 14:46:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0E23611C2;
+        Mon, 20 Dec 2021 14:56:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5FD1C36AE8;
+        Mon, 20 Dec 2021 14:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011611;
-        bh=b6NgPVRwfRgKLmvnSqpgc95a8jTgmREj3B5OR1Wry2Q=;
+        s=korg; t=1640012173;
+        bh=m1jTfQmrPWmIqj+svdv2jI93fdEvGn9MDIWZEADIIps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icwOfnX+tLIL9ULnsR6KXpHS42vY4d5HYUSvlX3e3MpH/S+2tmBwIocA94hQftGG7
-         cEr2DkXgOvACVmR0ct1v5ayciCPD9tzW2bP+WLTb6LtGlmed/sWdTmDVwfVv6iNlSx
-         +1MwrBm5Wjg55TbIsQGgBS94cvbmAwNnYz+d6KuQ=
+        b=hJugzSxqc7LyzUoC2OwlBjzrCLlfy9FNRGEz7mgZkKqRo57iNS23+Z592BAUkVSXn
+         nMCJB+JGpsm7bT5Ea7I5Gtr+yYQ73+bRX0RPdCO3avXGr7oc1GZAOLgqmAmpG2qcKF
+         zxeCRA+MMXPll1yzPo0Ukif6EZrBpo2gbo54hHvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Quentin Perret <qperret@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Will Deacon <will@kernel.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Steven Price <steven.price@arm.com>
-Subject: [PATCH 5.10 11/99] virtio_ring: Fix querying of maximum DMA mapping size for virtio device
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 074/177] selftests/net: toeplitz: fix udp option
 Date:   Mon, 20 Dec 2021 15:33:44 +0100
-Message-Id: <20211220143029.731318935@linuxfoundation.org>
+Message-Id: <20211220143042.599780344@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 817fc978b5a29b039db0418a91072b31c9aab152 upstream.
+[ Upstream commit a8d13611b4a7b1b20d17bf2b9a89a3efcabde56c ]
 
-virtio_max_dma_size() returns the maximum DMA mapping size of the virtio
-device by querying dma_max_mapping_size() for the device when the DMA
-API is in use for the vring. Unfortunately, the device passed is
-initialised by register_virtio_device() and does not inherit the DMA
-configuration from its parent, resulting in SWIOTLB errors when bouncing
-is enabled and the default 256K mapping limit (IO_TLB_SEGSIZE) is not
-respected:
+Tiny fix. Option -u ("use udp") does not take an argument.
 
-  | virtio-pci 0000:00:01.0: swiotlb buffer is full (sz: 294912 bytes), total 1024 (slots), used 725 (slots)
+It can cause the next argument to silently be ignored.
 
-Follow the pattern used elsewhere in the virtio_ring code when calling
-into the DMA layer and pass the parent device to dma_max_mapping_size()
-instead.
-
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Quentin Perret <qperret@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20211201112018.25276-1-will@kernel.org
-Acked-by: Jason Wang <jasowang@redhat.com>
-Tested-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Fixes: e6d6dd6c875e ("virtio: Introduce virtio_max_dma_size()")
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ebfb4cc3048 ("selftests/net: toeplitz test")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_ring.c |    2 +-
+ tools/testing/selftests/net/toeplitz.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -263,7 +263,7 @@ size_t virtio_max_dma_size(struct virtio
- 	size_t max_segment_size = SIZE_MAX;
+diff --git a/tools/testing/selftests/net/toeplitz.c b/tools/testing/selftests/net/toeplitz.c
+index 710ac956bdb33..c5489341cfb80 100644
+--- a/tools/testing/selftests/net/toeplitz.c
++++ b/tools/testing/selftests/net/toeplitz.c
+@@ -498,7 +498,7 @@ static void parse_opts(int argc, char **argv)
+ 	bool have_toeplitz = false;
+ 	int index, c;
  
- 	if (vring_use_dma_api(vdev))
--		max_segment_size = dma_max_mapping_size(&vdev->dev);
-+		max_segment_size = dma_max_mapping_size(vdev->dev.parent);
- 
- 	return max_segment_size;
- }
+-	while ((c = getopt_long(argc, argv, "46C:d:i:k:r:stT:u:v", long_options, &index)) != -1) {
++	while ((c = getopt_long(argc, argv, "46C:d:i:k:r:stT:uv", long_options, &index)) != -1) {
+ 		switch (c) {
+ 		case '4':
+ 			cfg_family = AF_INET;
+-- 
+2.33.0
+
 
 
