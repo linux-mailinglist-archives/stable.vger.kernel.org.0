@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F23E47AF7D
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:15:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6E447AF7F
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:15:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239094AbhLTPN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:13:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39612 "EHLO
+        id S239779AbhLTPN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:13:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237704AbhLTPMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:12:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C1BC08EB39;
-        Mon, 20 Dec 2021 06:56:36 -0800 (PST)
+        with ESMTP id S239934AbhLTPMS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:12:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B96B4C08EB3F;
+        Mon, 20 Dec 2021 06:56:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DA22611A5;
-        Mon, 20 Dec 2021 14:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0067BC36AE7;
-        Mon, 20 Dec 2021 14:56:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 795F5B80EEB;
+        Mon, 20 Dec 2021 14:56:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C3AC36AE7;
+        Mon, 20 Dec 2021 14:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012195;
-        bh=aWhdbSqSEwm2NU5GcU/34E+diUcmKcnM3RzhCcvNZWM=;
+        s=korg; t=1640012198;
+        bh=QS3/dkB+tB/5IAh2e9vOTrOIW7Lz2+qYnejvi53vs0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YsQfA7DoUVAmFpTNDd0bedkaNrrvifkxlNJqYWJ+J0L5QbYqPeRqiqBPwQ4yq1Je5
-         +Hpb/Af/YvCUoNSVFuJeb3ka9ByU+8ikYmXz13bTyPdLCpafHq82JV+OURup9TTlfJ
-         6Lqmu+a8yyyyahpa0mh71+Yw/LK6wmKzN6udPink=
+        b=MIj8rg51WlHEufs+OCihy9aHjv++Q7wjlmCdYA5yFmbBSIAPKAVYlo2prsFnlI6dl
+         Aob+r71GknmCZP7aalap63Fq8WV1Jy9tF++FcwJincqlw9vOvOc/GQ2MW/MkRIPByp
+         OqdKIdkO2AgdcTb2JYVJdVdAILwn4RX3cSiy3ipI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/177] KVM: x86: Drop guest CPUID check for host initiated writes to MSR_IA32_PERF_CAPABILITIES
-Date:   Mon, 20 Dec 2021 15:34:25 +0100
-Message-Id: <20211220143043.951569937@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+5f47a8cea6a12b77a876@syzkaller.appspotmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 5.15 116/177] tty: n_hdlc: make n_hdlc_tty_wakeup() asynchronous
+Date:   Mon, 20 Dec 2021 15:34:26 +0100
+Message-Id: <20211220143043.982140657@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -49,39 +51,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit 1aa2abb33a419090c7c87d4ae842a6347078ee12 ]
+commit 1ee33b1ca2b8dabfcc17198ffd049a6b55674a86 upstream.
 
-The ability to write to MSR_IA32_PERF_CAPABILITIES from the host should
-not depend on guest visible CPUID entries, even if just to allow
-creating/restoring guest MSRs and CPUIDs in any sequence.
+syzbot is reporting that an unprivileged user who logged in from tty
+console can crash the system using a reproducer shown below [1], for
+n_hdlc_tty_wakeup() is synchronously calling n_hdlc_send_frames().
 
-Fixes: 27461da31089 ("KVM: x86/pmu: Support full width counting")
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20211216165213.338923-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+----------
+  #include <sys/ioctl.h>
+  #include <unistd.h>
+
+  int main(int argc, char *argv[])
+  {
+    const int disc = 0xd;
+
+    ioctl(1, TIOCSETD, &disc);
+    while (1) {
+      ioctl(1, TCXONC, 0);
+      write(1, "", 1);
+      ioctl(1, TCXONC, 1); /* Kernel panic - not syncing: scheduling while atomic */
+    }
+  }
+----------
+
+Linus suspected that "struct tty_ldisc"->ops->write_wakeup() must not
+sleep, and Jiri confirmed it from include/linux/tty_ldisc.h. Thus, defer
+n_hdlc_send_frames() from n_hdlc_tty_wakeup() to a WQ context like
+net/nfc/nci/uart.c does.
+
+Link: https://syzkaller.appspot.com/bug?extid=5f47a8cea6a12b77a876 [1]
+Reported-by: syzbot <syzbot+5f47a8cea6a12b77a876@syzkaller.appspotmail.com>
+Cc: stable <stable@vger.kernel.org>
+Analyzed-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Confirmed-by: Jiri Slaby <jirislaby@kernel.org>
+Reviewed-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Link: https://lore.kernel.org/r/40de8b7e-a3be-4486-4e33-1b1d1da452f8@i-love.sakura.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_hdlc.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 3c9e2d236830c..dea578586fa4e 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3359,7 +3359,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+--- a/drivers/tty/n_hdlc.c
++++ b/drivers/tty/n_hdlc.c
+@@ -140,6 +140,8 @@ struct n_hdlc {
+ 	struct n_hdlc_buf_list	rx_buf_list;
+ 	struct n_hdlc_buf_list	tx_free_buf_list;
+ 	struct n_hdlc_buf_list	rx_free_buf_list;
++	struct work_struct	write_work;
++	struct tty_struct	*tty_for_write_work;
+ };
  
- 		if (!msr_info->host_initiated)
- 			return 1;
--		if (guest_cpuid_has(vcpu, X86_FEATURE_PDCM) && kvm_get_msr_feature(&msr_ent))
-+		if (kvm_get_msr_feature(&msr_ent))
- 			return 1;
- 		if (data & ~msr_ent.data)
- 			return 1;
--- 
-2.34.1
-
+ /*
+@@ -154,6 +156,7 @@ static struct n_hdlc_buf *n_hdlc_buf_get
+ /* Local functions */
+ 
+ static struct n_hdlc *n_hdlc_alloc(void);
++static void n_hdlc_tty_write_work(struct work_struct *work);
+ 
+ /* max frame size for memory allocations */
+ static int maxframe = 4096;
+@@ -210,6 +213,8 @@ static void n_hdlc_tty_close(struct tty_
+ 	wake_up_interruptible(&tty->read_wait);
+ 	wake_up_interruptible(&tty->write_wait);
+ 
++	cancel_work_sync(&n_hdlc->write_work);
++
+ 	n_hdlc_free_buf_list(&n_hdlc->rx_free_buf_list);
+ 	n_hdlc_free_buf_list(&n_hdlc->tx_free_buf_list);
+ 	n_hdlc_free_buf_list(&n_hdlc->rx_buf_list);
+@@ -241,6 +246,8 @@ static int n_hdlc_tty_open(struct tty_st
+ 		return -ENFILE;
+ 	}
+ 
++	INIT_WORK(&n_hdlc->write_work, n_hdlc_tty_write_work);
++	n_hdlc->tty_for_write_work = tty;
+ 	tty->disc_data = n_hdlc;
+ 	tty->receive_room = 65536;
+ 
+@@ -335,6 +342,20 @@ check_again:
+ }	/* end of n_hdlc_send_frames() */
+ 
+ /**
++ * n_hdlc_tty_write_work - Asynchronous callback for transmit wakeup
++ * @work: pointer to work_struct
++ *
++ * Called when low level device driver can accept more send data.
++ */
++static void n_hdlc_tty_write_work(struct work_struct *work)
++{
++	struct n_hdlc *n_hdlc = container_of(work, struct n_hdlc, write_work);
++	struct tty_struct *tty = n_hdlc->tty_for_write_work;
++
++	n_hdlc_send_frames(n_hdlc, tty);
++}	/* end of n_hdlc_tty_write_work() */
++
++/**
+  * n_hdlc_tty_wakeup - Callback for transmit wakeup
+  * @tty: pointer to associated tty instance data
+  *
+@@ -344,7 +365,7 @@ static void n_hdlc_tty_wakeup(struct tty
+ {
+ 	struct n_hdlc *n_hdlc = tty->disc_data;
+ 
+-	n_hdlc_send_frames(n_hdlc, tty);
++	schedule_work(&n_hdlc->write_work);
+ }	/* end of n_hdlc_tty_wakeup() */
+ 
+ /**
 
 
