@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B0A47AEAA
+	by mail.lfdr.de (Postfix) with ESMTP id AA36247AEAC
 	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:04:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240865AbhLTPCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:02:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35878 "EHLO
+        id S238064AbhLTPCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:02:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240250AbhLTPAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:00:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0593C07E5EB;
-        Mon, 20 Dec 2021 06:51:06 -0800 (PST)
+        with ESMTP id S240270AbhLTPAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:00:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3562DC07E5F0;
+        Mon, 20 Dec 2021 06:51:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADEA1B80EED;
-        Mon, 20 Dec 2021 14:51:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1178C36AE7;
-        Mon, 20 Dec 2021 14:51:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6DC8611A8;
+        Mon, 20 Dec 2021 14:51:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A944FC36AE8;
+        Mon, 20 Dec 2021 14:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011864;
-        bh=dd/4d2JsH21Qfk/ou/QbKKJZDFk86i7sCMoVjzC5Q9g=;
+        s=korg; t=1640011867;
+        bh=/vqcRNNi4KB0azWfc2AImzJiqHf5jg6Q3+G+/1ZA1yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g9Qc3NeqISPTnWR6PX829MG7vwi1rOZPz3g4CKVExSEKMZdKg2fwic/1aGgAwneZr
-         mk5cwDsVPBOyO5vdHBCIszGdLdvGZOARK7PwaQQRkG8jWzlVThUFdYeh0T4jCmVyun
-         QwfN0xUBDKR+d3CmJzVa1+tUamdwtpe2Dmavzqis=
+        b=LueKybgl0+ja5jIVHaUywITK27sKITZc2PJa2ipLm1d2R8tc+1xvSES3RfdLLoO4f
+         KaAiftagM1gHlMmn+juWXRTWz2GjyKoLPt1QknwnFW61dC8lOsB6ynS82vfFWQt/Fv
+         XeAyONpS0db+uCZij1FYtPPp0VMHbD/sI0NG70H0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+9f747458f5990eaa8d43@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 87/99] fuse: annotate lock in fuse_reverse_inval_entry()
-Date:   Mon, 20 Dec 2021 15:35:00 +0100
-Message-Id: <20211220143032.321770850@linuxfoundation.org>
+        syzbot+75eab84fd0af9e8bf66b@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 88/99] ovl: fix warning in ovl_create_real()
+Date:   Mon, 20 Dec 2021 15:35:01 +0100
+Message-Id: <20211220143032.361312573@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -49,27 +49,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit bda9a71980e083699a0360963c0135657b73f47a upstream.
+commit 1f5573cfe7a7056e80a92c7a037a3e69f3a13d1c upstream.
 
-Add missing inode lock annotatation; found by syzbot.
+Syzbot triggered the following warning in ovl_workdir_create() ->
+ovl_create_real():
 
-Reported-and-tested-by: syzbot+9f747458f5990eaa8d43@syzkaller.appspotmail.com
+	if (!err && WARN_ON(!newdentry->d_inode)) {
+
+The reason is that the cgroup2 filesystem returns from mkdir without
+instantiating the new dentry.
+
+Weird filesystems such as this will be rejected by overlayfs at a later
+stage during setup, but to prevent such a warning, call ovl_mkdir_real()
+directly from ovl_workdir_create() and reject this case early.
+
+Reported-and-tested-by: syzbot+75eab84fd0af9e8bf66b@syzkaller.appspotmail.com
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/dir.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/overlayfs/dir.c       |    3 +--
+ fs/overlayfs/overlayfs.h |    1 +
+ fs/overlayfs/super.c     |   12 ++++++++----
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -1132,7 +1132,7 @@ int fuse_reverse_inval_entry(struct fuse
- 	if (!parent)
- 		return -ENOENT;
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -137,8 +137,7 @@ kill_whiteout:
+ 	goto out;
+ }
  
--	inode_lock(parent);
-+	inode_lock_nested(parent, I_MUTEX_PARENT);
- 	if (!S_ISDIR(parent->i_mode))
- 		goto unlock;
+-static int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry,
+-			  umode_t mode)
++int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry, umode_t mode)
+ {
+ 	int err;
+ 	struct dentry *d, *dentry = *newdentry;
+--- a/fs/overlayfs/overlayfs.h
++++ b/fs/overlayfs/overlayfs.h
+@@ -519,6 +519,7 @@ struct ovl_cattr {
  
+ #define OVL_CATTR(m) (&(struct ovl_cattr) { .mode = (m) })
+ 
++int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry, umode_t mode);
+ struct dentry *ovl_create_real(struct inode *dir, struct dentry *newdentry,
+ 			       struct ovl_cattr *attr);
+ int ovl_cleanup(struct inode *dir, struct dentry *dentry);
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -743,10 +743,14 @@ retry:
+ 			goto retry;
+ 		}
+ 
+-		work = ovl_create_real(dir, work, OVL_CATTR(attr.ia_mode));
+-		err = PTR_ERR(work);
+-		if (IS_ERR(work))
+-			goto out_err;
++		err = ovl_mkdir_real(dir, &work, attr.ia_mode);
++		if (err)
++			goto out_dput;
++
++		/* Weird filesystem returning with hashed negative (kernfs)? */
++		err = -EINVAL;
++		if (d_really_is_negative(work))
++			goto out_dput;
+ 
+ 		/*
+ 		 * Try to remove POSIX ACL xattrs from workdir.  We are good if:
 
 
