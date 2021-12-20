@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA41047AD88
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F7647AE88
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237682AbhLTOws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:52:48 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42236 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236750AbhLTOuq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:46 -0500
+        id S238642AbhLTPBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:01:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36046 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238736AbhLTO7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:59:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4047FC0698D9;
+        Mon, 20 Dec 2021 06:50:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84D25611AB;
-        Mon, 20 Dec 2021 14:50:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63291C36AE8;
-        Mon, 20 Dec 2021 14:50:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2E88B80EB3;
+        Mon, 20 Dec 2021 14:50:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33347C36AF6;
+        Mon, 20 Dec 2021 14:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011844;
-        bh=3AyQpVaUmqLkLNvFjtb1HRqMs1Y9ovxAvsSh3xdmabo=;
+        s=korg; t=1640011847;
+        bh=DKxiby6VTkpjRcIkVf70NF+KreoyQ0NK0gGmZjTD0yE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZVZ45+Zz91rvxPprj2inIfnpkKgVtD62mj9EwYrKFHhSxAUUsLE67EmNoHqgIV7V
-         NuUThWeRiIYd8pqe63g7VjWS/LuvvkSv1TvsuBiUHpR9Fc4zJ5zF5a2zONl0UM30r4
-         D+TQxUS8Bs33YOrmPyZ5Ob64vaCEgFXBiNUkv3NQ=
+        b=A/ElrKuyl7TAE6IfboZ8kEUOH0q3ew50l8mFS2j7L7py2nMCRoOAYNdV8WQlNl7P3
+         B3920CjtJ6zFTR2OTgzJ0g1KPHTJSsCgg7WdWoW5ZKMfOKI/nhtL692r3WPeWJo/62
+         iN47NT2Zvsbg3NP+zVuA1d++jdeYf5XtWe17kZ4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
         Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.10 95/99] xen/blkfront: harden blkfront against event channel storms
-Date:   Mon, 20 Dec 2021 15:35:08 +0100
-Message-Id: <20211220143032.597120021@linuxfoundation.org>
+Subject: [PATCH 5.10 96/99] xen/netfront: harden netfront against event channel storms
+Date:   Mon, 20 Dec 2021 15:35:09 +0100
+Message-Id: <20211220143032.629957774@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -46,11 +49,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit 0fd08a34e8e3b67ec9bd8287ac0facf8374b844a upstream.
+commit b27d47950e481f292c0a5ad57357edb9d95d03ba upstream.
 
-The Xen blkfront driver is still vulnerable for an attack via excessive
+The Xen netfront driver is still vulnerable for an attack via excessive
 number of events sent by the backend. Fix that by using lateeoi event
 channels.
+
+For being able to detect the case of no rx responses being added while
+the carrier is down a new lock is needed in order to update and test
+rsp_cons and the number of seen unconsumed responses atomically.
 
 This is part of XSA-391
 
@@ -58,62 +65,275 @@ Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/xen-blkfront.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/net/xen-netfront.c |  125 +++++++++++++++++++++++++++++++++------------
+ 1 file changed, 94 insertions(+), 31 deletions(-)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -1573,9 +1573,12 @@ static irqreturn_t blkif_interrupt(int i
- 	unsigned long flags;
- 	struct blkfront_ring_info *rinfo = (struct blkfront_ring_info *)dev_id;
- 	struct blkfront_info *info = rinfo->dev_info;
-+	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -148,6 +148,9 @@ struct netfront_queue {
+ 	grant_ref_t gref_rx_head;
+ 	grant_ref_t grant_rx_ref[NET_RX_RING_SIZE];
  
--	if (unlikely(info->connected != BLKIF_STATE_CONNECTED))
-+	if (unlikely(info->connected != BLKIF_STATE_CONNECTED)) {
-+		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
- 		return IRQ_HANDLED;
-+	}
- 
- 	spin_lock_irqsave(&rinfo->ring_lock, flags);
-  again:
-@@ -1591,6 +1594,8 @@ static irqreturn_t blkif_interrupt(int i
- 		unsigned long id;
- 		unsigned int op;
- 
-+		eoiflag = 0;
++	unsigned int rx_rsp_unconsumed;
++	spinlock_t rx_cons_lock;
 +
- 		RING_COPY_RESPONSE(&rinfo->ring, i, &bret);
- 		id = bret.id;
+ 	struct page_pool *page_pool;
+ 	struct xdp_rxq_info xdp_rxq;
+ };
+@@ -376,12 +379,13 @@ static int xennet_open(struct net_device
+ 	return 0;
+ }
  
-@@ -1707,6 +1712,8 @@ static irqreturn_t blkif_interrupt(int i
+-static void xennet_tx_buf_gc(struct netfront_queue *queue)
++static bool xennet_tx_buf_gc(struct netfront_queue *queue)
+ {
+ 	RING_IDX cons, prod;
+ 	unsigned short id;
+ 	struct sk_buff *skb;
+ 	bool more_to_do;
++	bool work_done = false;
+ 	const struct device *dev = &queue->info->netdev->dev;
  
- 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
+ 	BUG_ON(!netif_carrier_ok(queue->info->netdev));
+@@ -398,6 +402,8 @@ static void xennet_tx_buf_gc(struct netf
+ 		for (cons = queue->tx.rsp_cons; cons != prod; cons++) {
+ 			struct xen_netif_tx_response txrsp;
  
-+	xen_irq_lateeoi(irq, eoiflag);
++			work_done = true;
 +
- 	return IRQ_HANDLED;
+ 			RING_COPY_RESPONSE(&queue->tx, cons, &txrsp);
+ 			if (txrsp.status == XEN_NETIF_RSP_NULL)
+ 				continue;
+@@ -441,11 +447,13 @@ static void xennet_tx_buf_gc(struct netf
+ 
+ 	xennet_maybe_wake_tx(queue);
+ 
+-	return;
++	return work_done;
  
   err:
-@@ -1714,6 +1721,8 @@ static irqreturn_t blkif_interrupt(int i
- 
- 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
- 
-+	/* No EOI in order to avoid further interrupts. */
+ 	queue->info->broken = true;
+ 	dev_alert(dev, "Disabled for further use\n");
 +
- 	pr_alert("%s disabled for further use\n", info->gd->disk_name);
++	return work_done;
+ }
+ 
+ struct xennet_gnttab_make_txreq {
+@@ -836,6 +844,16 @@ static int xennet_close(struct net_devic
+ 	return 0;
+ }
+ 
++static void xennet_set_rx_rsp_cons(struct netfront_queue *queue, RING_IDX val)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&queue->rx_cons_lock, flags);
++	queue->rx.rsp_cons = val;
++	queue->rx_rsp_unconsumed = RING_HAS_UNCONSUMED_RESPONSES(&queue->rx);
++	spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
++}
++
+ static void xennet_move_rx_slot(struct netfront_queue *queue, struct sk_buff *skb,
+ 				grant_ref_t ref)
+ {
+@@ -887,7 +905,7 @@ static int xennet_get_extras(struct netf
+ 		xennet_move_rx_slot(queue, skb, ref);
+ 	} while (extra.flags & XEN_NETIF_EXTRA_FLAG_MORE);
+ 
+-	queue->rx.rsp_cons = cons;
++	xennet_set_rx_rsp_cons(queue, cons);
+ 	return err;
+ }
+ 
+@@ -1041,7 +1059,7 @@ next:
+ 	}
+ 
+ 	if (unlikely(err))
+-		queue->rx.rsp_cons = cons + slots;
++		xennet_set_rx_rsp_cons(queue, cons + slots);
+ 
+ 	return err;
+ }
+@@ -1095,7 +1113,8 @@ static int xennet_fill_frags(struct netf
+ 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
+ 		}
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+-			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
++			xennet_set_rx_rsp_cons(queue,
++					       ++cons + skb_queue_len(list));
+ 			kfree_skb(nskb);
+ 			return -ENOENT;
+ 		}
+@@ -1108,7 +1127,7 @@ static int xennet_fill_frags(struct netf
+ 		kfree_skb(nskb);
+ 	}
+ 
+-	queue->rx.rsp_cons = cons;
++	xennet_set_rx_rsp_cons(queue, cons);
+ 
+ 	return 0;
+ }
+@@ -1231,7 +1250,9 @@ err:
+ 
+ 			if (unlikely(xennet_set_skb_gso(skb, gso))) {
+ 				__skb_queue_head(&tmpq, skb);
+-				queue->rx.rsp_cons += skb_queue_len(&tmpq);
++				xennet_set_rx_rsp_cons(queue,
++						       queue->rx.rsp_cons +
++						       skb_queue_len(&tmpq));
+ 				goto err;
+ 			}
+ 		}
+@@ -1255,7 +1276,8 @@ err:
+ 
+ 		__skb_queue_tail(&rxq, skb);
+ 
+-		i = ++queue->rx.rsp_cons;
++		i = queue->rx.rsp_cons + 1;
++		xennet_set_rx_rsp_cons(queue, i);
+ 		work_done++;
+ 	}
+ 	if (need_xdp_flush)
+@@ -1419,40 +1441,79 @@ static int xennet_set_features(struct ne
+ 	return 0;
+ }
+ 
+-static irqreturn_t xennet_tx_interrupt(int irq, void *dev_id)
++static bool xennet_handle_tx(struct netfront_queue *queue, unsigned int *eoi)
+ {
+-	struct netfront_queue *queue = dev_id;
+ 	unsigned long flags;
+ 
+-	if (queue->info->broken)
+-		return IRQ_HANDLED;
++	if (unlikely(queue->info->broken))
++		return false;
+ 
+ 	spin_lock_irqsave(&queue->tx_lock, flags);
+-	xennet_tx_buf_gc(queue);
++	if (xennet_tx_buf_gc(queue))
++		*eoi = 0;
+ 	spin_unlock_irqrestore(&queue->tx_lock, flags);
+ 
++	return true;
++}
++
++static irqreturn_t xennet_tx_interrupt(int irq, void *dev_id)
++{
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
++
++	if (likely(xennet_handle_tx(dev_id, &eoiflag)))
++		xen_irq_lateeoi(irq, eoiflag);
++
  	return IRQ_HANDLED;
  }
-@@ -1753,8 +1762,8 @@ static int setup_blkring(struct xenbus_d
- 	if (err)
+ 
+-static irqreturn_t xennet_rx_interrupt(int irq, void *dev_id)
++static bool xennet_handle_rx(struct netfront_queue *queue, unsigned int *eoi)
+ {
+-	struct netfront_queue *queue = dev_id;
+-	struct net_device *dev = queue->info->netdev;
++	unsigned int work_queued;
++	unsigned long flags;
++
++	if (unlikely(queue->info->broken))
++		return false;
+ 
+-	if (queue->info->broken)
+-		return IRQ_HANDLED;
++	spin_lock_irqsave(&queue->rx_cons_lock, flags);
++	work_queued = RING_HAS_UNCONSUMED_RESPONSES(&queue->rx);
++	if (work_queued > queue->rx_rsp_unconsumed) {
++		queue->rx_rsp_unconsumed = work_queued;
++		*eoi = 0;
++	} else if (unlikely(work_queued < queue->rx_rsp_unconsumed)) {
++		const struct device *dev = &queue->info->netdev->dev;
++
++		spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
++		dev_alert(dev, "RX producer index going backwards\n");
++		dev_alert(dev, "Disabled for further use\n");
++		queue->info->broken = true;
++		return false;
++	}
++	spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
+ 
+-	if (likely(netif_carrier_ok(dev) &&
+-		   RING_HAS_UNCONSUMED_RESPONSES(&queue->rx)))
++	if (likely(netif_carrier_ok(queue->info->netdev) && work_queued))
+ 		napi_schedule(&queue->napi);
+ 
++	return true;
++}
++
++static irqreturn_t xennet_rx_interrupt(int irq, void *dev_id)
++{
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
++
++	if (likely(xennet_handle_rx(dev_id, &eoiflag)))
++		xen_irq_lateeoi(irq, eoiflag);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+ static irqreturn_t xennet_interrupt(int irq, void *dev_id)
+ {
+-	xennet_tx_interrupt(irq, dev_id);
+-	xennet_rx_interrupt(irq, dev_id);
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
++
++	if (xennet_handle_tx(dev_id, &eoiflag) &&
++	    xennet_handle_rx(dev_id, &eoiflag))
++		xen_irq_lateeoi(irq, eoiflag);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -1770,9 +1831,10 @@ static int setup_netfront_single(struct
+ 	if (err < 0)
  		goto fail;
  
--	err = bind_evtchn_to_irqhandler(rinfo->evtchn, blkif_interrupt, 0,
--					"blkif", rinfo);
-+	err = bind_evtchn_to_irqhandler_lateeoi(rinfo->evtchn, blkif_interrupt,
-+						0, "blkif", rinfo);
- 	if (err <= 0) {
- 		xenbus_dev_fatal(dev, err,
- 				 "bind_evtchn_to_irqhandler failed");
+-	err = bind_evtchn_to_irqhandler(queue->tx_evtchn,
+-					xennet_interrupt,
+-					0, queue->info->netdev->name, queue);
++	err = bind_evtchn_to_irqhandler_lateeoi(queue->tx_evtchn,
++						xennet_interrupt, 0,
++						queue->info->netdev->name,
++						queue);
+ 	if (err < 0)
+ 		goto bind_fail;
+ 	queue->rx_evtchn = queue->tx_evtchn;
+@@ -1800,18 +1862,18 @@ static int setup_netfront_split(struct n
+ 
+ 	snprintf(queue->tx_irq_name, sizeof(queue->tx_irq_name),
+ 		 "%s-tx", queue->name);
+-	err = bind_evtchn_to_irqhandler(queue->tx_evtchn,
+-					xennet_tx_interrupt,
+-					0, queue->tx_irq_name, queue);
++	err = bind_evtchn_to_irqhandler_lateeoi(queue->tx_evtchn,
++						xennet_tx_interrupt, 0,
++						queue->tx_irq_name, queue);
+ 	if (err < 0)
+ 		goto bind_tx_fail;
+ 	queue->tx_irq = err;
+ 
+ 	snprintf(queue->rx_irq_name, sizeof(queue->rx_irq_name),
+ 		 "%s-rx", queue->name);
+-	err = bind_evtchn_to_irqhandler(queue->rx_evtchn,
+-					xennet_rx_interrupt,
+-					0, queue->rx_irq_name, queue);
++	err = bind_evtchn_to_irqhandler_lateeoi(queue->rx_evtchn,
++						xennet_rx_interrupt, 0,
++						queue->rx_irq_name, queue);
+ 	if (err < 0)
+ 		goto bind_rx_fail;
+ 	queue->rx_irq = err;
+@@ -1913,6 +1975,7 @@ static int xennet_init_queue(struct netf
+ 
+ 	spin_lock_init(&queue->tx_lock);
+ 	spin_lock_init(&queue->rx_lock);
++	spin_lock_init(&queue->rx_cons_lock);
+ 
+ 	timer_setup(&queue->rx_refill_timer, rx_refill_timeout, 0);
+ 
 
 
