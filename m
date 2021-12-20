@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF0E47AC04
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 832F747AD29
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235251AbhLTOk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:40:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59732 "EHLO
+        id S236046AbhLTOum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:50:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234901AbhLTOjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:44 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A131FC06139E;
-        Mon, 20 Dec 2021 06:39:42 -0800 (PST)
+        with ESMTP id S236753AbhLTOsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE00DC07E5DF;
+        Mon, 20 Dec 2021 06:44:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F3ADBCE0F99;
-        Mon, 20 Dec 2021 14:39:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C824FC36AE7;
-        Mon, 20 Dec 2021 14:39:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66202B80EDE;
+        Mon, 20 Dec 2021 14:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B016DC36AE7;
+        Mon, 20 Dec 2021 14:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011179;
-        bh=7LyAz9B2HnhX8l7o7kRAw8Dqw9Im8Ql/KtcDDgx3DpU=;
+        s=korg; t=1640011479;
+        bh=ntWbnLhnOcwCTUZJaM0mvpAkopqpVyVPfhCxiLyUdHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIMSPIryG6jfm47J4W+n9TPgmWTqLLBJPRpLCPYTINrTHuQRjDwPBkISftExu9L8r
-         FSmCN6l3ip0EYT7PdZbU1TBNE0o9R3HshtW4fMbYyxhXGgI1J5/E9fBLcFgYXk99oz
-         cA9FSVXjLtqGd6aC5yOYwIw8Uk04wn4WPzkhFWvg=
+        b=wjNxjG3ms29eZhe1wEbA+Rkj48EngeMBgcl1AqgTqvKWA1ktOdgQPRUA19bCWAtKp
+         ll10gE3p5D/Jkn/W42QwJK9nzmPcDpDAwIZyn7XDti2zMtdSun3h/ve0tmi7gYAeBE
+         7+3C7ZEddrXtjvQiC4JczvxVwOwwHSkEeucijqJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.14 30/45] libata: if T_LENGTH is zero, dma direction should be DMA_NONE
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Letu Ren <fantasquex@gmail.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 36/71] igbvf: fix double free in `igbvf_probe`
 Date:   Mon, 20 Dec 2021 15:34:25 +0100
-Message-Id: <20211220143023.278105209@linuxfoundation.org>
+Message-Id: <20211220143026.899039802@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,46 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Letu Ren <fantasquex@gmail.com>
 
-commit 5da5231bb47864e5dd6c6731151e98b6ee498827 upstream.
+[ Upstream commit b6d335a60dc624c0d279333b22c737faa765b028 ]
 
-Avoid data corruption by rejecting pass-through commands where
-T_LENGTH is zero (No data is transferred) and the dma direction
-is not DMA_NONE.
+In `igbvf_probe`, if register_netdev() fails, the program will go to
+label err_hw_init, and then to label err_ioremap. In free_netdev() which
+is just below label err_ioremap, there is `list_for_each_entry_safe` and
+`netif_napi_del` which aims to delete all entries in `dev->napi_list`.
+The program has added an entry `adapter->rx_ring->napi` which is added by
+`netif_napi_add` in igbvf_alloc_queues(). However, adapter->rx_ring has
+been freed below label err_hw_init. So this a UAF.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: syzkaller<syzkaller@googlegroups.com>
-Signed-off-by: George Kennedy<george.kennedy@oracle.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In terms of how to patch the problem, we can refer to igbvf_remove() and
+delete the entry before `adapter->rx_ring`.
+
+The KASAN logs are as follows:
+
+[   35.126075] BUG: KASAN: use-after-free in free_netdev+0x1fd/0x450
+[   35.127170] Read of size 8 at addr ffff88810126d990 by task modprobe/366
+[   35.128360]
+[   35.128643] CPU: 1 PID: 366 Comm: modprobe Not tainted 5.15.0-rc2+ #14
+[   35.129789] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[   35.131749] Call Trace:
+[   35.132199]  dump_stack_lvl+0x59/0x7b
+[   35.132865]  print_address_description+0x7c/0x3b0
+[   35.133707]  ? free_netdev+0x1fd/0x450
+[   35.134378]  __kasan_report+0x160/0x1c0
+[   35.135063]  ? free_netdev+0x1fd/0x450
+[   35.135738]  kasan_report+0x4b/0x70
+[   35.136367]  free_netdev+0x1fd/0x450
+[   35.137006]  igbvf_probe+0x121d/0x1a10 [igbvf]
+[   35.137808]  ? igbvf_vlan_rx_add_vid+0x100/0x100 [igbvf]
+[   35.138751]  local_pci_probe+0x13c/0x1f0
+[   35.139461]  pci_device_probe+0x37e/0x6c0
+[   35.165526]
+[   35.165806] Allocated by task 366:
+[   35.166414]  ____kasan_kmalloc+0xc4/0xf0
+[   35.167117]  foo_kmem_cache_alloc_trace+0x3c/0x50 [igbvf]
+[   35.168078]  igbvf_probe+0x9c5/0x1a10 [igbvf]
+[   35.168866]  local_pci_probe+0x13c/0x1f0
+[   35.169565]  pci_device_probe+0x37e/0x6c0
+[   35.179713]
+[   35.179993] Freed by task 366:
+[   35.180539]  kasan_set_track+0x4c/0x80
+[   35.181211]  kasan_set_free_info+0x1f/0x40
+[   35.181942]  ____kasan_slab_free+0x103/0x140
+[   35.182703]  kfree+0xe3/0x250
+[   35.183239]  igbvf_probe+0x1173/0x1a10 [igbvf]
+[   35.184040]  local_pci_probe+0x13c/0x1f0
+
+Fixes: d4e0fe01a38a0 (igbvf: add new driver to support 82576 virtual functions)
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igbvf/netdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -3182,8 +3182,19 @@ static unsigned int ata_scsi_pass_thru(s
- 		goto invalid_fld;
- 	}
+diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
+index 77cb2ab7dab40..1082e49ea0560 100644
+--- a/drivers/net/ethernet/intel/igbvf/netdev.c
++++ b/drivers/net/ethernet/intel/igbvf/netdev.c
+@@ -2887,6 +2887,7 @@ static int igbvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	return 0;
  
--	if (ata_is_ncq(tf->protocol) && (cdb[2 + cdb_offset] & 0x3) == 0)
--		tf->protocol = ATA_PROT_NCQ_NODATA;
-+	if ((cdb[2 + cdb_offset] & 0x3) == 0) {
-+		/*
-+		 * When T_LENGTH is zero (No data is transferred), dir should
-+		 * be DMA_NONE.
-+		 */
-+		if (scmd->sc_data_direction != DMA_NONE) {
-+			fp = 2 + cdb_offset;
-+			goto invalid_fld;
-+		}
-+
-+		if (ata_is_ncq(tf->protocol))
-+			tf->protocol = ATA_PROT_NCQ_NODATA;
-+	}
- 
- 	/* enable LBA */
- 	tf->flags |= ATA_TFLAG_LBA;
+ err_hw_init:
++	netif_napi_del(&adapter->rx_ring->napi);
+ 	kfree(adapter->tx_ring);
+ 	kfree(adapter->rx_ring);
+ err_sw_init:
+-- 
+2.33.0
+
 
 
