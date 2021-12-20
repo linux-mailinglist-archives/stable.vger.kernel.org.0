@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 265CC47ACD6
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:47:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 305CE47AD4B
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237354AbhLTOrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:47:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33232 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236918AbhLTOpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:45:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6EA0C079798;
-        Mon, 20 Dec 2021 06:43:14 -0800 (PST)
+        id S235262AbhLTOvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:51:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55824 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235890AbhLTOtH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95351B80EF0;
-        Mon, 20 Dec 2021 14:43:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7CAEC36AE8;
-        Mon, 20 Dec 2021 14:43:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9CBFB80EE4;
+        Mon, 20 Dec 2021 14:49:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 294C2C36AE9;
+        Mon, 20 Dec 2021 14:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011392;
-        bh=ZmppYWsiEz+vwR6RbXUz1zrf+CsowWaLIP644YxsmYw=;
+        s=korg; t=1640011744;
+        bh=ljdZuRv6SWrPfmyPw5YotBu5n4WVdDCuwnE3pikCLzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUbsf+84HWPpAZHjfOJJrHWN6YqBun3AHTaDGLpJHcqre7UhlgSXDkL/sZOlOV2Nm
-         X3B/ydH/HbpOy1IAljfaoWMACeLsTs4BZeKeD8jysIN0gY6FheAhEGJnvdcxP9gjRZ
-         aH11Vn9A5jZxvviGMfuNjATe4lV+dFvf/JyTa6q0=
+        b=wuq+Y0dPwyl1D8xV7MyDt3Td2/oPsG51y3ACNr21gyQ1dspUQ59OyLZdnGuYIthaJ
+         m3blml/Pu33QIH6amUZvuLd/r8ANy9HtRKd/HL4U/vsVUV1orIbq/AuZ5+opXXCqC/
+         D9IlHKer4DG/UCxz/RSHE9ORkGdxyqJxQrZ7Ysrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 39/56] net: systemport: Add global locking for descriptor lifecycle
+        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        "D. Wythe" <alibuda@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 59/99] net/smc: Prevent smc_release() from long blocking
 Date:   Mon, 20 Dec 2021 15:34:32 +0100
-Message-Id: <20211220143024.725551978@linuxfoundation.org>
+Message-Id: <20211220143031.372434343@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,77 +48,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: D. Wythe <alibuda@linux.alibaba.com>
 
-commit 8b8e6e782456f1ce02a7ae914bbd5b1053f0b034 upstream.
+[ Upstream commit 5c15b3123f65f8fbb1b445d9a7e8812e0e435df2 ]
 
-The descriptor list is a shared resource across all of the transmit queues, and
-the locking mechanism used today only protects concurrency across a given
-transmit queue between the transmit and reclaiming. This creates an opportunity
-for the SYSTEMPORT hardware to work on corrupted descriptors if we have
-multiple producers at once which is the case when using multiple transmit
-queues.
+In nginx/wrk benchmark, there's a hung problem with high probability
+on case likes that: (client will last several minutes to exit)
 
-This was particularly noticeable when using multiple flows/transmit queues and
-it showed up in interesting ways in that UDP packets would get a correct UDP
-header checksum being calculated over an incorrect packet length. Similarly TCP
-packets would get an equally correct checksum computed by the hardware over an
-incorrect packet length.
+server: smc_run nginx
 
-The SYSTEMPORT hardware maintains an internal descriptor list that it re-arranges
-when the driver produces a new descriptor anytime it writes to the
-WRITE_PORT_{HI,LO} registers, there is however some delay in the hardware to
-re-organize its descriptors and it is possible that concurrent TX queues
-eventually break this internal allocation scheme to the point where the
-length/status part of the descriptor gets used for an incorrect data buffer.
+client: smc_run wrk -c 10000 -t 1 http://server
 
-The fix is to impose a global serialization for all TX queues in the short
-section where we are writing to the WRITE_PORT_{HI,LO} registers which solves
-the corruption even with multiple concurrent TX queues being used.
+Client hangs with the following backtrace:
 
-Fixes: 80105befdb4b ("net: systemport: add Broadcom SYSTEMPORT Ethernet MAC driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20211215202450.4086240-1-f.fainelli@gmail.com
+0 [ffffa7ce8Of3bbf8] __schedule at ffffffff9f9eOd5f
+1 [ffffa7ce8Of3bc88] schedule at ffffffff9f9eløe6
+2 [ffffa7ce8Of3bcaO] schedule_timeout at ffffffff9f9e3f3c
+3 [ffffa7ce8Of3bd2O] wait_for_common at ffffffff9f9el9de
+4 [ffffa7ce8Of3bd8O] __flush_work at ffffffff9fOfeOl3
+5 [ffffa7ce8øf3bdfO] smc_release at ffffffffcO697d24 [smc]
+6 [ffffa7ce8Of3be2O] __sock_release at ffffffff9f8O2e2d
+7 [ffffa7ce8Of3be4ø] sock_close at ffffffff9f8ø2ebl
+8 [ffffa7ce8øf3be48] __fput at ffffffff9f334f93
+9 [ffffa7ce8Of3be78] task_work_run at ffffffff9flOlff5
+10 [ffffa7ce8Of3beaO] do_exit at ffffffff9fOe5Ol2
+11 [ffffa7ce8Of3bflO] do_group_exit at ffffffff9fOe592a
+12 [ffffa7ce8Of3bf38] __x64_sys_exit_group at ffffffff9fOe5994
+13 [ffffa7ce8Of3bf4O] do_syscall_64 at ffffffff9f9d4373
+14 [ffffa7ce8Of3bfsO] entry_SYSCALL_64_after_hwframe at ffffffff9fa0007c
+
+This issue dues to flush_work(), which is used to wait for
+smc_connect_work() to finish in smc_release(). Once lots of
+smc_connect_work() was pending or all executing work dangling,
+smc_release() has to block until one worker comes to free, which
+is equivalent to wait another smc_connnect_work() to finish.
+
+In order to fix this, There are two changes:
+
+1. For those idle smc_connect_work(), cancel it from the workqueue; for
+   executing smc_connect_work(), waiting for it to finish. For that
+   purpose, replace flush_work() with cancel_work_sync().
+
+2. Since smc_connect() hold a reference for passive closing, if
+   smc_connect_work() has been cancelled, release the reference.
+
+Fixes: 24ac3a08e658 ("net/smc: rebuild nonblocking connect")
+Reported-by: Tony Lu <tonylu@linux.alibaba.com>
+Tested-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://lore.kernel.org/r/1639571361-101128-1-git-send-email-alibuda@linux.alibaba.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c |    5 +++++
- drivers/net/ethernet/broadcom/bcmsysport.h |    1 +
- 2 files changed, 6 insertions(+)
+ net/smc/af_smc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -120,9 +120,13 @@ static inline void tdma_port_write_desc_
- 					     struct dma_desc *desc,
- 					     unsigned int port)
- {
-+	unsigned long desc_flags;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index d324a12c26cd9..99b902e410c49 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -191,7 +191,9 @@ static int smc_release(struct socket *sock)
+ 	/* cleanup for a dangling non-blocking connect */
+ 	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
+ 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
+-	flush_work(&smc->connect_work);
 +
- 	/* Ports are latched, so write upper address first */
-+	spin_lock_irqsave(&priv->desc_lock, desc_flags);
- 	tdma_writel(priv, desc->addr_status_len, TDMA_WRITE_PORT_HI(port));
- 	tdma_writel(priv, desc->addr_lo, TDMA_WRITE_PORT_LO(port));
-+	spin_unlock_irqrestore(&priv->desc_lock, desc_flags);
- }
++	if (cancel_work_sync(&smc->connect_work))
++		sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
  
- /* Ethtool operations */
-@@ -2003,6 +2007,7 @@ static int bcm_sysport_open(struct net_d
- 	}
- 
- 	/* Initialize both hardware and software ring */
-+	spin_lock_init(&priv->desc_lock);
- 	for (i = 0; i < dev->num_tx_queues; i++) {
- 		ret = bcm_sysport_init_tx_ring(priv, i);
- 		if (ret) {
---- a/drivers/net/ethernet/broadcom/bcmsysport.h
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.h
-@@ -751,6 +751,7 @@ struct bcm_sysport_priv {
- 	int			wol_irq;
- 
- 	/* Transmit rings */
-+	spinlock_t		desc_lock;
- 	struct bcm_sysport_tx_ring *tx_rings;
- 
- 	/* Receive queue */
+ 	if (sk->sk_state == SMC_LISTEN)
+ 		/* smc_close_non_accepted() is called and acquires
+-- 
+2.33.0
+
 
 
