@@ -2,43 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 749F947AB59
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4B6447ABE0
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233739AbhLTOgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:36:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44514 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbhLTOgF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:05 -0500
+        id S234437AbhLTOjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:39:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234639AbhLTOi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE8CC0613B5;
+        Mon, 20 Dec 2021 06:38:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 012F6B80EDE;
-        Mon, 20 Dec 2021 14:36:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45330C36AED;
-        Mon, 20 Dec 2021 14:36:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A386B80EDA;
+        Mon, 20 Dec 2021 14:38:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90BBEC36AF9;
+        Mon, 20 Dec 2021 14:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640010962;
-        bh=tCjjAODm51dwVHx6XI/fBrDIZw350xLHMi2abHnKRsI=;
+        s=korg; t=1640011137;
+        bh=ZYs4DYBHpDxqVveMW9XDZ0Z6LTi3Pb8MbmSNyBW6oPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DeZcAPGeKh1HUaxpl4wrnugFvxMFMJTUPW0asDjoB9ga9l4wjLlbHyd6EUArUt9IE
-         ek0nqkM2iMx7UbKx56jStxJ6gTPTXm+PVEvpr7/59a9AnCOtKiL9NRlW1HE55HPgEd
-         13Xg1cfIjhUmFYp4CGW5gsIksbI0TDjwLHUKo8Lk=
+        b=aDhFyjNO1tsCnYN6sqMTx16MzDXG/tKAIYjmsGH11vSHuyGSn2JoskbwWjstc8DXc
+         GniynLIahFja1QtR3NXjm1rUi+tBT6E3eHuGCs3EjJGMaOZ+IqKR2MRH4botb4PQSf
+         lg9nmHpyz8Ed15DYY0wAGez/wg/c881ZbcN4zwoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Letu Ren <fantasquex@gmail.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        linux-hyperv@vger.kernel.org,
+        Michael Kelley <mikelley@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/23] igbvf: fix double free in `igbvf_probe`
+Subject: [PATCH 4.14 17/45] hv: utils: add PTP_1588_CLOCK to Kconfig to fix build
 Date:   Mon, 20 Dec 2021 15:34:12 +0100
-Message-Id: <20211220143018.222091282@linuxfoundation.org>
+Message-Id: <20211220143022.850174832@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
-References: <20211220143017.842390782@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit b6d335a60dc624c0d279333b22c737faa765b028 ]
+[ Upstream commit 1dc2f2b81a6a9895da59f3915760f6c0c3074492 ]
 
-In `igbvf_probe`, if register_netdev() fails, the program will go to
-label err_hw_init, and then to label err_ioremap. In free_netdev() which
-is just below label err_ioremap, there is `list_for_each_entry_safe` and
-`netif_napi_del` which aims to delete all entries in `dev->napi_list`.
-The program has added an entry `adapter->rx_ring->napi` which is added by
-`netif_napi_add` in igbvf_alloc_queues(). However, adapter->rx_ring has
-been freed below label err_hw_init. So this a UAF.
+The hyperv utilities use PTP clock interfaces and should depend a
+a kconfig symbol such that they will be built as a loadable module or
+builtin so that linker errors do not happen.
 
-In terms of how to patch the problem, we can refer to igbvf_remove() and
-delete the entry before `adapter->rx_ring`.
+Prevents these build errors:
 
-The KASAN logs are as follows:
+ld: drivers/hv/hv_util.o: in function `hv_timesync_deinit':
+hv_util.c:(.text+0x37d): undefined reference to `ptp_clock_unregister'
+ld: drivers/hv/hv_util.o: in function `hv_timesync_init':
+hv_util.c:(.text+0x738): undefined reference to `ptp_clock_register'
 
-[   35.126075] BUG: KASAN: use-after-free in free_netdev+0x1fd/0x450
-[   35.127170] Read of size 8 at addr ffff88810126d990 by task modprobe/366
-[   35.128360]
-[   35.128643] CPU: 1 PID: 366 Comm: modprobe Not tainted 5.15.0-rc2+ #14
-[   35.129789] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[   35.131749] Call Trace:
-[   35.132199]  dump_stack_lvl+0x59/0x7b
-[   35.132865]  print_address_description+0x7c/0x3b0
-[   35.133707]  ? free_netdev+0x1fd/0x450
-[   35.134378]  __kasan_report+0x160/0x1c0
-[   35.135063]  ? free_netdev+0x1fd/0x450
-[   35.135738]  kasan_report+0x4b/0x70
-[   35.136367]  free_netdev+0x1fd/0x450
-[   35.137006]  igbvf_probe+0x121d/0x1a10 [igbvf]
-[   35.137808]  ? igbvf_vlan_rx_add_vid+0x100/0x100 [igbvf]
-[   35.138751]  local_pci_probe+0x13c/0x1f0
-[   35.139461]  pci_device_probe+0x37e/0x6c0
-[   35.165526]
-[   35.165806] Allocated by task 366:
-[   35.166414]  ____kasan_kmalloc+0xc4/0xf0
-[   35.167117]  foo_kmem_cache_alloc_trace+0x3c/0x50 [igbvf]
-[   35.168078]  igbvf_probe+0x9c5/0x1a10 [igbvf]
-[   35.168866]  local_pci_probe+0x13c/0x1f0
-[   35.169565]  pci_device_probe+0x37e/0x6c0
-[   35.179713]
-[   35.179993] Freed by task 366:
-[   35.180539]  kasan_set_track+0x4c/0x80
-[   35.181211]  kasan_set_free_info+0x1f/0x40
-[   35.181942]  ____kasan_slab_free+0x103/0x140
-[   35.182703]  kfree+0xe3/0x250
-[   35.183239]  igbvf_probe+0x1173/0x1a10 [igbvf]
-[   35.184040]  local_pci_probe+0x13c/0x1f0
-
-Fixes: d4e0fe01a38a0 (igbvf: add new driver to support 82576 virtual functions)
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 3716a49a81ba ("hv_utils: implement Hyper-V PTP source")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: linux-hyperv@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20211126023316.25184-1-rdunlap@infradead.org
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igbvf/netdev.c | 1 +
+ drivers/hv/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
-index 519b72c418884..ab080118201df 100644
---- a/drivers/net/ethernet/intel/igbvf/netdev.c
-+++ b/drivers/net/ethernet/intel/igbvf/netdev.c
-@@ -2793,6 +2793,7 @@ static int igbvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	return 0;
+diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
+index 247a62604d1f6..23ad80dbe7af0 100644
+--- a/drivers/hv/Kconfig
++++ b/drivers/hv/Kconfig
+@@ -14,6 +14,7 @@ config HYPERV_TSCPAGE
+ config HYPERV_UTILS
+ 	tristate "Microsoft Hyper-V Utilities driver"
+ 	depends on HYPERV && CONNECTOR && NLS
++	depends on PTP_1588_CLOCK_OPTIONAL
+ 	help
+ 	  Select this option to enable the Hyper-V Utilities.
  
- err_hw_init:
-+	netif_napi_del(&adapter->rx_ring->napi);
- 	kfree(adapter->tx_ring);
- 	kfree(adapter->rx_ring);
- err_sw_init:
 -- 
 2.33.0
 
