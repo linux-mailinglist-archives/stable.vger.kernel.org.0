@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B175647AE74
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A428C47AC70
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:44:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237970AbhLTPBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:01:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35354 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238985AbhLTO61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71018C061761;
-        Mon, 20 Dec 2021 06:49:22 -0800 (PST)
+        id S235497AbhLTOnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:43:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36026 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234454AbhLTOmZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 121FA611BB;
-        Mon, 20 Dec 2021 14:49:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7190C36AE7;
-        Mon, 20 Dec 2021 14:49:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE65A611A4;
+        Mon, 20 Dec 2021 14:42:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3672C36AE8;
+        Mon, 20 Dec 2021 14:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011761;
-        bh=oaHS0BAFXeaga1D93lXRlFFtUqZXNAx5WkttJn3B8OM=;
+        s=korg; t=1640011344;
+        bh=zo0TFHE1R3q6uNTihJZ+WTdNxVaxcQ+dbIHGsNXD7p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Owh3jGX3spsOwfrZdUiKuIZz8eAdFsNFstAyKHNDAcXWhB+W+NmflufldAjG1YeM2
-         +KudhQkJSXNWr7Fd3L7lCzxB3D0OLlZkdQKzVjjjeBkOBfoJTqe0hLxUqjuBJOv0tV
-         ECx1yOv5AKXkVaSt/6rZU+NijFO4Pit+NaKoVOww=
+        b=c9PObK30f4qZeZIWeYxgyWKNRdwMJr3yQdDbveKd5zpPbLXDtHkeGEOYWA5AjMYlY
+         cDqLRKkd32fgzQuR1GFWO9kBtPHPmy/GGrZaIL0pe6q/VZ3mO6cKply81tVytdc7Oz
+         YQFcjtR5zn6JEFIaYe4i+fH9HFoSCDj3bvENmkO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jann Horn <jannh@google.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 65/99] Revert "usb: early: convert to readl_poll_timeout_atomic()"
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 4.19 45/56] Input: touchscreen - avoid bitwise vs logical OR warning
 Date:   Mon, 20 Dec 2021 15:34:38 +0100
-Message-Id: <20211220143031.577633812@linuxfoundation.org>
+Message-Id: <20211220143024.930658758@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,63 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit c4d936efa46d8ea183df16c0f3fa4423327da51d ]
+commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
 
-This reverts commit 796eed4b2342c9d6b26c958e92af91253a2390e1.
+A new warning in clang points out a few places in this driver where a
+bitwise OR is being used with boolean types:
 
-This change causes boot lockups when using "arlyprintk=xdbc" because
-ktime can not be used at this point in time in the boot process.  Also,
-it is not needed for very small delays like this.
+drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Reported-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Fixes: 796eed4b2342 ("usb: early: convert to readl_poll_timeout_atomic()")
-Link: https://lore.kernel.org/r/c2b5c9bb-1b75-bf56-3754-b5b18812d65e@linux.intel.com
+This use of a bitwise OR is intentional, as bitwise operations do not
+short circuit, which allows all the calls to touchscreen_get_prop_u32()
+to happen so that the last parameter is initialized while coalescing the
+results of the calls to make a decision after they are all evaluated.
+
+To make this clearer to the compiler, use the '|=' operator to assign
+the result of each touchscreen_get_prop_u32() call to data_present,
+which keeps the meaning of the code the same but makes it obvious that
+every one of these calls is expected to happen.
+
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/early/xhci-dbc.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/of_touchscreen.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/early/xhci-dbc.c b/drivers/usb/early/xhci-dbc.c
-index be4ecbabdd586..6c0434100e38c 100644
---- a/drivers/usb/early/xhci-dbc.c
-+++ b/drivers/usb/early/xhci-dbc.c
-@@ -14,7 +14,6 @@
- #include <linux/pci_ids.h>
- #include <linux/memblock.h>
- #include <linux/io.h>
--#include <linux/iopoll.h>
- #include <asm/pci-direct.h>
- #include <asm/fixmap.h>
- #include <linux/bcd.h>
-@@ -136,9 +135,17 @@ static int handshake(void __iomem *ptr, u32 mask, u32 done, int wait, int delay)
- {
- 	u32 result;
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -80,8 +80,8 @@ void touchscreen_parse_properties(struct
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-size-x",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -91,8 +91,8 @@ void touchscreen_parse_properties(struct
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-size-y",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -102,11 +102,11 @@ void touchscreen_parse_properties(struct
+ 	data_present = touchscreen_get_prop_u32(dev,
+ 						"touchscreen-max-pressure",
+ 						input_abs_get_max(input, axis),
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev,
+-						"touchscreen-fuzz-pressure",
+-						input_abs_get_fuzz(input, axis),
+-						&fuzz);
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev,
++						 "touchscreen-fuzz-pressure",
++						 input_abs_get_fuzz(input, axis),
++						 &fuzz);
+ 	if (data_present)
+ 		touchscreen_set_params(input, axis, maximum, fuzz);
  
--	return readl_poll_timeout_atomic(ptr, result,
--					 ((result & mask) == done),
--					 delay, wait);
-+	/* Can not use readl_poll_timeout_atomic() for early boot things */
-+	do {
-+		result = readl(ptr);
-+		result &= mask;
-+		if (result == done)
-+			return 0;
-+		udelay(delay);
-+		wait -= delay;
-+	} while (wait > 0);
-+
-+	return -ETIMEDOUT;
- }
- 
- static void __init xdbc_bios_handoff(void)
--- 
-2.34.1
-
 
 
