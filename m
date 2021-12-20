@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 341A447AC57
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 072DF47ADF1
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235368AbhLTOnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:43:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60068 "EHLO
+        id S238890AbhLTO4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:56:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235381AbhLTOlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:41:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515E6C07E5C3;
-        Mon, 20 Dec 2021 06:41:12 -0800 (PST)
+        with ESMTP id S238786AbhLTOyf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:54:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CED7C08EBB1;
+        Mon, 20 Dec 2021 06:48:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5DC06113B;
-        Mon, 20 Dec 2021 14:41:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD239C36AE8;
-        Mon, 20 Dec 2021 14:41:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC348B80EE6;
+        Mon, 20 Dec 2021 14:48:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30616C36AE7;
+        Mon, 20 Dec 2021 14:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011271;
-        bh=OCkI6JG6V2CJRJQ6xJIdaj+cQRz9rOOQZPxSundKVDE=;
+        s=korg; t=1640011691;
+        bh=Wq4yc2NzsUsSm2s8V09YEZ2CdcT3pR+3UCU+Yj+DouY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yI6K8zzGJf0MXVqI5D/KfIIbWBUnumNpLvVpSZPxkwf/Y0ta4I6UGZoDouokGI45d
-         dEyap2m87HppKfkzytVCc0zdrpiEtWTclbC0MvlHG7vzU8mFhZqH4kLON5oT58lTee
-         5R5nCwABsHTPM2yF9IdNMj5jkCiGNowBXj/iYhR4=
+        b=rHB9Wb+iU8mIm+YdkxUhXeWXLZLfHnD5u7A05DiFLPa75VL4yPF1icX70rJN5nllI
+         9RyqWG77CAkdLp96+HEyk6QeCp4/RqVIras3TvhyaB+Kwjr+7Mss+x4xTkwdM2V0Jq
+         qC7RODB2AxD/wfR9286UwQItiRKgHvb3a+BKpmZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/56] ARM: socfpga: dts: fix qspi node compatible
+        stable@vger.kernel.org, Alyssa Ross <hi@alyssa.is>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 39/99] dmaengine: st_fdma: fix MODULE_ALIAS
 Date:   Mon, 20 Dec 2021 15:34:12 +0100
-Message-Id: <20211220143024.081544105@linuxfoundation.org>
+Message-Id: <20211220143030.688578292@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,126 +47,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Alyssa Ross <hi@alyssa.is>
 
-[ Upstream commit cb25b11943cbcc5a34531129952870420f8be858 ]
+[ Upstream commit 822c9f2b833c53fc67e8adf6f63ecc3ea24d502c ]
 
-The QSPI flash node needs to have the required "jedec,spi-nor" in the
-compatible string.
+modprobe can't handle spaces in aliases.
 
-Fixes: 1df99da8953 ("ARM: dts: socfpga: Enable QSPI in Arria10 devkit")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Fixes: 6b4cd727eaf1 ("dmaengine: st_fdma: Add STMicroelectronics FDMA engine driver support")
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+Link: https://lore.kernel.org/r/20211125154441.2626214-1-hi@alyssa.is
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts   | 2 +-
- arch/arm/boot/dts/socfpga_arria5_socdk.dts         | 2 +-
- arch/arm/boot/dts/socfpga_cyclone5_socdk.dts       | 2 +-
- arch/arm/boot/dts/socfpga_cyclone5_sockit.dts      | 2 +-
- arch/arm/boot/dts/socfpga_cyclone5_socrates.dts    | 2 +-
- arch/arm/boot/dts/socfpga_cyclone5_sodia.dts       | 2 +-
- arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts | 4 ++--
- 7 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/dma/st_fdma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts b/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts
-index beb2fc6b9eb63..adfdc43ac052f 100644
---- a/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts
-+++ b/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts
-@@ -23,7 +23,7 @@ &qspi {
- 	flash0: n25q00@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q00aa";
-+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
- 
-diff --git a/arch/arm/boot/dts/socfpga_arria5_socdk.dts b/arch/arm/boot/dts/socfpga_arria5_socdk.dts
-index aac4feea86f38..09ffa79240c84 100644
---- a/arch/arm/boot/dts/socfpga_arria5_socdk.dts
-+++ b/arch/arm/boot/dts/socfpga_arria5_socdk.dts
-@@ -131,7 +131,7 @@ &qspi {
- 	flash: flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q256a";
-+		compatible = "micron,n25q256a", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
- 
-diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
-index 155829f9eba16..907d8aa6d9fc8 100644
---- a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
-+++ b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
-@@ -136,7 +136,7 @@ &qspi {
- 	flash0: n25q00@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q00";
-+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
- 		reg = <0>;	/* chip select */
- 		spi-max-frequency = <100000000>;
- 
-diff --git a/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts b/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts
-index a4a555c19d943..fe5fe4559969d 100644
---- a/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts
-+++ b/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts
-@@ -181,7 +181,7 @@ &qspi {
- 	flash: flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q00";
-+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
- 
-diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts b/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts
-index 53bf99eef66de..0992cae3e60ef 100644
---- a/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts
-+++ b/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts
-@@ -87,7 +87,7 @@ &qspi {
- 	flash: flash@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q256a";
-+		compatible = "micron,n25q256a", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
- 		m25p,fast-read;
-diff --git a/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts b/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts
-index 8860dd2e242c4..22bfef024913a 100644
---- a/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts
-+++ b/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts
-@@ -128,7 +128,7 @@ &qspi {
-         flash0: n25q512a@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q512a";
-+		compatible = "micron,n25q512a", "jedec,spi-nor";
- 		reg = <0>;
- 		spi-max-frequency = <100000000>;
- 
-diff --git a/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts b/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts
-index f50b19447de69..3412eb17a1587 100644
---- a/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts
-+++ b/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts
-@@ -249,7 +249,7 @@ &qspi {
- 	n25q128@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q128";
-+		compatible = "micron,n25q128", "jedec,spi-nor";
- 		reg = <0>;		/* chip select */
- 		spi-max-frequency = <100000000>;
- 		m25p,fast-read;
-@@ -266,7 +266,7 @@ n25q128@0 {
- 	n25q00@1 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
--		compatible = "n25q00";
-+		compatible = "micron,mt25qu02g", "jedec,spi-nor";
- 		reg = <1>;		/* chip select */
- 		spi-max-frequency = <100000000>;
- 		m25p,fast-read;
+diff --git a/drivers/dma/st_fdma.c b/drivers/dma/st_fdma.c
+index 962b6e05287b5..d95c421877fb7 100644
+--- a/drivers/dma/st_fdma.c
++++ b/drivers/dma/st_fdma.c
+@@ -874,4 +874,4 @@ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("STMicroelectronics FDMA engine driver");
+ MODULE_AUTHOR("Ludovic.barre <Ludovic.barre@st.com>");
+ MODULE_AUTHOR("Peter Griffin <peter.griffin@linaro.org>");
+-MODULE_ALIAS("platform: " DRIVER_NAME);
++MODULE_ALIAS("platform:" DRIVER_NAME);
 -- 
 2.33.0
 
