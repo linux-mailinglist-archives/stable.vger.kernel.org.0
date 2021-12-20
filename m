@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED94A47AC7D
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:44:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 487DB47AE55
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235637AbhLTOoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:44:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
+        id S239202AbhLTPAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:00:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235645AbhLTOmm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22814C07E5DD;
-        Mon, 20 Dec 2021 06:41:50 -0800 (PST)
+        with ESMTP id S239040AbhLTO61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF92DC0698CD;
+        Mon, 20 Dec 2021 06:49:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF23AB80EF5;
-        Mon, 20 Dec 2021 14:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 347A7C36AE8;
-        Mon, 20 Dec 2021 14:41:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EA54611A1;
+        Mon, 20 Dec 2021 14:49:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5367CC36AE7;
+        Mon, 20 Dec 2021 14:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011307;
-        bh=RZDw+0llr9Wwz1OgUnGhULi7xT8eXX2rW+bEI8Mgzrc=;
+        s=korg; t=1640011769;
+        bh=QwAQ/I2JpIyzbiYLOJ8xIt3QY6cIWDwJRl4RzhOeZZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XA4Le+tubFHnJ1izjJ8taSMt/4yGXAZ9vwqS25EX9JJWT/9nqMuyleTQ/+L2jBU+r
-         AqmLl8CBb/OKBc2bMvcSUoH/NiGaMyYdwNDNBGH7gmp5fk+OHh3K7913qMZaqiUQ5V
-         iYc/4uGS3KDxgfMzeHj+o2q2jiiBOqfQ2id9yCPY=
+        b=INtoyCARA71pDKT4CFR0qpySdd5OlylX2akJObNcu3XTmOYCQyRTk/8Fm7ZGhunjO
+         FgMFsTdhkmC66+SAaVtBEzmYQ5jWMR21dzvPo/PMRLUiOWZTiJqSeqbaJexnA8m4ic
+         WVM8n2+Jxz1/jbuadesthmZIlj2wycaG72dFPyrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        stable@vger.kernel.org, Karen Sornek <karen.sornek@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/56] USB: gadget: bRequestType is a bitfield, not a enum
+Subject: [PATCH 5.10 50/99] igb: Fix removal of unicast MAC filters of VFs
 Date:   Mon, 20 Dec 2021 15:34:23 +0100
-Message-Id: <20211220143024.434211876@linuxfoundation.org>
+Message-Id: <20211220143031.059639784@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,98 +49,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Karen Sornek <karen.sornek@intel.com>
 
-[ Upstream commit f08adf5add9a071160c68bb2a61d697f39ab0758 ]
+[ Upstream commit 584af82154f56e6b2740160fcc84a2966d969e15 ]
 
-Szymon rightly pointed out that the previous check for the endpoint
-direction in bRequestType was not looking at only the bit involved, but
-rather the whole value.  Normally this is ok, but for some request
-types, bits other than bit 8 could be set and the check for the endpoint
-length could not stall correctly.
+Move checking condition of VF MAC filter before clearing
+or adding MAC filter to VF to prevent potential blackout caused
+by removal of necessary and working VF's MAC filter.
 
-Fix that up by only checking the single bit.
-
-Fixes: 153a2d7e3350 ("USB: gadget: detect too-big endpoint 0 requests")
-Cc: Felipe Balbi <balbi@kernel.org>
-Reported-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Link: https://lore.kernel.org/r/20211214184621.385828-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1b8b062a99dc ("igb: add VF trust infrastructure")
+Signed-off-by: Karen Sornek <karen.sornek@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c    | 6 +++---
- drivers/usb/gadget/legacy/dbgp.c  | 6 +++---
- drivers/usb/gadget/legacy/inode.c | 6 +++---
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 28 +++++++++++------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index 99550c9eb33ed..748f8fede5c23 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -1635,14 +1635,14 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
- 	u8				endp;
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index d5432d1448c05..1662c0985eca4 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -7654,6 +7654,20 @@ static int igb_set_vf_mac_filter(struct igb_adapter *adapter, const int vf,
+ 	struct vf_mac_filter *entry = NULL;
+ 	int ret = 0;
  
- 	if (w_length > USB_COMP_EP0_BUFSIZ) {
--		if (ctrl->bRequestType == USB_DIR_OUT) {
--			goto done;
--		} else {
-+		if (ctrl->bRequestType & USB_DIR_IN) {
- 			/* Cast away the const, we are going to overwrite on purpose. */
- 			__le16 *temp = (__le16 *)&ctrl->wLength;
- 
- 			*temp = cpu_to_le16(USB_COMP_EP0_BUFSIZ);
- 			w_length = USB_COMP_EP0_BUFSIZ;
-+		} else {
-+			goto done;
++	if ((vf_data->flags & IGB_VF_FLAG_PF_SET_MAC) &&
++	    !vf_data->trusted) {
++		dev_warn(&pdev->dev,
++			 "VF %d requested MAC filter but is administratively denied\n",
++			  vf);
++		return -EINVAL;
++	}
++	if (!is_valid_ether_addr(addr)) {
++		dev_warn(&pdev->dev,
++			 "VF %d attempted to set invalid MAC filter\n",
++			  vf);
++		return -EINVAL;
++	}
++
+ 	switch (info) {
+ 	case E1000_VF_MAC_FILTER_CLR:
+ 		/* remove all unicast MAC filters related to the current VF */
+@@ -7667,20 +7681,6 @@ static int igb_set_vf_mac_filter(struct igb_adapter *adapter, const int vf,
  		}
- 	}
- 
-diff --git a/drivers/usb/gadget/legacy/dbgp.c b/drivers/usb/gadget/legacy/dbgp.c
-index 355bc7dab9d5f..6bcbad3825802 100644
---- a/drivers/usb/gadget/legacy/dbgp.c
-+++ b/drivers/usb/gadget/legacy/dbgp.c
-@@ -346,14 +346,14 @@ static int dbgp_setup(struct usb_gadget *gadget,
- 	u16 len = 0;
- 
- 	if (length > DBGP_REQ_LEN) {
--		if (ctrl->bRequestType == USB_DIR_OUT) {
--			return err;
--		} else {
-+		if (ctrl->bRequestType & USB_DIR_IN) {
- 			/* Cast away the const, we are going to overwrite on purpose. */
- 			__le16 *temp = (__le16 *)&ctrl->wLength;
- 
- 			*temp = cpu_to_le16(DBGP_REQ_LEN);
- 			length = DBGP_REQ_LEN;
-+		} else {
-+			return err;
- 		}
- 	}
- 
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index 848562222015d..a456267b6b784 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -1335,14 +1335,14 @@ gadgetfs_setup (struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
- 	u16				w_length = le16_to_cpu(ctrl->wLength);
- 
- 	if (w_length > RBUF_SIZE) {
--		if (ctrl->bRequestType == USB_DIR_OUT) {
--			return value;
--		} else {
-+		if (ctrl->bRequestType & USB_DIR_IN) {
- 			/* Cast away the const, we are going to overwrite on purpose. */
- 			__le16 *temp = (__le16 *)&ctrl->wLength;
- 
- 			*temp = cpu_to_le16(RBUF_SIZE);
- 			w_length = RBUF_SIZE;
-+		} else {
-+			return value;
- 		}
- 	}
- 
+ 		break;
+ 	case E1000_VF_MAC_FILTER_ADD:
+-		if ((vf_data->flags & IGB_VF_FLAG_PF_SET_MAC) &&
+-		    !vf_data->trusted) {
+-			dev_warn(&pdev->dev,
+-				 "VF %d requested MAC filter but is administratively denied\n",
+-				 vf);
+-			return -EINVAL;
+-		}
+-		if (!is_valid_ether_addr(addr)) {
+-			dev_warn(&pdev->dev,
+-				 "VF %d attempted to set invalid MAC filter\n",
+-				 vf);
+-			return -EINVAL;
+-		}
+-
+ 		/* try to find empty slot in the list */
+ 		list_for_each(pos, &adapter->vf_macs.l) {
+ 			entry = list_entry(pos, struct vf_mac_filter, l);
 -- 
-2.34.1
+2.33.0
 
 
 
