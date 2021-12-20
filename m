@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD8347AF47
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9692247AF4B
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239891AbhLTPKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:10:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38160 "EHLO
+        id S239945AbhLTPKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:10:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239773AbhLTPJa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:30 -0500
+        with ESMTP id S239975AbhLTPJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF7D5C08E84E;
-        Mon, 20 Dec 2021 06:55:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E415C08E853;
+        Mon, 20 Dec 2021 06:55:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6490BB80EA3;
-        Mon, 20 Dec 2021 14:55:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9762EC36AE8;
-        Mon, 20 Dec 2021 14:55:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09C1FB80EF0;
+        Mon, 20 Dec 2021 14:55:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 593CBC36AE8;
+        Mon, 20 Dec 2021 14:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012137;
-        bh=R3XPoJv+S88z7BjtencXIUbZtQ0grCq4FQAvEiNl5jA=;
+        s=korg; t=1640012139;
+        bh=Kz054QXRxPiD/AhIpjJ+D5AES3vo3xmzdjoV1hwes/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpR9/lJk4RHZqCrx5wzLhkkHwhgUQ6IHVuOH3PCwjsE8xErY+bFoVN0mgM4uznCTu
-         YnWWsy2mFtgfNXnXrqtEiwQqsC5rJmrvqjum4CtPmNDaH+FUicDDvGaCQIB/TMPeDL
-         49j+gWFxWz9tBBLl7OXx9eMBFPjg3C7/ewdMg3TE=
+        b=riRRgB+g0M/7jsyraAMKUzZaD/dVOcfugvfP811IRaSVGPiUNG0G2AejVw35skvo/
+         ZZuq7CwvZkNWshk9L6c4vvvYgzhLcJhWS5BzHIZUQGPrLV9qKP6BjNyRYBcIqczM6z
+         C4NwxekDBsLNh3/G1rRQxJuPKhTZeHYci/4kf8Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Karen Sornek <karen.sornek@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 093/177] soc/tegra: fuse: Fix bitwise vs. logical OR warning
-Date:   Mon, 20 Dec 2021 15:34:03 +0100
-Message-Id: <20211220143043.237692176@linuxfoundation.org>
+Subject: [PATCH 5.15 094/177] igb: Fix removal of unicast MAC filters of VFs
+Date:   Mon, 20 Dec 2021 15:34:04 +0100
+Message-Id: <20211220143043.267412153@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -51,71 +49,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Karen Sornek <karen.sornek@intel.com>
 
-[ Upstream commit a7083763619f7485ccdade160deb81737cf2732f ]
+[ Upstream commit 584af82154f56e6b2740160fcc84a2966d969e15 ]
 
-A new warning in clang points out two instances where boolean
-expressions are being used with a bitwise OR instead of logical OR:
+Move checking condition of VF MAC filter before clearing
+or adding MAC filter to VF to prevent potential blackout caused
+by removal of necessary and working VF's MAC filter.
 
-drivers/soc/tegra/fuse/speedo-tegra20.c:72:9: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-                reg = tegra_fuse_read_spare(i) |
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~
-                                               ||
-drivers/soc/tegra/fuse/speedo-tegra20.c:72:9: note: cast one or both operands to int to silence this warning
-drivers/soc/tegra/fuse/speedo-tegra20.c:87:9: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-                reg = tegra_fuse_read_spare(i) |
-                      ^~~~~~~~~~~~~~~~~~~~~~~~~~
-                                               ||
-drivers/soc/tegra/fuse/speedo-tegra20.c:87:9: note: cast one or both operands to int to silence this warning
-2 warnings generated.
-
-The motivation for the warning is that logical operations short circuit
-while bitwise operations do not.
-
-In this instance, tegra_fuse_read_spare() is not semantically returning
-a boolean, it is returning a bit value. Use u32 for its return type so
-that it can be used with either bitwise or boolean operators without any
-warnings.
-
-Fixes: 25cd5a391478 ("ARM: tegra: Add speedo-based process identification")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1488
-Suggested-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 1b8b062a99dc ("igb: add VF trust infrastructure")
+Signed-off-by: Karen Sornek <karen.sornek@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/fuse/fuse-tegra.c | 2 +-
- drivers/soc/tegra/fuse/fuse.h       | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 28 +++++++++++------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/soc/tegra/fuse/fuse-tegra.c b/drivers/soc/tegra/fuse/fuse-tegra.c
-index f2151815db585..e714ed3b61bc3 100644
---- a/drivers/soc/tegra/fuse/fuse-tegra.c
-+++ b/drivers/soc/tegra/fuse/fuse-tegra.c
-@@ -320,7 +320,7 @@ static struct platform_driver tegra_fuse_driver = {
- };
- builtin_platform_driver(tegra_fuse_driver);
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 8f30577386b6f..533199d819501 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -7641,6 +7641,20 @@ static int igb_set_vf_mac_filter(struct igb_adapter *adapter, const int vf,
+ 	struct vf_mac_filter *entry = NULL;
+ 	int ret = 0;
  
--bool __init tegra_fuse_read_spare(unsigned int spare)
-+u32 __init tegra_fuse_read_spare(unsigned int spare)
- {
- 	unsigned int offset = fuse->soc->info->spare + spare * 4;
- 
-diff --git a/drivers/soc/tegra/fuse/fuse.h b/drivers/soc/tegra/fuse/fuse.h
-index de58feba04350..ecff0c08e9595 100644
---- a/drivers/soc/tegra/fuse/fuse.h
-+++ b/drivers/soc/tegra/fuse/fuse.h
-@@ -65,7 +65,7 @@ struct tegra_fuse {
- void tegra_init_revision(void);
- void tegra_init_apbmisc(void);
- 
--bool __init tegra_fuse_read_spare(unsigned int spare);
-+u32 __init tegra_fuse_read_spare(unsigned int spare);
- u32 __init tegra_fuse_read_early(unsigned int offset);
- 
- u8 tegra_get_major_rev(void);
++	if ((vf_data->flags & IGB_VF_FLAG_PF_SET_MAC) &&
++	    !vf_data->trusted) {
++		dev_warn(&pdev->dev,
++			 "VF %d requested MAC filter but is administratively denied\n",
++			  vf);
++		return -EINVAL;
++	}
++	if (!is_valid_ether_addr(addr)) {
++		dev_warn(&pdev->dev,
++			 "VF %d attempted to set invalid MAC filter\n",
++			  vf);
++		return -EINVAL;
++	}
++
+ 	switch (info) {
+ 	case E1000_VF_MAC_FILTER_CLR:
+ 		/* remove all unicast MAC filters related to the current VF */
+@@ -7654,20 +7668,6 @@ static int igb_set_vf_mac_filter(struct igb_adapter *adapter, const int vf,
+ 		}
+ 		break;
+ 	case E1000_VF_MAC_FILTER_ADD:
+-		if ((vf_data->flags & IGB_VF_FLAG_PF_SET_MAC) &&
+-		    !vf_data->trusted) {
+-			dev_warn(&pdev->dev,
+-				 "VF %d requested MAC filter but is administratively denied\n",
+-				 vf);
+-			return -EINVAL;
+-		}
+-		if (!is_valid_ether_addr(addr)) {
+-			dev_warn(&pdev->dev,
+-				 "VF %d attempted to set invalid MAC filter\n",
+-				 vf);
+-			return -EINVAL;
+-		}
+-
+ 		/* try to find empty slot in the list */
+ 		list_for_each(pos, &adapter->vf_macs.l) {
+ 			entry = list_entry(pos, struct vf_mac_filter, l);
 -- 
 2.33.0
 
