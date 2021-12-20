@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6426247ADEC
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D9147ACB1
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239599AbhLTO4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:56:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
+        id S236809AbhLTOqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:46:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237836AbhLTOwz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:52:55 -0500
+        with ESMTP id S235807AbhLTOnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:43:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37944C0619D9;
-        Mon, 20 Dec 2021 06:47:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BEFC07E5E3;
+        Mon, 20 Dec 2021 06:41:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 045C9B80EF6;
-        Mon, 20 Dec 2021 14:47:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D74C36AE7;
-        Mon, 20 Dec 2021 14:47:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B130B80EE4;
+        Mon, 20 Dec 2021 14:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81188C36AE7;
+        Mon, 20 Dec 2021 14:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011649;
-        bh=VmA3UfF2NkwyX3nlb3C8VvSIwSL8ovIrP+8XMtW2vqo=;
+        s=korg; t=1640011316;
+        bh=6QpwS/9Vb12Zo4I5wEAM8ZPeJpvINJqCzEKoMF6wWOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bd7/T83BHTp6tWBczYuEZqVACGnpBr9dmQWtFBS4X72MURCmrG5ZwYbR9Ggw3YIxn
-         rHZEPQ8dpJIEKIXdDVmJOEBDePkuruLYM4XSWQ3Y2FsmxS0l4Q8kaaYoCImSfuSgpg
-         ZndD4Ufqgk1iPFQyqK8bRJMnxHCeiewQHe/Y4KW0=
+        b=LURs4hS9roAkOmwjZamkVJkGFWtUgKbsrVeN97zxpyaOYAIWDcXK9j+QU7zgLlqj+
+         70C1JaYmTx8bLvxWSwEcqTjlm+KI4Di4KzPsvD7nYYdR0vx616Q03rpJtrpspzV8OR
+         YApUqXFnJwINLOe0z+FbM8BiMz0FkKECotHyyCwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hu Weiwen <sehuww@mail.scut.edu.cn>,
-        Xiubo Li <xiubli@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        kernel test robot <lkp@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 25/99] ceph: fix duplicate increment of opened_inodes metric
+Subject: [PATCH 4.19 05/56] parisc/agp: Annotate parisc agp init functions with __init
 Date:   Mon, 20 Dec 2021 15:33:58 +0100
-Message-Id: <20211220143030.197502732@linuxfoundation.org>
+Message-Id: <20211220143023.624168181@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,71 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hu Weiwen <sehuww@mail.scut.edu.cn>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 973e5245637accc4002843f6b888495a6a7762bc ]
+[ Upstream commit 8d88382b7436551a9ebb78475c546b670790cbf6 ]
 
-opened_inodes is incremented twice when the same inode is opened twice
-with O_RDONLY and O_WRONLY respectively.
-
-To reproduce, run this python script, then check the metrics:
-
-import os
-for _ in range(10000):
-    fd_r = os.open('a', os.O_RDONLY)
-    fd_w = os.open('a', os.O_WRONLY)
-    os.close(fd_r)
-    os.close(fd_w)
-
-Fixes: 1dd8d4708136 ("ceph: metrics for opened files, pinned caps and opened inodes")
-Signed-off-by: Hu Weiwen <sehuww@mail.scut.edu.cn>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/char/agp/parisc-agp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 676f551953060..d3f67271d3c72 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -4359,7 +4359,7 @@ void ceph_get_fmode(struct ceph_inode_info *ci, int fmode, int count)
- {
- 	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(ci->vfs_inode.i_sb);
- 	int bits = (fmode << 1) | 1;
--	bool is_opened = false;
-+	bool already_opened = false;
- 	int i;
- 
- 	if (count == 1)
-@@ -4367,19 +4367,19 @@ void ceph_get_fmode(struct ceph_inode_info *ci, int fmode, int count)
- 
- 	spin_lock(&ci->i_ceph_lock);
- 	for (i = 0; i < CEPH_FILE_MODE_BITS; i++) {
--		if (bits & (1 << i))
--			ci->i_nr_by_mode[i] += count;
--
- 		/*
--		 * If any of the mode ref is larger than 1,
-+		 * If any of the mode ref is larger than 0,
- 		 * that means it has been already opened by
- 		 * others. Just skip checking the PIN ref.
- 		 */
--		if (i && ci->i_nr_by_mode[i] > 1)
--			is_opened = true;
-+		if (i && ci->i_nr_by_mode[i])
-+			already_opened = true;
-+
-+		if (bits & (1 << i))
-+			ci->i_nr_by_mode[i] += count;
- 	}
- 
--	if (!is_opened)
-+	if (!already_opened)
- 		percpu_counter_inc(&mdsc->metric.opened_inodes);
- 	spin_unlock(&ci->i_ceph_lock);
+diff --git a/drivers/char/agp/parisc-agp.c b/drivers/char/agp/parisc-agp.c
+index 15f2e7025b78e..1d5510cb6db4e 100644
+--- a/drivers/char/agp/parisc-agp.c
++++ b/drivers/char/agp/parisc-agp.c
+@@ -285,7 +285,7 @@ agp_ioc_init(void __iomem *ioc_regs)
+         return 0;
  }
+ 
+-static int
++static int __init
+ lba_find_capability(int cap)
+ {
+ 	struct _parisc_agp_info *info = &parisc_agp_info;
+@@ -370,7 +370,7 @@ parisc_agp_setup(void __iomem *ioc_hpa, void __iomem *lba_hpa)
+ 	return error;
+ }
+ 
+-static int
++static int __init
+ find_quicksilver(struct device *dev, void *data)
+ {
+ 	struct parisc_device **lba = data;
+@@ -382,7 +382,7 @@ find_quicksilver(struct device *dev, void *data)
+ 	return 0;
+ }
+ 
+-static int
++static int __init
+ parisc_agp_init(void)
+ {
+ 	extern struct sba_device *sba_list;
 -- 
 2.33.0
 
