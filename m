@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07FA547ABEC
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:40:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86AE547AC61
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234762AbhLTOkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:40:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47604 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234760AbhLTOjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:16 -0500
+        id S232662AbhLTOnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:43:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60118 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235086AbhLTOl6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:41:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A66C061191;
+        Mon, 20 Dec 2021 06:41:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B767B80EE5;
-        Mon, 20 Dec 2021 14:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94FBCC36AEB;
-        Mon, 20 Dec 2021 14:39:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA0CB61165;
+        Mon, 20 Dec 2021 14:41:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 922ADC36AE7;
+        Mon, 20 Dec 2021 14:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011154;
-        bh=Aaz9U4wlM/ajVy3dJJS+RuQPQn4U/kNeGHJNKtx4c3M=;
+        s=korg; t=1640011288;
+        bh=VQ5SY1KeKv2DThfpvpv6tQ/2v0btNPEasQsrve+3Po0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6K56dlCP7QyaHislJynN2uaErHrXVfKeJoyE7kib4I9/irarfaGb5HQSifYsPKes
-         MKcwfPTtyPGpO1+ueP7zKSvzkna9AaN3HM2o16gb7qLekNp073ikQJSi8xHB91tNfS
-         1MZfOxQvkINF/VfVYlq737qj/LuCWxiqoL781bgM=
+        b=JTrf2M2SYURClo02H97AgBxgJzPN7ovGNeebqDPTXh0dzPDkgrWmAUMa3gA4rmELB
+         yyNpmRvQbsR3fCg60l6zCgsK80KbnFjzXj4F1M4ELT/mpMAZkCDlq0qmScE7ZmovdE
+         gx8L/sibAEIPHf/W6/RiiGbNWDJkWIZgGBXGLPLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyril Novikov <cnovikov@lynx.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Karen Sornek <karen.sornek@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 22/45] ixgbe: set X550 MDIO speed before talking to PHY
+Subject: [PATCH 4.19 24/56] igb: Fix removal of unicast MAC filters of VFs
 Date:   Mon, 20 Dec 2021 15:34:17 +0100
-Message-Id: <20211220143023.012584883@linuxfoundation.org>
+Message-Id: <20211220143024.243024412@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +49,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cyril Novikov <cnovikov@lynx.com>
+From: Karen Sornek <karen.sornek@intel.com>
 
-[ Upstream commit bf0a375055bd1afbbf02a0ef45f7655da7b71317 ]
+[ Upstream commit 584af82154f56e6b2740160fcc84a2966d969e15 ]
 
-The MDIO bus speed must be initialized before talking to the PHY the first
-time in order to avoid talking to it using a speed that the PHY doesn't
-support.
+Move checking condition of VF MAC filter before clearing
+or adding MAC filter to VF to prevent potential blackout caused
+by removal of necessary and working VF's MAC filter.
 
-This fixes HW initialization error -17 (IXGBE_ERR_PHY_ADDR_INVALID) on
-Denverton CPUs (a.k.a. the Atom C3000 family) on ports with a 10Gb network
-plugged in. On those devices, HLREG0[MDCSPD] resets to 1, which combined
-with the 10Gb network results in a 24MHz MDIO speed, which is apparently
-too fast for the connected PHY. PHY register reads over MDIO bus return
-garbage, leading to initialization failure.
-
-Reproduced with Linux kernel 4.19 and 5.15-rc7. Can be reproduced using
-the following setup:
-
-* Use an Atom C3000 family system with at least one X552 LAN on the SoC
-* Disable PXE or other BIOS network initialization if possible
-  (the interface must not be initialized before Linux boots)
-* Connect a live 10Gb Ethernet cable to an X550 port
-* Power cycle (not reset, doesn't always work) the system and boot Linux
-* Observe: ixgbe interfaces w/ 10GbE cables plugged in fail with error -17
-
-Fixes: e84db7272798 ("ixgbe: Introduce function to control MDIO speed")
-Signed-off-by: Cyril Novikov <cnovikov@lynx.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 1b8b062a99dc ("igb: add VF trust infrastructure")
+Signed-off-by: Karen Sornek <karen.sornek@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/igb/igb_main.c | 28 +++++++++++------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-index a37c951b07530..10fa0e095ec37 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-@@ -3397,6 +3397,9 @@ static s32 ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
- 	/* flush pending Tx transactions */
- 	ixgbe_clear_tx_pending(hw);
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 6221dafc76b95..74b50f17832d1 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -7406,6 +7406,20 @@ static int igb_set_vf_mac_filter(struct igb_adapter *adapter, const int vf,
+ 	struct vf_mac_filter *entry = NULL;
+ 	int ret = 0;
  
-+	/* set MDIO speed before talking to the PHY in case it's the 1st time */
-+	ixgbe_set_mdio_speed(hw);
++	if ((vf_data->flags & IGB_VF_FLAG_PF_SET_MAC) &&
++	    !vf_data->trusted) {
++		dev_warn(&pdev->dev,
++			 "VF %d requested MAC filter but is administratively denied\n",
++			  vf);
++		return -EINVAL;
++	}
++	if (!is_valid_ether_addr(addr)) {
++		dev_warn(&pdev->dev,
++			 "VF %d attempted to set invalid MAC filter\n",
++			  vf);
++		return -EINVAL;
++	}
 +
- 	/* PHY ops must be identified and initialized prior to reset */
- 
- 	/* Identify PHY and related function pointers */
+ 	switch (info) {
+ 	case E1000_VF_MAC_FILTER_CLR:
+ 		/* remove all unicast MAC filters related to the current VF */
+@@ -7419,20 +7433,6 @@ static int igb_set_vf_mac_filter(struct igb_adapter *adapter, const int vf,
+ 		}
+ 		break;
+ 	case E1000_VF_MAC_FILTER_ADD:
+-		if ((vf_data->flags & IGB_VF_FLAG_PF_SET_MAC) &&
+-		    !vf_data->trusted) {
+-			dev_warn(&pdev->dev,
+-				 "VF %d requested MAC filter but is administratively denied\n",
+-				 vf);
+-			return -EINVAL;
+-		}
+-		if (!is_valid_ether_addr(addr)) {
+-			dev_warn(&pdev->dev,
+-				 "VF %d attempted to set invalid MAC filter\n",
+-				 vf);
+-			return -EINVAL;
+-		}
+-
+ 		/* try to find empty slot in the list */
+ 		list_for_each(pos, &adapter->vf_macs.l) {
+ 			entry = list_entry(pos, struct vf_mac_filter, l);
 -- 
 2.33.0
 
