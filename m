@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB77C47AC8A
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B3647AC9E
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235060AbhLTOpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:45:40 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51284 "EHLO
+        id S235848AbhLTOpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:45:50 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52574 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234819AbhLTOnG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:43:06 -0500
+        with ESMTP id S236517AbhLTOow (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 29779B80EDE;
-        Mon, 20 Dec 2021 14:43:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E466C36AE7;
-        Mon, 20 Dec 2021 14:43:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89617B80EDE;
+        Mon, 20 Dec 2021 14:44:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D556BC36AE7;
+        Mon, 20 Dec 2021 14:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011384;
-        bh=V/PhL0HrcMjn0WYULC30BkQhjL79qXLIbw7re57jW58=;
+        s=korg; t=1640011490;
+        bh=QOFSm/1oHATQPo5VBap0ryhBp/IKrq3+YYrtAMS22bU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ky+Mh7Et0ZTYizcvQdwi4weEAi2RDdFOeYCdcsBGOz4fQIxrKFJwDK0xyGlWWCc3q
-         rP1X8rdHPcE5S6mSkfIV4wtO/RB9Z17UNTZHkcbUgTYUY0Jxs3gT/X7Dm8o0SIOAvi
-         3HC2FyC5W9ek8ZLkx9GiD6DgQ50/pBD1hRn27BGA=
+        b=AOGK04StP9lnrHlRAumyRPizVHnWnUuDVrC+r/AiTWPJViqljq1X6Rdol3pVobInr
+         w4ccNHlNeb+RQ5Wf9RsQS7jr9Oup6CzYP6ckMyyOppVu9C7H0+Sa617uiSFLCV4mw2
+         YRE8+RrLp4TM62/u1GFb4zrJKIhzApbF3ucqYNcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Liao <liaoyu15@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 36/56] timekeeping: Really make sure wall_to_monotonic isnt positive
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 40/71] net: Fix double 0x prefix print in SKB dump
 Date:   Mon, 20 Dec 2021 15:34:29 +0100
-Message-Id: <20211220143024.634154265@linuxfoundation.org>
+Message-Id: <20211220143027.022549355@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liao <liaoyu15@huawei.com>
+From: Gal Pressman <gal@nvidia.com>
 
-commit 4e8c11b6b3f0b6a283e898344f154641eda94266 upstream.
+[ Upstream commit 8a03ef676ade55182f9b05115763aeda6dc08159 ]
 
-Even after commit e1d7ba873555 ("time: Always make sure wall_to_monotonic
-isn't positive") it is still possible to make wall_to_monotonic positive
-by running the following code:
+When printing netdev features %pNF already takes care of the 0x prefix,
+remove the explicit one.
 
-    int main(void)
-    {
-        struct timespec time;
-
-        clock_gettime(CLOCK_MONOTONIC, &time);
-        time.tv_nsec = 0;
-        clock_settime(CLOCK_REALTIME, &time);
-        return 0;
-    }
-
-The reason is that the second parameter of timespec64_compare(), ts_delta,
-may be unnormalized because the delta is calculated with an open coded
-substraction which causes the comparison of tv_sec to yield the wrong
-result:
-
-  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
-  ts_delta 	    = { .tv_sec =  -9, .tv_nsec = -900000000 }
-
-That makes timespec64_compare() claim that wall_to_monotonic < ts_delta,
-but actually the result should be wall_to_monotonic > ts_delta.
-
-After normalization, the result of timespec64_compare() is correct because
-the tv_sec comparison is not longer misleading:
-
-  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
-  ts_delta 	    = { .tv_sec = -10, .tv_nsec =  100000000 }
-
-Use timespec64_sub() to ensure that ts_delta is normalized, which fixes the
-issue.
-
-Fixes: e1d7ba873555 ("time: Always make sure wall_to_monotonic isn't positive")
-Signed-off-by: Yu Liao <liaoyu15@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211213135727.1656662-1-liaoyu15@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6413139dfc64 ("skbuff: increase verbosity when dumping skb data")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/timekeeping.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/core/skbuff.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -1235,8 +1235,7 @@ int do_settimeofday64(const struct times
- 	timekeeping_forward_now(tk);
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 7dba091bc8617..ac083685214e0 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -768,7 +768,7 @@ void skb_dump(const char *level, const struct sk_buff *skb, bool full_pkt)
+ 	       ntohs(skb->protocol), skb->pkt_type, skb->skb_iif);
  
- 	xt = tk_xtime(tk);
--	ts_delta.tv_sec = ts->tv_sec - xt.tv_sec;
--	ts_delta.tv_nsec = ts->tv_nsec - xt.tv_nsec;
-+	ts_delta = timespec64_sub(*ts, xt);
- 
- 	if (timespec64_compare(&tk->wall_to_monotonic, &ts_delta) > 0) {
- 		ret = -EINVAL;
+ 	if (dev)
+-		printk("%sdev name=%s feat=0x%pNF\n",
++		printk("%sdev name=%s feat=%pNF\n",
+ 		       level, dev->name, &dev->features);
+ 	if (sk)
+ 		printk("%ssk family=%hu type=%u proto=%u\n",
+-- 
+2.33.0
+
 
 
