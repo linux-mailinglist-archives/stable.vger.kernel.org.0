@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 837C147A70F
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A75DA47A71B
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:33:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229461AbhLTJbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:31:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45252 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229545AbhLTJbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:31:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A7EBC061574
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:31:40 -0800 (PST)
+        id S229645AbhLTJd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:33:28 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40410 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229513AbhLTJd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:33:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECEE460CBA
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0B71C36AE8;
-        Mon, 20 Dec 2021 09:31:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69F7360F01
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:33:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750DFC36AE2;
+        Mon, 20 Dec 2021 09:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639992699;
-        bh=0IqoeNmXiLZWKMPLAyrZSK+BXKOZ0+KAXNLzt14splI=;
+        s=korg; t=1639992806;
+        bh=eTu0DJc7K1bubkc28zjNaSoLTCcOum0jh44AhlxRQvc=;
         h=Subject:To:Cc:From:Date:From;
-        b=Hb7R+mTdvtWaZRA3Q36uBQ2DekCSIgiMhumbSi2FrvSYv8DOPGObrnVD1R2gNUV8i
-         Nj+kbpO0CcP0RrSCYTh+Pbs/4b6Xnj4XULn5d4f03h+rWapjWnBvFAKLWkUy8STrfv
-         vnbXr3dRgdkCVEIM0qoGE4FqE1WGOoy7CbfCMElM=
-Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix race in setting MAC address in" failed to apply to 4.19-stable tree
-To:     posteuca@mutex.one, gregkh@linuxfoundation.org
+        b=wWQwyFdB3tRKyNuTe7ZDOF6kR5RTnDwuXcrq2toLT18/R0rRu22Sr1FGpEW1a/WjO
+         B0UlW28IlNjkgZZle9Bvw5k/eM7VciYvQLk73ZL2f769+mOm+Z23g75gelSN/4QgJz
+         081MXyM5pt8CKfwzdvoT16TLI+JPx9AF2OJallxU=
+Subject: FAILED: patch "[PATCH] btrfs: check WRITE_ERR when trying to read an extent buffer" failed to apply to 5.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:31:25 +0100
-Message-ID: <1639992685175238@kroah.com>
+Date:   Mon, 20 Dec 2021 10:33:24 +0100
+Message-ID: <16399928045496@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,96 +50,92 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 890d5b40908bfd1a79be018d2d297cf9df60f4ee Mon Sep 17 00:00:00 2001
-From: Marian Postevca <posteuca@mutex.one>
-Date: Sat, 4 Dec 2021 23:49:12 +0200
-Subject: [PATCH] usb: gadget: u_ether: fix race in setting MAC address in
- setup phase
+From 651740a502411793327e2f0741104749c4eedcd1 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Mon, 13 Dec 2021 14:22:33 -0500
+Subject: [PATCH] btrfs: check WRITE_ERR when trying to read an extent buffer
 
-When listening for notifications through netlink of a new interface being
-registered, sporadically, it is possible for the MAC to be read as zero.
-The zero MAC address lasts a short period of time and then switches to a
-valid random MAC address.
+Filipe reported a hang when we have errors on btrfs.  This turned out to
+be a side-effect of my fix c2e39305299f01 ("btrfs: clear extent buffer
+uptodate when we fail to write it") which made it so we clear
+EXTENT_BUFFER_UPTODATE on an eb when we fail to write it out.
 
-This causes problems for netd in Android, which assumes that the interface
-is malfunctioning and will not use it.
+Below is a paste of Filipe's analysis he got from using drgn to debug
+the hang
 
-In the good case we get this log:
-InterfaceController::getCfg() ifName usb0
- hwAddr 92:a8:f0:73:79:5b ipv4Addr 0.0.0.0 flags 0x1002
+"""
+btree readahead code calls read_extent_buffer_pages(), sets ->io_pages to
+a value while writeback of all pages has not yet completed:
+   --> writeback for the first 3 pages finishes, we clear
+       EXTENT_BUFFER_UPTODATE from eb on the first page when we get an
+       error.
+   --> at this point eb->io_pages is 1 and we cleared Uptodate bit from the
+       first 3 pages
+   --> read_extent_buffer_pages() does not see EXTENT_BUFFER_UPTODATE() so
+       it continues, it's able to lock the pages since we obviously don't
+       hold the pages locked during writeback
+   --> read_extent_buffer_pages() then computes 'num_reads' as 3, and sets
+       eb->io_pages to 3, since only the first page does not have Uptodate
+       bit set at this point
+   --> writeback for the remaining page completes, we ended decrementing
+       eb->io_pages by 1, resulting in eb->io_pages == 2, and therefore
+       never calling end_extent_buffer_writeback(), so
+       EXTENT_BUFFER_WRITEBACK remains in the eb's flags
+   --> of course, when the read bio completes, it doesn't and shouldn't
+       call end_extent_buffer_writeback()
+   --> we should clear EXTENT_BUFFER_UPTODATE only after all pages of
+       the eb finished writeback?  or maybe make the read pages code
+       wait for writeback of all pages of the eb to complete before
+       checking which pages need to be read, touch ->io_pages, submit
+       read bio, etc
 
-In the error case we get these logs:
-InterfaceController::getCfg() ifName usb0
- hwAddr 00:00:00:00:00:00 ipv4Addr 0.0.0.0 flags 0x1002
+writeback bit never cleared means we can hang when aborting a
+transaction, at:
 
-netd : interfaceGetCfg("usb0")
-netd : interfaceSetCfg() -> ServiceSpecificException
- (99, "[Cannot assign requested address] : ioctl() failed")
+    btrfs_cleanup_one_transaction()
+       btrfs_destroy_marked_extents()
+         wait_on_extent_buffer_writeback()
+"""
 
-The reason for the issue is the order in which the interface is setup,
-it is first registered through register_netdev() and after the MAC
-address is set.
+This is a problem because our writes are not synchronized with reads in
+any way.  We clear the UPTODATE flag and then we can easily come in and
+try to read the EB while we're still waiting on other bio's to
+complete.
 
-Fixed by first setting the MAC address of the net_device and after that
-calling register_netdev().
+We have two options here, we could lock all the pages, and then check to
+see if eb->io_pages != 0 to know if we've already got an outstanding
+write on the eb.
 
-Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values and add setters/getters")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
-Link: https://lore.kernel.org/r/20211204214912.17627-1-posteuca@mutex.one
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Or we can simply check to see if we have WRITE_ERR set on this extent
+buffer.  We set this bit _before_ we clear UPTODATE, so if the read gets
+triggered because we aren't UPTODATE because of a write error we're
+guaranteed to have WRITE_ERR set, and in this case we can simply return
+-EIO.  This will fix the reported hang.
 
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index e0ad5aed6ac9..6f5d45ef2e39 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -17,6 +17,7 @@
- #include <linux/etherdevice.h>
- #include <linux/ethtool.h>
- #include <linux/if_vlan.h>
-+#include <linux/etherdevice.h>
+Reported-by: Filipe Manana <fdmanana@suse.com>
+Fixes: c2e39305299f01 ("btrfs: clear extent buffer uptodate when we fail to write it")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 3258b6f01e85..9234d96a7fd5 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -6611,6 +6611,14 @@ int read_extent_buffer_pages(struct extent_buffer *eb, int wait, int mirror_num)
+ 	if (test_bit(EXTENT_BUFFER_UPTODATE, &eb->bflags))
+ 		return 0;
  
- #include "u_ether.h"
- 
-@@ -863,19 +864,23 @@ int gether_register_netdev(struct net_device *net)
- {
- 	struct eth_dev *dev;
- 	struct usb_gadget *g;
--	struct sockaddr sa;
- 	int status;
- 
- 	if (!net->dev.parent)
- 		return -EINVAL;
- 	dev = netdev_priv(net);
- 	g = dev->gadget;
++	/*
++	 * We could have had EXTENT_BUFFER_UPTODATE cleared by the write
++	 * operation, which could potentially still be in flight.  In this case
++	 * we simply want to return an error.
++	 */
++	if (unlikely(test_bit(EXTENT_BUFFER_WRITE_ERR, &eb->bflags)))
++		return -EIO;
 +
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+	eth_hw_addr_set(net, dev->dev_mac);
-+
- 	status = register_netdev(net);
- 	if (status < 0) {
- 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
- 		return status;
- 	} else {
- 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
-+		INFO(dev, "MAC %pM\n", dev->dev_mac);
+ 	if (eb->fs_info->sectorsize < PAGE_SIZE)
+ 		return read_extent_buffer_subpage(eb, wait, mirror_num);
  
- 		/* two kinds of host-initiated state changes:
- 		 *  - iff DATA transfer is active, carrier is "on"
-@@ -883,15 +888,6 @@ int gether_register_netdev(struct net_device *net)
- 		 */
- 		netif_carrier_off(net);
- 	}
--	sa.sa_family = net->type;
--	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
--	rtnl_lock();
--	status = dev_set_mac_address(net, &sa, NULL);
--	rtnl_unlock();
--	if (status)
--		pr_warn("cannot set self ethernet address: %d\n", status);
--	else
--		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 	return status;
- }
 
