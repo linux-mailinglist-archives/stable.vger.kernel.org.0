@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9230147AC95
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A2047AD42
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235363AbhLTOpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:45:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
+        id S236848AbhLTOvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:51:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236176AbhLTOoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:08 -0500
+        with ESMTP id S237262AbhLTOs1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26567C0698DA;
-        Mon, 20 Dec 2021 06:42:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67687C06139A;
+        Mon, 20 Dec 2021 06:45:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA58E611B8;
-        Mon, 20 Dec 2021 14:42:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C49AC36AE7;
-        Mon, 20 Dec 2021 14:42:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06C07611A7;
+        Mon, 20 Dec 2021 14:45:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 181EDC36AE8;
+        Mon, 20 Dec 2021 14:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011361;
-        bh=O2sc6bukGQgl1WjREE0YrM5IHqjXYwwXD5Psk9U/Rz0=;
+        s=korg; t=1640011535;
+        bh=fwoDn1ltYSqkQ93th1QJQun+1oL1EveKzkbvqd+HuuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jOxA3PVGJTdelzwM0Py3EX4qCCVz1hJrffIiq+GSgfsZowMfwllgB+ce2Tg8jX22h
-         hheuNZdyjIMWeDOjAoLY+Ao0Iizif88s/OgR+AVOy7JdwVqh0bH4GvDA/r3a9ku02G
-         iDQT2C/zwv+f7PIY5khscTc36jqxKd6OSeUzwVFk=
+        b=jSnvXXFSYJuPIF7AF2xcZ/8R605zM7MMz7xXJ8MzYzUVGMGdPL0tOxIphrLicUh2k
+         CqGt45EkDkGlF0MOeIjlPPum4gYyHnnIC3qX6Tk5qrcHNwqPq0TEMmibcFzeXaK8xY
+         ckW8gFZ9SbKIOv4wnSfPnMO+IYx2G2n8tf+RPkPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 51/56] scsi: scsi_debug: Sanity check block descriptor length in resp_mode_select()
+        stable@vger.kernel.org, Andy Lavr <andy.lavr@gmail.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 5.4 55/71] mwifiex: Remove unnecessary braces from HostCmd_SET_SEQ_NO_BSS_INFO
 Date:   Mon, 20 Dec 2021 15:34:44 +0100
-Message-Id: <20211220143025.146070980@linuxfoundation.org>
+Message-Id: <20211220143027.532208596@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,68 +50,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit e0a2c28da11e2c2b963fc01d50acbf03045ac732 upstream.
+commit 6a953dc4dbd1c7057fb765a24f37a5e953c85fb0 upstream.
 
-In resp_mode_select() sanity check the block descriptor len to avoid UAF.
+A new warning in clang points out when macro expansion might result in a
+GNU C statement expression. There is an instance of this in the mwifiex
+driver:
 
-BUG: KASAN: use-after-free in resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
-Read of size 1 at addr ffff888026670f50 by task scsicmd/15032
+drivers/net/wireless/marvell/mwifiex/cmdevt.c:217:34: warning: '}' and
+')' tokens terminating statement expression appear in different macro
+expansion contexts [-Wcompound-token-split-by-macro]
+        host_cmd->seq_num = cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/wireless/marvell/mwifiex/fw.h:519:46: note: expanded from
+macro 'HostCmd_SET_SEQ_NO_BSS_INFO'
+        (((type) & 0x000f) << 12);                  }
+                                                    ^
 
-CPU: 1 PID: 15032 Comm: scsicmd Not tainted 5.15.0-01d0625 #15
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-Call Trace:
- <TASK>
- dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:107
- print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:257
- kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:443
- __asan_report_load1_noabort+0x14/0x20 mm/kasan/report_generic.c:306
- resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
- schedule_resp+0x4af/0x1a10 drivers/scsi/scsi_debug.c:5483
- scsi_debug_queuecommand+0x8c9/0x1e70 drivers/scsi/scsi_debug.c:7537
- scsi_queue_rq+0x16b4/0x2d10 drivers/scsi/scsi_lib.c:1521
- blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1640
- __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
- blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
- __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1762
- __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1839
- blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
- blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
- blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:63
- sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:837
- sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:775
- sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:941
- sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1166
- __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:52
- do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:50
- entry_SYSCALL_64_after_hwframe+0x44/0xae arch/x86/entry/entry_64.S:113
+This does not appear to be a real issue. Removing the braces and
+replacing them with parentheses will fix the warning and not change the
+meaning of the code.
 
-Link: https://lore.kernel.org/r/1637262208-28850-1-git-send-email-george.kennedy@oracle.com
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1146
+Reported-by: Andy Lavr <andy.lavr@gmail.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200901070834.1015754-1-natechancellor@gmail.com
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_debug.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/cmdevt.c |    4 ++--
+ drivers/net/wireless/marvell/mwifiex/fw.h     |    8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -2300,11 +2300,11 @@ static int resp_mode_select(struct scsi_
- 			    __func__, param_len, res);
- 	md_len = mselect6 ? (arr[0] + 1) : (get_unaligned_be16(arr + 0) + 2);
- 	bd_len = mselect6 ? arr[3] : get_unaligned_be16(arr + 6);
--	if (md_len > 2) {
-+	off = bd_len + (mselect6 ? 4 : 8);
-+	if (md_len > 2 || off >= res) {
- 		mk_sense_invalid_fld(scp, SDEB_IN_DATA, 0, -1);
- 		return check_condition_result;
- 	}
--	off = bd_len + (mselect6 ? 4 : 8);
- 	mpage = arr[off] & 0x3f;
- 	ps = !!(arr[off] & 0x80);
- 	if (ps) {
+--- a/drivers/net/wireless/marvell/mwifiex/cmdevt.c
++++ b/drivers/net/wireless/marvell/mwifiex/cmdevt.c
+@@ -322,9 +322,9 @@ static int mwifiex_dnld_sleep_confirm_cm
+ 
+ 	adapter->seq_num++;
+ 	sleep_cfm_buf->seq_num =
+-		cpu_to_le16((HostCmd_SET_SEQ_NO_BSS_INFO
++		cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+ 					(adapter->seq_num, priv->bss_num,
+-					 priv->bss_type)));
++					 priv->bss_type));
+ 
+ 	mwifiex_dbg(adapter, CMD,
+ 		    "cmd: DNLD_CMD: %#x, act %#x, len %d, seqno %#x\n",
+--- a/drivers/net/wireless/marvell/mwifiex/fw.h
++++ b/drivers/net/wireless/marvell/mwifiex/fw.h
+@@ -512,10 +512,10 @@ enum mwifiex_channel_flags {
+ 
+ #define RF_ANTENNA_AUTO                 0xFFFF
+ 
+-#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) {   \
+-	(((seq) & 0x00ff) |                             \
+-	 (((num) & 0x000f) << 8)) |                     \
+-	(((type) & 0x000f) << 12);                  }
++#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) \
++	((((seq) & 0x00ff) |                        \
++	 (((num) & 0x000f) << 8)) |                 \
++	(((type) & 0x000f) << 12))
+ 
+ #define HostCmd_GET_SEQ_NO(seq)       \
+ 	((seq) & HostCmd_SEQ_NUM_MASK)
 
 
