@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E43C47AC16
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7DA747ACB6
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234788AbhLTOl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:41:28 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:54086 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234726AbhLTOkQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:16 -0500
+        id S236255AbhLTOqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:46:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59922 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235450AbhLTOnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:43:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85440C06118F;
+        Mon, 20 Dec 2021 06:42:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 65634CE110D;
-        Mon, 20 Dec 2021 14:40:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35B10C36AE8;
-        Mon, 20 Dec 2021 14:40:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46E70B80EE5;
+        Mon, 20 Dec 2021 14:42:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E1E1C36AE7;
+        Mon, 20 Dec 2021 14:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011212;
-        bh=xLfAzJapR99aoDr1OkaqMFKcg4sP3b9gJh5EUUpcH38=;
+        s=korg; t=1640011347;
+        bh=glxp8tiGpTIkTgiLSNQYHxYns/panT72gq7bR60vXqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdxSu5O0+/KS5YrnYB0s//eMu0w4xTrxlR1uEB/J41TbzgipQuDQ/wDEY04kywO1H
-         QAF1gR5DRUvinJaXeER8nnwGMtrq44fs40VnsSOYwgW9JwxnQ4Bvrfj44aHbOh2FmP
-         Fk0Sml0IErK9HGliScM4GxqC80hP2/N4C4V4a8bY=
+        b=cC3XowmA1D4/6UGeOL7/WEu7YSek+IvIIzriAXz0k+oWz7TZEqMG+DplOZmVSEd0q
+         qGa9kTQvV3jkMfqJDme57CL6OU4DUqi/mGVzGNWqa0sThJ+GhJnZYPqn0047a0Bnli
+         9UOoTWJiDw53W/Sx+vWrfG/2UHwEjpHGmsLb3HGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.14 44/45] xen/netback: fix rx queue stall detection
+        stable@vger.kernel.org, Pedro Batista <pedbap.g@gmail.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.19 46/56] firmware: arm_scpi: Fix string overflow in SCPI genpd driver
 Date:   Mon, 20 Dec 2021 15:34:39 +0100
-Message-Id: <20211220143023.734305152@linuxfoundation.org>
+Message-Id: <20211220143024.960415273@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,163 +49,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-commit 6032046ec4b70176d247a71836186d47b25d1684 upstream.
+commit 865ed67ab955428b9aa771d8b4f1e4fb7fd08945 upstream.
 
-Commit 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when
-not using GSO") introduced a security problem in netback, as an
-interface would only be regarded to be stalled if no slot is available
-in the rx queue ring page. In case the SKB at the head of the queued
-requests will need more than one rx slot and only one slot is free the
-stall detection logic will never trigger, as the test for that is only
-looking for at least one slot to be free.
+Without the bound checks for scpi_pd->name, it could result in the buffer
+overflow when copying the SCPI device name from the corresponding device
+tree node as the name string is set at maximum size of 30.
 
-Fix that by testing for the needed number of slots instead of only one
-slot being available.
+Let us fix it by using devm_kasprintf so that the string buffer is
+allocated dynamically.
 
-In order to not have to take the rx queue lock that often, store the
-number of needed slots in the queue data. As all SKB dequeue operations
-happen in the rx queue kernel thread this is safe, as long as the
-number of needed slots is accessed via READ/WRITE_ONCE() only and
-updates are always done with the rx queue lock held.
-
-Add a small helper for obtaining the number of free slots.
-
-This is part of XSA-392
-
-Fixes: 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when not using GSO")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Fixes: 8bec4337ad40 ("firmware: scpi: add device power domain support using genpd")
+Reported-by: Pedro Batista <pedbap.g@gmail.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20211209120456.696879-1-sudeep.holla@arm.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/xen-netback/common.h |    1 
- drivers/net/xen-netback/rx.c     |   65 ++++++++++++++++++++++++---------------
- 2 files changed, 42 insertions(+), 24 deletions(-)
 
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -203,6 +203,7 @@ struct xenvif_queue { /* Per-queue data
- 	unsigned int rx_queue_max;
- 	unsigned int rx_queue_len;
- 	unsigned long last_rx_time;
-+	unsigned int rx_slots_needed;
- 	bool stalled;
+---
+ drivers/firmware/scpi_pm_domain.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+--- a/drivers/firmware/scpi_pm_domain.c
++++ b/drivers/firmware/scpi_pm_domain.c
+@@ -27,7 +27,6 @@ struct scpi_pm_domain {
+ 	struct generic_pm_domain genpd;
+ 	struct scpi_ops *ops;
+ 	u32 domain;
+-	char name[30];
+ };
  
- 	struct xenvif_copy_state rx_copy;
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -33,28 +33,36 @@
- #include <xen/xen.h>
- #include <xen/events.h>
+ /*
+@@ -121,8 +120,13 @@ static int scpi_pm_domain_probe(struct p
  
--static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+/*
-+ * Update the needed ring page slots for the first SKB queued.
-+ * Note that any call sequence outside the RX thread calling this function
-+ * needs to wake up the RX thread via a call of xenvif_kick_thread()
-+ * afterwards in order to avoid a race with putting the thread to sleep.
-+ */
-+static void xenvif_update_needed_slots(struct xenvif_queue *queue,
-+				       const struct sk_buff *skb)
- {
--	RING_IDX prod, cons;
--	struct sk_buff *skb;
--	int needed;
--	unsigned long flags;
-+	unsigned int needed = 0;
+ 		scpi_pd->domain = i;
+ 		scpi_pd->ops = scpi_ops;
+-		sprintf(scpi_pd->name, "%s.%d", np->name, i);
+-		scpi_pd->genpd.name = scpi_pd->name;
++		scpi_pd->genpd.name = devm_kasprintf(dev, GFP_KERNEL,
++						     "%s.%d", np->name, i);
++		if (!scpi_pd->genpd.name) {
++			dev_err(dev, "Failed to allocate genpd name:%s.%d\n",
++				np->name, i);
++			continue;
++		}
+ 		scpi_pd->genpd.power_off = scpi_pd_power_off;
+ 		scpi_pd->genpd.power_on = scpi_pd_power_on;
  
--	spin_lock_irqsave(&queue->rx_queue.lock, flags);
--
--	skb = skb_peek(&queue->rx_queue);
--	if (!skb) {
--		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
--		return false;
-+	if (skb) {
-+		needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
-+		if (skb_is_gso(skb))
-+			needed++;
-+		if (skb->sw_hash)
-+			needed++;
- 	}
- 
--	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
--	if (skb_is_gso(skb))
--		needed++;
--	if (skb->sw_hash)
--		needed++;
-+	WRITE_ONCE(queue->rx_slots_needed, needed);
-+}
- 
--	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+{
-+	RING_IDX prod, cons;
-+	unsigned int needed;
-+
-+	needed = READ_ONCE(queue->rx_slots_needed);
-+	if (!needed)
-+		return false;
- 
- 	do {
- 		prod = queue->rx.sring->req_prod;
-@@ -80,6 +88,9 @@ void xenvif_rx_queue_tail(struct xenvif_
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
-+	if (skb_queue_empty(&queue->rx_queue))
-+		xenvif_update_needed_slots(queue, skb);
-+
- 	__skb_queue_tail(&queue->rx_queue, skb);
- 
- 	queue->rx_queue_len += skb->len;
-@@ -100,6 +111,8 @@ static struct sk_buff *xenvif_rx_dequeue
- 
- 	skb = __skb_dequeue(&queue->rx_queue);
- 	if (skb) {
-+		xenvif_update_needed_slots(queue, skb_peek(&queue->rx_queue));
-+
- 		queue->rx_queue_len -= skb->len;
- 		if (queue->rx_queue_len < queue->rx_queue_max) {
- 			struct netdev_queue *txq;
-@@ -474,27 +487,31 @@ void xenvif_rx_action(struct xenvif_queu
- 	xenvif_rx_copy_flush(queue);
- }
- 
--static bool xenvif_rx_queue_stalled(struct xenvif_queue *queue)
-+static RING_IDX xenvif_rx_queue_slots(const struct xenvif_queue *queue)
- {
- 	RING_IDX prod, cons;
- 
- 	prod = queue->rx.sring->req_prod;
- 	cons = queue->rx.req_cons;
- 
-+	return prod - cons;
-+}
-+
-+static bool xenvif_rx_queue_stalled(const struct xenvif_queue *queue)
-+{
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
-+
- 	return !queue->stalled &&
--		prod - cons < 1 &&
-+		xenvif_rx_queue_slots(queue) < needed &&
- 		time_after(jiffies,
- 			   queue->last_rx_time + queue->vif->stall_timeout);
- }
- 
- static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
- {
--	RING_IDX prod, cons;
--
--	prod = queue->rx.sring->req_prod;
--	cons = queue->rx.req_cons;
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
- 
--	return queue->stalled && prod - cons >= 1;
-+	return queue->stalled && xenvif_rx_queue_slots(queue) >= needed;
- }
- 
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
 
 
