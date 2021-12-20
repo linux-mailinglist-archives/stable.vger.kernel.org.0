@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F7847AE4B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C867847AC6C
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239129AbhLTPAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:00:46 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46056 "EHLO
+        id S235455AbhLTOnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:43:40 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35926 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238318AbhLTO5K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:57:10 -0500
+        with ESMTP id S235246AbhLTOmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D6AC6118E;
-        Mon, 20 Dec 2021 14:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41316C36AE7;
-        Mon, 20 Dec 2021 14:57:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 544F26118E;
+        Mon, 20 Dec 2021 14:42:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3982EC36AE7;
+        Mon, 20 Dec 2021 14:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012228;
-        bh=Y/eRC54bCmGaQB6DaEvBt2IaSPSsdo4LFQ0qmDETO0Q=;
+        s=korg; t=1640011338;
+        bh=qKnI2jY6XvVZu6WIM/kFOQIxCvGky/ELOMAMgqK88dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6/sQkxK5IgQXz2Pmc+eoqw9IcMl7ar5EvdjFJ+yp0qXH4AUW9rIb14aySHPbbe6l
-         LnZpNA8KTpBIBgJQslLZynshiXoitpxkIs4aSSnd6yORuE2e750WaRO0LUb1ufndDr
-         SU4aaz1R2tzUFsniQPIuvIsMPsYJzS0+eko9ZnZs=
+        b=atwkMI/FSMC4y8OndThWLRvBmybRcOC/LuYyBnvOsF/nX8/2Cbken7iiNjwfnaFHs
+         1On4hB+4g0ytq7g6GPrDuDiqxY/FHkz12H95+0usaBHNXnZ8N5XX95pneAalZBrk+4
+         6rSpAR5Rwjm98PbYGkvDipUEJi0ZwtX3hjziLqZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ken (Jian) He" <jianhe@ambarella.com>,
-        Pawel Laszczak <pawell@cadence.com>,
-        Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.15 126/177] usb: cdnsp: Fix lack of spin_lock_irqsave/spin_lock_restore
+        stable@vger.kernel.org, Andy Lavr <andy.lavr@gmail.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 4.19 43/56] mwifiex: Remove unnecessary braces from HostCmd_SET_SEQ_NO_BSS_INFO
 Date:   Mon, 20 Dec 2021 15:34:36 +0100
-Message-Id: <20211220143044.320969400@linuxfoundation.org>
+Message-Id: <20211220143024.858584799@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
-References: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 4c4e162d9cf38528c4f13df09d5755cbc06f6c77 upstream.
+commit 6a953dc4dbd1c7057fb765a24f37a5e953c85fb0 upstream.
 
-Patch puts content of cdnsp_gadget_pullup function inside
-spin_lock_irqsave and spin_lock_restore section.
-This construction is required here to keep the data consistency,
-otherwise some data can be changed e.g. from interrupt context.
+A new warning in clang points out when macro expansion might result in a
+GNU C statement expression. There is an instance of this in the mwifiex
+driver:
 
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Reported-by: Ken (Jian) He <jianhe@ambarella.com>
-cc: <stable@vger.kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20211214045527.26823-1-pawell@gli-login.cadence.com
+drivers/net/wireless/marvell/mwifiex/cmdevt.c:217:34: warning: '}' and
+')' tokens terminating statement expression appear in different macro
+expansion contexts [-Wcompound-token-split-by-macro]
+        host_cmd->seq_num = cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/wireless/marvell/mwifiex/fw.h:519:46: note: expanded from
+macro 'HostCmd_SET_SEQ_NO_BSS_INFO'
+        (((type) & 0x000f) << 12);                  }
+                                                    ^
+
+This does not appear to be a real issue. Removing the braces and
+replacing them with parentheses will fix the warning and not change the
+meaning of the code.
+
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1146
+Reported-by: Andy Lavr <andy.lavr@gmail.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200901070834.1015754-1-natechancellor@gmail.com
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-gadget.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/wireless/marvell/mwifiex/cmdevt.c |    4 ++--
+ drivers/net/wireless/marvell/mwifiex/fw.h     |    8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/cdns3/cdnsp-gadget.c
-+++ b/drivers/usb/cdns3/cdnsp-gadget.c
-@@ -1541,15 +1541,27 @@ static int cdnsp_gadget_pullup(struct us
- {
- 	struct cdnsp_device *pdev = gadget_to_cdnsp(gadget);
- 	struct cdns *cdns = dev_get_drvdata(pdev->dev);
-+	unsigned long flags;
+--- a/drivers/net/wireless/marvell/mwifiex/cmdevt.c
++++ b/drivers/net/wireless/marvell/mwifiex/cmdevt.c
+@@ -324,9 +324,9 @@ static int mwifiex_dnld_sleep_confirm_cm
  
- 	trace_cdnsp_pullup(is_on);
+ 	adapter->seq_num++;
+ 	sleep_cfm_buf->seq_num =
+-		cpu_to_le16((HostCmd_SET_SEQ_NO_BSS_INFO
++		cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+ 					(adapter->seq_num, priv->bss_num,
+-					 priv->bss_type)));
++					 priv->bss_type));
  
-+	/*
-+	 * Disable events handling while controller is being
-+	 * enabled/disabled.
-+	 */
-+	disable_irq(cdns->dev_irq);
-+	spin_lock_irqsave(&pdev->lock, flags);
-+
- 	if (!is_on) {
- 		cdnsp_reset_device(pdev);
- 		cdns_clear_vbus(cdns);
- 	} else {
- 		cdns_set_vbus(cdns);
- 	}
-+
-+	spin_unlock_irqrestore(&pdev->lock, flags);
-+	enable_irq(cdns->dev_irq);
-+
- 	return 0;
- }
+ 	mwifiex_dbg(adapter, CMD,
+ 		    "cmd: DNLD_CMD: %#x, act %#x, len %d, seqno %#x\n",
+--- a/drivers/net/wireless/marvell/mwifiex/fw.h
++++ b/drivers/net/wireless/marvell/mwifiex/fw.h
+@@ -512,10 +512,10 @@ enum mwifiex_channel_flags {
  
+ #define RF_ANTENNA_AUTO                 0xFFFF
+ 
+-#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) {   \
+-	(((seq) & 0x00ff) |                             \
+-	 (((num) & 0x000f) << 8)) |                     \
+-	(((type) & 0x000f) << 12);                  }
++#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) \
++	((((seq) & 0x00ff) |                        \
++	 (((num) & 0x000f) << 8)) |                 \
++	(((type) & 0x000f) << 12))
+ 
+ #define HostCmd_GET_SEQ_NO(seq)       \
+ 	((seq) & HostCmd_SEQ_NUM_MASK)
 
 
