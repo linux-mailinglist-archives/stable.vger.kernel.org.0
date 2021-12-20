@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3162347AC9A
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06D2147AD35
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234579AbhLTOpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:45:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52338 "EHLO
+        id S235131AbhLTOux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:50:53 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54544 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235757AbhLTOoa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:30 -0500
+        with ESMTP id S235504AbhLTOr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:47:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75F00B80EE4;
-        Mon, 20 Dec 2021 14:44:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE640C36AE9;
-        Mon, 20 Dec 2021 14:44:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4BAEFB80EE9;
+        Mon, 20 Dec 2021 14:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DA58C36AE7;
+        Mon, 20 Dec 2021 14:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011468;
-        bh=XQmH/mzSpTLQG9xssmlgo9nrYoMKzu6SoO5Me0X83uk=;
+        s=korg; t=1640011647;
+        bh=VLF/6JVooaR1fAgBByo04dqJVL0sKw6ncRWbOB4/yHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEiLgrQVy29bZXwpKEbK6yJdaYSh/D302A8SotGjaAE4CzkNEio9wjLC0oKwU+Bhq
-         sdZVzTzXKTNc4ELAiaQfH/rs5LNfb0ixyl5EXWBGnbduPbrQb4O85dNR41qy9ISbAU
-         ikJwr+Zi+l0JNKBdUb2SJOv9o6Sf03kH13xwRhXk=
+        b=Km0nr4Hy9pzox2qIXhM+DhRh1eeijONdyuRj+b3H/EAHNgUHBqvksBJI8T3k4CnXA
+         DfBxkatQDv8MgbmzR3fwELPEYN1fnGEGDm0FzQRbrjyALtU+yLTdVa1gF1iZDfaViW
+         SMk9plI8IZPcfIJmA63cyKiFP51Sk/tCggilMWvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.4 08/71] audit: improve robustness of the audit queue handling
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Rijo Thomas <Rijo-john.Thomas@amd.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 24/99] tee: amdtee: fix an IS_ERR() vs NULL bug
 Date:   Mon, 20 Dec 2021 15:33:57 +0100
-Message-Id: <20211220143025.960002256@linuxfoundation.org>
+Message-Id: <20211220143030.167535107@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,109 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f4b3ee3c85551d2d343a3ba159304066523f730f upstream.
+[ Upstream commit 9d7482771fac8d8e38e763263f2ca0ca12dd22c6 ]
 
-If the audit daemon were ever to get stuck in a stopped state the
-kernel's kauditd_thread() could get blocked attempting to send audit
-records to the userspace audit daemon.  With the kernel thread
-blocked it is possible that the audit queue could grow unbounded as
-certain audit record generating events must be exempt from the queue
-limits else the system enter a deadlock state.
+The __get_free_pages() function does not return error pointers it returns
+NULL so fix this condition to avoid a NULL dereference.
 
-This patch resolves this problem by lowering the kernel thread's
-socket sending timeout from MAX_SCHEDULE_TIMEOUT to HZ/10 and tweaks
-the kauditd_send_queue() function to better manage the various audit
-queues when connection problems occur between the kernel and the
-audit daemon.  With this patch, the backlog may temporarily grow
-beyond the defined limits when the audit daemon is stopped and the
-system is under heavy audit pressure, but kauditd_thread() will
-continue to make progress and drain the queues as it would for other
-connection problems.  For example, with the audit daemon put into a
-stopped state and the system configured to audit every syscall it
-was still possible to shutdown the system without a kernel panic,
-deadlock, etc.; granted, the system was slow to shutdown but that is
-to be expected given the extreme pressure of recording every syscall.
-
-The timeout value of HZ/10 was chosen primarily through
-experimentation and this developer's "gut feeling".  There is likely
-no one perfect value, but as this scenario is limited in scope (root
-privileges would be needed to send SIGSTOP to the audit daemon), it
-is likely not worth exposing this as a tunable at present.  This can
-always be done at a later date if it proves necessary.
-
-Cc: stable@vger.kernel.org
-Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
-Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 757cc3e9ff1d ("tee: add AMD-TEE driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Rijo Thomas <Rijo-john.Thomas@amd.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/tee/amdtee/core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -712,7 +712,7 @@ static int kauditd_send_queue(struct soc
- {
- 	int rc = 0;
- 	struct sk_buff *skb;
--	static unsigned int failed = 0;
-+	unsigned int failed = 0;
+diff --git a/drivers/tee/amdtee/core.c b/drivers/tee/amdtee/core.c
+index da6b88e80dc07..297dc62bca298 100644
+--- a/drivers/tee/amdtee/core.c
++++ b/drivers/tee/amdtee/core.c
+@@ -203,9 +203,8 @@ static int copy_ta_binary(struct tee_context *ctx, void *ptr, void **ta,
  
- 	/* NOTE: kauditd_thread takes care of all our locking, we just use
- 	 *       the netlink info passed to us (e.g. sk and portid) */
-@@ -729,32 +729,30 @@ static int kauditd_send_queue(struct soc
- 			continue;
- 		}
- 
-+retry:
- 		/* grab an extra skb reference in case of error */
- 		skb_get(skb);
- 		rc = netlink_unicast(sk, skb, portid, 0);
- 		if (rc < 0) {
--			/* fatal failure for our queue flush attempt? */
-+			/* send failed - try a few times unless fatal error */
- 			if (++failed >= retry_limit ||
- 			    rc == -ECONNREFUSED || rc == -EPERM) {
--				/* yes - error processing for the queue */
- 				sk = NULL;
- 				if (err_hook)
- 					(*err_hook)(skb);
--				if (!skb_hook)
--					goto out;
--				/* keep processing with the skb_hook */
-+				if (rc == -EAGAIN)
-+					rc = 0;
-+				/* continue to drain the queue */
- 				continue;
- 			} else
--				/* no - requeue to preserve ordering */
--				skb_queue_head(queue, skb);
-+				goto retry;
- 		} else {
--			/* it worked - drop the extra reference and continue */
-+			/* skb sent - drop the extra reference and continue */
- 			consume_skb(skb);
- 			failed = 0;
- 		}
+ 	*ta_size = roundup(fw->size, PAGE_SIZE);
+ 	*ta = (void *)__get_free_pages(GFP_KERNEL, get_order(*ta_size));
+-	if (IS_ERR(*ta)) {
+-		pr_err("%s: get_free_pages failed 0x%llx\n", __func__,
+-		       (u64)*ta);
++	if (!*ta) {
++		pr_err("%s: get_free_pages failed\n", __func__);
+ 		rc = -ENOMEM;
+ 		goto rel_fw;
  	}
- 
--out:
- 	return (rc >= 0 ? 0 : rc);
- }
- 
-@@ -1557,7 +1555,8 @@ static int __net_init audit_net_init(str
- 		audit_panic("cannot initialize netlink socket in namespace");
- 		return -ENOMEM;
- 	}
--	aunet->sk->sk_sndtimeo = MAX_SCHEDULE_TIMEOUT;
-+	/* limit the timeout in case auditd is blocked/stopped */
-+	aunet->sk->sk_sndtimeo = HZ / 10;
- 
- 	return 0;
- }
+-- 
+2.33.0
+
 
 
