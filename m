@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 553CC47ADF2
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2918247ADE9
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237328AbhLTO4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:56:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:32948 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238867AbhLTOyn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:54:43 -0500
+        id S237455AbhLTO4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:56:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34434 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237472AbhLTOwX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:52:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21D0C08EB1C;
+        Mon, 20 Dec 2021 06:47:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48153B80EDE;
-        Mon, 20 Dec 2021 14:54:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9204FC36AE8;
-        Mon, 20 Dec 2021 14:54:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F8D2B80EE4;
+        Mon, 20 Dec 2021 14:47:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C690AC36AE7;
+        Mon, 20 Dec 2021 14:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012081;
-        bh=FlQRhN+FvKxaeGsp4TEQ2xMy+PJRLglVwZT3iLiKupQ=;
+        s=korg; t=1640011619;
+        bh=BKYSmGiZCp+W3HeSZoxs52fKYrIW+YOA0uxO5Gvbdso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=psV3L3VsKVbsm/H2zgni+AhtCAiOdTLv1eprF3Ky6KHQlaxSdB3+CzXwflSw3haxz
-         0CG0kMkSKOxJQuu4FfBEt9S4f8ncmFBW5q3FvQDrR6K4gENx+vUPw2zu3rhs8v96NL
-         VQ/gekKXgQFmGMv4lHrLQD53kyJqIgwfJC4VzBY4=
+        b=UAJPqftGQHipj7v7HJ5Eh97J4ev2NT8J7dpRHlhYmVX5MGQ/wCEekbEKhZEynRnLy
+         ibj9DDe8dp965SlHdsJQpxs4a9MphX7nB74JQyCUqaELzc0j3gPWZ6n1+autN9XSDm
+         /SzDK0LsOp6x1G+UQ2Le+GYYyk9h1aCUC75oyDNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 066/177] net: hns3: fix race condition in debugfs
+        stable@vger.kernel.org, Eneas U de Queiroz <cotequeiroz@gmail.com>,
+        Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 03/99] mac80211: fix regression in SSN handling of addba tx
 Date:   Mon, 20 Dec 2021 15:33:36 +0100
-Message-Id: <20211220143042.322618218@linuxfoundation.org>
+Message-Id: <20211220143029.467598355@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
-References: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,117 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 6dde452bceca3f2ed2b33bc46a16ff5682a03a2e ]
+commit 73111efacd3c6d9e644acca1d132566932be8af0 upstream.
 
-When multiple threads concurrently access the debugfs content, data
-and pointer exceptions may occur. Therefore, mutex lock protection is
-added for debugfs.
+Some drivers that do their own sequence number allocation (e.g. ath9k) rely
+on being able to modify params->ssn on starting tx ampdu sessions.
+This was broken by a change that modified it to use sta->tid_seq[tid] instead.
 
-Fixes: 5e69ea7ee2a6 ("net: hns3: refactor the debugfs process")
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 31d8bb4e07f8 ("mac80211: agg-tx: refactor sending addba")
+Reported-by: Eneas U de Queiroz <cotequeiroz@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20211124094024.43222-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hnae3.h   |  2 ++
- .../ethernet/hisilicon/hns3/hns3_debugfs.c    | 20 +++++++++++++------
- 2 files changed, 16 insertions(+), 6 deletions(-)
+ net/mac80211/agg-tx.c   |    4 ++--
+ net/mac80211/sta_info.h |    1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hnae3.h b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-index d701451596c82..47bba4c62f040 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hnae3.h
-@@ -830,6 +830,8 @@ struct hnae3_handle {
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -480,8 +480,7 @@ static void ieee80211_send_addba_with_ti
  
- 	u8 netdev_flags;
- 	struct dentry *hnae3_dbgfs;
-+	/* protects concurrent contention between debugfs commands */
-+	struct mutex dbgfs_lock;
+ 	/* send AddBA request */
+ 	ieee80211_send_addba_request(sdata, sta->sta.addr, tid,
+-				     tid_tx->dialog_token,
+-				     sta->tid_seq[tid] >> 4,
++				     tid_tx->dialog_token, tid_tx->ssn,
+ 				     buf_size, tid_tx->timeout);
  
- 	/* Network interface message level enabled bits */
- 	u32 msg_enable;
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
-index e54f96251fea9..3205849bdb95b 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_debugfs.c
-@@ -1021,6 +1021,7 @@ static ssize_t hns3_dbg_read(struct file *filp, char __user *buffer,
- 	if (ret)
- 		return ret;
+ 	WARN_ON(test_and_set_bit(HT_AGG_STATE_SENT_ADDBA, &tid_tx->state));
+@@ -523,6 +522,7 @@ void ieee80211_tx_ba_session_handle_star
  
-+	mutex_lock(&handle->dbgfs_lock);
- 	save_buf = &hns3_dbg_cmd[index].buf;
+ 	params.ssn = sta->tid_seq[tid] >> 4;
+ 	ret = drv_ampdu_action(local, sdata, &params);
++	tid_tx->ssn = params.ssn;
+ 	if (ret == IEEE80211_AMPDU_TX_START_DELAY_ADDBA) {
+ 		return;
+ 	} else if (ret == IEEE80211_AMPDU_TX_START_IMMEDIATE) {
+--- a/net/mac80211/sta_info.h
++++ b/net/mac80211/sta_info.h
+@@ -190,6 +190,7 @@ struct tid_ampdu_tx {
+ 	u8 stop_initiator;
+ 	bool tx_stop;
+ 	u16 buf_size;
++	u16 ssn;
  
- 	if (!test_bit(HNS3_NIC_STATE_INITED, &priv->state) ||
-@@ -1033,15 +1034,15 @@ static ssize_t hns3_dbg_read(struct file *filp, char __user *buffer,
- 		read_buf = *save_buf;
- 	} else {
- 		read_buf = kvzalloc(hns3_dbg_cmd[index].buf_len, GFP_KERNEL);
--		if (!read_buf)
--			return -ENOMEM;
-+		if (!read_buf) {
-+			ret = -ENOMEM;
-+			goto out;
-+		}
- 
- 		/* save the buffer addr until the last read operation */
- 		*save_buf = read_buf;
--	}
- 
--	/* get data ready for the first time to read */
--	if (!*ppos) {
-+		/* get data ready for the first time to read */
- 		ret = hns3_dbg_read_cmd(dbg_data, hns3_dbg_cmd[index].cmd,
- 					read_buf, hns3_dbg_cmd[index].buf_len);
- 		if (ret)
-@@ -1050,8 +1051,10 @@ static ssize_t hns3_dbg_read(struct file *filp, char __user *buffer,
- 
- 	size = simple_read_from_buffer(buffer, count, ppos, read_buf,
- 				       strlen(read_buf));
--	if (size > 0)
-+	if (size > 0) {
-+		mutex_unlock(&handle->dbgfs_lock);
- 		return size;
-+	}
- 
- out:
- 	/* free the buffer for the last read operation */
-@@ -1060,6 +1063,7 @@ static ssize_t hns3_dbg_read(struct file *filp, char __user *buffer,
- 		*save_buf = NULL;
- 	}
- 
-+	mutex_unlock(&handle->dbgfs_lock);
- 	return ret;
- }
- 
-@@ -1132,6 +1136,8 @@ int hns3_dbg_init(struct hnae3_handle *handle)
- 			debugfs_create_dir(hns3_dbg_dentry[i].name,
- 					   handle->hnae3_dbgfs);
- 
-+	mutex_init(&handle->dbgfs_lock);
-+
- 	for (i = 0; i < ARRAY_SIZE(hns3_dbg_cmd); i++) {
- 		if ((hns3_dbg_cmd[i].cmd == HNAE3_DBG_CMD_TM_NODES &&
- 		     ae_dev->dev_version <= HNAE3_DEVICE_VERSION_V2) ||
-@@ -1158,6 +1164,7 @@ int hns3_dbg_init(struct hnae3_handle *handle)
- 	return 0;
- 
- out:
-+	mutex_destroy(&handle->dbgfs_lock);
- 	debugfs_remove_recursive(handle->hnae3_dbgfs);
- 	handle->hnae3_dbgfs = NULL;
- 	return ret;
-@@ -1173,6 +1180,7 @@ void hns3_dbg_uninit(struct hnae3_handle *handle)
- 			hns3_dbg_cmd[i].buf = NULL;
- 		}
- 
-+	mutex_destroy(&handle->dbgfs_lock);
- 	debugfs_remove_recursive(handle->hnae3_dbgfs);
- 	handle->hnae3_dbgfs = NULL;
- }
--- 
-2.33.0
-
+ 	u16 failed_bar_ssn;
+ 	bool bar_pending;
 
 
