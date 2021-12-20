@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE9E47ACEB
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:47:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB4F47AC84
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235574AbhLTOrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:47:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38258 "EHLO
+        id S235702AbhLTOoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:44:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36400 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234529AbhLTOpm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:45:42 -0500
+        with ESMTP id S235705AbhLTOmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAF156119E;
-        Mon, 20 Dec 2021 14:45:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 860FBC36AE8;
-        Mon, 20 Dec 2021 14:45:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48B2261183;
+        Mon, 20 Dec 2021 14:42:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3122EC36AE8;
+        Mon, 20 Dec 2021 14:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011541;
-        bh=Wfd3cUPApCmWbTIqlOspaTPNGEWZGYSTwXpmKgqSFaI=;
+        s=korg; t=1640011369;
+        bh=Lp4KUyotmW/p0tPjvCq9T6eM5vkKR0KibgcUgHHKvNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUxysdj1zvVIO6fY6QSdwHEdWkpDubS7yYAuH7b2Xz5shqHd8kU0OEVYB3Qopu/qG
-         5qb7DjE1dIJ9i2SlE+kayT5LsR+AdRwFb729UbtCtXyF2R0Br6PgZPjLmTNU709zKb
-         6ol+0HBD6dJRVDUYwLHQXMPowac0Jw17mG0TxRvY=
+        b=nNzPOucorganGzbSOn8xuBVgaUa90tg3qb/Pedi4xRjNHrmoS3UyCxIgINSEmmoDu
+         iL2RH9p3rJDpBJn/JY3tNhiLw/ALypvfxdR1sht97SBBmqXiq5Q9wQ3+8Ve+B14pFB
+         D82JRcpB/LH2YsSMM6eT0jfd9psixKCKndNcZrS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 5.4 56/71] Input: touchscreen - avoid bitwise vs logical OR warning
-Date:   Mon, 20 Dec 2021 15:34:45 +0100
-Message-Id: <20211220143027.569905083@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.19 53/56] xen/netfront: harden netfront against event channel storms
+Date:   Mon, 20 Dec 2021 15:34:46 +0100
+Message-Id: <20211220143025.212395552@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,78 +44,293 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
+commit b27d47950e481f292c0a5ad57357edb9d95d03ba upstream.
 
-A new warning in clang points out a few places in this driver where a
-bitwise OR is being used with boolean types:
+The Xen netfront driver is still vulnerable for an attack via excessive
+number of events sent by the backend. Fix that by using lateeoi event
+channels.
 
-drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-        data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
-                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For being able to detect the case of no rx responses being added while
+the carrier is down a new lock is needed in order to update and test
+rsp_cons and the number of seen unconsumed responses atomically.
 
-This use of a bitwise OR is intentional, as bitwise operations do not
-short circuit, which allows all the calls to touchscreen_get_prop_u32()
-to happen so that the last parameter is initialized while coalescing the
-results of the calls to make a decision after they are all evaluated.
+This is part of XSA-391
 
-To make this clearer to the compiler, use the '|=' operator to assign
-the result of each touchscreen_get_prop_u32() call to data_present,
-which keeps the meaning of the code the same but makes it obvious that
-every one of these calls is expected to happen.
-
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/of_touchscreen.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/net/xen-netfront.c |  125 +++++++++++++++++++++++++++++++++------------
+ 1 file changed, 94 insertions(+), 31 deletions(-)
 
---- a/drivers/input/touchscreen/of_touchscreen.c
-+++ b/drivers/input/touchscreen/of_touchscreen.c
-@@ -81,8 +81,8 @@ void touchscreen_parse_properties(struct
- 		       touchscreen_get_prop_u32(dev, "touchscreen-size-x",
- 						input_abs_get_max(input,
- 								  axis) + 1,
--						&maximum) |
--		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
-+						&maximum);
-+	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
- 						input_abs_get_fuzz(input, axis),
- 						&fuzz);
- 	if (data_present)
-@@ -95,8 +95,8 @@ void touchscreen_parse_properties(struct
- 		       touchscreen_get_prop_u32(dev, "touchscreen-size-y",
- 						input_abs_get_max(input,
- 								  axis) + 1,
--						&maximum) |
--		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
-+						&maximum);
-+	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
- 						input_abs_get_fuzz(input, axis),
- 						&fuzz);
- 	if (data_present)
-@@ -106,11 +106,11 @@ void touchscreen_parse_properties(struct
- 	data_present = touchscreen_get_prop_u32(dev,
- 						"touchscreen-max-pressure",
- 						input_abs_get_max(input, axis),
--						&maximum) |
--		       touchscreen_get_prop_u32(dev,
--						"touchscreen-fuzz-pressure",
--						input_abs_get_fuzz(input, axis),
--						&fuzz);
-+						&maximum);
-+	data_present |= touchscreen_get_prop_u32(dev,
-+						 "touchscreen-fuzz-pressure",
-+						 input_abs_get_fuzz(input, axis),
-+						 &fuzz);
- 	if (data_present)
- 		touchscreen_set_params(input, axis, 0, maximum, fuzz);
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -142,6 +142,9 @@ struct netfront_queue {
+ 	struct sk_buff *rx_skbs[NET_RX_RING_SIZE];
+ 	grant_ref_t gref_rx_head;
+ 	grant_ref_t grant_rx_ref[NET_RX_RING_SIZE];
++
++	unsigned int rx_rsp_unconsumed;
++	spinlock_t rx_cons_lock;
+ };
+ 
+ struct netfront_info {
+@@ -366,12 +369,13 @@ static int xennet_open(struct net_device
+ 	return 0;
+ }
+ 
+-static void xennet_tx_buf_gc(struct netfront_queue *queue)
++static bool xennet_tx_buf_gc(struct netfront_queue *queue)
+ {
+ 	RING_IDX cons, prod;
+ 	unsigned short id;
+ 	struct sk_buff *skb;
+ 	bool more_to_do;
++	bool work_done = false;
+ 	const struct device *dev = &queue->info->netdev->dev;
+ 
+ 	BUG_ON(!netif_carrier_ok(queue->info->netdev));
+@@ -388,6 +392,8 @@ static void xennet_tx_buf_gc(struct netf
+ 		for (cons = queue->tx.rsp_cons; cons != prod; cons++) {
+ 			struct xen_netif_tx_response txrsp;
+ 
++			work_done = true;
++
+ 			RING_COPY_RESPONSE(&queue->tx, cons, &txrsp);
+ 			if (txrsp.status == XEN_NETIF_RSP_NULL)
+ 				continue;
+@@ -431,11 +437,13 @@ static void xennet_tx_buf_gc(struct netf
+ 
+ 	xennet_maybe_wake_tx(queue);
+ 
+-	return;
++	return work_done;
+ 
+  err:
+ 	queue->info->broken = true;
+ 	dev_alert(dev, "Disabled for further use\n");
++
++	return work_done;
+ }
+ 
+ struct xennet_gnttab_make_txreq {
+@@ -756,6 +764,16 @@ static int xennet_close(struct net_devic
+ 	return 0;
+ }
+ 
++static void xennet_set_rx_rsp_cons(struct netfront_queue *queue, RING_IDX val)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&queue->rx_cons_lock, flags);
++	queue->rx.rsp_cons = val;
++	queue->rx_rsp_unconsumed = RING_HAS_UNCONSUMED_RESPONSES(&queue->rx);
++	spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
++}
++
+ static void xennet_move_rx_slot(struct netfront_queue *queue, struct sk_buff *skb,
+ 				grant_ref_t ref)
+ {
+@@ -807,7 +825,7 @@ static int xennet_get_extras(struct netf
+ 		xennet_move_rx_slot(queue, skb, ref);
+ 	} while (extra.flags & XEN_NETIF_EXTRA_FLAG_MORE);
+ 
+-	queue->rx.rsp_cons = cons;
++	xennet_set_rx_rsp_cons(queue, cons);
+ 	return err;
+ }
+ 
+@@ -887,7 +905,7 @@ next:
+ 	}
+ 
+ 	if (unlikely(err))
+-		queue->rx.rsp_cons = cons + slots;
++		xennet_set_rx_rsp_cons(queue, cons + slots);
+ 
+ 	return err;
+ }
+@@ -941,7 +959,8 @@ static int xennet_fill_frags(struct netf
+ 			__pskb_pull_tail(skb, pull_to - skb_headlen(skb));
+ 		}
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+-			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
++			xennet_set_rx_rsp_cons(queue,
++					       ++cons + skb_queue_len(list));
+ 			kfree_skb(nskb);
+ 			return -ENOENT;
+ 		}
+@@ -954,7 +973,7 @@ static int xennet_fill_frags(struct netf
+ 		kfree_skb(nskb);
+ 	}
+ 
+-	queue->rx.rsp_cons = cons;
++	xennet_set_rx_rsp_cons(queue, cons);
+ 
+ 	return 0;
+ }
+@@ -1075,7 +1094,9 @@ err:
+ 
+ 			if (unlikely(xennet_set_skb_gso(skb, gso))) {
+ 				__skb_queue_head(&tmpq, skb);
+-				queue->rx.rsp_cons += skb_queue_len(&tmpq);
++				xennet_set_rx_rsp_cons(queue,
++						       queue->rx.rsp_cons +
++						       skb_queue_len(&tmpq));
+ 				goto err;
+ 			}
+ 		}
+@@ -1099,7 +1120,8 @@ err:
+ 
+ 		__skb_queue_tail(&rxq, skb);
+ 
+-		i = ++queue->rx.rsp_cons;
++		i = queue->rx.rsp_cons + 1;
++		xennet_set_rx_rsp_cons(queue, i);
+ 		work_done++;
+ 	}
+ 
+@@ -1261,40 +1283,79 @@ static int xennet_set_features(struct ne
+ 	return 0;
+ }
+ 
+-static irqreturn_t xennet_tx_interrupt(int irq, void *dev_id)
++static bool xennet_handle_tx(struct netfront_queue *queue, unsigned int *eoi)
+ {
+-	struct netfront_queue *queue = dev_id;
+ 	unsigned long flags;
+ 
+-	if (queue->info->broken)
+-		return IRQ_HANDLED;
++	if (unlikely(queue->info->broken))
++		return false;
+ 
+ 	spin_lock_irqsave(&queue->tx_lock, flags);
+-	xennet_tx_buf_gc(queue);
++	if (xennet_tx_buf_gc(queue))
++		*eoi = 0;
+ 	spin_unlock_irqrestore(&queue->tx_lock, flags);
+ 
++	return true;
++}
++
++static irqreturn_t xennet_tx_interrupt(int irq, void *dev_id)
++{
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
++
++	if (likely(xennet_handle_tx(dev_id, &eoiflag)))
++		xen_irq_lateeoi(irq, eoiflag);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+-static irqreturn_t xennet_rx_interrupt(int irq, void *dev_id)
++static bool xennet_handle_rx(struct netfront_queue *queue, unsigned int *eoi)
+ {
+-	struct netfront_queue *queue = dev_id;
+-	struct net_device *dev = queue->info->netdev;
++	unsigned int work_queued;
++	unsigned long flags;
++
++	if (unlikely(queue->info->broken))
++		return false;
+ 
+-	if (queue->info->broken)
+-		return IRQ_HANDLED;
++	spin_lock_irqsave(&queue->rx_cons_lock, flags);
++	work_queued = RING_HAS_UNCONSUMED_RESPONSES(&queue->rx);
++	if (work_queued > queue->rx_rsp_unconsumed) {
++		queue->rx_rsp_unconsumed = work_queued;
++		*eoi = 0;
++	} else if (unlikely(work_queued < queue->rx_rsp_unconsumed)) {
++		const struct device *dev = &queue->info->netdev->dev;
++
++		spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
++		dev_alert(dev, "RX producer index going backwards\n");
++		dev_alert(dev, "Disabled for further use\n");
++		queue->info->broken = true;
++		return false;
++	}
++	spin_unlock_irqrestore(&queue->rx_cons_lock, flags);
+ 
+-	if (likely(netif_carrier_ok(dev) &&
+-		   RING_HAS_UNCONSUMED_RESPONSES(&queue->rx)))
++	if (likely(netif_carrier_ok(queue->info->netdev) && work_queued))
+ 		napi_schedule(&queue->napi);
+ 
++	return true;
++}
++
++static irqreturn_t xennet_rx_interrupt(int irq, void *dev_id)
++{
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
++
++	if (likely(xennet_handle_rx(dev_id, &eoiflag)))
++		xen_irq_lateeoi(irq, eoiflag);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+ static irqreturn_t xennet_interrupt(int irq, void *dev_id)
+ {
+-	xennet_tx_interrupt(irq, dev_id);
+-	xennet_rx_interrupt(irq, dev_id);
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
++
++	if (xennet_handle_tx(dev_id, &eoiflag) &&
++	    xennet_handle_rx(dev_id, &eoiflag))
++		xen_irq_lateeoi(irq, eoiflag);
++
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -1528,9 +1589,10 @@ static int setup_netfront_single(struct
+ 	if (err < 0)
+ 		goto fail;
+ 
+-	err = bind_evtchn_to_irqhandler(queue->tx_evtchn,
+-					xennet_interrupt,
+-					0, queue->info->netdev->name, queue);
++	err = bind_evtchn_to_irqhandler_lateeoi(queue->tx_evtchn,
++						xennet_interrupt, 0,
++						queue->info->netdev->name,
++						queue);
+ 	if (err < 0)
+ 		goto bind_fail;
+ 	queue->rx_evtchn = queue->tx_evtchn;
+@@ -1558,18 +1620,18 @@ static int setup_netfront_split(struct n
+ 
+ 	snprintf(queue->tx_irq_name, sizeof(queue->tx_irq_name),
+ 		 "%s-tx", queue->name);
+-	err = bind_evtchn_to_irqhandler(queue->tx_evtchn,
+-					xennet_tx_interrupt,
+-					0, queue->tx_irq_name, queue);
++	err = bind_evtchn_to_irqhandler_lateeoi(queue->tx_evtchn,
++						xennet_tx_interrupt, 0,
++						queue->tx_irq_name, queue);
+ 	if (err < 0)
+ 		goto bind_tx_fail;
+ 	queue->tx_irq = err;
+ 
+ 	snprintf(queue->rx_irq_name, sizeof(queue->rx_irq_name),
+ 		 "%s-rx", queue->name);
+-	err = bind_evtchn_to_irqhandler(queue->rx_evtchn,
+-					xennet_rx_interrupt,
+-					0, queue->rx_irq_name, queue);
++	err = bind_evtchn_to_irqhandler_lateeoi(queue->rx_evtchn,
++						xennet_rx_interrupt, 0,
++						queue->rx_irq_name, queue);
+ 	if (err < 0)
+ 		goto bind_rx_fail;
+ 	queue->rx_irq = err;
+@@ -1671,6 +1733,7 @@ static int xennet_init_queue(struct netf
+ 
+ 	spin_lock_init(&queue->tx_lock);
+ 	spin_lock_init(&queue->rx_lock);
++	spin_lock_init(&queue->rx_cons_lock);
+ 
+ 	timer_setup(&queue->rx_refill_timer, rx_refill_timeout, 0);
  
 
 
