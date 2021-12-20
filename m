@@ -2,95 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A1F47A822
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 12:02:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A8847A864
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 12:08:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231441AbhLTLCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 06:02:43 -0500
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:57267 "EHLO
-        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230116AbhLTLCm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 06:02:42 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 4186F580726;
-        Mon, 20 Dec 2021 06:02:42 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Mon, 20 Dec 2021 06:02:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=SYYa6YsTGSR/I0GH13kqb+HYdm9
-        OONiz3cbnv97oGII=; b=pq5JbqII0DG1nlui9KuHHJyFhoHCPhIpvInQXFreib4
-        MowLWD0PiKk1vOiclXL9SZwW132/0PB+0CM4QJEDFfZpJNu9pFb966Dduqkj1Gkm
-        aK4qAyukFOzaJBLaw4v6jSLBJiub/DzpTX6MCIDdgWKc7FxAY+3I3boq/TwyQvZI
-        COvclSMileKI0Lz/6mEELTzxc+nREe6wlgYRvEQvpJ5Mon+vNbeIi/jCvt4XpXDL
-        qT3Rghq6mxFyatdquMzqXODoazHkRzc+hxqpGtUg6UIV9BBPtWbwI1YXF0hQqU+Q
-        y1Zv3LaBSM+nd4BTeOUAJpAgOdEQoBAh+DtEuuKH8rw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=SYYa6Y
-        sTGSR/I0GH13kqb+HYdm9OONiz3cbnv97oGII=; b=m1JtNBB9nemQLbkYlGrcxI
-        OBaGF0rsA1hASxzSN1V10IFbJv/Dx4RMw+KeMMXdSVasFAgSCz1PJxe75PPDP43t
-        KyPqyzQKWDKlWqD6NJAPMrLqhdvHIsEyLYKOITIQ2SAMQmHwC9QTjfoxpIR3pq2z
-        a3/jcLMqeX7BtLOT0emtGRZTqXabX45AMhqQfaV6z4v6f22Zyg9oLx4YmFAJXUi3
-        a4klRtycrA6E+YxyaCwo+RzuwZiYqzU3EYD8/kpwpyMnea9qz+fLg0VOaWk+IcJH
-        94bsDJg4+LUzrGuRCdnTEIDwZqApBixEzz4AcfwEJ9rqT7K6R2+k0swwzT8cuBBA
-        ==
-X-ME-Sender: <xms:0WLAYcfjuXObVl3M3X7Gh9au2Ss-TnBV8AJOVkZQZa1q3_bMxazcOw>
-    <xme:0WLAYePhNB4_KhD9GFLFLLUveoUskTYnk84Qkdmfiwygd6FVWkHYbQiDR_LO9rJvW
-    oTUCYVJU6pe_w>
-X-ME-Received: <xmr:0WLAYdh3Gm5cMGIH4591Lt2biZZY9wozVVka7QKzx5h6BjuhCilFksci0VQdEV9j15uwJXUnnkijpxGisRDONtxlBCt-R8wi>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddtvddgvdefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:0mLAYR-D9LgAoe7wYKMKaD6mGls2HmgFsVnK5sJG--ENIDPjwN6wHw>
-    <xmx:0mLAYYtywWzCE8pXKBJqi_Qu7K6-WXlZJeZgrRztKz4T2OxY6aX2jQ>
-    <xmx:0mLAYYFDUb5wznYbnnp2iAL7kdy_cuRf1fmhi3Nt35qpSHBgJQw0mQ>
-    <xmx:0mLAYYEBnH74_aiAcNvkSAy5RtvsDJ5hMeZbXAsgKxnUKxwGCFil1A>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 20 Dec 2021 06:02:41 -0500 (EST)
-Date:   Mon, 20 Dec 2021 12:02:39 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        netdev@vger.kernel.org, linux-can@vger.kernel.org,
-        Marc Kleine-Budde <mkl@pengutronix.de>, davem@davemloft.net,
-        kuba@kernel.org
-Subject: Re: [PATCH 5.15 0/3] m_can_pci bit timings for Elkhart Lake
-Message-ID: <YcBiz/hxgxktWb2E@kroah.com>
-References: <cover.1639990483.git.matthias.schiffer@ew.tq-group.com>
+        id S230224AbhLTLIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 06:08:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230159AbhLTLIb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 06:08:31 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE673C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 03:08:30 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id z9-20020a17090a7b8900b001b13558eadaso10844196pjc.4
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 03:08:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=UvA0VwvF/h6uXpoj8ief9LEDTmC8hm9BbvN603/cueo=;
+        b=A/M7yEHVZsn1HDUXaGnTDI2/a9BlBjNyJNP0UAmLoc+fj6kgsKXmnDFoZ1HtwxFJ71
+         fS1EtkChYq9P7Lai4lAyhFqyVQjAG/iGoTHl0sGNL2RxPriJUs0Xx8EHYfW9OVaYwwqB
+         fbIKM5mH6ByO/ctXB0uyLZyEiL+yJG5t1HPOnZd/Dn+6agHK76t8LwhmkF08AaUCURZc
+         8TqVl5nizuZBrEFnvGLczdC1Rr51RzvQSs2rHx03enKjH/KyeTjwtFNli1seTdcMa9zj
+         yoekKOJL/tml14JLhYL5trbqivv2ZU4zQ5JJxlZnUdjcIs8Z/wKJwajtgpCR2hrBeAPt
+         siHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=UvA0VwvF/h6uXpoj8ief9LEDTmC8hm9BbvN603/cueo=;
+        b=6HKGsAU0QYhMXtdI2FZqJe/ketqdpkh41MBBXMQj+YsUV7evnZH+0RioqqHhU4/zgL
+         DTB3SOhn2TG9+ghdNoJxX6LQrDPXEZy9Hjl+dMT+yUo9tsiSuunOvZTWVXrgmUNTkA1b
+         vBlkFvPGoDFghDApMCMgiI1/6kJd+oBumJUTFHnjNxQV1+yWl3APz8HnZoh2bbLZmO5M
+         iJaQmNUy3GNdMqQhxOdVCksTm+5W0f/90160eaBcm9zX+Fkr0yPCe1LTRIzlTLUowZwb
+         T4TjE03bcGQB3GKQC9aJcBFbxDTyXyNFhYu+SCaLkb+X0VCiEnlZ5PpCz+tX45X3jojR
+         EUEQ==
+X-Gm-Message-State: AOAM533ibFsr+AWATxxB6+J0SkPkUvr9uQHnkFXmzFd1MnFqEdAl6vK7
+        LPf0MM/T3NomzmGEnBll5wc5KYzAKuevyWTH
+X-Google-Smtp-Source: ABdhPJzIt6ip9aRLE+txSwEUQKFKX+Z1cnAqSZ+hn3SCzgNWuGTl9gKMXft9A0O8li+42twQmvScLw==
+X-Received: by 2002:a17:902:ed85:b0:148:adf6:cbe1 with SMTP id e5-20020a170902ed8500b00148adf6cbe1mr15842724plj.170.1639998510307;
+        Mon, 20 Dec 2021 03:08:30 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e15sm10084282pga.53.2021.12.20.03.08.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Dec 2021 03:08:30 -0800 (PST)
+Message-ID: <61c0642e.1c69fb81.e5c0.b713@mx.google.com>
+Date:   Mon, 20 Dec 2021 03:08:30 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1639990483.git.matthias.schiffer@ew.tq-group.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.10-115-g72f2e86659b7
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 199 runs,
+ 1 regressions (v5.15.10-115-g72f2e86659b7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 20, 2021 at 10:22:14AM +0100, Matthias Schiffer wrote:
-> The automated backport of "can: m_can: pci: use custom bit timings for
-> Elkhart Lake" failed because I neglected to add Fixes tags to the other
-> two patches it depends on.
-> 
-> Matthias Schiffer (3):
->   Revert "can: m_can: remove support for custom bit timing"
->   can: m_can: make custom bittiming fields const
->   can: m_can: pci: use custom bit timings for Elkhart Lake
-> 
->  drivers/net/can/m_can/m_can.c     | 24 ++++++++++++----
->  drivers/net/can/m_can/m_can.h     |  3 ++
->  drivers/net/can/m_can/m_can_pci.c | 48 ++++++++++++++++++++++++++++---
->  3 files changed, 65 insertions(+), 10 deletions(-)
-> 
-> -- 
-> 2.25.1
-> 
+stable-rc/queue/5.15 baseline: 199 runs, 1 regressions (v5.15.10-115-g72f2e=
+86659b7)
 
-All now queued up, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform                 | arch   | lab           | compiler | defconfig   =
+     | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.10-115-g72f2e86659b7/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.10-115-g72f2e86659b7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      72f2e86659b77a1de93b76f0ca12780dd39194ff =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+     | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c02b8de97f4eed45397143
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
+115-g72f2e86659b7/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-min=
+nowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
+115-g72f2e86659b7/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-min=
+nowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c02b8de97f4eed45397=
+144
+        failing since 2 days (last pass: v5.15.8-42-gadd3d697af60, first fa=
+il: v5.15.8-42-g0a07fadfda6d) =
+
+ =20
