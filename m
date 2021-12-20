@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DA547AF42
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F9E47AF2B
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239828AbhLTPKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:10:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38846 "EHLO
+        id S239066AbhLTPKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:10:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233450AbhLTPIq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:08:46 -0500
+        with ESMTP id S237909AbhLTPIu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:08:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 666B2C0A8868;
-        Mon, 20 Dec 2021 06:54:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30122C0A886D;
+        Mon, 20 Dec 2021 06:54:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0656C611D6;
-        Mon, 20 Dec 2021 14:54:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEABDC36AE8;
-        Mon, 20 Dec 2021 14:54:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3EE661185;
+        Mon, 20 Dec 2021 14:54:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9B83C36AE7;
+        Mon, 20 Dec 2021 14:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012050;
-        bh=931JAgil5i8AVG5RQ9n5NUuPEM58kxOLlofpTncWUz4=;
+        s=korg; t=1640012053;
+        bh=W+H5MUL+btP4MkLQ4pv4TeF0V9kzSDxL37vin9AKHKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wMyuPmyOeq5cHdj90n2IyraiFgphDFaw6nSymPW1AHtB2f9CO3rIfVXlWzI/5Ddl8
-         ZZkdEPtNp57lmZifrUefj3bCwZ9eJEJbJ91EnMw/5fNcPbdsWngZNzFvTGs8dMH0vr
-         UYo+WAsY8Ij3hflWKMniGRh8CJz2Ybr3xpn8mhzs=
+        b=MdYWRtOatluGr/PdHZmdeSTZd7SfLrKfHAcM1BEV/8YCBj5s7XqmbhMgb171rlMbw
+         r2PcPkF1xR3Bx3OoVOVNNojKbcAV7KEeNTQPdDZM48hdV/A6b3386ZiFGsWBoUIDg5
+         wvzFO+VdU+vGSVlU0vCPLjNEn7T77jRFDoMf+uGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/177] sch_cake: do not call cake_destroy() from cake_init()
-Date:   Mon, 20 Dec 2021 15:33:31 +0100
-Message-Id: <20211220143042.158285894@linuxfoundation.org>
+Subject: [PATCH 5.15 062/177] inet_diag: fix kernel-infoleak for UDP sockets
+Date:   Mon, 20 Dec 2021 15:33:32 +0100
+Message-Id: <20211220143042.194543542@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -52,98 +51,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ab443c53916730862cec202078d36fd4008bea79 ]
+[ Upstream commit 71ddeac8cd1d217744a0e060ff520e147c9328d1 ]
 
-qdiscs are not supposed to call their own destroy() method
-from init(), because core stack already does that.
+KMSAN reported a kernel-infoleak [1], that can exploited
+by unpriv users.
 
-syzbot was able to trigger use after free:
+After analysis it turned out UDP was not initializing
+r->idiag_expires. Other users of inet_sk_diag_fill()
+might make the same mistake in the future, so fix this
+in inet_sk_diag_fill().
 
-DEBUG_LOCKS_WARN_ON(lock->magic != lock)
-WARNING: CPU: 0 PID: 21902 at kernel/locking/mutex.c:586 __mutex_lock_common kernel/locking/mutex.c:586 [inline]
-WARNING: CPU: 0 PID: 21902 at kernel/locking/mutex.c:586 __mutex_lock+0x9ec/0x12f0 kernel/locking/mutex.c:740
-Modules linked in:
-CPU: 0 PID: 21902 Comm: syz-executor189 Not tainted 5.16.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__mutex_lock_common kernel/locking/mutex.c:586 [inline]
-RIP: 0010:__mutex_lock+0x9ec/0x12f0 kernel/locking/mutex.c:740
-Code: 08 84 d2 0f 85 19 08 00 00 8b 05 97 38 4b 04 85 c0 0f 85 27 f7 ff ff 48 c7 c6 20 00 ac 89 48 c7 c7 a0 fe ab 89 e8 bf 76 ba ff <0f> 0b e9 0d f7 ff ff 48 8b 44 24 40 48 8d b8 c8 08 00 00 48 89 f8
-RSP: 0018:ffffc9000627f290 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88802315d700 RSI: ffffffff815f1db8 RDI: fffff52000c4fe44
-RBP: ffff88818f28e000 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff815ebb5e R11: 0000000000000000 R12: 0000000000000000
-R13: dffffc0000000000 R14: ffffc9000627f458 R15: 0000000093c30000
-FS:  0000555556abc400(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fda689c3303 CR3: 000000001cfbb000 CR4: 0000000000350ef0
-Call Trace:
- <TASK>
- tcf_chain0_head_change_cb_del+0x2e/0x3d0 net/sched/cls_api.c:810
- tcf_block_put_ext net/sched/cls_api.c:1381 [inline]
- tcf_block_put_ext net/sched/cls_api.c:1376 [inline]
- tcf_block_put+0xbc/0x130 net/sched/cls_api.c:1394
- cake_destroy+0x3f/0x80 net/sched/sch_cake.c:2695
- qdisc_create.constprop.0+0x9da/0x10f0 net/sched/sch_api.c:1293
- tc_modify_qdisc+0x4c5/0x1980 net/sched/sch_api.c:1660
- rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5571
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2496
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x904/0xdf0 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:724
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+[1]
+BUG: KMSAN: kernel-infoleak in instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+BUG: KMSAN: kernel-infoleak in copyout lib/iov_iter.c:156 [inline]
+BUG: KMSAN: kernel-infoleak in _copy_to_iter+0x69d/0x25c0 lib/iov_iter.c:670
+ instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+ copyout lib/iov_iter.c:156 [inline]
+ _copy_to_iter+0x69d/0x25c0 lib/iov_iter.c:670
+ copy_to_iter include/linux/uio.h:155 [inline]
+ simple_copy_to_iter+0xf3/0x140 net/core/datagram.c:519
+ __skb_datagram_iter+0x2cb/0x1280 net/core/datagram.c:425
+ skb_copy_datagram_iter+0xdc/0x270 net/core/datagram.c:533
+ skb_copy_datagram_msg include/linux/skbuff.h:3657 [inline]
+ netlink_recvmsg+0x660/0x1c60 net/netlink/af_netlink.c:1974
+ sock_recvmsg_nosec net/socket.c:944 [inline]
+ sock_recvmsg net/socket.c:962 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1035
+ call_read_iter include/linux/fs.h:2156 [inline]
+ new_sync_read fs/read_write.c:400 [inline]
+ vfs_read+0x1631/0x1980 fs/read_write.c:481
+ ksys_read+0x28c/0x520 fs/read_write.c:619
+ __do_sys_read fs/read_write.c:629 [inline]
+ __se_sys_read fs/read_write.c:627 [inline]
+ __x64_sys_read+0xdb/0x120 fs/read_write.c:627
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
  entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f1bb06badb9
-Code: Unable to access opcode bytes at RIP 0x7f1bb06bad8f.
-RSP: 002b:00007fff3012a658 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f1bb06badb9
-RDX: 0000000000000000 RSI: 00000000200007c0 RDI: 0000000000000003
-RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000003
-R10: 0000000000000003 R11: 0000000000000246 R12: 00007fff3012a688
-R13: 00007fff3012a6a0 R14: 00007fff3012a6e0 R15: 00000000000013c2
- </TASK>
 
-Fixes: 046f6fd5daef ("sched: Add Common Applications Kept Enhanced (cake) qdisc")
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ netlink_dump+0x3d5/0x16a0 net/netlink/af_netlink.c:2245
+ __netlink_dump_start+0xd1c/0xee0 net/netlink/af_netlink.c:2370
+ netlink_dump_start include/linux/netlink.h:254 [inline]
+ inet_diag_handler_cmd+0x2e7/0x400 net/ipv4/inet_diag.c:1343
+ sock_diag_rcv_msg+0x24a/0x620
+ netlink_rcv_skb+0x447/0x800 net/netlink/af_netlink.c:2491
+ sock_diag_rcv+0x63/0x80 net/core/sock_diag.c:276
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x1095/0x1360 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x16f3/0x1870 net/netlink/af_netlink.c:1916
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ sock_write_iter+0x594/0x690 net/socket.c:1057
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_write+0x52c/0x1500 fs/read_write.c:851
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x63f/0xe30 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Bytes 68-71 of 312 are uninitialized
+Memory access of size 312 starts at ffff88812ab54000
+Data copied to user address 0000000020001440
+
+CPU: 1 PID: 6365 Comm: syz-executor801 Not tainted 5.16.0-rc3-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 3c4d05c80567 ("inet_diag: Introduce the inet socket dumping routine")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Link: https://lore.kernel.org/r/20211210142046.698336-1-eric.dumazet@gmail.com
+Link: https://lore.kernel.org/r/20211209185058.53917-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_cake.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ net/ipv4/inet_diag.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index 3c2300d144681..857aaebd49f43 100644
---- a/net/sched/sch_cake.c
-+++ b/net/sched/sch_cake.c
-@@ -2736,7 +2736,7 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
- 	q->tins = kvcalloc(CAKE_MAX_TINS, sizeof(struct cake_tin_data),
- 			   GFP_KERNEL);
- 	if (!q->tins)
--		goto nomem;
-+		return -ENOMEM;
+diff --git a/net/ipv4/inet_diag.c b/net/ipv4/inet_diag.c
+index ef7897226f08e..ae70e07c52445 100644
+--- a/net/ipv4/inet_diag.c
++++ b/net/ipv4/inet_diag.c
+@@ -261,6 +261,7 @@ int inet_sk_diag_fill(struct sock *sk, struct inet_connection_sock *icsk,
+ 	r->idiag_state = sk->sk_state;
+ 	r->idiag_timer = 0;
+ 	r->idiag_retrans = 0;
++	r->idiag_expires = 0;
  
- 	for (i = 0; i < CAKE_MAX_TINS; i++) {
- 		struct cake_tin_data *b = q->tins + i;
-@@ -2766,10 +2766,6 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
- 	q->min_netlen = ~0;
- 	q->min_adjlen = ~0;
- 	return 0;
--
--nomem:
--	cake_destroy(sch);
--	return -ENOMEM;
- }
+ 	if (inet_diag_msg_attrs_fill(sk, skb, r, ext,
+ 				     sk_user_ns(NETLINK_CB(cb->skb).sk),
+@@ -314,9 +315,6 @@ int inet_sk_diag_fill(struct sock *sk, struct inet_connection_sock *icsk,
+ 		r->idiag_retrans = icsk->icsk_probes_out;
+ 		r->idiag_expires =
+ 			jiffies_delta_to_msecs(sk->sk_timer.expires - jiffies);
+-	} else {
+-		r->idiag_timer = 0;
+-		r->idiag_expires = 0;
+ 	}
  
- static int cake_dump(struct Qdisc *sch, struct sk_buff *skb)
+ 	if ((ext & (1 << (INET_DIAG_INFO - 1))) && handler->idiag_info_size) {
 -- 
 2.33.0
 
