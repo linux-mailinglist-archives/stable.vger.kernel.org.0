@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40A8C47AF48
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD8347AF47
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239909AbhLTPKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:10:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
+        id S239891AbhLTPKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:10:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238823AbhLTPJa (ORCPT
+        with ESMTP id S239773AbhLTPJa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDAE6C08E84D;
-        Mon, 20 Dec 2021 06:55:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF7D5C08E84E;
+        Mon, 20 Dec 2021 06:55:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C591B80EE8;
-        Mon, 20 Dec 2021 14:55:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6DECC36AE8;
-        Mon, 20 Dec 2021 14:55:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6490BB80EA3;
+        Mon, 20 Dec 2021 14:55:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9762EC36AE8;
+        Mon, 20 Dec 2021 14:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012134;
-        bh=NoRsB058QXHoov+rbvqzvrGmM9fqov5MAxWFFreMgyQ=;
+        s=korg; t=1640012137;
+        bh=R3XPoJv+S88z7BjtencXIUbZtQ0grCq4FQAvEiNl5jA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vl1hwkw8cHvqn+BpA/b2CzgfF/fAs71KesI6g5lUgO0Pgsf+ZU7FKzwnndvpfJ3wp
-         259PdFjWdycKVBmzD0f+QR9CVlXWqcZ6Q/cWFyv7cua0SEx1FNtPUBGqzdQjYqPRdx
-         8xPDBBCmu80+5Jp9muDRftl4L+09oMT2jBtcZmMk=
+        b=DpR9/lJk4RHZqCrx5wzLhkkHwhgUQ6IHVuOH3PCwjsE8xErY+bFoVN0mgM4uznCTu
+         YnWWsy2mFtgfNXnXrqtEiwQqsC5rJmrvqjum4CtPmNDaH+FUicDDvGaCQIB/TMPeDL
+         49j+gWFxWz9tBBLl7OXx9eMBFPjg3C7/ewdMg3TE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Maxim Galaganov <max@internet.ru>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/177] mptcp: fix deadlock in __mptcp_push_pending()
-Date:   Mon, 20 Dec 2021 15:34:02 +0100
-Message-Id: <20211220143043.207700762@linuxfoundation.org>
+Subject: [PATCH 5.15 093/177] soc/tegra: fuse: Fix bitwise vs. logical OR warning
+Date:   Mon, 20 Dec 2021 15:34:03 +0100
+Message-Id: <20211220143043.237692176@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -50,75 +51,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Galaganov <max@internet.ru>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 3d79e3756ca90f7a6087b77b62c1d9c0801e0820 ]
+[ Upstream commit a7083763619f7485ccdade160deb81737cf2732f ]
 
-__mptcp_push_pending() may call mptcp_flush_join_list() with subflow
-socket lock held. If such call hits mptcp_sockopt_sync_all() then
-subsequently __mptcp_sockopt_sync() could try to lock the subflow
-socket for itself, causing a deadlock.
+A new warning in clang points out two instances where boolean
+expressions are being used with a bitwise OR instead of logical OR:
 
-sysrq: Show Blocked State
-task:ss-server       state:D stack:    0 pid:  938 ppid:     1 flags:0x00000000
-Call Trace:
- <TASK>
- __schedule+0x2d6/0x10c0
- ? __mod_memcg_state+0x4d/0x70
- ? csum_partial+0xd/0x20
- ? _raw_spin_lock_irqsave+0x26/0x50
- schedule+0x4e/0xc0
- __lock_sock+0x69/0x90
- ? do_wait_intr_irq+0xa0/0xa0
- __lock_sock_fast+0x35/0x50
- mptcp_sockopt_sync_all+0x38/0xc0
- __mptcp_push_pending+0x105/0x200
- mptcp_sendmsg+0x466/0x490
- sock_sendmsg+0x57/0x60
- __sys_sendto+0xf0/0x160
- ? do_wait_intr_irq+0xa0/0xa0
- ? fpregs_restore_userregs+0x12/0xd0
- __x64_sys_sendto+0x20/0x30
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f9ba546c2d0
-RSP: 002b:00007ffdc3b762d8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 00007f9ba56c8060 RCX: 00007f9ba546c2d0
-RDX: 000000000000077a RSI: 0000000000e5e180 RDI: 0000000000000234
-RBP: 0000000000cc57f0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f9ba56c8060
-R13: 0000000000b6ba60 R14: 0000000000cc7840 R15: 41d8685b1d7901b8
- </TASK>
+drivers/soc/tegra/fuse/speedo-tegra20.c:72:9: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+                reg = tegra_fuse_read_spare(i) |
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+                                               ||
+drivers/soc/tegra/fuse/speedo-tegra20.c:72:9: note: cast one or both operands to int to silence this warning
+drivers/soc/tegra/fuse/speedo-tegra20.c:87:9: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+                reg = tegra_fuse_read_spare(i) |
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+                                               ||
+drivers/soc/tegra/fuse/speedo-tegra20.c:87:9: note: cast one or both operands to int to silence this warning
+2 warnings generated.
 
-Fix the issue by using __mptcp_flush_join_list() instead of plain
-mptcp_flush_join_list() inside __mptcp_push_pending(), as suggested by
-Florian. The sockopt sync will be deferred to the workqueue.
+The motivation for the warning is that logical operations short circuit
+while bitwise operations do not.
 
-Fixes: 1b3e7ede1365 ("mptcp: setsockopt: handle SO_KEEPALIVE and SO_PRIORITY")
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/244
-Suggested-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Maxim Galaganov <max@internet.ru>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In this instance, tegra_fuse_read_spare() is not semantically returning
+a boolean, it is returning a bit value. Use u32 for its return type so
+that it can be used with either bitwise or boolean operators without any
+warnings.
+
+Fixes: 25cd5a391478 ("ARM: tegra: Add speedo-based process identification")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1488
+Suggested-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/tegra/fuse/fuse-tegra.c | 2 +-
+ drivers/soc/tegra/fuse/fuse.h       | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index fdff811c9a0da..4c889552cde77 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -1549,7 +1549,7 @@ void __mptcp_push_pending(struct sock *sk, unsigned int flags)
- 			int ret = 0;
+diff --git a/drivers/soc/tegra/fuse/fuse-tegra.c b/drivers/soc/tegra/fuse/fuse-tegra.c
+index f2151815db585..e714ed3b61bc3 100644
+--- a/drivers/soc/tegra/fuse/fuse-tegra.c
++++ b/drivers/soc/tegra/fuse/fuse-tegra.c
+@@ -320,7 +320,7 @@ static struct platform_driver tegra_fuse_driver = {
+ };
+ builtin_platform_driver(tegra_fuse_driver);
  
- 			prev_ssk = ssk;
--			mptcp_flush_join_list(msk);
-+			__mptcp_flush_join_list(msk);
- 			ssk = mptcp_subflow_get_send(msk);
+-bool __init tegra_fuse_read_spare(unsigned int spare)
++u32 __init tegra_fuse_read_spare(unsigned int spare)
+ {
+ 	unsigned int offset = fuse->soc->info->spare + spare * 4;
  
- 			/* First check. If the ssk has changed since
+diff --git a/drivers/soc/tegra/fuse/fuse.h b/drivers/soc/tegra/fuse/fuse.h
+index de58feba04350..ecff0c08e9595 100644
+--- a/drivers/soc/tegra/fuse/fuse.h
++++ b/drivers/soc/tegra/fuse/fuse.h
+@@ -65,7 +65,7 @@ struct tegra_fuse {
+ void tegra_init_revision(void);
+ void tegra_init_apbmisc(void);
+ 
+-bool __init tegra_fuse_read_spare(unsigned int spare);
++u32 __init tegra_fuse_read_spare(unsigned int spare);
+ u32 __init tegra_fuse_read_early(unsigned int offset);
+ 
+ u8 tegra_get_major_rev(void);
 -- 
 2.33.0
 
