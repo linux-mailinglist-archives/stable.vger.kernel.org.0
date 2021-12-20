@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF88047AD9E
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B03F47AE2E
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238290AbhLTOx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:53:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
+        id S237630AbhLTO6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:58:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235860AbhLTOvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3789C08EAF8;
-        Mon, 20 Dec 2021 06:46:54 -0800 (PST)
+        with ESMTP id S238607AbhLTO43 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:56:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD8BC08ECA7;
+        Mon, 20 Dec 2021 06:48:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61B8E611A0;
-        Mon, 20 Dec 2021 14:46:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 401B3C36AE8;
-        Mon, 20 Dec 2021 14:46:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 854DEB80EDE;
+        Mon, 20 Dec 2021 14:48:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8DD8C36AE7;
+        Mon, 20 Dec 2021 14:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011613;
-        bh=PVqadq8hl8c6URqJ9pFTI1tVpCMthjYsXme+yNBIdKI=;
+        s=korg; t=1640011736;
+        bh=xevNN71LVY1590c+Mb0u1A4Tv0j38C6SG/2qB4Q5KjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9rkJtIlHBYQPEE+V5rZgiL0qN39HyCAFKterd2BfP8p6iQZxagDzXwdqklf7U7/G
-         zqOYf5ByQX/86MFwEdk/UFW0j9XUHJzPNEcBrAhdtZALuTp+DoZy+9do3PcUxzpth/
-         391t2xb/rqF6YjK/jAymuYgSaKasZUKaReBR9z/Y=
+        b=GMG/6Swr0/+6nSZuYnqJjejicfJXKdrW2gXx2BPN5+wpS6NwzTvBaE7F/toU6SbGI
+         ijj4NnFhWpH0jQr9ynURRFcF+FlisW1v1I2maUj2l11U3yMUQcokfQ+XedRY1xBfxG
+         l+WUwu1A2aeSS/SzDdZOSbookOiBmprzRfkygq3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.10 12/99] vdpa: check that offsets are within bounds
-Date:   Mon, 20 Dec 2021 15:33:45 +0100
-Message-Id: <20211220143029.761728936@linuxfoundation.org>
+        stable@vger.kernel.org, Jerome Marchand <jmarchan@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.10 13/99] recordmcount.pl: look for jgnop instruction as well as bcrl on s390
+Date:   Mon, 20 Dec 2021 15:33:46 +0100
+Message-Id: <20211220143029.794969737@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -48,37 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jerome Marchand <jmarchan@redhat.com>
 
-commit 3ed21c1451a14d139e1ceb18f2fa70865ce3195a upstream.
+commit 85bf17b28f97ca2749968d8786dc423db320d9c2 upstream.
 
-In this function "c->off" is a u32 and "size" is a long.  On 64bit systems
-if "c->off" is greater than "size" then "size - c->off" is a negative and
-we always return -E2BIG.  But on 32bit systems the subtraction is type
-promoted to a high positive u32 value and basically any "c->len" is
-accepted.
+On s390, recordmcount.pl is looking for "bcrl 0,<xxx>" instructions in
+the objdump -d outpout. However since binutils 2.37, objdump -d
+display "jgnop <xxx>" for the same instruction. Update the
+mcount_regex so that it accepts both.
 
-Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
-Reported-by: Xie Yongji <xieyongji@bytedance.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211208103337.GA4047@kili
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211210093827.1623286-1-jmarchan@redhat.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vdpa.c |    2 +-
+ scripts/recordmcount.pl |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -196,7 +196,7 @@ static int vhost_vdpa_config_validate(st
- 		break;
- 	}
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -252,7 +252,7 @@ if ($arch eq "x86_64") {
  
--	if (c->len == 0)
-+	if (c->len == 0 || c->off > size)
- 		return -EINVAL;
- 
- 	if (c->len > size - c->off)
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*brcl\\s*0,[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     } else {
+ 	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*R_390_(PC|PLT)32DBL\\s+_mcount\\+0x2\$";
 
 
