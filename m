@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D7B47A708
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:31:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1055E47A709
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:31:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbhLTJbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:31:02 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39712 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbhLTJbB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:31:01 -0500
+        id S229460AbhLTJb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:31:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45176 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229436AbhLTJb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:31:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA690C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:31:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B5B260F1D
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CB24C36AE5;
-        Mon, 20 Dec 2021 09:31:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68FDF60EB1
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:31:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46B2CC36AE5;
+        Mon, 20 Dec 2021 09:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639992661;
-        bh=DMVrmaG6UJvGmTnaXC413tCwRagegeYAUa5L/9RqH14=;
+        s=korg; t=1639992684;
+        bh=oMAeynN13jE7TVZq/zaUVdSbyX5mGERhL8yFNqn5FlY=;
         h=Subject:To:Cc:From:Date:From;
-        b=VZ4VqUAi2mAcg1krGMdBmN1h5kIoh/E0iiyd1AmPhpPse6koaEus9IVgZvXX9jNKt
-         /YRx31nm8KMib90M9HN89/2GK8PrQ9ibbbl6HwGF0pafQ7/cGkFMVo9d4GsW3k7zWG
-         3zlbp4SIE6ODhvjTPIDxmTiQcbaPi8NZkBKuEwGk=
-Subject: FAILED: patch "[PATCH] usb: typec: tcpm: fix tcpm unregister port but leave a" failed to apply to 5.10-stable tree
-To:     xu.yang_2@nxp.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
+        b=Agh2SuJvziRsZTOiis1bxUQy7df9h9CKQI51a5U3rpGqiKyTw4TaFRcydFj6NjR4F
+         mF7v+tSWIwidI1nCCgPUI0iB8U8/kj3t3KCPFk01b5xpEO1VMMm0QqpL540yasTl7U
+         t5zOOoMoLGwloPwrf/yJkJcxeDtlmpxEB1Q0kvJA=
+Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix race in setting MAC address in" failed to apply to 4.4-stable tree
+To:     posteuca@mutex.one, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:30:58 +0100
-Message-ID: <163999265825287@kroah.com>
+Date:   Mon, 20 Dec 2021 10:31:22 +0100
+Message-ID: <163999268222696@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -52,106 +53,96 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ca4d8344a72b91fb9d4c8bfbc22204b4c09c5d8f Mon Sep 17 00:00:00 2001
-From: Xu Yang <xu.yang_2@nxp.com>
-Date: Thu, 9 Dec 2021 18:15:07 +0800
-Subject: [PATCH] usb: typec: tcpm: fix tcpm unregister port but leave a
- pending timer
+From 890d5b40908bfd1a79be018d2d297cf9df60f4ee Mon Sep 17 00:00:00 2001
+From: Marian Postevca <posteuca@mutex.one>
+Date: Sat, 4 Dec 2021 23:49:12 +0200
+Subject: [PATCH] usb: gadget: u_ether: fix race in setting MAC address in
+ setup phase
 
-In current design, when the tcpm port is unregisterd, the kthread_worker
-will be destroyed in the last step. Inside the kthread_destroy_worker(),
-the worker will flush all the works and wait for them to end. However, if
-one of the works calls hrtimer_start(), this hrtimer will be pending until
-timeout even though tcpm port is removed. Once the hrtimer timeout, many
-strange kernel dumps appear.
+When listening for notifications through netlink of a new interface being
+registered, sporadically, it is possible for the MAC to be read as zero.
+The zero MAC address lasts a short period of time and then switches to a
+valid random MAC address.
 
-Thus, we can first complete kthread_destroy_worker(), then cancel all the
-hrtimers. This will guarantee that no hrtimer is pending at the end.
+This causes problems for netd in Android, which assumes that the interface
+is malfunctioning and will not use it.
 
-Fixes: 3ed8e1c2ac99 ("usb: typec: tcpm: Migrate workqueue to RT priority for processing events")
-cc: <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Link: https://lore.kernel.org/r/20211209101507.499096-1-xu.yang_2@nxp.com
+In the good case we get this log:
+InterfaceController::getCfg() ifName usb0
+ hwAddr 92:a8:f0:73:79:5b ipv4Addr 0.0.0.0 flags 0x1002
+
+In the error case we get these logs:
+InterfaceController::getCfg() ifName usb0
+ hwAddr 00:00:00:00:00:00 ipv4Addr 0.0.0.0 flags 0x1002
+
+netd : interfaceGetCfg("usb0")
+netd : interfaceSetCfg() -> ServiceSpecificException
+ (99, "[Cannot assign requested address] : ioctl() failed")
+
+The reason for the issue is the order in which the interface is setup,
+it is first registered through register_netdev() and after the MAC
+address is set.
+
+Fixed by first setting the MAC address of the net_device and after that
+calling register_netdev().
+
+Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values and add setters/getters")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marian Postevca <posteuca@mutex.one>
+Link: https://lore.kernel.org/r/20211204214912.17627-1-posteuca@mutex.one
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index 6010b9901126..59d4fa2443f2 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -324,6 +324,7 @@ struct tcpm_port {
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index e0ad5aed6ac9..6f5d45ef2e39 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -17,6 +17,7 @@
+ #include <linux/etherdevice.h>
+ #include <linux/ethtool.h>
+ #include <linux/if_vlan.h>
++#include <linux/etherdevice.h>
  
- 	bool attached;
- 	bool connected;
-+	bool registered;
- 	bool pd_supported;
- 	enum typec_port_type port_type;
+ #include "u_ether.h"
  
-@@ -6291,7 +6292,8 @@ static enum hrtimer_restart state_machine_timer_handler(struct hrtimer *timer)
+@@ -863,19 +864,23 @@ int gether_register_netdev(struct net_device *net)
  {
- 	struct tcpm_port *port = container_of(timer, struct tcpm_port, state_machine_timer);
+ 	struct eth_dev *dev;
+ 	struct usb_gadget *g;
+-	struct sockaddr sa;
+ 	int status;
  
--	kthread_queue_work(port->wq, &port->state_machine);
-+	if (port->registered)
-+		kthread_queue_work(port->wq, &port->state_machine);
- 	return HRTIMER_NORESTART;
- }
- 
-@@ -6299,7 +6301,8 @@ static enum hrtimer_restart vdm_state_machine_timer_handler(struct hrtimer *time
- {
- 	struct tcpm_port *port = container_of(timer, struct tcpm_port, vdm_state_machine_timer);
- 
--	kthread_queue_work(port->wq, &port->vdm_state_machine);
-+	if (port->registered)
-+		kthread_queue_work(port->wq, &port->vdm_state_machine);
- 	return HRTIMER_NORESTART;
- }
- 
-@@ -6307,7 +6310,8 @@ static enum hrtimer_restart enable_frs_timer_handler(struct hrtimer *timer)
- {
- 	struct tcpm_port *port = container_of(timer, struct tcpm_port, enable_frs_timer);
- 
--	kthread_queue_work(port->wq, &port->enable_frs);
-+	if (port->registered)
-+		kthread_queue_work(port->wq, &port->enable_frs);
- 	return HRTIMER_NORESTART;
- }
- 
-@@ -6315,7 +6319,8 @@ static enum hrtimer_restart send_discover_timer_handler(struct hrtimer *timer)
- {
- 	struct tcpm_port *port = container_of(timer, struct tcpm_port, send_discover_timer);
- 
--	kthread_queue_work(port->wq, &port->send_discover_work);
-+	if (port->registered)
-+		kthread_queue_work(port->wq, &port->send_discover_work);
- 	return HRTIMER_NORESTART;
- }
- 
-@@ -6403,6 +6408,7 @@ struct tcpm_port *tcpm_register_port(struct device *dev, struct tcpc_dev *tcpc)
- 	typec_port_register_altmodes(port->typec_port,
- 				     &tcpm_altmode_ops, port,
- 				     port->port_altmode, ALTMODE_DISCOVERY_MAX);
-+	port->registered = true;
- 
- 	mutex_lock(&port->lock);
- 	tcpm_init(port);
-@@ -6424,6 +6430,9 @@ void tcpm_unregister_port(struct tcpm_port *port)
- {
- 	int i;
- 
-+	port->registered = false;
-+	kthread_destroy_worker(port->wq);
+ 	if (!net->dev.parent)
+ 		return -EINVAL;
+ 	dev = netdev_priv(net);
+ 	g = dev->gadget;
 +
- 	hrtimer_cancel(&port->send_discover_timer);
- 	hrtimer_cancel(&port->enable_frs_timer);
- 	hrtimer_cancel(&port->vdm_state_machine_timer);
-@@ -6435,7 +6444,6 @@ void tcpm_unregister_port(struct tcpm_port *port)
- 	typec_unregister_port(port->typec_port);
- 	usb_role_switch_put(port->role_sw);
- 	tcpm_debugfs_exit(port);
--	kthread_destroy_worker(port->wq);
- }
- EXPORT_SYMBOL_GPL(tcpm_unregister_port);
++	net->addr_assign_type = NET_ADDR_RANDOM;
++	eth_hw_addr_set(net, dev->dev_mac);
++
+ 	status = register_netdev(net);
+ 	if (status < 0) {
+ 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
+ 		return status;
+ 	} else {
+ 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
++		INFO(dev, "MAC %pM\n", dev->dev_mac);
  
+ 		/* two kinds of host-initiated state changes:
+ 		 *  - iff DATA transfer is active, carrier is "on"
+@@ -883,15 +888,6 @@ int gether_register_netdev(struct net_device *net)
+ 		 */
+ 		netif_carrier_off(net);
+ 	}
+-	sa.sa_family = net->type;
+-	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
+-	rtnl_lock();
+-	status = dev_set_mac_address(net, &sa, NULL);
+-	rtnl_unlock();
+-	if (status)
+-		pr_warn("cannot set self ethernet address: %d\n", status);
+-	else
+-		INFO(dev, "MAC %pM\n", dev->dev_mac);
+ 
+ 	return status;
+ }
 
