@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA36247AEAC
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7723D47AEAE
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:04:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238064AbhLTPCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:02:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35880 "EHLO
+        id S239582AbhLTPCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:02:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240270AbhLTPAI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:00:08 -0500
+        with ESMTP id S240343AbhLTPAP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:00:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3562DC07E5F0;
-        Mon, 20 Dec 2021 06:51:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB0DC08EA4B;
+        Mon, 20 Dec 2021 06:51:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6DC8611A8;
-        Mon, 20 Dec 2021 14:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A944FC36AE8;
-        Mon, 20 Dec 2021 14:51:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46072611BD;
+        Mon, 20 Dec 2021 14:51:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ECB0C36AE8;
+        Mon, 20 Dec 2021 14:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011867;
-        bh=/vqcRNNi4KB0azWfc2AImzJiqHf5jg6Q3+G+/1ZA1yk=;
+        s=korg; t=1640011872;
+        bh=KGdbJ9n3J6QbqMAeVcGfCfl6HouEAmJb5W6qzykKeUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LueKybgl0+ja5jIVHaUywITK27sKITZc2PJa2ipLm1d2R8tc+1xvSES3RfdLLoO4f
-         KaAiftagM1gHlMmn+juWXRTWz2GjyKoLPt1QknwnFW61dC8lOsB6ynS82vfFWQt/Fv
-         XeAyONpS0db+uCZij1FYtPPp0VMHbD/sI0NG70H0=
+        b=iI7TgYNIpa1Crt8DP8W7hkMYJaeq3btKR8qbgHZJX2e1iU+dhX9xIUGjcyYdkQxu+
+         ZTb+JsZz0cl9idbtl55aov4JWH/lBbfMepDBe3avS+oyrILxzCLP3fFslfEpqUcgkk
+         yu/qu15Imm1/wJLShcit0AtsO7ypyJ0Ogn3eb7fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+75eab84fd0af9e8bf66b@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 88/99] ovl: fix warning in ovl_create_real()
-Date:   Mon, 20 Dec 2021 15:35:01 +0100
-Message-Id: <20211220143032.361312573@linuxfoundation.org>
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 90/99] scsi: scsi_debug: Fix type in min_t to avoid stack OOB
+Date:   Mon, 20 Dec 2021 15:35:03 +0100
+Message-Id: <20211220143032.429864617@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -47,73 +49,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 1f5573cfe7a7056e80a92c7a037a3e69f3a13d1c upstream.
+commit 36e07d7ede88a1f1ef8f0f209af5b7612324ac2c upstream.
 
-Syzbot triggered the following warning in ovl_workdir_create() ->
-ovl_create_real():
+Change min_t() to use type "u32" instead of type "int" to avoid stack out
+of bounds. With min_t() type "int" the values get sign extended and the
+larger value gets used causing stack out of bounds.
 
-	if (!err && WARN_ON(!newdentry->d_inode)) {
+BUG: KASAN: stack-out-of-bounds in memcpy include/linux/fortify-string.h:191 [inline]
+BUG: KASAN: stack-out-of-bounds in sg_copy_buffer+0x1de/0x240 lib/scatterlist.c:976
+Read of size 127 at addr ffff888072607128 by task syz-executor.7/18707
 
-The reason is that the cgroup2 filesystem returns from mkdir without
-instantiating the new dentry.
+CPU: 1 PID: 18707 Comm: syz-executor.7 Not tainted 5.15.0-syzk #1
+Hardware name: Red Hat KVM, BIOS 1.13.0-2
+Call Trace:
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:106
+ print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:256
+ __kasan_report mm/kasan/report.c:442 [inline]
+ kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:459
+ check_region_inline mm/kasan/generic.c:183 [inline]
+ kasan_check_range+0x1a3/0x210 mm/kasan/generic.c:189
+ memcpy+0x23/0x60 mm/kasan/shadow.c:65
+ memcpy include/linux/fortify-string.h:191 [inline]
+ sg_copy_buffer+0x1de/0x240 lib/scatterlist.c:976
+ sg_copy_from_buffer+0x33/0x40 lib/scatterlist.c:1000
+ fill_from_dev_buffer.part.34+0x82/0x130 drivers/scsi/scsi_debug.c:1162
+ fill_from_dev_buffer drivers/scsi/scsi_debug.c:1888 [inline]
+ resp_readcap16+0x365/0x3b0 drivers/scsi/scsi_debug.c:1887
+ schedule_resp+0x4d8/0x1a70 drivers/scsi/scsi_debug.c:5478
+ scsi_debug_queuecommand+0x8c9/0x1ec0 drivers/scsi/scsi_debug.c:7533
+ scsi_dispatch_cmd drivers/scsi/scsi_lib.c:1520 [inline]
+ scsi_queue_rq+0x16b0/0x2d40 drivers/scsi/scsi_lib.c:1699
+ blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1639
+ __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
+ blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
+ __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1761
+ __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1838
+ blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
+ blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
+ blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:62
+ sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:836
+ sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:774
+ sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:939
+ sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1165
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:874 [inline]
+ __se_sys_ioctl fs/ioctl.c:860 [inline]
+ __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:860
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Weird filesystems such as this will be rejected by overlayfs at a later
-stage during setup, but to prevent such a warning, call ovl_mkdir_real()
-directly from ovl_workdir_create() and reject this case early.
-
-Reported-and-tested-by: syzbot+75eab84fd0af9e8bf66b@syzkaller.appspotmail.com
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Link: https://lore.kernel.org/r/1636484247-21254-1-git-send-email-george.kennedy@oracle.com
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/dir.c       |    3 +--
- fs/overlayfs/overlayfs.h |    1 +
- fs/overlayfs/super.c     |   12 ++++++++----
- 3 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/scsi/scsi_debug.c |   34 +++++++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 15 deletions(-)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -137,8 +137,7 @@ kill_whiteout:
- 	goto out;
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -1188,7 +1188,7 @@ static int p_fill_from_dev_buffer(struct
+ 		 __func__, off_dst, scsi_bufflen(scp), act_len,
+ 		 scsi_get_resid(scp));
+ 	n = scsi_bufflen(scp) - (off_dst + act_len);
+-	scsi_set_resid(scp, min_t(int, scsi_get_resid(scp), n));
++	scsi_set_resid(scp, min_t(u32, scsi_get_resid(scp), n));
+ 	return 0;
  }
  
--static int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry,
--			  umode_t mode)
-+int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry, umode_t mode)
- {
- 	int err;
- 	struct dentry *d, *dentry = *newdentry;
---- a/fs/overlayfs/overlayfs.h
-+++ b/fs/overlayfs/overlayfs.h
-@@ -519,6 +519,7 @@ struct ovl_cattr {
+@@ -1561,7 +1561,8 @@ static int resp_inquiry(struct scsi_cmnd
+ 	unsigned char pq_pdt;
+ 	unsigned char *arr;
+ 	unsigned char *cmd = scp->cmnd;
+-	int alloc_len, n, ret;
++	u32 alloc_len, n;
++	int ret;
+ 	bool have_wlun, is_disk, is_zbc, is_disk_zbc;
  
- #define OVL_CATTR(m) (&(struct ovl_cattr) { .mode = (m) })
- 
-+int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry, umode_t mode);
- struct dentry *ovl_create_real(struct inode *dir, struct dentry *newdentry,
- 			       struct ovl_cattr *attr);
- int ovl_cleanup(struct inode *dir, struct dentry *dentry);
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -743,10 +743,14 @@ retry:
- 			goto retry;
+ 	alloc_len = get_unaligned_be16(cmd + 3);
+@@ -1584,7 +1585,8 @@ static int resp_inquiry(struct scsi_cmnd
+ 		kfree(arr);
+ 		return check_condition_result;
+ 	} else if (0x1 & cmd[1]) {  /* EVPD bit set */
+-		int lu_id_num, port_group_id, target_dev_id, len;
++		int lu_id_num, port_group_id, target_dev_id;
++		u32 len;
+ 		char lu_id_str[6];
+ 		int host_no = devip->sdbg_host->shost->host_no;
+ 		
+@@ -1675,9 +1677,9 @@ static int resp_inquiry(struct scsi_cmnd
+ 			kfree(arr);
+ 			return check_condition_result;
  		}
+-		len = min(get_unaligned_be16(arr + 2) + 4, alloc_len);
++		len = min_t(u32, get_unaligned_be16(arr + 2) + 4, alloc_len);
+ 		ret = fill_from_dev_buffer(scp, arr,
+-			    min(len, SDEBUG_MAX_INQ_ARR_SZ));
++			    min_t(u32, len, SDEBUG_MAX_INQ_ARR_SZ));
+ 		kfree(arr);
+ 		return ret;
+ 	}
+@@ -1713,7 +1715,7 @@ static int resp_inquiry(struct scsi_cmnd
+ 	}
+ 	put_unaligned_be16(0x2100, arr + n);	/* SPL-4 no version claimed */
+ 	ret = fill_from_dev_buffer(scp, arr,
+-			    min_t(int, alloc_len, SDEBUG_LONG_INQ_SZ));
++			    min_t(u32, alloc_len, SDEBUG_LONG_INQ_SZ));
+ 	kfree(arr);
+ 	return ret;
+ }
+@@ -1728,8 +1730,8 @@ static int resp_requests(struct scsi_cmn
+ 	unsigned char *cmd = scp->cmnd;
+ 	unsigned char arr[SCSI_SENSE_BUFFERSIZE];	/* assume >= 18 bytes */
+ 	bool dsense = !!(cmd[1] & 1);
+-	int alloc_len = cmd[4];
+-	int len = 18;
++	u32 alloc_len = cmd[4];
++	u32 len = 18;
+ 	int stopped_state = atomic_read(&devip->stopped);
  
--		work = ovl_create_real(dir, work, OVL_CATTR(attr.ia_mode));
--		err = PTR_ERR(work);
--		if (IS_ERR(work))
--			goto out_err;
-+		err = ovl_mkdir_real(dir, &work, attr.ia_mode);
-+		if (err)
-+			goto out_dput;
-+
-+		/* Weird filesystem returning with hashed negative (kernfs)? */
-+		err = -EINVAL;
-+		if (d_really_is_negative(work))
-+			goto out_dput;
+ 	memset(arr, 0, sizeof(arr));
+@@ -1773,7 +1775,7 @@ static int resp_requests(struct scsi_cmn
+ 			arr[7] = 0xa;
+ 		}
+ 	}
+-	return fill_from_dev_buffer(scp, arr, min_t(int, len, alloc_len));
++	return fill_from_dev_buffer(scp, arr, min_t(u32, len, alloc_len));
+ }
  
- 		/*
- 		 * Try to remove POSIX ACL xattrs from workdir.  We are good if:
+ static int resp_start_stop(struct scsi_cmnd *scp, struct sdebug_dev_info *devip)
+@@ -2311,7 +2313,8 @@ static int resp_mode_sense(struct scsi_c
+ {
+ 	int pcontrol, pcode, subpcode, bd_len;
+ 	unsigned char dev_spec;
+-	int alloc_len, offset, len, target_dev_id;
++	u32 alloc_len, offset, len;
++	int target_dev_id;
+ 	int target = scp->device->id;
+ 	unsigned char *ap;
+ 	unsigned char arr[SDEBUG_MAX_MSENSE_SZ];
+@@ -2467,7 +2470,7 @@ static int resp_mode_sense(struct scsi_c
+ 		arr[0] = offset - 1;
+ 	else
+ 		put_unaligned_be16((offset - 2), arr + 0);
+-	return fill_from_dev_buffer(scp, arr, min_t(int, alloc_len, offset));
++	return fill_from_dev_buffer(scp, arr, min_t(u32, alloc_len, offset));
+ }
+ 
+ #define SDEBUG_MAX_MSELECT_SZ 512
+@@ -2582,7 +2585,8 @@ static int resp_ie_l_pg(unsigned char *a
+ static int resp_log_sense(struct scsi_cmnd *scp,
+ 			  struct sdebug_dev_info *devip)
+ {
+-	int ppc, sp, pcode, subpcode, alloc_len, len, n;
++	int ppc, sp, pcode, subpcode;
++	u32 alloc_len, len, n;
+ 	unsigned char arr[SDEBUG_MAX_LSENSE_SZ];
+ 	unsigned char *cmd = scp->cmnd;
+ 
+@@ -2652,9 +2656,9 @@ static int resp_log_sense(struct scsi_cm
+ 		mk_sense_invalid_fld(scp, SDEB_IN_CDB, 3, -1);
+ 		return check_condition_result;
+ 	}
+-	len = min_t(int, get_unaligned_be16(arr + 2) + 4, alloc_len);
++	len = min_t(u32, get_unaligned_be16(arr + 2) + 4, alloc_len);
+ 	return fill_from_dev_buffer(scp, arr,
+-		    min_t(int, len, SDEBUG_MAX_INQ_ARR_SZ));
++		    min_t(u32, len, SDEBUG_MAX_INQ_ARR_SZ));
+ }
+ 
+ static inline bool sdebug_dev_is_zoned(struct sdebug_dev_info *devip)
+@@ -4409,7 +4413,7 @@ static int resp_report_zones(struct scsi
+ 	put_unaligned_be64(sdebug_capacity - 1, arr + 8);
+ 
+ 	rep_len = (unsigned long)desc - (unsigned long)arr;
+-	ret = fill_from_dev_buffer(scp, arr, min_t(int, alloc_len, rep_len));
++	ret = fill_from_dev_buffer(scp, arr, min_t(u32, alloc_len, rep_len));
+ 
+ fini:
+ 	read_unlock(macc_lckp);
 
 
