@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1776C47AD8B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D03247AE50
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:00:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237796AbhLTOwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:52:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238258AbhLTOuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB9DC08E847;
-        Mon, 20 Dec 2021 06:46:18 -0800 (PST)
+        id S239165AbhLTPAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:00:51 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48618 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237873AbhLTO6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43141611AD;
-        Mon, 20 Dec 2021 14:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E5EC36AE9;
-        Mon, 20 Dec 2021 14:46:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D391F611D0;
+        Mon, 20 Dec 2021 14:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7022C36AE7;
+        Mon, 20 Dec 2021 14:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011577;
-        bh=nih9dZrU8O63ScahyWDZ8/H1Eobq4ZvyR31ISJE4lLM=;
+        s=korg; t=1640012293;
+        bh=RfDoVu/onk73KSJWrOfa/y3pYn+YdJkbJoPWvtjmvn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Xh5ddYjlHOoW05MQOo00tRdHicPFxvf5U1kD6UHnsWPoOyxflAWsosjHtiMJ4DEX
-         6QDqMJUcKIBspGimGLAcIkM2mhkbn8d12B5WultjrHUZUmvmaP10HpQoXKYUwNashs
-         dOgXLYIW4K0FlLT5l708ooIt9oCmhXIp+rgD0f8I=
+        b=LRjBg2CwyZP3trB7y/lLr9X2f+s43O1syePCcvGuLQTo8wIqWHE4nlkWGCFLHVYtM
+         XjGMyHMX8tCHLvU5oSh/jgNAE25EH742VceXfA29vi9fvH5ChMokyoX8WIEcHuA+dP
+         ZTO4lFIEJfVc26SU+amHkzWUeYAarhKK33p+DjE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.4 71/71] xen/netback: dont queue unlimited number of packages
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 150/177] drm/amd/pm: fix reading SMU FW version from amdgpu_firmware_info on YC
 Date:   Mon, 20 Dec 2021 15:35:00 +0100
-Message-Id: <20211220143028.085425310@linuxfoundation.org>
+Message-Id: <20211220143045.122997497@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,73 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit be81992f9086b230623ae3ebbc85ecee4d00a3d3 upstream.
+commit dcd10d879a9d1d4e929d374c2f24aba8fac3252b upstream.
 
-In case a guest isn't consuming incoming network traffic as fast as it
-is coming in, xen-netback is buffering network packages in unlimited
-numbers today. This can result in host OOM situations.
+This value does not get cached into adev->pm.fw_version during
+startup for smu13 like it does for other SMU like smu12.
 
-Commit f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal
-queue and carrier flapping") meant to introduce a mechanism to limit
-the amount of buffered data by stopping the Tx queue when reaching the
-data limit, but this doesn't work for cases like UDP.
-
-When hitting the limit don't queue further SKBs, but drop them instead.
-In order to be able to tell Rx packages have been dropped increment the
-rx_dropped statistics counter in this case.
-
-It should be noted that the old solution to continue queueing SKBs had
-the additional problem of an overflow of the 32-bit rx_queue_len value
-would result in intermittent Tx queue enabling.
-
-This is part of XSA-392
-
-Fixes: f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal queue and carrier flapping")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/rx.c |   18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -88,16 +88,19 @@ void xenvif_rx_queue_tail(struct xenvif_
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/smu_v13_0.c
+@@ -197,6 +197,7 @@ int smu_v13_0_check_fw_status(struct smu
  
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ int smu_v13_0_check_fw_version(struct smu_context *smu)
+ {
++	struct amdgpu_device *adev = smu->adev;
+ 	uint32_t if_version = 0xff, smu_version = 0xff;
+ 	uint16_t smu_major;
+ 	uint8_t smu_minor, smu_debug;
+@@ -209,6 +210,8 @@ int smu_v13_0_check_fw_version(struct sm
+ 	smu_major = (smu_version >> 16) & 0xffff;
+ 	smu_minor = (smu_version >> 8) & 0xff;
+ 	smu_debug = (smu_version >> 0) & 0xff;
++	if (smu->is_apu)
++		adev->pm.fw_version = smu_version;
  
--	if (skb_queue_empty(&queue->rx_queue))
--		xenvif_update_needed_slots(queue, skb);
--
--	__skb_queue_tail(&queue->rx_queue, skb);
--
--	queue->rx_queue_len += skb->len;
--	if (queue->rx_queue_len > queue->rx_queue_max) {
-+	if (queue->rx_queue_len >= queue->rx_queue_max) {
- 		struct net_device *dev = queue->vif->dev;
- 
- 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
-+		kfree_skb(skb);
-+		queue->vif->dev->stats.rx_dropped++;
-+	} else {
-+		if (skb_queue_empty(&queue->rx_queue))
-+			xenvif_update_needed_slots(queue, skb);
-+
-+		__skb_queue_tail(&queue->rx_queue, skb);
-+
-+		queue->rx_queue_len += skb->len;
- 	}
- 
- 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-@@ -147,6 +150,7 @@ static void xenvif_rx_queue_drop_expired
- 			break;
- 		xenvif_rx_dequeue(queue);
- 		kfree_skb(skb);
-+		queue->vif->dev->stats.rx_dropped++;
- 	}
- }
- 
+ 	switch (smu->adev->asic_type) {
+ 	case CHIP_ALDEBARAN:
 
 
