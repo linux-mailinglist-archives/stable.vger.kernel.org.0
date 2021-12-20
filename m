@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B85A047ACA4
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E6A47ABBB
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234379AbhLTOqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:46:01 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:37912 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236561AbhLTOoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:54 -0500
+        id S234548AbhLTOik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:38:40 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:52766 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231620AbhLTOiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C12A461165;
-        Mon, 20 Dec 2021 14:44:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FCDC36AE7;
-        Mon, 20 Dec 2021 14:44:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7486BCE1107;
+        Mon, 20 Dec 2021 14:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F809C36AF7;
+        Mon, 20 Dec 2021 14:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011493;
-        bh=0Ef9eswxrkBiSQY9W3YBAESSTC4iNG5GMsGY3/HzruU=;
+        s=korg; t=1640011086;
+        bh=nih9dZrU8O63ScahyWDZ8/H1Eobq4ZvyR31ISJE4lLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKLsBkWId5PkRkPke/Meri0i1lnfjBka2SmJULRTwsKjTDhe3LBXDKtO7ZkZJMAAE
-         FpvQGE/RtzIb2EFvrMLL/XoApX04Ce+OA4JTJVLAx7Qm0Ja7ne1OZG87uQJoF2unPT
-         JbGjc6eGWJX1PNbtnkUEGrLMinW/BNBIX3l39Q7o=
+        b=oXYlzMaIzFgF5tfRQMgKfTZ0UcZJAuW6VERnDHwRhRfH2sLb+BMHR2L2gcv8hGylj
+         eaQixpf5vaSFFb4gcxI+0tQtn8Ir8YjWnR4pkajy4AglV1fixDX/cu3Lwpb6s3/AOQ
+         dV72DRI0T2iK+/JYD19WN6cyP1f2ejj2jykyh6f0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 41/71] net/smc: Prevent smc_release() from long blocking
-Date:   Mon, 20 Dec 2021 15:34:30 +0100
-Message-Id: <20211220143027.060261271@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.9 31/31] xen/netback: dont queue unlimited number of packages
+Date:   Mon, 20 Dec 2021 15:34:31 +0100
+Message-Id: <20211220143020.963547129@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
+References: <20211220143019.974513085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,81 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 5c15b3123f65f8fbb1b445d9a7e8812e0e435df2 ]
+commit be81992f9086b230623ae3ebbc85ecee4d00a3d3 upstream.
 
-In nginx/wrk benchmark, there's a hung problem with high probability
-on case likes that: (client will last several minutes to exit)
+In case a guest isn't consuming incoming network traffic as fast as it
+is coming in, xen-netback is buffering network packages in unlimited
+numbers today. This can result in host OOM situations.
 
-server: smc_run nginx
+Commit f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal
+queue and carrier flapping") meant to introduce a mechanism to limit
+the amount of buffered data by stopping the Tx queue when reaching the
+data limit, but this doesn't work for cases like UDP.
 
-client: smc_run wrk -c 10000 -t 1 http://server
+When hitting the limit don't queue further SKBs, but drop them instead.
+In order to be able to tell Rx packages have been dropped increment the
+rx_dropped statistics counter in this case.
 
-Client hangs with the following backtrace:
+It should be noted that the old solution to continue queueing SKBs had
+the additional problem of an overflow of the 32-bit rx_queue_len value
+would result in intermittent Tx queue enabling.
 
-0 [ffffa7ce8Of3bbf8] __schedule at ffffffff9f9eOd5f
-1 [ffffa7ce8Of3bc88] schedule at ffffffff9f9eløe6
-2 [ffffa7ce8Of3bcaO] schedule_timeout at ffffffff9f9e3f3c
-3 [ffffa7ce8Of3bd2O] wait_for_common at ffffffff9f9el9de
-4 [ffffa7ce8Of3bd8O] __flush_work at ffffffff9fOfeOl3
-5 [ffffa7ce8øf3bdfO] smc_release at ffffffffcO697d24 [smc]
-6 [ffffa7ce8Of3be2O] __sock_release at ffffffff9f8O2e2d
-7 [ffffa7ce8Of3be4ø] sock_close at ffffffff9f8ø2ebl
-8 [ffffa7ce8øf3be48] __fput at ffffffff9f334f93
-9 [ffffa7ce8Of3be78] task_work_run at ffffffff9flOlff5
-10 [ffffa7ce8Of3beaO] do_exit at ffffffff9fOe5Ol2
-11 [ffffa7ce8Of3bflO] do_group_exit at ffffffff9fOe592a
-12 [ffffa7ce8Of3bf38] __x64_sys_exit_group at ffffffff9fOe5994
-13 [ffffa7ce8Of3bf4O] do_syscall_64 at ffffffff9f9d4373
-14 [ffffa7ce8Of3bfsO] entry_SYSCALL_64_after_hwframe at ffffffff9fa0007c
+This is part of XSA-392
 
-This issue dues to flush_work(), which is used to wait for
-smc_connect_work() to finish in smc_release(). Once lots of
-smc_connect_work() was pending or all executing work dangling,
-smc_release() has to block until one worker comes to free, which
-is equivalent to wait another smc_connnect_work() to finish.
-
-In order to fix this, There are two changes:
-
-1. For those idle smc_connect_work(), cancel it from the workqueue; for
-   executing smc_connect_work(), waiting for it to finish. For that
-   purpose, replace flush_work() with cancel_work_sync().
-
-2. Since smc_connect() hold a reference for passive closing, if
-   smc_connect_work() has been cancelled, release the reference.
-
-Fixes: 24ac3a08e658 ("net/smc: rebuild nonblocking connect")
-Reported-by: Tony Lu <tonylu@linux.alibaba.com>
-Tested-by: Dust Li <dust.li@linux.alibaba.com>
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Link: https://lore.kernel.org/r/1639571361-101128-1-git-send-email-alibuda@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal queue and carrier flapping")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/xen-netback/rx.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index fa3b20e5f4608..06684ac346abd 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -183,7 +183,9 @@ static int smc_release(struct socket *sock)
- 	/* cleanup for a dangling non-blocking connect */
- 	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
- 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
--	flush_work(&smc->connect_work);
-+
-+	if (cancel_work_sync(&smc->connect_work))
-+		sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -88,16 +88,19 @@ void xenvif_rx_queue_tail(struct xenvif_
  
- 	if (sk->sk_state == SMC_LISTEN)
- 		/* smc_close_non_accepted() is called and acquires
--- 
-2.33.0
-
+ 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ 
+-	if (skb_queue_empty(&queue->rx_queue))
+-		xenvif_update_needed_slots(queue, skb);
+-
+-	__skb_queue_tail(&queue->rx_queue, skb);
+-
+-	queue->rx_queue_len += skb->len;
+-	if (queue->rx_queue_len > queue->rx_queue_max) {
++	if (queue->rx_queue_len >= queue->rx_queue_max) {
+ 		struct net_device *dev = queue->vif->dev;
+ 
+ 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
++		kfree_skb(skb);
++		queue->vif->dev->stats.rx_dropped++;
++	} else {
++		if (skb_queue_empty(&queue->rx_queue))
++			xenvif_update_needed_slots(queue, skb);
++
++		__skb_queue_tail(&queue->rx_queue, skb);
++
++		queue->rx_queue_len += skb->len;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+@@ -147,6 +150,7 @@ static void xenvif_rx_queue_drop_expired
+ 			break;
+ 		xenvif_rx_dequeue(queue);
+ 		kfree_skb(skb);
++		queue->vif->dev->stats.rx_dropped++;
+ 	}
+ }
+ 
 
 
