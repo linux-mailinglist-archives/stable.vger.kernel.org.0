@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A62C947AED8
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3C147AED7
 	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:04:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240506AbhLTPEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:04:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        id S239376AbhLTPEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:04:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238519AbhLTPCM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:02:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80737C08EE24;
-        Mon, 20 Dec 2021 06:51:44 -0800 (PST)
+        with ESMTP id S240300AbhLTPCN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:02:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF7BC08EE25;
+        Mon, 20 Dec 2021 06:51:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D6976118D;
-        Mon, 20 Dec 2021 14:51:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8F43C36AE8;
-        Mon, 20 Dec 2021 14:51:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BF52B80EED;
+        Mon, 20 Dec 2021 14:51:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA47BC36AE8;
+        Mon, 20 Dec 2021 14:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011903;
-        bh=6artq7rDrePHMe1YVNtIo7uMZ7LDAzzORU/ImfjVxL0=;
+        s=korg; t=1640011906;
+        bh=PDjuPzImbdm+3W1a23MyASLqV+xE0pBSOyY5oiu7Ko0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mmve0FlQ6e4NM5UQPH4b/9TyY1RRBRdvqTDvrqb3iS6bT6Ha3Ao3TZgWVA+M9Wosc
-         oSZz/iZqh47ti4orj7KIwX8hTbI+82MCEZdTOPho98NBNKzif04fN/YMgeb4frOVDO
-         J9dAISoT5Cmfv69v7DXTYaggUtmjOmCi6+fX4okE=
+        b=HuM50WsWP6i8prxgh1WVGI85EwOURRvmsE5GNKVMnhOu7uQG3+eYAzR34OUpEwU58
+         bfBL04KigJt8J66Ai+wl65dzhFOg2eTk+V+Blj4NUTwEu4rLfmPNwJ6A3FveQ8g3HS
+         0wNVjUr6IUsdTcMlOddMCBgTg/trD2yPUY1i4eTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
         John Fastabend <john.fastabend@gmail.com>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 016/177] bpf: Make 32->64 bounds propagation slightly more robust
-Date:   Mon, 20 Dec 2021 15:32:46 +0100
-Message-Id: <20211220143040.617633579@linuxfoundation.org>
+Subject: [PATCH 5.15 017/177] bpf, selftests: Add test case trying to taint map value pointer
+Date:   Mon, 20 Dec 2021 15:32:47 +0100
+Message-Id: <20211220143040.647959041@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -50,60 +50,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit e572ff80f05c33cd0cb4860f864f5c9c044280b6 upstream.
+commit b1a7288dedc6caf9023f2676b4f5ed34cf0d4029 upstream.
 
-Make the bounds propagation in __reg_assign_32_into_64() slightly more
-robust and readable by aligning it similarly as we did back in the
-__reg_combine_64_into_32() counterpart. Meaning, only propagate or
-pessimize them as a smin/smax pair.
+Add a test case which tries to taint map value pointer arithmetic into a
+unknown scalar with subsequent export through the map.
+
+Before fix:
+
+  # ./test_verifier 1186
+  #1186/u map access: trying to leak tained dst reg FAIL
+  Unexpected success to load!
+  verification time 24 usec
+  stack depth 8
+  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+  #1186/p map access: trying to leak tained dst reg FAIL
+  Unexpected success to load!
+  verification time 8 usec
+  stack depth 8
+  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
+  Summary: 0 PASSED, 0 SKIPPED, 2 FAILED
+
+After fix:
+
+  # ./test_verifier 1186
+  #1186/u map access: trying to leak tained dst reg OK
+  #1186/p map access: trying to leak tained dst reg OK
+  Summary: 2 PASSED, 0 SKIPPED, 0 FAILED
 
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Reviewed-by: John Fastabend <john.fastabend@gmail.com>
 Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ tools/testing/selftests/bpf/verifier/value_ptr_arith.c |   23 +++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -1358,22 +1358,28 @@ static void __reg_bound_offset(struct bp
- 	reg->var_off = tnum_or(tnum_clear_subreg(var64_off), var32_off);
- }
- 
-+static bool __reg32_bound_s64(s32 a)
-+{
-+	return a >= 0 && a <= S32_MAX;
-+}
-+
- static void __reg_assign_32_into_64(struct bpf_reg_state *reg)
+--- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
++++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
+@@ -1078,6 +1078,29 @@
+ 	.errstr_unpriv = "R0 pointer -= pointer prohibited",
+ },
  {
- 	reg->umin_value = reg->u32_min_value;
- 	reg->umax_value = reg->u32_max_value;
--	/* Attempt to pull 32-bit signed bounds into 64-bit bounds
--	 * but must be positive otherwise set to worse case bounds
--	 * and refine later from tnum.
-+
-+	/* Attempt to pull 32-bit signed bounds into 64-bit bounds but must
-+	 * be positive otherwise set to worse case bounds and refine later
-+	 * from tnum.
- 	 */
--	if (reg->s32_min_value >= 0 && reg->s32_max_value >= 0)
--		reg->smax_value = reg->s32_max_value;
--	else
--		reg->smax_value = U32_MAX;
--	if (reg->s32_min_value >= 0)
-+	if (__reg32_bound_s64(reg->s32_min_value) &&
-+	    __reg32_bound_s64(reg->s32_max_value)) {
- 		reg->smin_value = reg->s32_min_value;
--	else
-+		reg->smax_value = reg->s32_max_value;
-+	} else {
- 		reg->smin_value = 0;
-+		reg->smax_value = U32_MAX;
-+	}
- }
- 
- static void __reg_combine_32_into_64(struct bpf_reg_state *reg)
++	"map access: trying to leak tained dst reg",
++	.insns = {
++	BPF_MOV64_IMM(BPF_REG_0, 0),
++	BPF_ST_MEM(BPF_DW, BPF_REG_10, -8, 0),
++	BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
++	BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
++	BPF_LD_MAP_FD(BPF_REG_1, 0),
++	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_map_lookup_elem),
++	BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
++	BPF_EXIT_INSN(),
++	BPF_MOV64_REG(BPF_REG_2, BPF_REG_0),
++	BPF_MOV32_IMM(BPF_REG_1, 0xFFFFFFFF),
++	BPF_MOV32_REG(BPF_REG_1, BPF_REG_1),
++	BPF_ALU64_REG(BPF_SUB, BPF_REG_2, BPF_REG_1),
++	BPF_STX_MEM(BPF_DW, BPF_REG_0, BPF_REG_2, 0),
++	BPF_MOV64_IMM(BPF_REG_0, 0),
++	BPF_EXIT_INSN(),
++	},
++	.fixup_map_array_48b = { 4 },
++	.result = REJECT,
++	.errstr = "math between map_value pointer and 4294967295 is not allowed",
++},
++{
+ 	"32bit pkt_ptr -= scalar",
+ 	.insns = {
+ 	BPF_LDX_MEM(BPF_W, BPF_REG_8, BPF_REG_1,
 
 
