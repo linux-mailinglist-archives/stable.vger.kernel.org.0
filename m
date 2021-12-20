@@ -2,62 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 827D747A615
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 09:36:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C999F47A6C1
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234853AbhLTIgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 03:36:11 -0500
-Received: from mail-io1-f69.google.com ([209.85.166.69]:47970 "EHLO
-        mail-io1-f69.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234688AbhLTIgL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 03:36:11 -0500
-Received: by mail-io1-f69.google.com with SMTP id o11-20020a0566022e0b00b005e95edf792dso6657933iow.14
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 00:36:11 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to;
-        bh=O3LXneiNH9IRbWHAKK3lrVYWgtCFvwj/GzY0w5gPzSA=;
-        b=pOd3oVQEtijCDrPj5Rx3PHOVxBcWBMO7qm/y9rqQSeR1PqLUJvifNzEBUZ3XLvXCXh
-         J2/xv2chSJ+vOwUtCvbr7yex2YMbHxqUe2B9VEMdO5EmnAZeMfPaBilrByeWOiZfiFqW
-         dyuN21GmJSs8OfxIQ1gJQJ15BcfD/+5sGUrgFjnFp9V1PQ2qdSRjjNDi6owRlYf+Eaeq
-         qu7O54db+HL11KeQWHTmQ1WrsrfMAlUDKbWIBb6CFbTp+GqSGlnqTLxY782vYA2mkvWa
-         IUOW1APhq7k/BFBcRUr8m7kSSXfkodTQU5JJZXo0Og/qFEWPvUQM+yis/GxzLHNBO9r8
-         W4cA==
-X-Gm-Message-State: AOAM531rwHyYYxVjvhQqwlWbNyE6A7RvxWz+LYmY3fDZFFqnAvCIyuWh
-        9V58ggFZ0n78EnQ4vpPYZMkMKZfYLxk0FxjBr9uior19jjJ6
-X-Google-Smtp-Source: ABdhPJwDzIY6BCSPt6NhocGT4u74Rfl+fDqzK2BHg2sNL8ykWf2a3GluAuPJNgfc8D5oS9lUEiWH1t820hqfmf5IFmT82jX2gq92
+        id S231509AbhLTJXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:23:13 -0500
+Received: from mx1.tq-group.com ([93.104.207.81]:58435 "EHLO mx1.tq-group.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229469AbhLTJXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 20 Dec 2021 04:23:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1639992192; x=1671528192;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=J/N6T0XS+9+Kg7P0fo6srIGD9A0kKRp7rVd/nxwC3qQ=;
+  b=KefvCXagENmhUvdR/dncF+inrrTNNb+ft9tJ1il6jpKgb9MnCYF4TCSB
+   3NEINno1v7hPXw47f//km3hBKHtHlgqRiQASHYdk9OLYgsK/UAp+ytDy0
+   R5v4II5lpWjPV5doA+CliOcihO9Qq82sasbzMcLGhowa+IPwIN3eCNuNc
+   znPrG5LXEOM3wteQLKMjDOpy7c1DBzSHymSs/72u4nlZ3cnUA4hbx8gAQ
+   hFyHRgyrLrDKxyNd7FiXuT8n0X+G4btB2ANqVWx4fHgAtXL4dA3vQNatP
+   VcrQGr+CEa1UnnEaROSTOURHbBkKoRJDVhlhvT4Pgejh9H9qBrWQ7O+Me
+   w==;
+X-IronPort-AV: E=Sophos;i="5.88,220,1635199200"; 
+   d="scan'208";a="21148419"
+Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
+  by mx1-pgp.tq-group.com with ESMTP; 20 Dec 2021 10:23:10 +0100
+Received: from mx1.tq-group.com ([192.168.6.7])
+  by tq-pgp-pr1.tq-net.de (PGP Universal service);
+  Mon, 20 Dec 2021 10:23:11 +0100
+X-PGP-Universal: processed;
+        by tq-pgp-pr1.tq-net.de on Mon, 20 Dec 2021 10:23:11 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1639992191; x=1671528191;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=J/N6T0XS+9+Kg7P0fo6srIGD9A0kKRp7rVd/nxwC3qQ=;
+  b=px8jZd1U8bfWm+1f0Q1Jc/SUiPowqmviJITT8EZ2t+WertlFaVfvENkd
+   2lcfYftcINmuntSlGrZGIAB62bOAXWTAz4yMKcmG+r5GjJWtXNwAXzny/
+   euqhbbUDFdVJAkkS+yhc0P9ldQ+4/g1/KXlRtWpOMKQgITmaEIg47SOhm
+   3zvOEGGX+mY7wqWcNoa0Y1O/KFZwsez9ZaqnqbijWyAUKtJel4crBfUfv
+   WoH11PooEy4++Yvm9MkfD90PELTePvmbzywwxNJ7hWOLyvsFs1iVDCQAi
+   7jfda71wF610X80XQDoTQZCpjc4YNTjNfZzCItRLxBN1d7o+Ol+O10GBo
+   w==;
+X-IronPort-AV: E=Sophos;i="5.88,220,1635199200"; 
+   d="scan'208";a="21148418"
+Received: from vtuxmail01.tq-net.de ([10.115.0.20])
+  by mx1.tq-group.com with ESMTP; 20 Dec 2021 10:23:10 +0100
+Received: from localhost.localdomain (SCHIFFERM-M2.tq-net.de [10.121.201.15])
+        by vtuxmail01.tq-net.de (Postfix) with ESMTPA id B0C83280065;
+        Mon, 20 Dec 2021 10:23:10 +0100 (CET)
+From:   Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        linux-can@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        davem@davemloft.net, kuba@kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Subject: [PATCH 5.15 0/3] m_can_pci bit timings for Elkhart Lake
+Date:   Mon, 20 Dec 2021 10:22:14 +0100
+Message-Id: <cover.1639990483.git.matthias.schiffer@ew.tq-group.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:191c:: with SMTP id p28mr7354021jal.181.1639989370732;
- Mon, 20 Dec 2021 00:36:10 -0800 (PST)
-Date:   Mon, 20 Dec 2021 00:36:10 -0800
-In-Reply-To: <20211220090836.cee3d59a1915.I36bba9b79dc2ff4d57c3c7aa30dff9a003fe8c5c@changeid>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000e0c8fb05d38fc731@google.com>
-Subject: Re: [syzbot] WARNING in ieee80211_vif_release_channel (2)
-From:   syzbot <syzbot+11c342e5e30e9539cabd@syzkaller.appspotmail.com>
-To:     johannes.berg@intel.com, johannes@sipsolutions.net,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+The automated backport of "can: m_can: pci: use custom bit timings for
+Elkhart Lake" failed because I neglected to add Fixes tags to the other
+two patches it depends on.
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+Matthias Schiffer (3):
+  Revert "can: m_can: remove support for custom bit timing"
+  can: m_can: make custom bittiming fields const
+  can: m_can: pci: use custom bit timings for Elkhart Lake
 
-Reported-and-tested-by: syzbot+11c342e5e30e9539cabd@syzkaller.appspotmail.com
+ drivers/net/can/m_can/m_can.c     | 24 ++++++++++++----
+ drivers/net/can/m_can/m_can.h     |  3 ++
+ drivers/net/can/m_can/m_can_pci.c | 48 ++++++++++++++++++++++++++++---
+ 3 files changed, 65 insertions(+), 10 deletions(-)
 
-Tested on:
+-- 
+2.25.1
 
-commit:         60ec7fcf qlcnic: potential dereference null pointer of..
-git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git master
-kernel config:  https://syzkaller.appspot.com/x/.config?x=fa556098924b78f0
-dashboard link: https://syzkaller.appspot.com/bug?extid=11c342e5e30e9539cabd
-compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=1412bd93b00000
-
-Note: testing is done by a robot and is best-effort only.
