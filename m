@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB9A47AD58
+	by mail.lfdr.de (Postfix) with ESMTP id DAD6B47AD5A
 	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237096AbhLTOvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:51:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56286 "EHLO
+        id S235391AbhLTOvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:51:24 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56306 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237692AbhLTOts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:48 -0500
+        with ESMTP id S237757AbhLTOtv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9546B80EDA;
-        Mon, 20 Dec 2021 14:49:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2346C36AE7;
-        Mon, 20 Dec 2021 14:49:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AB4DB80EA3;
+        Mon, 20 Dec 2021 14:49:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFB70C36AE8;
+        Mon, 20 Dec 2021 14:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011786;
-        bh=ZOy6NnN7+674KSHfnxTjt5EaXz8uJiYSUtaSDXYW3f4=;
+        s=korg; t=1640011789;
+        bh=L+9fR+PGCBZHmH6eDdBT7bA7XtMjaWNwPL6qt/+IUsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JTFmMu8U5h+JP+hCjM0Oi8DZ+jpyOgwFjugd3U7kPwzJcoCgaX3mzdsQfGkJfbHh1
-         wwbzzscmutQ/wtbJLPhOrgXN35bCVXLJKmKSKAQd4ts+GwD8lnaHx5S9H4Qyv4hPCj
-         Ivmgxg9WPvKxk50bS5UOEzd2nw/zCqPD16+ShxFA=
+        b=be/D32E2M2ZYj5JseOX3/Lwt7ORjz2R1+9mS7WIBFM/hEsWfsBuqNjqOylb9SSIhF
+         H/saHw4WsU4vSG1+oU5z+NvbtyXhY119PVjH2tzizfkeqS8UdghhVTb8Ju9+MMT8JX
+         9mvGeRY6fgfsMLPPb3hUeRHl5QoIlezFfX8K5OAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maarten Brock <m.brock@vanmierlo.com>,
-        Karoly Pados <pados@pados.hu>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 73/99] USB: serial: cp210x: fix CP2105 GPIO registration
-Date:   Mon, 20 Dec 2021 15:34:46 +0100
-Message-Id: <20211220143031.841610779@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 74/99] USB: serial: option: add Telit FN990 compositions
+Date:   Mon, 20 Dec 2021 15:34:47 +0100
+Message-Id: <20211220143031.876614225@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -44,68 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 83b67041f3eaf33f98a075249aa7f4c7617c2f85 upstream.
+commit 2b503c8598d1b232e7fc7526bce9326d92331541 upstream.
 
-When generalising GPIO support and adding support for CP2102N, the GPIO
-registration for some CP2105 devices accidentally broke. Specifically,
-when all the pins of a port are in "modem" mode, and thus unavailable
-for GPIO use, the GPIO chip would now be registered without having
-initialised the number of GPIO lines. This would in turn be rejected by
-gpiolib and some errors messages would be printed (but importantly probe
-would still succeed).
+Add the following Telit FN990 compositions:
 
-Fix this by initialising the number of GPIO lines before registering the
-GPIO chip.
+0x1070: tty, adb, rmnet, tty, tty, tty, tty
+0x1071: tty, adb, mbim, tty, tty, tty, tty
+0x1072: rndis, tty, adb, tty, tty, tty, tty
+0x1073: tty, adb, ecm, tty, tty, tty, tty
 
-Note that as for the other device types, and as when all CP2105 pins are
-muxed for LED function, the GPIO chip is registered also when no pins
-are available for GPIO use.
-
-Reported-by: Maarten Brock <m.brock@vanmierlo.com>
-Link: https://lore.kernel.org/r/5eb560c81d2ea1a2b4602a92d9f48a89@vanmierlo.com
-Fixes: c8acfe0aadbe ("USB: serial: cp210x: implement GPIO support for CP2102N")
-Cc: stable@vger.kernel.org      # 4.19
-Cc: Karoly Pados <pados@pados.hu>
-Link: https://lore.kernel.org/r/20211126094348.31698-1-johan@kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-by: Maarten Brock <m.brock@vanmierlo.com>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20211210100714.22587-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -1750,6 +1750,8 @@ static int cp2105_gpioconf_init(struct u
- 
- 	/*  2 banks of GPIO - One for the pins taken from each serial port */
- 	if (intf_num == 0) {
-+		priv->gc.ngpio = 2;
-+
- 		if (mode.eci == CP210X_PIN_MODE_MODEM) {
- 			/* mark all GPIOs of this interface as reserved */
- 			priv->gpio_altfunc = 0xff;
-@@ -1760,8 +1762,9 @@ static int cp2105_gpioconf_init(struct u
- 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
- 						CP210X_ECI_GPIO_MODE_MASK) >>
- 						CP210X_ECI_GPIO_MODE_OFFSET);
--		priv->gc.ngpio = 2;
- 	} else if (intf_num == 1) {
-+		priv->gc.ngpio = 3;
-+
- 		if (mode.sci == CP210X_PIN_MODE_MODEM) {
- 			/* mark all GPIOs of this interface as reserved */
- 			priv->gpio_altfunc = 0xff;
-@@ -1772,7 +1775,6 @@ static int cp2105_gpioconf_init(struct u
- 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
- 						CP210X_SCI_GPIO_MODE_MASK) >>
- 						CP210X_SCI_GPIO_MODE_OFFSET);
--		priv->gc.ngpio = 3;
- 	} else {
- 		return -ENODEV;
- 	}
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1219,6 +1219,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1070, 0xff),	/* Telit FN990 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1071, 0xff),	/* Telit FN990 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1072, 0xff),	/* Telit FN990 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1073, 0xff),	/* Telit FN990 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
