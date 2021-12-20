@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14B5B47ADBD
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:55:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3725947AD12
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:50:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238647AbhLTOy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:54:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34448 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237550AbhLTOwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:52:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D05FDC08EB25;
-        Mon, 20 Dec 2021 06:47:05 -0800 (PST)
+        id S236387AbhLTOtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:49:11 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54282 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237146AbhLTOrK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:47:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7091D611AA;
-        Mon, 20 Dec 2021 14:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BBFC36AE7;
-        Mon, 20 Dec 2021 14:47:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E780CB80EF4;
+        Mon, 20 Dec 2021 14:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23E87C36AE8;
+        Mon, 20 Dec 2021 14:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011624;
-        bh=PL7atF7u9n3Ahlv3yEYikXcHo/7QbLXdGyN5GTHfztQ=;
+        s=korg; t=1640011627;
+        bh=mtJeu+Rfiso5zgGHkS+BnDh4vCwUgRD9IQmhdh6BppE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QIRpomNM14Y3/AeSTRFkLY2/fwHDgmoRDjvliWmMlh9w2nYoxK0zxzu4Cyf1Oau6w
-         J9rTJLkp4nFx4cp0IbwVLn2aomXlMnFIoOA4F69Nsr7N3HK+TkaDwHjNwEs4oMZ3X7
-         i0l/RH95yCwRNoH8iflIxslg3TV42ZnYKf74berk=
+        b=HOSMO7st8UrIUwHGpj9DMB1HGTSA5PzSJf+zlVS5DJCOOzqSOdAL1i4MiegUFiw8v
+         hj25mkrcxS3/uaM4d5vtfMyPgZdwNjcJhghmeivq1YcagsWG2W2ltylB9m3nGW/ppx
+         H01F+Bw2MwEzh1U0pMZV/lcLLGZ9KkcvEaSkvJdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org,
+        syzbot+59bdff68edce82e393b6@syzkaller.appspotmail.com,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 05/99] mac80211: send ADDBA requests using the tid/queue of the aggregation session
-Date:   Mon, 20 Dec 2021 15:33:38 +0100
-Message-Id: <20211220143029.531281318@linuxfoundation.org>
+Subject: [PATCH 5.10 06/99] mac80211: validate extended element ID is present
+Date:   Mon, 20 Dec 2021 15:33:39 +0100
+Message-Id: <20211220143029.561741348@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -47,37 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 1fe98f5690c4219d419ea9cc190f94b3401cf324 upstream.
+commit 768c0b19b50665e337c96858aa2b7928d6dcf756 upstream.
 
-Sending them out on a different queue can cause a race condition where a
-number of packets in the queue may be discarded by the receiver, because
-the ADDBA request is sent too early.
-This affects any driver with software A-MPDU setup which does not allocate
-packet seqno in hardware on tx, regardless of whether iTXQ is used or not.
-The only driver I've seen that explicitly deals with this issue internally
-is mwl8k.
+Before attempting to parse an extended element, verify that
+the extended element ID is present.
 
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Reported-by: syzbot+59bdff68edce82e393b6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20211211201023.f30a1b128c07.I5cacc176da94ba316877c6e10fe3ceec8b4dbd7d@changeid
 Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20211202124533.80388-1-nbd@nbd.name
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/agg-tx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/util.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -106,7 +106,7 @@ static void ieee80211_send_addba_request
- 	mgmt->u.action.u.addba_req.start_seq_num =
- 					cpu_to_le16(start_seq_num << 4);
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -950,7 +950,12 @@ static void ieee80211_parse_extension_el
+ 					      struct ieee802_11_elems *elems)
+ {
+ 	const void *data = elem->data + 1;
+-	u8 len = elem->datalen - 1;
++	u8 len;
++
++	if (!elem->datalen)
++		return;
++
++	len = elem->datalen - 1;
  
--	ieee80211_tx_skb(sdata, skb);
-+	ieee80211_tx_skb_tid(sdata, skb, tid);
- }
- 
- void ieee80211_send_bar(struct ieee80211_vif *vif, u8 *ra, u16 tid, u16 ssn)
+ 	switch (elem->data[0]) {
+ 	case WLAN_EID_EXT_HE_MU_EDCA:
 
 
