@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60E3E47ACEE
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:48:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB9A47AD58
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235611AbhLTOrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:47:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53094 "EHLO
+        id S237096AbhLTOvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:51:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56286 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235348AbhLTOpq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:45:46 -0500
+        with ESMTP id S237692AbhLTOts (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 343CAB80EE6;
-        Mon, 20 Dec 2021 14:45:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C468C36AE8;
-        Mon, 20 Dec 2021 14:45:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9546B80EDA;
+        Mon, 20 Dec 2021 14:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2346C36AE7;
+        Mon, 20 Dec 2021 14:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011543;
-        bh=3uYhQb3bWY54x9fRpOlW0W4fux/f2ZgTlxdNGkLbGnc=;
+        s=korg; t=1640011786;
+        bh=ZOy6NnN7+674KSHfnxTjt5EaXz8uJiYSUtaSDXYW3f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yo1u+Nal5DFIwlDVMiFdc2s7hBX+QE1ISJTygRKVaW7GTcN0ARdabgXuB+0mmgcWp
-         fq3OHyPkhNjLKXn19Hz+sxQ9ipT0I/eQNFwCRKK3H+ik6Qyc7te2fY6OqKAuAx+Xzd
-         mYHi3eHdUL465FZWiIBZ74L18rHQAByx3ZBYU/VM=
+        b=JTFmMu8U5h+JP+hCjM0Oi8DZ+jpyOgwFjugd3U7kPwzJcoCgaX3mzdsQfGkJfbHh1
+         wwbzzscmutQ/wtbJLPhOrgXN35bCVXLJKmKSKAQd4ts+GwD8lnaHx5S9H4Qyv4hPCj
+         Ivmgxg9WPvKxk50bS5UOEzd2nw/zCqPD16+ShxFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Makarov <georgemakarov1@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.4 57/71] ARM: dts: imx6ull-pinfunc: Fix CSI_DATA07__ESAI_TX0 pad name
+        stable@vger.kernel.org, Maarten Brock <m.brock@vanmierlo.com>,
+        Karoly Pados <pados@pados.hu>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 73/99] USB: serial: cp210x: fix CP2105 GPIO registration
 Date:   Mon, 20 Dec 2021 15:34:46 +0100
-Message-Id: <20211220143027.610218460@linuxfoundation.org>
+Message-Id: <20211220143031.841610779@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 737e65c7956795b3553781fb7bc82fce1c39503f upstream.
+commit 83b67041f3eaf33f98a075249aa7f4c7617c2f85 upstream.
 
-According to the i.MX6ULL Reference Manual, pad CSI_DATA07 may
-have the ESAI_TX0 functionality, not ESAI_T0.
+When generalising GPIO support and adding support for CP2102N, the GPIO
+registration for some CP2105 devices accidentally broke. Specifically,
+when all the pins of a port are in "modem" mode, and thus unavailable
+for GPIO use, the GPIO chip would now be registered without having
+initialised the number of GPIO lines. This would in turn be rejected by
+gpiolib and some errors messages would be printed (but importantly probe
+would still succeed).
 
-Also, NXP's i.MX Config Tools 10.0 generates dtsi with the
-MX6ULL_PAD_CSI_DATA07__ESAI_TX0 naming, so fix it accordingly.
+Fix this by initialising the number of GPIO lines before registering the
+GPIO chip.
 
-There are no devicetree users in mainline that use the old name,
-so just remove the old entry.
+Note that as for the other device types, and as when all CP2105 pins are
+muxed for LED function, the GPIO chip is registered also when no pins
+are available for GPIO use.
 
-Fixes: c201369d4aa5 ("ARM: dts: imx6ull: add imx6ull support")
-Reported-by: George Makarov <georgemakarov1@gmail.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reported-by: Maarten Brock <m.brock@vanmierlo.com>
+Link: https://lore.kernel.org/r/5eb560c81d2ea1a2b4602a92d9f48a89@vanmierlo.com
+Fixes: c8acfe0aadbe ("USB: serial: cp210x: implement GPIO support for CP2102N")
+Cc: stable@vger.kernel.org      # 4.19
+Cc: Karoly Pados <pados@pados.hu>
+Link: https://lore.kernel.org/r/20211126094348.31698-1-johan@kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Maarten Brock <m.brock@vanmierlo.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6ull-pinfunc.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/imx6ull-pinfunc.h
-+++ b/arch/arm/boot/dts/imx6ull-pinfunc.h
-@@ -82,6 +82,6 @@
- #define MX6ULL_PAD_CSI_DATA04__ESAI_TX_FS                         0x01F4 0x0480 0x0000 0x9 0x0
- #define MX6ULL_PAD_CSI_DATA05__ESAI_TX_CLK                        0x01F8 0x0484 0x0000 0x9 0x0
- #define MX6ULL_PAD_CSI_DATA06__ESAI_TX5_RX0                       0x01FC 0x0488 0x0000 0x9 0x0
--#define MX6ULL_PAD_CSI_DATA07__ESAI_T0                            0x0200 0x048C 0x0000 0x9 0x0
-+#define MX6ULL_PAD_CSI_DATA07__ESAI_TX0                           0x0200 0x048C 0x0000 0x9 0x0
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -1750,6 +1750,8 @@ static int cp2105_gpioconf_init(struct u
  
- #endif /* __DTS_IMX6ULL_PINFUNC_H */
+ 	/*  2 banks of GPIO - One for the pins taken from each serial port */
+ 	if (intf_num == 0) {
++		priv->gc.ngpio = 2;
++
+ 		if (mode.eci == CP210X_PIN_MODE_MODEM) {
+ 			/* mark all GPIOs of this interface as reserved */
+ 			priv->gpio_altfunc = 0xff;
+@@ -1760,8 +1762,9 @@ static int cp2105_gpioconf_init(struct u
+ 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
+ 						CP210X_ECI_GPIO_MODE_MASK) >>
+ 						CP210X_ECI_GPIO_MODE_OFFSET);
+-		priv->gc.ngpio = 2;
+ 	} else if (intf_num == 1) {
++		priv->gc.ngpio = 3;
++
+ 		if (mode.sci == CP210X_PIN_MODE_MODEM) {
+ 			/* mark all GPIOs of this interface as reserved */
+ 			priv->gpio_altfunc = 0xff;
+@@ -1772,7 +1775,6 @@ static int cp2105_gpioconf_init(struct u
+ 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
+ 						CP210X_SCI_GPIO_MODE_MASK) >>
+ 						CP210X_SCI_GPIO_MODE_OFFSET);
+-		priv->gc.ngpio = 3;
+ 	} else {
+ 		return -ENODEV;
+ 	}
 
 
