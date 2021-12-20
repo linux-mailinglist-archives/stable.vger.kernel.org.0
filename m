@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2973147AB73
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:37:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1097847AE7E
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233795AbhLTOgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:36:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59232 "EHLO
+        id S239453AbhLTPBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231667AbhLTOgm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:42 -0500
+        with ESMTP id S239200AbhLTO63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF064C06175B;
-        Mon, 20 Dec 2021 06:36:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A61C061396;
+        Mon, 20 Dec 2021 06:50:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8022EB80EE4;
-        Mon, 20 Dec 2021 14:36:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B08C36AE7;
-        Mon, 20 Dec 2021 14:36:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97402B80EE2;
+        Mon, 20 Dec 2021 14:50:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFB06C36AE8;
+        Mon, 20 Dec 2021 14:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640010999;
-        bh=t1dMpFf3j5CuNqrxOKolOP8OviOWu3ZjwbgahhGG8DE=;
+        s=korg; t=1640011800;
+        bh=3cp1xpV7FD62VkDShfMHSubkHGbAzqWQyXlmC43hKb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2O5YNEjYlHq6gtCv/2zFSaG+vhdM6OhUt5xITQ3Q2O2zD6zfNeKlSvjgJpe6KMm1w
-         aAAATCAwvJ90bRog8YZRE38dIY/IJOBkmEI8QOOF5Llgyn7m625Ic1wWtAQdtcGnt3
-         hUWhgCOmAeWnSK0kNI6JbZhwWPJwxCvaRZGgFeWE=
+        b=CkKqt4R2TJxrQuYZt5rv1VMEfnyNnQ4VuMGFDvVwV2wssq0F7qfdjyUQRdezy6fIN
+         6hh1gRhBOQvzqvfSQcZDEfSWII6UbP8lLEYWTSc1JYFRTGB77zqDk0/2F3Y3SMfyCy
+         rf4Zvq5T/Ol9k7VnfH/cISlo7WjV+7eoc0EWaoU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.4 23/23] xen/netback: dont queue unlimited number of packages
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Letu Ren <fantasquex@gmail.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 51/99] igbvf: fix double free in `igbvf_probe`
 Date:   Mon, 20 Dec 2021 15:34:24 +0100
-Message-Id: <20211220143018.590839553@linuxfoundation.org>
+Message-Id: <20211220143031.100242099@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
-References: <20211220143017.842390782@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,66 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Letu Ren <fantasquex@gmail.com>
 
-commit be81992f9086b230623ae3ebbc85ecee4d00a3d3 upstream.
+[ Upstream commit b6d335a60dc624c0d279333b22c737faa765b028 ]
 
-In case a guest isn't consuming incoming network traffic as fast as it
-is coming in, xen-netback is buffering network packages in unlimited
-numbers today. This can result in host OOM situations.
+In `igbvf_probe`, if register_netdev() fails, the program will go to
+label err_hw_init, and then to label err_ioremap. In free_netdev() which
+is just below label err_ioremap, there is `list_for_each_entry_safe` and
+`netif_napi_del` which aims to delete all entries in `dev->napi_list`.
+The program has added an entry `adapter->rx_ring->napi` which is added by
+`netif_napi_add` in igbvf_alloc_queues(). However, adapter->rx_ring has
+been freed below label err_hw_init. So this a UAF.
 
-Commit f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal
-queue and carrier flapping") meant to introduce a mechanism to limit
-the amount of buffered data by stopping the Tx queue when reaching the
-data limit, but this doesn't work for cases like UDP.
+In terms of how to patch the problem, we can refer to igbvf_remove() and
+delete the entry before `adapter->rx_ring`.
 
-When hitting the limit don't queue further SKBs, but drop them instead.
-In order to be able to tell Rx packages have been dropped increment the
-rx_dropped statistics counter in this case.
+The KASAN logs are as follows:
 
-It should be noted that the old solution to continue queueing SKBs had
-the additional problem of an overflow of the 32-bit rx_queue_len value
-would result in intermittent Tx queue enabling.
+[   35.126075] BUG: KASAN: use-after-free in free_netdev+0x1fd/0x450
+[   35.127170] Read of size 8 at addr ffff88810126d990 by task modprobe/366
+[   35.128360]
+[   35.128643] CPU: 1 PID: 366 Comm: modprobe Not tainted 5.15.0-rc2+ #14
+[   35.129789] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[   35.131749] Call Trace:
+[   35.132199]  dump_stack_lvl+0x59/0x7b
+[   35.132865]  print_address_description+0x7c/0x3b0
+[   35.133707]  ? free_netdev+0x1fd/0x450
+[   35.134378]  __kasan_report+0x160/0x1c0
+[   35.135063]  ? free_netdev+0x1fd/0x450
+[   35.135738]  kasan_report+0x4b/0x70
+[   35.136367]  free_netdev+0x1fd/0x450
+[   35.137006]  igbvf_probe+0x121d/0x1a10 [igbvf]
+[   35.137808]  ? igbvf_vlan_rx_add_vid+0x100/0x100 [igbvf]
+[   35.138751]  local_pci_probe+0x13c/0x1f0
+[   35.139461]  pci_device_probe+0x37e/0x6c0
+[   35.165526]
+[   35.165806] Allocated by task 366:
+[   35.166414]  ____kasan_kmalloc+0xc4/0xf0
+[   35.167117]  foo_kmem_cache_alloc_trace+0x3c/0x50 [igbvf]
+[   35.168078]  igbvf_probe+0x9c5/0x1a10 [igbvf]
+[   35.168866]  local_pci_probe+0x13c/0x1f0
+[   35.169565]  pci_device_probe+0x37e/0x6c0
+[   35.179713]
+[   35.179993] Freed by task 366:
+[   35.180539]  kasan_set_track+0x4c/0x80
+[   35.181211]  kasan_set_free_info+0x1f/0x40
+[   35.181942]  ____kasan_slab_free+0x103/0x140
+[   35.182703]  kfree+0xe3/0x250
+[   35.183239]  igbvf_probe+0x1173/0x1a10 [igbvf]
+[   35.184040]  local_pci_probe+0x13c/0x1f0
 
-This is part of XSA-392
-
-Fixes: f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal queue and carrier flapping")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d4e0fe01a38a0 (igbvf: add new driver to support 82576 virtual functions)
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Letu Ren <fantasquex@gmail.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/netback.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/igbvf/netdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -189,11 +189,15 @@ void xenvif_rx_queue_tail(struct xenvif_
+diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
+index 07c9e9e0546f5..fe8c0a26b7201 100644
+--- a/drivers/net/ethernet/intel/igbvf/netdev.c
++++ b/drivers/net/ethernet/intel/igbvf/netdev.c
+@@ -2873,6 +2873,7 @@ static int igbvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	return 0;
  
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
--	__skb_queue_tail(&queue->rx_queue, skb);
--
--	queue->rx_queue_len += skb->len;
--	if (queue->rx_queue_len > queue->rx_queue_max)
-+	if (queue->rx_queue_len >= queue->rx_queue_max) {
- 		netif_tx_stop_queue(netdev_get_tx_queue(queue->vif->dev, queue->id));
-+		kfree_skb(skb);
-+		queue->vif->dev->stats.rx_dropped++;
-+	} else {
-+		__skb_queue_tail(&queue->rx_queue, skb);
-+
-+		queue->rx_queue_len += skb->len;
-+	}
- 
- 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
- }
-@@ -243,6 +247,7 @@ static void xenvif_rx_queue_drop_expired
- 			break;
- 		xenvif_rx_dequeue(queue);
- 		kfree_skb(skb);
-+		queue->vif->dev->stats.rx_dropped++;
- 	}
- }
- 
+ err_hw_init:
++	netif_napi_del(&adapter->rx_ring->napi);
+ 	kfree(adapter->tx_ring);
+ 	kfree(adapter->rx_ring);
+ err_sw_init:
+-- 
+2.33.0
+
 
 
