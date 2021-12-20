@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D19847ABA7
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 736F547AE71
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbhLTOiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:38:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46744 "EHLO
+        id S237954AbhLTPBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:01:09 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34030 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233958AbhLTOhl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:41 -0500
+        with ESMTP id S237542AbhLTO4Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:56:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14FF8B80EB3;
-        Mon, 20 Dec 2021 14:37:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47B5CC36AE7;
-        Mon, 20 Dec 2021 14:37:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1502B80EF2;
+        Mon, 20 Dec 2021 14:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E154C36AF8;
+        Mon, 20 Dec 2021 14:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011058;
-        bh=glxp8tiGpTIkTgiLSNQYHxYns/panT72gq7bR60vXqQ=;
+        s=korg; t=1640012181;
+        bh=KbG2sf3M/w5o6lkbivBdu3cIy6jqTVRS6yXejm+KbIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXGOon2z6EKPCPfHCTujF/FOu4Teq2zKeOWlxM/V4JLB1/vSxXgoVqz6OeKVP9c1m
-         yitJnidOdsV3rxmgf8qBMlLiGuFr276f0Xtm2cZw3BYStPSqrr01ZU5LQUCaXN0KFR
-         VbWUULPymPIkqJUUeLQ1Y2Dli4XFz6uNbcej/BcU=
+        b=Bh74io0nFtOhNIz1nh4on71SK2n1bf6LWyyDU2FUmfmFYk1rBWOqGwUtQYJlZWTmq
+         mWbkrIaE+73lijRBFGmBbXUXiPRqa7q7EFJlJVNMzELaiAUt1BxRFOL14mcx0ChLnb
+         zOxr+3a3nluBIEHgWK53Vv1/NkQXpQcVXX6G7LJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pedro Batista <pedbap.g@gmail.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 20/31] firmware: arm_scpi: Fix string overflow in SCPI genpd driver
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 110/177] bpf: Fix extable fixup offset.
 Date:   Mon, 20 Dec 2021 15:34:20 +0100
-Message-Id: <20211220143020.624017639@linuxfoundation.org>
+Message-Id: <20211220143043.773689575@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
-References: <20211220143019.974513085@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-commit 865ed67ab955428b9aa771d8b4f1e4fb7fd08945 upstream.
+[ Upstream commit 433956e91200734d09958673a56df02d00a917c2 ]
 
-Without the bound checks for scpi_pd->name, it could result in the buffer
-overflow when copying the SCPI device name from the corresponding device
-tree node as the name string is set at maximum size of 30.
+The prog - start_of_ldx is the offset before the faulting ldx to the location
+after it, so this will be used to adjust pt_regs->ip for jumping over it and
+continuing, and with old temp it would have been fixed up to the wrong offset,
+causing crash.
 
-Let us fix it by using devm_kasprintf so that the string buffer is
-allocated dynamically.
-
-Fixes: 8bec4337ad40 ("firmware: scpi: add device power domain support using genpd")
-Reported-by: Pedro Batista <pedbap.g@gmail.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20211209120456.696879-1-sudeep.holla@arm.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4c5de127598e ("bpf: Emit explicit NULL pointer checks for PROBE_LDX instructions.")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/scpi_pm_domain.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/net/bpf_jit_comp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/scpi_pm_domain.c
-+++ b/drivers/firmware/scpi_pm_domain.c
-@@ -27,7 +27,6 @@ struct scpi_pm_domain {
- 	struct generic_pm_domain genpd;
- 	struct scpi_ops *ops;
- 	u32 domain;
--	char name[30];
- };
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 9ea57389c554b..462d8e68b3f43 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -1332,7 +1332,7 @@ st:			if (is_imm8(insn->off))
+ 				 * End result: x86 insn "mov rbx, qword ptr [rax+0x14]"
+ 				 * of 4 bytes will be ignored and rbx will be zero inited.
+ 				 */
+-				ex->fixup = (prog - temp) | (reg2pt_regs[dst_reg] << 8);
++				ex->fixup = (prog - start_of_ldx) | (reg2pt_regs[dst_reg] << 8);
+ 			}
+ 			break;
  
- /*
-@@ -121,8 +120,13 @@ static int scpi_pm_domain_probe(struct p
- 
- 		scpi_pd->domain = i;
- 		scpi_pd->ops = scpi_ops;
--		sprintf(scpi_pd->name, "%s.%d", np->name, i);
--		scpi_pd->genpd.name = scpi_pd->name;
-+		scpi_pd->genpd.name = devm_kasprintf(dev, GFP_KERNEL,
-+						     "%s.%d", np->name, i);
-+		if (!scpi_pd->genpd.name) {
-+			dev_err(dev, "Failed to allocate genpd name:%s.%d\n",
-+				np->name, i);
-+			continue;
-+		}
- 		scpi_pd->genpd.power_off = scpi_pd_power_off;
- 		scpi_pd->genpd.power_on = scpi_pd_power_on;
- 
+-- 
+2.33.0
+
 
 
