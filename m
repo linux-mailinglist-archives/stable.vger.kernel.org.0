@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDF747AD32
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17F3047AD45
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235528AbhLTOuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:50:51 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56070 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235897AbhLTOt0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:26 -0500
+        id S234819AbhLTOvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:51:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33144 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237219AbhLTOs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B5B8C0617A2;
+        Mon, 20 Dec 2021 06:45:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66D7DB80EEC;
-        Mon, 20 Dec 2021 14:49:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3361C36AE7;
-        Mon, 20 Dec 2021 14:49:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CE1E6119C;
+        Mon, 20 Dec 2021 14:45:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EC79C36AE8;
+        Mon, 20 Dec 2021 14:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011764;
-        bh=w4NvOpzW6h3pkAvSSQmI3obNZi3DKLv3L7tuerst79g=;
+        s=korg; t=1640011521;
+        bh=L+9fR+PGCBZHmH6eDdBT7bA7XtMjaWNwPL6qt/+IUsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZ4HFLEEAWEag28EK5g9T23fLjSZVEI5dxCOLj0XxDO3X9JvyCKqnbtj/hKGlbPbJ
-         uw+chE5ySVAEBvdQi3kEB0/L3Qx89DE0YkpQ/rGhR45EEnQ6WlC3olv/hgY1814+Zy
-         rcx39/tBWKKci4Nei1XjGw9kuI4k9/icLOZ35EF8=
+        b=g69TMgwCVQsu9D9GkG4cBnSduGekKgN6zB0zwa1Ka5slw4GwDgSMoVOULaSOX+Mml
+         83I3paOUHFLslW87pr3KddPcFqRsZPj7XvNARpWAgmZPZs6VTWTN/shzhnqfNb4FRp
+         uwTsATOqDEf6urKpI7gB+LUJwiMxsXCSC4/X5qQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 66/99] KVM: x86: Drop guest CPUID check for host initiated writes to MSR_IA32_PERF_CAPABILITIES
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 50/71] USB: serial: option: add Telit FN990 compositions
 Date:   Mon, 20 Dec 2021 15:34:39 +0100
-Message-Id: <20211220143031.609395263@linuxfoundation.org>
+Message-Id: <20211220143027.368576666@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 1aa2abb33a419090c7c87d4ae842a6347078ee12 ]
+commit 2b503c8598d1b232e7fc7526bce9326d92331541 upstream.
 
-The ability to write to MSR_IA32_PERF_CAPABILITIES from the host should
-not depend on guest visible CPUID entries, even if just to allow
-creating/restoring guest MSRs and CPUIDs in any sequence.
+Add the following Telit FN990 compositions:
 
-Fixes: 27461da31089 ("KVM: x86/pmu: Support full width counting")
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20211216165213.338923-3-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+0x1070: tty, adb, rmnet, tty, tty, tty, tty
+0x1071: tty, adb, mbim, tty, tty, tty, tty
+0x1072: rndis, tty, adb, tty, tty, tty, tty
+0x1073: tty, adb, ecm, tty, tty, tty, tty
+
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20211210100714.22587-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b885063dc393f..4f828cac0273e 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3065,7 +3065,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 
- 		if (!msr_info->host_initiated)
- 			return 1;
--		if (guest_cpuid_has(vcpu, X86_FEATURE_PDCM) && kvm_get_msr_feature(&msr_ent))
-+		if (kvm_get_msr_feature(&msr_ent))
- 			return 1;
- 		if (data & ~msr_ent.data)
- 			return 1;
--- 
-2.34.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1219,6 +1219,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1070, 0xff),	/* Telit FN990 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1071, 0xff),	/* Telit FN990 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1072, 0xff),	/* Telit FN990 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1073, 0xff),	/* Telit FN990 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
