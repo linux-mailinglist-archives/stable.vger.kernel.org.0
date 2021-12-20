@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A8147ABD0
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3162347AC9A
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234522AbhLTOjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:39:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47604 "EHLO
+        id S234579AbhLTOpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:45:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52338 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234513AbhLTOih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:37 -0500
+        with ESMTP id S235757AbhLTOoa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C67DB80EEC;
-        Mon, 20 Dec 2021 14:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E3BBC36AE8;
-        Mon, 20 Dec 2021 14:38:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75F00B80EE4;
+        Mon, 20 Dec 2021 14:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE640C36AE9;
+        Mon, 20 Dec 2021 14:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011114;
-        bh=QSlJP5jQRhKjDSL+5sCLUtIe5lTm4vnyN+otLh+Yg1o=;
+        s=korg; t=1640011468;
+        bh=XQmH/mzSpTLQG9xssmlgo9nrYoMKzu6SoO5Me0X83uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWRxBv0PsUO7cb0/uAz6vgVYxpU07nwKFksmbbJlNM3j8ynr3wR4YX9qa7MRUq5VB
-         SYisd/dKBe7e9RO61/L9NOTCFCSab2ayO4yvU06umN0yE6ndG8IfIwfRMhoJWmTOu1
-         q7eG2li58cwQSMyR2SAz0ydYdKLgEL3yGBDJgBjI=
+        b=rEiLgrQVy29bZXwpKEbK6yJdaYSh/D302A8SotGjaAE4CzkNEio9wjLC0oKwU+Bhq
+         sdZVzTzXKTNc4ELAiaQfH/rs5LNfb0ixyl5EXWBGnbduPbrQb4O85dNR41qy9ISbAU
+         ikJwr+Zi+l0JNKBdUb2SJOv9o6Sf03kH13xwRhXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 01/45] nfc: fix segfault in nfc_genl_dump_devices_done
-Date:   Mon, 20 Dec 2021 15:33:56 +0100
-Message-Id: <20211220143022.315776376@linuxfoundation.org>
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.4 08/71] audit: improve robustness of the audit queue handling
+Date:   Mon, 20 Dec 2021 15:33:57 +0100
+Message-Id: <20211220143025.960002256@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,55 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Paul Moore <paul@paul-moore.com>
 
-commit fd79a0cbf0b2e34bcc45b13acf962e2032a82203 upstream.
+commit f4b3ee3c85551d2d343a3ba159304066523f730f upstream.
 
-When kmalloc in nfc_genl_dump_devices() fails then
-nfc_genl_dump_devices_done() segfaults as below
+If the audit daemon were ever to get stuck in a stopped state the
+kernel's kauditd_thread() could get blocked attempting to send audit
+records to the userspace audit daemon.  With the kernel thread
+blocked it is possible that the audit queue could grow unbounded as
+certain audit record generating events must be exempt from the queue
+limits else the system enter a deadlock state.
 
-KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-CPU: 0 PID: 25 Comm: kworker/0:1 Not tainted 5.16.0-rc4-01180-g2a987e65025e-dirty #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
-Workqueue: events netlink_sock_destruct_work
-RIP: 0010:klist_iter_exit+0x26/0x80
-Call Trace:
-<TASK>
-class_dev_iter_exit+0x15/0x20
-nfc_genl_dump_devices_done+0x3b/0x50
-genl_lock_done+0x84/0xd0
-netlink_sock_destruct+0x8f/0x270
-__sk_destruct+0x64/0x3b0
-sk_destruct+0xa8/0xd0
-__sk_free+0x2e8/0x3d0
-sk_free+0x51/0x90
-netlink_sock_destruct_work+0x1c/0x20
-process_one_work+0x411/0x710
-worker_thread+0x6fd/0xa80
+This patch resolves this problem by lowering the kernel thread's
+socket sending timeout from MAX_SCHEDULE_TIMEOUT to HZ/10 and tweaks
+the kauditd_send_queue() function to better manage the various audit
+queues when connection problems occur between the kernel and the
+audit daemon.  With this patch, the backlog may temporarily grow
+beyond the defined limits when the audit daemon is stopped and the
+system is under heavy audit pressure, but kauditd_thread() will
+continue to make progress and drain the queues as it would for other
+connection problems.  For example, with the audit daemon put into a
+stopped state and the system configured to audit every syscall it
+was still possible to shutdown the system without a kernel panic,
+deadlock, etc.; granted, the system was slow to shutdown but that is
+to be expected given the extreme pressure of recording every syscall.
 
-Link: https://syzkaller.appspot.com/bug?id=fc0fa5a53db9edd261d56e74325419faf18bd0df
-Reported-by: syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211208182742.340542-1-tadeusz.struk@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The timeout value of HZ/10 was chosen primarily through
+experimentation and this developer's "gut feeling".  There is likely
+no one perfect value, but as this scenario is limited in scope (root
+privileges would be needed to send SIGSTOP to the audit daemon), it
+is likely not worth exposing this as a tunable at present.  This can
+always be done at a later date if it proves necessary.
+
+Cc: stable@vger.kernel.org
+Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
+Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/netlink.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/audit.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -666,8 +666,10 @@ static int nfc_genl_dump_devices_done(st
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -712,7 +712,7 @@ static int kauditd_send_queue(struct soc
  {
- 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
+ 	int rc = 0;
+ 	struct sk_buff *skb;
+-	static unsigned int failed = 0;
++	unsigned int failed = 0;
  
--	nfc_device_iter_exit(iter);
--	kfree(iter);
-+	if (iter) {
-+		nfc_device_iter_exit(iter);
-+		kfree(iter);
-+	}
+ 	/* NOTE: kauditd_thread takes care of all our locking, we just use
+ 	 *       the netlink info passed to us (e.g. sk and portid) */
+@@ -729,32 +729,30 @@ static int kauditd_send_queue(struct soc
+ 			continue;
+ 		}
+ 
++retry:
+ 		/* grab an extra skb reference in case of error */
+ 		skb_get(skb);
+ 		rc = netlink_unicast(sk, skb, portid, 0);
+ 		if (rc < 0) {
+-			/* fatal failure for our queue flush attempt? */
++			/* send failed - try a few times unless fatal error */
+ 			if (++failed >= retry_limit ||
+ 			    rc == -ECONNREFUSED || rc == -EPERM) {
+-				/* yes - error processing for the queue */
+ 				sk = NULL;
+ 				if (err_hook)
+ 					(*err_hook)(skb);
+-				if (!skb_hook)
+-					goto out;
+-				/* keep processing with the skb_hook */
++				if (rc == -EAGAIN)
++					rc = 0;
++				/* continue to drain the queue */
+ 				continue;
+ 			} else
+-				/* no - requeue to preserve ordering */
+-				skb_queue_head(queue, skb);
++				goto retry;
+ 		} else {
+-			/* it worked - drop the extra reference and continue */
++			/* skb sent - drop the extra reference and continue */
+ 			consume_skb(skb);
+ 			failed = 0;
+ 		}
+ 	}
+ 
+-out:
+ 	return (rc >= 0 ? 0 : rc);
+ }
+ 
+@@ -1557,7 +1555,8 @@ static int __net_init audit_net_init(str
+ 		audit_panic("cannot initialize netlink socket in namespace");
+ 		return -ENOMEM;
+ 	}
+-	aunet->sk->sk_sndtimeo = MAX_SCHEDULE_TIMEOUT;
++	/* limit the timeout in case auditd is blocked/stopped */
++	aunet->sk->sk_sndtimeo = HZ / 10;
  
  	return 0;
  }
