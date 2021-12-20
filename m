@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6159047AF81
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4FDD47AF86
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:15:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238814AbhLTPOA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:14:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39634 "EHLO
+        id S239851AbhLTPOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:14:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239936AbhLTPMS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:12:18 -0500
+        with ESMTP id S238322AbhLTPMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:12:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CEB7C08EB46;
-        Mon, 20 Dec 2021 06:56:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B38C08EB4B;
+        Mon, 20 Dec 2021 06:56:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0A6A611A5;
-        Mon, 20 Dec 2021 14:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88E55C36AE8;
-        Mon, 20 Dec 2021 14:56:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 324A7611D8;
+        Mon, 20 Dec 2021 14:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14C3FC36AFD;
+        Mon, 20 Dec 2021 14:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012201;
-        bh=SjAkR+NME4WGUn56p1EBl/JMAMcfwv2MGfatFhERupU=;
+        s=korg; t=1640012206;
+        bh=Hi3gWxSJAjR0c+JILIWuFZrucZzKM8wCUgrgE+QNfVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2HeL2xT7jnQGCPjcGSU29ntyt4N5d55MuLmumhiY+DgiGRpHjku0H+cvERcqtiB9
-         UyWoYmlhWMJkx0LbVhSpfgCFB/tE6JEBaIL1QRe9yPu8AcQIq5jdOEsp1EE3u5Evbz
-         PB/kq/OLp0PDLU0qUnSFzHz1kwiuudi5DjFgpyiU=
+        b=WVvIKOc8XjQtnGlYgkB/PD1+tazp9IR9FBBBq9m+eCNwdgM16yrXD4xCANveockfH
+         fEdCaLQeVgujMMp/q7G0ffZEwxUzhgwcT1TDc7BQMt3YDTy2gMh34Me8zegBa27dPm
+         oHYhXqJTKL0tpAaRAThF+qJnkv74X6rBlFt7bJKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, markpearson@lenovo.com,
-        Jimmy Wang <wangjm221@gmail.com>
-Subject: [PATCH 5.15 117/177] USB: NO_LPM quirk Lenovo USB-C to Ethernet Adapher(RTL8153-04)
-Date:   Mon, 20 Dec 2021 15:34:27 +0100
-Message-Id: <20211220143044.013628971@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Marek Vasut <marex@denx.de>
+Subject: [PATCH 5.15 119/177] PCI/MSI: Clear PCI_MSIX_FLAGS_MASKALL on error
+Date:   Mon, 20 Dec 2021 15:34:29 +0100
+Message-Id: <20211220143044.084925944@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -47,33 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Wang <wangjm221@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 0ad3bd562bb91853b9f42bda145b5db6255aee90 upstream.
+commit 94185adbfad56815c2c8401e16d81bdb74a79201 upstream.
 
-This device doesn't work well with LPM, losing connectivity intermittently.
-Disable LPM to resolve the issue.
+PCI_MSIX_FLAGS_MASKALL is set in the MSI-X control register at MSI-X
+interrupt setup time. It's cleared on success, but the error handling path
+only clears the PCI_MSIX_FLAGS_ENABLE bit.
 
-Reviewed-by: <markpearson@lenovo.com>
-Signed-off-by: Jimmy Wang <wangjm221@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211214012652.4898-1-wangjm221@gmail.com
+That's incorrect as the reset state of the PCI_MSIX_FLAGS_MASKALL bit is
+zero. That can be observed via lspci:
+
+        Capabilities: [b0] MSI-X: Enable- Count=67 Masked+
+
+Clear the bit in the error path to restore the reset state.
+
+Fixes: 438553958ba1 ("PCI/MSI: Enable and mask MSI-X early")
+Reported-by: Stefan Roese <sr@denx.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Stefan Roese <sr@denx.de>
+Cc: linux-pci@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87tufevoqx.ffs@tglx
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pci/msi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -434,6 +434,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
- 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -776,7 +776,7 @@ out_free:
+ 	free_msi_irqs(dev);
  
-+	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
-+	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* Lenovo Powered USB-C Travel Hub (4X90S92381, RTL8153 GigE) */
- 	{ USB_DEVICE(0x17ef, 0x721e), .driver_info = USB_QUIRK_NO_LPM },
+ out_disable:
+-	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE, 0);
  
+ 	return ret;
+ }
 
 
