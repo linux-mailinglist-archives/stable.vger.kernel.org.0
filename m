@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D54D747AC4B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D3A47AD47
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235665AbhLTOmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:42:44 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50052 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235033AbhLTOld (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:41:33 -0500
+        id S234387AbhLTOvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:51:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33166 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237506AbhLTOse (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32786C06139B;
+        Mon, 20 Dec 2021 06:45:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B66EB80EE6;
-        Mon, 20 Dec 2021 14:41:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68982C36AE8;
-        Mon, 20 Dec 2021 14:41:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6D65611AD;
+        Mon, 20 Dec 2021 14:45:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB073C36AE8;
+        Mon, 20 Dec 2021 14:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011291;
-        bh=q9l9d5WHPlKO9YVtArAu69BAM0tvIRlRJpQZbNfY6SA=;
+        s=korg; t=1640011538;
+        bh=ZfsMhTn92iQfyB0EKCMyU0/pcBKHs5OG/oYoSZpvtDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o73HI/MMWYPSNfDzCwN3nHwWYLvn2+wpP3WC0GD8hWrxIVwtz4y34795Sc+6JDjT9
-         85+1xEs/h3LlZIofs/WOWZGljhakRfr3D544zc6kEzObXxaznlpwGrou1YaKc9rdeL
-         2AnQuoAubsOuA0Fv5laTf329X+b56r7+BOtUMUck=
+        b=BD7LPUhiaSzZYAujBQgSCcbQYKqFOCXmiZRmdhvcTV4Z81SBcX712xC1VxbMUsS8Z
+         cSIjPsGpdLpk+nlX3C+kugxUfw8UEtj8lhNMSbkJvcNwnX4s6VRJk5QLyjS3GZhBj1
+         HEcYLOHfl2EMwPKbcS1Tk6kBrJvetNVRpdTU7ECc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Letu Ren <fantasquex@gmail.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/56] igbvf: fix double free in `igbvf_probe`
+Subject: [PATCH 5.4 29/71] mac80211: accept aggregation sessions on 6 GHz
 Date:   Mon, 20 Dec 2021 15:34:18 +0100
-Message-Id: <20211220143024.276618140@linuxfoundation.org>
+Message-Id: <20211220143026.672016478@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Letu Ren <fantasquex@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit b6d335a60dc624c0d279333b22c737faa765b028 ]
+[ Upstream commit 93382a0d119b3ab95e3ebca51ea15aa87187b493 ]
 
-In `igbvf_probe`, if register_netdev() fails, the program will go to
-label err_hw_init, and then to label err_ioremap. In free_netdev() which
-is just below label err_ioremap, there is `list_for_each_entry_safe` and
-`netif_napi_del` which aims to delete all entries in `dev->napi_list`.
-The program has added an entry `adapter->rx_ring->napi` which is added by
-`netif_napi_add` in igbvf_alloc_queues(). However, adapter->rx_ring has
-been freed below label err_hw_init. So this a UAF.
+On 6 GHz, stations don't have ht_supported set, but they can
+still do aggregation since they must have HE, allow that.
 
-In terms of how to patch the problem, we can refer to igbvf_remove() and
-delete the entry before `adapter->rx_ring`.
-
-The KASAN logs are as follows:
-
-[   35.126075] BUG: KASAN: use-after-free in free_netdev+0x1fd/0x450
-[   35.127170] Read of size 8 at addr ffff88810126d990 by task modprobe/366
-[   35.128360]
-[   35.128643] CPU: 1 PID: 366 Comm: modprobe Not tainted 5.15.0-rc2+ #14
-[   35.129789] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[   35.131749] Call Trace:
-[   35.132199]  dump_stack_lvl+0x59/0x7b
-[   35.132865]  print_address_description+0x7c/0x3b0
-[   35.133707]  ? free_netdev+0x1fd/0x450
-[   35.134378]  __kasan_report+0x160/0x1c0
-[   35.135063]  ? free_netdev+0x1fd/0x450
-[   35.135738]  kasan_report+0x4b/0x70
-[   35.136367]  free_netdev+0x1fd/0x450
-[   35.137006]  igbvf_probe+0x121d/0x1a10 [igbvf]
-[   35.137808]  ? igbvf_vlan_rx_add_vid+0x100/0x100 [igbvf]
-[   35.138751]  local_pci_probe+0x13c/0x1f0
-[   35.139461]  pci_device_probe+0x37e/0x6c0
-[   35.165526]
-[   35.165806] Allocated by task 366:
-[   35.166414]  ____kasan_kmalloc+0xc4/0xf0
-[   35.167117]  foo_kmem_cache_alloc_trace+0x3c/0x50 [igbvf]
-[   35.168078]  igbvf_probe+0x9c5/0x1a10 [igbvf]
-[   35.168866]  local_pci_probe+0x13c/0x1f0
-[   35.169565]  pci_device_probe+0x37e/0x6c0
-[   35.179713]
-[   35.179993] Freed by task 366:
-[   35.180539]  kasan_set_track+0x4c/0x80
-[   35.181211]  kasan_set_free_info+0x1f/0x40
-[   35.181942]  ____kasan_slab_free+0x103/0x140
-[   35.182703]  kfree+0xe3/0x250
-[   35.183239]  igbvf_probe+0x1173/0x1a10 [igbvf]
-[   35.184040]  local_pci_probe+0x13c/0x1f0
-
-Fixes: d4e0fe01a38a0 (igbvf: add new driver to support 82576 virtual functions)
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Letu Ren <fantasquex@gmail.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20200528213443.776d3c891b64.Ifa099d450617b50c691832b3c4aa08959fab520a@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igbvf/netdev.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/agg-rx.c | 5 +++--
+ net/mac80211/agg-tx.c | 3 ++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
-index e0c989ffb2b3e..df827c2541628 100644
---- a/drivers/net/ethernet/intel/igbvf/netdev.c
-+++ b/drivers/net/ethernet/intel/igbvf/netdev.c
-@@ -2888,6 +2888,7 @@ static int igbvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	return 0;
+diff --git a/net/mac80211/agg-rx.c b/net/mac80211/agg-rx.c
+index 4d1c335e06e57..7f245e9f114c2 100644
+--- a/net/mac80211/agg-rx.c
++++ b/net/mac80211/agg-rx.c
+@@ -9,7 +9,7 @@
+  * Copyright 2007, Michael Wu <flamingice@sourmilk.net>
+  * Copyright 2007-2010, Intel Corporation
+  * Copyright(c) 2015-2017 Intel Deutschland GmbH
+- * Copyright (C) 2018        Intel Corporation
++ * Copyright (C) 2018-2020 Intel Corporation
+  */
  
- err_hw_init:
-+	netif_napi_del(&adapter->rx_ring->napi);
- 	kfree(adapter->tx_ring);
- 	kfree(adapter->rx_ring);
- err_sw_init:
+ /**
+@@ -292,7 +292,8 @@ void ___ieee80211_start_rx_ba_session(struct sta_info *sta,
+ 		goto end;
+ 	}
+ 
+-	if (!sta->sta.ht_cap.ht_supported) {
++	if (!sta->sta.ht_cap.ht_supported &&
++	    sta->sdata->vif.bss_conf.chandef.chan->band != NL80211_BAND_6GHZ) {
+ 		ht_dbg(sta->sdata,
+ 		       "STA %pM erroneously requests BA session on tid %d w/o QoS\n",
+ 		       sta->sta.addr, tid);
+diff --git a/net/mac80211/agg-tx.c b/net/mac80211/agg-tx.c
+index d801ceb2ed7fa..8d3b905e551a3 100644
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -583,7 +583,8 @@ int ieee80211_start_tx_ba_session(struct ieee80211_sta *pubsta, u16 tid,
+ 		 "Requested to start BA session on reserved tid=%d", tid))
+ 		return -EINVAL;
+ 
+-	if (!pubsta->ht_cap.ht_supported)
++	if (!pubsta->ht_cap.ht_supported &&
++	    sta->sdata->vif.bss_conf.chandef.chan->band != NL80211_BAND_6GHZ)
+ 		return -EINVAL;
+ 
+ 	if (WARN_ON_ONCE(!local->ops->ampdu_action))
 -- 
 2.33.0
 
