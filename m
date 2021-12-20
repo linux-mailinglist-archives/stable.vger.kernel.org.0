@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9050447AF49
+	by mail.lfdr.de (Postfix) with ESMTP id 40A8C47AF48
 	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239932AbhLTPKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:10:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38152 "EHLO
+        id S239909AbhLTPKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:10:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238821AbhLTPJa (ORCPT
+        with ESMTP id S238823AbhLTPJa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F2AC08E84C;
-        Mon, 20 Dec 2021 06:55:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDAE6C08E84D;
+        Mon, 20 Dec 2021 06:55:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 564ACB80EE7;
-        Mon, 20 Dec 2021 14:55:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2620C36AE7;
-        Mon, 20 Dec 2021 14:55:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C591B80EE8;
+        Mon, 20 Dec 2021 14:55:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6DECC36AE8;
+        Mon, 20 Dec 2021 14:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012123;
-        bh=OoCeohcd7HIYL552fKMo1DNN9/hK0Qu5jurMhubwWhk=;
+        s=korg; t=1640012134;
+        bh=NoRsB058QXHoov+rbvqzvrGmM9fqov5MAxWFFreMgyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sy7lBZ+Xx1cO8PWN2okkuFfse0+jG4etGpGTq3GUjAdC2QpKd1D/g7+kYMT4dCFxf
-         9QuPpzmEgSKyDHaUPz0FzlGAutRlImp0zehMQsDIxa1A3vZ+/kC42rT4KghQ3JDGAj
-         8eAAjyHG2hg+GLH1gWaHUxuQwhKlWjS+LMktc2OM=
+        b=vl1hwkw8cHvqn+BpA/b2CzgfF/fAs71KesI6g5lUgO0Pgsf+ZU7FKzwnndvpfJ3wp
+         259PdFjWdycKVBmzD0f+QR9CVlXWqcZ6Q/cWFyv7cua0SEx1FNtPUBGqzdQjYqPRdx
+         8xPDBBCmu80+5Jp9muDRftl4L+09oMT2jBtcZmMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Yang <Eric.Yang2@amd.com>,
-        Pavle Kotarac <Pavle.Kotarac@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Maxim Galaganov <max@internet.ru>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/177] drm/amd/display: Set exit_optimized_pwr_state for DCN31
-Date:   Mon, 20 Dec 2021 15:33:58 +0100
-Message-Id: <20211220143043.076129992@linuxfoundation.org>
+Subject: [PATCH 5.15 092/177] mptcp: fix deadlock in __mptcp_push_pending()
+Date:   Mon, 20 Dec 2021 15:34:02 +0100
+Message-Id: <20211220143043.207700762@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -51,47 +50,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Maxim Galaganov <max@internet.ru>
 
-[ Upstream commit 7e4d2f30df3fb48f75ce9e96867d42bdddab83ac ]
+[ Upstream commit 3d79e3756ca90f7a6087b77b62c1d9c0801e0820 ]
 
-[Why]
-SMU now respects the PHY refclk disable request from driver.
+__mptcp_push_pending() may call mptcp_flush_join_list() with subflow
+socket lock held. If such call hits mptcp_sockopt_sync_all() then
+subsequently __mptcp_sockopt_sync() could try to lock the subflow
+socket for itself, causing a deadlock.
 
-This causes a hang during hotplug when PHY refclk was disabled
-because it's not being re-enabled and the transmitter control
-starts on dc_link_detect.
+sysrq: Show Blocked State
+task:ss-server       state:D stack:    0 pid:  938 ppid:     1 flags:0x00000000
+Call Trace:
+ <TASK>
+ __schedule+0x2d6/0x10c0
+ ? __mod_memcg_state+0x4d/0x70
+ ? csum_partial+0xd/0x20
+ ? _raw_spin_lock_irqsave+0x26/0x50
+ schedule+0x4e/0xc0
+ __lock_sock+0x69/0x90
+ ? do_wait_intr_irq+0xa0/0xa0
+ __lock_sock_fast+0x35/0x50
+ mptcp_sockopt_sync_all+0x38/0xc0
+ __mptcp_push_pending+0x105/0x200
+ mptcp_sendmsg+0x466/0x490
+ sock_sendmsg+0x57/0x60
+ __sys_sendto+0xf0/0x160
+ ? do_wait_intr_irq+0xa0/0xa0
+ ? fpregs_restore_userregs+0x12/0xd0
+ __x64_sys_sendto+0x20/0x30
+ do_syscall_64+0x38/0x90
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f9ba546c2d0
+RSP: 002b:00007ffdc3b762d8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 00007f9ba56c8060 RCX: 00007f9ba546c2d0
+RDX: 000000000000077a RSI: 0000000000e5e180 RDI: 0000000000000234
+RBP: 0000000000cc57f0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f9ba56c8060
+R13: 0000000000b6ba60 R14: 0000000000cc7840 R15: 41d8685b1d7901b8
+ </TASK>
 
-[How]
-We normally would re-enable the clk with exit_optimized_pwr_state
-but this is only set on DCN21 and DCN301. Set it for dcn31 as well.
+Fix the issue by using __mptcp_flush_join_list() instead of plain
+mptcp_flush_join_list() inside __mptcp_push_pending(), as suggested by
+Florian. The sockopt sync will be deferred to the workqueue.
 
-This fixes DMCUB timeouts in the PHY.
-
-Fixes: 64b1d0e8d500 ("drm/amd/display: Add DCN3.1 HWSEQ")
-
-Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
-Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 1b3e7ede1365 ("mptcp: setsockopt: handle SO_KEEPALIVE and SO_PRIORITY")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/244
+Suggested-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Maxim Galaganov <max@internet.ru>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/mptcp/protocol.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
-index 40011cd3c8ef0..ac8fb202fd5ee 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
-@@ -100,6 +100,7 @@ static const struct hw_sequencer_funcs dcn31_funcs = {
- 	.z10_save_init = dcn31_z10_save_init,
- 	.is_abm_supported = dcn31_is_abm_supported,
- 	.set_disp_pattern_generator = dcn30_set_disp_pattern_generator,
-+	.exit_optimized_pwr_state = dcn21_exit_optimized_pwr_state,
- 	.update_visual_confirm_color = dcn20_update_visual_confirm_color,
- };
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index fdff811c9a0da..4c889552cde77 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1549,7 +1549,7 @@ void __mptcp_push_pending(struct sock *sk, unsigned int flags)
+ 			int ret = 0;
  
+ 			prev_ssk = ssk;
+-			mptcp_flush_join_list(msk);
++			__mptcp_flush_join_list(msk);
+ 			ssk = mptcp_subflow_get_send(msk);
+ 
+ 			/* First check. If the ssk has changed since
 -- 
 2.33.0
 
