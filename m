@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 226E147AF05
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A4F947AF08
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237866AbhLTPHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:07:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38142 "EHLO
+        id S238091AbhLTPHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:07:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239089AbhLTPFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:05:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 181B5C09B197;
-        Mon, 20 Dec 2021 06:53:07 -0800 (PST)
+        with ESMTP id S238879AbhLTPF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:05:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5331DC09B1A1;
+        Mon, 20 Dec 2021 06:53:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB275611A4;
-        Mon, 20 Dec 2021 14:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D47C36AE7;
-        Mon, 20 Dec 2021 14:53:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DA9CB80EEC;
+        Mon, 20 Dec 2021 14:53:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D6CC36AF9;
+        Mon, 20 Dec 2021 14:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011986;
-        bh=H3n0UZw77/NfVohYqXkhxgnWCrsxOHJZ/OjqjhCaPVI=;
+        s=korg; t=1640011989;
+        bh=4+JaCUQjThYQV9LZCOuhhATxunok/N2IbdXg3WI7aLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCifGGy0OZf2VafwPuxQlFW1eN1xkFfHGUJEIW51Oy0tgZ6E377t1hMG4bBMqg/8s
-         XhbJ+QUF6kj3KaxikrjQjQ3j337gMGdqw9EiiDRqyXNw8qh2cViNM+1zkwsS7SftkT
-         cpclVFkE7WwU6/X8zX0a0t2ncMjoJhIw3g41fS3o=
+        b=1FBqKxZb3n/K/iKLx3DN9laUfbzn9TXmqiedR+fb5cOc0NNG+3KuijePxTbLA3DyG
+         a8QeGiWpN65QLZkC+n3qEd7P3RltoTJEMoZyDvf0zQk04cpVLqfbtidDmJDHFLL1L0
+         ygd+qjmSAYaQrmcv0CN7KNO4NKiE5ubBJ0jr9zik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/177] arm64: dts: rockchip: fix rk3399-leez-p710 vcc3v3-lan supply
-Date:   Mon, 20 Dec 2021 15:33:10 +0100
-Message-Id: <20211220143041.448729700@linuxfoundation.org>
+Subject: [PATCH 5.15 041/177] arm64: dts: rockchip: fix audio-supply for Rock Pi 4
+Date:   Mon, 20 Dec 2021 15:33:11 +0100
+Message-Id: <20211220143041.490042069@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -48,36 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Alex Bee <knaerzche@gmail.com>
 
-[ Upstream commit 2b454a90e2ccdd6e03f88f930036da4df577be76 ]
+[ Upstream commit 8240e87f16d17a9592c9d67857a3dcdbcb98f10d ]
 
-Correct a typo in the vin-supply property.  The input supply is
-always-on, so this mistake doesn't affect whether the supply is actually
-enabled correctly.
+As stated in the schematics [1] and [2] P5 the APIO5 domain is supplied
+by RK808-D Buck4, which in our case vcc1v8_codec - i.e. a 1.8 V regulator.
 
-Fixes: fc702ed49a86 ("arm64: dts: rockchip: Add dts for Leez RK3399 P710 SBC")
-Signed-off-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20211102182908.3409670-3-john@metanate.com
+Currently only white noise comes from the ES8316's output, which - for
+whatever reason - came up only after the the correct switch from i2s0_8ch_bus
+to i2s0_2ch_bus for i2s0's pinctrl was done.
+
+Fix this by setting the correct regulator for audio-supply.
+
+[1] https://dl.radxa.com/rockpi4/docs/hw/rockpi4/rockpi4_v13_sch_20181112.pdf
+[2] https://dl.radxa.com/rockpi4/docs/hw/rockpi4/rockpi_4c_v12_sch_20200620.pdf
+
+Fixes: 1b5715c602fd ("arm64: dts: rockchip: add ROCK Pi 4 DTS support")
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Link: https://lore.kernel.org/r/20211027143726.165809-1-knaerzche@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts | 2 +-
+ arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts b/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-index 7c93f840bc64f..e890166e7fd43 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-@@ -55,7 +55,7 @@ vcc3v3_lan: vcc3v3-lan {
- 		regulator-boot-on;
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
--		vim-supply = <&vcc3v3_sys>;
-+		vin-supply = <&vcc3v3_sys>;
- 	};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi
+index b28888ea9262e..100a769165ef9 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi
+@@ -457,7 +457,7 @@ &io_domains {
+ 	status = "okay";
  
- 	vcc3v3_sys: vcc3v3-sys {
+ 	bt656-supply = <&vcc_3v0>;
+-	audio-supply = <&vcc_3v0>;
++	audio-supply = <&vcc1v8_codec>;
+ 	sdmmc-supply = <&vcc_sdio>;
+ 	gpio1830-supply = <&vcc_3v0>;
+ };
 -- 
 2.33.0
 
