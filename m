@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC60047AF44
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9050447AF49
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239868AbhLTPKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:10:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38142 "EHLO
+        id S239932AbhLTPKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:10:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238815AbhLTPJa (ORCPT
+        with ESMTP id S238821AbhLTPJa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58EA6C07E5C7;
-        Mon, 20 Dec 2021 06:55:21 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F2AC08E84C;
+        Mon, 20 Dec 2021 06:55:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB88661141;
-        Mon, 20 Dec 2021 14:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A50C36AE8;
-        Mon, 20 Dec 2021 14:55:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 564ACB80EE7;
+        Mon, 20 Dec 2021 14:55:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2620C36AE7;
+        Mon, 20 Dec 2021 14:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012120;
-        bh=ygM8k471rAYFLejb6MDMO+Pra+UQNHoOiFilkcz89dw=;
+        s=korg; t=1640012123;
+        bh=OoCeohcd7HIYL552fKMo1DNN9/hK0Qu5jurMhubwWhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBcbxdy86r9OlmdR6hLQ4gHZ1ZcHmQVwZdJLnhDVPLPF3L6+7IvntqKHlwZ7gmvF8
-         M8zQOkbrj8CdMA/FJHuH9/OxTah227wKtU5G/KV4WNOYH4lXqrOk/58QP8GWb6mSm9
-         BDlFGG4PWS+MKLOoxvI2hEcJPmvkqoN8Vmz8ePEw=
+        b=Sy7lBZ+Xx1cO8PWN2okkuFfse0+jG4etGpGTq3GUjAdC2QpKd1D/g7+kYMT4dCFxf
+         9QuPpzmEgSKyDHaUPz0FzlGAutRlImp0zehMQsDIxa1A3vZ+/kC42rT4KghQ3JDGAj
+         8eAAjyHG2hg+GLH1gWaHUxuQwhKlWjS+LMktc2OM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Karol Kolacinski <karol.kolacinski@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Eric Yang <Eric.Yang2@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/177] ice: Dont put stale timestamps in the skb
-Date:   Mon, 20 Dec 2021 15:33:57 +0100
-Message-Id: <20211220143043.035905854@linuxfoundation.org>
+Subject: [PATCH 5.15 088/177] drm/amd/display: Set exit_optimized_pwr_state for DCN31
+Date:   Mon, 20 Dec 2021 15:33:58 +0100
+Message-Id: <20211220143043.076129992@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -50,82 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Kolacinski <karol.kolacinski@intel.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit 37e738b6fdb14529534dca441e0222313688fde3 ]
+[ Upstream commit 7e4d2f30df3fb48f75ce9e96867d42bdddab83ac ]
 
-The driver has to check if it does not accidentally put the timestamp in
-the SKB before previous timestamp gets overwritten.
-Timestamp values in the PHY are read only and do not get cleared except
-at hardware reset or when a new timestamp value is captured.
-The cached_tstamp field is used to detect the case where a new timestamp
-has not yet been captured, ensuring that we avoid sending stale
-timestamp data to the stack.
+[Why]
+SMU now respects the PHY refclk disable request from driver.
 
-Fixes: ea9b847cda64 ("ice: enable transmit timestamps for E810 devices")
-Signed-off-by: Karol Kolacinski <karol.kolacinski@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+This causes a hang during hotplug when PHY refclk was disabled
+because it's not being re-enabled and the transmitter control
+starts on dc_link_detect.
+
+[How]
+We normally would re-enable the clk with exit_optimized_pwr_state
+but this is only set on DCN21 and DCN301. Set it for dcn31 as well.
+
+This fixes DMCUB timeouts in the PHY.
+
+Fixes: 64b1d0e8d500 ("drm/amd/display: Add DCN3.1 HWSEQ")
+
+Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ptp.c | 11 ++++-------
- drivers/net/ethernet/intel/ice/ice_ptp.h |  6 ++++++
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-index 9df546984de25..ac27a4fe8b94c 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-@@ -1182,19 +1182,16 @@ static void ice_ptp_tx_tstamp_work(struct kthread_work *work)
- 		if (err)
- 			continue;
- 
--		/* Check if the timestamp is valid */
--		if (!(raw_tstamp & ICE_PTP_TS_VALID))
-+		/* Check if the timestamp is invalid or stale */
-+		if (!(raw_tstamp & ICE_PTP_TS_VALID) ||
-+		    raw_tstamp == tx->tstamps[idx].cached_tstamp)
- 			continue;
- 
--		/* clear the timestamp register, so that it won't show valid
--		 * again when re-used.
--		 */
--		ice_clear_phy_tstamp(hw, tx->quad, phy_idx);
--
- 		/* The timestamp is valid, so we'll go ahead and clear this
- 		 * index and then send the timestamp up to the stack.
- 		 */
- 		spin_lock(&tx->lock);
-+		tx->tstamps[idx].cached_tstamp = raw_tstamp;
- 		clear_bit(idx, tx->in_use);
- 		skb = tx->tstamps[idx].skb;
- 		tx->tstamps[idx].skb = NULL;
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.h b/drivers/net/ethernet/intel/ice/ice_ptp.h
-index e1c787bd5b967..8cdd6f7046b73 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.h
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.h
-@@ -46,15 +46,21 @@ struct ice_perout_channel {
-  * struct ice_tx_tstamp - Tracking for a single Tx timestamp
-  * @skb: pointer to the SKB for this timestamp request
-  * @start: jiffies when the timestamp was first requested
-+ * @cached_tstamp: last read timestamp
-  *
-  * This structure tracks a single timestamp request. The SKB pointer is
-  * provided when initiating a request. The start time is used to ensure that
-  * we discard old requests that were not fulfilled within a 2 second time
-  * window.
-+ * Timestamp values in the PHY are read only and do not get cleared except at
-+ * hardware reset or when a new timestamp value is captured. The cached_tstamp
-+ * field is used to detect the case where a new timestamp has not yet been
-+ * captured, ensuring that we avoid sending stale timestamp data to the stack.
-  */
- struct ice_tx_tstamp {
- 	struct sk_buff *skb;
- 	unsigned long start;
-+	u64 cached_tstamp;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
+index 40011cd3c8ef0..ac8fb202fd5ee 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
+@@ -100,6 +100,7 @@ static const struct hw_sequencer_funcs dcn31_funcs = {
+ 	.z10_save_init = dcn31_z10_save_init,
+ 	.is_abm_supported = dcn31_is_abm_supported,
+ 	.set_disp_pattern_generator = dcn30_set_disp_pattern_generator,
++	.exit_optimized_pwr_state = dcn21_exit_optimized_pwr_state,
+ 	.update_visual_confirm_color = dcn20_update_visual_confirm_color,
  };
  
- /**
 -- 
 2.33.0
 
