@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBE547AFBA
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D31647AFBC
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:18:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237874AbhLTPS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:18:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40820 "EHLO
+        id S238172AbhLTPSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:18:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238232AbhLTPRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:17:17 -0500
+        with ESMTP id S237687AbhLTPRV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:17:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A15C00FC6B;
-        Mon, 20 Dec 2021 06:58:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83966C08E9BA;
+        Mon, 20 Dec 2021 06:58:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 057B3611A4;
-        Mon, 20 Dec 2021 14:58:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1201AC36AE8;
-        Mon, 20 Dec 2021 14:58:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 256FE61183;
+        Mon, 20 Dec 2021 14:58:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F42BC36AE7;
+        Mon, 20 Dec 2021 14:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012301;
-        bh=clAaQzTP0rMW5OwhF8ndOEhvFQnKygyf7ZxblxVQXMM=;
+        s=korg; t=1640012309;
+        bh=Im4tbQPwP58RFUcR/Ks3T2gBkUksFtFY3ChGZAR2pjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnMLQMI9Oh+uRaAU44XS/LSBosONId3bN1s4Ry9yilrZqcMv7A0JUxe7wpNDCRU1a
-         +s9VgRPh8K3/kJKFD42Xb7y/49fqH6Ks0yMHXQ/NS664HF1CN53cMglpHFNilz+QcT
-         faaQgtF9EV9YO8KBD6/eAerGGW1soZ7+J0g2S52g=
+        b=lcokpnYVXg33JOyRb4W6H9+xQoGXXxU4kiwgjqFtOIqtUDOjpbcPrVEynehpLAmDV
+         20U5vwEXVCI2K99+UTObsDaf1zcBUDJrKXtNpF5p4M/Y4MoEBgqV0mWsb5NfxdQDgS
+         MM+oZQo3hVa4WZnMdwJaBSFYS5RDKn2rLM/lYsPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 153/177] can: m_can: pci: use custom bit timings for Elkhart Lake
-Date:   Mon, 20 Dec 2021 15:35:03 +0100
-Message-Id: <20211220143045.226729826@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Wiles <keith.wiles@intel.com>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Subject: [PATCH 5.15 155/177] xsk: Do not sleep in poll() when need_wakeup set
+Date:   Mon, 20 Dec 2021 15:35:05 +0100
+Message-Id: <20211220143045.289751892@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -48,116 +49,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-commit ea4c1787685dbf9842046f05b6390b6901ee6ba2 upstream.
+commit bd0687c18e635b63233dc87f38058cd728802ab4 upstream.
 
-The relevant datasheet [1] specifies nonstandard limits for the bit timing
-parameters. While it is unclear what the exact effect of violating these
-limits is, it seems like a good idea to adhere to the documentation.
+Do not sleep in poll() when the need_wakeup flag is set. When this
+flag is set, the application needs to explicitly wake up the driver
+with a syscall (poll, recvmsg, sendmsg, etc.) to guarantee that Rx
+and/or Tx processing will be processed promptly. But the current code
+in poll(), sleeps first then wakes up the driver. This means that no
+driver processing will occur (baring any interrupts) until the timeout
+has expired.
 
-[1] Intel Atom® x6000E Series, and Intel® Pentium® and Celeron® N and J
-    Series Processors for IoT Applications Datasheet,
-    Volume 2 (Book 3 of 3), July 2021, Revision 001
+Fix this by checking the need_wakeup flag first and if set, wake the
+driver and return to the application. Only if need_wakeup is not set
+should the process sleep if there is a timeout set in the poll() call.
 
-Fixes: cab7ffc0324f ("can: m_can: add PCI glue driver for Intel Elkhart Lake")
-Link: https://lore.kernel.org/all/9eba5d7c05a48ead4024ffa6e5926f191d8c6b38.1636967198.git.matthias.schiffer@ew.tq-group.com
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 77cd0d7b3f25 ("xsk: add support for need_wakeup flag in AF_XDP rings")
+Reported-by: Keith Wiles <keith.wiles@intel.com>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Link: https://lore.kernel.org/bpf/20211214102607.7677-1-magnus.karlsson@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/m_can/m_can_pci.c |   48 ++++++++++++++++++++++++++++++++++----
- 1 file changed, 44 insertions(+), 4 deletions(-)
+ net/xdp/xsk.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/m_can/m_can_pci.c
-+++ b/drivers/net/can/m_can/m_can_pci.c
-@@ -18,9 +18,14 @@
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -692,8 +692,6 @@ static __poll_t xsk_poll(struct file *fi
+ 	struct xdp_sock *xs = xdp_sk(sk);
+ 	struct xsk_buff_pool *pool;
  
- #define M_CAN_PCI_MMIO_BAR		0
+-	sock_poll_wait(file, sock, wait);
+-
+ 	if (unlikely(!xsk_is_bound(xs)))
+ 		return mask;
  
--#define M_CAN_CLOCK_FREQ_EHL		200000000
- #define CTL_CSR_INT_CTL_OFFSET		0x508
+@@ -705,6 +703,8 @@ static __poll_t xsk_poll(struct file *fi
+ 		else
+ 			/* Poll needs to drive Tx also in copy mode */
+ 			__xsk_sendmsg(sk);
++	} else {
++		sock_poll_wait(file, sock, wait);
+ 	}
  
-+struct m_can_pci_config {
-+	const struct can_bittiming_const *bit_timing;
-+	const struct can_bittiming_const *data_timing;
-+	unsigned int clock_freq;
-+};
-+
- struct m_can_pci_priv {
- 	struct m_can_classdev cdev;
- 
-@@ -84,9 +89,40 @@ static struct m_can_ops m_can_pci_ops =
- 	.read_fifo = iomap_read_fifo,
- };
- 
-+static const struct can_bittiming_const m_can_bittiming_const_ehl = {
-+	.name = KBUILD_MODNAME,
-+	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
-+	.tseg1_max = 64,
-+	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
-+	.tseg2_max = 128,
-+	.sjw_max = 128,
-+	.brp_min = 1,
-+	.brp_max = 512,
-+	.brp_inc = 1,
-+};
-+
-+static const struct can_bittiming_const m_can_data_bittiming_const_ehl = {
-+	.name = KBUILD_MODNAME,
-+	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
-+	.tseg1_max = 16,
-+	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
-+	.tseg2_max = 8,
-+	.sjw_max = 4,
-+	.brp_min = 1,
-+	.brp_max = 32,
-+	.brp_inc = 1,
-+};
-+
-+static const struct m_can_pci_config m_can_pci_ehl = {
-+	.bit_timing = &m_can_bittiming_const_ehl,
-+	.data_timing = &m_can_data_bittiming_const_ehl,
-+	.clock_freq = 200000000,
-+};
-+
- static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- {
- 	struct device *dev = &pci->dev;
-+	const struct m_can_pci_config *cfg;
- 	struct m_can_classdev *mcan_class;
- 	struct m_can_pci_priv *priv;
- 	void __iomem *base;
-@@ -114,6 +150,8 @@ static int m_can_pci_probe(struct pci_de
- 	if (!mcan_class)
- 		return -ENOMEM;
- 
-+	cfg = (const struct m_can_pci_config *)id->driver_data;
-+
- 	priv = cdev_to_priv(mcan_class);
- 
- 	priv->base = base;
-@@ -125,7 +163,9 @@ static int m_can_pci_probe(struct pci_de
- 	mcan_class->dev = &pci->dev;
- 	mcan_class->net->irq = pci_irq_vector(pci, 0);
- 	mcan_class->pm_clock_support = 1;
--	mcan_class->can.clock.freq = id->driver_data;
-+	mcan_class->bit_timing = cfg->bit_timing;
-+	mcan_class->data_timing = cfg->data_timing;
-+	mcan_class->can.clock.freq = cfg->clock_freq;
- 	mcan_class->ops = &m_can_pci_ops;
- 
- 	pci_set_drvdata(pci, mcan_class);
-@@ -178,8 +218,8 @@ static SIMPLE_DEV_PM_OPS(m_can_pci_pm_op
- 			 m_can_pci_suspend, m_can_pci_resume);
- 
- static const struct pci_device_id m_can_pci_id_table[] = {
--	{ PCI_VDEVICE(INTEL, 0x4bc1), M_CAN_CLOCK_FREQ_EHL, },
--	{ PCI_VDEVICE(INTEL, 0x4bc2), M_CAN_CLOCK_FREQ_EHL, },
-+	{ PCI_VDEVICE(INTEL, 0x4bc1), (kernel_ulong_t)&m_can_pci_ehl, },
-+	{ PCI_VDEVICE(INTEL, 0x4bc2), (kernel_ulong_t)&m_can_pci_ehl, },
- 	{  }	/* Terminating Entry */
- };
- MODULE_DEVICE_TABLE(pci, m_can_pci_id_table);
+ 	if (xs->rx && !xskq_prod_is_empty(xs->rx))
 
 
