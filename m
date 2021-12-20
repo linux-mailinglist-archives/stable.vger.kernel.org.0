@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E11347ABCC
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E3A47AC22
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234493AbhLTOjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:39:13 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:52946 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234100AbhLTOic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:32 -0500
+        id S234328AbhLTOlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:41:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60062 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234606AbhLTOk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:26 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6745AC061763;
+        Mon, 20 Dec 2021 06:40:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DD50BCE10FE;
-        Mon, 20 Dec 2021 14:38:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABF7DC36AEB;
-        Mon, 20 Dec 2021 14:38:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B9C93CE1119;
+        Mon, 20 Dec 2021 14:40:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A836C36AE9;
+        Mon, 20 Dec 2021 14:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011109;
-        bh=xLfAzJapR99aoDr1OkaqMFKcg4sP3b9gJh5EUUpcH38=;
+        s=korg; t=1640011221;
+        bh=+IZsznwNOk88L/tx/wHgld6KFPO+Y7Pv0Lsh/KzGDKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJwjtDJz4IVysKfutZcLq2o80UPy/fOUiOSWRQMnqvFH+bb6JmE3LY2q/cT9SXQIp
-         3aIkfDCaeKWgKFxyYk9koF+ES5Ci9WeE1/cHm1BlOflUSzBRSL+zLeU7T9YzJUF4zJ
-         +xkaqesVxeRANGzDPK7I0YYpfJG3deGBbxy9gCDY=
+        b=C8Xd/9FxIdW8/sH3wHKwUled1D4fjFoOBcl35eKSB5n7DQpjfH/22IVWXhQPO++8f
+         glQrWuRrrhYse7CfL+fxMxyf2GPAxMi0CzuWHLpzXM/xn6n6AFYXm21AgmtRYes5ko
+         xE+bXgYolSLbBsRXKnHiwy+mJbWxKFfN3Skw26oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.9 30/31] xen/netback: fix rx queue stall detection
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 35/45] scsi: scsi_debug: Sanity check block descriptor length in resp_mode_select()
 Date:   Mon, 20 Dec 2021 15:34:30 +0100
-Message-Id: <20211220143020.933337536@linuxfoundation.org>
+Message-Id: <20211220143023.440173202@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
-References: <20211220143019.974513085@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,163 +49,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 6032046ec4b70176d247a71836186d47b25d1684 upstream.
+commit e0a2c28da11e2c2b963fc01d50acbf03045ac732 upstream.
 
-Commit 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when
-not using GSO") introduced a security problem in netback, as an
-interface would only be regarded to be stalled if no slot is available
-in the rx queue ring page. In case the SKB at the head of the queued
-requests will need more than one rx slot and only one slot is free the
-stall detection logic will never trigger, as the test for that is only
-looking for at least one slot to be free.
+In resp_mode_select() sanity check the block descriptor len to avoid UAF.
 
-Fix that by testing for the needed number of slots instead of only one
-slot being available.
+BUG: KASAN: use-after-free in resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+Read of size 1 at addr ffff888026670f50 by task scsicmd/15032
 
-In order to not have to take the rx queue lock that often, store the
-number of needed slots in the queue data. As all SKB dequeue operations
-happen in the rx queue kernel thread this is safe, as long as the
-number of needed slots is accessed via READ/WRITE_ONCE() only and
-updates are always done with the rx queue lock held.
+CPU: 1 PID: 15032 Comm: scsicmd Not tainted 5.15.0-01d0625 #15
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:107
+ print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:257
+ kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:443
+ __asan_report_load1_noabort+0x14/0x20 mm/kasan/report_generic.c:306
+ resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+ schedule_resp+0x4af/0x1a10 drivers/scsi/scsi_debug.c:5483
+ scsi_debug_queuecommand+0x8c9/0x1e70 drivers/scsi/scsi_debug.c:7537
+ scsi_queue_rq+0x16b4/0x2d10 drivers/scsi/scsi_lib.c:1521
+ blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1640
+ __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
+ blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
+ __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1762
+ __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1839
+ blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
+ blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
+ blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:63
+ sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:837
+ sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:775
+ sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:941
+ sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1166
+ __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:52
+ do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:50
+ entry_SYSCALL_64_after_hwframe+0x44/0xae arch/x86/entry/entry_64.S:113
 
-Add a small helper for obtaining the number of free slots.
-
-This is part of XSA-392
-
-Fixes: 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when not using GSO")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/1637262208-28850-1-git-send-email-george.kennedy@oracle.com
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/common.h |    1 
- drivers/net/xen-netback/rx.c     |   65 ++++++++++++++++++++++++---------------
- 2 files changed, 42 insertions(+), 24 deletions(-)
+ drivers/scsi/scsi_debug.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -203,6 +203,7 @@ struct xenvif_queue { /* Per-queue data
- 	unsigned int rx_queue_max;
- 	unsigned int rx_queue_len;
- 	unsigned long last_rx_time;
-+	unsigned int rx_slots_needed;
- 	bool stalled;
- 
- 	struct xenvif_copy_state rx_copy;
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -33,28 +33,36 @@
- #include <xen/xen.h>
- #include <xen/events.h>
- 
--static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+/*
-+ * Update the needed ring page slots for the first SKB queued.
-+ * Note that any call sequence outside the RX thread calling this function
-+ * needs to wake up the RX thread via a call of xenvif_kick_thread()
-+ * afterwards in order to avoid a race with putting the thread to sleep.
-+ */
-+static void xenvif_update_needed_slots(struct xenvif_queue *queue,
-+				       const struct sk_buff *skb)
- {
--	RING_IDX prod, cons;
--	struct sk_buff *skb;
--	int needed;
--	unsigned long flags;
-+	unsigned int needed = 0;
- 
--	spin_lock_irqsave(&queue->rx_queue.lock, flags);
--
--	skb = skb_peek(&queue->rx_queue);
--	if (!skb) {
--		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
--		return false;
-+	if (skb) {
-+		needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
-+		if (skb_is_gso(skb))
-+			needed++;
-+		if (skb->sw_hash)
-+			needed++;
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -2181,11 +2181,11 @@ static int resp_mode_select(struct scsi_
+ 			    __func__, param_len, res);
+ 	md_len = mselect6 ? (arr[0] + 1) : (get_unaligned_be16(arr + 0) + 2);
+ 	bd_len = mselect6 ? arr[3] : get_unaligned_be16(arr + 6);
+-	if (md_len > 2) {
++	off = bd_len + (mselect6 ? 4 : 8);
++	if (md_len > 2 || off >= res) {
+ 		mk_sense_invalid_fld(scp, SDEB_IN_DATA, 0, -1);
+ 		return check_condition_result;
  	}
- 
--	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
--	if (skb_is_gso(skb))
--		needed++;
--	if (skb->sw_hash)
--		needed++;
-+	WRITE_ONCE(queue->rx_slots_needed, needed);
-+}
- 
--	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+{
-+	RING_IDX prod, cons;
-+	unsigned int needed;
-+
-+	needed = READ_ONCE(queue->rx_slots_needed);
-+	if (!needed)
-+		return false;
- 
- 	do {
- 		prod = queue->rx.sring->req_prod;
-@@ -80,6 +88,9 @@ void xenvif_rx_queue_tail(struct xenvif_
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
-+	if (skb_queue_empty(&queue->rx_queue))
-+		xenvif_update_needed_slots(queue, skb);
-+
- 	__skb_queue_tail(&queue->rx_queue, skb);
- 
- 	queue->rx_queue_len += skb->len;
-@@ -100,6 +111,8 @@ static struct sk_buff *xenvif_rx_dequeue
- 
- 	skb = __skb_dequeue(&queue->rx_queue);
- 	if (skb) {
-+		xenvif_update_needed_slots(queue, skb_peek(&queue->rx_queue));
-+
- 		queue->rx_queue_len -= skb->len;
- 		if (queue->rx_queue_len < queue->rx_queue_max) {
- 			struct netdev_queue *txq;
-@@ -474,27 +487,31 @@ void xenvif_rx_action(struct xenvif_queu
- 	xenvif_rx_copy_flush(queue);
- }
- 
--static bool xenvif_rx_queue_stalled(struct xenvif_queue *queue)
-+static RING_IDX xenvif_rx_queue_slots(const struct xenvif_queue *queue)
- {
- 	RING_IDX prod, cons;
- 
- 	prod = queue->rx.sring->req_prod;
- 	cons = queue->rx.req_cons;
- 
-+	return prod - cons;
-+}
-+
-+static bool xenvif_rx_queue_stalled(const struct xenvif_queue *queue)
-+{
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
-+
- 	return !queue->stalled &&
--		prod - cons < 1 &&
-+		xenvif_rx_queue_slots(queue) < needed &&
- 		time_after(jiffies,
- 			   queue->last_rx_time + queue->vif->stall_timeout);
- }
- 
- static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
- {
--	RING_IDX prod, cons;
--
--	prod = queue->rx.sring->req_prod;
--	cons = queue->rx.req_cons;
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
- 
--	return queue->stalled && prod - cons >= 1;
-+	return queue->stalled && xenvif_rx_queue_slots(queue) >= needed;
- }
- 
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
+-	off = bd_len + (mselect6 ? 4 : 8);
+ 	mpage = arr[off] & 0x3f;
+ 	ps = !!(arr[off] & 0x80);
+ 	if (ps) {
 
 
