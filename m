@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C4647AE07
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D628747ABE3
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235772AbhLTO5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:57:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34592 "EHLO
+        id S232802AbhLTOjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:39:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238933AbhLTOys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:54:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7854DC08EC36;
-        Mon, 20 Dec 2021 06:48:15 -0800 (PST)
+        with ESMTP id S234668AbhLTOjC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A784BC06173E;
+        Mon, 20 Dec 2021 06:39:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1932F611BD;
-        Mon, 20 Dec 2021 14:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF6A7C36AE7;
-        Mon, 20 Dec 2021 14:48:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F907B80EDA;
+        Mon, 20 Dec 2021 14:39:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9776AC36AEF;
+        Mon, 20 Dec 2021 14:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011694;
-        bh=PKyMA7TVCmgHt8RPJrq1wMBbzbnAuv+gvjER/I12yEc=;
+        s=korg; t=1640011140;
+        bh=s+ZTTrOyBiCGxMYKfKPGATDff3IYZGKAvbx6TGggD14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kFX29uyoeBBb56CgN9yTuoFr5g8rNWhzwof0obDl8rLc2isQpGWMORJ4BoQSXWQ5A
-         PQx7JGlm0CDHo4BNWsYjwVAN29xCtZn1+e3Km9jx6Q3uNLJMk/+LXw5MHhzkTcN9uy
-         HdN3H9cVKQaMZG5A+38rPtPEEBSJSssVJ6koa6qw=
+        b=unztakgb31IzZOHp/Ep8Tg3jAUUgXs7a3v/Pfrsx1JRLwH+M3l6SJBDw9T2EKvlXL
+         wxHI4bEvaUKEEs/Z75uzYxi5J0t9h5fQo+r6XfNS8vhiQLngP1dMQcJoHMh25+QVX0
+         KSzRTxsbn6urHvQbd5jv5EGL86vV4f261aT1f9Eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 40/99] net/sched: sch_ets: dont remove idle classes from the round-robin list
+Subject: [PATCH 4.14 18/45] ARM: socfpga: dts: fix qspi node compatible
 Date:   Mon, 20 Dec 2021 15:34:13 +0100
-Message-Id: <20211220143030.726002151@linuxfoundation.org>
+Message-Id: <20211220143022.881305059@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,106 +47,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit c062f2a0b04d86c5b8c9d973bea43493eaca3d32 ]
+[ Upstream commit cb25b11943cbcc5a34531129952870420f8be858 ]
 
-Shuang reported that the following script:
+The QSPI flash node needs to have the required "jedec,spi-nor" in the
+compatible string.
 
- 1) tc qdisc add dev ddd0 handle 10: parent 1: ets bands 8 strict 4 priomap 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7 7
- 2) mausezahn ddd0  -A 10.10.10.1 -B 10.10.10.2 -c 0 -a own -b 00:c1:a0:c1:a0:00 -t udp &
- 3) tc qdisc change dev ddd0 handle 10: ets bands 4 strict 2 quanta 2500 2500 priomap 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
-
-crashes systematically when line 2) is commented:
-
- list_del corruption, ffff8e028404bd30->next is LIST_POISON1 (dead000000000100)
- ------------[ cut here ]------------
- kernel BUG at lib/list_debug.c:47!
- invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 0 PID: 954 Comm: tc Not tainted 5.16.0-rc4+ #478
- Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
- RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x47
- Code: fe ff 0f 0b 48 89 c1 4c 89 c6 48 c7 c7 08 42 1b 87 e8 1d c5 fe ff 0f 0b 48 89 fe 48 89 c2 48 c7 c7 98 42 1b 87 e8 09 c5 fe ff <0f> 0b 48 c7 c7 48 43 1b 87 e8 fb c4 fe ff 0f 0b 48 89 f2 48 89 fe
- RSP: 0018:ffffae46807a3888 EFLAGS: 00010246
- RAX: 000000000000004e RBX: 0000000000000007 RCX: 0000000000000202
- RDX: 0000000000000000 RSI: ffffffff871ac536 RDI: 00000000ffffffff
- RBP: ffffae46807a3a10 R08: 0000000000000000 R09: c0000000ffff7fff
- R10: 0000000000000001 R11: ffffae46807a36a8 R12: ffff8e028404b800
- R13: ffff8e028404bd30 R14: dead000000000100 R15: ffff8e02fafa2400
- FS:  00007efdc92e4480(0000) GS:ffff8e02fb600000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000682f48 CR3: 00000001058be000 CR4: 0000000000350ef0
- Call Trace:
-  <TASK>
-  ets_qdisc_change+0x58b/0xa70 [sch_ets]
-  tc_modify_qdisc+0x323/0x880
-  rtnetlink_rcv_msg+0x169/0x4a0
-  netlink_rcv_skb+0x50/0x100
-  netlink_unicast+0x1a5/0x280
-  netlink_sendmsg+0x257/0x4d0
-  sock_sendmsg+0x5b/0x60
-  ____sys_sendmsg+0x1f2/0x260
-  ___sys_sendmsg+0x7c/0xc0
-  __sys_sendmsg+0x57/0xa0
-  do_syscall_64+0x3a/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7efdc8031338
- Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 43 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
- RSP: 002b:00007ffdf1ce9828 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
- RAX: ffffffffffffffda RBX: 0000000061b37a97 RCX: 00007efdc8031338
- RDX: 0000000000000000 RSI: 00007ffdf1ce9890 RDI: 0000000000000003
- RBP: 0000000000000000 R08: 0000000000000001 R09: 000000000078a940
- R10: 000000000000000c R11: 0000000000000246 R12: 0000000000000001
- R13: 0000000000688880 R14: 0000000000000000 R15: 0000000000000000
-  </TASK>
- Modules linked in: sch_ets sch_tbf dummy rfkill iTCO_wdt iTCO_vendor_support intel_rapl_msr intel_rapl_common joydev pcspkr i2c_i801 virtio_balloon i2c_smbus lpc_ich ip_tables xfs libcrc32c crct10dif_pclmul crc32_pclmul crc32c_intel serio_raw ghash_clmulni_intel ahci libahci libata virtio_blk virtio_console virtio_net net_failover failover sunrpc dm_mirror dm_region_hash dm_log dm_mod [last unloaded: sch_ets]
- ---[ end trace f35878d1912655c2 ]---
- RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x47
- Code: fe ff 0f 0b 48 89 c1 4c 89 c6 48 c7 c7 08 42 1b 87 e8 1d c5 fe ff 0f 0b 48 89 fe 48 89 c2 48 c7 c7 98 42 1b 87 e8 09 c5 fe ff <0f> 0b 48 c7 c7 48 43 1b 87 e8 fb c4 fe ff 0f 0b 48 89 f2 48 89 fe
- RSP: 0018:ffffae46807a3888 EFLAGS: 00010246
- RAX: 000000000000004e RBX: 0000000000000007 RCX: 0000000000000202
- RDX: 0000000000000000 RSI: ffffffff871ac536 RDI: 00000000ffffffff
- RBP: ffffae46807a3a10 R08: 0000000000000000 R09: c0000000ffff7fff
- R10: 0000000000000001 R11: ffffae46807a36a8 R12: ffff8e028404b800
- R13: ffff8e028404bd30 R14: dead000000000100 R15: ffff8e02fafa2400
- FS:  00007efdc92e4480(0000) GS:ffff8e02fb600000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000682f48 CR3: 00000001058be000 CR4: 0000000000350ef0
- Kernel panic - not syncing: Fatal exception in interrupt
- Kernel Offset: 0x4e00000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
- ---[ end Kernel panic - not syncing: Fatal exception in interrupt ]---
-
-we can remove 'q->classes[i].alist' only if DRR class 'i' was part of the
-active list. In the ETS scheduler DRR classes belong to that list only if
-the queue length is greater than zero: we need to test for non-zero value
-of 'q->classes[i].qdisc->q.qlen' before removing from the list, similarly
-to what has been done elsewhere in the ETS code.
-
-Fixes: de6d25924c2a ("net/sched: sch_ets: don't peek at classes beyond 'nbands'")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1df99da8953 ("ARM: dts: socfpga: Enable QSPI in Arria10 devkit")
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_ets.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts   | 2 +-
+ arch/arm/boot/dts/socfpga_arria5_socdk.dts         | 2 +-
+ arch/arm/boot/dts/socfpga_cyclone5_socdk.dts       | 2 +-
+ arch/arm/boot/dts/socfpga_cyclone5_sockit.dts      | 2 +-
+ arch/arm/boot/dts/socfpga_cyclone5_socrates.dts    | 2 +-
+ arch/arm/boot/dts/socfpga_cyclone5_sodia.dts       | 2 +-
+ arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts | 4 ++--
+ 7 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
-index c34cb6e81d855..9c224872ef035 100644
---- a/net/sched/sch_ets.c
-+++ b/net/sched/sch_ets.c
-@@ -668,9 +668,9 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
- 		}
- 	}
- 	for (i = q->nbands; i < oldbands; i++) {
--		qdisc_tree_flush_backlog(q->classes[i].qdisc);
--		if (i >= q->nstrict)
-+		if (i >= q->nstrict && q->classes[i].qdisc->q.qlen)
- 			list_del(&q->classes[i].alist);
-+		qdisc_tree_flush_backlog(q->classes[i].qdisc);
- 	}
- 	q->nstrict = nstrict;
- 	memcpy(q->prio2band, priomap, sizeof(priomap));
+diff --git a/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts b/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts
+index beb2fc6b9eb63..adfdc43ac052f 100644
+--- a/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts
++++ b/arch/arm/boot/dts/socfpga_arria10_socdk_qspi.dts
+@@ -23,7 +23,7 @@ &qspi {
+ 	flash0: n25q00@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q00aa";
++		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
+ 
+diff --git a/arch/arm/boot/dts/socfpga_arria5_socdk.dts b/arch/arm/boot/dts/socfpga_arria5_socdk.dts
+index aac4feea86f38..09ffa79240c84 100644
+--- a/arch/arm/boot/dts/socfpga_arria5_socdk.dts
++++ b/arch/arm/boot/dts/socfpga_arria5_socdk.dts
+@@ -131,7 +131,7 @@ &qspi {
+ 	flash: flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q256a";
++		compatible = "micron,n25q256a", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
+ 
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+index 155829f9eba16..907d8aa6d9fc8 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_socdk.dts
+@@ -136,7 +136,7 @@ &qspi {
+ 	flash0: n25q00@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q00";
++		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+ 		reg = <0>;	/* chip select */
+ 		spi-max-frequency = <100000000>;
+ 
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts b/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts
+index a4a555c19d943..fe5fe4559969d 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_sockit.dts
+@@ -181,7 +181,7 @@ &qspi {
+ 	flash: flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q00";
++		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
+ 
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts b/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts
+index 53bf99eef66de..0992cae3e60ef 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_socrates.dts
+@@ -87,7 +87,7 @@ &qspi {
+ 	flash: flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q256a";
++		compatible = "micron,n25q256a", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
+ 		m25p,fast-read;
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts b/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts
+index 8860dd2e242c4..22bfef024913a 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_sodia.dts
+@@ -128,7 +128,7 @@ &qspi {
+         flash0: n25q512a@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q512a";
++		compatible = "micron,n25q512a", "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-max-frequency = <100000000>;
+ 
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts b/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts
+index 655fe87e272d9..349719a9c1360 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_vining_fpga.dts
+@@ -249,7 +249,7 @@ &qspi {
+ 	n25q128@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q128";
++		compatible = "micron,n25q128", "jedec,spi-nor";
+ 		reg = <0>;		/* chip select */
+ 		spi-max-frequency = <100000000>;
+ 		m25p,fast-read;
+@@ -266,7 +266,7 @@ n25q128@0 {
+ 	n25q00@1 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+-		compatible = "n25q00";
++		compatible = "micron,mt25qu02g", "jedec,spi-nor";
+ 		reg = <1>;		/* chip select */
+ 		spi-max-frequency = <100000000>;
+ 		m25p,fast-read;
 -- 
 2.33.0
 
