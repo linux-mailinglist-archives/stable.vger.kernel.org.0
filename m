@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F87E47A753
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:40:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0541547A754
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:40:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229905AbhLTJkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:40:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58468 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229842AbhLTJka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:40:30 -0500
+        id S229841AbhLTJkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:40:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229842AbhLTJki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:40:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C091C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:40:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FB7FB80E28
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:40:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2A37C36AE8;
-        Mon, 20 Dec 2021 09:40:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E148160F0E
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:40:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C343EC36AE2;
+        Mon, 20 Dec 2021 09:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639993228;
-        bh=jaXc6tEqTHCkvsnx14mgEb6WZ7krKV8ZpNK0z3XsbrY=;
+        s=korg; t=1639993237;
+        bh=BYOqu70rP2OeaEnENq1YkGmKgrcoYVirP5EuUlEvvHE=;
         h=Subject:To:Cc:From:Date:From;
-        b=k8gvO2k1WdgLYjdgdS6YpA3VBjVqmUZHuMoKT+/YA1pM1w3D2W50CVSm8owgEB9zk
-         VK1lcfd69Fs8VSJkRBxWQ/tV5XEsIBq/976bd5RxnATJPQdPtE+hcRzzzYvAQjqRgl
-         QiyxcVsc9FBLiPeUDF5H9MAjR45aLTP/RnRGxE78=
-Subject: FAILED: patch "[PATCH] perf inject: Fix segfault due to close without open" failed to apply to 5.4-stable tree
+        b=Ru+y869qaLhWCezYRj0A8lMJWIKRtMFRlSnZ0qCmhlH1fFRoY7B/OSaKn8jDpef6U
+         TEunZWW8dA9ZsRRtvgJFfC5c/AYPnstsdb/+RHVugBe3jClIy4B3Ho9gnct7O6Y5MQ
+         XlctuMxWbitpWj/QxsRvXTQBOhy0InlDhxbuu2aw=
+Subject: FAILED: patch "[PATCH] perf inject: Fix segfault due to close without open" failed to apply to 5.10-stable tree
 To:     adrian.hunter@intel.com, acme@redhat.com, jolsa@redhat.com,
         namhyung@kernel.org, rickyman7@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:40:25 +0100
-Message-ID: <163999322518137@kroah.com>
+Date:   Mon, 20 Dec 2021 10:40:26 +0100
+Message-ID: <1639993226114227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
