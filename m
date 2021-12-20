@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B57947AE7F
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B4C647AC81
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:44:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239468AbhLTPBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:01:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35400 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239288AbhLTO6c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B10C0613A1;
-        Mon, 20 Dec 2021 06:50:25 -0800 (PST)
+        id S235667AbhLTOoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:44:22 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36322 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235672AbhLTOmp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBC6DB80EE3;
-        Mon, 20 Dec 2021 14:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD71C36AE7;
-        Mon, 20 Dec 2021 14:50:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93E93611C1;
+        Mon, 20 Dec 2021 14:42:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B701C36AEA;
+        Mon, 20 Dec 2021 14:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011822;
-        bh=4n8EdVgXsAbM/IvKUAZywoQNE0i2iBaOhhI3Kvjlls0=;
+        s=korg; t=1640011364;
+        bh=btwXDiTXSKi4FJvDxSn8KrKSAWsF0fRa+tTHZmoJ8mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08/ctcsX73z3aJ0WQnzWEEbc3MB7W8lzzWrXz9jZzPebN2PtlAxfo8u/Q5vfTSeDM
-         gR09TQvZN0+b/5wAe69QohJ/lJ0IDG4FQQ+lYZBFuBQsQkdE9tSaFlX26S5FG8A0Fx
-         TT8H6ha+h2oYazoLbr9Ya9ytetGrDBDsFs33Sr2U=
+        b=db5NvDEkrtQ27DQZU3NF9/s4Ia34no10hq8ZiBZWDYFFLLJ/i7TYJ7DuZc+Tgkq73
+         mnKt341KvLqxugGTb5IbK/XqJRX74ItVszxqkTiTvCHqMlCP1Lh0w/+gl6QxFjS2Ma
+         7pgjgQzwSUZZjKMR7AWQdfT7CN93ob5pC9o5Y3Lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cyril Novikov <cnovikov@lynx.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 54/99] ixgbe: set X550 MDIO speed before talking to PHY
+        stable@vger.kernel.org, Maarten Brock <m.brock@vanmierlo.com>,
+        Karoly Pados <pados@pados.hu>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 34/56] USB: serial: cp210x: fix CP2105 GPIO registration
 Date:   Mon, 20 Dec 2021 15:34:27 +0100
-Message-Id: <20211220143031.209726616@linuxfoundation.org>
+Message-Id: <20211220143024.562262515@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,56 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cyril Novikov <cnovikov@lynx.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit bf0a375055bd1afbbf02a0ef45f7655da7b71317 ]
+commit 83b67041f3eaf33f98a075249aa7f4c7617c2f85 upstream.
 
-The MDIO bus speed must be initialized before talking to the PHY the first
-time in order to avoid talking to it using a speed that the PHY doesn't
-support.
+When generalising GPIO support and adding support for CP2102N, the GPIO
+registration for some CP2105 devices accidentally broke. Specifically,
+when all the pins of a port are in "modem" mode, and thus unavailable
+for GPIO use, the GPIO chip would now be registered without having
+initialised the number of GPIO lines. This would in turn be rejected by
+gpiolib and some errors messages would be printed (but importantly probe
+would still succeed).
 
-This fixes HW initialization error -17 (IXGBE_ERR_PHY_ADDR_INVALID) on
-Denverton CPUs (a.k.a. the Atom C3000 family) on ports with a 10Gb network
-plugged in. On those devices, HLREG0[MDCSPD] resets to 1, which combined
-with the 10Gb network results in a 24MHz MDIO speed, which is apparently
-too fast for the connected PHY. PHY register reads over MDIO bus return
-garbage, leading to initialization failure.
+Fix this by initialising the number of GPIO lines before registering the
+GPIO chip.
 
-Reproduced with Linux kernel 4.19 and 5.15-rc7. Can be reproduced using
-the following setup:
+Note that as for the other device types, and as when all CP2105 pins are
+muxed for LED function, the GPIO chip is registered also when no pins
+are available for GPIO use.
 
-* Use an Atom C3000 family system with at least one X552 LAN on the SoC
-* Disable PXE or other BIOS network initialization if possible
-  (the interface must not be initialized before Linux boots)
-* Connect a live 10Gb Ethernet cable to an X550 port
-* Power cycle (not reset, doesn't always work) the system and boot Linux
-* Observe: ixgbe interfaces w/ 10GbE cables plugged in fail with error -17
-
-Fixes: e84db7272798 ("ixgbe: Introduce function to control MDIO speed")
-Signed-off-by: Cyril Novikov <cnovikov@lynx.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Maarten Brock <m.brock@vanmierlo.com>
+Link: https://lore.kernel.org/r/5eb560c81d2ea1a2b4602a92d9f48a89@vanmierlo.com
+Fixes: c8acfe0aadbe ("USB: serial: cp210x: implement GPIO support for CP2102N")
+Cc: stable@vger.kernel.org      # 4.19
+Cc: Karoly Pados <pados@pados.hu>
+Link: https://lore.kernel.org/r/20211126094348.31698-1-johan@kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-by: Maarten Brock <m.brock@vanmierlo.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/serial/cp210x.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-index 5e339afa682a6..37f2bc6de4b65 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
-@@ -3405,6 +3405,9 @@ static s32 ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
- 	/* flush pending Tx transactions */
- 	ixgbe_clear_tx_pending(hw);
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -1535,6 +1535,8 @@ static int cp2105_gpioconf_init(struct u
  
-+	/* set MDIO speed before talking to the PHY in case it's the 1st time */
-+	ixgbe_set_mdio_speed(hw);
+ 	/*  2 banks of GPIO - One for the pins taken from each serial port */
+ 	if (intf_num == 0) {
++		priv->gc.ngpio = 2;
 +
- 	/* PHY ops must be identified and initialized prior to reset */
- 	status = hw->phy.ops.init(hw);
- 	if (status == IXGBE_ERR_SFP_NOT_SUPPORTED ||
--- 
-2.33.0
-
+ 		if (mode.eci == CP210X_PIN_MODE_MODEM) {
+ 			/* mark all GPIOs of this interface as reserved */
+ 			priv->gpio_altfunc = 0xff;
+@@ -1545,8 +1547,9 @@ static int cp2105_gpioconf_init(struct u
+ 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
+ 						CP210X_ECI_GPIO_MODE_MASK) >>
+ 						CP210X_ECI_GPIO_MODE_OFFSET);
+-		priv->gc.ngpio = 2;
+ 	} else if (intf_num == 1) {
++		priv->gc.ngpio = 3;
++
+ 		if (mode.sci == CP210X_PIN_MODE_MODEM) {
+ 			/* mark all GPIOs of this interface as reserved */
+ 			priv->gpio_altfunc = 0xff;
+@@ -1557,7 +1560,6 @@ static int cp2105_gpioconf_init(struct u
+ 		priv->gpio_pushpull = (u8)((le16_to_cpu(config.gpio_mode) &
+ 						CP210X_SCI_GPIO_MODE_MASK) >>
+ 						CP210X_SCI_GPIO_MODE_OFFSET);
+-		priv->gc.ngpio = 3;
+ 	} else {
+ 		return -ENODEV;
+ 	}
 
 
