@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A2047AD42
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B90D947AC83
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236848AbhLTOvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:51:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33154 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237262AbhLTOs1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67687C06139A;
-        Mon, 20 Dec 2021 06:45:36 -0800 (PST)
+        id S230515AbhLTOoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:44:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51060 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235691AbhLTOmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06C07611A7;
-        Mon, 20 Dec 2021 14:45:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 181EDC36AE8;
-        Mon, 20 Dec 2021 14:45:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14B41B80EE2;
+        Mon, 20 Dec 2021 14:42:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C3DC36AEC;
+        Mon, 20 Dec 2021 14:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011535;
-        bh=fwoDn1ltYSqkQ93th1QJQun+1oL1EveKzkbvqd+HuuA=;
+        s=korg; t=1640011366;
+        bh=xcvZNtq5DQJ1q7ae4zzeHJ+vdr7hWYLhtFeJ7q+YubA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSnvXXFSYJuPIF7AF2xcZ/8R605zM7MMz7xXJ8MzYzUVGMGdPL0tOxIphrLicUh2k
-         CqGt45EkDkGlF0MOeIjlPPum4gYyHnnIC3qX6Tk5qrcHNwqPq0TEMmibcFzeXaK8xY
-         ckW8gFZ9SbKIOv4wnSfPnMO+IYx2G2n8tf+RPkPo=
+        b=ynqt+hlgMMJ094hKTlD9mdw61yx6f7vn7rNccWTJaOM4fEL8zIJwoSXkFba2As8Bb
+         h+ixFjZsllThdODuAAH2ZQyFD4P5zpjgr91kJSwrhTfXEZhcFa1gMpi9FHkxxRUeJK
+         mGs0aRxZrotm+JNuuJQjE7dd4FpGkMwDnjgZ+EIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lavr <andy.lavr@gmail.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 5.4 55/71] mwifiex: Remove unnecessary braces from HostCmd_SET_SEQ_NO_BSS_INFO
-Date:   Mon, 20 Dec 2021 15:34:44 +0100
-Message-Id: <20211220143027.532208596@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.19 52/56] xen/blkfront: harden blkfront against event channel storms
+Date:   Mon, 20 Dec 2021 15:34:45 +0100
+Message-Id: <20211220143025.178368697@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,72 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 6a953dc4dbd1c7057fb765a24f37a5e953c85fb0 upstream.
+commit 0fd08a34e8e3b67ec9bd8287ac0facf8374b844a upstream.
 
-A new warning in clang points out when macro expansion might result in a
-GNU C statement expression. There is an instance of this in the mwifiex
-driver:
+The Xen blkfront driver is still vulnerable for an attack via excessive
+number of events sent by the backend. Fix that by using lateeoi event
+channels.
 
-drivers/net/wireless/marvell/mwifiex/cmdevt.c:217:34: warning: '}' and
-')' tokens terminating statement expression appear in different macro
-expansion contexts [-Wcompound-token-split-by-macro]
-        host_cmd->seq_num = cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
-                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/net/wireless/marvell/mwifiex/fw.h:519:46: note: expanded from
-macro 'HostCmd_SET_SEQ_NO_BSS_INFO'
-        (((type) & 0x000f) << 12);                  }
-                                                    ^
+This is part of XSA-391
 
-This does not appear to be a real issue. Removing the braces and
-replacing them with parentheses will fix the warning and not change the
-meaning of the code.
-
-Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1146
-Reported-by: Andy Lavr <andy.lavr@gmail.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200901070834.1015754-1-natechancellor@gmail.com
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/cmdevt.c |    4 ++--
- drivers/net/wireless/marvell/mwifiex/fw.h     |    8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/block/xen-blkfront.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/cmdevt.c
-+++ b/drivers/net/wireless/marvell/mwifiex/cmdevt.c
-@@ -322,9 +322,9 @@ static int mwifiex_dnld_sleep_confirm_cm
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1565,9 +1565,12 @@ static irqreturn_t blkif_interrupt(int i
+ 	unsigned long flags;
+ 	struct blkfront_ring_info *rinfo = (struct blkfront_ring_info *)dev_id;
+ 	struct blkfront_info *info = rinfo->dev_info;
++	unsigned int eoiflag = XEN_EOI_FLAG_SPURIOUS;
  
- 	adapter->seq_num++;
- 	sleep_cfm_buf->seq_num =
--		cpu_to_le16((HostCmd_SET_SEQ_NO_BSS_INFO
-+		cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
- 					(adapter->seq_num, priv->bss_num,
--					 priv->bss_type)));
-+					 priv->bss_type));
+-	if (unlikely(info->connected != BLKIF_STATE_CONNECTED))
++	if (unlikely(info->connected != BLKIF_STATE_CONNECTED)) {
++		xen_irq_lateeoi(irq, XEN_EOI_FLAG_SPURIOUS);
+ 		return IRQ_HANDLED;
++	}
  
- 	mwifiex_dbg(adapter, CMD,
- 		    "cmd: DNLD_CMD: %#x, act %#x, len %d, seqno %#x\n",
---- a/drivers/net/wireless/marvell/mwifiex/fw.h
-+++ b/drivers/net/wireless/marvell/mwifiex/fw.h
-@@ -512,10 +512,10 @@ enum mwifiex_channel_flags {
+ 	spin_lock_irqsave(&rinfo->ring_lock, flags);
+  again:
+@@ -1583,6 +1586,8 @@ static irqreturn_t blkif_interrupt(int i
+ 		unsigned long id;
+ 		unsigned int op;
  
- #define RF_ANTENNA_AUTO                 0xFFFF
++		eoiflag = 0;
++
+ 		RING_COPY_RESPONSE(&rinfo->ring, i, &bret);
+ 		id = bret.id;
  
--#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) {   \
--	(((seq) & 0x00ff) |                             \
--	 (((num) & 0x000f) << 8)) |                     \
--	(((type) & 0x000f) << 12);                  }
-+#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) \
-+	((((seq) & 0x00ff) |                        \
-+	 (((num) & 0x000f) << 8)) |                 \
-+	(((type) & 0x000f) << 12))
+@@ -1698,6 +1703,8 @@ static irqreturn_t blkif_interrupt(int i
  
- #define HostCmd_GET_SEQ_NO(seq)       \
- 	((seq) & HostCmd_SEQ_NUM_MASK)
+ 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
+ 
++	xen_irq_lateeoi(irq, eoiflag);
++
+ 	return IRQ_HANDLED;
+ 
+  err:
+@@ -1705,6 +1712,8 @@ static irqreturn_t blkif_interrupt(int i
+ 
+ 	spin_unlock_irqrestore(&rinfo->ring_lock, flags);
+ 
++	/* No EOI in order to avoid further interrupts. */
++
+ 	pr_alert("%s disabled for further use\n", info->gd->disk_name);
+ 	return IRQ_HANDLED;
+ }
+@@ -1744,8 +1753,8 @@ static int setup_blkring(struct xenbus_d
+ 	if (err)
+ 		goto fail;
+ 
+-	err = bind_evtchn_to_irqhandler(rinfo->evtchn, blkif_interrupt, 0,
+-					"blkif", rinfo);
++	err = bind_evtchn_to_irqhandler_lateeoi(rinfo->evtchn, blkif_interrupt,
++						0, "blkif", rinfo);
+ 	if (err <= 0) {
+ 		xenbus_dev_fatal(dev, err,
+ 				 "bind_evtchn_to_irqhandler failed");
 
 
