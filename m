@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B16547AC55
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D19847ABA7
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235812AbhLTOnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:43:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35424 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235333AbhLTOlh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:41:37 -0500
+        id S233775AbhLTOiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:38:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46744 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233958AbhLTOhl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DAD661165;
-        Mon, 20 Dec 2021 14:41:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0060AC36AEA;
-        Mon, 20 Dec 2021 14:41:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14FF8B80EB3;
+        Mon, 20 Dec 2021 14:37:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47B5CC36AE7;
+        Mon, 20 Dec 2021 14:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011296;
-        bh=fM3PYIoyw/Yh/A2gm/PmcJH0j14pJovNzpJBiS+sBFg=;
+        s=korg; t=1640011058;
+        bh=glxp8tiGpTIkTgiLSNQYHxYns/panT72gq7bR60vXqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+tNf0HsIRGnDXtII5JboIKBl8nKTfO31WK9X0mHw2MvJtKU9PTM1pL+zQpkSPjqt
-         Q33ULjhG8UwXbDl0dp/iZodKelt9FboZ9kmBxSAj0YpTFK1y7gnKx+xNNVqkyPWT8z
-         HmZYAU5QFHArxRHfZzBww9mj5ipzdE3P7WkwJt1c=
+        b=fXGOon2z6EKPCPfHCTujF/FOu4Teq2zKeOWlxM/V4JLB1/vSxXgoVqz6OeKVP9c1m
+         yitJnidOdsV3rxmgf8qBMlLiGuFr276f0Xtm2cZw3BYStPSqrr01ZU5LQUCaXN0KFR
+         VbWUULPymPIkqJUUeLQ1Y2Dli4XFz6uNbcej/BcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Haimin Zhang <tcs.kernel@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/56] netdevsim: Zero-initialize memory for new maps value in function nsim_bpf_map_alloc
+        stable@vger.kernel.org, Pedro Batista <pedbap.g@gmail.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.9 20/31] firmware: arm_scpi: Fix string overflow in SCPI genpd driver
 Date:   Mon, 20 Dec 2021 15:34:20 +0100
-Message-Id: <20211220143024.339119930@linuxfoundation.org>
+Message-Id: <20211220143020.624017639@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
+References: <20211220143019.974513085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs.kernel@gmail.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 481221775d53d6215a6e5e9ce1cce6d2b4ab9a46 ]
+commit 865ed67ab955428b9aa771d8b4f1e4fb7fd08945 upstream.
 
-Zero-initialize memory for new map's value in function nsim_bpf_map_alloc
-since it may cause a potential kernel information leak issue, as follows:
-1. nsim_bpf_map_alloc calls nsim_map_alloc_elem to allocate elements for
-a new map.
-2. nsim_map_alloc_elem uses kmalloc to allocate map's value, but doesn't
-zero it.
-3. A user application can use IOCTL BPF_MAP_LOOKUP_ELEM to get specific
-element's information in the map.
-4. The kernel function map_lookup_elem will call bpf_map_copy_value to get
-the information allocated at step-2, then use copy_to_user to copy to the
-user buffer.
-This can only leak information for an array map.
+Without the bound checks for scpi_pd->name, it could result in the buffer
+overflow when copying the SCPI device name from the corresponding device
+tree node as the name string is set at maximum size of 30.
 
-Fixes: 395cacb5f1a0 ("netdevsim: bpf: support fake map offload")
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Haimin Zhang <tcs.kernel@gmail.com>
-Link: https://lore.kernel.org/r/20211215111530.72103-1-tcs.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Let us fix it by using devm_kasprintf so that the string buffer is
+allocated dynamically.
+
+Fixes: 8bec4337ad40 ("firmware: scpi: add device power domain support using genpd")
+Reported-by: Pedro Batista <pedbap.g@gmail.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20211209120456.696879-1-sudeep.holla@arm.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/netdevsim/bpf.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/scpi_pm_domain.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/netdevsim/bpf.c b/drivers/net/netdevsim/bpf.c
-index 81444208b2162..12f100392ed11 100644
---- a/drivers/net/netdevsim/bpf.c
-+++ b/drivers/net/netdevsim/bpf.c
-@@ -493,6 +493,7 @@ nsim_bpf_map_alloc(struct netdevsim *ns, struct bpf_offloaded_map *offmap)
- 				goto err_free;
- 			key = nmap->entry[i].key;
- 			*key = i;
-+			memset(nmap->entry[i].value, 0, offmap->map.value_size);
- 		}
- 	}
+--- a/drivers/firmware/scpi_pm_domain.c
++++ b/drivers/firmware/scpi_pm_domain.c
+@@ -27,7 +27,6 @@ struct scpi_pm_domain {
+ 	struct generic_pm_domain genpd;
+ 	struct scpi_ops *ops;
+ 	u32 domain;
+-	char name[30];
+ };
  
--- 
-2.33.0
-
+ /*
+@@ -121,8 +120,13 @@ static int scpi_pm_domain_probe(struct p
+ 
+ 		scpi_pd->domain = i;
+ 		scpi_pd->ops = scpi_ops;
+-		sprintf(scpi_pd->name, "%s.%d", np->name, i);
+-		scpi_pd->genpd.name = scpi_pd->name;
++		scpi_pd->genpd.name = devm_kasprintf(dev, GFP_KERNEL,
++						     "%s.%d", np->name, i);
++		if (!scpi_pd->genpd.name) {
++			dev_err(dev, "Failed to allocate genpd name:%s.%d\n",
++				np->name, i);
++			continue;
++		}
+ 		scpi_pd->genpd.power_off = scpi_pd_power_off;
+ 		scpi_pd->genpd.power_on = scpi_pd_power_on;
+ 
 
 
