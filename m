@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 305CE47AD4B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1044B47AC26
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235262AbhLTOvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:51:10 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55824 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235890AbhLTOtH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:07 -0500
+        id S235410AbhLTOlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:41:52 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:53158 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235083AbhLTOkc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9CBFB80EE4;
-        Mon, 20 Dec 2021 14:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 294C2C36AE9;
-        Mon, 20 Dec 2021 14:49:03 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 04182CE1109;
+        Mon, 20 Dec 2021 14:40:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C50E5C36AE9;
+        Mon, 20 Dec 2021 14:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011744;
-        bh=ljdZuRv6SWrPfmyPw5YotBu5n4WVdDCuwnE3pikCLzw=;
+        s=korg; t=1640011229;
+        bh=ZuZ+j66KwZKYQ3fplNdWas3Cm5mPhQJHkNXqvGiajsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wuq+Y0dPwyl1D8xV7MyDt3Td2/oPsG51y3ACNr21gyQ1dspUQ59OyLZdnGuYIthaJ
-         m3blml/Pu33QIH6amUZvuLd/r8ANy9HtRKd/HL4U/vsVUV1orIbq/AuZ5+opXXCqC/
-         D9IlHKer4DG/UCxz/RSHE9ORkGdxyqJxQrZ7Ysrk=
+        b=0PdIDdh/gimfwTEfy4p6abbnv072bd2kKm2a7o8NNnC3jzFIiXR0cq9Z92Nv+spq9
+         BY/HBr00NHEemxsmgGzxFWJKRh5w/5tmKGVbe9Jzqp0Uf+e4vtDbBkCOMDNZ4qpAMB
+         261xoJKF/RhmKWSDRNv7jkAvLo+bctnXZ98TEq8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        "D. Wythe" <alibuda@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 59/99] net/smc: Prevent smc_release() from long blocking
-Date:   Mon, 20 Dec 2021 15:34:32 +0100
-Message-Id: <20211220143031.372434343@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lavr <andy.lavr@gmail.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 4.14 38/45] mwifiex: Remove unnecessary braces from HostCmd_SET_SEQ_NO_BSS_INFO
+Date:   Mon, 20 Dec 2021 15:34:33 +0100
+Message-Id: <20211220143023.543987672@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,81 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: D. Wythe <alibuda@linux.alibaba.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 5c15b3123f65f8fbb1b445d9a7e8812e0e435df2 ]
+commit 6a953dc4dbd1c7057fb765a24f37a5e953c85fb0 upstream.
 
-In nginx/wrk benchmark, there's a hung problem with high probability
-on case likes that: (client will last several minutes to exit)
+A new warning in clang points out when macro expansion might result in a
+GNU C statement expression. There is an instance of this in the mwifiex
+driver:
 
-server: smc_run nginx
+drivers/net/wireless/marvell/mwifiex/cmdevt.c:217:34: warning: '}' and
+')' tokens terminating statement expression appear in different macro
+expansion contexts [-Wcompound-token-split-by-macro]
+        host_cmd->seq_num = cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/wireless/marvell/mwifiex/fw.h:519:46: note: expanded from
+macro 'HostCmd_SET_SEQ_NO_BSS_INFO'
+        (((type) & 0x000f) << 12);                  }
+                                                    ^
 
-client: smc_run wrk -c 10000 -t 1 http://server
+This does not appear to be a real issue. Removing the braces and
+replacing them with parentheses will fix the warning and not change the
+meaning of the code.
 
-Client hangs with the following backtrace:
-
-0 [ffffa7ce8Of3bbf8] __schedule at ffffffff9f9eOd5f
-1 [ffffa7ce8Of3bc88] schedule at ffffffff9f9eløe6
-2 [ffffa7ce8Of3bcaO] schedule_timeout at ffffffff9f9e3f3c
-3 [ffffa7ce8Of3bd2O] wait_for_common at ffffffff9f9el9de
-4 [ffffa7ce8Of3bd8O] __flush_work at ffffffff9fOfeOl3
-5 [ffffa7ce8øf3bdfO] smc_release at ffffffffcO697d24 [smc]
-6 [ffffa7ce8Of3be2O] __sock_release at ffffffff9f8O2e2d
-7 [ffffa7ce8Of3be4ø] sock_close at ffffffff9f8ø2ebl
-8 [ffffa7ce8øf3be48] __fput at ffffffff9f334f93
-9 [ffffa7ce8Of3be78] task_work_run at ffffffff9flOlff5
-10 [ffffa7ce8Of3beaO] do_exit at ffffffff9fOe5Ol2
-11 [ffffa7ce8Of3bflO] do_group_exit at ffffffff9fOe592a
-12 [ffffa7ce8Of3bf38] __x64_sys_exit_group at ffffffff9fOe5994
-13 [ffffa7ce8Of3bf4O] do_syscall_64 at ffffffff9f9d4373
-14 [ffffa7ce8Of3bfsO] entry_SYSCALL_64_after_hwframe at ffffffff9fa0007c
-
-This issue dues to flush_work(), which is used to wait for
-smc_connect_work() to finish in smc_release(). Once lots of
-smc_connect_work() was pending or all executing work dangling,
-smc_release() has to block until one worker comes to free, which
-is equivalent to wait another smc_connnect_work() to finish.
-
-In order to fix this, There are two changes:
-
-1. For those idle smc_connect_work(), cancel it from the workqueue; for
-   executing smc_connect_work(), waiting for it to finish. For that
-   purpose, replace flush_work() with cancel_work_sync().
-
-2. Since smc_connect() hold a reference for passive closing, if
-   smc_connect_work() has been cancelled, release the reference.
-
-Fixes: 24ac3a08e658 ("net/smc: rebuild nonblocking connect")
-Reported-by: Tony Lu <tonylu@linux.alibaba.com>
-Tested-by: Dust Li <dust.li@linux.alibaba.com>
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: D. Wythe <alibuda@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Link: https://lore.kernel.org/r/1639571361-101128-1-git-send-email-alibuda@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1146
+Reported-by: Andy Lavr <andy.lavr@gmail.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200901070834.1015754-1-natechancellor@gmail.com
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/marvell/mwifiex/cmdevt.c |    4 ++--
+ drivers/net/wireless/marvell/mwifiex/fw.h     |    8 ++++----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index d324a12c26cd9..99b902e410c49 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -191,7 +191,9 @@ static int smc_release(struct socket *sock)
- 	/* cleanup for a dangling non-blocking connect */
- 	if (smc->connect_nonblock && sk->sk_state == SMC_INIT)
- 		tcp_abort(smc->clcsock->sk, ECONNABORTED);
--	flush_work(&smc->connect_work);
-+
-+	if (cancel_work_sync(&smc->connect_work))
-+		sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
+--- a/drivers/net/wireless/marvell/mwifiex/cmdevt.c
++++ b/drivers/net/wireless/marvell/mwifiex/cmdevt.c
+@@ -323,9 +323,9 @@ static int mwifiex_dnld_sleep_confirm_cm
  
- 	if (sk->sk_state == SMC_LISTEN)
- 		/* smc_close_non_accepted() is called and acquires
--- 
-2.33.0
-
+ 	adapter->seq_num++;
+ 	sleep_cfm_buf->seq_num =
+-		cpu_to_le16((HostCmd_SET_SEQ_NO_BSS_INFO
++		cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+ 					(adapter->seq_num, priv->bss_num,
+-					 priv->bss_type)));
++					 priv->bss_type));
+ 
+ 	mwifiex_dbg(adapter, CMD,
+ 		    "cmd: DNLD_CMD: %#x, act %#x, len %d, seqno %#x\n",
+--- a/drivers/net/wireless/marvell/mwifiex/fw.h
++++ b/drivers/net/wireless/marvell/mwifiex/fw.h
+@@ -498,10 +498,10 @@ enum mwifiex_channel_flags {
+ 
+ #define RF_ANTENNA_AUTO                 0xFFFF
+ 
+-#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) {   \
+-	(((seq) & 0x00ff) |                             \
+-	 (((num) & 0x000f) << 8)) |                     \
+-	(((type) & 0x000f) << 12);                  }
++#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) \
++	((((seq) & 0x00ff) |                        \
++	 (((num) & 0x000f) << 8)) |                 \
++	(((type) & 0x000f) << 12))
+ 
+ #define HostCmd_GET_SEQ_NO(seq)       \
+ 	((seq) & HostCmd_SEQ_NUM_MASK)
 
 
