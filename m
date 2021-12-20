@@ -2,106 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB8F47B36B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 20:06:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A0D47B36E
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 20:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240682AbhLTTG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 14:06:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37346 "EHLO
+        id S240695AbhLTTGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 14:06:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234213AbhLTTGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 14:06:23 -0500
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451B0C06173F
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 11:06:23 -0800 (PST)
-Received: by mail-lf1-x132.google.com with SMTP id k21so5765520lfu.0
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 11:06:23 -0800 (PST)
+        with ESMTP id S240685AbhLTTGd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 14:06:33 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A26FDC06173F;
+        Mon, 20 Dec 2021 11:06:33 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id t123so8164519pfc.13;
+        Mon, 20 Dec 2021 11:06:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6ih+OZifVnNfA/pSv3qRAPIHOXmc5ub5T4okFRSsryU=;
-        b=a1+ZPRgM0N04BQMXXDijj417WU8sL4jlUQ04ppDhgKjXom6+7Z4rwLXR6QX+tZ51RQ
-         DuaNhJ/Y5vmawfKm92tiIc7T5vIb3EuZ4KI9/jQdE9ghrS3ulZ6F57QAgDyDAhiEkkOE
-         s1jlUQF4u6FOMjWznVModYLHXbNyEaUD2hLX6Tp1d+Mgea6Eo340ovYW/g05KJ0FoZDa
-         eT+wTa3vfcD8xA3Kt8B5Apfar7SiuYKPXZQgid9kitBfA+jhy5kfWu8ZsBb5/m6qy6JX
-         jyeYrPVWHPk9HBw5BOnK/kThTrvF6xbtJBD5At+ZGvK037oe0gv7maiEF/pgjbyUn+or
-         2iPQ==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=dhDktgf3Ok8ulF6z3cGgYxFOTlFBqiX9R2kAwUoEizk=;
+        b=B128Ia8P310A3Y4+SUu/SjGu8LcK+GILihC8fQ1Cxxbc1nASPX2nauamlBmPRy94P1
+         bqYZsyAFvZhyiT/u+q+IKqp8z0df/tt2CAhxBHuNamz3fxwGO05DTFo5VmlLgRTqqp6w
+         p6XC6jGRKKV9bGtwbpAdvSZrQ2OvwnVGb5a/pPa0r/64AlZgyhkGuoJlIlFIX9ysbSy7
+         NicwwH/+GiI2MeDZkoYOTRwVtDveWof6Xav1JroUfudn0ZALWjoBFjNU0SKRWd98hYUF
+         gjdmK3vFpGf1KnbsnXRpuw40FqqDLD12145RSwwF/pI5a6nmA1ZdoydHTH7llMRYN/k+
+         T0aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6ih+OZifVnNfA/pSv3qRAPIHOXmc5ub5T4okFRSsryU=;
-        b=ym8z+LfGwKG56LkHVMINTgE1bA6U9kIulDjGQTdpv9znKRLFpSK+AmnS6oue0fYGO1
-         CzvpMSSZ5r5WAXMienkrsKwxde0GCePWrKpNZrAcrJz4la7DMnSOSxXnNJeTES1ZZgvJ
-         GkCWmruUAjwDk6QyUW+gCEBApFXwBkWKVaqdxti6vXGll13FH8qe7AyICPWy19XbsS+E
-         VGHgh+wL0SOXN19Vsg7ugCJuemDBWbBFiDPe+iLPWGKyzEPngvEqWX2u1q/zNVVcv+wL
-         NS/dBGWLR8jOoeFDMC5g5RTZpftRrJfu3E4UraodECJ+fZQ3tXBm59xXf3pMbTJqiSg5
-         /sTw==
-X-Gm-Message-State: AOAM531Gu0RquSLT1KYwgw9o7vXm7XgAfR2Pz1bqBVdOlNFhOtxQ4lp5
-        6p/q2jRnTwyTpt7Fy9rQ4WVY7oglOvroOfdSpIOdig==
-X-Google-Smtp-Source: ABdhPJxt/GrhGIBD3Rsq6dAv0bDvoKbp5GHKXPNxZ7Wv38eMaBgjqPj0v5gqgh0m8NKzYlAAyqnDqY/TB6zUFXJI2Bk=
-X-Received: by 2002:a05:6512:3047:: with SMTP id b7mr10551009lfb.424.1640027181280;
- Mon, 20 Dec 2021 11:06:21 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=dhDktgf3Ok8ulF6z3cGgYxFOTlFBqiX9R2kAwUoEizk=;
+        b=sjtnQGZd2OJbpSTH3Wiqq3IKC3gXFSc3f75uQldNqJn5BXCcKouqUcm2k/oh+alKKw
+         xhBULJpSnHrleQ/s2qrMX93Ceh8A3joqhXxrllEMKyNcKVsIZ73y4uX8icIxQDvAfW9q
+         OOf88W/8MgPOaErwrPWrkQzGs4KlcCWuEJrHlHosJpwptZm/SAF16WfYaVreUBwMLTgW
+         kmw2HAN3tRaAWjTq1dbfxF8Mro7lFyj6h25p2xNhwUbvZ+cxzCkC2lt1fkNcvTarDY9V
+         8U8OEoTsfNXP4xa90nw8X4DZ0U1hcxhllJMV42e9uSgYSGKDNfOp9MoGJws8yDnyEbXf
+         9eaQ==
+X-Gm-Message-State: AOAM532wyxhd2O6HpczJJOilDsY4HPoWZz4nK10f1ZPNSUgzyqKwABcE
+        iC0+DcjHNWMb1vpDAOC/G1M=
+X-Google-Smtp-Source: ABdhPJz36HoQ54nzT6/hUqsvBtgVNHfM8N/LjUfdgN+c400FjDoB10d03ODuPflezWMXnxwu814vmQ==
+X-Received: by 2002:a05:6a00:1305:b0:4a2:75cd:883b with SMTP id j5-20020a056a00130500b004a275cd883bmr17484867pfu.44.1640027193130;
+        Mon, 20 Dec 2021 11:06:33 -0800 (PST)
+Received: from [10.1.10.177] (c-71-198-249-153.hsd1.ca.comcast.net. [71.198.249.153])
+        by smtp.gmail.com with ESMTPSA id u9sm19891200pfi.23.2021.12.20.11.06.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 20 Dec 2021 11:06:32 -0800 (PST)
+Message-ID: <41484876-d360-3107-873c-9cf781efc946@gmail.com>
+Date:   Mon, 20 Dec 2021 11:06:30 -0800
 MIME-Version: 1.0
-References: <20211220190150.2107077-1-tkjos@google.com>
-In-Reply-To: <20211220190150.2107077-1-tkjos@google.com>
-From:   Todd Kjos <tkjos@google.com>
-Date:   Mon, 20 Dec 2021 11:06:09 -0800
-Message-ID: <CAHRSSExTHHOdqEnRF0g435BrO5L-X6M3pxPg3OmLz8xUWDuNKA@mail.gmail.com>
-Subject: Re: [PATCH] binder: fix async_free_space accounting for empty parcels
-To:     tkjos@google.com, gregkh@linuxfoundation.org, christian@brauner.io,
-        arve@android.com, devel@driverdev.osuosl.org,
-        linux-kernel@vger.kernel.org, maco@google.com
-Cc:     joel@joelfernandes.org, kernel-team@android.com,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH 5.10 00/99] 5.10.88-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20211220143029.352940568@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 20, 2021 at 11:02 AM Todd Kjos <tkjos@google.com> wrote:
->
-> In 4.13, commit 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
-> fixed a kernel structure visibility issue. As part of that patch,
-> sizeof(void *) was used as the buffer size for 0-length data payloads so
-> the driver could detect abusive clients sending 0-length asynchronous
-> transactions to a server by enforcing limits on async_free_size.
->
-> Unfortunately, on the "free" side, the accounting of async_free_space
-> did not add the sizeof(void *) back. The result was that up to 8-bytes of
-> async_free_space were leaked on every async transaction of 8-bytes or
-> less.  These small transactions are uncommon, so this accounting issue
-> has gone undetected for several years.
->
-> The fix is to use "buffer_size" (the allocated buffer size) instead of
-> "size" (the logical buffer size) when updating the async_free_space
-> during the free operation. These are the same except for this
-> corner case of asynchronous transactions with payloads < 8 bytes.
->
-> Fixes: 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
-> Signed-off-by: Todd Kjos <tkjos@google.com>
 
-I forgot to CC stable. This applies to all stable branches back to 4.14.
-Cc: stable@vger.kernel.org # 4.14+
 
-> ---
->  drivers/android/binder_alloc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-> index 340515f54498..47bc74a8c7b6 100644
-> --- a/drivers/android/binder_alloc.c
-> +++ b/drivers/android/binder_alloc.c
-> @@ -671,7 +671,7 @@ static void binder_free_buf_locked(struct binder_alloc *alloc,
->         BUG_ON(buffer->user_data > alloc->buffer + alloc->buffer_size);
->
->         if (buffer->async_transaction) {
-> -               alloc->free_async_space += size + sizeof(struct binder_buffer);
-> +               alloc->free_async_space += buffer_size + sizeof(struct binder_buffer);
->
->                 binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC_ASYNC,
->                              "%d: binder_free_buf size %zd async free %zd\n",
-> --
-> 2.34.1.307.g9b7440fafd-goog
->
+On 12/20/2021 6:33 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.88 release.
+> There are 99 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 22 Dec 2021 14:30:09 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.88-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
