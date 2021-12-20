@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B17047AE53
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA50B47AE54
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238318AbhLTPAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:00:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:36660 "EHLO
+        id S239057AbhLTPAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:00:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34030 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237970AbhLTO6V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:21 -0500
+        with ESMTP id S239001AbhLTO61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3132B80EEF;
-        Mon, 20 Dec 2021 14:58:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4684CC36AEA;
-        Mon, 20 Dec 2021 14:58:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62522B80ED1;
+        Mon, 20 Dec 2021 14:58:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D06C36AE7;
+        Mon, 20 Dec 2021 14:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012298;
-        bh=x+YZtgjPDMCwSDRDeH0MK1mN1L1Kp6l8XeW80MzUXsY=;
+        s=korg; t=1640012304;
+        bh=3uYhQb3bWY54x9fRpOlW0W4fux/f2ZgTlxdNGkLbGnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=088JupPo6mE1zJGiItmdpkQ4YJgBgdNZYrGcLjj+voXKRteiZaYWmR0nUmShXr+TZ
-         cmUMguqJwdm/kPbXNt6CaqUi82N86pnkI4EyhoPg2MMiLUDi6idU6U3LnBsw93nNyV
-         OBwcUc3nw8MxwSW3aV2Uq72JgFGXSQCM5IwD8pt8=
+        b=twwc57V/Nt/zXY4vo6aiNEL8fwzb4ouzeX3dY/HQ8LQ2b2GD7NtqLxKv0ETftEIse
+         YCRPRK2ikLM9buFLq1eY3qe4lhVpA5iUaoM61CzmcsmGrl2146LZWbdeCLQHvMO2Lj
+         YksKlSdloOYtk+tBpR1vQwy2u2Ork7ya46cbX9zA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 152/177] can: m_can: make custom bittiming fields const
-Date:   Mon, 20 Dec 2021 15:35:02 +0100
-Message-Id: <20211220143045.194994765@linuxfoundation.org>
+        stable@vger.kernel.org, George Makarov <georgemakarov1@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.15 154/177] ARM: dts: imx6ull-pinfunc: Fix CSI_DATA07__ESAI_TX0 pad name
+Date:   Mon, 20 Dec 2021 15:35:04 +0100
+Message-Id: <20211220143045.257852492@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -45,33 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit ea22ba40debee29ee7257c42002409899e9311c1 upstream.
+commit 737e65c7956795b3553781fb7bc82fce1c39503f upstream.
 
-The assigned timing structs will be defined a const anyway, so we can
-avoid a few casts by declaring the struct fields as const as well.
+According to the i.MX6ULL Reference Manual, pad CSI_DATA07 may
+have the ESAI_TX0 functionality, not ESAI_T0.
 
-Link: https://lore.kernel.org/all/4508fa4e639164b2584c49a065d90c78a91fa568.1636967198.git.matthias.schiffer@ew.tq-group.com
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Also, NXP's i.MX Config Tools 10.0 generates dtsi with the
+MX6ULL_PAD_CSI_DATA07__ESAI_TX0 naming, so fix it accordingly.
+
+There are no devicetree users in mainline that use the old name,
+so just remove the old entry.
+
+Fixes: c201369d4aa5 ("ARM: dts: imx6ull: add imx6ull support")
+Reported-by: George Makarov <georgemakarov1@gmail.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/m_can/m_can.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6ull-pinfunc.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/m_can/m_can.h
-+++ b/drivers/net/can/m_can/m_can.h
-@@ -85,8 +85,8 @@ struct m_can_classdev {
- 	struct sk_buff *tx_skb;
- 	struct phy *transceiver;
+--- a/arch/arm/boot/dts/imx6ull-pinfunc.h
++++ b/arch/arm/boot/dts/imx6ull-pinfunc.h
+@@ -82,6 +82,6 @@
+ #define MX6ULL_PAD_CSI_DATA04__ESAI_TX_FS                         0x01F4 0x0480 0x0000 0x9 0x0
+ #define MX6ULL_PAD_CSI_DATA05__ESAI_TX_CLK                        0x01F8 0x0484 0x0000 0x9 0x0
+ #define MX6ULL_PAD_CSI_DATA06__ESAI_TX5_RX0                       0x01FC 0x0488 0x0000 0x9 0x0
+-#define MX6ULL_PAD_CSI_DATA07__ESAI_T0                            0x0200 0x048C 0x0000 0x9 0x0
++#define MX6ULL_PAD_CSI_DATA07__ESAI_TX0                           0x0200 0x048C 0x0000 0x9 0x0
  
--	struct can_bittiming_const *bit_timing;
--	struct can_bittiming_const *data_timing;
-+	const struct can_bittiming_const *bit_timing;
-+	const struct can_bittiming_const *data_timing;
- 
- 	struct m_can_ops *ops;
- 
+ #endif /* __DTS_IMX6ULL_PINFUNC_H */
 
 
