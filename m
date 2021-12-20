@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D75047ABA4
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B78F47AD3B
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234222AbhLTOiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:38:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234104AbhLTOhj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:39 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62893C061785;
-        Mon, 20 Dec 2021 06:37:39 -0800 (PST)
+        id S236119AbhLTOu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:50:59 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38258 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234290AbhLTOrm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:47:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9F3F1CE0F8B;
-        Mon, 20 Dec 2021 14:37:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED73C36AE8;
-        Mon, 20 Dec 2021 14:37:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C43761183;
+        Mon, 20 Dec 2021 14:47:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C9EAC36AE7;
+        Mon, 20 Dec 2021 14:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011056;
-        bh=afdi6t7FJhegVpRtrrq6KJ/Upt388TkrvXxaQUgGnUM=;
+        s=korg; t=1640011661;
+        bh=2VZYAjDh2+Van8zbu7oHUdMt0tYFJ4PQ0mWVnpSlVtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OXbtT8VJGGtSwmfMDKsZPoBoDEdFRZ2nyOnmPSpT1ijvfS7ZPMiauaL6i1Zgaf7JJ
-         RTw5dUPSuplKKV9gt1B7MvYjJu8pAON2tBaJxvzR5NAtAKtcm28uCY5fGWBJa9uq1G
-         QzAztkFl3Oq01sjxMDpIJEguZGSqQlfabPz7s38c=
+        b=C9S1LrSLIvyhkP/6qFu33cAWpsenZr7H+9LQyEJ8rQX5FE8hmJT9PEmYqnTbjTPfJ
+         ikpd3B20voIDQMaX5ynC1/Pq7hmhGuFqDGqCSO0zv0GXq2IZ9DHdJOUWS1Sm/pYISf
+         8CySEqV7E3YJvUwp/DCTncjMbV5M35enmKY7lCHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Stapelberg <michael@stapelberg.ch>,
-        Erik Ekman <erik@kryo.se>, Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 02/31] net/mlx4_en: Update reported link modes for 1/10G
+Subject: [PATCH 5.10 29/99] soc: imx: Register SoC device only on i.MX boards
 Date:   Mon, 20 Dec 2021 15:34:02 +0100
-Message-Id: <20211220143020.063649976@linuxfoundation.org>
+Message-Id: <20211220143030.331563805@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
-References: <20211220143019.974513085@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,112 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 2191b1dfef7d45f44b5008d2148676d9f2c82874 ]
+[ Upstream commit 4ebd29f91629e69da7d57390cdc953772eee03ab ]
 
-When link modes were initially added in commit 2c762679435dc
-("net/mlx4_en: Use PTYS register to query ethtool settings") and
-later updated for the new ethtool API in commit 3d8f7cc78d0eb
-("net: mlx4: use new ETHTOOL_G/SSETTINGS API") the only 1/10G non-baseT
-link modes configured were 1000baseKX, 10000baseKX4 and 10000baseKR.
-It looks like these got picked to represent other modes since nothing
-better was available.
+At the moment, using the ARM32 multi_v7_defconfig always results in two
+SoCs being exposed in sysfs. This is wrong, as far as I'm aware the
+Qualcomm DragonBoard 410c does not actually make use of a i.MX SoC. :)
 
-Switch to using more specific link modes added in commit 5711a98221443
-("net: ethtool: add support for 1000BaseX and missing 10G link modes").
+  qcom-db410c:/sys/devices/soc0$ grep . *
+  family:Freescale i.MX
+  machine:Qualcomm Technologies, Inc. APQ 8016 SBC
+  revision:0.0
+  serial_number:0000000000000000
+  soc_id:Unknown
 
-Tested with MCX311A-XCAT connected via DAC.
-Before:
+  qcom-db410c:/sys/devices/soc1$ grep . *
+  family:Snapdragon
+  machine:APQ8016
+  ...
 
-% sudo ethtool enp3s0
-Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseKX/Full
-	                        10000baseKR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseKX/Full
-	                        10000baseKR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
+This happens because imx_soc_device_init() registers the soc device
+unconditionally, even when running on devices that do not make use of i.MX.
+Arnd already reported this more than a year ago and even suggested a fix
+similar to this commit, but for some reason it was never submitted.
 
-With this change:
+Fix it by checking if the "__mxc_cpu_type" variable was actually
+initialized by earlier platform code. On devices without i.MX it will
+simply stay 0.
 
-% sudo ethtool enp3s0
-	Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseX/Full
-	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseX/Full
- 	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-Tested-by: Michael Stapelberg <michael@stapelberg.ch>
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Peng Fan <peng.fan@nxp.com>
+Fixes: d2199b34871b ("ARM: imx: use device_initcall for imx_soc_device_init")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/CAK8P3a0hxO1TmK6oOMQ70AHSWJnP_CAq57YMOutrxkSYNjFeuw@mail.gmail.com/
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/soc/imx/soc-imx.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-index 410a36c982419..1569300844f0c 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -620,7 +620,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
--				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
-+				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
-@@ -632,9 +632,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
- 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
- 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
- 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
+diff --git a/drivers/soc/imx/soc-imx.c b/drivers/soc/imx/soc-imx.c
+index 01bfea1cb64a8..1e8780299d5c4 100644
+--- a/drivers/soc/imx/soc-imx.c
++++ b/drivers/soc/imx/soc-imx.c
+@@ -33,6 +33,10 @@ static int __init imx_soc_device_init(void)
+ 	u32 val;
+ 	int ret;
+ 
++	/* Return early if this is running on devices with different SoCs */
++	if (!__mxc_cpu_type)
++		return 0;
++
+ 	if (of_machine_is_compatible("fsl,ls1021a"))
+ 		return 0;
+ 
 -- 
 2.33.0
 
