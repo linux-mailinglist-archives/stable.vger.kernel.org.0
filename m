@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E09C547ACBA
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5AF47AE15
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236280AbhLTOqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:46:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:37240 "EHLO
+        id S236610AbhLTO57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:57:59 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46566 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235521AbhLTOnx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:43:53 -0500
+        with ESMTP id S236675AbhLTOzz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:55:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A7AC611A4;
-        Mon, 20 Dec 2021 14:43:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DE80C36AE7;
-        Mon, 20 Dec 2021 14:43:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 543A8611AA;
+        Mon, 20 Dec 2021 14:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38669C36AE9;
+        Mon, 20 Dec 2021 14:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011432;
-        bh=GYR1Wgh0HO4YY+mBpA57RoUFz6fyYrJxzqkN0yCQXbQ=;
+        s=korg; t=1640012153;
+        bh=kDYyP6FYfVJBTPVvRIiBaAmfNJfx6oxrvIGPI2ru+yQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K12rZJivmh4aBnsjUJ26QoAMajzehdwX2zr328nc+Ac2k/NEIi3A3JlTRGlYcVIF5
-         3iK51qcmmChASWTL3ukk1CpXB2W9I1w/HYrks9sMv2iq/8q4vB5cGjQvCPDof7M0Ey
-         jvSwzQG9vwelMHz+EFj73ARkU2S+LF0TIv1W4u6k=
+        b=1wZkbe9e+WePwcODR985LRnN0uOHi0CNisEhQZBUXZ5DJE29Xcf2ez1Nll8vhQBaG
+         rPjN/h4c+6dMT7fbHbznCV9Ub3lOfDpKJ0ErPL5Fzg8OksISNqtxDJM8iXHZqNjlZW
+         qP22WB+1/wyfDYDS7Mys/YeMGmIBXrTzpQllPWW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Liu <ltao@redhat.com>,
-        Philipp Rudo <prudo@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Cyril Novikov <cnovikov@lynx.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/71] s390/kexec_file: fix error handling when applying relocations
+Subject: [PATCH 5.15 098/177] ixgbe: set X550 MDIO speed before talking to PHY
 Date:   Mon, 20 Dec 2021 15:34:08 +0100
-Message-Id: <20211220143026.331621595@linuxfoundation.org>
+Message-Id: <20211220143043.391512800@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Rudo <prudo@redhat.com>
+From: Cyril Novikov <cnovikov@lynx.com>
 
-[ Upstream commit 41967a37b8eedfee15b81406a9f3015be90d3980 ]
+[ Upstream commit bf0a375055bd1afbbf02a0ef45f7655da7b71317 ]
 
-arch_kexec_apply_relocations_add currently ignores all errors returned
-by arch_kexec_do_relocs. This means that every unknown relocation is
-silently skipped causing unpredictable behavior while the relocated code
-runs. Fix this by checking for errors and fail kexec_file_load if an
-unknown relocation type is encountered.
+The MDIO bus speed must be initialized before talking to the PHY the first
+time in order to avoid talking to it using a speed that the PHY doesn't
+support.
 
-The problem was found after gcc changed its behavior and used
-R_390_PLT32DBL relocations for brasl instruction and relied on ld to
-resolve the relocations in the final link in case direct calls are
-possible. As the purgatory code is only linked partially (option -r)
-ld didn't resolve the relocations leaving them for arch_kexec_do_relocs.
-But arch_kexec_do_relocs doesn't know how to handle R_390_PLT32DBL
-relocations so they were silently skipped. This ultimately caused an
-endless loop in the purgatory as the brasl instructions kept branching
-to itself.
+This fixes HW initialization error -17 (IXGBE_ERR_PHY_ADDR_INVALID) on
+Denverton CPUs (a.k.a. the Atom C3000 family) on ports with a 10Gb network
+plugged in. On those devices, HLREG0[MDCSPD] resets to 1, which combined
+with the 10Gb network results in a 24MHz MDIO speed, which is apparently
+too fast for the connected PHY. PHY register reads over MDIO bus return
+garbage, leading to initialization failure.
 
-Fixes: 71406883fd35 ("s390/kexec_file: Add kexec_file_load system call")
-Reported-by: Tao Liu <ltao@redhat.com>
-Signed-off-by: Philipp Rudo <prudo@redhat.com>
-Link: https://lore.kernel.org/r/20211208130741.5821-3-prudo@redhat.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Reproduced with Linux kernel 4.19 and 5.15-rc7. Can be reproduced using
+the following setup:
+
+* Use an Atom C3000 family system with at least one X552 LAN on the SoC
+* Disable PXE or other BIOS network initialization if possible
+  (the interface must not be initialized before Linux boots)
+* Connect a live 10Gb Ethernet cable to an X550 port
+* Power cycle (not reset, doesn't always work) the system and boot Linux
+* Observe: ixgbe interfaces w/ 10GbE cables plugged in fail with error -17
+
+Fixes: e84db7272798 ("ixgbe: Introduce function to control MDIO speed")
+Signed-off-by: Cyril Novikov <cnovikov@lynx.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/machine_kexec_file.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index e7435f3a3d2d2..76cd09879eaf4 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -277,6 +277,7 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
- {
- 	Elf_Rela *relas;
- 	int i, r_type;
-+	int ret;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
+index 9724ffb165189..e4b50c7781ffa 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
+@@ -3405,6 +3405,9 @@ static s32 ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
+ 	/* flush pending Tx transactions */
+ 	ixgbe_clear_tx_pending(hw);
  
- 	relas = (void *)pi->ehdr + relsec->sh_offset;
- 
-@@ -311,7 +312,11 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
- 		addr = section->sh_addr + relas[i].r_offset;
- 
- 		r_type = ELF64_R_TYPE(relas[i].r_info);
--		arch_kexec_do_relocs(r_type, loc, val, addr);
-+		ret = arch_kexec_do_relocs(r_type, loc, val, addr);
-+		if (ret) {
-+			pr_err("Unknown rela relocation: %d\n", r_type);
-+			return -ENOEXEC;
-+		}
- 	}
- 	return 0;
- }
++	/* set MDIO speed before talking to the PHY in case it's the 1st time */
++	ixgbe_set_mdio_speed(hw);
++
+ 	/* PHY ops must be identified and initialized prior to reset */
+ 	status = hw->phy.ops.init(hw);
+ 	if (status == IXGBE_ERR_SFP_NOT_SUPPORTED ||
 -- 
 2.33.0
 
