@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1D4847AE3F
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:00:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1E147AC1C
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239859AbhLTO7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:59:19 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35682 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238434AbhLTO5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:57:16 -0500
+        id S235043AbhLTOld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:41:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234514AbhLTOkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:21 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB6AC0619DA;
+        Mon, 20 Dec 2021 06:40:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 983DEB80EE8;
-        Mon, 20 Dec 2021 14:57:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0E78C36AE9;
-        Mon, 20 Dec 2021 14:57:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9B26BCE0F99;
+        Mon, 20 Dec 2021 14:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A7B6C36AE8;
+        Mon, 20 Dec 2021 14:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012234;
-        bh=OGlqTETs1vYezaM2/ni4+RhFN5/5/Ss3x4WiekJMUKU=;
+        s=korg; t=1640011210;
+        bh=TXe+KaHNUKrBU7Nyryd8JT47EDajbPzPMKyhrcV4Z1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXw/gEnYDFUQ4OpHmEFdmeMazlX6gAcXmWxZvMKmynPq+T0Of6LbUqFnwVUodHJFQ
-         ieI+1GeaucnBzefKqZngLL2PXFjkQAy1SBlmtEahXd3jthRmGWNAqCK2/AwF4idEhG
-         TEGQk71iDaXFiTFCyR3indbbMIAXOgK34yqS033Y=
+        b=ziJWxIc0+34Yf/VrCzGiXZsoG54odjG9ZJbtG1sxMjcgHqbkXzN2UZvVavI8HMsAO
+         MQhHVynacRPo4bZdoB+5l1BA56aSbyXifxYfb90Z1EdiGW9mPHVnlNtuLEzsJ1eenU
+         Cs1UJwpLWb4bRi15s3bbndxn9rCqCRyiNak2Z7dQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marian Postevca <posteuca@mutex.one>
-Subject: [PATCH 5.15 128/177] usb: gadget: u_ether: fix race in setting MAC address in setup phase
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.14 43/45] xen/console: harden hvc_xen against event channel storms
 Date:   Mon, 20 Dec 2021 15:34:38 +0100
-Message-Id: <20211220143044.382652365@linuxfoundation.org>
+Message-Id: <20211220143023.701444259@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
-References: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,96 +47,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian Postevca <posteuca@mutex.one>
+From: Juergen Gross <jgross@suse.com>
 
-commit 890d5b40908bfd1a79be018d2d297cf9df60f4ee upstream.
+commit fe415186b43df0db1f17fa3a46275fd92107fe71 upstream.
 
-When listening for notifications through netlink of a new interface being
-registered, sporadically, it is possible for the MAC to be read as zero.
-The zero MAC address lasts a short period of time and then switches to a
-valid random MAC address.
+The Xen console driver is still vulnerable for an attack via excessive
+number of events sent by the backend. Fix that by using a lateeoi event
+channel.
 
-This causes problems for netd in Android, which assumes that the interface
-is malfunctioning and will not use it.
+For the normal domU initial console this requires the introduction of
+bind_evtchn_to_irq_lateeoi() as there is no xenbus device available
+at the time the event channel is bound to the irq.
 
-In the good case we get this log:
-InterfaceController::getCfg() ifName usb0
- hwAddr 92:a8:f0:73:79:5b ipv4Addr 0.0.0.0 flags 0x1002
+As the decision whether an interrupt was spurious or not requires to
+test for bytes having been read from the backend, move sending the
+event into the if statement, as sending an event without having found
+any bytes to be read is making no sense at all.
 
-In the error case we get these logs:
-InterfaceController::getCfg() ifName usb0
- hwAddr 00:00:00:00:00:00 ipv4Addr 0.0.0.0 flags 0x1002
+This is part of XSA-391
 
-netd : interfaceGetCfg("usb0")
-netd : interfaceSetCfg() -> ServiceSpecificException
- (99, "[Cannot assign requested address] : ioctl() failed")
-
-The reason for the issue is the order in which the interface is setup,
-it is first registered through register_netdev() and after the MAC
-address is set.
-
-Fixed by first setting the MAC address of the net_device and after that
-calling register_netdev().
-
-Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values and add setters/getters")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
-Link: https://lore.kernel.org/r/20211204214912.17627-1-posteuca@mutex.one
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/u_ether.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/tty/hvc/hvc_xen.c |   30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -17,6 +17,7 @@
- #include <linux/etherdevice.h>
- #include <linux/ethtool.h>
- #include <linux/if_vlan.h>
-+#include <linux/etherdevice.h>
- 
- #include "u_ether.h"
- 
-@@ -861,19 +862,23 @@ int gether_register_netdev(struct net_de
- {
- 	struct eth_dev *dev;
- 	struct usb_gadget *g;
--	struct sockaddr sa;
- 	int status;
- 
- 	if (!net->dev.parent)
+--- a/drivers/tty/hvc/hvc_xen.c
++++ b/drivers/tty/hvc/hvc_xen.c
+@@ -50,6 +50,8 @@ struct xencons_info {
+ 	struct xenbus_device *xbdev;
+ 	struct xencons_interface *intf;
+ 	unsigned int evtchn;
++	XENCONS_RING_IDX out_cons;
++	unsigned int out_cons_same;
+ 	struct hvc_struct *hvc;
+ 	int irq;
+ 	int vtermno;
+@@ -151,6 +153,8 @@ static int domU_read_console(uint32_t vt
+ 	XENCONS_RING_IDX cons, prod;
+ 	int recv = 0;
+ 	struct xencons_info *xencons = vtermno_to_xencons(vtermno);
++	unsigned int eoiflag = 0;
++
+ 	if (xencons == NULL)
  		return -EINVAL;
- 	dev = netdev_priv(net);
- 	g = dev->gadget;
-+
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+	eth_hw_addr_set(net, dev->dev_mac);
-+
- 	status = register_netdev(net);
- 	if (status < 0) {
- 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
- 		return status;
- 	} else {
- 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
-+		INFO(dev, "MAC %pM\n", dev->dev_mac);
+ 	intf = xencons->intf;
+@@ -170,7 +174,27 @@ static int domU_read_console(uint32_t vt
+ 	mb();			/* read ring before consuming */
+ 	intf->in_cons = cons;
  
- 		/* two kinds of host-initiated state changes:
- 		 *  - iff DATA transfer is active, carrier is "on"
-@@ -881,15 +886,6 @@ int gether_register_netdev(struct net_de
- 		 */
- 		netif_carrier_off(net);
- 	}
--	sa.sa_family = net->type;
--	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
--	rtnl_lock();
--	status = dev_set_mac_address(net, &sa, NULL);
--	rtnl_unlock();
--	if (status)
--		pr_warn("cannot set self ethernet address: %d\n", status);
--	else
--		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 	return status;
+-	notify_daemon(xencons);
++	/*
++	 * When to mark interrupt having been spurious:
++	 * - there was no new data to be read, and
++	 * - the backend did not consume some output bytes, and
++	 * - the previous round with no read data didn't see consumed bytes
++	 *   (we might have a race with an interrupt being in flight while
++	 *   updating xencons->out_cons, so account for that by allowing one
++	 *   round without any visible reason)
++	 */
++	if (intf->out_cons != xencons->out_cons) {
++		xencons->out_cons = intf->out_cons;
++		xencons->out_cons_same = 0;
++	}
++	if (recv) {
++		notify_daemon(xencons);
++	} else if (xencons->out_cons_same++ > 1) {
++		eoiflag = XEN_EOI_FLAG_SPURIOUS;
++	}
++
++	xen_irq_lateeoi(xencons->irq, eoiflag);
++
+ 	return recv;
  }
+ 
+@@ -399,7 +423,7 @@ static int xencons_connect_backend(struc
+ 	if (ret)
+ 		return ret;
+ 	info->evtchn = evtchn;
+-	irq = bind_evtchn_to_irq(evtchn);
++	irq = bind_interdomain_evtchn_to_irq_lateeoi(dev->otherend_id, evtchn);
+ 	if (irq < 0)
+ 		return irq;
+ 	info->irq = irq;
+@@ -563,7 +587,7 @@ static int __init xen_hvc_init(void)
+ 			return r;
+ 
+ 		info = vtermno_to_xencons(HVC_COOKIE);
+-		info->irq = bind_evtchn_to_irq(info->evtchn);
++		info->irq = bind_evtchn_to_irq_lateeoi(info->evtchn);
+ 	}
+ 	if (info->irq < 0)
+ 		info->irq = 0; /* NO_IRQ */
 
 
