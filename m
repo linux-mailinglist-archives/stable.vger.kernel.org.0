@@ -2,87 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8451047B025
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:26:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7202B47AFA3
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239765AbhLTP0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:26:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42406 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240104AbhLTPZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:25:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36824C09B134;
-        Mon, 20 Dec 2021 07:07:43 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C35FC61183;
-        Mon, 20 Dec 2021 15:07:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA3E1C36AE9;
-        Mon, 20 Dec 2021 15:07:41 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="aPupP9kj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1640012860;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=oAsc3YprQ6FgGJHxcPGw3/DqBtjZ2J9beUNauVhWwbA=;
-        b=aPupP9kj75WK/PtqIMzBZs4KjIxMNGRfWfqMHhaThLM8xvIrcxMNa/LovCtPjZHKP75I/c
-        KbGrRuriDWF5dWYuPYO2Ovn38U9Ku1VCMHEZnjxjOR+/eYRQ6ZT+51xnj+IbpXIgv8X57M
-        YEjT5TlTFS28t5uPueuHSjVANwuAnXE=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 137499dd (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 20 Dec 2021 15:07:40 +0000 (UTC)
-Received: by mail-yb1-f179.google.com with SMTP id f9so29650971ybq.10;
-        Mon, 20 Dec 2021 07:07:40 -0800 (PST)
-X-Gm-Message-State: AOAM533abn5kRiwS79MdWAo9TcE4eaxRvAUkpSrMpAJOKqA8qdqetnsS
-        z+jCndnbYigXMCsIxR4omYsBsJz6Hmh7vsuVkAk=
-X-Google-Smtp-Source: ABdhPJxjl0OfxTfadBI9gYggUPvoirNaCHNBvVb8gXYAuMjh6IbdW0F4p2gD2dSAnIHzuv9eG1S/QJ+RSLcsV7KiU90=
-X-Received: by 2002:a25:13c6:: with SMTP id 189mr23069037ybt.113.1640012859536;
- Mon, 20 Dec 2021 07:07:39 -0800 (PST)
+        id S236469AbhLTPQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:16:28 -0500
+Received: from mail-ua1-f49.google.com ([209.85.222.49]:44871 "EHLO
+        mail-ua1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237016AbhLTPOb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:14:31 -0500
+Received: by mail-ua1-f49.google.com with SMTP id p2so18208816uad.11;
+        Mon, 20 Dec 2021 07:14:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1RrQd9GJbr8VHOo3UvKL+r03emDIirUU1mO3qVTnuYM=;
+        b=3XOnZL4iH1g8qcNmMWjxGHfPI3AX0/isMQHTWVpftMLNFO1idbKx9cyeGyK8+udwOO
+         1On2T/jg29z/wTOzwsHgqTFvPQrSmjEF8Tk6rQVMV5srcs/U9u62owWDjg8O842fUKUT
+         Frjm9m6v+cArKImmnacto+1e7eCR2qVtLl0gycxDtbYAY++jt/8jOgE8i5CtLi/Cy2IB
+         b1C0K6Ub7ogcasGsuh4O1tsvnyI8i876qC3lnRoi9UfVgGIMCiTp3kM2JYunlT8kZqbk
+         IYkMPamxsMKdvSpNFylTMeVxClTJlV0vE3imyc6lsekFOJYJZA1QOb1/t1FjT8lRJIeX
+         LsGw==
+X-Gm-Message-State: AOAM531REjL5EQID0NEhDRnMpkuj89YywhQ6uGdwaDwmsVVrRUC01C1i
+        QQke6dPP3To2iE/MNUMKuVQZFFSxq8bZzw==
+X-Google-Smtp-Source: ABdhPJx1SwCbCv6Yyod5pRZs7WEMI3XY0JRVQg/V/k5uXzc5nIHmxL085ZvJa0u26rjTxqqUuvfS5A==
+X-Received: by 2002:a05:6102:3554:: with SMTP id e20mr4987497vss.50.1640013269993;
+        Mon, 20 Dec 2021 07:14:29 -0800 (PST)
+Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com. [209.85.222.51])
+        by smtp.gmail.com with ESMTPSA id x34sm2418512uac.12.2021.12.20.07.14.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 20 Dec 2021 07:14:29 -0800 (PST)
+Received: by mail-ua1-f51.google.com with SMTP id t13so18218557uad.9;
+        Mon, 20 Dec 2021 07:14:28 -0800 (PST)
+X-Received: by 2002:a9f:3e01:: with SMTP id o1mr5360780uai.89.1640013268654;
+ Mon, 20 Dec 2021 07:14:28 -0800 (PST)
 MIME-Version: 1.0
-References: <20211219025139.31085-1-ebiggers@kernel.org>
-In-Reply-To: <20211219025139.31085-1-ebiggers@kernel.org>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Mon, 20 Dec 2021 16:07:28 +0100
-X-Gmail-Original-Message-ID: <CAHmME9pQ4vp0jHpOyQXHRbJ-xQKYapQUsWPrLouK=dMO56y1zA@mail.gmail.com>
-Message-ID: <CAHmME9pQ4vp0jHpOyQXHRbJ-xQKYapQUsWPrLouK=dMO56y1zA@mail.gmail.com>
-Subject: Re: [PATCH RESEND] random: use correct memory barriers for crng_node_pool
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     "Theodore Ts'o" <tytso@mit.edu>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        stable <stable@vger.kernel.org>
+References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
+ <a7fbb773-eb85-ccc7-8bfb-0bfab062ffe1@leemhuis.info> <CAMRc=MfAxzmAfATV2NwfTgpfmyxFx8bgTbaAfWxSi9zmBecPng@mail.gmail.com>
+In-Reply-To: <CAMRc=MfAxzmAfATV2NwfTgpfmyxFx8bgTbaAfWxSi9zmBecPng@mail.gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 20 Dec 2021 16:14:17 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdVp621B0DywkW6sx6wNcPFez9=3-=cfSo7UoRttJ6QXCg@mail.gmail.com>
+Message-ID: <CAMuHMdVp621B0DywkW6sx6wNcPFez9=3-=cfSo7UoRttJ6QXCg@mail.gmail.com>
+Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
+To:     Bartosz Golaszewski <brgl@bgdev.pl>
+Cc:     Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Thierry Reding <treding@nvidia.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Edmond Chung <edmondchung@google.com>,
+        Andrew Chant <achant@google.com>,
+        Will McVicker <willmcvicker@google.com>,
+        Sergio Tanzilli <tanzilli@acmesystems.it>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Eric,
+On Mon, Dec 20, 2021 at 3:57 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+> On Sat, Dec 18, 2021 at 7:28 AM Thorsten Leemhuis
+> <regressions@leemhuis.info> wrote:
+> > [TLDR: I'm adding this regression to regzbot, the Linux kernel
+> > regression tracking bot; most text you find below is compiled from a few
+> > templates paragraphs some of you might have seen already.]
+> >
+> > On 17.12.21 16:35, Marcelo Roberto Jimenez wrote:
+> > > Some GPIO lines have stopped working after the patch
+> > > commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
+> > >
+> > > And this has supposedly been fixed in the following patches
+> > > commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
+> > > commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
+> >
+> > There seems to be a backstory here. Are there any entries and bug
+> > trackers or earlier discussions everyone that looks into this should be
+> > aware of?
+> >
+>
+> Agreed with Thorsten. I'd like to first try to determine what's wrong
+> before reverting those, as they are correct in theory but maybe the
+> implementation missed something.
+>
+> Have you tried tracing the execution on your platform in order to see
+> what the driver is doing?
 
-This patch seems fine to me, and I'll apply it in a few days after
-sitting on the list for comments, but:
+Looking at commits that have related Fixes tags:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bf781869e5cf3e4ec1a47dad69b6f0df97629cbd
+https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-pinctrl.git/commit/?id=e8f24c58d1b69ecf410a673c22f546dc732bb879
 
-> Note: READ_ONCE() could be used instead of smp_load_acquire(), but it is
-> harder to verify that it is correct, so I'd prefer not to use it here.
-> (https://lore.kernel.org/lkml/20200916233042.51634-1-ebiggers@kernel.org/T/#u),
-> and though it's a correct fix, it was derailed by a debate about whether
-> it's safe to use READ_ONCE() instead of smp_load_acquire() or not.
+Gr{oetje,eeting}s,
 
-But holy smokes... I chuckled at your, "please explain in English." :)
+                        Geert
 
-Paul - if you'd like to look at this patch and confirm that this
-specific patch and usage is fine to be changed into READ_ONCE()
-instead of smp_load_acquire(), please pipe up here. And I really do
-mean this specific patch and usage, not to be confused with any other
-usage elsewhere in the kernel or question about general things, which
-doubtlessly involve larger discussions like the one Eric linked to
-above. If you're certain this patch here is READ_ONCE()able, I'd
-appreciate your saying so with a simple, "it is safe; go for it",
-since I'd definitely like the optimization if it's safe. If I don't
-hear from you, I'll apply this as-is from Eric, as I'd rather be safe
-than sorry.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Jason
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
