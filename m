@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1845C47AC77
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:44:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F22E47ABFC
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236159AbhLTOoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:44:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60224 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235566AbhLTOmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:42:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7B9C0698CD;
-        Mon, 20 Dec 2021 06:41:43 -0800 (PST)
+        id S235095AbhLTOke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:40:34 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:53610 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234881AbhLTOjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A02566119F;
-        Mon, 20 Dec 2021 14:41:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8445EC36AE7;
-        Mon, 20 Dec 2021 14:41:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AB87FCE1095;
+        Mon, 20 Dec 2021 14:39:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79EA3C36AE8;
+        Mon, 20 Dec 2021 14:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011302;
-        bh=z+cvrrMoBlZPt9i6uIalHeaFuC2fWmeKVF5o3WglkT0=;
+        s=korg; t=1640011168;
+        bh=7QkjmvqCiWTXgHyhgrdDjA6TXlHjIdyJ83etUx8yq0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3rvkWzkxzx710M3T/xrplyV88A8RiQ+c5l1JPvGI0lsdAMtoBdSfi7MB6Fbb4o9g
-         WWao4XDoU9FIUTsuu376ajhynAF73vD+XdF2C5T+R9UPhwSWTH6EHIe+gIB/g/BYJd
-         EbcoS7sJrxyjitOJnoyoix9bOjr4gmfft50jGj3I=
+        b=yPyJ0QxByvj8MvDkxLRwU8TpM1FnNqT/8HdgO11IexyiPc7ygSVIK/FwL8ISDKXgp
+         JPQluYDSwoype9EIRLPjML0mB1Kfurp4GO7bokezISKJzcjY6F8k6O7ETTbyZQofdb
+         oXd64iECt58rSD61VL3vyMHtl3sUqn97Dip3tPI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/56] sit: do not call ipip6_dev_free() from sit_init_net()
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Marek Vasut <marex@denx.de>
+Subject: [PATCH 4.14 27/45] PCI/MSI: Mask MSI-X vectors only on success
 Date:   Mon, 20 Dec 2021 15:34:22 +0100
-Message-Id: <20211220143024.402486064@linuxfoundation.org>
+Message-Id: <20211220143023.184345763@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
-References: <20211220143023.451982183@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,88 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Stefan Roese <sr@denx.de>
 
-[ Upstream commit e28587cc491ef0f3c51258fdc87fbc386b1d4c59 ]
+commit 83dbf898a2d45289be875deb580e93050ba67529 upstream.
 
-ipip6_dev_free is sit dev->priv_destructor, already called
-by register_netdevice() if something goes wrong.
+Masking all unused MSI-X entries is done to ensure that a crash kernel
+starts from a clean slate, which correponds to the reset state of the
+device as defined in the PCI-E specificion 3.0 and later:
 
-Alternative would be to make ipip6_dev_free() robust against
-multiple invocations, but other drivers do not implement this
-strategy.
+ Vector Control for MSI-X Table Entries
+ --------------------------------------
 
-syzbot reported:
+ "00: Mask bit:  When this bit is set, the function is prohibited from
+                 sending a message using this MSI-X Table entry.
+                 ...
+                 This bit’s state after reset is 1 (entry is masked)."
 
-dst_release underflow
-WARNING: CPU: 0 PID: 5059 at net/core/dst.c:173 dst_release+0xd8/0xe0 net/core/dst.c:173
-Modules linked in:
-CPU: 1 PID: 5059 Comm: syz-executor.4 Not tainted 5.16.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:dst_release+0xd8/0xe0 net/core/dst.c:173
-Code: 4c 89 f2 89 d9 31 c0 5b 41 5e 5d e9 da d5 44 f9 e8 1d 90 5f f9 c6 05 87 48 c6 05 01 48 c7 c7 80 44 99 8b 31 c0 e8 e8 67 29 f9 <0f> 0b eb 85 0f 1f 40 00 53 48 89 fb e8 f7 8f 5f f9 48 83 c3 a8 48
-RSP: 0018:ffffc9000aa5faa0 EFLAGS: 00010246
-RAX: d6894a925dd15a00 RBX: 00000000ffffffff RCX: 0000000000040000
-RDX: ffffc90005e19000 RSI: 000000000003ffff RDI: 0000000000040000
-RBP: 0000000000000000 R08: ffffffff816a1f42 R09: ffffed1017344f2c
-R10: ffffed1017344f2c R11: 0000000000000000 R12: 0000607f462b1358
-R13: 1ffffffff1bfd305 R14: ffffe8ffffcb1358 R15: dffffc0000000000
-FS:  00007f66c71a2700(0000) GS:ffff8880b9a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f88aaed5058 CR3: 0000000023e0f000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- dst_cache_destroy+0x107/0x1e0 net/core/dst_cache.c:160
- ipip6_dev_free net/ipv6/sit.c:1414 [inline]
- sit_init_net+0x229/0x550 net/ipv6/sit.c:1936
- ops_init+0x313/0x430 net/core/net_namespace.c:140
- setup_net+0x35b/0x9d0 net/core/net_namespace.c:326
- copy_net_ns+0x359/0x5c0 net/core/net_namespace.c:470
- create_new_namespaces+0x4ce/0xa00 kernel/nsproxy.c:110
- unshare_nsproxy_namespaces+0x11e/0x180 kernel/nsproxy.c:226
- ksys_unshare+0x57d/0xb50 kernel/fork.c:3075
- __do_sys_unshare kernel/fork.c:3146 [inline]
- __se_sys_unshare kernel/fork.c:3144 [inline]
- __x64_sys_unshare+0x34/0x40 kernel/fork.c:3144
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f66c882ce99
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f66c71a2168 EFLAGS: 00000246 ORIG_RAX: 0000000000000110
-RAX: ffffffffffffffda RBX: 00007f66c893ff60 RCX: 00007f66c882ce99
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000048040200
-RBP: 00007f66c8886ff1 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007fff6634832f R14: 00007f66c71a2300 R15: 0000000000022000
- </TASK>
+A Marvell NVME device fails to deliver MSI interrupts after trying to
+enable MSI-X interrupts due to that masking. It seems to take the MSI-X
+mask bits into account even when MSI-X is disabled.
 
-Fixes: cf124db566e6 ("net: Fix inconsistent teardown and release of private netdev state.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20211216111741.1387540-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While not specification compliant, this can be cured by moving the masking
+into the success path, so that the MSI-X table entries stay in device reset
+state when the MSI-X setup fails.
+
+[ tglx: Move it into the success path, add comment and amend changelog ]
+
+Fixes: aa8092c1d1f1 ("PCI/MSI: Mask all unused MSI-X entries")
+Signed-off-by: Stefan Roese <sr@denx.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-pci@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211210161025.3287927-1-sr@denx.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/sit.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/pci/msi.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-index 4a49200d0d11c..55c999cbe6e96 100644
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1875,7 +1875,6 @@ static int __net_init sit_init_net(struct net *net)
- 	return 0;
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -796,9 +796,6 @@ static int msix_capability_init(struct p
+ 		goto out_disable;
+ 	}
  
- err_reg_dev:
--	ipip6_dev_free(sitn->fb_tunnel_dev);
- 	free_netdev(sitn->fb_tunnel_dev);
- err_alloc_dev:
- 	return err;
--- 
-2.33.0
-
+-	/* Ensure that all table entries are masked. */
+-	msix_mask_all(base, tsize);
+-
+ 	ret = msix_setup_entries(dev, base, entries, nvec, affd);
+ 	if (ret)
+ 		goto out_disable;
+@@ -821,6 +818,16 @@ static int msix_capability_init(struct p
+ 	/* Set MSI-X enabled bits and unmask the function */
+ 	pci_intx_for_msi(dev, 0);
+ 	dev->msix_enabled = 1;
++
++	/*
++	 * Ensure that all table entries are masked to prevent
++	 * stale entries from firing in a crash kernel.
++	 *
++	 * Done late to deal with a broken Marvell NVME device
++	 * which takes the MSI-X mask bits into account even
++	 * when MSI-X is disabled, which prevents MSI delivery.
++	 */
++	msix_mask_all(base, tsize);
+ 	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL, 0);
+ 
+ 	pcibios_free_irq(dev);
 
 
