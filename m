@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7075047AEFC
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD3047AEFE
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237266AbhLTPHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:07:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37170 "EHLO
+        id S238638AbhLTPHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:07:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241457AbhLTPF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:05:27 -0500
+        with ESMTP id S241503AbhLTPFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:05:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEC8C09B129;
-        Mon, 20 Dec 2021 06:52:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93834C09B12E;
+        Mon, 20 Dec 2021 06:52:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 347E7B80EF8;
-        Mon, 20 Dec 2021 14:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 793E8C36AE7;
-        Mon, 20 Dec 2021 14:52:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C461B80EE6;
+        Mon, 20 Dec 2021 14:52:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD2BC36AE9;
+        Mon, 20 Dec 2021 14:52:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011972;
-        bh=tCY0QyjfFF6hrUjOA4Xx1Qc+ggrY7c9SBUBVLR/xPEk=;
+        s=korg; t=1640011974;
+        bh=RJvSSDAIigqWiK2tGlbtqxU/GtFJxKGRfqIyvfliOho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0u4cmPjVlPMkWLz47nrwWGjPP9U5PpF1rIIykPyi81TKbfqiTav+GFex3NGsX3B5j
-         ButmyUaWAfsHArFd4LxZev1CLWWlTEUAEwzJ61u9FdSsma9kPdaDWWqMD+r1mc50GO
-         iAG04NmQEShx/yLD/migvkY3U2c00O0FHR6VCqOA=
+        b=jHwLdpjFlFatDB8DgC/0EerMwurIT55cwTHLcYhM16t+nPUkwXOOzFHfmarQpTys6
+         bVTCHEgLKixjMQms4vUzQX1QuaWcgPYysEiQCczI8choSt+UcyNVAPCzvo63bCBmVQ
+         S9EpM27jARiyoEcGakwypMIk3KEzYbG3zfjGSMgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Robert W <rwbugreport@lost-in-the-void.net>,
+        stable@vger.kernel.org, Eneas U de Queiroz <cotequeiroz@gmail.com>,
         Felix Fietkau <nbd@nbd.name>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 007/177] mac80211: fix rate control for retransmitted frames
-Date:   Mon, 20 Dec 2021 15:32:37 +0100
-Message-Id: <20211220143040.322809076@linuxfoundation.org>
+Subject: [PATCH 5.15 008/177] mac80211: fix regression in SSN handling of addba tx
+Date:   Mon, 20 Dec 2021 15:32:38 +0100
+Message-Id: <20211220143040.357039389@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -51,44 +50,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Felix Fietkau <nbd@nbd.name>
 
-commit 18688c80ad8a8dd50523dc9276e929932cac86d4 upstream.
+commit 73111efacd3c6d9e644acca1d132566932be8af0 upstream.
 
-Since retransmission clears info->control, rate control needs to be called
-again, otherwise the driver might crash due to invalid rates.
+Some drivers that do their own sequence number allocation (e.g. ath9k) rely
+on being able to modify params->ssn on starting tx ampdu sessions.
+This was broken by a change that modified it to use sta->tid_seq[tid] instead.
 
-Cc: stable@vger.kernel.org # 5.14+
-Reported-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Reported-by: Robert W <rwbugreport@lost-in-the-void.net>
-Fixes: 03c3911d2d67 ("mac80211: call ieee80211_tx_h_rate_ctrl() when dequeue")
+Cc: stable@vger.kernel.org
+Fixes: 31d8bb4e07f8 ("mac80211: agg-tx: refactor sending addba")
+Reported-by: Eneas U de Queiroz <cotequeiroz@gmail.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Tested-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Link: https://lore.kernel.org/r/20211122204323.9787-1-nbd@nbd.name
+Link: https://lore.kernel.org/r/20211124094024.43222-1-nbd@nbd.name
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/tx.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/mac80211/agg-tx.c   |    4 ++--
+ net/mac80211/sta_info.h |    1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -1821,15 +1821,15 @@ static int invoke_tx_handlers_late(struc
- 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(tx->skb);
- 	ieee80211_tx_result res = TX_CONTINUE;
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -480,8 +480,7 @@ static void ieee80211_send_addba_with_ti
  
-+	if (!ieee80211_hw_check(&tx->local->hw, HAS_RATE_CONTROL))
-+		CALL_TXH(ieee80211_tx_h_rate_ctrl);
-+
- 	if (unlikely(info->flags & IEEE80211_TX_INTFL_RETRANSMISSION)) {
- 		__skb_queue_tail(&tx->skbs, tx->skb);
- 		tx->skb = NULL;
- 		goto txh_done;
- 	}
+ 	/* send AddBA request */
+ 	ieee80211_send_addba_request(sdata, sta->sta.addr, tid,
+-				     tid_tx->dialog_token,
+-				     sta->tid_seq[tid] >> 4,
++				     tid_tx->dialog_token, tid_tx->ssn,
+ 				     buf_size, tid_tx->timeout);
  
--	if (!ieee80211_hw_check(&tx->local->hw, HAS_RATE_CONTROL))
--		CALL_TXH(ieee80211_tx_h_rate_ctrl);
--
- 	CALL_TXH(ieee80211_tx_h_michael_mic_add);
- 	CALL_TXH(ieee80211_tx_h_sequence);
- 	CALL_TXH(ieee80211_tx_h_fragment);
+ 	WARN_ON(test_and_set_bit(HT_AGG_STATE_SENT_ADDBA, &tid_tx->state));
+@@ -523,6 +522,7 @@ void ieee80211_tx_ba_session_handle_star
+ 
+ 	params.ssn = sta->tid_seq[tid] >> 4;
+ 	ret = drv_ampdu_action(local, sdata, &params);
++	tid_tx->ssn = params.ssn;
+ 	if (ret == IEEE80211_AMPDU_TX_START_DELAY_ADDBA) {
+ 		return;
+ 	} else if (ret == IEEE80211_AMPDU_TX_START_IMMEDIATE) {
+--- a/net/mac80211/sta_info.h
++++ b/net/mac80211/sta_info.h
+@@ -199,6 +199,7 @@ struct tid_ampdu_tx {
+ 	u8 stop_initiator;
+ 	bool tx_stop;
+ 	u16 buf_size;
++	u16 ssn;
+ 
+ 	u16 failed_bar_ssn;
+ 	bool bar_pending;
 
 
