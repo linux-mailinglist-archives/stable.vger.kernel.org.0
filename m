@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE96547AE66
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A74947ACAA
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239283AbhLTPBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:01:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37212 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239439AbhLTO7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:59:02 -0500
+        id S236422AbhLTOqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:46:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33138 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236601AbhLTOoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79BDC08E84A;
+        Mon, 20 Dec 2021 06:42:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0B53B80ED3;
-        Mon, 20 Dec 2021 14:58:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 008C4C36AE8;
-        Mon, 20 Dec 2021 14:58:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74A5CB80EE9;
+        Mon, 20 Dec 2021 14:42:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B91C6C36AE7;
+        Mon, 20 Dec 2021 14:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012337;
-        bh=vRZkm1a4q47YJvEqn2uc1GNEdWpxtHwei1ERi2mNqA4=;
+        s=korg; t=1640011375;
+        bh=xLfAzJapR99aoDr1OkaqMFKcg4sP3b9gJh5EUUpcH38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=naud94eDwdocxXsx3Wi1xsxN4oMGmw3Hiacg7Xqjm2nSt6Ngq92UIZUbPzRScBkIQ
-         n5EYpUplRxP4Iyq/oz4kB0k1rqs6NJEbBcxEfeketYWc2zOdND4uBXvw1H7QIjYIKo
-         Pms5YYcrMy0a6SU+uCZFxKnWu8zvYBe3jYBWw20I=
+        b=1Q78OuaVOdweZPVWI3ihNojn2sxcAUCSWw0ksWT8LhQD+saxbl/gRfTBfJFzfTu1O
+         d/HPZZ4JLxpxnSyOwVpL0FQOVWRM/y6m8EjfHkLo8r3hlf6APijCmT6Z4KaGYHNDtp
+         B7WPd13J8IKJ1nExJpzHXKtSLa5zzrULNxN0TFN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
-Subject: [PATCH 5.15 138/177] serial: 8250_fintek: Fix garbled text for console
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.19 55/56] xen/netback: fix rx queue stall detection
 Date:   Mon, 20 Dec 2021 15:34:48 +0100
-Message-Id: <20211220143044.733708335@linuxfoundation.org>
+Message-Id: <20211220143025.279910554@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
-References: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +47,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 6c33ff728812aa18792afffaf2c9873b898e7512 upstream.
+commit 6032046ec4b70176d247a71836186d47b25d1684 upstream.
 
-Commit fab8a02b73eb ("serial: 8250_fintek: Enable high speed mode on Fintek F81866")
-introduced support to use high baudrate with Fintek SuperIO UARTs. It'll
-change clocksources when the UART probed.
+Commit 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when
+not using GSO") introduced a security problem in netback, as an
+interface would only be regarded to be stalled if no slot is available
+in the rx queue ring page. In case the SKB at the head of the queued
+requests will need more than one rx slot and only one slot is free the
+stall detection logic will never trigger, as the test for that is only
+looking for at least one slot to be free.
 
-But when user add kernel parameter "console=ttyS0,115200 console=tty0" to make
-the UART as console output, the console will output garbled text after the
-following kernel message.
+Fix that by testing for the needed number of slots instead of only one
+slot being available.
 
-[    3.681188] Serial: 8250/16550 driver, 32 ports, IRQ sharing enabled
+In order to not have to take the rx queue lock that often, store the
+number of needed slots in the queue data. As all SKB dequeue operations
+happen in the rx queue kernel thread this is safe, as long as the
+number of needed slots is accessed via READ/WRITE_ONCE() only and
+updates are always done with the rx queue lock held.
 
-The issue is occurs in following step:
-	probe_setup_port() -> fintek_8250_goto_highspeed()
+Add a small helper for obtaining the number of free slots.
 
-It change clocksource from 115200 to 921600 with wrong time, it should change
-clocksource in set_termios() not in probed. The following 3 patches are
-implemented change clocksource in fintek_8250_set_termios().
+This is part of XSA-392
 
-Commit 58178914ae5b ("serial: 8250_fintek: UART dynamic clocksource on Fintek F81216H")
-Commit 195638b6d44f ("serial: 8250_fintek: UART dynamic clocksource on Fintek F81866")
-Commit 423d9118c624 ("serial: 8250_fintek: Add F81966 Support")
-
-Due to the high baud rate had implemented above 3 patches and the patch
-Commit fab8a02b73eb ("serial: 8250_fintek: Enable high speed mode on Fintek F81866")
-is bugged, So this patch will remove it.
-
-Fixes: fab8a02b73eb ("serial: 8250_fintek: Enable high speed mode on Fintek F81866")
-Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
-Link: https://lore.kernel.org/r/20211215075835.2072-1-hpeter+linux_kernel@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Fixes: 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when not using GSO")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_fintek.c |   20 --------------------
- 1 file changed, 20 deletions(-)
+ drivers/net/xen-netback/common.h |    1 
+ drivers/net/xen-netback/rx.c     |   65 ++++++++++++++++++++++++---------------
+ 2 files changed, 42 insertions(+), 24 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_fintek.c
-+++ b/drivers/tty/serial/8250/8250_fintek.c
-@@ -290,25 +290,6 @@ static void fintek_8250_set_max_fifo(str
+--- a/drivers/net/xen-netback/common.h
++++ b/drivers/net/xen-netback/common.h
+@@ -203,6 +203,7 @@ struct xenvif_queue { /* Per-queue data
+ 	unsigned int rx_queue_max;
+ 	unsigned int rx_queue_len;
+ 	unsigned long last_rx_time;
++	unsigned int rx_slots_needed;
+ 	bool stalled;
+ 
+ 	struct xenvif_copy_state rx_copy;
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -33,28 +33,36 @@
+ #include <xen/xen.h>
+ #include <xen/events.h>
+ 
+-static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
++/*
++ * Update the needed ring page slots for the first SKB queued.
++ * Note that any call sequence outside the RX thread calling this function
++ * needs to wake up the RX thread via a call of xenvif_kick_thread()
++ * afterwards in order to avoid a race with putting the thread to sleep.
++ */
++static void xenvif_update_needed_slots(struct xenvif_queue *queue,
++				       const struct sk_buff *skb)
+ {
+-	RING_IDX prod, cons;
+-	struct sk_buff *skb;
+-	int needed;
+-	unsigned long flags;
++	unsigned int needed = 0;
+ 
+-	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+-
+-	skb = skb_peek(&queue->rx_queue);
+-	if (!skb) {
+-		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+-		return false;
++	if (skb) {
++		needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
++		if (skb_is_gso(skb))
++			needed++;
++		if (skb->sw_hash)
++			needed++;
  	}
+ 
+-	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
+-	if (skb_is_gso(skb))
+-		needed++;
+-	if (skb->sw_hash)
+-		needed++;
++	WRITE_ONCE(queue->rx_slots_needed, needed);
++}
+ 
+-	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
++static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
++{
++	RING_IDX prod, cons;
++	unsigned int needed;
++
++	needed = READ_ONCE(queue->rx_slots_needed);
++	if (!needed)
++		return false;
+ 
+ 	do {
+ 		prod = queue->rx.sring->req_prod;
+@@ -80,6 +88,9 @@ void xenvif_rx_queue_tail(struct xenvif_
+ 
+ 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
+ 
++	if (skb_queue_empty(&queue->rx_queue))
++		xenvif_update_needed_slots(queue, skb);
++
+ 	__skb_queue_tail(&queue->rx_queue, skb);
+ 
+ 	queue->rx_queue_len += skb->len;
+@@ -100,6 +111,8 @@ static struct sk_buff *xenvif_rx_dequeue
+ 
+ 	skb = __skb_dequeue(&queue->rx_queue);
+ 	if (skb) {
++		xenvif_update_needed_slots(queue, skb_peek(&queue->rx_queue));
++
+ 		queue->rx_queue_len -= skb->len;
+ 		if (queue->rx_queue_len < queue->rx_queue_max) {
+ 			struct netdev_queue *txq;
+@@ -474,27 +487,31 @@ void xenvif_rx_action(struct xenvif_queu
+ 	xenvif_rx_copy_flush(queue);
  }
  
--static void fintek_8250_goto_highspeed(struct uart_8250_port *uart,
--			      struct fintek_8250 *pdata)
--{
--	sio_write_reg(pdata, LDN, pdata->index);
--
--	switch (pdata->pid) {
--	case CHIP_ID_F81966:
--	case CHIP_ID_F81866: /* set uart clock for high speed serial mode */
--		sio_write_mask_reg(pdata, F81866_UART_CLK,
--			F81866_UART_CLK_MASK,
--			F81866_UART_CLK_14_769MHZ);
--
--		uart->port.uartclk = 921600 * 16;
--		break;
--	default: /* leave clock speed untouched */
--		break;
--	}
--}
--
- static void fintek_8250_set_termios(struct uart_port *port,
- 				    struct ktermios *termios,
- 				    struct ktermios *old)
-@@ -430,7 +411,6 @@ static int probe_setup_port(struct finte
+-static bool xenvif_rx_queue_stalled(struct xenvif_queue *queue)
++static RING_IDX xenvif_rx_queue_slots(const struct xenvif_queue *queue)
+ {
+ 	RING_IDX prod, cons;
  
- 				fintek_8250_set_irq_mode(pdata, level_mode);
- 				fintek_8250_set_max_fifo(pdata);
--				fintek_8250_goto_highspeed(uart, pdata);
+ 	prod = queue->rx.sring->req_prod;
+ 	cons = queue->rx.req_cons;
  
- 				fintek_8250_exit_key(addr[i]);
++	return prod - cons;
++}
++
++static bool xenvif_rx_queue_stalled(const struct xenvif_queue *queue)
++{
++	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
++
+ 	return !queue->stalled &&
+-		prod - cons < 1 &&
++		xenvif_rx_queue_slots(queue) < needed &&
+ 		time_after(jiffies,
+ 			   queue->last_rx_time + queue->vif->stall_timeout);
+ }
  
+ static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
+ {
+-	RING_IDX prod, cons;
+-
+-	prod = queue->rx.sring->req_prod;
+-	cons = queue->rx.req_cons;
++	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
+ 
+-	return queue->stalled && prod - cons >= 1;
++	return queue->stalled && xenvif_rx_queue_slots(queue) >= needed;
+ }
+ 
+ bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
 
 
