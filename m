@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0514047ACE0
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:47:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AD8A47AC19
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237421AbhLTOr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:47:26 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38108 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237113AbhLTOpZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:45:25 -0500
+        id S234754AbhLTOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:41:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49074 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234539AbhLTOkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E37DE6119C;
-        Mon, 20 Dec 2021 14:45:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03487C36AE8;
-        Mon, 20 Dec 2021 14:45:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA770B80EF1;
+        Mon, 20 Dec 2021 14:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 013D1C36AE8;
+        Mon, 20 Dec 2021 14:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011524;
-        bh=D+iey9O1rBxJrDJpHf5DcPbNxIBUg3gy2kCBc/l00M4=;
+        s=korg; t=1640011215;
+        bh=nih9dZrU8O63ScahyWDZ8/H1Eobq4ZvyR31ISJE4lLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmmCStPSvCdghaBmW8JifYqflGWcrolfPj2nIfXofrwIPlcfTpWLDJUeZa7Z4bvZH
-         tGtjPFRXbemIlcP1erfMeMFveO4gxlK2ETWi3nNEiEHT+X8AZG5SBRNx8vF5hJqUKk
-         yCPB9sJ/M7wszEqk36pOkiHZVZm3Ed8cYhW3xCSg=
+        b=BOfRrLjviXk4btxpp3ewXg2kFo1D0QgMNSn2hWrIFz5jOSrG2aeA+4sjYviWYqvX5
+         NeFHs70/NhuHpbw8jAgMx8H6W24vGGxnBZRKjy0rOrGZg/bNypqjK4Ysu/OjNKw6e3
+         OAz/Vv5YxlFHVtqXtOTPb0Zh9inzd9igZJC8RR/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Liao <liaoyu15@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 51/71] timekeeping: Really make sure wall_to_monotonic isnt positive
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.14 45/45] xen/netback: dont queue unlimited number of packages
 Date:   Mon, 20 Dec 2021 15:34:40 +0100
-Message-Id: <20211220143027.400901533@linuxfoundation.org>
+Message-Id: <20211220143023.766045595@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liao <liaoyu15@huawei.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 4e8c11b6b3f0b6a283e898344f154641eda94266 upstream.
+commit be81992f9086b230623ae3ebbc85ecee4d00a3d3 upstream.
 
-Even after commit e1d7ba873555 ("time: Always make sure wall_to_monotonic
-isn't positive") it is still possible to make wall_to_monotonic positive
-by running the following code:
+In case a guest isn't consuming incoming network traffic as fast as it
+is coming in, xen-netback is buffering network packages in unlimited
+numbers today. This can result in host OOM situations.
 
-    int main(void)
-    {
-        struct timespec time;
+Commit f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal
+queue and carrier flapping") meant to introduce a mechanism to limit
+the amount of buffered data by stopping the Tx queue when reaching the
+data limit, but this doesn't work for cases like UDP.
 
-        clock_gettime(CLOCK_MONOTONIC, &time);
-        time.tv_nsec = 0;
-        clock_settime(CLOCK_REALTIME, &time);
-        return 0;
-    }
+When hitting the limit don't queue further SKBs, but drop them instead.
+In order to be able to tell Rx packages have been dropped increment the
+rx_dropped statistics counter in this case.
 
-The reason is that the second parameter of timespec64_compare(), ts_delta,
-may be unnormalized because the delta is calculated with an open coded
-substraction which causes the comparison of tv_sec to yield the wrong
-result:
+It should be noted that the old solution to continue queueing SKBs had
+the additional problem of an overflow of the 32-bit rx_queue_len value
+would result in intermittent Tx queue enabling.
 
-  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
-  ts_delta 	    = { .tv_sec =  -9, .tv_nsec = -900000000 }
+This is part of XSA-392
 
-That makes timespec64_compare() claim that wall_to_monotonic < ts_delta,
-but actually the result should be wall_to_monotonic > ts_delta.
-
-After normalization, the result of timespec64_compare() is correct because
-the tv_sec comparison is not longer misleading:
-
-  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
-  ts_delta 	    = { .tv_sec = -10, .tv_nsec =  100000000 }
-
-Use timespec64_sub() to ensure that ts_delta is normalized, which fixes the
-issue.
-
-Fixes: e1d7ba873555 ("time: Always make sure wall_to_monotonic isn't positive")
-Signed-off-by: Yu Liao <liaoyu15@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211213135727.1656662-1-liaoyu15@huawei.com
+Fixes: f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal queue and carrier flapping")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/time/timekeeping.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/xen-netback/rx.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -1236,8 +1236,7 @@ int do_settimeofday64(const struct times
- 	timekeeping_forward_now(tk);
+--- a/drivers/net/xen-netback/rx.c
++++ b/drivers/net/xen-netback/rx.c
+@@ -88,16 +88,19 @@ void xenvif_rx_queue_tail(struct xenvif_
  
- 	xt = tk_xtime(tk);
--	ts_delta.tv_sec = ts->tv_sec - xt.tv_sec;
--	ts_delta.tv_nsec = ts->tv_nsec - xt.tv_nsec;
-+	ts_delta = timespec64_sub(*ts, xt);
+ 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
  
- 	if (timespec64_compare(&tk->wall_to_monotonic, &ts_delta) > 0) {
- 		ret = -EINVAL;
+-	if (skb_queue_empty(&queue->rx_queue))
+-		xenvif_update_needed_slots(queue, skb);
+-
+-	__skb_queue_tail(&queue->rx_queue, skb);
+-
+-	queue->rx_queue_len += skb->len;
+-	if (queue->rx_queue_len > queue->rx_queue_max) {
++	if (queue->rx_queue_len >= queue->rx_queue_max) {
+ 		struct net_device *dev = queue->vif->dev;
+ 
+ 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
++		kfree_skb(skb);
++		queue->vif->dev->stats.rx_dropped++;
++	} else {
++		if (skb_queue_empty(&queue->rx_queue))
++			xenvif_update_needed_slots(queue, skb);
++
++		__skb_queue_tail(&queue->rx_queue, skb);
++
++		queue->rx_queue_len += skb->len;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+@@ -147,6 +150,7 @@ static void xenvif_rx_queue_drop_expired
+ 			break;
+ 		xenvif_rx_dequeue(queue);
+ 		kfree_skb(skb);
++		queue->vif->dev->stats.rx_dropped++;
+ 	}
+ }
+ 
 
 
