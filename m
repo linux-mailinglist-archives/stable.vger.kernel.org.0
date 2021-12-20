@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 961D247AB97
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 670DF47AB64
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:36:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233987AbhLTOhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:37:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230331AbhLTOhb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E62EAC061747;
-        Mon, 20 Dec 2021 06:37:30 -0800 (PST)
+        id S233827AbhLTOgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:36:23 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44688 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233799AbhLTOgT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 448E9CE110A;
-        Mon, 20 Dec 2021 14:37:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 124FAC36AE8;
-        Mon, 20 Dec 2021 14:37:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 233C4B80EE0;
+        Mon, 20 Dec 2021 14:36:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59502C36AE7;
+        Mon, 20 Dec 2021 14:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011047;
-        bh=fUo1LADvLkAmjOHtY2moLLrZ8V5j/hwXpyU10SN5xac=;
+        s=korg; t=1640010976;
+        bh=6a7/YyAGAJ4atB/p8MWMxRHNGYE/K/WN+uRcfUGChIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBql1KVNa+FSCINZTncDzxt4krDbaHsVowNyrc6j2hyIy1kVpy7OSvhzxP3EKlx+z
-         3AbqsPafZZ7l1bG15MabX0gxN5ikmcL/KN5BhdDi0HYIENBmpxyfxIhuRpAuzqKauZ
-         fPUEZDYC+wRKfrLZvYlk69pxIu04/Vfi/+QkOyfk=
+        b=Gq8u6qhZx0mx8QkHGUag292vx0cFY6HZFE+Kl/YL6lCHUQUuX7YD2OGrZDm1ZJiQc
+         kE+9vGHXsI1L577WKJ1rjmEwpuK0979EB29F4tKUV59DlrZ46tZSRhtENri0sbjAXh
+         K4NyqJ1N+jW5mLgmqglf0QpeY0MO32y4uQ3ebJws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 17/31] USB: serial: option: add Telit FN990 compositions
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 16/23] net: systemport: Add global locking for descriptor lifecycle
 Date:   Mon, 20 Dec 2021 15:34:17 +0100
-Message-Id: <20211220143020.533101401@linuxfoundation.org>
+Message-Id: <20211220143018.377748713@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
-References: <20211220143019.974513085@linuxfoundation.org>
+In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
+References: <20211220143017.842390782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 2b503c8598d1b232e7fc7526bce9326d92331541 upstream.
+commit 8b8e6e782456f1ce02a7ae914bbd5b1053f0b034 upstream.
 
-Add the following Telit FN990 compositions:
+The descriptor list is a shared resource across all of the transmit queues, and
+the locking mechanism used today only protects concurrency across a given
+transmit queue between the transmit and reclaiming. This creates an opportunity
+for the SYSTEMPORT hardware to work on corrupted descriptors if we have
+multiple producers at once which is the case when using multiple transmit
+queues.
 
-0x1070: tty, adb, rmnet, tty, tty, tty, tty
-0x1071: tty, adb, mbim, tty, tty, tty, tty
-0x1072: rndis, tty, adb, tty, tty, tty, tty
-0x1073: tty, adb, ecm, tty, tty, tty, tty
+This was particularly noticeable when using multiple flows/transmit queues and
+it showed up in interesting ways in that UDP packets would get a correct UDP
+header checksum being calculated over an incorrect packet length. Similarly TCP
+packets would get an equally correct checksum computed by the hardware over an
+incorrect packet length.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20211210100714.22587-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+The SYSTEMPORT hardware maintains an internal descriptor list that it re-arranges
+when the driver produces a new descriptor anytime it writes to the
+WRITE_PORT_{HI,LO} registers, there is however some delay in the hardware to
+re-organize its descriptors and it is possible that concurrent TX queues
+eventually break this internal allocation scheme to the point where the
+length/status part of the descriptor gets used for an incorrect data buffer.
+
+The fix is to impose a global serialization for all TX queues in the short
+section where we are writing to the WRITE_PORT_{HI,LO} registers which solves
+the corruption even with multiple concurrent TX queues being used.
+
+Fixes: 80105befdb4b ("net: systemport: add Broadcom SYSTEMPORT Ethernet MAC driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20211215202450.4086240-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/broadcom/bcmsysport.c |    5 +++++
+ drivers/net/ethernet/broadcom/bcmsysport.h |    1 +
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1195,6 +1195,14 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1070, 0xff),	/* Telit FN990 (rmnet) */
-+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1071, 0xff),	/* Telit FN990 (MBIM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1072, 0xff),	/* Telit FN990 (RNDIS) */
-+	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1073, 0xff),	/* Telit FN990 (ECM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+--- a/drivers/net/ethernet/broadcom/bcmsysport.c
++++ b/drivers/net/ethernet/broadcom/bcmsysport.c
+@@ -90,9 +90,13 @@ static inline void tdma_port_write_desc_
+ 					     struct dma_desc *desc,
+ 					     unsigned int port)
+ {
++	unsigned long desc_flags;
++
+ 	/* Ports are latched, so write upper address first */
++	spin_lock_irqsave(&priv->desc_lock, desc_flags);
+ 	tdma_writel(priv, desc->addr_status_len, TDMA_WRITE_PORT_HI(port));
+ 	tdma_writel(priv, desc->addr_lo, TDMA_WRITE_PORT_LO(port));
++	spin_unlock_irqrestore(&priv->desc_lock, desc_flags);
+ }
+ 
+ /* Ethtool operations */
+@@ -1608,6 +1612,7 @@ static int bcm_sysport_open(struct net_d
+ 	}
+ 
+ 	/* Initialize both hardware and software ring */
++	spin_lock_init(&priv->desc_lock);
+ 	for (i = 0; i < dev->num_tx_queues; i++) {
+ 		ret = bcm_sysport_init_tx_ring(priv, i);
+ 		if (ret) {
+--- a/drivers/net/ethernet/broadcom/bcmsysport.h
++++ b/drivers/net/ethernet/broadcom/bcmsysport.h
+@@ -660,6 +660,7 @@ struct bcm_sysport_priv {
+ 	int			wol_irq;
+ 
+ 	/* Transmit rings */
++	spinlock_t		desc_lock;
+ 	struct bcm_sysport_tx_ring tx_rings[TDMA_NUM_RINGS];
+ 
+ 	/* Receive queue */
 
 
