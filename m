@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEE6B47AF98
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B0247AF9A
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:16:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238565AbhLTPPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:15:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39634 "EHLO
+        id S238974AbhLTPQC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:16:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239561AbhLTPN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:13:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856C5C0086DB;
-        Mon, 20 Dec 2021 06:57:26 -0800 (PST)
+        with ESMTP id S239887AbhLTPOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:14:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C38E9C00693D;
+        Mon, 20 Dec 2021 06:57:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 231FE611C4;
-        Mon, 20 Dec 2021 14:57:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C538C36AE8;
-        Mon, 20 Dec 2021 14:57:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E808B80EE3;
+        Mon, 20 Dec 2021 14:57:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D696AC36AE8;
+        Mon, 20 Dec 2021 14:57:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012245;
-        bh=7s65w84pj5WPUwAZ4D2CQCA6Yl+0sQeh7Z4ff43BDjk=;
+        s=korg; t=1640012248;
+        bh=bK1n+S427wb23NqOofsbrM4ULxmkuDog0jSt8VwB6mQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iR6i8NDC8lxEgor+yD/4yLl7M+3UsivLjsQhErW/mPv/2B1W38dqD/LLA52KUUgud
-         lD6T3SaRpN3DYjSPPvlTUBLf9cMyQANswnd3REqtL7tUWVzthmGMBqnWvzIdsDi9W8
-         lrXYgQ7Bgyjj9ETcDuoEDg4Zy2o56oQKB+cmXeKA=
+        b=NhTwV/tOdNleaOGRfEJUqGzRiGeS9muDVPdRzxo4IokhyNhiMD8xhC76FTYCd3CmR
+         FsHYJev6yYZe4ef4wpVvbEpRrIj3YRwzVPVwjbbqaoWGYgNla0gLdgpquz3KUjZDYf
+         tixfiNisg+yfg/bJ2ONLTNzDcB4SxmSldZqv6d5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Mayhew <smayhew@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.15 131/177] selinux: fix sleeping function called from invalid context
-Date:   Mon, 20 Dec 2021 15:34:41 +0100
-Message-Id: <20211220143044.483849194@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Jianglei Nie <niejianglei2021@163.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 132/177] btrfs: fix memory leak in __add_inode_ref()
+Date:   Mon, 20 Dec 2021 15:34:42 +0100
+Message-Id: <20211220143044.516478168@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -47,200 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Mayhew <smayhew@redhat.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-commit cc274ae7763d9700a56659f3228641d7069e7a3f upstream.
+commit f35838a6930296fc1988764cfa54cb3f705c0665 upstream.
 
-selinux_sb_mnt_opts_compat() is called via sget_fc() under the sb_lock
-spinlock, so it can't use GFP_KERNEL allocations:
+Line 1169 (#3) allocates a memory chunk for victim_name by kmalloc(),
+but  when the function returns in line 1184 (#4) victim_name allocated
+by line 1169 (#3) is not freed, which will lead to a memory leak.
+There is a similar snippet of code in this function as allocating a memory
+chunk for victim_name in line 1104 (#1) as well as releasing the memory
+in line 1116 (#2).
 
-[  868.565200] BUG: sleeping function called from invalid context at
-               include/linux/sched/mm.h:230
-[  868.568246] in_atomic(): 1, irqs_disabled(): 0,
-               non_block: 0, pid: 4914, name: mount.nfs
-[  868.569626] preempt_count: 1, expected: 0
-[  868.570215] RCU nest depth: 0, expected: 0
-[  868.570809] Preemption disabled at:
-[  868.570810] [<0000000000000000>] 0x0
-[  868.571848] CPU: 1 PID: 4914 Comm: mount.nfs Kdump: loaded
-               Tainted: G        W         5.16.0-rc5.2585cf9dfa #1
-[  868.573273] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-               BIOS 1.14.0-4.fc34 04/01/2014
-[  868.574478] Call Trace:
-[  868.574844]  <TASK>
-[  868.575156]  dump_stack_lvl+0x34/0x44
-[  868.575692]  __might_resched.cold+0xd6/0x10f
-[  868.576308]  slab_pre_alloc_hook.constprop.0+0x89/0xf0
-[  868.577046]  __kmalloc_track_caller+0x72/0x420
-[  868.577684]  ? security_context_to_sid_core+0x48/0x2b0
-[  868.578569]  kmemdup_nul+0x22/0x50
-[  868.579108]  security_context_to_sid_core+0x48/0x2b0
-[  868.579854]  ? _nfs4_proc_pathconf+0xff/0x110 [nfsv4]
-[  868.580742]  ? nfs_reconfigure+0x80/0x80 [nfs]
-[  868.581355]  security_context_str_to_sid+0x36/0x40
-[  868.581960]  selinux_sb_mnt_opts_compat+0xb5/0x1e0
-[  868.582550]  ? nfs_reconfigure+0x80/0x80 [nfs]
-[  868.583098]  security_sb_mnt_opts_compat+0x2a/0x40
-[  868.583676]  nfs_compare_super+0x113/0x220 [nfs]
-[  868.584249]  ? nfs_try_mount_request+0x210/0x210 [nfs]
-[  868.584879]  sget_fc+0xb5/0x2f0
-[  868.585267]  nfs_get_tree_common+0x91/0x4a0 [nfs]
-[  868.585834]  vfs_get_tree+0x25/0xb0
-[  868.586241]  fc_mount+0xe/0x30
-[  868.586605]  do_nfs4_mount+0x130/0x380 [nfsv4]
-[  868.587160]  nfs4_try_get_tree+0x47/0xb0 [nfsv4]
-[  868.587724]  vfs_get_tree+0x25/0xb0
-[  868.588193]  do_new_mount+0x176/0x310
-[  868.588782]  __x64_sys_mount+0x103/0x140
-[  868.589388]  do_syscall_64+0x3b/0x90
-[  868.589935]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  868.590699] RIP: 0033:0x7f2b371c6c4e
-[  868.591239] Code: 48 8b 0d dd 71 0e 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e
-                     0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 49 89 ca b8 a5 00
-                     00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d aa 71
-                     0e 00 f7 d8 64 89 01 48
-[  868.593810] RSP: 002b:00007ffc83775d88 EFLAGS: 00000246
-               ORIG_RAX: 00000000000000a5
-[  868.594691] RAX: ffffffffffffffda RBX: 00007ffc83775f10 RCX: 00007f2b371c6c4e
-[  868.595504] RDX: 0000555d517247a0 RSI: 0000555d51724700 RDI: 0000555d51724540
-[  868.596317] RBP: 00007ffc83775f10 R08: 0000555d51726890 R09: 0000555d51726890
-[  868.597162] R10: 0000000000000000 R11: 0000000000000246 R12: 0000555d51726890
-[  868.598005] R13: 0000000000000003 R14: 0000555d517246e0 R15: 0000555d511ac925
-[  868.598826]  </TASK>
+We should kfree() victim_name when the return value of backref_in_log()
+is less than zero and before the function returns in line 1184 (#4).
 
-Cc: stable@vger.kernel.org
-Fixes: 69c4a42d72eb ("lsm,selinux: add new hook to compare new mount to an existing mount")
-Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-[PM: cleanup/line-wrap the backtrace]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+1057 static inline int __add_inode_ref(struct btrfs_trans_handle *trans,
+1058 				  struct btrfs_root *root,
+1059 				  struct btrfs_path *path,
+1060 				  struct btrfs_root *log_root,
+1061 				  struct btrfs_inode *dir,
+1062 				  struct btrfs_inode *inode,
+1063 				  u64 inode_objectid, u64 parent_objectid,
+1064 				  u64 ref_index, char *name, int namelen,
+1065 				  int *search_done)
+1066 {
+
+1104 	victim_name = kmalloc(victim_name_len, GFP_NOFS);
+	// #1: kmalloc (victim_name-1)
+1105 	if (!victim_name)
+1106 		return -ENOMEM;
+
+1112	ret = backref_in_log(log_root, &search_key,
+1113			parent_objectid, victim_name,
+1114			victim_name_len);
+1115	if (ret < 0) {
+1116		kfree(victim_name); // #2: kfree (victim_name-1)
+1117		return ret;
+1118	} else if (!ret) {
+
+1169 	victim_name = kmalloc(victim_name_len, GFP_NOFS);
+	// #3: kmalloc (victim_name-2)
+1170 	if (!victim_name)
+1171 		return -ENOMEM;
+
+1180 	ret = backref_in_log(log_root, &search_key,
+1181 			parent_objectid, victim_name,
+1182 			victim_name_len);
+1183 	if (ret < 0) {
+1184 		return ret; // #4: missing kfree (victim_name-2)
+1185 	} else if (!ret) {
+
+1241 	return 0;
+1242 }
+
+Fixes: d3316c8233bb ("btrfs: Properly handle backref_in_log retval")
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/selinux/hooks.c |   33 +++++++++++++++++++--------------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+ fs/btrfs/tree-log.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -611,10 +611,11 @@ static int bad_option(struct superblock_
- 	return 0;
- }
- 
--static int parse_sid(struct super_block *sb, const char *s, u32 *sid)
-+static int parse_sid(struct super_block *sb, const char *s, u32 *sid,
-+		     gfp_t gfp)
- {
- 	int rc = security_context_str_to_sid(&selinux_state, s,
--					     sid, GFP_KERNEL);
-+					     sid, gfp);
- 	if (rc)
- 		pr_warn("SELinux: security_context_str_to_sid"
- 		       "(%s) failed for (dev %s, type %s) errno=%d\n",
-@@ -685,7 +686,8 @@ static int selinux_set_mnt_opts(struct s
- 	 */
- 	if (opts) {
- 		if (opts->fscontext) {
--			rc = parse_sid(sb, opts->fscontext, &fscontext_sid);
-+			rc = parse_sid(sb, opts->fscontext, &fscontext_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-@@ -694,7 +696,8 @@ static int selinux_set_mnt_opts(struct s
- 			sbsec->flags |= FSCONTEXT_MNT;
- 		}
- 		if (opts->context) {
--			rc = parse_sid(sb, opts->context, &context_sid);
-+			rc = parse_sid(sb, opts->context, &context_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid,
-@@ -703,7 +706,8 @@ static int selinux_set_mnt_opts(struct s
- 			sbsec->flags |= CONTEXT_MNT;
- 		}
- 		if (opts->rootcontext) {
--			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid);
-+			rc = parse_sid(sb, opts->rootcontext, &rootcontext_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid,
-@@ -712,7 +716,8 @@ static int selinux_set_mnt_opts(struct s
- 			sbsec->flags |= ROOTCONTEXT_MNT;
- 		}
- 		if (opts->defcontext) {
--			rc = parse_sid(sb, opts->defcontext, &defcontext_sid);
-+			rc = parse_sid(sb, opts->defcontext, &defcontext_sid,
-+					GFP_KERNEL);
- 			if (rc)
- 				goto out;
- 			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid,
-@@ -2701,14 +2706,14 @@ static int selinux_sb_mnt_opts_compat(st
- 		return (sbsec->flags & SE_MNTMASK) ? 1 : 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid);
-+		rc = parse_sid(sb, opts->fscontext, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
- 			return 1;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid);
-+		rc = parse_sid(sb, opts->context, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-@@ -2718,14 +2723,14 @@ static int selinux_sb_mnt_opts_compat(st
- 		struct inode_security_struct *root_isec;
- 
- 		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid);
-+		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
- 			return 1;
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid);
-+		rc = parse_sid(sb, opts->defcontext, &sid, GFP_NOWAIT);
- 		if (rc)
- 			return 1;
- 		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-@@ -2748,14 +2753,14 @@ static int selinux_sb_remount(struct sup
- 		return 0;
- 
- 	if (opts->fscontext) {
--		rc = parse_sid(sb, opts->fscontext, &sid);
-+		rc = parse_sid(sb, opts->fscontext, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->context) {
--		rc = parse_sid(sb, opts->context, &sid);
-+		rc = parse_sid(sb, opts->context, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-@@ -2764,14 +2769,14 @@ static int selinux_sb_remount(struct sup
- 	if (opts->rootcontext) {
- 		struct inode_security_struct *root_isec;
- 		root_isec = backing_inode_security(sb->s_root);
--		rc = parse_sid(sb, opts->rootcontext, &sid);
-+		rc = parse_sid(sb, opts->rootcontext, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
- 			goto out_bad_option;
- 	}
- 	if (opts->defcontext) {
--		rc = parse_sid(sb, opts->defcontext, &sid);
-+		rc = parse_sid(sb, opts->defcontext, &sid, GFP_KERNEL);
- 		if (rc)
- 			return rc;
- 		if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1153,6 +1153,7 @@ again:
+ 					     parent_objectid, victim_name,
+ 					     victim_name_len);
+ 			if (ret < 0) {
++				kfree(victim_name);
+ 				return ret;
+ 			} else if (!ret) {
+ 				ret = -ENOENT;
 
 
