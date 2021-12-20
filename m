@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B20647AF3E
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE89647AF4F
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236567AbhLTPKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:10:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38580 "EHLO
+        id S239146AbhLTPLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:11:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234877AbhLTPJ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 801A5C079797;
-        Mon, 20 Dec 2021 06:55:14 -0800 (PST)
+        with ESMTP id S240033AbhLTPJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D52C08E854;
+        Mon, 20 Dec 2021 06:55:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47850B80EE7;
-        Mon, 20 Dec 2021 14:55:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AEF1C36AE8;
-        Mon, 20 Dec 2021 14:55:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40B5C611A7;
+        Mon, 20 Dec 2021 14:55:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 208D2C36AE7;
+        Mon, 20 Dec 2021 14:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012112;
-        bh=BABIAVL5tGxCYgczj9voefBLTGbkE3JOfYuYsLROe60=;
+        s=korg; t=1640012142;
+        bh=+dZi4cDBkCffvhK8u+2aiwgna0CtT81be2T992Any7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8FxRrXr9xKH4VQ/DcCQnQSQoKa1HkWQeHTk1v07j1u0JacN86rZwGBCN+fKLLo9m
-         M5H8YcpmT3PcXjJS7E1OYO7zeHQmDC7NbftIWHdMFn6kclI+Nw5NhiyUxQX7mOzF6m
-         Y5LCwZr2OrZv6wJ8JZ+0wWtwbbkgdKCyhY+crLvM=
+        b=NIsq4RgXj8F4tY+uDgEqqeXqt0X6e05Bs4fj6UujPVfl4w9JQFG8Miy+5GgCZtPlG
+         2BLCdl7Ukx8aRM7O3wKfSU/QJJCJXju1ylCMAoc26Zk6hptPdv2NKaXYPjeywNphUd
+         Qnt5r57OXy5NIYNGQHoIUI63bC5uzDaS102/NMQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Li Zhijian <lizhijian@fujitsu.com>,
+        David Ahern <dsahern@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/177] selftests: Add duplicate config only for MD5 VRF tests
-Date:   Mon, 20 Dec 2021 15:33:37 +0100
-Message-Id: <20211220143042.353388366@linuxfoundation.org>
+Subject: [PATCH 5.15 068/177] selftests: Fix raw socket bind tests with VRF
+Date:   Mon, 20 Dec 2021 15:33:38 +0100
+Message-Id: <20211220143042.384923700@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -50,84 +51,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit 7e0147592b5c4f9e2eb8c54a7857a56d4863f74e ]
+[ Upstream commit 0f108ae4452025fef529671998f6c7f1c4526790 ]
 
-Commit referenced below added configuration in the default VRF that
-duplicates a VRF to check MD5 passwords are properly used and fail
-when expected. That config should not be added all the time as it
-can cause tests to pass that should not (by matching on default VRF
-setup when it should not). Move the duplicate setup to a function
-that is only called for the MD5 tests and add a cleanup function
-to remove it after the MD5 tests.
+Commit referenced below added negative socket bind tests for VRF. The
+socket binds should fail since the address to bind to is in a VRF yet
+the socket is not bound to the VRF or a device within it. Update the
+expected return code to check for 1 (bind failure) so the test passes
+when the bind fails as expected. Add a 'show_hint' comment to explain
+why the bind is expected to fail.
 
-Fixes: 5cad8bce26e0 ("fcnal-test: Add TCP MD5 tests for VRF")
+Fixes: 75b2b2b3db4c ("selftests: Add ipv4 address bind tests to fcnal-test")
+Reported-by: Li Zhijian <lizhijian@fujitsu.com>
 Signed-off-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fcnal-test.sh | 26 +++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ tools/testing/selftests/net/fcnal-test.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/tools/testing/selftests/net/fcnal-test.sh b/tools/testing/selftests/net/fcnal-test.sh
-index 966787c2f9f0f..8bcbb72f74c1f 100755
+index 8bcbb72f74c1f..9d2e8db8827e2 100755
 --- a/tools/testing/selftests/net/fcnal-test.sh
 +++ b/tools/testing/selftests/net/fcnal-test.sh
-@@ -455,6 +455,22 @@ cleanup()
- 	ip netns del ${NSC} >/dev/null 2>&1
- }
+@@ -1810,8 +1810,9 @@ ipv4_addr_bind_vrf()
+ 	for a in ${NSA_IP} ${VRF_IP}
+ 	do
+ 		log_start
++		show_hint "Socket not bound to VRF, but address is in VRF"
+ 		run_cmd nettest -s -R -P icmp -l ${a} -b
+-		log_test_addr ${a} $? 0 "Raw socket bind to local address"
++		log_test_addr ${a} $? 1 "Raw socket bind to local address"
  
-+cleanup_vrf_dup()
-+{
-+	ip link del ${NSA_DEV2} >/dev/null 2>&1
-+	ip netns pids ${NSC} | xargs kill 2>/dev/null
-+	ip netns del ${NSC} >/dev/null 2>&1
-+}
-+
-+setup_vrf_dup()
-+{
-+	# some VRF tests use ns-C which has the same config as
-+	# ns-B but for a device NOT in the VRF
-+	create_ns ${NSC} "-" "-"
-+	connect_ns ${NSA} ${NSA_DEV2} ${NSA_IP}/24 ${NSA_IP6}/64 \
-+		   ${NSC} ${NSC_DEV} ${NSB_IP}/24 ${NSB_IP6}/64
-+}
-+
- setup()
- {
- 	local with_vrf=${1}
-@@ -484,12 +500,6 @@ setup()
- 
- 		ip -netns ${NSB} ro add ${VRF_IP}/32 via ${NSA_IP} dev ${NSB_DEV}
- 		ip -netns ${NSB} -6 ro add ${VRF_IP6}/128 via ${NSA_IP6} dev ${NSB_DEV}
--
--		# some VRF tests use ns-C which has the same config as
--		# ns-B but for a device NOT in the VRF
--		create_ns ${NSC} "-" "-"
--		connect_ns ${NSA} ${NSA_DEV2} ${NSA_IP}/24 ${NSA_IP6}/64 \
--			   ${NSC} ${NSC_DEV} ${NSB_IP}/24 ${NSB_IP6}/64
- 	else
- 		ip -netns ${NSA} ro add ${NSB_LO_IP}/32 via ${NSB_IP} dev ${NSA_DEV}
- 		ip -netns ${NSA} ro add ${NSB_LO_IP6}/128 via ${NSB_IP6} dev ${NSA_DEV}
-@@ -1240,7 +1250,9 @@ ipv4_tcp_vrf()
- 	log_test_addr ${a} $? 1 "Global server, local connection"
- 
- 	# run MD5 tests
-+	setup_vrf_dup
- 	ipv4_tcp_md5
-+	cleanup_vrf_dup
- 
- 	#
- 	# enable VRF global server
-@@ -2719,7 +2731,9 @@ ipv6_tcp_vrf()
- 	log_test_addr ${a} $? 1 "Global server, local connection"
- 
- 	# run MD5 tests
-+	setup_vrf_dup
- 	ipv6_tcp_md5
-+	cleanup_vrf_dup
- 
- 	#
- 	# enable VRF global server
+ 		log_start
+ 		run_cmd nettest -s -R -P icmp -l ${a} -I ${NSA_DEV} -b
 -- 
 2.33.0
 
