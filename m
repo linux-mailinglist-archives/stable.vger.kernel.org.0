@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA50B47AE54
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3B947AD9A
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239057AbhLTPAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:00:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34030 "EHLO
+        id S238134AbhLTOxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:53:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57216 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239001AbhLTO61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:27 -0500
+        with ESMTP id S237045AbhLTOvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62522B80ED1;
-        Mon, 20 Dec 2021 14:58:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D06C36AE7;
-        Mon, 20 Dec 2021 14:58:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC01FB80EE8;
+        Mon, 20 Dec 2021 14:51:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF815C36AE8;
+        Mon, 20 Dec 2021 14:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012304;
-        bh=3uYhQb3bWY54x9fRpOlW0W4fux/f2ZgTlxdNGkLbGnc=;
+        s=korg; t=1640011875;
+        bh=jwHN2/ZmBVm7qZI+kBcHm1ag/+D7eHgTCbFvfHp9cZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twwc57V/Nt/zXY4vo6aiNEL8fwzb4ouzeX3dY/HQ8LQ2b2GD7NtqLxKv0ETftEIse
-         YCRPRK2ikLM9buFLq1eY3qe4lhVpA5iUaoM61CzmcsmGrl2146LZWbdeCLQHvMO2Lj
-         YksKlSdloOYtk+tBpR1vQwy2u2Ork7ya46cbX9zA=
+        b=zukSQwO5aXC07mQ1RIq5caLCdPJXAfui8aCH7dBsW4q4meKXqZOA9NFuPUH6ClCOo
+         7SmjE2DDBCYfN/8KSq1kLqwaFHwKCIjkcmv9hnwhzuPE0yE8/AN5NAm1Dws9SKouHR
+         qROwEKTOU9RhF1UI8QB4V8tfChvx+chxi9EcAPus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Makarov <georgemakarov1@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.15 154/177] ARM: dts: imx6ull-pinfunc: Fix CSI_DATA07__ESAI_TX0 pad name
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 91/99] scsi: scsi_debug: Sanity check block descriptor length in resp_mode_select()
 Date:   Mon, 20 Dec 2021 15:35:04 +0100
-Message-Id: <20211220143045.257852492@linuxfoundation.org>
+Message-Id: <20211220143032.460887714@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
-References: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 737e65c7956795b3553781fb7bc82fce1c39503f upstream.
+commit e0a2c28da11e2c2b963fc01d50acbf03045ac732 upstream.
 
-According to the i.MX6ULL Reference Manual, pad CSI_DATA07 may
-have the ESAI_TX0 functionality, not ESAI_T0.
+In resp_mode_select() sanity check the block descriptor len to avoid UAF.
 
-Also, NXP's i.MX Config Tools 10.0 generates dtsi with the
-MX6ULL_PAD_CSI_DATA07__ESAI_TX0 naming, so fix it accordingly.
+BUG: KASAN: use-after-free in resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+Read of size 1 at addr ffff888026670f50 by task scsicmd/15032
 
-There are no devicetree users in mainline that use the old name,
-so just remove the old entry.
+CPU: 1 PID: 15032 Comm: scsicmd Not tainted 5.15.0-01d0625 #15
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:107
+ print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:257
+ kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:443
+ __asan_report_load1_noabort+0x14/0x20 mm/kasan/report_generic.c:306
+ resp_mode_select+0xa4c/0xb40 drivers/scsi/scsi_debug.c:2509
+ schedule_resp+0x4af/0x1a10 drivers/scsi/scsi_debug.c:5483
+ scsi_debug_queuecommand+0x8c9/0x1e70 drivers/scsi/scsi_debug.c:7537
+ scsi_queue_rq+0x16b4/0x2d10 drivers/scsi/scsi_lib.c:1521
+ blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1640
+ __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
+ blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
+ __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1762
+ __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1839
+ blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
+ blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
+ blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:63
+ sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:837
+ sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:775
+ sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:941
+ sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1166
+ __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:52
+ do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:50
+ entry_SYSCALL_64_after_hwframe+0x44/0xae arch/x86/entry/entry_64.S:113
 
-Fixes: c201369d4aa5 ("ARM: dts: imx6ull: add imx6ull support")
-Reported-by: George Makarov <georgemakarov1@gmail.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Link: https://lore.kernel.org/r/1637262208-28850-1-git-send-email-george.kennedy@oracle.com
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Acked-by: Douglas Gilbert <dgilbert@interlog.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6ull-pinfunc.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_debug.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/imx6ull-pinfunc.h
-+++ b/arch/arm/boot/dts/imx6ull-pinfunc.h
-@@ -82,6 +82,6 @@
- #define MX6ULL_PAD_CSI_DATA04__ESAI_TX_FS                         0x01F4 0x0480 0x0000 0x9 0x0
- #define MX6ULL_PAD_CSI_DATA05__ESAI_TX_CLK                        0x01F8 0x0484 0x0000 0x9 0x0
- #define MX6ULL_PAD_CSI_DATA06__ESAI_TX5_RX0                       0x01FC 0x0488 0x0000 0x9 0x0
--#define MX6ULL_PAD_CSI_DATA07__ESAI_T0                            0x0200 0x048C 0x0000 0x9 0x0
-+#define MX6ULL_PAD_CSI_DATA07__ESAI_TX0                           0x0200 0x048C 0x0000 0x9 0x0
- 
- #endif /* __DTS_IMX6ULL_PINFUNC_H */
+--- a/drivers/scsi/scsi_debug.c
++++ b/drivers/scsi/scsi_debug.c
+@@ -2501,11 +2501,11 @@ static int resp_mode_select(struct scsi_
+ 			    __func__, param_len, res);
+ 	md_len = mselect6 ? (arr[0] + 1) : (get_unaligned_be16(arr + 0) + 2);
+ 	bd_len = mselect6 ? arr[3] : get_unaligned_be16(arr + 6);
+-	if (md_len > 2) {
++	off = bd_len + (mselect6 ? 4 : 8);
++	if (md_len > 2 || off >= res) {
+ 		mk_sense_invalid_fld(scp, SDEB_IN_DATA, 0, -1);
+ 		return check_condition_result;
+ 	}
+-	off = bd_len + (mselect6 ? 4 : 8);
+ 	mpage = arr[off] & 0x3f;
+ 	ps = !!(arr[off] & 0x80);
+ 	if (ps) {
 
 
