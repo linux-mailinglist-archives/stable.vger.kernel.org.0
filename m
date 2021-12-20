@@ -2,29 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D083247AB78
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:37:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EA2247ABAE
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233784AbhLTOg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:36:58 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:51866 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231599AbhLTOgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:48 -0500
+        id S234446AbhLTOiU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:38:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59458 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233973AbhLTOhu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC504C061394;
+        Mon, 20 Dec 2021 06:37:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AC992CE10F0;
-        Mon, 20 Dec 2021 14:36:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7527EC36AE9;
-        Mon, 20 Dec 2021 14:36:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84F47B80EE6;
+        Mon, 20 Dec 2021 14:37:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB100C36AE8;
+        Mon, 20 Dec 2021 14:37:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011005;
-        bh=4JqTxbKO/DQeX4y1sMZwWKxdauS4onY3+p+pEPUjIMw=;
+        s=korg; t=1640011067;
+        bh=JYrEXAsyHYXxPTqCgvNMYYxWY+HebU64cZPOq6OpLY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A21bYoXTE8ZnGH4om5KdXmUKgYvkllChOmfoPz5Q7NyvNqkCKVPGif9hnuGAOJCOg
-         fdGdFd3Fq4kMQNmW9sGmvh7MAYMTDIfI8GU+65d81Qf8HzSasBlRkYDPOsLQDmb7YG
-         1Gqh+KABMu8qRJ1LmGWlTap1ZVCch3W4dmgk89tw=
+        b=uLbSCxu9hZYE8zisZPcPwLqrP7/sA9thRVMHiZFcho+MHzS10wSV7KaHEHWkoMlYn
+         8/UeaD+NUKI9WFj8u+0sJIY5Q3PmMFASHwYBcGMPOscBm45IVr3jhcGqGLQhXn7wGJ
+         1nRbDs0koGYOwZVuEZOQIcYl3GB6xro7cWFELNH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 04/23] net: netlink: af_netlink: Prevent empty skb by adding a check on len.
+Subject: [PATCH 4.9 05/31] net: netlink: af_netlink: Prevent empty skb by adding a check on len.
 Date:   Mon, 20 Dec 2021 15:34:05 +0100
-Message-Id: <20211220143017.987852710@linuxfoundation.org>
+Message-Id: <20211220143020.157612091@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
-References: <20211220143017.842390782@linuxfoundation.org>
+In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
+References: <20211220143019.974513085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -227,7 +230,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+)
 
 diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 65cf129eaad33..2f23b7fef8ef7 100644
+index 1b70de5898c42..13d69cbd14c20 100644
 --- a/net/netlink/af_netlink.c
 +++ b/net/netlink/af_netlink.c
 @@ -1804,6 +1804,11 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
