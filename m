@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30D7F47ADB2
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A61FF47AE20
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236844AbhLTOyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:54:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34368 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237180AbhLTOv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EC7C08EAF9;
-        Mon, 20 Dec 2021 06:46:57 -0800 (PST)
+        id S238627AbhLTO6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:58:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33976 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237285AbhLTO4U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:56:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21FF4611BF;
-        Mon, 20 Dec 2021 14:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0719DC36AE7;
-        Mon, 20 Dec 2021 14:46:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4256DB80EEF;
+        Mon, 20 Dec 2021 14:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76EF2C36AEA;
+        Mon, 20 Dec 2021 14:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011616;
-        bh=CYVJQkz8G2L85MLOQlmPwd9eag/MhqdmKIgcPUeLlLY=;
+        s=korg; t=1640012176;
+        bh=0b9m43KyOzb8FHhMKRU+7RgQilJtDaiknZrg5I6FYN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqvHGL39qjEGaVwNp39dAbTlt4NeQy7vFTeCYEq+kHgFarWSXsoEF51p2gzNaaPyj
-         KkgIFe2IosdmPt05lEmumr+88rmRpRGFfezYJYnAtOnv4LKb0Dc1d6R2wotUCCcj99
-         r84ahC+YFLBAeR4PIrztAM3GFUGXv0puvmuHFrNw=
+        b=BTsuL6/6UimmL6LRPvoNYuwtt7W19RPyomnNjxUrnznYKAyxG0ph3YVvDgAqc/nhI
+         xLvyRhAU2KGgaiX1exsfvSayTD2K2DYuPOk09DG6pT3PuKo7wVQL3G4uypNBTUpgbr
+         g4o/pwoCbsET4SodyGPhlJAhbfwVFwi44eh8GuzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 02/99] KVM: downgrade two BUG_ONs to WARN_ON_ONCE
+Subject: [PATCH 5.15 065/177] net: hns3: fix use-after-free bug in hclgevf_send_mbx_msg
 Date:   Mon, 20 Dec 2021 15:33:35 +0100
-Message-Id: <20211220143029.436400411@linuxfoundation.org>
+Message-Id: <20211220143042.286022893@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Jie Wang <wangjie125@huawei.com>
 
-[ Upstream commit 5f25e71e311478f9bb0a8ef49e7d8b95316491d7 ]
+[ Upstream commit 27cbf64a766e86f068ce6214f04c00ceb4db1af4 ]
 
-This is not an unrecoverable situation.  Users of kvm_read_guest_offset_cached
-and kvm_write_guest_offset_cached must expect the read/write to fail, and
-therefore it is possible to just return early with an error value.
+Currently, the hns3_remove function firstly uninstall client instance,
+and then uninstall acceletion engine device. The netdevice is freed in
+client instance uninstall process, but acceletion engine device uninstall
+process still use it to trace runtime information. This causes a use after
+free problem.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+So fixes it by check the instance register state to avoid use after free.
+
+Fixes: d8355240cf8f ("net: hns3: add trace event support for PF/VF mailbox")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 97ac3c6fd4441..4a7d377b3a500 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2590,7 +2590,8 @@ int kvm_write_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 	int r;
- 	gpa_t gpa = ghc->gpa + offset;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+index fdc66fae09601..c5ac6ecf36e10 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+@@ -114,7 +114,8 @@ int hclgevf_send_mbx_msg(struct hclgevf_dev *hdev,
  
--	BUG_ON(len + offset > ghc->len);
-+	if (WARN_ON_ONCE(len + offset > ghc->len))
-+		return -EINVAL;
+ 	memcpy(&req->msg, send_msg, sizeof(struct hclge_vf_to_pf_msg));
  
- 	if (slots->generation != ghc->generation) {
- 		if (__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len))
-@@ -2627,7 +2628,8 @@ int kvm_read_guest_offset_cached(struct kvm *kvm, struct gfn_to_hva_cache *ghc,
- 	int r;
- 	gpa_t gpa = ghc->gpa + offset;
+-	trace_hclge_vf_mbx_send(hdev, req);
++	if (test_bit(HCLGEVF_STATE_NIC_REGISTERED, &hdev->state))
++		trace_hclge_vf_mbx_send(hdev, req);
  
--	BUG_ON(len + offset > ghc->len);
-+	if (WARN_ON_ONCE(len + offset > ghc->len))
-+		return -EINVAL;
- 
- 	if (slots->generation != ghc->generation) {
- 		if (__kvm_gfn_to_hva_cache_init(slots, ghc, ghc->gpa, ghc->len))
+ 	/* synchronous send */
+ 	if (need_resp) {
 -- 
 2.33.0
 
