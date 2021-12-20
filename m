@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F0AC47AE44
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F356747AD53
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239030AbhLTO7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:59:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47940 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238807AbhLTO5X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:57:23 -0500
+        id S236236AbhLTOvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:51:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54486 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236726AbhLTOt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5870D60F4E;
-        Mon, 20 Dec 2021 14:57:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4194BC36AE7;
-        Mon, 20 Dec 2021 14:57:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 543E0B80EB3;
+        Mon, 20 Dec 2021 14:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 852B0C36AE7;
+        Mon, 20 Dec 2021 14:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012242;
-        bh=L+9fR+PGCBZHmH6eDdBT7bA7XtMjaWNwPL6qt/+IUsY=;
+        s=korg; t=1640011767;
+        bh=R/fl/XWtezSMRY0BwaliBkDRbbav2JoWmpqKxKcBL5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRv7Wxa7e/3lWv4ogkcrPj8nafQ2L4SOsJAhckYGXM3Z2MHQe0W2/wawHwdLNQPHc
-         FXFv4EehZRqNHpsSArT4X7m78+RGTIOpS3PdMy47rQRgihLo3c/fUnkH8DBJIe5TyR
-         wtmGCzfZQcEKM6wrCEgnzKLXn46YPiNBl9qDo5so=
+        b=OckjfUwZpXxvhockTDXL1JDyR4/lkD0S0kIb0gZ55kZ7vNI9U4JGsgEQtQ8Kd40wj
+         AYjv+juMqovZSggSrgZZbOyy+F5tEawF8Dd+546R/S8hmpuyOPj2g38Tv8uavpT5Ee
+         uJ/vXDPWuJooGz6hSxZckt3M0+g1O04r09pOxWeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 130/177] USB: serial: option: add Telit FN990 compositions
+        stable@vger.kernel.org,
+        syzbot <syzbot+5f47a8cea6a12b77a876@syzkaller.appspotmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 5.10 67/99] tty: n_hdlc: make n_hdlc_tty_wakeup() asynchronous
 Date:   Mon, 20 Dec 2021 15:34:40 +0100
-Message-Id: <20211220143044.453390852@linuxfoundation.org>
+Message-Id: <20211220143031.649396763@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
-References: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +48,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-commit 2b503c8598d1b232e7fc7526bce9326d92331541 upstream.
+commit 1ee33b1ca2b8dabfcc17198ffd049a6b55674a86 upstream.
 
-Add the following Telit FN990 compositions:
+syzbot is reporting that an unprivileged user who logged in from tty
+console can crash the system using a reproducer shown below [1], for
+n_hdlc_tty_wakeup() is synchronously calling n_hdlc_send_frames().
 
-0x1070: tty, adb, rmnet, tty, tty, tty, tty
-0x1071: tty, adb, mbim, tty, tty, tty, tty
-0x1072: rndis, tty, adb, tty, tty, tty, tty
-0x1073: tty, adb, ecm, tty, tty, tty, tty
+----------
+  #include <sys/ioctl.h>
+  #include <unistd.h>
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20211210100714.22587-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+  int main(int argc, char *argv[])
+  {
+    const int disc = 0xd;
+
+    ioctl(1, TIOCSETD, &disc);
+    while (1) {
+      ioctl(1, TCXONC, 0);
+      write(1, "", 1);
+      ioctl(1, TCXONC, 1); /* Kernel panic - not syncing: scheduling while atomic */
+    }
+  }
+----------
+
+Linus suspected that "struct tty_ldisc"->ops->write_wakeup() must not
+sleep, and Jiri confirmed it from include/linux/tty_ldisc.h. Thus, defer
+n_hdlc_send_frames() from n_hdlc_tty_wakeup() to a WQ context like
+net/nfc/nci/uart.c does.
+
+Link: https://syzkaller.appspot.com/bug?extid=5f47a8cea6a12b77a876 [1]
+Reported-by: syzbot <syzbot+5f47a8cea6a12b77a876@syzkaller.appspotmail.com>
+Cc: stable <stable@vger.kernel.org>
+Analyzed-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Confirmed-by: Jiri Slaby <jirislaby@kernel.org>
+Reviewed-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Link: https://lore.kernel.org/r/40de8b7e-a3be-4486-4e33-1b1d1da452f8@i-love.sakura.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/n_hdlc.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1219,6 +1219,14 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1070, 0xff),	/* Telit FN990 (rmnet) */
-+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1071, 0xff),	/* Telit FN990 (MBIM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1072, 0xff),	/* Telit FN990 (RNDIS) */
-+	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1073, 0xff),	/* Telit FN990 (ECM) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+--- a/drivers/tty/n_hdlc.c
++++ b/drivers/tty/n_hdlc.c
+@@ -139,6 +139,8 @@ struct n_hdlc {
+ 	struct n_hdlc_buf_list	rx_buf_list;
+ 	struct n_hdlc_buf_list	tx_free_buf_list;
+ 	struct n_hdlc_buf_list	rx_free_buf_list;
++	struct work_struct	write_work;
++	struct tty_struct	*tty_for_write_work;
+ };
+ 
+ /*
+@@ -153,6 +155,7 @@ static struct n_hdlc_buf *n_hdlc_buf_get
+ /* Local functions */
+ 
+ static struct n_hdlc *n_hdlc_alloc(void);
++static void n_hdlc_tty_write_work(struct work_struct *work);
+ 
+ /* max frame size for memory allocations */
+ static int maxframe = 4096;
+@@ -209,6 +212,8 @@ static void n_hdlc_tty_close(struct tty_
+ 	wake_up_interruptible(&tty->read_wait);
+ 	wake_up_interruptible(&tty->write_wait);
+ 
++	cancel_work_sync(&n_hdlc->write_work);
++
+ 	n_hdlc_free_buf_list(&n_hdlc->rx_free_buf_list);
+ 	n_hdlc_free_buf_list(&n_hdlc->tx_free_buf_list);
+ 	n_hdlc_free_buf_list(&n_hdlc->rx_buf_list);
+@@ -240,6 +245,8 @@ static int n_hdlc_tty_open(struct tty_st
+ 		return -ENFILE;
+ 	}
+ 
++	INIT_WORK(&n_hdlc->write_work, n_hdlc_tty_write_work);
++	n_hdlc->tty_for_write_work = tty;
+ 	tty->disc_data = n_hdlc;
+ 	tty->receive_room = 65536;
+ 
+@@ -334,6 +341,20 @@ check_again:
+ }	/* end of n_hdlc_send_frames() */
+ 
+ /**
++ * n_hdlc_tty_write_work - Asynchronous callback for transmit wakeup
++ * @work: pointer to work_struct
++ *
++ * Called when low level device driver can accept more send data.
++ */
++static void n_hdlc_tty_write_work(struct work_struct *work)
++{
++	struct n_hdlc *n_hdlc = container_of(work, struct n_hdlc, write_work);
++	struct tty_struct *tty = n_hdlc->tty_for_write_work;
++
++	n_hdlc_send_frames(n_hdlc, tty);
++}	/* end of n_hdlc_tty_write_work() */
++
++/**
+  * n_hdlc_tty_wakeup - Callback for transmit wakeup
+  * @tty: pointer to associated tty instance data
+  *
+@@ -343,7 +364,7 @@ static void n_hdlc_tty_wakeup(struct tty
+ {
+ 	struct n_hdlc *n_hdlc = tty->disc_data;
+ 
+-	n_hdlc_send_frames(n_hdlc, tty);
++	schedule_work(&n_hdlc->write_work);
+ }	/* end of n_hdlc_tty_wakeup() */
+ 
+ /**
 
 
