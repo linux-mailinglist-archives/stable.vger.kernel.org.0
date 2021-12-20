@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A7D47AE5D
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:01:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECE9E47ACEB
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:47:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238936AbhLTPA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:00:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35376 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239172AbhLTO63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:58:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F37C06139C;
-        Mon, 20 Dec 2021 06:49:44 -0800 (PST)
+        id S235574AbhLTOrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:47:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38258 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234529AbhLTOpm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:45:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44F8E611A1;
-        Mon, 20 Dec 2021 14:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24983C36AE7;
-        Mon, 20 Dec 2021 14:49:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAF156119E;
+        Mon, 20 Dec 2021 14:45:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 860FBC36AE8;
+        Mon, 20 Dec 2021 14:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011783;
-        bh=9MU9XmI+zkuSvokJNq5m6vJ5nEvExHSNHuJDKq/MZsU=;
+        s=korg; t=1640011541;
+        bh=Wfd3cUPApCmWbTIqlOspaTPNGEWZGYSTwXpmKgqSFaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAeSGIQGNz4xMFIc4FAgNEn6UimYKTixN+W9FDhVPsF2qn6z0RXaQCDnjuCzknJ0s
-         TpADALji2wwqQ9xnS3qaSYuzODjRJucWvszSaDZ6UyJfwCmZmLhXHayyyFmxdtzr+w
-         mC0s/veSm1dXE8IZl8UBEuCC0vUkhG6OT+XoqzdQ=
+        b=QUxysdj1zvVIO6fY6QSdwHEdWkpDubS7yYAuH7b2Xz5shqHd8kU0OEVYB3Qopu/qG
+         5qb7DjE1dIJ9i2SlE+kayT5LsR+AdRwFb729UbtCtXyF2R0Br6PgZPjLmTNU709zKb
+         6ol+0HBD6dJRVDUYwLHQXMPowac0Jw17mG0TxRvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nehal Bakulchandra Shah <Nehal-Bakulchandra.shah@amd.com>
-Subject: [PATCH 5.10 72/99] usb: xhci: Extend support for runtime power management for AMDs Yellow carp.
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH 5.4 56/71] Input: touchscreen - avoid bitwise vs logical OR warning
 Date:   Mon, 20 Dec 2021 15:34:45 +0100
-Message-Id: <20211220143031.809422590@linuxfoundation.org>
+Message-Id: <20211220143027.569905083@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +46,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nehal Bakulchandra Shah <Nehal-Bakulchandra.shah@amd.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit f886d4fbb7c97b8f5f447c92d2dab99c841803c0 upstream.
+commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
 
-AMD's Yellow Carp platform has few more XHCI controllers,
-enable the runtime power management support for the same.
+A new warning in clang points out a few places in this driver where a
+bitwise OR is being used with boolean types:
 
-Signed-off-by: Nehal Bakulchandra Shah <Nehal-Bakulchandra.shah@amd.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211215093216.1839065-1-Nehal-Bakulchandra.shah@amd.com
+drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This use of a bitwise OR is intentional, as bitwise operations do not
+short circuit, which allows all the calls to touchscreen_get_prop_u32()
+to happen so that the last parameter is initialized while coalescing the
+results of the calls to make a decision after they are all evaluated.
+
+To make this clearer to the compiler, use the '|=' operator to assign
+the result of each touchscreen_get_prop_u32() call to data_present,
+which keeps the meaning of the code the same but makes it obvious that
+every one of these calls is expected to happen.
+
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/of_touchscreen.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -70,6 +70,8 @@
- #define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4		0x161e
- #define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5		0x15d6
- #define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6		0x15d7
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_7		0x161c
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_8		0x161f
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -81,8 +81,8 @@ void touchscreen_parse_properties(struct
+ 		       touchscreen_get_prop_u32(dev, "touchscreen-size-x",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -95,8 +95,8 @@ void touchscreen_parse_properties(struct
+ 		       touchscreen_get_prop_u32(dev, "touchscreen-size-y",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -106,11 +106,11 @@ void touchscreen_parse_properties(struct
+ 	data_present = touchscreen_get_prop_u32(dev,
+ 						"touchscreen-max-pressure",
+ 						input_abs_get_max(input, axis),
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev,
+-						"touchscreen-fuzz-pressure",
+-						input_abs_get_fuzz(input, axis),
+-						&fuzz);
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev,
++						 "touchscreen-fuzz-pressure",
++						 input_abs_get_fuzz(input, axis),
++						 &fuzz);
+ 	if (data_present)
+ 		touchscreen_set_params(input, axis, 0, maximum, fuzz);
  
- #define PCI_DEVICE_ID_ASMEDIA_1042_XHCI			0x1042
- #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
-@@ -325,7 +327,9 @@ static void xhci_pci_quirks(struct devic
- 	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_3 ||
- 	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4 ||
- 	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5 ||
--	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6))
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6 ||
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_7 ||
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_8))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
- 
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
 
 
