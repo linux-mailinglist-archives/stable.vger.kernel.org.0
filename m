@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A0047ABE5
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:40:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B116A47AB5D
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:36:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234671AbhLTOjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:39:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59764 "EHLO
+        id S233722AbhLTOgO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:36:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234205AbhLTOjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:05 -0500
+        with ESMTP id S233736AbhLTOgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B186C061746;
-        Mon, 20 Dec 2021 06:39:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC182C061401;
+        Mon, 20 Dec 2021 06:36:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32F72B80EDE;
-        Mon, 20 Dec 2021 14:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66183C36AE7;
-        Mon, 20 Dec 2021 14:39:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6C4EB80EDF;
+        Mon, 20 Dec 2021 14:36:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED211C36AE7;
+        Mon, 20 Dec 2021 14:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011143;
-        bh=T00b3qHIvJqSZfWRbcobjwdLWi4yChbMrZGbF2isnis=;
+        s=korg; t=1640010968;
+        bh=8x7nrGdeB4VucBH0UngkFFoBwwf8YtqrxYRuyR8zC0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRn6Zzf4ogYQMb1iVw3K3ajq3SL+0RPNKx4bXr9MMg9+XcnPe7yaYVP5MerAqb38K
-         uw97/1KudcL+nm2te2lTX/6CuYJGJ6aAFKyeYnSFs3Y5NDmPd0X11P9OeqXkcG3vjG
-         KOlZZR//24m1lWBx1VdPOfNy0r0gK7vJpIYgcwQo=
+        b=NDy5Fd91fC9YgX8kblSyHNQsX1VUzfzST4OtQrwyJkikJuMSMwLWXWODmQa0TSnm+
+         MQojc6sdqD7i3kNOQAhVeHqsR31LJ9TJ2qxsq6+lpw88BpxOj2Q4V3Q0oDNSX/30NP
+         qILmhmqeRUXFSnoS4KadyitlVfQKLsrWPFasaWcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alyssa Ross <hi@alyssa.is>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/45] dmaengine: st_fdma: fix MODULE_ALIAS
+        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Marek Vasut <marex@denx.de>
+Subject: [PATCH 4.4 13/23] PCI/MSI: Clear PCI_MSIX_FLAGS_MASKALL on error
 Date:   Mon, 20 Dec 2021 15:34:14 +0100
-Message-Id: <20211220143022.919613861@linuxfoundation.org>
+Message-Id: <20211220143018.285669664@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
+References: <20211220143017.842390782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,33 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Ross <hi@alyssa.is>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 822c9f2b833c53fc67e8adf6f63ecc3ea24d502c ]
+commit 94185adbfad56815c2c8401e16d81bdb74a79201 upstream.
 
-modprobe can't handle spaces in aliases.
+PCI_MSIX_FLAGS_MASKALL is set in the MSI-X control register at MSI-X
+interrupt setup time. It's cleared on success, but the error handling path
+only clears the PCI_MSIX_FLAGS_ENABLE bit.
 
-Fixes: 6b4cd727eaf1 ("dmaengine: st_fdma: Add STMicroelectronics FDMA engine driver support")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
-Link: https://lore.kernel.org/r/20211125154441.2626214-1-hi@alyssa.is
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+That's incorrect as the reset state of the PCI_MSIX_FLAGS_MASKALL bit is
+zero. That can be observed via lspci:
+
+        Capabilities: [b0] MSI-X: Enable- Count=67 Masked+
+
+Clear the bit in the error path to restore the reset state.
+
+Fixes: 438553958ba1 ("PCI/MSI: Enable and mask MSI-X early")
+Reported-by: Stefan Roese <sr@denx.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Stefan Roese <sr@denx.de>
+Cc: linux-pci@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87tufevoqx.ffs@tglx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/st_fdma.c | 2 +-
+ drivers/pci/msi.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/st_fdma.c b/drivers/dma/st_fdma.c
-index bfb79bd0c6de5..087d22ba8a2f6 100644
---- a/drivers/dma/st_fdma.c
-+++ b/drivers/dma/st_fdma.c
-@@ -886,4 +886,4 @@ MODULE_LICENSE("GPL v2");
- MODULE_DESCRIPTION("STMicroelectronics FDMA engine driver");
- MODULE_AUTHOR("Ludovic.barre <Ludovic.barre@st.com>");
- MODULE_AUTHOR("Peter Griffin <peter.griffin@linaro.org>");
--MODULE_ALIAS("platform: " DRIVER_NAME);
-+MODULE_ALIAS("platform:" DRIVER_NAME);
--- 
-2.33.0
-
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -840,7 +840,7 @@ out_free:
+ 	free_msi_irqs(dev);
+ 
+ out_disable:
+-	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_ENABLE, 0);
++	pci_msix_clear_and_set_ctrl(dev, PCI_MSIX_FLAGS_MASKALL | PCI_MSIX_FLAGS_ENABLE, 0);
+ 
+ 	return ret;
+ }
 
 
