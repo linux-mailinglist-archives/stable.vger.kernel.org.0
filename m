@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E1247AD79
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:53:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E4D647AD6E
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237562AbhLTOwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:52:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34442 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238287AbhLTOuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 308F6C08EA74;
-        Mon, 20 Dec 2021 06:46:24 -0800 (PST)
+        id S235003AbhLTOwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:52:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56470 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238056AbhLTOuL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51AA611B6;
-        Mon, 20 Dec 2021 14:46:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB16AC36AE9;
-        Mon, 20 Dec 2021 14:46:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BC21B80EE2;
+        Mon, 20 Dec 2021 14:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 398D0C36AE7;
+        Mon, 20 Dec 2021 14:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011583;
-        bh=mqPW5Z+leX/esI0NxqflAN+QW6jjk7dL450kPklf4b0=;
+        s=korg; t=1640011808;
+        bh=+f6m40EZF7yZkfpitj3u4s0A5NywEtwm+E7ttWvfx+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KR0zwpIUaRC6a9MKUsKvTbf7JBM+A+yS78fsDL74zkCSj3cvEwD7BvZVs0v51vArO
-         2emLRRGySLjeENVCHUAnjndzO7TMGMaqG7ejSOqdQzatZ0Q5jh+x/cRPZwfiZ/0caG
-         ho6Szz/9pJu3qWkN2Ddhn0M69Zmzt7LP2RAugn4s=
+        b=jbA8yNtCeWv6rA5cDzYNLSc0udIBrMxDYMC+x20prDxKFO3CPP9kdcfmk6RLbekzt
+         /jWYL0TEUqfikBySoVkpMvGYozlMvtcWN6NcFKPVFIB1MsyVGYOfT9quRmpYzXFPKG
+         07lzXX2DyCJxxzw8+wCYRPRAorTLExYIcrafazlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eneas U de Queiroz <cotequeiroz@gmail.com>,
-        Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 64/71] mac80211: fix regression in SSN handling of addba tx
+        stable@vger.kernel.org, Yu Liao <liaoyu15@huawei.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 80/99] timekeeping: Really make sure wall_to_monotonic isnt positive
 Date:   Mon, 20 Dec 2021 15:34:53 +0100
-Message-Id: <20211220143027.836259932@linuxfoundation.org>
+Message-Id: <20211220143032.099180083@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Yu Liao <liaoyu15@huawei.com>
 
-commit 73111efacd3c6d9e644acca1d132566932be8af0 upstream.
+commit 4e8c11b6b3f0b6a283e898344f154641eda94266 upstream.
 
-Some drivers that do their own sequence number allocation (e.g. ath9k) rely
-on being able to modify params->ssn on starting tx ampdu sessions.
-This was broken by a change that modified it to use sta->tid_seq[tid] instead.
+Even after commit e1d7ba873555 ("time: Always make sure wall_to_monotonic
+isn't positive") it is still possible to make wall_to_monotonic positive
+by running the following code:
 
+    int main(void)
+    {
+        struct timespec time;
+
+        clock_gettime(CLOCK_MONOTONIC, &time);
+        time.tv_nsec = 0;
+        clock_settime(CLOCK_REALTIME, &time);
+        return 0;
+    }
+
+The reason is that the second parameter of timespec64_compare(), ts_delta,
+may be unnormalized because the delta is calculated with an open coded
+substraction which causes the comparison of tv_sec to yield the wrong
+result:
+
+  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
+  ts_delta 	    = { .tv_sec =  -9, .tv_nsec = -900000000 }
+
+That makes timespec64_compare() claim that wall_to_monotonic < ts_delta,
+but actually the result should be wall_to_monotonic > ts_delta.
+
+After normalization, the result of timespec64_compare() is correct because
+the tv_sec comparison is not longer misleading:
+
+  wall_to_monotonic = { .tv_sec = -10, .tv_nsec =  900000000 }
+  ts_delta 	    = { .tv_sec = -10, .tv_nsec =  100000000 }
+
+Use timespec64_sub() to ensure that ts_delta is normalized, which fixes the
+issue.
+
+Fixes: e1d7ba873555 ("time: Always make sure wall_to_monotonic isn't positive")
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Fixes: 31d8bb4e07f8 ("mac80211: agg-tx: refactor sending addba")
-Reported-by: Eneas U de Queiroz <cotequeiroz@gmail.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20211124094024.43222-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20211213135727.1656662-1-liaoyu15@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/agg-tx.c   |    4 ++--
- net/mac80211/sta_info.h |    1 +
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ kernel/time/timekeeping.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -481,8 +481,7 @@ static void ieee80211_send_addba_with_ti
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -1310,8 +1310,7 @@ int do_settimeofday64(const struct times
+ 	timekeeping_forward_now(tk);
  
- 	/* send AddBA request */
- 	ieee80211_send_addba_request(sdata, sta->sta.addr, tid,
--				     tid_tx->dialog_token,
--				     sta->tid_seq[tid] >> 4,
-+				     tid_tx->dialog_token, tid_tx->ssn,
- 				     buf_size, tid_tx->timeout);
- }
+ 	xt = tk_xtime(tk);
+-	ts_delta.tv_sec = ts->tv_sec - xt.tv_sec;
+-	ts_delta.tv_nsec = ts->tv_nsec - xt.tv_nsec;
++	ts_delta = timespec64_sub(*ts, xt);
  
-@@ -522,6 +521,7 @@ void ieee80211_tx_ba_session_handle_star
- 
- 	params.ssn = sta->tid_seq[tid] >> 4;
- 	ret = drv_ampdu_action(local, sdata, &params);
-+	tid_tx->ssn = params.ssn;
- 	if (ret) {
- 		ht_dbg(sdata,
- 		       "BA request denied - HW unavailable for %pM tid %d\n",
---- a/net/mac80211/sta_info.h
-+++ b/net/mac80211/sta_info.h
-@@ -180,6 +180,7 @@ struct tid_ampdu_tx {
- 	u8 stop_initiator;
- 	bool tx_stop;
- 	u16 buf_size;
-+	u16 ssn;
- 
- 	u16 failed_bar_ssn;
- 	bool bar_pending;
+ 	if (timespec64_compare(&tk->wall_to_monotonic, &ts_delta) > 0) {
+ 		ret = -EINVAL;
 
 
