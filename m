@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A74947ACAA
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D41647ACB0
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236422AbhLTOqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:46:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33138 "EHLO
+        id S236232AbhLTOq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:46:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236601AbhLTOoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:55 -0500
+        with ESMTP id S236663AbhLTOo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79BDC08E84A;
-        Mon, 20 Dec 2021 06:42:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99CF9C0613B4;
+        Mon, 20 Dec 2021 06:42:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74A5CB80EE9;
-        Mon, 20 Dec 2021 14:42:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B91C6C36AE7;
-        Mon, 20 Dec 2021 14:42:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42EC2B80EE9;
+        Mon, 20 Dec 2021 14:42:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FEE4C36AE8;
+        Mon, 20 Dec 2021 14:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011375;
-        bh=xLfAzJapR99aoDr1OkaqMFKcg4sP3b9gJh5EUUpcH38=;
+        s=korg; t=1640011378;
+        bh=nih9dZrU8O63ScahyWDZ8/H1Eobq4ZvyR31ISJE4lLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Q78OuaVOdweZPVWI3ihNojn2sxcAUCSWw0ksWT8LhQD+saxbl/gRfTBfJFzfTu1O
-         d/HPZZ4JLxpxnSyOwVpL0FQOVWRM/y6m8EjfHkLo8r3hlf6APijCmT6Z4KaGYHNDtp
-         B7WPd13J8IKJ1nExJpzHXKtSLa5zzrULNxN0TFN4=
+        b=BGvog3v+ZOz972YXja5QX5G6ISoJSgl7i1oL2b2zs6HPryYmyMq6iIQnFYRbUq6Bw
+         xebgM4p0sPO7R5rVbbKZmjBSGFDvaOdf075oDnoZ/wU885qPodI4MknyYJzrdbNj6M
+         kkuTd0QgDL6tHbvRyf/HBXxXFIHJj9jk4/ictxL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
         Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.19 55/56] xen/netback: fix rx queue stall detection
-Date:   Mon, 20 Dec 2021 15:34:48 +0100
-Message-Id: <20211220143025.279910554@linuxfoundation.org>
+Subject: [PATCH 4.19 56/56] xen/netback: dont queue unlimited number of packages
+Date:   Mon, 20 Dec 2021 15:34:49 +0100
+Message-Id: <20211220143025.310062898@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
 References: <20211220143023.451982183@linuxfoundation.org>
@@ -49,161 +49,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit 6032046ec4b70176d247a71836186d47b25d1684 upstream.
+commit be81992f9086b230623ae3ebbc85ecee4d00a3d3 upstream.
 
-Commit 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when
-not using GSO") introduced a security problem in netback, as an
-interface would only be regarded to be stalled if no slot is available
-in the rx queue ring page. In case the SKB at the head of the queued
-requests will need more than one rx slot and only one slot is free the
-stall detection logic will never trigger, as the test for that is only
-looking for at least one slot to be free.
+In case a guest isn't consuming incoming network traffic as fast as it
+is coming in, xen-netback is buffering network packages in unlimited
+numbers today. This can result in host OOM situations.
 
-Fix that by testing for the needed number of slots instead of only one
-slot being available.
+Commit f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal
+queue and carrier flapping") meant to introduce a mechanism to limit
+the amount of buffered data by stopping the Tx queue when reaching the
+data limit, but this doesn't work for cases like UDP.
 
-In order to not have to take the rx queue lock that often, store the
-number of needed slots in the queue data. As all SKB dequeue operations
-happen in the rx queue kernel thread this is safe, as long as the
-number of needed slots is accessed via READ/WRITE_ONCE() only and
-updates are always done with the rx queue lock held.
+When hitting the limit don't queue further SKBs, but drop them instead.
+In order to be able to tell Rx packages have been dropped increment the
+rx_dropped statistics counter in this case.
 
-Add a small helper for obtaining the number of free slots.
+It should be noted that the old solution to continue queueing SKBs had
+the additional problem of an overflow of the 32-bit rx_queue_len value
+would result in intermittent Tx queue enabling.
 
 This is part of XSA-392
 
-Fixes: 1d5d48523900a4b ("xen-netback: require fewer guest Rx slots when not using GSO")
+Fixes: f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal queue and carrier flapping")
 Signed-off-by: Juergen Gross <jgross@suse.com>
 Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/common.h |    1 
- drivers/net/xen-netback/rx.c     |   65 ++++++++++++++++++++++++---------------
- 2 files changed, 42 insertions(+), 24 deletions(-)
+ drivers/net/xen-netback/rx.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/net/xen-netback/common.h
-+++ b/drivers/net/xen-netback/common.h
-@@ -203,6 +203,7 @@ struct xenvif_queue { /* Per-queue data
- 	unsigned int rx_queue_max;
- 	unsigned int rx_queue_len;
- 	unsigned long last_rx_time;
-+	unsigned int rx_slots_needed;
- 	bool stalled;
- 
- 	struct xenvif_copy_state rx_copy;
 --- a/drivers/net/xen-netback/rx.c
 +++ b/drivers/net/xen-netback/rx.c
-@@ -33,28 +33,36 @@
- #include <xen/xen.h>
- #include <xen/events.h>
- 
--static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+/*
-+ * Update the needed ring page slots for the first SKB queued.
-+ * Note that any call sequence outside the RX thread calling this function
-+ * needs to wake up the RX thread via a call of xenvif_kick_thread()
-+ * afterwards in order to avoid a race with putting the thread to sleep.
-+ */
-+static void xenvif_update_needed_slots(struct xenvif_queue *queue,
-+				       const struct sk_buff *skb)
- {
--	RING_IDX prod, cons;
--	struct sk_buff *skb;
--	int needed;
--	unsigned long flags;
-+	unsigned int needed = 0;
- 
--	spin_lock_irqsave(&queue->rx_queue.lock, flags);
--
--	skb = skb_peek(&queue->rx_queue);
--	if (!skb) {
--		spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
--		return false;
-+	if (skb) {
-+		needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
-+		if (skb_is_gso(skb))
-+			needed++;
-+		if (skb->sw_hash)
-+			needed++;
- 	}
- 
--	needed = DIV_ROUND_UP(skb->len, XEN_PAGE_SIZE);
--	if (skb_is_gso(skb))
--		needed++;
--	if (skb->sw_hash)
--		needed++;
-+	WRITE_ONCE(queue->rx_slots_needed, needed);
-+}
- 
--	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-+static bool xenvif_rx_ring_slots_available(struct xenvif_queue *queue)
-+{
-+	RING_IDX prod, cons;
-+	unsigned int needed;
-+
-+	needed = READ_ONCE(queue->rx_slots_needed);
-+	if (!needed)
-+		return false;
- 
- 	do {
- 		prod = queue->rx.sring->req_prod;
-@@ -80,6 +88,9 @@ void xenvif_rx_queue_tail(struct xenvif_
+@@ -88,16 +88,19 @@ void xenvif_rx_queue_tail(struct xenvif_
  
  	spin_lock_irqsave(&queue->rx_queue.lock, flags);
  
-+	if (skb_queue_empty(&queue->rx_queue))
-+		xenvif_update_needed_slots(queue, skb);
-+
- 	__skb_queue_tail(&queue->rx_queue, skb);
- 
- 	queue->rx_queue_len += skb->len;
-@@ -100,6 +111,8 @@ static struct sk_buff *xenvif_rx_dequeue
- 
- 	skb = __skb_dequeue(&queue->rx_queue);
- 	if (skb) {
-+		xenvif_update_needed_slots(queue, skb_peek(&queue->rx_queue));
-+
- 		queue->rx_queue_len -= skb->len;
- 		if (queue->rx_queue_len < queue->rx_queue_max) {
- 			struct netdev_queue *txq;
-@@ -474,27 +487,31 @@ void xenvif_rx_action(struct xenvif_queu
- 	xenvif_rx_copy_flush(queue);
- }
- 
--static bool xenvif_rx_queue_stalled(struct xenvif_queue *queue)
-+static RING_IDX xenvif_rx_queue_slots(const struct xenvif_queue *queue)
- {
- 	RING_IDX prod, cons;
- 
- 	prod = queue->rx.sring->req_prod;
- 	cons = queue->rx.req_cons;
- 
-+	return prod - cons;
-+}
-+
-+static bool xenvif_rx_queue_stalled(const struct xenvif_queue *queue)
-+{
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
-+
- 	return !queue->stalled &&
--		prod - cons < 1 &&
-+		xenvif_rx_queue_slots(queue) < needed &&
- 		time_after(jiffies,
- 			   queue->last_rx_time + queue->vif->stall_timeout);
- }
- 
- static bool xenvif_rx_queue_ready(struct xenvif_queue *queue)
- {
--	RING_IDX prod, cons;
+-	if (skb_queue_empty(&queue->rx_queue))
+-		xenvif_update_needed_slots(queue, skb);
 -
--	prod = queue->rx.sring->req_prod;
--	cons = queue->rx.req_cons;
-+	unsigned int needed = READ_ONCE(queue->rx_slots_needed);
+-	__skb_queue_tail(&queue->rx_queue, skb);
+-
+-	queue->rx_queue_len += skb->len;
+-	if (queue->rx_queue_len > queue->rx_queue_max) {
++	if (queue->rx_queue_len >= queue->rx_queue_max) {
+ 		struct net_device *dev = queue->vif->dev;
  
--	return queue->stalled && prod - cons >= 1;
-+	return queue->stalled && xenvif_rx_queue_slots(queue) >= needed;
+ 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
++		kfree_skb(skb);
++		queue->vif->dev->stats.rx_dropped++;
++	} else {
++		if (skb_queue_empty(&queue->rx_queue))
++			xenvif_update_needed_slots(queue, skb);
++
++		__skb_queue_tail(&queue->rx_queue, skb);
++
++		queue->rx_queue_len += skb->len;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
+@@ -147,6 +150,7 @@ static void xenvif_rx_queue_drop_expired
+ 			break;
+ 		xenvif_rx_dequeue(queue);
+ 		kfree_skb(skb);
++		queue->vif->dev->stats.rx_dropped++;
+ 	}
  }
  
- bool xenvif_have_rx_work(struct xenvif_queue *queue, bool test_kthread)
 
 
