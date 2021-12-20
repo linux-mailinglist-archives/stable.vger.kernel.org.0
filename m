@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F70447A743
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF1247A74C
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229795AbhLTJiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:38:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46736 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229682AbhLTJh7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:37:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E6FC061574
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:37:59 -0800 (PST)
+        id S229881AbhLTJiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:38:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57670 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229842AbhLTJiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:38:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2550660EFF
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:37:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04FD7C36AE8;
-        Mon, 20 Dec 2021 09:37:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F75AB80E30
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:38:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B5CC36AE2;
+        Mon, 20 Dec 2021 09:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639993078;
-        bh=m5AoRtCCAGQojbaAqzoBX04KDq31TUpynQ4br66v0Yw=;
+        s=korg; t=1639993130;
+        bh=CcHGx/82Ulf93CRtwS5ZNZB/lUJxCLofPR3DqhBCoGM=;
         h=Subject:To:Cc:From:Date:From;
-        b=UDmURB94DWeoUQv6aVVULnmFqhf8l+u0aEXB7fCit/FenIi3sfiSCuiQsVOViH7xi
-         VOpFQydMYTENoF1MkHYA/TRPabkTI8VI9sO5Ultb+yPw4IPJAMb1PgRDC3N4gq6v++
-         08/Ipv0WUDN1aCLYWaHn7BzPE9cy7JkNsflaHSZk=
-Subject: FAILED: patch "[PATCH] usb: gadget: u_ether: fix race in setting MAC address in" failed to apply to 5.10-stable tree
-To:     posteuca@mutex.one, gregkh@linuxfoundation.org
+        b=vvt/zyKJQaS13nSKcnmbrBWH9A6dyYn457/NXK/5D8RqPwyTjZfBIibsL+5xFXyFa
+         qvTbg2520DLZUwIlPby2jKtPT9HwwRsZqX9TOKt1vGY9aNCF5gbHbGEFVvxNsrmovb
+         lGxTnt/oShWLP2yF2gpJI/0A83QMpUNogBcMFuvs=
+Subject: FAILED: patch "[PATCH] serial: 8250_fintek: Fix garbled text for console" failed to apply to 5.4-stable tree
+To:     hpeter@gmail.com, gregkh@linuxfoundation.org,
+        hpeter+linux_kernel@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:37:48 +0100
-Message-ID: <163999306893228@kroah.com>
+Date:   Mon, 20 Dec 2021 10:38:47 +0100
+Message-ID: <16399931271082@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,96 +51,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 890d5b40908bfd1a79be018d2d297cf9df60f4ee Mon Sep 17 00:00:00 2001
-From: Marian Postevca <posteuca@mutex.one>
-Date: Sat, 4 Dec 2021 23:49:12 +0200
-Subject: [PATCH] usb: gadget: u_ether: fix race in setting MAC address in
- setup phase
+From 6c33ff728812aa18792afffaf2c9873b898e7512 Mon Sep 17 00:00:00 2001
+From: "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
+Date: Wed, 15 Dec 2021 15:58:35 +0800
+Subject: [PATCH] serial: 8250_fintek: Fix garbled text for console
 
-When listening for notifications through netlink of a new interface being
-registered, sporadically, it is possible for the MAC to be read as zero.
-The zero MAC address lasts a short period of time and then switches to a
-valid random MAC address.
+Commit fab8a02b73eb ("serial: 8250_fintek: Enable high speed mode on Fintek F81866")
+introduced support to use high baudrate with Fintek SuperIO UARTs. It'll
+change clocksources when the UART probed.
 
-This causes problems for netd in Android, which assumes that the interface
-is malfunctioning and will not use it.
+But when user add kernel parameter "console=ttyS0,115200 console=tty0" to make
+the UART as console output, the console will output garbled text after the
+following kernel message.
 
-In the good case we get this log:
-InterfaceController::getCfg() ifName usb0
- hwAddr 92:a8:f0:73:79:5b ipv4Addr 0.0.0.0 flags 0x1002
+[    3.681188] Serial: 8250/16550 driver, 32 ports, IRQ sharing enabled
 
-In the error case we get these logs:
-InterfaceController::getCfg() ifName usb0
- hwAddr 00:00:00:00:00:00 ipv4Addr 0.0.0.0 flags 0x1002
+The issue is occurs in following step:
+	probe_setup_port() -> fintek_8250_goto_highspeed()
 
-netd : interfaceGetCfg("usb0")
-netd : interfaceSetCfg() -> ServiceSpecificException
- (99, "[Cannot assign requested address] : ioctl() failed")
+It change clocksource from 115200 to 921600 with wrong time, it should change
+clocksource in set_termios() not in probed. The following 3 patches are
+implemented change clocksource in fintek_8250_set_termios().
 
-The reason for the issue is the order in which the interface is setup,
-it is first registered through register_netdev() and after the MAC
-address is set.
+Commit 58178914ae5b ("serial: 8250_fintek: UART dynamic clocksource on Fintek F81216H")
+Commit 195638b6d44f ("serial: 8250_fintek: UART dynamic clocksource on Fintek F81866")
+Commit 423d9118c624 ("serial: 8250_fintek: Add F81966 Support")
 
-Fixed by first setting the MAC address of the net_device and after that
-calling register_netdev().
+Due to the high baud rate had implemented above 3 patches and the patch
+Commit fab8a02b73eb ("serial: 8250_fintek: Enable high speed mode on Fintek F81866")
+is bugged, So this patch will remove it.
 
-Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values and add setters/getters")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
-Link: https://lore.kernel.org/r/20211204214912.17627-1-posteuca@mutex.one
+Fixes: fab8a02b73eb ("serial: 8250_fintek: Enable high speed mode on Fintek F81866")
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
+Link: https://lore.kernel.org/r/20211215075835.2072-1-hpeter+linux_kernel@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index e0ad5aed6ac9..6f5d45ef2e39 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -17,6 +17,7 @@
- #include <linux/etherdevice.h>
- #include <linux/ethtool.h>
- #include <linux/if_vlan.h>
-+#include <linux/etherdevice.h>
- 
- #include "u_ether.h"
- 
-@@ -863,19 +864,23 @@ int gether_register_netdev(struct net_device *net)
- {
- 	struct eth_dev *dev;
- 	struct usb_gadget *g;
--	struct sockaddr sa;
- 	int status;
- 
- 	if (!net->dev.parent)
- 		return -EINVAL;
- 	dev = netdev_priv(net);
- 	g = dev->gadget;
-+
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+	eth_hw_addr_set(net, dev->dev_mac);
-+
- 	status = register_netdev(net);
- 	if (status < 0) {
- 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
- 		return status;
- 	} else {
- 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
-+		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 		/* two kinds of host-initiated state changes:
- 		 *  - iff DATA transfer is active, carrier is "on"
-@@ -883,15 +888,6 @@ int gether_register_netdev(struct net_device *net)
- 		 */
- 		netif_carrier_off(net);
+diff --git a/drivers/tty/serial/8250/8250_fintek.c b/drivers/tty/serial/8250/8250_fintek.c
+index 31c9e83ea3cb..251f0018ae8c 100644
+--- a/drivers/tty/serial/8250/8250_fintek.c
++++ b/drivers/tty/serial/8250/8250_fintek.c
+@@ -290,25 +290,6 @@ static void fintek_8250_set_max_fifo(struct fintek_8250 *pdata)
  	}
--	sa.sa_family = net->type;
--	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
--	rtnl_lock();
--	status = dev_set_mac_address(net, &sa, NULL);
--	rtnl_unlock();
--	if (status)
--		pr_warn("cannot set self ethernet address: %d\n", status);
--	else
--		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 	return status;
  }
+ 
+-static void fintek_8250_goto_highspeed(struct uart_8250_port *uart,
+-			      struct fintek_8250 *pdata)
+-{
+-	sio_write_reg(pdata, LDN, pdata->index);
+-
+-	switch (pdata->pid) {
+-	case CHIP_ID_F81966:
+-	case CHIP_ID_F81866: /* set uart clock for high speed serial mode */
+-		sio_write_mask_reg(pdata, F81866_UART_CLK,
+-			F81866_UART_CLK_MASK,
+-			F81866_UART_CLK_14_769MHZ);
+-
+-		uart->port.uartclk = 921600 * 16;
+-		break;
+-	default: /* leave clock speed untouched */
+-		break;
+-	}
+-}
+-
+ static void fintek_8250_set_termios(struct uart_port *port,
+ 				    struct ktermios *termios,
+ 				    struct ktermios *old)
+@@ -430,7 +411,6 @@ static int probe_setup_port(struct fintek_8250 *pdata,
+ 
+ 				fintek_8250_set_irq_mode(pdata, level_mode);
+ 				fintek_8250_set_max_fifo(pdata);
+-				fintek_8250_goto_highspeed(uart, pdata);
+ 
+ 				fintek_8250_exit_key(addr[i]);
+ 
 
