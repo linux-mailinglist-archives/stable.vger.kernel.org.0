@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4675647AD4E
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A6C47AC9D
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:45:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234263AbhLTOvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:51:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33264 "EHLO
+        id S235381AbhLTOpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:45:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236482AbhLTOtT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FB9DC0698D6;
-        Mon, 20 Dec 2021 06:45:49 -0800 (PST)
+        with ESMTP id S236498AbhLTOos (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC37C08E79C;
+        Mon, 20 Dec 2021 06:42:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4757B80EDA;
-        Mon, 20 Dec 2021 14:45:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365B3C36AE9;
-        Mon, 20 Dec 2021 14:45:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EE086113B;
+        Mon, 20 Dec 2021 14:42:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC594C36AE7;
+        Mon, 20 Dec 2021 14:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011546;
-        bh=Aq+fpi9hT+Ysl9iUE0yENKvcfVqvU8Ct1XH5NItcKHk=;
+        s=korg; t=1640011372;
+        bh=jpmK9jCuLCC3s8tMUAjua6+4GMC5WNF+4S5lpZTfVeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MftZfkIvFbBXjbU9qGwqVx9Y0vTej4ZGxcAFl43868EUbPXI+vRXUfxzlKYDgFPFp
-         sXavDeIyIcYkm63HabQ0a0gld7oq5Lb/fqVb2QHTf+h1+ervcP/c3SO0NW9ffwH3oD
-         FQv1t1FWHQXeTwOVb/gWO3U7XGmF71DQ8SvdjtNM=
+        b=IKS/TCIzi9IBygVr0+N44u2Xufk1F/w1YEnd8hNZKwldw7oL0y46p/TltdD24Hgs3
+         NL/t4wJlpW6ZxtAPN6u4txARMnCxjHvjHF0X23LaeFDiMik7LoFswkgMP/S842487k
+         c0AumynDQPeU6C5DrtBG0HcFTfR1E3YJde06oSWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Wiles <keith.wiles@intel.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Subject: [PATCH 5.4 58/71] xsk: Do not sleep in poll() when need_wakeup set
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 4.19 54/56] xen/console: harden hvc_xen against event channel storms
 Date:   Mon, 20 Dec 2021 15:34:47 +0100
-Message-Id: <20211220143027.649298017@linuxfoundation.org>
+Message-Id: <20211220143025.245140526@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,52 +47,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit bd0687c18e635b63233dc87f38058cd728802ab4 upstream.
+This is commit fe415186b43df0db1f17fa3a46275fd92107fe71 upstream.
 
-Do not sleep in poll() when the need_wakeup flag is set. When this
-flag is set, the application needs to explicitly wake up the driver
-with a syscall (poll, recvmsg, sendmsg, etc.) to guarantee that Rx
-and/or Tx processing will be processed promptly. But the current code
-in poll(), sleeps first then wakes up the driver. This means that no
-driver processing will occur (baring any interrupts) until the timeout
-has expired.
+The Xen console driver is still vulnerable for an attack via excessive
+number of events sent by the backend. Fix that by using a lateeoi event
+channel.
 
-Fix this by checking the need_wakeup flag first and if set, wake the
-driver and return to the application. Only if need_wakeup is not set
-should the process sleep if there is a timeout set in the poll() call.
+For the normal domU initial console this requires the introduction of
+bind_evtchn_to_irq_lateeoi() as there is no xenbus device available
+at the time the event channel is bound to the irq.
 
-Fixes: 77cd0d7b3f25 ("xsk: add support for need_wakeup flag in AF_XDP rings")
-Reported-by: Keith Wiles <keith.wiles@intel.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Link: https://lore.kernel.org/bpf/20211214102607.7677-1-magnus.karlsson@gmail.com
+As the decision whether an interrupt was spurious or not requires to
+test for bytes having been read from the backend, move sending the
+event into the if statement, as sending an event without having found
+any bytes to be read is making no sense at all.
+
+This is part of XSA-391
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/xdp/xsk.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/hvc/hvc_xen.c |   30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -434,8 +434,6 @@ static __poll_t xsk_poll(struct file *fi
- 	struct xdp_sock *xs = xdp_sk(sk);
- 	struct xdp_umem *umem;
+--- a/drivers/tty/hvc/hvc_xen.c
++++ b/drivers/tty/hvc/hvc_xen.c
+@@ -37,6 +37,8 @@ struct xencons_info {
+ 	struct xenbus_device *xbdev;
+ 	struct xencons_interface *intf;
+ 	unsigned int evtchn;
++	XENCONS_RING_IDX out_cons;
++	unsigned int out_cons_same;
+ 	struct hvc_struct *hvc;
+ 	int irq;
+ 	int vtermno;
+@@ -138,6 +140,8 @@ static int domU_read_console(uint32_t vt
+ 	XENCONS_RING_IDX cons, prod;
+ 	int recv = 0;
+ 	struct xencons_info *xencons = vtermno_to_xencons(vtermno);
++	unsigned int eoiflag = 0;
++
+ 	if (xencons == NULL)
+ 		return -EINVAL;
+ 	intf = xencons->intf;
+@@ -157,7 +161,27 @@ static int domU_read_console(uint32_t vt
+ 	mb();			/* read ring before consuming */
+ 	intf->in_cons = cons;
  
--	sock_poll_wait(file, sock, wait);
--
- 	if (unlikely(!xsk_is_bound(xs)))
- 		return mask;
+-	notify_daemon(xencons);
++	/*
++	 * When to mark interrupt having been spurious:
++	 * - there was no new data to be read, and
++	 * - the backend did not consume some output bytes, and
++	 * - the previous round with no read data didn't see consumed bytes
++	 *   (we might have a race with an interrupt being in flight while
++	 *   updating xencons->out_cons, so account for that by allowing one
++	 *   round without any visible reason)
++	 */
++	if (intf->out_cons != xencons->out_cons) {
++		xencons->out_cons = intf->out_cons;
++		xencons->out_cons_same = 0;
++	}
++	if (recv) {
++		notify_daemon(xencons);
++	} else if (xencons->out_cons_same++ > 1) {
++		eoiflag = XEN_EOI_FLAG_SPURIOUS;
++	}
++
++	xen_irq_lateeoi(xencons->irq, eoiflag);
++
+ 	return recv;
+ }
  
-@@ -447,6 +445,8 @@ static __poll_t xsk_poll(struct file *fi
- 		else
- 			/* Poll needs to drive Tx also in copy mode */
- 			__xsk_sendmsg(sk);
-+	} else {
-+		sock_poll_wait(file, sock, wait);
+@@ -386,7 +410,7 @@ static int xencons_connect_backend(struc
+ 	if (ret)
+ 		return ret;
+ 	info->evtchn = evtchn;
+-	irq = bind_evtchn_to_irq(evtchn);
++	irq = bind_interdomain_evtchn_to_irq_lateeoi(dev->otherend_id, evtchn);
+ 	if (irq < 0)
+ 		return irq;
+ 	info->irq = irq;
+@@ -550,7 +574,7 @@ static int __init xen_hvc_init(void)
+ 			return r;
+ 
+ 		info = vtermno_to_xencons(HVC_COOKIE);
+-		info->irq = bind_evtchn_to_irq(info->evtchn);
++		info->irq = bind_evtchn_to_irq_lateeoi(info->evtchn);
  	}
- 
- 	if (xs->rx && !xskq_empty_desc(xs->rx))
+ 	if (info->irq < 0)
+ 		info->irq = 0; /* NO_IRQ */
 
 
