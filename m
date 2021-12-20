@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2918247ADE9
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2CA47ADC6
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:55:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237455AbhLTO4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:56:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34434 "EHLO
+        id S235681AbhLTOzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:55:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237472AbhLTOwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:52:23 -0500
+        with ESMTP id S237509AbhLTOwY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:52:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D21D0C08EB1C;
-        Mon, 20 Dec 2021 06:47:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E929C08EB22;
+        Mon, 20 Dec 2021 06:47:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F8D2B80EE4;
-        Mon, 20 Dec 2021 14:47:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C690AC36AE7;
-        Mon, 20 Dec 2021 14:46:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 468A6B80EEB;
+        Mon, 20 Dec 2021 14:47:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EFCCC36AE7;
+        Mon, 20 Dec 2021 14:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011619;
-        bh=BKYSmGiZCp+W3HeSZoxs52fKYrIW+YOA0uxO5Gvbdso=;
+        s=korg; t=1640011622;
+        bh=6GTz43RC8ewKUvxtgdF0Ea3ImMkN7J691+GI0MUlmBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UAJPqftGQHipj7v7HJ5Eh97J4ev2NT8J7dpRHlhYmVX5MGQ/wCEekbEKhZEynRnLy
-         ibj9DDe8dp965SlHdsJQpxs4a9MphX7nB74JQyCUqaELzc0j3gPWZ6n1+autN9XSDm
-         /SzDK0LsOp6x1G+UQ2Le+GYYyk9h1aCUC75oyDNA=
+        b=ewCf/7pIg2X6zfm8KW8I3dyWk9Bi1cL6Co2CQqn1yXIx2x1bCPWeOjKgbV21xt/5t
+         huettG8N/bJsTezkSOlxH2QpM89T61IjH+PfGv2oAPrC6F5s077KW9fukUCAJ/mcif
+         tIi03wn37kELyMF0ozgXXZatP4jwkI+6QdSnzqC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eneas U de Queiroz <cotequeiroz@gmail.com>,
-        Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 03/99] mac80211: fix regression in SSN handling of addba tx
-Date:   Mon, 20 Dec 2021 15:33:36 +0100
-Message-Id: <20211220143029.467598355@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 5.10 04/99] mac80211: mark TX-during-stop for TX in in_reconfig
+Date:   Mon, 20 Dec 2021 15:33:37 +0100
+Message-Id: <20211220143029.498487184@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
 References: <20211220143029.352940568@linuxfoundation.org>
@@ -48,55 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 73111efacd3c6d9e644acca1d132566932be8af0 upstream.
+commit db7205af049d230e7e0abf61c1e74c1aab40f390 upstream.
 
-Some drivers that do their own sequence number allocation (e.g. ath9k) rely
-on being able to modify params->ssn on starting tx ampdu sessions.
-This was broken by a change that modified it to use sta->tid_seq[tid] instead.
+Mark TXQs as having seen transmit while they were stopped if
+we bail out of drv_wake_tx_queue() due to reconfig, so that
+the queue wake after this will make them catch up. This is
+particularly necessary for when TXQs are used for management
+packets since those TXQs won't see a lot of traffic that'd
+make them catch up later.
 
 Cc: stable@vger.kernel.org
-Fixes: 31d8bb4e07f8 ("mac80211: agg-tx: refactor sending addba")
-Reported-by: Eneas U de Queiroz <cotequeiroz@gmail.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20211124094024.43222-1-nbd@nbd.name
+Fixes: 4856bfd23098 ("mac80211: do not call driver wake_tx_queue op during reconfig")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211129152938.4573a221c0e1.I0d1d5daea3089be3fc0dccc92991b0f8c5677f0c@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/agg-tx.c   |    4 ++--
- net/mac80211/sta_info.h |    1 +
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ net/mac80211/driver-ops.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -480,8 +480,7 @@ static void ieee80211_send_addba_with_ti
+--- a/net/mac80211/driver-ops.h
++++ b/net/mac80211/driver-ops.h
+@@ -1201,8 +1201,11 @@ static inline void drv_wake_tx_queue(str
+ {
+ 	struct ieee80211_sub_if_data *sdata = vif_to_sdata(txq->txq.vif);
  
- 	/* send AddBA request */
- 	ieee80211_send_addba_request(sdata, sta->sta.addr, tid,
--				     tid_tx->dialog_token,
--				     sta->tid_seq[tid] >> 4,
-+				     tid_tx->dialog_token, tid_tx->ssn,
- 				     buf_size, tid_tx->timeout);
- 
- 	WARN_ON(test_and_set_bit(HT_AGG_STATE_SENT_ADDBA, &tid_tx->state));
-@@ -523,6 +522,7 @@ void ieee80211_tx_ba_session_handle_star
- 
- 	params.ssn = sta->tid_seq[tid] >> 4;
- 	ret = drv_ampdu_action(local, sdata, &params);
-+	tid_tx->ssn = params.ssn;
- 	if (ret == IEEE80211_AMPDU_TX_START_DELAY_ADDBA) {
+-	if (local->in_reconfig)
++	/* In reconfig don't transmit now, but mark for waking later */
++	if (local->in_reconfig) {
++		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txq->flags);
  		return;
- 	} else if (ret == IEEE80211_AMPDU_TX_START_IMMEDIATE) {
---- a/net/mac80211/sta_info.h
-+++ b/net/mac80211/sta_info.h
-@@ -190,6 +190,7 @@ struct tid_ampdu_tx {
- 	u8 stop_initiator;
- 	bool tx_stop;
- 	u16 buf_size;
-+	u16 ssn;
++	}
  
- 	u16 failed_bar_ssn;
- 	bool bar_pending;
+ 	if (!check_sdata_in_driver(sdata))
+ 		return;
 
 
