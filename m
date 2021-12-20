@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1807F47AFDC
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:20:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 181C647AFB3
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:18:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238600AbhLTPUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:20:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40116 "EHLO
+        id S238566AbhLTPR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:17:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239440AbhLTPSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:18:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7DFC019D88;
-        Mon, 20 Dec 2021 06:59:33 -0800 (PST)
+        with ESMTP id S239045AbhLTPQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:16:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5841DC110F35;
+        Mon, 20 Dec 2021 06:58:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B95EB80EF1;
-        Mon, 20 Dec 2021 14:59:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B6BEC36AE8;
-        Mon, 20 Dec 2021 14:59:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7D576119C;
+        Mon, 20 Dec 2021 14:57:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0C4FC36AE8;
+        Mon, 20 Dec 2021 14:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012370;
-        bh=ZKCYJTj7WpYxSyjM+4FjMwqAHTU8YUcXxs1z89j/YeM=;
+        s=korg; t=1640012279;
+        bh=IuuTPBxZkgqvm54s/lsg7dRAuQILdH8j0YSojMVnBLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Txjf+2XgrzSLQpov9X2oCgfIewfMmqx3wKOBYSBu4l8zRAuqSDJ006YM4f1sPNMQ1
-         kbfuyFsDwz0F1OVpSLg8vGyFhd8Ic7X3ht6XBanTEpopXVX7qum49RsR/OVu6g1IqD
-         4LL279zca7SZxVoeQ0zYv02LVZqZTaYcjilDmbcY=
+        b=2bhhmGdzOTBZDayAM57K6rRi7zoGZEHA/BJM7yTZc7deUleMCqO040IJDZrRf2A7g
+         mb2uW5/GbvyMC99UF67cuFWNEOX4MxQ0BsIz7KWp3s5ZPU3doPSIcLK6Dwhtu4fPu3
+         3XvHe+Oxvzcsq3ljow6NJqZbUaWWZJQb28C8BXzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Riccardo Mancini <rickyman7@gmail.com>
-Subject: [PATCH 5.15 144/177] perf inject: Fix segfault due to close without open
-Date:   Mon, 20 Dec 2021 15:34:54 +0100
-Message-Id: <20211220143044.929790600@linuxfoundation.org>
+Subject: [PATCH 5.15 145/177] perf inject: Fix segfault due to perf_data__fd() without open
+Date:   Mon, 20 Dec 2021 15:34:55 +0100
+Message-Id: <20211220143044.961497941@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -52,10 +52,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 0c8e32fe48f549eef27c8c6b0a63530f83c3a643 upstream.
+commit c271a55b0c6029fed0cac909fa57999a11467132 upstream.
 
-The fixed commit attempts to close inject.output even if it was never
-opened e.g.
+The fixed commit attempts to get the output file descriptor even if the
+file was never opened e.g.
 
   $ perf record uname
   Linux
@@ -71,43 +71,62 @@ opened e.g.
   Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
 
   Program received signal SIGSEGV, Segmentation fault.
-  0x00007eff8afeef5b in _IO_new_fclose (fp=0x0) at iofclose.c:48
-  48      iofclose.c: No such file or directory.
+  __GI___fileno (fp=0x0) at fileno.c:35
+  35      fileno.c: No such file or directory.
   (gdb) bt
-  #0  0x00007eff8afeef5b in _IO_new_fclose (fp=0x0) at iofclose.c:48
-  #1  0x0000557fc7b74f92 in perf_data__close (data=data@entry=0x7ffcdafa6578) at util/data.c:376
-  #2  0x0000557fc7a6b807 in cmd_inject (argc=<optimized out>, argv=<optimized out>) at builtin-inject.c:1085
-  #3  0x0000557fc7ac4783 in run_builtin (p=0x557fc8074878 <commands+600>, argc=4, argv=0x7ffcdafb6a60) at perf.c:313
-  #4  0x0000557fc7a25d5c in handle_internal_command (argv=<optimized out>, argc=<optimized out>) at perf.c:365
-  #5  run_argv (argcp=<optimized out>, argv=<optimized out>) at perf.c:409
-  #6  main (argc=4, argv=0x7ffcdafb6a60) at perf.c:539
+  #0  __GI___fileno (fp=0x0) at fileno.c:35
+  #1  0x00005621e48dd987 in perf_data__fd (data=0x7fff4c68bd08) at util/data.h:72
+  #2  perf_data__fd (data=0x7fff4c68bd08) at util/data.h:69
+  #3  cmd_inject (argc=<optimized out>, argv=0x7fff4c69c1f0) at builtin-inject.c:1017
+  #4  0x00005621e4936783 in run_builtin (p=0x5621e4ee6878 <commands+600>, argc=4, argv=0x7fff4c69c1f0) at perf.c:313
+  #5  0x00005621e4897d5c in handle_internal_command (argv=<optimized out>, argc=<optimized out>) at perf.c:365
+  #6  run_argv (argcp=<optimized out>, argv=<optimized out>) at perf.c:409
+  #7  main (argc=4, argv=0x7fff4c69c1f0) at perf.c:539
   (gdb)
 
-Fixes: 02e6246f5364d526 ("perf inject: Close inject.output on exit")
+Fixes: 0ae03893623dd1dd ("perf tools: Pass a fd to perf_file_header__read_pipe()")
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Riccardo Mancini <rickyman7@gmail.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20211213084829.114772-2-adrian.hunter@intel.com
+Link: http://lore.kernel.org/lkml/20211213084829.114772-3-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-inject.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/perf/builtin-inject.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 --- a/tools/perf/builtin-inject.c
 +++ b/tools/perf/builtin-inject.c
-@@ -1069,7 +1069,8 @@ out_delete:
- 	zstd_fini(&(inject.session->zstd_data));
- 	perf_session__delete(inject.session);
- out_close_output:
--	perf_data__close(&inject.output);
-+	if (!inject.in_place_update)
-+		perf_data__close(&inject.output);
- 	free(inject.itrace_synth_opts.vm_tm_corr_args);
- 	return ret;
+@@ -755,12 +755,16 @@ static int parse_vm_time_correlation(con
+ 	return inject->itrace_synth_opts.vm_tm_corr_args ? 0 : -ENOMEM;
  }
+ 
++static int output_fd(struct perf_inject *inject)
++{
++	return inject->in_place_update ? -1 : perf_data__fd(&inject->output);
++}
++
+ static int __cmd_inject(struct perf_inject *inject)
+ {
+ 	int ret = -EINVAL;
+ 	struct perf_session *session = inject->session;
+-	struct perf_data *data_out = &inject->output;
+-	int fd = inject->in_place_update ? -1 : perf_data__fd(data_out);
++	int fd = output_fd(inject);
+ 	u64 output_data_offset;
+ 
+ 	signal(SIGINT, sig_handler);
+@@ -1006,7 +1010,7 @@ int cmd_inject(int argc, const char **ar
+ 	}
+ 
+ 	inject.session = __perf_session__new(&data, repipe,
+-					     perf_data__fd(&inject.output),
++					     output_fd(&inject),
+ 					     &inject.tool);
+ 	if (IS_ERR(inject.session)) {
+ 		ret = PTR_ERR(inject.session);
 
 
