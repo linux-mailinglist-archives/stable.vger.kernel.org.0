@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 590B647AF85
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:15:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D6F147AFA0
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239838AbhLTPOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:14:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38990 "EHLO
+        id S237944AbhLTPQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:16:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238294AbhLTPMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:12:21 -0500
+        with ESMTP id S233981AbhLTPO1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:14:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 607AFC08EB4D;
-        Mon, 20 Dec 2021 06:56:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6DBAC00055E;
+        Mon, 20 Dec 2021 06:57:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00088611D8;
-        Mon, 20 Dec 2021 14:56:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D36D9C36AE7;
-        Mon, 20 Dec 2021 14:56:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DD44611D1;
+        Mon, 20 Dec 2021 14:57:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34E3DC36AE9;
+        Mon, 20 Dec 2021 14:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012209;
-        bh=Q8uh3qh1vkEPHVDxw/wIY4+l6Kisd1nOUIUC9SIrK30=;
+        s=korg; t=1640012256;
+        bh=xi5myBMnaxHQABhAdSlG/oKl1qi1UgGGDytktiSXtM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZqZtrUhdNXWLVpNDywmOHL/4WHYi7CO9Wd2ar8ALVa8puUCXjyKs29zP8NN1xtQP
-         2k4Dq7DKdHEbR4qxXHiBdksJuccNg+hYGVnXOsCJm1qYXsJZ3M3aq/uetKk2Y43blr
-         yHUFeJWq5w6Jow5GtkVVt2xj9Gw4zVnb83JGxWLI=
+        b=CrJIOG0yVaKlN0RMqNIqFdzPVC1qCSFMKU//3f8E5bHqKyGmC/DkC23qtj73P24IY
+         +9UsEwhn+/ri8rlVugQgZEiHvZL4mvZgiXl5n0vP9RbBxkyr+Mn1Oi4EU5A8IMnK6l
+         DlyuPQ/rA1ocLcKNNRx6rABsw7fclzOlIYpnd53o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 102/177] sfc_ef100: potential dereference of null pointer
-Date:   Mon, 20 Dec 2021 15:34:12 +0100
-Message-Id: <20211220143043.529990307@linuxfoundation.org>
+Subject: [PATCH 5.15 104/177] net: Fix double 0x prefix print in SKB dump
+Date:   Mon, 20 Dec 2021 15:34:14 +0100
+Message-Id: <20211220143043.591372506@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -49,36 +48,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit 407ecd1bd726f240123f704620d46e285ff30dd9 ]
+[ Upstream commit 8a03ef676ade55182f9b05115763aeda6dc08159 ]
 
-The return value of kmalloc() needs to be checked.
-To avoid use in efx_nic_update_stats() in case of the failure of alloc.
+When printing netdev features %pNF already takes care of the 0x prefix,
+remove the explicit one.
 
-Fixes: b593b6f1b492 ("sfc_ef100: statistics gathering")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 6413139dfc64 ("skbuff: increase verbosity when dumping skb data")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef100_nic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/core/skbuff.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef100_nic.c b/drivers/net/ethernet/sfc/ef100_nic.c
-index 518268ce20644..d35cafd422b1c 100644
---- a/drivers/net/ethernet/sfc/ef100_nic.c
-+++ b/drivers/net/ethernet/sfc/ef100_nic.c
-@@ -609,6 +609,9 @@ static size_t ef100_update_stats(struct efx_nic *efx,
- 	ef100_common_stat_mask(mask);
- 	ef100_ethtool_stat_mask(mask);
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 38d7dee4bbe9e..f7e003571a356 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -832,7 +832,7 @@ void skb_dump(const char *level, const struct sk_buff *skb, bool full_pkt)
+ 	       ntohs(skb->protocol), skb->pkt_type, skb->skb_iif);
  
-+	if (!mc_stats)
-+		return 0;
-+
- 	efx_nic_copy_stats(efx, mc_stats);
- 	efx_nic_update_stats(ef100_stat_desc, EF100_STAT_COUNT, mask,
- 			     stats, mc_stats, false);
+ 	if (dev)
+-		printk("%sdev name=%s feat=0x%pNF\n",
++		printk("%sdev name=%s feat=%pNF\n",
+ 		       level, dev->name, &dev->features);
+ 	if (sk)
+ 		printk("%ssk family=%hu type=%u proto=%u\n",
 -- 
 2.33.0
 
