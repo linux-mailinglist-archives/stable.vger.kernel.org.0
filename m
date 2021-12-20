@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2F047ABB4
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1641C47AD28
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234307AbhLTOia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:38:30 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:52614 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234003AbhLTOh7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:59 -0500
+        id S235994AbhLTOul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:50:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38566 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236727AbhLTOsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7804BCE10F9;
-        Mon, 20 Dec 2021 14:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4274EC36AE7;
-        Mon, 20 Dec 2021 14:37:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EBE6119E;
+        Mon, 20 Dec 2021 14:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05907C36AE7;
+        Mon, 20 Dec 2021 14:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011075;
-        bh=vxQGH/F4L0g0ZYb8bm4uKhQSh35ghDEjnnb1g0JrjfQ=;
+        s=korg; t=1640011680;
+        bh=H8nEWLBfly227va2lh+trTW2ggB7Q5uq1uCN8EYUpC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WVliJWuw7jZlFc0agpEB0vhUEImFtBcWbsId4m00AY4oxbcH59GughVUUO0AnEP3t
-         rlXuyazIyjlR9pmzQwGvEmPmWcBVxPFqB1e9wD+bk/ks6TJvLyxKph2HlCYjp+8fdv
-         5U7diBIOURxBz9eluk2nrRFi6raUJi5TVc7ZqcPc=
+        b=CwChPRA/MOzgS6HWzKTnxz/7paVvbTTMojj53hAk5TdlI1wRzLqzeXYdrPSw0Pa5V
+         qZOJ/D6T5bPDiNJdU9XZ8weRdaMrADiknshV/NF3BI8BB4X4fI6FysVGXWu2JesNd7
+         vFGF88d25RnIbu5q6kU00lTGdLQ/TjUKYCK0g/Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 08/31] mac80211: send ADDBA requests using the tid/queue of the aggregation session
+        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 35/99] net: hns3: fix use-after-free bug in hclgevf_send_mbx_msg
 Date:   Mon, 20 Dec 2021 15:34:08 +0100
-Message-Id: <20211220143020.251285227@linuxfoundation.org>
+Message-Id: <20211220143030.548532914@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
-References: <20211220143019.974513085@linuxfoundation.org>
+In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
+References: <20211220143029.352940568@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Jie Wang <wangjie125@huawei.com>
 
-commit 1fe98f5690c4219d419ea9cc190f94b3401cf324 upstream.
+[ Upstream commit 27cbf64a766e86f068ce6214f04c00ceb4db1af4 ]
 
-Sending them out on a different queue can cause a race condition where a
-number of packets in the queue may be discarded by the receiver, because
-the ADDBA request is sent too early.
-This affects any driver with software A-MPDU setup which does not allocate
-packet seqno in hardware on tx, regardless of whether iTXQ is used or not.
-The only driver I've seen that explicitly deals with this issue internally
-is mwl8k.
+Currently, the hns3_remove function firstly uninstall client instance,
+and then uninstall acceletion engine device. The netdevice is freed in
+client instance uninstall process, but acceletion engine device uninstall
+process still use it to trace runtime information. This causes a use after
+free problem.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20211202124533.80388-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So fixes it by check the instance register state to avoid use after free.
+
+Fixes: d8355240cf8f ("net: hns3: add trace event support for PF/VF mailbox")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/agg-tx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -109,7 +109,7 @@ static void ieee80211_send_addba_request
- 	mgmt->u.action.u.addba_req.start_seq_num =
- 					cpu_to_le16(start_seq_num << 4);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+index 5b2dcd97c1078..b8e5ca6700ed5 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+@@ -109,7 +109,8 @@ int hclgevf_send_mbx_msg(struct hclgevf_dev *hdev,
  
--	ieee80211_tx_skb(sdata, skb);
-+	ieee80211_tx_skb_tid(sdata, skb, tid);
- }
+ 	memcpy(&req->msg, send_msg, sizeof(struct hclge_vf_to_pf_msg));
  
- void ieee80211_send_bar(struct ieee80211_vif *vif, u8 *ra, u16 tid, u16 ssn)
+-	trace_hclge_vf_mbx_send(hdev, req);
++	if (test_bit(HCLGEVF_STATE_NIC_REGISTERED, &hdev->state))
++		trace_hclge_vf_mbx_send(hdev, req);
+ 
+ 	/* synchronous send */
+ 	if (need_resp) {
+-- 
+2.33.0
+
 
 
