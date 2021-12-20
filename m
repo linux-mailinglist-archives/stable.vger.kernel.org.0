@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7723D47AEAE
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:04:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBE547AFBA
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239582AbhLTPCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:02:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36776 "EHLO
+        id S237874AbhLTPS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:18:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240343AbhLTPAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:00:15 -0500
+        with ESMTP id S238232AbhLTPRR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:17:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB0DC08EA4B;
-        Mon, 20 Dec 2021 06:51:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A15C00FC6B;
+        Mon, 20 Dec 2021 06:58:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46072611BD;
-        Mon, 20 Dec 2021 14:51:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ECB0C36AE8;
-        Mon, 20 Dec 2021 14:51:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 057B3611A4;
+        Mon, 20 Dec 2021 14:58:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1201AC36AE8;
+        Mon, 20 Dec 2021 14:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011872;
-        bh=KGdbJ9n3J6QbqMAeVcGfCfl6HouEAmJb5W6qzykKeUo=;
+        s=korg; t=1640012301;
+        bh=clAaQzTP0rMW5OwhF8ndOEhvFQnKygyf7ZxblxVQXMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iI7TgYNIpa1Crt8DP8W7hkMYJaeq3btKR8qbgHZJX2e1iU+dhX9xIUGjcyYdkQxu+
-         ZTb+JsZz0cl9idbtl55aov4JWH/lBbfMepDBe3avS+oyrILxzCLP3fFslfEpqUcgkk
-         yu/qu15Imm1/wJLShcit0AtsO7ypyJ0Ogn3eb7fg=
+        b=xnMLQMI9Oh+uRaAU44XS/LSBosONId3bN1s4Ry9yilrZqcMv7A0JUxe7wpNDCRU1a
+         +s9VgRPh8K3/kJKFD42Xb7y/49fqH6Ks0yMHXQ/NS664HF1CN53cMglpHFNilz+QcT
+         faaQgtF9EV9YO8KBD6/eAerGGW1soZ7+J0g2S52g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 90/99] scsi: scsi_debug: Fix type in min_t to avoid stack OOB
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 153/177] can: m_can: pci: use custom bit timings for Elkhart Lake
 Date:   Mon, 20 Dec 2021 15:35:03 +0100
-Message-Id: <20211220143032.429864617@linuxfoundation.org>
+Message-Id: <20211220143045.226729826@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,190 +48,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-commit 36e07d7ede88a1f1ef8f0f209af5b7612324ac2c upstream.
+commit ea4c1787685dbf9842046f05b6390b6901ee6ba2 upstream.
 
-Change min_t() to use type "u32" instead of type "int" to avoid stack out
-of bounds. With min_t() type "int" the values get sign extended and the
-larger value gets used causing stack out of bounds.
+The relevant datasheet [1] specifies nonstandard limits for the bit timing
+parameters. While it is unclear what the exact effect of violating these
+limits is, it seems like a good idea to adhere to the documentation.
 
-BUG: KASAN: stack-out-of-bounds in memcpy include/linux/fortify-string.h:191 [inline]
-BUG: KASAN: stack-out-of-bounds in sg_copy_buffer+0x1de/0x240 lib/scatterlist.c:976
-Read of size 127 at addr ffff888072607128 by task syz-executor.7/18707
+[1] Intel Atom® x6000E Series, and Intel® Pentium® and Celeron® N and J
+    Series Processors for IoT Applications Datasheet,
+    Volume 2 (Book 3 of 3), July 2021, Revision 001
 
-CPU: 1 PID: 18707 Comm: syz-executor.7 Not tainted 5.15.0-syzk #1
-Hardware name: Red Hat KVM, BIOS 1.13.0-2
-Call Trace:
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x89/0xb5 lib/dump_stack.c:106
- print_address_description.constprop.9+0x28/0x160 mm/kasan/report.c:256
- __kasan_report mm/kasan/report.c:442 [inline]
- kasan_report.cold.14+0x7d/0x117 mm/kasan/report.c:459
- check_region_inline mm/kasan/generic.c:183 [inline]
- kasan_check_range+0x1a3/0x210 mm/kasan/generic.c:189
- memcpy+0x23/0x60 mm/kasan/shadow.c:65
- memcpy include/linux/fortify-string.h:191 [inline]
- sg_copy_buffer+0x1de/0x240 lib/scatterlist.c:976
- sg_copy_from_buffer+0x33/0x40 lib/scatterlist.c:1000
- fill_from_dev_buffer.part.34+0x82/0x130 drivers/scsi/scsi_debug.c:1162
- fill_from_dev_buffer drivers/scsi/scsi_debug.c:1888 [inline]
- resp_readcap16+0x365/0x3b0 drivers/scsi/scsi_debug.c:1887
- schedule_resp+0x4d8/0x1a70 drivers/scsi/scsi_debug.c:5478
- scsi_debug_queuecommand+0x8c9/0x1ec0 drivers/scsi/scsi_debug.c:7533
- scsi_dispatch_cmd drivers/scsi/scsi_lib.c:1520 [inline]
- scsi_queue_rq+0x16b0/0x2d40 drivers/scsi/scsi_lib.c:1699
- blk_mq_dispatch_rq_list+0xb9b/0x2700 block/blk-mq.c:1639
- __blk_mq_sched_dispatch_requests+0x28f/0x590 block/blk-mq-sched.c:325
- blk_mq_sched_dispatch_requests+0x105/0x190 block/blk-mq-sched.c:358
- __blk_mq_run_hw_queue+0xe5/0x150 block/blk-mq.c:1761
- __blk_mq_delay_run_hw_queue+0x4f8/0x5c0 block/blk-mq.c:1838
- blk_mq_run_hw_queue+0x18d/0x350 block/blk-mq.c:1891
- blk_mq_sched_insert_request+0x3db/0x4e0 block/blk-mq-sched.c:474
- blk_execute_rq_nowait+0x16b/0x1c0 block/blk-exec.c:62
- sg_common_write.isra.18+0xeb3/0x2000 drivers/scsi/sg.c:836
- sg_new_write.isra.19+0x570/0x8c0 drivers/scsi/sg.c:774
- sg_ioctl_common+0x14d6/0x2710 drivers/scsi/sg.c:939
- sg_ioctl+0xa2/0x180 drivers/scsi/sg.c:1165
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:874 [inline]
- __se_sys_ioctl fs/ioctl.c:860 [inline]
- __x64_sys_ioctl+0x19d/0x220 fs/ioctl.c:860
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3a/0x80 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Link: https://lore.kernel.org/r/1636484247-21254-1-git-send-email-george.kennedy@oracle.com
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: cab7ffc0324f ("can: m_can: add PCI glue driver for Intel Elkhart Lake")
+Link: https://lore.kernel.org/all/9eba5d7c05a48ead4024ffa6e5926f191d8c6b38.1636967198.git.matthias.schiffer@ew.tq-group.com
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_debug.c |   34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ drivers/net/can/m_can/m_can_pci.c |   48 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 44 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -1188,7 +1188,7 @@ static int p_fill_from_dev_buffer(struct
- 		 __func__, off_dst, scsi_bufflen(scp), act_len,
- 		 scsi_get_resid(scp));
- 	n = scsi_bufflen(scp) - (off_dst + act_len);
--	scsi_set_resid(scp, min_t(int, scsi_get_resid(scp), n));
-+	scsi_set_resid(scp, min_t(u32, scsi_get_resid(scp), n));
- 	return 0;
- }
+--- a/drivers/net/can/m_can/m_can_pci.c
++++ b/drivers/net/can/m_can/m_can_pci.c
+@@ -18,9 +18,14 @@
  
-@@ -1561,7 +1561,8 @@ static int resp_inquiry(struct scsi_cmnd
- 	unsigned char pq_pdt;
- 	unsigned char *arr;
- 	unsigned char *cmd = scp->cmnd;
--	int alloc_len, n, ret;
-+	u32 alloc_len, n;
-+	int ret;
- 	bool have_wlun, is_disk, is_zbc, is_disk_zbc;
+ #define M_CAN_PCI_MMIO_BAR		0
  
- 	alloc_len = get_unaligned_be16(cmd + 3);
-@@ -1584,7 +1585,8 @@ static int resp_inquiry(struct scsi_cmnd
- 		kfree(arr);
- 		return check_condition_result;
- 	} else if (0x1 & cmd[1]) {  /* EVPD bit set */
--		int lu_id_num, port_group_id, target_dev_id, len;
-+		int lu_id_num, port_group_id, target_dev_id;
-+		u32 len;
- 		char lu_id_str[6];
- 		int host_no = devip->sdbg_host->shost->host_no;
- 		
-@@ -1675,9 +1677,9 @@ static int resp_inquiry(struct scsi_cmnd
- 			kfree(arr);
- 			return check_condition_result;
- 		}
--		len = min(get_unaligned_be16(arr + 2) + 4, alloc_len);
-+		len = min_t(u32, get_unaligned_be16(arr + 2) + 4, alloc_len);
- 		ret = fill_from_dev_buffer(scp, arr,
--			    min(len, SDEBUG_MAX_INQ_ARR_SZ));
-+			    min_t(u32, len, SDEBUG_MAX_INQ_ARR_SZ));
- 		kfree(arr);
- 		return ret;
- 	}
-@@ -1713,7 +1715,7 @@ static int resp_inquiry(struct scsi_cmnd
- 	}
- 	put_unaligned_be16(0x2100, arr + n);	/* SPL-4 no version claimed */
- 	ret = fill_from_dev_buffer(scp, arr,
--			    min_t(int, alloc_len, SDEBUG_LONG_INQ_SZ));
-+			    min_t(u32, alloc_len, SDEBUG_LONG_INQ_SZ));
- 	kfree(arr);
- 	return ret;
- }
-@@ -1728,8 +1730,8 @@ static int resp_requests(struct scsi_cmn
- 	unsigned char *cmd = scp->cmnd;
- 	unsigned char arr[SCSI_SENSE_BUFFERSIZE];	/* assume >= 18 bytes */
- 	bool dsense = !!(cmd[1] & 1);
--	int alloc_len = cmd[4];
--	int len = 18;
-+	u32 alloc_len = cmd[4];
-+	u32 len = 18;
- 	int stopped_state = atomic_read(&devip->stopped);
+-#define M_CAN_CLOCK_FREQ_EHL		200000000
+ #define CTL_CSR_INT_CTL_OFFSET		0x508
  
- 	memset(arr, 0, sizeof(arr));
-@@ -1773,7 +1775,7 @@ static int resp_requests(struct scsi_cmn
- 			arr[7] = 0xa;
- 		}
- 	}
--	return fill_from_dev_buffer(scp, arr, min_t(int, len, alloc_len));
-+	return fill_from_dev_buffer(scp, arr, min_t(u32, len, alloc_len));
- }
++struct m_can_pci_config {
++	const struct can_bittiming_const *bit_timing;
++	const struct can_bittiming_const *data_timing;
++	unsigned int clock_freq;
++};
++
+ struct m_can_pci_priv {
+ 	struct m_can_classdev cdev;
  
- static int resp_start_stop(struct scsi_cmnd *scp, struct sdebug_dev_info *devip)
-@@ -2311,7 +2313,8 @@ static int resp_mode_sense(struct scsi_c
+@@ -84,9 +89,40 @@ static struct m_can_ops m_can_pci_ops =
+ 	.read_fifo = iomap_read_fifo,
+ };
+ 
++static const struct can_bittiming_const m_can_bittiming_const_ehl = {
++	.name = KBUILD_MODNAME,
++	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
++	.tseg1_max = 64,
++	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
++	.tseg2_max = 128,
++	.sjw_max = 128,
++	.brp_min = 1,
++	.brp_max = 512,
++	.brp_inc = 1,
++};
++
++static const struct can_bittiming_const m_can_data_bittiming_const_ehl = {
++	.name = KBUILD_MODNAME,
++	.tseg1_min = 2,		/* Time segment 1 = prop_seg + phase_seg1 */
++	.tseg1_max = 16,
++	.tseg2_min = 1,		/* Time segment 2 = phase_seg2 */
++	.tseg2_max = 8,
++	.sjw_max = 4,
++	.brp_min = 1,
++	.brp_max = 32,
++	.brp_inc = 1,
++};
++
++static const struct m_can_pci_config m_can_pci_ehl = {
++	.bit_timing = &m_can_bittiming_const_ehl,
++	.data_timing = &m_can_data_bittiming_const_ehl,
++	.clock_freq = 200000000,
++};
++
+ static int m_can_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
  {
- 	int pcontrol, pcode, subpcode, bd_len;
- 	unsigned char dev_spec;
--	int alloc_len, offset, len, target_dev_id;
-+	u32 alloc_len, offset, len;
-+	int target_dev_id;
- 	int target = scp->device->id;
- 	unsigned char *ap;
- 	unsigned char arr[SDEBUG_MAX_MSENSE_SZ];
-@@ -2467,7 +2470,7 @@ static int resp_mode_sense(struct scsi_c
- 		arr[0] = offset - 1;
- 	else
- 		put_unaligned_be16((offset - 2), arr + 0);
--	return fill_from_dev_buffer(scp, arr, min_t(int, alloc_len, offset));
-+	return fill_from_dev_buffer(scp, arr, min_t(u32, alloc_len, offset));
- }
+ 	struct device *dev = &pci->dev;
++	const struct m_can_pci_config *cfg;
+ 	struct m_can_classdev *mcan_class;
+ 	struct m_can_pci_priv *priv;
+ 	void __iomem *base;
+@@ -114,6 +150,8 @@ static int m_can_pci_probe(struct pci_de
+ 	if (!mcan_class)
+ 		return -ENOMEM;
  
- #define SDEBUG_MAX_MSELECT_SZ 512
-@@ -2582,7 +2585,8 @@ static int resp_ie_l_pg(unsigned char *a
- static int resp_log_sense(struct scsi_cmnd *scp,
- 			  struct sdebug_dev_info *devip)
- {
--	int ppc, sp, pcode, subpcode, alloc_len, len, n;
-+	int ppc, sp, pcode, subpcode;
-+	u32 alloc_len, len, n;
- 	unsigned char arr[SDEBUG_MAX_LSENSE_SZ];
- 	unsigned char *cmd = scp->cmnd;
++	cfg = (const struct m_can_pci_config *)id->driver_data;
++
+ 	priv = cdev_to_priv(mcan_class);
  
-@@ -2652,9 +2656,9 @@ static int resp_log_sense(struct scsi_cm
- 		mk_sense_invalid_fld(scp, SDEB_IN_CDB, 3, -1);
- 		return check_condition_result;
- 	}
--	len = min_t(int, get_unaligned_be16(arr + 2) + 4, alloc_len);
-+	len = min_t(u32, get_unaligned_be16(arr + 2) + 4, alloc_len);
- 	return fill_from_dev_buffer(scp, arr,
--		    min_t(int, len, SDEBUG_MAX_INQ_ARR_SZ));
-+		    min_t(u32, len, SDEBUG_MAX_INQ_ARR_SZ));
- }
+ 	priv->base = base;
+@@ -125,7 +163,9 @@ static int m_can_pci_probe(struct pci_de
+ 	mcan_class->dev = &pci->dev;
+ 	mcan_class->net->irq = pci_irq_vector(pci, 0);
+ 	mcan_class->pm_clock_support = 1;
+-	mcan_class->can.clock.freq = id->driver_data;
++	mcan_class->bit_timing = cfg->bit_timing;
++	mcan_class->data_timing = cfg->data_timing;
++	mcan_class->can.clock.freq = cfg->clock_freq;
+ 	mcan_class->ops = &m_can_pci_ops;
  
- static inline bool sdebug_dev_is_zoned(struct sdebug_dev_info *devip)
-@@ -4409,7 +4413,7 @@ static int resp_report_zones(struct scsi
- 	put_unaligned_be64(sdebug_capacity - 1, arr + 8);
+ 	pci_set_drvdata(pci, mcan_class);
+@@ -178,8 +218,8 @@ static SIMPLE_DEV_PM_OPS(m_can_pci_pm_op
+ 			 m_can_pci_suspend, m_can_pci_resume);
  
- 	rep_len = (unsigned long)desc - (unsigned long)arr;
--	ret = fill_from_dev_buffer(scp, arr, min_t(int, alloc_len, rep_len));
-+	ret = fill_from_dev_buffer(scp, arr, min_t(u32, alloc_len, rep_len));
- 
- fini:
- 	read_unlock(macc_lckp);
+ static const struct pci_device_id m_can_pci_id_table[] = {
+-	{ PCI_VDEVICE(INTEL, 0x4bc1), M_CAN_CLOCK_FREQ_EHL, },
+-	{ PCI_VDEVICE(INTEL, 0x4bc2), M_CAN_CLOCK_FREQ_EHL, },
++	{ PCI_VDEVICE(INTEL, 0x4bc1), (kernel_ulong_t)&m_can_pci_ehl, },
++	{ PCI_VDEVICE(INTEL, 0x4bc2), (kernel_ulong_t)&m_can_pci_ehl, },
+ 	{  }	/* Terminating Entry */
+ };
+ MODULE_DEVICE_TABLE(pci, m_can_pci_id_table);
 
 
