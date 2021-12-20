@@ -2,67 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8B6647A77E
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:55:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1477647A796
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 11:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230286AbhLTJz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:55:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38040 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230251AbhLTJz6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:55:58 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4EDEB80E32;
-        Mon, 20 Dec 2021 09:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F03F8C36AE8;
-        Mon, 20 Dec 2021 09:55:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639994155;
-        bh=Beoy2P6+fy8z/gUXucA5Q6lCjHYHwarxoLXBRIeKynM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2G0p7fxX62M2JdkO57qLYXGC8Hmf18Er7QRaICY2Q0o+OOvhP4xGH04xGncyLg/Rv
-         4TRR4NSJDLbWdy/UYiRLlDSkqC81WA/uSNgAQpTpUk+ODED6Zfw6RhBrlIEvkOrbWG
-         AGVb0s6bfYMhsx8KgL2zfIYJFNt7UH4GCNrKRUCM=
-Date:   Mon, 20 Dec 2021 10:55:52 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH for-stable] KVM: VMX: clear vmx_x86_ops.sync_pir_to_irr
- if APICv is disabled
-Message-ID: <YcBTKJ08/7tjOBAu@kroah.com>
-References: <20211220094950.288692-1-pbonzini@redhat.com>
+        id S230440AbhLTKPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 05:15:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230436AbhLTKPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 05:15:00 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BFE2C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 02:15:00 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id o14so7706133plg.5
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 02:15:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=RHzrdvl7jrojAF1939ylwQQcaMRCB0VbLVoOa7wfrnw=;
+        b=nMDpqyoFKGncGrB30FBndr+KdqefwGK0dBHZOSJL9peCoAuz4/irj5H5jLQCglqfaO
+         dULXGidL1Kk1udK14Hn+/2qxm6fc/7LZZMq+SG/DPkmFlwlbWVaGbXSw93M/Fb0cMMQc
+         BYsTfCfXV9lAU8JRaVlqzO++Zmjg7EwNzusseoxj072m51gsZk0FAHMquGj4QgHdGElP
+         eeuGkwsyphaia6SnHYcMdh51DMy1OeDg1HirxhgVTFiHd3ORCAkVKk9pIeoshFe0mAhS
+         UOUgkg91/3F0sXoYA5enQpDrE1+UapaOtxrCuqJfwC1Zd2adknO7/AtIluWlQrr21ZFi
+         HT/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=RHzrdvl7jrojAF1939ylwQQcaMRCB0VbLVoOa7wfrnw=;
+        b=XLFjXS/BAsnIFKQXDmWEpHOe+PO52ILOOYUYuilMNnkz86yQpHHk6KvIUTkjLO6o9y
+         U/TRSMxR06raZviGa3oETj6t5ykaBsbhunAMvIb4n+35X+ahAPehxPmjNjUhv/k1Ffdx
+         WsvDGadX0MFHgofAWLizxHvcqlCyMLqxt1ivajHTfq963rt3C55cpTN6wlZkX+0Duv7b
+         3R/uVl4hvi1atFsinoF2Mxs8t453HRMm3y5AleQLGswkqIlYzbAJRWh7xGyhoSre2/Om
+         jovk5MyjoOLcvaDxdBB2kmMeTbv76PzU579BKmYo6FKGY3pHnbQTTwc0eOY2rFb3GyBs
+         cTWQ==
+X-Gm-Message-State: AOAM530fjqeqa3hWLuiM+HS+KKYVQM1t5KtYNQ7rrV+Ay5beMArwVLS7
+        L2xQUCl54XWXq271Z9KRyqnJBydOUnmMWMTY
+X-Google-Smtp-Source: ABdhPJyKVTLJ+gOiH7+JVTDa+p7ACjPgmICE/412Z+dZ3hMn4f411vKDh39lqVMyiEI4Llv8j8Gy8g==
+X-Received: by 2002:a17:90b:4a05:: with SMTP id kk5mr19247331pjb.142.1639995299769;
+        Mon, 20 Dec 2021 02:14:59 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id oo13sm18337369pjb.25.2021.12.20.02.14.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Dec 2021 02:14:59 -0800 (PST)
+Message-ID: <61c057a3.1c69fb81.33eb3.0fad@mx.google.com>
+Date:   Mon, 20 Dec 2021 02:14:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211220094950.288692-1-pbonzini@redhat.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.295-12-gd8298cd08f0d
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.4 baseline: 118 runs,
+ 2 regressions (v4.4.295-12-gd8298cd08f0d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 20, 2021 at 10:49:50AM +0100, Paolo Bonzini wrote:
-> commit e90e51d5f01d2baae5dcce280866bbb96816e978 upstream.
-> 
-> There is nothing to synchronize if APICv is disabled, since neither
-> other vCPUs nor assigned devices can set PIR.ON.
-> 
-> After the patch was committed to Linus's tree, it was observed that
-> this fixes an issue with commit 7e1901f6c86c ("KVM: VMX: prepare
-> sync_pir_to_irr for running with APICv disabled", backported to stable
-> as e.g. commit 70a37e04c08a for the 5.15 tree).  Without this patch,
-> vmx_sync_pir_to_irr can be reached with enable_apicv == false, triggering
-> 
->  	if (KVM_BUG_ON(!enable_apicv, vcpu->kvm))
-> 
-> Fixes: 7e1901f6c86c ("KVM: VMX: prepare sync_pir_to_irr for running with APICv disabled")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  arch/x86/kvm/vmx/vmx.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+stable-rc/queue/4.4 baseline: 118 runs, 2 regressions (v4.4.295-12-gd8298cd=
+08f0d)
 
-Looks like it is already queued up, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.295-12-gd8298cd08f0d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.295-12-gd8298cd08f0d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d8298cd08f0de279cd1522587dfb6047c7de00dc =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c01f39efb3ef8a4b397127
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.295-1=
+2-gd8298cd08f0d/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minno=
+wboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.295-1=
+2-gd8298cd08f0d/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minno=
+wboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c01f39efb3ef8a4b397=
+128
+        failing since 1 day (last pass: v4.4.295-9-g7d306649b59e, first fai=
+l: v4.4.295-11-ga3118690cea0) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c020a8c947ae45df397122
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.295-1=
+2-gd8298cd08f0d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.295-1=
+2-gd8298cd08f0d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora=
+/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c020a8c947ae45df397=
+123
+        new failure (last pass: v4.4.295-11-g16c28781820e) =
+
+ =20
