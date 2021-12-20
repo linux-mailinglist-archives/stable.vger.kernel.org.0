@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A991147AD5C
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27F0947AD8E
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236529AbhLTOv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:51:27 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41788 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237837AbhLTOtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:49:55 -0500
+        id S237850AbhLTOw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:52:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236138AbhLTOu7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACBA0C08EAEA;
+        Mon, 20 Dec 2021 06:46:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66F9E6118D;
-        Mon, 20 Dec 2021 14:49:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5331FC36AE7;
-        Mon, 20 Dec 2021 14:49:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CE4261185;
+        Mon, 20 Dec 2021 14:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33975C36AE7;
+        Mon, 20 Dec 2021 14:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011794;
-        bh=q1TFdYdXeDZmbA18JLsxx/ila1y1uzXHoXJg7nRJ6yM=;
+        s=korg; t=1640011602;
+        bh=PqZDWNYbxKDT1UN2AEx9VwMbmZOHsuoKUXiwpYNLLtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lD+70ZFQiADYVixoBlIRvn/SF7bIXKXqrdNQaKGLnodc0o1eYcocA0wJRgYoSk0x2
-         foSD1gV44DV73jYImvjzMtVkA5jH5KKtdG6GiptgWgH65ddAOa2Brv1Ma5sZci83i9
-         0RkAQyLtCWtAOIjhpoVDUN6P1+ixlC2oHhmGu0Uw=
+        b=TTkao0kd4cYB4KexSs2n3hyZnP3oBzYp5SsOb3wVlYLDbo4qKAXjExXxwBC7eM5j9
+         /hvcLJ2WxflMPFgYIxcvYS3Mh8PSJyfjYK+so0E5NAXmb0nvNDsnPxYmVUOh3al/3N
+         l9dt2Mw9ADXLTwuolU+pPGX8l/ie+rRdZ0Yxp410=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 76/99] btrfs: fix double free of anon_dev after failure to create subvolume
-Date:   Mon, 20 Dec 2021 15:34:49 +0100
-Message-Id: <20211220143031.951042776@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        syzbot+75eab84fd0af9e8bf66b@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 61/71] ovl: fix warning in ovl_create_real()
+Date:   Mon, 20 Dec 2021 15:34:50 +0100
+Message-Id: <20211220143027.743186091@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 33fab972497ae66822c0b6846d4f9382938575b6 upstream.
+commit 1f5573cfe7a7056e80a92c7a037a3e69f3a13d1c upstream.
 
-When creating a subvolume, at create_subvol(), we allocate an anonymous
-device and later call btrfs_get_new_fs_root(), which in turn just calls
-btrfs_get_root_ref(). There we call btrfs_init_fs_root() which assigns
-the anonymous device to the root, but if after that call there's an error,
-when we jump to 'fail' label, we call btrfs_put_root(), which frees the
-anonymous device and then returns an error that is propagated back to
-create_subvol(). Than create_subvol() frees the anonymous device again.
+Syzbot triggered the following warning in ovl_workdir_create() ->
+ovl_create_real():
 
-When this happens, if the anonymous device was not reallocated after
-the first time it was freed with btrfs_put_root(), we get a kernel
-message like the following:
+	if (!err && WARN_ON(!newdentry->d_inode)) {
 
-  (...)
-  [13950.282466] BTRFS: error (device dm-0) in create_subvol:663: errno=-5 IO failure
-  [13950.283027] ida_free called for id=65 which is not allocated.
-  [13950.285974] BTRFS info (device dm-0): forced readonly
-  (...)
+The reason is that the cgroup2 filesystem returns from mkdir without
+instantiating the new dentry.
 
-If the anonymous device gets reallocated by another btrfs filesystem
-or any other kernel subsystem, then bad things can happen.
+Weird filesystems such as this will be rejected by overlayfs at a later
+stage during setup, but to prevent such a warning, call ovl_mkdir_real()
+directly from ovl_workdir_create() and reject this case early.
 
-So fix this by setting the root's anonymous device to 0 at
-btrfs_get_root_ref(), before we call btrfs_put_root(), if an error
-happened.
-
-Fixes: 2dfb1e43f57dd3 ("btrfs: preallocate anon block device at first phase of snapshot creation")
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-and-tested-by: syzbot+75eab84fd0af9e8bf66b@syzkaller.appspotmail.com
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/overlayfs/dir.c       |    3 +--
+ fs/overlayfs/overlayfs.h |    1 +
+ fs/overlayfs/super.c     |   12 ++++++++----
+ 3 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1603,6 +1603,14 @@ again:
- 	}
- 	return root;
- fail:
-+	/*
-+	 * If our caller provided us an anonymous device, then it's his
-+	 * responsability to free it in case we fail. So we have to set our
-+	 * root's anon_dev to 0 to avoid a double free, once by btrfs_put_root()
-+	 * and once again by our caller.
-+	 */
-+	if (anon_dev)
-+		root->anon_dev = 0;
- 	btrfs_put_root(root);
- 	return ERR_PTR(ret);
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -113,8 +113,7 @@ kill_whiteout:
+ 	goto out;
  }
+ 
+-static int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry,
+-			  umode_t mode)
++int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry, umode_t mode)
+ {
+ 	int err;
+ 	struct dentry *d, *dentry = *newdentry;
+--- a/fs/overlayfs/overlayfs.h
++++ b/fs/overlayfs/overlayfs.h
+@@ -409,6 +409,7 @@ struct ovl_cattr {
+ 
+ #define OVL_CATTR(m) (&(struct ovl_cattr) { .mode = (m) })
+ 
++int ovl_mkdir_real(struct inode *dir, struct dentry **newdentry, umode_t mode);
+ struct dentry *ovl_create_real(struct inode *dir, struct dentry *newdentry,
+ 			       struct ovl_cattr *attr);
+ int ovl_cleanup(struct inode *dir, struct dentry *dentry);
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -650,10 +650,14 @@ retry:
+ 			goto retry;
+ 		}
+ 
+-		work = ovl_create_real(dir, work, OVL_CATTR(attr.ia_mode));
+-		err = PTR_ERR(work);
+-		if (IS_ERR(work))
+-			goto out_err;
++		err = ovl_mkdir_real(dir, &work, attr.ia_mode);
++		if (err)
++			goto out_dput;
++
++		/* Weird filesystem returning with hashed negative (kernfs)? */
++		err = -EINVAL;
++		if (d_really_is_negative(work))
++			goto out_dput;
+ 
+ 		/*
+ 		 * Try to remove POSIX ACL xattrs from workdir.  We are good if:
 
 
