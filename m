@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D76947A726
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:34:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 640CD47A727
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:35:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbhLTJez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:34:55 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40868 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbhLTJey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:34:54 -0500
+        id S229675AbhLTJe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:34:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46032 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229473AbhLTJe7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:34:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26666C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:34:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 835BE60F1D
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:34:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6526BC36AED;
-        Mon, 20 Dec 2021 09:34:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E514DB80DA2
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:34:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36276C36AE8;
+        Mon, 20 Dec 2021 09:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639992893;
-        bh=HyjjodN3OEKpKRIVjT1lk76A8wX6Xa3OF+JEJBy4M3Y=;
+        s=korg; t=1639992896;
+        bh=z3Vywe8/CCBk/k/n02DtbReyx1uW+YDOaxYpSf3PVMw=;
         h=Subject:To:Cc:From:Date:From;
-        b=zrbM+Tvgusl54RFd2G68kinJyv2Na42jKQFKXGI7zVH0REgz5vDusaku63IYjd/Cz
-         ICOlC8uJSIsWcKgy/P0I6RRaf1dBpFpxIxNmZVa+DVan/EKa+WFvaJIbVqAxhX8hmA
-         2ZMfll07Nt0+5Ze9RWUI96UIds0wvNUns2lY5pZY=
-Subject: FAILED: patch "[PATCH] btrfs: fix warning when freeing leaf after subvolume creation" failed to apply to 5.4-stable tree
+        b=bh5/QSXnv86+hP4Rcbx0hRizgSpLscsukRg+esi1fFzRTTYVmfsp0AX+Gnzr6FaWz
+         NkNfQuhXwWAb9JjxccI5NydenPfSdxW7qu0AdddJQncbEA1/NPnXyRPlMlkGe3lLLR
+         1w1Wmo7sxVXFe0pUWbpLTmNlJFXyA7Wstgl3xJfs=
+Subject: FAILED: patch "[PATCH] btrfs: fix warning when freeing leaf after subvolume creation" failed to apply to 4.19-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com, nborisov@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:34:44 +0100
-Message-ID: <1639992884213128@kroah.com>
+Date:   Mon, 20 Dec 2021 10:34:45 +0100
+Message-ID: <16399928856180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
