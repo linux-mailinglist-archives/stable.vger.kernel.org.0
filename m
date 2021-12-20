@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF1247A74C
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:38:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD1F47A74D
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:39:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbhLTJiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:38:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57670 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229842AbhLTJiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:38:52 -0500
+        id S229682AbhLTJjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:39:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47010 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229842AbhLTJjA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:39:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10679C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:39:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F75AB80E30
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:38:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B5CC36AE2;
-        Mon, 20 Dec 2021 09:38:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A517560F0E
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8958CC36AE2;
+        Mon, 20 Dec 2021 09:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639993130;
-        bh=CcHGx/82Ulf93CRtwS5ZNZB/lUJxCLofPR3DqhBCoGM=;
+        s=korg; t=1639993139;
+        bh=Xc+nyWk79Nz5IIoATLWkKP/lOJ7WJ6yWcC04ZUud4PI=;
         h=Subject:To:Cc:From:Date:From;
-        b=vvt/zyKJQaS13nSKcnmbrBWH9A6dyYn457/NXK/5D8RqPwyTjZfBIibsL+5xFXyFa
-         qvTbg2520DLZUwIlPby2jKtPT9HwwRsZqX9TOKt1vGY9aNCF5gbHbGEFVvxNsrmovb
-         lGxTnt/oShWLP2yF2gpJI/0A83QMpUNogBcMFuvs=
-Subject: FAILED: patch "[PATCH] serial: 8250_fintek: Fix garbled text for console" failed to apply to 5.4-stable tree
+        b=0mkxTRnrodQTOSzF9wzYfYyiPmh0vOyqfF5v0WX9lWuNMwmG9onK2lTAy/l1Hp1XG
+         2vRDRM+k+mYi8b2ZhIIlPzpdDHgGTxRgYs2Jev8qCFYHtfZkh6o2GJxY5J9e0uRBqR
+         B1fWP6MZQm+XAqNimsMixRO4D2M+OO7Q4W/q0HiU=
+Subject: FAILED: patch "[PATCH] serial: 8250_fintek: Fix garbled text for console" failed to apply to 4.19-stable tree
 To:     hpeter@gmail.com, gregkh@linuxfoundation.org,
         hpeter+linux_kernel@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:38:47 +0100
-Message-ID: <16399931271082@kroah.com>
+Date:   Mon, 20 Dec 2021 10:38:48 +0100
+Message-ID: <1639993128235219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
