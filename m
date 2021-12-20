@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F1B47AD75
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD05247AD2A
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236950AbhLTOwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:52:20 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41982 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238225AbhLTOuV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:50:21 -0500
+        id S236353AbhLTOun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:50:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236875AbhLTOsH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B97C06137B;
+        Mon, 20 Dec 2021 06:44:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F3DF6119C;
-        Mon, 20 Dec 2021 14:50:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63991C36AE9;
-        Mon, 20 Dec 2021 14:50:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98F2461165;
+        Mon, 20 Dec 2021 14:44:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F0CDC36AE8;
+        Mon, 20 Dec 2021 14:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011819;
-        bh=3kqhqbfbqsdyzaL66YJCT1UkRYcBkhpS2LPgGIMxF0k=;
+        s=korg; t=1640011482;
+        bh=lGrCAx65f7aNTPX2P0+Y96b1yVBfiZLwoW3pMm1rzok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNjNTCQgPXhABAHWwTADUcVDUFE/2ifwTzALqjD0ovR+ib0HDMmfpcGHEu9cnUxns
-         7R49Ia9RSGyXA1Fic1hNi7RnNcstsDRjLD0tAF7Sei18iwPkZKcAEzkSn5VvdVoMfL
-         rkDWe0ZT/5leI03tibNvZQfdMGm9nOGxBM5m7rtY=
+        b=qKCfnx1KkzjfpQJv8IUqZcW+9DElOwS3W5RLSM5GspAuKgy2NyvZZMUWbMtfruvUt
+         JAcLtMUoW6GYsztvKFEiqpTtvJrBH2KRVMmOQllssIZB3DfqqN6iRSRqIyHmOdF0/M
+         EqOM/W0DMi4Wnne4e/RCvTVfwiUKYwt5EpSVMTVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Schlabbach <robert_s@gmx.net>,
+        stable@vger.kernel.org, Cyril Novikov <cnovikov@lynx.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 53/99] ixgbe: Document how to enable NBASE-T support
+Subject: [PATCH 5.4 37/71] ixgbe: set X550 MDIO speed before talking to PHY
 Date:   Mon, 20 Dec 2021 15:34:26 +0100
-Message-Id: <20211220143031.175925081@linuxfoundation.org>
+Message-Id: <20211220143026.929408354@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Schlabbach <robert_s@gmx.net>
+From: Cyril Novikov <cnovikov@lynx.com>
 
-[ Upstream commit 271225fd57c2f1e0b3f8826df51be6c634affefe ]
+[ Upstream commit bf0a375055bd1afbbf02a0ef45f7655da7b71317 ]
 
-Commit a296d665eae1 ("ixgbe: Add ethtool support to enable 2.5 and 5.0
-Gbps support") introduced suppression of the advertisement of NBASE-T
-speeds by default, according to Todd Fujinaka to accommodate customers
-with network switches which could not cope with advertised NBASE-T
-speeds, as posted in the E1000-devel mailing list:
-
-https://sourceforge.net/p/e1000/mailman/message/37106269/
-
-However, the suppression was not documented at all, nor was how to
-enable NBASE-T support.
-
-Properly document the NBASE-T suppression and how to enable NBASE-T
+The MDIO bus speed must be initialized before talking to the PHY the first
+time in order to avoid talking to it using a speed that the PHY doesn't
 support.
 
-Fixes: a296d665eae1 ("ixgbe: Add ethtool support to enable 2.5 and 5.0 Gbps support")
-Reported-by: Robert Schlabbach <robert_s@gmx.net>
-Signed-off-by: Robert Schlabbach <robert_s@gmx.net>
+This fixes HW initialization error -17 (IXGBE_ERR_PHY_ADDR_INVALID) on
+Denverton CPUs (a.k.a. the Atom C3000 family) on ports with a 10Gb network
+plugged in. On those devices, HLREG0[MDCSPD] resets to 1, which combined
+with the 10Gb network results in a 24MHz MDIO speed, which is apparently
+too fast for the connected PHY. PHY register reads over MDIO bus return
+garbage, leading to initialization failure.
+
+Reproduced with Linux kernel 4.19 and 5.15-rc7. Can be reproduced using
+the following setup:
+
+* Use an Atom C3000 family system with at least one X552 LAN on the SoC
+* Disable PXE or other BIOS network initialization if possible
+  (the interface must not be initialized before Linux boots)
+* Connect a live 10Gb Ethernet cable to an X550 port
+* Power cycle (not reset, doesn't always work) the system and boot Linux
+* Observe: ixgbe interfaces w/ 10GbE cables plugged in fail with error -17
+
+Fixes: e84db7272798 ("ixgbe: Introduce function to control MDIO speed")
+Signed-off-by: Cyril Novikov <cnovikov@lynx.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../device_drivers/ethernet/intel/ixgbe.rst      | 16 ++++++++++++++++
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c    |  4 ++++
- 2 files changed, 20 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/networking/device_drivers/ethernet/intel/ixgbe.rst b/Documentation/networking/device_drivers/ethernet/intel/ixgbe.rst
-index f1d5233e5e510..0a233b17c664e 100644
---- a/Documentation/networking/device_drivers/ethernet/intel/ixgbe.rst
-+++ b/Documentation/networking/device_drivers/ethernet/intel/ixgbe.rst
-@@ -440,6 +440,22 @@ NOTE: For 82599-based network connections, if you are enabling jumbo frames in
- a virtual function (VF), jumbo frames must first be enabled in the physical
- function (PF). The VF MTU setting cannot be larger than the PF MTU.
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
+index 9c42f741ed5ef..74728c0a44a81 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_x550.c
+@@ -3405,6 +3405,9 @@ static s32 ixgbe_reset_hw_X550em(struct ixgbe_hw *hw)
+ 	/* flush pending Tx transactions */
+ 	ixgbe_clear_tx_pending(hw);
  
-+NBASE-T Support
-+---------------
-+The ixgbe driver supports NBASE-T on some devices. However, the advertisement
-+of NBASE-T speeds is suppressed by default, to accommodate broken network
-+switches which cannot cope with advertised NBASE-T speeds. Use the ethtool
-+command to enable advertising NBASE-T speeds on devices which support it::
++	/* set MDIO speed before talking to the PHY in case it's the 1st time */
++	ixgbe_set_mdio_speed(hw);
 +
-+  ethtool -s eth? advertise 0x1800000001028
-+
-+On Linux systems with INTERFACES(5), this can be specified as a pre-up command
-+in /etc/network/interfaces so that the interface is always brought up with
-+NBASE-T support, e.g.::
-+
-+  iface eth? inet dhcp
-+       pre-up ethtool -s eth? advertise 0x1800000001028 || true
-+
- Generic Receive Offload, aka GRO
- --------------------------------
- The driver supports the in-kernel software implementation of GRO. GRO has
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index ffe322136c584..a3a02e2f92f64 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -5532,6 +5532,10 @@ static int ixgbe_non_sfp_link_config(struct ixgbe_hw *hw)
- 	if (!speed && hw->mac.ops.get_link_capabilities) {
- 		ret = hw->mac.ops.get_link_capabilities(hw, &speed,
- 							&autoneg);
-+		/* remove NBASE-T speeds from default autonegotiation
-+		 * to accommodate broken network switches in the field
-+		 * which cannot cope with advertised NBASE-T speeds
-+		 */
- 		speed &= ~(IXGBE_LINK_SPEED_5GB_FULL |
- 			   IXGBE_LINK_SPEED_2_5GB_FULL);
- 	}
+ 	/* PHY ops must be identified and initialized prior to reset */
+ 	status = hw->phy.ops.init(hw);
+ 	if (status == IXGBE_ERR_SFP_NOT_SUPPORTED ||
 -- 
 2.33.0
 
