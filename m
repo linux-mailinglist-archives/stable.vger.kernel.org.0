@@ -2,78 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 828EF47A8DD
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 12:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CACA047A974
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 13:23:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231336AbhLTLkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 06:40:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57740 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231950AbhLTLkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 06:40:10 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D54260FF2;
-        Mon, 20 Dec 2021 11:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DA236C36AE8;
-        Mon, 20 Dec 2021 11:40:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640000409;
-        bh=xhQnf56bsaHJHJcBDmOwBiSBwGs6r1NJVkB3ZlKZuZU=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=ICMDWwgmY7NiCacD+7UnoSA3elMhtXyLoxU507xVudm5bWyqaEfRQfZZprC5WQ8te
-         Co6/79D/Q9Yg+NcterUvuKsPIof7Aws3UMltQ6SLo4P1mq6JFHZIAz0sv+tUED1rqA
-         hVSibgOLH6KGsWHqTO8uHBGOwUHMbKyHmusVvHapo/DopLz7P1iD8g9MvSFX2IgFvF
-         5KVpPxVOWaP2OEgOgpHnABkN0I2Geg1U+PezpJlBkxrKky4IEtgTdDna5DUxb1Ax8T
-         HSwjWY1A4jiloFmJJMA9Y/GISulDW4AgusV1wGHGrtwhlL6uPEAl017J/RLEvnhLnz
-         QeC6GARrDNuIA==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id B333960A6F;
-        Mon, 20 Dec 2021 11:40:09 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S232525AbhLTMXX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 07:23:23 -0500
+Received: from relay034.a.hostedemail.com ([64.99.140.34]:37090 "EHLO
+        relay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S230031AbhLTMXX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 07:23:23 -0500
+X-Greylist: delayed 586 seconds by postgrey-1.27 at vger.kernel.org; Mon, 20 Dec 2021 07:23:23 EST
+Received: from omf11.hostedemail.com (a10.router.float.18 [10.200.18.1])
+        by unirelay10.hostedemail.com (Postfix) with ESMTP id 796EB1D8;
+        Mon, 20 Dec 2021 12:13:28 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf11.hostedemail.com (Postfix) with ESMTPA id 533192002C;
+        Mon, 20 Dec 2021 12:13:21 +0000 (UTC)
+Message-ID: <bc4a4ba7c07a4077b9790be883fb4205d401804e.camel@perches.com>
+Subject: Re: [PATCH 4.19 3/6] mwifiex: Remove unnecessary braces from
+ HostCmd_SET_SEQ_NO_BSS_INFO
+From:   Joe Perches <joe@perches.com>
+To:     Anders Roxell <anders.roxell@linaro.org>, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, woojung.huh@microchip.com,
+        UNGLinuxDriver@microchip.com, davem@davemloft.net,
+        netdev@vger.kernel.org, linux-usb@vger.kernel.org,
+        clang-built-linux@googlegroups.com, ulli.kroll@googlemail.com,
+        linux@armlinux.org.uk, linux-arm-kernel@lists.infradead.org,
+        amitkarwar@gmail.com, nishants@marvell.com, gbhat@marvell.com,
+        huxinming820@gmail.com, kvalo@codeaurora.org,
+        linux-wireless@vger.kernel.org, rostedt@goodmis.org,
+        mingo@redhat.com, dmitry.torokhov@gmail.com,
+        ndesaulniers@google.com, nathan@kernel.org,
+        linux-input@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Andy Lavr <andy.lavr@gmail.com>
+Date:   Mon, 20 Dec 2021 04:13:20 -0800
+In-Reply-To: <20211217144119.2538175-4-anders.roxell@linaro.org>
+References: <20211217144119.2538175-1-anders.roxell@linaro.org>
+         <20211217144119.2538175-4-anders.roxell@linaro.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.40.4-1ubuntu2 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] mac80211: fix locking in ieee80211_start_ap error path
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164000040972.26538.12878058842061474047.git-patchwork-notify@kernel.org>
-Date:   Mon, 20 Dec 2021 11:40:09 +0000
-References: <20211220092240.12768-1-johannes@sipsolutions.net>
-In-Reply-To: <20211220092240.12768-1-johannes@sipsolutions.net>
-To:     Johannes Berg <johannes@sipsolutions.net>
-Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        johannes.berg@intel.com, stable@vger.kernel.org,
-        syzbot+11c342e5e30e9539cabd@syzkaller.appspotmail.com
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 533192002C
+X-Spam-Status: No, score=-1.11
+X-Stat-Signature: 5gayuqe4kzuw64zsi7w1zyzmxgih75tc
+X-Rspamd-Server: rspamout07
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX18u6WrSAOpDdNGkNCm15RZg1zit1HkWz44=
+X-HE-Tag: 1640002401-869126
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
-
-On Mon, 20 Dec 2021 10:22:40 +0100 you wrote:
-> From: Johannes Berg <johannes.berg@intel.com>
+On Fri, 2021-12-17 at 15:41 +0100, Anders Roxell wrote:
+> From: Nathan Chancellor <natechancellor@gmail.com>
 > 
-> We need to hold the local->mtx to release the channel context,
-> as even encoded by the lockdep_assert_held() there. Fix it.
+> commit 6a953dc4dbd1c7057fb765a24f37a5e953c85fb0 upstream.
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: 295b02c4be74 ("mac80211: Add FILS discovery support")
-> Reported-and-tested-by: syzbot+11c342e5e30e9539cabd@syzkaller.appspotmail.com
-> Link: https://lore.kernel.org/r/20211220090836.cee3d59a1915.I36bba9b79dc2ff4d57c3c7aa30dff9a003fe8c5c@changeid
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+> A new warning in clang points out when macro expansion might result in a
+> GNU C statement expression. There is an instance of this in the mwifiex
+> driver:
 > 
-> [...]
+> drivers/net/wireless/marvell/mwifiex/cmdevt.c:217:34: warning: '}' and
+> ')' tokens terminating statement expression appear in different macro
+> expansion contexts [-Wcompound-token-split-by-macro]
+>         host_cmd->seq_num = cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+>                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+[]
+> diff --git a/drivers/net/wireless/marvell/mwifiex/fw.h b/drivers/net/wireless/marvell/mwifiex/fw.h
+[]
+> @@ -512,10 +512,10 @@ enum mwifiex_channel_flags {
+>  
+>  #define RF_ANTENNA_AUTO                 0xFFFF
+>  
+> -#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) {   \
+> -	(((seq) & 0x00ff) |                             \
+> -	 (((num) & 0x000f) << 8)) |                     \
+> -	(((type) & 0x000f) << 12);                  }
+> +#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) \
+> +	((((seq) & 0x00ff) |                        \
+> +	 (((num) & 0x000f) << 8)) |                 \
+> +	(((type) & 0x000f) << 12))
 
-Here is the summary with links:
-  - [net] mac80211: fix locking in ieee80211_start_ap error path
-    https://git.kernel.org/netdev/net/c/87a270625a89
+Perhaps this would be better as a static inline
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+static inline u16 HostCmd_SET_SEQ_NO_BSS_INFO(u16 seq, u8 num, u8 type)
+{
+	return (type & 0x000f) << 12 | (num & 0x000f) << 8 | (seq & 0x00ff);
+}
 
 
