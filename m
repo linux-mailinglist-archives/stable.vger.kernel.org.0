@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC6D247AD10
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAEFA47ABD4
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234472AbhLTOsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:48:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32778 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236572AbhLTOq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:46:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C292CC08E9BF;
-        Mon, 20 Dec 2021 06:43:48 -0800 (PST)
+        id S234569AbhLTOjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:39:22 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:53044 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234562AbhLTOin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:38:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82290B80EE3;
-        Mon, 20 Dec 2021 14:43:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3E5C36AE7;
-        Mon, 20 Dec 2021 14:43:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1883CCE1095;
+        Mon, 20 Dec 2021 14:38:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D90B0C36AE8;
+        Mon, 20 Dec 2021 14:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011426;
-        bh=gJ30C+0+M4xaoc52uiuC4aC7ELxW962R9YQTbLcjfUE=;
+        s=korg; t=1640011120;
+        bh=xevNN71LVY1590c+Mb0u1A4Tv0j38C6SG/2qB4Q5KjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxVY6+MLQ1MHapc8ixE5eE9bnZ+nQG0RHCidHSLQ0tOoXjpu916q+rOnVHP41YXEc
-         2vuy2s88xkLPGqM1DjmccA2txB0vVc9r4QXpO+mfGQDmGUyQFXmburToQ5lcI1z74z
-         nvSz3OvZfZB7lLLFeYBvYGra8qlewatic6KzWz28=
+        b=ZbLpHRrZIWSfq9M01Ult8zuWXS59edaAzULXrQa1lPaBHQ566iVKja9hr5fFtlJon
+         QVtRlJGYnZueYnFdCaARbf5aNkirzLkVaT2n3kfFd31pP0RTo9+D6Nld0G8/RqFzXM
+         CeiKB59l7IuXSbcaZ3etUY/uLXWTOdArodBybgYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Tipton <quic_mdtipton@quicinc.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/71] clk: Dont parent clks until the parent is fully registered
+        stable@vger.kernel.org, Jerome Marchand <jmarchan@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.14 11/45] recordmcount.pl: look for jgnop instruction as well as bcrl on s390
 Date:   Mon, 20 Dec 2021 15:34:06 +0100
-Message-Id: <20211220143026.271470026@linuxfoundation.org>
+Message-Id: <20211220143022.647629903@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
+References: <20211220143022.266532675@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,126 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Tipton <quic_mdtipton@quicinc.com>
+From: Jerome Marchand <jmarchan@redhat.com>
 
-[ Upstream commit 54baf56eaa40aa5cdcd02b3c20d593e4e1211220 ]
+commit 85bf17b28f97ca2749968d8786dc423db320d9c2 upstream.
 
-Before commit fc0c209c147f ("clk: Allow parents to be specified without
-string names") child clks couldn't find their parent until the parent
-clk was added to a list in __clk_core_init(). After that commit, child
-clks can reference their parent clks directly via a clk_hw pointer, or
-they can lookup that clk_hw pointer via DT if the parent clk is
-registered with an OF clk provider.
+On s390, recordmcount.pl is looking for "bcrl 0,<xxx>" instructions in
+the objdump -d outpout. However since binutils 2.37, objdump -d
+display "jgnop <xxx>" for the same instruction. Update the
+mcount_regex so that it accepts both.
 
-The common clk framework treats hw->core being non-NULL as "the clk is
-registered" per the logic within clk_core_fill_parent_index():
-
-	parent = entry->hw->core;
-	/*
-	 * We have a direct reference but it isn't registered yet?
-	 * Orphan it and let clk_reparent() update the orphan status
-	 * when the parent is registered.
-	 */
-	if (!parent)
-
-Therefore we need to be extra careful to not set hw->core until the clk
-is fully registered with the clk framework. Otherwise we can get into a
-situation where a child finds a parent clk and we move the child clk off
-the orphan list when the parent isn't actually registered, wrecking our
-enable accounting and breaking critical clks.
-
-Consider the following scenario:
-
-  CPU0                                     CPU1
-  ----                                     ----
-  struct clk_hw clkBad;
-  struct clk_hw clkA;
-
-  clkA.init.parent_hws = { &clkBad };
-
-  clk_hw_register(&clkA)                   clk_hw_register(&clkBad)
-   ...                                      __clk_register()
-					     hw->core = core
-					     ...
-   __clk_register()
-    __clk_core_init()
-     clk_prepare_lock()
-     __clk_init_parent()
-      clk_core_get_parent_by_index()
-       clk_core_fill_parent_index()
-        if (entry->hw) {
-	 parent = entry->hw->core;
-
-At this point, 'parent' points to clkBad even though clkBad hasn't been
-fully registered yet. Ouch! A similar problem can happen if a clk
-controller registers orphan clks that are referenced in the DT node of
-another clk controller.
-
-Let's fix all this by only setting the hw->core pointer underneath the
-clk prepare lock in __clk_core_init(). This way we know that
-clk_core_fill_parent_index() can't see hw->core be non-NULL until the
-clk is fully registered.
-
-Fixes: fc0c209c147f ("clk: Allow parents to be specified without string names")
-Signed-off-by: Mike Tipton <quic_mdtipton@quicinc.com>
-Link: https://lore.kernel.org/r/20211109043438.4639-1-quic_mdtipton@quicinc.com
-[sboyd@kernel.org: Reword commit text, update comment]
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211210093827.1623286-1-jmarchan@redhat.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ scripts/recordmcount.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 6ff87cd867121..e4e1b4e94a67b 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -3299,6 +3299,14 @@ static int __clk_core_init(struct clk_core *core)
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -252,7 +252,7 @@ if ($arch eq "x86_64") {
  
- 	clk_prepare_lock();
- 
-+	/*
-+	 * Set hw->core after grabbing the prepare_lock to synchronize with
-+	 * callers of clk_core_fill_parent_index() where we treat hw->core
-+	 * being NULL as the clk not being registered yet. This is crucial so
-+	 * that clks aren't parented until their parent is fully registered.
-+	 */
-+	core->hw->core = core;
-+
- 	ret = clk_pm_runtime_get(core);
- 	if (ret)
- 		goto unlock;
-@@ -3452,8 +3460,10 @@ static int __clk_core_init(struct clk_core *core)
- out:
- 	clk_pm_runtime_put(core);
- unlock:
--	if (ret)
-+	if (ret) {
- 		hlist_del_init(&core->child_node);
-+		core->hw->core = NULL;
-+	}
- 
- 	clk_prepare_unlock();
- 
-@@ -3699,7 +3709,6 @@ __clk_register(struct device *dev, struct device_node *np, struct clk_hw *hw)
- 	core->num_parents = init->num_parents;
- 	core->min_rate = 0;
- 	core->max_rate = ULONG_MAX;
--	hw->core = core;
- 
- 	ret = clk_core_populate_parent_map(core, init);
- 	if (ret)
-@@ -3717,7 +3726,7 @@ __clk_register(struct device *dev, struct device_node *np, struct clk_hw *hw)
- 		goto fail_create_clk;
- 	}
- 
--	clk_core_link_consumer(hw->core, hw->clk);
-+	clk_core_link_consumer(core, hw->clk);
- 
- 	ret = __clk_core_init(core);
- 	if (!ret)
--- 
-2.33.0
-
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*brcl\\s*0,[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     } else {
+ 	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*R_390_(PC|PLT)32DBL\\s+_mcount\\+0x2\$";
 
 
