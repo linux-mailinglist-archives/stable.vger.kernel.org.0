@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6242147ACBE
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:47:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CD147AC5B
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:43:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236338AbhLTOqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:46:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52026 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234971AbhLTOoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:44:11 -0500
+        id S235408AbhLTOnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:43:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59892 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234898AbhLTOlx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:41:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C47BC07E5C5;
+        Mon, 20 Dec 2021 06:41:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04722B80EE8;
-        Mon, 20 Dec 2021 14:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3273BC36AE8;
-        Mon, 20 Dec 2021 14:44:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B925B80EE2;
+        Mon, 20 Dec 2021 14:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F28AC36AE8;
+        Mon, 20 Dec 2021 14:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011448;
-        bh=GECggSW38Pnz+40L3lQkZa7Ir8a1uj8b/UgYQtskKXg=;
+        s=korg; t=1640011276;
+        bh=EMvOOfM+S6gyX2iKmGMILn27yt9qvpoU7CdlYGdbg9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2MEdx+YzoeLO9+ycHAgBCytgpPX/nx4m3+0Lo6AudNJLuwKTMOThKfYAEsjFFyOgs
-         UFcKkqV+z8SLwbMGd6T90BrBsThfXrGUqlwb0fepjc5U5/fw3IgceyGugtZSHW5Plh
-         G2+34KFLbHgzHtkfoe6ZmOZQxpJpaxCT0ij+99sI=
+        b=PHtz8/2ny2nBvQqOUCQortPRTlNMVbhKzk2qb7wiWBDvCO8Fw/ekNaJgdQ+jM6H/f
+         qtEUSSXHo4dn1pL9NrbZRg9QTl7+ekHH2CtQEZo+ifsAsIez20/atJM/kPOCt+kQMH
+         s7oxNCeSQMGk8+EOOXHcS1cAw7UBGHcX+fP8apBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Zhijian <lizhijian@fujitsu.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/71] selftests: Fix IPv6 address bind tests
+Subject: [PATCH 4.19 20/56] sch_cake: do not call cake_destroy() from cake_init()
 Date:   Mon, 20 Dec 2021 15:34:13 +0100
-Message-Id: <20211220143026.497628848@linuxfoundation.org>
+Message-Id: <20211220143024.110207770@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
+References: <20211220143023.451982183@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +50,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 28a2686c185e84b6aa6a4d9c9a972360eb7ca266 ]
+[ Upstream commit ab443c53916730862cec202078d36fd4008bea79 ]
 
-IPv6 allows binding a socket to a device then binding to an address
-not on the device (__inet6_bind -> ipv6_chk_addr with strict flag
-not set). Update the bind tests to reflect legacy behavior.
+qdiscs are not supposed to call their own destroy() method
+from init(), because core stack already does that.
 
-Fixes: 34d0302ab861 ("selftests: Add ipv6 address bind tests to fcnal-test")
-Reported-by: Li Zhijian <lizhijian@fujitsu.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+syzbot was able to trigger use after free:
+
+DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+WARNING: CPU: 0 PID: 21902 at kernel/locking/mutex.c:586 __mutex_lock_common kernel/locking/mutex.c:586 [inline]
+WARNING: CPU: 0 PID: 21902 at kernel/locking/mutex.c:586 __mutex_lock+0x9ec/0x12f0 kernel/locking/mutex.c:740
+Modules linked in:
+CPU: 0 PID: 21902 Comm: syz-executor189 Not tainted 5.16.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__mutex_lock_common kernel/locking/mutex.c:586 [inline]
+RIP: 0010:__mutex_lock+0x9ec/0x12f0 kernel/locking/mutex.c:740
+Code: 08 84 d2 0f 85 19 08 00 00 8b 05 97 38 4b 04 85 c0 0f 85 27 f7 ff ff 48 c7 c6 20 00 ac 89 48 c7 c7 a0 fe ab 89 e8 bf 76 ba ff <0f> 0b e9 0d f7 ff ff 48 8b 44 24 40 48 8d b8 c8 08 00 00 48 89 f8
+RSP: 0018:ffffc9000627f290 EFLAGS: 00010282
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff88802315d700 RSI: ffffffff815f1db8 RDI: fffff52000c4fe44
+RBP: ffff88818f28e000 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff815ebb5e R11: 0000000000000000 R12: 0000000000000000
+R13: dffffc0000000000 R14: ffffc9000627f458 R15: 0000000093c30000
+FS:  0000555556abc400(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fda689c3303 CR3: 000000001cfbb000 CR4: 0000000000350ef0
+Call Trace:
+ <TASK>
+ tcf_chain0_head_change_cb_del+0x2e/0x3d0 net/sched/cls_api.c:810
+ tcf_block_put_ext net/sched/cls_api.c:1381 [inline]
+ tcf_block_put_ext net/sched/cls_api.c:1376 [inline]
+ tcf_block_put+0xbc/0x130 net/sched/cls_api.c:1394
+ cake_destroy+0x3f/0x80 net/sched/sch_cake.c:2695
+ qdisc_create.constprop.0+0x9da/0x10f0 net/sched/sch_api.c:1293
+ tc_modify_qdisc+0x4c5/0x1980 net/sched/sch_api.c:1660
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5571
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2496
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x904/0xdf0 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:724
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2409
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2463
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2492
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f1bb06badb9
+Code: Unable to access opcode bytes at RIP 0x7f1bb06bad8f.
+RSP: 002b:00007fff3012a658 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f1bb06badb9
+RDX: 0000000000000000 RSI: 00000000200007c0 RDI: 0000000000000003
+RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000003
+R10: 0000000000000003 R11: 0000000000000246 R12: 00007fff3012a688
+R13: 00007fff3012a6a0 R14: 00007fff3012a6e0 R15: 00000000000013c2
+ </TASK>
+
+Fixes: 046f6fd5daef ("sched: Add Common Applications Kept Enhanced (cake) qdisc")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Link: https://lore.kernel.org/r/20211210142046.698336-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fcnal-test.sh | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ net/sched/sch_cake.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/net/fcnal-test.sh b/tools/testing/selftests/net/fcnal-test.sh
-index c8f28e847ee9e..157822331954d 100755
---- a/tools/testing/selftests/net/fcnal-test.sh
-+++ b/tools/testing/selftests/net/fcnal-test.sh
-@@ -2891,11 +2891,14 @@ ipv6_addr_bind_novrf()
- 	run_cmd nettest -6 -s -l ${a} -d ${NSA_DEV} -t1 -b
- 	log_test_addr ${a} $? 0 "TCP socket bind to local address after device bind"
+diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
+index 2025f0f559deb..18c207b85d513 100644
+--- a/net/sched/sch_cake.c
++++ b/net/sched/sch_cake.c
+@@ -2675,7 +2675,7 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
+ 	q->tins = kvcalloc(CAKE_MAX_TINS, sizeof(struct cake_tin_data),
+ 			   GFP_KERNEL);
+ 	if (!q->tins)
+-		goto nomem;
++		return -ENOMEM;
  
-+	# Sadly, the kernel allows binding a socket to a device and then
-+	# binding to an address not on the device. So this test passes
-+	# when it really should not
- 	a=${NSA_LO_IP6}
- 	log_start
--	show_hint "Should fail with 'Cannot assign requested address'"
--	run_cmd nettest -6 -s -l ${a} -d ${NSA_DEV} -t1 -b
--	log_test_addr ${a} $? 1 "TCP socket bind to out of scope local address"
-+	show_hint "Tecnically should fail since address is not on device but kernel allows"
-+	run_cmd nettest -6 -s -l ${a} -I ${NSA_DEV} -t1 -b
-+	log_test_addr ${a} $? 0 "TCP socket bind to out of scope local address"
+ 	for (i = 0; i < CAKE_MAX_TINS; i++) {
+ 		struct cake_tin_data *b = q->tins + i;
+@@ -2705,10 +2705,6 @@ static int cake_init(struct Qdisc *sch, struct nlattr *opt,
+ 	q->min_netlen = ~0;
+ 	q->min_adjlen = ~0;
+ 	return 0;
+-
+-nomem:
+-	cake_destroy(sch);
+-	return -ENOMEM;
  }
  
- ipv6_addr_bind_vrf()
-@@ -2936,10 +2939,15 @@ ipv6_addr_bind_vrf()
- 	run_cmd nettest -6 -s -l ${a} -d ${NSA_DEV} -t1 -b
- 	log_test_addr ${a} $? 0 "TCP socket bind to local address with device bind"
- 
-+	# Sadly, the kernel allows binding a socket to a device and then
-+	# binding to an address not on the device. The only restriction
-+	# is that the address is valid in the L3 domain. So this test
-+	# passes when it really should not
- 	a=${VRF_IP6}
- 	log_start
--	run_cmd nettest -6 -s -l ${a} -d ${NSA_DEV} -t1 -b
--	log_test_addr ${a} $? 1 "TCP socket bind to VRF address with device bind"
-+	show_hint "Tecnically should fail since address is not on device but kernel allows"
-+	run_cmd nettest -6 -s -l ${a} -I ${NSA_DEV} -t1 -b
-+	log_test_addr ${a} $? 0 "TCP socket bind to VRF address with device bind"
- 
- 	a=${NSA_LO_IP6}
- 	log_start
+ static int cake_dump(struct Qdisc *sch, struct sk_buff *skb)
 -- 
 2.33.0
 
