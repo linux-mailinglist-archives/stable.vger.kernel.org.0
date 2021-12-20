@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8053C47AF46
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC60047AF44
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239875AbhLTPKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:10:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38144 "EHLO
+        id S239868AbhLTPKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:10:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238806AbhLTPJa (ORCPT
+        with ESMTP id S238815AbhLTPJa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:09:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5220CC07E5C5;
-        Mon, 20 Dec 2021 06:55:16 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58EA6C07E5C7;
+        Mon, 20 Dec 2021 06:55:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F04E4B80EE3;
-        Mon, 20 Dec 2021 14:55:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44536C36AE8;
-        Mon, 20 Dec 2021 14:55:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB88661141;
+        Mon, 20 Dec 2021 14:55:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A50C36AE8;
+        Mon, 20 Dec 2021 14:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012114;
-        bh=dWGCvJFke8rlo0Spb5XGfGUG/OaMaANS0VD/u1oFyJM=;
+        s=korg; t=1640012120;
+        bh=ygM8k471rAYFLejb6MDMO+Pra+UQNHoOiFilkcz89dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSiV+LPziIdnjkZyFz9tCTry1UXAZ76Tq1LAsuTA5ouITA14IXIzVFaSBJoLrVyxN
-         o2EdWxNy5B4h/yxJcNvHckF817mBeJRa3xFEMxvs5oz3AzuJAft/y9CbArj2e87ROz
-         ZC9KtDNQ8tpEJZDdn/JyPH7dS4PwQw5Wh6KmxJck=
+        b=uBcbxdy86r9OlmdR6hLQ4gHZ1ZcHmQVwZdJLnhDVPLPF3L6+7IvntqKHlwZ7gmvF8
+         M8zQOkbrj8CdMA/FJHuH9/OxTah227wKtU5G/KV4WNOYH4lXqrOk/58QP8GWb6mSm9
+         BDlFGG4PWS+MKLOoxvI2hEcJPmvkqoN8Vmz8ePEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Sharath Srinivasan <sharath.srinivasan@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Karol Kolacinski <karol.kolacinski@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 085/177] rds: memory leak in __rds_conn_create()
-Date:   Mon, 20 Dec 2021 15:33:55 +0100
-Message-Id: <20211220143042.960417202@linuxfoundation.org>
+Subject: [PATCH 5.15 087/177] ice: Dont put stale timestamps in the skb
+Date:   Mon, 20 Dec 2021 15:33:57 +0100
+Message-Id: <20211220143043.035905854@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -49,34 +50,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Karol Kolacinski <karol.kolacinski@intel.com>
 
-[ Upstream commit 5f9562ebe710c307adc5f666bf1a2162ee7977c0 ]
+[ Upstream commit 37e738b6fdb14529534dca441e0222313688fde3 ]
 
-__rds_conn_create() did not release conn->c_path when loop_trans != 0 and
-trans->t_prefer_loopback != 0 and is_outgoing == 0.
+The driver has to check if it does not accidentally put the timestamp in
+the SKB before previous timestamp gets overwritten.
+Timestamp values in the PHY are read only and do not get cleared except
+at hardware reset or when a new timestamp value is captured.
+The cached_tstamp field is used to detect the case where a new timestamp
+has not yet been captured, ensuring that we avoid sending stale
+timestamp data to the stack.
 
-Fixes: aced3ce57cd3 ("RDS tcp loopback connection can hang")
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Sharath Srinivasan <sharath.srinivasan@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ea9b847cda64 ("ice: enable transmit timestamps for E810 devices")
+Signed-off-by: Karol Kolacinski <karol.kolacinski@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/connection.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/ice/ice_ptp.c | 11 ++++-------
+ drivers/net/ethernet/intel/ice/ice_ptp.h |  6 ++++++
+ 2 files changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/net/rds/connection.c b/net/rds/connection.c
-index a3bc4b54d4910..b4cc699c5fad3 100644
---- a/net/rds/connection.c
-+++ b/net/rds/connection.c
-@@ -253,6 +253,7 @@ static struct rds_connection *__rds_conn_create(struct net *net,
- 				 * should end up here, but if it
- 				 * does, reset/destroy the connection.
- 				 */
-+				kfree(conn->c_path);
- 				kmem_cache_free(rds_conn_slab, conn);
- 				conn = ERR_PTR(-EOPNOTSUPP);
- 				goto out;
+diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
+index 9df546984de25..ac27a4fe8b94c 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ptp.c
++++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
+@@ -1182,19 +1182,16 @@ static void ice_ptp_tx_tstamp_work(struct kthread_work *work)
+ 		if (err)
+ 			continue;
+ 
+-		/* Check if the timestamp is valid */
+-		if (!(raw_tstamp & ICE_PTP_TS_VALID))
++		/* Check if the timestamp is invalid or stale */
++		if (!(raw_tstamp & ICE_PTP_TS_VALID) ||
++		    raw_tstamp == tx->tstamps[idx].cached_tstamp)
+ 			continue;
+ 
+-		/* clear the timestamp register, so that it won't show valid
+-		 * again when re-used.
+-		 */
+-		ice_clear_phy_tstamp(hw, tx->quad, phy_idx);
+-
+ 		/* The timestamp is valid, so we'll go ahead and clear this
+ 		 * index and then send the timestamp up to the stack.
+ 		 */
+ 		spin_lock(&tx->lock);
++		tx->tstamps[idx].cached_tstamp = raw_tstamp;
+ 		clear_bit(idx, tx->in_use);
+ 		skb = tx->tstamps[idx].skb;
+ 		tx->tstamps[idx].skb = NULL;
+diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.h b/drivers/net/ethernet/intel/ice/ice_ptp.h
+index e1c787bd5b967..8cdd6f7046b73 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ptp.h
++++ b/drivers/net/ethernet/intel/ice/ice_ptp.h
+@@ -46,15 +46,21 @@ struct ice_perout_channel {
+  * struct ice_tx_tstamp - Tracking for a single Tx timestamp
+  * @skb: pointer to the SKB for this timestamp request
+  * @start: jiffies when the timestamp was first requested
++ * @cached_tstamp: last read timestamp
+  *
+  * This structure tracks a single timestamp request. The SKB pointer is
+  * provided when initiating a request. The start time is used to ensure that
+  * we discard old requests that were not fulfilled within a 2 second time
+  * window.
++ * Timestamp values in the PHY are read only and do not get cleared except at
++ * hardware reset or when a new timestamp value is captured. The cached_tstamp
++ * field is used to detect the case where a new timestamp has not yet been
++ * captured, ensuring that we avoid sending stale timestamp data to the stack.
+  */
+ struct ice_tx_tstamp {
+ 	struct sk_buff *skb;
+ 	unsigned long start;
++	u64 cached_tstamp;
+ };
+ 
+ /**
 -- 
 2.33.0
 
