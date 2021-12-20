@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E3C147AED7
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:04:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C58347B039
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:28:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239376AbhLTPEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 10:04:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
+        id S239361AbhLTP2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 10:28:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240300AbhLTPCN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:02:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF7BC08EE25;
-        Mon, 20 Dec 2021 06:51:49 -0800 (PST)
+        with ESMTP id S239884AbhLTP2a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 10:28:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85F73C09B077;
+        Mon, 20 Dec 2021 06:52:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BF52B80EED;
-        Mon, 20 Dec 2021 14:51:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA47BC36AE8;
-        Mon, 20 Dec 2021 14:51:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24D25611C9;
+        Mon, 20 Dec 2021 14:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A1F4C36AE8;
+        Mon, 20 Dec 2021 14:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011906;
-        bh=PDjuPzImbdm+3W1a23MyASLqV+xE0pBSOyY5oiu7Ko0=;
+        s=korg; t=1640011935;
+        bh=ELXh43Enl+VtzBXFgkpxLfUjGy4jui/skAiewd0Nolw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuM50WsWP6i8prxgh1WVGI85EwOURRvmsE5GNKVMnhOu7uQG3+eYAzR34OUpEwU58
-         bfBL04KigJt8J66Ai+wl65dzhFOg2eTk+V+Blj4NUTwEu4rLfmPNwJ6A3FveQ8g3HS
-         0wNVjUr6IUsdTcMlOddMCBgTg/trD2yPUY1i4eTo=
+        b=W3ZjhkHHHKUi2G982IkvPq9ExVhPj3oiMT2zr5eQ9BJZ0dTfQa6zclt2HGtQ1w5RB
+         fUqLTb/mKx1vZo417RDd13gydwTp6ZIH05saexIyO/z0YiDLFYkJV/h2uyQQWJ9TPP
+         3W4IaMmMRGCOnGRTHFnKDtYz/AuCnM+CArTKzhGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 017/177] bpf, selftests: Add test case trying to taint map value pointer
-Date:   Mon, 20 Dec 2021 15:32:47 +0100
-Message-Id: <20211220143040.647959041@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.15 021/177] vduse: check that offset is within bounds in get_config()
+Date:   Mon, 20 Dec 2021 15:32:51 +0100
+Message-Id: <20211220143040.792604724@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -48,74 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit b1a7288dedc6caf9023f2676b4f5ed34cf0d4029 upstream.
+commit dc1db0060c02d119fd4196924eff2d1129e9a442 upstream.
 
-Add a test case which tries to taint map value pointer arithmetic into a
-unknown scalar with subsequent export through the map.
+This condition checks "len" but it does not check "offset" and that
+could result in an out of bounds read if "offset > dev->config_size".
+The problem is that since both variables are unsigned the
+"dev->config_size - offset" subtraction would result in a very high
+unsigned value.
 
-Before fix:
+I think these checks might not be necessary because "len" and "offset"
+are supposed to already have been validated using the
+vhost_vdpa_config_validate() function.  But I do not know the code
+perfectly, and I like to be safe.
 
-  # ./test_verifier 1186
-  #1186/u map access: trying to leak tained dst reg FAIL
-  Unexpected success to load!
-  verification time 24 usec
-  stack depth 8
-  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
-  #1186/p map access: trying to leak tained dst reg FAIL
-  Unexpected success to load!
-  verification time 8 usec
-  stack depth 8
-  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 1
-  Summary: 0 PASSED, 0 SKIPPED, 2 FAILED
-
-After fix:
-
-  # ./test_verifier 1186
-  #1186/u map access: trying to leak tained dst reg OK
-  #1186/p map access: trying to leak tained dst reg OK
-  Summary: 2 PASSED, 0 SKIPPED, 0 FAILED
-
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211208150956.GA29160@kili
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/verifier/value_ptr_arith.c |   23 +++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/vdpa/vdpa_user/vduse_dev.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-+++ b/tools/testing/selftests/bpf/verifier/value_ptr_arith.c
-@@ -1078,6 +1078,29 @@
- 	.errstr_unpriv = "R0 pointer -= pointer prohibited",
- },
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -655,7 +655,8 @@ static void vduse_vdpa_get_config(struct
  {
-+	"map access: trying to leak tained dst reg",
-+	.insns = {
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_ST_MEM(BPF_DW, BPF_REG_10, -8, 0),
-+	BPF_MOV64_REG(BPF_REG_2, BPF_REG_10),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_2, -8),
-+	BPF_LD_MAP_FD(BPF_REG_1, 0),
-+	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_map_lookup_elem),
-+	BPF_JMP_IMM(BPF_JNE, BPF_REG_0, 0, 1),
-+	BPF_EXIT_INSN(),
-+	BPF_MOV64_REG(BPF_REG_2, BPF_REG_0),
-+	BPF_MOV32_IMM(BPF_REG_1, 0xFFFFFFFF),
-+	BPF_MOV32_REG(BPF_REG_1, BPF_REG_1),
-+	BPF_ALU64_REG(BPF_SUB, BPF_REG_2, BPF_REG_1),
-+	BPF_STX_MEM(BPF_DW, BPF_REG_0, BPF_REG_2, 0),
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.fixup_map_array_48b = { 4 },
-+	.result = REJECT,
-+	.errstr = "math between map_value pointer and 4294967295 is not allowed",
-+},
-+{
- 	"32bit pkt_ptr -= scalar",
- 	.insns = {
- 	BPF_LDX_MEM(BPF_W, BPF_REG_8, BPF_REG_1,
+ 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
+ 
+-	if (len > dev->config_size - offset)
++	if (offset > dev->config_size ||
++	    len > dev->config_size - offset)
+ 		return;
+ 
+ 	memcpy(buf, dev->config + offset, len);
 
 
