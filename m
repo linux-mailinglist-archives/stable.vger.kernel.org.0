@@ -2,140 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E84F247A9D9
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 13:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FB2847AAC8
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbhLTMor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 07:44:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51172 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230209AbhLTMoq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 07:44:46 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5678F60FEE
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 12:44:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3692FC36AE8;
-        Mon, 20 Dec 2021 12:44:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640004285;
-        bh=HomozG0O63NluQEx+yLLqYsnQQn9cxe8hX2bQmkwP4k=;
-        h=Subject:To:Cc:From:Date:From;
-        b=LMlcIuBFKp4seOmN8OZYK07wQHHckIg4pIj2qJWNkObzvFWK7wUYCiNGvS8uEXYPa
-         eQ+hZYIIDTsz5Af5USkzUnf4SP3cgqfhJDzbwxrz5+pWzJ/3C0I6wQAM+yxUbIfb44
-         cItZTsHnxKc3j0jxXs+P/9BT0XOaYRCPuhR48jwQ=
-Subject: FAILED: patch "[PATCH] btrfs: check WRITE_ERR when trying to read an extent buffer" failed to apply to 5.10-stable tree
-To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 13:44:35 +0100
-Message-ID: <1640004275174112@kroah.com>
+        id S233077AbhLTOAp convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 20 Dec 2021 09:00:45 -0500
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:31795 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232388AbhLTOAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:00:44 -0500
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-106-ThBTv8hIOJK8PeJnyhEimg-1; Mon, 20 Dec 2021 14:00:42 +0000
+X-MC-Unique: ThBTv8hIOJK8PeJnyhEimg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.26; Mon, 20 Dec 2021 14:00:40 +0000
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.026; Mon, 20 Dec 2021 14:00:40 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Joe Perches' <joe@perches.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "woojung.huh@microchip.com" <woojung.huh@microchip.com>,
+        "UNGLinuxDriver@microchip.com" <UNGLinuxDriver@microchip.com>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "clang-built-linux@googlegroups.com" 
+        <clang-built-linux@googlegroups.com>,
+        "ulli.kroll@googlemail.com" <ulli.kroll@googlemail.com>,
+        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "amitkarwar@gmail.com" <amitkarwar@gmail.com>,
+        "nishants@marvell.com" <nishants@marvell.com>,
+        "gbhat@marvell.com" <gbhat@marvell.com>,
+        "huxinming820@gmail.com" <huxinming820@gmail.com>,
+        "kvalo@codeaurora.org" <kvalo@codeaurora.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "rostedt@goodmis.org" <rostedt@goodmis.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "ndesaulniers@google.com" <ndesaulniers@google.com>,
+        "nathan@kernel.org" <nathan@kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Andy Lavr <andy.lavr@gmail.com>
+Subject: RE: [PATCH 4.19 3/6] mwifiex: Remove unnecessary braces from
+ HostCmd_SET_SEQ_NO_BSS_INFO
+Thread-Topic: [PATCH 4.19 3/6] mwifiex: Remove unnecessary braces from
+ HostCmd_SET_SEQ_NO_BSS_INFO
+Thread-Index: AQHX9ZskhY8SD9NuYU2K0YFKH5iuIKw7ZcMg
+Date:   Mon, 20 Dec 2021 14:00:40 +0000
+Message-ID: <5797d1aff9034476afa6827af2bfbce7@AcuMS.aculab.com>
+References: <20211217144119.2538175-1-anders.roxell@linaro.org>
+         <20211217144119.2538175-4-anders.roxell@linaro.org>
+ <bc4a4ba7c07a4077b9790be883fb4205d401804e.camel@perches.com>
+In-Reply-To: <bc4a4ba7c07a4077b9790be883fb4205d401804e.camel@perches.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Joe Perches
+> Sent: 20 December 2021 12:13
+> 
+> On Fri, 2021-12-17 at 15:41 +0100, Anders Roxell wrote:
+> > From: Nathan Chancellor <natechancellor@gmail.com>
+> >
+> > commit 6a953dc4dbd1c7057fb765a24f37a5e953c85fb0 upstream.
+> >
+> > A new warning in clang points out when macro expansion might result in a
+> > GNU C statement expression. There is an instance of this in the mwifiex
+> > driver:
+> >
+> > drivers/net/wireless/marvell/mwifiex/cmdevt.c:217:34: warning: '}' and
+> > ')' tokens terminating statement expression appear in different macro
+> > expansion contexts [-Wcompound-token-split-by-macro]
+> >         host_cmd->seq_num = cpu_to_le16(HostCmd_SET_SEQ_NO_BSS_INFO
+> >                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+> []
+> > diff --git a/drivers/net/wireless/marvell/mwifiex/fw.h b/drivers/net/wireless/marvell/mwifiex/fw.h
+> []
+> > @@ -512,10 +512,10 @@ enum mwifiex_channel_flags {
+> >
+> >  #define RF_ANTENNA_AUTO                 0xFFFF
+> >
+> > -#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) {   \
+> > -	(((seq) & 0x00ff) |                             \
+> > -	 (((num) & 0x000f) << 8)) |                     \
+> > -	(((type) & 0x000f) << 12);                  }
+> > +#define HostCmd_SET_SEQ_NO_BSS_INFO(seq, num, type) \
+> > +	((((seq) & 0x00ff) |                        \
+> > +	 (((num) & 0x000f) << 8)) |                 \
+> > +	(((type) & 0x000f) << 12))
+> 
+> Perhaps this would be better as a static inline
+> 
+> static inline u16 HostCmd_SET_SEQ_NO_BSS_INFO(u16 seq, u8 num, u8 type)
+> {
+> 	return (type & 0x000f) << 12 | (num & 0x000f) << 8 | (seq & 0x00ff);
+> }
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Just writing in on one line helps readability!
+It is also used exactly twice, both with a cpu_to_le16().
+I wonder how well the compiler handles that on BE?
+The #define is more likely to be handled better.
 
-thanks,
+I've only made a cursory glance at the code, but I get splitting
+host_cmd->seq_num into two u8 fields would give better code!
 
-greg k-h
+	David
 
------------------- original commit in Linus's tree ------------------
-
-From 651740a502411793327e2f0741104749c4eedcd1 Mon Sep 17 00:00:00 2001
-From: Josef Bacik <josef@toxicpanda.com>
-Date: Mon, 13 Dec 2021 14:22:33 -0500
-Subject: [PATCH] btrfs: check WRITE_ERR when trying to read an extent buffer
-
-Filipe reported a hang when we have errors on btrfs.  This turned out to
-be a side-effect of my fix c2e39305299f01 ("btrfs: clear extent buffer
-uptodate when we fail to write it") which made it so we clear
-EXTENT_BUFFER_UPTODATE on an eb when we fail to write it out.
-
-Below is a paste of Filipe's analysis he got from using drgn to debug
-the hang
-
-"""
-btree readahead code calls read_extent_buffer_pages(), sets ->io_pages to
-a value while writeback of all pages has not yet completed:
-   --> writeback for the first 3 pages finishes, we clear
-       EXTENT_BUFFER_UPTODATE from eb on the first page when we get an
-       error.
-   --> at this point eb->io_pages is 1 and we cleared Uptodate bit from the
-       first 3 pages
-   --> read_extent_buffer_pages() does not see EXTENT_BUFFER_UPTODATE() so
-       it continues, it's able to lock the pages since we obviously don't
-       hold the pages locked during writeback
-   --> read_extent_buffer_pages() then computes 'num_reads' as 3, and sets
-       eb->io_pages to 3, since only the first page does not have Uptodate
-       bit set at this point
-   --> writeback for the remaining page completes, we ended decrementing
-       eb->io_pages by 1, resulting in eb->io_pages == 2, and therefore
-       never calling end_extent_buffer_writeback(), so
-       EXTENT_BUFFER_WRITEBACK remains in the eb's flags
-   --> of course, when the read bio completes, it doesn't and shouldn't
-       call end_extent_buffer_writeback()
-   --> we should clear EXTENT_BUFFER_UPTODATE only after all pages of
-       the eb finished writeback?  or maybe make the read pages code
-       wait for writeback of all pages of the eb to complete before
-       checking which pages need to be read, touch ->io_pages, submit
-       read bio, etc
-
-writeback bit never cleared means we can hang when aborting a
-transaction, at:
-
-    btrfs_cleanup_one_transaction()
-       btrfs_destroy_marked_extents()
-         wait_on_extent_buffer_writeback()
-"""
-
-This is a problem because our writes are not synchronized with reads in
-any way.  We clear the UPTODATE flag and then we can easily come in and
-try to read the EB while we're still waiting on other bio's to
-complete.
-
-We have two options here, we could lock all the pages, and then check to
-see if eb->io_pages != 0 to know if we've already got an outstanding
-write on the eb.
-
-Or we can simply check to see if we have WRITE_ERR set on this extent
-buffer.  We set this bit _before_ we clear UPTODATE, so if the read gets
-triggered because we aren't UPTODATE because of a write error we're
-guaranteed to have WRITE_ERR set, and in this case we can simply return
--EIO.  This will fix the reported hang.
-
-Reported-by: Filipe Manana <fdmanana@suse.com>
-Fixes: c2e39305299f01 ("btrfs: clear extent buffer uptodate when we fail to write it")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 3258b6f01e85..9234d96a7fd5 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -6611,6 +6611,14 @@ int read_extent_buffer_pages(struct extent_buffer *eb, int wait, int mirror_num)
- 	if (test_bit(EXTENT_BUFFER_UPTODATE, &eb->bflags))
- 		return 0;
- 
-+	/*
-+	 * We could have had EXTENT_BUFFER_UPTODATE cleared by the write
-+	 * operation, which could potentially still be in flight.  In this case
-+	 * we simply want to return an error.
-+	 */
-+	if (unlikely(test_bit(EXTENT_BUFFER_WRITE_ERR, &eb->bflags)))
-+		return -EIO;
-+
- 	if (eb->fs_info->sectorsize < PAGE_SIZE)
- 		return read_extent_buffer_subpage(eb, wait, mirror_num);
- 
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
