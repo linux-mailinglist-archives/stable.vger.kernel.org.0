@@ -2,102 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4911C47AB0A
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:10:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 032E247ADA2
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233465AbhLTOKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:10:01 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:22209 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230116AbhLTOKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:10:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1640009399;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=4SU/S7ImGGhUFPPtRruTF21SLhkjh6LbUDIj/NTEz5c=;
-        b=V0g66EEIeU4jJP2+CJOiLhnlfdZsdrGgbVOPmQ4nmvDJ0usD8NvFIKcJWtZE0aLs2FI+ci
-        jceQJwUtTj0Q9woJTz+REL3vq04xAdWY29LlFhQO/Vtqm8rljyxdjR4OBzKSEKVYXQb3Ss
-        UHBpiCKJj2ZcybinbI9JGjYYg/9uxxM=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-607-T2jkftzfPxisJhAMLNV3Lg-1; Mon, 20 Dec 2021 09:09:57 -0500
-X-MC-Unique: T2jkftzfPxisJhAMLNV3Lg-1
-Received: by mail-pf1-f198.google.com with SMTP id h5-20020a62de05000000b004ba9b333a4dso1733260pfg.18
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 06:09:57 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=4SU/S7ImGGhUFPPtRruTF21SLhkjh6LbUDIj/NTEz5c=;
-        b=qImwDikszd1hLYrzgIuXWLi8XJFLWm6hxc5rkt1fxDuVpV+SCuHuIirciUNTEdBHAb
-         Sxve/AgCNjukF6LV5GvbLgxzOqNaPTHLniKRYC/+DMjHkBPaMRnCrYzGFMehP7e7fa1y
-         nh6iJYd9aPwViH29fsuCT3SXgKqyN9ozPSGxZnf3Xj2mGqM4NtkP1PWZv4Qtx7opImLd
-         +HIfkvHq+gy097x6bEjoEDSofxYL9c5eWAamcEUMCIdKdNxfGQryWgHcaIN9LU4oEjF0
-         Wkt9RkbGXoV/6mzxXLGfRMqcAx3lC8Jn9z+7W0dnz3jz/neJpsqr2GRAITjsN8ZAATgi
-         uK0A==
-X-Gm-Message-State: AOAM5324k0gPEXdRnQMQFsEw4IW9IRI3MC6wD78Ct5WdtO1IYZwpdaa6
-        PiSDKLM/7Pm8cShRnSFcJek9qP48smWcWLe/S06lZkGo6Y+qu9YNyyYooUeJRDkP7WvXhK0LsdX
-        LU5ZZgZRiN9X7Vfwd6wkeJEy1YXifvohk
-X-Received: by 2002:a63:440b:: with SMTP id r11mr2295440pga.363.1640009396962;
-        Mon, 20 Dec 2021 06:09:56 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy5rkAwf2w09eVva9jeeoZoh76LzeD6iApghZd6M8xndWZiAYVOJ/zZCbpNG3YM3a7+VGljuYeg6Ajax/60ZmQ=
-X-Received: by 2002:a63:440b:: with SMTP id r11mr2295417pga.363.1640009396682;
- Mon, 20 Dec 2021 06:09:56 -0800 (PST)
+        id S238367AbhLTOxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:53:31 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56306 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237267AbhLTOv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:26 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13ACDB80EA3;
+        Mon, 20 Dec 2021 14:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E1E5C36AE8;
+        Mon, 20 Dec 2021 14:51:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640011883;
+        bh=/THDhsvWfIVPoM3Axdg1QxX3JSh4KL+g2HrU8RCAF/Y=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=O7ozq+40I+L5ITblqvwqRsnBWuaW1dI0pYLhkxyojJBWE98joHUxNrUBZApWYucoK
+         dvNQOOu9ZaU6/uZ8q/KMyZ8VOBAHV9yUoUnqCW6U5s33tD9lL2urgLrAGn58wCQh3+
+         JDYp3tp2qUbPh8URyJ3S4oQdlYXHBV/olGSmnA/0=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>
+Subject: [PATCH 5.15 001/177] reset: tegra-bpmp: Revert Handle errors in BPMP response
+Date:   Mon, 20 Dec 2021 15:32:31 +0100
+Message-Id: <20211220143040.108477747@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-References: <e4efbf13-bd8d-0370-629b-6c80c0044b15@leemhuis.info>
- <42903605-7e8b-4e84-fcd6-1b23169b8639@redhat.com> <fc7e6040-b760-02f1-57ef-71aa4b88aea6@leemhuis.info>
- <4366861.LvFx2qVVIh@dell>
-In-Reply-To: <4366861.LvFx2qVVIh@dell>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Mon, 20 Dec 2021 15:09:45 +0100
-Message-ID: <CAO-hwJJxRETn3k0a_bXLMaD7rWNjWM8F9O0sv=jHtZuvJXa4aw@mail.gmail.com>
-Subject: Re: FWD: Holtek mouse stopped working after kernel upgrade from
- 5.15.7 to 5.15.8
-To:     "Tomasz C." <tlinux@cebula.eu.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Dec 18, 2021 at 9:39 PM Tomasz C. <tlinux@cebula.eu.org> wrote:
->
-> Hello,
->
-> I haven't had time to test it yet. But I see that another ArchLinux user =
-has
-> compiled kernel 5.15.10 with this patch and confirms that the mouse works=
-.
-> Details on:
-> https://bugs.archlinux.org/task/73048#comment204441
->
-> Is this enough for you as a test?
+From: Jon Hunter <jonathanh@nvidia.com>
 
-Yep, thanks a lot.
+commit 69125b4b9440be015783312e1b8753ec96febde0 upstream.
 
-I have now pushed this to hid.git for-5.16/upstream-fixes with the
-updated link, cc-ed stable and also added that archlinux bug.
+Commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
+response") fixed an issue in the Tegra BPMP error handling but has
+exposed an issue in the Tegra194 HDA driver and now resetting the
+Tegra194 HDA controller is failing. For now revert the commit
+c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP response")
+while a fix for the Tegra HDA driver is created.
 
-Cheers,
-Benjamin
+Fixes: c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP response")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Link: https://lore.kernel.org/r/20211112112712.21587-1-jonathanh@nvidia.com
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/reset/tegra/reset-bpmp.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
->
-> --
-> Tomasz Cebula
-> Dnia pi=C4=85tek, 17 grudnia 2021 09:37:11 CET Thorsten Leemhuis pisze:
->
-> > Tomasz, could you give it a try please?
->
->
->
+--- a/drivers/reset/tegra/reset-bpmp.c
++++ b/drivers/reset/tegra/reset-bpmp.c
+@@ -20,7 +20,6 @@ static int tegra_bpmp_reset_common(struc
+ 	struct tegra_bpmp *bpmp = to_tegra_bpmp(rstc);
+ 	struct mrq_reset_request request;
+ 	struct tegra_bpmp_message msg;
+-	int err;
+ 
+ 	memset(&request, 0, sizeof(request));
+ 	request.cmd = command;
+@@ -31,13 +30,7 @@ static int tegra_bpmp_reset_common(struc
+ 	msg.tx.data = &request;
+ 	msg.tx.size = sizeof(request);
+ 
+-	err = tegra_bpmp_transfer(bpmp, &msg);
+-	if (err)
+-		return err;
+-	if (msg.rx.ret)
+-		return -EINVAL;
+-
+-	return 0;
++	return tegra_bpmp_transfer(bpmp, &msg);
+ }
+ 
+ static int tegra_bpmp_reset_module(struct reset_controller_dev *rstc,
+
 
