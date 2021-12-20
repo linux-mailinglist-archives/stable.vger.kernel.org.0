@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 977EB47AC02
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B6FC47AE02
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232358AbhLTOko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:40:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60120 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233111AbhLTOji (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:39:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ACF6C061D60;
-        Mon, 20 Dec 2021 06:39:38 -0800 (PST)
+        id S236826AbhLTO5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:57:24 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45278 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239384AbhLTOz0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:55:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9D41B80EEA;
-        Mon, 20 Dec 2021 14:39:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1023FC36AE8;
-        Mon, 20 Dec 2021 14:39:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B1D3611A4;
+        Mon, 20 Dec 2021 14:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710C9C36AE7;
+        Mon, 20 Dec 2021 14:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011176;
-        bh=kynrDBJc2h5j4cN1pyjNJ7r3mvxItBeOwBVqnky9B7M=;
+        s=korg; t=1640012126;
+        bh=L9Tn91wuneDVfUE4F8HLWO62n9jSIodEQPJIToRT1Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/YVHWF53rw45B9+ce0ya8qniLR8dRY8GsqKl1xOoI4yQDZbaixFiYYAjMEZhAKog
-         VAyTQB14tAfD7kHW4dyjaLKC2IvYvzSW0aZWM6PDYJ39+5sd0fhcn/DxlxAmIz44tG
-         u9VHfOpqBdEXTuTez0pJLZk+5R1v2/kGyHGs2HR0=
+        b=zLmq8d8i+tt9hCfafbAj+U7DcLn9ETHdvIKYhNOtmxbMhWN/JZKWmreeSNqWF71lT
+         WuyKiq70atv+Uf0yw451fAE7geT82BOmyxSnFEaM1cfB0qj1DXboXvLeoeAGIMwxAE
+         OrqOCUnQR3PbC3OOazYBjSmNp04F6s9+nErAsq8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Stapelberg <michael@stapelberg.ch>,
-        Erik Ekman <erik@kryo.se>, Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lang Yu <lang.yu@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/45] net/mlx4_en: Update reported link modes for 1/10G
-Date:   Mon, 20 Dec 2021 15:33:58 +0100
-Message-Id: <20211220143022.378362306@linuxfoundation.org>
+Subject: [PATCH 5.15 089/177] drm/amd/pm: fix a potential gpu_metrics_table memory leak
+Date:   Mon, 20 Dec 2021 15:33:59 +0100
+Message-Id: <20211220143043.114371484@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,112 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Lang Yu <lang.yu@amd.com>
 
-[ Upstream commit 2191b1dfef7d45f44b5008d2148676d9f2c82874 ]
+[ Upstream commit aa464957f7e660abd554f2546a588f6533720e21 ]
 
-When link modes were initially added in commit 2c762679435dc
-("net/mlx4_en: Use PTYS register to query ethtool settings") and
-later updated for the new ethtool API in commit 3d8f7cc78d0eb
-("net: mlx4: use new ETHTOOL_G/SSETTINGS API") the only 1/10G non-baseT
-link modes configured were 1000baseKX, 10000baseKX4 and 10000baseKR.
-It looks like these got picked to represent other modes since nothing
-better was available.
+Memory is allocated for gpu_metrics_table in renoir_init_smc_tables(),
+but not freed in int smu_v12_0_fini_smc_tables(). Free it!
 
-Switch to using more specific link modes added in commit 5711a98221443
-("net: ethtool: add support for 1000BaseX and missing 10G link modes").
+Fixes: 95868b85764a ("drm/amd/powerplay: add Renoir support for gpu metrics export")
 
-Tested with MCX311A-XCAT connected via DAC.
-Before:
-
-% sudo ethtool enp3s0
-Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseKX/Full
-	                        10000baseKR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseKX/Full
-	                        10000baseKR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-With this change:
-
-% sudo ethtool enp3s0
-	Settings for enp3s0:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseX/Full
-	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  1000baseX/Full
- 	                        10000baseCR/Full
- 	                        10000baseSR/Full
-	Advertised pause frame use: Symmetric
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Speed: 10000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: Direct Attach Copper
-	PHYAD: 0
-	Transceiver: internal
-	Supports Wake-on: d
-	Wake-on: d
-        Current message level: 0x00000014 (20)
-                               link ifdown
-	Link detected: yes
-
-Tested-by: Michael Stapelberg <michael@stapelberg.ch>
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lang Yu <lang.yu@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-index 64c4b88de8449..565e1ac241aab 100644
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -649,7 +649,7 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_T, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseT_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_CX_SGMII, SPEED_1000,
--				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
-+				       ETHTOOL_LINK_MODE_1000baseX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_1000BASE_KX, SPEED_1000,
- 				       ETHTOOL_LINK_MODE_1000baseKX_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_T, SPEED_10000,
-@@ -661,9 +661,9 @@ void __init mlx4_en_init_ptys2ethtool_map(void)
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_KR, SPEED_10000,
- 				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_CR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseCR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_10GBASE_SR, SPEED_10000,
--				       ETHTOOL_LINK_MODE_10000baseKR_Full_BIT);
-+				       ETHTOOL_LINK_MODE_10000baseSR_Full_BIT);
- 	MLX4_BUILD_PTYS2ETHTOOL_CONFIG(MLX4_20GBASE_KR2, SPEED_20000,
- 				       ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT,
- 				       ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT);
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
+index d60b8c5e87157..43028f2cd28b5 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/smu_v12_0.c
+@@ -191,6 +191,9 @@ int smu_v12_0_fini_smc_tables(struct smu_context *smu)
+ 	kfree(smu_table->watermarks_table);
+ 	smu_table->watermarks_table = NULL;
+ 
++	kfree(smu_table->gpu_metrics_table);
++	smu_table->gpu_metrics_table = NULL;
++
+ 	return 0;
+ }
+ 
 -- 
 2.33.0
 
