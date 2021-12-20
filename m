@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1641C47AD28
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B16D747AB7D
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235994AbhLTOul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:50:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38566 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236727AbhLTOsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:01 -0500
+        id S234090AbhLTOhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:37:11 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46090 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233909AbhLTOg4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EBE6119E;
-        Mon, 20 Dec 2021 14:48:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05907C36AE7;
-        Mon, 20 Dec 2021 14:47:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10BF4B80EE2;
+        Mon, 20 Dec 2021 14:36:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 564CEC36AE7;
+        Mon, 20 Dec 2021 14:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011680;
-        bh=H8nEWLBfly227va2lh+trTW2ggB7Q5uq1uCN8EYUpC0=;
+        s=korg; t=1640011013;
+        bh=fgZI8EQ61Ks8xApKnUaxa/XrujCICNSAQaxJecfgHl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwChPRA/MOzgS6HWzKTnxz/7paVvbTTMojj53hAk5TdlI1wRzLqzeXYdrPSw0Pa5V
-         qZOJ/D6T5bPDiNJdU9XZ8weRdaMrADiknshV/NF3BI8BB4X4fI6FysVGXWu2JesNd7
-         vFGF88d25RnIbu5q6kU00lTGdLQ/TjUKYCK0g/Xo=
+        b=WnroJd/3sIk+ZlwokkWVOKNSeBoMcE3FQHDyM/5FkbBP4EXg9WrHsdabOZgErlyru
+         qVZuwjpc/ujj/MD2JdaGznq9u2CmbY+RCRWtjBzaNtV1skB82glREBfwPanT5Pfeyf
+         E2BesZogPtrl8pIGlBTn7CM+YZnOnNzetkhaZ1e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 35/99] net: hns3: fix use-after-free bug in hclgevf_send_mbx_msg
+        stable@vger.kernel.org, Jerome Marchand <jmarchan@redhat.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.4 07/23] recordmcount.pl: look for jgnop instruction as well as bcrl on s390
 Date:   Mon, 20 Dec 2021 15:34:08 +0100
-Message-Id: <20211220143030.548532914@linuxfoundation.org>
+Message-Id: <20211220143018.087961488@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
+References: <20211220143017.842390782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Wang <wangjie125@huawei.com>
+From: Jerome Marchand <jmarchan@redhat.com>
 
-[ Upstream commit 27cbf64a766e86f068ce6214f04c00ceb4db1af4 ]
+commit 85bf17b28f97ca2749968d8786dc423db320d9c2 upstream.
 
-Currently, the hns3_remove function firstly uninstall client instance,
-and then uninstall acceletion engine device. The netdevice is freed in
-client instance uninstall process, but acceletion engine device uninstall
-process still use it to trace runtime information. This causes a use after
-free problem.
+On s390, recordmcount.pl is looking for "bcrl 0,<xxx>" instructions in
+the objdump -d outpout. However since binutils 2.37, objdump -d
+display "jgnop <xxx>" for the same instruction. Update the
+mcount_regex so that it accepts both.
 
-So fixes it by check the instance register state to avoid use after free.
-
-Fixes: d8355240cf8f ("net: hns3: add trace event support for PF/VF mailbox")
-Signed-off-by: Jie Wang <wangjie125@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jerome Marchand <jmarchan@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211210093827.1623286-1-jmarchan@redhat.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ scripts/recordmcount.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
-index 5b2dcd97c1078..b8e5ca6700ed5 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
-@@ -109,7 +109,8 @@ int hclgevf_send_mbx_msg(struct hclgevf_dev *hdev,
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -248,7 +248,7 @@ if ($arch eq "x86_64") {
  
- 	memcpy(&req->msg, send_msg, sizeof(struct hclge_vf_to_pf_msg));
- 
--	trace_hclge_vf_mbx_send(hdev, req);
-+	if (test_bit(HCLGEVF_STATE_NIC_REGISTERED, &hdev->state))
-+		trace_hclge_vf_mbx_send(hdev, req);
- 
- 	/* synchronous send */
- 	if (need_resp) {
--- 
-2.33.0
-
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*brcl\\s*0,[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     } else {
+ 	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*R_390_(PC|PLT)32DBL\\s+_mcount\\+0x2\$";
 
 
