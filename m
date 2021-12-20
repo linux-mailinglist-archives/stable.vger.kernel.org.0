@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86ED447ACE4
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:47:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9471447AB86
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236963AbhLTOrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:47:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33006 "EHLO
+        id S234148AbhLTOhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:37:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237196AbhLTOpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:45:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDAAFC0698C7;
-        Mon, 20 Dec 2021 06:43:32 -0800 (PST)
+        with ESMTP id S233961AbhLTOhH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9783CC06175B;
+        Mon, 20 Dec 2021 06:37:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DD91611A1;
-        Mon, 20 Dec 2021 14:43:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6067CC36AE7;
-        Mon, 20 Dec 2021 14:43:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58658B80EE4;
+        Mon, 20 Dec 2021 14:37:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D670C36AE7;
+        Mon, 20 Dec 2021 14:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011411;
-        bh=nXnozlLQWBPc89whmIEadufYY566wXSmHYwUhWsIpV4=;
+        s=korg; t=1640011025;
+        bh=SI0+HK4ruuDe7k2ecKTb663fseSRDlsvJTY43eeUJCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H3ggzZe9kZ7Ij6bHwB3eMrcMolzSD83xV7iPdcjl+uR9BuEmTcWh+C+FP3vpOLElu
-         RNtS7qy9kA7ZSF3hsdFsEWOqepfFgXMUwnbp7Q+dK2wNfsQeAkFueVKir9SseBnY4j
-         Nvcw6tMoM0mHCr6xpzFhVHCqcUF1Q3+MrqP91+/k=
+        b=P6hI0GcALChH1JRCIZz5P0J/Op01lEpO29V4UKsGTNsyjS1bPOSj1IVI0kf9QuZL6
+         23kbKjgFFS7Ss2XPuvWrf9kaL8w2oZVw0owDTyYfhhaWIG8bHnD/A/ZCt1Zua1D23z
+         0PIjOly+WavsmcdOcPHU+czSklZdTzhzWYsQdR2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/71] arm64: dts: rockchip: fix rk3399-leez-p710 vcc3v3-lan supply
+        stable@vger.kernel.org,
+        syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 01/31] nfc: fix segfault in nfc_genl_dump_devices_done
 Date:   Mon, 20 Dec 2021 15:34:01 +0100
-Message-Id: <20211220143026.110271178@linuxfoundation.org>
+Message-Id: <20211220143020.031915064@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
-References: <20211220143025.683747691@linuxfoundation.org>
+In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
+References: <20211220143019.974513085@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,38 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-[ Upstream commit 2b454a90e2ccdd6e03f88f930036da4df577be76 ]
+commit fd79a0cbf0b2e34bcc45b13acf962e2032a82203 upstream.
 
-Correct a typo in the vin-supply property.  The input supply is
-always-on, so this mistake doesn't affect whether the supply is actually
-enabled correctly.
+When kmalloc in nfc_genl_dump_devices() fails then
+nfc_genl_dump_devices_done() segfaults as below
 
-Fixes: fc702ed49a86 ("arm64: dts: rockchip: Add dts for Leez RK3399 P710 SBC")
-Signed-off-by: John Keeping <john@metanate.com>
-Link: https://lore.kernel.org/r/20211102182908.3409670-3-john@metanate.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 25 Comm: kworker/0:1 Not tainted 5.16.0-rc4-01180-g2a987e65025e-dirty #5
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-6.fc35 04/01/2014
+Workqueue: events netlink_sock_destruct_work
+RIP: 0010:klist_iter_exit+0x26/0x80
+Call Trace:
+<TASK>
+class_dev_iter_exit+0x15/0x20
+nfc_genl_dump_devices_done+0x3b/0x50
+genl_lock_done+0x84/0xd0
+netlink_sock_destruct+0x8f/0x270
+__sk_destruct+0x64/0x3b0
+sk_destruct+0xa8/0xd0
+__sk_free+0x2e8/0x3d0
+sk_free+0x51/0x90
+netlink_sock_destruct_work+0x1c/0x20
+process_one_work+0x411/0x710
+worker_thread+0x6fd/0xa80
+
+Link: https://syzkaller.appspot.com/bug?id=fc0fa5a53db9edd261d56e74325419faf18bd0df
+Reported-by: syzbot+f9f76f4a0766420b4a02@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211208182742.340542-1-tadeusz.struk@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/nfc/netlink.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts b/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-index 73be38a537960..a72e77c261ef3 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-leez-p710.dts
-@@ -49,7 +49,7 @@ vcc3v3_lan: vcc3v3-lan {
- 		regulator-boot-on;
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
--		vim-supply = <&vcc3v3_sys>;
-+		vin-supply = <&vcc3v3_sys>;
- 	};
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -669,8 +669,10 @@ static int nfc_genl_dump_devices_done(st
+ {
+ 	struct class_dev_iter *iter = (struct class_dev_iter *) cb->args[0];
  
- 	vcc3v3_sys: vcc3v3-sys {
--- 
-2.33.0
-
+-	nfc_device_iter_exit(iter);
+-	kfree(iter);
++	if (iter) {
++		nfc_device_iter_exit(iter);
++		kfree(iter);
++	}
+ 
+ 	return 0;
+ }
 
 
