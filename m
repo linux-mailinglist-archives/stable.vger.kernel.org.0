@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD8A47AC19
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F0AC47AE44
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 16:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234754AbhLTOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:41:29 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49074 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234539AbhLTOkR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:17 -0500
+        id S239030AbhLTO7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:59:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47940 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238807AbhLTO5X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:57:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA770B80EF1;
-        Mon, 20 Dec 2021 14:40:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 013D1C36AE8;
-        Mon, 20 Dec 2021 14:40:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5870D60F4E;
+        Mon, 20 Dec 2021 14:57:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4194BC36AE7;
+        Mon, 20 Dec 2021 14:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011215;
-        bh=nih9dZrU8O63ScahyWDZ8/H1Eobq4ZvyR31ISJE4lLM=;
+        s=korg; t=1640012242;
+        bh=L+9fR+PGCBZHmH6eDdBT7bA7XtMjaWNwPL6qt/+IUsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BOfRrLjviXk4btxpp3ewXg2kFo1D0QgMNSn2hWrIFz5jOSrG2aeA+4sjYviWYqvX5
-         NeFHs70/NhuHpbw8jAgMx8H6W24vGGxnBZRKjy0rOrGZg/bNypqjK4Ysu/OjNKw6e3
-         OAz/Vv5YxlFHVtqXtOTPb0Zh9inzd9igZJC8RR/w=
+        b=GRv7Wxa7e/3lWv4ogkcrPj8nafQ2L4SOsJAhckYGXM3Z2MHQe0W2/wawHwdLNQPHc
+         FXFv4EehZRqNHpsSArT4X7m78+RGTIOpS3PdMy47rQRgihLo3c/fUnkH8DBJIe5TyR
+         wtmGCzfZQcEKM6wrCEgnzKLXn46YPiNBl9qDo5so=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 4.14 45/45] xen/netback: dont queue unlimited number of packages
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 130/177] USB: serial: option: add Telit FN990 compositions
 Date:   Mon, 20 Dec 2021 15:34:40 +0100
-Message-Id: <20211220143023.766045595@linuxfoundation.org>
+Message-Id: <20211220143044.453390852@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit be81992f9086b230623ae3ebbc85ecee4d00a3d3 upstream.
+commit 2b503c8598d1b232e7fc7526bce9326d92331541 upstream.
 
-In case a guest isn't consuming incoming network traffic as fast as it
-is coming in, xen-netback is buffering network packages in unlimited
-numbers today. This can result in host OOM situations.
+Add the following Telit FN990 compositions:
 
-Commit f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal
-queue and carrier flapping") meant to introduce a mechanism to limit
-the amount of buffered data by stopping the Tx queue when reaching the
-data limit, but this doesn't work for cases like UDP.
+0x1070: tty, adb, rmnet, tty, tty, tty, tty
+0x1071: tty, adb, mbim, tty, tty, tty, tty
+0x1072: rndis, tty, adb, tty, tty, tty, tty
+0x1073: tty, adb, ecm, tty, tty, tty, tty
 
-When hitting the limit don't queue further SKBs, but drop them instead.
-In order to be able to tell Rx packages have been dropped increment the
-rx_dropped statistics counter in this case.
-
-It should be noted that the old solution to continue queueing SKBs had
-the additional problem of an overflow of the 32-bit rx_queue_len value
-would result in intermittent Tx queue enabling.
-
-This is part of XSA-392
-
-Fixes: f48da8b14d04ca8 ("xen-netback: fix unlimited guest Rx internal queue and carrier flapping")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20211210100714.22587-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netback/rx.c |   18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/xen-netback/rx.c
-+++ b/drivers/net/xen-netback/rx.c
-@@ -88,16 +88,19 @@ void xenvif_rx_queue_tail(struct xenvif_
- 
- 	spin_lock_irqsave(&queue->rx_queue.lock, flags);
- 
--	if (skb_queue_empty(&queue->rx_queue))
--		xenvif_update_needed_slots(queue, skb);
--
--	__skb_queue_tail(&queue->rx_queue, skb);
--
--	queue->rx_queue_len += skb->len;
--	if (queue->rx_queue_len > queue->rx_queue_max) {
-+	if (queue->rx_queue_len >= queue->rx_queue_max) {
- 		struct net_device *dev = queue->vif->dev;
- 
- 		netif_tx_stop_queue(netdev_get_tx_queue(dev, queue->id));
-+		kfree_skb(skb);
-+		queue->vif->dev->stats.rx_dropped++;
-+	} else {
-+		if (skb_queue_empty(&queue->rx_queue))
-+			xenvif_update_needed_slots(queue, skb);
-+
-+		__skb_queue_tail(&queue->rx_queue, skb);
-+
-+		queue->rx_queue_len += skb->len;
- 	}
- 
- 	spin_unlock_irqrestore(&queue->rx_queue.lock, flags);
-@@ -147,6 +150,7 @@ static void xenvif_rx_queue_drop_expired
- 			break;
- 		xenvif_rx_dequeue(queue);
- 		kfree_skb(skb);
-+		queue->vif->dev->stats.rx_dropped++;
- 	}
- }
- 
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1219,6 +1219,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1063, 0xff),	/* Telit LN920 (ECM) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1070, 0xff),	/* Telit FN990 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1071, 0xff),	/* Telit FN990 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1072, 0xff),	/* Telit FN990 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1073, 0xff),	/* Telit FN990 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
