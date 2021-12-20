@@ -2,117 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CBA847A818
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 11:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DCCD47A820
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 12:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230143AbhLTK7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 05:59:40 -0500
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:37201 "EHLO
-        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229766AbhLTK7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 05:59:39 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 6BD435806B0;
-        Mon, 20 Dec 2021 05:59:38 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 20 Dec 2021 05:59:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=ZmOBdzc5KRY0yb6PF129oWRTs4g
-        SGAWR2I8msz7i93s=; b=MSBvzVlQ2DOGpUNDbRq6TkOaiDbnOfj0iRpTi+bXrN/
-        lq/XBZ4nhbr0UrBaOXTDwu0dVMq92HIjoIZzGjXdoYyV/kw2/Zg0UcHMTCHwxxj6
-        yhPG9dW7AODlbQqzVG5T/zqTK0xQ77+BhPq1bbpGSgdwn2yZs9l9RWEeSWnp2ojN
-        IDEoBKg7NBkITsdDmhscAmuOyATsCdpfYN3Bw4b6SsAEfuCbivS286IjRKNJc9Pq
-        OjA/RK7gEFOIb3NUCwfLjgiKi028o8a0IImM+NAdvH3LcvopHLNFkeIlyV7i3gFz
-        IJ8zVeyZaF9XPoYDue8icl2zJSNlvr568ePFoGbeKKw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ZmOBdz
-        c5KRY0yb6PF129oWRTs4gSGAWR2I8msz7i93s=; b=n69vDfmztBUE6+EiH/CRpa
-        F5A4Xy1MtFrftd2hORn5pM/MIJhqL/M85wz7tIDSW9wKJ2D0i63EJIv13jWMX0NR
-        R1xlK6Q2c1YQUxNs9sTuDmo8z+Gyz5sW4PPqcVpExt9d8xzDb7mRzyLTg/tCIhNU
-        58IhEdMU+e9SGCXYfXVjw2OJAwS+ZW9wE71UeHKP7Z2265K28J1sHobC+bmMuB1J
-        8q80F2hsrtdbSizZSgtvI2k9OoOiE/7Cd++5I2z2v6uedQX2GTtXXW1XGyfn13Pf
-        vyZ2EOxZULqLj74F8bmXd3K6JLnyIxwsg59bGc4Z5SqodEmspRnxEJZbX533EBYA
-        ==
-X-ME-Sender: <xms:GWLAYcofNXoLjYKFElsgwmNasPLfLJL7yNeGPsuDh2aC0EwhlzGm8A>
-    <xme:GWLAYSohXIVt6VREATy4BN9vZNqe-j2KfhxdkJIdiqfVB6hLDJuy9eeX-Ogr7m1xM
-    mBFpZNxcFj-2A>
-X-ME-Received: <xmr:GWLAYRMzHoR1nXOyoahqEYkOVxgWnaXAd11gUmHuxWKvm1cV742ePLX622tm0bL-hktukTS66gZBVY8-IYoNMmvXSVnpKYPi>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddtvddgvdefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:GWLAYT49JjfvdmIGaLIcT5-qHjRE6EfmcmcH6zHalkpRA87qSi4WiQ>
-    <xmx:GWLAYb6LuUvzZlzhTjjijU-3XZ-rKLjQTazrPIRl2Uv0QmEGwzyhfQ>
-    <xmx:GWLAYTjQmwnWChH06Hs6taD9V1dASEmnmkBmKf1Clog6tNAk39W72g>
-    <xmx:GmLAYeJ8a8fACbvHaFpncbIAzOfQaCGbBGbVfpSJ9dGAyg1HSmtcBw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 20 Dec 2021 05:59:36 -0500 (EST)
-Date:   Mon, 20 Dec 2021 11:59:34 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Anders Roxell <anders.roxell@linaro.org>
+        id S229907AbhLTLBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 06:01:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37210 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229766AbhLTLBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 06:01:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAE8C061574;
+        Mon, 20 Dec 2021 03:01:24 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF31A60F7D;
+        Mon, 20 Dec 2021 11:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB828C36AE8;
+        Mon, 20 Dec 2021 11:01:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1639998083;
+        bh=mbYZpWkOpBpdkdwTg12if6HElD5q2Vqht+vy/9jDAwI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mtmlcauAAglMXUHRrvG+kdWk3FNldRIFxjvE87jPdneXrTq0XdwVO2Y0BVJiS929G
+         9r5EhjX9ZyBZ8f+tqYWSkoP2NcFS5rXv9/IRpU9sEi7ba2dEyUbGAwFN2Vu7pyMqx3
+         xX1VoS14lKnWZKlbSAPqkzukUZ6PfOpHTL5ufwvk=
+Date:   Mon, 20 Dec 2021 12:01:20 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sudeep Holla <sudeep.holla@arm.com>
 Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        woojung.huh@microchip.com, UNGLinuxDriver@microchip.com,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org, clang-built-linux@googlegroups.com,
-        ulli.kroll@googlemail.com, linux@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org, amitkarwar@gmail.com,
-        nishants@marvell.com, gbhat@marvell.com, huxinming820@gmail.com,
-        kvalo@codeaurora.org, linux-wireless@vger.kernel.org,
-        rostedt@goodmis.org, mingo@redhat.com, dmitry.torokhov@gmail.com,
-        ndesaulniers@google.com, nathan@kernel.org,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH 4.19 6/6] Input: touchscreen - avoid bitwise vs logical
- OR warning
-Message-ID: <YcBiFomrxSw1eEUB@kroah.com>
-References: <20211217144119.2538175-1-anders.roxell@linaro.org>
- <20211217144119.2538175-7-anders.roxell@linaro.org>
+        Pedro Batista <pedbap.g@gmail.com>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] [BACKPORT v4.9 - v4.19] firmware: arm_scpi: Fix string
+ overflow in SCPI genpd driver
+Message-ID: <YcBigHusYbH/CY7I@kroah.com>
+References: <20211217142056.866487-1-sudeep.holla@arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211217144119.2538175-7-anders.roxell@linaro.org>
+In-Reply-To: <20211217142056.866487-1-sudeep.holla@arm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 17, 2021 at 03:41:19PM +0100, Anders Roxell wrote:
-> From: Nathan Chancellor <nathan@kernel.org>
+On Fri, Dec 17, 2021 at 02:20:56PM +0000, Sudeep Holla wrote:
+> commit 865ed67ab955428b9aa771d8b4f1e4fb7fd08945 upstream.
 > 
-> commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
+> Without the bound checks for scpi_pd->name, it could result in the buffer
+> overflow when copying the SCPI device name from the corresponding device
+> tree node as the name string is set at maximum size of 30.
 > 
-> A new warning in clang points out a few places in this driver where a
-> bitwise OR is being used with boolean types:
+> Let us fix it by using devm_kasprintf so that the string buffer is
+> allocated dynamically.
 > 
-> drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
->         data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
->                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> This use of a bitwise OR is intentional, as bitwise operations do not
-> short circuit, which allows all the calls to touchscreen_get_prop_u32()
-> to happen so that the last parameter is initialized while coalescing the
-> results of the calls to make a decision after they are all evaluated.
-> 
-> To make this clearer to the compiler, use the '|=' operator to assign
-> the result of each touchscreen_get_prop_u32() call to data_present,
-> which keeps the meaning of the code the same but makes it obvious that
-> every one of these calls is expected to happen.
-> 
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+> Fixes: 8bec4337ad40 ("firmware: scpi: add device power domain support using genpd")
+> Reported-by: Pedro Batista <pedbap.g@gmail.com>
+> Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+> Cc: stable@vger.kernel.org #v4.9, v4.14, v4.19
+> Cc: Cristian Marussi <cristian.marussi@arm.com>
+> Link: https://lore.kernel.org/r/20211209120456.696879-1-sudeep.holla@arm.com
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  drivers/input/touchscreen/of_touchscreen.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
+>  drivers/firmware/scpi_pm_domain.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/firmware/scpi_pm_domain.c b/drivers/firmware/scpi_pm_domain.c
+> index f395dec27113..a6e62a793fbe 100644
+> --- a/drivers/firmware/scpi_pm_domain.c
+> +++ b/drivers/firmware/scpi_pm_domain.c
+> @@ -27,7 +27,6 @@ struct scpi_pm_domain {
+>  	struct generic_pm_domain genpd;
+>  	struct scpi_ops *ops;
+>  	u32 domain;
+> -	char name[30];
+>  };
+>  
+>  /*
+> @@ -121,8 +120,13 @@ static int scpi_pm_domain_probe(struct platform_device *pdev)
+>  
+>  		scpi_pd->domain = i;
+>  		scpi_pd->ops = scpi_ops;
+> -		sprintf(scpi_pd->name, "%s.%d", np->name, i);
+> -		scpi_pd->genpd.name = scpi_pd->name;
+> +		scpi_pd->genpd.name = devm_kasprintf(dev, GFP_KERNEL,
+> +						     "%s.%d", np->name, i);
+> +		if (!scpi_pd->genpd.name) {
+> +			dev_err(dev, "Failed to allocate genpd name:%s.%d\n",
+> +				np->name, i);
+> +			continue;
+> +		}
+>  		scpi_pd->genpd.power_off = scpi_pd_power_off;
+>  		scpi_pd->genpd.power_on = scpi_pd_power_on;
+>  
+> -- 
+> 2.25.1
+> 
 
-Also needed in 5.10.y and 5.4.y.
+Now queued up, thanks.
 
-Please be more careful next time.
+greg k-h
