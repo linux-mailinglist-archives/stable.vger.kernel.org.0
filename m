@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4DE547A71E
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:34:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3AB447A71F
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:34:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229661AbhLTJeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:34:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229513AbhLTJeX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:34:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6B08C061574
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:34:23 -0800 (PST)
+        id S229663AbhLTJe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:34:26 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40736 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229513AbhLTJe0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:34:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39D1A60F01
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:34:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B1F1C36AE8;
-        Mon, 20 Dec 2021 09:34:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1016660F13
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8BBDC36AE8;
+        Mon, 20 Dec 2021 09:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639992862;
-        bh=HZ0nYZv/axW6xgv69Wa8LV1BbDWGcXJpHpwdpcfz0Ls=;
+        s=korg; t=1639992865;
+        bh=uu6z6o/dimUGvjCA02+V1aDH9DH1BpNKYwQ9R04rP9Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=M2ixRN3MH07lte+4g2DfB4IzwFcSzVi5Whh6OBzlONz/soiVt9GQFyrTL8Y25NpbT
-         N2J/ZnmYxH16VR4+F6p1hDJasxrZ8cF+UiLII5M2YKZdTLdSR+uLw5LEHhqUPFeBwi
-         M5nh+FHMxDQwQcPT0mZXh+rkoJfLafb2bCzj7O1w=
-Subject: FAILED: patch "[PATCH] btrfs: fix invalid delayed ref after subvolume creation" failed to apply to 5.10-stable tree
+        b=VdafLKie3VCNd9ISxUTdOYCebupaumoOSxosKv5BdSofOF6gUXOvG5ZXJp/22qDLA
+         rJKjjtl2tdqFg8bDfO4i3ChAtwMpdQapiYKBofyOW8X4S49NfHPET+Im+WXNr2DnSU
+         knXvfbXq28vNgzb5ptJwm7/5PHkgVX4bKElBMgbU=
+Subject: FAILED: patch "[PATCH] btrfs: fix invalid delayed ref after subvolume creation" failed to apply to 5.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com, nborisov@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:34:20 +0100
-Message-ID: <1639992860114119@kroah.com>
+Date:   Mon, 20 Dec 2021 10:34:23 +0100
+Message-ID: <1639992863151161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
