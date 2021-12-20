@@ -2,167 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A241047B47F
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 21:42:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A4C47B48D
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 21:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229824AbhLTUmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 15:42:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbhLTUmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 15:42:09 -0500
-Received: from mail-oo1-xc32.google.com (mail-oo1-xc32.google.com [IPv6:2607:f8b0:4864:20::c32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28877C061574;
-        Mon, 20 Dec 2021 12:42:09 -0800 (PST)
-Received: by mail-oo1-xc32.google.com with SMTP id w5-20020a4a2745000000b002c2649b8d5fso3413323oow.10;
-        Mon, 20 Dec 2021 12:42:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=86q6mGPUW4i0Ae9W5pTbC5IqFkYxCsVwOjM880qisKg=;
-        b=om8J+juci05U81DBgVnGqUJ2oUdCRZjDGd+lGjYueYFIttOeh20S3wNcK0h9moIAzk
-         IQxo/eyZJEFIB+q/HWK+qCJWRdWnVgsvqSrrgM5qExdMz63vG4tKPwWAboM/THwOTMGc
-         OPsWv6mJ2uXWixt3ujBgcjIXew/hxKA/u2qMU7Z/QvDg5E9YO8fyPF+hixeZ1pFjYT0x
-         egwkZiyzedSrtqeweQvnXlzg25nksNIyUH475e7v2L0c+PjfwRjuEhZPuGw47rtCCLc6
-         db4NOM5sK/A1RS0eDlZqXteuu8ayFKmc5mQ7bwmqgFl5JKIC2mmzRfT4RgYtGs4UFvyo
-         mDYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=86q6mGPUW4i0Ae9W5pTbC5IqFkYxCsVwOjM880qisKg=;
-        b=DRnd1WYgoKIxPO2CCfhWjca9vn238OJ75recMEagKIUzMOwnjmU8wr0vXkKZuhF2AC
-         E4xzpKSd15B7MS7EwTtbPuu8TKZp3f0AxZU19H+/j+H2TxVmX6L4hfXbVzxdnpJVd5EG
-         PSD3A/4gDCpIHwNAIBkBOYMAzMDQc/LfGplQb4r3qYF1oWR2KlffHqr5gKgm8S4w+S7Z
-         lf2bllg/sqmnZtboXYxgbUZEPHGdyTDNRRhpooKdFO3oryEVVIZNyCkRxqNKrWo6wN2E
-         I0jeTHPDyJi6yD/Qf7qYNedPGk0NnwRxVRNuAmVmyFohnjnHY4l59SsEWPW4nXfuzt64
-         qDUQ==
-X-Gm-Message-State: AOAM53251CwgLRSGV4HL7fEBKKSLUDMtaCKQkEYH+nzO8mRlwrZoZDpk
-        HT77+AJCRoZp1zHFYAQZuvam29H4lqSQxHfS+oU=
-X-Google-Smtp-Source: ABdhPJyqqffSkXvODMEsCx/EpSsjjcIv17gUSuEsOTyhqF1IRS3Rg2WkKFZFauMLFilHPkk/OwChKQe91ycOPT/7fcg=
-X-Received: by 2002:a4a:9406:: with SMTP id h6mr11394881ooi.80.1640032928320;
- Mon, 20 Dec 2021 12:42:08 -0800 (PST)
+        id S229648AbhLTUtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 15:49:53 -0500
+Received: from mout.kundenserver.de ([212.227.126.135]:39811 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229926AbhLTUtv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 15:49:51 -0500
+Received: from mail-wr1-f52.google.com ([209.85.221.52]) by
+ mrelayeu.kundenserver.de (mreue009 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MWiYi-1mx7KP1UGe-00X5pM; Mon, 20 Dec 2021 21:49:49 +0100
+Received: by mail-wr1-f52.google.com with SMTP id e5so22514739wrc.5;
+        Mon, 20 Dec 2021 12:49:49 -0800 (PST)
+X-Gm-Message-State: AOAM533/6UV4jqalZ3JM0SOxNZ4gp1QjWuTFtlmAf/2D10ZL6DQw+mOS
+        aGEgp+fbxhIV4K6IEK4gg4vZD61iLmYQh4ra1DY=
+X-Google-Smtp-Source: ABdhPJwWDWTHZHgNTSQ0wUTfz4jo1LccX5HWkJMwwdvMUlK5BwiPavZdpQ4FzYCH7w8gBRNjEdFErZH7zpIbmXFg6qY=
+X-Received: by 2002:adf:f051:: with SMTP id t17mr14325348wro.192.1640033388952;
+ Mon, 20 Dec 2021 12:49:48 -0800 (PST)
 MIME-Version: 1.0
-References: <20211217153555.9413-1-marcelo.jimenez@gmail.com>
- <a7fbb773-eb85-ccc7-8bfb-0bfab062ffe1@leemhuis.info> <CAMRc=MfAxzmAfATV2NwfTgpfmyxFx8bgTbaAfWxSi9zmBecPng@mail.gmail.com>
- <CAMuHMdVp621B0DywkW6sx6wNcPFez9=3-=cfSo7UoRttJ6QXCg@mail.gmail.com> <CABYd82b2i4Uuyi5+zLoTgiC-QMS1y=VkwmMznZqxLca0iP9qTQ@mail.gmail.com>
-In-Reply-To: <CABYd82b2i4Uuyi5+zLoTgiC-QMS1y=VkwmMznZqxLca0iP9qTQ@mail.gmail.com>
-From:   Marcelo Roberto Jimenez <marcelo.jimenez@gmail.com>
-Date:   Mon, 20 Dec 2021 17:41:42 -0300
-Message-ID: <CACjc_5qQv_vWawtbA8O01EaiY6GqSXQYs0jgC8XLAGYuwtnUUg@mail.gmail.com>
-Subject: Re: [PATCH] gpio: Revert regression in sysfs-gpio (gpiolib.c)
-To:     Will McVicker <willmcvicker@google.com>
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        stable <stable@vger.kernel.org>, regressions@lists.linux.dev,
-        Linus Walleij <linus.walleij@linaro.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Edmond Chung <edmondchung@google.com>,
-        Andrew Chant <achant@google.com>,
-        Sergio Tanzilli <tanzilli@acmesystems.it>
+References: <20211220143023.451982183@linuxfoundation.org> <20211220143024.049888083@linuxfoundation.org>
+ <20211220203136.GA4116@duo.ucw.cz>
+In-Reply-To: <20211220203136.GA4116@duo.ucw.cz>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 20 Dec 2021 21:49:32 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a3XVPWJqoRoKz-jvAkbVwcNVrrjq9pj9OCPN9bQsizisg@mail.gmail.com>
+Message-ID: <CAK8P3a3XVPWJqoRoKz-jvAkbVwcNVrrjq9pj9OCPN9bQsizisg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 18/56] hv: utils: add PTP_1588_CLOCK to Kconfig to
+ fix build
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:H3uwgO1U98h6P06K3X8mALyoked0McQHHkSd6U3OWk1oTX80Cez
+ xoSeykkLmDluSCGUqhL9LtsrM0HlSe71gnLaytpVmPDKXubwOtFm1kkPCbMqW2qnEtH5Hbr
+ LoTjCTUplqBg//TDvyMXx2hn9Pt0TE+ls8lpUtaaXhQleX1oBETXH3RIplMR1eYZNpoCxz5
+ Jhyr8V47zQeOhK9dUfJTw==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:An6FaNtMhHc=:Qyg8QVs+NhTPUnQOXQ/KpR
+ rfhFgOsQKC6Vli6mw1Hav9ruQHn/0EV8WHZHfV+nCztHnDaDE7fb4am7PEtencFGVdMg+3oRF
+ 1tWefsN3PcZkI1dScd+26JdR16qvsYEzwEzXg+2pyfEY4nE+4ucQk0YPQqkqP2lZzBTA4DRmM
+ hQkW28RrOnn5uOAHuIzWeUw7nBdmF+2tZ6h40ZQrdWxsKNOpotqb5EJ53OnDNWTCcy/Tz2ey8
+ ARdrkwvDK19sFxBz8KbgwGQaVGrhSStekobPxv7PHVB8DCMwBInOJmlNSTtYN0gLOKDDZYvQw
+ 7ewSUBoZMyL4ytI6DBF3YY0CosjVNPNlV+TVrvAGyDH+Hc+prArvVWbj9hjuk2aJGjk/b4Ysm
+ Rs7DTaVs1JzEjOaZ6aNJ68NReX2nEo9VJI0XWIjG3qdc4hgyoatkJpgQY/U0FEKF3ZuXrYOM8
+ 4sO59zbYn0VV0xUxev5yOlg2B0lFsz7lR2fqCqTH38a3MyN9kbIUgTlKcNJxnMjERY7tHXGhW
+ R4qkVvX4Xi9ZLAr6etvaQnqN8o7GBJtWTVSFHQaABnxIUt+SW4TAtjJpPnUv6chRcqizg3Iaa
+ vK2/MxlP61DpMNdfTg48nqQng6XTEljAN3tHeNz18vzAHCePwKhHneBz+W/b5664vtcdPrKux
+ 2cj3OccHapus/RgPfWNW8ZlSW8EzcyglgPqEKYZSP4Dwk0A9xXYVwMNK4Qs0rUDrQRco=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Will,
-
-On Mon, Dec 20, 2021 at 4:25 PM Will McVicker <willmcvicker@google.com> wrote:
->
-> On Mon, Dec 20, 2021 at 7:14 AM Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+On Mon, Dec 20, 2021 at 9:31 PM Pavel Machek <pavel@ucw.cz> wrote:
+> > From: Randy Dunlap <rdunlap@infradead.org>
 > >
-> > On Mon, Dec 20, 2021 at 3:57 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> > > On Sat, Dec 18, 2021 at 7:28 AM Thorsten Leemhuis
-> > > <regressions@leemhuis.info> wrote:
-> > > > [TLDR: I'm adding this regression to regzbot, the Linux kernel
-> > > > regression tracking bot; most text you find below is compiled from a few
-> > > > templates paragraphs some of you might have seen already.]
-> > > >
-> > > > On 17.12.21 16:35, Marcelo Roberto Jimenez wrote:
-> > > > > Some GPIO lines have stopped working after the patch
-> > > > > commit 2ab73c6d8323f ("gpio: Support GPIO controllers without pin-ranges")
-> > > > >
-> > > > > And this has supposedly been fixed in the following patches
-> > > > > commit 89ad556b7f96a ("gpio: Avoid using pin ranges with !PINCTRL")
-> > > > > commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not defined")
-> > > >
-> > > > There seems to be a backstory here. Are there any entries and bug
-> > > > trackers or earlier discussions everyone that looks into this should be
-> > > > aware of?
-> > > >
-> > >
-> > > Agreed with Thorsten. I'd like to first try to determine what's wrong
-> > > before reverting those, as they are correct in theory but maybe the
-> > > implementation missed something.
-> > >
-> > > Have you tried tracing the execution on your platform in order to see
-> > > what the driver is doing?
+> > [ Upstream commit 1dc2f2b81a6a9895da59f3915760f6c0c3074492 ]
 > >
-> > Looking at commits that have related Fixes tags:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bf781869e5cf3e4ec1a47dad69b6f0df97629cbd
-> > https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-pinctrl.git/commit/?id=e8f24c58d1b69ecf410a673c22f546dc732bb879
+> > The hyperv utilities use PTP clock interfaces and should depend a
+> > a kconfig symbol such that they will be built as a loadable module or
+> > builtin so that linker errors do not happen.
 > >
-> > Gr{oetje,eeting}s,
+> > Prevents these build errors:
 > >
-> >                         Geert
-> >
-> > --
-> > Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> >
-> > In personal conversations with technical people, I call myself a hacker. But
-> > when I'm talking to journalists I just say "programmer" or something like that.
-> >                                 -- Linus Torvalds
+> > ld: drivers/hv/hv_util.o: in function `hv_timesync_deinit':
+> > hv_util.c:(.text+0x37d): undefined reference to `ptp_clock_unregister'
+> > ld: drivers/hv/hv_util.o: in function `hv_timesync_init':
+> > hv_util.c:(.text+0x738): undefined reference to `ptp_clock_register'
 >
-> Hi Marcelo,
+> This is bad idea for 4.19:
 >
-> Thanks for reporting this issue. I can give you a little context on
-> why commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not
-> defined") was created. We were seeing a refcounting issue on Pixel 6.
-> In our kernel CONFIG_PINCTRL is defined. Basically, the camera kernel
-> module requests for a GPIO on sensor enable (when the camera sensor is
-> turned on) and releases that GPIO on sensor disable (when the camera
-> sensor is turned off). Before commit 6dbbf84603961, if we constantly
-> switched between the front and back camera eventually we would hit the
-> below error in drivers/pinctrl/pinmux.c:pin_request():
+> > +++ b/drivers/hv/Kconfig
+> > @@ -16,6 +16,7 @@ config HYPERV_TSCPAGE
+> >  config HYPERV_UTILS
+> >       tristate "Microsoft Hyper-V Utilities driver"
+> >       depends on HYPERV && CONNECTOR && NLS
+> > +     depends on PTP_1588_CLOCK_OPTIONAL
+> >       help
+> >         Select this option to enable the Hyper-V Utilities.
 >
->     E samsung-pinctrl 10840000.pinctrl: could not increase module
-> refcount for pin 134
+> grep -ri PTP_1588_CLOCK_OPTIONAL .
 >
-> In our kernel the sensor GPIOs don't have pin_ranges defined. So you
-> would get these call stacks:
->
-> Sensor Enable:
->   gpiochip_generic_request()
->   -> return 0
->
-> Sensor Disable:
->   gpiochip_generic_free()
->   -> pinctrl_gpio_free()
->
-> This led to an imbalance of request vs free calls leading to the
-> refcounting error. When we added commit 6dbbf84603961 ("gpiolib: Don't
-> free if pin ranges are not defined"), this issue was resolved. My
-> recommendation would be to drill down into your driver to figure out
-> what happens in these functions to see why you're getting the results
-> you reported.
+> Results in no result in 4.19. So this will break hyperv. No results in
+> 5.10, either, so it is bad idea there, too.
 
-Thanks for your reply.
+Right, this doesn't work, but the bug does exist anyway, and could be
+fixed by listing the dependency explicitly as
 
-Commit 6dbbf84603961 ("gpiolib: Don't free if pin ranges are not
-defined") is perfectly fine in the context and fixes a serious issue.
-But to revert the original patch we need to revert this patch too, for
-the same reason, i.e., in order to not generate a *_free() imbalance.
+           depends on PTP_1588_CLOCK || PTP_1588_CLOCK=n
 
-In my case the imbalance causes problems as soon as the test script is
-run a second time.
+The PTP_1588_CLOCK_OPTIONAL was added as a shortcut to
+avoid the odd Kconfig syntax that most developers struggle with understanding
+at first.
 
->
-> --Will
-
-Regards,
-Marcelo.
+         Arnd
