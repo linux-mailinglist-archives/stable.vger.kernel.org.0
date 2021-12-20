@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 512E447AC2C
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBAE47AC30
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235167AbhLTOmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:42:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49540 "EHLO
+        id S235417AbhLTOmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:42:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49558 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235214AbhLTOkx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:53 -0500
+        with ESMTP id S233224AbhLTOk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD609B80EE8;
-        Mon, 20 Dec 2021 14:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F66C36AE7;
-        Mon, 20 Dec 2021 14:40:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2075B80EE9;
+        Mon, 20 Dec 2021 14:40:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5F5EC36AE7;
+        Mon, 20 Dec 2021 14:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011251;
-        bh=OBqR1XEnRcNrzGcY/nxPAHYuBxxzV8Ik7lI797WSh4w=;
+        s=korg; t=1640011254;
+        bh=AftJyowQAsUsfuJ0uI4F8Mwu1SL7IWxG0P78QcusfuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aym3R8IQmD2+q8og42CawElFJa6iqjnl1AjK/rRZo71PxxywikE8mieNJPBTFFxUH
-         hAgGDWWMb9HWi+4mwemxQaiSLAJrDHTCF9iTYTkMonRvr2gR9org2RG3BvF/r2gAw6
-         vtghHD1V1N7bKzqGMvNhnmQzY1sdrlwytBY6clUY=
+        b=TpJ0lLajzx9bXH0sNkdn2aXspKFprnNjXf3VCYTYPFa1NSaD5V8x5B6eq+3i8UtRd
+         bazd8AeN+dMYwP10IwfJ1iqh2ULMcPISXj830NUFJXIBSik6j/8hV+KxzNkSiXZbZN
+         VMsHsSBX6Y9LJFZyVrftyAPqqBuG+MuNfZ2vzeXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 12/56] dm btree remove: fix use after free in rebalance_children()
-Date:   Mon, 20 Dec 2021 15:34:05 +0100
-Message-Id: <20211220143023.857106750@linuxfoundation.org>
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.19 13/56] audit: improve robustness of the audit queue handling
+Date:   Mon, 20 Dec 2021 15:34:06 +0100
+Message-Id: <20211220143023.887452872@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143023.451982183@linuxfoundation.org>
 References: <20211220143023.451982183@linuxfoundation.org>
@@ -44,32 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 1b8d2789dad0005fd5e7d35dab26a8e1203fb6da upstream.
+commit f4b3ee3c85551d2d343a3ba159304066523f730f upstream.
 
-Move dm_tm_unlock() after dm_tm_dec().
+If the audit daemon were ever to get stuck in a stopped state the
+kernel's kauditd_thread() could get blocked attempting to send audit
+records to the userspace audit daemon.  With the kernel thread
+blocked it is possible that the audit queue could grow unbounded as
+certain audit record generating events must be exempt from the queue
+limits else the system enter a deadlock state.
+
+This patch resolves this problem by lowering the kernel thread's
+socket sending timeout from MAX_SCHEDULE_TIMEOUT to HZ/10 and tweaks
+the kauditd_send_queue() function to better manage the various audit
+queues when connection problems occur between the kernel and the
+audit daemon.  With this patch, the backlog may temporarily grow
+beyond the defined limits when the audit daemon is stopped and the
+system is under heavy audit pressure, but kauditd_thread() will
+continue to make progress and drain the queues as it would for other
+connection problems.  For example, with the audit daemon put into a
+stopped state and the system configured to audit every syscall it
+was still possible to shutdown the system without a kernel panic,
+deadlock, etc.; granted, the system was slow to shutdown but that is
+to be expected given the extreme pressure of recording every syscall.
+
+The timeout value of HZ/10 was chosen primarily through
+experimentation and this developer's "gut feeling".  There is likely
+no one perfect value, but as this scenario is limited in scope (root
+privileges would be needed to send SIGSTOP to the audit daemon), it
+is likely not worth exposing this as a tunable at present.  This can
+always be done at a later date if it proves necessary.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 5b52330bbfe63 ("audit: fix auditd/kernel connection state tracking")
+Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/persistent-data/dm-btree-remove.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/audit.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/md/persistent-data/dm-btree-remove.c
-+++ b/drivers/md/persistent-data/dm-btree-remove.c
-@@ -423,9 +423,9 @@ static int rebalance_children(struct sha
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -726,7 +726,7 @@ static int kauditd_send_queue(struct soc
+ {
+ 	int rc = 0;
+ 	struct sk_buff *skb;
+-	static unsigned int failed = 0;
++	unsigned int failed = 0;
  
- 		memcpy(n, dm_block_data(child),
- 		       dm_bm_block_size(dm_tm_get_bm(info->tm)));
--		dm_tm_unlock(info->tm, child);
+ 	/* NOTE: kauditd_thread takes care of all our locking, we just use
+ 	 *       the netlink info passed to us (e.g. sk and portid) */
+@@ -743,32 +743,30 @@ static int kauditd_send_queue(struct soc
+ 			continue;
+ 		}
  
- 		dm_tm_dec(info->tm, dm_block_location(child));
-+		dm_tm_unlock(info->tm, child);
- 		return 0;
++retry:
+ 		/* grab an extra skb reference in case of error */
+ 		skb_get(skb);
+ 		rc = netlink_unicast(sk, skb, portid, 0);
+ 		if (rc < 0) {
+-			/* fatal failure for our queue flush attempt? */
++			/* send failed - try a few times unless fatal error */
+ 			if (++failed >= retry_limit ||
+ 			    rc == -ECONNREFUSED || rc == -EPERM) {
+-				/* yes - error processing for the queue */
+ 				sk = NULL;
+ 				if (err_hook)
+ 					(*err_hook)(skb);
+-				if (!skb_hook)
+-					goto out;
+-				/* keep processing with the skb_hook */
++				if (rc == -EAGAIN)
++					rc = 0;
++				/* continue to drain the queue */
+ 				continue;
+ 			} else
+-				/* no - requeue to preserve ordering */
+-				skb_queue_head(queue, skb);
++				goto retry;
+ 		} else {
+-			/* it worked - drop the extra reference and continue */
++			/* skb sent - drop the extra reference and continue */
+ 			consume_skb(skb);
+ 			failed = 0;
+ 		}
  	}
  
+-out:
+ 	return (rc >= 0 ? 0 : rc);
+ }
+ 
+@@ -1557,7 +1555,8 @@ static int __net_init audit_net_init(str
+ 		audit_panic("cannot initialize netlink socket in namespace");
+ 		return -ENOMEM;
+ 	}
+-	aunet->sk->sk_sndtimeo = MAX_SCHEDULE_TIMEOUT;
++	/* limit the timeout in case auditd is blocked/stopped */
++	aunet->sk->sk_sndtimeo = HZ / 10;
+ 
+ 	return 0;
+ }
 
 
