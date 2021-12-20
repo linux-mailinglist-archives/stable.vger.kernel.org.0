@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 936DF47ADEE
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64EF847ADD1
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:56:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239628AbhLTO4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:56:45 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:45278 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236567AbhLTOxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:53:54 -0500
+        id S236566AbhLTOzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:55:53 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60820 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235808AbhLTOyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:54:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33C51611A4;
-        Mon, 20 Dec 2021 14:53:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16DFEC36AE7;
-        Mon, 20 Dec 2021 14:53:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DEE2DB80EE2;
+        Mon, 20 Dec 2021 14:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1876FC36AE7;
+        Mon, 20 Dec 2021 14:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640012033;
-        bh=yZxRJIUhIMqQCSxsdSnLyqZUmctDgTSnhonj7nzkSXY=;
+        s=korg; t=1640012047;
+        bh=GYR1Wgh0HO4YY+mBpA57RoUFz6fyYrJxzqkN0yCQXbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEDu0sdJ2503w1VUUCyaANQmjyoBS6wuQHBg7asz1g76wXO6dCte+EtoazspImsTS
-         RYrSWLH5e6laRZthHPGhXyaeD7S3tzdP+klovCKzqqN5Y1sZkZ+0+xXDiQIONy8bmc
-         yC8Bn2NXr1IBsXego+j7s2N1T0D4PazCGODTUbwI=
+        b=xtpquh4MlRrGJs0PRli+nN18Ymjt/RWiGdfAoyb5Bk/xUv4iOxeulqIjp/7Jx2q2k
+         RHjCorCu3eSsTBXw35wqKtwJlxp9TrK5a62533CGoVQLcykrG6jJlv2qS7xeWR43ns
+         FOlxFfj8TIEyS+zMBd7fgSsZJzSxnOhroc7kEc0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <wei.w.wang@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
+        stable@vger.kernel.org, Tao Liu <ltao@redhat.com>,
+        Philipp Rudo <prudo@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/177] virtio/vsock: fix the transport to work with VMADDR_CID_ANY
-Date:   Mon, 20 Dec 2021 15:33:26 +0100
-Message-Id: <20211220143041.982864663@linuxfoundation.org>
+Subject: [PATCH 5.15 060/177] s390/kexec_file: fix error handling when applying relocations
+Date:   Mon, 20 Dec 2021 15:33:30 +0100
+Message-Id: <20211220143042.127672005@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -46,60 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <wei.w.wang@intel.com>
+From: Philipp Rudo <prudo@redhat.com>
 
-[ Upstream commit 1db8f5fc2e5c66a5c51e1f6488e0ba7d45c29ae4 ]
+[ Upstream commit 41967a37b8eedfee15b81406a9f3015be90d3980 ]
 
-The VMADDR_CID_ANY flag used by a socket means that the socket isn't bound
-to any specific CID. For example, a host vsock server may want to be bound
-with VMADDR_CID_ANY, so that a guest vsock client can connect to the host
-server with CID=VMADDR_CID_HOST (i.e. 2), and meanwhile, a host vsock
-client can connect to the same local server with CID=VMADDR_CID_LOCAL
-(i.e. 1).
+arch_kexec_apply_relocations_add currently ignores all errors returned
+by arch_kexec_do_relocs. This means that every unknown relocation is
+silently skipped causing unpredictable behavior while the relocated code
+runs. Fix this by checking for errors and fail kexec_file_load if an
+unknown relocation type is encountered.
 
-The current implementation sets the destination socket's svm_cid to a
-fixed CID value after the first client's connection, which isn't an
-expected operation. For example, if the guest client first connects to the
-host server, the server's svm_cid gets set to VMADDR_CID_HOST, then other
-host clients won't be able to connect to the server anymore.
+The problem was found after gcc changed its behavior and used
+R_390_PLT32DBL relocations for brasl instruction and relied on ld to
+resolve the relocations in the final link in case direct calls are
+possible. As the purgatory code is only linked partially (option -r)
+ld didn't resolve the relocations leaving them for arch_kexec_do_relocs.
+But arch_kexec_do_relocs doesn't know how to handle R_390_PLT32DBL
+relocations so they were silently skipped. This ultimately caused an
+endless loop in the purgatory as the brasl instructions kept branching
+to itself.
 
-Reproduce steps:
-1. Run the host server:
-   socat VSOCK-LISTEN:1234,fork -
-2. Run a guest client to connect to the host server:
-   socat - VSOCK-CONNECT:2:1234
-3. Run a host client to connect to the host server:
-   socat - VSOCK-CONNECT:1:1234
-
-Without this patch, step 3. above fails to connect, and socat complains
-"socat[1720] E connect(5, AF=40 cid:1 port:1234, 16): Connection
-reset by peer".
-With this patch, the above works well.
-
-Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Link: https://lore.kernel.org/r/20211126011823.1760-1-wei.w.wang@intel.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Fixes: 71406883fd35 ("s390/kexec_file: Add kexec_file_load system call")
+Reported-by: Tao Liu <ltao@redhat.com>
+Signed-off-by: Philipp Rudo <prudo@redhat.com>
+Link: https://lore.kernel.org/r/20211208130741.5821-3-prudo@redhat.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/virtio_transport_common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/kernel/machine_kexec_file.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 59ee1be5a6dd3..ec2c2afbf0d06 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1299,7 +1299,8 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 	space_available = virtio_transport_space_update(sk, pkt);
+diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+index e7435f3a3d2d2..76cd09879eaf4 100644
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -277,6 +277,7 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ {
+ 	Elf_Rela *relas;
+ 	int i, r_type;
++	int ret;
  
- 	/* Update CID in case it has changed after a transport reset event */
--	vsk->local_addr.svm_cid = dst.svm_cid;
-+	if (vsk->local_addr.svm_cid != VMADDR_CID_ANY)
-+		vsk->local_addr.svm_cid = dst.svm_cid;
+ 	relas = (void *)pi->ehdr + relsec->sh_offset;
  
- 	if (space_available)
- 		sk->sk_write_space(sk);
+@@ -311,7 +312,11 @@ int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+ 		addr = section->sh_addr + relas[i].r_offset;
+ 
+ 		r_type = ELF64_R_TYPE(relas[i].r_info);
+-		arch_kexec_do_relocs(r_type, loc, val, addr);
++		ret = arch_kexec_do_relocs(r_type, loc, val, addr);
++		if (ret) {
++			pr_err("Unknown rela relocation: %d\n", r_type);
++			return -ENOEXEC;
++		}
+ 	}
+ 	return 0;
+ }
 -- 
 2.33.0
 
