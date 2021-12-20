@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A617347ADB9
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:55:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3453647ADE8
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236201AbhLTOyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:54:15 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43646 "EHLO
+        id S237501AbhLTO4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:56:39 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41982 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236485AbhLTOwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:52:13 -0500
+        with ESMTP id S237431AbhLTOwW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:52:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63406611A5;
-        Mon, 20 Dec 2021 14:52:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FFA3C36AE8;
-        Mon, 20 Dec 2021 14:52:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6687611B6;
+        Mon, 20 Dec 2021 14:52:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ACCCC36AE8;
+        Mon, 20 Dec 2021 14:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011932;
-        bh=TQu3W0rMeGA1efmmn8RVxCfFt0dZ0/rnkNJfyqDla5c=;
+        s=korg; t=1640011941;
+        bh=B2msg64uIg3ItVlPTyDZwRYGRy7L0/X4y0dJpuFZU0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QFChsYoA+TmK78VdBCH8isz3wI6Ypa7E1VETOtdkx6AE8UEzgm48tJ3oFtNSpLNvF
-         eZeL1nU75GW7PcNQ5S7teHpgftWNkb3Qoa1ydJ/aV3JPebmmMRkmor5pE/PO4H/6C1
-         UJEKIo3fw/Xh6K6RQO0uSNn9wUP7hni9XM/AXtsA=
+        b=xIDVVrmHhdzOrJhaf4mSpQaO2JNucdD9+7POzGracjODXLzosIzIhIjgbhglQj9Ap
+         z0BxX5Yg9nXTun2PmfhM03PkG0O9qoN7gt4Jzag0yjZmSmLW7PvA6V23X4+0hfMeq7
+         1Rh5vszberABPTNkuonVzrNLhoW65dEKw/+a4MlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.15 020/177] vduse: fix memory corruption in vduse_dev_ioctl()
-Date:   Mon, 20 Dec 2021 15:32:50 +0100
-Message-Id: <20211220143040.759576672@linuxfoundation.org>
+Subject: [PATCH 5.15 023/177] vdpa: check that offsets are within bounds
+Date:   Mon, 20 Dec 2021 15:32:53 +0100
+Message-Id: <20211220143040.854780516@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
 References: <20211220143040.058287525@linuxfoundation.org>
@@ -46,36 +47,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit ff9f9c6e74848170fcb45c8403c80d661484c8c9 upstream.
+commit 3ed21c1451a14d139e1ceb18f2fa70865ce3195a upstream.
 
-The "config.offset" comes from the user.  There needs to a check to
-prevent it being out of bounds.  The "config.offset" and
-"dev->config_size" variables are both type u32.  So if the offset if
-out of bounds then the "dev->config_size - config.offset" subtraction
-results in a very high u32 value.  The out of bounds offset can result
-in memory corruption.
+In this function "c->off" is a u32 and "size" is a long.  On 64bit systems
+if "c->off" is greater than "size" then "size - c->off" is a negative and
+we always return -E2BIG.  But on 32bit systems the subtraction is type
+promoted to a high positive u32 value and basically any "c->len" is
+accepted.
 
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+Reported-by: Xie Yongji <xieyongji@bytedance.com>
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211208103307.GA3778@kili
+Link: https://lore.kernel.org/r/20211208103337.GA4047@kili
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/vhost/vdpa.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -975,7 +975,8 @@ static long vduse_dev_ioctl(struct file
- 			break;
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -197,7 +197,7 @@ static int vhost_vdpa_config_validate(st
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 	long size = vdpa->config->get_config_size(vdpa);
  
- 		ret = -EINVAL;
--		if (config.length == 0 ||
-+		if (config.offset > dev->config_size ||
-+		    config.length == 0 ||
- 		    config.length > dev->config_size - config.offset)
- 			break;
+-	if (c->len == 0)
++	if (c->len == 0 || c->off > size)
+ 		return -EINVAL;
  
+ 	if (c->len > size - c->off)
 
 
