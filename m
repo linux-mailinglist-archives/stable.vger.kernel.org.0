@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C171547AD98
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B47747ADDD
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:59:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238076AbhLTOxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:53:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34658 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237001AbhLTOvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:51:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2B7C08EAF0;
-        Mon, 20 Dec 2021 06:46:46 -0800 (PST)
+        id S237343AbhLTO4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:56:20 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45664 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237125AbhLTOyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:54:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F7C5611D0;
-        Mon, 20 Dec 2021 14:46:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00236C36AE7;
-        Mon, 20 Dec 2021 14:46:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70D796119C;
+        Mon, 20 Dec 2021 14:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55949C36AE7;
+        Mon, 20 Dec 2021 14:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011605;
-        bh=IgLSsDXku+1K9pPQ4iBiwNQcjZ7/ZAaYJa2R7oEqRzM=;
+        s=korg; t=1640012058;
+        bh=pT3ajgoIJTo1YFBepGsWQGl+r+sidAboeM4MFrbg6HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oG5sp1JW9IwSe5qtuTBADw2EZ1zp58IIlJSJfkjtJg+Ic9boTzSUggHzv2D5TxHkK
-         +yOP1XI/KIJW01uMyiLBXTcWe0E3zaIiomw2qXp14OSPFq0B3YxDpr1Ob8Bp/oGGbm
-         iEw7MNSQnhnBFGooc6EqVIlE9GKGPAyT2b1B+yr4=
+        b=unngMi4A14ZGCoN+1YcSKFOF/u0IkejWXPlKmj2rVqDczL4J70a9AOCH0gbUaAaP/
+         /1WjYmJxvX7XGLRRYbDJS8aYqpSmbc/W93MBJRoJ51KG/nhFPbZxh+OW4WRPcAiUak
+         XOxr3OoD34vABWIJVjgUdEEOC79Z6wjpzdMnRFlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 01/99] KVM: selftests: Make sure kvm_create_max_vcpus test wont hit RLIMIT_NOFILE
+Subject: [PATCH 5.15 064/177] selftests: icmp_redirect: pass xfail=0 to log_test()
 Date:   Mon, 20 Dec 2021 15:33:34 +0100
-Message-Id: <20211220143029.404098902@linuxfoundation.org>
+Message-Id: <20211220143042.254284802@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143029.352940568@linuxfoundation.org>
-References: <20211220143029.352940568@linuxfoundation.org>
+In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+References: <20211220143040.058287525@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,87 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit 908fa88e420f30dde6d80f092795a18ec72ca6d3 ]
+[ Upstream commit 3748939bce3fc7a15ef07161826507fbe410bb7a ]
 
-With the elevated 'KVM_CAP_MAX_VCPUS' value kvm_create_max_vcpus test
-may hit RLIMIT_NOFILE limits:
+If any sub-test in this icmp_redirect.sh is failing but not expected
+to fail. The script will complain:
+    ./icmp_redirect.sh: line 72: [: 1: unary operator expected
 
- # ./kvm_create_max_vcpus
- KVM_CAP_MAX_VCPU_ID: 4096
- KVM_CAP_MAX_VCPUS: 1024
- Testing creating 1024 vCPUs, with IDs 0...1023.
- /dev/kvm not available (errno: 24), skipping test
+This is because when the sub-test is not expected to fail, we won't
+pass any value for the xfail local variable in log_test() and thus
+it's empty. Fix this by passing 0 as the 4th variable to log_test()
+for non-xfail cases.
 
-Adjust RLIMIT_NOFILE limits to make sure KVM_CAP_MAX_VCPUS fds can be
-opened. Note, raising hard limit ('rlim_max') requires CAP_SYS_RESOURCE
-capability which is generally not needed to run kvm selftests (but without
-raising the limit the test is doomed to fail anyway).
+v2: added fixes tag
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20211123135953.667434-1-vkuznets@redhat.com>
-[Skip the test if the hard limit can be raised. - Paolo]
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Tested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 0a36a75c6818 ("selftests: icmp_redirect: support expected failures")
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/kvm/kvm_create_max_vcpus.c      | 30 +++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ tools/testing/selftests/net/icmp_redirect.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kvm/kvm_create_max_vcpus.c b/tools/testing/selftests/kvm/kvm_create_max_vcpus.c
-index 0299cd81b8ba2..aa3795cd7bd3d 100644
---- a/tools/testing/selftests/kvm/kvm_create_max_vcpus.c
-+++ b/tools/testing/selftests/kvm/kvm_create_max_vcpus.c
-@@ -12,6 +12,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-+#include <sys/resource.h>
+diff --git a/tools/testing/selftests/net/icmp_redirect.sh b/tools/testing/selftests/net/icmp_redirect.sh
+index ecbf57f264ed9..7b9d6e31b8e7d 100755
+--- a/tools/testing/selftests/net/icmp_redirect.sh
++++ b/tools/testing/selftests/net/icmp_redirect.sh
+@@ -311,7 +311,7 @@ check_exception()
+ 		ip -netns h1 ro get ${H1_VRF_ARG} ${H2_N2_IP} | \
+ 		grep -E -v 'mtu|redirected' | grep -q "cache"
+ 	fi
+-	log_test $? 0 "IPv4: ${desc}"
++	log_test $? 0 "IPv4: ${desc}" 0
  
- #include "test_util.h"
- 
-@@ -40,10 +41,39 @@ int main(int argc, char *argv[])
- {
- 	int kvm_max_vcpu_id = kvm_check_cap(KVM_CAP_MAX_VCPU_ID);
- 	int kvm_max_vcpus = kvm_check_cap(KVM_CAP_MAX_VCPUS);
-+	/*
-+	 * Number of file descriptors reqired, KVM_CAP_MAX_VCPUS for vCPU fds +
-+	 * an arbitrary number for everything else.
-+	 */
-+	int nr_fds_wanted = kvm_max_vcpus + 100;
-+	struct rlimit rl;
- 
- 	pr_info("KVM_CAP_MAX_VCPU_ID: %d\n", kvm_max_vcpu_id);
- 	pr_info("KVM_CAP_MAX_VCPUS: %d\n", kvm_max_vcpus);
- 
-+	/*
-+	 * Check that we're allowed to open nr_fds_wanted file descriptors and
-+	 * try raising the limits if needed.
-+	 */
-+	TEST_ASSERT(!getrlimit(RLIMIT_NOFILE, &rl), "getrlimit() failed!");
-+
-+	if (rl.rlim_cur < nr_fds_wanted) {
-+		rl.rlim_cur = nr_fds_wanted;
-+		if (rl.rlim_max < nr_fds_wanted) {
-+			int old_rlim_max = rl.rlim_max;
-+			rl.rlim_max = nr_fds_wanted;
-+
-+			int r = setrlimit(RLIMIT_NOFILE, &rl);
-+			if (r < 0) {
-+				printf("RLIMIT_NOFILE hard limit is too low (%d, wanted %d)\n",
-+				       old_rlim_max, nr_fds_wanted);
-+				exit(KSFT_SKIP);
-+			}
-+		} else {
-+			TEST_ASSERT(!setrlimit(RLIMIT_NOFILE, &rl), "setrlimit() failed!");
-+		}
-+	}
-+
- 	/*
- 	 * Upstream KVM prior to 4.8 does not support KVM_CAP_MAX_VCPU_ID.
- 	 * Userspace is supposed to use KVM_CAP_MAX_VCPUS as the maximum ID
+ 	# No PMTU info for test "redirect" and "mtu exception plus redirect"
+ 	if [ "$with_redirect" = "yes" ] && [ "$desc" != "redirect exception plus mtu" ]; then
 -- 
 2.33.0
 
