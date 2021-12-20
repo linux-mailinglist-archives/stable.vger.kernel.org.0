@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A75DA47A71B
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:33:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17EA747A71C
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 10:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229645AbhLTJd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 04:33:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40410 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229513AbhLTJd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:33:27 -0500
+        id S229649AbhLTJdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 04:33:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45720 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229513AbhLTJdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 04:33:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7431C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 01:33:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69F7360F01
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:33:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750DFC36AE2;
-        Mon, 20 Dec 2021 09:33:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48F6B60F01
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 09:33:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D7DC36AE8;
+        Mon, 20 Dec 2021 09:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639992806;
-        bh=eTu0DJc7K1bubkc28zjNaSoLTCcOum0jh44AhlxRQvc=;
+        s=korg; t=1639992816;
+        bh=HomozG0O63NluQEx+yLLqYsnQQn9cxe8hX2bQmkwP4k=;
         h=Subject:To:Cc:From:Date:From;
-        b=wWQwyFdB3tRKyNuTe7ZDOF6kR5RTnDwuXcrq2toLT18/R0rRu22Sr1FGpEW1a/WjO
-         B0UlW28IlNjkgZZle9Bvw5k/eM7VciYvQLk73ZL2f769+mOm+Z23g75gelSN/4QgJz
-         081MXyM5pt8CKfwzdvoT16TLI+JPx9AF2OJallxU=
-Subject: FAILED: patch "[PATCH] btrfs: check WRITE_ERR when trying to read an extent buffer" failed to apply to 5.4-stable tree
+        b=XTipbSlFoa760B8asVegL4rlijzo3Dry6y2iZSkzOYfwmdAwTuVEoK9R+1p0Yhiqp
+         wC3ruyV4v95OFnVdLt4f80U5cJM4KklOyikioyUcPR6Mi1jxi/jeDtOH2T1nzfp90N
+         75mm9aAiL1KOvASUT1tIhMRpq0IsBNPtCg9M6lXk=
+Subject: FAILED: patch "[PATCH] btrfs: check WRITE_ERR when trying to read an extent buffer" failed to apply to 5.10-stable tree
 To:     josef@toxicpanda.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Dec 2021 10:33:24 +0100
-Message-ID: <16399928045496@kroah.com>
+Date:   Mon, 20 Dec 2021 10:33:26 +0100
+Message-ID: <16399928067187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
