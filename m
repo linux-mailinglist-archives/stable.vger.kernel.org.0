@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFAE447AC36
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:42:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4033447AD2D
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:51:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235249AbhLTOmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:42:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59922 "EHLO
+        id S235526AbhLTOur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:50:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235254AbhLTOk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:40:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74A81C06137F;
-        Mon, 20 Dec 2021 06:40:35 -0800 (PST)
+        with ESMTP id S237202AbhLTOs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:48:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CBBC061398;
+        Mon, 20 Dec 2021 06:45:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C6F7FCE0F99;
-        Mon, 20 Dec 2021 14:40:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B35C36AE8;
-        Mon, 20 Dec 2021 14:40:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34533B80EDF;
+        Mon, 20 Dec 2021 14:45:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D569C36AE7;
+        Mon, 20 Dec 2021 14:45:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011232;
-        bh=6wyGCU1CeEfhXISCSc7CE3G3Vzklu2TXuC1SdIEM1AA=;
+        s=korg; t=1640011505;
+        bh=vmiKDqNKZcMNo0YFJt7fBJKb7F/kv+pcJAJFUaf++dE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJJqAtQyx8OGtxPEAFS31130/gl8hijMF8lGavtOev9dScom0xzOZUqmCftasM7l0
-         DE1vSrx4pp4nOJqieGZ1CTtuEnqieyjlorXh3nsxDjun9TvlMd9ARVfctiOyKGMwXB
-         nI7DxBHRzqR7uVx0dNHHFTIn5ZQifipFIE4Tfl00=
+        b=zu2GMafcgpHJQ39a0z0ifnWYepldd//HUDxH5JXdCi3l0FMIDS+M4SrAhXuptto40
+         ix7RN/QmyKygNcDKLx79ea2eKi9VwytLGm+2/Vek/W6++r+qLKIHHl6HRJuHWELZV3
+         a3lycxozhfdgrrj8Eu8m5/oZI5q0W8o5/KpWETbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Stefan Agner <stefan@agner.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 4.14 39/45] ARM: 8800/1: use choice for kernel unwinders
+        stable@vger.kernel.org, markpearson@lenovo.com,
+        Jimmy Wang <wangjm221@gmail.com>
+Subject: [PATCH 5.4 45/71] USB: NO_LPM quirk Lenovo USB-C to Ethernet Adapher(RTL8153-04)
 Date:   Mon, 20 Dec 2021 15:34:34 +0100
-Message-Id: <20211220143023.575999572@linuxfoundation.org>
+Message-Id: <20211220143027.197550440@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143022.266532675@linuxfoundation.org>
-References: <20211220143022.266532675@linuxfoundation.org>
+In-Reply-To: <20211220143025.683747691@linuxfoundation.org>
+References: <20211220143025.683747691@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,128 +47,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Jimmy Wang <wangjm221@gmail.com>
 
-commit f9b58e8c7d031b0daa5c9a9ee27f5a4028ba53ac upstream.
+commit 0ad3bd562bb91853b9f42bda145b5db6255aee90 upstream.
 
-While in theory multiple unwinders could be compiled in, it does
-not make sense in practise. Use a choice to make the unwinder
-selection mutually exclusive and mandatory.
+This device doesn't work well with LPM, losing connectivity intermittently.
+Disable LPM to resolve the issue.
 
-Already before this commit it has not been possible to deselect
-FRAME_POINTER. Remove the obsolete comment.
-
-Furthermore, to produce a meaningful backtrace with FRAME_POINTER
-enabled the kernel needs a specific function prologue:
-    mov    ip, sp
-    stmfd    sp!, {fp, ip, lr, pc}
-    sub    fp, ip, #4
-
-To get to the required prologue gcc uses apcs and no-sched-prolog.
-This compiler options are not available on clang, and clang is not
-able to generate the required prologue. Make the FRAME_POINTER
-config symbol depending on !clang.
-
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Reviewed-by: <markpearson@lenovo.com>
+Signed-off-by: Jimmy Wang <wangjm221@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211214012652.4898-1-wangjm221@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/Kconfig.debug |   44 ++++++++++++++++++++++++++++----------------
- lib/Kconfig.debug      |    6 +++---
- 2 files changed, 31 insertions(+), 19 deletions(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/Kconfig.debug
-+++ b/arch/arm/Kconfig.debug
-@@ -16,30 +16,42 @@ config ARM_PTDUMP
- 	  kernel.
- 	  If in doubt, say "N"
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -435,6 +435,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x1532, 0x0116), .driver_info =
+ 			USB_QUIRK_LINEAR_UFRAME_INTR_BINTERVAL },
  
--# RMK wants arm kernels compiled with frame pointers or stack unwinding.
--# If you know what you are doing and are willing to live without stack
--# traces, you can get a slightly smaller kernel by setting this option to
--# n, but then RMK will have to kill you ;).
--config FRAME_POINTER
--	bool
--	depends on !THUMB2_KERNEL
--	default y if !ARM_UNWIND || FUNCTION_GRAPH_TRACER
-+choice
-+	prompt "Choose kernel unwinder"
-+	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
-+	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
- 	help
--	  If you say N here, the resulting kernel will be slightly smaller and
--	  faster. However, if neither FRAME_POINTER nor ARM_UNWIND are enabled,
--	  when a problem occurs with the kernel, the information that is
--	  reported is severely limited.
-+	  This determines which method will be used for unwinding kernel stack
-+	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
-+	  livepatch, lockdep, and more.
- 
--config ARM_UNWIND
--	bool "Enable stack unwinding support (EXPERIMENTAL)"
-+config UNWINDER_FRAME_POINTER
-+	bool "Frame pointer unwinder"
-+	depends on !THUMB2_KERNEL && !CC_IS_CLANG
-+	select ARCH_WANT_FRAME_POINTERS
-+	select FRAME_POINTER
-+	help
-+	  This option enables the frame pointer unwinder for unwinding
-+	  kernel stack traces.
++	/* Lenovo USB-C to Ethernet Adapter RTL8153-04 */
++	{ USB_DEVICE(0x17ef, 0x720c), .driver_info = USB_QUIRK_NO_LPM },
 +
-+config UNWINDER_ARM
-+	bool "ARM EABI stack unwinder"
- 	depends on AEABI
--	default y
-+	select ARM_UNWIND
- 	help
- 	  This option enables stack unwinding support in the kernel
- 	  using the information automatically generated by the
- 	  compiler. The resulting kernel image is slightly bigger but
- 	  the performance is not affected. Currently, this feature
--	  only works with EABI compilers. If unsure say Y.
-+	  only works with EABI compilers.
-+
-+endchoice
-+
-+config ARM_UNWIND
-+	bool
-+
-+config FRAME_POINTER
-+	bool
+ 	/* Lenovo Powered USB-C Travel Hub (4X90S92381, RTL8153 GigE) */
+ 	{ USB_DEVICE(0x17ef, 0x721e), .driver_info = USB_QUIRK_NO_LPM },
  
- config OLD_MCOUNT
- 	bool
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1131,7 +1131,7 @@ config LOCKDEP
- 	bool
- 	depends on DEBUG_KERNEL && TRACE_IRQFLAGS_SUPPORT && STACKTRACE_SUPPORT && LOCKDEP_SUPPORT
- 	select STACKTRACE
--	select FRAME_POINTER if !MIPS && !PPC && !ARM_UNWIND && !S390 && !MICROBLAZE && !ARC && !SCORE && !X86
-+	select FRAME_POINTER if !MIPS && !PPC && !ARM && !S390 && !MICROBLAZE && !ARC && !SCORE && !X86
- 	select KALLSYMS
- 	select KALLSYMS_ALL
- 
-@@ -1566,7 +1566,7 @@ config FAULT_INJECTION_STACKTRACE_FILTER
- 	depends on FAULT_INJECTION_DEBUG_FS && STACKTRACE_SUPPORT
- 	depends on !X86_64
- 	select STACKTRACE
--	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM_UNWIND && !ARC && !SCORE && !X86
-+	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM && !ARC && !SCORE && !X86
- 	help
- 	  Provide stacktrace filter for fault-injection capabilities
- 
-@@ -1575,7 +1575,7 @@ config LATENCYTOP
- 	depends on DEBUG_KERNEL
- 	depends on STACKTRACE_SUPPORT
- 	depends on PROC_FS
--	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM_UNWIND && !ARC && !X86
-+	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM && !ARC && !X86
- 	select KALLSYMS
- 	select KALLSYMS_ALL
- 	select STACKTRACE
 
 
