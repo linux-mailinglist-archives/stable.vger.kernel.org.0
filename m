@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9361847ABA9
-	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:39:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0785147AB69
+	for <lists+stable@lfdr.de>; Mon, 20 Dec 2021 15:36:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234133AbhLTOiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 09:38:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46822 "EHLO
+        id S233842AbhLTOgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 09:36:37 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44914 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234141AbhLTOhn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:37:43 -0500
+        with ESMTP id S233857AbhLTOga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 09:36:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3C2CB80EE1;
-        Mon, 20 Dec 2021 14:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1728CC36AF8;
-        Mon, 20 Dec 2021 14:37:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 462C5B80EE2;
+        Mon, 20 Dec 2021 14:36:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B3ACC36AE7;
+        Mon, 20 Dec 2021 14:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640011061;
+        s=korg; t=1640010988;
         bh=6QpwS/9Vb12Zo4I5wEAM8ZPeJpvINJqCzEKoMF6wWOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QebOVPCOR6G+7hJvAdsLBXL7iVG8/RFLClFwu/fP5BsBqTGatf5jClgZ/2dIwBxOA
-         ROlFRLuSB7Vj2GGDA/AL9MWgqTbARugsllNkAmu3WWtGNKu6mHos5WPVxCj4oI3TcQ
-         hjlDKjqP/jXfA0aqBzFkPNsLgzMdObD1887nFWlk=
+        b=FLVo8C2xwQ7BcLoYAT7io8RppuDnra8MPcIby6g97XkpstdMjs1Ba7FR67+Ub6TAh
+         dNJw0AThAYEsd5uJX4bpkOKPwzxctYwiRdyqVFX0WkL6P31+S6ctIvdwf5QjDU42+x
+         iWPhgP89awMR7vL2yMY4JJB6i7l6jYTDizoNOBHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         kernel test robot <lkp@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 03/31] parisc/agp: Annotate parisc agp init functions with __init
+Subject: [PATCH 4.4 02/23] parisc/agp: Annotate parisc agp init functions with __init
 Date:   Mon, 20 Dec 2021 15:34:03 +0100
-Message-Id: <20211220143020.095365778@linuxfoundation.org>
+Message-Id: <20211220143017.920442096@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211220143019.974513085@linuxfoundation.org>
-References: <20211220143019.974513085@linuxfoundation.org>
+In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
+References: <20211220143017.842390782@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
