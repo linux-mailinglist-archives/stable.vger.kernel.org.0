@@ -2,112 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 939E447C0F6
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 14:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9644047C1EE
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 15:53:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235515AbhLUNox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 08:44:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35448 "EHLO
+        id S235666AbhLUOxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 09:53:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234681AbhLUNow (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 08:44:52 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E5CC06173F;
-        Tue, 21 Dec 2021 05:44:52 -0800 (PST)
-Received: from ip4d173d4a.dynamic.kabel-deutschland.de ([77.23.61.74] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1mzfRe-0000yG-Re; Tue, 21 Dec 2021 14:44:46 +0100
-Message-ID: <57cd1e60-f412-8439-2c5f-3f38824d9c74@leemhuis.info>
-Date:   Tue, 21 Dec 2021 14:44:46 +0100
+        with ESMTP id S235023AbhLUOxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 09:53:55 -0500
+Received: from mail-ua1-x930.google.com (mail-ua1-x930.google.com [IPv6:2607:f8b0:4864:20::930])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA4FC061574
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 06:53:55 -0800 (PST)
+Received: by mail-ua1-x930.google.com with SMTP id i6so24134875uae.6
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 06:53:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
+        b=ooQS+lYdnurgj9dCKI85mR+NLgaL8HfQsfRUT1nUihAQOVcHgkO7OqrERUJT3p553m
+         mN8b6x13NKZXufTxsQOm0xJ4ukBHzgrxIj2g1lT54toTsbgRGalgYxzYTS6zw5rEWqRz
+         Uq9oCtPGx1JJkdtnDwjrvZAokNrBVZpnLctsHsniPANSzsqMK3Do3DnHXnCmhvE3AtKX
+         LGbwextwPGf7FF3tK441rG37xsC6m/u3m56m7sibFhfbD6fNBn03HkxJz0C9WirJ2Ju7
+         cUFF6mPocDdi3M1ExM3baEO27JGAXEShcFxCNOHC4/VZs9a/0c5Na0oLVZ4OZcxf6n0h
+         s7Hg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
+        b=3VMSkGD/wMvzcwggbv3uqknb0Sbw8MhlStWa8nLnQoi83eDJulMYndP1hMZZO4QFoE
+         iq5fCCgkE17FwhWJS/zg+AvWDHZ+lScV/pbRhkFvuLN9VSag7ZSNVh1h/8iL/o4+4zs7
+         qLSZWtnonfFUhZWMhUjEx0FHKwdaIUt/8coMC3sSfH3+gsdDEwBd5z6H0gWYBmzCZQKl
+         ZWlqJNeUhsNMAGtWmz42/SjYNjEVHWeYiQuuKX0uS1X7uXt0GUtwjRqms0ar5O3tbd2r
+         6deO3aJ6A3NaGjFHKmnuUEktWh7ssHoqz1619s0J0ZyOb8PpdsDoNNV0xo9TPHmG4Pse
+         y6Og==
+X-Gm-Message-State: AOAM531xs+yJm1MyrggUBfeTUgCrpG5vmEzI39pbsajnOwzzQmT6zEN/
+        c8dhBEYivV7UvdXEo1p1sVmEZ9DiD6sGN+1ytv4=
+X-Google-Smtp-Source: ABdhPJypBUPQjM/4RJ1L5h1KEgbwrhx/nbYd9NoH3Yot0Tb/EoCzpHd0gVeFkHMH0rqug092WsGzn/V0em1JFxQys00=
+X-Received: by 2002:a05:6102:3226:: with SMTP id x6mr1352014vsf.37.1640098433893;
+ Tue, 21 Dec 2021 06:53:53 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v10 2/2] btbcm: disable read tx power for some Macs with
- the T2 Security chip
-Content-Language: en-BS
-To:     Marcel Holtmann <marcel@holtmann.org>,
-        Aditya Garg <gargaditya08@live.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Daniel Winkler <danielwinkler@google.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
- <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
- <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
- <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
- <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
- <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
- <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
- <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
- <92FBACD6-F4F2-4DE8-9000-2D30852770FC@live.com>
- <3716D644-CD1B-4A5C-BC96-A51FF360E31D@live.com>
- <9E6473A2-2ABE-4692-8DCF-D8F06BDEAE29@live.com>
- <64E15BD0-665E-471F-94D9-991DFB87DEA0@live.com>
- <A6DD9616-E669-4382-95A0-B9DBAF46712D@live.com>
- <312202C7-C7BE-497D-8093-218C68176658@live.com>
- <CDAA8BE2-F2B0-4020-AEB3-5C9DD4A6E08C@live.com>
- <3F7CFEF0-10D6-4046-A3AE-33ECF81A2EB3@live.com>
- <DCEC0C45-D974-4DC7-9E86-8F2D3D8F7E1D@live.com>
- <51575680-E9C3-4962-A3C4-ADCBD6DBCA00@live.com>
- <BF89065D-FE7B-4E57-BFEF-DEACC67C25AB@holtmann.org>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <BF89065D-FE7B-4E57-BFEF-DEACC67C25AB@holtmann.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1640094292;e3ceae96;
-X-HE-SMSGID: 1mzfRe-0000yG-Re
+Sender: jameswiliamsjw682@gmail.com
+Received: by 2002:a59:d7b2:0:b0:271:8182:1897 with HTTP; Tue, 21 Dec 2021
+ 06:53:53 -0800 (PST)
+From:   DINA MCKENNA <dinamckennahowley@gmail.com>
+Date:   Tue, 21 Dec 2021 14:53:53 +0000
+X-Google-Sender-Auth: 0bNiE021q39QoxYocgMQsUg4I0c
+Message-ID: <CAJMpOneNaOLCS_V-6oYZcQSQ2gz1xx9RpgqyVBLbUEvNRygedg@mail.gmail.com>
+Subject: Calvary greetings.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, this once again is your Linux kernel regression tracker speaking.
+Hello my dear,
 
-On 03.12.21 22:28, Marcel Holtmann wrote:
+ I sent this mail praying it will get to you in a good condition of
+health, since I myself are in a very critical health condition in
+which I sleep every night without knowing if I may be alive to see the
+next day. I bring peace and love to you. It is by the grace of God, I
+had no choice than to do what is lawful and right in the sight of God
+for eternal life and in the sight of man, for witness of God=E2=80=99s merc=
+y
+and glory upon my life. I am Mrs. Dina. Howley Mckenna, a widow. I am
+suffering from a long time brain tumor, It has defiled all forms of
+medical treatment, and right now I have about a few months to leave,
+according to medical experts. The situation has gotten complicated
+recently with my inability to hear proper, am communicating with you
+with the help of the chief nurse herein the hospital, from all
+indication my conditions is really deteriorating and it is quite
+obvious that, according to my doctors they have advised me that I may
+not live too long, Because this illness has gotten to a very bad
+stage. I plead that you will not expose or betray this trust and
+confidence that I am about to repose on you for the mutual benefit of
+the orphans and the less privilege. I have some funds I inherited from
+my late husband, the sum of ($ 11,000,000.00, Eleven Million Dollars).
+Having known my condition, I decided to donate this fund to you
+believing that you will utilize it the way i am going to instruct
+herein. I need you to assist me and reclaim this money and use it for
+Charity works therein your country  for orphanages and gives justice
+and help to the poor, needy and widows says The Lord." Jeremiah
+22:15-16.=E2=80=9C and also build schools for less privilege that will be
+named after my late husband if possible and to promote the word of God
+and the effort that the house of God is maintained. I do not want a
+situation where this money will be used in an ungodly manner. That's
+why I'm taking this decision. I'm not afraid of death, so I know where
+I'm going. I accept this decision because I do not have any child who
+will inherit this money after I die.. Please I want your sincerely and
+urgent answer to know if you will be able to execute this project for
+the glory of God, and I will give you more information on how the fund
+will be transferred to your bank account. May the grace, peace, love
+and the truth in the Word of God be with you and all those that you
+love and care for.
 
->> Some Macs with the T2 security chip had Bluetooth not working.
->> To fix it we add DMI based quirks to disable querying of LE Tx power.
->>
->> Signed-off-by: Aditya Garg <gargaditya08@live.com>
->> Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
->> Tested-by: Orlando Chamberlain <redecorating@protonmail.com>
->> Link:
->> https://lore.kernel.org/r/4970a940-211b-25d6-edab-21a815313954@protonmail.com
->> Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
+I'm waiting for your immediate reply..
 
-If anyone wonders: this was for v5.11-rc1.
-
->> Cc: stable@vger.kernel.org
->> ---
->> v7 :- Removed unused variable and added Tested-by.
->> v8 :- No change.
->> v9 :- Add Cc: stable@vger.kernel.org
->> v10 :- Fix gitlint
->> drivers/bluetooth/btbcm.c | 39 +++++++++++++++++++++++++++++++++++++++
->> 1 file changed, 39 insertions(+)
-> 
-> patch has been applied to bluetooth-next tree.
-And there are these two pages now for 19 days. What's the hold-up? Or do
-you consider the changes to dangerous to merge now?
-
-Sure, it's not a recent regression, so it might not look that urgent.
-But it OTOH affects everyone that can't go back to v5.10 (the newest
-Longterm kernel without the regression) -- for example if a user needs a
-post-v5.10 feature or upgrades to a distro with a newer kernel.
-
-That's why this fix (unless you considerer it to dangerous) IMHO should
-be merged rather sooner than later and and not wait for the merge window
-of v5.17. Another aspect against waiting for the next merge window: it
-contributes to piling up a large number of changes that need to be
-backported to stable and longterm kernels once v5.17-rc1 is out,
-resulting in stable and longterm releases with a huge pile of changes:
-https://lwn.net/Articles/863505/
-
-Ciao, Thorsten
-
-#regzbot poke
+May God Bless you,
+Mrs. Dina. Howley Mckenna.
