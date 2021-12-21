@@ -2,112 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C1B47C393
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 17:14:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40AEB47C41F
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 17:49:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231995AbhLUQOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 11:14:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42796 "EHLO
+        id S240007AbhLUQtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 11:49:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231963AbhLUQOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 11:14:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A7AC061574;
-        Tue, 21 Dec 2021 08:14:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A17C461677;
-        Tue, 21 Dec 2021 16:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A031C36AE9;
-        Tue, 21 Dec 2021 16:14:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640103281;
-        bh=DCUegUz4qFBNqxU7F0Pr/UOpihyC6+MhD0WLiW8u0uQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=PEK4Ai4ZemSH+x5b78S8go//jqsIdGzld9skJw4+CoVu2VoRp6rOz65mNw9TdQexu
-         3uDJ4pur51/ci8dkzXUhwjORILopKTXWNcbf/7cQLD2Qr81ro4RMHFeEhjg/zZCgzF
-         PVi+Gq7NdFpKbxzvJznXX+OSjSOsac+Zze2yEtJGIvAwLeHF4KqxyCsl1I/BErSxdc
-         TU2QkEzEhHbEMTTySf6AGbUKfVMys5mhamVDQxCIR5JB+UDydv2GwnfEIjMU41a8CX
-         gm5Eq/XN2guDDEnbtUDNsyXT9ScGAd7Hj60pRjoVetJuw2lcOSkiokvp5TSbKpmY9s
-         Vs3jx5Cj+Ldsg==
-Received: by mail-wr1-f43.google.com with SMTP id a9so27933322wrr.8;
-        Tue, 21 Dec 2021 08:14:40 -0800 (PST)
-X-Gm-Message-State: AOAM533yzWGNPHIqHvU+SCdFcrdQrdhxTx/MehSBoSE2OJ9x746lrcpq
-        dTijPxMY1qXKq26qL28vQJlK/QhIqwqDilL2LCY=
-X-Google-Smtp-Source: ABdhPJzOcgRLgtdcEc68x50V71Z1/jvQ6npLQiCgiRWtFLuMqVaROo1BPwvjc5a4e1jjuNonj0Kkxp9HGbvFSiZv9ZU=
-X-Received: by 2002:adf:c450:: with SMTP id a16mr3069705wrg.454.1640103279352;
- Tue, 21 Dec 2021 08:14:39 -0800 (PST)
+        with ESMTP id S236468AbhLUQts (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 11:49:48 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB321C061574
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 08:49:47 -0800 (PST)
+Received: by mail-wr1-x42b.google.com with SMTP id s1so22775471wra.6
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 08:49:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:from:mime-version:content-transfer-encoding
+         :content-description:subject:to:date:reply-to;
+        bh=VFAYdUcoAa/RBUsWThLomBm2E0VJ5Yt60qDK5YTAZfk=;
+        b=Qj5H8SSZS7fQ+8YBfTurc4Jp8OeWKYf2VD3WprDu56lLULKFhF2ic8GFagzVs9Uhyu
+         osXpj2tfU29YHn+bjSI1equO5JWsQuD/Vmy2SKkoh8lVBOWmuHsFFM2wYm5B4FgTYsjG
+         m51PmX67dZc+FfZ+IJgb7qEpMnfelStztspFU4qgS59a+c8SarQIetOdFVRE9z5dDpf9
+         szgYVYdgJGZfGE6SAj+iUUBqYOppy/o7DddLFKx6LSSB0aT9ke8aLaCrnago/fH+adQp
+         VvGNptPRqYtDbQ3/TmDUx4xOAhBap77gW78g5ejjiOO7tTvRz9cqdXAqYM5E1dJf7nro
+         qbaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:from:mime-version
+         :content-transfer-encoding:content-description:subject:to:date
+         :reply-to;
+        bh=VFAYdUcoAa/RBUsWThLomBm2E0VJ5Yt60qDK5YTAZfk=;
+        b=E0faiaE+ML65U9wF40qWOsw9C8cqgAbb8hLDxElUagHSgutlxikvQPm4RP5ho5Q9m/
+         D+uYUC0Rb2oLGuyhI8e2FkJvI+HuJfu+TsMUkYjDAfcRWSD6VutnMvnuvSrcIKJbNj36
+         xyOafJj6VOaNoC7eqCSAaIwOATseuveaJZUXEX6iz0PFTgwCc26QBQpnnl3C8MlCAmf9
+         6JKq+nwc7GuiQfzchwzMqnBDw+FksRrSgWm2EZi3mPFwVMau1v6G6iAWRrZJrR2EjFfl
+         6JuWELxDpriyqeOWag0F+NV+5w3d3CDJVcJemhInz07cEJTF+SYEjxry0b7LZYL9wxim
+         KGlA==
+X-Gm-Message-State: AOAM532HmZ1Y3W9rcgKn3fBfgKRjxp+nG5FzELFIFJUZbiXygaX2CK/9
+        qAWN33mEUPY8GihyBRLTwBg=
+X-Google-Smtp-Source: ABdhPJzJ0Mi3HGKX87Hhxby4Z4ziKMXVVQbPRzDIsURjn9aKFMyFzf9sOnX9/qpSyCYNPOf4eFhC5A==
+X-Received: by 2002:adf:d0cb:: with SMTP id z11mr3344126wrh.470.1640105386522;
+        Tue, 21 Dec 2021 08:49:46 -0800 (PST)
+Received: from [192.168.1.80] ([102.64.218.242])
+        by smtp.gmail.com with ESMTPSA id d4sm9825379wrx.102.2021.12.21.08.49.42
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 21 Dec 2021 08:49:46 -0800 (PST)
+Message-ID: <61c205aa.1c69fb81.3a5d9.0041@mx.google.com>
+From:   Rebecca Lawrence <essohamlokou764@gmail.com>
+X-Google-Original-From: Rebecca Lawrence
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-References: <20211221150611.3692437-1-kuba@kernel.org>
-In-Reply-To: <20211221150611.3692437-1-kuba@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Tue, 21 Dec 2021 17:14:27 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXHvLyUQdM9U4hkHdBoLHFJJn19-iESRXV6XZv87=F1x8g@mail.gmail.com>
-Message-ID: <CAMj1kXHvLyUQdM9U4hkHdBoLHFJJn19-iESRXV6XZv87=F1x8g@mail.gmail.com>
-Subject: Re: [PATCH crypto] x86/aesni: don't require alignment of data
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        "open list:BPF JIT for MIPS (32-BIT AND 64-BIT)" 
-        <netdev@vger.kernel.org>, "# 3.4.x" <stable@vger.kernel.org>,
-        X86 ML <x86@kernel.org>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Hello
+To:     Recipients <Rebecca@vger.kernel.org>
+Date:   Tue, 21 Dec 2021 16:49:50 +0000
+Reply-To: ribeccalawrence@gmail.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 21 Dec 2021 at 16:06, Jakub Kicinski <kuba@kernel.org> wrote:
->
-> x86 AES-NI routines can deal with unaligned data. Crypto context
-> (key, iv etc.) have to be aligned but we take care of that separately
-> by copying it onto the stack. We were feeding unaligned data into
-> crypto routines up until commit 83c83e658863 ("crypto: aesni -
-> refactor scatterlist processing") switched to use the full
-> skcipher API which uses cra_alignmask to decide data alignment.
->
-> This fixes 21% performance regression in kTLS.
->
-> Tested by booting with CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y
-> (and running thru various kTLS packets).
->
-> CC: stable@vger.kernel.org # 5.15+
-> Fixes: 83c83e658863 ("crypto: aesni - refactor scatterlist processing")
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-
-> ---
-> CC: herbert@gondor.apana.org.au
-> CC: x86@kernel.org
-> CC: ardb@kernel.org
-> CC: linux-crypto@vger.kernel.org
-> ---
->  arch/x86/crypto/aesni-intel_glue.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-> index e09f4672dd38..41901ba9d3a2 100644
-> --- a/arch/x86/crypto/aesni-intel_glue.c
-> +++ b/arch/x86/crypto/aesni-intel_glue.c
-> @@ -1107,7 +1107,7 @@ static struct aead_alg aesni_aeads[] = { {
->                 .cra_flags              = CRYPTO_ALG_INTERNAL,
->                 .cra_blocksize          = 1,
->                 .cra_ctxsize            = sizeof(struct aesni_rfc4106_gcm_ctx),
-> -               .cra_alignmask          = AESNI_ALIGN - 1,
-> +               .cra_alignmask          = 0,
->                 .cra_module             = THIS_MODULE,
->         },
->  }, {
-> @@ -1124,7 +1124,7 @@ static struct aead_alg aesni_aeads[] = { {
->                 .cra_flags              = CRYPTO_ALG_INTERNAL,
->                 .cra_blocksize          = 1,
->                 .cra_ctxsize            = sizeof(struct generic_gcmaes_ctx),
-> -               .cra_alignmask          = AESNI_ALIGN - 1,
-> +               .cra_alignmask          = 0,
->                 .cra_module             = THIS_MODULE,
->         },
->  } };
-> --
-> 2.31.1
->
+Hello Dear,
+My name is Rebecca, I am a United States and a military woman who has never=
+ married with no kids yet. I came across your profile, and I personally too=
+k interest in being your friend. For confidential matters, please contact m=
+e back through my private email ribeccalawrence@gmail.com to enable me to s=
+end you my pictures and give you more details about me. I Hope to hear from=
+ you soon.
+Regards
+Rebecca.
