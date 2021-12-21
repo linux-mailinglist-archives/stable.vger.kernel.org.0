@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 388D247B700
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 02:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 167F147B704
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 02:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbhLUB55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 20:57:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44424 "EHLO
+        id S231637AbhLUB56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 20:57:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231309AbhLUB54 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 20:57:56 -0500
+        with ESMTP id S231674AbhLUB56 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 20:57:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97F2C061574;
-        Mon, 20 Dec 2021 17:57:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B9FC061574;
+        Mon, 20 Dec 2021 17:57:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7008AB810D9;
-        Tue, 21 Dec 2021 01:57:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24922C36AE5;
-        Tue, 21 Dec 2021 01:57:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1B6AB810FE;
+        Tue, 21 Dec 2021 01:57:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0FA6C36AEA;
+        Tue, 21 Dec 2021 01:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640051874;
-        bh=MF0eNFJRJARBRnTNa6hHpQ/Rs3ZB3qikLkkVFdKAfak=;
-        h=From:To:Cc:Subject:Date:From;
-        b=B53Q89pcH5PZFHm7enwkb9EzZXDqbDYfGLe1uU3Nn3MK0Q6+5c8J59ieOVZad+rwI
-         TwWb9QtZ2IqHOo1TwPNpx0FB/O2yxKFY8sacoEG32jHb4iGb1+alt4UF6jCGWy+xNu
-         DhQviNJzwSnrKiCoJhyx1StIhL7mOzXmjRUmZT+s1G6vkJZrY1MUqgOgJ6e0VD4F7W
-         FHFo7NbtVegZP/9WUaPE7wpFC1e/9lKqvVkJFO2sfHwQRGY4Xf09qUj/wV8efNwNDH
-         ygOqbercNyuhmLdwS3Sblc2Lx0+8Y11UK2iS3hnAnRAe3X6obbsow5lGLhVLKv5DTJ
-         yIy+6wbf7pAMA==
+        s=k20201202; t=1640051875;
+        bh=nwIldBV2EYbv9oUkDcGCzsWpKwoC2I4wBYpPS5LWTJQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=EQoOteLetUJWMqgIw/mBhV0Wy1sn8i4anRC7/9Kss4/CrfF4Ek/VysKpSbkSfRDf1
+         NnJYe3LZMi/V5rc+fIgyGZrVDG75upW52/Sr9sh2FOdIot2MOtD9/4Su8oqPfgNbSx
+         yJG5LGxpHFrm9glvGPAQfYmeCiEglxIES2oDxenpjGWlwlFtDns4bN789QSIYdd6Eu
+         DA4ZcP/EyVp95mPJ4GKUYnYblR2YEVXQoNPSaZ6NVU6JEnS7pH0a8aPLFEo3/CMScw
+         vTleFM6bY9MpFOnJvzAA2C9JAXvR6Wt5N9/g3YbTRQJ3GGR5wjgQaRHDFqJqQgVYhY
+         C2pOMEVQkNq6g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
         Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 01/29] ARM: dts: imx6qp-prtwd3: update RGMII delays for sja1105 switch
-Date:   Mon, 20 Dec 2021 20:57:22 -0500
-Message-Id: <20211221015751.116328-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, leoyang.li@nxp.com,
+        robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 02/29] ARM: dts: ls1021a-tsn: update RGMII delays for sja1105 switch
+Date:   Mon, 20 Dec 2021 20:57:23 -0500
+Message-Id: <20211221015751.116328-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211221015751.116328-1-sashal@kernel.org>
+References: <20211221015751.116328-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -53,43 +55,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit f2c2e9ebb2cf476c09e59d073db031fbf7ef4914 ]
+[ Upstream commit e691f9282a89e24a8e87cdb91a181c6283ee5124 ]
 
 In the new behavior, the sja1105 driver expects there to be explicit
 RGMII delays present on the fixed-link ports, otherwise it will complain
 that it falls back to legacy behavior, which is to apply RGMII delays
 incorrectly derived from the phy-mode string.
 
-In this case, the legacy behavior of the driver is to apply both RX and
-TX delays. To preserve that, add explicit 2 nanosecond delays, which are
-identical with what the driver used to add (a 90 degree phase shift).
-The delays from the phy-mode are ignored by new kernels (it's still
-RGMII as long as it's "rgmii*" something), and the explicit
-{rx,tx}-internal-delay-ps properties are ignored by old kernels, so the
-change works both ways.
+In this case, the legacy behavior of the driver is to not apply delays
+in any direction (mostly because the SJA1105T can't do that, so this
+board uses PCB traces). To preserve that but also silence the driver,
+use explicit delays of 0 ns. The delay information from the phy-mode is
+ignored by new kernels (it's still RGMII as long as it's "rgmii*"
+something), and the explicit {rx,tx}-internal-delay-ps properties are
+ignored by old kernels, so the change works both ways.
 
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qp-prtwd3.dts | 2 ++
+ arch/arm/boot/dts/ls1021a-tsn.dts | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx6qp-prtwd3.dts b/arch/arm/boot/dts/imx6qp-prtwd3.dts
-index b92e0f2748a51..29dd59bfa73dd 100644
---- a/arch/arm/boot/dts/imx6qp-prtwd3.dts
-+++ b/arch/arm/boot/dts/imx6qp-prtwd3.dts
-@@ -178,6 +178,8 @@ port@4 {
- 				label = "cpu";
- 				ethernet = <&fec>;
- 				phy-mode = "rgmii-id";
-+				rx-internal-delay-ps = <2000>;
-+				tx-internal-delay-ps = <2000>;
+diff --git a/arch/arm/boot/dts/ls1021a-tsn.dts b/arch/arm/boot/dts/ls1021a-tsn.dts
+index aca78b5eddf20..194748737724c 100644
+--- a/arch/arm/boot/dts/ls1021a-tsn.dts
++++ b/arch/arm/boot/dts/ls1021a-tsn.dts
+@@ -90,6 +90,8 @@ port@4 {
+ 				/* Internal port connected to eth2 */
+ 				ethernet = <&enet2>;
+ 				phy-mode = "rgmii";
++				rx-internal-delay-ps = <0>;
++				tx-internal-delay-ps = <0>;
+ 				reg = <4>;
  
  				fixed-link {
- 					speed = <100>;
 -- 
 2.34.1
 
