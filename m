@@ -2,96 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C5447C239
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 16:06:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 012D147C2AA
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 16:20:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235692AbhLUPGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 10:06:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54522 "EHLO
+        id S239220AbhLUPUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 10:20:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238925AbhLUPGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 10:06:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300C7C061574;
-        Tue, 21 Dec 2021 07:06:24 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDE08B816D7;
-        Tue, 21 Dec 2021 15:06:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F15C36AEC;
-        Tue, 21 Dec 2021 15:06:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640099181;
-        bh=PIOehpe8QrxD1SierEdBT+o1WEmyINgWWB7fwouxwWk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=PSQMdPegvQw0MAoG/PKYkSxrMHYvUAuvM2OKsgmTZYV3YLa33p57e8V/L6cHDLazA
-         J2Jy0ej0VZSHSfF0wurtXOEz/uS0nl167dwPqq1lB+qIX1E2k3yQsJT8Yv83UD3rMQ
-         2h9be3oLgyrazho19fYh5GjAPqaKEQeHw2kN3lf35YRxwlRZMuJjKJweCzMZnz1YSm
-         YdR74HOlsC6PcWbj8aJfjhqIxG8RQ9iHZtseEMe32z35a21tEf8OgfoswnQftB8j+D
-         Ihao0dTZwzk252w8sPsi7WRWw9uSCTxmiU1a9VqCPrID2gA/jG0HcA948t03ZGE4UT
-         yveG+BZe/1Nhw==
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     herbert@gondor.apana.org.au
-Cc:     netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        stable@vger.kernel.org, x86@kernel.org, ardb@kernel.org,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH crypto] x86/aesni: don't require alignment of data
-Date:   Tue, 21 Dec 2021 07:06:11 -0800
-Message-Id: <20211221150611.3692437-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S239157AbhLUPUR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 10:20:17 -0500
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B36C061574;
+        Tue, 21 Dec 2021 07:20:17 -0800 (PST)
+Received: by mail-lf1-x12b.google.com with SMTP id i31so14831283lfv.10;
+        Tue, 21 Dec 2021 07:20:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=T0/ofZQcXMKN8oGRcoOw+6rBxR+Ouo3vIEIiIJRMs0Q=;
+        b=f9IEBoL6YPTDCgse/LTTD0EcTxeFS0YUBjhbUXEiw90ce+dIIX0YifeeKcBEH82ejL
+         aVniFH4v7kszbUJQFUMWC305rIEgsTiuRIzcygq7JpLrQQyi52f43Y/H/IMucahYIVCz
+         qfpmLnK3GjZFRK3E+cyXC/C4U0iZ8qRjP6qzKOPhh5Z4ZW9nEuTAr0jz8iP63D1v+jfz
+         d6nyrV8H5nM5BZkHWy692QH8AO7ZZlhb7V9nsKSEYZPknlMNM7DtnvUZ6JKp0WF5LZv8
+         PpwasYPhJBSqPUJow1zplojiUC6+lEDDAvL/vngX12y4ylC9fOHh8hlOGtgMLzQa4xgF
+         OHwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=T0/ofZQcXMKN8oGRcoOw+6rBxR+Ouo3vIEIiIJRMs0Q=;
+        b=bcj1Zg41mY1iF5ZOcyW+6Ka2dTsa5p+k+C4gCAt1AEDM1w+sXhTU6yod4rz7OkBZEg
+         hSkwGJP10/vR2MyOniVCuK+/9lPD0FWUpId6dIbeZ45cJtaAJFIQfzicAlH6PKHxxBW9
+         Co0rK/USK9JB7QpAOL0UNzYx1Mev044+pAD/izMbxHszbXokRpSFj4fpcBUVIlIFas+U
+         CR+hXirofx51U18zd9U0a09ZIxti6Ficq+zhaTMwMI9MYatI8QeYOYJVie6kyNK5lPHb
+         QHUcxm/vear02BqEX2xQqeTmzDy2GFPz5lv7bB4VyaozW8BWHZwk6yafG0DBPETq2tsV
+         x5rA==
+X-Gm-Message-State: AOAM530QwtBTI8vTUozA7tNXmikeNz9m/1nLaO0iPZ2retk44SWRyl01
+        PLMqM5jh25AhxA8ozR2Ok3eDJPXpq6o=
+X-Google-Smtp-Source: ABdhPJyYwazba8NyvqSG6pdeP0ppzcRxJZtCBWlGDj7aITS6uJyAS6/6FfPvZNUUxuu60HRZMQxaaw==
+X-Received: by 2002:a19:4f5e:: with SMTP id a30mr3465355lfk.228.1640100015228;
+        Tue, 21 Dec 2021 07:20:15 -0800 (PST)
+Received: from [192.168.2.145] (46-138-43-24.dynamic.spd-mgts.ru. [46.138.43.24])
+        by smtp.googlemail.com with ESMTPSA id b10sm1134927lfb.107.2021.12.21.07.20.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 21 Dec 2021 07:20:14 -0800 (PST)
+Subject: Re: [PATCH v2 1/3] ALSA: hda/tegra: Fix Tegra194 HDA reset failure
+To:     Sameer Pujar <spujar@nvidia.com>, tiwai@suse.com,
+        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
+        thierry.reding@gmail.com, perex@perex.cz
+Cc:     jonathanh@nvidia.com, mkumard@nvidia.com,
+        alsa-devel@alsa-project.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <1640021408-12824-1-git-send-email-spujar@nvidia.com>
+ <1640021408-12824-2-git-send-email-spujar@nvidia.com>
+ <f859559c-abf1-ae37-6a0f-80329e6f747f@gmail.com>
+ <f65ae56d-d289-9e3f-1c15-f0bedda3918c@nvidia.com>
+From:   Dmitry Osipenko <digetx@gmail.com>
+Message-ID: <46acc080-56f5-f970-a9fa-3a9ece0dd2a3@gmail.com>
+Date:   Tue, 21 Dec 2021 18:20:14 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+In-Reply-To: <f65ae56d-d289-9e3f-1c15-f0bedda3918c@nvidia.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-x86 AES-NI routines can deal with unaligned data. Crypto context
-(key, iv etc.) have to be aligned but we take care of that separately
-by copying it onto the stack. We were feeding unaligned data into
-crypto routines up until commit 83c83e658863 ("crypto: aesni -
-refactor scatterlist processing") switched to use the full
-skcipher API which uses cra_alignmask to decide data alignment.
+21.12.2021 09:18, Sameer Pujar пишет:
+> 
+> 
+> On 12/21/2021 6:51 AM, Dmitry Osipenko wrote:
+>>
+>> All stable kernels affected by this problem that don't support the bulk
+>> reset API are EOL now. Please use bulk reset API like I suggested in the
+>> comment to v1, it will allow us to have a cleaner and nicer code.
+> 
+> Agree that it would be compact and cleaner, but any specific reset
+> failure in the group won't be obvious in the logs. In this case it
+> failed silently. If compactness is preferred, then may be I can keep an
+> error print at group level so that we see some failure context whenever
+> it happens.
 
-This fixes 21% performance regression in kTLS.
+The group shouldn't fail ever unless device-tree is wrong. Why do you
+think we should care about the case which realistically won't ever
+happen? This is a bit unpractical approach.
 
-Tested by booting with CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y
-(and running thru various kTLS packets).
+If we really care about those error messages, then will be much more
+reasonable to add them to the reset core, like clk core does it [1],
+IMO. This will be a trivial change. Will you be happy with this variant?
 
-CC: stable@vger.kernel.org # 5.15+
-Fixes: 83c83e658863 ("crypto: aesni - refactor scatterlist processing")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-CC: herbert@gondor.apana.org.au
-CC: x86@kernel.org
-CC: ardb@kernel.org
-CC: linux-crypto@vger.kernel.org
----
- arch/x86/crypto/aesni-intel_glue.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+[1]
+https://elixir.bootlin.com/linux/v5.16-rc6/source/drivers/clk/clk-bulk.c#L100
 
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index e09f4672dd38..41901ba9d3a2 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -1107,7 +1107,7 @@ static struct aead_alg aesni_aeads[] = { {
- 		.cra_flags		= CRYPTO_ALG_INTERNAL,
- 		.cra_blocksize		= 1,
- 		.cra_ctxsize		= sizeof(struct aesni_rfc4106_gcm_ctx),
--		.cra_alignmask		= AESNI_ALIGN - 1,
-+		.cra_alignmask		= 0,
- 		.cra_module		= THIS_MODULE,
- 	},
- }, {
-@@ -1124,7 +1124,7 @@ static struct aead_alg aesni_aeads[] = { {
- 		.cra_flags		= CRYPTO_ALG_INTERNAL,
- 		.cra_blocksize		= 1,
- 		.cra_ctxsize		= sizeof(struct generic_gcmaes_ctx),
--		.cra_alignmask		= AESNI_ALIGN - 1,
-+		.cra_alignmask		= 0,
- 		.cra_module		= THIS_MODULE,
- 	},
- } };
--- 
-2.31.1
-
+diff --git a/drivers/reset/core.c b/drivers/reset/core.c
+index 61e688882643..85ce0d6eeb34 100644
+--- a/drivers/reset/core.c
++++ b/drivers/reset/core.c
+@@ -962,6 +962,11 @@ int __reset_control_bulk_get(struct device *dev,
+int num_rstcs,
+ 						    shared, optional, acquired);
+ 		if (IS_ERR(rstcs[i].rstc)) {
+ 			ret = PTR_ERR(rstcs[i].rstc);
++
++			if (ret != -EPROBE_DEFER)
++				dev_err(dev, "Failed to get reset '%s': %d\n",
++					rstcs[i].id, ret);
++
+ 			goto err;
+ 		}
+ 	}
