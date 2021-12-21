@@ -2,254 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD78647B6CB
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 02:21:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F29847B6D3
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 02:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbhLUBV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 20:21:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36386 "EHLO
+        id S229781AbhLUB1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 20:27:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229596AbhLUBV2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 20:21:28 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2281C061574;
-        Mon, 20 Dec 2021 17:21:27 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id k37so25729405lfv.3;
-        Mon, 20 Dec 2021 17:21:27 -0800 (PST)
+        with ESMTP id S229596AbhLUB1U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 20:27:20 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B94C061574
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 17:27:19 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id j6-20020a17090a588600b001a78a5ce46aso964955pji.0
+        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 17:27:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=nkRfs6Jq6Yr/a/t9OO2egmqloXCmD4IcdPxGpgHonb8=;
-        b=eF1G2y2TjCAkFUrBHcdwf3AbiSiwCXaA2g7IKISK3lq1/wtP150oj9nLjun2CQ+h1R
-         vot0D+gAcqRR647Zq81AI3CvVtcy3qDvnFMgCF4DHHFLLiEhLrLdpLz1gGyWi7JqjsMq
-         Q5XPxpn2JAkCLZfvmuz8D1aMmD/Bp5QBWMX+MGVw72KvpunSLbk+ZeKop5LvmtvU2n97
-         5CsfKyuXgPWnKXIlltWovD4O1uQy3ssLCHpROmBnMqq4e6sbAe5zm8UC2DTyXOTkglGX
-         EUt8rMwVdQ90IX6gxggPtLDeknNwu3LogfS0J0irajS7bExPTNK/MTUro5ZETcIatvCq
-         UFlA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DpQvxFbbZ+LJ6guBu/igTIyz7PrA3zNx+8MlXMHRFsE=;
+        b=kIT6PfHnMAtWauHr0UPiR4eCCzmYQ9Wj4LAn9onNvgVuY8HL0OsHYRBS9HvEYe82cl
+         8Z0BDYt3L6Q59OblC4VgQiJNEwpkWNcDnrmdCTkHxL5ulBl/BtDKEjfF5PlhvQo1PAYs
+         +Q5q9Z8YZP7FEtEn198zg72lHD0r7qpyJhDNjRHXf6I84V2f8t4t9OTLBfGU2copfEkK
+         b1d/mRJsu/qRgdyjCLIGyerxp5IMACrRxs5Jnb2reah9IwuJzSIpscod3WOf+4fZCOZj
+         3TITjtBBVj2RbzWl2Dho6njyanBXJM6oG37RJb1+F+sIYTfrsL6eZ6DQ7yQ31CAwwlGm
+         tD7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=nkRfs6Jq6Yr/a/t9OO2egmqloXCmD4IcdPxGpgHonb8=;
-        b=7rcyIkUoI9NraJrNWxDJHsjbW2MNT1HlFOtD8VP1REmS7Qh6ndSLxLU+c1CS8dYYIg
-         RQdnel7r0SjlCnaHqrSGrUZzsFsEi6kYpkWOa0HBbzA3JchhirukkyvP6IGkMJkG7zLS
-         7FqbQKtqgip3L8SS4jRYKf8fiVoy6tEoiVwKa+kQ7ipjFZC4uxqAYmSoPrptf2p4nxJe
-         179jvUk48t0i4OVJfUr55gPEbSv0VLLT/ghVTGFtnCRxD1c+dEBTBellU/JuwaW4M3P1
-         wI0VrrcQqfAwlS3Ex0RN/uTdU5Ta/mMK5FtmJ6JjB7TPZQD+onhnrNacBJBOjl34xmZB
-         IOhA==
-X-Gm-Message-State: AOAM531tAOnar56Xr0bx2fzfbt1R027T3/J7hQdwe6NV4tA0LYk/qldo
-        6bRuY1ByRdNqOq1r9BdK/yx1bjr0B6k=
-X-Google-Smtp-Source: ABdhPJziuxKcVGxUkjz2c00kkrTen8rOkYs71ofy6F7odPfZ42R/oI6ztDoz6894QXV2I32c3yKg8w==
-X-Received: by 2002:ac2:51bc:: with SMTP id f28mr842680lfk.222.1640049685857;
-        Mon, 20 Dec 2021 17:21:25 -0800 (PST)
-Received: from [192.168.2.145] (46-138-43-24.dynamic.spd-mgts.ru. [46.138.43.24])
-        by smtp.googlemail.com with ESMTPSA id h18sm2637460ljh.133.2021.12.20.17.21.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Dec 2021 17:21:25 -0800 (PST)
-Subject: Re: [PATCH v2 1/3] ALSA: hda/tegra: Fix Tegra194 HDA reset failure
-To:     Sameer Pujar <spujar@nvidia.com>, tiwai@suse.com,
-        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
-        thierry.reding@gmail.com, perex@perex.cz
-Cc:     jonathanh@nvidia.com, mkumard@nvidia.com,
-        alsa-devel@alsa-project.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <1640021408-12824-1-git-send-email-spujar@nvidia.com>
- <1640021408-12824-2-git-send-email-spujar@nvidia.com>
-From:   Dmitry Osipenko <digetx@gmail.com>
-Message-ID: <f859559c-abf1-ae37-6a0f-80329e6f747f@gmail.com>
-Date:   Tue, 21 Dec 2021 04:21:24 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DpQvxFbbZ+LJ6guBu/igTIyz7PrA3zNx+8MlXMHRFsE=;
+        b=F4hQNWP5DDcDi4tpzl9U5VAkLS/KWVreY0bODti0qAkQDyZ0eVG0cJCgbtmi3b8ETT
+         Dzql7PjNKCCmALyX0SHUUPcG+0zh+eKHseH1oyumhVzkxArnuT3H5iV8AmGiFGreyzpE
+         Lctygmz4M4JG/prDEINh0sUDLPyEQmxh720D7Aw/oNrPdF3PfABukaNfmqj4aNqZx7LF
+         r49oe4AJU9GjPaEPPNP5EKTX0kvW3DV4D0ewdw54+dYDeVOArHfNn8dtfnan0G8UucOy
+         GE6s/8LJdmU8WNzLC08DdPNXo54rMfupTNmwxKWS0XsB3DtCIJsEbvljleyNQvWdot8Y
+         a1Eg==
+X-Gm-Message-State: AOAM532WZmPbxs9ApNEv9rCEw8cEKNXqT391v0XG9hZHAwBgXd/dUWKz
+        mEdFiVDzAuTZxq5gNExjYwQKPRDCgryoZnBY
+X-Google-Smtp-Source: ABdhPJx0ZuQubpciMvETEpYjoC/xIzZoZ8lkV2/mYtQx3pK1P65xanwYVXrpq5hllvo4uJQ2JYmtYg==
+X-Received: by 2002:a17:90a:46c9:: with SMTP id x9mr1116067pjg.183.1640050039262;
+        Mon, 20 Dec 2021 17:27:19 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d10sm16703154pfj.51.2021.12.20.17.27.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Dec 2021 17:27:18 -0800 (PST)
+Message-ID: <61c12d76.1c69fb81.472db.e612@mx.google.com>
+Date:   Mon, 20 Dec 2021 17:27:18 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <1640021408-12824-2-git-send-email-spujar@nvidia.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.87-99-gf1842ac43117
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 191 runs,
+ 3 regressions (v5.10.87-99-gf1842ac43117)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-20.12.2021 20:30, Sameer Pujar пишет:
-> HDA regression is recently reported on Tegra194 based platforms.
-> This happens because "hda2codec_2x" reset does not really exist
-> in Tegra194 and it causes probe failure. All the HDA based audio
-> tests fail at the moment. This underlying issue is exposed by
-> commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
-> response") which now checks return code of BPMP command response.
-> Fix this issue by skipping unavailable reset on Tegra194.
-> 
-> Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-> Cc: stable@vger.kernel.org
-> Depends-on: 87f0e46e7559 ("ALSA: hda/tegra: Reset hardware")
-> ---
->  sound/pci/hda/hda_tegra.c | 96 ++++++++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 86 insertions(+), 10 deletions(-)
-> 
-> diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
-> index ea700395..be010cd 100644
-> --- a/sound/pci/hda/hda_tegra.c
-> +++ b/sound/pci/hda/hda_tegra.c
-> @@ -68,14 +68,21 @@
->   */
->  #define TEGRA194_NUM_SDO_LINES	  4
->  
-> +struct hda_tegra_soc {
-> +	bool has_hda2codec_2x_reset;
-> +};
-> +
->  struct hda_tegra {
->  	struct azx chip;
->  	struct device *dev;
-> -	struct reset_control *reset;
-> +	struct reset_control *reset_hda;
-> +	struct reset_control *reset_hda2hdmi;
-> +	struct reset_control *reset_hda2codec_2x;
->  	struct clk_bulk_data clocks[3];
->  	unsigned int nclocks;
->  	void __iomem *regs;
->  	struct work_struct probe_work;
-> +	const struct hda_tegra_soc *data;
->  };
->  
->  #ifdef CONFIG_PM
-> @@ -170,9 +177,26 @@ static int __maybe_unused hda_tegra_runtime_resume(struct device *dev)
->  	int rc;
->  
->  	if (!chip->running) {
-> -		rc = reset_control_assert(hda->reset);
-> -		if (rc)
-> +		rc = reset_control_assert(hda->reset_hda);
-> +		if (rc) {
-> +			dev_err(dev, "hda reset assert failed, err: %d\n", rc);
-> +			return rc;
-> +		}
-> +
-> +		rc = reset_control_assert(hda->reset_hda2hdmi);
-> +		if (rc) {
-> +			dev_err(dev, "hda2hdmi reset assert failed, err: %d\n",
-> +				rc);
-> +			return rc;
-> +		}
-> +
-> +		rc = reset_control_assert(hda->reset_hda2codec_2x);
-> +		if (rc) {
-> +			dev_err(dev,
-> +				"hda2codec_2x reset assert failed, err: %d\n",
-> +				rc);
->  			return rc;
-> +		}
->  	}
->  
->  	rc = clk_bulk_prepare_enable(hda->nclocks, hda->clocks);
-> @@ -187,9 +211,27 @@ static int __maybe_unused hda_tegra_runtime_resume(struct device *dev)
->  	} else {
->  		usleep_range(10, 100);
->  
-> -		rc = reset_control_deassert(hda->reset);
-> -		if (rc)
-> +		rc = reset_control_deassert(hda->reset_hda);
-> +		if (rc) {
-> +			dev_err(dev, "hda reset deassert failed, err: %d\n",
-> +				rc);
->  			return rc;
-> +		}
-> +
-> +		rc = reset_control_deassert(hda->reset_hda2hdmi);
-> +		if (rc) {
-> +			dev_err(dev, "hda2hdmi reset deassert failed, err: %d\n",
-> +				rc);
-> +			return rc;
-> +		}
-> +
-> +		rc = reset_control_deassert(hda->reset_hda2codec_2x);
-> +		if (rc) {
-> +			dev_err(dev,
-> +				"hda2codec_2x reset deassert failed, err: %d\n",
-> +				rc);
-> +			return rc;
-> +		}
->  	}
->  
->  	return 0;
-> @@ -427,9 +469,17 @@ static int hda_tegra_create(struct snd_card *card,
->  	return 0;
->  }
->  
-> +static const struct hda_tegra_soc tegra30_data = {
-> +	.has_hda2codec_2x_reset = true,
-> +};
-> +
-> +static const struct hda_tegra_soc tegra194_data = {
-> +	.has_hda2codec_2x_reset = false,
-> +};
-> +
->  static const struct of_device_id hda_tegra_match[] = {
-> -	{ .compatible = "nvidia,tegra30-hda" },
-> -	{ .compatible = "nvidia,tegra194-hda" },
-> +	{ .compatible = "nvidia,tegra30-hda", .data = &tegra30_data },
-> +	{ .compatible = "nvidia,tegra194-hda", .data = &tegra194_data },
->  	{},
->  };
->  MODULE_DEVICE_TABLE(of, hda_tegra_match);
-> @@ -449,6 +499,10 @@ static int hda_tegra_probe(struct platform_device *pdev)
->  	hda->dev = &pdev->dev;
->  	chip = &hda->chip;
->  
-> +	hda->data = of_device_get_match_data(&pdev->dev);
-> +	if (!hda->data)
-> +		return -EINVAL;
-> +
->  	err = snd_card_new(&pdev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
->  			   THIS_MODULE, 0, &card);
->  	if (err < 0) {
-> @@ -456,12 +510,34 @@ static int hda_tegra_probe(struct platform_device *pdev)
->  		return err;
->  	}
->  
-> -	hda->reset = devm_reset_control_array_get_exclusive(&pdev->dev);
-> -	if (IS_ERR(hda->reset)) {
-> -		err = PTR_ERR(hda->reset);
-> +	hda->reset_hda = devm_reset_control_get_exclusive(&pdev->dev, "hda");
-> +	if (IS_ERR(hda->reset_hda)) {
-> +		err = PTR_ERR(hda->reset_hda);
->  		goto out_free;
->  	}
->  
-> +	hda->reset_hda2hdmi = devm_reset_control_get_exclusive(&pdev->dev,
-> +							       "hda2hdmi");
-> +	if (IS_ERR(hda->reset_hda2hdmi)) {
-> +		err = PTR_ERR(hda->reset_hda2hdmi);
-> +		goto out_free;
-> +	}
-> +
-> +	/*
-> +	 * "hda2codec_2x" reset is not present on Tegra194. Though DT would
-> +	 * be updated to reflect this, but to have backward compatibility
-> +	 * below is necessary.
-> +	 */
-> +	if (hda->data->has_hda2codec_2x_reset) {
-> +		hda->reset_hda2codec_2x =
-> +			devm_reset_control_get_exclusive(&pdev->dev,
-> +							 "hda2codec_2x");
-> +		if (IS_ERR(hda->reset_hda2codec_2x)) {
-> +			err = PTR_ERR(hda->reset_hda2codec_2x);
-> +			goto out_free;
-> +		}
-> +	}
-> +
->  	hda->clocks[hda->nclocks++].id = "hda";
->  	hda->clocks[hda->nclocks++].id = "hda2hdmi";
->  	hda->clocks[hda->nclocks++].id = "hda2codec_2x";
-> 
+stable-rc/queue/5.10 baseline: 191 runs, 3 regressions (v5.10.87-99-gf1842a=
+c43117)
 
-All stable kernels affected by this problem that don't support the bulk
-reset API are EOL now. Please use bulk reset API like I suggested in the
-comment to v1, it will allow us to have a cleaner and nicer code.
+Regressions Summary
+-------------------
 
-The bulk reset code will look similar to the bulk clk API already used
-by the HDA driver, you'll only need to skip adding the hda2codec_2x to
-resets[3] and switch to use reset_control_bulk_reset_*() variants of the
-functions.
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+imx6q-var-dt6customboard | arm    | lab-baylibre  | gcc-10   | multi_v7_def=
+config           | 2          =
+
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.87-99-gf1842ac43117/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.87-99-gf1842ac43117
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f1842ac43117983b139594843c38fd999986295a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+imx6q-var-dt6customboard | arm    | lab-baylibre  | gcc-10   | multi_v7_def=
+config           | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c0f532716bee2bd9397132
+
+  Results:     4 PASS, 2 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
+99-gf1842ac43117/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-=
+var-dt6customboard.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
+99-gf1842ac43117/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-=
+var-dt6customboard.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61c0f532716bee2=
+bd9397136
+        new failure (last pass: v5.10.87-66-g2eb0aa8b2e00)
+        4 lines
+
+    2021-12-20T21:26:45.744711  kern  :alert : 8<--- cut here ---
+    2021-12-20T21:26:45.775777  kern  :alert : Unable to handle kernel NULL=
+ pointer dereference at virtual address 00000313
+    2021-12-20T21:26:45.776953  kern  :alert : pgd =3D (ptrval)<8>[   45.80=
+7951] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dline=
+s MEASUREMENT=3D4>
+    2021-12-20T21:26:45.777222  =
+
+    2021-12-20T21:26:45.777456  kern  :alert : [00000313] *pgd=3D491cd831   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61c0f532716bee2=
+bd9397137
+        new failure (last pass: v5.10.87-66-g2eb0aa8b2e00)
+        52 lines
+
+    2021-12-20T21:26:45.828994  kern  :emerg : Internal error: Oops: 17 [#1=
+] SMP ARM
+    2021-12-20T21:26:45.829508  kern  :emerg : Process udevd (pid: 141, sta=
+ck limit =3D 0x(ptrval))
+    2021-12-20T21:26:45.829752  kern  :emerg : Stack: (0xc3bc7cd8 to 0xc3bc=
+8000)
+    2021-12-20T21:26:45.829979  kern  :emerg : 7cc0:                       =
+                                c3a0fdb0 c3a0fdb4
+    2021-12-20T21:26:45.830200  kern  :emerg : 7ce0: c3a0fc00 c3a0fc00 c144=
+5b68 c09e3974 c3bc6000 c1445b68 0000000c c3a0fc00
+    2021-12-20T21:26:45.830880  kern  :emerg : 7d00: 000002f3 c3a0f400 c200=
+1a80 ef86c180 c09f10dc c1445b68 0000000c c3289c40
+    2021-12-20T21:26:45.871993  kern  :emerg : 7d20: c19c7a10 5f6f728e 0000=
+0001 c3ad1940 c3ad0100 c3a0fc00 c3a0fc14 c1445b68
+    2021-12-20T21:26:45.872510  kern  :emerg : 7d40: 0000000c c3289c40 c19c=
+7a10 c09f10b0 c144388c 00000000 c3a0fc00 fffffdfb
+    2021-12-20T21:26:45.872755  kern  :emerg : 7d60: bf048000 c22d8c10 0000=
+0120 c09c7090 c3a0fc00 bf044120 c3a43680 c32d9108
+    2021-12-20T21:26:45.872983  kern  :emerg : 7d80: c3a41600 c19c7a2c 0000=
+0120 c0a23a80 c3acefc0 c3acefc0 c2232c00 c3a41600 =
+
+    ... (37 line(s) more)  =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c0f1bbb5c53ff65e39712e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
+99-gf1842ac43117/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.87-=
+99-gf1842ac43117/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-minnowboard-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c0f1bbb5c53ff65e397=
+12f
+        new failure (last pass: v5.10.87-62-gec26c797e6cc) =
+
+ =20
