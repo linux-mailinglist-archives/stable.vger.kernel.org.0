@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB13047C90C
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 23:05:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D9447C920
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 23:15:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233768AbhLUWFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 17:05:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42028 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232718AbhLUWFm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 17:05:42 -0500
+        id S237235AbhLUWPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 17:15:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41008 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237128AbhLUWPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 17:15:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10CFEC06173F;
+        Tue, 21 Dec 2021 14:15:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E653B819FE;
-        Tue, 21 Dec 2021 22:05:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D298FC36AE8;
-        Tue, 21 Dec 2021 22:05:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23B01617C9;
+        Tue, 21 Dec 2021 22:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52223C36AE9;
+        Tue, 21 Dec 2021 22:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1640124340;
-        bh=bwOrAfqDd3fvIDaRDRks82wGpxaa7mYMQndjKZmCSus=;
+        s=korg; t=1640124899;
+        bh=+gsBDoWlQVmiX8PeZHeMxUNKJ9evciNoBG2cAyGQHaU=;
         h=Date:From:To:Subject:From;
-        b=g72V7yDHTdO2XoQVKJz4HMT8vlFQSC6QzJfESCXHaE1q3MdbY8ywI6B+huGYqnYzs
-         iaxEIUsLihYXzAOGL4PffeR5twmDUXa/qj/5QqPypA2J9hKESpg78MG9mqgXTvZsF7
-         4v+nWeZBXsoFH5HLNPKhywrbcJqJnRMQLCoGkJOw=
-Date:   Tue, 21 Dec 2021 14:05:39 -0800
+        b=c00u8pgwn9JZsWOLR+SSdU1yOHRzHK6af6f3wHC8+DGkg0y0mUCkRhL4neSZCOqVf
+         jRLII369IUJxGEeCHYE4zrR7Ggb1B8K4xphq4PIMAJeCabfUgXfN4Zkn5PBp6BKviw
+         DcpinE01BiQth4x6ZlJlCpAGMyqpAcP3C7oA2fJ0=
+Date:   Tue, 21 Dec 2021 14:14:58 -0800
 From:   akpm@linux-foundation.org
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        sangwoob@amazon.com, sj@kernel.org
+        osalvador@suse.de, naoya.horiguchi@nec.com, hulkci@huawei.com,
+        liushixin2@huawei.com
 Subject:  +
- mm-damon-dbgfs-protect-targets-destructions-with-kdamond_lock.patch added to
- -mm tree
-Message-ID: <20211221220539.x5Uvm%akpm@linux-foundation.org>
+ mm-hwpoison-clear-mf_count_increased-before-retrying-get_any_page.patch added
+ to -mm tree
+Message-ID: <20211221221458.ul93w%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -40,14 +44,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/damon/dbgfs: protect targets destructions with kdamond_lock
+     Subject: mm/hwpoison: clear MF_COUNT_INCREASED before retrying get_any_page()
 has been added to the -mm tree.  Its filename is
-     mm-damon-dbgfs-protect-targets-destructions-with-kdamond_lock.patch
+     mm-hwpoison-clear-mf_count_increased-before-retrying-get_any_page.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-damon-dbgfs-protect-targets-destructions-with-kdamond_lock.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hwpoison-clear-mf_count_increased-before-retrying-get_any_page.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-damon-dbgfs-protect-targets-destructions-with-kdamond_lock.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hwpoison-clear-mf_count_increased-before-retrying-get_any_page.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -61,58 +65,99 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: SeongJae Park <sj@kernel.org>
-Subject: mm/damon/dbgfs: protect targets destructions with kdamond_lock
+From: Liu Shixin <liushixin2@huawei.com>
+Subject: mm/hwpoison: clear MF_COUNT_INCREASED before retrying get_any_page()
 
-DAMON debugfs interface iterates current monitoring targets in
-'dbgfs_target_ids_read()' while holding the corresponding 'kdamond_lock'. 
-However, it also destructs the monitoring targets in
-'dbgfs_before_terminate()' without holding the lock.  This can result in a
-use_after_free bug.  This commit avoids the race by protecting the
-destruction with the corresponding 'kdamond_lock'.
+Hulk Robot reported a panic in put_page_testzero() when testing madvise()
+with MADV_SOFT_OFFLINE.  The BUG() is triggered when retrying
+get_any_page().  This is because we keep MF_COUNT_INCREASED flag in second
+try but the refcnt is not increased.
 
-Link: https://lkml.kernel.org/r/20211221094447.2241-1-sj@kernel.org
-Reported-by: Sangwoo Bae <sangwoob@amazon.com>
-Fixes: 4bc05954d007 ("mm/damon: implement a debugfs-based user space interface")
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.15.x]
+ page dumped because: VM_BUG_ON_PAGE(page_ref_count(page) == 0)
+ ------------[ cut here ]------------
+ kernel BUG at include/linux/mm.h:737!
+ invalid opcode: 0000 [#1] PREEMPT SMP
+ CPU: 5 PID: 2135 Comm: sshd Tainted: G    B             5.16.0-rc6-dirty #373
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+ RIP: 0010:release_pages+0x53f/0x840
+ Code: 0c 01 4c 8d 60 ff e9 5b fb ff ff 48 c7 c6 d8 97 0c b3 4c 89 e7 48 83 05 0e 7b 3c 0c 01 e8 89 3d 04 00 48 83 05 11 7b 3c 0c 01 <0f> 0b 48 83 05 0f 7b 3c 0c 01 48 83 05 0f 7b 3c 0c 01 48 83 05f
+ RSP: 0018:ffffc900015a7bc0 EFLAGS: 00010002
+ RAX: 000000000000003e RBX: ffffffffbace04c8 RCX: 0000000000000002
+ RDX: 0000000000000000 RSI: 0000000000000001 RDI: 00000000ffffffff
+ RBP: ffff88817b9acd50 R08: 0000000000000000 R09: c0000000ffefffff
+ R10: 0000000000000001 R11: ffffc900015a79b0 R12: ffffea0005e1c900
+ R13: ffffea0005e1de88 R14: 000000000000001f R15: ffff888100071000
+ FS:  0000000000000000(0000) GS:ffff88842fb40000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f305e8de3d4 CR3: 000000017bb6f000 CR4: 00000000000006e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  <TASK>
+  free_pages_and_swap_cache+0x64/0x80
+  tlb_flush_mmu+0x6f/0x220
+  unmap_page_range+0xe6c/0x12c0
+  unmap_single_vma+0x90/0x170
+  unmap_vmas+0xc4/0x180
+  exit_mmap+0xde/0x3a0
+  mmput+0xa3/0x250
+  do_exit+0x564/0x1470
+  do_group_exit+0x3b/0x100
+  __do_sys_exit_group+0x13/0x20
+  __x64_sys_exit_group+0x16/0x20
+  do_syscall_64+0x34/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f30625401d9
+ Code: Unable to access opcode bytes at RIP 0x7f30625401af.
+ RSP: 002b:00007ffe391b0c88 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+ RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007f30625401d9
+ RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000000000000001
+ RBP: 00007f306283d838 R08: 000000000000003c R09: 00000000000000e7
+ R10: fffffffffffffe30 R11: 0000000000000246 R12: 00007f306283d838
+ R13: 00007f3062842e80 R14: 0000000000000000 R15: ffffaa4fb7932430
+  </TASK>
+ Modules linked in:
+ ---[ end trace e99579b570fe0649 ]---
+ RIP: 0010:release_pages+0x53f/0x840
+ Code: 0c 01 4c 8d 60 ff e9 5b fb ff ff 48 c7 c6 d8 97 0c b3 4c 89 e7 48 83 05 0e 7b 3c 0c 01 e8 89 3d 04 00 48 83 05 11 7b 3c 0c 01 <0f> 0b 48 83 05 0f 7b 3c 0c 01 48 83 05 0f 7b 3c 0c 01 48 83 05f
+ RSP: 0018:ffffc900015a7bc0 EFLAGS: 00010002
+ RAX: 000000000000003e RBX: ffffffffbace04c8 RCX: 0000000000000002
+ RDX: 0000000000000000 RSI: 0000000000000001 RDI: 00000000ffffffff
+ RBP: ffff88817b9acd50 R08: 0000000000000000 R09: c0000000ffefffff
+ R10: 0000000000000001 R11: ffffc900015a79b0 R12: ffffea0005e1c900
+ R13: ffffea0005e1de88 R14: 000000000000001f R15: ffff888100071000
+ FS:  0000000000000000(0000) GS:ffff88842fb40000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f305e8de3d4 CR3: 000000017bb6f000 CR4: 00000000000006e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Link: https://lkml.kernel.org/r/20211221074908.3910286-1-liushixin2@huawei.com
+Fixes: b94e02822deb ("mm,hwpoison: try to narrow window race for free pages")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/damon/dbgfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ mm/memory-failure.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/damon/dbgfs.c~mm-damon-dbgfs-protect-targets-destructions-with-kdamond_lock
-+++ a/mm/damon/dbgfs.c
-@@ -650,10 +650,12 @@ static void dbgfs_before_terminate(struc
- 	if (!targetid_is_pid(ctx))
- 		return;
- 
-+	mutex_lock(&ctx->kdamond_lock);
- 	damon_for_each_target_safe(t, next, ctx) {
- 		put_pid((struct pid *)t->id);
- 		damon_destroy_target(t);
+--- a/mm/memory-failure.c~mm-hwpoison-clear-mf_count_increased-before-retrying-get_any_page
++++ a/mm/memory-failure.c
+@@ -2232,6 +2232,7 @@ retry:
+ 	} else if (ret == 0) {
+ 		if (soft_offline_free_page(page) && try_again) {
+ 			try_again = false;
++			flags &= ~MF_COUNT_INCREASED;
+ 			goto retry;
+ 		}
  	}
-+	mutex_unlock(&ctx->kdamond_lock);
- }
- 
- static struct damon_ctx *dbgfs_new_ctx(void)
 _
 
-Patches currently in -mm which might be from sj@kernel.org are
+Patches currently in -mm which might be from liushixin2@huawei.com are
 
-mm-damon-dbgfs-protect-targets-destructions-with-kdamond_lock.patch
-mm-damon-remove-some-no-need-func-definitions-in-damonh-file-fix.patch
-mm-damon-convert-macro-functions-to-static-inline-functions.patch
-docs-admin-guide-mm-damon-usage-update-for-scheme-quotas-and-watermarks.patch
-docs-admin-guide-mm-damon-usage-remove-redundant-information.patch
-docs-admin-guide-mm-damon-usage-mention-tracepoint-at-the-beginning.patch
-docs-admin-guide-mm-damon-usage-update-for-kdamond_pid-and-mkrm_contexts.patch
-mm-damon-remove-a-mistakenly-added-comment-for-a-future-feature.patch
-mm-damon-schemes-account-scheme-actions-that-successfully-applied.patch
-mm-damon-schemes-account-how-many-times-quota-limit-has-exceeded.patch
-mm-damon-reclaim-provide-reclamation-statistics.patch
-docs-admin-guide-mm-damon-reclaim-document-statistics-parameters.patch
-mm-damon-dbgfs-support-all-damos-stats.patch
-docs-admin-guide-mm-damon-usage-update-for-schemes-statistics.patch
+mm-hwpoison-clear-mf_count_increased-before-retrying-get_any_page.patch
 
