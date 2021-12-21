@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC0147B7F1
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 03:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA87E47B820
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 03:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234692AbhLUCDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 21:03:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33912 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234810AbhLUCBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 21:01:25 -0500
+        id S233809AbhLUCEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 21:04:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232037AbhLUCCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 21:02:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 383D1C07E5C5;
+        Mon, 20 Dec 2021 18:01:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0EC3B8110D;
-        Tue, 21 Dec 2021 02:01:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C952CC36AF0;
-        Tue, 21 Dec 2021 02:01:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3A17B8110C;
+        Tue, 21 Dec 2021 02:01:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF83CC36AE5;
+        Tue, 21 Dec 2021 02:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640052082;
-        bh=g1NGzMGkKMRfKbLAs/7Ekn9DQHmhNZjVFBdLxPKVvsk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=drtrZ4OoDS0ueCGAuzL5YKzsjy+iJEbons3STNtt5U/H3ZL2ndWR/Y1Pt6rzY8WbF
-         yxxT4PJ8mY2ZsbXdQ1a8CjH5sEbyjTcVRbrrb3q8GvO4SDwlrN194I0tYC7XGByTDQ
-         G3bUR2rw6KhLO4vB8FCdMUmLTJ7obxD5EXOqIrfoSg5g1k9qrlPEjoeEIwGF9m5djc
-         kzP3+5ZLljar7z8+UkMpgx6YzxaCw4MJZxqWiZ0QXjmhYdcN+QKaiQIDvBDryCmJbJ
-         a97/Sd6/hlSDsUZMHGtaCUlvdMMYpOIRncFMdqxF7es4Et6YOuKMfnARsR7IyjdBo9
-         rps/Q7TSwfoJA==
+        s=k20201202; t=1640052105;
+        bh=1Zi09LysPGvsPv/8d9w6nAFHTkfB3G2bKujERLUMp7E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZzzTZnfyENIAMitcOYpHXOR1iXgbqQaoRysoyvq9jbVvTQ0kGi9yosA8aDa9dqKQg
+         s04sXZQ5wteSnvqSmmZAKaPX3+766f3cNjUCxAfRuLYn0krH4HR0n05Sq3jFz9AreY
+         yGAjOi3olDyds0Qt/vOWTk2duz8I4Yv3Q70JiIBCBweH5cdjh0+gHGq67Ev72Atg20
+         48B03QCDblEF/vQb4dDZg0GxAoGkfN1TTvv8rPjFYZ7JP52IdALJGdmflcsPDlSUld
+         x5f2cuwgbwhpK8jLiRi+u3rDvLQjtFg1N1PE4DEfwBmDItg8hVJ/e4BrdPJesu0XPS
+         rk2czg6yI0jMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Alex Xu <alex_y_xu@yahoo.ca>,
-        kernel test robot <oliver.sang@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/11] Revert "block: reduce kblockd_mod_delayed_work_on() CPU consumption"
-Date:   Mon, 20 Dec 2021 21:00:30 -0500
-Message-Id: <20211221020030.117225-11-sashal@kernel.org>
+Cc:     "Ivan T. Ivanov" <iivanov@suse.de>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 1/9] ARM: rockchip: Use memcpy_toio instead of memcpy on smp bring-up
+Date:   Mon, 20 Dec 2021 21:01:15 -0500
+Message-Id: <20211221020123.117380-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211221020030.117225-1-sashal@kernel.org>
-References: <20211221020030.117225-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,40 +50,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: "Ivan T. Ivanov" <iivanov@suse.de>
 
-[ Upstream commit 87959fa16cfbcf76245c11559db1940069621274 ]
+[ Upstream commit 423e85e97aaf69e5198bbec6811e3825c8b5019a ]
 
-This reverts commit cb2ac2912a9ca7d3d26291c511939a41361d2d83.
+This fixes a potential kernel panic on memcpy when FORTIFY_SOURCE
+is enabled. Because memory is iomem use appropriate function for
+accessing it.
 
-Alex and the kernel test robot report that this causes a significant
-performance regression with BFQ. I can reproduce that result, so let's
-revert this one as we're close to -rc6 and we there's no point in trying
-to rush a fix.
-
-Link: https://lore.kernel.org/linux-block/1639853092.524jxfaem2.none@localhost/
-Link: https://lore.kernel.org/lkml/20211219141852.GH14057@xsang-OptiPlex-9020/
-Reported-by: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
+Link: https://lore.kernel.org/r/20211116084616.24811-1-iivanov@suse.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm/mach-rockchip/platsmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 8529cc3f213b9..80f3e729fdd4d 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -3581,8 +3581,6 @@ EXPORT_SYMBOL(kblockd_schedule_work_on);
- int kblockd_mod_delayed_work_on(int cpu, struct delayed_work *dwork,
- 				unsigned long delay)
- {
--	if (!delay)
--		return queue_work_on(cpu, kblockd_workqueue, &dwork->work);
- 	return mod_delayed_work_on(cpu, kblockd_workqueue, dwork, delay);
- }
- EXPORT_SYMBOL(kblockd_mod_delayed_work_on);
+diff --git a/arch/arm/mach-rockchip/platsmp.c b/arch/arm/mach-rockchip/platsmp.c
+index ecec340ca3457..bb69e6e6defe8 100644
+--- a/arch/arm/mach-rockchip/platsmp.c
++++ b/arch/arm/mach-rockchip/platsmp.c
+@@ -198,7 +198,7 @@ static int __init rockchip_smp_prepare_sram(struct device_node *node)
+ 	rockchip_boot_fn = __pa_symbol(secondary_startup);
+ 
+ 	/* copy the trampoline to sram, that runs during startup of the core */
+-	memcpy(sram_base_addr, &rockchip_secondary_trampoline, trampoline_sz);
++	memcpy_toio(sram_base_addr, &rockchip_secondary_trampoline, trampoline_sz);
+ 	flush_cache_all();
+ 	outer_clean_range(0, trampoline_sz);
+ 
 -- 
 2.34.1
 
