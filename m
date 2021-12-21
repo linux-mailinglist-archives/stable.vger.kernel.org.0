@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1099047B809
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 03:05:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD9E147B80D
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 03:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234925AbhLUCDq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 21:03:46 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35690 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235067AbhLUCCD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 21:02:03 -0500
+        id S233405AbhLUCDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 21:03:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57992 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235078AbhLUCCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 21:02:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F5D8B81100;
-        Tue, 21 Dec 2021 02:02:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F3B4C36AE5;
-        Tue, 21 Dec 2021 02:01:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C98E61347;
+        Tue, 21 Dec 2021 02:02:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C780C36AEA;
+        Tue, 21 Dec 2021 02:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640052120;
-        bh=X3x2q91yTEeIx4pyLPqn1GZlb6ij9kl0M5egD1UypEM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=RSqJV/IafCsj5Urf2g68IowhUnd7ZNSOH9k7WbkMki4R579ylgBgjNFtKDaKMJ8P1
-         GNi1p5gykLN8zfTr9K5g9kfPCbMDb/10hEAHyfUAfqqF4qGjUYjkBhHGM3lD/82yzZ
-         harJuQnC7OWzDGqPKtQf2N8SfF5/xXkYqrj+T3ivpTn5JkMNaEZBSJKgmaUiMaCsuH
-         r8O3JuDyr+VDEvo+cVmg/3fFJm9H8+DN3cQaNlAVVlRgSolrPyFJXrTOs8qHS50xDO
-         tkl/Q5Luwc0iK1TPbEuVe+wKXPOalaQaX1UcL6gjyTQxPm8XABuH4LHxB2NtCeRSqT
-         DUC6vf4bSw+VQ==
+        s=k20201202; t=1640052122;
+        bh=O8tppKcRB/FXE5XiKYgTTYxvn0PbzCfAaewxyEGUBGA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Fp/x4QGZJzNUZtr9AdxHg3YUgiK0tBRq+l8kiICxKRKICN66ca/9Rfo8yeXbL27zJ
+         qpe0TqIs4fNhwtUq3ZqBwvq5wAGIk4zxf9Q1lfBPI3hV6ytcELpQ+vPo1LFYJtDO9z
+         51FqOupsHwjonfWABh+z5f2f/aiQiZ+m6GSGoUmkiRCrxVZ8JuhQ5Jrmwk4Tvy+2Tz
+         NtZt2f5tdGoa2QS8JNFKMIwgyft5as09RsVcyhgQqYSaunogN3P63HlX5ESZ5G7odg
+         1+1XCcF1ukL4LTMpGYPW9LI8VogWULEhFXE6cPs+K1XaGTHQ+5qdxN0czEtv/OSuQw
+         E2pOStNbJwgjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ivan T. Ivanov" <iivanov@suse.de>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+Cc:     Xing Song <xing.song@mediatek.com>,
+        Frank Wunderlich <frank-w@public-files.de>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, kuba@kernel.org, matthias.bgg@gmail.com,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 1/4] ARM: rockchip: Use memcpy_toio instead of memcpy on smp bring-up
-Date:   Mon, 20 Dec 2021 21:01:55 -0500
-Message-Id: <20211221020158.117612-1-sashal@kernel.org>
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 2/4] mac80211: set up the fwd_skb->dev for mesh forwarding
+Date:   Mon, 20 Dec 2021 21:01:56 -0500
+Message-Id: <20211221020158.117612-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211221020158.117612-1-sashal@kernel.org>
+References: <20211221020158.117612-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,35 +52,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ivan T. Ivanov" <iivanov@suse.de>
+From: Xing Song <xing.song@mediatek.com>
 
-[ Upstream commit 423e85e97aaf69e5198bbec6811e3825c8b5019a ]
+[ Upstream commit 942bd1070c3a39d1302fc5db73d60c86e3033c81 ]
 
-This fixes a potential kernel panic on memcpy when FORTIFY_SOURCE
-is enabled. Because memory is iomem use appropriate function for
-accessing it.
+Mesh forwarding requires that the fwd_skb->dev is set up for TX handling,
+otherwise the following warning will be generated, so set it up for the
+pending frames.
 
-Signed-off-by: Ivan T. Ivanov <iivanov@suse.de>
-Link: https://lore.kernel.org/r/20211116084616.24811-1-iivanov@suse.de
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+[   72.835674 ] WARNING: CPU: 0 PID: 1193 at __skb_flow_dissect+0x284/0x1298
+[   72.842379 ] Modules linked in: ksmbd pppoe ppp_async l2tp_ppp ...
+[   72.962020 ] CPU: 0 PID: 1193 Comm: kworker/u5:1 Tainted: P S 5.4.137 #0
+[   72.969938 ] Hardware name: MT7622_MT7531 RFB (DT)
+[   72.974659 ] Workqueue: napi_workq napi_workfn
+[   72.979025 ] pstate: 60000005 (nZCv daif -PAN -UAO)
+[   72.983822 ] pc : __skb_flow_dissect+0x284/0x1298
+[   72.988444 ] lr : __skb_flow_dissect+0x54/0x1298
+[   72.992977 ] sp : ffffffc010c738c0
+[   72.996293 ] x29: ffffffc010c738c0 x28: 0000000000000000
+[   73.001615 ] x27: 000000000000ffc2 x26: ffffff800c2eb818
+[   73.006937 ] x25: ffffffc010a987c8 x24: 00000000000000ce
+[   73.012259 ] x23: ffffffc010c73a28 x22: ffffffc010a99c60
+[   73.017581 ] x21: 000000000000ffc2 x20: ffffff80094da800
+[   73.022903 ] x19: 0000000000000000 x18: 0000000000000014
+[   73.028226 ] x17: 00000000084d16af x16: 00000000d1fc0bab
+[   73.033548 ] x15: 00000000715f6034 x14: 000000009dbdd301
+[   73.038870 ] x13: 00000000ea4dcbc3 x12: 0000000000000040
+[   73.044192 ] x11: 000000000eb00ff0 x10: 0000000000000000
+[   73.049513 ] x9 : 000000000eb00073 x8 : 0000000000000088
+[   73.054834 ] x7 : 0000000000000000 x6 : 0000000000000001
+[   73.060155 ] x5 : 0000000000000000 x4 : 0000000000000000
+[   73.065476 ] x3 : ffffffc010a98000 x2 : 0000000000000000
+[   73.070797 ] x1 : 0000000000000000 x0 : 0000000000000000
+[   73.076120 ] Call trace:
+[   73.078572 ]  __skb_flow_dissect+0x284/0x1298
+[   73.082846 ]  __skb_get_hash+0x7c/0x228
+[   73.086629 ]  ieee80211_txq_may_transmit+0x7fc/0x17b8 [mac80211]
+[   73.092564 ]  ieee80211_tx_prepare_skb+0x20c/0x268 [mac80211]
+[   73.098238 ]  ieee80211_tx_pending+0x144/0x330 [mac80211]
+[   73.103560 ]  tasklet_action_common.isra.16+0xb4/0x158
+[   73.108618 ]  tasklet_action+0x2c/0x38
+[   73.112286 ]  __do_softirq+0x168/0x3b0
+[   73.115954 ]  do_softirq.part.15+0x88/0x98
+[   73.119969 ]  __local_bh_enable_ip+0xb0/0xb8
+[   73.124156 ]  napi_workfn+0x58/0x90
+[   73.127565 ]  process_one_work+0x20c/0x478
+[   73.131579 ]  worker_thread+0x50/0x4f0
+[   73.135249 ]  kthread+0x124/0x128
+[   73.138484 ]  ret_from_fork+0x10/0x1c
+
+Signed-off-by: Xing Song <xing.song@mediatek.com>
+Tested-By: Frank Wunderlich <frank-w@public-files.de>
+Link: https://lore.kernel.org/r/20211123033123.2684-1-xing.song@mediatek.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-rockchip/platsmp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/rx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-rockchip/platsmp.c b/arch/arm/mach-rockchip/platsmp.c
-index 4d827a069d49c..203f5a72829e2 100644
---- a/arch/arm/mach-rockchip/platsmp.c
-+++ b/arch/arm/mach-rockchip/platsmp.c
-@@ -198,7 +198,7 @@ static int __init rockchip_smp_prepare_sram(struct device_node *node)
- 	rockchip_boot_fn = virt_to_phys(secondary_startup);
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index 3dc370ad23bf6..5be4d73ea9b74 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2632,6 +2632,7 @@ ieee80211_rx_h_mesh_fwding(struct ieee80211_rx_data *rx)
+ 		goto out;
+ 	}
  
- 	/* copy the trampoline to sram, that runs during startup of the core */
--	memcpy(sram_base_addr, &rockchip_secondary_trampoline, trampoline_sz);
-+	memcpy_toio(sram_base_addr, &rockchip_secondary_trampoline, trampoline_sz);
- 	flush_cache_all();
- 	outer_clean_range(0, trampoline_sz);
- 
++	fwd_skb->dev = sdata->dev;
+ 	fwd_hdr =  (struct ieee80211_hdr *) fwd_skb->data;
+ 	fwd_hdr->frame_control &= ~cpu_to_le16(IEEE80211_FCTL_RETRY);
+ 	info = IEEE80211_SKB_CB(fwd_skb);
 -- 
 2.34.1
 
