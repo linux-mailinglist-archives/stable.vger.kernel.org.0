@@ -2,139 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4438447B9F3
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 07:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88C2047BB72
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 09:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233231AbhLUGTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 01:19:25 -0500
-Received: from mail-sn1anam02on2057.outbound.protection.outlook.com ([40.107.96.57]:45314
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S233179AbhLUGTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 21 Dec 2021 01:19:24 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PbcEXOtWrzbpJbRJS4cr4V4SSfkgk1ClpPAUvy/ytAKwQrTvu/gFEbiMTMeWbuQShLiuI1qS99z/hVvKroeuPZQUY83CE1r2rWuke4Kc4HSSSxvkRW9iKebH31Ag5wxIK7KcdOK7uMBxJdAZvNolMCqkxbc3Mzsaz7VdrSH7Gq4qbM4XdWwbCQOcx+5y3K7g6U2Wn1cN06N8jYiKDmb8PtnyEXb1dQgXF3NY1VFTG43jGsb3xzbMFJSqovuBrAkzVqeqP5TW5qrSa7IcI0eJpKl5BidtPWFlaorCbslRqhdW6/dCo37syUU5G3uUfh4lZTxwXsVMHUApah5J4HsuJg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=z53hK0SijnQ5AfVyRYH4Xay91UqVv0LMPX9WPz/au1A=;
- b=L7vras6a4bfg6wwvDwY8E/nk444pBGhQpgDK3rV36ExJsM7nLIYh335uJGnqLa/OzoJtIUkzYBoReP1BS3JqgSPugjGSifrwXW4UecLpmh2ZfpdNHuksltaRljuT5PqJ5A1UmjblqLidy0EfxtER0Gm01Dr4JYscg41AJHX8eZC9cmSYdwe3jNmQSjV+cvBnllcq4/V+d+tnVQ338ZZSJM5nXTDBucecKML/kpsAAW5rxwYuUylSOH/uQK4PMrqF8r0HTjtuYa2RsqmA5aJpZE2YGSm85pE1ENNB6uSKbunqkCp9QElqNtaNT7t0tOKjbHTX4jsgwRYuPdPuNunmCg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=z53hK0SijnQ5AfVyRYH4Xay91UqVv0LMPX9WPz/au1A=;
- b=gW0bmxMSguCtqakQXxTzxriQfwuYiL5kuvdDtFLx/rsYNktX9Q/bL7VjbikNZ7kgfMxib48jmK+QIIDOssK7J0G93juTFqubhD5Rdsd/zsXvXmW4/+EDB3Yt9WhgU8SBBDdPhbP5XqYmiRzM72DIimUM6EocGD3XaZiMOa6xEZ7ZRUnXbcnV2XWqh0KJryh4zZA2ZGFYVcSBGHKpn/7rDJMccRnzYVR7fIz112OLXDVeO1+kzE6p/cVlnLLzEtOMefGjhOSOYpMCQyqaqvfO5XLMyj8BF42pDuQF9n3S84FCSaD+pw8aoyEk56gRbAVYPV435RFyOsIRSlz0rKQClA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY4PR12MB1576.namprd12.prod.outlook.com (2603:10b6:910:10::9)
- by CY4PR12MB1765.namprd12.prod.outlook.com (2603:10b6:903:120::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4801.17; Tue, 21 Dec
- 2021 06:19:22 +0000
-Received: from CY4PR12MB1576.namprd12.prod.outlook.com
- ([fe80::24b0:46e7:d3c0:a77b]) by CY4PR12MB1576.namprd12.prod.outlook.com
- ([fe80::24b0:46e7:d3c0:a77b%7]) with mapi id 15.20.4801.020; Tue, 21 Dec 2021
- 06:19:22 +0000
-Subject: Re: [PATCH v2 1/3] ALSA: hda/tegra: Fix Tegra194 HDA reset failure
-To:     Dmitry Osipenko <digetx@gmail.com>, tiwai@suse.com,
-        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
-        thierry.reding@gmail.com, perex@perex.cz
-Cc:     jonathanh@nvidia.com, mkumard@nvidia.com,
-        alsa-devel@alsa-project.org, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S235406AbhLUIGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 03:06:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42204 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235405AbhLUIGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 03:06:04 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BAE7B80EDE
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 08:06:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA15C36AE7;
+        Tue, 21 Dec 2021 08:06:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640073961;
+        bh=PajXVs7FopjJ9jpUenm6NhvxnOVLnDFUnemXzuNHyG8=;
+        h=Subject:To:From:Date:From;
+        b=hspaBT/NDTgPBaQZrbxae4tULPTStxx5ygEKZPcvKmMdKLnFGQtzIydq2BxQkCb1c
+         /B6gCQcpeOkgnqodHNfh1IwHVo8obUsS1w2gZ678VUiqoB64kmDBifUBAtUrWE0NbN
+         FtaxVWnxZajp70Y9m7O0HuQoMXWvudhkVgpe+J4Q=
+Subject: patch "usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear." added to usb-linus
+To:     plr.vincent@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-References: <1640021408-12824-1-git-send-email-spujar@nvidia.com>
- <1640021408-12824-2-git-send-email-spujar@nvidia.com>
- <f859559c-abf1-ae37-6a0f-80329e6f747f@gmail.com>
-From:   Sameer Pujar <spujar@nvidia.com>
-Message-ID: <f65ae56d-d289-9e3f-1c15-f0bedda3918c@nvidia.com>
-Date:   Tue, 21 Dec 2021 11:48:57 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
-In-Reply-To: <f859559c-abf1-ae37-6a0f-80329e6f747f@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
-X-ClientProxiedBy: MA1PR01CA0097.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a00:1::13) To CY4PR12MB1576.namprd12.prod.outlook.com
- (2603:10b6:910:10::9)
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 21 Dec 2021 09:05:59 +0100
+Message-ID: <16400739594119@kroah.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8df6d86d-b8dc-429a-af6e-08d9c449d45c
-X-MS-TrafficTypeDiagnostic: CY4PR12MB1765:EE_
-X-Microsoft-Antispam-PRVS: <CY4PR12MB1765196E76AF731720371D6BA77C9@CY4PR12MB1765.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: KXl+MQ+WZLXtIPTwPYhq44ef+te/79NpKS0cyg8nxadwPWnWirXxZY5IhSRbqpMfptBHO4A3nRJR0D9BDju4WxKVYLOfliUdSH4f3YTeX9VxzyVUM80G+ftM3hrEF7g5A4gpv7FbDZrJs9H+LF/wRD/Qau2fa9PuIOngoyu12L6S3szYjhq6XTmfvQhHA6WLsbveJC0trJEabQIcRx4ar6TnUbt7YwspgE+si7AZ2RQPHBcUoP7e6/9Q+3ScQCKRJC/B1LHlmf+iybQnr8JvEoyWjjA85Xi8ene/rlVfeG42GVNWUwoZgYGC97VWJ+Zus7COYq/POIadLN0+sQLmdK9Xod6jgf8rXZTwSMeXxYfwC1pHfuVtbkRURT/mt9PQ3WwFK2wAGi2Noncc7IYcoVgwyO7Wc/ixrlkWcK6IZhcqRYdS2G832JvbGFCWnUHdScVcwrdByIWWjuH6L/5yza9RWoCMpmPM3BAd7fidhFUzzV7X6xoriRs+UM9p9Rj5LPqd3O9n/ua/asjGRj6KNyoWx0QxWByW3rBD85a/wHnSZB9nr21xUTjqhXGsTh2yiF+LiLjnlhTrk5C2FYUDKVowJy9zyy5ptIzKrKTCf0PgBE9DnGFIL8/6/uf3vDoVf79VcN/+C11LcIuxXhX6b0Kesc+/H71bmv43L64jfr1sRIhP0NvGAIaRrgwxdT1zr9sfYb4G5nF0yj/+x24PZi9eQeR609bYfCn6sNYV8zA=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY4PR12MB1576.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(316002)(31696002)(53546011)(8936002)(6486002)(83380400001)(38100700002)(5660300002)(2616005)(186003)(4326008)(31686004)(508600001)(66556008)(4744005)(6512007)(26005)(7416002)(66946007)(6506007)(2906002)(66476007)(8676002)(6666004)(86362001)(36756003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?T0hkejk3YUNOdWlTQnI1clUzeitoY2l5WHNTTThoaE5TNVRpNTM3a3FEM1Bz?=
- =?utf-8?B?RG4ySVBkR1NVYkljRm5RNmRtNjhmS01XNzZtU3pzZUNBczEwRW1GVWNUMisr?=
- =?utf-8?B?TTd5bXRFL3FLM0ZMWkxTMzlaOVFGTXcwdlZjVW9mYTlpVE9UUzN3OGxZYUFk?=
- =?utf-8?B?YkpPWkRlaVAwWmNVSWpvNGtOWVFJK0VZR2FQZlBJUDBrWUM4bXVNY2hDSkRW?=
- =?utf-8?B?eklEOFp5MEl2MEhtbWgrcGZCOE9xQXF2Q1Z5aDNpYXR5cXdMOXlZVDQ0WVht?=
- =?utf-8?B?cnZ2YXBnR0JZbDloV1Z6U09XL09iMHN2ZTdpNDYyMEVDV3JtRXNmK3REOEFM?=
- =?utf-8?B?STA4UkpsTng3UXVzQ282dUQ0bGR2QzVncDlKbGFZaUZ6cTFTeUJJbDhKelQ1?=
- =?utf-8?B?aExUSFFVNVppNFY2OFQ2MWVRSkJHdDQzZERkeUZqY3lhVHRUNFFwZ2JESmQ5?=
- =?utf-8?B?eVUzZTFjbE85RGFxSEFYdDBINUlJWGFlWXFFSmhTLzR2N0FVNEk5UzViQ1Q0?=
- =?utf-8?B?c1RVYjJ5M1ZHM1dLVEZSazR4TzVyTnRWdGd5QWxUZmZjTXNIcXJDcU93MXQ1?=
- =?utf-8?B?cUlEQm1SdnVobnVJN3g2SFowSUxhUXhDRmo4RVNPK3VqenZCS0JwQ2o1a3Rz?=
- =?utf-8?B?ekZCM05xczdQZWplanY0OGZTTXpTU3JLRzZRbG03eWFzUWVpK0NYZmU1c1o1?=
- =?utf-8?B?SXBlemRrOFY1RURJamdpUndsc3laajN3Z05RalFzakV4UmU2eVFnUXl2SjVZ?=
- =?utf-8?B?VFFCR01kd2N4Y2tGajRUTmxuemdJSFcwVVdVUXNabnB3NGpYOUVLY2dwQmdJ?=
- =?utf-8?B?a2xCdktPK2dlaExYdXZNNGs1Ym9tRXlpWjBGM0dlbEJrajhnbkZrNmhVUVVB?=
- =?utf-8?B?ZTBHZ3dXWk1keWg3RExjOFYydTZieDJhbmtJeDNDaGVwalJGSnNVWEhvWEFQ?=
- =?utf-8?B?d1BFZ2RzenBXc0ttUFdQWTJUd0F6eUYvQXJqME5vYmpMS1VscCtxTUVNa0d3?=
- =?utf-8?B?eXlwc0N1OTd0bk5nWWtCRTlCcXQxcDVvcE1uN2VKcXVQUlI3NmxZVFVUUlRS?=
- =?utf-8?B?Y2JiM09zc1hBSHdTQ0d0VjdaSFNJdXpHUzh2TlpKeEYzbzdoQjV1bkVFTDE3?=
- =?utf-8?B?ODZXYVJqRUJTRGV2ZmE0akw1NHkrYUdLenJQUjV0VEUzQ2VOSm1yWHliTDVU?=
- =?utf-8?B?WHk4N1VHeit4c01DdXRPb3pOdDFLbEFwUkpNVE9BOFRoOVVTZDNXSVlwQ1JY?=
- =?utf-8?B?ajVZUVhhdGExRDRKcnNHODEzRVp2NGNHWUlDOXhYcno4UHJHL2pnYm9tVlhn?=
- =?utf-8?B?N051U0R2bUN2SERpekJqaFpGNXIwVElrenRqcStTL1Z3eCtsa3g4M0NiVE9i?=
- =?utf-8?B?WVJJN1hxQk4zL3lONThYcC9INjdyOWNLV3hvMEJtQXdReFdqTFRBcDU3eWV2?=
- =?utf-8?B?TlY5ZGVTZStWL3p3dlprWW5RWit3ZlZHUTIwV1dFS0tMV1dGaTk0ZmZIWXp3?=
- =?utf-8?B?UFByYk52NFRTamNTWE9sUVhra3VtNXkrRnN0cmpjS1dnSjdRazA5Z0l5QmZI?=
- =?utf-8?B?bUxUdnBCWlNJdmJ5OUhsNHcwSmJQblM3VGZrL04rcDMxQ0FpdFJqOGovNGVx?=
- =?utf-8?B?SWRvWGo3dFg1NGtZOVlZZW44clI5Zm5uT3hhcVFXL3VrbkZ2RTBJWm5NUHVq?=
- =?utf-8?B?cmZSamJFZFptbEF4SGZkRjdDKzV2V2R5TUJmQjhHanV5YnpDRzZqYzBDMFVv?=
- =?utf-8?B?QTY1RitwajVWb3dyL2Nab3V0MHBTMEc2UTVLc1gyUlFPR2tXREJYb2VUb3BD?=
- =?utf-8?B?anNWT0x4VVcxR3lCQjh5RkVUWmVReEVZV3lJbGxQbmJ3aGhJeHMvdGRMbzYy?=
- =?utf-8?B?aTlGeWc1MGRGYnNDdENZNDhHZlMxM1JZbXNLUllOMW0vL3RRclJBM1doVlk0?=
- =?utf-8?B?RUVGQ0tGZnJLWEdXcEZUSTdzTWYwVlI0WEVGN0lyb2dTaW9wLzErSHBUcldx?=
- =?utf-8?B?RzVGNmNJUHVjT0ZNUGE1MnRZOWtERE50YWNZekhrSWF0SnRySGlmY1ZQZzJY?=
- =?utf-8?B?YVNWSEJ2cC9ONk5uOElZZDV5WDJJdUlTeVVCdEZVWGJiTDJDeDhBRElRV1Ar?=
- =?utf-8?B?WXNna1VlTVpxVy8rUUlUMXJxUEhRK29vcVh3cGFBTytFNDc4VUlDaTY5aUdJ?=
- =?utf-8?Q?UhkDqdTZLEz/OINtx7wvO2A=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8df6d86d-b8dc-429a-af6e-08d9c449d45c
-X-MS-Exchange-CrossTenant-AuthSource: CY4PR12MB1576.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Dec 2021 06:19:22.5925
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 6KEI9dlH/Eem646oojH84vGZLQkjtvRDxJGOupt2GNJ+QTgMJ1/SopHjnxe9DYsIdS+orKVzuinYbdVv65l+Iw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1765
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+This is a note to let you know that I've just added the patch titled
 
-On 12/21/2021 6:51 AM, Dmitry Osipenko wrote:
->
-> All stable kernels affected by this problem that don't support the bulk
-> reset API are EOL now. Please use bulk reset API like I suggested in the
-> comment to v1, it will allow us to have a cleaner and nicer code.
+    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
 
-Agree that it would be compact and cleaner, but any specific reset 
-failure in the group won't be obvious in the logs. In this case it 
-failed silently. If compactness is preferred, then may be I can keep an 
-error print at group level so that we see some failure context whenever 
-it happens.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From b1e0887379422975f237d43d8839b751a6bcf154 Mon Sep 17 00:00:00 2001
+From: Vincent Pelletier <plr.vincent@gmail.com>
+Date: Sat, 18 Dec 2021 02:18:40 +0000
+Subject: usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+
+ffs_data_clear is indirectly called from both ffs_fs_kill_sb and
+ffs_ep0_release, so it ends up being called twice when userland closes ep0
+and then unmounts f_fs.
+If userland provided an eventfd along with function's USB descriptors, it
+ends up calling eventfd_ctx_put as many times, causing a refcount
+underflow.
+NULL-ify ffs_eventfd to prevent these extraneous eventfd_ctx_put calls.
+
+Also, set epfiles to NULL right after de-allocating it, for readability.
+
+For completeness, ffs_data_clear actually ends up being called thrice, the
+last call being before the whole ffs structure gets freed, so when this
+specific sequence happens there is a second underflow happening (but not
+being reported):
+
+/sys/kernel/debug/tracing# modprobe usb_f_fs
+/sys/kernel/debug/tracing# echo ffs_data_clear > set_ftrace_filter
+/sys/kernel/debug/tracing# echo function > current_tracer
+/sys/kernel/debug/tracing# echo 1 > tracing_on
+(setup gadget, run and kill function userland process, teardown gadget)
+/sys/kernel/debug/tracing# echo 0 > tracing_on
+/sys/kernel/debug/tracing# cat trace
+ smartcard-openp-436     [000] .....  1946.208786: ffs_data_clear <-ffs_data_closed
+ smartcard-openp-431     [000] .....  1946.279147: ffs_data_clear <-ffs_data_closed
+ smartcard-openp-431     [000] .n...  1946.905512: ffs_data_clear <-ffs_data_put
+
+Warning output corresponding to above trace:
+[ 1946.284139] WARNING: CPU: 0 PID: 431 at lib/refcount.c:28 refcount_warn_saturate+0x110/0x15c
+[ 1946.293094] refcount_t: underflow; use-after-free.
+[ 1946.298164] Modules linked in: usb_f_ncm(E) u_ether(E) usb_f_fs(E) hci_uart(E) btqca(E) btrtl(E) btbcm(E) btintel(E) bluetooth(E) nls_ascii(E) nls_cp437(E) vfat(E) fat(E) bcm2835_v4l2(CE) bcm2835_mmal_vchiq(CE) videobuf2_vmalloc(E) videobuf2_memops(E) sha512_generic(E) videobuf2_v4l2(E) sha512_arm(E) videobuf2_common(E) videodev(E) cpufreq_dt(E) snd_bcm2835(CE) brcmfmac(E) mc(E) vc4(E) ctr(E) brcmutil(E) snd_soc_core(E) snd_pcm_dmaengine(E) drbg(E) snd_pcm(E) snd_timer(E) snd(E) soundcore(E) drm_kms_helper(E) cec(E) ansi_cprng(E) rc_core(E) syscopyarea(E) raspberrypi_cpufreq(E) sysfillrect(E) sysimgblt(E) cfg80211(E) max17040_battery(OE) raspberrypi_hwmon(E) fb_sys_fops(E) regmap_i2c(E) ecdh_generic(E) rfkill(E) ecc(E) bcm2835_rng(E) rng_core(E) vchiq(CE) leds_gpio(E) libcomposite(E) fuse(E) configfs(E) ip_tables(E) x_tables(E) autofs4(E) ext4(E) crc16(E) mbcache(E) jbd2(E) crc32c_generic(E) sdhci_iproc(E) sdhci_pltfm(E) sdhci(E)
+[ 1946.399633] CPU: 0 PID: 431 Comm: smartcard-openp Tainted: G         C OE     5.15.0-1-rpi #1  Debian 5.15.3-1
+[ 1946.417950] Hardware name: BCM2835
+[ 1946.425442] Backtrace:
+[ 1946.432048] [<c08d60a0>] (dump_backtrace) from [<c08d62ec>] (show_stack+0x20/0x24)
+[ 1946.448226]  r7:00000009 r6:0000001c r5:c04a948c r4:c0a64e2c
+[ 1946.458412] [<c08d62cc>] (show_stack) from [<c08d9ae0>] (dump_stack+0x28/0x30)
+[ 1946.470380] [<c08d9ab8>] (dump_stack) from [<c0123500>] (__warn+0xe8/0x154)
+[ 1946.482067]  r5:c04a948c r4:c0a71dc8
+[ 1946.490184] [<c0123418>] (__warn) from [<c08d6948>] (warn_slowpath_fmt+0xa0/0xe4)
+[ 1946.506758]  r7:00000009 r6:0000001c r5:c0a71dc8 r4:c0a71e04
+[ 1946.517070] [<c08d68ac>] (warn_slowpath_fmt) from [<c04a948c>] (refcount_warn_saturate+0x110/0x15c)
+[ 1946.535309]  r8:c0100224 r7:c0dfcb84 r6:ffffffff r5:c3b84c00 r4:c24a17c0
+[ 1946.546708] [<c04a937c>] (refcount_warn_saturate) from [<c0380134>] (eventfd_ctx_put+0x48/0x74)
+[ 1946.564476] [<c03800ec>] (eventfd_ctx_put) from [<bf5464e8>] (ffs_data_clear+0xd0/0x118 [usb_f_fs])
+[ 1946.582664]  r5:c3b84c00 r4:c2695b00
+[ 1946.590668] [<bf546418>] (ffs_data_clear [usb_f_fs]) from [<bf547cc0>] (ffs_data_closed+0x9c/0x150 [usb_f_fs])
+[ 1946.609608]  r5:bf54d014 r4:c2695b00
+[ 1946.617522] [<bf547c24>] (ffs_data_closed [usb_f_fs]) from [<bf547da0>] (ffs_fs_kill_sb+0x2c/0x30 [usb_f_fs])
+[ 1946.636217]  r7:c0dfcb84 r6:c3a12260 r5:bf54d014 r4:c229f000
+[ 1946.646273] [<bf547d74>] (ffs_fs_kill_sb [usb_f_fs]) from [<c0326d50>] (deactivate_locked_super+0x54/0x9c)
+[ 1946.664893]  r5:bf54d014 r4:c229f000
+[ 1946.672921] [<c0326cfc>] (deactivate_locked_super) from [<c0326df8>] (deactivate_super+0x60/0x64)
+[ 1946.690722]  r5:c2a09000 r4:c229f000
+[ 1946.698706] [<c0326d98>] (deactivate_super) from [<c0349a28>] (cleanup_mnt+0xe4/0x14c)
+[ 1946.715553]  r5:c2a09000 r4:00000000
+[ 1946.723528] [<c0349944>] (cleanup_mnt) from [<c0349b08>] (__cleanup_mnt+0x1c/0x20)
+[ 1946.739922]  r7:c0dfcb84 r6:c3a12260 r5:c3a126fc r4:00000000
+[ 1946.750088] [<c0349aec>] (__cleanup_mnt) from [<c0143d10>] (task_work_run+0x84/0xb8)
+[ 1946.766602] [<c0143c8c>] (task_work_run) from [<c010bdc8>] (do_work_pending+0x470/0x56c)
+[ 1946.783540]  r7:5ac3c35a r6:c0d0424c r5:c200bfb0 r4:c200a000
+[ 1946.793614] [<c010b958>] (do_work_pending) from [<c01000c0>] (slow_work_pending+0xc/0x20)
+[ 1946.810553] Exception stack(0xc200bfb0 to 0xc200bff8)
+[ 1946.820129] bfa0:                                     00000000 00000000 000000aa b5e21430
+[ 1946.837104] bfc0: bef867a0 00000001 bef86840 00000034 bef86838 bef86790 bef86794 bef867a0
+[ 1946.854125] bfe0: 00000000 bef86798 b67b7a1c b6d626a4 60000010 b5a23760
+[ 1946.865335]  r10:00000000 r9:c200a000 r8:c0100224 r7:00000034 r6:bef86840 r5:00000001
+[ 1946.881914]  r4:bef867a0
+[ 1946.888793] ---[ end trace 7387f2a9725b28d0 ]---
+
+Fixes: 5e33f6fdf735 ("usb: gadget: ffs: add eventfd notification about ffs events")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Vincent Pelletier <plr.vincent@gmail.com>
+Link: https://lore.kernel.org/r/f79eeea29f3f98de6782a064ec0f7351ad2f598f.1639793920.git.plr.vincent@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/function/f_fs.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index e20c19a0f106..a7e069b18544 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -1773,11 +1773,15 @@ static void ffs_data_clear(struct ffs_data *ffs)
+ 
+ 	BUG_ON(ffs->gadget);
+ 
+-	if (ffs->epfiles)
++	if (ffs->epfiles) {
+ 		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
++		ffs->epfiles = NULL;
++	}
+ 
+-	if (ffs->ffs_eventfd)
++	if (ffs->ffs_eventfd) {
+ 		eventfd_ctx_put(ffs->ffs_eventfd);
++		ffs->ffs_eventfd = NULL;
++	}
+ 
+ 	kfree(ffs->raw_descs_data);
+ 	kfree(ffs->raw_strings);
+@@ -1790,7 +1794,6 @@ static void ffs_data_reset(struct ffs_data *ffs)
+ 
+ 	ffs_data_clear(ffs);
+ 
+-	ffs->epfiles = NULL;
+ 	ffs->raw_descs_data = NULL;
+ 	ffs->raw_descs = NULL;
+ 	ffs->raw_strings = NULL;
+-- 
+2.34.1
+
+
