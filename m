@@ -2,121 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6EB47C588
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 18:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3AB947C59B
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 18:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240735AbhLURzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 12:55:10 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43745 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240733AbhLURzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 12:55:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1640109309;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=I2k5XFYRrsbB3tGhhr5j+LEBWGSmCxctS5XQHuzVnkM=;
-        b=OhZ7xhZ6ddzkEqud+WMyoz91TEIa++XoJDxMbmNqrYSepS+1Bstd4C/4MA0xuTtdjJVGaE
-        i2GjG+cNW5CtFUDPo057324LqvXUCgw1pEeytabqERoLhpdWBZe210HB0zXYw0WZbIFp4w
-        PuVuQjMwojUDSp9wGRA2fqqRQ7dVWXM=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-664-sVa66GxxPYqT05ZV68uFhw-1; Tue, 21 Dec 2021 12:55:08 -0500
-X-MC-Unique: sVa66GxxPYqT05ZV68uFhw-1
-Received: by mail-ed1-f70.google.com with SMTP id d7-20020aa7ce07000000b003f84e9b9c2fso6111625edv.3
-        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 09:55:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=I2k5XFYRrsbB3tGhhr5j+LEBWGSmCxctS5XQHuzVnkM=;
-        b=GBjeTM57Kq3JyjCFsHwo8w3DoIKyDTjYbsKYOabf6i7IFKoCpDhsnVaVGEeQVAKEz4
-         +100M0zA2VkUV/AhwObjIrMqZnWo8r5wbSvM3swOgmPqXAtdU8HRA7EFabtSfxFH5sta
-         idF9XfWTk1SUyzG26iSWoQOdHXO20hw8/ndqWNSF8ymfey0deLy6CEg4SO+VmrowSUq0
-         pWeV3ZKQXHeGgykNKe3FCVBVhqRhlJgHM1T2kjQ0PdO6MFVBtWZjBRIfElhwL8qYDaqg
-         Dr+DiqcKNEy6PHy4y+9WFOmyxj2RlmAQ7p5zU9FsLSdUYbNm9PFQOX8W4FjbGtL2f7Dd
-         F7GQ==
-X-Gm-Message-State: AOAM531U0MOKETeafSW1BJuGxsRd2aMtvEqjlrzei3R86JvUU3ccbedo
-        nqUmyYncyomlIoabiWsn1lExDK3P4nR7z7yKDkq+9vSoy6Tu15ocJp4LI7Nna2oBePrgUidUdsf
-        wuuplaApby6ukXPsg
-X-Received: by 2002:a17:906:86cb:: with SMTP id j11mr3576138ejy.769.1640109307218;
-        Tue, 21 Dec 2021 09:55:07 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxYp/ADAhlTD7Yjbjwa+evtVYy5o74hTjTJKKd54AGZ2XduOXFy5sazSs+o1lBiY/2T0llpPw==
-X-Received: by 2002:a17:906:86cb:: with SMTP id j11mr3576125ejy.769.1640109307064;
-        Tue, 21 Dec 2021 09:55:07 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1? (2001-1c00-0c1e-bf00-1db8-22d3-1bc9-8ca1.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1])
-        by smtp.gmail.com with ESMTPSA id qw4sm2271588ejc.55.2021.12.21.09.55.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Dec 2021 09:55:06 -0800 (PST)
-Message-ID: <2eb39ddd-9699-ea50-a41e-c39a31134698@redhat.com>
-Date:   Tue, 21 Dec 2021 18:55:06 +0100
+        id S233053AbhLUR6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 12:58:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38786 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240786AbhLUR6C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 12:58:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAD95C061574;
+        Tue, 21 Dec 2021 09:58:02 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B22161560;
+        Tue, 21 Dec 2021 17:58:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843AFC36AE8;
+        Tue, 21 Dec 2021 17:58:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1640109481;
+        bh=3qgi7m2U5AM2AOiPN4zIxugcdCksddJqx+Ux44PyM1Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qAo8OY8u5TEnvSJXZTiZPWyAFXoQ498I07KyY1TYKZm7G6Q8/kCLLQ7dhohQ3ANj2
+         4iL+bFix8HrBp5vSbuDu6qaN7g3Q+7TVrHR+0HMN6xYmwYmgzytDnN6u2ttbRB3bT6
+         GZVH0aIXC7jY4Z4U7miqtQgUscHNZQa1urs8sQBEzpLyIAKDiIx5AAYn2ztZ7SqO4L
+         rL8i0riLSvD54/OWExGZg0jvHJAXhyVPf3KYe3STaWLh16pAczqyW7Obw+Dyr+fLuO
+         VocalQNktwbs6YMxyTE4njNwdbNToIenMfRfR6ia1m7qhFKRaWz4bt7Ew6DkwMNwgw
+         IDxVE7i7sqW+w==
+Date:   Tue, 21 Dec 2021 12:58:00 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.15 20/29] block: reduce
+ kblockd_mod_delayed_work_on() CPU consumption
+Message-ID: <YcIVqFOrxbG8sqXK@sashalap>
+References: <20211221015751.116328-1-sashal@kernel.org>
+ <20211221015751.116328-20-sashal@kernel.org>
+ <MWHPR21MB1593141494C76CF5A0BDDB11D77C9@MWHPR21MB1593.namprd21.prod.outlook.com>
+ <ad76826e-73b2-b2f0-3cd4-8481645a6568@kernel.dk>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] platform/x86: amd-pmc: only use callbacks for suspend
-Content-Language: en-US
-To:     Mario Limonciello <mario.limonciello@amd.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        "open list:X86 PLATFORM DRIVERS" 
-        <platform-driver-x86@vger.kernel.org>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Cc:     stable@vger.kernel.org
-References: <20211210143529.10594-1-mario.limonciello@amd.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20211210143529.10594-1-mario.limonciello@amd.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <ad76826e-73b2-b2f0-3cd4-8481645a6568@kernel.dk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, Dec 21, 2021 at 08:36:33AM -0700, Jens Axboe wrote:
+>On 12/21/21 8:35 AM, Michael Kelley (LINUX) wrote:
+>> From: Sasha Levin <sashal@kernel.org> Sent: Monday, December 20, 2021 5:58 PM
+>>>
+>>> From: Jens Axboe <axboe@kernel.dk>
+>>>
+>>> [ Upstream commit cb2ac2912a9ca7d3d26291c511939a41361d2d83 ]
+>>>
+>>> Dexuan reports that he's seeing spikes of very heavy CPU utilization when
+>>> running 24 disks and using the 'none' scheduler. This happens off the
+>>> sched restart path, because SCSI requires the queue to be restarted async,
+>>> and hence we're hammering on mod_delayed_work_on() to ensure that the work
+>>> item gets run appropriately.
+>>>
+>>> Avoid hammering on the timer and just use queue_work_on() if no delay
+>>> has been specified.
+>>>
+>>> Reported-and-tested-by: Dexuan Cui <decui@microsoft.com>
+>>> Link: https://lore.kernel.org/linux-block/BYAPR21MB1270C598ED214C0490F47400BF719@BYAPR21MB1270.namprd21.prod.outlook.com/
+>>> Reviewed-by: Ming Lei <ming.lei@redhat.com>
+>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>> ---
+>>>  block/blk-core.c | 2 ++
+>>>  1 file changed, 2 insertions(+)
+>>>
+>>> diff --git a/block/blk-core.c b/block/blk-core.c
+>>> index c2d912d0c976c..a728434fcff87 100644
+>>> --- a/block/blk-core.c
+>>> +++ b/block/blk-core.c
+>>> @@ -1625,6 +1625,8 @@ EXPORT_SYMBOL(kblockd_schedule_work);
+>>>  int kblockd_mod_delayed_work_on(int cpu, struct delayed_work *dwork,
+>>>  				unsigned long delay)
+>>>  {
+>>> +	if (!delay)
+>>> +		return queue_work_on(cpu, kblockd_workqueue, &dwork->work);
+>>>  	return mod_delayed_work_on(cpu, kblockd_workqueue, dwork, delay);
+>>>  }
+>>>  EXPORT_SYMBOL(kblockd_mod_delayed_work_on);
+>>> --
+>>> 2.34.1
+>>
+>> Sasha -- there are reports of this patch causing performance problems.
+>> See
+>> https://lore.kernel.org/lkml/1639853092.524jxfaem2.none@localhost/. I
+>> would suggest *not* backporting it to any of the stable branches until
+>> the issues are fully sorted out.
+>
+>Both this and the revert were backported. Which arguably doesn't make a
+>lot of sense, but at least it's consistent and won't cause any issues...
 
-On 12/10/21 15:35, Mario Limonciello wrote:
-> This driver is intended to be used exclusively for suspend to idle
-> so callbacks to send OS_HINT during hibernate and S5 will set OS_HINT
-> at the wrong time leading to an undefined behavior.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+The logic behind it is that it makes it easy for both us as well as
+everyone else to annotate why a certain patch might be "missing" from
+the trees - in this case because it was reverted.
 
-Thank you for your patch, I've applied this patch to my review-hans 
-branch:
-https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=review-hans
+It looks dumb now, but it saves a lot of time as well as mitigates the
+risk of it being picked up again at some point in the future.
 
-I will also add this to the fixes branch and include it in my
-next fixes pull-req for 5.17.
-
-Once I've run some tests on this branch the patches there will be
-added to the platform-drivers-x86/for-next branch and eventually
-will be included in the pdx86 pull-request to Linus for the next
-merge-window.
-
-Regards,
-
-Hans
-
-> ---
->  drivers/platform/x86/amd-pmc.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
-> index 841c44cd64c2..230593ae5d6d 100644
-> --- a/drivers/platform/x86/amd-pmc.c
-> +++ b/drivers/platform/x86/amd-pmc.c
-> @@ -508,7 +508,8 @@ static int __maybe_unused amd_pmc_resume(struct device *dev)
->  }
->  
->  static const struct dev_pm_ops amd_pmc_pm_ops = {
-> -	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(amd_pmc_suspend, amd_pmc_resume)
-> +	.suspend_noirq = amd_pmc_suspend,
-> +	.resume_noirq = amd_pmc_resume,
->  };
->  
->  static const struct pci_device_id pmc_pci_ids[] = {
-> 
-
+-- 
+Thanks,
+Sasha
