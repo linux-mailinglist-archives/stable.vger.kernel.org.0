@@ -2,174 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C2047BB72
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 09:06:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0FA547BB88
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 09:13:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235406AbhLUIGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 03:06:04 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42204 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235405AbhLUIGE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 03:06:04 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2BAE7B80EDE
-        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 08:06:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA15C36AE7;
-        Tue, 21 Dec 2021 08:06:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640073961;
-        bh=PajXVs7FopjJ9jpUenm6NhvxnOVLnDFUnemXzuNHyG8=;
-        h=Subject:To:From:Date:From;
-        b=hspaBT/NDTgPBaQZrbxae4tULPTStxx5ygEKZPcvKmMdKLnFGQtzIydq2BxQkCb1c
-         /B6gCQcpeOkgnqodHNfh1IwHVo8obUsS1w2gZ678VUiqoB64kmDBifUBAtUrWE0NbN
-         FtaxVWnxZajp70Y9m7O0HuQoMXWvudhkVgpe+J4Q=
-Subject: patch "usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear." added to usb-linus
-To:     plr.vincent@gmail.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 21 Dec 2021 09:05:59 +0100
-Message-ID: <16400739594119@kroah.com>
+        id S232720AbhLUINn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 03:13:43 -0500
+Received: from mx07-00178001.pphosted.com ([185.132.182.106]:41834 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231443AbhLUINn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 03:13:43 -0500
+Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 1BL5YxKS014789;
+        Tue, 21 Dec 2021 09:13:25 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=date : from : to :
+ cc : subject : in-reply-to : message-id : references : mime-version :
+ content-type; s=selector1;
+ bh=maZSNZJEXk+v3gf/cuhFsQAVI0wk81zZoIV/aka8yJM=;
+ b=Rzk5jmvO46qS77p39WPTv3GZ5mUVb90hNFhX5EB3RJkw4N5PzzTxSSBdo5j6XCdKnu6s
+ 9tnG1h81whI0SO8CfmEIjm0aLG647TBmhGXyGZLO0drKk1HGejRAc/Lb8b1L1UMp7zxE
+ LEIQnXTige9dbk+kDL67j956UTwFrA4lCQ11knfVZDv6bXHW6IF7kNUBwNMg1sneVbRP
+ vjqxARMqpzTNaHCKhxO2VGoSQOmOyTZSRD1izFpFgEd5FxHWwsv6XGIMS4ez1zCGXsjS
+ +Ltgg8FrTtmfy9N4jtjxsPwmzppn2iIvRSM0igxLIBhn9SLYIfdhryu4MHSk0XNJ+p1y 1A== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3d2keaxcvw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 21 Dec 2021 09:13:25 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 0DA8D10002A;
+        Tue, 21 Dec 2021 09:13:22 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag2node2.st.com [10.75.127.5])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id DC65921BF6A;
+        Tue, 21 Dec 2021 09:13:22 +0100 (CET)
+Received: from gnbcxd0088.gnb.st.com (10.75.127.50) by SFHDAG2NODE2.st.com
+ (10.75.127.5) with Microsoft SMTP Server (TLS) id 15.0.1497.26; Tue, 21 Dec
+ 2021 09:13:22 +0100
+Date:   Tue, 21 Dec 2021 09:12:56 +0100
+From:   Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+X-X-Sender: toromano@gnbcxd0088.gnb.st.com
+To:     Marek Vasut <marex@denx.de>
+CC:     <linux-crypto@vger.kernel.org>,
+        Lionel Debieve <lionel.debieve@st.com>,
+        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        <stable@vger.kernel.org>, Fabien Dessenne <fabien.dessenne@st.com>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [Linux-stm32] [PATCH] crypto: stm32/crc32 - Fix kernel BUG
+ triggered in probe()
+In-Reply-To: <20211220195022.1387104-1-marex@denx.de>
+Message-ID: <alpine.DEB.2.21.2112210826250.21632@gnbcxd0088.gnb.st.com>
+References: <20211220195022.1387104-1-marex@denx.de>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"; format=flowed
+X-Originating-IP: [10.75.127.50]
+X-ClientProxiedBy: SFHDAG1NODE2.st.com (10.75.127.2) To SFHDAG2NODE2.st.com
+ (10.75.127.5)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-21_03,2021-12-21_01,2021-12-02_01
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 20 Dec 2021, Marek Vasut wrote:
 
-This is a note to let you know that I've just added the patch titled
+> The include/linux/crypto.h struct crypto_alg field cra_driver_name description
+> states "Unique name of the transformation provider. " ... " this contains the
+> name of the chip or provider and the name of the transformation algorithm."
+>
+> In case of the stm32-crc driver, field cra_driver_name is identical for all
+> registered transformation providers and set to the name of the driver itself,
+> which is incorrect. This patch fixes it by assigning a unique cra_driver_name
+> to each registered transformation provider.
+>
+> The kernel crash is triggered when the driver calls crypto_register_shashes()
+> which calls crypto_register_shash(), which calls crypto_register_alg(), which
+> calls __crypto_register_alg(), which returns -EEXIST, which is propagated
+> back through this call chain. Upon -EEXIST from crypto_register_shash(), the
+> crypto_register_shashes() starts unregistering the providers back, and calls
+> crypto_unregister_shash(), which calls crypto_unregister_alg(), and this is
+> where the BUG() triggers due to incorrect cra_refcnt.
+>
+> Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: <stable@vger.kernel.org> # 4.12+
+> Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+> Cc: Fabien Dessenne <fabien.dessenne@st.com>
+> Cc: Herbert Xu <herbert@gondor.apana.org.au>
+> Cc: Lionel Debieve <lionel.debieve@st.com>
+> Cc: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-stm32@st-md-mailman.stormreply.com
+> To: linux-crypto@vger.kernel.org
+> ---
+> drivers/crypto/stm32/stm32-crc32.c | 4 ++--
 
-    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+Hello Marek,
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Thanks for the fix.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From b1e0887379422975f237d43d8839b751a6bcf154 Mon Sep 17 00:00:00 2001
-From: Vincent Pelletier <plr.vincent@gmail.com>
-Date: Sat, 18 Dec 2021 02:18:40 +0000
-Subject: usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
-
-ffs_data_clear is indirectly called from both ffs_fs_kill_sb and
-ffs_ep0_release, so it ends up being called twice when userland closes ep0
-and then unmounts f_fs.
-If userland provided an eventfd along with function's USB descriptors, it
-ends up calling eventfd_ctx_put as many times, causing a refcount
-underflow.
-NULL-ify ffs_eventfd to prevent these extraneous eventfd_ctx_put calls.
-
-Also, set epfiles to NULL right after de-allocating it, for readability.
-
-For completeness, ffs_data_clear actually ends up being called thrice, the
-last call being before the whole ffs structure gets freed, so when this
-specific sequence happens there is a second underflow happening (but not
-being reported):
-
-/sys/kernel/debug/tracing# modprobe usb_f_fs
-/sys/kernel/debug/tracing# echo ffs_data_clear > set_ftrace_filter
-/sys/kernel/debug/tracing# echo function > current_tracer
-/sys/kernel/debug/tracing# echo 1 > tracing_on
-(setup gadget, run and kill function userland process, teardown gadget)
-/sys/kernel/debug/tracing# echo 0 > tracing_on
-/sys/kernel/debug/tracing# cat trace
- smartcard-openp-436     [000] .....  1946.208786: ffs_data_clear <-ffs_data_closed
- smartcard-openp-431     [000] .....  1946.279147: ffs_data_clear <-ffs_data_closed
- smartcard-openp-431     [000] .n...  1946.905512: ffs_data_clear <-ffs_data_put
-
-Warning output corresponding to above trace:
-[ 1946.284139] WARNING: CPU: 0 PID: 431 at lib/refcount.c:28 refcount_warn_saturate+0x110/0x15c
-[ 1946.293094] refcount_t: underflow; use-after-free.
-[ 1946.298164] Modules linked in: usb_f_ncm(E) u_ether(E) usb_f_fs(E) hci_uart(E) btqca(E) btrtl(E) btbcm(E) btintel(E) bluetooth(E) nls_ascii(E) nls_cp437(E) vfat(E) fat(E) bcm2835_v4l2(CE) bcm2835_mmal_vchiq(CE) videobuf2_vmalloc(E) videobuf2_memops(E) sha512_generic(E) videobuf2_v4l2(E) sha512_arm(E) videobuf2_common(E) videodev(E) cpufreq_dt(E) snd_bcm2835(CE) brcmfmac(E) mc(E) vc4(E) ctr(E) brcmutil(E) snd_soc_core(E) snd_pcm_dmaengine(E) drbg(E) snd_pcm(E) snd_timer(E) snd(E) soundcore(E) drm_kms_helper(E) cec(E) ansi_cprng(E) rc_core(E) syscopyarea(E) raspberrypi_cpufreq(E) sysfillrect(E) sysimgblt(E) cfg80211(E) max17040_battery(OE) raspberrypi_hwmon(E) fb_sys_fops(E) regmap_i2c(E) ecdh_generic(E) rfkill(E) ecc(E) bcm2835_rng(E) rng_core(E) vchiq(CE) leds_gpio(E) libcomposite(E) fuse(E) configfs(E) ip_tables(E) x_tables(E) autofs4(E) ext4(E) crc16(E) mbcache(E) jbd2(E) crc32c_generic(E) sdhci_iproc(E) sdhci_pltfm(E) sdhci(E)
-[ 1946.399633] CPU: 0 PID: 431 Comm: smartcard-openp Tainted: G         C OE     5.15.0-1-rpi #1  Debian 5.15.3-1
-[ 1946.417950] Hardware name: BCM2835
-[ 1946.425442] Backtrace:
-[ 1946.432048] [<c08d60a0>] (dump_backtrace) from [<c08d62ec>] (show_stack+0x20/0x24)
-[ 1946.448226]  r7:00000009 r6:0000001c r5:c04a948c r4:c0a64e2c
-[ 1946.458412] [<c08d62cc>] (show_stack) from [<c08d9ae0>] (dump_stack+0x28/0x30)
-[ 1946.470380] [<c08d9ab8>] (dump_stack) from [<c0123500>] (__warn+0xe8/0x154)
-[ 1946.482067]  r5:c04a948c r4:c0a71dc8
-[ 1946.490184] [<c0123418>] (__warn) from [<c08d6948>] (warn_slowpath_fmt+0xa0/0xe4)
-[ 1946.506758]  r7:00000009 r6:0000001c r5:c0a71dc8 r4:c0a71e04
-[ 1946.517070] [<c08d68ac>] (warn_slowpath_fmt) from [<c04a948c>] (refcount_warn_saturate+0x110/0x15c)
-[ 1946.535309]  r8:c0100224 r7:c0dfcb84 r6:ffffffff r5:c3b84c00 r4:c24a17c0
-[ 1946.546708] [<c04a937c>] (refcount_warn_saturate) from [<c0380134>] (eventfd_ctx_put+0x48/0x74)
-[ 1946.564476] [<c03800ec>] (eventfd_ctx_put) from [<bf5464e8>] (ffs_data_clear+0xd0/0x118 [usb_f_fs])
-[ 1946.582664]  r5:c3b84c00 r4:c2695b00
-[ 1946.590668] [<bf546418>] (ffs_data_clear [usb_f_fs]) from [<bf547cc0>] (ffs_data_closed+0x9c/0x150 [usb_f_fs])
-[ 1946.609608]  r5:bf54d014 r4:c2695b00
-[ 1946.617522] [<bf547c24>] (ffs_data_closed [usb_f_fs]) from [<bf547da0>] (ffs_fs_kill_sb+0x2c/0x30 [usb_f_fs])
-[ 1946.636217]  r7:c0dfcb84 r6:c3a12260 r5:bf54d014 r4:c229f000
-[ 1946.646273] [<bf547d74>] (ffs_fs_kill_sb [usb_f_fs]) from [<c0326d50>] (deactivate_locked_super+0x54/0x9c)
-[ 1946.664893]  r5:bf54d014 r4:c229f000
-[ 1946.672921] [<c0326cfc>] (deactivate_locked_super) from [<c0326df8>] (deactivate_super+0x60/0x64)
-[ 1946.690722]  r5:c2a09000 r4:c229f000
-[ 1946.698706] [<c0326d98>] (deactivate_super) from [<c0349a28>] (cleanup_mnt+0xe4/0x14c)
-[ 1946.715553]  r5:c2a09000 r4:00000000
-[ 1946.723528] [<c0349944>] (cleanup_mnt) from [<c0349b08>] (__cleanup_mnt+0x1c/0x20)
-[ 1946.739922]  r7:c0dfcb84 r6:c3a12260 r5:c3a126fc r4:00000000
-[ 1946.750088] [<c0349aec>] (__cleanup_mnt) from [<c0143d10>] (task_work_run+0x84/0xb8)
-[ 1946.766602] [<c0143c8c>] (task_work_run) from [<c010bdc8>] (do_work_pending+0x470/0x56c)
-[ 1946.783540]  r7:5ac3c35a r6:c0d0424c r5:c200bfb0 r4:c200a000
-[ 1946.793614] [<c010b958>] (do_work_pending) from [<c01000c0>] (slow_work_pending+0xc/0x20)
-[ 1946.810553] Exception stack(0xc200bfb0 to 0xc200bff8)
-[ 1946.820129] bfa0:                                     00000000 00000000 000000aa b5e21430
-[ 1946.837104] bfc0: bef867a0 00000001 bef86840 00000034 bef86838 bef86790 bef86794 bef867a0
-[ 1946.854125] bfe0: 00000000 bef86798 b67b7a1c b6d626a4 60000010 b5a23760
-[ 1946.865335]  r10:00000000 r9:c200a000 r8:c0100224 r7:00000034 r6:bef86840 r5:00000001
-[ 1946.881914]  r4:bef867a0
-[ 1946.888793] ---[ end trace 7387f2a9725b28d0 ]---
-
-Fixes: 5e33f6fdf735 ("usb: gadget: ffs: add eventfd notification about ffs events")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Vincent Pelletier <plr.vincent@gmail.com>
-Link: https://lore.kernel.org/r/f79eeea29f3f98de6782a064ec0f7351ad2f598f.1639793920.git.plr.vincent@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/gadget/function/f_fs.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index e20c19a0f106..a7e069b18544 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1773,11 +1773,15 @@ static void ffs_data_clear(struct ffs_data *ffs)
- 
- 	BUG_ON(ffs->gadget);
- 
--	if (ffs->epfiles)
-+	if (ffs->epfiles) {
- 		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
-+		ffs->epfiles = NULL;
-+	}
- 
--	if (ffs->ffs_eventfd)
-+	if (ffs->ffs_eventfd) {
- 		eventfd_ctx_put(ffs->ffs_eventfd);
-+		ffs->ffs_eventfd = NULL;
-+	}
- 
- 	kfree(ffs->raw_descs_data);
- 	kfree(ffs->raw_strings);
-@@ -1790,7 +1794,6 @@ static void ffs_data_reset(struct ffs_data *ffs)
- 
- 	ffs_data_clear(ffs);
- 
--	ffs->epfiles = NULL;
- 	ffs->raw_descs_data = NULL;
- 	ffs->raw_descs = NULL;
- 	ffs->raw_strings = NULL;
--- 
-2.34.1
-
+Acked-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
 
