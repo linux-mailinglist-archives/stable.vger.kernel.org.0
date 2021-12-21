@@ -2,105 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3CF47C559
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 18:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B200747C561
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 18:50:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240582AbhLURtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 12:49:05 -0500
-Received: from relay12.mail.gandi.net ([217.70.178.232]:37459 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230248AbhLURtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 12:49:05 -0500
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 898BB200003;
-        Tue, 21 Dec 2021 17:49:02 +0000 (UTC)
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Michael Walle <michael@walle.cc>,
-        <linux-mtd@lists.infradead.org>
-Cc:     Mark Brown <broonie@kernel.org>, <linux-spi@vger.kernel.org>,
-        Julien Su <juliensu@mxic.com.tw>,
-        Jaime Liao <jaimeliao@mxic.com.tw>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Xiangsheng Hou <xiangsheng.hou@mediatek.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        stable@vger.kernel.org, Mason Yang <masonccyang@mxic.com.tw>,
-        Zhengxun Li <zhengxunli@mxic.com.tw>
-Subject: [PATCH v8 10/14] spi: mxic: Fix the transmit path
-Date:   Tue, 21 Dec 2021 18:48:40 +0100
-Message-Id: <20211221174844.56385-11-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20211221174844.56385-1-miquel.raynal@bootlin.com>
-References: <20211221174844.56385-1-miquel.raynal@bootlin.com>
+        id S240618AbhLURuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 12:50:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36726 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240617AbhLURuA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 12:50:00 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 081E0C061574
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 09:50:00 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id n15-20020a17090a394f00b001b0f6d6468eso3281925pjf.3
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 09:50:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:subject:message-id:mime-version:content-disposition;
+        bh=3WuOUCrryImJbXB2WCBkwFWt0FxwBfpNH17/pgACY+I=;
+        b=lzeR3Yutyko4ue6zpPRkYnHeFeYHkYhWi2HXhnFmwSgZoxDqIWPVRvClbdjrhYxlqn
+         rRahbnj/TAVnUbFIZ5ENChl6PjdsnrepASDPJ0J+xwwmq3H6g2ou/kb8zCAu9NT5BpcJ
+         AMRyX0brEuACkdB8QksmLYwkAdoPookmljTV4+EfHYsniKZtEo1234IFaB5yzc+CWhxQ
+         OwOmjoLU/E4dLwsuyrRgBHGan/brF3xaE+/E286jLvJBjSMuJL743L/Lb8sIryR7MxlT
+         niHZqijpYCCz8wNg03eafr8zUD9MJpp9X9ERSgFOzxbstw7c4dgSGX6DkTGENKuHdgPz
+         Ti4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
+         :content-disposition;
+        bh=3WuOUCrryImJbXB2WCBkwFWt0FxwBfpNH17/pgACY+I=;
+        b=KbeDknHvCrJraTDta4mjvUXhl+h1dEOlHR6QeI6lg9zlPA4yeWvfTKEWnDQDtbOmN0
+         NRKCrHBsV8qJnTYB5KsyM+vpoRWMs4d/X+mKDsRJGxll4NS7NLWbsqVJSk9LYubHX0W9
+         zHZ3YOISJmbmpOi9Y6CutQOitetz5ElqenFvdvy+qdJY8LEEhMFXPSizA/ZmAb6WOskf
+         4S6Jg1ci0eEcBQb5FsBUqZV03capwFEY6h1EPy7i0ZwO4xys8/fx4pDBuWuF08ccGGhu
+         qTKgilsu8GFsuQAHHoRCoa/YQgloZb5NoQ40hKma3lEclg5CMB67nHuYhFBwxVpaqcro
+         0wcA==
+X-Gm-Message-State: AOAM53165mk1O7bovE5NvB1IQFP8duXimmcVfL5W+WutFDT/vQlolF7+
+        +BOpPJYWuDktzkj5syg1ZH3TqYDZn4anKA==
+X-Google-Smtp-Source: ABdhPJz0vVis2VVtEM14U7c9o8vJIaGgVJcvJ/qH5SNZxuL1Nnj3X2DTNXCe4nbmVVnFrHUj8U8NEA==
+X-Received: by 2002:a17:90b:1b04:: with SMTP id nu4mr5396994pjb.72.1640108999342;
+        Tue, 21 Dec 2021 09:49:59 -0800 (PST)
+Received: from devoptiplex ([70.102.108.170])
+        by smtp.gmail.com with ESMTPSA id d3sm14051739pfv.192.2021.12.21.09.49.58
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Dec 2021 09:49:58 -0800 (PST)
+Date:   Tue, 21 Dec 2021 10:49:57 -0700
+From:   Greg Jesionowski <jesionowskigreg@gmail.com>
+To:     stable@vger.kernel.org
+Subject: Hardware IDs patch, requesting add to stable 5.15.10
+Message-ID: <20211221174957.GA3233@devoptiplex>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-By working with external hardware ECC engines, we figured out that
-Under certain circumstances, it is needed for the SPI controller to
-check INT_TX_EMPTY and INT_RX_NOT_EMPTY in both receive and transmit
-path (not only in the receive path). The delay penalty being
-negligible, move this code in the common path.
+original patch subject: 'net: usb: lan78xx: add Allied Telesis AT29M2-AF'
+upstream commit: ef8a0f6eab1ca5d1a75c242c5c7b9d386735fa0a
+requested kernel: 5.15.10
 
-Fixes: b942d80b0a39 ("spi: Add MXIC controller driver")
-Cc: stable@vger.kernel.org
-Suggested-by: Mason Yang <masonccyang@mxic.com.tw>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Zhengxun Li <zhengxunli@mxic.com.tw>
-Reviewed-by: Mark Brown <broonie@kernel.org>
----
- drivers/spi/spi-mxic.c | 28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+Hello, 
 
-diff --git a/drivers/spi/spi-mxic.c b/drivers/spi/spi-mxic.c
-index 67d05ee8d6a0..aedc9a144b82 100644
---- a/drivers/spi/spi-mxic.c
-+++ b/drivers/spi/spi-mxic.c
-@@ -304,25 +304,21 @@ static int mxic_spi_data_xfer(struct mxic_spi *mxic, const void *txbuf,
- 
- 		writel(data, mxic->regs + TXD(nbytes % 4));
- 
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_TX_EMPTY, 0, USEC_PER_SEC);
-+		if (ret)
-+			return ret;
-+
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_RX_NOT_EMPTY, 0,
-+					 USEC_PER_SEC);
-+		if (ret)
-+			return ret;
-+
-+		data = readl(mxic->regs + RXD);
- 		if (rxbuf) {
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_TX_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
--
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_RX_NOT_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
--
--			data = readl(mxic->regs + RXD);
- 			data >>= (8 * (4 - nbytes));
- 			memcpy(rxbuf + pos, &data, nbytes);
--			WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
--		} else {
--			readl(mxic->regs + RXD);
- 		}
- 		WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
- 
--- 
-2.27.0
+This patch adds hardware IDs for an Allied Telesis USB Gigabit ethernet
+device. People with this device that want to use it need to
+apply the patch manually right now. 
 
+Next time I'll know to add a Cc: for the stable list when a patch is first submitted. 
+
+Greg Jesionowski
