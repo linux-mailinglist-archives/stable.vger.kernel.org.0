@@ -2,67 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A4947C5FB
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 19:11:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF5347C601
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 19:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236910AbhLUSLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 13:11:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42020 "EHLO
+        id S241009AbhLUSLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 13:11:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233449AbhLUSLC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 13:11:02 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6A4C061574;
-        Tue, 21 Dec 2021 10:11:02 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id g2so10457666pgo.9;
-        Tue, 21 Dec 2021 10:11:02 -0800 (PST)
+        with ESMTP id S233321AbhLUSLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 13:11:45 -0500
+Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AE7C06173F
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 10:11:45 -0800 (PST)
+Received: by mail-io1-xd2b.google.com with SMTP id b187so18794858iof.11
+        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 10:11:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:subject:to:cc:references:message-id:date:user-agent
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=60PcoFBXkpHH8tFBM2IBep4sOYr978ha6EWUV4ZY7X4=;
-        b=h0tYups5FGvH0lnBSpzOR3AcWM5aGsXgsLb/pK+t8stGrr35Wm9KDT8VEILYYzstv9
-         yW88hzbBIKKytWeH7WWm9D21gh3/0x0csmaYpgaNkFaNdoHnUq4DRGI2iIsM5IRxvLFO
-         igm6SYe+RV3T75alMmbf7hgw3CC+xjat+4R6gKgbZKeR8TBlYOfqhbsufJbZrFETkih6
-         E0srMrNPIO5mRWEPmSc0MEyspc7BZb+SCx8w2/qX5RDm3KG3TGKna375QykmTDuwcbtf
-         wNI25PFJeLe0klfFjiomKOdn7P0SHTL0MRW1jLlI1X/KcCS96TdaDCz0wbffW+mtnZ8p
-         BEHg==
+        bh=lt8ASTna6/s7WYoDE2q4K1j06mGDiK7CFlaZHGUVnN4=;
+        b=QIPZdV8/IZuwUvSRMxzUzfq3Je1Vzt6PNE/OaTo+RoG/sCO95c6Oj97RPqqCzgREYf
+         363WOX8RCtYiKhhJg5ULf+T8kTh3Hr9VXvHsFG4uMl0DCMGMFbc/g2VTgo8q7aD/jaZm
+         zf9G0a2eHj4Lsz4RDSpA43k3+9OfIEAD1uqkES9WiivawdBqR8SLgiJxgH/rjL7IEwzi
+         bprnWMywrj3bHoEAjQZ7HzzKsJUFx0OYuCvgROCYi4ZyU2VDof8n7HIWMJkfP5W8JaUA
+         hMMwk1V63+P7j35xCXoROoeF5UH5TKe9C5CXiArzr1O960tdEN+WFGhZ32dnN7xyh1S7
+         E0KA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:subject:to:cc:references:message-id:date
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=60PcoFBXkpHH8tFBM2IBep4sOYr978ha6EWUV4ZY7X4=;
-        b=vc24NNaie2lGZGDuOsi2jtUUS/3Tx5QyeY8qKJg5ers9pN29dg0G9ju/Xmp6latWe1
-         lcb23zp+N6CkHOdc9uqfYW1AI62zdr6G0qG+999ie/q7onLSY5phWH4Z8b+zI84834vF
-         2SlRpA7eVLJF/xGVyauWX6N506g8jIXiBLqZuB/+UQ4o9r4JuKQ1n1VQZjPPCnwyUJiz
-         F5lpFpCCrPCf9WizJKcFR+DJlrZEhsGCtrlYhnhT/nbiL7rgaGHLM4DQywlQ9gF+T69q
-         zzN+VskTDfYK2K/Vtaz/5jz2iO5Zq5ithT9HIq25DOcSxzNwyl19dbH71ye40wT/1JQK
-         14iA==
-X-Gm-Message-State: AOAM532xqehSoSpRyiyEvsMCEZSXdjTy1DTckycmXIk+h0hySXgQotsw
-        kGRi17k3QkaDHLIhYfpfNUm5Gz7VGKU=
-X-Google-Smtp-Source: ABdhPJz05CiVltsGeOBsBEY1tHDuqF85B0PRbRlnziM+i40J9vGKjQXsQEBovQe+1F+2mr6adf8YBw==
-X-Received: by 2002:a62:aa15:0:b0:4ba:ca5f:2841 with SMTP id e21-20020a62aa15000000b004baca5f2841mr4360781pff.73.1640110261135;
-        Tue, 21 Dec 2021 10:11:01 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id z71sm20355785pgz.52.2021.12.21.10.10.59
+        bh=lt8ASTna6/s7WYoDE2q4K1j06mGDiK7CFlaZHGUVnN4=;
+        b=MavM5dCaP6U4wFTIXzN4KMyvfSnjZ44WOoiEFHjAfG2N/5KQ8yem05cHHzT3dLQkan
+         iymO0aPD1iU2w0RpIi904zEITbOSvoHEz/rB4V/j47l/cYlTQgCaFbX5c+b4xOwQsMik
+         by4QqzkvyD6SLUeCsCjRuK3vFsN0jO3QgfkNTKAwbeO4gX/Rl36h0idwB9od9RH29VH7
+         JP450C/CNx1sRG2qf4UrescOpZfOhCqvK8Qn07rUGqd07rNGTFfHovftzp50zgdekmaR
+         phBXi76jfBgKB9cMRTDvnDsczKRBwNe1WeU997xiPvOD86YXC6lveXQbsgwKwBauwP76
+         8Ayw==
+X-Gm-Message-State: AOAM5310rsRGWNaQ1lZvlKQEH25hlPStk+bjDphwJep2n/srFOHHQEg5
+        9OIne5Yq9nb8IIXTeNy1AmsaCw==
+X-Google-Smtp-Source: ABdhPJwH4P02unPRRNdUsw9JBuM0NHNpwW1jTeWgQL1azkgmXKw8DCNp4dVwrFHGrSrdrfqGBK3zJA==
+X-Received: by 2002:a02:c6ab:: with SMTP id o11mr2659947jan.303.1640110304536;
+        Tue, 21 Dec 2021 10:11:44 -0800 (PST)
+Received: from [192.168.1.30] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id s3sm11278566ilv.69.2021.12.21.10.11.43
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 21 Dec 2021 10:11:00 -0800 (PST)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.15 000/177] 5.15.11-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20211220143040.058287525@linuxfoundation.org>
-Message-ID: <1b98acd0-5f3b-fbe6-0ece-7c19ac973ed0@gmail.com>
-Date:   Tue, 21 Dec 2021 10:10:58 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        Tue, 21 Dec 2021 10:11:44 -0800 (PST)
+Subject: Re: [PATCH AUTOSEL 5.15 20/29] block: reduce
+ kblockd_mod_delayed_work_on() CPU consumption
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
+References: <20211221015751.116328-1-sashal@kernel.org>
+ <20211221015751.116328-20-sashal@kernel.org>
+ <MWHPR21MB1593141494C76CF5A0BDDB11D77C9@MWHPR21MB1593.namprd21.prod.outlook.com>
+ <ad76826e-73b2-b2f0-3cd4-8481645a6568@kernel.dk> <YcIVqFOrxbG8sqXK@sashalap>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <554684c4-9131-5035-17e5-87dc01bc9ee3@kernel.dk>
+Date:   Tue, 21 Dec 2021 11:11:43 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20211220143040.058287525@linuxfoundation.org>
+In-Reply-To: <YcIVqFOrxbG8sqXK@sashalap>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -70,30 +75,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 12/20/2021 6:32 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.11 release.
-> There are 177 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 12/21/21 10:58 AM, Sasha Levin wrote:
+> On Tue, Dec 21, 2021 at 08:36:33AM -0700, Jens Axboe wrote:
+>> On 12/21/21 8:35 AM, Michael Kelley (LINUX) wrote:
+>>> From: Sasha Levin <sashal@kernel.org> Sent: Monday, December 20, 2021 5:58 PM
+>>>>
+>>>> From: Jens Axboe <axboe@kernel.dk>
+>>>>
+>>>> [ Upstream commit cb2ac2912a9ca7d3d26291c511939a41361d2d83 ]
+>>>>
+>>>> Dexuan reports that he's seeing spikes of very heavy CPU utilization when
+>>>> running 24 disks and using the 'none' scheduler. This happens off the
+>>>> sched restart path, because SCSI requires the queue to be restarted async,
+>>>> and hence we're hammering on mod_delayed_work_on() to ensure that the work
+>>>> item gets run appropriately.
+>>>>
+>>>> Avoid hammering on the timer and just use queue_work_on() if no delay
+>>>> has been specified.
+>>>>
+>>>> Reported-and-tested-by: Dexuan Cui <decui@microsoft.com>
+>>>> Link: https://lore.kernel.org/linux-block/BYAPR21MB1270C598ED214C0490F47400BF719@BYAPR21MB1270.namprd21.prod.outlook.com/
+>>>> Reviewed-by: Ming Lei <ming.lei@redhat.com>
+>>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>>> ---
+>>>>  block/blk-core.c | 2 ++
+>>>>  1 file changed, 2 insertions(+)
+>>>>
+>>>> diff --git a/block/blk-core.c b/block/blk-core.c
+>>>> index c2d912d0c976c..a728434fcff87 100644
+>>>> --- a/block/blk-core.c
+>>>> +++ b/block/blk-core.c
+>>>> @@ -1625,6 +1625,8 @@ EXPORT_SYMBOL(kblockd_schedule_work);
+>>>>  int kblockd_mod_delayed_work_on(int cpu, struct delayed_work *dwork,
+>>>>  				unsigned long delay)
+>>>>  {
+>>>> +	if (!delay)
+>>>> +		return queue_work_on(cpu, kblockd_workqueue, &dwork->work);
+>>>>  	return mod_delayed_work_on(cpu, kblockd_workqueue, dwork, delay);
+>>>>  }
+>>>>  EXPORT_SYMBOL(kblockd_mod_delayed_work_on);
+>>>> --
+>>>> 2.34.1
+>>>
+>>> Sasha -- there are reports of this patch causing performance problems.
+>>> See
+>>> https://lore.kernel.org/lkml/1639853092.524jxfaem2.none@localhost/. I
+>>> would suggest *not* backporting it to any of the stable branches until
+>>> the issues are fully sorted out.
+>>
+>> Both this and the revert were backported. Which arguably doesn't make a
+>> lot of sense, but at least it's consistent and won't cause any issues...
 > 
-> Responses should be made by Wed, 22 Dec 2021 14:30:09 +0000.
-> Anything received after that time might be too late.
+> The logic behind it is that it makes it easy for both us as well as
+> everyone else to annotate why a certain patch might be "missing" from
+> the trees - in this case because it was reverted.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.11-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> It looks dumb now, but it saves a lot of time as well as mitigates the
+> risk of it being picked up again at some point in the future.
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+It's fine with me, when I saw the first patch yesterday I did get
+worried, but then I saw the revert was picked too. As I said, as long
+as the end result is sane, then there's no harm in doing it this way.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Florian
+Jens Axboe
 
