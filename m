@@ -2,128 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 401A847B6E6
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 02:35:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 388D247B700
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 02:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbhLUBf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Dec 2021 20:35:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39472 "EHLO
+        id S231640AbhLUB55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Dec 2021 20:57:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229732AbhLUBf1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 20:35:27 -0500
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACCADC061574
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 17:35:26 -0800 (PST)
-Received: by mail-pg1-x52b.google.com with SMTP id 2so4087795pgb.12
-        for <stable@vger.kernel.org>; Mon, 20 Dec 2021 17:35:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/Smp1fdiYR5dDNiMPriFF/dFzgarzp+oAhkrCJjdt4M=;
-        b=xEh6f+xwJXRW2y/ENF38/ztNw7a4tiWVI/vi0wC22auYjRLyjw0e9xzIvH7jJQ/MDC
-         2OhvMk2XeEL3sAjqzlQ1aaMUdWXGCYeAUhXBFXfbJJeXQcySd3Frpq90eySe36Wzux92
-         MS5QwLImy5wHlGzB8/tnTKmNjFkFiJGnrD3Xt370VPTV+Ma7afKAZalGzrCqrCkEryl2
-         q5A6Mf+HqW6ppe2smOsZVCW+9RRMtNZhPIbl7Rn1xe7T+wHL37zFoweAZB5z9DCuT5Vb
-         YiN9SLL7hKfxAR/VL2MGgT08SiS4Y0csWMu4UtRH44NnpzWS30AY50Lx1KE5x6Dgjb8P
-         8ejw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/Smp1fdiYR5dDNiMPriFF/dFzgarzp+oAhkrCJjdt4M=;
-        b=h13l4uR7SOieoDlkqrcrsNIT/A8Z1HASARZWPh9rt9CRzHAsJ8/s7Jl7zbbOGnML6G
-         ebCutC6DpADPToy/3SuLBf9Qr4NYrlDKRVF9lbR9RixiVqQRER8rNTdaAfkKqAwFYWks
-         7vIfZ6d2bme7NYJRIbV9s9Kk5CH3SOHEiA8FBABdfT3we+QVarpPSu7f3jZZd+rd1U/g
-         85hjB+iZVh/dep2S1+pZjgPP3seCObInhOoyAmzdcedbGyWKqwp6UkaSGtNPCBHEZad+
-         qWwex8QLLGXotg6JrXILVXtxMKXJskpqtDRyXNworYj6W11WbDRhpIXTTaQfN8O6QezT
-         j3IQ==
-X-Gm-Message-State: AOAM530g8pYooSL3pcfNU6j/CPwCZbOFOdH8siDVjrfKxmKGARr/DEpS
-        ASa2dzfXTOnb3mghd2hfpqQtFfgrVP8hQ+op
-X-Google-Smtp-Source: ABdhPJxKYmnutjC5Rybe/cpqEwA8qa0lqt2e++WqREOK9EBsqS6aXFAu5l0ibG2zpqNg/yDgEoAMJw==
-X-Received: by 2002:a05:6a00:1945:b0:44c:a955:35ea with SMTP id s5-20020a056a00194500b0044ca95535eamr696122pfk.85.1640050525800;
-        Mon, 20 Dec 2021 17:35:25 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j4sm3631205pfj.34.2021.12.20.17.35.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Dec 2021 17:35:25 -0800 (PST)
-Message-ID: <61c12f5d.1c69fb81.92ba4.988b@mx.google.com>
-Date:   Mon, 20 Dec 2021 17:35:25 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231309AbhLUB54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Dec 2021 20:57:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97F2C061574;
+        Mon, 20 Dec 2021 17:57:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7008AB810D9;
+        Tue, 21 Dec 2021 01:57:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24922C36AE5;
+        Tue, 21 Dec 2021 01:57:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1640051874;
+        bh=MF0eNFJRJARBRnTNa6hHpQ/Rs3ZB3qikLkkVFdKAfak=;
+        h=From:To:Cc:Subject:Date:From;
+        b=B53Q89pcH5PZFHm7enwkb9EzZXDqbDYfGLe1uU3Nn3MK0Q6+5c8J59ieOVZad+rwI
+         TwWb9QtZ2IqHOo1TwPNpx0FB/O2yxKFY8sacoEG32jHb4iGb1+alt4UF6jCGWy+xNu
+         DhQviNJzwSnrKiCoJhyx1StIhL7mOzXmjRUmZT+s1G6vkJZrY1MUqgOgJ6e0VD4F7W
+         FHFo7NbtVegZP/9WUaPE7wpFC1e/9lKqvVkJFO2sfHwQRGY4Xf09qUj/wV8efNwNDH
+         ygOqbercNyuhmLdwS3Sblc2Lx0+8Y11UK2iS3hnAnRAe3X6obbsow5lGLhVLKv5DTJ
+         yIy+6wbf7pAMA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 01/29] ARM: dts: imx6qp-prtwd3: update RGMII delays for sja1105 switch
+Date:   Mon, 20 Dec 2021 20:57:22 -0500
+Message-Id: <20211221015751.116328-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.10-177-gaed9163d4cc5
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.15 baseline: 190 runs,
- 1 regressions (v5.15.10-177-gaed9163d4cc5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 190 runs, 1 regressions (v5.15.10-177-gaed91=
-63d4cc5)
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Regressions Summary
--------------------
+[ Upstream commit f2c2e9ebb2cf476c09e59d073db031fbf7ef4914 ]
 
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
+In the new behavior, the sja1105 driver expects there to be explicit
+RGMII delays present on the fixed-link ports, otherwise it will complain
+that it falls back to legacy behavior, which is to apply RGMII delays
+incorrectly derived from the phy-mode string.
 
+In this case, the legacy behavior of the driver is to apply both RX and
+TX delays. To preserve that, add explicit 2 nanosecond delays, which are
+identical with what the driver used to add (a 90 degree phase shift).
+The delays from the phy-mode are ignored by new kernels (it's still
+RGMII as long as it's "rgmii*" something), and the explicit
+{rx,tx}-internal-delay-ps properties are ignored by old kernels, so the
+change works both ways.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.10-177-gaed9163d4cc5/plan/baseline/
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm/boot/dts/imx6qp-prtwd3.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.10-177-gaed9163d4cc5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      aed9163d4cc5fd06b5b67e129e28ac78311df559 =
+diff --git a/arch/arm/boot/dts/imx6qp-prtwd3.dts b/arch/arm/boot/dts/imx6qp-prtwd3.dts
+index b92e0f2748a51..29dd59bfa73dd 100644
+--- a/arch/arm/boot/dts/imx6qp-prtwd3.dts
++++ b/arch/arm/boot/dts/imx6qp-prtwd3.dts
+@@ -178,6 +178,8 @@ port@4 {
+ 				label = "cpu";
+ 				ethernet = <&fec>;
+ 				phy-mode = "rgmii-id";
++				rx-internal-delay-ps = <2000>;
++				tx-internal-delay-ps = <2000>;
+ 
+ 				fixed-link {
+ 					speed = <100>;
+-- 
+2.34.1
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-                 | regressions
--------------------------+--------+---------------+----------+-------------=
------------------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-n...6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61c0f728883f57c5b039718d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-177-gaed9163d4cc5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.10-=
-177-gaed9163d4cc5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
-ra/baseline-minnowboard-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61c0f728883f57c5b0397=
-18e
-        failing since 1 day (last pass: v5.15.10-112-g7598a4f34463, first f=
-ail: v5.15.10-111-g991fdb79a273) =
-
- =20
