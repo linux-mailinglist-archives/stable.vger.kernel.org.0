@@ -2,111 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC4147BFAA
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 13:25:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 939E447C0F6
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 14:44:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237560AbhLUMYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 07:24:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44964 "EHLO
+        id S235515AbhLUNox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 08:44:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237551AbhLUMYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 07:24:50 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496F3C06173F
-        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 04:24:50 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id bm14so38455383edb.5
-        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 04:24:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MoTPJgJK0kZOerSu3Jp9Zb+6CJ0WBkqc48qX6OzMzxM=;
-        b=AcXpAvYJL3+SogW72d+2cvTlPfSSLhUoTiSJYa5yyLkarMdsABl5w9RwhqH0iPoECC
-         4p4Q/mmwahrfYNtqZ12rTk4/hzDdYnB55guBF4Q44fZDtSe82RNItbEG9yOy+0b3Ot7G
-         qEJ2+P1ufHfLZti3MBwimSl/Xv7XCf8L4E1vk/mSyf5G5pW3ZNVxeQe6GCdBwFAv8cXO
-         Ha/XIeQUkHoCvCpoAFWSKHdRfSekatwAOQaOyBqL2oo32p4dX7sWGj5vkdnQrFCcxWHV
-         mRx7IzyAqKAOkfXnI9i/Gh5F0ZjhRjTSPnNljSTs/5BwuhtBlFmckI+QXGH5ohKnmIDo
-         b9/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MoTPJgJK0kZOerSu3Jp9Zb+6CJ0WBkqc48qX6OzMzxM=;
-        b=B0g+4ht+Y4UfCOJVm0jrH/1JLaMhuu0y47tJqfBNOkmyeqdpUU0Um/143Gi73aqa+8
-         ozy7/mVmq+e9f7usLSWxn1snYa/fFMng6gjizBubnVFvl+KwcSa/OqT52yhDv8rAueW0
-         gmJrWH5vUooG+fEtAiMyqckV5dp0EmLoK1zvnKUM3nQd2oNh+NunpFG9J4lHlhcOyIc+
-         AHMsZa419LgLQZ6U7tEaQI++tEkWZHast44QN0/627Pzyt06iwu9tXw9IJwXVpc9dBpl
-         3v2kBvcnzleg1C0hjXLXsmFInxfiYqAH9TIzXLNtWzAiI78DB8O2x7Ga/60plDZpqOcd
-         dN6w==
-X-Gm-Message-State: AOAM530l7I4tFCSrZDz8tDGYCwAI9dzRNOGCHokFBHpuXeat4+kUrax8
-        Eap7fc63UXfv6gm/MWf+jdBG0OJ2tohIeRRTArPQKQ==
-X-Google-Smtp-Source: ABdhPJyj+NVUeXk90XBlkTzieM83fRys2s8IsWREHaLZ7Vl5Sxqah7M8SCVRkQ/IZz/fkjggv7qm9GS6vSi+KHPu/y8=
-X-Received: by 2002:a17:906:4904:: with SMTP id b4mr2606178ejq.174.1640089488801;
- Tue, 21 Dec 2021 04:24:48 -0800 (PST)
+        with ESMTP id S234681AbhLUNow (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 08:44:52 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E5CC06173F;
+        Tue, 21 Dec 2021 05:44:52 -0800 (PST)
+Received: from ip4d173d4a.dynamic.kabel-deutschland.de ([77.23.61.74] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1mzfRe-0000yG-Re; Tue, 21 Dec 2021 14:44:46 +0100
+Message-ID: <57cd1e60-f412-8439-2c5f-3f38824d9c74@leemhuis.info>
+Date:   Tue, 21 Dec 2021 14:44:46 +0100
 MIME-Version: 1.0
-References: <20211217144119.2538175-1-anders.roxell@linaro.org>
- <20211217144119.2538175-7-anders.roxell@linaro.org> <YcBiFomrxSw1eEUB@kroah.com>
-In-Reply-To: <YcBiFomrxSw1eEUB@kroah.com>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Tue, 21 Dec 2021 13:24:38 +0100
-Message-ID: <CADYN=9K8fD7sSdTy+mCY6dvjutabLnibs3BoAmv1W4sKcPLpXw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 6/6] Input: touchscreen - avoid bitwise vs logical OR warning
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        woojung.huh@microchip.com, UNGLinuxDriver@microchip.com,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org, clang-built-linux@googlegroups.com,
-        ulli.kroll@googlemail.com, linux@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org, amitkarwar@gmail.com,
-        nishants@marvell.com, gbhat@marvell.com, huxinming820@gmail.com,
-        kvalo@codeaurora.org, linux-wireless@vger.kernel.org,
-        rostedt@goodmis.org, mingo@redhat.com, dmitry.torokhov@gmail.com,
-        ndesaulniers@google.com, nathan@kernel.org,
-        linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH v10 2/2] btbcm: disable read tx power for some Macs with
+ the T2 Security chip
+Content-Language: en-BS
+To:     Marcel Holtmann <marcel@holtmann.org>,
+        Aditya Garg <gargaditya08@live.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Daniel Winkler <danielwinkler@google.com>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
+ <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
+ <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
+ <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
+ <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
+ <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
+ <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
+ <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
+ <92FBACD6-F4F2-4DE8-9000-2D30852770FC@live.com>
+ <3716D644-CD1B-4A5C-BC96-A51FF360E31D@live.com>
+ <9E6473A2-2ABE-4692-8DCF-D8F06BDEAE29@live.com>
+ <64E15BD0-665E-471F-94D9-991DFB87DEA0@live.com>
+ <A6DD9616-E669-4382-95A0-B9DBAF46712D@live.com>
+ <312202C7-C7BE-497D-8093-218C68176658@live.com>
+ <CDAA8BE2-F2B0-4020-AEB3-5C9DD4A6E08C@live.com>
+ <3F7CFEF0-10D6-4046-A3AE-33ECF81A2EB3@live.com>
+ <DCEC0C45-D974-4DC7-9E86-8F2D3D8F7E1D@live.com>
+ <51575680-E9C3-4962-A3C4-ADCBD6DBCA00@live.com>
+ <BF89065D-FE7B-4E57-BFEF-DEACC67C25AB@holtmann.org>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <BF89065D-FE7B-4E57-BFEF-DEACC67C25AB@holtmann.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1640094292;e3ceae96;
+X-HE-SMSGID: 1mzfRe-0000yG-Re
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Dec 2021 at 11:59, Greg KH <greg@kroah.com> wrote:
->
-> On Fri, Dec 17, 2021 at 03:41:19PM +0100, Anders Roxell wrote:
-> > From: Nathan Chancellor <nathan@kernel.org>
-> >
-> > commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
-> >
-> > A new warning in clang points out a few places in this driver where a
-> > bitwise OR is being used with boolean types:
-> >
-> > drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-> >         data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
-> >                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >
-> > This use of a bitwise OR is intentional, as bitwise operations do not
-> > short circuit, which allows all the calls to touchscreen_get_prop_u32()
-> > to happen so that the last parameter is initialized while coalescing the
-> > results of the calls to make a decision after they are all evaluated.
-> >
-> > To make this clearer to the compiler, use the '|=' operator to assign
-> > the result of each touchscreen_get_prop_u32() call to data_present,
-> > which keeps the meaning of the code the same but makes it obvious that
-> > every one of these calls is expected to happen.
-> >
-> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> > Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-> > ---
-> >  drivers/input/touchscreen/of_touchscreen.c | 18 +++++++++---------
-> >  1 file changed, 9 insertions(+), 9 deletions(-)
->
-> Also needed in 5.10.y and 5.4.y.
->
-> Please be more careful next time.
+Hi, this once again is your Linux kernel regression tracker speaking.
 
-Yes I will, I'm sorry.
+On 03.12.21 22:28, Marcel Holtmann wrote:
 
-Cheers,
-Anders
+>> Some Macs with the T2 security chip had Bluetooth not working.
+>> To fix it we add DMI based quirks to disable querying of LE Tx power.
+>>
+>> Signed-off-by: Aditya Garg <gargaditya08@live.com>
+>> Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
+>> Tested-by: Orlando Chamberlain <redecorating@protonmail.com>
+>> Link:
+>> https://lore.kernel.org/r/4970a940-211b-25d6-edab-21a815313954@protonmail.com
+>> Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
+
+If anyone wonders: this was for v5.11-rc1.
+
+>> Cc: stable@vger.kernel.org
+>> ---
+>> v7 :- Removed unused variable and added Tested-by.
+>> v8 :- No change.
+>> v9 :- Add Cc: stable@vger.kernel.org
+>> v10 :- Fix gitlint
+>> drivers/bluetooth/btbcm.c | 39 +++++++++++++++++++++++++++++++++++++++
+>> 1 file changed, 39 insertions(+)
+> 
+> patch has been applied to bluetooth-next tree.
+And there are these two pages now for 19 days. What's the hold-up? Or do
+you consider the changes to dangerous to merge now?
+
+Sure, it's not a recent regression, so it might not look that urgent.
+But it OTOH affects everyone that can't go back to v5.10 (the newest
+Longterm kernel without the regression) -- for example if a user needs a
+post-v5.10 feature or upgrades to a distro with a newer kernel.
+
+That's why this fix (unless you considerer it to dangerous) IMHO should
+be merged rather sooner than later and and not wait for the merge window
+of v5.17. Another aspect against waiting for the next merge window: it
+contributes to piling up a large number of changes that need to be
+backported to stable and longterm kernels once v5.17-rc1 is out,
+resulting in stable and longterm releases with a huge pile of changes:
+https://lwn.net/Articles/863505/
+
+Ciao, Thorsten
+
+#regzbot poke
