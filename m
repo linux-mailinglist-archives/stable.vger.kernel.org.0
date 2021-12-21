@@ -2,200 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D983647C515
-	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 18:34:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3CF47C559
+	for <lists+stable@lfdr.de>; Tue, 21 Dec 2021 18:49:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234136AbhLURew (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Dec 2021 12:34:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230377AbhLURew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 12:34:52 -0500
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58F08C061574
-        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 09:34:52 -0800 (PST)
-Received: by mail-ot1-x32a.google.com with SMTP id r10-20020a056830080a00b0055c8fd2cebdso17510740ots.6
-        for <stable@vger.kernel.org>; Tue, 21 Dec 2021 09:34:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=u+4aD5Pe6rsO93aXXQVERPguDn8LEagFobvNQYR5AMY=;
-        b=qlnub33qV4W7YlZJhHMjbzC+h6WX/94y1RwbNLLHvKmsu+ox4HVbc9CWMxtbPAGsIA
-         tjqC3MO+uOXryktkOwyzbK56qQpn/+hiAFaJJP7bPqa/f6vj+7GNkSE/Fbgh/cunVNLs
-         2n5XgBB+ZeSx5UTUoHfC9SqzJMZ/5S7/RzMxLMMtWgwMoAVgMzaD7YG3BJJE8j9dZv1h
-         ycqHvKU/v6+mllXm+Fs0auAxTr6bhEWZMfwBw6H1X8cTwsE2jRj/uuKyRJl2nHCredx+
-         zXQucCZCTAvwca8yJ/k646rw3EJeQ7ebxGb4MOcBQPc2rjVX4X/XdMdoHVdeBTFDz7Fb
-         cCpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=u+4aD5Pe6rsO93aXXQVERPguDn8LEagFobvNQYR5AMY=;
-        b=bqtFjGS9+ic6HJaIIWeZdIOfnuWS0iwcgRVMZAND9kcQyxwmTGEdJ7cOqlJTo0fvQa
-         q3o0StjSfo6DbQWJ5i+lhyXTbA2dbbbtlJ1z2asWgdDwZwRQ83TuZi3xV014XSbldCEw
-         nF2EEPwQVjPPv3FTN2OOp93JvilNzMEzBQs645gIk3uo6N9iYzZAmGQkY2IBCxORq8BX
-         gpTnO3300Y669jrWVUyePbipKfHvz2LT6l4OggphSWJXUNsx4eWKZoTsPvevMPX76SrS
-         1Pe0kc3mYvZ+Z4Y0vFLdqyb3WNJDT/wwPP/J0T2/+I72T5E8F1yiGARIFUo+AoSfXG2T
-         LXgw==
-X-Gm-Message-State: AOAM533UgBKf+bYjNjajvoCs/S3Uc6qq2x7pr1wgsCtsmK0P61DBRGKC
-        XHbEVOhiPDJmuniiO1Wi+vHk/orYxGIk7f8BpLeWxw==
-X-Google-Smtp-Source: ABdhPJwSPyuU2fRgegim+90H8AF9sLEywy3fam6vEwJ68FP5oAYF/cHGAfxmlg6p5PD69Tb+7ROuRpuZ/12Rv7/K8y4=
-X-Received: by 2002:a9d:2ab:: with SMTP id 40mr3114788otl.208.1640108091530;
- Tue, 21 Dec 2021 09:34:51 -0800 (PST)
+        id S240582AbhLURtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Dec 2021 12:49:05 -0500
+Received: from relay12.mail.gandi.net ([217.70.178.232]:37459 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230248AbhLURtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Dec 2021 12:49:05 -0500
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 898BB200003;
+        Tue, 21 Dec 2021 17:49:02 +0000 (UTC)
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
+        Pratyush Yadav <p.yadav@ti.com>,
+        Michael Walle <michael@walle.cc>,
+        <linux-mtd@lists.infradead.org>
+Cc:     Mark Brown <broonie@kernel.org>, <linux-spi@vger.kernel.org>,
+        Julien Su <juliensu@mxic.com.tw>,
+        Jaime Liao <jaimeliao@mxic.com.tw>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Xiangsheng Hou <xiangsheng.hou@mediatek.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Mason Yang <masonccyang@mxic.com.tw>,
+        Zhengxun Li <zhengxunli@mxic.com.tw>
+Subject: [PATCH v8 10/14] spi: mxic: Fix the transmit path
+Date:   Tue, 21 Dec 2021 18:48:40 +0100
+Message-Id: <20211221174844.56385-11-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20211221174844.56385-1-miquel.raynal@bootlin.com>
+References: <20211221174844.56385-1-miquel.raynal@bootlin.com>
 MIME-Version: 1.0
-References: <20211220143017.842390782@linuxfoundation.org>
-In-Reply-To: <20211220143017.842390782@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 Dec 2021 23:04:40 +0530
-Message-ID: <CA+G9fYvDRXZ5se1Y9TPWx5cfaDC9JTRSv=Js0w-Pu8qObZDnFw@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/23] 4.4.296-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Dec 2021 at 20:07, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.296 release.
-> There are 23 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 22 Dec 2021 14:30:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.296-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+By working with external hardware ECC engines, we figured out that
+Under certain circumstances, it is needed for the SPI controller to
+check INT_TX_EMPTY and INT_RX_NOT_EMPTY in both receive and transmit
+path (not only in the receive path). The delay penalty being
+negligible, move this code in the common path.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Fixes: b942d80b0a39 ("spi: Add MXIC controller driver")
+Cc: stable@vger.kernel.org
+Suggested-by: Mason Yang <masonccyang@mxic.com.tw>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Zhengxun Li <zhengxunli@mxic.com.tw>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+---
+ drivers/spi/spi-mxic.c | 28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+diff --git a/drivers/spi/spi-mxic.c b/drivers/spi/spi-mxic.c
+index 67d05ee8d6a0..aedc9a144b82 100644
+--- a/drivers/spi/spi-mxic.c
++++ b/drivers/spi/spi-mxic.c
+@@ -304,25 +304,21 @@ static int mxic_spi_data_xfer(struct mxic_spi *mxic, const void *txbuf,
+ 
+ 		writel(data, mxic->regs + TXD(nbytes % 4));
+ 
++		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
++					 sts & INT_TX_EMPTY, 0, USEC_PER_SEC);
++		if (ret)
++			return ret;
++
++		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
++					 sts & INT_RX_NOT_EMPTY, 0,
++					 USEC_PER_SEC);
++		if (ret)
++			return ret;
++
++		data = readl(mxic->regs + RXD);
+ 		if (rxbuf) {
+-			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
+-						 sts & INT_TX_EMPTY, 0,
+-						 USEC_PER_SEC);
+-			if (ret)
+-				return ret;
+-
+-			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
+-						 sts & INT_RX_NOT_EMPTY, 0,
+-						 USEC_PER_SEC);
+-			if (ret)
+-				return ret;
+-
+-			data = readl(mxic->regs + RXD);
+ 			data >>= (8 * (4 - nbytes));
+ 			memcpy(rxbuf + pos, &data, nbytes);
+-			WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
+-		} else {
+-			readl(mxic->regs + RXD);
+ 		}
+ 		WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
+ 
+-- 
+2.27.0
 
-## Build
-* kernel: 4.4.296-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.4.y
-* git commit: f46f7fed481068d1389efbf0122c45cb9f36480d
-* git describe: v4.4.295-24-gf46f7fed4810
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.y/build/v4.4.2=
-95-24-gf46f7fed4810
-
-## No Test Regressions (compared to v4.4.295-6-ge478503b16a3)
-
-## No Test Fixes (compared to v4.4.295-6-ge478503b16a3)
-
-## Test result summary
-total: 46356, pass: 37461, fail: 177, skip: 7721, xfail: 997
-
-## Build Summary
-* arm: 129 total, 129 passed, 0 failed
-* arm64: 31 total, 31 passed, 0 failed
-* i386: 18 total, 18 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 30 total, 24 passed, 6 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
