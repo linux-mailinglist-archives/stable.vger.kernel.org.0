@@ -2,111 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FF2D47DDEA
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 03:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D2347DE26
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 04:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241956AbhLWC5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 21:57:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33838 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242024AbhLWC4y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 21:56:54 -0500
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F79C061757;
-        Wed, 22 Dec 2021 18:56:53 -0800 (PST)
-Received: by mail-qv1-xf31.google.com with SMTP id fq10so3981794qvb.10;
-        Wed, 22 Dec 2021 18:56:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=iOaeq1ltcsHbT2VFHG2JnaFkk9N0hH51i2oF/BC7WdM=;
-        b=BZSRI2qumXOY5MVBm8/Hd12OBgjK/ia30/Ksq2FaklvZAR1AFabkD87VBtJnaKjByl
-         SSZSNM5zVd1CPPMraVVpgOyvPXfZv80EJV64+euzSEwjZj2Ho0zMnkXRCqyvs+8QQiis
-         L5v4gAdkapMXJyL58EmjpTNBsbyzfjI6JeMpYd1GMXsysnzKs6m8YZ4nmV4wQWHgkcj9
-         8dmq2c9SE2PE3zRZqu0iPHUKqHIg4cKRWTq8Tup5pdo0OLZnCiV+5pq2FNmoiPHs/kEk
-         XAGP8xRGe7KGMXxdxVkKImV4Q9/FLcPqE3AOWb7A2L01PA0aEjjJYkdIBhA0CjTkbzhJ
-         qcNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=iOaeq1ltcsHbT2VFHG2JnaFkk9N0hH51i2oF/BC7WdM=;
-        b=BW2o8rw1TQLu771kpNeKuD54/yfwm63xCmIMqaMPk8hoPAkwmnx4bI6SxDnSmeVS5R
-         p31CmFAW5uqAmhTN0jk9OpALFGGFq85fdNpfsQW2vlc6iNBmz4Ez5R4URq3PjapUvdkk
-         JGcSJL00E7lEdicLjNap+zhocGX4uMzl66hvnClLfG9IUnhr4jIAKRMuy8cSdbpr80uD
-         udwqKuSSk9pKurAbFYTGiTV0Zv04KFnoYjqSeyxbMsI879aV9OuMYQXlsJNvVN1FPDF0
-         DTdj/Yi8hcCsIEDVtkK6+jQwPYpFYKth4+44Gj0mW6I0yoLeaRTVGEmvfTqzpX0iKQ/4
-         w4og==
-X-Gm-Message-State: AOAM530LUyh/RjIMpXMunbqHQeUBFuk98vy4LwMxowkv+zm9g6OBSEsq
-        ed2qiZ3oN4D2MUFd67Qmx0s=
-X-Google-Smtp-Source: ABdhPJz4e+/HZaPc8a1onr4hOorROLgx6m4j2H5jR66b9xo88LrpKXaMPcwQ6YZOIDr6d9FlHOPtqw==
-X-Received: by 2002:a05:6214:76a:: with SMTP id f10mr440043qvz.80.1640228213118;
-        Wed, 22 Dec 2021 18:56:53 -0800 (PST)
-Received: from localhost.localdomain ([193.203.214.57])
-        by smtp.gmail.com with ESMTPSA id s126sm3126273qkf.7.2021.12.22.18.56.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Dec 2021 18:56:52 -0800 (PST)
-From:   cgel.zte@gmail.com
-X-Google-Original-From: chi.minghao@zte.com.cn
-To:     manfred@colorfullife.com
-Cc:     stable@vger.kernel.org, akpm@linux-foundation.org, arnd@arndb.de,
-        cgel.zte@gmail.com, chi.minghao@zte.com.cn, dbueso@suse.de,
-        linux-kernel@vger.kernel.org, rdunlap@infradead.org,
-        shakeelb@google.com, unixbhaskar@gmail.com, vvs@virtuozzo.com,
-        zealci@zte.com.cn
-Subject: [PATCH v2] ipc/sem: do not sleep with a spin lock held
-Date:   Thu, 23 Dec 2021 02:56:23 +0000
-Message-Id: <20211223025623.556044-1-chi.minghao@zte.com.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <63840bf3-2199-3240-bdfa-abb55518b5f9@colorfullife.com>
-References: <63840bf3-2199-3240-bdfa-abb55518b5f9@colorfullife.com>
+        id S1346254AbhLWDwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 22:52:20 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:38683 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S242010AbhLWDwT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 22:52:19 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id 9F4C73200645;
+        Wed, 22 Dec 2021 22:52:18 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Wed, 22 Dec 2021 22:52:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=turner.link; h=
+        from:to:cc:subject:date:message-id:mime-version:content-type; s=
+        fm1; bh=zfn54E2SBrZu6H5DGu4dRs4BpFYiiAH0eP8Vbw7z++g=; b=g5MFb7PX
+        Vh9Ktk6G/uJRagauc+M9gwPpFy8wg0jHFRzwUKu5DKdRj6fzIQiorkacmCaY2Tf0
+        MuvqHOGSE5ioUG/2CQfwb01bMOeB5CR9Jy1F1PsJKtrTXbqX8yZ1Lepa583++uCx
+        OJleL4pwa4a0wWzRa7FPftxvqzBs++FPkDw62gEI4/IyHavDm2/Oqt79hJQjcuoi
+        EJqLgB4Qrn6vLKiRMFq+q3Mws32lZqiOqgSBqwXbvANS2WjZPzjfICrx6qaqJFw9
+        0/Oq51UmMnqsOMFUmGMWxIO6JTxK9gJ3YEXkrjMqNH+T1uTUITV/M2tNL3AS/12p
+        PVO5tbOTqHpjkg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:message-id
+        :mime-version:subject:to:x-me-proxy:x-me-proxy:x-me-sender
+        :x-me-sender:x-sasl-enc; s=fm1; bh=zfn54E2SBrZu6H5DGu4dRs4BpFYii
+        AH0eP8Vbw7z++g=; b=dBEVlp9MwvpibRr2Lq1hZrLDQvISD3aWqthztsyHiSeZH
+        BAZg++MhbVIcxxB/+DwUx8ym56TUrRaD9EwG7vgbGiFUg4VyIpY6bQcVL7Ig5Wwv
+        10oQAQ9Nh3MseZkfRN2089jLiKShSURZTssRtVqysffCnMz0kJizQAbFWYO8jLiu
+        7TX6broVlcEnrC5K3T3ruWysiUq2/We8EqEBb0V9XkZPU22y3o6CJCFTo401wTsk
+        p+b/QCu6RsM8xaExer72p66vpkzSZ+OVRoVn81pUzAS2KO95iHyRW2v6MGrynvBj
+        doUTh7EdwXRUKuHuSAixvz9SGk1cIO6sskuvk7EAg==
+X-ME-Sender: <xms:cfLDYZ125QeC9YVQx9Z7ygsuVII-wF7Furas8WzU5w5ir8JS-L0UhQ>
+    <xme:cfLDYQGr9ksdD9x9APO2by__Kc1R843PoUgjLgIPkbIbZeayt88XlG1jrIGJeKQD9
+    RpCGL6fIcSLP-hPpg>
+X-ME-Received: <xmr:cfLDYZ4N9m9BmoaP8tIkfXYkw34Oq82VLwCRcY8jn0TiAQdFlI5yAFKUFtOkKo--SjlWBrRBIQ7C2xfmNQcJ_lFy995gbrEm6Q4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddtjedgieegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkfggtgesthdtredttddttdenucfhrhhomhepfdflrghmvghsucff
+    rdcuvfhurhhnvghrfdcuoehlihhnuhigkhgvrhhnvghlrdhfohhsshesughmrghrtgdqnh
+    honhgvrdhtuhhrnhgvrhdrlhhinhhkqeenucggtffrrghtthgvrhhnpedttdelffeuhedt
+    fedtteeitdejueegfefgvefgkeejkeefffejheelieetheehhfenucffohhmrghinhepkh
+    gvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghi
+    lhhfrhhomheplhhinhhugihkvghrnhgvlhdrfhhoshhssegumhgrrhgtqdhnohhnvgdrth
+    hurhhnvghrrdhlihhnkh
+X-ME-Proxy: <xmx:cfLDYW0si5J9avodckNPtsdhW4F97cc2szlwQoQFDAvjMsXdYiglyg>
+    <xmx:cfLDYcGc6yU7ytz2h5DwsGhHvbAU7-6d877g6RiQ8fBFtaAELl8yNw>
+    <xmx:cfLDYX_A-TSvEynL5tjkFJSAWw6TkBcHi6OTtLEyFEuahfihDHT4RQ>
+    <xmx:cvLDYR69wRYI_i7XG9dpJD11r6YrUtXJ0ke1XU5Tf1oK6eyvMOF-8Q>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 22 Dec 2021 22:52:17 -0500 (EST)
+From:   "James D. Turner" <linuxkernel.foss@dmarc-none.turner.link>
+To:     linux-kernel@vger.kernel.org
+Cc:     "Jiri Kosina" <jikos@kernel.org>,
+        "Benjamin Tissoires" <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] HID: holtek-mouse: start hardware in probe
+Date:   Tue, 21 Dec 2021 21:21:41 -0500
+Message-ID: <875yrgf05r.fsf@turner.link>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi <chi.minghao@zte.com.cn>
+The holtek_mouse_probe() function is missing the necessary code to
+start the hardware. When an Etekcity Scroll X1 (M555) USB mouse is
+plugged in, the mouse receives power and the kernel recognizes it as a
+USB device, but the system does not respond to any movement, clicking,
+or scrolling of the mouse. Presumably, this bug also affects all other
+mice supported by the hid-holtek-mouse driver, although this has not
+been tested. On the stable linux-5.15.y branch, testing confirms that
+the bug was introduced in commit a579510a64ed ("HID: check for valid
+USB device for many HID drivers"), which was first included in
+v5.15.8. Based on the source code, this bug appears to be present in
+all currently-supported kernels (mainline, stable, and all LTS
+kernels). Testing on hardware confirms that this proposed patch fixes
+the bug for kernel v5.15.10. Fix holtek_mouse_probe() to call the
+necessary functions to start the hardware.
 
-We can't call kvfree() with a spin lock held, so defer it.
-Fixes: fc37a3b8b438 ("[PATCH] ipc sem: use kvmalloc for sem_undo
-allocation")
-
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
+Fixes: 93020953d0fa ("HID: check for valid USB device for many HID drivers")
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: James D. Turner <linuxkernel.foss@dmarc-none.turner.link>
 ---
-changelog since v2:
-+ Fixes: fc37a3b8b438 ("[PATCH] ipc sem: use kvmalloc for sem_undo
-+ allocation")
- ipc/sem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+This is my first time submitting a kernel patch. I think I've followed
+all the directions, but please let me know if I should do something
+differently.
 
-diff --git a/ipc/sem.c b/ipc/sem.c
-index 6693daf4fe11..0dbdb98fdf2d 100644
---- a/ipc/sem.c
-+++ b/ipc/sem.c
-@@ -1964,6 +1964,7 @@ static struct sem_undo *find_alloc_undo(struct
-ipc_namespace *ns, int semid)
- 	 */
- 	un = lookup_undo(ulp, semid);
- 	if (un) {
-+		spin_unlock(&ulp->lock);
- 		kvfree(new);
- 		goto success;
- 	}
-@@ -1976,9 +1977,8 @@ static struct sem_undo *find_alloc_undo(struct
-ipc_namespace *ns, int semid)
- 	ipc_assert_locked_object(&sma->sem_perm);
- 	list_add(&new->list_id, &sma->list_id);
- 	un = new;
--
--success:
- 	spin_unlock(&ulp->lock);
-+success:
- 	sem_unlock(sma, -1);
- out:
- 	return un;
+In addition to testing this patch for the stable v5.15.10 kernel on real
+hardware, I also tested it for the latest master of the hid repository
+(commit 03090cc76ee3 ("Merge branch 'for-linus' of
+git://git.kernel.org/pub/scm/linux/kernel/git/hid/hid")) using a VM with
+USB passthrough.
+
+ drivers/hid/hid-holtek-mouse.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-holtek-mouse.c b/drivers/hid/hid-holtek-mouse.c
+index b7172c48ef..29e41c97ec 100644
+--- a/drivers/hid/hid-holtek-mouse.c
++++ b/drivers/hid/hid-holtek-mouse.c
+@@ -65,9 +65,16 @@ static __u8 *holtek_mouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ static int holtek_mouse_probe(struct hid_device *hdev,
+ 			      const struct hid_device_id *id)
+ {
++	int ret;
++
+ 	if (!hid_is_usb(hdev))
+ 		return -EINVAL;
+-	return 0;
++
++	ret = hid_parse(hdev);
++	if (!ret)
++		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++
++	return ret;
+ }
+ 
+ static const struct hid_device_id holtek_mouse_devices[] = {
+
+base-commit: 03090cc76ee3298cc70bce26bbe93a0cb50e42a2
 -- 
-2.25.1
+2.34.1
 
