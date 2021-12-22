@@ -2,147 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DDDF47D51D
-	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 17:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BC747D52C
+	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 17:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238886AbhLVQaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 11:30:24 -0500
-Received: from mga11.intel.com ([192.55.52.93]:60913 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236333AbhLVQaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 22 Dec 2021 11:30:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1640190623; x=1671726623;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=OQkd/+4WnQwVupRHWCmJi8rcxsFXTMWhWZ8ZTu/W230=;
-  b=Yf8S+cDQMpZtJ/K/sqaHZQccdJwDYMF60Rn/+fmF5dwYull72kyiTzx2
-   oPQ5+PpkiBzR2V1Ntv3Lpi7TbSxDFmr7u7vHk6A7sYkfVGGib79Sywutn
-   abIOPqInVIQOLrqbjoPbL+/gCBQFfh8g1YE1z1GSyFwLav6HFqjM44+/b
-   afb/m16fjtNp7CMQAFxPWjlYWp7i88ziibNo2xEEW1MwuTC4oJrMPd9It
-   9vNNmPygTxSSM2lZdPhdbI5xO38KytHIoPTl0CS62dozJGPQlZ+9JXCXR
-   EriCIWyGxgtHVrPETX4Od7Z/JEjNfBnF4OnHxWIbHZewvHXLKwjsjVD7X
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10206"; a="238191027"
-X-IronPort-AV: E=Sophos;i="5.88,227,1635231600"; 
-   d="scan'208";a="238191027"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2021 08:30:23 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,227,1635231600"; 
-   d="scan'208";a="613889167"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga002.fm.intel.com with ESMTP; 22 Dec 2021 08:30:23 -0800
-Received: from [10.212.131.121] (kliang2-MOBL.ccr.corp.intel.com [10.212.131.121])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by linux.intel.com (Postfix) with ESMTPS id 3C984580A92;
-        Wed, 22 Dec 2021 08:30:22 -0800 (PST)
-Message-ID: <e4a9aa08-1594-1b7b-a9e6-b1d9221e44d3@linux.intel.com>
-Date:   Wed, 22 Dec 2021 11:30:21 -0500
+        id S231567AbhLVQjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 11:39:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35334 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230213AbhLVQjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 11:39:44 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 225DCC061574
+        for <stable@vger.kernel.org>; Wed, 22 Dec 2021 08:39:44 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id n16so2294570plc.2
+        for <stable@vger.kernel.org>; Wed, 22 Dec 2021 08:39:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=f8Qw+raQFywXmfqbHiH6QeskUQQYnn6cJsGmrxWoWCU=;
+        b=IaXFXKGeQyuWnFm6ktJV/s8He+H74CmHkCCW3y385dORxLS5t+9kJOimBs3z/2VSMM
+         0tjOHEgyWT46ADlc6Y1jlOnsjDtQtcGU7UQ6bpb3ws00XVYo425f1ivGx1cv/y3Pj9gi
+         dJowWfVmPivhplB67/PUEGhXIyqKeXhUNFG3ZTae27OCsdaOR+2Ji9EhRs4/TLHRLNcQ
+         ngzRusUhZwAdWt/HeC1l73Mr55lQuYvx8yt3eTPUt45hz5sdX5NZ/P5pUgNnRLqS4oJU
+         bZ5u6zaJf177FKvG+kUWCKEFmWcEkLKoIU4iVkEC+HAsEGbM9OHPrpyYxrouHZueRjQc
+         jb8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=f8Qw+raQFywXmfqbHiH6QeskUQQYnn6cJsGmrxWoWCU=;
+        b=yXKneDlWtwUvOzUdf6oe5tcaAPAYs3zaD1hk+9kO36m77RHqFdoYFfHMVP7pjA9Jjd
+         0DVeRUU8yI1Msu+ilMKV5+BoXduaYIGiznYibQT785F4BCmqqMOB2MIkF9/utRnkNSyK
+         64a1hlQGCcrVDIZC3nNu5FZYksl9ebeBO8oRZxmetxm7TXnUjli9MO3Uqqy82iA2eFkk
+         3LoW/gFzRY5yrmTGcWsJT5T2h2+ehm/HAGn3GS+ctooQOdR8LLjTm5h5C3aVMefjtrt3
+         +nRgwXBKGro8ExG5lymk91WQR54yOesGgefiJv7Fz9iWGMNKKw+qJ2wdqHhpVYaK4nxm
+         7exA==
+X-Gm-Message-State: AOAM5320O2qkFnOrG8mkNdFXLaPlY24Oahpfweh6ORcB31jw1UVEQQ+r
+        YzQaqqfIzOsKdL58XXfkrNBXOGXXYVoTeR26YtE=
+X-Google-Smtp-Source: ABdhPJwzanagRjsuen8IgYWZDNfVh25y5DOOp+lh3txS1xrlAiKV2KYsU51Ekz81baGzEKPaPxIC9A==
+X-Received: by 2002:a17:902:7248:b0:148:eb68:f6d7 with SMTP id c8-20020a170902724800b00148eb68f6d7mr3601875pll.97.1640191183218;
+        Wed, 22 Dec 2021 08:39:43 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f16sm1420993pfv.135.2021.12.22.08.39.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Dec 2021 08:39:42 -0800 (PST)
+Message-ID: <61c354ce.1c69fb81.19c50.34b8@mx.google.com>
+Date:   Wed, 22 Dec 2021 08:39:42 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v3] perf/x86/intel/uncore: Fix CAS_COUNT_WRITE issue for
- ICX
-Content-Language: en-US
-To:     zhengjun.xing@linux.intel.com, peterz@infradead.org,
-        mingo@redhat.com, acme@kernel.org, linux-kernel@vger.kernel.org
-Cc:     adrian.hunter@intel.com, alexander.shishkin@intel.com,
-        ak@linux.intel.com, kan.liang@intel.com, stable@vger.kernel.org
-References: <20211118160241.329657-1-zhengjun.xing@linux.intel.com>
-From:   "Liang, Kan" <kan.liang@linux.intel.com>
-In-Reply-To: <20211118160241.329657-1-zhengjun.xing@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.222
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.19.y baseline: 193 runs, 2 regressions (v4.19.222)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.19.y baseline: 193 runs, 2 regressions (v4.19.222)
+
+Regressions Summary
+-------------------
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig          | 1          =
 
 
-On 11/18/2021 11:02 AM, zhengjun.xing@linux.intel.com wrote:
-> From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
-> 
-> The user recently report a perf issue in the ICX platform, when test by
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
+/v4.19.222/plan/baseline/
 
-If you have the user's name, you may want to add a Reported-by tag to 
-give them credit. If you don't have, it doesn't matter either.
-
-> perf event “uncore_imc_x/cas_count_write”,the write bandwidth is always
-> very small (only 0.38MB/s), it is caused by the wrong "umask" for the
-> "cas_count_write" event. When double-checking, find "cas_count_read"
-> also is wrong.
-> 
-> The public document for ICX uncore:
-> 
-> https://www.intel.com/content/www/us/en/develop/download/3rd-gen-intel-xeon-processor-scalable-uncore-pm.html
-> 
-> On page 142, Table 2-143, defines Unit Masks for CAS_COUNT:
-> RD b00001111
-> WR b00110000
->
-
-I think we usually want a permanent reference in the change log. The 
-document may be updated later. The page number or the table number may 
-not be accurate anymore.
-
-I guess you may want to give the exact document name and the version 
-number here. So people can still easily locate the information several 
-years later.
-E.g., "3rd Gen Intel® Xeon® Processor Scalable Family, Codename Ice 
-Lake, Uncore Performance Monitoring Reference Manual, Revision 1.00, May 
-2021"
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.19.y
+  Describe: v4.19.222
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      508a321e02f2cc9dfb1f226f7b10dd889887d249 =
 
 
-> So Corrected both "cas_count_read" and "cas_count_write" for ICX.
-> 
-> Old settings:
->   hswep_uncore_imc_events
-> 	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=0x04,umask=0x03")
->   	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=0x04,umask=0x0c")
-> 
-> New settings:
->   snr_uncore_imc_events
-> 	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=0x04,umask=0x0f")
-> 	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=0x04,umask=0x30"),
-> 
-> Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
-> Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
 
-Other than the above comments, the patch looks good to me.
-
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Test Regressions
+---------------- =
 
 
-Thanks,
-Kan
 
-> Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> ---
-> Change log:
-> 
->    v3:
->      * Add change log
-> 
->    v2:
->      * Add stable tag
-> 
->   arch/x86/events/intel/uncore_snbep.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-> index 5ddc0f30db6f..a6fd8eb410a9 100644
-> --- a/arch/x86/events/intel/uncore_snbep.c
-> +++ b/arch/x86/events/intel/uncore_snbep.c
-> @@ -5468,7 +5468,7 @@ static struct intel_uncore_type icx_uncore_imc = {
->   	.fixed_ctr_bits	= 48,
->   	.fixed_ctr	= SNR_IMC_MMIO_PMON_FIXED_CTR,
->   	.fixed_ctl	= SNR_IMC_MMIO_PMON_FIXED_CTL,
-> -	.event_descs	= hswep_uncore_imc_events,
-> +	.event_descs	= snr_uncore_imc_events,
->   	.perf_ctr	= SNR_IMC_MMIO_PMON_CTR0,
->   	.event_ctl	= SNR_IMC_MMIO_PMON_CTL0,
->   	.event_mask	= SNBEP_PMON_RAW_EVENT_MASK,
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c31af428958b7d1739716f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.222/=
+x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-minnow=
+board-turbot-E3826.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.222/=
+x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-minnow=
+board-turbot-E3826.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c31af428958b7d17397=
+170
+        failing since 8 days (last pass: v4.19.220, first fail: v4.19.221) =
+
+ =
+
+
+
+platform                 | arch   | lab           | compiler | defconfig   =
+                 | regressions
+-------------------------+--------+---------------+----------+-------------=
+-----------------+------------
+panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
+fconfig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c31c2478bec77a1f397142
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.222/=
+arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.222/=
+arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61c31c2478bec77=
+a1f397145
+        failing since 14 days (last pass: v4.19.219, first fail: v4.19.220)
+        2 lines
+
+    2021-12-22T12:37:40.569197  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/103
+    2021-12-22T12:37:40.578600  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-12-22T12:37:40.594743  <8>[   21.448669] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
