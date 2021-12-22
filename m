@@ -2,49 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0588A47D182
-	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 13:09:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD5B47D18B
+	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 13:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244818AbhLVMJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 07:09:09 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52112 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244817AbhLVMJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 07:09:08 -0500
+        id S240141AbhLVMNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 07:13:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50124 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233864AbhLVMNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 07:13:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD5E5B81C11
-        for <stable@vger.kernel.org>; Wed, 22 Dec 2021 12:09:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB566C36AE8;
-        Wed, 22 Dec 2021 12:09:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEDB9618AC
+        for <stable@vger.kernel.org>; Wed, 22 Dec 2021 12:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A542FC36AE8;
+        Wed, 22 Dec 2021 12:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640174946;
-        bh=y/2cZjtbc+MFafTCfa1LKr12qou4q20bNrpeg0q/hJg=;
+        s=korg; t=1640175185;
+        bh=Q6CRuRPVnGUIHaZmtwLDd7UoQrWJfTxen0sFQDmC5x4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O/3lNRPayWSEoxV6qEP60LXmgrnnQyC6HqGeMI2xoSW0ZwmvJHFCHSD92LqoIcSKu
-         kIuRZ+ewFtXeZ1FHrgTBFvsThPDLBYZhj65PxQEnwejIIHA/VtwoCqgRwn8JaVyqHp
-         VB5tHDbYAZwn4dUkEJZhz8vGIsRCUOZ3rKqMnjNs=
-Date:   Wed, 22 Dec 2021 13:08:06 +0100
+        b=X1grTQoDbT+z6tGByEvHA3bbsREbQXNq4Aq9drzzXEUU8cdu49V1G28HbzrtmiPrD
+         4FHQghbttuHpddDkm9K9GQ7AtMoDehSCpx1DqvdpU5E12z9kqOBYghNv0BFdbC/3Z7
+         ODTI2avLg2C7jygcGfmGFXKfaXsEGZOWR5nlBi1g=
+Date:   Wed, 22 Dec 2021 13:13:02 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
-Cc:     stable@vger.kernel.org, peter_hong@fintek.com.tw,
-        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>
-Subject: Re: [PATCH V1 1/1] serial: 8250_fintek: Fix garbled text for console
-Message-ID: <YcMVJsREXW9iUBwp@kroah.com>
-References: <20211221090420.19387-1-hpeter+linux_kernel@gmail.com>
+To:     David Howells <dhowells@redhat.com>
+Cc:     jefflexu@linux.alibaba.com, jlayton@redhat.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] netfs: fix parameter of cleanup()" failed
+ to apply to 5.15-stable tree
+Message-ID: <YcMWTgAEslW1Vg57@kroah.com>
+References: <163913443334205@kroah.com>
+ <292330.1639150575@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211221090420.19387-1-hpeter+linux_kernel@gmail.com>
+In-Reply-To: <292330.1639150575@warthog.procyon.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 21, 2021 at 05:04:20PM +0800, Ji-Ze Hong (Peter Hong) wrote:
-> This patch is modified and fix conflict for kernel 5.4 from below patch.
-> Commit 6c33ff728812 ("serial: 8250_fintek: Fix garbled text for console")
+On Fri, Dec 10, 2021 at 03:36:15PM +0000, David Howells wrote:
+> <gregkh@linuxfoundation.org> wrote:
+> 
+> > -			ops->cleanup(netfs_priv, folio_file_mapping(folio));
+> > +			ops->cleanup(folio_file_mapping(folio), netfs_priv);
+> 
+> Is it page->mapping or page_mapping(page) instead of folio_file_mapping()?  If
+> so, you can switch that to the other side instead, e.g.:
+> 
+> -			ops->cleanup(netfs_priv, page_mapping(page));
+> +			ops->cleanup(page_mapping(page), netfs_priv);
+> 
+> David
+> 
 
-Now queued up, thanks.
+Ok, can you or someone send me a fixed up patch like this so that I can
+apply it?
+
+thanks,
 
 greg k-h
