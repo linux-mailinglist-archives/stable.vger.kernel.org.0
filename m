@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9650C47D11A
-	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 12:37:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C5A847D120
+	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 12:39:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244715AbhLVLhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 06:37:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38200 "EHLO
+        id S234813AbhLVLji (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 06:39:38 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39166 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236667AbhLVLhU (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Wed, 22 Dec 2021 06:37:20 -0500
+        with ESMTP id S244730AbhLVLjb (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 22 Dec 2021 06:39:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 467A5B81B9B
-        for <Stable@vger.kernel.org>; Wed, 22 Dec 2021 11:37:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BEAAC36AE8;
-        Wed, 22 Dec 2021 11:37:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF7B2B81BC5
+        for <Stable@vger.kernel.org>; Wed, 22 Dec 2021 11:39:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03326C36AE8;
+        Wed, 22 Dec 2021 11:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640173037;
-        bh=SDUnTQgaaMmObtViAG9QRnxCJxScKDhIfI5poD5sXaU=;
+        s=korg; t=1640173169;
+        bh=dQcovjjN7JIx7TkQstDw4eyPiAqGXKjDRlCL4zQFdP8=;
         h=Subject:To:From:Date:From;
-        b=F5TKeVDRNg68QALc+9LeYucL5YHdW5xJpY69xsMhxEb5/5rz6/uIxziT20eDxlCzM
-         soqsY7rLHHsoS5+W67ChIj6oobJSQrhOEGjdAXv+IGmyg87LT/BLjo4vN8EW74Z0Qr
-         fgfzABRZuZlFHzm20e7BzCCiZCb1lqH3ahica5A4=
-Subject: patch "iio: trigger: Fix a scheduling whilst atomic issue seen on tsc2046" added to char-misc-testing
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        dmitry.torokhov@gmail.com, kernel@pengutronix.de,
-        o.rempel@pengutronix.de
+        b=D3mh+m9TaF0+WiANkIsJ7iWg4TW+gP70Bwy9leJ67UMQnbg7Sq6A1wtMcbInYHCJg
+         rY1CpM+4ed8DdDDlEZTfj99iIkc5aSHKTidNLASil5qcB0NhPuBI+38fxi888ZWlZp
+         HjOUPiFeZkgngSamTesEi1anGPGOoUBGZUBXOFNE=
+Subject: patch "iio: adc: ti-adc081c: Partial revert of removal of ACPI IDs" added to char-misc-testing
+To:     Jonathan.Cameron@huawei.com, Kunyang_Fan@aaeon.com.tw,
+        Stable@vger.kernel.org, andy.shevchenko@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 22 Dec 2021 12:34:55 +0100
-Message-ID: <1640172895139143@kroah.com>
+Date:   Wed, 22 Dec 2021 12:35:15 +0100
+Message-ID: <164017291519187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: trigger: Fix a scheduling whilst atomic issue seen on tsc2046
+    iio: adc: ti-adc081c: Partial revert of removal of ACPI IDs
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -57,126 +56,91 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 9020ef659885f2622cfb386cc229b6d618362895 Mon Sep 17 00:00:00 2001
+From c9791a94384af07592d29504004d2255dbaf8663 Mon Sep 17 00:00:00 2001
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 17 Oct 2021 18:22:09 +0100
-Subject: iio: trigger: Fix a scheduling whilst atomic issue seen on tsc2046
+Date: Sun, 5 Dec 2021 17:27:28 +0000
+Subject: iio: adc: ti-adc081c: Partial revert of removal of ACPI IDs
 
-IIO triggers are software IRQ chips that split an incoming IRQ into
-separate IRQs routed to all devices using the trigger.
-When all consumers are done then a trigger callback reenable() is
-called.  There are a few circumstances under which this can happen
-in atomic context.
+Unfortuanately a non standards compliant ACPI ID is known to be
+in the wild on some AAEON boards.
 
-1) A single user of the trigger that calls the iio_trigger_done()
-function from interrupt context.
-2) A race between disconnecting the last device from a trigger and
-the trigger itself sucessfully being disabled.
+Partly revert the removal of these IDs so that ADC081C will again
+work + add a comment to that affect for future reference.
 
-To avoid a resulting scheduling whilst atomic, close this second corner
-by using schedule_work() to ensure the reenable is not done in atomic
-context.
+Whilst here use generic firmware properties rather than the ACPI
+specific handling previously found in this driver.
 
-Note that drivers must be careful to manage the interaction of
-set_state() and reenable() callbacks to ensure appropriate reference
-counting if they are relying on the same hardware controls.
-
-Deliberately taking this the slow path rather than via a fixes tree
-because the error has hard to hit and I would like it to soak for a while
-before hitting a release kernel.
-
+Reported-by: Kunyang Fan <Kunyang_Fan@aaeon.com.tw>
+Fixes: c458b7ca3fd0 ("iio:adc:ti-adc081c: Drop ACPI ids that seem very unlikely to be official.")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Tested-by: Kunyang Fan <Kunyang_Fan@aaeon.com.tw> #UP-extremei11
+Link: https://lore.kernel.org/r/20211205172728.2826512-1-jic23@kernel.org
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211017172209.112387-1-jic23@kernel.org
 ---
- drivers/iio/industrialio-trigger.c | 36 +++++++++++++++++++++++++++++-
- include/linux/iio/trigger.h        |  2 ++
- 2 files changed, 37 insertions(+), 1 deletion(-)
+ drivers/iio/adc/ti-adc081c.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iio/industrialio-trigger.c b/drivers/iio/industrialio-trigger.c
-index b23caa2f2aa1..d3bdc9800b4a 100644
---- a/drivers/iio/industrialio-trigger.c
-+++ b/drivers/iio/industrialio-trigger.c
-@@ -162,6 +162,39 @@ static struct iio_trigger *iio_trigger_acquire_by_name(const char *name)
- 	return trig;
- }
+diff --git a/drivers/iio/adc/ti-adc081c.c b/drivers/iio/adc/ti-adc081c.c
+index 16fc608db36a..bd48b073e720 100644
+--- a/drivers/iio/adc/ti-adc081c.c
++++ b/drivers/iio/adc/ti-adc081c.c
+@@ -19,6 +19,7 @@
+ #include <linux/i2c.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
++#include <linux/property.h>
  
-+static void iio_reenable_work_fn(struct work_struct *work)
-+{
-+	struct iio_trigger *trig = container_of(work, struct iio_trigger,
-+						reenable_work);
-+
-+	/*
-+	 * This 'might' occur after the trigger state is set to disabled -
-+	 * in that case the driver should skip reenabling.
-+	 */
-+	trig->ops->reenable(trig);
-+}
-+
-+/*
-+ * In general, reenable callbacks may need to sleep and this path is
-+ * not performance sensitive, so just queue up a work item
-+ * to reneable the trigger for us.
-+ *
-+ * Races that can cause this.
-+ * 1) A handler occurs entirely in interrupt context so the counter
-+ *    the final decrement is still in this interrupt.
-+ * 2) The trigger has been removed, but one last interrupt gets through.
-+ *
-+ * For (1) we must call reenable, but not in atomic context.
-+ * For (2) it should be safe to call reenanble, if drivers never blindly
-+ * reenable after state is off.
-+ */
-+static void iio_trigger_notify_done_atomic(struct iio_trigger *trig)
-+{
-+	if (atomic_dec_and_test(&trig->use_count) && trig->ops &&
-+	    trig->ops->reenable)
-+		schedule_work(&trig->reenable_work);
-+}
-+
- void iio_trigger_poll(struct iio_trigger *trig)
+ #include <linux/iio/iio.h>
+ #include <linux/iio/buffer.h>
+@@ -156,13 +157,16 @@ static int adc081c_probe(struct i2c_client *client,
  {
- 	int i;
-@@ -173,7 +206,7 @@ void iio_trigger_poll(struct iio_trigger *trig)
- 			if (trig->subirqs[i].enabled)
- 				generic_handle_irq(trig->subirq_base + i);
- 			else
--				iio_trigger_notify_done(trig);
-+				iio_trigger_notify_done_atomic(trig);
- 		}
- 	}
- }
-@@ -535,6 +568,7 @@ struct iio_trigger *viio_trigger_alloc(struct device *parent,
- 	trig->dev.type = &iio_trig_type;
- 	trig->dev.bus = &iio_bus_type;
- 	device_initialize(&trig->dev);
-+	INIT_WORK(&trig->reenable_work, iio_reenable_work_fn);
+ 	struct iio_dev *iio;
+ 	struct adc081c *adc;
+-	struct adcxx1c_model *model;
++	const struct adcxx1c_model *model;
+ 	int err;
  
- 	mutex_init(&trig->pool_lock);
- 	trig->subirq_base = irq_alloc_descs(-1, 0,
-diff --git a/include/linux/iio/trigger.h b/include/linux/iio/trigger.h
-index 096f68dd2e0c..4c69b144677b 100644
---- a/include/linux/iio/trigger.h
-+++ b/include/linux/iio/trigger.h
-@@ -55,6 +55,7 @@ struct iio_trigger_ops {
-  * @attached_own_device:[INTERN] if we are using our own device as trigger,
-  *			i.e. if we registered a poll function to the same
-  *			device as the one providing the trigger.
-+ * @reenable_work:	[INTERN] work item used to ensure reenable can sleep.
-  **/
- struct iio_trigger {
- 	const struct iio_trigger_ops	*ops;
-@@ -74,6 +75,7 @@ struct iio_trigger {
- 	unsigned long pool[BITS_TO_LONGS(CONFIG_IIO_CONSUMERS_PER_TRIGGER)];
- 	struct mutex			pool_lock;
- 	bool				attached_own_device;
-+	struct work_struct		reenable_work;
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA))
+ 		return -EOPNOTSUPP;
+ 
+-	model = &adcxx1c_models[id->driver_data];
++	if (dev_fwnode(&client->dev))
++		model = device_get_match_data(&client->dev);
++	else
++		model = &adcxx1c_models[id->driver_data];
+ 
+ 	iio = devm_iio_device_alloc(&client->dev, sizeof(*adc));
+ 	if (!iio)
+@@ -210,10 +214,17 @@ static const struct i2c_device_id adc081c_id[] = {
  };
+ MODULE_DEVICE_TABLE(i2c, adc081c_id);
  
- 
++static const struct acpi_device_id adc081c_acpi_match[] = {
++	/* Used on some AAEON boards */
++	{ "ADC081C", (kernel_ulong_t)&adcxx1c_models[ADC081C] },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, adc081c_acpi_match);
++
+ static const struct of_device_id adc081c_of_match[] = {
+-	{ .compatible = "ti,adc081c" },
+-	{ .compatible = "ti,adc101c" },
+-	{ .compatible = "ti,adc121c" },
++	{ .compatible = "ti,adc081c", .data = &adcxx1c_models[ADC081C] },
++	{ .compatible = "ti,adc101c", .data = &adcxx1c_models[ADC101C] },
++	{ .compatible = "ti,adc121c", .data = &adcxx1c_models[ADC121C] },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, adc081c_of_match);
+@@ -222,6 +233,7 @@ static struct i2c_driver adc081c_driver = {
+ 	.driver = {
+ 		.name = "adc081c",
+ 		.of_match_table = adc081c_of_match,
++		.acpi_match_table = adc081c_acpi_match,
+ 	},
+ 	.probe = adc081c_probe,
+ 	.id_table = adc081c_id,
 -- 
 2.34.1
 
