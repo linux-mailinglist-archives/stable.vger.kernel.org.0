@@ -2,118 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5390747D11E
-	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 12:38:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9650C47D11A
+	for <lists+stable@lfdr.de>; Wed, 22 Dec 2021 12:37:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236667AbhLVLif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 06:38:35 -0500
-Received: from avasout-ptp-003.plus.net ([84.93.230.244]:45489 "EHLO
-        avasout-ptp-003.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244717AbhLVLie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 06:38:34 -0500
-X-Greylist: delayed 451 seconds by postgrey-1.27 at vger.kernel.org; Wed, 22 Dec 2021 06:38:34 EST
-Received: from deneb.mcrowe.com ([80.229.24.9])
-        by smtp with ESMTP
-        id zzpimUplcZR9PzzpjmZ3PR; Wed, 22 Dec 2021 11:31:00 +0000
-X-Clacks-Overhead: "GNU Terry Pratchett"
-X-CM-Score: 0.00
-X-CNFS-Analysis: v=2.4 cv=OeX7sjfY c=1 sm=1 tr=0 ts=61c30c74
- a=E/9URZZQ5L3bK/voZ0g0HQ==:117 a=E/9URZZQ5L3bK/voZ0g0HQ==:17
- a=IOMw9HtfNCkA:10 a=CCpqsmhAAAAA:8 a=D19gQVrFAAAA:8 a=-An2I_7KAAAA:8
- a=9qxNCY_qAAAA:8 a=VwQbUJbxAAAA:8 a=YyH_z52Fk-ja-1bQ6OcA:9
- a=ul9cdbp4aOFLsgKbc677:22 a=W4TVW4IDbPiebHqcZpNg:22 a=Sq34B_EcNBM9_nrAYB9S:22
- a=A2X48xt2e1hG9NJDz63Y:22 a=AjGcO6oz07-iQ99wixmX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mcrowe.com;
-        s=20191005; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:
-        Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
-        In-Reply-To:References; bh=utmR9QeNiZBZ8h/FI3HecPMypJ030sfratlWW4ClVGY=; b=nD
-        RRz3Q7kpv/iUFW7Sz69GAQbHA+/kh+4+cm0fPCs4xNB6Z/ugBsNtqLMXSuIG4gmu5QDKNAfYZkRTA
-        O9ISqPykyeMPqgi0FvUZ0fHfp+SvRvghkUpVHme1B/qXypdtidqJxTWa75Lp8DSLR04/Ynpap9Q9B
-        y9bUAQjWJL2MJrIb6GUCC6mYjxtcc9SFoR4k2RttAetLdZsH3zFR8+9ROUEydXFZGJYMpX3cTmuBe
-        3Nxzr+ZsbLdqJy5iI0mqLVLFGJ5Ng4/m3lOd0MnDDV9Bi7Vh4bb225t7Ku0Spzj/WPfDK/iOASy54
-        UILBy3ADUpVhRLTvDUmtR0H4IjHZh/eg==;
-Received: from mac by deneb.mcrowe.com with local (Exim 4.94.2)
-        (envelope-from <mac@mcrowe.com>)
-        id 1mzzpg-0005z8-Ic; Wed, 22 Dec 2021 11:30:56 +0000
-From:   Mike Crowe <mac@mcrowe.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Mike Crowe <mac@mcrowe.com>, Arnd Bergmann <arnd@arndb.de>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] kmsg: Return -ESPIPE rather than EBADF from llseek(SEEK_CUR)
-Date:   Wed, 22 Dec 2021 11:30:54 +0000
-Message-Id: <20211222113054.673553-1-mac@mcrowe.com>
-X-Mailer: git-send-email 2.30.2
+        id S244715AbhLVLhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 06:37:21 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38200 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236667AbhLVLhU (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Wed, 22 Dec 2021 06:37:20 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 467A5B81B9B
+        for <Stable@vger.kernel.org>; Wed, 22 Dec 2021 11:37:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BEAAC36AE8;
+        Wed, 22 Dec 2021 11:37:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640173037;
+        bh=SDUnTQgaaMmObtViAG9QRnxCJxScKDhIfI5poD5sXaU=;
+        h=Subject:To:From:Date:From;
+        b=F5TKeVDRNg68QALc+9LeYucL5YHdW5xJpY69xsMhxEb5/5rz6/uIxziT20eDxlCzM
+         soqsY7rLHHsoS5+W67ChIj6oobJSQrhOEGjdAXv+IGmyg87LT/BLjo4vN8EW74Z0Qr
+         fgfzABRZuZlFHzm20e7BzCCiZCb1lqH3ahica5A4=
+Subject: patch "iio: trigger: Fix a scheduling whilst atomic issue seen on tsc2046" added to char-misc-testing
+To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        dmitry.torokhov@gmail.com, kernel@pengutronix.de,
+        o.rempel@pengutronix.de
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 22 Dec 2021 12:34:55 +0100
+Message-ID: <1640172895139143@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfLvcgtUp4NIZBFCF1+GF1wG43aXAbDjAGEKeTLXmdbemKgtdOZd76lV+Ojlqe39/0INfEvqz7NlWCXD4aMry8zgmAvan4lWK9pmGI3lp/ZLkcQW8hPC9
- SQ0s5EPHyRQQAiOqEkFC0TZD6nazZ0pkNfRqpPUmASfIcGIldzt1UL5NZdjkFiKzdDgGxHeiZKghMw==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-glibc's dprintf implementation tries to determine the current file position
-by calling lseek(fd, 0, SEEK_CUR). Unfortunately it treats receiving EINVAL
-as an error. See https://sourceware.org/bugzilla/show_bug.cgi?id=17830
 
-From what I can tell prior to Kay Sievers printk record commit
-e11fea92e13fb91c50bacca799a6131c81929986, calling lseek(fd, 0, SEEK_CUR)
-with such a file descriptor would not return an error.
+This is a note to let you know that I've just added the patch titled
 
-Prior to Kay's change, Arnd Bergmann's commit
-6038f373a3dc1f1c26496e60b6c40b164716f07e seemed to go to some lengths to
-preserve the successful return code rather than returning (the perhaps more
-logical) -ESPIPE.
+    iio: trigger: Fix a scheduling whilst atomic issue seen on tsc2046
 
-glibc is happy with either a successful return or -ESPIPE. It seems that
-the consensus is to return -ESPIPE in this situation.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
 
-Alexander Sverdlin supplied this test case:
---8<--
- #define _GNU_SOURCE
- #include <stdio.h>
- #include <fcntl.h>
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
- int main(int argc, char **argv)
- {
-         return dprintf(open("/dev/kmsg", O_WRONLY), "\n") < 0;
- }
--->8--
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-A variant of this fix was originally proposed in 2015[1]. The problem
-was woken up again in 2019[2] and this fix was posted[3] shortly
-afterwards, but it did not land. This version has been rebased to fix
-trivial conflicts.
+If you have any questions about this process, please let me know.
 
-[1] https://lkml.org/lkml/2015/1/15/575
-[2] https://lkml.org/lkml/2019/3/21/172
-[3] https://lkml.org/lkml/2019/3/24/279
 
-Signed-off-by: Mike Crowe <mac@mcrowe.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Tested-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Cc: stable@vger.kernel.org
-Fixes: e11fea92e1 ("kmsg: export printk records to the /dev/kmsg interface")
+From 9020ef659885f2622cfb386cc229b6d618362895 Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Sun, 17 Oct 2021 18:22:09 +0100
+Subject: iio: trigger: Fix a scheduling whilst atomic issue seen on tsc2046
+
+IIO triggers are software IRQ chips that split an incoming IRQ into
+separate IRQs routed to all devices using the trigger.
+When all consumers are done then a trigger callback reenable() is
+called.  There are a few circumstances under which this can happen
+in atomic context.
+
+1) A single user of the trigger that calls the iio_trigger_done()
+function from interrupt context.
+2) A race between disconnecting the last device from a trigger and
+the trigger itself sucessfully being disabled.
+
+To avoid a resulting scheduling whilst atomic, close this second corner
+by using schedule_work() to ensure the reenable is not done in atomic
+context.
+
+Note that drivers must be careful to manage the interaction of
+set_state() and reenable() callbacks to ensure appropriate reference
+counting if they are relying on the same hardware controls.
+
+Deliberately taking this the slow path rather than via a fixes tree
+because the error has hard to hit and I would like it to soak for a while
+before hitting a release kernel.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211017172209.112387-1-jic23@kernel.org
 ---
- kernel/printk/printk.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iio/industrialio-trigger.c | 36 +++++++++++++++++++++++++++++-
+ include/linux/iio/trigger.h        |  2 ++
+ 2 files changed, 37 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 57b132b658e1..6013ea991378 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -803,6 +803,11 @@ static loff_t devkmsg_llseek(struct file *file, loff_t offset, int whence)
- 		/* after the last record */
- 		atomic64_set(&user->seq, prb_next_seq(prb));
- 		break;
-+	case SEEK_CUR:
-+		/* For compatibility with userspace expecting SEEK_CUR
-+		 * to not yield EINVAL. */
-+		ret = -ESPIPE;
-+		break;
- 	default:
- 		ret = -EINVAL;
+diff --git a/drivers/iio/industrialio-trigger.c b/drivers/iio/industrialio-trigger.c
+index b23caa2f2aa1..d3bdc9800b4a 100644
+--- a/drivers/iio/industrialio-trigger.c
++++ b/drivers/iio/industrialio-trigger.c
+@@ -162,6 +162,39 @@ static struct iio_trigger *iio_trigger_acquire_by_name(const char *name)
+ 	return trig;
+ }
+ 
++static void iio_reenable_work_fn(struct work_struct *work)
++{
++	struct iio_trigger *trig = container_of(work, struct iio_trigger,
++						reenable_work);
++
++	/*
++	 * This 'might' occur after the trigger state is set to disabled -
++	 * in that case the driver should skip reenabling.
++	 */
++	trig->ops->reenable(trig);
++}
++
++/*
++ * In general, reenable callbacks may need to sleep and this path is
++ * not performance sensitive, so just queue up a work item
++ * to reneable the trigger for us.
++ *
++ * Races that can cause this.
++ * 1) A handler occurs entirely in interrupt context so the counter
++ *    the final decrement is still in this interrupt.
++ * 2) The trigger has been removed, but one last interrupt gets through.
++ *
++ * For (1) we must call reenable, but not in atomic context.
++ * For (2) it should be safe to call reenanble, if drivers never blindly
++ * reenable after state is off.
++ */
++static void iio_trigger_notify_done_atomic(struct iio_trigger *trig)
++{
++	if (atomic_dec_and_test(&trig->use_count) && trig->ops &&
++	    trig->ops->reenable)
++		schedule_work(&trig->reenable_work);
++}
++
+ void iio_trigger_poll(struct iio_trigger *trig)
+ {
+ 	int i;
+@@ -173,7 +206,7 @@ void iio_trigger_poll(struct iio_trigger *trig)
+ 			if (trig->subirqs[i].enabled)
+ 				generic_handle_irq(trig->subirq_base + i);
+ 			else
+-				iio_trigger_notify_done(trig);
++				iio_trigger_notify_done_atomic(trig);
+ 		}
  	}
+ }
+@@ -535,6 +568,7 @@ struct iio_trigger *viio_trigger_alloc(struct device *parent,
+ 	trig->dev.type = &iio_trig_type;
+ 	trig->dev.bus = &iio_bus_type;
+ 	device_initialize(&trig->dev);
++	INIT_WORK(&trig->reenable_work, iio_reenable_work_fn);
+ 
+ 	mutex_init(&trig->pool_lock);
+ 	trig->subirq_base = irq_alloc_descs(-1, 0,
+diff --git a/include/linux/iio/trigger.h b/include/linux/iio/trigger.h
+index 096f68dd2e0c..4c69b144677b 100644
+--- a/include/linux/iio/trigger.h
++++ b/include/linux/iio/trigger.h
+@@ -55,6 +55,7 @@ struct iio_trigger_ops {
+  * @attached_own_device:[INTERN] if we are using our own device as trigger,
+  *			i.e. if we registered a poll function to the same
+  *			device as the one providing the trigger.
++ * @reenable_work:	[INTERN] work item used to ensure reenable can sleep.
+  **/
+ struct iio_trigger {
+ 	const struct iio_trigger_ops	*ops;
+@@ -74,6 +75,7 @@ struct iio_trigger {
+ 	unsigned long pool[BITS_TO_LONGS(CONFIG_IIO_CONSUMERS_PER_TRIGGER)];
+ 	struct mutex			pool_lock;
+ 	bool				attached_own_device;
++	struct work_struct		reenable_work;
+ };
+ 
+ 
 -- 
-2.30.2
+2.34.1
+
 
