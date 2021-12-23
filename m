@@ -2,214 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC4347E2AC
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 12:54:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F0747E38D
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 13:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233724AbhLWLyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 06:54:06 -0500
-Received: from mail-mw2nam12on2062.outbound.protection.outlook.com ([40.107.244.62]:35553
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        id S239400AbhLWMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Dec 2021 07:34:47 -0500
+Received: from mail-vi1eur05on2138.outbound.protection.outlook.com ([40.107.21.138]:36161
+        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1348041AbhLWLyG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Dec 2021 06:54:06 -0500
+        id S243653AbhLWMed (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Dec 2021 07:34:33 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ijIX6Iz2pBBXZcyaXsoWBWvU/V9x3cJ97G3yYcBjVs73yTHnrqDUYR8lKyE5ZoIxIJjCzugh4T5VWXhaVVPpue12+/dGL1su8lWAkFcqBYs6vJl3uF/uJYrVLAsf3pSWIN0GuNV3kpaTHPJ4SH8APWojIjSrIz5jSNUrv9L44AY67rcsSLPidTRRscSHzUmOK1uyznV3/NDXZu8oVecxWgvKpqJS1Pkj6gBjllgqDbGBkHILotII0z2xhKiADrXdekZqXJTRzs/vk92ROV3WXrnUfh955UOBhnWv4mEK+mAYdqW77w5oq8YwfiXZkSAxoYhrLlN8F/p83nMYHdQlcw==
+ b=c9GL38oBqo+Ca61wogey99GYRudCgWq1PKlkC1Iau/XdUmgteR4yxTSAbJB0bRdL++F1/Luw0iQA80/fVVJjiYcvBGw4Cgf5/QoGgJIPBabQzI5XOJ6q6ss/GSiLNzFPFZhFIlfAeQmLfd2OjbJ3PT1oUCcphgCS5quw5ZBmUWsslgN50zLr4VI0PZXvjq7Nyg1uQAROiprfPr6oKRT4MgKpGsveLsls8BCNOCQiMk4oI5tkOSzLaxO4W5uqhtVzkJ6R2rGy+mXGoWqVZUY3H0nUdJsqocXsDdnCDB6yge4GJJCDgey+JvETgJZeWsGER8s60TAYmaqwrF4E8mOpOg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JthUVBn/n9x7garHu4PkRdUcAg4FGaoozbAcDRTDcgU=;
- b=couGccpC/XqKuUc0ef3FbvmF3IjX9CRiHGTf992YT9TgZQdRjKi7kic3BC6yi2qG7qUC3CJvlAHrCc4xlFT4MoOJZTjkdEHuXJq0ctZ3g83SA1cN+mPa5Jo3Cxy6k72BHYp245xP+ta9YyUJn2YuoU7Ruq8sEaHPTI/MApfn7QyBwnOmKsHRd4d6ln1rLU8BYjFDihQdCMEf5CtbGsVmQq3+NggPDa4XMW5B8EoJpQHsOHHkxAexD4cA0kwuCPvABplYeYZ8yyw7oRaUJ5RnpCAeZ158swnclyvAeHfWH+kQSDRh1WEcW0dviTqt1Dx+5U2w+SRC8KQVG00wTT/vXA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.238) smtp.rcpttodomain=suse.com smtp.mailfrom=nvidia.com; dmarc=pass
- (p=reject sp=reject pct=100) action=none header.from=nvidia.com; dkim=none
- (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ bh=OyflxAMYSSgWt13xj7K5edANX56O/i+4ZunAq2FCQjQ=;
+ b=bqHxWTpwcUIU7OZf4lsvdsIZXcpVw2TOJ4lwVyx4F9gznc0ewa4s4t5xQqtKspArvYitKVW7ffvSZU/APuyfLOdfqOwtvABmR0tVYoZ9ZvJ+tJo9td/BEuXWXgytrnOSO+DkgsjwtTpBpsk4i4w3rKwcbfHgOMYSt7NY8YwSKNRJVC/2/2Z5/VQuLAS8QBtxpzHJHeEpmFJCHeiggvk0sXQZpyzXKKIn8YPlT+Wlk2vEPiSStXr3otGixKAqgjF0IT+rxMfwNfAsJ6wnzRaaj3BrEb3qZKBXAf/l3X4itqwz/xw9DktQzFR5Ohk3HAU6mTBemzpaW+yDsi3XKr43cQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
+ header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JthUVBn/n9x7garHu4PkRdUcAg4FGaoozbAcDRTDcgU=;
- b=kXjm0N6lMUTi0mC8Lsl8FAReePDUv6/ZSJ81oXZLmmqZsY83o+r0S1NMVSlChiuHl+mnyPPQoMgKiq3ryxmpnkjljIb/prml3CIPWywb3JkncA15vLi0P7cCFw4som0FWakwAby2nUbAFOIHSwrqa8ADw21M6+WmKASVOzBfwcSPrLwvFPYwFk84myP9IVEBGiTPvakfPpWdURDLmRb06GhKwIjI63bGfHq9h1ymhIid6T9mLKFEoqm3kLqXarQlGAy0JPFB8czrYCP502J9aXfBYnOrzukaT0bKWyNehPfa5WLdyHTFtldFm+/B2xtun8D96zdajvexN4KGUU9AlA==
-Received: from CO2PR04CA0079.namprd04.prod.outlook.com (2603:10b6:102:1::47)
- by BN9PR12MB5180.namprd12.prod.outlook.com (2603:10b6:408:11d::22) with
+ bh=OyflxAMYSSgWt13xj7K5edANX56O/i+4ZunAq2FCQjQ=;
+ b=Htm4mncAl78TQoMhNVdYc82jawWobtW53ybqAqnCxtTii5t4a49hqpJMBefnZ/v0Ct+wees8CGRndRdISgQuahamsFu6qXqxxYeweN8uk5JRAIDsdKmd3z5jyWhiYkbklmIzgElL7GFHXSkgftly22s0ysa7Eb7TyhIyCxyeSQA=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=virtuozzo.com;
+Received: from DB9PR08MB6619.eurprd08.prod.outlook.com (2603:10a6:10:257::21)
+ by DB8PR08MB5050.eurprd08.prod.outlook.com (2603:10a6:10:e2::18) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4801.17; Thu, 23 Dec
- 2021 11:54:03 +0000
-Received: from CO1NAM11FT058.eop-nam11.prod.protection.outlook.com
- (2603:10b6:102:1:cafe::b0) by CO2PR04CA0079.outlook.office365.com
- (2603:10b6:102:1::47) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4823.18 via Frontend
- Transport; Thu, 23 Dec 2021 11:54:03 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.238; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (12.22.5.238) by
- CO1NAM11FT058.mail.protection.outlook.com (10.13.174.164) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4823.18 via Frontend Transport; Thu, 23 Dec 2021 11:54:02 +0000
-Received: from HQMAIL111.nvidia.com (172.20.187.18) by DRHQMAIL105.nvidia.com
- (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Thu, 23 Dec
- 2021 11:54:02 +0000
-Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL111.nvidia.com
- (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Thu, 23 Dec
- 2021 11:54:01 +0000
-Received: from audio.nvidia.com (172.20.187.6) by mail.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server id 15.0.1497.18 via Frontend
- Transport; Thu, 23 Dec 2021 11:53:58 +0000
-From:   Sameer Pujar <spujar@nvidia.com>
-To:     <tiwai@suse.com>, <broonie@kernel.org>, <lgirdwood@gmail.com>,
-        <robh+dt@kernel.org>, <thierry.reding@gmail.com>, <perex@perex.cz>
-CC:     <jonathanh@nvidia.com>, <digetx@gmail.com>, <mkumard@nvidia.com>,
-        <alsa-devel@alsa-project.org>, <devicetree@vger.kernel.org>,
-        <linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Sameer Pujar <spujar@nvidia.com>, <stable@vger.kernel.org>
-Subject: [PATCH v4 1/3] ALSA: hda/tegra: Fix Tegra194 HDA reset failure
-Date:   Thu, 23 Dec 2021 17:23:49 +0530
-Message-ID: <1640260431-11613-2-git-send-email-spujar@nvidia.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1640260431-11613-1-git-send-email-spujar@nvidia.com>
-References: <1640260431-11613-1-git-send-email-spujar@nvidia.com>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4823.14; Thu, 23 Dec
+ 2021 12:34:28 +0000
+Received: from DB9PR08MB6619.eurprd08.prod.outlook.com
+ ([fe80::347f:d385:ec53:75aa]) by DB9PR08MB6619.eurprd08.prod.outlook.com
+ ([fe80::347f:d385:ec53:75aa%7]) with mapi id 15.20.4823.019; Thu, 23 Dec 2021
+ 12:34:28 +0000
+Subject: Re: [PATCH] mm/util.c: Make kvfree() safe for calling while holding
+ spinlocks
+To:     Manfred Spraul <manfred@colorfullife.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     cgel.zte@gmail.com, shakeelb@google.com, rdunlap@infradead.org,
+        dbueso@suse.de, unixbhaskar@gmail.com, chi.minghao@zte.com.cn,
+        arnd@arndb.de, Zeal Robot <zealci@zte.com.cn>, linux-mm@kvack.org,
+        1vier1@web.de, stable@vger.kernel.org
+References: <20211222194828.15320-1-manfred@colorfullife.com>
+ <3ca4dec8-f0bd-740f-73c8-34fc6fc1cf66@virtuozzo.com>
+ <937f1320-6b7e-9aa2-2a21-7fd2f94eeb32@colorfullife.com>
+From:   Vasily Averin <vvs@virtuozzo.com>
+Message-ID: <f24d2e3f-1dfd-7bf4-78fa-4eb515b4cd7c@virtuozzo.com>
+Date:   Thu, 23 Dec 2021 15:34:26 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+In-Reply-To: <937f1320-6b7e-9aa2-2a21-7fd2f94eeb32@colorfullife.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: AS9PR07CA0019.eurprd07.prod.outlook.com
+ (2603:10a6:20b:46c::23) To DB9PR08MB6619.eurprd08.prod.outlook.com
+ (2603:10a6:10:257::21)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 802b4ad0-d585-4524-0d20-08d9c60aea36
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5180:EE_
-X-Microsoft-Antispam-PRVS: <BN9PR12MB518015FEB7D04C306BE57B53A77E9@BN9PR12MB5180.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Office365-Filtering-Correlation-Id: 63d3fb65-e7c8-4ff7-c2d0-08d9c6108fdb
+X-MS-TrafficTypeDiagnostic: DB8PR08MB5050:EE_
+X-Microsoft-Antispam-PRVS: <DB8PR08MB5050D2DDEC5CF5A2D11701B1AA7E9@DB8PR08MB5050.eurprd08.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2150;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 7Y8oKu62bOUs4tBtGDMWKvWVYppqlfxlj7F43MiBgqrZwz9QcBbldOdDe+O214WXoeqYoBJqHkZT8SxU2TKChGpFftZdznEqNDNca4IUQ67aRXGV1JOGbhBW1PuaxaZG8/D1XehehU3QzjjaA14buCs1g6IMlTEQYYW9aqdyeuX8xMWWouRqJPeKm2mhquU19MiNkU771TjUDuSlKXMag5C26gD5LpvGSAwa9eLkKg569+s7XZx8RWre89eKjN4Nik93sxw6KKfEdTJunKKwVOHNyc+SbwXXwqd2uFBwUmCUk+OC9qM9FwRzktkj+mSUEEKgUY+mkoxAXpIX+y2whIc2UegdrCAWGha8ZM6L0iaD0oOjJrH/KLrKElgtUtvose6BHmWZKBrWnS9948ErzX1gcSXnVJdUu69tl6xWybVfbH+AluEwkCOkhAi2vxjRncuB/e+pIqwcud2jwD7VkHRoQHEH6OKHi+Ic7SPhW9PGc6S/1mLkBT0rSgiPalrCWRzP8B/TgEzwzY4BxgEOnjNJ0KC761R5gRmB7mF9dCosf+79A3AiZaj0rJfuuGB9E99vZ6fz7Y2xTgx6DSBSz5ktG2lQrdOD2UQi0D1VZTyIZIkO5sQl4SanmrOZnx03BUeqJ62DjnS9r3Q8yFlx4RmSYsfFhG/1y1eMbpLZTMW1SNLJ/KE8lybJHdyWDoXpjxwHfRV3TEa3eg5EkMLtpN4TE4+OOGOxExhTxGj3WS5+BwuGwYP5TSrA74c1QyOiStEH7iMveD8kzo28TU8tuEOpK0o+yARwmm/qbjPY/IQ=
-X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(40470700002)(81166007)(5660300002)(4326008)(316002)(426003)(186003)(26005)(36860700001)(336012)(36756003)(6666004)(508600001)(2906002)(2616005)(40460700001)(83380400001)(7416002)(356005)(8936002)(54906003)(7696005)(47076005)(82310400004)(70206006)(8676002)(110136005)(70586007)(86362001)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Dec 2021 11:54:02.9613
+X-Microsoft-Antispam-Message-Info: zXiG9oSlQ5icwWttUWJ7FI7n/W5iSvAa2JWPJeLAU82mOzD8OY7uHRhnao0nFmJFy9QGR/G+y/oA/kcdkj3aLadwo8fZuGPsFcrNMHPzKcJvRGcMR9JDDh1SW7Xos3F+OV09yw1HcV1c7uS81hdK1xV58MolUi3Zm8NkVRPgEKxfcTw5ifAPVzgTR71qkpsV9d/6KQfE4BUbeU1M4HWlfgyjW1MUXWLHsDL7974UnMd2m+tX9i6yXO/89ENqsU7lfoYuzkiL/woLlfkXdGfQQpLXPD9XVpdT2arjse1pa1XfyGkn/jBOEqI9EADy3CX1xVR4jB6VqfD5RiS1mKdUDSRd37K1lDyYdO61Hnyg0B/pkOrx6bbYlGfowN+XatsU17NXCqgOEY22BNrewszTWigoaJy1jivXrzD+lr7Qwh/UDzZZL27Us3GiRzk1zvVuY3HzK9nR3LCwQwNb/vAo/PDoLUapCiD1wvWoSeJijAF4Yjp5ghMDumoZ5DCu3B82taLd/oxMz+mFpRh8XTA5jLuWyq34L9Vei3hxOV8xdRdgsoxzJU8bgNBD8x9jYVibTPWYK1PGv3EEEOeO+qOCaZYklkULxS1SMTUkkvQKMPnphTEcW0t+/InFiSk388xtTvqAs1KWNliblc+KZrdWVddh4a/xFep1boGGrK7Hm0nYT8wZ4RLQnW06bDn8LBwMhSQZ/JYfxh594vCPrGX946b84YOy2UES2gc5M99NKIPegqNU9Dnx2sjmLxNHOaX7JsrQ9V4KB+OktekTHFiC0g==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR08MB6619.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(53546011)(26005)(4326008)(186003)(38350700002)(6506007)(6512007)(36756003)(2906002)(6486002)(38100700002)(86362001)(2616005)(508600001)(66476007)(66946007)(66556008)(7416002)(52116002)(8676002)(31686004)(5660300002)(316002)(110136005)(31696002)(8936002)(4744005)(45980500001)(43740500002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?N2FZWGFLYkRlZ1N1UzM2YUlYTXZZRUhRN3BvcGpSZE04NlJ6NmhLVDhrekd5?=
+ =?utf-8?B?NUVEUmFGL25aaFh3UkYrM25BTHZDcHhhOUI4YnVMUk1qZ0xQYTh2dVRnS1kz?=
+ =?utf-8?B?eXhOc0g4NXA0eFZuVGpaQnpwNmlMT2JPT2x3WFdPNGxuQVlVVzQvRjZFODA5?=
+ =?utf-8?B?d0ZqS3ptOTRMekovZ1lBWWJmbUxQRHFzVml2ak9OV3lWQTVjSjJ2eHhoajFE?=
+ =?utf-8?B?SVRLMTlPRThWUnRwY1VxaSs0S1V3VHB0NXhCU3lQZE9hS1hqZUJ4Q3grRHdR?=
+ =?utf-8?B?RlRNZ0RmVWNsS2RBS1kvcHpFZ2doV2ovM2UvM2hEZ0NjMTRUa1JlZHpoK1l1?=
+ =?utf-8?B?bVlVRVMreUlXNTduVEZCSk1EUjdmYlNLQWNZZitsNjg5NEw0SlA4SDJ6YVB6?=
+ =?utf-8?B?L215bzFmdXcvU3VpQzZxajByNllQZDRDSmVLUEFsWHlNd2l1VGVKRlRqTDA0?=
+ =?utf-8?B?MHdRaHhWcmFJWFJyY04xc2FKN2V6eENTYUFpM0FjUnAwTEs2bHBVSFhFQVhs?=
+ =?utf-8?B?ZHRxcWdGZW1CVFUyblhUU0NlUFFkc3FPa3hMNTNjaC93V0YvV3UxVlNScWts?=
+ =?utf-8?B?RHVuNSt5YWNaUUdjVUlwY0MvYzYwUTJHWU96ekwxYTR6RXJ3Q3VzYnJmZ1Ny?=
+ =?utf-8?B?TjBEZ1dHUHZqSVdjVDNaMHRoWnFVWUxqRFZmS3JaQVdMSlRpWGRNZU50WEJZ?=
+ =?utf-8?B?NGIxYkwvZzJuTEFRcGFpbFVuSlhmd0RGRzlaVHZacXprWnNzT2hGZ2dkSm40?=
+ =?utf-8?B?cHBpWW52MTJ2dzNxdGx6cHZNTlV3dFFHT3JPVkZBWXp4czBuY3c2eXFVdUZ3?=
+ =?utf-8?B?WVpLN3ZldkJDTmptTklGbllscFd6RWkvYklPb2RLMmVpdGhTa0paVm9OYmZs?=
+ =?utf-8?B?bHhZcytWVkxreFdWeTFWdUpZL1VZa1hwNlQ4NGlNVnFWOGI3Q2d4QkMrSm5G?=
+ =?utf-8?B?MlVtb05aR05rZGMzOXFEN3pGMEFSQ0p1N0Ezcm1sS09MMVEzWGx2MEpBUDUv?=
+ =?utf-8?B?Z1NEbnJmUVA0Y21zcUJRT0xWY0p2d0JCWDFUUnJJOTViTXlMM1NDMVZHZGts?=
+ =?utf-8?B?TkRkME9JRkRVUm5LOE9JZ05pRjdobHFSRmg2T3BLMzVmTEJnVFcrOWY4TUwv?=
+ =?utf-8?B?Q3hFTUE3ZVBVWDJ3SW9XUytaR0VyYXZDcjZyTTNuNXBScjVqSHJieGNTUzQ0?=
+ =?utf-8?B?Mm0xZDdTWEpLQ2NPMEoxQyt3THdZZU1yejcxM2l2NlJVS0tFVStvdnM5djVp?=
+ =?utf-8?B?M0V3ZUJuMDVmeTZrQ2VITHR3YUdnaXdRaXFValpKRSt1QUI2L3Q2Ym1vdjc5?=
+ =?utf-8?B?cjRwYUZuYjFYVHpTeTJKM3FkZlZWVVR1SkQxSktYQ0lmeXlpMjBVOFdoOFVU?=
+ =?utf-8?B?Y0RPclBIdGoxVzRqRVRqV0h2WnZNQnFXK1VGVnZRTHRTOXVEWWFwT3psRDMx?=
+ =?utf-8?B?QUQ4U2dHQmUxYUMrRUVmbnZ3aEltSjJpa0hTOVRFZG5XQTlCZ1JjWmFQbEd5?=
+ =?utf-8?B?UTQyVGR0dHBpUU1Pd2h5T1djN0dYZDFIeDV3WEdQS0xQU3FTbWR4WmdKNGlJ?=
+ =?utf-8?B?NkFvWkNXNmtFN25ZamtCMFRYVjVWeUIvWUtxVkUwLzRVbC8wY0ozT2diQXNi?=
+ =?utf-8?B?Z0xNL1V1Sm1nRy9YWmZ6MDhhZ0R0K2dhWjN0c1I5WnZsR2tMaWh6c0JETkxJ?=
+ =?utf-8?B?Q3V0ZTQxejhiVk5XbUYvbHhGUUFwNnZSb3c4cGQ3byszcXIzSHZZVnN4QXhC?=
+ =?utf-8?B?c2I0OUZsV0QrWk1zYms5T2tZcGd0TWtwNUxwcFR3T0tHM091SEpKNXFVYkI1?=
+ =?utf-8?B?Uk1rTEdnbUxPRmo0R3NPNEorSTVJUDBSNnQ3VEFvNjJSbk15b29PNjVRZUFq?=
+ =?utf-8?B?Mm5tTFI3V2tBN2VPT1Z2b3VZc2lhdlAxWkR6cld1SU9Fank5WHlHN2w1MzZy?=
+ =?utf-8?B?QXh3bzV3Rk5HTFpQN3krUjk3YXJPMmNwODIxbWZVSU9Yc2JhamdncUsyMWpD?=
+ =?utf-8?B?d0REWkdJQWZRWFRaNWdtcGtoRXFxbnhHZU9aaVlFS0ROUVo3d1FGUWNkaDUy?=
+ =?utf-8?B?ZHZOQ3hkcXBnaTRPVWpZVzBQOTZQTGlDSTJPSG1jSWFDYjBzZnBXdk85T29I?=
+ =?utf-8?B?RXkzQ2lEWEJkd1VIbUorOXNDOCt3a2xXQzlNRXJ6YjcvTjE1VE4wQkFiZWN6?=
+ =?utf-8?Q?gZ63c05VDJOUlasSBlHbWeQ=3D?=
+X-OriginatorOrg: virtuozzo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 63d3fb65-e7c8-4ff7-c2d0-08d9c6108fdb
+X-MS-Exchange-CrossTenant-AuthSource: DB9PR08MB6619.eurprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Dec 2021 12:34:28.6549
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 802b4ad0-d585-4524-0d20-08d9c60aea36
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT058.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5180
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: y0p0QjaQ4wZ+lLl24kTgXlircvvhMxHrO9XGqXpwufN9fdCuZC1Ehmeh2yhXGlWGY0CzvUBT5bct/s1sgWapLQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR08MB5050
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-HDA regression is recently reported on Tegra194 based platforms.
-This happens because "hda2codec_2x" reset does not really exist
-in Tegra194 and it causes probe failure. All the HDA based audio
-tests fail at the moment. This underlying issue is exposed by
-commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
-response") which now checks return code of BPMP command response.
-Fix this issue by skipping unavailable reset on Tegra194.
+On 23.12.2021 14:52, Manfred Spraul wrote:
+> Hello Vasily,
+> 
+> On 12/23/21 08:21, Vasily Averin wrote:
+>>
+>> I would prefer to release memory ASAP if it's possible.
+>> What do you think about this change?
+>> --- a/mm/util.c
+>> +++ b/mm/util.c
+>> @@ -614,9 +614,12 @@ EXPORT_SYMBOL(kvmalloc_node);
+>>    */
+>>   void kvfree(const void *addr)
+>>   {
+>> -       if (is_vmalloc_addr(addr))
+>> -               vfree(addr);
+>> -       else
+>> +       if (is_vmalloc_addr(addr)) {
+>> +               if (in_atomic())
+>> +                       vfree_atomic();
+>> +               else
+>> +                       vfree(addr);
+>> +       } else
+>>                  kfree(addr);
+>>   }
+>>   EXPORT_SYMBOL(kvfree);
+>>
+> Unfortunately this cannot work:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
----
- sound/pci/hda/hda_tegra.c | 43 ++++++++++++++++++++++++++++++++++---------
- 1 file changed, 34 insertions(+), 9 deletions(-)
-
-diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
-index ea700395..773f490 100644
---- a/sound/pci/hda/hda_tegra.c
-+++ b/sound/pci/hda/hda_tegra.c
-@@ -68,14 +68,20 @@
-  */
- #define TEGRA194_NUM_SDO_LINES	  4
- 
-+struct hda_tegra_soc {
-+	bool has_hda2codec_2x_reset;
-+};
-+
- struct hda_tegra {
- 	struct azx chip;
- 	struct device *dev;
--	struct reset_control *reset;
-+	struct reset_control_bulk_data resets[3];
- 	struct clk_bulk_data clocks[3];
-+	unsigned int nresets;
- 	unsigned int nclocks;
- 	void __iomem *regs;
- 	struct work_struct probe_work;
-+	const struct hda_tegra_soc *soc;
- };
- 
- #ifdef CONFIG_PM
-@@ -170,7 +176,7 @@ static int __maybe_unused hda_tegra_runtime_resume(struct device *dev)
- 	int rc;
- 
- 	if (!chip->running) {
--		rc = reset_control_assert(hda->reset);
-+		rc = reset_control_bulk_assert(hda->nresets, hda->resets);
- 		if (rc)
- 			return rc;
- 	}
-@@ -187,7 +193,7 @@ static int __maybe_unused hda_tegra_runtime_resume(struct device *dev)
- 	} else {
- 		usleep_range(10, 100);
- 
--		rc = reset_control_deassert(hda->reset);
-+		rc = reset_control_bulk_deassert(hda->nresets, hda->resets);
- 		if (rc)
- 			return rc;
- 	}
-@@ -427,9 +433,17 @@ static int hda_tegra_create(struct snd_card *card,
- 	return 0;
- }
- 
-+static const struct hda_tegra_soc tegra30_data = {
-+	.has_hda2codec_2x_reset = true,
-+};
-+
-+static const struct hda_tegra_soc tegra194_data = {
-+	.has_hda2codec_2x_reset = false,
-+};
-+
- static const struct of_device_id hda_tegra_match[] = {
--	{ .compatible = "nvidia,tegra30-hda" },
--	{ .compatible = "nvidia,tegra194-hda" },
-+	{ .compatible = "nvidia,tegra30-hda", .data = &tegra30_data },
-+	{ .compatible = "nvidia,tegra194-hda", .data = &tegra194_data },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, hda_tegra_match);
-@@ -449,6 +463,8 @@ static int hda_tegra_probe(struct platform_device *pdev)
- 	hda->dev = &pdev->dev;
- 	chip = &hda->chip;
- 
-+	hda->soc = of_device_get_match_data(&pdev->dev);
-+
- 	err = snd_card_new(&pdev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
- 			   THIS_MODULE, 0, &card);
- 	if (err < 0) {
-@@ -456,11 +472,20 @@ static int hda_tegra_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
--	hda->reset = devm_reset_control_array_get_exclusive(&pdev->dev);
--	if (IS_ERR(hda->reset)) {
--		err = PTR_ERR(hda->reset);
-+	hda->resets[hda->nresets++].id = "hda";
-+	hda->resets[hda->nresets++].id = "hda2hdmi";
-+	/*
-+	 * "hda2codec_2x" reset is not present on Tegra194. Though DT would
-+	 * be updated to reflect this, but to have backward compatibility
-+	 * below is necessary.
-+	 */
-+	if (hda->soc->has_hda2codec_2x_reset)
-+		hda->resets[hda->nresets++].id = "hda2codec_2x";
-+
-+	err = devm_reset_control_bulk_get_exclusive(&pdev->dev, hda->nresets,
-+						    hda->resets);
-+	if (err)
- 		goto out_free;
--	}
- 
- 	hda->clocks[hda->nclocks++].id = "hda";
- 	hda->clocks[hda->nclocks++].id = "hda2hdmi";
--- 
-2.7.4
-
+yes, you're right and I do not see any better solution yet.
