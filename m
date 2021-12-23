@@ -2,173 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42ECB47DA76
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 00:22:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B173E47DBC0
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 01:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245390AbhLVXWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 18:22:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41324 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245371AbhLVXWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 18:22:37 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F1F0C061574
-        for <stable@vger.kernel.org>; Wed, 22 Dec 2021 15:22:37 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id iy13so3489307pjb.5
-        for <stable@vger.kernel.org>; Wed, 22 Dec 2021 15:22:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=watEAo0TctoIMHj16unMxi7M7gSHnxu/SRSGf6Txo8c=;
-        b=gQuwPF/zGGKcR20XIMTsZFhzSy8meyqG+JZkmgZdTT6o19D+rWdA20pJrtB8LpJZXO
-         8EsxKbaMRg/qJZ0GTDkTY6UAUCrdqIWas/3deqjmbdqvzwxX836Bw9SGlRAC1gqxjMS8
-         z2cdw46EhIvo0275eXR6l/OTrDhoQVA8g4u7gB2aRup7w29XS2ZGkuVMZ59r1XgRJw2V
-         fxwswds1QoYAr5N78CC47Ej1UxppsF/jiHFyyogtCJXRAknHCLqflt57HrRFQn7tf5ZW
-         Lqfne5GQC9qHrRAMTqjOs6OMEJ5GQJqHit7x14RDU/k5vTdEqKBTVw/C08nalypkAsol
-         zS/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=watEAo0TctoIMHj16unMxi7M7gSHnxu/SRSGf6Txo8c=;
-        b=ZtO0OSSP84RyqfE31UZ3Jcmuf/BENDSmPqcxzGUkV8esDWtAQcXbC+MAZDPimuElP/
-         nEv9tQ7wenL6f9o0Z6NYWAZUjGnKiQnO7vMqvUpQu5y17OeUyHhjEuyVAkgHr5orecTH
-         vhVuQSkYQOC98Oj6VQN3xawgTMw2blc3VqVVf3r0UJaC/APp1FPikvNRjMdThmZqRIjV
-         xgn6eW6btnOSHZhm3yw6vPMJVXoit2CSoiG+9cxiGj3hR6lT+pkEzAkxE2CysS2db8hG
-         NEG+hsDkKqjbiOM2KPaU7B+XlxHGb3X/z+/TXopcVcg733q3YI2nhS2GPCk6F7G5p3m/
-         5vXQ==
-X-Gm-Message-State: AOAM530gkjzFSc7KDUWKoGMgnfSJj/vKV5gGLeTBpEddu+QmC0iB+Bkh
-        k2uwrurovdses8h0EjfAK7gfb3nlADDNs81gaxc=
-X-Google-Smtp-Source: ABdhPJy15MDCvnPGWjAmJ5mBwv3EoKEiwCQjouiIZqGaEbqiMzeZMMt2uSZJkEZJzaaa51jpZsKhMg==
-X-Received: by 2002:a17:902:7c02:b0:148:a2f7:9d6d with SMTP id x2-20020a1709027c0200b00148a2f79d6dmr4994096pll.140.1640215356385;
-        Wed, 22 Dec 2021 15:22:36 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k18sm3917050pfc.155.2021.12.22.15.22.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Dec 2021 15:22:35 -0800 (PST)
-Message-ID: <61c3b33b.1c69fb81.705e3.b000@mx.google.com>
-Date:   Wed, 22 Dec 2021 15:22:35 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1345506AbhLWAXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 19:23:33 -0500
+Received: from mga11.intel.com ([192.55.52.93]:24264 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1345581AbhLWAXU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Dec 2021 19:23:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1640219000; x=1671755000;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=S5S+dp45/rAFDGsVnGP9Us6qzcGYuMHcD0Pjh70Tu7U=;
+  b=mzw9MKhh+K6C0mmiti2qZlgXDecPGIADlFhQfk2wGRk5qt7WbEDK5W5y
+   YpXQwVLKA4ztTosoSI2/2sTuPKbrsJvEleBacWCvBwpkMFEPeksrInojZ
+   prQoSrMj/DRUjoy2hhyXCdlHQhEoRaR6CYmp1lRDuaP270aIzPBXY2TYU
+   Yeey3Q1Pib25re5DPDlCkb0ta1Rz8/3bGDoaXIfFtt5U+xp4ec4WbAJBZ
+   bozjHuQe/BqoOZKfrivoH02TUfJWeBH8vKwq5PpcqGGyiwfdaag+biBZV
+   NmlvyByGVwXgbtZXN1v0dGu1u/gsFNx1V69gUIJXJEHG1KSt1Yx65Zytf
+   g==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10206"; a="238264168"
+X-IronPort-AV: E=Sophos;i="5.88,228,1635231600"; 
+   d="scan'208";a="238264168"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2021 16:23:20 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,228,1635231600"; 
+   d="scan'208";a="758828846"
+Received: from irvmail001.ir.intel.com ([10.43.11.63])
+  by fmsmga005.fm.intel.com with ESMTP; 22 Dec 2021 16:23:12 -0800
+Received: from newjersey.igk.intel.com (newjersey.igk.intel.com [10.102.20.203])
+        by irvmail001.ir.intel.com (8.14.3/8.13.6/MailSET/Hub) with ESMTP id 1BN0N796032467;
+        Thu, 23 Dec 2021 00:23:09 GMT
+From:   Alexander Lobakin <alexandr.lobakin@intel.com>
+To:     linux-hardening@vger.kernel.org, x86@kernel.org
+Cc:     Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Kristen Carlson Accardi <kristen@linux.intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Bruce Schlobohm <bruce.schlobohm@intel.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Evgenii Shatokhin <eshatokhin@virtuozzo.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Marios Pomonis <pomonis@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        "H.J. Lu" <hjl.tools@gmail.com>, Nicolas Pitre <nico@fluxnic.net>,
+        linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        linux-arch@vger.kernel.org, live-patching@vger.kernel.org,
+        llvm@lists.linux.dev, stable@vger.kernel.org
+Subject: [PATCH v9 01/15] modpost: fix removing numeric suffixes
+Date:   Thu, 23 Dec 2021 01:21:55 +0100
+Message-Id: <20211223002209.1092165-2-alexandr.lobakin@intel.com>
+X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20211223002209.1092165-1-alexandr.lobakin@intel.com>
+References: <20211223002209.1092165-1-alexandr.lobakin@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.294-3-gf62d2edb6c14
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 121 runs,
- 2 regressions (v4.9.294-3-gf62d2edb6c14)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 121 runs, 2 regressions (v4.9.294-3-gf62d2edb=
-6c14)
+For now, that condition from remove_dot():
 
-Regressions Summary
--------------------
+if (m && (s[n + m] == '.' || s[n + m] == 0))
 
-platform                 | arch   | lab           | compiler | defconfig   =
-        | regressions
--------------------------+--------+---------------+----------+-------------=
---------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig    | 1          =
+which was designed to test if it's a dot or a \0 after the suffix
+is never satisfied.
+This is due to that s[n + m] always points to the last digit of a
+numeric suffix, not on the symbol next to it:
 
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig | 1          =
+param_set_uint.0, s[n + m] is '0', s[n + m + 1] is '\0'
 
+So it's off by one and was like that since 2014.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.294-3-gf62d2edb6c14/plan/baseline/
+`-z uniq-symbol` linker flag which we are planning to use to
+simplify livepatching brings numeric suffixes back, fix this.
+Otherwise:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.294-3-gf62d2edb6c14
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f62d2edb6c146322ad62c770d95c7e9de4a34e59 =
+ERROR: modpost: "param_set_uint.0" [vmlinux] is a static EXPORT_SYMBOL
 
+Fixes: fcd38ed0ff26 ("scripts: modpost: fix compilation warning")
+Cc: stable@vger.kernel.org # 3.17+
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+---
+ scripts/mod/modpost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+index cb8ab7d91d30..ccc6d35580f2 100644
+--- a/scripts/mod/modpost.c
++++ b/scripts/mod/modpost.c
+@@ -1971,7 +1971,7 @@ static char *remove_dot(char *s)
+ 
+ 	if (n && s[n]) {
+ 		size_t m = strspn(s + n + 1, "0123456789");
+-		if (m && (s[n + m] == '.' || s[n + m] == 0))
++		if (m && (s[n + m + 1] == '.' || s[n + m + 1] == 0))
+ 			s[n] = 0;
+ 
+ 		/* strip trailing .lto */
+-- 
+2.33.1
 
-Test Regressions
----------------- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-        | regressions
--------------------------+--------+---------------+----------+-------------=
---------+------------
-minnowboard-turbot-E3826 | x86_64 | lab-collabora | gcc-10   | x86_64_defco=
-nfig    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61c37b5044453171ed39711f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.294-3=
--gf62d2edb6c14/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnow=
-board-turbot-E3826.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.294-3=
--gf62d2edb6c14/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-minnow=
-board-turbot-E3826.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61c37b5044453171ed397=
-120
-        failing since 1 day (last pass: v4.9.293-15-g3fbbbaf0d213, first fa=
-il: v4.9.293-31-g9d50eae56b67) =
-
- =
-
-
-
-platform                 | arch   | lab           | compiler | defconfig   =
-        | regressions
--------------------------+--------+---------------+----------+-------------=
---------+------------
-panda                    | arm    | lab-collabora | gcc-10   | omap2plus_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61c37c92b260eb8016397154
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.294-3=
--gf62d2edb6c14/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.294-3=
--gf62d2edb6c14/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61c37c92b260eb8=
-016397157
-        failing since 5 days (last pass: v4.9.293-7-gd89b8545a1fa, first fa=
-il: v4.9.293-7-g534f383585ec)
-        2 lines
-
-    2021-12-22T19:29:04.378051  [   20.282684] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-22T19:29:04.428358  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/116
-    2021-12-22T19:29:04.437918  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
