@@ -2,190 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD44F47E1E6
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 12:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74D1047E232
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 12:24:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347820AbhLWLB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 06:01:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239611AbhLWLB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 06:01:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26ABAC061401;
-        Thu, 23 Dec 2021 03:01:56 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B197C61E25;
-        Thu, 23 Dec 2021 11:01:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C84FC36AEA;
-        Thu, 23 Dec 2021 11:01:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640257315;
-        bh=NGVyI3dy77I78cr4z1j7vHEywOFocutRkeehzswXWLk=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=lthZXy50TuX9+j+hzMJo73bUnVklQD7rAf3FYFYOqhCZxW5l1xYJkds7C1EyIjLhJ
-         8qWnI4zNIY4APZaELj8DJDFPWPKLVnqqkk49bMTz2VZhXOTScr3Xb+JL6co+ZgqFik
-         b7K2QXkM0rYOmAfDyuPvpcGglNq5HUaVaNdsFi1RRblJskDCPj9QUUL2CVCuPDgeYy
-         fOXwsUK+w9CaHOnsjlhD8omkoUD/oBVVaYQ7G6l2CJwJJWnCRDHbBv1GlJ/6+b4Nyx
-         p1NOSkE0r37vLviaoI2DnvZB93SGzC/AvJjr2OEHlBXfdOQai4qV4tP04Yki+fs2Xv
-         uIPrzQQMMct7g==
-Received: by mail-wm1-f46.google.com with SMTP id f134-20020a1c1f8c000000b00345c05bc12dso3026446wmf.3;
-        Thu, 23 Dec 2021 03:01:55 -0800 (PST)
-X-Gm-Message-State: AOAM531EZH+spfxGiNQEiI9VrjOHae+bw3FXlPzp0SjbSBJk4SUreh9Q
-        xXPDBuW6qemuBVu1R0olHtE4Bo4R/oyP5xEbE0E=
-X-Google-Smtp-Source: ABdhPJwhmS7JMAKuJSRnPUT24qtFJoAEThMpHyhZkHfc01perLw2BVfzcCphvDUlO1AokBXUTnO1NKy0tpTuyhwzpFQ=
-X-Received: by 2002:a1c:1f93:: with SMTP id f141mr1304483wmf.56.1640257313324;
- Thu, 23 Dec 2021 03:01:53 -0800 (PST)
+        id S1347817AbhLWLYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Dec 2021 06:24:25 -0500
+Received: from mail-co1nam11on2044.outbound.protection.outlook.com ([40.107.220.44]:4215
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S239783AbhLWLYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 Dec 2021 06:24:24 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=eGPOyAlRnge9mQGGswywC2LNiaxWuP8pJmoBz2qCcNv0HuXPrD7yrJ0UTjuFgHY71WalBf5zgW8R+sZNzvbS+eXyKuURPFR7syTxKt3jxJJyNDEXzqtlOulz1Ry5TovDzLbe+cYJB+NKBzcsEgOvCp8TFGDzs5NAZN0Utl6Zv+5BMaQ6cRWZSPe1Ub+wu+F8GIQ1aIJWgMHp1JOmSp8/KMwsfcSvN1+PNkjziCVja1avuOPc68AMZ/z6w+hn1ibSn/qO1jtqRJ14+yGXINnusb+f8QPTRuiMpU9pXf7fTg7JzBrttHHqaQVjsivTGadToDdLf9NXJ0Fr/SP6/CMgIQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZuPP2lQzmkMtFMprzOY3iNaSCPBBKwxr6ge8jHJl3SQ=;
+ b=cguOcLDyyXwOIlBZguhqzrSUaeM1gL8xeI3OEaakwaUosYkB/hyVwr5+B6gYC4Q8M6K77BgBASFL7YmZO5CZrjIifnrzpXbjrJkZkbIVci/kPMB/tZNMCsNixwuGciML8KY75ZJD9kOCMzEfqQhTAYanaCQ2QIlFb28HD391b3prdLLaaeSh5NQ0ocvbViRRNXjOWK5WPaR2307+B1m7GYuanYWgOo0T9twduFiGhWyNshgi9P1qwY9b7SlGmamWtDY1MTfW8RiKHl/6Ea3tzCIJ6k16WEfiubXLhwy+RiDH990lUAwbDzvjMKBk0gJjxqaijsU1u2py7uSc7pMlyQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZuPP2lQzmkMtFMprzOY3iNaSCPBBKwxr6ge8jHJl3SQ=;
+ b=qdTjC0a4odhsVzvQOwZzDK9ELa/ACjdBM4O/Vgz/mLG8O/ukiHCTQ7+itkpcSmcYcpRrF9qc1/ZBYjaHrP/3A6xKqoj+XqX4SjKSOeicPlLfjn8BtRxvpwWFZj48ilMffBubNbF5zXt5KYoo1uWDB8J2+pUtxVANR7CfyW/VpqKE/l62hzmrWOGrwwheV97vp75JoEz8Dd0/wg1Axju50WenjOIFlPAVgLe0cQUpFRoBCiZpxiDQhibgrGdTqCu+J7t3NgTG5cuzm73AIzfQt2qSBqixPAFdqzE/38sZVf6q76Xg3udJjcIOOVu3NdXoh/52XYxUaphpJIXXTbzKGw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY4PR12MB1576.namprd12.prod.outlook.com (2603:10b6:910:10::9)
+ by CY4PR12MB1751.namprd12.prod.outlook.com (2603:10b6:903:121::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4801.14; Thu, 23 Dec
+ 2021 11:24:23 +0000
+Received: from CY4PR12MB1576.namprd12.prod.outlook.com
+ ([fe80::24b0:46e7:d3c0:a77b]) by CY4PR12MB1576.namprd12.prod.outlook.com
+ ([fe80::24b0:46e7:d3c0:a77b%7]) with mapi id 15.20.4801.024; Thu, 23 Dec 2021
+ 11:24:23 +0000
+Subject: Re: [PATCH v3 1/3] ALSA: hda/tegra: Fix Tegra194 HDA reset failure
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>, tiwai@suse.com,
+        broonie@kernel.org, lgirdwood@gmail.com, robh+dt@kernel.org,
+        thierry.reding@gmail.com, perex@perex.cz, jonathanh@nvidia.com,
+        mkumard@nvidia.com, alsa-devel@alsa-project.org,
+        devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <1640147751-4777-1-git-send-email-spujar@nvidia.com>
+ <1640147751-4777-2-git-send-email-spujar@nvidia.com>
+ <fb8cf33f-41fb-79c0-3134-524c290e4fc1@gmail.com>
+ <f734e48f-dd60-ddb8-510a-3c4f37d8fb52@nvidia.com>
+ <YcQiP+MxrlLi+R94@kroah.com>
+From:   Sameer Pujar <spujar@nvidia.com>
+Message-ID: <84e3ab9d-b351-b4b6-aa34-174725166913@nvidia.com>
+Date:   Thu, 23 Dec 2021 16:54:09 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
+In-Reply-To: <YcQiP+MxrlLi+R94@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-GB
+X-ClientProxiedBy: MAXPR0101CA0016.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a00:c::26) To CY4PR12MB1576.namprd12.prod.outlook.com
+ (2603:10b6:910:10::9)
 MIME-Version: 1.0
-References: <20211223101551.19991-1-lecopzer.chen@mediatek.com>
-In-Reply-To: <20211223101551.19991-1-lecopzer.chen@mediatek.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 23 Dec 2021 12:01:41 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXGL++stjcuryn8zVwMgH4F05mONoU3Kca9Ch8N2dW-_bg@mail.gmail.com>
-Message-ID: <CAMj1kXGL++stjcuryn8zVwMgH4F05mONoU3Kca9Ch8N2dW-_bg@mail.gmail.com>
-Subject: Re: [PATCH] ARM: module: fix MODULE_PLTS not work for KASAN
-To:     Lecopzer Chen <lecopzer.chen@mediatek.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Abbott Liu <liuwenliang@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        kasan-dev <kasan-dev@googlegroups.com>, yj.chiang@mediatek.com,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 2576212c-9b60-4a2a-5d34-08d9c606c517
+X-MS-TrafficTypeDiagnostic: CY4PR12MB1751:EE_
+X-Microsoft-Antispam-PRVS: <CY4PR12MB1751D5E5FA9652666599FBF6A77E9@CY4PR12MB1751.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7691;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YPeaQXeHCBvFNvVct0yq/jorJy7WJ5xoTnluW/WBkCr0b15BZqDB7cqaWAlfC/KU1kpe81aIddmob+Gf7+ibm+BZGbAU8/T9fiEUYrlMSkLgZgQUtkN9CmtoffbcKeqh+Bs5qpTg3oEgOiftaHBsFwV8Zkha3Owtyee83AxLYKaFE6S6v11T/8k0QfGJSALeIjZGxO3sPfbqH5Z2B/6T6fMchgwWAKIA1+XXYCBkL9ZQerizLdmsueLUVldc8FtQ2uDYd6kqCA4U0ruF6ZPIGn2e1eBtHmq1Bt98VRd5HJjELm7W3p+8mVEIIbMAdCOYFBVLNdbVfvLD3zABX3OcOfki+li72ifcl27QgIw8Gb/gVrtV5XfqJ87T7BNShFczEA6rEHWOKGpGMc+vneipIiEyf788A5Kx+hCS2HlC/dWnDXHVxVS8LRb65oxLqsrUDOe3uHAZKpxxUVsBDCBP8en3BmBlXtsoJB36/8TY5cFI2dxOfquci+/MqS1FZEWURYNmzdvcNQQZ4TqrBquSV8bRrFiiN+PhuO5/05LGgQPHjOr7YNR87rGU7LcXmX6bpNlMY/M6vhC12N87eCGuC7U+ChD/67W+zlimhd+ux+J+YA+IIEEOUKoNa7swug++8PDqpwQ79dk9BhfCZS8bHAWS7XzMozhmedameHlApKCH7u/+Kk/kBhbjLY/Vu0hXQ4ow0U4aDzOhyjM39aVQk2HQcETGhBFrQHa4ZajRQMNTTiYTBIWA0wPHG0C4u3YPxjEdcjGI0MLUMPQmadAM0qV4BV2DbuVPI8OmwddxCrxKkjh/ZOsKQ1yzVSqc5bOF
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY4PR12MB1576.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2616005)(36756003)(2906002)(6506007)(66556008)(31696002)(31686004)(8936002)(66476007)(8676002)(4326008)(6486002)(26005)(66946007)(316002)(6916009)(83380400001)(186003)(5660300002)(38100700002)(86362001)(7416002)(6512007)(966005)(53546011)(508600001)(6666004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SldwM0UyZExwOVo2WVgxdW5JQnRrV1JQK3ZtRzhTOGl6QVNobk9xZFhkZm9E?=
+ =?utf-8?B?RlBkcTVVd2gwbW5lSkhocGlBVzdEQ2FxRjU4dTYzRTlOOGJ2UDlUekdGMzd2?=
+ =?utf-8?B?NDRMSzRuUStveTd6a00vcEhLbkNOLzdBcnpWdnVEQzdJQnZUNkkzclVJQkMx?=
+ =?utf-8?B?MERSMkhiNmIwZk9od3N4bGZjWEw5cUJlUnBTQWUveHZtUCtNcGwxem5oelUx?=
+ =?utf-8?B?YnVDZUYzby9tbzhTbXI1OFBmK1ZBSm1CMVQ3UXMvMTVMRlQ2ZTZvRTVqcHVH?=
+ =?utf-8?B?aVgxM29LM3EzSnQ4Y3FGd1VBQUppTE9SbzYyUElpRHU0LzZrQWtkSVJPOTZO?=
+ =?utf-8?B?cjl0QVFnc3JhQTNIQlV0V3FicGZEZGQ4TWZuajREelRQaEFUSWZiWnZMM0sy?=
+ =?utf-8?B?eGdqaGUyM0t2QVpmOWJRRm1HZko0enZQWTFSQS9MRk1ETnc4dVh0cnROUklX?=
+ =?utf-8?B?czlXVlZydHE4SmZhZ0w0ZkhuYXJXNHJwSU5RcFZ1VC8xUDNaZUJscnMxanJo?=
+ =?utf-8?B?Q05FeGM1OUdRMjRUazZ0cHk0QlFBa3lxZlhYbnF4VDZVbHpEV2Z1akd2VzZk?=
+ =?utf-8?B?MEdxM01TaExoMFoyRWNFbk1lSnd4SlB4N2ZFQ0lqa25EYjBoelhyZVJrV2Zj?=
+ =?utf-8?B?NnU5R2hOdGVFZi9qeW42UmR3MzFCcFJwaVFCZGFhTjJlM1JWdVpSRVorejE2?=
+ =?utf-8?B?SGtSNTFkdWRJYnVXNTBaRmJoWjRYQ01zNEJUdXlwNjJuanZyMlpKQ2hZd1pH?=
+ =?utf-8?B?aGJ5aWxNN0J5TW0vVjRXVzBwVm8vUG83ckhjRTVFMld1SHM2bXQ5THdXUHdn?=
+ =?utf-8?B?ZGJJK2trSWl6U3NVWTFydjFhdGNva1I3L1pIdkJPU2V1bWRSSlA4d0gvdmt5?=
+ =?utf-8?B?dndyQndKTTZsY085dDdpaEVKVkZIVlNTeWhXMlVqYVpMMlJreWxISGJ3R1hy?=
+ =?utf-8?B?VVNpanJPVjBLTTF3a2RScWJWWG9qdkFJSEJYTTRSSVBJUEZWaFNmeTMvOXlv?=
+ =?utf-8?B?dEc5dXg3TTJUcDRuK1hSeUhONTRNVkxzNG1YNVBvZDJUMUdXVTdjRWE1WllL?=
+ =?utf-8?B?TkR2eTQwdDZhTGlYa3Izb1dYNElvYW5KQmh4K2JxcVNNN2FzdmE3TGpWSGNG?=
+ =?utf-8?B?Y25UamY2YWdRaUlTMGpGampEUVUrczVndnNuNzBKenZ2NlhKZ0NoWVJxbU5o?=
+ =?utf-8?B?QlMzTHoxMHNiQVM5S2s2ODliMVhZalNjNHJlaDFadm5aQll6cXdya1l6dkFU?=
+ =?utf-8?B?dU5pZ2dBS2ZyOGJsYUFIdzlIRWhEN1Ewa2trT3JsL2Zwblo5TjRkSVVYWEtB?=
+ =?utf-8?B?RXVSU21YaFRqQ25rOTJFZk13ZnF6bHVVRE42ZUovNk5tSGZtb0tOYm9JT3NX?=
+ =?utf-8?B?dmtZemlGMTgwanc1ZVJESHRvdDhURGtkQkZ3NnVtS29pRjZqaFlUcFJzWXJ6?=
+ =?utf-8?B?K2c0Ky9EL1YxTitCNFl4TlZWTUhaNkc3L0N2ZUNnVlpzZWVJWENTejgzQThh?=
+ =?utf-8?B?OG0zd3h4QU1RbDlTUHo4d1k3bGk1ZkhVTk1DRjE3VFR4TmdWeVFSU3dlRUtp?=
+ =?utf-8?B?OXFMVTAydzhWZXJjUUtBTm1DYzAvdnM2VUg2eEo5b2xVMnFLUmY2VDRWMU93?=
+ =?utf-8?B?dFJXY2x0SkYrSFE0VlA3VklXZmVzcTZzWlVGNVZDVTcvOFRObWJneXB4dGFQ?=
+ =?utf-8?B?SlNGV0svaGc3byt4cUt0dll4dzQ3M01vQ0JtK0QrOTJ3Z2d6NUI2NFE1ZGFD?=
+ =?utf-8?B?NUpjMEVwYm1Eelh5SkVaLy9uTDU5QTd0cUVoRm1NTVlnRkVwU0Nlbm5nbTdW?=
+ =?utf-8?B?RUxJN3MxbW9QaGRaRnFXZDRlZkNEMU5zeEJjVDRjVEtLNFc5K1M0QmtXSU9i?=
+ =?utf-8?B?bXkwUGJEVVBCclJGeWJGcjI0NUJGdGgzaWVHYUpSYVFZdytHL1NXSGdmUTM3?=
+ =?utf-8?B?eEV1dGppeGdja1A4WTNnMExFbVZTb3dqRzBscmVvUmEzS2ZqbzZ0R0ZKaFFr?=
+ =?utf-8?B?TVJUclVCQ0FnZnFyUWZObHFQVkZLZURRMGNzMnJybVVlcHRxSkVtR1BieUlJ?=
+ =?utf-8?B?UlhEaFZ6c0ZoMFNsMksyeDZ2QXMyNHpoTjNqYlBxY01Ma1F5VEs5YVlZUkt6?=
+ =?utf-8?B?bVFqQjNzaDAyOVhDOW8xUEJsUFUrbjFESzBZQmpFbUVaQmdBTzVyQUZ4cU5I?=
+ =?utf-8?Q?RyiLDmVIes0TaD3t2AcyJ4s=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2576212c-9b60-4a2a-5d34-08d9c606c517
+X-MS-Exchange-CrossTenant-AuthSource: CY4PR12MB1576.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Dec 2021 11:24:23.0351
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wIHHtsJAozExGr4qvJFX+h5JYQGhl8YCFtBcFAmldBIPcHNIHw24vCYyoEY0aarvgo8GnWSw1+KbD6xXLm8EZA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1751
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 23 Dec 2021 at 11:16, Lecopzer Chen <lecopzer.chen@mediatek.com> wrote:
->
-> When we run out of module space address with ko insertion,
-> and with MODULE_PLTS, module would turn to try to find memory
-> from VMALLOC address space.
->
-> Unfortunately, with KASAN enabled, VMALLOC doesn't work without
-> VMALLOC_KASAN which is unimplemented in ARM.
->
-> hello: loading out-of-tree module taints kernel.
-> 8<--- cut here ---
->  Unable to handle kernel paging request at virtual address bd300860
->  [bd300860] *pgd=41cf1811, *pte=41cf26df, *ppte=41cf265f
->  Internal error: Oops: 80f [#1] PREEMPT SMP ARM
->  Modules linked in: hello(O+)
->  CPU: 0 PID: 89 Comm: insmod Tainted: G           O      5.16.0-rc6+ #19
->  Hardware name: Generic DT based system
->  PC is at mmioset+0x30/0xa8
->  LR is at 0x0
->  pc : [<c077ed30>]    lr : [<00000000>]    psr: 20000013
->  sp : c451fc18  ip : bd300860  fp : c451fc2c
->  r10: f18042cc  r9 : f18042d0  r8 : 00000000
->  r7 : 00000001  r6 : 00000003  r5 : 01312d00  r4 : f1804300
->  r3 : 00000000  r2 : 00262560  r1 : 00000000  r0 : bd300860
->  Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
->  Control: 10c5387d  Table: 43e9406a  DAC: 00000051
->  Register r0 information: non-paged memory
->  Register r1 information: NULL pointer
->  Register r2 information: non-paged memory
->  Register r3 information: NULL pointer
->  Register r4 information: 4887-page vmalloc region starting at 0xf1802000 allocated at load_module+0x14f4/0x32a8
->  Register r5 information: non-paged memory
->  Register r6 information: non-paged memory
->  Register r7 information: non-paged memory
->  Register r8 information: NULL pointer
->  Register r9 information: 4887-page vmalloc region starting at 0xf1802000 allocated at load_module+0x14f4/0x32a8
->  Register r10 information: 4887-page vmalloc region starting at 0xf1802000 allocated at load_module+0x14f4/0x32a8
->  Register r11 information: non-slab/vmalloc memory
->  Register r12 information: non-paged memory
->  Process insmod (pid: 89, stack limit = 0xc451c000)
->  Stack: (0xc451fc18 to 0xc4520000)
->  fc00:                                                       f18041f0 c04803a4
->  fc20: c451fc44 c451fc30 c048053c c0480358 f1804030 01312cff c451fc64 c451fc48
->  fc40: c047f330 c0480500 f18040c0 c1b52ccc 00000001 c5be7700 c451fc74 c451fc68
->  fc60: f1802098 c047f300 c451fcb4 c451fc78 c026106c f180208c c4880004 00000000
->  fc80: c451fcb4 bf001000 c044ff48 c451fec0 f18040c0 00000000 c1b54cc4 00000000
->  fca0: c451fdf0 f1804268 c451fe64 c451fcb8 c0264e88 c0260d48 ffff8000 00007fff
->  fcc0: f18040c0 c025cd00 c451fd14 00000003 0157f008 f1804258 f180425c f1804174
->  fce0: f1804154 f180424c f18041f0 f180414c f1804178 f18041c0 bf0025d4 188a3fa8
->  fd00: 0000009e f1804170 f2b18000 c451ff10 c0d92e40 f180416c c451feec 00000001
->  fd20: 00000000 c451fec8 c451fe20 c451fed0 f18040cc 00000000 f17ea000 c451fdc0
->  fd40: 41b58ab3 c1387729 c0261c28 c047fb5c c451fe2c c451fd60 c0525308 c048033c
->  fd60: 188a3fb4 c3ccb090 c451fe00 c3ccb080 00000000 00000000 00016920 00000000
->  fd80: c02d0388 c047f55c c02d0388 00000000 c451fddc c451fda0 c02d0388 00000000
->  fda0: 41b58ab3 c13a72d0 c0524ff0 c1705f48 c451fdfc c451fdc0 c02d0388 c047f55c
->  fdc0: 00016920 00000000 00000003 c1bb2384 c451fdfc c3ccb080 c1bb2384 00000000
->  fde0: 00000000 00000000 00000000 00000000 c451fe1c c451fe00 c04e9d70 c1705f48
->  fe00: c1b54cc4 c1bbc71c c3ccb080 00000000 c3ccb080 00000000 00000003 c451fec0
->  fe20: c451fe64 c451fe30 c0525918 c0524ffc c451feb0 c1705f48 00000000 c1b54cc4
->  fe40: b78a3fd0 c451ff60 00000000 0157f008 00000003 c451fec0 c451ffa4 c451fe68
->  fe60: c0265480 c0261c34 c451feb0 7fffffff 00000000 00000002 00000000 c4880000
->  fe80: 41b58ab3 c138777b c02652cc c04803ec 000a0000 c451ff00 ffffff9c b6ac9f60
->  fea0: c451fed4 c1705f48 c04a4a90 b78a3fdc f17ea000 ffffff9c b6ac9f60 c0100244
->  fec0: f17ea21a f17ea300 f17ea000 00016920 f1800240 f18000ac f17fb7dc 01316000
->  fee0: 013161b0 00002590 01316250 00000000 00000000 00000000 00002580 00000029
->  ff00: 0000002a 00000013 00000000 0000000c 00000000 00000000 0157f004 c451ffb0
->  ff20: c1719be0 aed6f410 c451ff74 c451ff38 c0c4103c c0c407d0 c451ff84 c451ff48
->  ff40: 00000805 c02c8658 c1604230 c1719c30 00000805 0157f004 00000005 c451ffb0
->  ff60: c1719be0 aed6f410 c451ffac c451ff78 c0122130 c1705f48 c451ffac 0157f008
->  ff80: 00000006 0000005f 0000017b c0100244 c4880000 0000017b 00000000 c451ffa8
->  ffa0: c0100060 c02652d8 0157f008 00000006 00000003 0157f008 00000000 b6ac9f60
->  ffc0: 0157f008 00000006 0000005f 0000017b 00000000 00000000 aed85f74 00000000
->  ffe0: b6ac9cd8 b6ac9cc8 00030200 aecf2d60 a0000010 00000003 00000000 00000000
->  Backtrace:
->  [<c048034c>] (kasan_poison) from [<c048053c>] (kasan_unpoison+0x48/0x5c)
->  [<c04804f4>] (kasan_unpoison) from [<c047f330>] (__asan_register_globals+0x3c/0x64)
->   r5:01312cff r4:f1804030
->  [<c047f2f4>] (__asan_register_globals) from [<f1802098>] (_sub_I_65535_1+0x18/0xf80 [hello])
->   r7:c5be7700 r6:00000001 r5:c1b52ccc r4:f18040c0
->  [<f1802080>] (_sub_I_65535_1 [hello]) from [<c026106c>] (do_init_module+0x330/0x72c)
->  [<c0260d3c>] (do_init_module) from [<c0264e88>] (load_module+0x3260/0x32a8)
->   r10:f1804268 r9:c451fdf0 r8:00000000 r7:c1b54cc4 r6:00000000 r5:f18040c0
->   r4:c451fec0
->  [<c0261c28>] (load_module) from [<c0265480>] (sys_finit_module+0x1b4/0x1e8)
->   r10:c451fec0 r9:00000003 r8:0157f008 r7:00000000 r6:c451ff60 r5:b78a3fd0
->   r4:c1b54cc4
->  [<c02652cc>] (sys_finit_module) from [<c0100060>] (ret_fast_syscall+0x0/0x1c)
->  Exception stack(0xc451ffa8 to 0xc451fff0)
->  ffa0:                   0157f008 00000006 00000003 0157f008 00000000 b6ac9f60
->  ffc0: 0157f008 00000006 0000005f 0000017b 00000000 00000000 aed85f74 00000000
->  ffe0: b6ac9cd8 b6ac9cc8 00030200 aecf2d60
->   r10:0000017b r9:c4880000 r8:c0100244 r7:0000017b r6:0000005f r5:00000006
->   r4:0157f008
->  Code: e92d4100 e1a08001 e1a0e003 e2522040 (a8ac410a)
->  ---[ end trace df6e12843197b6f5 ]---
->
-> Cc: <stable@vger.kernel.org> # 5.10+
-> Fixes: 421015713b306e47af9 ("ARM: 9017/2: Enable KASan for ARM")
-> Signed-off-by: Lecopzer Chen <lecopzer.chen@mediatek.com>
-> ---
->  arch/arm/kernel/module.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/arm/kernel/module.c b/arch/arm/kernel/module.c
-> index beac45e89ba6..c818aba72f68 100644
-> --- a/arch/arm/kernel/module.c
-> +++ b/arch/arm/kernel/module.c
-> @@ -46,7 +46,7 @@ void *module_alloc(unsigned long size)
->         p = __vmalloc_node_range(size, 1, MODULES_VADDR, MODULES_END,
->                                 gfp_mask, PAGE_KERNEL_EXEC, 0, NUMA_NO_NODE,
->                                 __builtin_return_address(0));
-> -       if (!IS_ENABLED(CONFIG_ARM_MODULE_PLTS) || p)
-> +       if (!IS_ENABLED(CONFIG_ARM_MODULE_PLTS) || IS_ENABLED(CONFIG_KASAN) || p)
 
 
-Hello Lecopzer,
+On 12/23/2021 12:46 PM, Greg KH wrote:
+> On Thu, Dec 23, 2021 at 10:04:19AM +0530, Sameer Pujar wrote:
+>>
+>> On 12/23/2021 12:10 AM, Dmitry Osipenko wrote:
+>>> 22.12.2021 07:35, Sameer Pujar пишет:
+>>>> HDA regression is recently reported on Tegra194 based platforms.
+>>>> This happens because "hda2codec_2x" reset does not really exist
+>>>> in Tegra194 and it causes probe failure. All the HDA based audio
+>>>> tests fail at the moment. This underlying issue is exposed by
+>>>> commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
+>>>> response") which now checks return code of BPMP command response.
+>>>> Fix this issue by skipping unavailable reset on Tegra194.
+>>>>
+>>>> Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+>>>> Cc: stable@vger.kernel.org
+>>>> Depends-on: 87f0e46e7559 ("ALSA: hda/tegra: Reset hardware")
+>>> Is "Depends-on" a valid tag? I can't find it in Documentation/.
+>> I do find the usage of the tag in many commits though there is no reference
+>> of this in doc. I always thought it would act as a reference when commits
+>> get pulled to other branches. If this is not true and it does not mean
+>> anything, I will drop this.
+> It is not true at all, please read:
+>      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
 
-This is not the right place to fix this. If module PLTs are
-incompatible with KAsan, they should not be selectable in Kconfig at
-the same time.
-
-But ideally, we should implement KASAN_VMALLOC for ARM as well - we
-also need this for the vmap'ed stacks.
-
-
->                 return p;
->         return __vmalloc_node_range(size, 1,  VMALLOC_START, VMALLOC_END,
->                                 GFP_KERNEL, PAGE_KERNEL_EXEC, 0, NUMA_NO_NODE,
+Thanks Greg for the pointer. I will drop above tag in v4.
