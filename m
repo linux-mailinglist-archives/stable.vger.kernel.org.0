@@ -2,98 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F9F747E57F
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 16:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 937F847E602
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 16:49:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349004AbhLWPgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 10:36:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32810 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348994AbhLWPgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 10:36:08 -0500
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72672C061401
-        for <stable@vger.kernel.org>; Thu, 23 Dec 2021 07:36:08 -0800 (PST)
-Received: by mail-wm1-x32f.google.com with SMTP id b73so3941789wmd.0
-        for <stable@vger.kernel.org>; Thu, 23 Dec 2021 07:36:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ZUVKji3Do/P3J4cEGIS/Cm6Y/8n8p+cIcEmYJRPs71Q=;
-        b=ej+3nYrok29c0OGcqz0kGUpMzC6qhoOTsIoydSpaDfQ+vyyhrtWMfFdYd4ZWU7LqaK
-         T4i9WqlFC8AO6HP7m5ab8S46gY2w9/0xV4p7BjGZqeMKtzS+TtQnW2R2t/fRHFNu0Nxy
-         r/nrgoq+RPvUbd2TlsCVGMl1j7R6PtjqgygZ+kC0pyUAgAiV7Lihd9wZKiBWbzEzaNjw
-         jyoIChwOLjwj3fKnAsp4SUrhzz1iDve09Aak9Dxz5jEAIg3JV0wUXR4xMunY6GfRCg+P
-         pvfHRyp3tyTaeqs2+RYqh8pZ0tOr3moneLT8YU6nnxRw95UptYNgvNIxxIKbFeYCyNGI
-         PtYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ZUVKji3Do/P3J4cEGIS/Cm6Y/8n8p+cIcEmYJRPs71Q=;
-        b=Bp9QHcoWIqA1vBXSS4ezElUgezl9CBmeIkrW49PMoXh4Yp9biqxzRCLrWgLQgj65rX
-         CJXS0RN1/9m+Zwa3Oso0CW9CVp2sAufAaW8slakIIjLBMi2CM0qHBf78D/KlTP4iVK7W
-         B+rXYMvviHN7k52NXkx6eG/OLTsGey4tuOf1l7u2OyxBrAXkm/Cqbou2rHQjPUtBwO1q
-         R5nY5T7bDaaIwFsqyia2qy2U0ANpy1UhBCnCBuTD4pw52pKzZMlJwH8/YZhefO2Wvk1m
-         taTEULiAJ0Sx47G7lQfEWM4D3i9Ws9l/hsPpgiS3jDrPGmvUNOtyARPvlIzxfCUrSxtf
-         TroA==
-X-Gm-Message-State: AOAM533H4y+KkgnS7ScYbEg5hUCwRmq4QdT3Eo/wKRRtuELrdT4S1y4R
-        UGGsfyCgK9ej75u3V502Xt6MPGyd27u84ZD5DWo=
-X-Google-Smtp-Source: ABdhPJz2vD1kwzdFG31c8CSriuoWnNFetMmiXbLEfrwIe4cSELAf5DXVvDod6zAPOO6PHR5qG7weezulIp0ZMZ4RxAI=
-X-Received: by 2002:a05:600c:2150:: with SMTP id v16mr2028384wml.10.1640273766960;
- Thu, 23 Dec 2021 07:36:06 -0800 (PST)
+        id S244207AbhLWPts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Dec 2021 10:49:48 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43471 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1349069AbhLWPtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 10:49:39 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 53A635C016A;
+        Thu, 23 Dec 2021 10:49:38 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Thu, 23 Dec 2021 10:49:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=stwcx.xyz; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm3; bh=w+OCQKaR9fThO/RPri2JnBRIRY
+        P7/F4zfxZs/8kP+LM=; b=aA4Gn+Ev8JXdGjM2OO8zbFp+cOvg5zyTcCPH0jVvmv
+        sxEQRW5polfhKBcvgYgCxTP0tUTOFzt1yw+LPyJClMJncVlA/4t4CHauVwWoLttE
+        5florhDViJyT85VBqodg+rGToLM0BWAqqX22yTdofOh92XR1+jDh2CWRBd6gjcWr
+        ldKb9Sl/vGFafPZyt8xmuUvRoy7S1ACy8NeJqCFXMiYNGyym+G1ODZrH5LrNsDdx
+        uf3w1XU7ff37p1flZaLrldjF1z1s9uUwyBxgV5Nw1JBeZ67aXhZ1g8KY2e2iQOHE
+        Kp/OSIoDKBwE3paXfvclG9QmlWByKqS3i8ygO170FjHA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=w+OCQKaR9fThO/RPr
+        i2JnBRIRYP7/F4zfxZs/8kP+LM=; b=Oznwu/pETiss8/LDfZzxOhLG1Vqv7OBW8
+        d8QMTK1npQhGvnD+QaooE8vtG0r2AVBk2WPPo0f559oBIJG0ctpD7cvue1bargsM
+        5G4xZqk0fnJR0/+vlqBg3vOcpImJlQqkZsuKcypVYz1vFVkOx9e7jItM87+1XZVB
+        A4Jv8fZp3pO14wfzkIMKlgmzwuB5vBUEfHzVEVAS1RkkQOgt+LPiyci3yJNKQG8g
+        x5uYRAF1xiOlfFH4Pi+bujjqJQo/IcEHLOBGaIbwx6klivDhn/kkqiJVE+PA/tXJ
+        rsamKzJczdGrB+WtZbQMHMYenEMV8+fDZcYYcZGUaFAoGwxLNxz+w==
+X-ME-Sender: <xms:kZrEYVrvYOXZav5rc6N506smd8U6KVQG1DNkI3YwMMLKroC86jP7wg>
+    <xme:kZrEYXrhPrzvcDGCOl_x-bAqy63qpm3YYpSBhbM3H4ix3XvhpiHMxJeejCsOyR91l
+    IKNnWSgPTVdzOgJg6E>
+X-ME-Received: <xmr:kZrEYSP1MUUy-tN4A6LjraNpwNStAxEN_4M1iZ3zOsb5qUehSQXLbMSx3e2ScTVjazHuAhRdUe3K-Wq7qYeOLhIR8Vq8Hw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddtkedgkeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    gfrhhlucfvnfffucdlfeehmdenucfjughrpefhvffufffkofgggfestdekredtredttden
+    ucfhrhhomheprfgrthhrihgtkhcuhghilhhlihgrmhhsuceophgrthhrihgtkhesshhtfi
+    gtgidrgiihiieqnecuggftrfgrthhtvghrnheptdeludegheejteelheduudegkeehleet
+    feekiedtfefgleeifeelhefgveejhfffnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepphgrthhrihgtkhesshhtfigtgidrgiihii
+X-ME-Proxy: <xmx:kZrEYQ4-qvONOt4j4zKBBtLzgfabc4kNfPaHTxfiBLYFglPBKnasqA>
+    <xmx:kZrEYU7EaEgggE1hQR4rjpvrTZV3AMuNs4nT2a9CcFAiWve6p3Gdyw>
+    <xmx:kZrEYYhFyBGIJIHFZGLnA7ED7KUAna44LGe6NUF9jMZtslfqQR4B9w>
+    <xmx:kprEYRvfsN-O62pZ5ptj-Mj8baYI5hfo2zmWaQXQukh3uZZXQil1FQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 23 Dec 2021 10:49:37 -0500 (EST)
+From:   Patrick Williams <patrick@stwcx.xyz>
+To:     Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Hao Wu <hao.wu@rubrik.com>
+Cc:     Patrick Williams <patrick@stwcx.xyz>, stable@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] tpm: fix NPE on probe for missing device
+Date:   Thu, 23 Dec 2021 09:49:31 -0600
+Message-Id: <20211223154932.678424-1-patrick@stwcx.xyz>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Received: by 2002:a05:600c:1d2a:0:0:0:0 with HTTP; Thu, 23 Dec 2021 07:36:06
- -0800 (PST)
-Reply-To: zdrabrar@gmail.com
-From:   "dr.Abrar Zebadiyah" <harryanderson033@gmail.com>
-Date:   Thu, 23 Dec 2021 07:36:06 -0800
-Message-ID: <CAEC4EUWPzjK5=ewbqR9AiALURn7LjxyuK-bposy7MoOxrX4NQw@mail.gmail.com>
-Subject: HELLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+When using the tpm_tis-spi driver on a system missing the physical TPM,
+a null pointer exception was observed.
+
+    [    0.938677] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+    [    0.939020] pgd = 10c753cb
+    [    0.939237] [00000004] *pgd=00000000
+    [    0.939808] Internal error: Oops: 5 [#1] SMP ARM
+    [    0.940157] CPU: 0 PID: 48 Comm: kworker/u4:1 Not tainted 5.15.10-dd1e40c #1
+    [    0.940364] Hardware name: Generic DT based system
+    [    0.940601] Workqueue: events_unbound async_run_entry_fn
+    [    0.941048] PC is at tpm_tis_remove+0x28/0xb4
+    [    0.941196] LR is at tpm_tis_core_init+0x170/0x6ac
+
+This is due to an attempt in 'tpm_tis_remove' to use the drvdata, which
+was not initialized in 'tpm_tis_core_init' prior to the first error.
+
+Move the initialization of drvdata earlier so 'tpm_tis_remove' has
+access to it.
+
+Signed-off-by: Patrick Williams <patrick@stwcx.xyz>
+Fixes: 79ca6f74dae0 ("tpm: fix Atmel TPM crash caused by too frequent queries")
+Cc: stable@vger.kernel.org
+---
+ drivers/char/tpm/tpm_tis_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index b2659a4c4016..9813b934e6e4 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -950,6 +950,8 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 	priv->timeout_max = TPM_TIMEOUT_USECS_MAX;
+ 	priv->phy_ops = phy_ops;
+ 
++	dev_set_drvdata(&chip->dev, priv);
++
+ 	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
+ 	if (rc < 0)
+ 		goto out_err;
+@@ -962,8 +964,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 		priv->timeout_max = TIS_TIMEOUT_MAX_ATML;
+ 	}
+ 
+-	dev_set_drvdata(&chip->dev, priv);
+-
+ 	if (is_bsw()) {
+ 		priv->ilb_base_addr = ioremap(INTEL_LEGACY_BLK_BASE_ADDR,
+ 					ILB_REMAP_SIZE);
 -- 
-My Dear Friend.
+2.32.0
 
-How are you and your family Today? I hope all is well, and I am happy
-to share this transaction with you ,but you must keep everything as
-secret and very confidential.
-
-I have a very lucrative business transaction which requires your
-utmost discretion. Please understand that you and me, are to work as
-one team to inherit this fund, hence I am your insider in the bank as
-the transaction commence. I advise you to feel free with me for all is
-going to be well with us. This business is 100% risk free.
-
-Though, I know it would come to you at uttermost surprise unbelief
-because it is virtually impossible to know who is trustworthy and who
-to believed I am dr.Abrar Zebadiyah sum of $10.5 million is lying in
-our bank without claim i want you to help me to claim and receive it
-to your account in your country for our benefit.
-
-I am aware of the unsafe nature of the internet, and was compelled to
-use this medium due to the nature of this project.I have access to
-every vital information that can be used to transfer this huge amount
-of money, which may culminate into the investment of the said funds
-into your account or any lucrative company in your country.
-
-If you will like to assist me as a partner then indicate your
-interest, after which we shall both discuss the modalities and the
-sharing percentage. Upon receipt of your reply on your expression of
-interest, I will give you full details on how the business will be
-executed. I am open for negotiation,
-
-Thanks for your anticipated cooperation.Note you might receive this
-message in your inbox or spam folder, depends on your web host or
-server network
-
-Contact my private email only if you are interested (zdrabrar@gmail.com)
-
-Compliment of the day,
-Regards,
-
-dr.Abrar Zebadiyah
