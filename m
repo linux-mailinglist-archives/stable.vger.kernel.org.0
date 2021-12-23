@@ -2,117 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F2E47DF2B
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 07:52:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14BE47DF4A
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 08:04:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238877AbhLWGwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 01:52:01 -0500
-Received: from mga05.intel.com ([192.55.52.43]:51973 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232658AbhLWGwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 Dec 2021 01:52:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1640242321; x=1671778321;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=ETlPicAg5K5TzwnAcel8FfoloJM1jW6cl1eerFKA0cY=;
-  b=ACMqpc/M4uzXFo+YUnptQop1FgVELVkVyz50+PhT1ehi2RHFpBW/CFT0
-   eB2VodYuSia4EH0NeOEuwpE52eqWntNejW07LwQ2EvqPsj7MGvrNJGqxG
-   0gG29g0NyesVmZIOYHjqzfFiQGN/DdgDSqUNKHradHM8g+meC9sHMx3cM
-   HrmZFEspdf+nmuGBZH8WHWJyGFyWRW6voFKuSsofJtIaq896+9lcJbf+X
-   xsf1+C5fZ0t1vO3NnU4Ph97svNAax36ENPxytJCk16fTuoBs+PSvX0wwX
-   Zz+X0D5HXEEPdtEK5TaFnQjDkkoLxmtzyY8iiQtGiqBKrgA2IxqtNNpi1
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10206"; a="327078023"
-X-IronPort-AV: E=Sophos;i="5.88,228,1635231600"; 
-   d="scan'208";a="327078023"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Dec 2021 22:52:00 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,228,1635231600"; 
-   d="scan'208";a="664497944"
-Received: from zxingrtx.sh.intel.com ([10.239.159.110])
-  by fmsmga001.fm.intel.com with ESMTP; 22 Dec 2021 22:51:58 -0800
-From:   zhengjun.xing@linux.intel.com
-To:     peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     adrian.hunter@intel.com, alexander.shishkin@intel.com,
-        ak@linux.intel.com, kan.liang@linux.intel.com,
-        zhengjun.xing@linux.intel.com, stable@vger.kernel.org
-Subject: [PATCH v4] perf/x86/intel/uncore: Fix CAS_COUNT_WRITE issue for ICX
-Date:   Thu, 23 Dec 2021 22:48:26 +0800
-Message-Id: <20211223144826.841267-1-zhengjun.xing@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S242425AbhLWHEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Dec 2021 02:04:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49956 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232658AbhLWHEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 02:04:50 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F5BEB81F7C;
+        Thu, 23 Dec 2021 07:04:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C429C36AE5;
+        Thu, 23 Dec 2021 07:04:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640243088;
+        bh=uk3Bv7U+Fq9ElkgcVl0tqJsEanoo1dl/iKOmRHfyyAk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DOkxalg8GBRk2ch4gImd38oZDSZkt/MVpvqMvktIrgf0nwKx2L8sNShi4KXhynfMx
+         qw0IsfbyHvs3/HBcUEKEp+UnRB43Ex5vGA2fioR87QbzbhkxkSNb95scA/MhM28HkP
+         YVEuie9RaVPSeo6qMUbRbby5BnqZnJoA6PNEMEBE=
+Date:   Thu, 23 Dec 2021 08:04:42 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "James D. Turner" <linuxkernel.foss@dmarc-none.turner.link>
+Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: holtek-mouse: start hardware in probe
+Message-ID: <YcQfil1zb908p2hs@kroah.com>
+References: <875yrgf05r.fsf@turner.link>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <875yrgf05r.fsf@turner.link>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+On Tue, Dec 21, 2021 at 09:21:41PM -0500, James D. Turner wrote:
+> The holtek_mouse_probe() function is missing the necessary code to
+> start the hardware. When an Etekcity Scroll X1 (M555) USB mouse is
+> plugged in, the mouse receives power and the kernel recognizes it as a
+> USB device, but the system does not respond to any movement, clicking,
+> or scrolling of the mouse. Presumably, this bug also affects all other
+> mice supported by the hid-holtek-mouse driver, although this has not
+> been tested. On the stable linux-5.15.y branch, testing confirms that
+> the bug was introduced in commit a579510a64ed ("HID: check for valid
+> USB device for many HID drivers"), which was first included in
+> v5.15.8. Based on the source code, this bug appears to be present in
+> all currently-supported kernels (mainline, stable, and all LTS
+> kernels). Testing on hardware confirms that this proposed patch fixes
+> the bug for kernel v5.15.10. Fix holtek_mouse_probe() to call the
+> necessary functions to start the hardware.
+> 
+> Fixes: 93020953d0fa ("HID: check for valid USB device for many HID drivers")
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Signed-off-by: James D. Turner <linuxkernel.foss@dmarc-none.turner.link>
+> ---
+> This is my first time submitting a kernel patch. I think I've followed
+> all the directions, but please let me know if I should do something
+> differently.
+> 
+> In addition to testing this patch for the stable v5.15.10 kernel on real
+> hardware, I also tested it for the latest master of the hid repository
+> (commit 03090cc76ee3 ("Merge branch 'for-linus' of
+> git://git.kernel.org/pub/scm/linux/kernel/git/hid/hid")) using a VM with
+> USB passthrough.
 
-The user recently report a perf issue in the ICX platform, when test by
-perf event “uncore_imc_x/cas_count_write”,the write bandwidth is always
-very small (only 0.38MB/s), it is caused by the wrong "umask" for the
-"cas_count_write" event. When double-checking, find "cas_count_read"
-also is wrong.
+Thanks for the patch, but isn't this the same as commit 93a2207c254c
+("HID: holtek: fix mouse probing") in Linus's tree right now?
 
-The public document for ICX uncore:
+thanks,
 
-3rd Gen Intel® Xeon® Processor Scalable Family, Codename Ice Lake,Uncore
-Performance Monitoring Reference Manual, Revision 1.00, May 2021
-
-On 2.4.7, it defines Unit Masks for CAS_COUNT:
-RD b00001111
-WR b00110000
-
-So corrected both "cas_count_read" and "cas_count_write" for ICX.
-
-Old settings:
- hswep_uncore_imc_events
-	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=0x04,umask=0x03")
- 	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=0x04,umask=0x0c")
-
-New settings:
- snr_uncore_imc_events
-	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=0x04,umask=0x0f")
-	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=0x04,umask=0x30")
-
-Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
-Cc: stable@vger.kernel.org
----
-Change log:
-  
-  v4:
-    * update commit log as Kan's suggestion
-
-  v3:
-    * Add change log
-
-  v2:
-    * Add stable tag
-
- arch/x86/events/intel/uncore_snbep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 3660f698fb2a..ed869443efb2 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -5482,7 +5482,7 @@ static struct intel_uncore_type icx_uncore_imc = {
- 	.fixed_ctr_bits	= 48,
- 	.fixed_ctr	= SNR_IMC_MMIO_PMON_FIXED_CTR,
- 	.fixed_ctl	= SNR_IMC_MMIO_PMON_FIXED_CTL,
--	.event_descs	= hswep_uncore_imc_events,
-+	.event_descs	= snr_uncore_imc_events,
- 	.perf_ctr	= SNR_IMC_MMIO_PMON_CTR0,
- 	.event_ctl	= SNR_IMC_MMIO_PMON_CTL0,
- 	.event_mask	= SNBEP_PMON_RAW_EVENT_MASK,
--- 
-2.25.1
-
+greg k-h
