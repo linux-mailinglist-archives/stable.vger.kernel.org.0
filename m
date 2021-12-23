@@ -2,85 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8767247DE7B
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 06:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5905547DEC7
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 06:45:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbhLWFJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 00:09:16 -0500
-Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:19046 "EHLO
-        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232034AbhLWFJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 00:09:15 -0500
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BN0I01H006035;
-        Thu, 23 Dec 2021 05:09:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=corp-2021-07-09;
- bh=jNyUcZXpDntX62QUPUrDsPuCsX2H88Ob618GR6ZOMpE=;
- b=U1Lcf02Esq1dCy32EGOSdPJyVqYYT8aYjsg2RW31ubfmig0aui7w5n9Qb6Mj9ri2SmBX
- jEkyxHwkHw1iLPGbIdpI6o7rKeZWRMisWFFhkdtmo99WWEkm8UlP7q0mUC5eF/Ti40v8
- uNKqxlRS6BuMzc9vxDqcSQNfDMceTigJ7tHsiCKArwFx7dRlWFPbrXPUJXGrGAZFATvb
- OqdvwVRy/JsH50ZcN/TMLrAnOBPg35VZ7+e67myonY6sXKaOFqDnEPGCSfkiti6KuPYM
- eaKnX7ZvzK1AKfnPkiJ/25rGirWgH8lvf1GeaU1K5jj6jWBw0hmax6pYUVuUg1sVaDmF Lg== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3d2udcfs3c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 23 Dec 2021 05:09:00 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1BN511WR070342;
-        Thu, 23 Dec 2021 05:08:59 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by aserp3030.oracle.com with ESMTP id 3d15pfm5su-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 23 Dec 2021 05:08:59 +0000
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 1BN58xaA091703;
-        Thu, 23 Dec 2021 05:08:59 GMT
-Received: from ca-mkp.mkp.ca.oracle.com (ca-mkp.ca.oracle.com [10.156.108.201])
-        by aserp3030.oracle.com with ESMTP id 3d15pfm5se-1;
-        Thu, 23 Dec 2021 05:08:58 +0000
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-To:     Alexey Makhalov <amakhalov@vmware.com>, linux-scsi@vger.kernel.org
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Matt Wang <wwentao@vmware.com>,
-        "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        srivatsa@csail.mit.edu, shmulik.ladkani@gmail.com,
-        VMware PV-Drivers <pv-drivers@vmware.com>,
-        Vishal Bhakta <vbhakta@vmware.com>, namit@vmware.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] scsi: vmw_pvscsi: Set residual data length conditionally
-Date:   Thu, 23 Dec 2021 00:08:55 -0500
-Message-Id: <164023593112.32381.5515310000460334725.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211220190514.55935-1-amakhalov@vmware.com>
-References: <20211220190514.55935-1-amakhalov@vmware.com>
+        id S1346459AbhLWFpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Dec 2021 00:45:45 -0500
+Received: from mo-csw-fb1516.securemx.jp ([210.130.202.172]:56714 "EHLO
+        mo-csw-fb.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346414AbhLWFpo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 00:45:44 -0500
+X-Greylist: delayed 1125 seconds by postgrey-1.27 at vger.kernel.org; Thu, 23 Dec 2021 00:45:44 EST
+Received: by mo-csw-fb.securemx.jp (mx-mo-csw-fb1516) id 1BN5Qwwh005056; Thu, 23 Dec 2021 14:26:58 +0900
+Received: by mo-csw.securemx.jp (mx-mo-csw1515) id 1BN5Qegk019675; Thu, 23 Dec 2021 14:26:40 +0900
+X-Iguazu-Qid: 34trEBPRiv8S8h5yhV
+X-Iguazu-QSIG: v=2; s=0; t=1640237200; q=34trEBPRiv8S8h5yhV; m=Pz+rVJY8GTSjyDmnakak40oK6XflF5WcMp1wRCh4j2E=
+Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
+        by relay.securemx.jp (mx-mr1512) id 1BN5QdHP005895
+        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
+        Thu, 23 Dec 2021 14:26:39 +0900
+Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id 496E61000F0;
+        Thu, 23 Dec 2021 14:26:39 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id 1BN5QcsH031555;
+        Thu, 23 Dec 2021 14:26:39 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [RFC/PATCH for 4.4.y] usb: gadget: configfs: Fix use-after-free issue with udc_name
+Date:   Thu, 23 Dec 2021 14:26:26 +0900
+X-TSB-HOP: ON
+Message-Id: <20211223052626.1631331-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: mpK0CVGHk4IfDm7Coed0utMZ_V8_EXMI
-X-Proofpoint-GUID: mpK0CVGHk4IfDm7Coed0utMZ_V8_EXMI
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Dec 2021 11:05:14 -0800, Alexey Makhalov wrote:
+From: Eddie Hung <eddie.hung@mediatek.com>
 
-> PVSCSI implementation in VMware hypervisor under specific configuration
-> ("SCSI Bus Sharing" set to "Physical") returns zero dataLen in completion
-> descriptor for read_capacity_16. As a result, the kernel can not detect proper
-> disk geometry. It can be recognized by the kernel message:
-> [    0.776588] sd 1:0:0:0: [sdb] Sector size 0 reported, assuming 512.
-> 
-> PVSCSI implementation in QEMU does not set dataLen at all keeping it zeroed,
-> leading to the boot hang, as was reported by Shmulik Ladkani.
-> 
-> [...]
+commit 64e6bbfff52db4bf6785fab9cffab850b2de6870 upstream.
 
-Applied to 5.16/scsi-fixes, thanks!
+There is a use-after-free issue, if access udc_name
+in function gadget_dev_desc_UDC_store after another context
+free udc_name in function unregister_gadget.
 
-[1/1] scsi: vmw_pvscsi: Set residual data length conditionally
-      https://git.kernel.org/mkp/scsi/c/142c779d05d1
+Context 1:
+gadget_dev_desc_UDC_store()->unregister_gadget()->
+free udc_name->set udc_name to NULL
 
+Context 2:
+gadget_dev_desc_UDC_show()-> access udc_name
+
+Call trace:
+dump_backtrace+0x0/0x340
+show_stack+0x14/0x1c
+dump_stack+0xe4/0x134
+print_address_description+0x78/0x478
+__kasan_report+0x270/0x2ec
+kasan_report+0x10/0x18
+__asan_report_load1_noabort+0x18/0x20
+string+0xf4/0x138
+vsnprintf+0x428/0x14d0
+sprintf+0xe4/0x12c
+gadget_dev_desc_UDC_show+0x54/0x64
+configfs_read_file+0x210/0x3a0
+__vfs_read+0xf0/0x49c
+vfs_read+0x130/0x2b4
+SyS_read+0x114/0x208
+el0_svc_naked+0x34/0x38
+
+Add mutex_lock to protect this kind of scenario.
+
+Signed-off-by: Eddie Hung <eddie.hung@mediatek.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1609239215-21819-1-git-send-email-macpaul.lin@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[Reference: CVE-2021-39648]
+[iwamatsu: struct usb_gadget_driver does not have udc_name variable.
+           Change struct gadget_info's udc_name.]
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ drivers/usb/gadget/configfs.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
+index 0ef3f4e452428c..6e1172450c7345 100644
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -241,7 +241,16 @@ static ssize_t gadget_dev_desc_bcdUSB_store(struct config_item *item,
+ 
+ static ssize_t gadget_dev_desc_UDC_show(struct config_item *item, char *page)
+ {
+-	return sprintf(page, "%s\n", to_gadget_info(item)->udc_name ?: "");
++	struct gadget_info *gi = to_gadget_info(item);
++	char *udc_name;
++	int ret;
++
++	mutex_lock(&gi->lock);
++	udc_name = gi->udc_name;
++	ret = sprintf(page, "%s\n", udc_name ?: "");
++	mutex_unlock(&gi->lock);
++
++	return ret;
+ }
+ 
+ static int unregister_gadget(struct gadget_info *gi)
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.34.1
+
+
