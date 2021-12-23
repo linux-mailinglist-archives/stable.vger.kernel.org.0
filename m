@@ -2,121 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 937F847E602
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 16:49:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 126E847E649
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 17:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244207AbhLWPts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 10:49:48 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43471 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1349069AbhLWPtj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 10:49:39 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id 53A635C016A;
-        Thu, 23 Dec 2021 10:49:38 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Thu, 23 Dec 2021 10:49:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=stwcx.xyz; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm3; bh=w+OCQKaR9fThO/RPri2JnBRIRY
-        P7/F4zfxZs/8kP+LM=; b=aA4Gn+Ev8JXdGjM2OO8zbFp+cOvg5zyTcCPH0jVvmv
-        sxEQRW5polfhKBcvgYgCxTP0tUTOFzt1yw+LPyJClMJncVlA/4t4CHauVwWoLttE
-        5florhDViJyT85VBqodg+rGToLM0BWAqqX22yTdofOh92XR1+jDh2CWRBd6gjcWr
-        ldKb9Sl/vGFafPZyt8xmuUvRoy7S1ACy8NeJqCFXMiYNGyym+G1ODZrH5LrNsDdx
-        uf3w1XU7ff37p1flZaLrldjF1z1s9uUwyBxgV5Nw1JBeZ67aXhZ1g8KY2e2iQOHE
-        Kp/OSIoDKBwE3paXfvclG9QmlWByKqS3i8ygO170FjHA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=w+OCQKaR9fThO/RPr
-        i2JnBRIRYP7/F4zfxZs/8kP+LM=; b=Oznwu/pETiss8/LDfZzxOhLG1Vqv7OBW8
-        d8QMTK1npQhGvnD+QaooE8vtG0r2AVBk2WPPo0f559oBIJG0ctpD7cvue1bargsM
-        5G4xZqk0fnJR0/+vlqBg3vOcpImJlQqkZsuKcypVYz1vFVkOx9e7jItM87+1XZVB
-        A4Jv8fZp3pO14wfzkIMKlgmzwuB5vBUEfHzVEVAS1RkkQOgt+LPiyci3yJNKQG8g
-        x5uYRAF1xiOlfFH4Pi+bujjqJQo/IcEHLOBGaIbwx6klivDhn/kkqiJVE+PA/tXJ
-        rsamKzJczdGrB+WtZbQMHMYenEMV8+fDZcYYcZGUaFAoGwxLNxz+w==
-X-ME-Sender: <xms:kZrEYVrvYOXZav5rc6N506smd8U6KVQG1DNkI3YwMMLKroC86jP7wg>
-    <xme:kZrEYXrhPrzvcDGCOl_x-bAqy63qpm3YYpSBhbM3H4ix3XvhpiHMxJeejCsOyR91l
-    IKNnWSgPTVdzOgJg6E>
-X-ME-Received: <xmr:kZrEYSP1MUUy-tN4A6LjraNpwNStAxEN_4M1iZ3zOsb5qUehSQXLbMSx3e2ScTVjazHuAhRdUe3K-Wq7qYeOLhIR8Vq8Hw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddtkedgkeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    gfrhhlucfvnfffucdlfeehmdenucfjughrpefhvffufffkofgggfestdekredtredttden
-    ucfhrhhomheprfgrthhrihgtkhcuhghilhhlihgrmhhsuceophgrthhrihgtkhesshhtfi
-    gtgidrgiihiieqnecuggftrfgrthhtvghrnheptdeludegheejteelheduudegkeehleet
-    feekiedtfefgleeifeelhefgveejhfffnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
-    hrrghmpehmrghilhhfrhhomhepphgrthhrihgtkhesshhtfigtgidrgiihii
-X-ME-Proxy: <xmx:kZrEYQ4-qvONOt4j4zKBBtLzgfabc4kNfPaHTxfiBLYFglPBKnasqA>
-    <xmx:kZrEYU7EaEgggE1hQR4rjpvrTZV3AMuNs4nT2a9CcFAiWve6p3Gdyw>
-    <xmx:kZrEYYhFyBGIJIHFZGLnA7ED7KUAna44LGe6NUF9jMZtslfqQR4B9w>
-    <xmx:kprEYRvfsN-O62pZ5ptj-Mj8baYI5hfo2zmWaQXQukh3uZZXQil1FQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 23 Dec 2021 10:49:37 -0500 (EST)
-From:   Patrick Williams <patrick@stwcx.xyz>
-To:     Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Hao Wu <hao.wu@rubrik.com>
-Cc:     Patrick Williams <patrick@stwcx.xyz>, stable@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] tpm: fix NPE on probe for missing device
-Date:   Thu, 23 Dec 2021 09:49:31 -0600
-Message-Id: <20211223154932.678424-1-patrick@stwcx.xyz>
-X-Mailer: git-send-email 2.32.0
+        id S1349168AbhLWQTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Dec 2021 11:19:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349149AbhLWQTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 11:19:13 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7641C061401;
+        Thu, 23 Dec 2021 08:19:12 -0800 (PST)
+Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 982081EC050F;
+        Thu, 23 Dec 2021 17:19:05 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1640276345;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=xD7MPmC+2ErQI45EeQc4ikxUsZJzTJ2cRRbJueAos0k=;
+        b=D4SwgyECbZXrWKJoUzQiCtm8/t6M2YEw709TpWDVw6NzzAgX4EPGOR68xs9k8TPlpgvFUg
+        0uKLMAXKLMbEhbiTqiLG6iucLxuQIsb8Ige1whlicMVNanfochNf6LZ8yBcVMXCvLp/d3r
+        XBe2nuP9Sbzq1wdLW4ZEtOY7iA2jc38=
+Date:   Thu, 23 Dec 2021 17:19:06 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Alexander Lobakin <alexandr.lobakin@intel.com>
+Cc:     linux-hardening@vger.kernel.org, x86@kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Kristen Carlson Accardi <kristen@linux.intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Bruce Schlobohm <bruce.schlobohm@intel.com>,
+        Jessica Yu <jeyu@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Evgenii Shatokhin <eshatokhin@virtuozzo.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Marios Pomonis <pomonis@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        "H.J. Lu" <hjl.tools@gmail.com>, Nicolas Pitre <nico@fluxnic.net>,
+        linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+        linux-arch@vger.kernel.org, live-patching@vger.kernel.org,
+        llvm@lists.linux.dev, stable@vger.kernel.org
+Subject: Re: [PATCH v9 01/15] modpost: fix removing numeric suffixes
+Message-ID: <YcShenJgaOeOdbIj@zn.tnic>
+References: <20211223002209.1092165-1-alexandr.lobakin@intel.com>
+ <20211223002209.1092165-2-alexandr.lobakin@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20211223002209.1092165-2-alexandr.lobakin@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When using the tpm_tis-spi driver on a system missing the physical TPM,
-a null pointer exception was observed.
+On Thu, Dec 23, 2021 at 01:21:55AM +0100, Alexander Lobakin wrote:
+> For now, that condition from remove_dot():
+> 
+> if (m && (s[n + m] == '.' || s[n + m] == 0))
+> 
+> which was designed to test if it's a dot or a \0 after the suffix
+> is never satisfied.
+> This is due to that s[n + m] always points to the last digit of a
+> numeric suffix, not on the symbol next to it:
+> 
+> param_set_uint.0, s[n + m] is '0', s[n + m + 1] is '\0'
+> 
+> So it's off by one and was like that since 2014.
 
-    [    0.938677] Unable to handle kernel NULL pointer dereference at virtual address 00000004
-    [    0.939020] pgd = 10c753cb
-    [    0.939237] [00000004] *pgd=00000000
-    [    0.939808] Internal error: Oops: 5 [#1] SMP ARM
-    [    0.940157] CPU: 0 PID: 48 Comm: kworker/u4:1 Not tainted 5.15.10-dd1e40c #1
-    [    0.940364] Hardware name: Generic DT based system
-    [    0.940601] Workqueue: events_unbound async_run_entry_fn
-    [    0.941048] PC is at tpm_tis_remove+0x28/0xb4
-    [    0.941196] LR is at tpm_tis_core_init+0x170/0x6ac
+What's the relevance of this? Looking at
 
-This is due to an attempt in 'tpm_tis_remove' to use the drvdata, which
-was not initialized in 'tpm_tis_core_init' prior to the first error.
+  7d02b490e93c ("Kbuild, lto: Drop .number postfixes in modpost")
 
-Move the initialization of drvdata earlier so 'tpm_tis_remove' has
-access to it.
+what you're fixing here is something LTO-related. How do you trigger
+this?
 
-Signed-off-by: Patrick Williams <patrick@stwcx.xyz>
-Fixes: 79ca6f74dae0 ("tpm: fix Atmel TPM crash caused by too frequent queries")
-Cc: stable@vger.kernel.org
----
- drivers/char/tpm/tpm_tis_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+For a Cc:stable patch, I'm missing a lot of context.
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-index b2659a4c4016..9813b934e6e4 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -950,6 +950,8 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
- 	priv->timeout_max = TPM_TIMEOUT_USECS_MAX;
- 	priv->phy_ops = phy_ops;
- 
-+	dev_set_drvdata(&chip->dev, priv);
-+
- 	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
- 	if (rc < 0)
- 		goto out_err;
-@@ -962,8 +964,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
- 		priv->timeout_max = TIS_TIMEOUT_MAX_ATML;
- 	}
- 
--	dev_set_drvdata(&chip->dev, priv);
--
- 	if (is_bsw()) {
- 		priv->ilb_base_addr = ioremap(INTEL_LEGACY_BLK_BASE_ADDR,
- 					ILB_REMAP_SIZE);
+> `-z uniq-symbol` linker flag which we are planning to use to
+				     ^^
+
+Who's "we"?
+
+> simplify livepatching brings numeric suffixes back, fix this.
+> Otherwise:
+> 
+> ERROR: modpost: "param_set_uint.0" [vmlinux] is a static EXPORT_SYMBOL
+> 
+> Fixes: fcd38ed0ff26 ("scripts: modpost: fix compilation warning")
+> Cc: stable@vger.kernel.org # 3.17+
+> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+
+...
+
 -- 
-2.32.0
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
