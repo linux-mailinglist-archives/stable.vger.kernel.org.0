@@ -2,139 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B8947DE20
-	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 04:40:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7DD847DE2F
+	for <lists+stable@lfdr.de>; Thu, 23 Dec 2021 05:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242011AbhLWDkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Dec 2021 22:40:19 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:39430 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242010AbhLWDkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Dec 2021 22:40:19 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 3273C1F389;
-        Thu, 23 Dec 2021 03:40:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1640230818; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=oqEZj9Ynr/lqpqMDeWnJrddzDJzzUwUUL4YhGemGfck=;
-        b=IV/WUm1fBoiYdBwrSp2P/Exxjz7+M8A0KBktN+Q6PINaQSXSJ3M3DkR2oncJhBjshPhLzV
-        R2jTbgGqrG4tLzzmxLnfw9LoJN6EcM5+5CHChoURXTyPUOCLLN2fmizTK/CxXehUzerHQo
-        d6Afg2nQhOK3N5/6/5uwi3l2A4uEJnE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1640230818;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=oqEZj9Ynr/lqpqMDeWnJrddzDJzzUwUUL4YhGemGfck=;
-        b=X3qOzB6A00iA3cyRoaZcVJx80gcRq40FRxMPs6Zqn1PAcVLZUCvPkeFfSPtZejBjPWn853
-        Fqu58iLot6ZwsJBA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1702F13E39;
-        Thu, 23 Dec 2021 03:40:18 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id BpsDBaLvw2G2DQAAMHmgww
-        (envelope-from <dbueso@suse.de>); Thu, 23 Dec 2021 03:40:18 +0000
+        id S242115AbhLWEDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Dec 2021 23:03:30 -0500
+Received: from mout.gmx.net ([212.227.17.21]:34501 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238699AbhLWED3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 22 Dec 2021 23:03:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1640232199;
+        bh=4ILo/VJm8wgroPorTTpv5tAKucJx98LcPaR7SD+bkw8=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=hrf0cYhm4HEHji31aXKDeXveSfpishJEHt0cTeypZ1L0ZVeK+rKflKdvzgutBCaca
+         winCaQv6CFuGUAhzE8wQHgGdrcnb8CmBV9ofdlbZbWI+feBq/sUtSLE+rdE21J7xjq
+         MQfMiAUEMX01uIrjc9cCkAVE0MPs9lNLgKbE7rWQ=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from Venus.fritz.box ([46.223.119.124]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1N1fii-1mKDZ039ei-011zLn; Thu, 23
+ Dec 2021 05:03:18 +0100
+From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
+To:     peterhuewe@gmx.de, jarkko@kernel.org, jgg@ziepe.ca
+Cc:     p.rosenberger@kunbus.com, stefanb@linux.ibm.com,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lino Sanfilippo <LinoSanfilippo@gmx.de>, stable@vger.kernel.org
+Subject: [PATCH v3] tpm: fix potential NULL pointer access in tpm_del_char_device
+Date:   Thu, 23 Dec 2021 05:02:46 +0100
+Message-Id: <20211223040246.6575-1-LinoSanfilippo@gmx.de>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Date:   Wed, 22 Dec 2021 19:40:17 -0800
-From:   Davidlohr Bueso <dbueso@suse.de>
-To:     Manfred Spraul <manfred@colorfullife.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vasily Averin <vvs@virtuozzo.com>, cgel.zte@gmail.com,
-        shakeelb@google.com, rdunlap@infradead.org, unixbhaskar@gmail.com,
-        chi.minghao@zte.com.cn, arnd@arndb.de,
-        Zeal Robot <zealci@zte.com.cn>, linux-mm@kvack.org,
-        1vier1@web.de, stable@vger.kernel.org, mhocko@kernel.org,
-        willy@infradead.org, vbabka@suse.cz
-Subject: Re: [PATCH] mm/util.c: Make kvfree() safe for calling while holding
- spinlocks
-In-Reply-To: <20211222194828.15320-1-manfred@colorfullife.com>
-References: <20211222194828.15320-1-manfred@colorfullife.com>
-User-Agent: Roundcube Webmail
-Message-ID: <a3212f020c7e8e2efbeffbb5e0a02424@suse.de>
-X-Sender: dbueso@suse.de
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+X-Provags-ID: V03:K1:2kDWMu0wWMr7HLmwOpt7VP3fzse20/ciSnJzNIltI1yar+OtMxB
+ 6XrkoGlLhABtmA+RWtFcAwJr8tXhG8It642u3/HFEOHbK7LyNQCl7Wn4PdwYgcj3SujBfVk
+ FKDKHRTllKA6kUlZcbisqn6PgsT8WBdDgxtlbGiu9QhnxKvk2zk6WjG0ZYq8FFkwVOqXyeJ
+ QJMSvilLhUxGxh5Pedh4Q==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:g85bodK0EJ8=:RR6KOWkI1oIuahrmq37tih
+ 3qeasUJCSto5uPGPyYK+OZAP4MoMOupg8Sh4OTfDNqYpkXg0TRLiodBGjNQN6YMVmBHVujrQH
+ F+AMp0X/MPE58fIBII5SEZeysswyI73FxAMTtASQTJ8vhcWeBZFVCDrdbmUPL5d1FHdEupelh
+ x5L9QbW/OSv76T59XTMv9/DJ27hxLbTsfkR8utrpTO24eGwSZHY+oFJ/xg9ROVKo0QhAX3GmX
+ 4mT7zRNEAtC/16e1njXD9D7CRgwWTEScCtCN0l7Lks0/zeq1mHVjz9M8xc0qoScAc9K0YgPtH
+ SrB214JkLSJl0eCU1qrJUL9CsYCyDZ1ex3BZRzK559PuueOkFrYJy2gbz8TD2UxHgzX1iO51n
+ /ydFMq8xW54sDYuFS5a30bwDzPwSJS8KlVNm1oN/KT0D98a7dzNb1OZ8gpKcfO8Hw3Rdo1rc/
+ eUIgsBdNr9dQv3OS7VwXHaDmz12Mo88rA2A67Yq2fe4+c3aKWG4rX/tEZJu3c5Sk2yLfjU9F8
+ bg1K0iLiY/GyKt+Ek6NjfBDV4H1sW5Ct9ZRyWYpPPtnXRa3Go9qsu4wdlAm8ZFom/BkpFX2dy
+ EYdm2NoUwIh7Z3pRDE025q+xIrN/JCSVTI7lDVld+ReAS1/0zBXnxrIoD4m59YkFNG4VuKAzN
+ QT6yE4I2eVNuIBCoJuW9frxc3lyi/NcyT679G+qd9pLAeNeN2KVildRqIXSyGCjAJsCcX7aSx
+ nDXroty/i816krTerEwJNERjZALaxyr4fiS6Mxz2T3Wf7D1XSHbxbaWnyYX8lnYz762sRpsmS
+ uBdPIynVcw5IO51lN+Taowhg7vyogFa/5FwPG8iuUrJWHoEiWyeEDPsRS5/56fKSrrqyS5GAd
+ riYnEWr0i3anposHhWlivB7A2pX3tjopQVQ6H6eBguf/o+p06MmIc9MdkZQT+xyf2o84dIJxh
+ I5TY/6v+hBGeIpUhqr1myCcF216EpaGkhi+8RVbJ9rs+ziTsu+PKSoebnBAhN6LEn2Nd/vd8a
+ Jfl5w0QIUhJLZQBlsgilBokt0SmfxlZb/dBsqPM2HWympJ1ryOpgwIMFtBvBrOBXyNvM0nlN/
+ FGjemhUQC6yMEc=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Cc'ing more mm folks.
-
-On 2021-12-22 11:48, Manfred Spraul wrote:
-> One codepath in find_alloc_undo() calls kvfree() while holding a 
-> spinlock.
-> Since vfree() can sleep this is a bug.
-
-afaict the only other offender is devx_async_cmd_event_destroy_uobj(), 
-in drivers/infiniband/hw/mlx5/devx.c. I was expecting to find more, 
-actually.
-
-> Previously, the code path used kfree(), and kfree() is safe to be 
-> called
-> while holding a spinlock.
-> 
-> Minghao proposed to fix this by updating find_alloc_undo().
-> 
-> Alternate proposal to fix this: Instead of changing find_alloc_undo(),
-> change kvfree() so that the same rules as for kfree() apply:
-> Having different rules for kfree() and kvfree() just asks for bugs.
-
-I agree that it is best to have the same atomic semantics across all 
-family of calls.
-
-> 
-> Disadvantage: Releasing vmalloc'ed memory will be delayed a bit.
-
-I would not expect the added latency to be a big deal unless under 
-serious memory pressure, for which case things are already fragile to 
-begin with. Furthermore users of kvfree() are already warned that this 
-is the slower choice. Feel free to add my:
-
-Acked-by: Davidlohr Bueso <dbueso@suse.de>
-
-> 
-> Reported-by: Zeal Robot <zealci@zte.com.cn>
-> Reported-by: Minghao Chi <chi.minghao@zte.com.cn>
-> Link:
-> https://lore.kernel.org/all/20211222081026.484058-1-chi.minghao@zte.com.cn/
-> Fixes: fc37a3b8b438 ("[PATCH] ipc sem: use kvmalloc for sem_undo 
-> allocation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-> ---
->  mm/util.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/mm/util.c b/mm/util.c
-> index 741ba32a43ac..7f9181998835 100644
-> --- a/mm/util.c
-> +++ b/mm/util.c
-> @@ -610,12 +610,12 @@ EXPORT_SYMBOL(kvmalloc_node);
->   * It is slightly more efficient to use kfree() or vfree() if you are 
-> certain
->   * that you know which one to use.
->   *
-> - * Context: Either preemptible task context or not-NMI interrupt.
-> + * Context: Any context except NMI interrupt.
->   */
->  void kvfree(const void *addr)
->  {
->  	if (is_vmalloc_addr(addr))
-> -		vfree(addr);
-> +		vfree_atomic(addr);
->  	else
->  		kfree(addr);
->  }
+U29tZSBTUEkgY29udHJvbGxlciBkcml2ZXJzIHVucmVnaXN0ZXIgdGhlIGNvbnRyb2xsZXIgaW4g
+dGhlIHNodXRkb3duCmhhbmRsZXIgKGUuZy4gQkNNMjgzNSkuIElmIHN1Y2ggYSBjb250cm9sbGVy
+IGlzIHVzZWQgd2l0aCBhIFRQTSAyIHNsYXZlCmNoaXAtPm9wcyBtYXkgYmUgYWNjZXNzZWQgd2hl
+biBpdCBpcyBhbHJlYWR5IE5VTEw6CgpBdCBzeXN0ZW0gc2h1dGRvd24gdGhlIHByZS1zaHV0ZG93
+biBoYW5kbGVyIHRwbV9jbGFzc19zaHV0ZG93bigpIHNodXRzIGRvd24KVFBNIDIgYW5kIHNldHMg
+Y2hpcC0+b3BzIHRvIE5VTEwuIFRoZW4gYXQgU1BJIGNvbnRyb2xsZXIgdW5yZWdpc3RyYXRpb24K
+dHBtX3Rpc19zcGlfcmVtb3ZlKCkgaXMgY2FsbGVkIGFuZCBldmVudHVhbGx5IGNhbGxzIHRwbV9k
+ZWxfY2hhcl9kZXZpY2UoKQp3aGljaCB0cmllcyB0byBzaHV0IGRvd24gVFBNIDIgYWdhaW4uIFRo
+ZXJlYnkgaXQgYWNjZXNzZXMgY2hpcC0+b3BzIGFnYWluOgoodHBtX2RlbF9jaGFyX2RldmljZSBj
+YWxscyB0cG1fY2hpcF9zdGFydCB3aGljaCBjYWxscyB0cG1fY2xrX2VuYWJsZSB3aGljaApjYWxs
+cyBjaGlwLT5vcHMtPmNsa19lbmFibGUpLgoKQXZvaWQgdGhlIE5VTEwgcG9pbnRlciBhY2Nlc3Mg
+YnkgdGVzdGluZyBpZiBjaGlwLT5vcHMgaXMgdmFsaWQgYW5kIHNraXBwaW5nCnRoZSBUUE0gMiBz
+aHV0ZG93biBwcm9jZWR1cmUgaW4gY2FzZSBpdCBpcyBOVUxMLgoKRml4ZXM6IGRjYmVhYjE5NDY0
+NTQgKCJ0cG06IGZpeCBjcmFzaCBpbiB0cG1fdGlzIGRlaW5pdGlhbGl6YXRpb24iKQpGaXhlczog
+MzlkMDA5OWY5NDM5ICgicG93ZXJwYy9wc2VyaWVzOiBBZGQgc2h1dGRvd24oKSB0byB2aW9fZHJp
+dmVyIGFuZCB2aW9fYnVzIikKQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcKVGVzdGVkLWJ5OiBT
+dGVmYW4gQmVyZ2VyIDxzdGVmYW5iQGxpbnV4LmlibS5jb20+ClJldmlld2VkLWJ5OiBTdGVmYW4g
+QmVyZ2VyIDxzdGVmYW5iQGxpbnV4LmlibS5jb20+ClNpZ25lZC1vZmYtYnk6IExpbm8gU2FuZmls
+aXBwbyA8TGlub1NhbmZpbGlwcG9AZ214LmRlPgotLS0KQ2hhbmdlcyBpbiB2MzoKLSBhZGRlZCB0
+YWdzIGZvciBTdGVmYW5zIHJldmlldyBhbmQgdGVzdAotIGNvcnJlY3RlZCB0aGUgc291cmNlIGNv
+ZGUgY29tbWVudAoKQ2hhbmdlcyBpbiB2MjoKLSByZXBocmFzZWQgdGhlIGNvbW1pdCBtZXNzYWdl
+IHRvIGNsYXJpZnkgdGhlIGNpcmN1bXN0YW5jZXMgdW5kZXIgd2hpY2gKICB0aGlzIGJ1ZyB0cmln
+Z2VycyAoYXMgcmVxdWVzdGVkIGJ5IEphcmtrbykKCkkgd2FzIGFibGUgdG8gcmVwcm9kdWNlIHRo
+aXMgaXNzdWUgd2l0aCBhIFNMQiA5NjcwIFRQTSBjaGlwIGNvbnRyb2xsZWQgYnkgCmEgQkNNMjgz
+NSBTUEkgY29udHJvbGxlci4gCgpUaGUgYXBwcm9hY2ggdG8gZml4IHRoaXMgaXNzdWUgaW4gdGhl
+IEJDTTI4MzUgZHJpdmVyIHdhcyByZWplY3RlZCBhZnRlciBhCmRpc2N1c3Npb24gb24gdGhlIG1h
+aWxpbmcgbGlzdDoKCmh0dHBzOi8vbWFyYy5pbmZvLz9sPWxpbnV4LWludGVncml0eSZtPTE2MzI4
+NTkwNjcyNTM2NyZ3PTIKClRoZSByZWFzb24gZm9yIHRoZSByZWplY3Rpb24gd2FzIHRoZSByZWFs
+aXphdGlvbiwgdGhhdCB0aGlzIGlzc3VlIHNob3VsZCByYXRoZXIKYmUgZml4ZWQgaW4gdGhlIFRQ
+TSBjb2RlOgoKaHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtc3BpJm09MTYzMzExMDg3NDIzMjcx
+Jnc9MgoKU28gdGhpcyBpcyB0aGUgcmV3b3JrZWQgdmVyc2lvbiBvZiBhIHBhdGNoIHRoYXQgaXMg
+c3VwcG9zZWQgdG8gZG8gdGhhdC4KCgogZHJpdmVycy9jaGFyL3RwbS90cG0tY2hpcC5jIHwgMTYg
+KysrKysrKysrKystLS0tLQogMSBmaWxlIGNoYW5nZWQsIDExIGluc2VydGlvbnMoKyksIDUgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFyL3RwbS90cG0tY2hpcC5jIGIvZHJp
+dmVycy9jaGFyL3RwbS90cG0tY2hpcC5jCmluZGV4IGRkYWVjZWI3ZTEwOS4uMDMxMjJkNjI0Njcw
+IDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdHBtL3RwbS1jaGlwLmMKKysrIGIvZHJpdmVycy9j
+aGFyL3RwbS90cG0tY2hpcC5jCkBAIC00NzQsMTMgKzQ3NCwxOSBAQCBzdGF0aWMgdm9pZCB0cG1f
+ZGVsX2NoYXJfZGV2aWNlKHN0cnVjdCB0cG1fY2hpcCAqY2hpcCkKIAogCS8qIE1ha2UgdGhlIGRy
+aXZlciB1bmNhbGxhYmxlLiAqLwogCWRvd25fd3JpdGUoJmNoaXAtPm9wc19zZW0pOwotCWlmIChj
+aGlwLT5mbGFncyAmIFRQTV9DSElQX0ZMQUdfVFBNMikgewotCQlpZiAoIXRwbV9jaGlwX3N0YXJ0
+KGNoaXApKSB7Ci0JCQl0cG0yX3NodXRkb3duKGNoaXAsIFRQTTJfU1VfQ0xFQVIpOwotCQkJdHBt
+X2NoaXBfc3RvcChjaGlwKTsKKwkvKiBJbiBjYXNlIHRoYXQgdGhlIFNQSSBtYXN0ZXIgaXMgdW5y
+ZWdpc3RlcmVkIGluIGl0cyBkcml2ZXJzCisJICogc2h1dGRvd24gaGFuZGxlciwgdHBtX2NsYXNz
+X3NodXRkb3duKCkgaGFzIGFscmVhZHkgYmVlbiBjYWxsZWQKKwkgKiBhbmQgc2V0IGNoaXAtPm9w
+cyB0byBOVUxMLiBTbyBjaGVjayBpZiBpdCBpcyBzdGlsbCB2YWxpZC4KKwkgKi8KKwlpZiAoY2hp
+cC0+b3BzKSB7CisJCWlmIChjaGlwLT5mbGFncyAmIFRQTV9DSElQX0ZMQUdfVFBNMikgeworCQkJ
+aWYgKCF0cG1fY2hpcF9zdGFydChjaGlwKSkgeworCQkJCXRwbTJfc2h1dGRvd24oY2hpcCwgVFBN
+Ml9TVV9DTEVBUik7CisJCQkJdHBtX2NoaXBfc3RvcChjaGlwKTsKKwkJCX0KIAkJfQorCQljaGlw
+LT5vcHMgPSBOVUxMOwogCX0KLQljaGlwLT5vcHMgPSBOVUxMOwogCXVwX3dyaXRlKCZjaGlwLT5v
+cHNfc2VtKTsKIH0KIAoKYmFzZS1jb21taXQ6IGJjNDkxZmIxMjUxM2U3OTcwMmM2ZjkzNmM4Mzhm
+NzkyYjUzODkxMjkKLS0gCjIuMzQuMQoK
