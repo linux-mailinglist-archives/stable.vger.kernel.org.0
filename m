@@ -2,82 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF4247EAF7
-	for <lists+stable@lfdr.de>; Fri, 24 Dec 2021 04:52:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99E1B47ED12
+	for <lists+stable@lfdr.de>; Fri, 24 Dec 2021 09:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351174AbhLXDwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 22:52:46 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:57370 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1351171AbhLXDwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 22:52:45 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0V.ahoK8_1640317963;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0V.ahoK8_1640317963)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 24 Dec 2021 11:52:43 +0800
-From:   Jeffle Xu <jefflexu@linux.alibaba.com>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     dhowells@redhat.com
-Subject: [PATCH for 5.15.y stable] netfs: fix parameter of cleanup()
-Date:   Fri, 24 Dec 2021 11:52:43 +0800
-Message-Id: <20211224035243.56554-1-jefflexu@linux.alibaba.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <163913443334205@kroah.com>
-References: <163913443334205@kroah.com>
+        id S1351957AbhLXIYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Dec 2021 03:24:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351955AbhLXIYH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Dec 2021 03:24:07 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4DC5C061401;
+        Fri, 24 Dec 2021 00:24:07 -0800 (PST)
+Received: from ip4d173d4a.dynamic.kabel-deutschland.de ([77.23.61.74] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1n0fru-0007sC-JA; Fri, 24 Dec 2021 09:24:02 +0100
+Message-ID: <b4470632-9209-ce77-937f-656566d333b3@leemhuis.info>
+Date:   Fri, 24 Dec 2021 09:24:02 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Content-Language: en-BS
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+To:     Luca Coelho <luciano.coelho@intel.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        mmokrejs@gmail.com
+Subject: iwlwifi: loosing connection to AP (regression from 5.4.143) (fwd from
+ b.k.o bug 215401)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1640334247;04d431dd;
+X-HE-SMSGID: 1n0fru-0007sC-JA
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 3cfef1b612e15a0c2f5b1c9d3f3f31ad72d56fcd upstream.
+Hi, this is your Linux kernel regression tracker speaking.
 
-The order of these two parameters is just reversed. gcc didn't warn on
-that, probably because 'void *' can be converted from or to other
-pointer types without warning.
+Forwarding a regression reported in bugzilla.kernel.org, to ensure
+all the interested parties are aware of it, as quite a few (many?)
+subsystems don't react at all to reports in that bug tracker.
 
-Cc: stable@vger.kernel.org
-Fixes: 3d3c95046742 ("netfs: Provide readahead and readpage netfs helpers")
-Fixes: e1b1240c1ff5 ("netfs: Add write_begin helper")
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@redhat.com>
-Link: https://lore.kernel.org/r/20211207031449.100510-1-jefflexu@linux.alibaba.com/ # v1
+https://bugzilla.kernel.org/show_bug.cgi?id=215401
+
+> Martin Mokrejs 2021-12-23 20:25:45 UTC
+> 
+> Created attachment 300133 [details] dmesg-5.4.167.txt
+> 
+> Hi, I jumped from 5.4.143 to 5.4.167 but the connection to wifi was
+> so unstable I had to reboot to use the old kernel. I never used git
+> bisect and am not sure I have that much time to play with that.
+> However, let me say that I lost about 5x connection to AP. Sooner or
+> later after each situation I disconnected from the AP using nm-applet
+> and re-connected. That has helped for a short while, liek a few
+> minutes, then I again lost network connection. Maybe you can find the
+> event in the dmesg output.
+> 
+> Once, for some reason, there is also a stacktrace from the kernel.
+> Why just onceinstead of about 5 times I have no idea.
+> 
+> I could provide the same kernel messages supplemented with daemon
+> messages from syslog.
+> 
+> Hope this helps to some extent,
+
+Feel free to either continue discussing this here or in the ticket, I
+don't care.
+
+To be sure this issue doesn't fall through the cracks unnoticed, I'm
+also adding it to regzbot, my Linux kernel regression tracking bot:
+
+#regzbot introduced v5.4.143 to v5.4.167
+#regzbot title: net: iwlwifi: frequently loosing connection to AP
+#regzbot link: https://bugzilla.kernel.org/show_bug.cgi?id=215401
+
+Reminder: when fixing the issue, please link to this mail and the bug
+entry with a link tag.
+
+Ciao, Thorsten (wearing his 'Linux kernel regression tracker' hat).
+
+P.S.: As a Linux kernel regression tracker I'm getting a lot of reports
+on my table. I can only look briefly into most of them. Unfortunately
+therefore I sometimes will get things wrong or miss something important.
+I hope that's not the case here; if you think it is, don't hesitate to
+tell me about it in a public reply. That's in everyone's interest, as
+what I wrote above might be misleading to everyone reading this; any
+suggestion I gave thus might sent someone reading this down the wrong
+rabbit hole, which none of us wants.
+
+BTW, I have no personal interest in this issue, which is tracked using
+regzbot, my Linux kernel regression tracking bot
+(https://linux-regtracking.leemhuis.info/regzbot/). I'm only posting
+this mail to get things rolling again and hence don't need to be CC on
+all further activities wrt to this regression.
+
 ---
- fs/netfs/read_helper.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Additional information about regzbot:
 
-diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
-index 4b54529f8176..242f8bcb34a4 100644
---- a/fs/netfs/read_helper.c
-+++ b/fs/netfs/read_helper.c
-@@ -958,7 +958,7 @@ int netfs_readpage(struct file *file,
- 	rreq = netfs_alloc_read_request(ops, netfs_priv, file);
- 	if (!rreq) {
- 		if (netfs_priv)
--			ops->cleanup(netfs_priv, page_file_mapping(page));
-+			ops->cleanup(page_file_mapping(page), netfs_priv);
- 		unlock_page(page);
- 		return -ENOMEM;
- 	}
-@@ -1185,7 +1185,7 @@ int netfs_write_begin(struct file *file, struct address_space *mapping,
- 		goto error;
- have_page_no_wait:
- 	if (netfs_priv)
--		ops->cleanup(netfs_priv, mapping);
-+		ops->cleanup(mapping, netfs_priv);
- 	*_page = page;
- 	_leave(" = 0");
- 	return 0;
-@@ -1196,7 +1196,7 @@ int netfs_write_begin(struct file *file, struct address_space *mapping,
- 	unlock_page(page);
- 	put_page(page);
- 	if (netfs_priv)
--		ops->cleanup(netfs_priv, mapping);
-+		ops->cleanup(mapping, netfs_priv);
- 	_leave(" = %d", ret);
- 	return ret;
- }
--- 
-2.27.0
+If you want to know more about regzbot, check out its web-interface, the
+getting start guide, and/or the references documentation:
 
+https://linux-regtracking.leemhuis.info/regzbot/
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/getting_started.md
+https://gitlab.com/knurd42/regzbot/-/blob/main/docs/reference.md
+
+The last two documents will explain how you can interact with regzbot
+yourself if your want to.
+
+Hint for reporters: when reporting a regression it's in your interest to
+tell #regzbot about it in the report, as that will ensure the regression
+gets on the radar of regzbot and the regression tracker. That's in your
+interest, as they will make sure the report won't fall through the
+cracks unnoticed.
+
+Hint for developers: you normally don't need to care about regzbot once
+it's involved. Fix the issue as you normally would, just remember to
+include a 'Link:' tag to the report in the commit message, as explained
+in Documentation/process/submitting-patches.rst
+That aspect was recently was made more explicit in commit 1f57bd42b77c:
+https://git.kernel.org/linus/1f57bd42b77c
