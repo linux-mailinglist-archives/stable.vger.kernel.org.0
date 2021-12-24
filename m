@@ -2,89 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6299947EAC2
-	for <lists+stable@lfdr.de>; Fri, 24 Dec 2021 04:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF4247EAF7
+	for <lists+stable@lfdr.de>; Fri, 24 Dec 2021 04:52:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351096AbhLXDOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Dec 2021 22:14:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351095AbhLXDOC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 22:14:02 -0500
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D48DCC061757
-        for <stable@vger.kernel.org>; Thu, 23 Dec 2021 19:14:01 -0800 (PST)
-Received: by mail-oi1-x236.google.com with SMTP id t23so11762784oiw.3
-        for <stable@vger.kernel.org>; Thu, 23 Dec 2021 19:14:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=i+p7JMtxiJhKbk+HUedbmrpIzQr2u83bgpY8rPoMJJA=;
-        b=pskhFOzCnGEdju9s5EhQoo+ZNY1bCn5Wr/ci04PuSe0X1TX6IJKJq+Qb0hy3m3gmev
-         Y8AKXJMkspitxSXNVhTA6pD26Pr49RNvYAztpYZKEEf3xvZFzFviCBka9lL8wEhRSXZA
-         71LJ0oDHrHycvWhQZKzm7X9MVf4qS+Oau3gFtpWF/AawX93Ushill2r3/Fx8/u/Cb6nj
-         zIallqUZkUXHOBwHpNUIaAoJ1uSrL665NfYHbtTLBCXeqFtk8HFG7Y/ZnlDv1WvJvJwS
-         XDECikXEj4ofg5S5eBAG2yoJvHxxi2EfCENYWPuNmHrdwZTGA891CVoXpD3YBG3XIGbe
-         3d+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=i+p7JMtxiJhKbk+HUedbmrpIzQr2u83bgpY8rPoMJJA=;
-        b=mJr8fWj7wJsTuv/IlT328ObTIIGmFut/La/14dQfI8ka1x6Z1Nsbb+0HjZb3X0a7CU
-         fx8+GgD1vGrPZDcJr0tj8N95mWSJ4UYq6bQlOQHf6QSpKhHxNgOsXa2TM+PV0XcyvWwC
-         rrgG1HZOPYXD+CtPjDragS2YLnxDsj34HQyn67a9Wlq72/TNigOQentHKqkAUOY5gPY+
-         8FPZDhO/Yd26VNrnnK2d8u6O5n3bQ+xSjkl/UHLTq9UgQ2ahvGUt7DFMxYuqgXkWsm3h
-         +1DihS1IznLEkKQV5E0ATDURCverwJKk2bybnczeNdIyEcwDlHBT/cTYM/qd9lA0Mmab
-         Jx4w==
-X-Gm-Message-State: AOAM530V/hOMrVHv+LVHwTVBNuu8xHyY0r2PXLhSsKr/7x0P1EdL/06/
-        pjVJlrXq5SWbjX1GrsiQHYP0S4/XS1W8gsvsjRgXHA==
-X-Google-Smtp-Source: ABdhPJxHSnVNs3ApHjh2RKvlFsUpUtEw5fQs/N7STxMDeXGWX6Yj0Aa4HW5EWu9ZNUowT0Dj4Q0Pc5ojVlEHJei3IDM=
-X-Received: by 2002:a54:4613:: with SMTP id p19mr3571744oip.162.1640315641099;
- Thu, 23 Dec 2021 19:14:01 -0800 (PST)
+        id S1351174AbhLXDwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Dec 2021 22:52:46 -0500
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:57370 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1351171AbhLXDwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Dec 2021 22:52:45 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0V.ahoK8_1640317963;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0V.ahoK8_1640317963)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 24 Dec 2021 11:52:43 +0800
+From:   Jeffle Xu <jefflexu@linux.alibaba.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     dhowells@redhat.com
+Subject: [PATCH for 5.15.y stable] netfs: fix parameter of cleanup()
+Date:   Fri, 24 Dec 2021 11:52:43 +0800
+Message-Id: <20211224035243.56554-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <163913443334205@kroah.com>
+References: <163913443334205@kroah.com>
 MIME-Version: 1.0
-References: <20211223101551.19991-1-lecopzer.chen@mediatek.com> <CAMj1kXGL++stjcuryn8zVwMgH4F05mONoU3Kca9Ch8N2dW-_bg@mail.gmail.com>
-In-Reply-To: <CAMj1kXGL++stjcuryn8zVwMgH4F05mONoU3Kca9Ch8N2dW-_bg@mail.gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Fri, 24 Dec 2021 04:13:49 +0100
-Message-ID: <CACRpkda_42LSWcaq0Q8aGB+12bo2494snk1Tua62UTLjVE1fQA@mail.gmail.com>
-Subject: Re: [PATCH] ARM: module: fix MODULE_PLTS not work for KASAN
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Lecopzer Chen <lecopzer.chen@mediatek.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Abbott Liu <liuwenliang@huawei.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        kasan-dev <kasan-dev@googlegroups.com>, yj.chiang@mediatek.com,
-        "# 3.4.x" <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 23, 2021 at 12:01 PM Ard Biesheuvel <ardb@kernel.org> wrote:
-> On Thu, 23 Dec 2021 at 11:16, Lecopzer Chen <lecopzer.chen@mediatek.com> wrote:
-> >
-> > When we run out of module space address with ko insertion,
-> > and with MODULE_PLTS, module would turn to try to find memory
-> > from VMALLOC address space.
-> >
-> > Unfortunately, with KASAN enabled, VMALLOC doesn't work without
-> > VMALLOC_KASAN which is unimplemented in ARM.
-(...)
-> This is not the right place to fix this. If module PLTs are
-> incompatible with KAsan, they should not be selectable in Kconfig at
-> the same time.
->
-> But ideally, we should implement KASAN_VMALLOC for ARM as well - we
-> also need this for the vmap'ed stacks.
+commit 3cfef1b612e15a0c2f5b1c9d3f3f31ad72d56fcd upstream.
 
-I also need it for my kernel-in-vmalloc patch, I guess it's the
-reason why I can't seem to get it to work. So a lot depends on
-this.
+The order of these two parameters is just reversed. gcc didn't warn on
+that, probably because 'void *' can be converted from or to other
+pointer types without warning.
 
-Yours,
-Linus Walleij
+Cc: stable@vger.kernel.org
+Fixes: 3d3c95046742 ("netfs: Provide readahead and readpage netfs helpers")
+Fixes: e1b1240c1ff5 ("netfs: Add write_begin helper")
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+Link: https://lore.kernel.org/r/20211207031449.100510-1-jefflexu@linux.alibaba.com/ # v1
+---
+ fs/netfs/read_helper.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/fs/netfs/read_helper.c b/fs/netfs/read_helper.c
+index 4b54529f8176..242f8bcb34a4 100644
+--- a/fs/netfs/read_helper.c
++++ b/fs/netfs/read_helper.c
+@@ -958,7 +958,7 @@ int netfs_readpage(struct file *file,
+ 	rreq = netfs_alloc_read_request(ops, netfs_priv, file);
+ 	if (!rreq) {
+ 		if (netfs_priv)
+-			ops->cleanup(netfs_priv, page_file_mapping(page));
++			ops->cleanup(page_file_mapping(page), netfs_priv);
+ 		unlock_page(page);
+ 		return -ENOMEM;
+ 	}
+@@ -1185,7 +1185,7 @@ int netfs_write_begin(struct file *file, struct address_space *mapping,
+ 		goto error;
+ have_page_no_wait:
+ 	if (netfs_priv)
+-		ops->cleanup(netfs_priv, mapping);
++		ops->cleanup(mapping, netfs_priv);
+ 	*_page = page;
+ 	_leave(" = 0");
+ 	return 0;
+@@ -1196,7 +1196,7 @@ int netfs_write_begin(struct file *file, struct address_space *mapping,
+ 	unlock_page(page);
+ 	put_page(page);
+ 	if (netfs_priv)
+-		ops->cleanup(netfs_priv, mapping);
++		ops->cleanup(mapping, netfs_priv);
+ 	_leave(" = %d", ret);
+ 	return ret;
+ }
+-- 
+2.27.0
+
