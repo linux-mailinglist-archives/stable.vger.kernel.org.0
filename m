@@ -2,62 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7B747F280
-	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 08:23:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F86E47F29F
+	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 09:17:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230333AbhLYHXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Dec 2021 02:23:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43922 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230298AbhLYHXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Dec 2021 02:23:52 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48673C061401
-        for <stable@vger.kernel.org>; Fri, 24 Dec 2021 23:23:52 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id o6so40708813edc.4
-        for <stable@vger.kernel.org>; Fri, 24 Dec 2021 23:23:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=utvixgGpx9c4TBznO3KBR6kYKwjPvFdwyrQ0Xqc9kjc=;
-        b=MBqdNgcP9VuOWvL9bFGfZnuSS1xVyytiNJY+4E43YMFN7C1oeUk65ltx6v3y/XioEb
-         RXht1QQIg+Oaf2aUuTzL102gCddEi+YC0RE5uu2EK79Kgu24nStd6vA2CfpneGeCbyWd
-         hioJQZCMbfv/qL2UXXC2YxZKFEqtDBkOENMYMXeXvAIFeGgQIfUn4TmeWChyCvf065n1
-         JvpiDaO/jyrAHzcuph2biE5psQ0d4cBjLS5AJp1Cc0BpM5Q7pjAiBax0HCES9CjbIjbC
-         5Sra/28RP0N6d6NPLKQiYq03KBJQ2WOZrYMsG0UNGJLKwKLxdIbkRRC0OETZcUwN70az
-         QI9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=utvixgGpx9c4TBznO3KBR6kYKwjPvFdwyrQ0Xqc9kjc=;
-        b=2L59NnnGDN3c8pMKUsNGQMYI4sppBCCxkZOmjFkT8erYIXKda8l/KDVepDEPHe6Ntv
-         amNbLhuPEfkBiX8iDDGXXtHmP7C1ROoYSHO6bFR36nAodz/POyxcWwgvlWZdMCzQtKON
-         ueKQ7q4+q1XsjqVsTexxFKBj779UF9TPF8MVrQ9u8cnspBmMtOZLTT2xjPblRZZL0GPO
-         YozsI3moCXMgKwtmIhtK2AvSIRCO3BCSIKDrn+RM0QmdVDvwXJIwXfYzeE7q5Q1dbRMF
-         NEr7cRpM3KCkFo+EwStNPJkVlQZwMph8nhXoK7pcQ5zmpo6Q64kZHUvVkZ3xHIz9/Nwp
-         +yQg==
-X-Gm-Message-State: AOAM531VXNKX5KWgXxwML9wYuYGDjPeLhbMlhraOeahqo9PYxMeO9PuV
-        YEgtuIUDnp6tk37npOaYqqxlNcQfJq7xc0mPtYY=
-X-Google-Smtp-Source: ABdhPJy6uw2fp78AnLnmkeThniYwT3Bt+RlJUNEpgGivTxPhQsS0/Kp/jfYv7TGs0XxIQtSRleXa9plMF2fOvmZ4CuI=
-X-Received: by 2002:a17:907:7b9e:: with SMTP id ne30mr7807415ejc.24.1640417030666;
- Fri, 24 Dec 2021 23:23:50 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:ab4:9f47:0:0:0:0:0 with HTTP; Fri, 24 Dec 2021 23:23:50
- -0800 (PST)
-Reply-To: jeai2nasri@yahoo.com
-From:   jean nasri <kierkan9@gmail.com>
-Date:   Sat, 25 Dec 2021 08:23:50 +0100
-Message-ID: <CAEv-3Kb61RumpVaRiQOucgm7i-5buuUyYp_yhVXWTgFxvfzFnQ@mail.gmail.com>
-Subject: merry christmas to u and your family
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S231138AbhLYIRY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Dec 2021 03:17:24 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:58732 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229473AbhLYIRX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Dec 2021 03:17:23 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id A0CDC21112;
+        Sat, 25 Dec 2021 08:17:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1640420242; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mk1k6I/mmu4QDll5+IoAgJPUuI3289xMY1Nshnjw8pE=;
+        b=J6O8NDHoJMjvQMgr2U+6ooUNHzm8r3F/QwT2y//zGdaggQb8PO3OWe2yYKUozQbhpPJoP8
+        a3xtSfs+jlCpIhtbGsgvTf45+tYweonALAUzlvL+sAKnK6XKLX7lL5cWAItZctfOt5WR6D
+        d8apn/uUtzeLafqvOjxzH6QZeuYlppU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1640420242;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mk1k6I/mmu4QDll5+IoAgJPUuI3289xMY1Nshnjw8pE=;
+        b=spfcL9KYwqMXYqxOrAxrMrbMHbP3JDOuu+O0sVpFBuir6F1KWz7jHhrxtOqvgAc9f6wTU0
+        lix4F1U76jN/F4CQ==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 8DF56A3B81;
+        Sat, 25 Dec 2021 08:17:22 +0000 (UTC)
+Date:   Sat, 25 Dec 2021 09:17:22 +0100
+Message-ID: <s5h35mhqest.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     alsa-devel@alsa-project.org, intel-gfx@lists.freedesktop.org,
+        stable@vger.kernel.org, Harsha Priya <harshapriya.n@intel.com>,
+        Emmanuel Jillela <emmanuel.jillela@intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Subject: Re: [PATCH] ALSA: hda/hdmi: Disable silent stream on GLK
+In-Reply-To: <20211222145350.24342-1-ville.syrjala@linux.intel.com>
+References: <20211222145350.24342-1-ville.syrjala@linux.intel.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear
+On Wed, 22 Dec 2021 15:53:50 +0100,
+Ville Syrjala wrote:
+> 
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> The silent stream stuff recurses back into i915 audio
+> component .get_power() from the .pin_eld_notify() hook.
+> On GLK this will deadlock as i915 may already be holding
+> the relevant modeset locks during .pin_eld_notify() and
+> the GLK audio vs. CDCLK workaround will try to grab the
+> same locks from .get_power().
+> 
+> Until someone comes up with a better fix just disable the
+> silent stream support on GLK.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Harsha Priya <harshapriya.n@intel.com>
+> Cc: Emmanuel Jillela <emmanuel.jillela@intel.com>
+> Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+> Cc: Takashi Iwai <tiwai@suse.de>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2623
+> Fixes: 951894cf30f4 ("ALSA: hda/hdmi: Add Intel silent stream support")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Do you have an account to receive donation funds? Please reply for
-further explanation
-Nasri
+Thanks, applied now.
+
+
+Takashi
