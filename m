@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0704847F449
-	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 20:11:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 641F547F48B
+	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 22:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232716AbhLYTL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Dec 2021 14:11:28 -0500
-Received: from mail.mutex.one ([62.77.152.124]:52340 "EHLO mail.mutex.one"
+        id S232965AbhLYVz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Dec 2021 16:55:27 -0500
+Received: from mail.mutex.one ([62.77.152.124]:45978 "EHLO mail.mutex.one"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232694AbhLYTL2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 Dec 2021 14:11:28 -0500
-X-Greylist: delayed 1286 seconds by postgrey-1.27 at vger.kernel.org; Sat, 25 Dec 2021 14:11:28 EST
+        id S232964AbhLYVz0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 Dec 2021 16:55:26 -0500
 Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.mutex.one (Postfix) with ESMTP id AF33916C0012;
-        Sat, 25 Dec 2021 20:50:00 +0200 (EET)
+        by mail.mutex.one (Postfix) with ESMTP id 7E0EE16C0042;
+        Sat, 25 Dec 2021 23:55:25 +0200 (EET)
 X-Virus-Scanned: Debian amavisd-new at mail.mutex.one
 Received: from mail.mutex.one ([127.0.0.1])
         by localhost (mail.mutex.one [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id uZxLKFDwP8yE; Sat, 25 Dec 2021 20:50:00 +0200 (EET)
+        with ESMTP id mGfHLR-yuOM4; Sat, 25 Dec 2021 23:55:25 +0200 (EET)
 From:   Marian Postevca <posteuca@mutex.one>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mutex.one; s=default;
-        t=1640458200; bh=LspfzkAz2+IQMFp44TPzSHwDjnOm3MbwNAydkgMlUz4=;
+        t=1640469325; bh=r2japACvwnnpQt1HvqvEF9hq63V9GWftBQ1aWH5sseY=;
         h=From:To:Cc:Subject:Date:From;
-        b=epbInGF7cM8r9zGAvNXN80tQijeg09hni53Mz5zzFSzW+6dg1mSAyhg9zTtyAGSRq
-         xW96ZS1BKhgG1kcykR4G78/Sun+XYxT/Bw5hFTBHdCnXjLqOe1JhTGAh4Es7vYHVNy
-         1mVQFOrU3aa2V2PrfA0qsLrQhZHvqy/nhuoLvVjw=
+        b=mps57X4hclXkxUXoRC4nfP1GDmcnYjkBA+1YzAWfbyAOl0CL9i8rBWjhMAkEnsdoP
+         ofFdnPs6bvU0FE+ecVEpSrgYlLO/244r3weitCmDNBllWvHSZGOAZRgySomRXd81Z1
+         Avohhihx0HwnihH4axm1SqdXPGNDdB/Itd9EFVhI=
 To:     stable@vger.kernel.org
 Cc:     Marian Postevca <posteuca@mutex.one>
-Subject: [PATCH 4.14] usb: gadget: u_ether: fix race in setting MAC address in setup phase
-Date:   Sat, 25 Dec 2021 20:46:01 +0200
-Message-Id: <20211225184559.15492-1-posteuca@mutex.one>
+Subject: [PATCH 4.19] usb: gadget: u_ether: fix race in setting MAC address in setup phase
+Date:   Sat, 25 Dec 2021 23:55:08 +0200
+Message-Id: <20211225215508.22282-1-posteuca@mutex.one>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -74,10 +73,10 @@ Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values an
  1 file changed, 5 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index 38a35f57b22c0..f59c20457e658 100644
+index d7a12161e5531..1b3e674e6330d 100644
 --- a/drivers/usb/gadget/function/u_ether.c
 +++ b/drivers/usb/gadget/function/u_ether.c
-@@ -864,19 +864,23 @@ int gether_register_netdev(struct net_device *net)
+@@ -860,19 +860,23 @@ int gether_register_netdev(struct net_device *net)
  {
  	struct eth_dev *dev;
  	struct usb_gadget *g;
@@ -102,7 +101,7 @@ index 38a35f57b22c0..f59c20457e658 100644
  
  		/* two kinds of host-initiated state changes:
  		 *  - iff DATA transfer is active, carrier is "on"
-@@ -884,15 +888,6 @@ int gether_register_netdev(struct net_device *net)
+@@ -880,15 +884,6 @@ int gether_register_netdev(struct net_device *net)
  		 */
  		netif_carrier_off(net);
  	}
