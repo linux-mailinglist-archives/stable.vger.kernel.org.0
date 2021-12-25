@@ -2,118 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 981FF47F361
-	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 15:23:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA84147F438
+	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 19:24:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231854AbhLYOXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Dec 2021 09:23:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
+        id S232648AbhLYSX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Dec 2021 13:23:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231607AbhLYOXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Dec 2021 09:23:12 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CB80C061401
-        for <stable@vger.kernel.org>; Sat, 25 Dec 2021 06:23:12 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id l5so8739015edj.13
-        for <stable@vger.kernel.org>; Sat, 25 Dec 2021 06:23:12 -0800 (PST)
+        with ESMTP id S229488AbhLYSX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Dec 2021 13:23:57 -0500
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F1EC061401;
+        Sat, 25 Dec 2021 10:23:57 -0800 (PST)
+Received: by mail-io1-xd36.google.com with SMTP id e128so14360244iof.1;
+        Sat, 25 Dec 2021 10:23:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/ntqyWM2S7YaEuV2O8n2An/RW6EflrGlyakvKWLGzjA=;
-        b=2xuW6H5MX+uBIfOawDuYqqlxygkNPQ9AV5DnSzvDbxDkmqr/fPSR2QEF8iaCzU1csC
-         BFQdXZdlUoFQ2SFiQyBZViPLhkO63TNgiivwnfpUhXxSuPBdk3M8XDlNtA0JPTCnXJo9
-         wOpTzRQt4CjFYyCFQk1LPYBgUo3an9Qg0TeZrCEl+cFY47y+0L2BCcViLXpCrCTK/Onb
-         qrS2TD892zf8ALnaUJd5O6I/anC8Smu6jpAbEMXkK+4JPN345dcrbmlEqZL4/bX1Fm8/
-         GYyZN/CThWHRaKrZRWAS4L0bRslchsikvFrnUZSuTDG+3SmG2o87rqA7GgWQat9LZHq5
-         uX4A==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=76GQIt0sZ1We5Jshemf66kFRSNu6kCz1Xq1pIPR9qK0=;
+        b=AGpOyQ7LoDyVAAKtGuejoG/4bZAVsFUFaq6dt3Gm71r9Oacr9Cz9it/BV6II7ygRiC
+         FUKBMAVj8A5WIaCItvTALfMZXSKB07PBZHvo6oxSgNNKz0gf37MgxBEh0Wdni+CaR+QI
+         LeBtPqARd4uMucPtmSVIlY6FHDt+jGu2EyBojq/bmVTZTKQ/KLQDqVfBfs4WKTKKSow3
+         tyGxnuBCrANzBVCSrfP2wihDcF+/EGOKjI1jEhNyndqLs2UTLCVCEEYFqHUgSet8D+QD
+         peGCwR/I4wlEoBaazeRKw/7OgMSzKJW79GlESuD/yjfBVgXQ49uEJnoDI2iq8s3sbcMn
+         cahQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/ntqyWM2S7YaEuV2O8n2An/RW6EflrGlyakvKWLGzjA=;
-        b=1QSurTfdtyijnnBa59ZDL19/78MK5ixC39negSTkCPruKuyPIQH8vB4Q9uGG2Uk/VO
-         eA0Vf0axKHnixBD7opaSKQsDGp6uVBFbooH8zEfn+QVdI4EHW2PkeFY3hKxDlLiCSAtP
-         CIzMOO0uniZmNHutoJ4oxoh6pHbS37kb1YbRyzEpvHUehtfzu0R+ip2ALQiUybRxKuEL
-         1VPxiWfQOPKYe3dXPghwFwNeP/aKCxt9W7ma+I8R+V2TverIc2tbSl+0nlXqJkbf2B78
-         z7N5NWUMshUPTl8V8Cq9SQ2hbGdwpCinE6wDxAo3Ca2PJfZuwLU/bsyR1ykOEmrNfrTO
-         NyTw==
-X-Gm-Message-State: AOAM532tWC8JcQsr99tm4rnI7Hxw2fIFY1gq0x+6ChqHvXZY/837U6y3
-        0Nv6Gwa08Xh9/DRdnNwYulIIbGBT/wvY2b8sy8l1xQ==
-X-Google-Smtp-Source: ABdhPJzs4YggNuaWHNrpc2KkpzxkfPL3CfrW/VOmf6j55jO3wme+Hh9GgWHPn7tVJy1h7qKPy0zxlvozF3v7adPN7Qs=
-X-Received: by 2002:a17:906:249a:: with SMTP id e26mr8165381ejb.492.1640442190849;
- Sat, 25 Dec 2021 06:23:10 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=76GQIt0sZ1We5Jshemf66kFRSNu6kCz1Xq1pIPR9qK0=;
+        b=V1+h0A5bEjP3gnUWVKOtNbYqvtb09oq6hMq+yJtg4rVGpDvjBgA/XkbIjWzw4FaXZB
+         qelRNm3S4Px0TYHIzzcBrjmMmz7TdxeMidRZ/AZ0BQkZPietrj02tHVPmgdnzG2qnfR5
+         QkS/WWjWzwBvme88Y6KYWAdV4+68fR3+Bi9Mq22rzbmJFPBLKlmkalK78aMT0a+1k1zF
+         ozAW7qcDHGo2zxJi2VqAZLWkhnoSkRwLtl23UlLC3WXxy/IEmoQSPuiz53ovh3mtVWHI
+         h2w12+ZMEhR7TIJnO8c2HV4yBiFGsY4xAVKj+Vde4RrrWAq6OVJyIdIBHAap4pqY9lAz
+         beoQ==
+X-Gm-Message-State: AOAM533shO9RdXdW0+nnXpgkdbF7GFnd9oYlMWOEAYycwVDr27GL5GFQ
+        Kp18XPZzT6FlnbacggKqcrca7uR34hManLxZex/Kb3MAOOO3nw==
+X-Google-Smtp-Source: ABdhPJw5R8R8n+cHJuC6jOxQ4tFL1IHe1BHVHu2GEmwDcwEWZlVnosK4C9bANjTaOdKc3crMLwGnTJXU3JV9nPs9wbg=
+X-Received: by 2002:a05:6638:1456:: with SMTP id l22mr4841012jad.306.1640456636186;
+ Sat, 25 Dec 2021 10:23:56 -0800 (PST)
 MIME-Version: 1.0
-References: <20211223222141.1253092-1-nathan@kernel.org>
-In-Reply-To: <20211223222141.1253092-1-nathan@kernel.org>
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Sat, 25 Dec 2021 15:23:00 +0100
-Message-ID: <CAMRc=MfdkefAS2ZiPYp3976y3fECYvRXTf1j-OMnLsq6NGtUgw@mail.gmail.com>
-Subject: Re: [PATCH] ARM: davinci: da850-evm: Avoid NULL pointer dereference
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Sekhar Nori <nsekhar@ti.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>
+References: <20211221015751.116328-1-sashal@kernel.org> <20211221015751.116328-7-sashal@kernel.org>
+In-Reply-To: <20211221015751.116328-7-sashal@kernel.org>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Sat, 25 Dec 2021 19:23:19 +0100
+Message-ID: <CA+icZUXqtz5CbuC_gOMgJRCuLbsnSO0gsB7zS0ZwMQW3PBOCAw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.15 07/29] nl80211: reset regdom when reloading regdb
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Finn Behrens <me@kloenk.dev>, Finn Behrens <fin@nyantec.com>,
+        Johannes Berg <johannes.berg@intel.com>, davem@davemloft.net,
+        kuba@kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        netdev@vger.kernel.org, linux-wireless@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 23, 2021 at 11:22 PM Nathan Chancellor <nathan@kernel.org> wrote:
+On Tue, Dec 21, 2021 at 2:58 AM Sasha Levin <sashal@kernel.org> wrote:
 >
-> With newer versions of GCC, there is a panic in da850_evm_config_emac()
-> when booting multi_v5_defconfig in QEMU under the palmetto-bmc machine:
+> From: Finn Behrens <me@kloenk.dev>
 >
-> Unable to handle kernel NULL pointer dereference at virtual address 00000020
-> pgd = (ptrval)
-> [00000020] *pgd=00000000
-> Internal error: Oops: 5 [#1] PREEMPT ARM
-> Modules linked in:
-> CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0 #1
-> Hardware name: Generic DT based system
-> PC is at da850_evm_config_emac+0x1c/0x120
-> LR is at do_one_initcall+0x50/0x1e0
+> [ Upstream commit 1eda919126b420fee6b8d546f7f728fbbd4b8f11 ]
 >
-> The emac_pdata pointer in soc_info is NULL because davinci_soc_info only
-> gets populated on davinci machines but da850_evm_config_emac() is called
-> on all machines via device_initcall().
+> Reload the regdom when the regulatory db is reloaded.
+> Otherwise, the user had to change the regulatoy domain
+> to a different one and then reset it to the correct
+> one to have a new regulatory db take effect after a
+> reload.
 >
-> Move the rmii_en assignment below the machine check so that it is only
-> dereferenced when running on a supported SoC.
->
-> Cc: stable@vger.kernel.org
-> Fixes: bae105879f2f ("davinci: DA850/OMAP-L138 EVM: implement autodetect of RMII PHY")
-> Link: https://lore.kernel.org/r/YcS4xVWs6bQlQSPC@archlinux-ax161/
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> Signed-off-by: Finn Behrens <fin@nyantec.com>
+> Link: https://lore.kernel.org/r/YaIIZfxHgqc/UTA7@gimli.kloenk.dev
+> [edit commit message]
+> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+This requires [1] to fix this warning:
+
+net/wireless/reg.c:1137:23: warning: implicit conversion from
+enumeration type 'enum nl80211_user_reg_hint_type' to different
+enumeration type 'enum nl80211_reg_
+initiator' [-Wenum-conversion]
+
+[PATCH] nl80211: remove reload flag from regulatory_request
+
+- Sedat -
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/jberg/mac80211.git/patch/?id=37d33114240ede043c42463a6347f68ed72d6904
+
 > ---
->  arch/arm/mach-davinci/board-da850-evm.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+>  include/net/regulatory.h |  1 +
+>  net/wireless/reg.c       | 27 +++++++++++++++++++++++++--
+>  2 files changed, 26 insertions(+), 2 deletions(-)
 >
-> diff --git a/arch/arm/mach-davinci/board-da850-evm.c b/arch/arm/mach-davinci/board-da850-evm.c
-> index 428012687a80..7f7f6bae21c2 100644
-> --- a/arch/arm/mach-davinci/board-da850-evm.c
-> +++ b/arch/arm/mach-davinci/board-da850-evm.c
-> @@ -1101,11 +1101,13 @@ static int __init da850_evm_config_emac(void)
->         int ret;
->         u32 val;
->         struct davinci_soc_info *soc_info = &davinci_soc_info;
-> -       u8 rmii_en = soc_info->emac_pdata->rmii_en;
-> +       u8 rmii_en;
+> diff --git a/include/net/regulatory.h b/include/net/regulatory.h
+> index 47f06f6f5a67c..0cf9335431e07 100644
+> --- a/include/net/regulatory.h
+> +++ b/include/net/regulatory.h
+> @@ -83,6 +83,7 @@ struct regulatory_request {
+>         enum nl80211_dfs_regions dfs_region;
+>         bool intersect;
+>         bool processed;
+> +       bool reload;
+>         enum environment_cap country_ie_env;
+>         struct list_head list;
+>  };
+> diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+> index df87c7f3a0492..61f1bf1bc4a73 100644
+> --- a/net/wireless/reg.c
+> +++ b/net/wireless/reg.c
+> @@ -133,6 +133,7 @@ static u32 reg_is_indoor_portid;
 >
->         if (!machine_is_davinci_da850_evm())
->                 return 0;
+>  static void restore_regulatory_settings(bool reset_user, bool cached);
+>  static void print_regdomain(const struct ieee80211_regdomain *rd);
+> +static void reg_process_hint(struct regulatory_request *reg_request);
 >
-> +       rmii_en = soc_info->emac_pdata->rmii_en;
+>  static const struct ieee80211_regdomain *get_cfg80211_regdom(void)
+>  {
+> @@ -1098,6 +1099,8 @@ int reg_reload_regdb(void)
+>         const struct firmware *fw;
+>         void *db;
+>         int err;
+> +       const struct ieee80211_regdomain *current_regdomain;
+> +       struct regulatory_request *request;
+>
+>         err = request_firmware(&fw, "regulatory.db", &reg_pdev->dev);
+>         if (err)
+> @@ -1118,8 +1121,27 @@ int reg_reload_regdb(void)
+>         if (!IS_ERR_OR_NULL(regdb))
+>                 kfree(regdb);
+>         regdb = db;
+> -       rtnl_unlock();
+>
+> +       /* reset regulatory domain */
+> +       current_regdomain = get_cfg80211_regdom();
 > +
->         cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
+> +       request = kzalloc(sizeof(*request), GFP_KERNEL);
+> +       if (!request) {
+> +               err = -ENOMEM;
+> +               goto out_unlock;
+> +       }
+> +
+> +       request->wiphy_idx = WIPHY_IDX_INVALID;
+> +       request->alpha2[0] = current_regdomain->alpha2[0];
+> +       request->alpha2[1] = current_regdomain->alpha2[1];
+> +       request->initiator = NL80211_USER_REG_HINT_USER;
+> +       request->user_reg_hint_type = NL80211_USER_REG_HINT_USER;
+> +       request->reload = true;
+> +
+> +       reg_process_hint(request);
+> +
+> +out_unlock:
+> +       rtnl_unlock();
+>   out:
+>         release_firmware(fw);
+>         return err;
+> @@ -2690,7 +2712,8 @@ reg_process_hint_user(struct regulatory_request *user_request)
 >
->         val = __raw_readl(cfg_chip3_base);
+>         treatment = __reg_process_hint_user(user_request);
+>         if (treatment == REG_REQ_IGNORE ||
+> -           treatment == REG_REQ_ALREADY_SET)
+> +           (treatment == REG_REQ_ALREADY_SET &&
+> +            !user_request->reload))
+>                 return REG_REQ_IGNORE;
 >
-> base-commit: a7904a538933c525096ca2ccde1e60d0ee62c08e
+>         user_request->intersect = treatment == REG_REQ_INTERSECT;
 > --
 > 2.34.1
 >
-
-Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
