@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 641F547F48B
-	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 22:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9777547F49B
+	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 23:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbhLYVz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Dec 2021 16:55:27 -0500
-Received: from mail.mutex.one ([62.77.152.124]:45978 "EHLO mail.mutex.one"
+        id S232984AbhLYWh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Dec 2021 17:37:28 -0500
+Received: from mail.mutex.one ([62.77.152.124]:52416 "EHLO mail.mutex.one"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232964AbhLYVz0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 Dec 2021 16:55:26 -0500
+        id S229494AbhLYWh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 Dec 2021 17:37:28 -0500
 Received: from localhost (localhost.localdomain [127.0.0.1])
-        by mail.mutex.one (Postfix) with ESMTP id 7E0EE16C0042;
-        Sat, 25 Dec 2021 23:55:25 +0200 (EET)
+        by mail.mutex.one (Postfix) with ESMTP id F321516C0010;
+        Sun, 26 Dec 2021 00:37:26 +0200 (EET)
 X-Virus-Scanned: Debian amavisd-new at mail.mutex.one
 Received: from mail.mutex.one ([127.0.0.1])
         by localhost (mail.mutex.one [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id mGfHLR-yuOM4; Sat, 25 Dec 2021 23:55:25 +0200 (EET)
+        with ESMTP id 0QsbMxn_r77P; Sun, 26 Dec 2021 00:37:26 +0200 (EET)
 From:   Marian Postevca <posteuca@mutex.one>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mutex.one; s=default;
-        t=1640469325; bh=r2japACvwnnpQt1HvqvEF9hq63V9GWftBQ1aWH5sseY=;
+        t=1640471846; bh=/Un4nd1DdX9hcnFAnqHN5d+x9gRdKorqF9NzqGluQQk=;
         h=From:To:Cc:Subject:Date:From;
-        b=mps57X4hclXkxUXoRC4nfP1GDmcnYjkBA+1YzAWfbyAOl0CL9i8rBWjhMAkEnsdoP
-         ofFdnPs6bvU0FE+ecVEpSrgYlLO/244r3weitCmDNBllWvHSZGOAZRgySomRXd81Z1
-         Avohhihx0HwnihH4axm1SqdXPGNDdB/Itd9EFVhI=
+        b=AzeyEThdVsH5xCXeJyBjdxflI03CFvHO2SvcX3UYSiDGOpeRu7DZhIlkL2wzryfp0
+         p314jn8iKCNPC4fgl5F42ZCiDHe95QcD9ltcFbUjHSDbit2vaRMY8Hb4JZPuH6DjjE
+         haGxXuqydnHZzksjyxD8RzMjp/qCqXn7Aa56cyyc=
 To:     stable@vger.kernel.org
 Cc:     Marian Postevca <posteuca@mutex.one>
-Subject: [PATCH 4.19] usb: gadget: u_ether: fix race in setting MAC address in setup phase
-Date:   Sat, 25 Dec 2021 23:55:08 +0200
-Message-Id: <20211225215508.22282-1-posteuca@mutex.one>
+Subject: [PATCH 5.4] usb: gadget: u_ether: fix race in setting MAC address in setup phase
+Date:   Sun, 26 Dec 2021 00:36:29 +0200
+Message-Id: <20211225223628.2606-1-posteuca@mutex.one>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -73,7 +73,7 @@ Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values an
  1 file changed, 5 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index d7a12161e5531..1b3e674e6330d 100644
+index 57da62e331848..271bd08f4a255 100644
 --- a/drivers/usb/gadget/function/u_ether.c
 +++ b/drivers/usb/gadget/function/u_ether.c
 @@ -860,19 +860,23 @@ int gether_register_netdev(struct net_device *net)
@@ -108,7 +108,7 @@ index d7a12161e5531..1b3e674e6330d 100644
 -	sa.sa_family = net->type;
 -	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
 -	rtnl_lock();
--	status = dev_set_mac_address(net, &sa);
+-	status = dev_set_mac_address(net, &sa, NULL);
 -	rtnl_unlock();
 -	if (status)
 -		pr_warn("cannot set self ethernet address: %d\n", status);
