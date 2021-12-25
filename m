@@ -2,64 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C21C47F0DE
-	for <lists+stable@lfdr.de>; Fri, 24 Dec 2021 21:06:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B0447F200
+	for <lists+stable@lfdr.de>; Sat, 25 Dec 2021 06:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353514AbhLXUGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Dec 2021 15:06:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40018 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353511AbhLXUGu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Dec 2021 15:06:50 -0500
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A38F6C061401
-        for <stable@vger.kernel.org>; Fri, 24 Dec 2021 12:06:50 -0800 (PST)
-Received: by mail-io1-xd41.google.com with SMTP id q5so11934746ioj.7
-        for <stable@vger.kernel.org>; Fri, 24 Dec 2021 12:06:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
-        b=o23J/SElBM4rS5LT+iiPb1neMKuXJFRcXFjbVieI+TFRoecpqrBLQ9+KM8pV8ji5u+
-         30XRZfix0B++3HuL1WUt7OJX80opx0xvCvpzpZiMolSVdedYDG0QA/jup/+6T5rnyUQs
-         B192ozv7ccWNMdrh3iQZ+ZKQCDdNDWxts6tIfdZmIIoXaEmTzLLtEOmi8oib83qKNEn4
-         wESH8wWm8yxbNOefalIKzL3O2haXu3CUxkledx4j8pB99l+/Bs78t4W2M5MA5pidS++R
-         8pFQL7yWGLE/nTzJYMHZU6T3lF9aYmDT57Ow6uY1dnYHR87CM5Eol+VgLlcHbYgawvBV
-         COsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=/rL+TycpMQLfB5P4Zn9xgGfUWg8yPCNTwrE46ZNldMM=;
-        b=ZgNEAp5iPdkjcbJha26i60o7S2lkFY1/iWmNw265BWwmhq8KS4ttXEDvAaGDbtUTxz
-         vavNH+dS6BveNlzliRPu5yVyDR1R8CnT5H/5C9VeAahlwxOA5MVD59eHzdSgzxqNGT86
-         36kDcoKBmCX3pZt4ZsWA9cSG9YUQolZ4eG0R1lQjmcB2U07xYVZkjrf+bcCy0TgRdJ2d
-         HdipYM67BU46tDVJQRt+Ofnq+qyMJKjdhUIGFQe7H5pun72V3xf+W3MYfVymnVVqsF3W
-         KmY4MSATWxJzZeC2DGkzR6Xigq8f+M8rS5uPnVUHW5rxF5vkSK/ObuFmEX01Z4lwYnIY
-         Uc/Q==
-X-Gm-Message-State: AOAM532yLJrC/9rD0lvx/5RfgmM9H2AI4NvWtbi8y7q8quY3cycrWJjf
-        +LqnUKAQAy1nJJi8tWpuREbXQVS9pOw6MmWyMeE=
-X-Google-Smtp-Source: ABdhPJz61RiyhLtXPfAp95j27CF1Nz546MbNWY2NGl5RQ/ybQTVO9IOdzfkw4y3wpniSoJUtx1sVLfg0dEGZwLW+C7s=
-X-Received: by 2002:a05:6602:1604:: with SMTP id x4mr3688169iow.84.1640376409629;
- Fri, 24 Dec 2021 12:06:49 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a05:6602:27c2:0:0:0:0 with HTTP; Fri, 24 Dec 2021 12:06:49
- -0800 (PST)
-Reply-To: avamedicinemed3@gmail.com
-From:   Dr Ava Smith <drmedwilliam504@gmail.com>
-Date:   Fri, 24 Dec 2021 12:06:49 -0800
-Message-ID: <CABLiWcKzTe4TZ4VdMeTp2SeXxdMnEU0K0Xv_bcQXKeagHcFBmQ@mail.gmail.com>
-Subject: From Dr Ava Smith from United States
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S229773AbhLYFMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Dec 2021 00:12:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49778 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229463AbhLYFMj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Dec 2021 00:12:39 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00743B80AEA;
+        Sat, 25 Dec 2021 05:12:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 627B7C36AE5;
+        Sat, 25 Dec 2021 05:12:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1640409156;
+        bh=uNyKebTzcIdoglhu867uyKUwwjmt/U1M4h+OErPnlAs=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=z4spDwkGBXW72yMFNbBX5Rad5oFe+mgXRuhMnaY/X3gioxuD37YNttVgc6opgB/yf
+         m4tgra8mjYTWXbFBJ1lwhDO+Bo5dlzIIyXDYUp6tYLcGeIxoG9jmyttquldDkBy2KB
+         82L/avVMYi4MQMmfBI0h+qslNE2i/JvCQZiVlq88=
+Date:   Fri, 24 Dec 2021 21:12:35 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     aarcange@redhat.com, akpm@linux-foundation.org,
+        arbn@yandex-team.com, linux-mm@kvack.org,
+        mgorman@techsingularity.net, mhocko@suse.com,
+        mm-commits@vger.kernel.org, rientjes@google.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 2/9] mm: mempolicy: fix THP allocations escaping
+ mempolicy restrictions
+Message-ID: <20211225051235.JoA_I5IqL%akpm@linux-foundation.org>
+In-Reply-To: <20211224211127.30b60764d059ff3b0afea38a@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hello Dear,
-how are you today?hope you are fine
-My name is Dr Ava Smith ,Am an English and French nationalities.
-I will give you pictures and more details about me as soon as i hear from you
-Thanks
-Ava
+From: Andrey Ryabinin <arbn@yandex-team.com>
+Subject: mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+
+alloc_pages_vma() may try to allocate THP page on the local NUMA node
+first:
+
+	page = __alloc_pages_node(hpage_node,
+		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+
+And if the allocation fails it retries allowing remote memory:
+
+	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+    		page = __alloc_pages_node(hpage_node,
+					gfp, order);
+
+However, this retry allocation completely ignores memory policy nodemask
+allowing allocation to escape restrictions.
+
+The first appearance of this bug seems to be the commit ac5b2c18911f
+ ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+The bug disappeared later in the commit 89c83fb539f9
+ ("mm, thp: consolidate THP gfp handling into alloc_hugepage_direct_gfpmask")
+and reappeared again in slightly different form in the commit 76e654cc91bb
+ ("mm, page_alloc: allow hugepage fallback to remote nodes when madvised")
+
+Fix this by passing correct nodemask to the __alloc_pages() call.
+
+The demonstration/reproducer of the problem:
+ $ mount -oremount,size=4G,huge=always /dev/shm/
+ $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+ $ cat mbind_thp.c
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <numaif.h>
+
+ #define SIZE 2ULL << 30
+ int main(int argc, char **argv)
+ {
+   int fd;
+   unsigned long long i;
+   char *addr;
+   pid_t pid;
+   char buf[100];
+   unsigned long nodemask = 1;
+
+   fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+   assert(fd > 0);
+   assert(ftruncate(fd, SIZE) == 0);
+
+   addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+                        MAP_SHARED, fd, 0);
+
+   assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+   for (i = 0; i < SIZE; i+=4096) {
+     addr[i] = 1;
+   }
+   pid = getpid();
+   snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+   system(buf);
+   sleep(10000);
+
+   return 0;
+ }
+ $ gcc mbind_thp.c -o mbind_thp -lnuma
+ $ numactl -H
+ available: 2 nodes (0-1)
+ node 0 cpus: 0 2
+ node 0 size: 1918 MB
+ node 0 free: 1595 MB
+ node 1 cpus: 1 3
+ node 1 size: 2014 MB
+ node 1 free: 1731 MB
+ node distances:
+ node   0   1
+   0:  10  20
+   1:  20  10
+ $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+ 7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+
+Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/mempolicy.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/mm/mempolicy.c~mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions
++++ a/mm/mempolicy.c
+@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp,
+ 			 * memory with both reclaim and compact as well.
+ 			 */
+ 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+-				page = __alloc_pages_node(hpage_node,
+-								gfp, order);
++				page = __alloc_pages(gfp, order, hpage_node, nmask);
+ 
+ 			goto out;
+ 		}
+_
