@@ -2,58 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A3147F918
-	for <lists+stable@lfdr.de>; Sun, 26 Dec 2021 22:54:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3346A47F940
+	for <lists+stable@lfdr.de>; Sun, 26 Dec 2021 23:20:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234653AbhLZVyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Dec 2021 16:54:01 -0500
-Received: from gandalf.ozlabs.org ([150.107.74.76]:33671 "EHLO
-        gandalf.ozlabs.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234642AbhLZVyA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Dec 2021 16:54:00 -0500
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        id S234708AbhLZWUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Dec 2021 17:20:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52018 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234705AbhLZWT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Dec 2021 17:19:59 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4JMZLt4mSnz4xmv;
-        Mon, 27 Dec 2021 08:53:58 +1100 (AEDT)
-From:   Michael Ellerman <patch-notifications@ellerman.id.au>
-To:     Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     stable@vger.kernel.org, Emese Revfy <re.emese@gmail.com>,
-        linux-kernel@vger.kernel.org,
-        Erhard Furtner <erhard_f@mailbox.org>,
-        linuxppc-dev@lists.ozlabs.org
-In-Reply-To: <2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu>
-References: <2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH] powerpc/32: Fix boot failure with GCC latent entropy plugin
-Message-Id: <164055556121.3187272.3735190778169205691.b4-ty@ellerman.id.au>
-Date:   Mon, 27 Dec 2021 08:52:41 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A714B80DE2;
+        Sun, 26 Dec 2021 22:19:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE177C36AE9;
+        Sun, 26 Dec 2021 22:19:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1640557197;
+        bh=qHZ5OFGtW+eYvcsYrckV26WjVmpcvva71plOLPjeHj4=;
+        h=Date:From:To:Subject:From;
+        b=qO3ArrhHjtExa4YlQJwxCf2YLQnLXPfxb7enHwB7wy204/GjlZu8gNY/x90dnCIr1
+         oPJiJE6Dm/rHTIqqjcoN91OT1kyP1f/G28/DUBMwIDCQU7cdUZnYCeK5tjhOZnwTUg
+         nHdN+Mmev4mBjJKBerYEqaGW+0jamVsER4q51R/k=
+Date:   Sun, 26 Dec 2021 14:19:56 -0800
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, arbn@yandex-team.com,
+        mgorman@techsingularity.net, mhocko@suse.com,
+        mm-commits@vger.kernel.org, rientjes@google.com,
+        stable@vger.kernel.org
+Subject:  [merged]
+ mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
+ removed from -mm tree
+Message-ID: <20211226221956.2EsizQx2w%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 22 Dec 2021 13:07:31 +0000, Christophe Leroy wrote:
-> Boot fails with GCC latent entropy plugin enabled.
-> 
-> This is due to early boot functions trying to access 'latent_entropy'
-> global data while the kernel is not relocated at its final
-> destination yet.
-> 
-> As there is no way to tell GCC to use PTRRELOC() to access it,
-> disable latent entropy plugin in early_32.o and feature-fixups.o and
-> code-patching.o
-> 
-> [...]
 
-Applied to powerpc/next.
+The patch titled
+     Subject: mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+has been removed from the -mm tree.  Its filename was
+     mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions.patch
 
-[1/1] powerpc/32: Fix boot failure with GCC latent entropy plugin
-      https://git.kernel.org/powerpc/c/bba496656a73fc1d1330b49c7f82843836e9feb1
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-cheers
+------------------------------------------------------
+From: Andrey Ryabinin <arbn@yandex-team.com>
+Subject: mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+
+alloc_pages_vma() may try to allocate THP page on the local NUMA node
+first:
+
+	page = __alloc_pages_node(hpage_node,
+		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+
+And if the allocation fails it retries allowing remote memory:
+
+	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+    		page = __alloc_pages_node(hpage_node,
+					gfp, order);
+
+However, this retry allocation completely ignores memory policy nodemask
+allowing allocation to escape restrictions.
+
+The first appearance of this bug seems to be the commit ac5b2c18911f
+ ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+The bug disappeared later in the commit 89c83fb539f9
+ ("mm, thp: consolidate THP gfp handling into alloc_hugepage_direct_gfpmask")
+and reappeared again in slightly different form in the commit 76e654cc91bb
+ ("mm, page_alloc: allow hugepage fallback to remote nodes when madvised")
+
+Fix this by passing correct nodemask to the __alloc_pages() call.
+
+The demonstration/reproducer of the problem:
+ $ mount -oremount,size=4G,huge=always /dev/shm/
+ $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+ $ cat mbind_thp.c
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <numaif.h>
+
+ #define SIZE 2ULL << 30
+ int main(int argc, char **argv)
+ {
+   int fd;
+   unsigned long long i;
+   char *addr;
+   pid_t pid;
+   char buf[100];
+   unsigned long nodemask = 1;
+
+   fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+   assert(fd > 0);
+   assert(ftruncate(fd, SIZE) == 0);
+
+   addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+                        MAP_SHARED, fd, 0);
+
+   assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+   for (i = 0; i < SIZE; i+=4096) {
+     addr[i] = 1;
+   }
+   pid = getpid();
+   snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+   system(buf);
+   sleep(10000);
+
+   return 0;
+ }
+ $ gcc mbind_thp.c -o mbind_thp -lnuma
+ $ numactl -H
+ available: 2 nodes (0-1)
+ node 0 cpus: 0 2
+ node 0 size: 1918 MB
+ node 0 free: 1595 MB
+ node 1 cpus: 1 3
+ node 1 size: 2014 MB
+ node 1 free: 1731 MB
+ node distances:
+ node   0   1
+   0:  10  20
+   1:  20  10
+ $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+ 7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+
+Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/mempolicy.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/mm/mempolicy.c~mm-mempolicy-fix-thp-allocations-escaping-mempolicy-restrictions
++++ a/mm/mempolicy.c
+@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp,
+ 			 * memory with both reclaim and compact as well.
+ 			 */
+ 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+-				page = __alloc_pages_node(hpage_node,
+-								gfp, order);
++				page = __alloc_pages(gfp, order, hpage_node, nmask);
+ 
+ 			goto out;
+ 		}
+_
+
+Patches currently in -mm which might be from arbn@yandex-team.com are
+
+
