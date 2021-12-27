@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2E0B480080
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7000447FEDE
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:34:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236544AbhL0Pql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:46:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39920 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239758AbhL0PnO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:43:14 -0500
+        id S230033AbhL0PdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:33:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35668 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237824AbhL0PdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:33:05 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA1CBC061799;
+        Mon, 27 Dec 2021 07:33:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 466D361120;
-        Mon, 27 Dec 2021 15:43:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CCD4C36AEA;
-        Mon, 27 Dec 2021 15:43:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 547E2CE10B6;
+        Mon, 27 Dec 2021 15:33:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469E5C36AE7;
+        Mon, 27 Dec 2021 15:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619793;
-        bh=7a37G4SVGE3ybwpnf8s8vzNmebbx0iohX3umpzpzkA8=;
+        s=korg; t=1640619181;
+        bh=y86o3xk3ngnUTq8GOTtwJRgwiyBeHgAWyp3WdEb8XTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmCgZEedx7KTTCYp7IN32s5FDYs5VAD5nU7n01ykNABpBsxh9uQT+ocynW8XWuNcS
-         tyiEN/2gWQ+rOYw2zAkmg40Sp6VS4SFXHqqEn/ZRmWOr6BAyuNwDLrxeFPwMaJd53J
-         m90YBnpEnEIKzBlne/6yNSvQFRT6a/ULQcD/fG44=
+        b=O/BwFaZy4WRAmz26exwWh3MfdOV+HdqDxp7CqzJr4v7ZLLxAUrNou7p/nj6Zl7iSv
+         HPRSlbUqIUjSIt8mHyns5ZGekMT7/PlELh6Ku/337+xCIb9dHBwqX0pM5Ie+cC0Hle
+         CkDU9wZdbyu6sQCCScAkmUAwZe5XWfNuJ5UYlyyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 071/128] ALSA: hda/realtek: fix mute/micmute LEDs for a HP ProBook
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 09/38] spi: change clk_disable_unprepare to clk_unprepare
 Date:   Mon, 27 Dec 2021 16:30:46 +0100
-Message-Id: <20211227151333.855979353@linuxfoundation.org>
+Message-Id: <20211227151319.688381090@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
+References: <20211227151319.379265346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Szu <jeremy.szu@canonical.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit f7ac570d0f026cf5475d4cc4d8040bd947980b3a upstream.
+[ Upstream commit db6689b643d8653092f5853751ea2cdbc299f8d3 ]
 
-There is a HP ProBook which using ALC236 codec and need the
-ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF quirk to make mute LED and
-micmute LED work.
+The corresponding API for clk_prepare is clk_unprepare, other than
+clk_disable_unprepare.
 
-Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211214164156.49711-1-jeremy.szu@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by changing clk_disable_unprepare to clk_unprepare.
+
+Fixes: 5762ab71eb24 ("spi: Add support for Armada 3700 SPI Controller")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20211206101931.2816597-1-mudongliangabcd@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-armada-3700.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8706,6 +8706,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8898, "HP EliteBook 845 G8 Notebook PC", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+diff --git a/drivers/spi/spi-armada-3700.c b/drivers/spi/spi-armada-3700.c
+index 7dcb14d303eb4..d8715954f4e08 100644
+--- a/drivers/spi/spi-armada-3700.c
++++ b/drivers/spi/spi-armada-3700.c
+@@ -912,7 +912,7 @@ static int a3700_spi_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+ error_clk:
+-	clk_disable_unprepare(spi->clk);
++	clk_unprepare(spi->clk);
+ error:
+ 	spi_master_put(master);
+ out:
+-- 
+2.34.1
+
 
 
