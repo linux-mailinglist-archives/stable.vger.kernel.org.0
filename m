@@ -2,137 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E283948037C
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 19:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C55C7480381
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 20:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbhL0S6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 13:58:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55132 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229603AbhL0S6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 13:58:05 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB2DC06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 10:58:04 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id j13so11975063plx.4
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 10:58:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=M/R4BFYMG6sQEMyqeN39a1alB5U3RNObx8SRMg08oKE=;
-        b=q70aWPOnXrXMAok+hyQ+LLioxeEUJhrUxurnLjEwtX8XNXcbzI4/925O6LVnz6b3ek
-         BNNGo0ARYhtHxo6ac2ska4QobMvs230VA3AlV0B0SqlAU1vpB7oA2fK0SCBWH7TxUCPD
-         7kifNys4aK8K5zSI7mJ34UYW5A/eT36SB8KqSK+V1vI3Kb0v84lGxVxtlZuamw6YZEzR
-         MrsO3q6m1YKCwSUkwvkvY7i7LltA+mH0yXjwHTPEESm7hNwzT3TBrHovQk9ue4TBBpGB
-         rDb0NslvJ4sCnUrux69gAOTxFFzNLKYSeem4sF+tWyPtcgJyntZqVBtkl+jJcJgbh1xf
-         PZTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=M/R4BFYMG6sQEMyqeN39a1alB5U3RNObx8SRMg08oKE=;
-        b=zznKIkjwvZwOYVkooHDHiRfP4TqXN914QHo0aIO+L5lJWu9sasb6w4FjcnSzSumRr3
-         UIiwPWGjurIb9iO9QrkzB0+6vTYMiJMDXIVQgdnIshGpo8yrFbubLk+dr8auLDTrjqdL
-         I9MC5MKu1rs+Daksre5hc8oVkUUwMOcqoVvqaQRyppRj/S9LEhWzk6kc2ZY/2fnQCvRy
-         klPpeiuzvfijOSMsJP7PcYcXl7lnR9xBbTvUFgAabvfOpSXvLVNht4zNZ5EzZ45uZqb5
-         n92s7GLTI2jNPXxS/rhZMkAErsVE3WCjcS8dqoan3OegvRhbTmeTWxNlHkufUiHqvEKB
-         /1oA==
-X-Gm-Message-State: AOAM530xoasGlUgc488TWsixPVSNbS9gKhOvbwXzwHZr5pOeK0bXrSgz
-        921MfV3wsR3ux+/iV1s8ho/2yIjwboiKRaI/
-X-Google-Smtp-Source: ABdhPJwgjpEoBVmSWiNJv6OPvnftd3txrMjkl7lqvcdVFsIB0911Vx7Jd+Xu5Kf8MvohlBwv07rZig==
-X-Received: by 2002:a17:90b:1d10:: with SMTP id on16mr22761660pjb.196.1640631484234;
-        Mon, 27 Dec 2021 10:58:04 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k6sm18918389pff.106.2021.12.27.10.58.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Dec 2021 10:58:03 -0800 (PST)
-Message-ID: <61ca0cbb.1c69fb81.77805.484a@mx.google.com>
-Date:   Mon, 27 Dec 2021 10:58:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S231166AbhL0TDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 14:03:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40756 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229603AbhL0TDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 14:03:33 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C985AB810BA;
+        Mon, 27 Dec 2021 19:03:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4389EC36AE7;
+        Mon, 27 Dec 2021 19:03:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1640631810;
+        bh=WY7/IBQQ7PCl+D+qAmJBhE5XKqIk0FCvNlIT9/7d9Q8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=J8ngXBKahixF83dT0V7W8ipBzgGEeJq1b4oLb5mMznhSNIN3eNAE9cDvz4dD6JeL6
+         wUMRktxHO1It/46XEeSqPxxVoqaQdvdkWjbYR0crKXvDyL5LUPM2sLxAv0l0z/Ev5p
+         JMERrwTyG6dtGVmL26T5n1oEj32qgGyteu2oiZPTdoKoLD9RqmUFhjzrtDRDuv2Jxr
+         nwO8Zk+KzR3l3gVsg8LkHd8P9RdcsPn8eSLPuZSSv4SnI0NgrNY03VsSEi1vMpwazK
+         owAqZvrT4hBo3O5xBWQpjnjTt4iZujWubLrMvreaQMtkjsnD+Csjpw/m/gdvHEAXyM
+         cnKvL/JYMTYBg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Guodong Liu <guodong.liu@mediatek.corp-partner.google.com>,
+        Zhiyong Tao <zhiyong.tao@mediatek.com>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, sean.wang@kernel.org,
+        matthias.bgg@gmail.com, linux-mediatek@lists.infradead.org,
+        linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 01/26] pinctrl: mediatek: fix global-out-of-bounds issue
+Date:   Mon, 27 Dec 2021 14:03:02 -0500
+Message-Id: <20211227190327.1042326-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.294-14-g41b0aa70113e
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y baseline: 119 runs,
- 1 regressions (v4.9.294-14-g41b0aa70113e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 119 runs, 1 regressions (v4.9.294-14-g41b0a=
-a70113e)
+From: Guodong Liu <guodong.liu@mediatek.corp-partner.google.com>
 
-Regressions Summary
--------------------
+[ Upstream commit 2d5446da5acecf9c67db1c9d55ae2c3e5de01f8d ]
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+When eint virtual eint number is greater than gpio number,
+it maybe produce 'desc[eint_n]' size globle-out-of-bounds issue.
+
+Signed-off-by: Guodong Liu <guodong.liu@mediatek.corp-partner.google.com>
+Signed-off-by: Zhiyong Tao <zhiyong.tao@mediatek.com>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Link: https://lore.kernel.org/r/20211110071900.4490-2-zhiyong.tao@mediatek.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c b/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
+index 45ebdeba985ae..12163d3c4bcb0 100644
+--- a/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
++++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common-v2.c
+@@ -285,8 +285,12 @@ static int mtk_xt_get_gpio_n(void *data, unsigned long eint_n,
+ 	desc = (const struct mtk_pin_desc *)hw->soc->pins;
+ 	*gpio_chip = &hw->chip;
+ 
+-	/* Be greedy to guess first gpio_n is equal to eint_n */
+-	if (desc[eint_n].eint.eint_n == eint_n)
++	/*
++	 * Be greedy to guess first gpio_n is equal to eint_n.
++	 * Only eint virtual eint number is greater than gpio number.
++	 */
++	if (hw->soc->npins > eint_n &&
++	    desc[eint_n].eint.eint_n == eint_n)
+ 		*gpio_n = eint_n;
+ 	else
+ 		*gpio_n = mtk_xt_find_eint_num(hw, eint_n);
+-- 
+2.34.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.294-14-g41b0aa70113e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.294-14-g41b0aa70113e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      41b0aa70113e1f1442f4e0809fef0121f80fb871 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61c9d27a619ceb48b1397158
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.294=
--14-g41b0aa70113e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.294=
--14-g41b0aa70113e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61c9d27a619ceb4=
-8b139715b
-        failing since 14 days (last pass: v4.9.292-29-gdefac0f99886, first =
-fail: v4.9.292-43-gad074ba3bae9)
-        2 lines
-
-    2021-12-27T14:49:13.153569  [   20.441802] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-27T14:49:13.197432  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/128
-    2021-12-27T14:49:13.207005  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
