@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E49C4800EC
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DDE247FEF1
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:34:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233832AbhL0Pvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:51:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39292 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240668AbhL0Ptb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:49:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F40D5C061D5E;
-        Mon, 27 Dec 2021 07:44:17 -0800 (PST)
+        id S238050AbhL0Pd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:33:58 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39078 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237900AbhL0Pdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:33:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A9CDB810CC;
-        Mon, 27 Dec 2021 15:44:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3AC8C36AE7;
-        Mon, 27 Dec 2021 15:44:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B52BCCE10B3;
+        Mon, 27 Dec 2021 15:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F08CC36AEB;
+        Mon, 27 Dec 2021 15:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619856;
-        bh=sQTTMRchETzKPT0AIJEtLkclSn1NWGJW/KZGsFuLLl0=;
+        s=korg; t=1640619213;
+        bh=JCRgNUks6EAzyTz5m67NWn7jD4Hmfwapl8IQRx+GFA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBuB4aSHHItHweL0hF4M/sBB3AlqT8npF/mV4z45d7ml+aLP6mqXPWaqwkWuWCx7l
-         1S2jSiFrfqGkUtysilO8Nm663S1A/DsEAhfj8yB21uNeFFiaPJTGYp8LZx7rkDY3LB
-         L5FpHNkP8koIAhmERt1seFRgNaR5eKyCj+3JP4WI=
+        b=krA+lAItJ9eXHHvpFh9Juak7mXBA1w7PPlQxuTwKhyNagCC/A+8x831pPZIV0mA7c
+         zW2BtMUMbns5TpdhxpQew8yoZ7kzBnN12yOLlbwWkSa0mIgg2ttGhD4+5pWErozvBg
+         LrnsLskhbBwt8we7qPJqlORKeVrN2CsNeipuv7iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 094/128] mmc: meson-mx-sdhc: Set MANUAL_STOP for multi-block SDIO commands
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 32/38] KVM: VMX: Fix stale docs for kvm-intel.emulate_invalid_guest_state
 Date:   Mon, 27 Dec 2021 16:31:09 +0100
-Message-Id: <20211227151334.660782214@linuxfoundation.org>
+Message-Id: <20211227151320.454785031@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
+References: <20211227151319.379265346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,82 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit f89b548ca66be7500dcd92ee8e61590f7d08ac91 upstream.
+commit 0ff29701ffad9a5d5a24344d8b09f3af7b96ffda upstream.
 
-The vendor driver implements special handling for multi-block
-SD_IO_RW_EXTENDED (and SD_IO_RW_DIRECT) commands which have data
-attached to them. It sets the MANUAL_STOP bit in the MESON_SDHC_MISC
-register for these commands. In all other cases this bit is cleared.
-Here we omit SD_IO_RW_DIRECT since that command never has any data
-attached to it.
+Update the documentation for kvm-intel's emulate_invalid_guest_state to
+rectify the description of KVM's default behavior, and to document that
+the behavior and thus parameter only applies to L1.
 
-This fixes SDIO wifi using the brcmfmac driver which reported the
-following error without this change on a Netxeon S82 board using a
-Meson8 (S802) SoC:
-  brcmf_fw_alloc_request: using brcm/brcmfmac43362-sdio for chip
-                          BCM43362/1
-  brcmf_sdiod_ramrw: membytes transfer failed
-  brcmf_sdio_download_code_file: error -110 on writing 219557 membytes
-                                 at 0x00000000
-  brcmf_sdio_download_firmware: dongle image file download failed
-
-And with this change:
-  brcmf_fw_alloc_request: using brcm/brcmfmac43362-sdio for chip
-                          BCM43362/1
-  brcmf_c_process_clm_blob: no clm_blob available (err=-2), device may
-                            have limited channels available
-  brcmf_c_preinit_dcmds: Firmware: BCM43362/1 wl0: Apr 22 2013 14:50:00
-                         version 5.90.195.89.6 FWID 01-b30a427d
-
-Fixes: e4bf1b0970ef96 ("mmc: host: meson-mx-sdhc: new driver for the Amlogic Meson SDHC host")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211219153442.463863-2-martin.blumenstingl@googlemail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: a27685c33acc ("KVM: VMX: Emulate invalid guest state by default")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211207193006.120997-4-seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-mx-sdhc-mmc.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ Documentation/admin-guide/kernel-parameters.txt |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/meson-mx-sdhc-mmc.c
-+++ b/drivers/mmc/host/meson-mx-sdhc-mmc.c
-@@ -135,6 +135,7 @@ static void meson_mx_sdhc_start_cmd(stru
- 				    struct mmc_command *cmd)
- {
- 	struct meson_mx_sdhc_host *host = mmc_priv(mmc);
-+	bool manual_stop = false;
- 	u32 ictl, send;
- 	int pack_len;
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -2019,8 +2019,12 @@
+ 			Default is 1 (enabled)
  
-@@ -172,12 +173,27 @@ static void meson_mx_sdhc_start_cmd(stru
- 		else
- 			/* software flush: */
- 			ictl |= MESON_SDHC_ICTL_DATA_XFER_OK;
-+
-+		/*
-+		 * Mimic the logic from the vendor driver where (only)
-+		 * SD_IO_RW_EXTENDED commands with more than one block set the
-+		 * MESON_SDHC_MISC_MANUAL_STOP bit. This fixes the firmware
-+		 * download in the brcmfmac driver for a BCM43362/1 card.
-+		 * Without this sdio_memcpy_toio() (with a size of 219557
-+		 * bytes) times out if MESON_SDHC_MISC_MANUAL_STOP is not set.
-+		 */
-+		manual_stop = cmd->data->blocks > 1 &&
-+			      cmd->opcode == SD_IO_RW_EXTENDED;
- 	} else {
- 		pack_len = 0;
+ 	kvm-intel.emulate_invalid_guest_state=
+-			[KVM,Intel] Enable emulation of invalid guest states
+-			Default is 0 (disabled)
++			[KVM,Intel] Disable emulation of invalid guest state.
++			Ignored if kvm-intel.enable_unrestricted_guest=1, as
++			guest state is never invalid for unrestricted guests.
++			This param doesn't apply to nested guests (L2), as KVM
++			never emulates invalid L2 guest state.
++			Default is 1 (enabled)
  
- 		ictl |= MESON_SDHC_ICTL_RESP_OK;
- 	}
- 
-+	regmap_update_bits(host->regmap, MESON_SDHC_MISC,
-+			   MESON_SDHC_MISC_MANUAL_STOP,
-+			   manual_stop ? MESON_SDHC_MISC_MANUAL_STOP : 0);
-+
- 	if (cmd->opcode == MMC_STOP_TRANSMISSION)
- 		send |= MESON_SDHC_SEND_DATA_STOP;
- 
+ 	kvm-intel.flexpriority=
+ 			[KVM,Intel] Disable FlexPriority feature (TPR shadow).
 
 
