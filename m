@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC24747FFA5
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:39:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A89147FF0D
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:35:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238579AbhL0Pj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:39:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238919AbhL0Phx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:37:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA63AC06175A;
-        Mon, 27 Dec 2021 07:37:21 -0800 (PST)
+        id S238132AbhL0PfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:35:08 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39544 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238122AbhL0Pea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 551D1610A3;
-        Mon, 27 Dec 2021 15:37:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FFE3C36AE7;
-        Mon, 27 Dec 2021 15:37:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6BECECE10B3;
+        Mon, 27 Dec 2021 15:34:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F91BC36AE7;
+        Mon, 27 Dec 2021 15:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619440;
-        bh=jZ82D7RXYUwTmSX0ujpm6XMyh3lTYbhmZtKWj3pDSZU=;
+        s=korg; t=1640619266;
+        bh=XQGVRJHZHyeiaoSHEu//I3/GPk0uHMx+t2yWR9aF2GA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8BLpy42yB63P8N9pyeY7iXJUhxy6qAc0Di/UmtJVvT3nWI3zmAIlWLXe4qHs+vdp
-         lfL+y7GMmwH+n7/4ZhyryImiherXX2vYOUvwibzJKCY20aDJYHdaU80bYrmZEeIak5
-         Sc1ZXTwCn8ctJC3B5n4joplqjgKDTZHgcRv3FM6g=
+        b=jiJJ/zd6tpUiZa83b8Ejnw0kFviztwVF7imgAxMwikK128rlgT5UD3/MZHpoktLd8
+         89kWcYpIZHJBjdQT6PV7x2iOHBgwFBlu9nXayzv4GImWlwckYfGgWGC/iiUxhDiQjG
+         0MCKJPWI+SocZNjH8Dckesl5t5FSEvKI+DWa4Dn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 24/76] drivers: net: smc911x: Check for error irq
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.4 03/47] HID: holtek: fix mouse probing
 Date:   Mon, 27 Dec 2021 16:30:39 +0100
-Message-Id: <20211227151325.531314695@linuxfoundation.org>
+Message-Id: <20211227151320.909662444@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,40 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-[ Upstream commit cb93b3e11d405f20a405a07482d01147ef4934a3 ]
+commit 93a2207c254ca102ebbdae47b00f19bbfbfa7ecd upstream.
 
-Because platform_get_irq() could fail and return error irq.
-Therefore, it might be better to check it if order to avoid the use of
-error irq.
+An overlook from the previous commit: we don't even parse or start the
+device, meaning that the device is not presented to user space.
 
-Fixes: ae150435b59e ("smsc: Move the SMC (SMSC) drivers")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 93020953d0fa ("HID: check for valid USB device for many HID drivers")
+Cc: stable@vger.kernel.org
+Link: https://bugs.archlinux.org/task/73048
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215341
+Link: https://lore.kernel.org/r/e4efbf13-bd8d-0370-629b-6c80c0044b15@leemhuis.info/
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/smsc/smc911x.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-holtek-mouse.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/net/ethernet/smsc/smc911x.c b/drivers/net/ethernet/smsc/smc911x.c
-index 01069dfaf75c9..288b420f88d42 100644
---- a/drivers/net/ethernet/smsc/smc911x.c
-+++ b/drivers/net/ethernet/smsc/smc911x.c
-@@ -2069,6 +2069,11 @@ static int smc911x_drv_probe(struct platform_device *pdev)
- 
- 	ndev->dma = (unsigned char)-1;
- 	ndev->irq = platform_get_irq(pdev, 0);
-+	if (ndev->irq < 0) {
-+		ret = ndev->irq;
-+		goto release_both;
+--- a/drivers/hid/hid-holtek-mouse.c
++++ b/drivers/hid/hid-holtek-mouse.c
+@@ -65,8 +65,23 @@ static __u8 *holtek_mouse_report_fixup(s
+ static int holtek_mouse_probe(struct hid_device *hdev,
+ 			      const struct hid_device_id *id)
+ {
++	int ret;
++
+ 	if (!hid_is_usb(hdev))
+ 		return -EINVAL;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "hid parse failed: %d\n", ret);
++		return ret;
 +	}
 +
- 	lp = netdev_priv(ndev);
- 	lp->netdev = ndev;
- #ifdef SMC_DYNAMIC_BUS_CONFIG
--- 
-2.34.1
-
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed: %d\n", ret);
++		return ret;
++	}
++
+ 	return 0;
+ }
+ 
 
 
