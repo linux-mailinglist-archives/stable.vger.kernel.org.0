@@ -2,95 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C3C47FCB3
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5943B47FCB4
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236723AbhL0Mnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 07:43:45 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:41177 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233722AbhL0Mnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:43:45 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 84BB95C02D5;
-        Mon, 27 Dec 2021 07:43:44 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 27 Dec 2021 07:43:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=2ROSRJZXuATdJhCcuekJ7Amfp4Z
-        tgQ53208KjF4wzZ4=; b=CfNrZA8Z1u28sb53lvtywE/tY4ntmJkA3hklkXe3a/4
-        5RJeWoWxfbr8xZs/l4AeDoxL3ZDoIm63OmMSwMUTVMWSa7gzm216F6R3sENhefVr
-        abAUN/lbJOL1Vt9prXiMp0fgnbrJKZtE/JyVaB1/+T7dMspNBxaADnIxu31Cg6+u
-        VJ50psLPNmJ42ZXSK412R5l35IbcQVdGNUlPdRTnztuw1D2NNPs9PefLOJps4/vK
-        I5F1On6uKdLojg6Rrbbz8Ge+7oI95jhjUxrh0BLEnkd8iR0Z2pba9IdqvjvICcLE
-        7fY5HZUqra7eF/761WsdwkVw8FtbA3weMj0XcuR2Z9g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2ROSRJ
-        ZXuATdJhCcuekJ7Amfp4ZtgQ53208KjF4wzZ4=; b=emRGNylp20HrEcLvnbs8Mo
-        lkWa5h4kgqElbuxsFvY2xAV6rYWBFt2hHgsG4FqV/SnoSp449MPly0mUz1PW7Klz
-        Z1mFGSwf+YGJWobiYwEZvGgibtbjNk+nqlCROvys9M4LerMGY6pOYHYSWVpJ6FaJ
-        gywFjaALabqwc6NFmLVt5lXpJ4zdnsubZ3pvXE+c6O9zMqUU5bvw+hryhdqBUZu0
-        ryVc25d/nqFuJh1Ak7QpU+Ni5Xp7qyv07C9NEzl8QuqXr1DCcIrkblz+l3iJSRQ9
-        FtyUQQ2M5Qh7pyNKB4s5gcoci6fNcsJXcw1vYEf4wg1uyvd0NeS3ornST6eHbtWA
-        ==
-X-ME-Sender: <xms:ALXJYUnCD3L7GzqIb-YRsZom-9mBImeNlv5UUD-pYKEPxKOE9KJ_XQ>
-    <xme:ALXJYT1rhWovC6xJHMR4sjQ0r4P1_j7gLgLbmDrW0O8v6su6u-MIKD7alkYXKd2qh
-    B61bBCMoZs8dA>
-X-ME-Received: <xmr:ALXJYSrPw_LTvlgT009lomCuDODlhFh8GYft7g8fTYEoNuAwIIH-NTxI_KVjwuI96Gz8WMxHmte-SdpaWXFwh8NvJMnazRxz>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddujedgfeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:ALXJYQldGvWtYwcu3qMdLIQv4rs8r77jWKhKxMDXL_0-zN9oQyM1FQ>
-    <xmx:ALXJYS13X9orHqgRGUSLt0NzPyiKrZz9B_KNWCbTtHJP-E1p0Si3Pw>
-    <xmx:ALXJYXvIGiQiTp6DbDfdCh7MjlxNyakTi2RQuBYh0QiOPgsrlhA2Xg>
-    <xmx:ALXJYVQ2_-gZZK5SzSdCHr4psXERx40RjWIzDP0YFuOyvvfFJV2rIw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 27 Dec 2021 07:43:43 -0500 (EST)
-Date:   Mon, 27 Dec 2021 13:43:40 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     stable@vger.kernel.org, xen-devel@lists.xenproject.org
-Subject: Re: [PATCH] xen/blkfront: fix bug in backported patch
-Message-ID: <Ycm0/H0L0O69lS7u@kroah.com>
-References: <20211223105308.17077-1-jgross@suse.com>
- <YcRWNWtraLXt9W8v@kroah.com>
- <9823fe0a-2db4-bc4b-2d7c-6363856322ff@suse.com>
+        id S236725AbhL0MoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 07:44:23 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34466 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233722AbhL0MoX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:44:23 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A80DB8102B
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 12:44:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B766CC36AE7;
+        Mon, 27 Dec 2021 12:44:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640609061;
+        bh=k8DGIVv36vNZoc4LiPoq28WD7zDiDQif6cduhQ/GrCg=;
+        h=Subject:To:Cc:From:Date:From;
+        b=DesieKsaxD9VXY1gClYM78jegiBuGQUSSDq2qXY9R8Vn+qzDkfWIZvV4TQQu7O8b7
+         3fsvsC5kGIu6QtN2q0TYAUZT4aiV8M5LAhCojNAPl3DBaCCUmRwcw4KxpJ9hNaudP2
+         ybSPsmkAvIhVvTIzt1VWzO6ndOdiuDTOC2Z/Ba8Q=
+Subject: FAILED: patch "[PATCH] mm: mempolicy: fix THP allocations escaping mempolicy" failed to apply to 5.10-stable tree
+To:     arbn@yandex-team.com, aarcange@redhat.com,
+        akpm@linux-foundation.org, mgorman@techsingularity.net,
+        mhocko@suse.com, rientjes@google.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 Dec 2021 13:44:18 +0100
+Message-ID: <164060905882236@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9823fe0a-2db4-bc4b-2d7c-6363856322ff@suse.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 23, 2021 at 02:40:38PM +0100, Juergen Gross wrote:
-> On 23.12.21 11:57, Greg KH wrote:
-> > On Thu, Dec 23, 2021 at 11:53:08AM +0100, Juergen Gross wrote:
-> > > The backport of commit 8f5a695d99000fc ("xen/blkfront: don't take local
-> > > copy of a request from the ring page") to stable 4.4 kernel introduced
-> > > a bug when adding the needed blkif_ring_get_request() function, as
-> > > info->ring.req_prod_pvt was incremented twice now.
-> > > 
-> > > Fix that be deleting the now superfluous increments after calling that
-> > > function.
-> > > 
-> > > Signed-off-by: Juergen Gross <jgross@suse.com>
-> > > ---
-> > >   drivers/block/xen-blkfront.c | 4 ----
-> > >   1 file changed, 4 deletions(-)
-> > 
-> > So this is only needed in 4.4.y?  No other backports were incorrect?
-> 
-> Yes. 4.4 only.
 
-Great, now queued up, thanks.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 338635340669d5b317c7e8dcf4fff4a0f3651d87 Mon Sep 17 00:00:00 2001
+From: Andrey Ryabinin <arbn@yandex-team.com>
+Date: Fri, 24 Dec 2021 21:12:35 -0800
+Subject: [PATCH] mm: mempolicy: fix THP allocations escaping mempolicy
+ restrictions
+
+alloc_pages_vma() may try to allocate THP page on the local NUMA node
+first:
+
+	page = __alloc_pages_node(hpage_node,
+		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+
+And if the allocation fails it retries allowing remote memory:
+
+	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+    		page = __alloc_pages_node(hpage_node,
+					gfp, order);
+
+However, this retry allocation completely ignores memory policy nodemask
+allowing allocation to escape restrictions.
+
+The first appearance of this bug seems to be the commit ac5b2c18911f
+("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings").
+
+The bug disappeared later in the commit 89c83fb539f9 ("mm, thp:
+consolidate THP gfp handling into alloc_hugepage_direct_gfpmask") and
+reappeared again in slightly different form in the commit 76e654cc91bb
+("mm, page_alloc: allow hugepage fallback to remote nodes when
+madvised")
+
+Fix this by passing correct nodemask to the __alloc_pages() call.
+
+The demonstration/reproducer of the problem:
+
+    $ mount -oremount,size=4G,huge=always /dev/shm/
+    $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+    $ cat mbind_thp.c
+    #include <unistd.h>
+    #include <sys/mman.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <assert.h>
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <numaif.h>
+
+    #define SIZE 2ULL << 30
+    int main(int argc, char **argv)
+    {
+        int fd;
+        unsigned long long i;
+        char *addr;
+        pid_t pid;
+        char buf[100];
+        unsigned long nodemask = 1;
+
+        fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+        assert(fd > 0);
+        assert(ftruncate(fd, SIZE) == 0);
+
+        addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+                           MAP_SHARED, fd, 0);
+
+        assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+        for (i = 0; i < SIZE; i+=4096) {
+          addr[i] = 1;
+        }
+        pid = getpid();
+        snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+        system(buf);
+        sleep(10000);
+
+        return 0;
+    }
+    $ gcc mbind_thp.c -o mbind_thp -lnuma
+    $ numactl -H
+    available: 2 nodes (0-1)
+    node 0 cpus: 0 2
+    node 0 size: 1918 MB
+    node 0 free: 1595 MB
+    node 1 cpus: 1 3
+    node 1 size: 2014 MB
+    node 1 free: 1731 MB
+    node distances:
+    node   0   1
+      0:  10  20
+      1:  20  10
+    $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+    7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+
+Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index 10e9c87260ed..f6248affaf38 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
+ 			 * memory with both reclaim and compact as well.
+ 			 */
+ 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+-				page = __alloc_pages_node(hpage_node,
+-								gfp, order);
++				page = __alloc_pages(gfp, order, hpage_node, nmask);
+ 
+ 			goto out;
+ 		}
+
