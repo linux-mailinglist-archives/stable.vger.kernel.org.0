@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69BF247FFC3
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B054F4800EE
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233201AbhL0PlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:41:04 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39164 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238814AbhL0PjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:18 -0500
+        id S239779AbhL0Pvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:51:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38936 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240846AbhL0Ptx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:49:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACAA2C0617A2;
+        Mon, 27 Dec 2021 07:44:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 138B4610F4;
-        Mon, 27 Dec 2021 15:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE7F9C36AEA;
-        Mon, 27 Dec 2021 15:39:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74404B810C6;
+        Mon, 27 Dec 2021 15:44:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A33CC36AEA;
+        Mon, 27 Dec 2021 15:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619557;
-        bh=oPDPs7mMFsEWC1psm9pFPE0y5DV5PzK598c6Y0kPV3M=;
+        s=korg; t=1640619893;
+        bh=JgwP6soaSUk6CkDscb2WJFVFnzQ8SjXk+5Pme/NMhgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n+O+FCQ8B/GAZAY3AE7c6XVMrn0clfxHcc9b6omMrVLuHsUWHMB8ZkOpGNtbZi52Z
-         CGuNn5fd/KcXFH17i909ZiesoyOjM522kDl6+PHEPT42BIGORmVe6lORNWc9eGCNpo
-         SuAsdLrqNFIqNL0tjvM2KU74Mm4b/3+eSHjhaPuw=
+        b=kYKS/P/xOIXxro9yoOR5YFAjUK4GdEP2OyN2Gb/kWSBsJqJSHFn3q97rTkAfnE2Hr
+         yFYUl8MUzN+W/r9MtBIHvcB7r7FaEwCDvRsBDCIFSohKg/8+GefEIR2eRxpv+NASiQ
+         HSPvNAVVZZay3p9C5rCEK88UVi80LPdzY9DnBg4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johnny Chuang <johnny.chuang.emc@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 65/76] Input: elants_i2c - do not check Remark ID on eKTH3900/eKTH5312
-Date:   Mon, 27 Dec 2021 16:31:20 +0100
-Message-Id: <20211227151326.941975336@linuxfoundation.org>
+        stable@vger.kernel.org, Patrik Lantz <patrik.lantz@axis.com>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>
+Subject: [PATCH 5.15 106/128] tee: optee: Fix incorrect page free bug
+Date:   Mon, 27 Dec 2021 16:31:21 +0100
+Message-Id: <20211227151335.064570719@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,90 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johnny Chuang <johnny.chuang.emc@gmail.com>
+From: Sumit Garg <sumit.garg@linaro.org>
 
-commit 4ebfee2bbc1a9c343dd50565ba5ae249fac32267 upstream.
+commit 18549bf4b21c739a9def39f27dcac53e27286ab5 upstream.
 
-The eKTH3900/eKTH5312 series do not support the firmware update rules of
-Remark ID. Exclude these two series from checking it when updating the
-firmware in touch controllers.
+Pointer to the allocated pages (struct page *page) has already
+progressed towards the end of allocation. It is incorrect to perform
+__free_pages(page, order) using this pointer as we would free any
+arbitrary pages. Fix this by stop modifying the page pointer.
 
-Signed-off-by: Johnny Chuang <johnny.chuang.emc@gmail.com>
-Link: https://lore.kernel.org/r/1639619603-20616-1-git-send-email-johnny.chuang.emc@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: ec185dd3ab25 ("optee: Fix memory leak when failing to register shm pages")
+Cc: stable@vger.kernel.org
+Reported-by: Patrik Lantz <patrik.lantz@axis.com>
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/elants_i2c.c |   46 ++++++++++++++++++++++++++++++++-
- 1 file changed, 45 insertions(+), 1 deletion(-)
+ drivers/tee/optee/shm_pool.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -109,6 +109,19 @@
- #define ELAN_POWERON_DELAY_USEC	500
- #define ELAN_RESET_DELAY_MSEC	20
+--- a/drivers/tee/optee/shm_pool.c
++++ b/drivers/tee/optee/shm_pool.c
+@@ -41,10 +41,8 @@ static int pool_op_alloc(struct tee_shm_
+ 			goto err;
+ 		}
  
-+/* FW boot code version */
-+#define BC_VER_H_BYTE_FOR_EKTH3900x1_I2C        0x72
-+#define BC_VER_H_BYTE_FOR_EKTH3900x2_I2C        0x82
-+#define BC_VER_H_BYTE_FOR_EKTH3900x3_I2C        0x92
-+#define BC_VER_H_BYTE_FOR_EKTH5312x1_I2C        0x6D
-+#define BC_VER_H_BYTE_FOR_EKTH5312x2_I2C        0x6E
-+#define BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C       0x77
-+#define BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C       0x78
-+#define BC_VER_H_BYTE_FOR_EKTH5312x1_I2C_USB    0x67
-+#define BC_VER_H_BYTE_FOR_EKTH5312x2_I2C_USB    0x68
-+#define BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C_USB   0x74
-+#define BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C_USB   0x75
-+
- enum elants_state {
- 	ELAN_STATE_NORMAL,
- 	ELAN_WAIT_QUEUE_HEADER,
-@@ -663,6 +676,37 @@ static int elants_i2c_validate_remark_id
- 	return 0;
- }
+-		for (i = 0; i < nr_pages; i++) {
+-			pages[i] = page;
+-			page++;
+-		}
++		for (i = 0; i < nr_pages; i++)
++			pages[i] = page + i;
  
-+static bool elants_i2c_should_check_remark_id(struct elants_data *ts)
-+{
-+	struct i2c_client *client = ts->client;
-+	const u8 bootcode_version = ts->iap_version;
-+	bool check;
-+
-+	/* I2C eKTH3900 and eKTH5312 are NOT support Remark ID */
-+	if ((bootcode_version == BC_VER_H_BYTE_FOR_EKTH3900x1_I2C) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH3900x2_I2C) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH3900x3_I2C) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x1_I2C) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x2_I2C) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x1_I2C_USB) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x2_I2C_USB) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C_USB) ||
-+	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C_USB)) {
-+		dev_dbg(&client->dev,
-+			"eKTH3900/eKTH5312(0x%02x) are not support remark id\n",
-+			bootcode_version);
-+		check = false;
-+	} else if (bootcode_version >= 0x60) {
-+		check = true;
-+	} else {
-+		check = false;
-+	}
-+
-+	return check;
-+}
-+
- static int elants_i2c_do_update_firmware(struct i2c_client *client,
- 					 const struct firmware *fw,
- 					 bool force)
-@@ -676,7 +720,7 @@ static int elants_i2c_do_update_firmware
- 	u16 send_id;
- 	int page, n_fw_pages;
- 	int error;
--	bool check_remark_id = ts->iap_version >= 0x60;
-+	bool check_remark_id = elants_i2c_should_check_remark_id(ts);
- 
- 	/* Recovery mode detection! */
- 	if (force) {
+ 		shm->flags |= TEE_SHM_REGISTER;
+ 		rc = optee_shm_register(shm->ctx, shm, pages, nr_pages,
 
 
