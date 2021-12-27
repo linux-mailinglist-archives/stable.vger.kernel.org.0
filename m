@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77FC8480087
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2B8747FF6E
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:38:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239900AbhL0Pqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:46:48 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42282 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240259AbhL0Po5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:57 -0500
+        id S238207AbhL0Ph0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:37:26 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:40572 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237642AbhL0Pgg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:36:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51B6610E8;
-        Mon, 27 Dec 2021 15:44:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF2A1C36AEA;
-        Mon, 27 Dec 2021 15:44:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E68D5CE10B6;
+        Mon, 27 Dec 2021 15:36:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4EBAC36AE7;
+        Mon, 27 Dec 2021 15:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619896;
-        bh=dofrYzGEvFFYa7kJazekYfmxwLdc3UXGdMyjc86R1iU=;
+        s=korg; t=1640619393;
+        bh=XzFIFJt3SJwiUPa1KICozvdDlmS4MNfX2qdCNuEQAdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FhrEcQDv5U/kac5GC8D56FQ/DeNDkl+N/noehHANuFmWZ+wiiDJVZK1rhpKniihC4
-         vjl8b22fRFj2i+q2tJBJYoeUSTBlImVLraw3QDh0aFVN0Pus8Zx8CJtgSO1zs5SVbe
-         lg/GAZ3V0WwjhWbvGdZzguTosz8yJIQQ4iKzI9jI=
+        b=RLjx+qGOMYRvLsI2sPtQ2lRvmvoYNd6IUGE+LsN0rAfMbxIwo+e2qSdN9aFCqy4kp
+         gKNrvgjLXIfubtN6eW+td94bZORrveoEbXVTd3CRn7w1mk/vH2tcWIeid57Hi2rR+C
+         RzOx2l637fYVBBPaOvgY/EP1oqDXXYY0If+capMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.15 107/128] f2fs: fix to do sanity check on last xattr entry in __f2fs_setxattr()
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 46/47] hamradio: improve the incomplete fix to avoid NPD
 Date:   Mon, 27 Dec 2021 16:31:22 +0100
-Message-Id: <20211227151335.094070596@linuxfoundation.org>
+Message-Id: <20211227151322.385861668@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
+commit b2f37aead1b82a770c48b5d583f35ec22aabb61e upstream.
 
-As Wenqing Liu reported in bugzilla:
+The previous commit 3e0588c291d6 ("hamradio: defer ax25 kfree after
+unregister_netdev") reorder the kfree operations and unregister_netdev
+operation to prevent UAF.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215235
+This commit improves the previous one by also deferring the nullify of
+the ax->tty pointer. Otherwise, a NULL pointer dereference bug occurs.
+Partial of the stack trace is shown below.
 
-- Overview
-page fault in f2fs_setxattr() when mount and operate on corrupted image
-
-- Reproduce
-tested on kernel 5.16-rc3, 5.15.X under root
-
-1. unzip tmp7.zip
-2. ./single.sh f2fs 7
-
-Sometimes need to run the script several times
-
-- Kernel dump
-loop0: detected capacity change from 0 to 131072
-F2FS-fs (loop0): Found nat_bits in checkpoint
-F2FS-fs (loop0): Mounted with checkpoint version = 7548c2ee
-BUG: unable to handle page fault for address: ffffe47bc7123f48
-RIP: 0010:kfree+0x66/0x320
+BUG: kernel NULL pointer dereference, address: 0000000000000538
+RIP: 0010:ax_xmit+0x1f9/0x400
+...
 Call Trace:
- __f2fs_setxattr+0x2aa/0xc00 [f2fs]
- f2fs_setxattr+0xfa/0x480 [f2fs]
- __f2fs_set_acl+0x19b/0x330 [f2fs]
- __vfs_removexattr+0x52/0x70
- __vfs_removexattr_locked+0xb1/0x140
- vfs_removexattr+0x56/0x100
- removexattr+0x57/0x80
- path_removexattr+0xa3/0xc0
- __x64_sys_removexattr+0x17/0x20
- do_syscall_64+0x37/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+ dev_hard_start_xmit+0xec/0x320
+ sch_direct_xmit+0xea/0x240
+ __qdisc_run+0x166/0x5c0
+ __dev_queue_xmit+0x2c7/0xaf0
+ ax25_std_establish_data_link+0x59/0x60
+ ax25_connect+0x3a0/0x500
+ ? security_socket_connect+0x2b/0x40
+ __sys_connect+0x96/0xc0
+ ? __hrtimer_init+0xc0/0xc0
+ ? common_nsleep+0x2e/0x50
+ ? switch_fpu_return+0x139/0x1a0
+ __x64_sys_connect+0x11/0x20
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The root cause is in __f2fs_setxattr(), we missed to do sanity check on
-last xattr entry, result in out-of-bound memory access during updating
-inconsistent xattr data of target inode.
+The crash point is shown as below
 
-After the fix, it can detect such xattr inconsistency as below:
+static void ax_encaps(...) {
+  ...
+  set_bit(TTY_DO_WRITE_WAKEUP, &ax->tty->flags); // ax->tty = NULL!
+  ...
+}
 
-F2FS-fs (loop11): inode (7) has invalid last xattr entry, entry_size: 60676
-F2FS-fs (loop11): inode (8) has corrupted xattr
-F2FS-fs (loop11): inode (8) has corrupted xattr
-F2FS-fs (loop11): inode (8) has invalid last xattr entry, entry_size: 47736
+By placing the nullify action after the unregister_netdev, the ax->tty
+pointer won't be assigned as NULL net_device framework layer is well
+synchronized.
 
-Cc: stable@vger.kernel.org
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/xattr.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/hamradio/mkiss.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/f2fs/xattr.c
-+++ b/fs/f2fs/xattr.c
-@@ -684,8 +684,17 @@ static int __f2fs_setxattr(struct inode
- 	}
+--- a/drivers/net/hamradio/mkiss.c
++++ b/drivers/net/hamradio/mkiss.c
+@@ -793,14 +793,14 @@ static void mkiss_close(struct tty_struc
+ 	 */
+ 	netif_stop_queue(ax->dev);
  
- 	last = here;
--	while (!IS_XATTR_LAST_ENTRY(last))
-+	while (!IS_XATTR_LAST_ENTRY(last)) {
-+		if ((void *)(last) + sizeof(__u32) > last_base_addr ||
-+			(void *)XATTR_NEXT_ENTRY(last) > last_base_addr) {
-+			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has invalid last xattr entry, entry_size: %zu",
-+					inode->i_ino, ENTRY_SIZE(last));
-+			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
-+			error = -EFSCORRUPTED;
-+			goto exit;
-+		}
- 		last = XATTR_NEXT_ENTRY(last);
-+	}
+-	ax->tty = NULL;
+-
+ 	unregister_netdev(ax->dev);
  
- 	newsize = XATTR_ALIGN(sizeof(struct f2fs_xattr_entry) + len + size);
+ 	/* Free all AX25 frame buffers after unreg. */
+ 	kfree(ax->rbuff);
+ 	kfree(ax->xbuff);
+ 
++	ax->tty = NULL;
++
+ 	free_netdev(ax->dev);
+ }
  
 
 
