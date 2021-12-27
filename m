@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8893A47FE58
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:28:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 708BE47FE5A
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:28:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237515AbhL0P20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:28:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34184 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237519AbhL0P2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:28:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8427CC061785;
-        Mon, 27 Dec 2021 07:28:04 -0800 (PST)
+        id S237381AbhL0P21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:28:27 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59064 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237534AbhL0P2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:28:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24F0D610A6;
-        Mon, 27 Dec 2021 15:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09C2CC36AE7;
-        Mon, 27 Dec 2021 15:28:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 992D3610AB;
+        Mon, 27 Dec 2021 15:28:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BCDEC36AEE;
+        Mon, 27 Dec 2021 15:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618883;
-        bh=f45YGFRX5tN5GEBjYjc6+NKbnIxYdfemSHMEgTGcYpI=;
+        s=korg; t=1640618892;
+        bh=z135L9I0iIlNN3VgVsVfHNspfHKgVItWm1MKAYRSiw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYWMHBTh4p4ZZftyx4dXQvYz7Q0FF8Mxtq7U2Mv8FdP6Zdbu2mRqIcVGt4VOFhprw
-         W331aUnJjMftYhWJRJTWQYoMjepGeE8xpRqsszkGdlLwkL5zaix95sKJ0UW8aC1aME
-         3ioO31BB/MoWx0HhK/RFuUTJbEvNb6SIdFhQQEas=
+        b=w2HTgts3qnvq8AjqpjJxi2NXF6Sv6c1YRrMJK1AeFoEIMc2mjAkZuDamv5WLzEofH
+         aWkHSXG5TIwjJgeAugfgiYGNkNuURK8E9cbfGnEIuPfOT4l59jc61bbIYaSEx9jlx3
+         b4YPFZve39VncTbj0fc8ZNvRudeUQruP8dzPcdGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/17] hwmon: (lm90) Fix usage of CONFIG2 register in detect function
+        stable@vger.kernel.org,
+        Greg Jesionowski <jesionowskigreg@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 01/19] net: usb: lan78xx: add Allied Telesis AT29M2-AF
 Date:   Mon, 27 Dec 2021 16:27:03 +0100
-Message-Id: <20211227151316.227866654@linuxfoundation.org>
+Message-Id: <20211227151316.605646435@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151315.962187770@linuxfoundation.org>
-References: <20211227151315.962187770@linuxfoundation.org>
+In-Reply-To: <20211227151316.558965545@linuxfoundation.org>
+References: <20211227151316.558965545@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,50 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Greg Jesionowski <jesionowskigreg@gmail.com>
 
-[ Upstream commit fce15c45d3fbd9fc1feaaf3210d8e3f8b33dfd3a ]
+commit ef8a0f6eab1ca5d1a75c242c5c7b9d386735fa0a upstream.
 
-The detect function had a comment "Make compiler happy" when id did not
-read the second configuration register. As it turns out, the code was
-checking the contents of this register for manufacturer ID 0xA1 (NXP
-Semiconductor/Philips), but never actually read the register. So it
-wasn't surprising that the compiler complained, and it indeed had a point.
-Fix the code to read the register contents for manufacturer ID 0xa1.
+This adds the vendor and product IDs for the AT29M2-AF which is a
+lan7801-based device.
 
-At the same time, the code was reading the register for manufacturer ID
-0x41 (Analog Devices), but it was not using the results. In effect it was
-just checking if reading the register returned an error. That doesn't
-really add much if any value, so stop doing that.
-
-Fixes: f90be42fb383 ("hwmon: (lm90) Refactor reading of config2 register")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Jesionowski <jesionowskigreg@gmail.com>
+Link: https://lore.kernel.org/r/20211214221027.305784-1-jesionowskigreg@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm90.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/usb/lan78xx.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-index c9ff08dbe10ce..420f341272621 100644
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -1209,12 +1209,11 @@ static int lm90_detect(struct i2c_client *client,
- 	if (man_id < 0 || chip_id < 0 || config1 < 0 || convrate < 0)
- 		return -ENODEV;
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -67,6 +67,8 @@
+ #define LAN7850_USB_PRODUCT_ID		(0x7850)
+ #define LAN78XX_EEPROM_MAGIC		(0x78A5)
+ #define LAN78XX_OTP_MAGIC		(0x78F3)
++#define AT29M2AF_USB_VENDOR_ID		(0x07C9)
++#define AT29M2AF_USB_PRODUCT_ID	(0x0012)
  
--	if (man_id == 0x01 || man_id == 0x5C || man_id == 0x41) {
-+	if (man_id == 0x01 || man_id == 0x5C || man_id == 0xA1) {
- 		config2 = i2c_smbus_read_byte_data(client, LM90_REG_R_CONFIG2);
- 		if (config2 < 0)
- 			return -ENODEV;
--	} else
--		config2 = 0;		/* Make compiler happy */
-+	}
- 
- 	if ((address == 0x4C || address == 0x4D)
- 	 && man_id == 0x01) { /* National Semiconductor */
--- 
-2.34.1
-
+ #define	MII_READ			1
+ #define	MII_WRITE			0
+@@ -3756,6 +3758,10 @@ static const struct usb_device_id produc
+ 	/* LAN7850 USB Gigabit Ethernet Device */
+ 	USB_DEVICE(LAN78XX_USB_VENDOR_ID, LAN7850_USB_PRODUCT_ID),
+ 	},
++	{
++	/* ATM2-AF USB Gigabit Ethernet Device */
++	USB_DEVICE(AT29M2AF_USB_VENDOR_ID, AT29M2AF_USB_PRODUCT_ID),
++	},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(usb, products);
 
 
