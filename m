@@ -2,270 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9093247FDB8
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 14:52:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F5B47FDC2
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 15:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233924AbhL0Nwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 08:52:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56612 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232865AbhL0Nwi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 08:52:38 -0500
+        id S237040AbhL0OIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 09:08:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35908 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237016AbhL0OIp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 09:08:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 502C4B81026
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 13:52:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB04C36AEA;
-        Mon, 27 Dec 2021 13:52:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7459B6102D
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 14:08:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5946FC36AE7;
+        Mon, 27 Dec 2021 14:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640613150;
-        bh=UwCL2gQKWSvDOP92UTKB3j095GC1cnHP+uUTt9YkKTY=;
-        h=Subject:To:Cc:From:Date:From;
-        b=Yg37JTwYoQofHC/YR25Y/HBce+o68HNlrpbyjmo4cP6s3fpViLBBFnXyAksOLU4sL
-         ikjVgIpGJ1srsuDk/P5mOFJ9MdrT3DhB4PWEDFjAAzUF7xcXfMbLsuwjGaR4acwGxZ
-         6z6tNN2QnNWGpwANPTnN7/11QcHBxMy6U2O0bVwA=
-Subject: FAILED: patch "[PATCH] ice: xsk: allocate separate memory for XDP SW ring" failed to apply to 5.15-stable tree
-To:     maciej.fijalkowski@intel.com, anthony.l.nguyen@intel.com,
-        kiranx.bhandare@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 14:52:27 +0100
-Message-ID: <164061314718191@kroah.com>
+        s=korg; t=1640614124;
+        bh=UgYEEXvEur/CRVFSKpN3xyEKKrBJjqaADBJHVbxWBWE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=THI3QGQmqbQg9lfU5NuobI4OYvXEJsBYZNT2OksZfVXRUFpi5cRSc3RjxbbCSfXRH
+         WXXDI7eBfua8L9N/jJrvuYbl5XUHfXRJdldrrn10NCxFBmwAgeijFbkNDHr2kYI8yq
+         IzkqKsgLQ5Rmh0rdQQdVVShWnn7khubQwfVYUBjk=
+Date:   Mon, 27 Dec 2021 15:08:42 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Andrey Ryabinin <arbn@yandex-team.com>
+Cc:     stable@vger.kernel.org, aarcange@redhat.com,
+        akpm@linux-foundation.org, mgorman@techsingularity.net,
+        mhocko@suse.com, rientjes@google.com, torvalds@linux-foundation.org
+Subject: Re: [PATCH 5.4] mm: mempolicy: fix THP allocations escaping
+ mempolicy restrictions
+Message-ID: <YcnI6ppzfa0VydKG@kroah.com>
+References: <1640608459160181@kroah.com>
+ <20211227134539.1447-1-arbn@yandex-team.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211227134539.1447-1-arbn@yandex-team.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Dec 27, 2021 at 04:45:39PM +0300, Andrey Ryabinin wrote:
+> commit 338635340669d5b317c7e8dcf4fff4a0f3651d87 upstream.
+> 
+> alloc_pages_vma() may try to allocate THP page on the local NUMA node
+> first:
+> 
+> 	page = __alloc_pages_node(hpage_node,
+> 		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+> 
+> And if the allocation fails it retries allowing remote memory:
+> 
+> 	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+>     		page = __alloc_pages_node(hpage_node,
+> 					gfp, order);
+> 
+> However, this retry allocation completely ignores memory policy nodemask
+> allowing allocation to escape restrictions.
+> 
+> The first appearance of this bug seems to be the commit ac5b2c18911f
+> ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings").
+> 
+> The bug disappeared later in the commit 89c83fb539f9 ("mm, thp:
+> consolidate THP gfp handling into alloc_hugepage_direct_gfpmask") and
+> reappeared again in slightly different form in the commit 76e654cc91bb
+> ("mm, page_alloc: allow hugepage fallback to remote nodes when
+> madvised")
+> 
+> Fix this by passing correct nodemask to the __alloc_pages() call.
+> 
+> The demonstration/reproducer of the problem:
+> 
+>     $ mount -oremount,size=4G,huge=always /dev/shm/
+>     $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+>     $ cat mbind_thp.c
+>     #include <unistd.h>
+>     #include <sys/mman.h>
+>     #include <sys/stat.h>
+>     #include <fcntl.h>
+>     #include <assert.h>
+>     #include <stdlib.h>
+>     #include <stdio.h>
+>     #include <numaif.h>
+> 
+>     #define SIZE 2ULL << 30
+>     int main(int argc, char **argv)
+>     {
+>         int fd;
+>         unsigned long long i;
+>         char *addr;
+>         pid_t pid;
+>         char buf[100];
+>         unsigned long nodemask = 1;
+> 
+>         fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+>         assert(fd > 0);
+>         assert(ftruncate(fd, SIZE) == 0);
+> 
+>         addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+>                            MAP_SHARED, fd, 0);
+> 
+>         assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+>         for (i = 0; i < SIZE; i+=4096) {
+>           addr[i] = 1;
+>         }
+>         pid = getpid();
+>         snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+>         system(buf);
+>         sleep(10000);
+> 
+>         return 0;
+>     }
+>     $ gcc mbind_thp.c -o mbind_thp -lnuma
+>     $ numactl -H
+>     available: 2 nodes (0-1)
+>     node 0 cpus: 0 2
+>     node 0 size: 1918 MB
+>     node 0 free: 1595 MB
+>     node 1 cpus: 1 3
+>     node 1 size: 2014 MB
+>     node 1 free: 1731 MB
+>     node distances:
+>     node   0   1
+>       0:  10  20
+>       1:  20  10
+>     $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+>     7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+> 
+> Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+> Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+> Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+> Acked-by: Michal Hocko <mhocko@suse.com>
+> Acked-by: Mel Gorman <mgorman@techsingularity.net>
+> Acked-by: David Rientjes <rientjes@google.com>
+> Cc: Andrea Arcangeli <aarcange@redhat.com>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+> ---
+>  mm/mempolicy.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Both backports now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 617f3e1b588c802517c236087561c6bcb0b4afd6 Mon Sep 17 00:00:00 2001
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Date: Mon, 13 Dec 2021 16:31:07 +0100
-Subject: [PATCH] ice: xsk: allocate separate memory for XDP SW ring
-
-Currently, the zero-copy data path is reusing the memory region that was
-initially allocated for an array of struct ice_rx_buf for its own
-purposes. This is error prone as it is based on the ice_rx_buf struct
-always being the same size or bigger than what the zero-copy path needs.
-There can also be old values present in that array giving rise to errors
-when the zero-copy path uses it.
-
-Fix this by freeing the ice_rx_buf region and allocating a new array for
-the zero-copy path that has the right length and is initialized to zero.
-
-Fixes: 57f7f8b6bc0b ("ice: Use xdp_buf instead of rx_buf for xsk zero-copy")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-
-diff --git a/drivers/net/ethernet/intel/ice/ice_base.c b/drivers/net/ethernet/intel/ice/ice_base.c
-index 1efc635cc0f5..fafe020e46ee 100644
---- a/drivers/net/ethernet/intel/ice/ice_base.c
-+++ b/drivers/net/ethernet/intel/ice/ice_base.c
-@@ -6,6 +6,18 @@
- #include "ice_lib.h"
- #include "ice_dcb_lib.h"
- 
-+static bool ice_alloc_rx_buf_zc(struct ice_rx_ring *rx_ring)
-+{
-+	rx_ring->xdp_buf = kcalloc(rx_ring->count, sizeof(*rx_ring->xdp_buf), GFP_KERNEL);
-+	return !!rx_ring->xdp_buf;
-+}
-+
-+static bool ice_alloc_rx_buf(struct ice_rx_ring *rx_ring)
-+{
-+	rx_ring->rx_buf = kcalloc(rx_ring->count, sizeof(*rx_ring->rx_buf), GFP_KERNEL);
-+	return !!rx_ring->rx_buf;
-+}
-+
- /**
-  * __ice_vsi_get_qs_contig - Assign a contiguous chunk of queues to VSI
-  * @qs_cfg: gathered variables needed for PF->VSI queues assignment
-@@ -492,8 +504,11 @@ int ice_vsi_cfg_rxq(struct ice_rx_ring *ring)
- 			xdp_rxq_info_reg(&ring->xdp_rxq, ring->netdev,
- 					 ring->q_index, ring->q_vector->napi.napi_id);
- 
-+		kfree(ring->rx_buf);
- 		ring->xsk_pool = ice_xsk_pool(ring);
- 		if (ring->xsk_pool) {
-+			if (!ice_alloc_rx_buf_zc(ring))
-+				return -ENOMEM;
- 			xdp_rxq_info_unreg_mem_model(&ring->xdp_rxq);
- 
- 			ring->rx_buf_len =
-@@ -508,6 +523,8 @@ int ice_vsi_cfg_rxq(struct ice_rx_ring *ring)
- 			dev_info(dev, "Registered XDP mem model MEM_TYPE_XSK_BUFF_POOL on Rx ring %d\n",
- 				 ring->q_index);
- 		} else {
-+			if (!ice_alloc_rx_buf(ring))
-+				return -ENOMEM;
- 			if (!xdp_rxq_info_is_reg(&ring->xdp_rxq))
- 				/* coverity[check_return] */
- 				xdp_rxq_info_reg(&ring->xdp_rxq,
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.c b/drivers/net/ethernet/intel/ice/ice_txrx.c
-index bc3ba19dc88f..dccf09eefc75 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.c
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.c
-@@ -419,7 +419,10 @@ void ice_clean_rx_ring(struct ice_rx_ring *rx_ring)
- 	}
- 
- rx_skip_free:
--	memset(rx_ring->rx_buf, 0, sizeof(*rx_ring->rx_buf) * rx_ring->count);
-+	if (rx_ring->xsk_pool)
-+		memset(rx_ring->xdp_buf, 0, array_size(rx_ring->count, sizeof(*rx_ring->xdp_buf)));
-+	else
-+		memset(rx_ring->rx_buf, 0, array_size(rx_ring->count, sizeof(*rx_ring->rx_buf)));
- 
- 	/* Zero out the descriptor ring */
- 	size = ALIGN(rx_ring->count * sizeof(union ice_32byte_rx_desc),
-@@ -446,8 +449,13 @@ void ice_free_rx_ring(struct ice_rx_ring *rx_ring)
- 		if (xdp_rxq_info_is_reg(&rx_ring->xdp_rxq))
- 			xdp_rxq_info_unreg(&rx_ring->xdp_rxq);
- 	rx_ring->xdp_prog = NULL;
--	devm_kfree(rx_ring->dev, rx_ring->rx_buf);
--	rx_ring->rx_buf = NULL;
-+	if (rx_ring->xsk_pool) {
-+		kfree(rx_ring->xdp_buf);
-+		rx_ring->xdp_buf = NULL;
-+	} else {
-+		kfree(rx_ring->rx_buf);
-+		rx_ring->rx_buf = NULL;
-+	}
- 
- 	if (rx_ring->desc) {
- 		size = ALIGN(rx_ring->count * sizeof(union ice_32byte_rx_desc),
-@@ -475,8 +483,7 @@ int ice_setup_rx_ring(struct ice_rx_ring *rx_ring)
- 	/* warn if we are about to overwrite the pointer */
- 	WARN_ON(rx_ring->rx_buf);
- 	rx_ring->rx_buf =
--		devm_kcalloc(dev, sizeof(*rx_ring->rx_buf), rx_ring->count,
--			     GFP_KERNEL);
-+		kcalloc(rx_ring->count, sizeof(*rx_ring->rx_buf), GFP_KERNEL);
- 	if (!rx_ring->rx_buf)
- 		return -ENOMEM;
- 
-@@ -505,7 +512,7 @@ int ice_setup_rx_ring(struct ice_rx_ring *rx_ring)
- 	return 0;
- 
- err:
--	devm_kfree(dev, rx_ring->rx_buf);
-+	kfree(rx_ring->rx_buf);
- 	rx_ring->rx_buf = NULL;
- 	return -ENOMEM;
- }
-diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
-index 8593717a755e..c124229d98fe 100644
---- a/drivers/net/ethernet/intel/ice/ice_xsk.c
-+++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
-@@ -12,6 +12,11 @@
- #include "ice_txrx_lib.h"
- #include "ice_lib.h"
- 
-+static struct xdp_buff **ice_xdp_buf(struct ice_rx_ring *rx_ring, u32 idx)
-+{
-+	return &rx_ring->xdp_buf[idx];
-+}
-+
- /**
-  * ice_qp_reset_stats - Resets all stats for rings of given index
-  * @vsi: VSI that contains rings of interest
-@@ -372,7 +377,7 @@ bool ice_alloc_rx_bufs_zc(struct ice_rx_ring *rx_ring, u16 count)
- 	dma_addr_t dma;
- 
- 	rx_desc = ICE_RX_DESC(rx_ring, ntu);
--	xdp = &rx_ring->xdp_buf[ntu];
-+	xdp = ice_xdp_buf(rx_ring, ntu);
- 
- 	nb_buffs = min_t(u16, count, rx_ring->count - ntu);
- 	nb_buffs = xsk_buff_alloc_batch(rx_ring->xsk_pool, xdp, nb_buffs);
-@@ -419,19 +424,18 @@ static void ice_bump_ntc(struct ice_rx_ring *rx_ring)
- /**
-  * ice_construct_skb_zc - Create an sk_buff from zero-copy buffer
-  * @rx_ring: Rx ring
-- * @xdp_arr: Pointer to the SW ring of xdp_buff pointers
-+ * @xdp: Pointer to XDP buffer
-  *
-  * This function allocates a new skb from a zero-copy Rx buffer.
-  *
-  * Returns the skb on success, NULL on failure.
-  */
- static struct sk_buff *
--ice_construct_skb_zc(struct ice_rx_ring *rx_ring, struct xdp_buff **xdp_arr)
-+ice_construct_skb_zc(struct ice_rx_ring *rx_ring, struct xdp_buff *xdp)
- {
--	struct xdp_buff *xdp = *xdp_arr;
-+	unsigned int datasize_hard = xdp->data_end - xdp->data_hard_start;
- 	unsigned int metasize = xdp->data - xdp->data_meta;
- 	unsigned int datasize = xdp->data_end - xdp->data;
--	unsigned int datasize_hard = xdp->data_end - xdp->data_hard_start;
- 	struct sk_buff *skb;
- 
- 	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize_hard,
-@@ -445,7 +449,6 @@ ice_construct_skb_zc(struct ice_rx_ring *rx_ring, struct xdp_buff **xdp_arr)
- 		skb_metadata_set(skb, metasize);
- 
- 	xsk_buff_free(xdp);
--	*xdp_arr = NULL;
- 	return skb;
- }
- 
-@@ -522,7 +525,7 @@ int ice_clean_rx_irq_zc(struct ice_rx_ring *rx_ring, int budget)
- 	while (likely(total_rx_packets < (unsigned int)budget)) {
- 		union ice_32b_rx_flex_desc *rx_desc;
- 		unsigned int size, xdp_res = 0;
--		struct xdp_buff **xdp;
-+		struct xdp_buff *xdp;
- 		struct sk_buff *skb;
- 		u16 stat_err_bits;
- 		u16 vlan_tag = 0;
-@@ -545,18 +548,17 @@ int ice_clean_rx_irq_zc(struct ice_rx_ring *rx_ring, int budget)
- 		if (!size)
- 			break;
- 
--		xdp = &rx_ring->xdp_buf[rx_ring->next_to_clean];
--		xsk_buff_set_size(*xdp, size);
--		xsk_buff_dma_sync_for_cpu(*xdp, rx_ring->xsk_pool);
-+		xdp = *ice_xdp_buf(rx_ring, rx_ring->next_to_clean);
-+		xsk_buff_set_size(xdp, size);
-+		xsk_buff_dma_sync_for_cpu(xdp, rx_ring->xsk_pool);
- 
--		xdp_res = ice_run_xdp_zc(rx_ring, *xdp, xdp_prog, xdp_ring);
-+		xdp_res = ice_run_xdp_zc(rx_ring, xdp, xdp_prog, xdp_ring);
- 		if (xdp_res) {
- 			if (xdp_res & (ICE_XDP_TX | ICE_XDP_REDIR))
- 				xdp_xmit |= xdp_res;
- 			else
--				xsk_buff_free(*xdp);
-+				xsk_buff_free(xdp);
- 
--			*xdp = NULL;
- 			total_rx_bytes += size;
- 			total_rx_packets++;
- 			cleaned_count++;
-@@ -816,10 +818,9 @@ void ice_xsk_clean_rx_ring(struct ice_rx_ring *rx_ring)
- 	u16 ntu = rx_ring->next_to_use;
- 
- 	for ( ; ntc != ntu; ntc = (ntc + 1) & count_mask) {
--		struct xdp_buff **xdp = &rx_ring->xdp_buf[ntc];
-+		struct xdp_buff *xdp = *ice_xdp_buf(rx_ring, ntc);
- 
--		xsk_buff_free(*xdp);
--		*xdp = NULL;
-+		xsk_buff_free(xdp);
- 	}
- }
- 
-
