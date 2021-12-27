@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3B1347FFF4
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:42:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4599A480002
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:42:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239310AbhL0PmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:42:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37612 "EHLO
+        id S239525AbhL0Pmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:42:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239905AbhL0Pki (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:40:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56A6CC0698E4;
-        Mon, 27 Dec 2021 07:39:23 -0800 (PST)
+        with ESMTP id S238522AbhL0Pkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:40:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289AAC06175A;
+        Mon, 27 Dec 2021 07:39:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CD0B0CE10C4;
-        Mon, 27 Dec 2021 15:39:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDA6DC36AE7;
-        Mon, 27 Dec 2021 15:39:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE598610A2;
+        Mon, 27 Dec 2021 15:39:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C2CC36AEA;
+        Mon, 27 Dec 2021 15:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619560;
-        bh=gkHoxJSNOHi2heCyfucZ/6UjRFFszcFiPP4kZVSPNMo=;
+        s=korg; t=1640619566;
+        bh=NevZnyb3Kyik+cQknpTUHX++8xoetuHZuVFFkb38/XU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wGqLW0WlaqYuHfBZrnME20CyndFlUHaP76A/WiquW5rJCp/B/k5OEp3zVG6wJ1nJ
-         WPUaEzKJzRVw3vaEB0GXWU/uDz6A5iD7h+VJZ499hNget41k98A3OfQ8gjea5fv2SP
-         afLUUXq2LnsF/CkE5zL2RvbFDb3DJvqoyrX97eak=
+        b=JoWafdSYBMNWbWRzGxQqsJWvtsQGW3HfxtlzbfKjpdLQ5rO3C+2hxTwroX3i+N5mF
+         UByFOrsPiS7jGV3SFR+GR0r5BqqcADtTzouS/ukry8QG4q3ildrwpKUjgUp+ufg+uh
+         01DoPfH9iFMVB+t84xRIuYkQvm2P638aHM77Pm8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <samuel@cavoj.net>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 66/76] Input: i8042 - enable deferred probe quirk for ASUS UM325UA
-Date:   Mon, 27 Dec 2021 16:31:21 +0100
-Message-Id: <20211227151326.974113763@linuxfoundation.org>
+Subject: [PATCH 5.10 67/76] Input: goodix - add id->model mapping for the "9111" model
+Date:   Mon, 27 Dec 2021 16:31:22 +0100
+Message-Id: <20211227151327.006241080@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
 References: <20211227151324.694661623@linuxfoundation.org>
@@ -48,40 +47,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Čavoj <samuel@cavoj.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 44ee250aeeabb28b52a10397ac17ffb8bfe94839 upstream.
+commit 81e818869be522bc8fa6f7df1b92d7e76537926c upstream.
 
-The ASUS UM325UA suffers from the same issue as the ASUS UX425UA, which
-is a very similar laptop. The i8042 device is not usable immediately
-after boot and fails to initialize, requiring a deferred retry.
+Add d->model mapping for the "9111" model, this fixes uses using
+a wrong config_len of 240 bytes while the "9111" model uses
+only 186 bytes of config.
 
-Enable the deferred probe quirk for the UM325UA.
-
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190256
-Signed-off-by: Samuel Čavoj <samuel@cavoj.net>
-Link: https://lore.kernel.org/r/20211204015615.232948-1-samuel@cavoj.net
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211206164747.197309-2-hdegoede@redhat.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/input/touchscreen/goodix.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -992,6 +992,13 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "C504"),
- 		},
- 	},
-+	{
-+		/* ASUS ZenBook UM325UA */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UA_UM325UA"),
-+		},
-+	},
- 	{ }
- };
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -162,6 +162,7 @@ static const struct goodix_chip_id goodi
+ 	{ .id = "911", .data = &gt911_chip_data },
+ 	{ .id = "9271", .data = &gt911_chip_data },
+ 	{ .id = "9110", .data = &gt911_chip_data },
++	{ .id = "9111", .data = &gt911_chip_data },
+ 	{ .id = "927", .data = &gt911_chip_data },
+ 	{ .id = "928", .data = &gt911_chip_data },
  
 
 
