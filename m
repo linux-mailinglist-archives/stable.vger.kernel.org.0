@@ -2,116 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B525347FD44
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 14:11:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE8D47FDA8
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 14:38:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233827AbhL0NLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 08:11:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42624 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230148AbhL0NK7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 08:10:59 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EAD4B80E98
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 13:10:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A764C36AE7;
-        Mon, 27 Dec 2021 13:10:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640610657;
-        bh=Cyn9AN2UpvES1gwjYGXcWJ+8RzG6px/9IXMnMV0Uwjs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZvMyoj+tI0vc+MXK8zxIfyNpKJtfBUlHkpSuKNmbNXWs55BiOotp0O7oTDn3POPmY
-         KQ8WawmPGVQw8ZAR7S8JstipY+KNjcLmO3/uTDLFwhpeaddxIl4t/GQkuvuSTpuMSN
-         GcaWYNx8ulkpqbPAHab4z9ixB/oMU2BrNdEV3maA=
-Date:   Mon, 27 Dec 2021 14:10:54 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: Re: [RFC/PATCH for 4.4.y] usb: gadget: configfs: Fix use-after-free
- issue with udc_name
-Message-ID: <Ycm7Xh2oBEGqSZPi@kroah.com>
-References: <20211223052626.1631331-1-nobuhiro1.iwamatsu@toshiba.co.jp>
- <Ycm151MQzlAC0tC3@kroah.com>
+        id S230136AbhL0Nit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 08:38:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38638 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229644AbhL0Nis (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 08:38:48 -0500
+Received: from forwardcorp1p.mail.yandex.net (forwardcorp1p.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b6:217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15099C06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 05:38:48 -0800 (PST)
+Received: from iva8-c5ee4261001e.qloud-c.yandex.net (iva8-c5ee4261001e.qloud-c.yandex.net [IPv6:2a02:6b8:c0c:a8a6:0:640:c5ee:4261])
+        by forwardcorp1p.mail.yandex.net (Yandex) with ESMTP id B9DD62E0EBD;
+        Mon, 27 Dec 2021 16:38:43 +0300 (MSK)
+Received: from iva4-f06c35e68a0a.qloud-c.yandex.net (iva4-f06c35e68a0a.qloud-c.yandex.net [2a02:6b8:c0c:152e:0:640:f06c:35e6])
+        by iva8-c5ee4261001e.qloud-c.yandex.net (mxbackcorp/Yandex) with ESMTP id 6aMA30QlmI-chLS6RF6;
+        Mon, 27 Dec 2021 16:38:43 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.com; s=default;
+        t=1640612323; bh=eQT/HRQzIbOmfAyFSMaUcIFzak5KlJwCcAYE0U8GtNI=;
+        h=In-Reply-To:Message-Id:References:Date:Subject:To:From:Cc;
+        b=DDCRMJzVCyft8Qv4n2iDMmpKKoWBrreC01bx+uZNCLQ+ee/NinrQFFwfJJHvAICoU
+         jM+x7pxxRap4wdD2p0ACc0M8VfQPmBqS2D1xpSv4jobVvXXj2G1PVHaVHxSfXM3GBa
+         iREGtJRhnH+MvQwQjnzFnkFNpeArgoOpMD5hND4o=
+Authentication-Results: iva8-c5ee4261001e.qloud-c.yandex.net; dkim=pass header.i=@yandex-team.com
+Received: from dellarbn.yandex.net (dynamic-red3.dhcp.yndx.net [2a02:6b8:0:107:3e85:844d:5b1d:60a])
+        by iva4-f06c35e68a0a.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id buVluS07wT-chPmiRxD;
+        Mon, 27 Dec 2021 16:38:43 +0300
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client certificate not present)
+X-Yandex-Fwd: 2
+From:   Andrey Ryabinin <arbn@yandex-team.com>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
+Cc:     aarcange@redhat.com, akpm@linux-foundation.org,
+        mgorman@techsingularity.net, mhocko@suse.com, rientjes@google.com,
+        torvalds@linux-foundation.org,
+        Andrey Ryabinin <arbn@yandex-team.com>
+Subject: [PATCH 5.10] mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+Date:   Mon, 27 Dec 2021 16:39:53 +0300
+Message-Id: <20211227133953.27891-1-arbn@yandex-team.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <164060905882236@kroah.com>
+References: <164060905882236@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Ycm151MQzlAC0tC3@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 27, 2021 at 01:47:35PM +0100, Greg KH wrote:
-> On Thu, Dec 23, 2021 at 02:26:26PM +0900, Nobuhiro Iwamatsu wrote:
-> > From: Eddie Hung <eddie.hung@mediatek.com>
-> > 
-> > commit 64e6bbfff52db4bf6785fab9cffab850b2de6870 upstream.
-> > 
-> > There is a use-after-free issue, if access udc_name
-> > in function gadget_dev_desc_UDC_store after another context
-> > free udc_name in function unregister_gadget.
-> > 
-> > Context 1:
-> > gadget_dev_desc_UDC_store()->unregister_gadget()->
-> > free udc_name->set udc_name to NULL
-> > 
-> > Context 2:
-> > gadget_dev_desc_UDC_show()-> access udc_name
-> > 
-> > Call trace:
-> > dump_backtrace+0x0/0x340
-> > show_stack+0x14/0x1c
-> > dump_stack+0xe4/0x134
-> > print_address_description+0x78/0x478
-> > __kasan_report+0x270/0x2ec
-> > kasan_report+0x10/0x18
-> > __asan_report_load1_noabort+0x18/0x20
-> > string+0xf4/0x138
-> > vsnprintf+0x428/0x14d0
-> > sprintf+0xe4/0x12c
-> > gadget_dev_desc_UDC_show+0x54/0x64
-> > configfs_read_file+0x210/0x3a0
-> > __vfs_read+0xf0/0x49c
-> > vfs_read+0x130/0x2b4
-> > SyS_read+0x114/0x208
-> > el0_svc_naked+0x34/0x38
-> > 
-> > Add mutex_lock to protect this kind of scenario.
-> > 
-> > Signed-off-by: Eddie Hung <eddie.hung@mediatek.com>
-> > Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> > Reviewed-by: Peter Chen <peter.chen@nxp.com>
-> > Cc: stable@vger.kernel.org
-> > Link: https://lore.kernel.org/r/1609239215-21819-1-git-send-email-macpaul.lin@mediatek.com
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > [Reference: CVE-2021-39648]
-> > [iwamatsu: struct usb_gadget_driver does not have udc_name variable.
-> >            Change struct gadget_info's udc_name.]
-> > Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-> > ---
-> >  drivers/usb/gadget/configfs.c | 11 ++++++++++-
-> >  1 file changed, 10 insertions(+), 1 deletion(-)
-> 
-> Now queued up, thanks.
-> 
-> greg k-h
+commit 338635340669d5b317c7e8dcf4fff4a0f3651d87 upstream.
 
-Oops, nope, this gives me a build warning, something is wrong with this
-change:
+alloc_pages_vma() may try to allocate THP page on the local NUMA node
+first:
 
-  CC [M]  drivers/usb/gadget/configfs.o
-drivers/usb/gadget/configfs.c: In function ‘gadget_dev_desc_UDC_show’:
-drivers/usb/gadget/configfs.c:249:18: warning: assignment discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
-  249 |         udc_name = gi->udc_name;
-      |                  ^
+	page = __alloc_pages_node(hpage_node,
+		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
 
-Please always test-build your patches :(
+And if the allocation fails it retries allowing remote memory:
 
-thanks,
+	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+    		page = __alloc_pages_node(hpage_node,
+					gfp, order);
 
-greg k-h
+However, this retry allocation completely ignores memory policy nodemask
+allowing allocation to escape restrictions.
+
+The first appearance of this bug seems to be the commit ac5b2c18911f
+("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings").
+
+The bug disappeared later in the commit 89c83fb539f9 ("mm, thp:
+consolidate THP gfp handling into alloc_hugepage_direct_gfpmask") and
+reappeared again in slightly different form in the commit 76e654cc91bb
+("mm, page_alloc: allow hugepage fallback to remote nodes when
+madvised")
+
+Fix this by passing correct nodemask to the __alloc_pages() call.
+
+The demonstration/reproducer of the problem:
+
+    $ mount -oremount,size=4G,huge=always /dev/shm/
+    $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+    $ cat mbind_thp.c
+    #include <unistd.h>
+    #include <sys/mman.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <assert.h>
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <numaif.h>
+
+    #define SIZE 2ULL << 30
+    int main(int argc, char **argv)
+    {
+        int fd;
+        unsigned long long i;
+        char *addr;
+        pid_t pid;
+        char buf[100];
+        unsigned long nodemask = 1;
+
+        fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+        assert(fd > 0);
+        assert(ftruncate(fd, SIZE) == 0);
+
+        addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+                           MAP_SHARED, fd, 0);
+
+        assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+        for (i = 0; i < SIZE; i+=4096) {
+          addr[i] = 1;
+        }
+        pid = getpid();
+        snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+        system(buf);
+        sleep(10000);
+
+        return 0;
+    }
+    $ gcc mbind_thp.c -o mbind_thp -lnuma
+    $ numactl -H
+    available: 2 nodes (0-1)
+    node 0 cpus: 0 2
+    node 0 size: 1918 MB
+    node 0 free: 1595 MB
+    node 1 cpus: 1 3
+    node 1 size: 2014 MB
+    node 1 free: 1731 MB
+    node distances:
+    node   0   1
+      0:  10  20
+      1:  20  10
+    $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+    7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+
+Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+---
+ mm/mempolicy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index 3ca4898f3f24..c8b1592dff73 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2222,8 +2222,8 @@ alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
+ 			 * memory with both reclaim and compact as well.
+ 			 */
+ 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+-				page = __alloc_pages_node(hpage_node,
+-								gfp, order);
++				page = __alloc_pages_nodemask(gfp, order,
++							hpage_node, nmask);
+ 
+ 			goto out;
+ 		}
+-- 
+2.32.0
+
