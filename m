@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C415D47FFC1
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B5947FFEE
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:42:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239068AbhL0PlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:41:02 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38996 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231445AbhL0PjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:04 -0500
+        id S239058AbhL0PmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:42:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37594 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239842AbhL0Pkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:40:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D19FC061399;
+        Mon, 27 Dec 2021 07:39:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF95A61073;
-        Mon, 27 Dec 2021 15:39:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EC2C36AEA;
-        Mon, 27 Dec 2021 15:39:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B179D610F4;
+        Mon, 27 Dec 2021 15:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96D91C36AEA;
+        Mon, 27 Dec 2021 15:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619543;
-        bh=3gcA1T0O0rdmtgGZDQxAQst7neVDkIer1VEvh5NVzYc=;
+        s=korg; t=1640619546;
+        bh=HYfGLO98/O3zzy7+3xItRHsmVKDcMyc5noenfgx5aH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxS3OZ3kV+ArMedBuy/dcNpZpBJ6ST4pWHThrRiALGvDHtaxw0Hte5C5CJh5N7HIh
-         /uwjp+y66siFTT014CAfTXrmVaLkjyuJFRlDs1mSa9NnU3i/KWaC/rBBakLxonpk+h
-         AbjjMwLEK/bf+NK9rVUHB6s379+YcoFUHKK2io5s=
+        b=e+7yStYVqkqjhGPm+E3rLG8InlRshdF0XKrZyoIM1EO8a7u3DOOqdwSqTLuSldpll
+         SORkoH/eOs7X7BZvuUW7bxCdDRtcuJSKjCnWIiDKIsBSquU9Vzh8ykf/EJ8d5HBZx9
+         fAUzAVrQSeQgIkrPt+7SinnF1xPkNFMgu1LAp4Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 60/76] f2fs: fix to do sanity check on last xattr entry in __f2fs_setxattr()
-Date:   Mon, 27 Dec 2021 16:31:15 +0100
-Message-Id: <20211227151326.779679392@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.10 61/76] ceph: fix up non-directory creation in SGID directories
+Date:   Mon, 27 Dec 2021 16:31:16 +0100
+Message-Id: <20211227151326.811592671@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
 References: <20211227151324.694661623@linuxfoundation.org>
@@ -44,84 +49,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
+commit fd84bfdddd169c219c3a637889a8b87f70a072c2 upstream.
 
-As Wenqing Liu reported in bugzilla:
+Ceph always inherits the SGID bit if it is set on the parent inode,
+while the generic inode_init_owner does not do this in a few cases where
+it can create a possible security problem (cf. [1]).
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215235
+Update ceph to strip the SGID bit just as inode_init_owner would.
 
-- Overview
-page fault in f2fs_setxattr() when mount and operate on corrupted image
+This bug was detected by the mapped mount testsuite in [3]. The
+testsuite tests all core VFS functionality and semantics with and
+without mapped mounts. That is to say it functions as a generic VFS
+testsuite in addition to a mapped mount testsuite. While working on
+mapped mount support for ceph, SIGD inheritance was the only failing
+test for ceph after the port.
 
-- Reproduce
-tested on kernel 5.16-rc3, 5.15.X under root
+The same bug was detected by the mapped mount testsuite in XFS in
+January 2021 (cf. [2]).
 
-1. unzip tmp7.zip
-2. ./single.sh f2fs 7
-
-Sometimes need to run the script several times
-
-- Kernel dump
-loop0: detected capacity change from 0 to 131072
-F2FS-fs (loop0): Found nat_bits in checkpoint
-F2FS-fs (loop0): Mounted with checkpoint version = 7548c2ee
-BUG: unable to handle page fault for address: ffffe47bc7123f48
-RIP: 0010:kfree+0x66/0x320
-Call Trace:
- __f2fs_setxattr+0x2aa/0xc00 [f2fs]
- f2fs_setxattr+0xfa/0x480 [f2fs]
- __f2fs_set_acl+0x19b/0x330 [f2fs]
- __vfs_removexattr+0x52/0x70
- __vfs_removexattr_locked+0xb1/0x140
- vfs_removexattr+0x56/0x100
- removexattr+0x57/0x80
- path_removexattr+0xa3/0xc0
- __x64_sys_removexattr+0x17/0x20
- do_syscall_64+0x37/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is in __f2fs_setxattr(), we missed to do sanity check on
-last xattr entry, result in out-of-bound memory access during updating
-inconsistent xattr data of target inode.
-
-After the fix, it can detect such xattr inconsistency as below:
-
-F2FS-fs (loop11): inode (7) has invalid last xattr entry, entry_size: 60676
-F2FS-fs (loop11): inode (8) has corrupted xattr
-F2FS-fs (loop11): inode (8) has corrupted xattr
-F2FS-fs (loop11): inode (8) has invalid last xattr entry, entry_size: 47736
+[1]: commit 0fa3ecd87848 ("Fix up non-directory creation in SGID directories")
+[2]: commit 01ea173e103e ("xfs: fix up non-directory creation in SGID directories")
+[3]: https://git.kernel.org/fs/xfs/xfstests-dev.git
 
 Cc: stable@vger.kernel.org
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/xattr.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/ceph/file.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/fs/f2fs/xattr.c
-+++ b/fs/f2fs/xattr.c
-@@ -680,8 +680,17 @@ static int __f2fs_setxattr(struct inode
- 	}
- 
- 	last = here;
--	while (!IS_XATTR_LAST_ENTRY(last))
-+	while (!IS_XATTR_LAST_ENTRY(last)) {
-+		if ((void *)(last) + sizeof(__u32) > last_base_addr ||
-+			(void *)XATTR_NEXT_ENTRY(last) > last_base_addr) {
-+			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has invalid last xattr entry, entry_size: %zu",
-+					inode->i_ino, ENTRY_SIZE(last));
-+			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
-+			error = -EFSCORRUPTED;
-+			goto exit;
-+		}
- 		last = XATTR_NEXT_ENTRY(last);
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -603,13 +603,25 @@ static int ceph_finish_async_create(stru
+ 	in.cap.realm = cpu_to_le64(ci->i_snap_realm->ino);
+ 	in.cap.flags = CEPH_CAP_FLAG_AUTH;
+ 	in.ctime = in.mtime = in.atime = iinfo.btime;
+-	in.mode = cpu_to_le32((u32)mode);
+ 	in.truncate_seq = cpu_to_le32(1);
+ 	in.truncate_size = cpu_to_le64(-1ULL);
+ 	in.xattr_version = cpu_to_le64(1);
+ 	in.uid = cpu_to_le32(from_kuid(&init_user_ns, current_fsuid()));
+-	in.gid = cpu_to_le32(from_kgid(&init_user_ns, dir->i_mode & S_ISGID ?
+-				dir->i_gid : current_fsgid()));
++	if (dir->i_mode & S_ISGID) {
++		in.gid = cpu_to_le32(from_kgid(&init_user_ns, dir->i_gid));
++
++		/* Directories always inherit the setgid bit. */
++		if (S_ISDIR(mode))
++			mode |= S_ISGID;
++		else if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP) &&
++			 !in_group_p(dir->i_gid) &&
++			 !capable_wrt_inode_uidgid(dir, CAP_FSETID))
++			mode &= ~S_ISGID;
++	} else {
++		in.gid = cpu_to_le32(from_kgid(&init_user_ns, current_fsgid()));
 +	}
- 
- 	newsize = XATTR_ALIGN(sizeof(struct f2fs_xattr_entry) + len + size);
++	in.mode = cpu_to_le32((u32)mode);
++
+ 	in.nlink = cpu_to_le32(1);
+ 	in.max_size = cpu_to_le64(lo->stripe_unit);
  
 
 
