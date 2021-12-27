@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 720DD47FFF1
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:42:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F87E48006D
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239156AbhL0PmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:42:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36786 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239871AbhL0Pkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:40:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC79C0698D0;
-        Mon, 27 Dec 2021 07:39:13 -0800 (PST)
+        id S238976AbhL0PqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:46:18 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43504 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240146AbhL0Por (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6DA47CE1070;
-        Mon, 27 Dec 2021 15:39:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E04CC36AE7;
-        Mon, 27 Dec 2021 15:39:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59CBF610A2;
+        Mon, 27 Dec 2021 15:44:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41B06C36AEA;
+        Mon, 27 Dec 2021 15:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619551;
-        bh=Z4nb6KHfY0hczw55GbtfYWIMO3C47iDBfI+UHPWTVIo=;
+        s=korg; t=1640619884;
+        bh=GVZWDSy7d4AbwiKbYJ1h5Ls7xMXkmzsQC7rQL1OgdZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcmaIg3s3blw0gERPMLtcBU2KeJH+4sF9LS20KUn2wlYx7oz7swIRZlNNkWIFGVw0
-         xk+Lbbtlsk/h3lDSH4iy3/UQpwVoyzJjVOqMWu4ZAiNgyHmEv9dk574mqJEi3cXfL3
-         +ht4b0ZEH19G0hJn3Z8xc510ZI5R/YQ9KY7Nj4YM=
+        b=mB85GW22H1ehMnzBYEez6QNrNRp4of8pXf1D7j6XlLydgXvbUTwACCdXJlgKHEPfM
+         5RrCz1KHwzA/uaC4MMG2Y9gO5BYdroB5pcSVVQG/Kb/S3Usts+YH2IkGxxYmnAlyy/
+         RNmCn+njCCin3U6aaLlaBrsleKWY3GLz7ckcP0lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 63/76] KVM: VMX: Fix stale docs for kvm-intel.emulate_invalid_guest_state
+        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Fei Luo <luofei@unicloud.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 103/128] mm, hwpoison: fix condition in free hugetlb page path
 Date:   Mon, 27 Dec 2021 16:31:18 +0100
-Message-Id: <20211227151326.874184962@linuxfoundation.org>
+Message-Id: <20211227151334.954562629@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,40 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
 
-commit 0ff29701ffad9a5d5a24344d8b09f3af7b96ffda upstream.
+commit e37e7b0b3bd52ec4f8ab71b027bcec08f57f1b3b upstream.
 
-Update the documentation for kvm-intel's emulate_invalid_guest_state to
-rectify the description of KVM's default behavior, and to document that
-the behavior and thus parameter only applies to L1.
+When a memory error hits a tail page of a free hugepage,
+__page_handle_poison() is expected to be called to isolate the error in
+4kB unit, but it's not called due to the outdated if-condition in
+memory_failure_hugetlb().  This loses the chance to isolate the error in
+the finer unit, so it's not optimal.  Drop the condition.
 
-Fixes: a27685c33acc ("KVM: VMX: Emulate invalid guest state by default")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211207193006.120997-4-seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+This "(p != head && TestSetPageHWPoison(head)" condition is based on the
+old semantics of PageHWPoison on hugepage (where PG_hwpoison flag was
+set on the subpage), so it's not necessray any more.  By getting to set
+PG_hwpoison on head page for hugepages, concurrent error events on
+different subpages in a single hugepage can be prevented by
+TestSetPageHWPoison(head) at the beginning of memory_failure_hugetlb().
+So dropping the condition should not reopen the race window originally
+mentioned in commit b985194c8c0a ("hwpoison, hugetlb:
+lock_page/unlock_page does not match for handling a free hugepage")
+
+[naoya.horiguchi@linux.dev: fix "HardwareCorrupted" counter]
+  Link: https://lkml.kernel.org/r/20211220084851.GA1460264@u2004
+
+Link: https://lkml.kernel.org/r/20211210110208.879740-1-naoya.horiguchi@linux.dev
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Fei Luo <luofei@unicloud.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: <stable@vger.kernel.org>	[5.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ mm/memory-failure.c |   13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -2294,8 +2294,12 @@
- 			Default is 1 (enabled)
- 
- 	kvm-intel.emulate_invalid_guest_state=
--			[KVM,Intel] Enable emulation of invalid guest states
--			Default is 0 (disabled)
-+			[KVM,Intel] Disable emulation of invalid guest state.
-+			Ignored if kvm-intel.enable_unrestricted_guest=1, as
-+			guest state is never invalid for unrestricted guests.
-+			This param doesn't apply to nested guests (L2), as KVM
-+			never emulates invalid L2 guest state.
-+			Default is 1 (enabled)
- 
- 	kvm-intel.flexpriority=
- 			[KVM,Intel] Disable FlexPriority feature (TPR shadow).
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1437,17 +1437,12 @@ static int memory_failure_hugetlb(unsign
+ 	if (!(flags & MF_COUNT_INCREASED)) {
+ 		res = get_hwpoison_page(p, flags);
+ 		if (!res) {
+-			/*
+-			 * Check "filter hit" and "race with other subpage."
+-			 */
+ 			lock_page(head);
+-			if (PageHWPoison(head)) {
+-				if ((hwpoison_filter(p) && TestClearPageHWPoison(p))
+-				    || (p != head && TestSetPageHWPoison(head))) {
++			if (hwpoison_filter(p)) {
++				if (TestClearPageHWPoison(head))
+ 					num_poisoned_pages_dec();
+-					unlock_page(head);
+-					return 0;
+-				}
++				unlock_page(head);
++				return 0;
+ 			}
+ 			unlock_page(head);
+ 			res = MF_FAILED;
 
 
