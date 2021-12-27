@@ -2,87 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076C747FBFE
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 11:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2EA147FC1C
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbhL0Kzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 05:55:47 -0500
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:41587 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232508AbhL0Kzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 05:55:46 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id D45E1320024A;
-        Mon, 27 Dec 2021 05:55:45 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 27 Dec 2021 05:55:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=woJJdr1OmGOAY4PNXjv6MLEjydc
-        btdZv/KDv9EBLYfw=; b=XgDpNE7NmWYbh2IYgCiyN6ko8FV7fSeBmkjyPr4IM9i
-        EBA9hn60Ll1F68JNdmqALbKM+sxIDgRX8k0InuTBAPCc9DVXf9HmgvKiaa+uSP7A
-        +PEnh21fMah2If5zcpl9S0BZAKEG19y0TrylTPghgCqCbfKWJ04uyDFFnY8AY9lC
-        umJYrbXW4SflmFgmfoO9XcksNHHBTgddOF5V9EJSU2HFFrJ6vJmUpuu+cC1uzYmq
-        5uT3sChgP2TUldXO36BBxngm0aqFwS2OptnHr6WtJgX8hGHtWePnf56SooFy9O/V
-        Ae44S+xmtcczZo4Lgv5A3/XO09u5bCb3dM/1+5Vim1A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=woJJdr
-        1OmGOAY4PNXjv6MLEjydcbtdZv/KDv9EBLYfw=; b=gwGN687rpJ1LgvzmK+sM6b
-        wrIr8abLp1I81Pi6Eb2qEmYdqIimAYUOA3ObCnKKix9vKzwUTS+eL46gZ6bL6410
-        s4L8IhNizq4JR/XTcqwHfzQrmxjaw9d/4xIJovuHkxwgJMLrraLwFMjXotFZGY+G
-        8Y3pKo9FShG5xbpBsJQzjGlAMIRKsilJAkNgRqTGrryCcAIaVdEDzvjrD6Z8sDmd
-        yrggQzc8TJQMmkeKbbz/+kKbrNesAPpoV+vB589+ABXtbFuJok+23U0w2QyNxnGL
-        5vja1WSIltCUuXwN/sdgX2jmBeNA1K5K07VW1gbrS13J3c2HXNXIVuIB5SdNqdWg
-        ==
-X-ME-Sender: <xms:sZvJYVykmNEF83DcbeD2pw8r9Gnvag0i36kTRZ69kH9yotK913Kj3Q>
-    <xme:sZvJYVS_bvYbGcmVdzPkpfu8RAvRj8yPAS2fy82B0oUiJHKakzWBxbGz5osBaFpKS
-    8qjNpJ6iTurUQ>
-X-ME-Received: <xmr:sZvJYfVG3Z3SHHER95bjwVHTHqGJTk4OUlW67sL0EEH8mP40gO_hr80LvUVGfbw55K8qJHLQ-JIxXTt1LGqjNsjdYdd6nE62>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddruddujedgudejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:sZvJYXjAtinIIPBuQUqz-ioUdrBoE8QGyI3tg_RmeysjM1zV5KoWrQ>
-    <xmx:sZvJYXCHn67fJG-GGR2mXd1zyNie329wKcy5sE29HqfAC6qwHiIiag>
-    <xmx:sZvJYQLnwSn2XBPhwKL9DYQHfjmlFMlPEix2NX4jMYNX3ALq1c_8JA>
-    <xmx:sZvJYaMSqneRHGWRpVSdnhYbg5c0WW5CaHfaX4srnCmKziZQYvj7Eg>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 27 Dec 2021 05:55:44 -0500 (EST)
-Date:   Mon, 27 Dec 2021 11:55:41 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     stable <stable@vger.kernel.org>
-Subject: Re: 5.15.y backporting request
-Message-ID: <YcmbrST1APpGlvxo@kroah.com>
-References: <YcmMPjXU36oiVTfo@zn.tnic>
+        id S236311AbhL0LQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 06:16:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39898 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233404AbhL0LQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:16:29 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09677B80E73
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:16:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623FBC36AEA;
+        Mon, 27 Dec 2021 11:16:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640603786;
+        bh=KGl0tCRJpH0AZvSEIvkzQ0gRDJp/mSctLs1UFI6Lds0=;
+        h=Subject:To:Cc:From:Date:From;
+        b=brorPxpGz7dEiqHXRBvYmI1j024Un7JzV88oNafvAqFN0ZoPvgigmWBUZcdl1sF0y
+         pWNMUi7NzYnYqJk8IJFthnHJXxAZsa7IqZIrcce80+aUPgY53862dzkQYpDO/KWMbO
+         f77yctWlBvTbcNh2cbGqUd5OrEVv9BU6CfK3z59A=
+Subject: FAILED: patch "[PATCH] ALSA: hda/hdmi: Disable silent stream on GLK" failed to apply to 5.10-stable tree
+To:     ville.syrjala@linux.intel.com, emmanuel.jillela@intel.com,
+        harshapriya.n@intel.com, kai.vehmanen@linux.intel.com,
+        tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 Dec 2021 12:16:24 +0100
+Message-ID: <164060378324814@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YcmMPjXU36oiVTfo@zn.tnic>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 27, 2021 at 10:49:50AM +0100, Borislav Petkov wrote:
-> Hi stable folks and happy holidays!
-> 
-> Can you please backport two patches to the 5.15 line by doing:
-> 
-> git cherry-pick fbe618399854
-> git cherry-pick 2f5b3514c33f
-> 
-> in that order. They apply cleanly ontop of 5.15.11.
-> 
-> The first one is a revert and the second one is the better fix. I
-> would've done the usual cc:stable thing but sending human-typed mail is
-> a lot better - it feels like sending physical letters back in the day. :-)
 
-Both now queued up, thanks.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From b6fd77472dea76b7a2bad3a338ade920152972b8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Wed, 22 Dec 2021 16:53:50 +0200
+Subject: [PATCH] ALSA: hda/hdmi: Disable silent stream on GLK
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The silent stream stuff recurses back into i915 audio
+component .get_power() from the .pin_eld_notify() hook.
+On GLK this will deadlock as i915 may already be holding
+the relevant modeset locks during .pin_eld_notify() and
+the GLK audio vs. CDCLK workaround will try to grab the
+same locks from .get_power().
+
+Until someone comes up with a better fix just disable the
+silent stream support on GLK.
+
+Cc: stable@vger.kernel.org
+Cc: Harsha Priya <harshapriya.n@intel.com>
+Cc: Emmanuel Jillela <emmanuel.jillela@intel.com>
+Cc: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Cc: Takashi Iwai <tiwai@suse.de>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2623
+Fixes: 951894cf30f4 ("ALSA: hda/hdmi: Add Intel silent stream support")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211222145350.24342-1-ville.syrjala@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 415701bd10ac..ffcde7409d2a 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2947,7 +2947,8 @@ static int parse_intel_hdmi(struct hda_codec *codec)
+ 
+ /* Intel Haswell and onwards; audio component with eld notifier */
+ static int intel_hsw_common_init(struct hda_codec *codec, hda_nid_t vendor_nid,
+-				 const int *port_map, int port_num, int dev_num)
++				 const int *port_map, int port_num, int dev_num,
++				 bool send_silent_stream)
+ {
+ 	struct hdmi_spec *spec;
+ 	int err;
+@@ -2980,7 +2981,7 @@ static int intel_hsw_common_init(struct hda_codec *codec, hda_nid_t vendor_nid,
+ 	 * Enable silent stream feature, if it is enabled via
+ 	 * module param or Kconfig option
+ 	 */
+-	if (enable_silent_stream)
++	if (send_silent_stream)
+ 		spec->send_silent_stream = true;
+ 
+ 	return parse_intel_hdmi(codec);
+@@ -2988,12 +2989,18 @@ static int intel_hsw_common_init(struct hda_codec *codec, hda_nid_t vendor_nid,
+ 
+ static int patch_i915_hsw_hdmi(struct hda_codec *codec)
+ {
+-	return intel_hsw_common_init(codec, 0x08, NULL, 0, 3);
++	return intel_hsw_common_init(codec, 0x08, NULL, 0, 3,
++				     enable_silent_stream);
+ }
+ 
+ static int patch_i915_glk_hdmi(struct hda_codec *codec)
+ {
+-	return intel_hsw_common_init(codec, 0x0b, NULL, 0, 3);
++	/*
++	 * Silent stream calls audio component .get_power() from
++	 * .pin_eld_notify(). On GLK this will deadlock in i915 due
++	 * to the audio vs. CDCLK workaround.
++	 */
++	return intel_hsw_common_init(codec, 0x0b, NULL, 0, 3, false);
+ }
+ 
+ static int patch_i915_icl_hdmi(struct hda_codec *codec)
+@@ -3004,7 +3011,8 @@ static int patch_i915_icl_hdmi(struct hda_codec *codec)
+ 	 */
+ 	static const int map[] = {0x0, 0x4, 0x6, 0x8, 0xa, 0xb};
+ 
+-	return intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map), 3);
++	return intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map), 3,
++				     enable_silent_stream);
+ }
+ 
+ static int patch_i915_tgl_hdmi(struct hda_codec *codec)
+@@ -3016,7 +3024,8 @@ static int patch_i915_tgl_hdmi(struct hda_codec *codec)
+ 	static const int map[] = {0x4, 0x6, 0x8, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+ 	int ret;
+ 
+-	ret = intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map), 4);
++	ret = intel_hsw_common_init(codec, 0x02, map, ARRAY_SIZE(map), 4,
++				    enable_silent_stream);
+ 	if (!ret) {
+ 		struct hdmi_spec *spec = codec->spec;
+ 
+
