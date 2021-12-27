@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E08147FFAA
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27EAD47FFC5
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231592AbhL0Pkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:40:42 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38092 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238363AbhL0PiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:38:01 -0500
+        id S239132AbhL0PlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:41:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36744 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238856AbhL0PjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E5B7C07E5F6;
+        Mon, 27 Dec 2021 07:38:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7F73610A4;
-        Mon, 27 Dec 2021 15:38:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4360C36AEA;
-        Mon, 27 Dec 2021 15:37:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D493610B1;
+        Mon, 27 Dec 2021 15:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74A6FC36AEB;
+        Mon, 27 Dec 2021 15:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619480;
-        bh=0NvWazYmIgOLIHbUMzTwbU0H4vA0/JZQWIiIFUkmdMI=;
+        s=korg; t=1640619483;
+        bh=XQGVRJHZHyeiaoSHEu//I3/GPk0uHMx+t2yWR9aF2GA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cf5nR8CrsRVBKI97CjAXoNkIeBfE5gy2NKbkUMYyZ3c4wCzgdG692QvA30jFFGYlY
-         sR+K6urQ0Sjf/QS8TIz2FqukfmOsBRWAneUrrRTd0W23SONXzZGXPn2h6DtCaftkLA
-         Rptd6Zqt/rrGbMhDltUUSQjUM9QNQp7jrkzN4PNM=
+        b=XqNna11RxFdOxWGgO0Ml5il/f66vJMxMq8Z8x7g1RBjxqlMZSGwwKew3k75JInQ6H
+         qcWsZytrqQtaTcV0y7YYk3DcebHk4wB8S0I5eyPsLnViy8fdgEAj9miBjWj7lO9QVf
+         FNjbu79LrflU5aasC/01pZwNP4f0+J9TqeUtVEkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 06/76] ext4: check for inconsistent extents between index and leaf block
-Date:   Mon, 27 Dec 2021 16:30:21 +0100
-Message-Id: <20211227151324.936249530@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.10 07/76] HID: holtek: fix mouse probing
+Date:   Mon, 27 Dec 2021 16:30:22 +0100
+Message-Id: <20211227151324.968878300@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
 References: <20211227151324.694661623@linuxfoundation.org>
@@ -44,199 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-commit 9c6e071913792d80894cd0be98cc3c4b770e26d3 upstream.
+commit 93a2207c254ca102ebbdae47b00f19bbfbfa7ecd upstream.
 
-Now that we can check out overlapping extents in leaf block and
-out-of-order index extents in index block. But the .ee_block in the
-first extent of one leaf block should equal to the .ei_block in it's
-parent index extent entry. This patch add a check to verify such
-inconsistent between the index and leaf block.
+An overlook from the previous commit: we don't even parse or start the
+device, meaning that the device is not presented to user space.
 
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Link: https://lore.kernel.org/r/20210908120850.4012324-3-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 93020953d0fa ("HID: check for valid USB device for many HID drivers")
+Cc: stable@vger.kernel.org
+Link: https://bugs.archlinux.org/task/73048
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215341
+Link: https://lore.kernel.org/r/e4efbf13-bd8d-0370-629b-6c80c0044b15@leemhuis.info/
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |   59 ++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 36 insertions(+), 23 deletions(-)
+ drivers/hid/hid-holtek-mouse.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -366,7 +366,8 @@ static int ext4_valid_extent_idx(struct
- 
- static int ext4_valid_extent_entries(struct inode *inode,
- 				     struct ext4_extent_header *eh,
--				     ext4_fsblk_t *pblk, int depth)
-+				     ext4_lblk_t lblk, ext4_fsblk_t *pblk,
-+				     int depth)
+--- a/drivers/hid/hid-holtek-mouse.c
++++ b/drivers/hid/hid-holtek-mouse.c
+@@ -65,8 +65,23 @@ static __u8 *holtek_mouse_report_fixup(s
+ static int holtek_mouse_probe(struct hid_device *hdev,
+ 			      const struct hid_device_id *id)
  {
- 	unsigned short entries;
- 	ext4_lblk_t lblock = 0;
-@@ -380,6 +381,14 @@ static int ext4_valid_extent_entries(str
- 	if (depth == 0) {
- 		/* leaf entries */
- 		struct ext4_extent *ext = EXT_FIRST_EXTENT(eh);
++	int ret;
 +
-+		/*
-+		 * The logical block in the first entry should equal to
-+		 * the number in the index block.
-+		 */
-+		if (depth != ext_depth(inode) &&
-+		    lblk != le32_to_cpu(ext->ee_block))
-+			return 0;
- 		while (entries) {
- 			if (!ext4_valid_extent(inode, ext))
- 				return 0;
-@@ -396,6 +405,14 @@ static int ext4_valid_extent_entries(str
- 		}
- 	} else {
- 		struct ext4_extent_idx *ext_idx = EXT_FIRST_INDEX(eh);
+ 	if (!hid_is_usb(hdev))
+ 		return -EINVAL;
 +
-+		/*
-+		 * The logical block in the first entry should equal to
-+		 * the number in the parent index block.
-+		 */
-+		if (depth != ext_depth(inode) &&
-+		    lblk != le32_to_cpu(ext_idx->ei_block))
-+			return 0;
- 		while (entries) {
- 			if (!ext4_valid_extent_idx(inode, ext_idx))
- 				return 0;
-@@ -416,7 +433,7 @@ static int ext4_valid_extent_entries(str
- 
- static int __ext4_ext_check(const char *function, unsigned int line,
- 			    struct inode *inode, struct ext4_extent_header *eh,
--			    int depth, ext4_fsblk_t pblk)
-+			    int depth, ext4_fsblk_t pblk, ext4_lblk_t lblk)
- {
- 	const char *error_msg;
- 	int max = 0, err = -EFSCORRUPTED;
-@@ -442,7 +459,7 @@ static int __ext4_ext_check(const char *
- 		error_msg = "invalid eh_entries";
- 		goto corrupted;
- 	}
--	if (!ext4_valid_extent_entries(inode, eh, &pblk, depth)) {
-+	if (!ext4_valid_extent_entries(inode, eh, lblk, &pblk, depth)) {
- 		error_msg = "invalid extent entries";
- 		goto corrupted;
- 	}
-@@ -472,7 +489,7 @@ corrupted:
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "hid parse failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed: %d\n", ret);
++		return ret;
++	}
++
+ 	return 0;
  }
  
- #define ext4_ext_check(inode, eh, depth, pblk)			\
--	__ext4_ext_check(__func__, __LINE__, (inode), (eh), (depth), (pblk))
-+	__ext4_ext_check(__func__, __LINE__, (inode), (eh), (depth), (pblk), 0)
- 
- int ext4_ext_check_inode(struct inode *inode)
- {
-@@ -505,16 +522,18 @@ static void ext4_cache_extents(struct in
- 
- static struct buffer_head *
- __read_extent_tree_block(const char *function, unsigned int line,
--			 struct inode *inode, ext4_fsblk_t pblk, int depth,
--			 int flags)
-+			 struct inode *inode, struct ext4_extent_idx *idx,
-+			 int depth, int flags)
- {
- 	struct buffer_head		*bh;
- 	int				err;
- 	gfp_t				gfp_flags = __GFP_MOVABLE | GFP_NOFS;
-+	ext4_fsblk_t			pblk;
- 
- 	if (flags & EXT4_EX_NOFAIL)
- 		gfp_flags |= __GFP_NOFAIL;
- 
-+	pblk = ext4_idx_pblock(idx);
- 	bh = sb_getblk_gfp(inode->i_sb, pblk, gfp_flags);
- 	if (unlikely(!bh))
- 		return ERR_PTR(-ENOMEM);
-@@ -527,8 +546,8 @@ __read_extent_tree_block(const char *fun
- 	}
- 	if (buffer_verified(bh) && !(flags & EXT4_EX_FORCE_CACHE))
- 		return bh;
--	err = __ext4_ext_check(function, line, inode,
--			       ext_block_hdr(bh), depth, pblk);
-+	err = __ext4_ext_check(function, line, inode, ext_block_hdr(bh),
-+			       depth, pblk, le32_to_cpu(idx->ei_block));
- 	if (err)
- 		goto errout;
- 	set_buffer_verified(bh);
-@@ -546,8 +565,8 @@ errout:
- 
- }
- 
--#define read_extent_tree_block(inode, pblk, depth, flags)		\
--	__read_extent_tree_block(__func__, __LINE__, (inode), (pblk),   \
-+#define read_extent_tree_block(inode, idx, depth, flags)		\
-+	__read_extent_tree_block(__func__, __LINE__, (inode), (idx),	\
- 				 (depth), (flags))
- 
- /*
-@@ -597,8 +616,7 @@ int ext4_ext_precache(struct inode *inod
- 			i--;
- 			continue;
- 		}
--		bh = read_extent_tree_block(inode,
--					    ext4_idx_pblock(path[i].p_idx++),
-+		bh = read_extent_tree_block(inode, path[i].p_idx++,
- 					    depth - i - 1,
- 					    EXT4_EX_FORCE_CACHE);
- 		if (IS_ERR(bh)) {
-@@ -903,8 +921,7 @@ ext4_find_extent(struct inode *inode, ex
- 		path[ppos].p_depth = i;
- 		path[ppos].p_ext = NULL;
- 
--		bh = read_extent_tree_block(inode, path[ppos].p_block, --i,
--					    flags);
-+		bh = read_extent_tree_block(inode, path[ppos].p_idx, --i, flags);
- 		if (IS_ERR(bh)) {
- 			ret = PTR_ERR(bh);
- 			goto err;
-@@ -1509,7 +1526,6 @@ static int ext4_ext_search_right(struct
- 	struct ext4_extent_header *eh;
- 	struct ext4_extent_idx *ix;
- 	struct ext4_extent *ex;
--	ext4_fsblk_t block;
- 	int depth;	/* Note, NOT eh_depth; depth from top of tree */
- 	int ee_len;
- 
-@@ -1576,20 +1592,17 @@ got_index:
- 	 * follow it and find the closest allocated
- 	 * block to the right */
- 	ix++;
--	block = ext4_idx_pblock(ix);
- 	while (++depth < path->p_depth) {
- 		/* subtract from p_depth to get proper eh_depth */
--		bh = read_extent_tree_block(inode, block,
--					    path->p_depth - depth, 0);
-+		bh = read_extent_tree_block(inode, ix, path->p_depth - depth, 0);
- 		if (IS_ERR(bh))
- 			return PTR_ERR(bh);
- 		eh = ext_block_hdr(bh);
- 		ix = EXT_FIRST_INDEX(eh);
--		block = ext4_idx_pblock(ix);
- 		put_bh(bh);
- 	}
- 
--	bh = read_extent_tree_block(inode, block, path->p_depth - depth, 0);
-+	bh = read_extent_tree_block(inode, ix, path->p_depth - depth, 0);
- 	if (IS_ERR(bh))
- 		return PTR_ERR(bh);
- 	eh = ext_block_hdr(bh);
-@@ -2968,9 +2981,9 @@ again:
- 			ext_debug(inode, "move to level %d (block %llu)\n",
- 				  i + 1, ext4_idx_pblock(path[i].p_idx));
- 			memset(path + i + 1, 0, sizeof(*path));
--			bh = read_extent_tree_block(inode,
--				ext4_idx_pblock(path[i].p_idx), depth - i - 1,
--				EXT4_EX_NOCACHE);
-+			bh = read_extent_tree_block(inode, path[i].p_idx,
-+						    depth - i - 1,
-+						    EXT4_EX_NOCACHE);
- 			if (IS_ERR(bh)) {
- 				/* should we reset i_size? */
- 				err = PTR_ERR(bh);
 
 
