@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C40CE47FFCC
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C81847FF08
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238339AbhL0PlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:41:10 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:41408 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239355AbhL0Pjq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:46 -0500
+        id S238143AbhL0PfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:35:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35954 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238071AbhL0PeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10534C06179E;
+        Mon, 27 Dec 2021 07:34:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B7355CE10AF;
-        Mon, 27 Dec 2021 15:39:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8AD5C36AE7;
-        Mon, 27 Dec 2021 15:39:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3332610A7;
+        Mon, 27 Dec 2021 15:34:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 849F5C36AEB;
+        Mon, 27 Dec 2021 15:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619583;
-        bh=jEHoQe8jrvJBL+MxHK0xVNO8NAQF6zaULzhhgCUanQs=;
+        s=korg; t=1640619244;
+        bh=/FQescg+a25AiGW7rUF88yr7MLJtl2H2O9aEcPGD2e0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ocTxDrCrRL2trBhDVro8w3SXV+StbX9pDpV7EqC9sTyKCoEunfe5y9dIDBdo7WjoN
-         5G9/YyVwzx5tloESwqOe2xlN3pXP/Ee5gN+/eXX7uMDJJMOWNTiQ4HP+m6AMh/YlP+
-         lGi9fs0WppQZ6KQPPmdVcyZ9R3ZUPZLkEOhEkzVc=
+        b=1TW0hszz0M5RDfyf9PUfbQUprHom7Kd+U9HDbs/lGReEpFFW4TwD3AT164rf6E6DG
+         hL9a9XDYbWiJ+oLNLauRuQlpa4p+sG0amqMNprvclapBDBKrfzH2iGTYI6yT+BRrmv
+         hjWwWssRlkWi3mzIy3085BSeIO714KIUcy4d1Vz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mian Yousaf Kaukab <ykaukab@suse.de>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.10 42/76] ipmi: ssif: initialize ssif_info->client early
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/38] hwmon: (lm90) Fix usage of CONFIG2 register in detect function
 Date:   Mon, 27 Dec 2021 16:30:57 +0100
-Message-Id: <20211227151326.166139792@linuxfoundation.org>
+Message-Id: <20211227151320.045493301@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
+References: <20211227151319.379265346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mian Yousaf Kaukab <ykaukab@suse.de>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 34f35f8f14bc406efc06ee4ff73202c6fd245d15 upstream.
+[ Upstream commit fce15c45d3fbd9fc1feaaf3210d8e3f8b33dfd3a ]
 
-During probe ssif_info->client is dereferenced in error path. However,
-it is set when some of the error checking has already been done. This
-causes following kernel crash if an error path is taken:
+The detect function had a comment "Make compiler happy" when id did not
+read the second configuration register. As it turns out, the code was
+checking the contents of this register for manufacturer ID 0xA1 (NXP
+Semiconductor/Philips), but never actually read the register. So it
+wasn't surprising that the compiler complained, and it indeed had a point.
+Fix the code to read the register contents for manufacturer ID 0xa1.
 
-[   30.645593][  T674] ipmi_ssif 0-000e: ipmi_ssif: Not probing, Interface already present
-[   30.657616][  T674] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000088
-...
-[   30.657723][  T674] pc : __dev_printk+0x28/0xa0
-[   30.657732][  T674] lr : _dev_err+0x7c/0xa0
-...
-[   30.657772][  T674] Call trace:
-[   30.657775][  T674]  __dev_printk+0x28/0xa0
-[   30.657778][  T674]  _dev_err+0x7c/0xa0
-[   30.657781][  T674]  ssif_probe+0x548/0x900 [ipmi_ssif 62ce4b08badc1458fd896206d9ef69a3c31f3d3e]
-[   30.657791][  T674]  i2c_device_probe+0x37c/0x3c0
-...
+At the same time, the code was reading the register for manufacturer ID
+0x41 (Analog Devices), but it was not using the results. In effect it was
+just checking if reading the register returned an error. That doesn't
+really add much if any value, so stop doing that.
 
-Initialize ssif_info->client before any error path can be taken. Clear
-i2c_client data in the error path to prevent the dangling pointer from
-leaking.
-
-Fixes: c4436c9149c5 ("ipmi_ssif: avoid registering duplicate ssif interface")
-Cc: stable@vger.kernel.org # 5.4.x
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Message-Id: <20211208093239.4432-1-ykaukab@suse.de>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f90be42fb383 ("hwmon: (lm90) Refactor reading of config2 register")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_ssif.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/hwmon/lm90.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_ssif.c
-+++ b/drivers/char/ipmi/ipmi_ssif.c
-@@ -1700,6 +1700,9 @@ static int ssif_probe(struct i2c_client
- 		}
- 	}
+diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+index c187e557678ef..3df4e8654448b 100644
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -1439,12 +1439,11 @@ static int lm90_detect(struct i2c_client *client,
+ 	if (man_id < 0 || chip_id < 0 || config1 < 0 || convrate < 0)
+ 		return -ENODEV;
  
-+	ssif_info->client = client;
-+	i2c_set_clientdata(client, ssif_info);
-+
- 	rv = ssif_check_and_remove(client, ssif_info);
- 	/* If rv is 0 and addr source is not SI_ACPI, continue probing */
- 	if (!rv && ssif_info->addr_source == SI_ACPI) {
-@@ -1720,9 +1723,6 @@ static int ssif_probe(struct i2c_client
- 		ipmi_addr_src_to_str(ssif_info->addr_source),
- 		client->addr, client->adapter->name, slave_addr);
+-	if (man_id == 0x01 || man_id == 0x5C || man_id == 0x41) {
++	if (man_id == 0x01 || man_id == 0x5C || man_id == 0xA1) {
+ 		config2 = i2c_smbus_read_byte_data(client, LM90_REG_R_CONFIG2);
+ 		if (config2 < 0)
+ 			return -ENODEV;
+-	} else
+-		config2 = 0;		/* Make compiler happy */
++	}
  
--	ssif_info->client = client;
--	i2c_set_clientdata(client, ssif_info);
--
- 	/* Now check for system interface capabilities */
- 	msg[0] = IPMI_NETFN_APP_REQUEST << 2;
- 	msg[1] = IPMI_GET_SYSTEM_INTERFACE_CAPABILITIES_CMD;
-@@ -1922,6 +1922,7 @@ static int ssif_probe(struct i2c_client
- 
- 		dev_err(&ssif_info->client->dev,
- 			"Unable to start IPMI SSIF: %d\n", rv);
-+		i2c_set_clientdata(client, NULL);
- 		kfree(ssif_info);
- 	}
- 	kfree(resp);
+ 	if ((address == 0x4C || address == 0x4D)
+ 	 && man_id == 0x01) { /* National Semiconductor */
+-- 
+2.34.1
+
 
 
