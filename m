@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0CF748041F
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 20:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A562948042B
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 20:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233002AbhL0TH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 14:07:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43176 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233006AbhL0TGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 14:06:31 -0500
+        id S232685AbhL0THq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 14:07:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57252 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233161AbhL0TGn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 14:06:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE38FC061396;
+        Mon, 27 Dec 2021 11:06:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DC14B81142;
-        Mon, 27 Dec 2021 19:06:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 115F0C36AED;
-        Mon, 27 Dec 2021 19:06:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ED5160FB3;
+        Mon, 27 Dec 2021 19:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 345D1C36AEA;
+        Mon, 27 Dec 2021 19:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640631988;
-        bh=UmbZKoKXCk8AGLF3bv8Ko5PZRmEXy4bbdijletGn9Ns=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+NszGtjVzfb0FRzdekkRvci5O/X8k2NA1aUPHyhdVU2y8I+SMS3gSE06SYNJxekb
-         MBYWB/pjReRcj8kT348YItUAqdxWEndJ6iPMwGNHX7m0EDt+xg9w8657TAuuGRAJ5G
-         6XratdTSmtR9L9jCNAGFE2QyzlyPwp5Cb3zaqJHJQ5bSbYBBB5vPYTr9vG2nSrA+tM
-         SxUadRjZBcUIz34CxsH4dK3NHHgQ2jE5QxB/f7R5blS6yh79qd8Y4w10uu4P2CMwi3
-         SJ55DeP2HMH2hQaw3J5BYJoqJYLf2pBk9IfOQPlHlvv4C6f0vWOL66Xjf889/jAXYP
-         SaWe5NGtxxaxQ==
+        s=k20201202; t=1640632001;
+        bh=3/bHUArtfA9kPI8eIXQoRUaDIyjxb4NxuVGOJC8ByD0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qiT3vC5/K8n+x2CSA/XaZv7be1lVN3/AKe8e2GopnMJOmCkCpd/KuU8L95elp1x+p
+         U/Z+/livE5vI4sUB2sxO0vMTggEljxDKFL7Q+IkDlRPuykuWLAQen1kM0A2uc/TjDC
+         bGo7B7H11rBIDaxZE2pZPIKrJ7xPVhuUZIHG3sDP7+PFRG0x7Ry7TUGGoAPeo2eiG4
+         fDdwi3hVb2gmpiQTCxFGavPViKHJjcH3gZ9Xqdd/pQ67hjPEn93ZUBLtCs8g2tOBPf
+         dZvhYVtQFtYKJgMAblsP7iphy0HWbi/WUbhNbO0D/mmIVTkWkzf3nlyVO8vqVbUw/c
+         /3dD2FJRMGSeA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Qing <wangqing@vivo.com>, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 6/6] platform/x86: apple-gmux: use resource_size() with res
-Date:   Mon, 27 Dec 2021 14:06:10 -0500
-Message-Id: <20211227190615.1043350-6-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/4] hwmon: (lm90) Do not report 'busy' status bit as alarm
+Date:   Mon, 27 Dec 2021 14:06:26 -0500
+Message-Id: <20211227190629.1043445-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227190615.1043350-1-sashal@kernel.org>
-References: <20211227190615.1043350-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,35 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit eb66fb03a727cde0ab9b1a3858de55c26f3007da ]
+[ Upstream commit cdc5287acad9ede121924a9c9313544b80d15842 ]
 
-This should be (res->end - res->start + 1) here actually,
-use resource_size() derectly.
+Bit 7 of the status register indicates that the chip is busy
+doing a conversion. It does not indicate an alarm status.
+Stop reporting it as alarm status bit.
 
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Link: https://lore.kernel.org/r/1639484316-75873-1-git-send-email-wangqing@vivo.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/apple-gmux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/lm90.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/apple-gmux.c b/drivers/platform/x86/apple-gmux.c
-index fd2ffebc868fc..caa03565c139b 100644
---- a/drivers/platform/x86/apple-gmux.c
-+++ b/drivers/platform/x86/apple-gmux.c
-@@ -628,7 +628,7 @@ static int gmux_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
- 	}
+diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+index c187e557678ef..fee0783ef36e6 100644
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -197,6 +197,7 @@ enum chips { lm90, adm1032, lm99, lm86, max6657, max6659, adt7461, max6680,
+ #define LM90_STATUS_RHIGH	(1 << 4) /* remote high temp limit tripped */
+ #define LM90_STATUS_LLOW	(1 << 5) /* local low temp limit tripped */
+ #define LM90_STATUS_LHIGH	(1 << 6) /* local high temp limit tripped */
++#define LM90_STATUS_BUSY	(1 << 7) /* conversion is ongoing */
  
- 	gmux_data->iostart = res->start;
--	gmux_data->iolen = res->end - res->start;
-+	gmux_data->iolen = resource_size(res);
+ #define MAX6696_STATUS2_R2THRM	(1 << 1) /* remote2 THERM limit tripped */
+ #define MAX6696_STATUS2_R2OPEN	(1 << 2) /* remote2 is an open circuit */
+@@ -786,7 +787,7 @@ static int lm90_update_device(struct device *dev)
+ 		val = lm90_read_reg(client, LM90_REG_R_STATUS);
+ 		if (val < 0)
+ 			return val;
+-		data->alarms = val;	/* lower 8 bit of alarms */
++		data->alarms = val & ~LM90_STATUS_BUSY;
  
- 	if (gmux_data->iolen < GMUX_MIN_IO_LEN) {
- 		pr_err("gmux I/O region too small (%lu < %u)\n",
+ 		if (data->kind == max6696) {
+ 			val = lm90_select_remote_channel(client, data, 1);
 -- 
 2.34.1
 
