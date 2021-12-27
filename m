@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21AAC47FFBB
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C3CD480061
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239004AbhL0PlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:41:01 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:41730 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239190AbhL0PjA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:00 -0500
+        id S236456AbhL0Ppx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:45:53 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43358 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238724AbhL0Po3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 52D99CE10B3;
-        Mon, 27 Dec 2021 15:38:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41AD4C36AEA;
-        Mon, 27 Dec 2021 15:38:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B8836112A;
+        Mon, 27 Dec 2021 15:44:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FEAC36AEA;
+        Mon, 27 Dec 2021 15:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619537;
-        bh=4aGYp76oxLP85iqStjeg7AsePlkUOuGTEnq5fvGC0EQ=;
+        s=korg; t=1640619867;
+        bh=Fo/Ywu8F/a+GU+VCJZaUijx4EfbModFwVrgE5okpuZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7n1FNHhu2sDU5qt4N4CYDRxntAyHFg0Ts15NogT/XoX45l40ufCa8hEuxL8m4qA7
-         3TKlkRQj+ER+8P6pAKX7urDmUzGca/WfUhKZhq1qwyqf9robTt3O5PTqg8E6F64O42
-         a87+hVqq8V9Bv2zgSynn5h2e/EzPe2kjyx/ZaIzU=
+        b=I/lvczuzJopoVY0nD+5AiXKBtXCw1kL6y2AEgNSmSmCKo26CFZdLH3+HDBVtcMBtk
+         2Q2AE3OLpcCTipD+GdAJIvnTvvB5b+OoisnjKezPDdDSX4AVZPC9RydULIxv9/RQXu
+         5hudLW0V5ebAop94K5YhU5i+JubPDHTaa1+kGla8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 58/76] mm/hwpoison: clear MF_COUNT_INCREASED before retrying get_any_page()
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 098/128] ksmbd: fix error code in ndr_read_int32()
 Date:   Mon, 27 Dec 2021 16:31:13 +0100
-Message-Id: <20211227151326.710303327@linuxfoundation.org>
+Message-Id: <20211227151334.796091388@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 2a57d83c78f889bf3f54eede908d0643c40d5418 upstream.
+commit ef399469d9ceb9f2171cdd79863f9434b9fa3edc upstream.
 
-Hulk Robot reported a panic in put_page_testzero() when testing
-madvise() with MADV_SOFT_OFFLINE.  The BUG() is triggered when retrying
-get_any_page().  This is because we keep MF_COUNT_INCREASED flag in
-second try but the refcnt is not increased.
+This is a failure path and it should return -EINVAL instead of success.
+Otherwise it could result in the caller using uninitialized memory.
 
-    page dumped because: VM_BUG_ON_PAGE(page_ref_count(page) == 0)
-    ------------[ cut here ]------------
-    kernel BUG at include/linux/mm.h:737!
-    invalid opcode: 0000 [#1] PREEMPT SMP
-    CPU: 5 PID: 2135 Comm: sshd Tainted: G    B             5.16.0-rc6-dirty #373
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-    RIP: release_pages+0x53f/0x840
-    Call Trace:
-      free_pages_and_swap_cache+0x64/0x80
-      tlb_flush_mmu+0x6f/0x220
-      unmap_page_range+0xe6c/0x12c0
-      unmap_single_vma+0x90/0x170
-      unmap_vmas+0xc4/0x180
-      exit_mmap+0xde/0x3a0
-      mmput+0xa3/0x250
-      do_exit+0x564/0x1470
-      do_group_exit+0x3b/0x100
-      __do_sys_exit_group+0x13/0x20
-      __x64_sys_exit_group+0x16/0x20
-      do_syscall_64+0x34/0x80
-      entry_SYSCALL_64_after_hwframe+0x44/0xae
-    Modules linked in:
-    ---[ end trace e99579b570fe0649 ]---
-    RIP: 0010:release_pages+0x53f/0x840
-
-Link: https://lkml.kernel.org/r/20211221074908.3910286-1-liushixin2@huawei.com
-Fixes: b94e02822deb ("mm,hwpoison: try to narrow window race for free pages")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 303fff2b8c77 ("ksmbd: add validation for ndr read/write functions")
+Cc: stable@vger.kernel.org # v5.15
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-failure.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ksmbd/ndr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1938,6 +1938,7 @@ retry:
- 	else if (ret == 0)
- 		if (soft_offline_free_page(page) && try_again) {
- 			try_again = false;
-+			flags &= ~MF_COUNT_INCREASED;
- 			goto retry;
- 		}
+--- a/fs/ksmbd/ndr.c
++++ b/fs/ksmbd/ndr.c
+@@ -148,7 +148,7 @@ static int ndr_read_int16(struct ndr *n,
+ static int ndr_read_int32(struct ndr *n, __u32 *value)
+ {
+ 	if (n->offset + sizeof(__u32) > n->length)
+-		return 0;
++		return -EINVAL;
  
+ 	if (value)
+ 		*value = le32_to_cpu(*(__le32 *)ndr_get_field(n));
 
 
