@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD0347FE48
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:27:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E4847FE9E
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237371AbhL0P1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:27:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34102 "EHLO
+        id S237627AbhL0Paj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:30:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237382AbhL0P1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:27:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5168C06175F;
-        Mon, 27 Dec 2021 07:27:41 -0800 (PST)
+        with ESMTP id S237732AbhL0P3L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:29:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD65CC061377;
+        Mon, 27 Dec 2021 07:29:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84A56610A7;
-        Mon, 27 Dec 2021 15:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E0AC36AE7;
-        Mon, 27 Dec 2021 15:27:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B596B810A2;
+        Mon, 27 Dec 2021 15:29:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C156FC36AEA;
+        Mon, 27 Dec 2021 15:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618860;
-        bh=asfYmqaiXY7RYN1v5stNBAhjj5bzCu1/M33g/7Og6SU=;
+        s=korg; t=1640618948;
+        bh=bzg4K/llLlQO/A0a61G499mQdzRT5ENSsf2pZvHtCPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xkz1up/yVOg6ZhHyOnMlrg3uaqlAHBaoS8ojzB88+RZroYSK7CP5Ut+iZyRms1bg2
-         Lko5qiCUxvonsdQWic5SQFWheEvGAZIHlgRocwajgcAjt4yN2EIfMjC/24wmJQJ33H
-         EA5TiXgTGPRnrT/NMbVQ12IF5AcmgBOpecd7IwSQ=
+        b=ofNwqFKu8iG+/ulZmnNZys8+a/JsnRaKw4yxjqmDU1eunVwLsg3ZYfNGkjm/IHnZl
+         X8WccCrsrKy97a9AbEY4Qmj+/wnmjg5JL6C8YhF16qJzj49SD9Q9CyapqRuyJWmGvb
+         LZi51Oz8XS4ZfSC964NKBXmv9eqelZyKlyRxVrIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 16/17] hamradio: improve the incomplete fix to avoid NPD
+        stable@vger.kernel.org,
+        Greg Jesionowski <jesionowskigreg@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 01/29] net: usb: lan78xx: add Allied Telesis AT29M2-AF
 Date:   Mon, 27 Dec 2021 16:27:11 +0100
-Message-Id: <20211227151316.473350347@linuxfoundation.org>
+Message-Id: <20211227151318.523475613@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151315.962187770@linuxfoundation.org>
-References: <20211227151315.962187770@linuxfoundation.org>
+In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
+References: <20211227151318.475251079@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,74 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Greg Jesionowski <jesionowskigreg@gmail.com>
 
-commit b2f37aead1b82a770c48b5d583f35ec22aabb61e upstream.
+commit ef8a0f6eab1ca5d1a75c242c5c7b9d386735fa0a upstream.
 
-The previous commit 3e0588c291d6 ("hamradio: defer ax25 kfree after
-unregister_netdev") reorder the kfree operations and unregister_netdev
-operation to prevent UAF.
+This adds the vendor and product IDs for the AT29M2-AF which is a
+lan7801-based device.
 
-This commit improves the previous one by also deferring the nullify of
-the ax->tty pointer. Otherwise, a NULL pointer dereference bug occurs.
-Partial of the stack trace is shown below.
-
-BUG: kernel NULL pointer dereference, address: 0000000000000538
-RIP: 0010:ax_xmit+0x1f9/0x400
-...
-Call Trace:
- dev_hard_start_xmit+0xec/0x320
- sch_direct_xmit+0xea/0x240
- __qdisc_run+0x166/0x5c0
- __dev_queue_xmit+0x2c7/0xaf0
- ax25_std_establish_data_link+0x59/0x60
- ax25_connect+0x3a0/0x500
- ? security_socket_connect+0x2b/0x40
- __sys_connect+0x96/0xc0
- ? __hrtimer_init+0xc0/0xc0
- ? common_nsleep+0x2e/0x50
- ? switch_fpu_return+0x139/0x1a0
- __x64_sys_connect+0x11/0x20
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The crash point is shown as below
-
-static void ax_encaps(...) {
-  ...
-  set_bit(TTY_DO_WRITE_WAKEUP, &ax->tty->flags); // ax->tty = NULL!
-  ...
-}
-
-By placing the nullify action after the unregister_netdev, the ax->tty
-pointer won't be assigned as NULL net_device framework layer is well
-synchronized.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Jesionowski <jesionowskigreg@gmail.com>
+Link: https://lore.kernel.org/r/20211214221027.305784-1-jesionowskigreg@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hamradio/mkiss.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/lan78xx.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/hamradio/mkiss.c
-+++ b/drivers/net/hamradio/mkiss.c
-@@ -803,14 +803,14 @@ static void mkiss_close(struct tty_struc
- 	 */
- 	netif_stop_queue(ax->dev);
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -74,6 +74,8 @@
+ #define LAN7801_USB_PRODUCT_ID		(0x7801)
+ #define LAN78XX_EEPROM_MAGIC		(0x78A5)
+ #define LAN78XX_OTP_MAGIC		(0x78F3)
++#define AT29M2AF_USB_VENDOR_ID		(0x07C9)
++#define AT29M2AF_USB_PRODUCT_ID	(0x0012)
  
--	ax->tty = NULL;
--
- 	unregister_netdev(ax->dev);
- 
- 	/* Free all AX25 frame buffers after unreg. */
- 	kfree(ax->rbuff);
- 	kfree(ax->xbuff);
- 
-+	ax->tty = NULL;
-+
- 	free_netdev(ax->dev);
- }
- 
+ #define	MII_READ			1
+ #define	MII_WRITE			0
+@@ -4013,6 +4015,10 @@ static const struct usb_device_id produc
+ 	/* LAN7801 USB Gigabit Ethernet Device */
+ 	USB_DEVICE(LAN78XX_USB_VENDOR_ID, LAN7801_USB_PRODUCT_ID),
+ 	},
++	{
++	/* ATM2-AF USB Gigabit Ethernet Device */
++	USB_DEVICE(AT29M2AF_USB_VENDOR_ID, AT29M2AF_USB_PRODUCT_ID),
++	},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(usb, products);
 
 
