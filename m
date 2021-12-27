@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4A647FC27
+	by mail.lfdr.de (Postfix) with ESMTP id 984BB47FC28
 	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:22:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236333AbhL0LWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 06:22:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36370 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233404AbhL0LWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:22:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 911C6C06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:22:03 -0800 (PST)
+        id S233404AbhL0LWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 06:22:05 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40064 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233519AbhL0LWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:22:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50B0AB80E73
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:22:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98DB5C36AEA;
-        Mon, 27 Dec 2021 11:22:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F5360F83
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:22:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6162DC36AEB;
+        Mon, 27 Dec 2021 11:22:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640604121;
-        bh=z+H4X0NIYLqM6XxM2MDJ+wuBK6WufQT06DwhIFexAXg=;
+        s=korg; t=1640604123;
+        bh=ch1riEwFimnYAqfO9YswkGNDeOSDYdKDhzGj1Bk8Lac=;
         h=Subject:To:Cc:From:Date:From;
-        b=w/1XsX03mPYRFmBUGUCpeQMT8xikyRZB94tSjOKPgTYx9syMLU7yLPsPlVq436jSO
-         7zuefO4o6b2yzqJwDdncUfp/Rq2uc2bn3oDxsh1r1bKZYh6AY/G03xOCksXcbSZYf2
-         zqAnrG64hyaqOaC6mRhKzQ0wDBypKLAxTnd8oPag=
-Subject: FAILED: patch "[PATCH] tee: optee: Fix incorrect page free bug" failed to apply to 5.10-stable tree
+        b=aEU2TaxOTXh9sNve4uGJJgdyOUh6sZEP3kC2NstiGZ3irY0AdhKwQHubfm5Bm0RHB
+         YIJZBEXqYkv5BfSDHiAcKWkSMKJyyq0jNKQk89aNKxhRRDR15/nX3tP4IYRp5E3QM0
+         6TYle6xdTkvs79AP512e16PlcP6ZEO05QOTnKsrM=
+Subject: FAILED: patch "[PATCH] tee: optee: Fix incorrect page free bug" failed to apply to 5.15-stable tree
 To:     sumit.garg@linaro.org, jens.wiklander@linaro.org,
         patrik.lantz@axis.com, tyhicks@linux.microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 12:21:50 +0100
-Message-ID: <164060411019197@kroah.com>
+Date:   Mon, 27 Dec 2021 12:21:51 +0100
+Message-ID: <16406041111194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
