@@ -2,70 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 067FF47FCA9
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:35:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB14347FCAC
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:36:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236654AbhL0Mfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 07:35:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52660 "EHLO
+        id S236696AbhL0Mg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 07:36:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233750AbhL0Mfq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:35:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E54C06173E;
-        Mon, 27 Dec 2021 04:35:46 -0800 (PST)
+        with ESMTP id S233750AbhL0Mg0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:36:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35137C06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 04:36:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BAA6DCE0FF6;
-        Mon, 27 Dec 2021 12:35:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4015C36AE7;
-        Mon, 27 Dec 2021 12:35:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA04860FE4
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 12:36:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D771C36AEA;
+        Mon, 27 Dec 2021 12:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640608543;
-        bh=5wQxYeJB7/dLdDA5xo4bBALbh/dwu0JreLF0QTgDcGM=;
+        s=korg; t=1640608585;
+        bh=ITfzj1LO0ygcCY1CtNef6k3OVW8DLR3sNb5K5lGTgDo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nBAE1trlg07VNS4T4HxMrQ93w7rf7On4jqqqqMiiQfGAZ4w0BcPCZx7v8Hq99nvLj
-         Cfw/cneUePnpHPpcJ9hlTsgKdHMs8bzXa07tjLzgQQVW5YYWnfWyewy+RNcPRz/pEF
-         amS5vUOBpJDd3fNqN1nnuwn5bQvN3Jyg1IgJ8dkk=
-Date:   Mon, 27 Dec 2021 13:35:40 +0100
+        b=PDtPePvpq53Hq8x1AhYiod+dtz9TRIcSMkZS6OUV2T6RUo69b+nZTicctHyxgdGby
+         932MGyRw+DmUjxxfP5uQGbQLIxH/U6uslaCHjuguqkKFb+zF81ACqutOz+RLqz8KrY
+         dFWKmUSmMuItPrskECgNWGn8HjiAN2mRMPsQ1am8=
+Date:   Mon, 27 Dec 2021 13:36:22 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     SeongJae Park <sj@kernel.org>
-Cc:     stable@vger.kernel.org, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] mm/damon/dbgfs: protect targets destructions with
- kdamond_lock
-Message-ID: <YcmzHCJYiYIMcyTH@kroah.com>
-References: <20211226102632.836-1-sj@kernel.org>
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     stable@vger.kernel.org, jens.wiklander@linaro.org,
+        patrik.lantz@axis.com, tyhicks@linux.microsoft.com
+Subject: Re: [PATCH backport for 5.4/5.10/5.15] tee: optee: Fix incorrect
+ page free bug
+Message-ID: <YcmzRuKwe4CY0EdG@kroah.com>
+References: <20211227121432.2694129-1-sumit.garg@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211226102632.836-1-sj@kernel.org>
+In-Reply-To: <20211227121432.2694129-1-sumit.garg@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Dec 26, 2021 at 10:26:32AM +0000, SeongJae Park wrote:
-> commit 34796417964b8d0aef45a99cf6c2d20cebe33733 upstream.
+On Mon, Dec 27, 2021 at 05:44:32PM +0530, Sumit Garg wrote:
+> commit 18549bf4b21c739a9def39f27dcac53e27286ab5 upstream.
 > 
-> DAMON debugfs interface iterates current monitoring targets in
-> 'dbgfs_target_ids_read()' while holding the corresponding
-> 'kdamond_lock'.  However, it also destructs the monitoring targets in
-> 'dbgfs_before_terminate()' without holding the lock.  This can result in
-> a use_after_free bug.  This commit avoids the race by protecting the
-> destruction with the corresponding 'kdamond_lock'.
+> Pointer to the allocated pages (struct page *page) has already
+> progressed towards the end of allocation. It is incorrect to perform
+> __free_pages(page, order) using this pointer as we would free any
+> arbitrary pages. Fix this by stop modifying the page pointer.
 > 
-> Link: https://lkml.kernel.org/r/20211221094447.2241-1-sj@kernel.org
-> Reported-by: Sangwoo Bae <sangwoob@amazon.com>
-> Fixes: 4bc05954d007 ("mm/damon: implement a debugfs-based user space interface")
-> Signed-off-by: SeongJae Park <sj@kernel.org>
-> Cc: <stable@vger.kernel.org> # 5.15.x
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Fixes: ec185dd3ab25 ("optee: Fix memory leak when failing to register shm pages")
+> Cc: stable@vger.kernel.org
+> Reported-by: Patrik Lantz <patrik.lantz@axis.com>
+> Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+> Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+> Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+> [SG: Backport for stable kernels]
+> Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
 > ---
-> This is a backport of a DAMON fix that merged in the mainline, for
-> v5.15.x stable series.
+>  drivers/tee/optee/shm_pool.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 
 Now queued up, thanks.
 
