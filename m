@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 011D148007D
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 151BD480053
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239811AbhL0Pqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:46:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
+        id S238552AbhL0Ppp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:45:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239680AbhL0PnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:43:02 -0500
+        with ESMTP id S239689AbhL0PnD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:43:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4FFC07E5E2;
-        Mon, 27 Dec 2021 07:41:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F03A4C07E5E5;
+        Mon, 27 Dec 2021 07:41:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1ECD610F4;
-        Mon, 27 Dec 2021 15:41:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D090C36AE7;
-        Mon, 27 Dec 2021 15:41:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D5E661120;
+        Mon, 27 Dec 2021 15:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E7AC36AEA;
+        Mon, 27 Dec 2021 15:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619688;
-        bh=FFb7qYe9zPnStqAuxBqqK9I5ZGBVbZCF19q5g8n2kGA=;
+        s=korg; t=1640619691;
+        bh=gX1CNiBibYMHUETV59xze0Iv1253ENQYFGbv7vvgXoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlA3rQk7kVEtiOdFqM3imBWSZuwKKZkK+dlZWc2UuxT9UjNa+MxGzUmnVsbv9Bpmz
-         wNjlvgxvjqakH87HH2aRX+IBK7pCsyX2jBwU44w1g1eNAjYMaCgLzUlw30pwoDxFqC
-         zzpSTuhfFHWFH7s71PvAEpcVeDcVLsmjFLCSMNRg=
+        b=sBMc1py2FiLRLfMG11m2SWvAE3s/1LmRW4AhT7YdXpAyObdM6vmUcW3TvnUpvlcRR
+         6UOOywFB2qmt4NsFqqBDSmvnhg5QuS8WjXKSLUyMgXdRGit+jd2XS1ynhv9gYG4B7y
+         CwkgB5AQMxyy98xwARu/Mx0VpBE7Qa348K2tzgU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
-        Corey Minyard <cminyard@mvista.com>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/128] ipmi: Fix UAF when uninstall ipmi_si and ipmi_msghandler module
-Date:   Mon, 27 Dec 2021 16:30:09 +0100
-Message-Id: <20211227151332.671488370@linuxfoundation.org>
+Subject: [PATCH 5.15 035/128] gpio: virtio: remove timeout
+Date:   Mon, 27 Dec 2021 16:30:10 +0100
+Message-Id: <20211227151332.700955617@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
 References: <20211227151331.502501367@linuxfoundation.org>
@@ -48,141 +51,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit ffb76a86f8096a8206be03b14adda6092e18e275 ]
+[ Upstream commit 3e4d9a485029aa9e172dab5420abe775fd86f8e8 ]
 
-Hi,
+The driver imposes an arbitrary one second timeout on virtio requests,
+but the specification doesn't prevent the virtio device from taking
+longer to process requests, so remove this timeout to support all
+systems and device implementations.
 
-When testing install and uninstall of ipmi_si.ko and ipmi_msghandler.ko,
-the system crashed.
-
-The log as follows:
-[  141.087026] BUG: unable to handle kernel paging request at ffffffffc09b3a5a
-[  141.087241] PGD 8fe4c0d067 P4D 8fe4c0d067 PUD 8fe4c0f067 PMD 103ad89067 PTE 0
-[  141.087464] Oops: 0010 [#1] SMP NOPTI
-[  141.087580] CPU: 67 PID: 668 Comm: kworker/67:1 Kdump: loaded Not tainted 4.18.0.x86_64 #47
-[  141.088009] Workqueue: events 0xffffffffc09b3a40
-[  141.088009] RIP: 0010:0xffffffffc09b3a5a
-[  141.088009] Code: Bad RIP value.
-[  141.088009] RSP: 0018:ffffb9094e2c3e88 EFLAGS: 00010246
-[  141.088009] RAX: 0000000000000000 RBX: ffff9abfdb1f04a0 RCX: 0000000000000000
-[  141.088009] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000246
-[  141.088009] RBP: 0000000000000000 R08: ffff9abfffee3cb8 R09: 00000000000002e1
-[  141.088009] R10: ffffb9094cb73d90 R11: 00000000000f4240 R12: ffff9abfffee8700
-[  141.088009] R13: 0000000000000000 R14: ffff9abfdb1f04a0 R15: ffff9abfdb1f04a8
-[  141.088009] FS:  0000000000000000(0000) GS:ffff9abfffec0000(0000) knlGS:0000000000000000
-[  141.088009] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  141.088009] CR2: ffffffffc09b3a30 CR3: 0000008fe4c0a001 CR4: 00000000007606e0
-[  141.088009] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  141.088009] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  141.088009] PKRU: 55555554
-[  141.088009] Call Trace:
-[  141.088009]  ? process_one_work+0x195/0x390
-[  141.088009]  ? worker_thread+0x30/0x390
-[  141.088009]  ? process_one_work+0x390/0x390
-[  141.088009]  ? kthread+0x10d/0x130
-[  141.088009]  ? kthread_flush_work_fn+0x10/0x10
-[  141.088009]  ? ret_from_fork+0x35/0x40] BUG: unable to handle kernel paging request at ffffffffc0b28a5a
-[  200.223240] PGD 97fe00d067 P4D 97fe00d067 PUD 97fe00f067 PMD a580cbf067 PTE 0
-[  200.223464] Oops: 0010 [#1] SMP NOPTI
-[  200.223579] CPU: 63 PID: 664 Comm: kworker/63:1 Kdump: loaded Not tainted 4.18.0.x86_64 #46
-[  200.224008] Workqueue: events 0xffffffffc0b28a40
-[  200.224008] RIP: 0010:0xffffffffc0b28a5a
-[  200.224008] Code: Bad RIP value.
-[  200.224008] RSP: 0018:ffffbf3c8e2a3e88 EFLAGS: 00010246
-[  200.224008] RAX: 0000000000000000 RBX: ffffa0799ad6bca0 RCX: 0000000000000000
-[  200.224008] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000246
-[  200.224008] RBP: 0000000000000000 R08: ffff9fe43fde3cb8 R09: 00000000000000d5
-[  200.224008] R10: ffffbf3c8cb53d90 R11: 00000000000f4240 R12: ffff9fe43fde8700
-[  200.224008] R13: 0000000000000000 R14: ffffa0799ad6bca0 R15: ffffa0799ad6bca8
-[  200.224008] FS:  0000000000000000(0000) GS:ffff9fe43fdc0000(0000) knlGS:0000000000000000
-[  200.224008] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  200.224008] CR2: ffffffffc0b28a30 CR3: 00000097fe00a002 CR4: 00000000007606e0
-[  200.224008] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  200.224008] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  200.224008] PKRU: 55555554
-[  200.224008] Call Trace:
-[  200.224008]  ? process_one_work+0x195/0x390
-[  200.224008]  ? worker_thread+0x30/0x390
-[  200.224008]  ? process_one_work+0x390/0x390
-[  200.224008]  ? kthread+0x10d/0x130
-[  200.224008]  ? kthread_flush_work_fn+0x10/0x10
-[  200.224008]  ? ret_from_fork+0x35/0x40
-[  200.224008] kernel fault(0x1) notification starting on CPU 63
-[  200.224008] kernel fault(0x1) notification finished on CPU 63
-[  200.224008] CR2: ffffffffc0b28a5a
-[  200.224008] ---[ end trace c82a412d93f57412 ]---
-
-The reason is as follows:
-T1: rmmod ipmi_si.
-    ->ipmi_unregister_smi()
-        -> ipmi_bmc_unregister()
-            -> __ipmi_bmc_unregister()
-                -> kref_put(&bmc->usecount, cleanup_bmc_device);
-                    -> schedule_work(&bmc->remove_work);
-
-T2: rmmod ipmi_msghandler.
-    ipmi_msghander module uninstalled, and the module space
-    will be freed.
-
-T3: bmc->remove_work doing cleanup the bmc resource.
-    -> cleanup_bmc_work()
-        -> platform_device_unregister(&bmc->pdev);
-            -> platform_device_del(pdev);
-                -> device_del(&pdev->dev);
-                    -> kobject_uevent(&dev->kobj, KOBJ_REMOVE);
-                        -> kobject_uevent_env()
-                            -> dev_uevent()
-                                -> if (dev->type && dev->type->name)
-
-   'dev->type'(bmc_device_type) pointer space has freed when uninstall
-    ipmi_msghander module, 'dev->type->name' cause the system crash.
-
-drivers/char/ipmi/ipmi_msghandler.c:
-2820 static const struct device_type bmc_device_type = {
-2821         .groups         = bmc_dev_attr_groups,
-2822 };
-
-Steps to reproduce:
-Add a time delay in cleanup_bmc_work() function,
-and uninstall ipmi_si and ipmi_msghandler module.
-
-2910 static void cleanup_bmc_work(struct work_struct *work)
-2911 {
-2912         struct bmc_device *bmc = container_of(work, struct bmc_device,
-2913                                               remove_work);
-2914         int id = bmc->pdev.id; /* Unregister overwrites id */
-2915
-2916         msleep(3000);   <---
-2917         platform_device_unregister(&bmc->pdev);
-2918         ida_simple_remove(&ipmi_bmc_ida, id);
-2919 }
-
-Use 'remove_work_wq' instead of 'system_wq' to solve this issues.
-
-Fixes: b2cfd8ab4add ("ipmi: Rework device id and guid handling to catch changing BMCs")
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Message-Id: <1640070034-56671-1-git-send-email-wubo40@huawei.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 3a29355a22c0275fe86 ("gpio: Add virtio-gpio driver")
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-virtio.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index b404cc46cbda7..ca13536ad0008 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -2932,7 +2932,7 @@ cleanup_bmc_device(struct kref *ref)
- 	 * with removing the device attributes while reading a device
- 	 * attribute.
- 	 */
--	schedule_work(&bmc->remove_work);
-+	queue_work(remove_work_wq, &bmc->remove_work);
- }
+diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
+index d24f1c9264bc9..dd3b23c9580b1 100644
+--- a/drivers/gpio/gpio-virtio.c
++++ b/drivers/gpio/gpio-virtio.c
+@@ -81,11 +81,7 @@ static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
+ 	virtqueue_kick(vgpio->request_vq);
+ 	mutex_unlock(&vgpio->lock);
  
- /*
+-	if (!wait_for_completion_timeout(&line->completion, HZ)) {
+-		dev_err(dev, "GPIO operation timed out\n");
+-		ret = -ETIMEDOUT;
+-		goto out;
+-	}
++	wait_for_completion(&line->completion);
+ 
+ 	if (unlikely(res->status != VIRTIO_GPIO_STATUS_OK)) {
+ 		dev_err(dev, "GPIO request failed: %d\n", gpio);
 -- 
 2.34.1
 
