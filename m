@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD6447FF3D
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE18E480070
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238611AbhL0Pgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:36:31 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40280 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238627AbhL0PgB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:36:01 -0500
+        id S235270AbhL0PqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:46:24 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44010 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240169AbhL0Pot (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DD14ECE10E9;
-        Mon, 27 Dec 2021 15:35:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CACCDC36AE7;
-        Mon, 27 Dec 2021 15:35:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBD75B810C3;
+        Mon, 27 Dec 2021 15:44:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11651C36AEA;
+        Mon, 27 Dec 2021 15:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619358;
-        bh=6Z1hCqGBYBETvydbz0RrpXobRIUMWe19rZrAm7M0c1o=;
+        s=korg; t=1640619887;
+        bh=pr/LukRvYTwOROweWSuVgnlB/I0K3kMD7lKWyQ9n85o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2kFuSVA6sHGTV5Yz/X9kOIE7Mj0pygkOESyRofacOfoYjcloVruQm9CzAS3ESIva
-         fJIJEiKPNJc3o/Z/cTA4i9BaRbZr+bwRltKOkxwSdUj+ICnbhqbj/RCoXAOt4Zfaiz
-         BmAQlTcsI/d6LA7PXcNUu38uHlKdMEhc6AQ4O31g=
+        b=Se7BVZNOLOXDgxShRqRF5wvasMovEr7J/nCMdhmox3AA5vyWaZoAJ0yvtySeWphHZ
+         V/F7Z82hs6Y5rarJtdWH/8wEpbVqKrnQ5UGw/GD30gGWZ8xhAOu+EQ6BvS/WxSzmzt
+         D+/dTUSA2Fae9BTLuGoBERRmiP3d8SWT76WJ5XNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 42/47] hwmom: (lm90) Fix citical alarm status for MAX6680/MAX6681
-Date:   Mon, 27 Dec 2021 16:31:18 +0100
-Message-Id: <20211227151322.259734116@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 104/128] mm/hwpoison: clear MF_COUNT_INCREASED before retrying get_any_page()
+Date:   Mon, 27 Dec 2021 16:31:19 +0100
+Message-Id: <20211227151334.993801458@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Liu Shixin <liushixin2@huawei.com>
 
-commit da7dc0568491104c7acb632e9d41ddce9aaabbb1 upstream.
+commit 2a57d83c78f889bf3f54eede908d0643c40d5418 upstream.
 
-Tests with a real chip and a closer look into the datasheet reveals
-that the local and remote critical alarm status bits are swapped for
-MAX6680/MAX6681.
+Hulk Robot reported a panic in put_page_testzero() when testing
+madvise() with MADV_SOFT_OFFLINE.  The BUG() is triggered when retrying
+get_any_page().  This is because we keep MF_COUNT_INCREASED flag in
+second try but the refcnt is not increased.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+    page dumped because: VM_BUG_ON_PAGE(page_ref_count(page) == 0)
+    ------------[ cut here ]------------
+    kernel BUG at include/linux/mm.h:737!
+    invalid opcode: 0000 [#1] PREEMPT SMP
+    CPU: 5 PID: 2135 Comm: sshd Tainted: G    B             5.16.0-rc6-dirty #373
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+    RIP: release_pages+0x53f/0x840
+    Call Trace:
+      free_pages_and_swap_cache+0x64/0x80
+      tlb_flush_mmu+0x6f/0x220
+      unmap_page_range+0xe6c/0x12c0
+      unmap_single_vma+0x90/0x170
+      unmap_vmas+0xc4/0x180
+      exit_mmap+0xde/0x3a0
+      mmput+0xa3/0x250
+      do_exit+0x564/0x1470
+      do_group_exit+0x3b/0x100
+      __do_sys_exit_group+0x13/0x20
+      __x64_sys_exit_group+0x16/0x20
+      do_syscall_64+0x34/0x80
+      entry_SYSCALL_64_after_hwframe+0x44/0xae
+    Modules linked in:
+    ---[ end trace e99579b570fe0649 ]---
+    RIP: 0010:release_pages+0x53f/0x840
+
+Link: https://lkml.kernel.org/r/20211221074908.3910286-1-liushixin2@huawei.com
+Fixes: b94e02822deb ("mm,hwpoison: try to narrow window race for free pages")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm90.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ mm/memory-failure.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -190,6 +190,7 @@ enum chips { lm90, adm1032, lm99, lm86,
- #define LM90_HAVE_EXTENDED_TEMP	(1 << 8) /* extended temperature support*/
- #define LM90_PAUSE_FOR_CONFIG	(1 << 9) /* Pause conversion for config	*/
- #define LM90_HAVE_CRIT		(1 << 10)/* Chip supports CRIT/OVERT register	*/
-+#define LM90_HAVE_CRIT_ALRM_SWP	(1 << 11)/* critical alarm bits swapped	*/
- 
- /* LM90 status */
- #define LM90_STATUS_LTHRM	(1 << 0) /* local THERM limit tripped */
-@@ -415,7 +416,8 @@ static const struct lm90_params lm90_par
- 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
- 	},
- 	[max6680] = {
--		.flags = LM90_HAVE_OFFSET | LM90_HAVE_CRIT,
-+		.flags = LM90_HAVE_OFFSET | LM90_HAVE_CRIT
-+		  | LM90_HAVE_CRIT_ALRM_SWP,
- 		.alert_alarms = 0x7c,
- 		.max_convrate = 7,
- 	},
-@@ -1191,6 +1193,7 @@ static const u8 lm90_temp_emerg_index[3]
- static const u8 lm90_min_alarm_bits[3] = { 5, 3, 11 };
- static const u8 lm90_max_alarm_bits[3] = { 6, 4, 12 };
- static const u8 lm90_crit_alarm_bits[3] = { 0, 1, 9 };
-+static const u8 lm90_crit_alarm_bits_swapped[3] = { 1, 0, 9 };
- static const u8 lm90_emergency_alarm_bits[3] = { 15, 13, 14 };
- static const u8 lm90_fault_bits[3] = { 0, 2, 10 };
- 
-@@ -1216,7 +1219,10 @@ static int lm90_temp_read(struct device
- 		*val = (data->alarms >> lm90_max_alarm_bits[channel]) & 1;
- 		break;
- 	case hwmon_temp_crit_alarm:
--		*val = (data->alarms >> lm90_crit_alarm_bits[channel]) & 1;
-+		if (data->flags & LM90_HAVE_CRIT_ALRM_SWP)
-+			*val = (data->alarms >> lm90_crit_alarm_bits_swapped[channel]) & 1;
-+		else
-+			*val = (data->alarms >> lm90_crit_alarm_bits[channel]) & 1;
- 		break;
- 	case hwmon_temp_emergency_alarm:
- 		*val = (data->alarms >> lm90_emergency_alarm_bits[channel]) & 1;
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -2201,6 +2201,7 @@ retry:
+ 	} else if (ret == 0) {
+ 		if (soft_offline_free_page(page) && try_again) {
+ 			try_again = false;
++			flags &= ~MF_COUNT_INCREASED;
+ 			goto retry;
+ 		}
+ 	}
 
 
