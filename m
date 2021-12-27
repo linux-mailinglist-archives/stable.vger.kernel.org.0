@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B34CC47FF07
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:35:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E684F47FF5D
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237760AbhL0PfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:35:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35936 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234693AbhL0PeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C3D4C06175A;
-        Mon, 27 Dec 2021 07:34:02 -0800 (PST)
+        id S232566AbhL0Pg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:36:57 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:40510 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238700AbhL0Pg2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:36:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAA64610B1;
-        Mon, 27 Dec 2021 15:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC2EC36AEA;
-        Mon, 27 Dec 2021 15:34:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 76ACACE10D2;
+        Mon, 27 Dec 2021 15:36:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 127E8C36AEC;
+        Mon, 27 Dec 2021 15:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619241;
-        bh=ajpn7ygUOWOV9TJpfWpVd+F8alDAjfbT1LNk+RLc7Fk=;
+        s=korg; t=1640619384;
+        bh=9jSEvlVWKM7avDpuNIdWPDfIenxmMETLn/TJ6b7cQMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x2wvj6qK6yX3zrq5Ibu9qgj0OXtMA1zeZCN4e/8PpS2A+pJHKe27lPexhytUMFzL+
-         VdJhiC55F0fmMZo+SnfzInzurwj2jTTmhYcmdleN+oC+K6vLZMwqFNTZzuA2QSFNUt
-         iLb878INCWkPPZf1rSD4BdMQTB3TYSPTxAiA7FwY=
+        b=JjIQaaAXB9JdpyRhqFaDq/dnrWZgI7pd+msJn+wB27M6fLz03u0CYgbZR9o3I0e68
+         diNWa7y+hnz9vmIg2sOqBbNMNlGzD4KQ2p8m4ugB2AAAdx52WhchosVm2mVqeAdw+8
+         1MS4ek8Vw5QgPHzIZRk8nqLDRMuaKOQ2EkITQssU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, "David T. Wilson" <david.wilson@nasa.gov>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/38] sfc: falcon: Check null pointer of rx_queue->page_ring
+Subject: [PATCH 5.4 20/47] hwmon: (lm90) Introduce flag indicating extended temperature support
 Date:   Mon, 27 Dec 2021 16:30:56 +0100
-Message-Id: <20211227151320.015328013@linuxfoundation.org>
+Message-Id: <20211227151321.498131386@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
-References: <20211227151319.379265346@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,40 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 9b8bdd1eb5890aeeab7391dddcf8bd51f7b07216 ]
+[ Upstream commit f347e249fcf920ad6974cbd898e2ec0b366a1c34 ]
 
-Because of the possible failure of the kcalloc, it should be better to
-set rx_queue->page_ptr_mask to 0 when it happens in order to maintain
-the consistency.
+A flag indicating extended temperature support makes it easier
+to add support for additional chips with this functionality.
 
-Fixes: 5a6681e22c14 ("sfc: separate out SFC4000 ("Falcon") support into new sfc-falcon driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20211220140344.978408-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: David T. Wilson <david.wilson@nasa.gov>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/falcon/rx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hwmon/lm90.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/falcon/rx.c b/drivers/net/ethernet/sfc/falcon/rx.c
-index 02456ed13a7d4..5b93a3af4575d 100644
---- a/drivers/net/ethernet/sfc/falcon/rx.c
-+++ b/drivers/net/ethernet/sfc/falcon/rx.c
-@@ -732,7 +732,10 @@ static void ef4_init_rx_recycle_ring(struct ef4_nic *efx,
- 					    efx->rx_bufs_per_page);
- 	rx_queue->page_ring = kcalloc(page_ring_size,
- 				      sizeof(*rx_queue->page_ring), GFP_KERNEL);
--	rx_queue->page_ptr_mask = page_ring_size - 1;
-+	if (!rx_queue->page_ring)
-+		rx_queue->page_ptr_mask = 0;
-+	else
-+		rx_queue->page_ptr_mask = page_ring_size - 1;
- }
+diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+index e085e2a4fa16c..c4d8012806fe2 100644
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -186,7 +186,8 @@ enum chips { lm90, adm1032, lm99, lm86, max6657, max6659, adt7461, max6680,
+ #define LM90_HAVE_EMERGENCY_ALARM (1 << 5)/* emergency alarm		*/
+ #define LM90_HAVE_TEMP3		(1 << 6) /* 3rd temperature sensor	*/
+ #define LM90_HAVE_BROKEN_ALERT	(1 << 7) /* Broken alert		*/
+-#define LM90_PAUSE_FOR_CONFIG	(1 << 8) /* Pause conversion for config	*/
++#define LM90_HAVE_EXTENDED_TEMP	(1 << 8) /* extended temperature support*/
++#define LM90_PAUSE_FOR_CONFIG	(1 << 9) /* Pause conversion for config	*/
  
- void ef4_init_rx_queue(struct ef4_rx_queue *rx_queue)
+ /* LM90 status */
+ #define LM90_STATUS_LTHRM	(1 << 0) /* local THERM limit tripped */
+@@ -359,7 +360,7 @@ static const struct lm90_params lm90_params[] = {
+ 	},
+ 	[adt7461] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+-		  | LM90_HAVE_BROKEN_ALERT,
++		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 10,
+ 	},
+@@ -431,7 +432,7 @@ static const struct lm90_params lm90_params[] = {
+ 	},
+ 	[tmp451] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+-		  | LM90_HAVE_BROKEN_ALERT,
++		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 9,
+ 		.reg_local_ext = TMP451_REG_R_LOCAL_TEMPL,
+@@ -1013,7 +1014,7 @@ static int lm90_get_temp11(struct lm90_data *data, int index)
+ 	s16 temp11 = data->temp11[index];
+ 	int temp;
+ 
+-	if (data->kind == adt7461 || data->kind == tmp451)
++	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
+ 		temp = temp_from_u16_adt7461(data, temp11);
+ 	else if (data->kind == max6646)
+ 		temp = temp_from_u16(temp11);
+@@ -1047,7 +1048,7 @@ static int lm90_set_temp11(struct lm90_data *data, int index, long val)
+ 	if (data->kind == lm99 && index <= 2)
+ 		val -= 16000;
+ 
+-	if (data->kind == adt7461 || data->kind == tmp451)
++	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
+ 		data->temp11[index] = temp_to_u16_adt7461(data, val);
+ 	else if (data->kind == max6646)
+ 		data->temp11[index] = temp_to_u8(val) << 8;
+@@ -1074,7 +1075,7 @@ static int lm90_get_temp8(struct lm90_data *data, int index)
+ 	s8 temp8 = data->temp8[index];
+ 	int temp;
+ 
+-	if (data->kind == adt7461 || data->kind == tmp451)
++	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
+ 		temp = temp_from_u8_adt7461(data, temp8);
+ 	else if (data->kind == max6646)
+ 		temp = temp_from_u8(temp8);
+@@ -1107,7 +1108,7 @@ static int lm90_set_temp8(struct lm90_data *data, int index, long val)
+ 	if (data->kind == lm99 && index == 3)
+ 		val -= 16000;
+ 
+-	if (data->kind == adt7461 || data->kind == tmp451)
++	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
+ 		data->temp8[index] = temp_to_u8_adt7461(data, val);
+ 	else if (data->kind == max6646)
+ 		data->temp8[index] = temp_to_u8(val);
+@@ -1125,7 +1126,7 @@ static int lm90_get_temphyst(struct lm90_data *data, int index)
+ {
+ 	int temp;
+ 
+-	if (data->kind == adt7461 || data->kind == tmp451)
++	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
+ 		temp = temp_from_u8_adt7461(data, data->temp8[index]);
+ 	else if (data->kind == max6646)
+ 		temp = temp_from_u8(data->temp8[index]);
+@@ -1145,7 +1146,7 @@ static int lm90_set_temphyst(struct lm90_data *data, long val)
+ 	int temp;
+ 	int err;
+ 
+-	if (data->kind == adt7461 || data->kind == tmp451)
++	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
+ 		temp = temp_from_u8_adt7461(data, data->temp8[LOCAL_CRIT]);
+ 	else if (data->kind == max6646)
+ 		temp = temp_from_u8(data->temp8[LOCAL_CRIT]);
+@@ -1698,7 +1699,7 @@ static int lm90_init_client(struct i2c_client *client, struct lm90_data *data)
+ 	lm90_set_convrate(client, data, 500); /* 500ms; 2Hz conversion rate */
+ 
+ 	/* Check Temperature Range Select */
+-	if (data->kind == adt7461 || data->kind == tmp451) {
++	if (data->flags & LM90_HAVE_EXTENDED_TEMP) {
+ 		if (config & 0x04)
+ 			data->flags |= LM90_FLAG_ADT7461_EXT;
+ 	}
 -- 
 2.34.1
 
