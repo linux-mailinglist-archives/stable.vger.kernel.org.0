@@ -2,128 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A6EB47FC49
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:43:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51DCC47FC84
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233733AbhL0LnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 06:43:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41116 "EHLO
+        id S233755AbhL0MOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 07:14:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233644AbhL0LnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:43:17 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA2ADC06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:43:17 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id mj19so13218727pjb.3
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:43:17 -0800 (PST)
+        with ESMTP id S233695AbhL0MOq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:14:46 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0177DC06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 04:14:45 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id l10so13422734pgm.7
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 04:14:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZKyuiGHZSxNQKhGojbNOJj8kirutd+NTpE01b0LsP9A=;
-        b=yNvrTuSUHNY0Clj7bIFPRbWd61X5AM2CiLEQfcsRdIGIfYTeHMMCDjrhQsGRh+kEzF
-         mnEut7yM+Uwfcke99DmBEQ5leghTRh0JTXqXfUiGw1b3Vo2hneIw2LavNjgYJSZHLhhv
-         ph8Jr5LDiPzVbJgxcLMTysmsBYerZRvZjpdVzrHqNH0MdrHK5FqiR/b0Hg87OZhHvT+h
-         U2/qT4gHQL4lM9f8Af5+qUQO9UzONpvSY/glHLRYC5x9nRuDixs/7E/VE95VcssEPUKU
-         mC1dtDpIVg8zZQiqSz7qUlLw0W14LIa0so2gjEzOQiT2prweGh4QeiC9pqBR6auJE7Tw
-         XqBg==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=i74iqWhBJENtOvuw3K6D2opqyt58hJwnKN+RDkhJDg8=;
+        b=tgFCejzHrIl30djpscJMLP1qjS8quRfsRdgRBwdoeB4zrcwM+rR9fA3TIbq6A4NSzv
+         lOhTLCFRgJVhp07PwGRiqqP8iPrlsZhovO6uoJh197b7OPRSRjlMZqZMAS/xtyB/ZNhH
+         TNPezFGI7ZWQqjM4keiVao44yqBxc+xUyxnHybusQkoFteHv15O5i21y5lwSxebnsdbe
+         sDHKJDgngHnrzSPGRVx+nhXc3TVzM+KqcvHV5Wo/z7MHGvOHAkP5MSRRAdTw/AF3YpR+
+         cuquDegVUm1wnfVxoBzwgzH43Sr9ulec8g2cH1FSoNdicDIr1B7l4HU3wDJqA6hy4dM4
+         0OAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZKyuiGHZSxNQKhGojbNOJj8kirutd+NTpE01b0LsP9A=;
-        b=ZLLlC9AN/XxF6mh6nibO1KrOwQk5t43d37UOWT9k9lPrPML6OFw2el0tq0rMxjLVG2
-         6yRf6EB640ztSO5eVFAACbnQyen2goHfwWMBegNFs40F4z1l3xNVsrKBDPZfhjZiC6Zu
-         2pyfqEYXgmWwj+9tzSuRqWbsmrKrGwT+yqARtoCiKVu4hZv335+9KeIDz4J302ffqd6s
-         3TUwM1P4+DIGdmnZwEy+4M5bqDZKKcDGMmnxZL5Uzh/54aR/D837MuG/K4+U+NMcmjm+
-         PPHLmNCpPTcqHaOhe6v2ajxV8OPU/1PXU2iD3TpVVUHbYkg5hVlwdCf8mOErlNogLItK
-         cOZw==
-X-Gm-Message-State: AOAM532AVloRgc2ZyLlKvfOoAFvWQAix27fED9nFgw/QQm/Gc6QEm0pQ
-        7Tds6+u4h/F7t4UdK7Fm397y6VODZiF3Lkd8
-X-Google-Smtp-Source: ABdhPJw/oWUT9bo+ALL9bS0ssv08o1Cc/iypQpxxKGCQNo/SwHCN3bWWDuWXhNSruxtQnzcRr63ZrA==
-X-Received: by 2002:a17:90a:e514:: with SMTP id t20mr20423202pjy.5.1640605397086;
-        Mon, 27 Dec 2021 03:43:17 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k6sm17962877pff.17.2021.12.27.03.43.16
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=i74iqWhBJENtOvuw3K6D2opqyt58hJwnKN+RDkhJDg8=;
+        b=kzj9BcOQ6JMRQ+6HG7n+bJMyqzGbp1CY7UY4p411VpfceaK17iUU8P27Mqugkvn8oY
+         tv6DNZ9SZLv+fznl9rUjdG0oSJtqTVP3sJvAy+dnHF0Cp1JNk90uPlksxHqzOU2QExai
+         1X3iXJXtGPcDO/2fFZUI+JEn6fkSJYY8vUUFRnJ8W3an4GyI4NJBFhuzDX10Xp8eVP42
+         ppwvyxavpJVT5iRITw3wF2jgAUuKRIsLb6v73hpTzYPgJKiVLGHPKWMFQ5FuofF7nPVl
+         GZidMsFXeV2BNM6p1NadD9HmmDHU9V+KK0DBa0OKYwz1a893y5+ZGIIHeddsACY39EBF
+         fqcw==
+X-Gm-Message-State: AOAM530wpTz0RRWby6/pr2/89Me6Cu2kKMlQD/HiEYzK21ENJH1Jxpez
+        V6Q49nq0rpQQfX64F2Xlt4/qXmByyVMo8w==
+X-Google-Smtp-Source: ABdhPJx+KbKaDlrd8gaVx7QdB4ZLCda9d3GV66wqqi6p5OlGepPH9BPWvCwNzHyrcmZ5VTTXL6wVaQ==
+X-Received: by 2002:a63:1748:: with SMTP id 8mr15245668pgx.33.1640607284988;
+        Mon, 27 Dec 2021 04:14:44 -0800 (PST)
+Received: from localhost.localdomain ([223.178.210.143])
+        by smtp.gmail.com with ESMTPSA id lp17sm17459535pjb.15.2021.12.27.04.14.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Dec 2021 03:43:16 -0800 (PST)
-Message-ID: <61c9a6d4.1c69fb81.a959.1a55@mx.google.com>
-Date:   Mon, 27 Dec 2021 03:43:16 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 27 Dec 2021 04:14:44 -0800 (PST)
+From:   Sumit Garg <sumit.garg@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, jens.wiklander@linaro.org,
+        patrik.lantz@axis.com, tyhicks@linux.microsoft.com,
+        Sumit Garg <sumit.garg@linaro.org>
+Subject: [PATCH backport for 5.4/5.10/5.15] tee: optee: Fix incorrect page free bug
+Date:   Mon, 27 Dec 2021 17:44:32 +0530
+Message-Id: <20211227121432.2694129-1-sumit.garg@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.88-33-g45d03cb9da5c
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 149 runs,
- 1 regressions (v5.10.88-33-g45d03cb9da5c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 149 runs, 1 regressions (v5.10.88-33-g45d03c=
-b9da5c)
+commit 18549bf4b21c739a9def39f27dcac53e27286ab5 upstream.
 
-Regressions Summary
--------------------
+Pointer to the allocated pages (struct page *page) has already
+progressed towards the end of allocation. It is incorrect to perform
+__free_pages(page, order) using this pointer as we would free any
+arbitrary pages. Fix this by stop modifying the page pointer.
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
+Fixes: ec185dd3ab25 ("optee: Fix memory leak when failing to register shm pages")
+Cc: stable@vger.kernel.org
+Reported-by: Patrik Lantz <patrik.lantz@axis.com>
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+[SG: Backport for stable kernels]
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+---
+ drivers/tee/optee/shm_pool.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/tee/optee/shm_pool.c b/drivers/tee/optee/shm_pool.c
+index d167039af519..1aa843f2ecc7 100644
+--- a/drivers/tee/optee/shm_pool.c
++++ b/drivers/tee/optee/shm_pool.c
+@@ -41,10 +41,8 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
+ 			goto err;
+ 		}
+ 
+-		for (i = 0; i < nr_pages; i++) {
+-			pages[i] = page;
+-			page++;
+-		}
++		for (i = 0; i < nr_pages; i++)
++			pages[i] = page + i;
+ 
+ 		shm->flags |= TEE_SHM_REGISTER;
+ 		rc = optee_shm_register(shm->ctx, shm, pages, nr_pages,
+-- 
+2.25.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.88-33-g45d03cb9da5c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.88-33-g45d03cb9da5c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      45d03cb9da5c51ef945b276dcca08773ca766822 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/61c97164db8b7e5da7397124
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.88-=
-33-g45d03cb9da5c/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.88-=
-33-g45d03cb9da5c/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61c97164db8b7e5da7397=
-125
-        new failure (last pass: v5.10.88-27-g01a20d2f2f31) =
-
- =20
