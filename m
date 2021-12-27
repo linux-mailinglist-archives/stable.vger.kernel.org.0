@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 984E24800F4
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 202BD47FF17
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:35:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239001AbhL0Pvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:51:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240871AbhL0Pt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:49:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E9FC0698D7;
-        Mon, 27 Dec 2021 07:45:15 -0800 (PST)
+        id S238334AbhL0PfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:35:16 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:39764 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238162AbhL0PfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:35:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B61BB81063;
-        Mon, 27 Dec 2021 15:45:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E5D3C36AEA;
-        Mon, 27 Dec 2021 15:45:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 59069CE10B6;
+        Mon, 27 Dec 2021 15:35:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28096C36AE7;
+        Mon, 27 Dec 2021 15:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619913;
-        bh=AOgaUyQijjG4BNWhvmIFMil/Jzl1uMaf0lPBsN4/KCU=;
+        s=korg; t=1640619306;
+        bh=R4tZ80uam6UsmuLNMhP7DQ0TOfnMtcu+gfsg/K6c7jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hk/WjZYcT5U1o7KvXA/xYn4ohRMyuHoxEJpPndNgNHdv7z9zXq2cukLkVD9cU3EfP
-         nWUVumeSd/ApxnKVbo3L1UBCR6dRrgbQ14gDuUTG/NxewftG8zjv3xJCkNG/ffPPfg
-         +2J3A5GGCQpKXWnOs2ipreM9TxL0m3p6dcpPOprw=
+        b=cCdL//N9ETEfenxpgzQluL/Ghd6qTWezUa152o5ydJ7YHDbJYIZE2acLiadFPx9EJ
+         U1qHwRwWxoORqoYstyUZ+1xySJ6onmNOqIeU0vYj/crr+qzLkLUuNrCV938hO5/zPN
+         PXHvkMNx7GPy3H1SExdBGOKpJEkp+jwpjWwt3XXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Orr <marcorr@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 5.15 086/128] KVM: x86: Always set kvm_run->if_flag
-Date:   Mon, 27 Dec 2021 16:31:01 +0100
-Message-Id: <20211227151334.381868731@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.4 26/47] ipmi: bail out if init_srcu_struct fails
+Date:   Mon, 27 Dec 2021 16:31:02 +0100
+Message-Id: <20211227151321.703382890@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,141 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Orr <marcorr@google.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit c5063551bfcae4e48fec890b7bf369598b77526b upstream.
+commit 2b5160b12091285c5aca45980f100a9294af7b04 upstream.
 
-The kvm_run struct's if_flag is a part of the userspace/kernel API. The
-SEV-ES patches failed to set this flag because it's no longer needed by
-QEMU (according to the comment in the source code). However, other
-hypervisors may make use of this flag. Therefore, set the flag for
-guests with encrypted registers (i.e., with guest_state_protected set).
+In case, init_srcu_struct fails (because of memory allocation failure), we
+might proceed with the driver initialization despite srcu_struct not being
+entirely initialized.
 
-Fixes: f1c6366e3043 ("KVM: SVM: Add required changes to support intercepts under SEV-ES")
-Signed-off-by: Marc Orr <marcorr@google.com>
-Message-Id: <20211209155257.128747-1-marcorr@google.com>
+Fixes: 913a89f009d9 ("ipmi: Don't initialize anything in the core until something uses it")
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc: Corey Minyard <cminyard@mvista.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20211217154410.1228673-1-cascardo@canonical.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm-x86-ops.h |    1 +
- arch/x86/include/asm/kvm_host.h    |    1 +
- arch/x86/kvm/svm/svm.c             |   21 ++++++++++++---------
- arch/x86/kvm/vmx/vmx.c             |    6 ++++++
- arch/x86/kvm/x86.c                 |    9 +--------
- 5 files changed, 21 insertions(+), 17 deletions(-)
+ drivers/char/ipmi/ipmi_msghandler.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/kvm-x86-ops.h
-+++ b/arch/x86/include/asm/kvm-x86-ops.h
-@@ -47,6 +47,7 @@ KVM_X86_OP(set_dr7)
- KVM_X86_OP(cache_reg)
- KVM_X86_OP(get_rflags)
- KVM_X86_OP(set_rflags)
-+KVM_X86_OP(get_if_flag)
- KVM_X86_OP(tlb_flush_all)
- KVM_X86_OP(tlb_flush_current)
- KVM_X86_OP_NULL(tlb_remote_flush)
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1341,6 +1341,7 @@ struct kvm_x86_ops {
- 	void (*cache_reg)(struct kvm_vcpu *vcpu, enum kvm_reg reg);
- 	unsigned long (*get_rflags)(struct kvm_vcpu *vcpu);
- 	void (*set_rflags)(struct kvm_vcpu *vcpu, unsigned long rflags);
-+	bool (*get_if_flag)(struct kvm_vcpu *vcpu);
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -5156,7 +5156,9 @@ static int ipmi_init_msghandler(void)
+ 	if (initialized)
+ 		goto out;
  
- 	void (*tlb_flush_all)(struct kvm_vcpu *vcpu);
- 	void (*tlb_flush_current)(struct kvm_vcpu *vcpu);
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1517,6 +1517,15 @@ static void svm_set_rflags(struct kvm_vc
- 	to_svm(vcpu)->vmcb->save.rflags = rflags;
- }
+-	init_srcu_struct(&ipmi_interfaces_srcu);
++	rv = init_srcu_struct(&ipmi_interfaces_srcu);
++	if (rv)
++		goto out;
  
-+static bool svm_get_if_flag(struct kvm_vcpu *vcpu)
-+{
-+	struct vmcb *vmcb = to_svm(vcpu)->vmcb;
-+
-+	return sev_es_guest(vcpu->kvm)
-+		? vmcb->control.int_state & SVM_GUEST_INTERRUPT_MASK
-+		: kvm_get_rflags(vcpu) & X86_EFLAGS_IF;
-+}
-+
- static void svm_cache_reg(struct kvm_vcpu *vcpu, enum kvm_reg reg)
- {
- 	switch (reg) {
-@@ -3485,14 +3494,7 @@ bool svm_interrupt_blocked(struct kvm_vc
- 	if (!gif_set(svm))
- 		return true;
- 
--	if (sev_es_guest(vcpu->kvm)) {
--		/*
--		 * SEV-ES guests to not expose RFLAGS. Use the VMCB interrupt mask
--		 * bit to determine the state of the IF flag.
--		 */
--		if (!(vmcb->control.int_state & SVM_GUEST_INTERRUPT_MASK))
--			return true;
--	} else if (is_guest_mode(vcpu)) {
-+	if (is_guest_mode(vcpu)) {
- 		/* As long as interrupts are being delivered...  */
- 		if ((svm->nested.ctl.int_ctl & V_INTR_MASKING_MASK)
- 		    ? !(svm->vmcb01.ptr->save.rflags & X86_EFLAGS_IF)
-@@ -3503,7 +3505,7 @@ bool svm_interrupt_blocked(struct kvm_vc
- 		if (nested_exit_on_intr(svm))
- 			return false;
- 	} else {
--		if (!(kvm_get_rflags(vcpu) & X86_EFLAGS_IF))
-+		if (!svm_get_if_flag(vcpu))
- 			return true;
- 	}
- 
-@@ -4562,6 +4564,7 @@ static struct kvm_x86_ops svm_x86_ops __
- 	.cache_reg = svm_cache_reg,
- 	.get_rflags = svm_get_rflags,
- 	.set_rflags = svm_set_rflags,
-+	.get_if_flag = svm_get_if_flag,
- 
- 	.tlb_flush_all = svm_flush_tlb,
- 	.tlb_flush_current = svm_flush_tlb,
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -1359,6 +1359,11 @@ void vmx_set_rflags(struct kvm_vcpu *vcp
- 		vmx->emulation_required = vmx_emulation_required(vcpu);
- }
- 
-+static bool vmx_get_if_flag(struct kvm_vcpu *vcpu)
-+{
-+	return vmx_get_rflags(vcpu) & X86_EFLAGS_IF;
-+}
-+
- u32 vmx_get_interrupt_shadow(struct kvm_vcpu *vcpu)
- {
- 	u32 interruptibility = vmcs_read32(GUEST_INTERRUPTIBILITY_INFO);
-@@ -7573,6 +7578,7 @@ static struct kvm_x86_ops vmx_x86_ops __
- 	.cache_reg = vmx_cache_reg,
- 	.get_rflags = vmx_get_rflags,
- 	.set_rflags = vmx_set_rflags,
-+	.get_if_flag = vmx_get_if_flag,
- 
- 	.tlb_flush_all = vmx_flush_tlb_all,
- 	.tlb_flush_current = vmx_flush_tlb_current,
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8880,14 +8880,7 @@ static void post_kvm_run_save(struct kvm
- {
- 	struct kvm_run *kvm_run = vcpu->run;
- 
--	/*
--	 * if_flag is obsolete and useless, so do not bother
--	 * setting it for SEV-ES guests.  Userspace can just
--	 * use kvm_run->ready_for_interrupt_injection.
--	 */
--	kvm_run->if_flag = !vcpu->arch.guest_state_protected
--		&& (kvm_get_rflags(vcpu) & X86_EFLAGS_IF) != 0;
--
-+	kvm_run->if_flag = static_call(kvm_x86_get_if_flag)(vcpu);
- 	kvm_run->cr8 = kvm_get_cr8(vcpu);
- 	kvm_run->apic_base = kvm_get_apic_base(vcpu);
- 
+ 	timer_setup(&ipmi_timer, ipmi_timeout, 0);
+ 	mod_timer(&ipmi_timer, jiffies + IPMI_TIMEOUT_JIFFIES);
 
 
