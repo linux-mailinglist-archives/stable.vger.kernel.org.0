@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D4347FE7D
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6C7147FE85
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237680AbhL0P3e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:29:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34308 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234486AbhL0P3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:29:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C702C0613B4;
-        Mon, 27 Dec 2021 07:28:59 -0800 (PST)
+        id S237524AbhL0P3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:29:53 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34674 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237561AbhL0P3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:29:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BC65B810A2;
-        Mon, 27 Dec 2021 15:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9240EC36AE7;
-        Mon, 27 Dec 2021 15:28:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF0E1B810C3;
+        Mon, 27 Dec 2021 15:29:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03CDBC36AE7;
+        Mon, 27 Dec 2021 15:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618937;
-        bh=GDM88T6z+CoFM2O6zfeOAhu/7fGz0E1fKDui1Cy9nuc=;
+        s=korg; t=1640618971;
+        bh=GY53WkC3GlerRJsLHDC9VaLjERQ4URDtHWY3OAUzc5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vd91Xgk1kkSMS1gk3VUjaB65r+Co5rf3HM53QM/RyT8lVsUmi+fTgk/tXzXF6Ejmp
-         SxeH8/NYsszvMqAlWvFG/IK6NAENQZsyq68zHkgSX/ZUxhs3zsyv9PmcOszMgFWoqS
-         rK6vmJm8yGQsol79eDiOALARcffmvUKRaEnyRPN8=
+        b=qp+6fxNaIHGBdPTckw7uXONOzBLRKkABp4zsdRNB14VFyLVMQL/lpmOG8y5/0GS1Q
+         g6xQlesCSIk0+DoX6D0YZZ0+Cm5xltmyZYeyB8Qev/U/FmkTaJbDNI5VwdGxm2tll8
+         ogKvq6Bg0owCzGtsnpEUfkZQtGDbumd4H6fpCQ4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 17/19] hamradio: defer ax25 kfree after unregister_netdev
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 09/29] net: skip virtio_net_hdr_set_proto if protocol already set
 Date:   Mon, 27 Dec 2021 16:27:19 +0100
-Message-Id: <20211227151317.107250211@linuxfoundation.org>
+Message-Id: <20211227151318.776404083@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151316.558965545@linuxfoundation.org>
-References: <20211227151316.558965545@linuxfoundation.org>
+In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
+References: <20211227151318.475251079@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,66 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 3e0588c291d6ce225f2b891753ca41d45ba42469 upstream.
+[ Upstream commit 1ed1d592113959f00cc552c3b9f47ca2d157768f ]
 
-There is a possible race condition (use-after-free) like below
+virtio_net_hdr_set_proto infers skb->protocol from the virtio_net_hdr
+gso_type, to avoid packets getting dropped for lack of a proto type.
 
- (USE)                       |  (FREE)
-ax25_sendmsg                 |
- ax25_queue_xmit             |
-  dev_queue_xmit             |
-   __dev_queue_xmit          |
-    __dev_xmit_skb           |
-     sch_direct_xmit         | ...
-      xmit_one               |
-       netdev_start_xmit     | tty_ldisc_kill
-        __netdev_start_xmit  |  mkiss_close
-         ax_xmit             |   kfree
-          ax_encaps          |
-                             |
+Its protocol choice is a guess, especially in the case of UFO, where
+the single VIRTIO_NET_HDR_GSO_UDP label covers both UFOv4 and UFOv6.
 
-Even though there are two synchronization primitives before the kfree:
-1. wait_for_completion(&ax->dead). This can prevent the race with
-routines from mkiss_ioctl. However, it cannot stop the routine coming
-from upper layer, i.e., the ax25_sendmsg.
+Skip this best effort if the field is already initialized. Whether
+explicitly from userspace, or implicitly based on an earlier call to
+dev_parse_header_protocol (which is more robust, but was introduced
+after this patch).
 
-2. netif_stop_queue(ax->dev). It seems that this line of code aims to
-halt the transmit queue but it fails to stop the routine that already
-being xmit.
-
-This patch reorder the kfree after the unregister_netdev to avoid the
-possible UAF as the unregister_netdev() is well synchronized and won't
-return if there is a running routine.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9d2f67e43b73 ("net/packet: fix packet drop as of virtio gso")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20211220145027.2784293-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/mkiss.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/linux/virtio_net.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/hamradio/mkiss.c
-+++ b/drivers/net/hamradio/mkiss.c
-@@ -803,13 +803,14 @@ static void mkiss_close(struct tty_struc
- 	 */
- 	netif_stop_queue(ax->dev);
- 
--	/* Free all AX25 frame buffers. */
--	kfree(ax->rbuff);
--	kfree(ax->xbuff);
--
- 	ax->tty = NULL;
- 
- 	unregister_netdev(ax->dev);
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index f5876f7a2ab24..db8ab0fac81a2 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -25,6 +25,9 @@ static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
+ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
+ 					   const struct virtio_net_hdr *hdr)
+ {
++	if (skb->protocol)
++		return 0;
 +
-+	/* Free all AX25 frame buffers after unreg. */
-+	kfree(ax->rbuff);
-+	kfree(ax->xbuff);
-+
- 	free_netdev(ax->dev);
- }
- 
+ 	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+ 	case VIRTIO_NET_HDR_GSO_TCPV4:
+ 	case VIRTIO_NET_HDR_GSO_UDP:
+-- 
+2.34.1
+
 
 
