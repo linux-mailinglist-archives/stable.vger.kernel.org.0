@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E684F47FF5D
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D040D4800E5
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232566AbhL0Pg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:36:57 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40510 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238700AbhL0Pg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:36:28 -0500
+        id S239940AbhL0Pv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:51:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39516 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240279AbhL0PsY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:48:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67266C061374;
+        Mon, 27 Dec 2021 07:43:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 76ACACE10D2;
-        Mon, 27 Dec 2021 15:36:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 127E8C36AEC;
-        Mon, 27 Dec 2021 15:36:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3029FB810A2;
+        Mon, 27 Dec 2021 15:43:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 787E1C36AEB;
+        Mon, 27 Dec 2021 15:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619384;
-        bh=9jSEvlVWKM7avDpuNIdWPDfIenxmMETLn/TJ6b7cQMw=;
+        s=korg; t=1640619825;
+        bh=wQwIfeMq5N/Ew3jURX6tFLuWiq3YBkEI2oAzxNQptHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjIQaaAXB9JdpyRhqFaDq/dnrWZgI7pd+msJn+wB27M6fLz03u0CYgbZR9o3I0e68
-         diNWa7y+hnz9vmIg2sOqBbNMNlGzD4KQ2p8m4ugB2AAAdx52WhchosVm2mVqeAdw+8
-         1MS4ek8Vw5QgPHzIZRk8nqLDRMuaKOQ2EkITQssU=
+        b=PoPD+SYjUP+ySLQq/UK5jwE6vX6Ya3QGZvHryV5lS99NqB5+G+N4QvSTEiF14GhMs
+         VnitHtUoZ//FWJor2gMAeDPoM8PlEsteYrQTsZZaTqbAci12d3DU2v7Cz4VPw9LQ+j
+         f2RbyG5vKEVaIpDThpdmJAlvIMda6R0CxqdfzqzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David T. Wilson" <david.wilson@nasa.gov>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/47] hwmon: (lm90) Introduce flag indicating extended temperature support
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 081/128] parisc: Fix mask used to select futex spinlock
 Date:   Mon, 27 Dec 2021 16:30:56 +0100
-Message-Id: <20211227151321.498131386@linuxfoundation.org>
+Message-Id: <20211227151334.205360391@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,117 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit f347e249fcf920ad6974cbd898e2ec0b366a1c34 ]
+commit d3a5a68cff47f6eead84504c3c28376b85053242 upstream.
 
-A flag indicating extended temperature support makes it easier
-to add support for additional chips with this functionality.
+The address bits used to select the futex spinlock need to match those used in
+the LWS code in syscall.S. The mask 0x3f8 only selects 7 bits.  It should
+select 8 bits.
 
-Cc: David T. Wilson <david.wilson@nasa.gov>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This change fixes the glibc nptl/tst-cond24 and nptl/tst-cond25 tests.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Fixes: 53a42b6324b8 ("parisc: Switch to more fine grained lws locks")
+Cc: stable@vger.kernel.org # 5.10+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm90.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ arch/parisc/include/asm/futex.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-index e085e2a4fa16c..c4d8012806fe2 100644
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -186,7 +186,8 @@ enum chips { lm90, adm1032, lm99, lm86, max6657, max6659, adt7461, max6680,
- #define LM90_HAVE_EMERGENCY_ALARM (1 << 5)/* emergency alarm		*/
- #define LM90_HAVE_TEMP3		(1 << 6) /* 3rd temperature sensor	*/
- #define LM90_HAVE_BROKEN_ALERT	(1 << 7) /* Broken alert		*/
--#define LM90_PAUSE_FOR_CONFIG	(1 << 8) /* Pause conversion for config	*/
-+#define LM90_HAVE_EXTENDED_TEMP	(1 << 8) /* extended temperature support*/
-+#define LM90_PAUSE_FOR_CONFIG	(1 << 9) /* Pause conversion for config	*/
- 
- /* LM90 status */
- #define LM90_STATUS_LTHRM	(1 << 0) /* local THERM limit tripped */
-@@ -359,7 +360,7 @@ static const struct lm90_params lm90_params[] = {
- 	},
- 	[adt7461] = {
- 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
--		  | LM90_HAVE_BROKEN_ALERT,
-+		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP,
- 		.alert_alarms = 0x7c,
- 		.max_convrate = 10,
- 	},
-@@ -431,7 +432,7 @@ static const struct lm90_params lm90_params[] = {
- 	},
- 	[tmp451] = {
- 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
--		  | LM90_HAVE_BROKEN_ALERT,
-+		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP,
- 		.alert_alarms = 0x7c,
- 		.max_convrate = 9,
- 		.reg_local_ext = TMP451_REG_R_LOCAL_TEMPL,
-@@ -1013,7 +1014,7 @@ static int lm90_get_temp11(struct lm90_data *data, int index)
- 	s16 temp11 = data->temp11[index];
- 	int temp;
- 
--	if (data->kind == adt7461 || data->kind == tmp451)
-+	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
- 		temp = temp_from_u16_adt7461(data, temp11);
- 	else if (data->kind == max6646)
- 		temp = temp_from_u16(temp11);
-@@ -1047,7 +1048,7 @@ static int lm90_set_temp11(struct lm90_data *data, int index, long val)
- 	if (data->kind == lm99 && index <= 2)
- 		val -= 16000;
- 
--	if (data->kind == adt7461 || data->kind == tmp451)
-+	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
- 		data->temp11[index] = temp_to_u16_adt7461(data, val);
- 	else if (data->kind == max6646)
- 		data->temp11[index] = temp_to_u8(val) << 8;
-@@ -1074,7 +1075,7 @@ static int lm90_get_temp8(struct lm90_data *data, int index)
- 	s8 temp8 = data->temp8[index];
- 	int temp;
- 
--	if (data->kind == adt7461 || data->kind == tmp451)
-+	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
- 		temp = temp_from_u8_adt7461(data, temp8);
- 	else if (data->kind == max6646)
- 		temp = temp_from_u8(temp8);
-@@ -1107,7 +1108,7 @@ static int lm90_set_temp8(struct lm90_data *data, int index, long val)
- 	if (data->kind == lm99 && index == 3)
- 		val -= 16000;
- 
--	if (data->kind == adt7461 || data->kind == tmp451)
-+	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
- 		data->temp8[index] = temp_to_u8_adt7461(data, val);
- 	else if (data->kind == max6646)
- 		data->temp8[index] = temp_to_u8(val);
-@@ -1125,7 +1126,7 @@ static int lm90_get_temphyst(struct lm90_data *data, int index)
+--- a/arch/parisc/include/asm/futex.h
++++ b/arch/parisc/include/asm/futex.h
+@@ -16,7 +16,7 @@ static inline void
+ _futex_spin_lock_irqsave(u32 __user *uaddr, unsigned long int *flags)
  {
- 	int temp;
- 
--	if (data->kind == adt7461 || data->kind == tmp451)
-+	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
- 		temp = temp_from_u8_adt7461(data, data->temp8[index]);
- 	else if (data->kind == max6646)
- 		temp = temp_from_u8(data->temp8[index]);
-@@ -1145,7 +1146,7 @@ static int lm90_set_temphyst(struct lm90_data *data, long val)
- 	int temp;
- 	int err;
- 
--	if (data->kind == adt7461 || data->kind == tmp451)
-+	if (data->flags & LM90_HAVE_EXTENDED_TEMP)
- 		temp = temp_from_u8_adt7461(data, data->temp8[LOCAL_CRIT]);
- 	else if (data->kind == max6646)
- 		temp = temp_from_u8(data->temp8[LOCAL_CRIT]);
-@@ -1698,7 +1699,7 @@ static int lm90_init_client(struct i2c_client *client, struct lm90_data *data)
- 	lm90_set_convrate(client, data, 500); /* 500ms; 2Hz conversion rate */
- 
- 	/* Check Temperature Range Select */
--	if (data->kind == adt7461 || data->kind == tmp451) {
-+	if (data->flags & LM90_HAVE_EXTENDED_TEMP) {
- 		if (config & 0x04)
- 			data->flags |= LM90_FLAG_ADT7461_EXT;
- 	}
--- 
-2.34.1
-
+ 	extern u32 lws_lock_start[];
+-	long index = ((long)uaddr & 0x3f8) >> 1;
++	long index = ((long)uaddr & 0x7f8) >> 1;
+ 	arch_spinlock_t *s = (arch_spinlock_t *)&lws_lock_start[index];
+ 	local_irq_save(*flags);
+ 	arch_spin_lock(s);
+@@ -26,7 +26,7 @@ static inline void
+ _futex_spin_unlock_irqrestore(u32 __user *uaddr, unsigned long int *flags)
+ {
+ 	extern u32 lws_lock_start[];
+-	long index = ((long)uaddr & 0x3f8) >> 1;
++	long index = ((long)uaddr & 0x7f8) >> 1;
+ 	arch_spinlock_t *s = (arch_spinlock_t *)&lws_lock_start[index];
+ 	arch_spin_unlock(s);
+ 	local_irq_restore(*flags);
 
 
