@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00AE447FC1F
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:17:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6146C47FC22
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:19:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236313AbhL0LRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 06:17:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35386 "EHLO
+        id S236323AbhL0LTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 06:19:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233404AbhL0LRh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:17:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BFBC06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:17:37 -0800 (PST)
+        with ESMTP id S233404AbhL0LTF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:19:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E14FC06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:19:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0499E60DD0
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8E82C36AE7;
-        Mon, 27 Dec 2021 11:17:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A775B80E98
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:19:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3578FC36AEA;
+        Mon, 27 Dec 2021 11:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640603856;
-        bh=NC31MdfEF2oGdofcw3vSet1CGlp3t8Xa/Gwib8r16Sg=;
+        s=korg; t=1640603942;
+        bh=vG9M6DK6OVWaxeAEqRdpr8hJrPTS57WvQo+olnBU+EU=;
         h=Subject:To:Cc:From:Date:From;
-        b=Fl07x0LZVGCp3cjO/V19QDVGQNYliyuOjowGrml2V5fFj4DwhvtJ7X58Z5OEyUMnt
-         qXhHeE2F+8cxLUJlXmvLiOWITwsv9ZGcqCLjdMGsHCCGFK4nRugVFlJXDKRsdfI3dR
-         vpZbO/dGtVAmxNnhIqndcr61M57e2YOlkqO3u2gc=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Fix quirk for Clevo NJ51CU" failed to apply to 5.4-stable tree
-To:     wse@tuxedocomputers.com, stable@vger.kernel.org, tiwai@suse.de
+        b=MKrlzIm4qvwo4sCmVtVKyYNR4hjBGSG0VlrlYseeCZ7osYVmFDBxgiXOc28eaH7Xr
+         qiBGoAaAQl5m/zIyvJIBvuNDyQWyeCF6uaXUCFH17knQqB7lyn279txTleo6k1H4sr
+         4EIoMnVsi+yi8is4N7SujvxF0HxnLAOc0GbB7owY=
+Subject: FAILED: patch "[PATCH] Input: goodix - try not to touch the reset-pin on x86/ACPI" failed to apply to 5.15-stable tree
+To:     hdegoede@redhat.com, dmitry.torokhov@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 12:17:25 +0100
-Message-ID: <164060384518232@kroah.com>
+Date:   Mon, 27 Dec 2021 12:19:00 +0100
+Message-ID: <1640603940211139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,84 +53,117 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From edca7cc4b0accfa69dc032442fe0684e59c691b8 Mon Sep 17 00:00:00 2001
-From: Werner Sembach <wse@tuxedocomputers.com>
-Date: Wed, 15 Dec 2021 20:16:46 +0100
-Subject: [PATCH] ALSA: hda/realtek: Fix quirk for Clevo NJ51CU
+From a2fd46cd3dbb83b373ba74f4043f8dae869c65f1 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Mon, 6 Dec 2021 23:15:09 -0800
+Subject: [PATCH] Input: goodix - try not to touch the reset-pin on x86/ACPI
+ devices
 
-The Clevo NJ51CU comes either with the ALC293 or the ALC256 codec, but uses
-the 0x8686 subproduct id in both cases. The ALC256 codec needs a different
-quirk for the headset microphone working and and edditional quirk for sound
-working after suspend and resume.
+Unless the controller is not responding at boot or after suspend/resume,
+the driver never resets the controller on x86/ACPI platforms. The driver
+still requesting the reset pin at probe() though in case it needs it.
 
-When waking up from s3 suspend the Coef 0x10 is set to 0x0220 instead of
-0x0020 on  the ALC256 codec. Setting the value manually makes the sound
-work again. This patch does this automatically.
+Until now the driver has always requested the reset pin with GPIOD_IN
+as type. The idea being to put the pin in high-impedance mode to save
+power until the driver actually wants to issue a reset.
 
-[ minor coding style fix by tiwai ]
+But this means that just requesting the pin can cause issues, since
+requesting it in another mode then GPIOD_ASIS may cause the pinctrl
+driver to touch the pin settings. We have already had issues before
+due to a bug in the pinctrl-cherryview.c driver which has been fixed in
+commit 921daeeca91b ("pinctrl: cherryview: Preserve
+CHV_PADCTRL1_INVRXTX_TXDATA flag on GPIOs").
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Fixes: b5acfe152abaa ("ALSA: hda/realtek: Add some Clove SSID in the ALC293(ALC1220)")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211215191646.844644-1-wse@tuxedocomputers.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+And now it turns out that requesting the reset-pin as GPIOD_IN also stops
+the touchscreen from working on the GPD P2 max mini-laptop. The behavior
+of putting the pin in high-impedance mode relies on there being some
+external pull-up to keep it high and there seems to be no pull-up on the
+GPD P2 max, causing things to break.
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index e59ff75eea75..28255e752c4a 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6546,6 +6546,23 @@ static void alc233_fixup_no_audio_jack(struct hda_codec *codec,
- 	alc_process_coef_fw(codec, alc233_fixup_no_audio_jack_coefs);
- }
+This commit fixes this by requesting the reset pin as is when using
+the x86/ACPI code paths to lookup the GPIOs; and by not dropping it
+back into input-mode in case the driver does end up issuing a reset
+for error-recovery.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=209061
+Fixes: a7d4b171660c ("Input: goodix - add support for getting IRQ + reset GPIOs on Cherry Trail devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211206091116.44466-2-hdegoede@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 906b5a6b52d1..e7efc32043e7 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -695,10 +695,16 @@ int goodix_reset_no_int_sync(struct goodix_ts_data *ts)
  
-+static void alc256_fixup_mic_no_presence_and_resume(struct hda_codec *codec,
-+						    const struct hda_fixup *fix,
-+						    int action)
-+{
+ 	usleep_range(6000, 10000);		/* T4: > 5ms */
+ 
+-	/* end select I2C slave addr */
+-	error = gpiod_direction_input(ts->gpiod_rst);
+-	if (error)
+-		goto error;
 +	/*
-+	 * The Clevo NJ51CU comes either with the ALC293 or the ALC256 codec,
-+	 * but uses the 0x8686 subproduct id in both cases. The ALC256 codec
-+	 * needs an additional quirk for sound working after suspend and resume.
++	 * Put the reset pin back in to input / high-impedance mode to save
++	 * power. Only do this in the non ACPI case since some ACPI boards
++	 * don't have a pull-up, so there the reset pin must stay active-high.
 +	 */
-+	if (codec->core.vendor_id == 0x10ec0256) {
-+		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
-+		snd_hda_codec_set_pincfg(codec, 0x19, 0x04a11120);
-+	} else {
-+		snd_hda_codec_set_pincfg(codec, 0x1a, 0x04a1113c);
++	if (ts->irq_pin_access_method == IRQ_PIN_ACCESS_GPIO) {
++		error = gpiod_direction_input(ts->gpiod_rst);
++		if (error)
++			goto error;
 +	}
-+}
+ 
+ 	return 0;
+ 
+@@ -832,6 +838,14 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
+ 		return -EINVAL;
+ 	}
+ 
++	/*
++	 * Normally we put the reset pin in input / high-impedance mode to save
++	 * power. But some x86/ACPI boards don't have a pull-up, so for the ACPI
++	 * case, leave the pin as is. This results in the pin not being touched
++	 * at all on x86/ACPI boards, except when needed for error-recover.
++	 */
++	ts->gpiod_rst_flags = GPIOD_ASIS;
 +
- enum {
- 	ALC269_FIXUP_GPIO2,
- 	ALC269_FIXUP_SONY_VAIO,
-@@ -6766,6 +6783,7 @@ enum {
- 	ALC256_FIXUP_SET_COEF_DEFAULTS,
- 	ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE,
- 	ALC233_FIXUP_NO_AUDIO_JACK,
-+	ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME,
- };
+ 	return devm_acpi_dev_add_driver_gpios(dev, gpio_mapping);
+ }
+ #else
+@@ -857,6 +871,12 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+ 		return -EINVAL;
+ 	dev = &ts->client->dev;
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8490,6 +8508,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc233_fixup_no_audio_jack,
- 	},
-+	[ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc256_fixup_mic_no_presence_and_resume,
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
-+	},
- };
++	/*
++	 * By default we request the reset pin as input, leaving it in
++	 * high-impedance when not resetting the controller to save power.
++	 */
++	ts->gpiod_rst_flags = GPIOD_IN;
++
+ 	ts->avdd28 = devm_regulator_get(dev, "AVDD28");
+ 	if (IS_ERR(ts->avdd28)) {
+ 		error = PTR_ERR(ts->avdd28);
+@@ -894,7 +914,7 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+ 	ts->gpiod_int = gpiod;
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8831,7 +8855,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[57][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
- 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
--	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
- 	SND_PCI_QUIRK(0x1558, 0x8a20, "Clevo NH55DCQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8a51, "Clevo NH70RCQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8d50, "Clevo NH55RCQ-M", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	/* Get the reset line GPIO pin number */
+-	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_RST_NAME, GPIOD_IN);
++	gpiod = devm_gpiod_get_optional(dev, GOODIX_GPIO_RST_NAME, ts->gpiod_rst_flags);
+ 	if (IS_ERR(gpiod)) {
+ 		error = PTR_ERR(gpiod);
+ 		if (error != -EPROBE_DEFER)
+diff --git a/drivers/input/touchscreen/goodix.h b/drivers/input/touchscreen/goodix.h
+index 62138f930d1a..02065d1c3263 100644
+--- a/drivers/input/touchscreen/goodix.h
++++ b/drivers/input/touchscreen/goodix.h
+@@ -87,6 +87,7 @@ struct goodix_ts_data {
+ 	struct gpio_desc *gpiod_rst;
+ 	int gpio_count;
+ 	int gpio_int_idx;
++	enum gpiod_flags gpiod_rst_flags;
+ 	char id[GOODIX_ID_MAX_LEN + 1];
+ 	char cfg_name[64];
+ 	u16 version;
 
