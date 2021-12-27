@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE6047FE73
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52BB847FE9F
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229983AbhL0P3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:29:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34342 "EHLO
+        id S237585AbhL0Pak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:30:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233094AbhL0P2s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:28:48 -0500
+        with ESMTP id S237773AbhL0P3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:29:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F497C06175D;
-        Mon, 27 Dec 2021 07:28:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF36C061761;
+        Mon, 27 Dec 2021 07:29:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09D1EB80E51;
-        Mon, 27 Dec 2021 15:28:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C20EC36AEA;
-        Mon, 27 Dec 2021 15:28:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E7DFB810B9;
+        Mon, 27 Dec 2021 15:29:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64220C36AEA;
+        Mon, 27 Dec 2021 15:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618925;
-        bh=aicetrdgxZBsfSaBr9vtsR7ZtKDQe5xBGDQPaL5+U1s=;
+        s=korg; t=1640618959;
+        bh=fUBhXibZJW9QnpDn3BLzk+ys44uOpVJ3MmHYUaNnZ7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0NUGXiYic+cTxBtZfAr4Mt7v+FHsva5clfAJiv3KPtxGaJtNTXW4VVdKhzm+HtJ8
-         mk0qar68GZf7khOmY2Nhqitr2/Ornov8haGbUT/KWJsULTmrvyGgf0oLLosPBn0CSK
-         Bxa5MiS55cqGsM0aAhnM5lugSYRwmPHCm9LBhLdg=
+        b=YKtiQo81qz3oOU4Ce3vvs88m9usIwBt76Nyxwyjw5T3P76YA+b/WGYqrtcXRHGaPD
+         2Ez7mAucKeVTKtNXelamELx+9ed11q+i4NU8Xam809DTHe5DkJYUu5ezy1BTnEaXJ0
+         JN85e0PRTFgMFhbD3mw2EmNPlQog8QuyjITzlyS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 13/19] ARM: 9169/1: entry: fix Thumb2 bug in iWMMXt exception handling
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 05/29] IB/qib: Fix memory leak in qib_user_sdma_queue_pkts()
 Date:   Mon, 27 Dec 2021 16:27:15 +0100
-Message-Id: <20211227151316.981579727@linuxfoundation.org>
+Message-Id: <20211227151318.649584622@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151316.558965545@linuxfoundation.org>
-References: <20211227151316.558965545@linuxfoundation.org>
+In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
+References: <20211227151318.475251079@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +50,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: José Expósito <jose.exposito89@gmail.com>
 
-commit 8536a5ef886005bc443c2da9b842d69fd3d7647f upstream.
+[ Upstream commit bee90911e0138c76ee67458ac0d58b38a3190f65 ]
 
-The Thumb2 version of the FP exception handling entry code treats the
-register holding the CP number (R8) differently, resulting in the iWMMXT
-CP number check to be incorrect.
+The wrong goto label was used for the error case and missed cleanup of the
+pkt allocation.
 
-Fix this by unifying the ARM and Thumb2 code paths, and switch the
-order of the additions of the TI_USED_CP offset and the shifted CP
-index.
-
-Cc: <stable@vger.kernel.org>
-Fixes: b86040a59feb ("Thumb-2: Implementation of the unified start-up and exceptions code")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d39bf40e55e6 ("IB/qib: Protect from buffer overflow in struct qib_user_sdma_pkt fields")
+Link: https://lore.kernel.org/r/20211208175238.29983-1-jose.exposito89@gmail.com
+Addresses-Coverity-ID: 1493352 ("Resource leak")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Acked-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-armv.S |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/qib/qib_user_sdma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -631,11 +631,9 @@ call_fpe:
- 	tstne	r0, #0x04000000			@ bit 26 set on both ARM and Thumb-2
- 	reteq	lr
- 	and	r8, r0, #0x00000f00		@ mask out CP number
-- THUMB(	lsr	r8, r8, #8		)
- 	mov	r7, #1
--	add	r6, r10, #TI_USED_CP
-- ARM(	strb	r7, [r6, r8, lsr #8]	)	@ set appropriate used_cp[]
-- THUMB(	strb	r7, [r6, r8]		)	@ set appropriate used_cp[]
-+	add	r6, r10, r8, lsr #8		@ add used_cp[] array offset first
-+	strb	r7, [r6, #TI_USED_CP]		@ set appropriate used_cp[]
- #ifdef CONFIG_IWMMXT
- 	@ Test if we need to give access to iWMMXt coprocessors
- 	ldr	r5, [r10, #TI_FLAGS]
-@@ -644,7 +642,7 @@ call_fpe:
- 	bcs	iwmmxt_task_enable
- #endif
-  ARM(	add	pc, pc, r8, lsr #6	)
-- THUMB(	lsl	r8, r8, #2		)
-+ THUMB(	lsr	r8, r8, #6		)
-  THUMB(	add	pc, r8			)
- 	nop
+diff --git a/drivers/infiniband/hw/qib/qib_user_sdma.c b/drivers/infiniband/hw/qib/qib_user_sdma.c
+index 42329bbe4055f..0b6379bf76696 100644
+--- a/drivers/infiniband/hw/qib/qib_user_sdma.c
++++ b/drivers/infiniband/hw/qib/qib_user_sdma.c
+@@ -946,7 +946,7 @@ static int qib_user_sdma_queue_pkts(const struct qib_devdata *dd,
+ 					       &addrlimit) ||
+ 			    addrlimit > type_max(typeof(pkt->addrlimit))) {
+ 				ret = -EINVAL;
+-				goto free_pbc;
++				goto free_pkt;
+ 			}
+ 			pkt->addrlimit = addrlimit;
  
+-- 
+2.34.1
+
 
 
