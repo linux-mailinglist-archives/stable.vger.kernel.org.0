@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E15047FE6A
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:29:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD0347FE48
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:27:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237431AbhL0P2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:28:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33888 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237472AbhL0P2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:28:36 -0500
+        id S237371AbhL0P1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:27:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34102 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237382AbhL0P1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:27:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5168C06175F;
+        Mon, 27 Dec 2021 07:27:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3D12B810A2;
-        Mon, 27 Dec 2021 15:28:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A209C36AE7;
-        Mon, 27 Dec 2021 15:28:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84A56610A7;
+        Mon, 27 Dec 2021 15:27:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E0AC36AE7;
+        Mon, 27 Dec 2021 15:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618914;
-        bh=ENTcXV7YWh/D+mhsFdb3ZukmaF05FfFNAYySJsKEWtY=;
+        s=korg; t=1640618860;
+        bh=asfYmqaiXY7RYN1v5stNBAhjj5bzCu1/M33g/7Og6SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9s1E2H8YEjf3v5+C4DAidaj5+t9bawygrB2eVzBcvnybgQ2JedCk8pNzsu/lpygu
-         I+LWslCmq+tRufNzNOc2cyOPIaQKqGkDeztlgEqiTekCU45e5k7g+cUml1IEJ0mkbG
-         /kntyeXShw0n5T26gL2wuesvPkkGfK4m4NSgmjGg=
+        b=xkz1up/yVOg6ZhHyOnMlrg3uaqlAHBaoS8ojzB88+RZroYSK7CP5Ut+iZyRms1bg2
+         Lko5qiCUxvonsdQWic5SQFWheEvGAZIHlgRocwajgcAjt4yN2EIfMjC/24wmJQJ33H
+         EA5TiXgTGPRnrT/NMbVQ12IF5AcmgBOpecd7IwSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/19] drivers: net: smc911x: Check for error irq
-Date:   Mon, 27 Dec 2021 16:27:10 +0100
-Message-Id: <20211227151316.822943369@linuxfoundation.org>
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 16/17] hamradio: improve the incomplete fix to avoid NPD
+Date:   Mon, 27 Dec 2021 16:27:11 +0100
+Message-Id: <20211227151316.473350347@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151316.558965545@linuxfoundation.org>
-References: <20211227151316.558965545@linuxfoundation.org>
+In-Reply-To: <20211227151315.962187770@linuxfoundation.org>
+References: <20211227151315.962187770@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit cb93b3e11d405f20a405a07482d01147ef4934a3 ]
+commit b2f37aead1b82a770c48b5d583f35ec22aabb61e upstream.
 
-Because platform_get_irq() could fail and return error irq.
-Therefore, it might be better to check it if order to avoid the use of
-error irq.
+The previous commit 3e0588c291d6 ("hamradio: defer ax25 kfree after
+unregister_netdev") reorder the kfree operations and unregister_netdev
+operation to prevent UAF.
 
-Fixes: ae150435b59e ("smsc: Move the SMC (SMSC) drivers")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+This commit improves the previous one by also deferring the nullify of
+the ax->tty pointer. Otherwise, a NULL pointer dereference bug occurs.
+Partial of the stack trace is shown below.
+
+BUG: kernel NULL pointer dereference, address: 0000000000000538
+RIP: 0010:ax_xmit+0x1f9/0x400
+...
+Call Trace:
+ dev_hard_start_xmit+0xec/0x320
+ sch_direct_xmit+0xea/0x240
+ __qdisc_run+0x166/0x5c0
+ __dev_queue_xmit+0x2c7/0xaf0
+ ax25_std_establish_data_link+0x59/0x60
+ ax25_connect+0x3a0/0x500
+ ? security_socket_connect+0x2b/0x40
+ __sys_connect+0x96/0xc0
+ ? __hrtimer_init+0xc0/0xc0
+ ? common_nsleep+0x2e/0x50
+ ? switch_fpu_return+0x139/0x1a0
+ __x64_sys_connect+0x11/0x20
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The crash point is shown as below
+
+static void ax_encaps(...) {
+  ...
+  set_bit(TTY_DO_WRITE_WAKEUP, &ax->tty->flags); // ax->tty = NULL!
+  ...
+}
+
+By placing the nullify action after the unregister_netdev, the ax->tty
+pointer won't be assigned as NULL net_device framework layer is well
+synchronized.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/smsc/smc911x.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/hamradio/mkiss.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/smsc/smc911x.c b/drivers/net/ethernet/smsc/smc911x.c
-index d0cf971aa4ebe..4237bd311e0e6 100644
---- a/drivers/net/ethernet/smsc/smc911x.c
-+++ b/drivers/net/ethernet/smsc/smc911x.c
-@@ -2088,6 +2088,11 @@ static int smc911x_drv_probe(struct platform_device *pdev)
+--- a/drivers/net/hamradio/mkiss.c
++++ b/drivers/net/hamradio/mkiss.c
+@@ -803,14 +803,14 @@ static void mkiss_close(struct tty_struc
+ 	 */
+ 	netif_stop_queue(ax->dev);
  
- 	ndev->dma = (unsigned char)-1;
- 	ndev->irq = platform_get_irq(pdev, 0);
-+	if (ndev->irq < 0) {
-+		ret = ndev->irq;
-+		goto release_both;
-+	}
+-	ax->tty = NULL;
+-
+ 	unregister_netdev(ax->dev);
+ 
+ 	/* Free all AX25 frame buffers after unreg. */
+ 	kfree(ax->rbuff);
+ 	kfree(ax->xbuff);
+ 
++	ax->tty = NULL;
 +
- 	lp = netdev_priv(ndev);
- 	lp->netdev = ndev;
- #ifdef SMC_DYNAMIC_BUS_CONFIG
--- 
-2.34.1
-
+ 	free_netdev(ax->dev);
+ }
+ 
 
 
