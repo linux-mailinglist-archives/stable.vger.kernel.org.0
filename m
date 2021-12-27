@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6146C47FC22
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:19:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB2347FC23
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:19:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236323AbhL0LTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 06:19:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233404AbhL0LTF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:19:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E14FC06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:19:05 -0800 (PST)
+        id S236324AbhL0LTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 06:19:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39290 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233404AbhL0LTN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:19:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A775B80E98
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:19:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3578FC36AEA;
-        Mon, 27 Dec 2021 11:19:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0A1E60F15
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A19C36AE7;
+        Mon, 27 Dec 2021 11:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640603942;
-        bh=vG9M6DK6OVWaxeAEqRdpr8hJrPTS57WvQo+olnBU+EU=;
+        s=korg; t=1640603952;
+        bh=W9Sa5ywbb8AmTzRNkEHYAHwNh2nXfPqpB3R2SJrTgtI=;
         h=Subject:To:Cc:From:Date:From;
-        b=MKrlzIm4qvwo4sCmVtVKyYNR4hjBGSG0VlrlYseeCZ7osYVmFDBxgiXOc28eaH7Xr
-         qiBGoAaAQl5m/zIyvJIBvuNDyQWyeCF6uaXUCFH17knQqB7lyn279txTleo6k1H4sr
-         4EIoMnVsi+yi8is4N7SujvxF0HxnLAOc0GbB7owY=
-Subject: FAILED: patch "[PATCH] Input: goodix - try not to touch the reset-pin on x86/ACPI" failed to apply to 5.15-stable tree
+        b=y5hy9Ct99uUruESaqfC0IEtI9c9LF2VqDg120mcrVDP/jjfx+BmxMSf7zCSIT8N7B
+         luMRR/vG5RsKtFxn8IXEYnSqB4a//dgNGsXDGCYfS2Op8bOzxYrDIjsxckqKytoQtq
+         +r5x7AxVmsdcNhZlHrhq4h6Z1tYKpslUC0HgB6sc=
+Subject: FAILED: patch "[PATCH] Input: goodix - try not to touch the reset-pin on x86/ACPI" failed to apply to 5.10-stable tree
 To:     hdegoede@redhat.com, dmitry.torokhov@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 12:19:00 +0100
-Message-ID: <1640603940211139@kroah.com>
+Date:   Mon, 27 Dec 2021 12:19:01 +0100
+Message-ID: <164060394184243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
