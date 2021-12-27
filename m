@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2A947FE50
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC9C47FE53
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:28:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237463AbhL0P2G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:28:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33430 "EHLO
+        id S237385AbhL0P2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:28:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33448 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237466AbhL0P15 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:27:57 -0500
+        with ESMTP id S237409AbhL0P2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:28:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DDA6B810B9;
-        Mon, 27 Dec 2021 15:27:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F21C36AEA;
-        Mon, 27 Dec 2021 15:27:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24EA9B810C6;
+        Mon, 27 Dec 2021 15:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A2E8C36AEA;
+        Mon, 27 Dec 2021 15:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618875;
-        bh=NyeSG5tkne6j0YV86AG73j25lKYHz9GCKymuBln7Plg=;
+        s=korg; t=1640618878;
+        bh=8UMRyUA6ttWAqpCUWPPK75Wdkxi/bJHKjseXvGNSKH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tPfylEtUk3xBbEAkIV4JIMcvLMinTK6JrAwxvkK1GpmL3JX1cuQoWmY1kuiSo/rnF
-         UJtJNp0c9nMlLGeNbg3Te2rUrRi34/3UBK0BP88VnB3sm1CCNheiD+QvxLcshev96o
-         mTsx7VEEU33kUhuGnMUBbZscvVW+U4LlS7TDtr9E=
+        b=PtQ5/OzIC7cnz0CQ4r60umTeF2LjZVVivEq2JWjhHWZZcW4uzDKHvI4xlBn+XTWmH
+         bbNtH0dR3MiI6ZHvXofscgNomfDAGfFFzew5boJtX8rM/yvQAxv1UdJ/fYujRPaKN2
+         gyilINYNniIx/sn8B7e5ixao1HxJhv4ybcPh1z6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Fernando Fernandez Mancera <ffmancera@riseup.net>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 05/17] qlcnic: potential dereference null pointer of rx_queue->page_ring
-Date:   Mon, 27 Dec 2021 16:27:00 +0100
-Message-Id: <20211227151316.137168583@linuxfoundation.org>
+Subject: [PATCH 4.4 06/17] bonding: fix ad_actor_system option setting to default
+Date:   Mon, 27 Dec 2021 16:27:01 +0100
+Message-Id: <20211227151316.166037116@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151315.962187770@linuxfoundation.org>
 References: <20211227151315.962187770@linuxfoundation.org>
@@ -45,101 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Fernando Fernandez Mancera <ffmancera@riseup.net>
 
-[ Upstream commit 60ec7fcfe76892a1479afab51ff17a4281923156 ]
+[ Upstream commit 1c15b05baea71a5ff98235783e3e4ad227760876 ]
 
-The return value of kcalloc() needs to be checked.
-To avoid dereference of null pointer in case of the failure of alloc.
-Therefore, it might be better to change the return type of
-qlcnic_sriov_alloc_vlans() and return -ENOMEM when alloc fails and
-return 0 the others.
-Also, qlcnic_sriov_set_guest_vlan_mode() and __qlcnic_pci_sriov_enable()
-should deal with the return value of qlcnic_sriov_alloc_vlans().
+When 802.3ad bond mode is configured the ad_actor_system option is set to
+"00:00:00:00:00:00". But when trying to set the all-zeroes MAC as actors'
+system address it was failing with EINVAL.
 
-Fixes: 154d0c810c53 ("qlcnic: VLAN enhancement for 84XX adapters")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+An all-zeroes ethernet address is valid, only multicast addresses are not
+valid values.
+
+Fixes: 171a42c38c6e ("bonding: add netlink support for sys prio, actor sys mac, and port key")
+Signed-off-by: Fernando Fernandez Mancera <ffmancera@riseup.net>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20211221111345.2462-1-ffmancera@riseup.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h    |  2 +-
- .../net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c | 12 +++++++++---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c |  4 +++-
- 3 files changed, 13 insertions(+), 5 deletions(-)
+ Documentation/networking/bonding.txt | 11 ++++++-----
+ drivers/net/bonding/bond_options.c   |  2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
-index 017d8c2c8285a..aab2db76d9edc 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
-@@ -201,7 +201,7 @@ int qlcnic_sriov_get_vf_vport_info(struct qlcnic_adapter *,
- 				   struct qlcnic_info *, u16);
- int qlcnic_sriov_cfg_vf_guest_vlan(struct qlcnic_adapter *, u16, u8);
- void qlcnic_sriov_free_vlans(struct qlcnic_adapter *);
--void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *);
-+int qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *);
- bool qlcnic_sriov_check_any_vlan(struct qlcnic_vf_info *);
- void qlcnic_sriov_del_vlan_id(struct qlcnic_sriov *,
- 			      struct qlcnic_vf_info *, u16);
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
-index ffa6885acfc8f..03e24fcf87a8e 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
-@@ -427,7 +427,7 @@ static int qlcnic_sriov_set_guest_vlan_mode(struct qlcnic_adapter *adapter,
- 					    struct qlcnic_cmd_args *cmd)
- {
- 	struct qlcnic_sriov *sriov = adapter->ahw->sriov;
--	int i, num_vlans;
-+	int i, num_vlans, ret;
- 	u16 *vlans;
+diff --git a/Documentation/networking/bonding.txt b/Documentation/networking/bonding.txt
+index 334b49ef02d13..5a6e70483cedf 100644
+--- a/Documentation/networking/bonding.txt
++++ b/Documentation/networking/bonding.txt
+@@ -191,11 +191,12 @@ ad_actor_sys_prio
+ ad_actor_system
  
- 	if (sriov->allowed_vlans)
-@@ -438,7 +438,9 @@ static int qlcnic_sriov_set_guest_vlan_mode(struct qlcnic_adapter *adapter,
- 	dev_info(&adapter->pdev->dev, "Number of allowed Guest VLANs = %d\n",
- 		 sriov->num_allowed_vlans);
+ 	In an AD system, this specifies the mac-address for the actor in
+-	protocol packet exchanges (LACPDUs). The value cannot be NULL or
+-	multicast. It is preferred to have the local-admin bit set for this
+-	mac but driver does not enforce it. If the value is not given then
+-	system defaults to using the masters' mac address as actors' system
+-	address.
++	protocol packet exchanges (LACPDUs). The value cannot be a multicast
++	address. If the all-zeroes MAC is specified, bonding will internally
++	use the MAC of the bond itself. It is preferred to have the
++	local-admin bit set for this mac but driver does not enforce it. If
++	the value is not given then system defaults to using the masters'
++	mac address as actors' system address.
  
--	qlcnic_sriov_alloc_vlans(adapter);
-+	ret = qlcnic_sriov_alloc_vlans(adapter);
-+	if (ret)
-+		return ret;
- 
- 	if (!sriov->any_vlan)
- 		return 0;
-@@ -2147,7 +2149,7 @@ static int qlcnic_sriov_vf_resume(struct qlcnic_adapter *adapter)
- 	return err;
- }
- 
--void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
-+int qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
- {
- 	struct qlcnic_sriov *sriov = adapter->ahw->sriov;
- 	struct qlcnic_vf_info *vf;
-@@ -2157,7 +2159,11 @@ void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
- 		vf = &sriov->vf_info[i];
- 		vf->sriov_vlans = kcalloc(sriov->num_allowed_vlans,
- 					  sizeof(*vf->sriov_vlans), GFP_KERNEL);
-+		if (!vf->sriov_vlans)
-+			return -ENOMEM;
+ 	This parameter has effect only in 802.3ad mode and is available through
+ 	SysFs interface.
+diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
+index 1022e80aaf974..1d95a83d2baeb 100644
+--- a/drivers/net/bonding/bond_options.c
++++ b/drivers/net/bonding/bond_options.c
+@@ -1407,7 +1407,7 @@ static int bond_option_ad_actor_system_set(struct bonding *bond,
+ 		mac = (u8 *)&newval->value;
  	}
-+
-+	return 0;
- }
  
- void qlcnic_sriov_free_vlans(struct qlcnic_adapter *adapter)
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
-index afd687e5e7790..238a0e58342fa 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
-@@ -598,7 +598,9 @@ static int __qlcnic_pci_sriov_enable(struct qlcnic_adapter *adapter,
- 	if (err)
- 		goto del_flr_queue;
+-	if (!is_valid_ether_addr(mac))
++	if (is_multicast_ether_addr(mac))
+ 		goto err;
  
--	qlcnic_sriov_alloc_vlans(adapter);
-+	err = qlcnic_sriov_alloc_vlans(adapter);
-+	if (err)
-+		goto del_flr_queue;
- 
- 	return err;
- 
+ 	netdev_info(bond->dev, "Setting ad_actor_system to %pM\n", mac);
 -- 
 2.34.1
 
