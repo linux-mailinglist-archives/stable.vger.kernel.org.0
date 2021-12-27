@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B55F347FC2B
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE51347FC30
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236337AbhL0LXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 06:23:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41688 "EHLO
+        id S231947AbhL0L14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 06:27:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42818 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233519AbhL0LXm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:23:42 -0500
+        with ESMTP id S229725AbhL0L1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:27:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EDE76B80E73
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37524C36AE7;
-        Mon, 27 Dec 2021 11:23:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A10F1B80EBA
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:27:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B915DC36AEA;
+        Mon, 27 Dec 2021 11:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640604219;
-        bh=136YcMhTBfpuyUJK9W3ZUDGQRhHzeYjOXsfB2IlrnoE=;
+        s=korg; t=1640604473;
+        bh=EzYXIWHNvBQFqJIOxAKdgR5mBVRuCVfzFirMKfuJAlE=;
         h=Subject:To:Cc:From:Date:From;
-        b=oN1tsbv+XX1pbDy6Axa5mkYKnU6HT37VBt3XTINUjSv19+mK4/fauE1wNoJHoLm3U
-         8ek4By9oNVxXaiN6GbiU/Da8CURd3E62GitkB32WNn+bfGhEUzVSIYDyC90/LP+p1W
-         GJM8vDKXAapd3BSkCi8K9HLuOkeRvEz41OmW/C+U=
-Subject: FAILED: patch "[PATCH] tee: handle lookup of shm with reference count 0" failed to apply to 5.4-stable tree
-To:     jens.wiklander@linaro.org, gregkh@linuxfoundation.org,
-        larper@axis.com, patrik.lantz@axis.com, sumit.garg@linaro.org
+        b=h3JKx5Bh37pT46MILtoHkBIL7vLMfgmOfFUUtaYFulaGGvamchgwu92Xyev07DaQD
+         oFq6xz8wXmPwxlc2iCgikwkWdsuLswY/aBHCPJ0drEVHtp5qxyBWm8nA8upJpErcqA
+         w+4gGfSLBfAu7ZktQc5KTFktuHB2vRSM9faA+ARo=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Don't advance iterator after restart due to" failed to apply to 5.10-stable tree
+To:     seanjc@google.com, ignat@cloudflare.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 12:23:27 +0100
-Message-ID: <1640604207101150@kroah.com>
+Date:   Mon, 27 Dec 2021 12:27:50 +0100
+Message-ID: <16406044709777@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,344 +50,217 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dfd0743f1d9ea76931510ed150334d571fbab49d Mon Sep 17 00:00:00 2001
-From: Jens Wiklander <jens.wiklander@linaro.org>
-Date: Thu, 9 Dec 2021 15:59:37 +0100
-Subject: [PATCH] tee: handle lookup of shm with reference count 0
+From 3a0f64de479cae75effb630a2e0a237ca0d0623c Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 14 Dec 2021 03:35:28 +0000
+Subject: [PATCH] KVM: x86/mmu: Don't advance iterator after restart due to
+ yielding
 
-Since the tee subsystem does not keep a strong reference to its idle
-shared memory buffers, it races with other threads that try to destroy a
-shared memory through a close of its dma-buf fd or by unmapping the
-memory.
+After dropping mmu_lock in the TDP MMU, restart the iterator during
+tdp_iter_next() and do not advance the iterator.  Advancing the iterator
+results in skipping the top-level SPTE and all its children, which is
+fatal if any of the skipped SPTEs were not visited before yielding.
 
-In tee_shm_get_from_id() when a lookup in teedev->idr has been
-successful, it is possible that the tee_shm is in the dma-buf teardown
-path, but that path is blocked by the teedev mutex. Since we don't have
-an API to tell if the tee_shm is in the dma-buf teardown path or not we
-must find another way of detecting this condition.
+When zapping all SPTEs, i.e. when min_level == root_level, restarting the
+iter and then invoking tdp_iter_next() is always fatal if the current gfn
+has as a valid SPTE, as advancing the iterator results in try_step_side()
+skipping the current gfn, which wasn't visited before yielding.
 
-Fix this by doing the reference counting directly on the tee_shm using a
-new refcount_t refcount field. dma-buf is replaced by using
-anon_inode_getfd() instead, this separates the life-cycle of the
-underlying file from the tee_shm. tee_shm_put() is updated to hold the
-mutex when decreasing the refcount to 0 and then remove the tee_shm from
-teedev->idr before releasing the mutex. This means that the tee_shm can
-never be found unless it has a refcount larger than 0.
+Sprinkle WARNs on iter->yielded being true in various helpers that are
+often used in conjunction with yielding, and tag the helper with
+__must_check to reduce the probabily of improper usage.
 
-Fixes: 967c9cca2cc5 ("tee: generic TEE subsystem")
+Failing to zap a top-level SPTE manifests in one of two ways.  If a valid
+SPTE is skipped by both kvm_tdp_mmu_zap_all() and kvm_tdp_mmu_put_root(),
+the shadow page will be leaked and KVM will WARN accordingly.
+
+  WARNING: CPU: 1 PID: 3509 at arch/x86/kvm/mmu/tdp_mmu.c:46 [kvm]
+  RIP: 0010:kvm_mmu_uninit_tdp_mmu+0x3e/0x50 [kvm]
+  Call Trace:
+   <TASK>
+   kvm_arch_destroy_vm+0x130/0x1b0 [kvm]
+   kvm_destroy_vm+0x162/0x2a0 [kvm]
+   kvm_vcpu_release+0x34/0x60 [kvm]
+   __fput+0x82/0x240
+   task_work_run+0x5c/0x90
+   do_exit+0x364/0xa10
+   ? futex_unqueue+0x38/0x60
+   do_group_exit+0x33/0xa0
+   get_signal+0x155/0x850
+   arch_do_signal_or_restart+0xed/0x750
+   exit_to_user_mode_prepare+0xc5/0x120
+   syscall_exit_to_user_mode+0x1d/0x40
+   do_syscall_64+0x48/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+If kvm_tdp_mmu_zap_all() skips a gfn/SPTE but that SPTE is then zapped by
+kvm_tdp_mmu_put_root(), KVM triggers a use-after-free in the form of
+marking a struct page as dirty/accessed after it has been put back on the
+free list.  This directly triggers a WARN due to encountering a page with
+page_count() == 0, but it can also lead to data corruption and additional
+errors in the kernel.
+
+  WARNING: CPU: 7 PID: 1995658 at arch/x86/kvm/../../../virt/kvm/kvm_main.c:171
+  RIP: 0010:kvm_is_zone_device_pfn.part.0+0x9e/0xd0 [kvm]
+  Call Trace:
+   <TASK>
+   kvm_set_pfn_dirty+0x120/0x1d0 [kvm]
+   __handle_changed_spte+0x92e/0xca0 [kvm]
+   __handle_changed_spte+0x63c/0xca0 [kvm]
+   __handle_changed_spte+0x63c/0xca0 [kvm]
+   __handle_changed_spte+0x63c/0xca0 [kvm]
+   zap_gfn_range+0x549/0x620 [kvm]
+   kvm_tdp_mmu_put_root+0x1b6/0x270 [kvm]
+   mmu_free_root_page+0x219/0x2c0 [kvm]
+   kvm_mmu_free_roots+0x1b4/0x4e0 [kvm]
+   kvm_mmu_unload+0x1c/0xa0 [kvm]
+   kvm_arch_destroy_vm+0x1f2/0x5c0 [kvm]
+   kvm_put_kvm+0x3b1/0x8b0 [kvm]
+   kvm_vcpu_release+0x4e/0x70 [kvm]
+   __fput+0x1f7/0x8c0
+   task_work_run+0xf8/0x1a0
+   do_exit+0x97b/0x2230
+   do_group_exit+0xda/0x2a0
+   get_signal+0x3be/0x1e50
+   arch_do_signal_or_restart+0x244/0x17f0
+   exit_to_user_mode_prepare+0xcb/0x120
+   syscall_exit_to_user_mode+0x1d/0x40
+   do_syscall_64+0x4d/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Note, the underlying bug existed even before commit 1af4a96025b3 ("KVM:
+x86/mmu: Yield in TDU MMU iter even if no SPTES changed") moved calls to
+tdp_mmu_iter_cond_resched() to the beginning of loops, as KVM could still
+incorrectly advance past a top-level entry when yielding on a lower-level
+entry.  But with respect to leaking shadow pages, the bug was introduced
+by yielding before processing the current gfn.
+
+Alternatively, tdp_mmu_iter_cond_resched() could simply fall through, or
+callers could jump to their "retry" label.  The downside of that approach
+is that tdp_mmu_iter_cond_resched() _must_ be called before anything else
+in the loop, and there's no easy way to enfornce that requirement.
+
+Ideally, KVM would handling the cond_resched() fully within the iterator
+macro (the code is actually quite clean) and avoid this entire class of
+bugs, but that is extremely difficult do while also supporting yielding
+after tdp_mmu_set_spte_atomic() fails.  Yielding after failing to set a
+SPTE is very desirable as the "owner" of the REMOVED_SPTE isn't strictly
+bounded, e.g. if it's zapping a high-level shadow page, the REMOVED_SPTE
+may block operations on the SPTE for a significant amount of time.
+
+Fixes: faaf05b00aec ("kvm: x86/mmu: Support zapping SPTEs in the TDP MMU")
+Fixes: 1af4a96025b3 ("KVM: x86/mmu: Yield in TDU MMU iter even if no SPTES changed")
+Reported-by: Ignat Korchagin <ignat@cloudflare.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Lars Persson <larper@axis.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Reported-by: Patrik Lantz <patrik.lantz@axis.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211214033528.123268-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
-index 8a8deb95e918..499fccba3d74 100644
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -1,20 +1,17 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2015-2016, Linaro Limited
-+ * Copyright (c) 2015-2017, 2019-2021 Linaro Limited
+diff --git a/arch/x86/kvm/mmu/tdp_iter.c b/arch/x86/kvm/mmu/tdp_iter.c
+index b3ed302c1a35..caa96c270b95 100644
+--- a/arch/x86/kvm/mmu/tdp_iter.c
++++ b/arch/x86/kvm/mmu/tdp_iter.c
+@@ -26,6 +26,7 @@ static gfn_t round_gfn_for_level(gfn_t gfn, int level)
   */
-+#include <linux/anon_inodes.h>
- #include <linux/device.h>
--#include <linux/dma-buf.h>
--#include <linux/fdtable.h>
- #include <linux/idr.h>
-+#include <linux/mm.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/tee_drv.h>
- #include <linux/uio.h>
--#include <linux/module.h>
- #include "tee_private.h"
- 
--MODULE_IMPORT_NS(DMA_BUF);
--
- static void release_registered_pages(struct tee_shm *shm)
+ void tdp_iter_restart(struct tdp_iter *iter)
  {
- 	if (shm->pages) {
-@@ -31,16 +28,8 @@ static void release_registered_pages(struct tee_shm *shm)
- 	}
- }
++	iter->yielded = false;
+ 	iter->yielded_gfn = iter->next_last_level_gfn;
+ 	iter->level = iter->root_level;
  
--static void tee_shm_release(struct tee_shm *shm)
-+static void tee_shm_release(struct tee_device *teedev, struct tee_shm *shm)
- {
--	struct tee_device *teedev = shm->ctx->teedev;
--
--	if (shm->flags & TEE_SHM_DMA_BUF) {
--		mutex_lock(&teedev->mutex);
--		idr_remove(&teedev->idr, shm->id);
--		mutex_unlock(&teedev->mutex);
--	}
--
- 	if (shm->flags & TEE_SHM_POOL) {
- 		struct tee_shm_pool_mgr *poolm;
- 
-@@ -67,45 +56,6 @@ static void tee_shm_release(struct tee_shm *shm)
- 	tee_device_put(teedev);
- }
- 
--static struct sg_table *tee_shm_op_map_dma_buf(struct dma_buf_attachment
--			*attach, enum dma_data_direction dir)
--{
--	return NULL;
--}
--
--static void tee_shm_op_unmap_dma_buf(struct dma_buf_attachment *attach,
--				     struct sg_table *table,
--				     enum dma_data_direction dir)
--{
--}
--
--static void tee_shm_op_release(struct dma_buf *dmabuf)
--{
--	struct tee_shm *shm = dmabuf->priv;
--
--	tee_shm_release(shm);
--}
--
--static int tee_shm_op_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma)
--{
--	struct tee_shm *shm = dmabuf->priv;
--	size_t size = vma->vm_end - vma->vm_start;
--
--	/* Refuse sharing shared memory provided by application */
--	if (shm->flags & TEE_SHM_USER_MAPPED)
--		return -EINVAL;
--
--	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
--			       size, vma->vm_page_prot);
--}
--
--static const struct dma_buf_ops tee_shm_dma_buf_ops = {
--	.map_dma_buf = tee_shm_op_map_dma_buf,
--	.unmap_dma_buf = tee_shm_op_unmap_dma_buf,
--	.release = tee_shm_op_release,
--	.mmap = tee_shm_op_mmap,
--};
--
- struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
- {
- 	struct tee_device *teedev = ctx->teedev;
-@@ -140,6 +90,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
- 		goto err_dev_put;
- 	}
- 
-+	refcount_set(&shm->refcount, 1);
- 	shm->flags = flags | TEE_SHM_POOL;
- 	shm->ctx = ctx;
- 	if (flags & TEE_SHM_DMA_BUF)
-@@ -153,10 +104,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
- 		goto err_kfree;
- 	}
- 
--
- 	if (flags & TEE_SHM_DMA_BUF) {
--		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
--
- 		mutex_lock(&teedev->mutex);
- 		shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
- 		mutex_unlock(&teedev->mutex);
-@@ -164,28 +112,11 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
- 			ret = ERR_PTR(shm->id);
- 			goto err_pool_free;
- 		}
--
--		exp_info.ops = &tee_shm_dma_buf_ops;
--		exp_info.size = shm->size;
--		exp_info.flags = O_RDWR;
--		exp_info.priv = shm;
--
--		shm->dmabuf = dma_buf_export(&exp_info);
--		if (IS_ERR(shm->dmabuf)) {
--			ret = ERR_CAST(shm->dmabuf);
--			goto err_rem;
--		}
- 	}
- 
- 	teedev_ctx_get(ctx);
- 
- 	return shm;
--err_rem:
--	if (flags & TEE_SHM_DMA_BUF) {
--		mutex_lock(&teedev->mutex);
--		idr_remove(&teedev->idr, shm->id);
--		mutex_unlock(&teedev->mutex);
--	}
- err_pool_free:
- 	poolm->ops->free(poolm, shm);
- err_kfree:
-@@ -246,6 +177,7 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
- 		goto err;
- 	}
- 
-+	refcount_set(&shm->refcount, 1);
- 	shm->flags = flags | TEE_SHM_REGISTER;
- 	shm->ctx = ctx;
- 	shm->id = -1;
-@@ -306,22 +238,6 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
- 		goto err;
- 	}
- 
--	if (flags & TEE_SHM_DMA_BUF) {
--		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
--
--		exp_info.ops = &tee_shm_dma_buf_ops;
--		exp_info.size = shm->size;
--		exp_info.flags = O_RDWR;
--		exp_info.priv = shm;
--
--		shm->dmabuf = dma_buf_export(&exp_info);
--		if (IS_ERR(shm->dmabuf)) {
--			ret = ERR_CAST(shm->dmabuf);
--			teedev->desc->ops->shm_unregister(ctx, shm);
--			goto err;
--		}
--	}
--
- 	return shm;
- err:
- 	if (shm) {
-@@ -339,6 +255,35 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
- }
- EXPORT_SYMBOL_GPL(tee_shm_register);
- 
-+static int tee_shm_fop_release(struct inode *inode, struct file *filp)
-+{
-+	tee_shm_put(filp->private_data);
-+	return 0;
-+}
-+
-+static int tee_shm_fop_mmap(struct file *filp, struct vm_area_struct *vma)
-+{
-+	struct tee_shm *shm = filp->private_data;
-+	size_t size = vma->vm_end - vma->vm_start;
-+
-+	/* Refuse sharing shared memory provided by application */
-+	if (shm->flags & TEE_SHM_USER_MAPPED)
-+		return -EINVAL;
-+
-+	/* check for overflowing the buffer's size */
-+	if (vma->vm_pgoff + vma_pages(vma) > shm->size >> PAGE_SHIFT)
-+		return -EINVAL;
-+
-+	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
-+			       size, vma->vm_page_prot);
-+}
-+
-+static const struct file_operations tee_shm_fops = {
-+	.owner = THIS_MODULE,
-+	.release = tee_shm_fop_release,
-+	.mmap = tee_shm_fop_mmap,
-+};
-+
- /**
-  * tee_shm_get_fd() - Increase reference count and return file descriptor
-  * @shm:	Shared memory handle
-@@ -351,10 +296,11 @@ int tee_shm_get_fd(struct tee_shm *shm)
- 	if (!(shm->flags & TEE_SHM_DMA_BUF))
- 		return -EINVAL;
- 
--	get_dma_buf(shm->dmabuf);
--	fd = dma_buf_fd(shm->dmabuf, O_CLOEXEC);
-+	/* matched by tee_shm_put() in tee_shm_op_release() */
-+	refcount_inc(&shm->refcount);
-+	fd = anon_inode_getfd("tee_shm", &tee_shm_fops, shm, O_RDWR);
- 	if (fd < 0)
--		dma_buf_put(shm->dmabuf);
-+		tee_shm_put(shm);
- 	return fd;
- }
- 
-@@ -364,17 +310,7 @@ int tee_shm_get_fd(struct tee_shm *shm)
+@@ -160,6 +161,11 @@ static bool try_step_up(struct tdp_iter *iter)
   */
- void tee_shm_free(struct tee_shm *shm)
+ void tdp_iter_next(struct tdp_iter *iter)
  {
--	/*
--	 * dma_buf_put() decreases the dmabuf reference counter and will
--	 * call tee_shm_release() when the last reference is gone.
--	 *
--	 * In the case of driver private memory we call tee_shm_release
--	 * directly instead as it doesn't have a reference counter.
--	 */
--	if (shm->flags & TEE_SHM_DMA_BUF)
--		dma_buf_put(shm->dmabuf);
--	else
--		tee_shm_release(shm);
-+	tee_shm_put(shm);
- }
- EXPORT_SYMBOL_GPL(tee_shm_free);
- 
-@@ -481,10 +417,15 @@ struct tee_shm *tee_shm_get_from_id(struct tee_context *ctx, int id)
- 	teedev = ctx->teedev;
- 	mutex_lock(&teedev->mutex);
- 	shm = idr_find(&teedev->idr, id);
-+	/*
-+	 * If the tee_shm was found in the IDR it must have a refcount
-+	 * larger than 0 due to the guarantee in tee_shm_put() below. So
-+	 * it's safe to use refcount_inc().
-+	 */
- 	if (!shm || shm->ctx != ctx)
- 		shm = ERR_PTR(-EINVAL);
--	else if (shm->flags & TEE_SHM_DMA_BUF)
--		get_dma_buf(shm->dmabuf);
-+	else
-+		refcount_inc(&shm->refcount);
- 	mutex_unlock(&teedev->mutex);
- 	return shm;
- }
-@@ -496,7 +437,24 @@ EXPORT_SYMBOL_GPL(tee_shm_get_from_id);
-  */
- void tee_shm_put(struct tee_shm *shm)
- {
--	if (shm->flags & TEE_SHM_DMA_BUF)
--		dma_buf_put(shm->dmabuf);
-+	struct tee_device *teedev = shm->ctx->teedev;
-+	bool do_release = false;
-+
-+	mutex_lock(&teedev->mutex);
-+	if (refcount_dec_and_test(&shm->refcount)) {
-+		/*
-+		 * refcount has reached 0, we must now remove it from the
-+		 * IDR before releasing the mutex. This will guarantee that
-+		 * the refcount_inc() in tee_shm_get_from_id() never starts
-+		 * from 0.
-+		 */
-+		if (shm->flags & TEE_SHM_DMA_BUF)
-+			idr_remove(&teedev->idr, shm->id);
-+		do_release = true;
++	if (iter->yielded) {
++		tdp_iter_restart(iter);
++		return;
 +	}
-+	mutex_unlock(&teedev->mutex);
 +
-+	if (do_release)
-+		tee_shm_release(teedev, shm);
+ 	if (try_step_down(iter))
+ 		return;
+ 
+diff --git a/arch/x86/kvm/mmu/tdp_iter.h b/arch/x86/kvm/mmu/tdp_iter.h
+index b1748b988d3a..e19cabbcb65c 100644
+--- a/arch/x86/kvm/mmu/tdp_iter.h
++++ b/arch/x86/kvm/mmu/tdp_iter.h
+@@ -45,6 +45,12 @@ struct tdp_iter {
+ 	 * iterator walks off the end of the paging structure.
+ 	 */
+ 	bool valid;
++	/*
++	 * True if KVM dropped mmu_lock and yielded in the middle of a walk, in
++	 * which case tdp_iter_next() needs to restart the walk at the root
++	 * level instead of advancing to the next entry.
++	 */
++	bool yielded;
+ };
+ 
+ /*
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index 1db8496259ad..1beb4ca90560 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -502,6 +502,8 @@ static inline bool tdp_mmu_set_spte_atomic(struct kvm *kvm,
+ 					   struct tdp_iter *iter,
+ 					   u64 new_spte)
+ {
++	WARN_ON_ONCE(iter->yielded);
++
+ 	lockdep_assert_held_read(&kvm->mmu_lock);
+ 
+ 	/*
+@@ -575,6 +577,8 @@ static inline void __tdp_mmu_set_spte(struct kvm *kvm, struct tdp_iter *iter,
+ 				      u64 new_spte, bool record_acc_track,
+ 				      bool record_dirty_log)
+ {
++	WARN_ON_ONCE(iter->yielded);
++
+ 	lockdep_assert_held_write(&kvm->mmu_lock);
+ 
+ 	/*
+@@ -640,18 +644,19 @@ static inline void tdp_mmu_set_spte_no_dirty_log(struct kvm *kvm,
+  * If this function should yield and flush is set, it will perform a remote
+  * TLB flush before yielding.
+  *
+- * If this function yields, it will also reset the tdp_iter's walk over the
+- * paging structure and the calling function should skip to the next
+- * iteration to allow the iterator to continue its traversal from the
+- * paging structure root.
++ * If this function yields, iter->yielded is set and the caller must skip to
++ * the next iteration, where tdp_iter_next() will reset the tdp_iter's walk
++ * over the paging structures to allow the iterator to continue its traversal
++ * from the paging structure root.
+  *
+- * Return true if this function yielded and the iterator's traversal was reset.
+- * Return false if a yield was not needed.
++ * Returns true if this function yielded.
+  */
+-static inline bool tdp_mmu_iter_cond_resched(struct kvm *kvm,
+-					     struct tdp_iter *iter, bool flush,
+-					     bool shared)
++static inline bool __must_check tdp_mmu_iter_cond_resched(struct kvm *kvm,
++							  struct tdp_iter *iter,
++							  bool flush, bool shared)
+ {
++	WARN_ON(iter->yielded);
++
+ 	/* Ensure forward progress has been made before yielding. */
+ 	if (iter->next_last_level_gfn == iter->yielded_gfn)
+ 		return false;
+@@ -671,12 +676,10 @@ static inline bool tdp_mmu_iter_cond_resched(struct kvm *kvm,
+ 
+ 		WARN_ON(iter->gfn > iter->next_last_level_gfn);
+ 
+-		tdp_iter_restart(iter);
+-
+-		return true;
++		iter->yielded = true;
+ 	}
+ 
+-	return false;
++	return iter->yielded;
  }
- EXPORT_SYMBOL_GPL(tee_shm_put);
-diff --git a/include/linux/tee_drv.h b/include/linux/tee_drv.h
-index a1f03461369b..cf5999626e28 100644
---- a/include/linux/tee_drv.h
-+++ b/include/linux/tee_drv.h
-@@ -195,7 +195,7 @@ int tee_session_calc_client_uuid(uuid_t *uuid, u32 connection_method,
-  * @offset:	offset of buffer in user space
-  * @pages:	locked pages from userspace
-  * @num_pages:	number of locked pages
-- * @dmabuf:	dmabuf used to for exporting to user space
-+ * @refcount:	reference counter
-  * @flags:	defined by TEE_SHM_* in tee_drv.h
-  * @id:		unique id of a shared memory object on this device, shared
-  *		with user space
-@@ -214,7 +214,7 @@ struct tee_shm {
- 	unsigned int offset;
- 	struct page **pages;
- 	size_t num_pages;
--	struct dma_buf *dmabuf;
-+	refcount_t refcount;
- 	u32 flags;
- 	int id;
- 	u64 sec_world_id;
+ 
+ /*
 
