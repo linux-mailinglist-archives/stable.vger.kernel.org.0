@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E9748001E
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3703A48003F
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:44:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236003AbhL0PnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:43:09 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:42594 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239067AbhL0PlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:41:05 -0500
+        id S239993AbhL0PoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:44:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38000 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239237AbhL0PmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:42:09 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4561DC061D76;
+        Mon, 27 Dec 2021 07:41:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EE1D3CE10D1;
-        Mon, 27 Dec 2021 15:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D687EC36AE7;
-        Mon, 27 Dec 2021 15:41:01 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B47F6CE1070;
+        Mon, 27 Dec 2021 15:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A55FCC36AEA;
+        Mon, 27 Dec 2021 15:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619662;
-        bh=hL4Cpgou9wEr9VwmfBQqXqDHHxX5cwgGXwVQWXr8Fj8=;
+        s=korg; t=1640619665;
+        bh=CYMcCcDtk+BpUfwAgkkDAd4IbVmkQOVFxDvSxBCrezc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3kmtNOzIeA/6Xi7+hNzpGF3PhBbzVNr/ZlbX1xTSNL7Gjem7F9tb5NXy3OfrLW2i
-         OGKtcPVAzMBVyUTtgVRSfV8bhRpL0BzaoFoZesbiOhpwVLzE/ES9qcmtWDmnLi1dnO
-         mAgL7iDZh1bacdclu5d337dZErWIIBh+Imw050ZE=
+        b=Jw3GVQLcdAZnXIIKzUVTwo0JMKYApaM0N0YxFhwmADKWf4u5Xl66E+PlmS0gaHOmT
+         OBO8Sa9Kss9i8v7dJw4TmyJXfsUfysHBpSVAy4Prv6BDwGJFwL2kjw1owBQl9AXfU3
+         jrQoEidvje60tHEj92Q1vOu/e/oor+B3c0e3JPj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yevhen Orlov <yevhen.orlov@plvision.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/128] net: marvell: prestera: fix incorrect structure access
-Date:   Mon, 27 Dec 2021 16:30:01 +0100
-Message-Id: <20211227151332.397132957@linuxfoundation.org>
+Subject: [PATCH 5.15 027/128] qlcnic: potential dereference null pointer of rx_queue->page_ring
+Date:   Mon, 27 Dec 2021 16:30:02 +0100
+Message-Id: <20211227151332.428075178@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
 References: <20211227151331.502501367@linuxfoundation.org>
@@ -45,111 +48,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yevhen Orlov <yevhen.orlov@plvision.eu>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 2efc2256febf214e7b2bdaa21fe6c3c3146acdcb ]
+[ Upstream commit 60ec7fcfe76892a1479afab51ff17a4281923156 ]
 
-In line:
-	upper = info->upper_dev;
-We access upper_dev field, which is related only for particular events
-(e.g. event == NETDEV_CHANGEUPPER). So, this line cause invalid memory
-access for another events,
-when ptr is not netdev_notifier_changeupper_info.
+The return value of kcalloc() needs to be checked.
+To avoid dereference of null pointer in case of the failure of alloc.
+Therefore, it might be better to change the return type of
+qlcnic_sriov_alloc_vlans() and return -ENOMEM when alloc fails and
+return 0 the others.
+Also, qlcnic_sriov_set_guest_vlan_mode() and __qlcnic_pci_sriov_enable()
+should deal with the return value of qlcnic_sriov_alloc_vlans().
 
-The KASAN logs are as follows:
-
-[   30.123165] BUG: KASAN: stack-out-of-bounds in prestera_netdev_port_event.constprop.0+0x68/0x538 [prestera]
-[   30.133336] Read of size 8 at addr ffff80000cf772b0 by task udevd/778
-[   30.139866]
-[   30.141398] CPU: 0 PID: 778 Comm: udevd Not tainted 5.16.0-rc3 #6
-[   30.147588] Hardware name: DNI AmazonGo1 A7040 board (DT)
-[   30.153056] Call trace:
-[   30.155547]  dump_backtrace+0x0/0x2c0
-[   30.159320]  show_stack+0x18/0x30
-[   30.162729]  dump_stack_lvl+0x68/0x84
-[   30.166491]  print_address_description.constprop.0+0x74/0x2b8
-[   30.172346]  kasan_report+0x1e8/0x250
-[   30.176102]  __asan_load8+0x98/0xe0
-[   30.179682]  prestera_netdev_port_event.constprop.0+0x68/0x538 [prestera]
-[   30.186847]  prestera_netdev_event_handler+0x1b4/0x1c0 [prestera]
-[   30.193313]  raw_notifier_call_chain+0x74/0xa0
-[   30.197860]  call_netdevice_notifiers_info+0x68/0xc0
-[   30.202924]  register_netdevice+0x3cc/0x760
-[   30.207190]  register_netdev+0x24/0x50
-[   30.211015]  prestera_device_register+0x8a0/0xba0 [prestera]
-
-Fixes: 3d5048cc54bd ("net: marvell: prestera: move netdev topology validation to prestera_main")
-Signed-off-by: Yevhen Orlov <yevhen.orlov@plvision.eu>
-Link: https://lore.kernel.org/r/20211216171714.11341-1-yevhen.orlov@plvision.eu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 154d0c810c53 ("qlcnic: VLAN enhancement for 84XX adapters")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/marvell/prestera/prestera_main.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h    |  2 +-
+ .../net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c | 12 +++++++++---
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c |  4 +++-
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/prestera/prestera_main.c b/drivers/net/ethernet/marvell/prestera/prestera_main.c
-index f6d2f928c5b83..aa543b29799ed 100644
---- a/drivers/net/ethernet/marvell/prestera/prestera_main.c
-+++ b/drivers/net/ethernet/marvell/prestera/prestera_main.c
-@@ -707,23 +707,27 @@ static int prestera_netdev_port_event(struct net_device *lower,
- 				      struct net_device *dev,
- 				      unsigned long event, void *ptr)
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
+index 7160b42f51ddd..d0111cb3b40e1 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
+@@ -201,7 +201,7 @@ int qlcnic_sriov_get_vf_vport_info(struct qlcnic_adapter *,
+ 				   struct qlcnic_info *, u16);
+ int qlcnic_sriov_cfg_vf_guest_vlan(struct qlcnic_adapter *, u16, u8);
+ void qlcnic_sriov_free_vlans(struct qlcnic_adapter *);
+-void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *);
++int qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *);
+ bool qlcnic_sriov_check_any_vlan(struct qlcnic_vf_info *);
+ void qlcnic_sriov_del_vlan_id(struct qlcnic_sriov *,
+ 			      struct qlcnic_vf_info *, u16);
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
+index dd03be3fc82a9..42a44c97572ae 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
+@@ -432,7 +432,7 @@ static int qlcnic_sriov_set_guest_vlan_mode(struct qlcnic_adapter *adapter,
+ 					    struct qlcnic_cmd_args *cmd)
  {
--	struct netdev_notifier_changeupper_info *info = ptr;
-+	struct netdev_notifier_info *info = ptr;
-+	struct netdev_notifier_changeupper_info *cu_info;
- 	struct prestera_port *port = netdev_priv(dev);
- 	struct netlink_ext_ack *extack;
- 	struct net_device *upper;
+ 	struct qlcnic_sriov *sriov = adapter->ahw->sriov;
+-	int i, num_vlans;
++	int i, num_vlans, ret;
+ 	u16 *vlans;
  
--	extack = netdev_notifier_info_to_extack(&info->info);
--	upper = info->upper_dev;
-+	extack = netdev_notifier_info_to_extack(info);
-+	cu_info = container_of(info,
-+			       struct netdev_notifier_changeupper_info,
-+			       info);
+ 	if (sriov->allowed_vlans)
+@@ -443,7 +443,9 @@ static int qlcnic_sriov_set_guest_vlan_mode(struct qlcnic_adapter *adapter,
+ 	dev_info(&adapter->pdev->dev, "Number of allowed Guest VLANs = %d\n",
+ 		 sriov->num_allowed_vlans);
  
- 	switch (event) {
- 	case NETDEV_PRECHANGEUPPER:
-+		upper = cu_info->upper_dev;
- 		if (!netif_is_bridge_master(upper) &&
- 		    !netif_is_lag_master(upper)) {
- 			NL_SET_ERR_MSG_MOD(extack, "Unknown upper device type");
- 			return -EINVAL;
- 		}
+-	qlcnic_sriov_alloc_vlans(adapter);
++	ret = qlcnic_sriov_alloc_vlans(adapter);
++	if (ret)
++		return ret;
  
--		if (!info->linking)
-+		if (!cu_info->linking)
- 			break;
+ 	if (!sriov->any_vlan)
+ 		return 0;
+@@ -2154,7 +2156,7 @@ static int qlcnic_sriov_vf_resume(struct qlcnic_adapter *adapter)
+ 	return err;
+ }
  
- 		if (netdev_has_any_upper_dev(upper)) {
-@@ -732,7 +736,7 @@ static int prestera_netdev_port_event(struct net_device *lower,
- 		}
+-void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
++int qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
+ {
+ 	struct qlcnic_sriov *sriov = adapter->ahw->sriov;
+ 	struct qlcnic_vf_info *vf;
+@@ -2164,7 +2166,11 @@ void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
+ 		vf = &sriov->vf_info[i];
+ 		vf->sriov_vlans = kcalloc(sriov->num_allowed_vlans,
+ 					  sizeof(*vf->sriov_vlans), GFP_KERNEL);
++		if (!vf->sriov_vlans)
++			return -ENOMEM;
+ 	}
++
++	return 0;
+ }
  
- 		if (netif_is_lag_master(upper) &&
--		    !prestera_lag_master_check(upper, info->upper_info, extack))
-+		    !prestera_lag_master_check(upper, cu_info->upper_info, extack))
- 			return -EOPNOTSUPP;
- 		if (netif_is_lag_master(upper) && vlan_uses_dev(dev)) {
- 			NL_SET_ERR_MSG_MOD(extack,
-@@ -748,14 +752,15 @@ static int prestera_netdev_port_event(struct net_device *lower,
- 		break;
+ void qlcnic_sriov_free_vlans(struct qlcnic_adapter *adapter)
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
+index 447720b93e5ab..e90fa97c0ae6c 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
+@@ -597,7 +597,9 @@ static int __qlcnic_pci_sriov_enable(struct qlcnic_adapter *adapter,
+ 	if (err)
+ 		goto del_flr_queue;
  
- 	case NETDEV_CHANGEUPPER:
-+		upper = cu_info->upper_dev;
- 		if (netif_is_bridge_master(upper)) {
--			if (info->linking)
-+			if (cu_info->linking)
- 				return prestera_bridge_port_join(upper, port,
- 								 extack);
- 			else
- 				prestera_bridge_port_leave(upper, port);
- 		} else if (netif_is_lag_master(upper)) {
--			if (info->linking)
-+			if (cu_info->linking)
- 				return prestera_lag_port_add(port, upper);
- 			else
- 				prestera_lag_port_del(port);
+-	qlcnic_sriov_alloc_vlans(adapter);
++	err = qlcnic_sriov_alloc_vlans(adapter);
++	if (err)
++		goto del_flr_queue;
+ 
+ 	return err;
+ 
 -- 
 2.34.1
 
