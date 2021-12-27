@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF7EF47FC1E
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:17:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00AE447FC1F
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:17:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236312AbhL0LRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 06:17:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35358 "EHLO
+        id S236313AbhL0LRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 06:17:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233404AbhL0LRa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:17:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF48C06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:17:30 -0800 (PST)
+        with ESMTP id S233404AbhL0LRh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:17:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BFBC06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:17:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F183EB808C2
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:17:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44990C36AEA;
-        Mon, 27 Dec 2021 11:17:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0499E60DD0
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:17:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8E82C36AE7;
+        Mon, 27 Dec 2021 11:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640603847;
-        bh=EVXaLu9HaY7C0R55MvW/6fCp4/7aAJmixWE1Tk6ewpA=;
+        s=korg; t=1640603856;
+        bh=NC31MdfEF2oGdofcw3vSet1CGlp3t8Xa/Gwib8r16Sg=;
         h=Subject:To:Cc:From:Date:From;
-        b=E50sG2oLR3WSr7GkhRxLQA+5x8bFM7LOie4Er+/qIEmlu/DoajbTkHpRzRzL//PmU
-         Jsiut9WgVWDJ91sXlkAYrXF62iO2UAWJmhjBS6bABDf0eo4unNZ26+6obXLHgumZrQ
-         Gw5eJ8cMMFKha1eqKn/rNPZDsSln+xXRPHfwn3L8=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Fix quirk for Clevo NJ51CU" failed to apply to 4.19-stable tree
+        b=Fl07x0LZVGCp3cjO/V19QDVGQNYliyuOjowGrml2V5fFj4DwhvtJ7X58Z5OEyUMnt
+         qXhHeE2F+8cxLUJlXmvLiOWITwsv9ZGcqCLjdMGsHCCGFK4nRugVFlJXDKRsdfI3dR
+         vpZbO/dGtVAmxNnhIqndcr61M57e2YOlkqO3u2gc=
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: Fix quirk for Clevo NJ51CU" failed to apply to 5.4-stable tree
 To:     wse@tuxedocomputers.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 27 Dec 2021 12:17:25 +0100
-Message-ID: <1640603845244153@kroah.com>
+Message-ID: <164060384518232@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
