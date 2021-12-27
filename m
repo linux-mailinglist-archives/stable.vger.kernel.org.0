@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB8048005F
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B478D47FF54
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236447AbhL0Ppv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:45:51 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45084 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238016AbhL0PoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:13 -0500
+        id S238360AbhL0Pgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:36:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238527AbhL0PfA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:35:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47B38C061757;
+        Mon, 27 Dec 2021 07:34:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0EFDDB810C5;
-        Mon, 27 Dec 2021 15:44:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2585EC36AEA;
-        Mon, 27 Dec 2021 15:44:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB00661073;
+        Mon, 27 Dec 2021 15:34:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1593C36AE7;
+        Mon, 27 Dec 2021 15:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619850;
-        bh=7CvqLTU0SnFLvZhWqamFCCCVPEv15CcrecQyE0GsY9U=;
+        s=korg; t=1640619298;
+        bh=bxMXxTsP4QZnm5DqeVDtGpopBGYS3gjgNr99FkLBd8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+Q6CI/BFPGnsode7kuBFk0x9tj+lKaA87pkWC0t8SslUfpHwJ2IYk3kLN/giZ2ZL
-         PlSnvMXGLi4n2yXr0uAVL2HyYCvQUfzK96vUNeaeTrl98zTvxytrWrNbXw7MEtQlQ9
-         83xD18PoV5qqNd5mpMsoPLnApbirVbtuwFSK/r6A=
+        b=OJLMBKEOZ9+NkGdN9E6an669x89kVnBYBt6J7P55gvhKxnBWUV0/Pm3V+QdKUzEKA
+         x7jLzaDS1nm2JNvTWSOKYVMzGtKvloG62xTpKdzknHIRlOtksusrLqyPeOWaOe1tjK
+         rF7SWBHZrYJFu7v+QshQopUyNbRF9fiiaZGiOehw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.15 084/128] platform/x86: amd-pmc: only use callbacks for suspend
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 23/47] ALSA: drivers: opl3: Fix incorrect use of vp->state
 Date:   Mon, 27 Dec 2021 16:30:59 +0100
-Message-Id: <20211227151334.313259104@linuxfoundation.org>
+Message-Id: <20211227151321.592529386@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-commit 09fc14061f3ed28899c23b8714c066946fdbd43e upstream.
+commit 2dee54b289fbc810669a1b2b8a0887fa1c9a14d7 upstream.
 
-This driver is intended to be used exclusively for suspend to idle
-so callbacks to send OS_HINT during hibernate and S5 will set OS_HINT
-at the wrong time leading to an undefined behavior.
+Static analysis with scan-build has found an assignment to vp2 that is
+never used. It seems that the check on vp->state > 0 should be actually
+on vp2->state instead. Fix this.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20211210143529.10594-1-mario.limonciello@amd.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
+commit 91e39521bbf6 ("[PATCH] ALSA patch for 2.5.4")
+
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211212172025.470367-1-colin.i.king@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/amd-pmc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/drivers/opl3/opl3_midi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/platform/x86/amd-pmc.c
-+++ b/drivers/platform/x86/amd-pmc.c
-@@ -375,7 +375,8 @@ static int __maybe_unused amd_pmc_resume
- }
- 
- static const struct dev_pm_ops amd_pmc_pm_ops = {
--	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(amd_pmc_suspend, amd_pmc_resume)
-+	.suspend_noirq = amd_pmc_suspend,
-+	.resume_noirq = amd_pmc_resume,
- };
- 
- static const struct pci_device_id pmc_pci_ids[] = {
+--- a/sound/drivers/opl3/opl3_midi.c
++++ b/sound/drivers/opl3/opl3_midi.c
+@@ -398,7 +398,7 @@ void snd_opl3_note_on(void *p, int note,
+ 	}
+ 	if (instr_4op) {
+ 		vp2 = &opl3->voices[voice + 3];
+-		if (vp->state > 0) {
++		if (vp2->state > 0) {
+ 			opl3_reg = reg_side | (OPL3_REG_KEYON_BLOCK +
+ 					       voice_offset + 3);
+ 			reg_val = vp->keyon_reg & ~OPL3_KEYON_BIT;
 
 
