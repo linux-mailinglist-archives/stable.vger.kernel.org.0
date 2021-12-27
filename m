@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D69C847FF2B
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:36:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E49C4800EC
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237714AbhL0Pfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:35:54 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35842 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238238AbhL0Pfb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:35:31 -0500
+        id S233832AbhL0Pvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:51:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39292 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240668AbhL0Ptb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:49:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F40D5C061D5E;
+        Mon, 27 Dec 2021 07:44:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BEB6610D5;
-        Mon, 27 Dec 2021 15:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B1CC36AE7;
-        Mon, 27 Dec 2021 15:35:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A9CDB810CC;
+        Mon, 27 Dec 2021 15:44:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3AC8C36AE7;
+        Mon, 27 Dec 2021 15:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619329;
-        bh=QLq6F91EER/1J0U8IiJIRYSy5rZqtJRHtkFAV8eDHr8=;
+        s=korg; t=1640619856;
+        bh=sQTTMRchETzKPT0AIJEtLkclSn1NWGJW/KZGsFuLLl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0EhbwYbJV7xHs9Z6OWG0PsPBQ5/0Xv4QjcYHB9ozBBPAVuoAQ99Sqlmd5zOhoa4F
-         d7hR3bP1J9eUkL1FajsSpJVKW/tdkAOKk9BLhxvFZLOmsyaV/al5xqkdYILxGfp8fo
-         Qb0omx+h7Ar9dP/5sWzfB9YkcyToHZ6PFuLU1XwE=
+        b=LBuB4aSHHItHweL0hF4M/sBB3AlqT8npF/mV4z45d7ml+aLP6mqXPWaqwkWuWCx7l
+         1S2jSiFrfqGkUtysilO8Nm663S1A/DsEAhfj8yB21uNeFFiaPJTGYp8LZx7rkDY3LB
+         L5FpHNkP8koIAhmERt1seFRgNaR5eKyCj+3JP4WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 33/47] mmc: core: Disable card detect during shutdown
+Subject: [PATCH 5.15 094/128] mmc: meson-mx-sdhc: Set MANUAL_STOP for multi-block SDIO commands
 Date:   Mon, 27 Dec 2021 16:31:09 +0100
-Message-Id: <20211227151321.934865917@linuxfoundation.org>
+Message-Id: <20211227151334.660782214@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,83 +48,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 66c915d09b942fb3b2b0cb2f56562180901fba17 upstream.
+commit f89b548ca66be7500dcd92ee8e61590f7d08ac91 upstream.
 
-It's seems prone to problems by allowing card detect and its corresponding
-mmc_rescan() work to run, during platform shutdown. For example, we may end
-up turning off the power while initializing a card, which potentially could
-damage it.
+The vendor driver implements special handling for multi-block
+SD_IO_RW_EXTENDED (and SD_IO_RW_DIRECT) commands which have data
+attached to them. It sets the MANUAL_STOP bit in the MESON_SDHC_MISC
+register for these commands. In all other cases this bit is cleared.
+Here we omit SD_IO_RW_DIRECT since that command never has any data
+attached to it.
 
-To avoid this scenario, let's add ->shutdown_pre() callback for the mmc host
-class device and then turn of the card detect from there.
+This fixes SDIO wifi using the brcmfmac driver which reported the
+following error without this change on a Netxeon S82 board using a
+Meson8 (S802) SoC:
+  brcmf_fw_alloc_request: using brcm/brcmfmac43362-sdio for chip
+                          BCM43362/1
+  brcmf_sdiod_ramrw: membytes transfer failed
+  brcmf_sdio_download_code_file: error -110 on writing 219557 membytes
+                                 at 0x00000000
+  brcmf_sdio_download_firmware: dongle image file download failed
 
-Reported-by: Al Cooper <alcooperx@gmail.com>
-Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+And with this change:
+  brcmf_fw_alloc_request: using brcm/brcmfmac43362-sdio for chip
+                          BCM43362/1
+  brcmf_c_process_clm_blob: no clm_blob available (err=-2), device may
+                            have limited channels available
+  brcmf_c_preinit_dcmds: Firmware: BCM43362/1 wl0: Apr 22 2013 14:50:00
+                         version 5.90.195.89.6 FWID 01-b30a427d
+
+Fixes: e4bf1b0970ef96 ("mmc: host: meson-mx-sdhc: new driver for the Amlogic Meson SDHC host")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211203141555.105351-1-ulf.hansson@linaro.org
+Link: https://lore.kernel.org/r/20211219153442.463863-2-martin.blumenstingl@googlemail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/core.c |    7 ++++++-
- drivers/mmc/core/core.h |    1 +
- drivers/mmc/core/host.c |    9 +++++++++
- 3 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/mmc/host/meson-mx-sdhc-mmc.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -2364,7 +2364,7 @@ void mmc_start_host(struct mmc_host *hos
- 	_mmc_detect_change(host, 0, false);
- }
- 
--void mmc_stop_host(struct mmc_host *host)
-+void __mmc_stop_host(struct mmc_host *host)
+--- a/drivers/mmc/host/meson-mx-sdhc-mmc.c
++++ b/drivers/mmc/host/meson-mx-sdhc-mmc.c
+@@ -135,6 +135,7 @@ static void meson_mx_sdhc_start_cmd(stru
+ 				    struct mmc_command *cmd)
  {
- 	if (host->slot.cd_irq >= 0) {
- 		mmc_gpio_set_cd_wake(host, false);
-@@ -2373,6 +2373,11 @@ void mmc_stop_host(struct mmc_host *host
+ 	struct meson_mx_sdhc_host *host = mmc_priv(mmc);
++	bool manual_stop = false;
+ 	u32 ictl, send;
+ 	int pack_len;
  
- 	host->rescan_disable = 1;
- 	cancel_delayed_work_sync(&host->detect);
-+}
+@@ -172,12 +173,27 @@ static void meson_mx_sdhc_start_cmd(stru
+ 		else
+ 			/* software flush: */
+ 			ictl |= MESON_SDHC_ICTL_DATA_XFER_OK;
 +
-+void mmc_stop_host(struct mmc_host *host)
-+{
-+	__mmc_stop_host(host);
++		/*
++		 * Mimic the logic from the vendor driver where (only)
++		 * SD_IO_RW_EXTENDED commands with more than one block set the
++		 * MESON_SDHC_MISC_MANUAL_STOP bit. This fixes the firmware
++		 * download in the brcmfmac driver for a BCM43362/1 card.
++		 * Without this sdio_memcpy_toio() (with a size of 219557
++		 * bytes) times out if MESON_SDHC_MISC_MANUAL_STOP is not set.
++		 */
++		manual_stop = cmd->data->blocks > 1 &&
++			      cmd->opcode == SD_IO_RW_EXTENDED;
+ 	} else {
+ 		pack_len = 0;
  
- 	/* clear pm flags now and let card drivers set them as needed */
- 	host->pm_flags = 0;
---- a/drivers/mmc/core/core.h
-+++ b/drivers/mmc/core/core.h
-@@ -69,6 +69,7 @@ static inline void mmc_delay(unsigned in
+ 		ictl |= MESON_SDHC_ICTL_RESP_OK;
+ 	}
  
- void mmc_rescan(struct work_struct *work);
- void mmc_start_host(struct mmc_host *host);
-+void __mmc_stop_host(struct mmc_host *host);
- void mmc_stop_host(struct mmc_host *host);
- 
- void _mmc_detect_change(struct mmc_host *host, unsigned long delay,
---- a/drivers/mmc/core/host.c
-+++ b/drivers/mmc/core/host.c
-@@ -76,9 +76,18 @@ static void mmc_host_classdev_release(st
- 	kfree(host);
- }
- 
-+static int mmc_host_classdev_shutdown(struct device *dev)
-+{
-+	struct mmc_host *host = cls_dev_to_mmc_host(dev);
++	regmap_update_bits(host->regmap, MESON_SDHC_MISC,
++			   MESON_SDHC_MISC_MANUAL_STOP,
++			   manual_stop ? MESON_SDHC_MISC_MANUAL_STOP : 0);
 +
-+	__mmc_stop_host(host);
-+	return 0;
-+}
-+
- static struct class mmc_host_class = {
- 	.name		= "mmc_host",
- 	.dev_release	= mmc_host_classdev_release,
-+	.shutdown_pre	= mmc_host_classdev_shutdown,
- 	.pm		= MMC_HOST_CLASS_DEV_PM_OPS,
- };
+ 	if (cmd->opcode == MMC_STOP_TRANSMISSION)
+ 		send |= MESON_SDHC_SEND_DATA_STOP;
  
 
 
