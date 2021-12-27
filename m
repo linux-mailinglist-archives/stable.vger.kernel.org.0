@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63EB348009B
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:47:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B55247FF93
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239632AbhL0Prc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:47:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38000 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240664AbhL0Ppa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:45:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2672C08EA37;
-        Mon, 27 Dec 2021 07:42:41 -0800 (PST)
+        id S238604AbhL0Pin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:38:43 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:40884 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238599AbhL0PhK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:37:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C3FAB810C5;
-        Mon, 27 Dec 2021 15:42:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA8C6C36AE7;
-        Mon, 27 Dec 2021 15:42:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7FC3BCE10B3;
+        Mon, 27 Dec 2021 15:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DEBBC36AE7;
+        Mon, 27 Dec 2021 15:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619759;
-        bh=5Q/hHZCeTD17+mmxxLZ4p7yInX3ens9vN2u4mq/6DTk=;
+        s=korg; t=1640619426;
+        bh=ADNrWwflvHngLg7ewKXymlVPGUYRxGuNtxJHu/6c7iM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=soyFvyLlSiIAiPSRSp4Q5wy2ee89cooXKJsH4cR/qNjCaYmJAxCTU9PMov7zVHOYi
-         eOgiB2iUaOUH12XNp70qkFF5+gIGP4ZXvL/hc7YmISePwuvafuFvSOR8V0VZvMX56k
-         B6ZHsn9pbMA+bchUpk93rtnrsa2xDQEJ++8xdHlI=
+        b=FEr1gSE0FQxSrSBANbqfxYpEb6t/F9EUabBqBHpkflkqTjFW9RA3Dv9jmJ84kG2mz
+         0oNdjSgEQ7hIG1mB50cDCZAKXIozwfWDmpyDGOnvxBLVtNvEtbvHXu9mS8ffJSe9n3
+         XFGr+POW5vXnkudn4c9xX13fMAfGoGVYEsR+MeoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Miroslav Benes <mbenes@suse.cz>,
+        stable@vger.kernel.org, Martin Stolpe <martin.stolpe@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/128] compiler.h: Fix annotation macro misplacement with Clang
+Subject: [PATCH 5.10 20/76] igb: fix deadlock caused by taking RTNL in RPM resume path
 Date:   Mon, 27 Dec 2021 16:30:35 +0100
-Message-Id: <20211227151333.508277236@linuxfoundation.org>
+Message-Id: <20211227151325.386917209@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
+References: <20211227151324.694661623@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,80 +47,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit dcce50e6cc4d86a63dc0a9a6ee7d4f948ccd53a1 ]
+[ Upstream commit ac8c58f5b535d6272324e2b8b4a0454781c9147e ]
 
-When building with Clang and CONFIG_TRACE_BRANCH_PROFILING, there are a
-lot of unreachable warnings, like:
+Recent net core changes caused an issue with few Intel drivers
+(reportedly igb), where taking RTNL in RPM resume path results in a
+deadlock. See [0] for a bug report. I don't think the core changes
+are wrong, but taking RTNL in RPM resume path isn't needed.
+The Intel drivers are the only ones doing this. See [1] for a
+discussion on the issue. Following patch changes the RPM resume path
+to not take RTNL.
 
-  arch/x86/kernel/traps.o: warning: objtool: handle_xfd_event()+0x134: unreachable instruction
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=215129
+[1] https://lore.kernel.org/netdev/20211125074949.5f897431@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/t/
 
-Without an input to the inline asm, 'volatile' is ignored for some
-reason and Clang feels free to move the reachable() annotation away from
-its intended location.
-
-Fix that by re-adding the counter value to the inputs.
-
-Fixes: f1069a8756b9 ("compiler.h: Avoid using inline asm operand modifiers")
-Fixes: c199f64ff93c ("instrumentation.h: Avoid using inline asm operand modifiers")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/0417e96909b97a406323409210de7bf13df0b170.1636410380.git.jpoimboe@redhat.com
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: x86@kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Miroslav Benes <mbenes@suse.cz>
+Fixes: bd869245a3dc ("net: core: try to runtime-resume detached device in __dev_open")
+Fixes: f32a21376573 ("ethtool: runtime-resume netdev parent before ethtool ioctl ops")
+Tested-by: Martin Stolpe <martin.stolpe@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20211220201844.2714498-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compiler.h        | 4 ++--
- include/linux/instrumentation.h | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 3d5af56337bdb..429dcebe2b992 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -121,7 +121,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
- 	asm volatile(__stringify_label(c) ":\n\t"			\
- 		     ".pushsection .discard.reachable\n\t"		\
- 		     ".long " __stringify_label(c) "b - .\n\t"		\
--		     ".popsection\n\t");				\
-+		     ".popsection\n\t" : : "i" (c));			\
- })
- #define annotate_reachable() __annotate_reachable(__COUNTER__)
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 1662c0985eca4..f854d41c6c94d 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -9260,7 +9260,7 @@ static int __maybe_unused igb_suspend(struct device *dev)
+ 	return __igb_shutdown(to_pci_dev(dev), NULL, 0);
+ }
  
-@@ -129,7 +129,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
- 	asm volatile(__stringify_label(c) ":\n\t"			\
- 		     ".pushsection .discard.unreachable\n\t"		\
- 		     ".long " __stringify_label(c) "b - .\n\t"		\
--		     ".popsection\n\t");				\
-+		     ".popsection\n\t" : : "i" (c));			\
- })
- #define annotate_unreachable() __annotate_unreachable(__COUNTER__)
+-static int __maybe_unused igb_resume(struct device *dev)
++static int __maybe_unused __igb_resume(struct device *dev, bool rpm)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+@@ -9303,17 +9303,24 @@ static int __maybe_unused igb_resume(struct device *dev)
  
-diff --git a/include/linux/instrumentation.h b/include/linux/instrumentation.h
-index fa2cd8c63dcc9..24359b4a96053 100644
---- a/include/linux/instrumentation.h
-+++ b/include/linux/instrumentation.h
-@@ -11,7 +11,7 @@
- 	asm volatile(__stringify(c) ": nop\n\t"				\
- 		     ".pushsection .discard.instr_begin\n\t"		\
- 		     ".long " __stringify(c) "b - .\n\t"		\
--		     ".popsection\n\t");				\
-+		     ".popsection\n\t" : : "i" (c));			\
- })
- #define instrumentation_begin() __instrumentation_begin(__COUNTER__)
+ 	wr32(E1000_WUS, ~0);
  
-@@ -50,7 +50,7 @@
- 	asm volatile(__stringify(c) ": nop\n\t"				\
- 		     ".pushsection .discard.instr_end\n\t"		\
- 		     ".long " __stringify(c) "b - .\n\t"		\
--		     ".popsection\n\t");				\
-+		     ".popsection\n\t" : : "i" (c));			\
- })
- #define instrumentation_end() __instrumentation_end(__COUNTER__)
- #else
+-	rtnl_lock();
++	if (!rpm)
++		rtnl_lock();
+ 	if (!err && netif_running(netdev))
+ 		err = __igb_open(netdev, true);
+ 
+ 	if (!err)
+ 		netif_device_attach(netdev);
+-	rtnl_unlock();
++	if (!rpm)
++		rtnl_unlock();
+ 
+ 	return err;
+ }
+ 
++static int __maybe_unused igb_resume(struct device *dev)
++{
++	return __igb_resume(dev, false);
++}
++
+ static int __maybe_unused igb_runtime_idle(struct device *dev)
+ {
+ 	struct net_device *netdev = dev_get_drvdata(dev);
+@@ -9332,7 +9339,7 @@ static int __maybe_unused igb_runtime_suspend(struct device *dev)
+ 
+ static int __maybe_unused igb_runtime_resume(struct device *dev)
+ {
+-	return igb_resume(dev);
++	return __igb_resume(dev, true);
+ }
+ 
+ static void igb_shutdown(struct pci_dev *pdev)
+@@ -9448,7 +9455,7 @@ static pci_ers_result_t igb_io_error_detected(struct pci_dev *pdev,
+  *  @pdev: Pointer to PCI device
+  *
+  *  Restart the card from scratch, as if from a cold-boot. Implementation
+- *  resembles the first-half of the igb_resume routine.
++ *  resembles the first-half of the __igb_resume routine.
+  **/
+ static pci_ers_result_t igb_io_slot_reset(struct pci_dev *pdev)
+ {
+@@ -9488,7 +9495,7 @@ static pci_ers_result_t igb_io_slot_reset(struct pci_dev *pdev)
+  *
+  *  This callback is called when the error recovery driver tells us that
+  *  its OK to resume normal operation. Implementation resembles the
+- *  second-half of the igb_resume routine.
++ *  second-half of the __igb_resume routine.
+  */
+ static void igb_io_resume(struct pci_dev *pdev)
+ {
 -- 
 2.34.1
 
