@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD95480068
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C415D47FFC1
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238766AbhL0PqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:46:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45354 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240069AbhL0Pog (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:36 -0500
+        id S239068AbhL0PlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:41:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38996 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231445AbhL0PjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84F74B810A3;
-        Mon, 27 Dec 2021 15:44:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA8BC36AE7;
-        Mon, 27 Dec 2021 15:44:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF95A61073;
+        Mon, 27 Dec 2021 15:39:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EC2C36AEA;
+        Mon, 27 Dec 2021 15:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619873;
-        bh=VIB4/gmxwIe7z+SckKN0JcsGrt9Nypt9uKJfKrj1j90=;
+        s=korg; t=1640619543;
+        bh=3gcA1T0O0rdmtgGZDQxAQst7neVDkIer1VEvh5NVzYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPL0eqY9jwhzVY8TTEWvgI3OmTdBAjE746/BTYVFIkkncViAb7YDZLFreEeG6crrk
-         yoGLQKsDeBsaw/KsmBQGc2nFrpzpy0ScOmFS9gIOwhGPq8nyA0zLFcQGbHBas/tyTR
-         whvkP27PFpVRLeZ0jM9gdTHa7K3FhtgYUySz5pd4=
+        b=HxS3OZ3kV+ArMedBuy/dcNpZpBJ6ST4pWHThrRiALGvDHtaxw0Hte5C5CJh5N7HIh
+         /uwjp+y66siFTT014CAfTXrmVaLkjyuJFRlDs1mSa9NnU3i/KWaC/rBBakLxonpk+h
+         AbjjMwLEK/bf+NK9rVUHB6s379+YcoFUHKK2io5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
-        Marcos Del Sol Vives <marcos@orca.pet>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 100/128] ksmbd: disable SMB2_GLOBAL_CAP_ENCRYPTION for SMB 3.1.1
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 60/76] f2fs: fix to do sanity check on last xattr entry in __f2fs_setxattr()
 Date:   Mon, 27 Dec 2021 16:31:15 +0100
-Message-Id: <20211227151334.860662780@linuxfoundation.org>
+Message-Id: <20211227151326.779679392@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
+References: <20211227151324.694661623@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,88 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Del Sol Vives <marcos@orca.pet>
+From: Chao Yu <chao@kernel.org>
 
-commit 83912d6d55be10d65b5268d1871168b9ebe1ec4b upstream.
+commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
 
-According to the official Microsoft MS-SMB2 document section 3.3.5.4, this
-flag should be used only for 3.0 and 3.0.2 dialects. Setting it for 3.1.1
-is a violation of the specification.
+As Wenqing Liu reported in bugzilla:
 
-This causes my Windows 10 client to detect an anomaly in the negotiation,
-and disable encryption entirely despite being explicitly enabled in ksmbd,
-causing all data transfers to go in plain text.
+https://bugzilla.kernel.org/show_bug.cgi?id=215235
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org # v5.15
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Marcos Del Sol Vives <marcos@orca.pet>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+- Overview
+page fault in f2fs_setxattr() when mount and operate on corrupted image
+
+- Reproduce
+tested on kernel 5.16-rc3, 5.15.X under root
+
+1. unzip tmp7.zip
+2. ./single.sh f2fs 7
+
+Sometimes need to run the script several times
+
+- Kernel dump
+loop0: detected capacity change from 0 to 131072
+F2FS-fs (loop0): Found nat_bits in checkpoint
+F2FS-fs (loop0): Mounted with checkpoint version = 7548c2ee
+BUG: unable to handle page fault for address: ffffe47bc7123f48
+RIP: 0010:kfree+0x66/0x320
+Call Trace:
+ __f2fs_setxattr+0x2aa/0xc00 [f2fs]
+ f2fs_setxattr+0xfa/0x480 [f2fs]
+ __f2fs_set_acl+0x19b/0x330 [f2fs]
+ __vfs_removexattr+0x52/0x70
+ __vfs_removexattr_locked+0xb1/0x140
+ vfs_removexattr+0x56/0x100
+ removexattr+0x57/0x80
+ path_removexattr+0xa3/0xc0
+ __x64_sys_removexattr+0x17/0x20
+ do_syscall_64+0x37/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is in __f2fs_setxattr(), we missed to do sanity check on
+last xattr entry, result in out-of-bound memory access during updating
+inconsistent xattr data of target inode.
+
+After the fix, it can detect such xattr inconsistency as below:
+
+F2FS-fs (loop11): inode (7) has invalid last xattr entry, entry_size: 60676
+F2FS-fs (loop11): inode (8) has corrupted xattr
+F2FS-fs (loop11): inode (8) has corrupted xattr
+F2FS-fs (loop11): inode (8) has invalid last xattr entry, entry_size: 47736
+
+Cc: stable@vger.kernel.org
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2ops.c |    3 ---
- fs/ksmbd/smb2pdu.c |   25 +++++++++++++++++++++----
- 2 files changed, 21 insertions(+), 7 deletions(-)
+ fs/f2fs/xattr.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/fs/ksmbd/smb2ops.c
-+++ b/fs/ksmbd/smb2ops.c
-@@ -272,9 +272,6 @@ int init_smb3_11_server(struct ksmbd_con
- 	if (server_conf.flags & KSMBD_GLOBAL_FLAG_SMB2_LEASES)
- 		conn->vals->capabilities |= SMB2_GLOBAL_CAP_LEASING;
- 
--	if (conn->cipher_type)
--		conn->vals->capabilities |= SMB2_GLOBAL_CAP_ENCRYPTION;
--
- 	if (server_conf.flags & KSMBD_GLOBAL_FLAG_SMB3_MULTICHANNEL)
- 		conn->vals->capabilities |= SMB2_GLOBAL_CAP_MULTI_CHANNEL;
- 
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -917,6 +917,25 @@ static void decode_encrypt_ctxt(struct k
+--- a/fs/f2fs/xattr.c
++++ b/fs/f2fs/xattr.c
+@@ -680,8 +680,17 @@ static int __f2fs_setxattr(struct inode
  	}
- }
  
-+/**
-+ * smb3_encryption_negotiated() - checks if server and client agreed on enabling encryption
-+ * @conn:	smb connection
-+ *
-+ * Return:	true if connection should be encrypted, else false
-+ */
-+static bool smb3_encryption_negotiated(struct ksmbd_conn *conn)
-+{
-+	if (!conn->ops->generate_encryptionkey)
-+		return false;
-+
-+	/*
-+	 * SMB 3.0 and 3.0.2 dialects use the SMB2_GLOBAL_CAP_ENCRYPTION flag.
-+	 * SMB 3.1.1 uses the cipher_type field.
-+	 */
-+	return (conn->vals->capabilities & SMB2_GLOBAL_CAP_ENCRYPTION) ||
-+	    conn->cipher_type;
-+}
-+
- static void decode_compress_ctxt(struct ksmbd_conn *conn,
- 				 struct smb2_compression_ctx *pneg_ctxt)
- {
-@@ -1471,8 +1490,7 @@ static int ntlm_authenticate(struct ksmb
- 		    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
- 			sess->sign = true;
+ 	last = here;
+-	while (!IS_XATTR_LAST_ENTRY(last))
++	while (!IS_XATTR_LAST_ENTRY(last)) {
++		if ((void *)(last) + sizeof(__u32) > last_base_addr ||
++			(void *)XATTR_NEXT_ENTRY(last) > last_base_addr) {
++			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has invalid last xattr entry, entry_size: %zu",
++					inode->i_ino, ENTRY_SIZE(last));
++			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
++			error = -EFSCORRUPTED;
++			goto exit;
++		}
+ 		last = XATTR_NEXT_ENTRY(last);
++	}
  
--		if (conn->vals->capabilities & SMB2_GLOBAL_CAP_ENCRYPTION &&
--		    conn->ops->generate_encryptionkey &&
-+		if (smb3_encryption_negotiated(conn) &&
- 		    !(req->Flags & SMB2_SESSION_REQ_FLAG_BINDING)) {
- 			rc = conn->ops->generate_encryptionkey(sess);
- 			if (rc) {
-@@ -1562,8 +1580,7 @@ static int krb5_authenticate(struct ksmb
- 	    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
- 		sess->sign = true;
+ 	newsize = XATTR_ALIGN(sizeof(struct f2fs_xattr_entry) + len + size);
  
--	if ((conn->vals->capabilities & SMB2_GLOBAL_CAP_ENCRYPTION) &&
--	    conn->ops->generate_encryptionkey) {
-+	if (smb3_encryption_negotiated(conn)) {
- 		retval = conn->ops->generate_encryptionkey(sess);
- 		if (retval) {
- 			ksmbd_debug(SMB,
 
 
