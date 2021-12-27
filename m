@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15B9A48008F
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42B55480095
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:47:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240118AbhL0PrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:47:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37850 "EHLO
+        id S236287AbhL0PrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:47:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240438AbhL0PpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:45:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2EAFC08E886;
-        Mon, 27 Dec 2021 07:42:24 -0800 (PST)
+        with ESMTP id S240533AbhL0PpV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:45:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1569DC08E893;
+        Mon, 27 Dec 2021 07:42:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79952B810B9;
-        Mon, 27 Dec 2021 15:42:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE0FC36AEA;
-        Mon, 27 Dec 2021 15:42:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7B70610A3;
+        Mon, 27 Dec 2021 15:42:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B63C36AE7;
+        Mon, 27 Dec 2021 15:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619742;
-        bh=S7+d1VwPqfG5GaWzyEIx5wd2SnTRpVKT2boXkNTxyfQ=;
+        s=korg; t=1640619745;
+        bh=7hX3vdCvA9trgVMeUIYrd+Wp2SKmBjxz218V12IW/ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpbgfUY/3bBTMsq1FPdUNzuiy7SCk4/uIIsVaqJMXwt7MBfyxzvEuaP3wxL0+1ctw
-         PcovxTZRPEZUNpBd42IP7DaipZsJ2LD6IWxlqDCpFCL1DdMZ7HhT/LwGAJzCpgXCdq
-         yTn9XdRPAuHiScRvcYvP3reM+4AJHsFBBRoyJ86o=
+        b=c+KU3ZazP8r9L7eGy8zCYQK5Pq9n0LC9R75uxkT2sGClP7yOJlvzoCaBKndPyth1a
+         j/KeYL5mjU0Dg2N8rWs75nzy5TUKf70p871CMLSChhdtv4yGVkPhPu8yj4mN3r264i
+         YQJwjvQJTsk1Z7dGNmH0W2FxE+RlRsFZx5qnH6yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Ignacy=20Gaw=C4=99dzki?= 
-        <ignacy.gawedzki@green-communications.fr>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        =?UTF-8?q?Martin=20Haa=C3=9F?= <vvvrrooomm@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/128] netfilter: fix regression in looped (broad|multi)casts MAC handling
-Date:   Mon, 27 Dec 2021 16:29:56 +0100
-Message-Id: <20211227151332.221500820@linuxfoundation.org>
+Subject: [PATCH 5.15 022/128] ARM: dts: imx6qdl-wandboard: Fix Ethernet support
+Date:   Mon, 27 Dec 2021 16:29:57 +0100
+Message-Id: <20211227151332.259238403@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
 References: <20211227151331.502501367@linuxfoundation.org>
@@ -51,64 +50,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ignacy Gawędzki <ignacy.gawedzki@green-communications.fr>
+From: Martin Haaß <vvvrrooomm@gmail.com>
 
-[ Upstream commit ebb966d3bdfed581ecccbb4a7432341baf7619b4 ]
+[ Upstream commit 39e660687ac0c57499134765abbecf71cfd11eae ]
 
-In commit 5648b5e1169f ("netfilter: nfnetlink_queue: fix OOB when mac
-header was cleared"), the test for non-empty MAC header introduced in
-commit 2c38de4c1f8da7 ("netfilter: fix looped (broad|multi)cast's MAC
-handling") has been replaced with a test for a set MAC header.
+Currently, the imx6q-wandboard Ethernet does not transmit any
+data.
 
-This breaks the case when the MAC header has been reset (using
-skb_reset_mac_header), as is the case with looped-back multicast
-packets.  As a result, the packets ending up in NFQUEUE get a bogus
-hwaddr interpreted from the first bytes of the IP header.
+This issue has been exposed by commit f5d9aa79dfdf ("ARM: imx6q:
+remove clk-out fixup for the Atheros AR8031 and AR8035 PHYs").
 
-This patch adds a test for a non-empty MAC header in addition to the
-test for a set MAC header.  The same two tests are also implemented in
-nfnetlink_log.c, where the initial code of commit 2c38de4c1f8da7
-("netfilter: fix looped (broad|multi)cast's MAC handling") has not been
-touched, but where supposedly the same situation may happen.
+Fix it by describing the qca,clk-out-frequency property as suggested
+by the commit above.
 
-Fixes: 5648b5e1169f ("netfilter: nfnetlink_queue: fix OOB when mac header was cleared")
-Signed-off-by: Ignacy Gawędzki <ignacy.gawedzki@green-communications.fr>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 77591e42458d ("ARM: dts: imx6qdl-wandboard: add ethernet PHY description")
+Signed-off-by: Martin Haaß <vvvrrooomm@gmail.com>
+Tested-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_log.c   | 3 ++-
- net/netfilter/nfnetlink_queue.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6qdl-wandboard.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netfilter/nfnetlink_log.c b/net/netfilter/nfnetlink_log.c
-index 691ef4cffdd90..7f83f9697fc14 100644
---- a/net/netfilter/nfnetlink_log.c
-+++ b/net/netfilter/nfnetlink_log.c
-@@ -556,7 +556,8 @@ __build_packet_message(struct nfnl_log_net *log,
- 		goto nla_put_failure;
+diff --git a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+index b62a0dbb033ff..ec6fba5ee8fde 100644
+--- a/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-wandboard.dtsi
+@@ -309,6 +309,7 @@
  
- 	if (indev && skb->dev &&
--	    skb->mac_header != skb->network_header) {
-+	    skb_mac_header_was_set(skb) &&
-+	    skb_mac_header_len(skb) != 0) {
- 		struct nfulnl_msg_packet_hw phw;
- 		int len;
- 
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index 4acc4b8e9fe5a..959527708e382 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -560,7 +560,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
- 		goto nla_put_failure;
- 
- 	if (indev && entskb->dev &&
--	    skb_mac_header_was_set(entskb)) {
-+	    skb_mac_header_was_set(entskb) &&
-+	    skb_mac_header_len(entskb) != 0) {
- 		struct nfqnl_msg_packet_hw phw;
- 		int len;
- 
+ 		ethphy: ethernet-phy@1 {
+ 			reg = <1>;
++			qca,clk-out-frequency = <125000000>;
+ 		};
+ 	};
+ };
 -- 
 2.34.1
 
