@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B328347FFB2
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:40:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFC447FED6
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238211AbhL0Pkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:40:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36484 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239067AbhL0PiY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:38:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43CDC0698D2;
-        Mon, 27 Dec 2021 07:37:32 -0800 (PST)
+        id S237575AbhL0Pc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:32:57 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33992 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238049AbhL0Pct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:32:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8476161115;
-        Mon, 27 Dec 2021 15:37:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67682C36AEB;
-        Mon, 27 Dec 2021 15:37:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0A4E610A6;
+        Mon, 27 Dec 2021 15:32:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C26F3C36AEB;
+        Mon, 27 Dec 2021 15:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619451;
-        bh=FKbBQbtjvQvuPrx8TAlp1ecKgkNXYCbcmNCwRuI0xqE=;
+        s=korg; t=1640619168;
+        bh=4bRulaxE7kkQ/lwnl9f1sNtyQRvG9h/NNXObngGG0BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tX6qfg/kpsEsMrPKFDIw/I7SsWRc3Zbu2RE3azZNzQBK2G5xDksG8soIByBgd5TVB
-         UvqySeCgPu92lL3/91WUBkI9R9hroVBbsrMRbVTZhxnGv9w13XjO/SGtCdv9mPHUiK
-         SQ57cEfPw530TcN+nZhiKl3JN1qpT3c1elA0dAtU=
+        b=nFV5yxeD+TkAQ+0MCNM5qhBWtLPTAmUeqyHexHrQJ699frJtvHPmMUHHt5CundE0Y
+         s+Y6ACEIfxwH4Wfq2avkbMvLRgEArYWbk+l55mE/QRbVOAlNRWX5HN3AeJ+e/IAmRM
+         1kFChayljlIbouOJAOeGOLWCy1EMc53+BfeC9N20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/76] Input: elantech - fix stack out of bound access in elantech_change_report_id()
+        stable@vger.kernel.org, Dmitrii Tcvetkov <demfloro@demfloro.ru>,
+        Douglas Anderson <dianders@chromium.org>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Yu Kuai <yukuai3@huawei.com>
+Subject: [PATCH 4.19 06/38] block, bfq: fix use after free in bfq_bfqq_expire
 Date:   Mon, 27 Dec 2021 16:30:43 +0100
-Message-Id: <20211227151325.657953892@linuxfoundation.org>
+Message-Id: <20211227151319.590190184@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
+References: <20211227151319.379265346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,138 +46,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit 1d72d9f960ccf1052a0630a68c3d358791dbdaaa ]
+commit eed47d19d9362bdd958e4ab56af480b9dbf6b2b6 upstream.
 
-The array param[] in elantech_change_report_id() must be at least 3
-bytes, because elantech_read_reg_params() is calling ps2_command() with
-PSMOUSE_CMD_GETINFO, that is going to access 3 bytes from param[], but
-it's defined in the stack as an array of 2 bytes, therefore we have a
-potential stack out-of-bounds access here, also confirmed by KASAN:
+The function bfq_bfqq_expire() invokes the function
+__bfq_bfqq_expire(), and the latter may free the in-service bfq-queue.
+If this happens, then no other instruction of bfq_bfqq_expire() must
+be executed, or a use-after-free will occur.
 
-[    6.512374] BUG: KASAN: stack-out-of-bounds in __ps2_command+0x372/0x7e0
-[    6.512397] Read of size 1 at addr ffff8881024d77c2 by task kworker/2:1/118
+Basing on the assumption that __bfq_bfqq_expire() invokes
+bfq_put_queue() on the in-service bfq-queue exactly once, the queue is
+assumed to be freed if its refcounter is equal to one right before
+invoking __bfq_bfqq_expire().
 
-[    6.512416] CPU: 2 PID: 118 Comm: kworker/2:1 Not tainted 5.13.0-22-generic #22+arighi20211110
-[    6.512428] Hardware name: LENOVO 20T8000QGE/20T8000QGE, BIOS R1AET32W (1.08 ) 08/14/2020
-[    6.512436] Workqueue: events_long serio_handle_event
-[    6.512453] Call Trace:
-[    6.512462]  show_stack+0x52/0x58
-[    6.512474]  dump_stack+0xa1/0xd3
-[    6.512487]  print_address_description.constprop.0+0x1d/0x140
-[    6.512502]  ? __ps2_command+0x372/0x7e0
-[    6.512516]  __kasan_report.cold+0x7d/0x112
-[    6.512527]  ? _raw_write_lock_irq+0x20/0xd0
-[    6.512539]  ? __ps2_command+0x372/0x7e0
-[    6.512552]  kasan_report+0x3c/0x50
-[    6.512564]  __asan_load1+0x6a/0x70
-[    6.512575]  __ps2_command+0x372/0x7e0
-[    6.512589]  ? ps2_drain+0x240/0x240
-[    6.512601]  ? dev_printk_emit+0xa2/0xd3
-[    6.512612]  ? dev_vprintk_emit+0xc5/0xc5
-[    6.512621]  ? __kasan_check_write+0x14/0x20
-[    6.512634]  ? mutex_lock+0x8f/0xe0
-[    6.512643]  ? __mutex_lock_slowpath+0x20/0x20
-[    6.512655]  ps2_command+0x52/0x90
-[    6.512670]  elantech_ps2_command+0x4f/0xc0 [psmouse]
-[    6.512734]  elantech_change_report_id+0x1e6/0x256 [psmouse]
-[    6.512799]  ? elantech_report_trackpoint.constprop.0.cold+0xd/0xd [psmouse]
-[    6.512863]  ? ps2_command+0x7f/0x90
-[    6.512877]  elantech_query_info.cold+0x6bd/0x9ed [psmouse]
-[    6.512943]  ? elantech_setup_ps2+0x460/0x460 [psmouse]
-[    6.513005]  ? psmouse_reset+0x69/0xb0 [psmouse]
-[    6.513064]  ? psmouse_attr_set_helper+0x2a0/0x2a0 [psmouse]
-[    6.513122]  ? phys_pmd_init+0x30e/0x521
-[    6.513137]  elantech_init+0x8a/0x200 [psmouse]
-[    6.513200]  ? elantech_init_ps2+0xf0/0xf0 [psmouse]
-[    6.513249]  ? elantech_query_info+0x440/0x440 [psmouse]
-[    6.513296]  ? synaptics_send_cmd+0x60/0x60 [psmouse]
-[    6.513342]  ? elantech_query_info+0x440/0x440 [psmouse]
-[    6.513388]  ? psmouse_try_protocol+0x11e/0x170 [psmouse]
-[    6.513432]  psmouse_extensions+0x65d/0x6e0 [psmouse]
-[    6.513476]  ? psmouse_try_protocol+0x170/0x170 [psmouse]
-[    6.513519]  ? mutex_unlock+0x22/0x40
-[    6.513526]  ? ps2_command+0x7f/0x90
-[    6.513536]  ? psmouse_probe+0xa3/0xf0 [psmouse]
-[    6.513580]  psmouse_switch_protocol+0x27d/0x2e0 [psmouse]
-[    6.513624]  psmouse_connect+0x272/0x530 [psmouse]
-[    6.513669]  serio_driver_probe+0x55/0x70
-[    6.513679]  really_probe+0x190/0x720
-[    6.513689]  driver_probe_device+0x160/0x1f0
-[    6.513697]  device_driver_attach+0x119/0x130
-[    6.513705]  ? device_driver_attach+0x130/0x130
-[    6.513713]  __driver_attach+0xe7/0x1a0
-[    6.513720]  ? device_driver_attach+0x130/0x130
-[    6.513728]  bus_for_each_dev+0xfb/0x150
-[    6.513738]  ? subsys_dev_iter_exit+0x10/0x10
-[    6.513748]  ? _raw_write_unlock_bh+0x30/0x30
-[    6.513757]  driver_attach+0x2d/0x40
-[    6.513764]  serio_handle_event+0x199/0x3d0
-[    6.513775]  process_one_work+0x471/0x740
-[    6.513785]  worker_thread+0x2d2/0x790
-[    6.513794]  ? process_one_work+0x740/0x740
-[    6.513802]  kthread+0x1b4/0x1e0
-[    6.513809]  ? set_kthread_struct+0x80/0x80
-[    6.513816]  ret_from_fork+0x22/0x30
+But, since commit 9dee8b3b057e ("block, bfq: fix queue removal from
+weights tree") this assumption is false. __bfq_bfqq_expire() may also
+invoke bfq_weights_tree_remove() and, since commit 9dee8b3b057e
+("block, bfq: fix queue removal from weights tree"), also
+the latter function may invoke bfq_put_queue(). So __bfq_bfqq_expire()
+may invoke bfq_put_queue() twice, and this is the actual case where
+the in-service queue may happen to be freed.
 
-[    6.513832] The buggy address belongs to the page:
-[    6.513838] page:00000000bc35e189 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x1024d7
-[    6.513847] flags: 0x17ffffc0000000(node=0|zone=2|lastcpupid=0x1fffff)
-[    6.513860] raw: 0017ffffc0000000 dead000000000100 dead000000000122 0000000000000000
-[    6.513867] raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
-[    6.513872] page dumped because: kasan: bad access detected
+To address this issue, this commit moves the check on the refcounter
+of the queue right around the last bfq_put_queue() that may be invoked
+on the queue.
 
-[    6.513879] addr ffff8881024d77c2 is located in stack of task kworker/2:1/118 at offset 34 in frame:
-[    6.513887]  elantech_change_report_id+0x0/0x256 [psmouse]
-
-[    6.513941] this frame has 1 object:
-[    6.513947]  [32, 34) 'param'
-
-[    6.513956] Memory state around the buggy address:
-[    6.513962]  ffff8881024d7680: f2 f2 f2 f2 f2 00 00 f3 f3 00 00 00 00 00 00 00
-[    6.513969]  ffff8881024d7700: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[    6.513976] >ffff8881024d7780: 00 00 00 00 f1 f1 f1 f1 02 f3 f3 f3 00 00 00 00
-[    6.513982]                                            ^
-[    6.513988]  ffff8881024d7800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-[    6.513995]  ffff8881024d7880: 00 f1 f1 f1 f1 03 f2 03 f2 03 f3 f3 f3 00 00 00
-[    6.514000] ==================================================================
-
-Define param[] in elantech_change_report_id() as an array of 3 bytes to
-prevent the out-of-bounds access in the stack.
-
-Fixes: e4c9062717fe ("Input: elantech - fix protocol errors for some trackpoints in SMBus mode")
-BugLink: https://bugs.launchpad.net/bugs/1945590
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Reviewed-by: Wolfram Sang <wsa@kernel.org>
-Link: https://lore.kernel.org/r/20211116095559.24395-1-andrea.righi@canonical.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9dee8b3b057e ("block, bfq: fix queue removal from weights tree")
+Reported-by: Dmitrii Tcvetkov <demfloro@demfloro.ru>
+Reported-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Dmitrii Tcvetkov <demfloro@demfloro.ru>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/elantech.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c |   15 +++++++--------
+ block/bfq-iosched.h |    2 +-
+ block/bfq-wf2q.c    |   17 +++++++++++++++--
+ 3 files changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 4357d30c15c56..2e53ea261e014 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1588,7 +1588,13 @@ static const struct dmi_system_id no_hw_res_dmi_table[] = {
-  */
- static int elantech_change_report_id(struct psmouse *psmouse)
- {
--	unsigned char param[2] = { 0x10, 0x03 };
-+	/*
-+	 * NOTE: the code is expecting to receive param[] as an array of 3
-+	 * items (see __ps2_command()), even if in this case only 2 are
-+	 * actually needed. Make sure the array size is 3 to avoid potential
-+	 * stack out-of-bound accesses.
-+	 */
-+	unsigned char param[3] = { 0x10, 0x03 };
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2816,7 +2816,7 @@ static void bfq_dispatch_remove(struct r
+ 	bfq_remove_request(q, rq);
+ }
  
- 	if (elantech_write_reg_params(psmouse, 0x7, param) ||
- 	    elantech_read_reg_params(psmouse, 0x7, param) ||
--- 
-2.34.1
-
+-static void __bfq_bfqq_expire(struct bfq_data *bfqd, struct bfq_queue *bfqq)
++static bool __bfq_bfqq_expire(struct bfq_data *bfqd, struct bfq_queue *bfqq)
+ {
+ 	/*
+ 	 * If this bfqq is shared between multiple processes, check
+@@ -2849,9 +2849,11 @@ static void __bfq_bfqq_expire(struct bfq
+ 	/*
+ 	 * All in-service entities must have been properly deactivated
+ 	 * or requeued before executing the next function, which
+-	 * resets all in-service entites as no more in service.
++	 * resets all in-service entities as no more in service. This
++	 * may cause bfqq to be freed. If this happens, the next
++	 * function returns true.
+ 	 */
+-	__bfq_bfqd_reset_in_service(bfqd);
++	return __bfq_bfqd_reset_in_service(bfqd);
+ }
+ 
+ /**
+@@ -3256,7 +3258,6 @@ void bfq_bfqq_expire(struct bfq_data *bf
+ 	bool slow;
+ 	unsigned long delta = 0;
+ 	struct bfq_entity *entity = &bfqq->entity;
+-	int ref;
+ 
+ 	/*
+ 	 * Check whether the process is slow (see bfq_bfqq_is_slow).
+@@ -3325,10 +3326,8 @@ void bfq_bfqq_expire(struct bfq_data *bf
+ 	 * reason.
+ 	 */
+ 	__bfq_bfqq_recalc_budget(bfqd, bfqq, reason);
+-	ref = bfqq->ref;
+-	__bfq_bfqq_expire(bfqd, bfqq);
+-
+-	if (ref == 1) /* bfqq is gone, no more actions on it */
++	if (__bfq_bfqq_expire(bfqd, bfqq))
++		/* bfqq is gone, no more actions on it */
+ 		return;
+ 
+ 	bfqq->injected_service = 0;
+--- a/block/bfq-iosched.h
++++ b/block/bfq-iosched.h
+@@ -993,7 +993,7 @@ bool __bfq_deactivate_entity(struct bfq_
+ 			     bool ins_into_idle_tree);
+ bool next_queue_may_preempt(struct bfq_data *bfqd);
+ struct bfq_queue *bfq_get_next_queue(struct bfq_data *bfqd);
+-void __bfq_bfqd_reset_in_service(struct bfq_data *bfqd);
++bool __bfq_bfqd_reset_in_service(struct bfq_data *bfqd);
+ void bfq_deactivate_bfqq(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 			 bool ins_into_idle_tree, bool expiration);
+ void bfq_activate_bfqq(struct bfq_data *bfqd, struct bfq_queue *bfqq);
+--- a/block/bfq-wf2q.c
++++ b/block/bfq-wf2q.c
+@@ -1600,7 +1600,8 @@ struct bfq_queue *bfq_get_next_queue(str
+ 	return bfqq;
+ }
+ 
+-void __bfq_bfqd_reset_in_service(struct bfq_data *bfqd)
++/* returns true if the in-service queue gets freed */
++bool __bfq_bfqd_reset_in_service(struct bfq_data *bfqd)
+ {
+ 	struct bfq_queue *in_serv_bfqq = bfqd->in_service_queue;
+ 	struct bfq_entity *in_serv_entity = &in_serv_bfqq->entity;
+@@ -1624,8 +1625,20 @@ void __bfq_bfqd_reset_in_service(struct
+ 	 * service tree either, then release the service reference to
+ 	 * the queue it represents (taken with bfq_get_entity).
+ 	 */
+-	if (!in_serv_entity->on_st)
++	if (!in_serv_entity->on_st) {
++		/*
++		 * If no process is referencing in_serv_bfqq any
++		 * longer, then the service reference may be the only
++		 * reference to the queue. If this is the case, then
++		 * bfqq gets freed here.
++		 */
++		int ref = in_serv_bfqq->ref;
+ 		bfq_put_queue(in_serv_bfqq);
++		if (ref == 1)
++			return true;
++	}
++
++	return false;
+ }
+ 
+ void bfq_deactivate_bfqq(struct bfq_data *bfqd, struct bfq_queue *bfqq,
 
 
