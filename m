@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A41A47FEAD
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E8D47FEB3
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:31:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237584AbhL0Pay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:30:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34854 "EHLO
+        id S232632AbhL0PbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:31:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35308 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237875AbhL0PaN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:30:13 -0500
+        with ESMTP id S237898AbhL0PaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:30:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CC48B810A2;
-        Mon, 27 Dec 2021 15:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4648C36AE7;
-        Mon, 27 Dec 2021 15:30:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80A99B810BF;
+        Mon, 27 Dec 2021 15:30:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAB12C36AE7;
+        Mon, 27 Dec 2021 15:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619011;
-        bh=JT50CZH9h54tMYdi4kLdq5Xqsz3CSu8kE1ZeECkO7VY=;
+        s=korg; t=1640619014;
+        bh=/FQescg+a25AiGW7rUF88yr7MLJtl2H2O9aEcPGD2e0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hf6SqAktjkNJikoRWYkq9OpTZDS41mSqAfxIW/05gbXQsbUC22Q06cbWNNHz/vWTp
-         IcmhwVWhE+xJRBg6I44lKBcy7cjcWi1mGPr4A7lHH5GKX9CJbQToSU+dr9HI633ylG
-         wdEWx4fFZx1kJ5jLiqdxspiH5QFMC/E+qSR+Kg3E=
+        b=BT6knRQZA+/Yx49p3MoYovowAexzdZXQskxcVN9sTJbx5kwBu4EUKAhKZwN3Bq77G
+         lNDnXf0w4vwGM+l7TcHgwPdXR1dwMVinQe7Y2OG5oFwOV+FWA1pzfkDA9cdrBWNYHL
+         W7swqWdWKrMUHWb+sIUk2F3++wAU9Yr0nf66v/uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/29] sfc: falcon: Check null pointer of rx_queue->page_ring
-Date:   Mon, 27 Dec 2021 16:27:23 +0100
-Message-Id: <20211227151318.901354725@linuxfoundation.org>
+Subject: [PATCH 4.14 14/29] hwmon: (lm90) Fix usage of CONFIG2 register in detect function
+Date:   Mon, 27 Dec 2021 16:27:24 +0100
+Message-Id: <20211227151318.931134208@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
 References: <20211227151318.475251079@linuxfoundation.org>
@@ -46,40 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 9b8bdd1eb5890aeeab7391dddcf8bd51f7b07216 ]
+[ Upstream commit fce15c45d3fbd9fc1feaaf3210d8e3f8b33dfd3a ]
 
-Because of the possible failure of the kcalloc, it should be better to
-set rx_queue->page_ptr_mask to 0 when it happens in order to maintain
-the consistency.
+The detect function had a comment "Make compiler happy" when id did not
+read the second configuration register. As it turns out, the code was
+checking the contents of this register for manufacturer ID 0xA1 (NXP
+Semiconductor/Philips), but never actually read the register. So it
+wasn't surprising that the compiler complained, and it indeed had a point.
+Fix the code to read the register contents for manufacturer ID 0xa1.
 
-Fixes: 5a6681e22c14 ("sfc: separate out SFC4000 ("Falcon") support into new sfc-falcon driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20211220140344.978408-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+At the same time, the code was reading the register for manufacturer ID
+0x41 (Analog Devices), but it was not using the results. In effect it was
+just checking if reading the register returned an error. That doesn't
+really add much if any value, so stop doing that.
+
+Fixes: f90be42fb383 ("hwmon: (lm90) Refactor reading of config2 register")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/falcon/rx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hwmon/lm90.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/falcon/rx.c b/drivers/net/ethernet/sfc/falcon/rx.c
-index 6a8406dc0c2b4..06f556d373949 100644
---- a/drivers/net/ethernet/sfc/falcon/rx.c
-+++ b/drivers/net/ethernet/sfc/falcon/rx.c
-@@ -732,7 +732,10 @@ static void ef4_init_rx_recycle_ring(struct ef4_nic *efx,
- 					    efx->rx_bufs_per_page);
- 	rx_queue->page_ring = kcalloc(page_ring_size,
- 				      sizeof(*rx_queue->page_ring), GFP_KERNEL);
--	rx_queue->page_ptr_mask = page_ring_size - 1;
-+	if (!rx_queue->page_ring)
-+		rx_queue->page_ptr_mask = 0;
-+	else
-+		rx_queue->page_ptr_mask = page_ring_size - 1;
- }
+diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
+index c187e557678ef..3df4e8654448b 100644
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -1439,12 +1439,11 @@ static int lm90_detect(struct i2c_client *client,
+ 	if (man_id < 0 || chip_id < 0 || config1 < 0 || convrate < 0)
+ 		return -ENODEV;
  
- void ef4_init_rx_queue(struct ef4_rx_queue *rx_queue)
+-	if (man_id == 0x01 || man_id == 0x5C || man_id == 0x41) {
++	if (man_id == 0x01 || man_id == 0x5C || man_id == 0xA1) {
+ 		config2 = i2c_smbus_read_byte_data(client, LM90_REG_R_CONFIG2);
+ 		if (config2 < 0)
+ 			return -ENODEV;
+-	} else
+-		config2 = 0;		/* Make compiler happy */
++	}
+ 
+ 	if ((address == 0x4C || address == 0x4D)
+ 	 && man_id == 0x01) { /* National Semiconductor */
 -- 
 2.34.1
 
