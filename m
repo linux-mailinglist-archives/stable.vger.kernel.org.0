@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B970847FF47
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A3C0480081
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235157AbhL0Pgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:36:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35756 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238252AbhL0PeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6823AC0619D8;
-        Mon, 27 Dec 2021 07:34:16 -0800 (PST)
+        id S239870AbhL0Pqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:46:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44612 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239819AbhL0Pna (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:43:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0700961073;
-        Mon, 27 Dec 2021 15:34:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1ECBC36AE7;
-        Mon, 27 Dec 2021 15:34:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B80FB81063;
+        Mon, 27 Dec 2021 15:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69E03C36AEA;
+        Mon, 27 Dec 2021 15:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619255;
-        bh=NFkezmt+yWme4gk88o4+WRZHLk6EPLsnLnVIzGcjOMw=;
+        s=korg; t=1640619808;
+        bh=Q2jb2NKSN5Ywg+YpNoX48A0PCjL19RCVUNFvoCUhHoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9XRVEwfGFfE7VrTyZoOXqryqJwkhiCNl5L/S7UTtLWu+DUTc7sOMUZz8k6TaSGcF
-         0l8YcuePyWpwen94nW6bGld52fiLfcYUd8iGIRCmoti6rjkPWuEbIWA+N7oFmmyfl+
-         t455Z1v3puMNOlI8llB4bv4T7XSbOgSLR28UrQCA=
+        b=hpxvQMRNzbpuR3n7AyAlANEqXh4XLjTBsckuH5YkVnEoBHc3JDsN5+CWEihQJdJdC
+         2/zKiVA7wVphq+JoUC1WkcvkhQHgQPvsdnvtokpZlEGHJm/3Paocp3e8H+C91eRivX
+         breLSoXZMC+HOJxym2XY31nv+hn4pKppQ1rU5rwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/38] net: skip virtio_net_hdr_set_proto if protocol already set
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 076/128] Input: atmel_mxt_ts - fix double free in mxt_read_info_block
 Date:   Mon, 27 Dec 2021 16:30:51 +0100
-Message-Id: <20211227151319.841847010@linuxfoundation.org>
+Message-Id: <20211227151334.046524533@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
-References: <20211227151319.379265346@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,46 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 1ed1d592113959f00cc552c3b9f47ca2d157768f ]
+commit 12f247ab590a08856441efdbd351cf2cc8f60a2d upstream.
 
-virtio_net_hdr_set_proto infers skb->protocol from the virtio_net_hdr
-gso_type, to avoid packets getting dropped for lack of a proto type.
+The "id_buf" buffer is stored in "data->raw_info_block" and freed by
+"mxt_free_object_table" in case of error.
 
-Its protocol choice is a guess, especially in the case of UFO, where
-the single VIRTIO_NET_HDR_GSO_UDP label covers both UFOv4 and UFOv6.
+Return instead of jumping to avoid a double free.
 
-Skip this best effort if the field is already initialized. Whether
-explicitly from userspace, or implicitly based on an earlier call to
-dev_parse_header_protocol (which is more robust, but was introduced
-after this patch).
-
-Fixes: 9d2f67e43b73 ("net/packet: fix packet drop as of virtio gso")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20211220145027.2784293-1-willemdebruijn.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Addresses-Coverity-ID: 1474582 ("Double free")
+Fixes: 068bdb67ef74 ("Input: atmel_mxt_ts - fix the firmware update")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Link: https://lore.kernel.org/r/20211212194257.68879-1-jose.exposito89@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/virtio_net.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/touchscreen/atmel_mxt_ts.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 8874b278cd34a..faee73c084d49 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -25,6 +25,9 @@ static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
- static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
- 					   const struct virtio_net_hdr *hdr)
- {
-+	if (skb->protocol)
-+		return 0;
-+
- 	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
- 	case VIRTIO_NET_HDR_GSO_TCPV4:
- 	case VIRTIO_NET_HDR_GSO_UDP:
--- 
-2.34.1
-
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1882,7 +1882,7 @@ static int mxt_read_info_block(struct mx
+ 	if (error) {
+ 		dev_err(&client->dev, "Error %d parsing object table\n", error);
+ 		mxt_free_object_table(data);
+-		goto err_free_mem;
++		return error;
+ 	}
+ 
+ 	data->object_table = (struct mxt_object *)(id_buf + MXT_OBJECT_START);
 
 
