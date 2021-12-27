@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B46C947FE5D
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D134A47FE9C
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237485AbhL0P2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:28:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34296 "EHLO
+        id S238033AbhL0Pah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:30:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237474AbhL0P2V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:28:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D624C061395;
-        Mon, 27 Dec 2021 07:28:17 -0800 (PST)
+        with ESMTP id S237757AbhL0P3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:29:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46BA5C061379;
+        Mon, 27 Dec 2021 07:29:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B837B810A2;
-        Mon, 27 Dec 2021 15:28:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D156C36AEA;
-        Mon, 27 Dec 2021 15:28:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D8DF361073;
+        Mon, 27 Dec 2021 15:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF45DC36AE7;
+        Mon, 27 Dec 2021 15:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618894;
-        bh=ZyuiVijWJmMxjvpxQsyz4dR2xVRaSuj9WJ1XVC/2Krc=;
+        s=korg; t=1640618954;
+        bh=zQ8vvOoixBGGLwwy+ukLE3ZLYdW2CEhpCp6iJpG+xGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rgK5Jk9hyTGJFdHkCR5UVdXwWCAMXIAF29Lro0fN1Xv9EpU1ELFsI7A5+t4XvApZp
-         sstGhCYisRc+YsM0gXn1LSKBskt29Wk72Op3vskPE/ZWfM88F2rguspVA9MeeG/fcT
-         FXYzF/Q1qxJNINRQ37RLyrzKjUCN1PLFRQVStu1M=
+        b=BOELKmpkgW2RRS3W2KdkAb8xqn3zbUCiIVwh4q5wVBtVcNto1hhVBl5p9+lwjyZ8f
+         k74XkjFpHKL8kFtzB6YWPTVY8i8v7AXul3vGcvnbZDFRoL9xrL6dQHNwS+y0MO7IwY
+         l+nZgHULu2aysUlWPOQofw1QCG+VUCHTwIZGSvw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 10/19] ALSA: jack: Check the return value of kstrdup()
-Date:   Mon, 27 Dec 2021 16:27:12 +0100
-Message-Id: <20211227151316.885429459@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.14 03/29] HID: holtek: fix mouse probing
+Date:   Mon, 27 Dec 2021 16:27:13 +0100
+Message-Id: <20211227151318.587437067@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151316.558965545@linuxfoundation.org>
-References: <20211227151316.558965545@linuxfoundation.org>
+In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
+References: <20211227151318.475251079@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,33 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-commit c01c1db1dc632edafb0dff32d40daf4f9c1a4e19 upstream.
+commit 93a2207c254ca102ebbdae47b00f19bbfbfa7ecd upstream.
 
-kstrdup() can return NULL, it is better to check the return value of it.
+An overlook from the previous commit: we don't even parse or start the
+device, meaning that the device is not presented to user space.
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/tencent_094816F3522E0DC704056C789352EBBF0606@qq.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 93020953d0fa ("HID: check for valid USB device for many HID drivers")
+Cc: stable@vger.kernel.org
+Link: https://bugs.archlinux.org/task/73048
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215341
+Link: https://lore.kernel.org/r/e4efbf13-bd8d-0370-629b-6c80c0044b15@leemhuis.info/
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/jack.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-holtek-mouse.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/sound/core/jack.c
-+++ b/sound/core/jack.c
-@@ -234,6 +234,10 @@ int snd_jack_new(struct snd_card *card,
- 		return -ENOMEM;
- 
- 	jack->id = kstrdup(id, GFP_KERNEL);
-+	if (jack->id == NULL) {
-+		kfree(jack);
-+		return -ENOMEM;
+--- a/drivers/hid/hid-holtek-mouse.c
++++ b/drivers/hid/hid-holtek-mouse.c
+@@ -68,8 +68,23 @@ static __u8 *holtek_mouse_report_fixup(s
+ static int holtek_mouse_probe(struct hid_device *hdev,
+ 			      const struct hid_device_id *id)
+ {
++	int ret;
++
+ 	if (!hid_is_usb(hdev))
+ 		return -EINVAL;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "hid parse failed: %d\n", ret);
++		return ret;
 +	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed: %d\n", ret);
++		return ret;
++	}
++
+ 	return 0;
+ }
  
- 	/* don't creat input device for phantom jack */
- 	if (!phantom_jack) {
 
 
