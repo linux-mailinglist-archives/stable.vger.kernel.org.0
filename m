@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA45247FF03
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EABA47FF63
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237853AbhL0PeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:34:22 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34766 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237983AbhL0Pdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:33:54 -0500
+        id S238586AbhL0PhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:37:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36286 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238579AbhL0PgO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:36:14 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B88DC061B38;
+        Mon, 27 Dec 2021 07:35:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61F18610A2;
-        Mon, 27 Dec 2021 15:33:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46107C36AE7;
-        Mon, 27 Dec 2021 15:33:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9D5E4CE10D9;
+        Mon, 27 Dec 2021 15:35:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65E1CC36AEB;
+        Mon, 27 Dec 2021 15:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619232;
-        bh=bUfs0Gedj1gdrIRjzY4iKOkNhyUcxve9C18EUAQv898=;
+        s=korg; t=1640619346;
+        bh=L3jzjkZJuoA19T9M7XeHKugIqeJMbTHiY4W+mhtIqfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qnt7dItiYbndVA9ipiakdZ/ug3UtH8/6prrNd6BZ2/5BRCVLjMQ/rCgP9e0MJkf1q
-         /+qms/726zGCCmOr+w06YIxqfLxK/fEwePjHuvbLv0DBD1ALs/itWKG3nQk2uZFMeg
-         pNWyUbP9aXRVAfk7lg4enpk1INmvyvQ+WAHYAZr8=
+        b=nLJ/qNzQPPFbJj3Sr6/O9O2RGgJ9d0KECYSzmQ5QCPa9DwWGM1+4Ar3Nu7AQhT13x
+         sudom1Es/UUHSRRqyTPJ6vP36UImVjtDKh1q02YZiXwEldhk4VMy1qQRyNZLqVCmAC
+         /hljAt7nUalaAQs6lLyBLdx6HC3kcMDp2jOAqk9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2dc91e7fc3dea88b1e8a@syzkaller.appspotmail.com,
-        =?UTF-8?q?R=C3=A9mi=20Denis-Courmont?= <remi@remlab.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 38/38] phonet/pep: refuse to enable an unbound pipe
+        stable@vger.kernel.org, Andrey Ryabinin <arbn@yandex-team.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        David Rientjes <rientjes@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 39/47] mm: mempolicy: fix THP allocations escaping mempolicy restrictions
 Date:   Mon, 27 Dec 2021 16:31:15 +0100
-Message-Id: <20211227151320.658744769@linuxfoundation.org>
+Message-Id: <20211227151322.146610498@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
-References: <20211227151319.379265346@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +52,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rémi Denis-Courmont <remi@remlab.net>
+From: Andrey Ryabinin <arbn@yandex-team.com>
 
-commit 75a2f31520095600f650597c0ac41f48b5ba0068 upstream.
+commit 338635340669d5b317c7e8dcf4fff4a0f3651d87 upstream.
 
-This ioctl() implicitly assumed that the socket was already bound to
-a valid local socket name, i.e. Phonet object. If the socket was not
-bound, two separate problems would occur:
+alloc_pages_vma() may try to allocate THP page on the local NUMA node
+first:
 
-1) We'd send an pipe enablement request with an invalid source object.
-2) Later socket calls could BUG on the socket unexpectedly being
-   connected yet not bound to a valid object.
+	page = __alloc_pages_node(hpage_node,
+		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
 
-Reported-by: syzbot+2dc91e7fc3dea88b1e8a@syzkaller.appspotmail.com
-Signed-off-by: Rémi Denis-Courmont <remi@remlab.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+And if the allocation fails it retries allowing remote memory:
+
+	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+    		page = __alloc_pages_node(hpage_node,
+					gfp, order);
+
+However, this retry allocation completely ignores memory policy nodemask
+allowing allocation to escape restrictions.
+
+The first appearance of this bug seems to be the commit ac5b2c18911f
+("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings").
+
+The bug disappeared later in the commit 89c83fb539f9 ("mm, thp:
+consolidate THP gfp handling into alloc_hugepage_direct_gfpmask") and
+reappeared again in slightly different form in the commit 76e654cc91bb
+("mm, page_alloc: allow hugepage fallback to remote nodes when
+madvised")
+
+Fix this by passing correct nodemask to the __alloc_pages() call.
+
+The demonstration/reproducer of the problem:
+
+    $ mount -oremount,size=4G,huge=always /dev/shm/
+    $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+    $ cat mbind_thp.c
+    #include <unistd.h>
+    #include <sys/mman.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <assert.h>
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <numaif.h>
+
+    #define SIZE 2ULL << 30
+    int main(int argc, char **argv)
+    {
+        int fd;
+        unsigned long long i;
+        char *addr;
+        pid_t pid;
+        char buf[100];
+        unsigned long nodemask = 1;
+
+        fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+        assert(fd > 0);
+        assert(ftruncate(fd, SIZE) == 0);
+
+        addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+                           MAP_SHARED, fd, 0);
+
+        assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+        for (i = 0; i < SIZE; i+=4096) {
+          addr[i] = 1;
+        }
+        pid = getpid();
+        snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+        system(buf);
+        sleep(10000);
+
+        return 0;
+    }
+    $ gcc mbind_thp.c -o mbind_thp -lnuma
+    $ numactl -H
+    available: 2 nodes (0-1)
+    node 0 cpus: 0 2
+    node 0 size: 1918 MB
+    node 0 free: 1595 MB
+    node 1 cpus: 1 3
+    node 1 size: 2014 MB
+    node 1 free: 1731 MB
+    node distances:
+    node   0   1
+      0:  10  20
+      1:  20  10
+    $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+    7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+
+Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/phonet/pep.c |    2 ++
- 1 file changed, 2 insertions(+)
+ mm/mempolicy.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/phonet/pep.c
-+++ b/net/phonet/pep.c
-@@ -959,6 +959,8 @@ static int pep_ioctl(struct sock *sk, in
- 			ret =  -EBUSY;
- 		else if (sk->sk_state == TCP_ESTABLISHED)
- 			ret = -EISCONN;
-+		else if (!pn->pn_sk.sobject)
-+			ret = -EADDRNOTAVAIL;
- 		else
- 			ret = pep_sock_enable(sk, NULL, 0);
- 		release_sock(sk);
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2143,8 +2143,9 @@ alloc_pages_vma(gfp_t gfp, int order, st
+ 			 * memory as well.
+ 			 */
+ 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+-				page = __alloc_pages_node(hpage_node,
+-						gfp | __GFP_NORETRY, order);
++				page = __alloc_pages_nodemask(gfp | __GFP_NORETRY,
++							order, hpage_node,
++							nmask);
+ 
+ 			goto out;
+ 		}
 
 
