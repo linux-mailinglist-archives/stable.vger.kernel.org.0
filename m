@@ -2,91 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE76D47FCB7
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:46:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1CF47FCB9
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:47:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236724AbhL0MqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 07:46:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40078 "EHLO
+        id S236726AbhL0Mrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 07:47:39 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40592 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbhL0MqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:46:01 -0500
+        with ESMTP id S233722AbhL0Mrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:47:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75A5160FE4
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 12:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 881E5C36AEA;
-        Mon, 27 Dec 2021 12:46:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AFC7960F3C
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 12:47:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9493AC36AEA;
+        Mon, 27 Dec 2021 12:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640609160;
-        bh=AbuUPdSkik+xp/fNHo0nTHVxIuXHk5reig1PGYypCNs=;
+        s=korg; t=1640609258;
+        bh=HFdIzjESYjGksRMdPCMq/H4rh/VAi6fyd8GqMvntZN0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2XWLkZkl5ypI0Bqvmy56k+EvXbzQUW7rsLaSK1xO18og2ZLP6YJGntLLHhAhOG+s2
-         2PStinkC7sbA6eCSsemWrLPVTWfctNcx9AJDN3yZSnEBsoo9DtsM0zc9PLlxvyZn4f
-         MAt58mqlES6Oua3jj38jAjAJznwynwVNXzj0AW4M=
-Date:   Mon, 27 Dec 2021 13:45:58 +0100
+        b=t00NGq1sdg9WWLUgSE13xXLWwL8FPb8eP3Lha0Rij+JqRJVRX0+qOCKW9cxpeMmuu
+         uI8SH6rv0X+rmsLBhWRdsYkAzvk3qP3yK3/XWa1mLd+dj0+KtUxim110QhgIpigd7j
+         AD+5DkRE2HwAau1MdyQN6Jcm06vhhocITBtVHHWM=
+Date:   Mon, 27 Dec 2021 13:47:35 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Christian Brauner <brauner@kernel.org>,
-        Jeff Layton <jlayton@kernel.org>, idryomov@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v5.10] ceph: fix up non-directory creation in SGID
- directories
-Message-ID: <Ycm1hvHTIvk23dHg@kroah.com>
-References: <https://lore.kernel.org/stable/YcBgWdVOT6GtICE6@kroah.com>
- <20211223095733.587981-1-brauner@kernel.org>
- <YcRNV5z5bkSNu2kr@kroah.com>
- <20211223103129.3zc7iswcmaaswmp5@wittgenstein>
+To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Cc:     stable@vger.kernel.org, sashal@kernel.org,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Peter Chen <peter.chen@nxp.com>
+Subject: Re: [RFC/PATCH for 4.4.y] usb: gadget: configfs: Fix use-after-free
+ issue with udc_name
+Message-ID: <Ycm151MQzlAC0tC3@kroah.com>
+References: <20211223052626.1631331-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211223103129.3zc7iswcmaaswmp5@wittgenstein>
+In-Reply-To: <20211223052626.1631331-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 23, 2021 at 11:31:29AM +0100, Christian Brauner wrote:
-> On Thu, Dec 23, 2021 at 11:20:07AM +0100, Greg KH wrote:
-> > On Thu, Dec 23, 2021 at 10:57:33AM +0100, Christian Brauner wrote:
-> > > From: Christian Brauner <christian.brauner@ubuntu.com>
-> > > 
-> > > Ceph always inherits the SGID bit if it is set on the parent inode,
-> > > while the generic inode_init_owner does not do this in a few cases where
-> > > it can create a possible security problem (cf. [1]).
-> > > 
-> > > Update ceph to strip the SGID bit just as inode_init_owner would.
-> > > 
-> > > This bug was detected by the mapped mount testsuite in [3]. The
-> > > testsuite tests all core VFS functionality and semantics with and
-> > > without mapped mounts. That is to say it functions as a generic VFS
-> > > testsuite in addition to a mapped mount testsuite. While working on
-> > > mapped mount support for ceph, SIGD inheritance was the only failing
-> > > test for ceph after the port.
-> > > 
-> > > The same bug was detected by the mapped mount testsuite in XFS in
-> > > January 2021 (cf. [2]).
-> > > 
-> > > [1]: commit 0fa3ecd87848 ("Fix up non-directory creation in SGID directories")
-> > > [2]: commit 01ea173e103e ("xfs: fix up non-directory creation in SGID directories")
-> > > [3]: https://git.kernel.org/fs/xfs/xfstests-dev.git
-> > > 
-> > > Cc: stable@vger.kernel.org (adapted to v5.10)
-> > > Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> > > Reviewed-by: Jeff Layton <jlayton@kernel.org>
-> > > Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-> > > ---
-> > >  fs/ceph/file.c | 18 +++++++++++++++---
-> > >  1 file changed, 15 insertions(+), 3 deletions(-)
-> > 
-> > What is the git commit id in Linus's tree?
+On Thu, Dec 23, 2021 at 02:26:26PM +0900, Nobuhiro Iwamatsu wrote:
+> From: Eddie Hung <eddie.hung@mediatek.com>
 > 
-> commit fd84bfdddd169c219c3a637889a8b87f70a072c2
-> Author: Christian Brauner <christian.brauner@ubuntu.com>
-> Date:   Mon Nov 29 12:16:39 2021 +0100
+> commit 64e6bbfff52db4bf6785fab9cffab850b2de6870 upstream.
 > 
->     ceph: fix up non-directory creation in SGID directories
+> There is a use-after-free issue, if access udc_name
+> in function gadget_dev_desc_UDC_store after another context
+> free udc_name in function unregister_gadget.
+> 
+> Context 1:
+> gadget_dev_desc_UDC_store()->unregister_gadget()->
+> free udc_name->set udc_name to NULL
+> 
+> Context 2:
+> gadget_dev_desc_UDC_show()-> access udc_name
+> 
+> Call trace:
+> dump_backtrace+0x0/0x340
+> show_stack+0x14/0x1c
+> dump_stack+0xe4/0x134
+> print_address_description+0x78/0x478
+> __kasan_report+0x270/0x2ec
+> kasan_report+0x10/0x18
+> __asan_report_load1_noabort+0x18/0x20
+> string+0xf4/0x138
+> vsnprintf+0x428/0x14d0
+> sprintf+0xe4/0x12c
+> gadget_dev_desc_UDC_show+0x54/0x64
+> configfs_read_file+0x210/0x3a0
+> __vfs_read+0xf0/0x49c
+> vfs_read+0x130/0x2b4
+> SyS_read+0x114/0x208
+> el0_svc_naked+0x34/0x38
+> 
+> Add mutex_lock to protect this kind of scenario.
+> 
+> Signed-off-by: Eddie Hung <eddie.hung@mediatek.com>
+> Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+> Reviewed-by: Peter Chen <peter.chen@nxp.com>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/r/1609239215-21819-1-git-send-email-macpaul.lin@mediatek.com
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> [Reference: CVE-2021-39648]
+> [iwamatsu: struct usb_gadget_driver does not have udc_name variable.
+>            Change struct gadget_info's udc_name.]
+> Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+> ---
+>  drivers/usb/gadget/configfs.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
 
-Great, now queued up, thanks.
+Now queued up, thanks.
 
 greg k-h
