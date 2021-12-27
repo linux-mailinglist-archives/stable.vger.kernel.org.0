@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E72480442
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 20:08:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9BA0480445
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 20:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233306AbhL0TIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 14:08:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57356 "EHLO
+        id S233333AbhL0TIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 14:08:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231130AbhL0THH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 14:07:07 -0500
+        with ESMTP id S232860AbhL0THL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 14:07:11 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54FF4C061399;
-        Mon, 27 Dec 2021 11:06:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ED98C0698C8;
+        Mon, 27 Dec 2021 11:06:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9EE89CE1157;
-        Mon, 27 Dec 2021 19:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A9CBC36AEA;
-        Mon, 27 Dec 2021 19:06:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E8EE1CE1153;
+        Mon, 27 Dec 2021 19:06:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9052FC36AED;
+        Mon, 27 Dec 2021 19:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640632012;
-        bh=7v65NIKYKLtqaCIPUqAhVcawDbEbdJ2lZkTee9dCzF4=;
+        s=k20201202; t=1640632013;
+        bh=RbbBhYv7tJD/nX0IphEc7Q9+M0qPa5iA4CJGq0LLQN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vk3vAa4uoAWKrVpaCqgUdidIf4JqTEcvFoSvXh8Dv36IAyHEQKOn68zSe3mh4UszJ
-         Reri3FF93CNTLEbi7UUcwajw4E40a5OlDSoq6AvG060rEaAi8n09MqemD4DTCJBYBT
-         c5Gmsgupxz0R62AIIA+bKucWQGhQ92VTQyLGgAFnae+Ip5KGc9Iqi3K4dYV6lICc2U
-         JeHO9qDFHXL6pIThujkP/W9Pn60mYNJjYTsFmz/55KMEC4oXS22RYhp5VdKY3H8EnP
-         YWPeFYYyU1NFoA8yXB+vHb8PvFVVcfs3WXllE4fXvTerLP5t0XqlPWv7fqbde17RpZ
-         jbiCG+TDx/HMA==
+        b=jbyTAWtc7/b0pfp4RFNN93wE4cp9HKkdsqzBYW4eOO3BwnYVBub1B7Ji37O5hg7lo
+         3pkNGBhde3HMn7sqYhN4FzTHfu57RbgIfeBxJQmGHxTB+U+05TtGW5ZnjUYa0jZ4Ro
+         sqNTbBgf7jCIDh00WzigPTb6cec52oLDyF1Zdkp92KMQ/yh5r30lZu2vdgC1vgJK1P
+         zRWssxkzUF4ISauqMCK8BZJ7O18mdAWpr79q/cKP762rthVM4Rt+gDHcrpiUJOe6oo
+         AMyXBNTAaojrXb8uFAbz3gulVMaI9gMlfUy0X1U+uebvFp5xRGdthI42KivtQbZjr+
+         Y0g75EEAzLcsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?R=C3=A9mi=20Denis-Courmont?= <remi@remlab.net>,
-        syzbot+2dc91e7fc3dea88b1e8a@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, courmisch@gmail.com,
-        kuba@kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/4] phonet/pep: refuse to enable an unbound pipe
-Date:   Mon, 27 Dec 2021 14:06:45 -0500
-Message-Id: <20211227190647.1043514-3-sashal@kernel.org>
+Cc:     Wang Qing <wangqing@vivo.com>, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/4] platform/x86: apple-gmux: use resource_size() with res
+Date:   Mon, 27 Dec 2021 14:06:46 -0500
+Message-Id: <20211227190647.1043514-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227190647.1043514-1-sashal@kernel.org>
 References: <20211227190647.1043514-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,39 +50,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rémi Denis-Courmont <remi@remlab.net>
+From: Wang Qing <wangqing@vivo.com>
 
-[ Upstream commit 75a2f31520095600f650597c0ac41f48b5ba0068 ]
+[ Upstream commit eb66fb03a727cde0ab9b1a3858de55c26f3007da ]
 
-This ioctl() implicitly assumed that the socket was already bound to
-a valid local socket name, i.e. Phonet object. If the socket was not
-bound, two separate problems would occur:
+This should be (res->end - res->start + 1) here actually,
+use resource_size() derectly.
 
-1) We'd send an pipe enablement request with an invalid source object.
-2) Later socket calls could BUG on the socket unexpectedly being
-   connected yet not bound to a valid object.
-
-Reported-by: syzbot+2dc91e7fc3dea88b1e8a@syzkaller.appspotmail.com
-Signed-off-by: Rémi Denis-Courmont <remi@remlab.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wang Qing <wangqing@vivo.com>
+Link: https://lore.kernel.org/r/1639484316-75873-1-git-send-email-wangqing@vivo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/phonet/pep.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/apple-gmux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/phonet/pep.c b/net/phonet/pep.c
-index f6aa532bcbf64..1e7945df39928 100644
---- a/net/phonet/pep.c
-+++ b/net/phonet/pep.c
-@@ -956,6 +956,8 @@ static int pep_ioctl(struct sock *sk, int cmd, unsigned long arg)
- 			ret =  -EBUSY;
- 		else if (sk->sk_state == TCP_ESTABLISHED)
- 			ret = -EISCONN;
-+		else if (!pn->pn_sk.sobject)
-+			ret = -EADDRNOTAVAIL;
- 		else
- 			ret = pep_sock_enable(sk, NULL, 0);
- 		release_sock(sk);
+diff --git a/drivers/platform/x86/apple-gmux.c b/drivers/platform/x86/apple-gmux.c
+index a66be137324c0..76f5703bc4f65 100644
+--- a/drivers/platform/x86/apple-gmux.c
++++ b/drivers/platform/x86/apple-gmux.c
+@@ -628,7 +628,7 @@ static int gmux_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ 	}
+ 
+ 	gmux_data->iostart = res->start;
+-	gmux_data->iolen = res->end - res->start;
++	gmux_data->iolen = resource_size(res);
+ 
+ 	if (gmux_data->iolen < GMUX_MIN_IO_LEN) {
+ 		pr_err("gmux I/O region too small (%lu < %u)\n",
 -- 
 2.34.1
 
