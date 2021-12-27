@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015D347FF45
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6062D48007B
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238515AbhL0Pgi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:36:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238262AbhL0PeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DE25C061785;
-        Mon, 27 Dec 2021 07:34:19 -0800 (PST)
+        id S236310AbhL0Pqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:46:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44010 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238996AbhL0Pmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:42:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C477661073;
-        Mon, 27 Dec 2021 15:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC95EC36AEA;
-        Mon, 27 Dec 2021 15:34:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B5C5B810C3;
+        Mon, 27 Dec 2021 15:42:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A084EC36AE7;
+        Mon, 27 Dec 2021 15:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619258;
-        bh=xphTALr4CVdimJq8DT1HHfIbJbCC1CjtetzO2AMlv1k=;
+        s=korg; t=1640619765;
+        bh=UXSAzmMYGQlIpw2x+mclLRj0aAcTHaXe2OLhCbvBWAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nciUoC0o4Gp2I074Nk1VqLdm7V5bsh2whDB3bACN+1N3geZz1w0zHrM9FT3Gt5oZD
-         A58giWeeo3WBJdbfCzMqMey3z5IOQTRlHIxXNkO3fLUk/t8/ONL7maF+a7DCzOAEr1
-         9YhwQdeuGc0/RGQ2GnQXp173yVRBY1HgySJ7NO0g=
+        b=IXAEhb/G2k1oNz0ilkbKZS1SbzXQALdK56xEgefaEhph7mCeHfQdVHZBLtXTsxIGd
+         AKSxl6w55TP+lzt4E+MRINR2s5VLdWLq6F5TlDmKERV47nYjlhQ/gjjI7SSQCFfXJv
+         1sHqZIY1eQhiM2zkGGCRDx8HaD33STglqVrxKzKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Greg Jesionowski <jesionowskigreg@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 01/47] net: usb: lan78xx: add Allied Telesis AT29M2-AF
+        stable@vger.kernel.org, Philipp Rudo <prudo@redhat.com>,
+        Baoquan He <bhe@redhat.com>,
+        Andrew Halaney <ahalaney@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 062/128] kernel/crash_core: suppress unknown crashkernel parameter warning
 Date:   Mon, 27 Dec 2021 16:30:37 +0100
-Message-Id: <20211227151320.849964432@linuxfoundation.org>
+Message-Id: <20211227151333.571070318@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,42 +48,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Jesionowski <jesionowskigreg@gmail.com>
+From: Philipp Rudo <prudo@redhat.com>
 
-commit ef8a0f6eab1ca5d1a75c242c5c7b9d386735fa0a upstream.
+[ Upstream commit 71d2bcec2d4d69ff109c497e6611d6c53c8926d4 ]
 
-This adds the vendor and product IDs for the AT29M2-AF which is a
-lan7801-based device.
+When booting with crashkernel= on the kernel command line a warning
+similar to
 
-Signed-off-by: Greg Jesionowski <jesionowskigreg@gmail.com>
-Link: https://lore.kernel.org/r/20211214221027.305784-1-jesionowskigreg@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Kernel command line: ro console=ttyS0 crashkernel=256M
+    Unknown kernel command line parameters "crashkernel=256M", will be passed to user space.
+
+is printed.
+
+This comes from crashkernel= being parsed independent from the kernel
+parameter handling mechanism.  So the code in init/main.c doesn't know
+that crashkernel= is a valid kernel parameter and prints this incorrect
+warning.
+
+Suppress the warning by adding a dummy early_param handler for
+crashkernel=.
+
+Link: https://lkml.kernel.org/r/20211208133443.6867-1-prudo@redhat.com
+Fixes: 86d1919a4fb0 ("init: print out unknown kernel parameters")
+Signed-off-by: Philipp Rudo <prudo@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Andrew Halaney <ahalaney@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/crash_core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -64,6 +64,8 @@
- #define LAN7801_USB_PRODUCT_ID		(0x7801)
- #define LAN78XX_EEPROM_MAGIC		(0x78A5)
- #define LAN78XX_OTP_MAGIC		(0x78F3)
-+#define AT29M2AF_USB_VENDOR_ID		(0x07C9)
-+#define AT29M2AF_USB_PRODUCT_ID	(0x0012)
+diff --git a/kernel/crash_core.c b/kernel/crash_core.c
+index eb53f5ec62c90..256cf6db573cd 100644
+--- a/kernel/crash_core.c
++++ b/kernel/crash_core.c
+@@ -6,6 +6,7 @@
  
- #define	MII_READ			1
- #define	MII_WRITE			0
-@@ -4153,6 +4155,10 @@ static const struct usb_device_id produc
- 	/* LAN7801 USB Gigabit Ethernet Device */
- 	USB_DEVICE(LAN78XX_USB_VENDOR_ID, LAN7801_USB_PRODUCT_ID),
- 	},
-+	{
-+	/* ATM2-AF USB Gigabit Ethernet Device */
-+	USB_DEVICE(AT29M2AF_USB_VENDOR_ID, AT29M2AF_USB_PRODUCT_ID),
-+	},
- 	{},
- };
- MODULE_DEVICE_TABLE(usb, products);
+ #include <linux/buildid.h>
+ #include <linux/crash_core.h>
++#include <linux/init.h>
+ #include <linux/utsname.h>
+ #include <linux/vmalloc.h>
+ 
+@@ -295,6 +296,16 @@ int __init parse_crashkernel_low(char *cmdline,
+ 				"crashkernel=", suffix_tbl[SUFFIX_LOW]);
+ }
+ 
++/*
++ * Add a dummy early_param handler to mark crashkernel= as a known command line
++ * parameter and suppress incorrect warnings in init/main.c.
++ */
++static int __init parse_crashkernel_dummy(char *arg)
++{
++	return 0;
++}
++early_param("crashkernel", parse_crashkernel_dummy);
++
+ Elf_Word *append_elf_note(Elf_Word *buf, char *name, unsigned int type,
+ 			  void *data, size_t data_len)
+ {
+-- 
+2.34.1
+
 
 
