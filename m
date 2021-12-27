@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54705480441
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 20:08:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0503C480435
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 20:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232782AbhL0TIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 14:08:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57070 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230471AbhL0THH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 14:07:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADCD6C0698C5;
-        Mon, 27 Dec 2021 11:06:51 -0800 (PST)
+        id S233201AbhL0THy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 14:07:54 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:49718 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233232AbhL0TGz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 14:06:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ED3CB81141;
-        Mon, 27 Dec 2021 19:06:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8B0FC36AEA;
-        Mon, 27 Dec 2021 19:06:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6A19BCE114B;
+        Mon, 27 Dec 2021 19:06:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCCC6C36AEE;
+        Mon, 27 Dec 2021 19:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640632009;
-        bh=xKxYooWvMUUL6Ma3cy88s8Xg2Dv7KBdhu+oV5B8tclg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rEcsL2AJe8Xd/O6nuBXZQE7IiYVnmNLIvLjMAIObshUTHGME8zJhvYySA3jzU1jWJ
-         /IKUREnn0VVE5PdlJ+I4uidNbt0LN/Qc7/McWVX/Ox3Scu+qHOL5pJgqtK9OI4KyOF
-         WTDNySLZrglXzVXXlFM1eojXgI6PzsjIan6a16py6R0VXjq4MK4MzszZmthJb9I4SO
-         0MtEznjgYUGCORO8XRvgl9efwzeigGhR/mEAy4kIYvumdqPKt+Xb46O5uI42mFQJ27
-         YEN+H7bAza4GMoGjMEv3FgjekesInPfuIBOuomGsCNMGfma0QCfZCPMkwV2ls767A+
-         KVc+E4rZ3Yrgg==
+        s=k20201202; t=1640632010;
+        bh=055HlUvUQ2TxKb4Z4cpIUxi7M++pUMXyhB1W32PSMEI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=i5aDzhN2vpuie1Sq8m1Ky624ZP2lRHIZXJdrUIvRL+CnlN2IjTGmhYcvo0jV5ec56
+         lajKuZ2i8IpZdPs9HIG27TNQ2hPUZuRlwjHM8onUmQBl6vDUtvNlvYAlW/w50+7Dce
+         Homz+eSFRYv+SKUMVQuAMhmeP6bpFmj7Mqr6Rq/8hAXoljAFNPlnydggKImSS51vc8
+         sUGNbAiTgj1KwJ1BPRYRhOJDkqC1bfJgjK6gcymQb1NAJR9OlGjygR7C2mfvK92QPg
+         rcFnWSFWvaRuAND4DRoT5is/4Y9RT7qYqfjutyIcAwzRfzMO8qX13B+hM8MCbkeNNn
+         +RWg2Dx5TtgIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 1/4] hwmon: (lm90) Do not report 'busy' status bit as alarm
-Date:   Mon, 27 Dec 2021 14:06:43 -0500
-Message-Id: <20211227190647.1043514-1-sashal@kernel.org>
+Cc:     Lin Ma <linma@zju.edu.cn>, Hanjie Wu <nagi@zju.edu.cn>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, jreuter@yaina.de,
+        kuba@kernel.org, linux-hams@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 2/4] ax25: NPD bug when detaching AX25 device
+Date:   Mon, 27 Dec 2021 14:06:44 -0500
+Message-Id: <20211227190647.1043514-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211227190647.1043514-1-sashal@kernel.org>
+References: <20211227190647.1043514-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -48,41 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit cdc5287acad9ede121924a9c9313544b80d15842 ]
+[ Upstream commit 1ade48d0c27d5da1ccf4b583d8c5fc8b534a3ac8 ]
 
-Bit 7 of the status register indicates that the chip is busy
-doing a conversion. It does not indicate an alarm status.
-Stop reporting it as alarm status bit.
+The existing cleanup routine implementation is not well synchronized
+with the syscall routine. When a device is detaching, below race could
+occur.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+static int ax25_sendmsg(...) {
+  ...
+  lock_sock()
+  ax25 = sk_to_ax25(sk);
+  if (ax25->ax25_dev == NULL) // CHECK
+  ...
+  ax25_queue_xmit(skb, ax25->ax25_dev->dev); // USE
+  ...
+}
+
+static void ax25_kill_by_device(...) {
+  ...
+  if (s->ax25_dev == ax25_dev) {
+    s->ax25_dev = NULL;
+    ...
+}
+
+Other syscall functions like ax25_getsockopt, ax25_getname,
+ax25_info_show also suffer from similar races. To fix them, this patch
+introduce lock_sock() into ax25_kill_by_device in order to guarantee
+that the nullify action in cleanup routine cannot proceed when another
+socket request is pending.
+
+Signed-off-by: Hanjie Wu <nagi@zju.edu.cn>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/lm90.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ax25/af_ax25.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-index 293d1184976b3..ba659182d77a0 100644
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -196,6 +196,7 @@ enum chips { lm90, adm1032, lm99, lm86, max6657, max6659, adt7461, max6680,
- #define LM90_STATUS_RHIGH	(1 << 4) /* remote high temp limit tripped */
- #define LM90_STATUS_LLOW	(1 << 5) /* local low temp limit tripped */
- #define LM90_STATUS_LHIGH	(1 << 6) /* local high temp limit tripped */
-+#define LM90_STATUS_BUSY	(1 << 7) /* conversion is ongoing */
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index 64fede18aa33f..f4c8567e91b38 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -88,8 +88,10 @@ static void ax25_kill_by_device(struct net_device *dev)
+ again:
+ 	ax25_for_each(s, &ax25_list) {
+ 		if (s->ax25_dev == ax25_dev) {
+-			s->ax25_dev = NULL;
+ 			spin_unlock_bh(&ax25_list_lock);
++			lock_sock(s->sk);
++			s->ax25_dev = NULL;
++			release_sock(s->sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+ 			spin_lock_bh(&ax25_list_lock);
  
- #define MAX6696_STATUS2_R2THRM	(1 << 1) /* remote2 THERM limit tripped */
- #define MAX6696_STATUS2_R2OPEN	(1 << 2) /* remote2 is an open circuit */
-@@ -692,7 +693,7 @@ static int lm90_update_device(struct device *dev)
- 		val = lm90_read_reg(client, LM90_REG_R_STATUS);
- 		if (val < 0)
- 			return val;
--		data->alarms = val;	/* lower 8 bit of alarms */
-+		data->alarms = val & ~LM90_STATUS_BUSY;
- 
- 		if (data->kind == max6696) {
- 			val = lm90_select_remote_channel(client, data, 1);
 -- 
 2.34.1
 
