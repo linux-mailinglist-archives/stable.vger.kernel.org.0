@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 163B947FDAA
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 14:41:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 123CF47FDAB
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 14:42:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbhL0Nlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 08:41:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
+        id S231192AbhL0NmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 08:42:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229644AbhL0Nlt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 08:41:49 -0500
+        with ESMTP id S229644AbhL0NmT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 08:42:19 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E644EC06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 05:41:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69F4C06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 05:42:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A97CAB8103B
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 13:41:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FC4C36AE7;
-        Mon, 27 Dec 2021 13:41:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A695DB81032
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 13:42:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F06CAC36AEA;
+        Mon, 27 Dec 2021 13:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640612506;
-        bh=aq4EIf3715aoyMmcn2Wf8yIkEeTsHGHw53sv9UPJKW0=;
+        s=korg; t=1640612536;
+        bh=MSWzW8fD1wGRg0ZZ7NNUR9bDvy0XprTbflHG4vQpO7E=;
         h=Subject:To:Cc:From:Date:From;
-        b=T9CEwLUP8kXcXjhWJMfPnDnL6SivkwKGD9ie8+B5ERETn/SfJ0GRHmp9bwOJ0EUU7
-         l8bax8EN1k4hMFl83rbh0oZCiAtEjLhEkqMh5U37M3MMb7uUZWpvdpg9ABMZFeM/LJ
-         KsMBbB2qBQeCILORn4/UjRive5ZuGGq7EP65c9B4=
-Subject: FAILED: patch "[PATCH] net: openvswitch: Fix matching zone id for invalid conns" failed to apply to 5.15-stable tree
-To:     paulb@nvidia.com, kuba@kernel.org
+        b=Xa1G5Nn5BMjhcJGYgC6yiIWP4WKgb5LEY9e10P4lGj74coFyffUXX3z8ZFTcb1bV+
+         6h67q6NPdUos9V4K+GKEKRDWGC5y42s0GXdOIZZsplYL9Y+FvMfvL7P1XcmwsujQ4v
+         jSdWeRlRC6U/do8vvZK64WwtRKEvsS4/qsuypIRw=
+Subject: FAILED: patch "[PATCH] net: dsa: tag_ocelot: use traffic class to map priority on" failed to apply to 5.15-stable tree
+To:     xiaoliang.yang_1@nxp.com, kuba@kernel.org,
+        marouen.ghodhbane@nxp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 14:41:43 +0100
-Message-ID: <164061250321146@kroah.com>
+Date:   Mon, 27 Dec 2021 14:42:14 +0100
+Message-ID: <1640612534109106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,85 +54,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 635d448a1cce4b4ebee52b351052c70434fa90ea Mon Sep 17 00:00:00 2001
-From: Paul Blakey <paulb@nvidia.com>
-Date: Tue, 14 Dec 2021 19:24:35 +0200
-Subject: [PATCH] net: openvswitch: Fix matching zone id for invalid conns
- arriving from tc
+From ae2778a64724f77fd6cad674461a045fb3307df7 Mon Sep 17 00:00:00 2001
+From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Date: Thu, 23 Dec 2021 15:22:11 +0800
+Subject: [PATCH] net: dsa: tag_ocelot: use traffic class to map priority on
+ injected header
 
-Zone id is not restored if we passed ct and ct rejected the connection,
-as there is no ct info on the skb.
+For Ocelot switches, the CPU injected frames have an injection header
+where it can specify the QoS class of the packet and the DSA tag, now it
+uses the SKB priority to set that. If a traffic class to priority
+mapping is configured on the netdevice (with mqprio for example ...), it
+won't be considered for CPU injected headers. This patch make the QoS
+class aligned to the priority to traffic class mapping if it exists.
 
-Save the zone from tc skb cb to tc skb extension and pass it on to
-ovs, use that info to restore the zone id for invalid connections.
-
-Fixes: d29334c15d33 ("net/sched: act_api: fix miss set post_ct for ovs after do conntrack in act_ct")
-Signed-off-by: Paul Blakey <paulb@nvidia.com>
+Fixes: 8dce89aa5f32 ("net: dsa: ocelot: add tagger for Ocelot/Felix switches")
+Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Signed-off-by: Marouen Ghodhbane <marouen.ghodhbane@nxp.com>
+Link: https://lore.kernel.org/r/20211223072211.33130-1-xiaoliang.yang_1@nxp.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 2ecf8cfd2223..4507d77d6941 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -286,6 +286,7 @@ struct nf_bridge_info {
- struct tc_skb_ext {
- 	__u32 chain;
- 	__u16 mru;
-+	__u16 zone;
- 	bool post_ct;
- };
- #endif
-diff --git a/net/openvswitch/flow.c b/net/openvswitch/flow.c
-index 9713035b89e3..6d262d9aa10e 100644
---- a/net/openvswitch/flow.c
-+++ b/net/openvswitch/flow.c
-@@ -34,6 +34,7 @@
- #include <net/mpls.h>
- #include <net/ndisc.h>
- #include <net/nsh.h>
-+#include <net/netfilter/nf_conntrack_zones.h>
+diff --git a/net/dsa/tag_ocelot.c b/net/dsa/tag_ocelot.c
+index de1c849a0a70..4ed74d509d6a 100644
+--- a/net/dsa/tag_ocelot.c
++++ b/net/dsa/tag_ocelot.c
+@@ -47,9 +47,13 @@ static void ocelot_xmit_common(struct sk_buff *skb, struct net_device *netdev,
+ 	void *injection;
+ 	__be32 *prefix;
+ 	u32 rew_op = 0;
++	u64 qos_class;
  
- #include "conntrack.h"
- #include "datapath.h"
-@@ -860,6 +861,7 @@ int ovs_flow_key_extract(const struct ip_tunnel_info *tun_info,
- #endif
- 	bool post_ct = false;
- 	int res, err;
-+	u16 zone = 0;
+ 	ocelot_xmit_get_vlan_info(skb, dp, &vlan_tci, &tag_type);
  
- 	/* Extract metadata from packet. */
- 	if (tun_info) {
-@@ -898,6 +900,7 @@ int ovs_flow_key_extract(const struct ip_tunnel_info *tun_info,
- 		key->recirc_id = tc_ext ? tc_ext->chain : 0;
- 		OVS_CB(skb)->mru = tc_ext ? tc_ext->mru : 0;
- 		post_ct = tc_ext ? tc_ext->post_ct : false;
-+		zone = post_ct ? tc_ext->zone : 0;
- 	} else {
- 		key->recirc_id = 0;
- 	}
-@@ -906,8 +909,11 @@ int ovs_flow_key_extract(const struct ip_tunnel_info *tun_info,
- #endif
++	qos_class = netdev_get_num_tc(netdev) ?
++		    netdev_get_prio_tc_map(netdev, skb->priority) : skb->priority;
++
+ 	injection = skb_push(skb, OCELOT_TAG_LEN);
+ 	prefix = skb_push(skb, OCELOT_SHORT_PREFIX_LEN);
  
- 	err = key_extract(skb, key);
--	if (!err)
-+	if (!err) {
- 		ovs_ct_fill_key(skb, key, post_ct);   /* Must be after key_extract(). */
-+		if (post_ct && !skb_get_nfct(skb))
-+			key->ct_zone = zone;
-+	}
- 	return err;
- }
+@@ -57,7 +61,7 @@ static void ocelot_xmit_common(struct sk_buff *skb, struct net_device *netdev,
+ 	memset(injection, 0, OCELOT_TAG_LEN);
+ 	ocelot_ifh_set_bypass(injection, 1);
+ 	ocelot_ifh_set_src(injection, ds->num_ports);
+-	ocelot_ifh_set_qos_class(injection, skb->priority);
++	ocelot_ifh_set_qos_class(injection, qos_class);
+ 	ocelot_ifh_set_vlan_tci(injection, vlan_tci);
+ 	ocelot_ifh_set_tag_type(injection, tag_type);
  
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index ff8a9383bf1c..35c74bdde848 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1625,6 +1625,7 @@ int tcf_classify(struct sk_buff *skb,
- 		ext->chain = last_executed_chain;
- 		ext->mru = cb->mru;
- 		ext->post_ct = cb->post_ct;
-+		ext->zone = cb->zone;
- 	}
- 
- 	return ret;
 
