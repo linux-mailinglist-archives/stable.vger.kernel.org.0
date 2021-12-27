@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFBEF47FF30
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:36:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7087F480060
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238290AbhL0PgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:36:02 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40070 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238288AbhL0Pfi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:35:38 -0500
+        id S238453AbhL0Ppx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:45:53 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43264 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239363AbhL0PoX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 233C4CE10B6;
-        Mon, 27 Dec 2021 15:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21DAC36AEB;
-        Mon, 27 Dec 2021 15:35:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88C7D61052;
+        Mon, 27 Dec 2021 15:44:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71613C36AEC;
+        Mon, 27 Dec 2021 15:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619335;
-        bh=JgwP6soaSUk6CkDscb2WJFVFnzQ8SjXk+5Pme/NMhgM=;
+        s=korg; t=1640619862;
+        bh=pZOQ1woXoloJnOsX3Y3o1QHI0cJ5g7xWbmAlIDMfGHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsC+sHoDd5O4n4zvUSSLLF1woB5JSoZq7GHzGxopwwy3QO7eji9obJ4YyzJKtAT7c
-         oSY28ZPbUYv9TyjrNQZU0AlPr1niR5YCffNQlI5Iv3DNqskki2Oh9L8Ah/GdO0HpIQ
-         ikVzroRXPoNNgMfDgSQgrzEo3CB6JECF2qspfCDE=
+        b=X5YzMXOrn2FebqrKloxLJqqrG6IVgpRZLr9wk/KH6wRtfz+YLb0E4rn9YelMEMIkr
+         zWVznRNdZP1+1cYWVsu/BGRBfXjF0SrfVX3n3kR230+GOq+ST/HxJEJumGjMmShLC+
+         hbJ4vTOhcOA8uwPQ/MOOtdOFYW10AbKL3pn7nHGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrik Lantz <patrik.lantz@axis.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 5.4 35/47] tee: optee: Fix incorrect page free bug
+        stable@vger.kernel.org,
+        Christophe Kerello <christophe.kerello@foss.st.com>,
+        Yann Gautier <yann.gautier@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 096/128] mmc: mmci: stm32: clear DLYB_CR after sending tuning command
 Date:   Mon, 27 Dec 2021 16:31:11 +0100
-Message-Id: <20211227151322.004889674@linuxfoundation.org>
+Message-Id: <20211227151334.728418651@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Garg <sumit.garg@linaro.org>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-commit 18549bf4b21c739a9def39f27dcac53e27286ab5 upstream.
+commit ff31ee0a0f471776f67be5e5275c18d17736fc6b upstream.
 
-Pointer to the allocated pages (struct page *page) has already
-progressed towards the end of allocation. It is incorrect to perform
-__free_pages(page, order) using this pointer as we would free any
-arbitrary pages. Fix this by stop modifying the page pointer.
+During test campaign, and especially after several unbind/bind sequences,
+it has been seen that the SD-card on SDMMC1 thread could freeze.
+The freeze always appear on a CMD23 following a CMD19.
+Checking SDMMC internal registers shows that the tuning command (CMD19)
+has failed.
+The freeze is then due to the delay block involved in the tuning sequence.
+To correct this, clear the delay block register DLYB_CR register after
+the tuning commands.
 
-Fixes: ec185dd3ab25 ("optee: Fix memory leak when failing to register shm pages")
+Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 1103f807a3b9 ("mmc: mmci_sdmmc: Add execute tuning with delay block")
 Cc: stable@vger.kernel.org
-Reported-by: Patrik Lantz <patrik.lantz@axis.com>
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Link: https://lore.kernel.org/r/20211215141727.4901-4-yann.gautier@foss.st.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/optee/shm_pool.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/mmc/host/mmci_stm32_sdmmc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tee/optee/shm_pool.c
-+++ b/drivers/tee/optee/shm_pool.c
-@@ -41,10 +41,8 @@ static int pool_op_alloc(struct tee_shm_
- 			goto err;
- 		}
+--- a/drivers/mmc/host/mmci_stm32_sdmmc.c
++++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
+@@ -441,6 +441,8 @@ static int sdmmc_dlyb_phase_tuning(struc
+ 		return -EINVAL;
+ 	}
  
--		for (i = 0; i < nr_pages; i++) {
--			pages[i] = page;
--			page++;
--		}
-+		for (i = 0; i < nr_pages; i++)
-+			pages[i] = page + i;
++	writel_relaxed(0, dlyb->base + DLYB_CR);
++
+ 	phase = end_of_len - max_len / 2;
+ 	sdmmc_dlyb_set_cfgr(dlyb, dlyb->unit, phase, false);
  
- 		shm->flags |= TEE_SHM_REGISTER;
- 		rc = optee_shm_register(shm->ctx, shm, pages, nr_pages,
 
 
