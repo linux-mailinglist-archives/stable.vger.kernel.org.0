@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C81847FF08
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:35:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DB047FF53
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238143AbhL0PfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:35:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35954 "EHLO
+        id S238305AbhL0Pgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:36:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238071AbhL0PeF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:05 -0500
+        with ESMTP id S238509AbhL0Pex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10534C06179E;
-        Mon, 27 Dec 2021 07:34:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BD49C061401;
+        Mon, 27 Dec 2021 07:34:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3332610A7;
-        Mon, 27 Dec 2021 15:34:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 849F5C36AEB;
-        Mon, 27 Dec 2021 15:34:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE637610D5;
+        Mon, 27 Dec 2021 15:34:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFBFDC36AEA;
+        Mon, 27 Dec 2021 15:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619244;
-        bh=/FQescg+a25AiGW7rUF88yr7MLJtl2H2O9aEcPGD2e0=;
+        s=korg; t=1640619292;
+        bh=UpKMwXhD7M+nwvfamF3rl+z/hgImMA2xnSa7wgAkWZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TW0hszz0M5RDfyf9PUfbQUprHom7Kd+U9HDbs/lGReEpFFW4TwD3AT164rf6E6DG
-         hL9a9XDYbWiJ+oLNLauRuQlpa4p+sG0amqMNprvclapBDBKrfzH2iGTYI6yT+BRrmv
-         hjWwWssRlkWi3mzIy3085BSeIO714KIUcy4d1Vz0=
+        b=uDWmzu+mt4usmgv2ntpo+F3nw/0HfUov84yGCZvHRbpuZOPbEXdfjQYCTdnKWUz0v
+         mIiia8bK4akgboQ0F2tnxkE2jHqKkD1IOpCFH17/uieNn6kyOm6/Dv+6NQcZUTJkLb
+         QGKpvSYgcJfy4gO5Q4Y0Lhyg5437jAYklSGPzow4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Josh Lehan <krellan@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/38] hwmon: (lm90) Fix usage of CONFIG2 register in detect function
+Subject: [PATCH 5.4 21/47] hwmon: (lm90) Drop critical attribute support for MAX6654
 Date:   Mon, 27 Dec 2021 16:30:57 +0100
-Message-Id: <20211227151320.045493301@linuxfoundation.org>
+Message-Id: <20211227151321.530546129@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
-References: <20211227151319.379265346@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,46 +50,220 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit fce15c45d3fbd9fc1feaaf3210d8e3f8b33dfd3a ]
+[ Upstream commit 16ba51b5dcd3f6dde2e51d5ccc86313119dcf889 ]
 
-The detect function had a comment "Make compiler happy" when id did not
-read the second configuration register. As it turns out, the code was
-checking the contents of this register for manufacturer ID 0xA1 (NXP
-Semiconductor/Philips), but never actually read the register. So it
-wasn't surprising that the compiler complained, and it indeed had a point.
-Fix the code to read the register contents for manufacturer ID 0xa1.
+Tests with a real chip and a closer look into the datasheet show that
+MAX6654 does not support CRIT/THERM/OVERTEMP limits, so drop support
+of the respective attributes for this chip.
 
-At the same time, the code was reading the register for manufacturer ID
-0x41 (Analog Devices), but it was not using the results. In effect it was
-just checking if reading the register returned an error. That doesn't
-really add much if any value, so stop doing that.
+Introduce LM90_HAVE_CRIT flag and use it to instantiate critical limit
+attributes to solve the problem.
 
-Fixes: f90be42fb383 ("hwmon: (lm90) Refactor reading of config2 register")
+Cc: Josh Lehan <krellan@google.com>
+Fixes: 229d495d8189 ("hwmon: (lm90) Add max6654 support to lm90 driver")
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/lm90.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/hwmon/lm90.c | 86 +++++++++++++++++++++++++-------------------
+ 1 file changed, 49 insertions(+), 37 deletions(-)
 
 diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-index c187e557678ef..3df4e8654448b 100644
+index c4d8012806fe2..3ce83f2f5d82f 100644
 --- a/drivers/hwmon/lm90.c
 +++ b/drivers/hwmon/lm90.c
-@@ -1439,12 +1439,11 @@ static int lm90_detect(struct i2c_client *client,
- 	if (man_id < 0 || chip_id < 0 || config1 < 0 || convrate < 0)
- 		return -ENODEV;
+@@ -35,13 +35,14 @@
+  * explicitly as max6659, or if its address is not 0x4c.
+  * These chips lack the remote temperature offset feature.
+  *
+- * This driver also supports the MAX6654 chip made by Maxim. This chip can
+- * be at 9 different addresses, similar to MAX6680/MAX6681. The MAX6654 is
+- * otherwise similar to MAX6657/MAX6658/MAX6659. Extended range is available
+- * by setting the configuration register accordingly, and is done during
+- * initialization. Extended precision is only available at conversion rates
+- * of 1 Hz and slower. Note that extended precision is not enabled by
+- * default, as this driver initializes all chips to 2 Hz by design.
++ * This driver also supports the MAX6654 chip made by Maxim. This chip can be
++ * at 9 different addresses, similar to MAX6680/MAX6681. The MAX6654 is similar
++ * to MAX6657/MAX6658/MAX6659, but does not support critical temperature
++ * limits. Extended range is available by setting the configuration register
++ * accordingly, and is done during initialization. Extended precision is only
++ * available at conversion rates of 1 Hz and slower. Note that extended
++ * precision is not enabled by default, as this driver initializes all chips
++ * to 2 Hz by design.
+  *
+  * This driver also supports the MAX6646, MAX6647, MAX6648, MAX6649 and
+  * MAX6692 chips made by Maxim.  These are again similar to the LM86,
+@@ -188,6 +189,7 @@ enum chips { lm90, adm1032, lm99, lm86, max6657, max6659, adt7461, max6680,
+ #define LM90_HAVE_BROKEN_ALERT	(1 << 7) /* Broken alert		*/
+ #define LM90_HAVE_EXTENDED_TEMP	(1 << 8) /* extended temperature support*/
+ #define LM90_PAUSE_FOR_CONFIG	(1 << 9) /* Pause conversion for config	*/
++#define LM90_HAVE_CRIT		(1 << 10)/* Chip supports CRIT/OVERT register	*/
  
--	if (man_id == 0x01 || man_id == 0x5C || man_id == 0x41) {
-+	if (man_id == 0x01 || man_id == 0x5C || man_id == 0xA1) {
- 		config2 = i2c_smbus_read_byte_data(client, LM90_REG_R_CONFIG2);
- 		if (config2 < 0)
- 			return -ENODEV;
--	} else
--		config2 = 0;		/* Make compiler happy */
+ /* LM90 status */
+ #define LM90_STATUS_LTHRM	(1 << 0) /* local THERM limit tripped */
+@@ -354,38 +356,43 @@ struct lm90_params {
+ static const struct lm90_params lm90_params[] = {
+ 	[adm1032] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+-		  | LM90_HAVE_BROKEN_ALERT,
++		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 10,
+ 	},
+ 	[adt7461] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+-		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP,
++		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP
++		  | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 10,
+ 	},
+ 	[g781] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+-		  | LM90_HAVE_BROKEN_ALERT,
++		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 8,
+ 	},
+ 	[lm86] = {
+-		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT,
++		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
++		  | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7b,
+ 		.max_convrate = 9,
+ 	},
+ 	[lm90] = {
+-		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT,
++		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
++		  | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7b,
+ 		.max_convrate = 9,
+ 	},
+ 	[lm99] = {
+-		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT,
++		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
++		  | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7b,
+ 		.max_convrate = 9,
+ 	},
+ 	[max6646] = {
++		.flags = LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 6,
+ 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
+@@ -396,50 +403,50 @@ static const struct lm90_params lm90_params[] = {
+ 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
+ 	},
+ 	[max6657] = {
+-		.flags = LM90_PAUSE_FOR_CONFIG,
++		.flags = LM90_PAUSE_FOR_CONFIG | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 8,
+ 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
+ 	},
+ 	[max6659] = {
+-		.flags = LM90_HAVE_EMERGENCY,
++		.flags = LM90_HAVE_EMERGENCY | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 8,
+ 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
+ 	},
+ 	[max6680] = {
+-		.flags = LM90_HAVE_OFFSET,
++		.flags = LM90_HAVE_OFFSET | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 7,
+ 	},
+ 	[max6696] = {
+ 		.flags = LM90_HAVE_EMERGENCY
+-		  | LM90_HAVE_EMERGENCY_ALARM | LM90_HAVE_TEMP3,
++		  | LM90_HAVE_EMERGENCY_ALARM | LM90_HAVE_TEMP3 | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x1c7c,
+ 		.max_convrate = 6,
+ 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
+ 	},
+ 	[w83l771] = {
+-		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT,
++		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 8,
+ 	},
+ 	[sa56004] = {
+-		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT,
++		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7b,
+ 		.max_convrate = 9,
+ 		.reg_local_ext = SA56004_REG_R_LOCAL_TEMPL,
+ 	},
+ 	[tmp451] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+-		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP,
++		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 9,
+ 		.reg_local_ext = TMP451_REG_R_LOCAL_TEMPL,
+ 	},
+ 	[tmp461] = {
+ 		.flags = LM90_HAVE_OFFSET | LM90_HAVE_REM_LIMIT_EXT
+-		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP,
++		  | LM90_HAVE_BROKEN_ALERT | LM90_HAVE_EXTENDED_TEMP | LM90_HAVE_CRIT,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 9,
+ 		.reg_local_ext = TMP451_REG_R_LOCAL_TEMPL,
+@@ -667,20 +674,22 @@ static int lm90_update_limits(struct device *dev)
+ 	struct i2c_client *client = data->client;
+ 	int val;
+ 
+-	val = lm90_read_reg(client, LM90_REG_R_LOCAL_CRIT);
+-	if (val < 0)
+-		return val;
+-	data->temp8[LOCAL_CRIT] = val;
++	if (data->flags & LM90_HAVE_CRIT) {
++		val = lm90_read_reg(client, LM90_REG_R_LOCAL_CRIT);
++		if (val < 0)
++			return val;
++		data->temp8[LOCAL_CRIT] = val;
+ 
+-	val = lm90_read_reg(client, LM90_REG_R_REMOTE_CRIT);
+-	if (val < 0)
+-		return val;
+-	data->temp8[REMOTE_CRIT] = val;
++		val = lm90_read_reg(client, LM90_REG_R_REMOTE_CRIT);
++		if (val < 0)
++			return val;
++		data->temp8[REMOTE_CRIT] = val;
+ 
+-	val = lm90_read_reg(client, LM90_REG_R_TCRIT_HYST);
+-	if (val < 0)
+-		return val;
+-	data->temp_hyst = val;
++		val = lm90_read_reg(client, LM90_REG_R_TCRIT_HYST);
++		if (val < 0)
++			return val;
++		data->temp_hyst = val;
 +	}
  
- 	if ((address == 0x4C || address == 0x4D)
- 	 && man_id == 0x01) { /* National Semiconductor */
+ 	val = lm90_read_reg(client, LM90_REG_R_REMOTE_LOWH);
+ 	if (val < 0)
+@@ -1867,11 +1876,14 @@ static int lm90_probe(struct i2c_client *client,
+ 	info->config = data->channel_config;
+ 
+ 	data->channel_config[0] = HWMON_T_INPUT | HWMON_T_MIN | HWMON_T_MAX |
+-		HWMON_T_CRIT | HWMON_T_CRIT_HYST | HWMON_T_MIN_ALARM |
+-		HWMON_T_MAX_ALARM | HWMON_T_CRIT_ALARM;
++		HWMON_T_MIN_ALARM | HWMON_T_MAX_ALARM;
+ 	data->channel_config[1] = HWMON_T_INPUT | HWMON_T_MIN | HWMON_T_MAX |
+-		HWMON_T_CRIT | HWMON_T_CRIT_HYST | HWMON_T_MIN_ALARM |
+-		HWMON_T_MAX_ALARM | HWMON_T_CRIT_ALARM | HWMON_T_FAULT;
++		HWMON_T_MIN_ALARM | HWMON_T_MAX_ALARM | HWMON_T_FAULT;
++
++	if (data->flags & LM90_HAVE_CRIT) {
++		data->channel_config[0] |= HWMON_T_CRIT | HWMON_T_CRIT_ALARM | HWMON_T_CRIT_HYST;
++		data->channel_config[1] |= HWMON_T_CRIT | HWMON_T_CRIT_ALARM | HWMON_T_CRIT_HYST;
++	}
+ 
+ 	if (data->flags & LM90_HAVE_OFFSET)
+ 		data->channel_config[1] |= HWMON_T_OFFSET;
 -- 
 2.34.1
 
