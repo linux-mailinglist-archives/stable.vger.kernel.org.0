@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6062D48007B
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 989A04800DB
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236310AbhL0Pqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:46:39 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44010 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238996AbhL0Pmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:42:47 -0500
+        id S239083AbhL0PvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:51:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38232 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239806AbhL0Pqk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:46:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7640CC08EA6B;
+        Mon, 27 Dec 2021 07:42:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B5C5B810C3;
-        Mon, 27 Dec 2021 15:42:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A084EC36AE7;
-        Mon, 27 Dec 2021 15:42:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 344ACB810AA;
+        Mon, 27 Dec 2021 15:42:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72579C36AEA;
+        Mon, 27 Dec 2021 15:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619765;
-        bh=UXSAzmMYGQlIpw2x+mclLRj0aAcTHaXe2OLhCbvBWAE=;
+        s=korg; t=1640619768;
+        bh=/K+cNPZ8Dte3SrIAEElhuiOMPaQ4cL+zNFe/Hi9sx08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IXAEhb/G2k1oNz0ilkbKZS1SbzXQALdK56xEgefaEhph7mCeHfQdVHZBLtXTsxIGd
-         AKSxl6w55TP+lzt4E+MRINR2s5VLdWLq6F5TlDmKERV47nYjlhQ/gjjI7SSQCFfXJv
-         1sHqZIY1eQhiM2zkGGCRDx8HaD33STglqVrxKzKo=
+        b=fkWlUhsLpQPycjh6At01Qt+N8ZEbacHA5dkYZo4AnOv+0l5KkMZW2EHCxoIm1Tlym
+         649PFjLqu3/cXBJbMr3TkxpjKPUkvl49uUng72tgddLIB4D+ziZk35lMNGzQDe/oUA
+         zHzIxMPmxAwbHTKEb8mCJnm3qXqTsojqEnWWekm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@redhat.com>,
-        Baoquan He <bhe@redhat.com>,
-        Andrew Halaney <ahalaney@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 062/128] kernel/crash_core: suppress unknown crashkernel parameter warning
-Date:   Mon, 27 Dec 2021 16:30:37 +0100
-Message-Id: <20211227151333.571070318@linuxfoundation.org>
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.15 063/128] Revert "x86/boot: Pull up cmdline preparation and early param parsing"
+Date:   Mon, 27 Dec 2021 16:30:38 +0100
+Message-Id: <20211227151333.601301637@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
 References: <20211227151331.502501367@linuxfoundation.org>
@@ -48,69 +46,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Rudo <prudo@redhat.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 71d2bcec2d4d69ff109c497e6611d6c53c8926d4 ]
+commit fbe6183998546f8896ee0b620ece86deff5a2fd1 upstream.
 
-When booting with crashkernel= on the kernel command line a warning
-similar to
+This reverts commit 8d48bf8206f77aa8687f0e241e901e5197e52423.
 
-    Kernel command line: ro console=ttyS0 crashkernel=256M
-    Unknown kernel command line parameters "crashkernel=256M", will be passed to user space.
+It turned out to be a bad idea as it broke supplying mem= cmdline
+parameters due to parse_memopt() requiring preparatory work like setting
+up the e820 table in e820__memory_setup() in order to be able to exclude
+the range specified by mem=.
 
-is printed.
+Pulling that up would've broken Xen PV again, see threads at
 
-This comes from crashkernel= being parsed independent from the kernel
-parameter handling mechanism.  So the code in init/main.c doesn't know
-that crashkernel= is a valid kernel parameter and prints this incorrect
-warning.
+  https://lkml.kernel.org/r/20210920120421.29276-1-jgross@suse.com
 
-Suppress the warning by adding a dummy early_param handler for
-crashkernel=.
+due to xen_memory_setup() needing the first reservations in
+early_reserve_memory() - kernel and initrd - to have happened already.
 
-Link: https://lkml.kernel.org/r/20211208133443.6867-1-prudo@redhat.com
-Fixes: 86d1919a4fb0 ("init: print out unknown kernel parameters")
-Signed-off-by: Philipp Rudo <prudo@redhat.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Cc: Andrew Halaney <ahalaney@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This could be fixed again by having Xen do those reservations itself...
+
+Long story short, revert this and do a simpler fix in a later patch.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211213112757.2612-3-bp@alien8.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/crash_core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/x86/kernel/setup.c |   66 +++++++++++++++++++-----------------------------
+ 1 file changed, 27 insertions(+), 39 deletions(-)
 
-diff --git a/kernel/crash_core.c b/kernel/crash_core.c
-index eb53f5ec62c90..256cf6db573cd 100644
---- a/kernel/crash_core.c
-+++ b/kernel/crash_core.c
-@@ -6,6 +6,7 @@
- 
- #include <linux/buildid.h>
- #include <linux/crash_core.h>
-+#include <linux/init.h>
- #include <linux/utsname.h>
- #include <linux/vmalloc.h>
- 
-@@ -295,6 +296,16 @@ int __init parse_crashkernel_low(char *cmdline,
- 				"crashkernel=", suffix_tbl[SUFFIX_LOW]);
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -742,28 +742,6 @@ dump_kernel_offset(struct notifier_block
+ 	return 0;
  }
  
-+/*
-+ * Add a dummy early_param handler to mark crashkernel= as a known command line
-+ * parameter and suppress incorrect warnings in init/main.c.
-+ */
-+static int __init parse_crashkernel_dummy(char *arg)
-+{
-+	return 0;
-+}
-+early_param("crashkernel", parse_crashkernel_dummy);
+-static char *prepare_command_line(void)
+-{
+-#ifdef CONFIG_CMDLINE_BOOL
+-#ifdef CONFIG_CMDLINE_OVERRIDE
+-	strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
+-#else
+-	if (builtin_cmdline[0]) {
+-		/* append boot loader cmdline to builtin */
+-		strlcat(builtin_cmdline, " ", COMMAND_LINE_SIZE);
+-		strlcat(builtin_cmdline, boot_command_line, COMMAND_LINE_SIZE);
+-		strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
+-	}
+-#endif
+-#endif
+-
+-	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
+-
+-	parse_early_param();
+-
+-	return command_line;
+-}
+-
+ /*
+  * Determine if we were loaded by an EFI loader.  If so, then we have also been
+  * passed the efi memmap, systab, etc., so we should use these data structures
+@@ -853,23 +831,6 @@ void __init setup_arch(char **cmdline_p)
+ 	x86_init.oem.arch_setup();
+ 
+ 	/*
+-	 * x86_configure_nx() is called before parse_early_param() (called by
+-	 * prepare_command_line()) to detect whether hardware doesn't support
+-	 * NX (so that the early EHCI debug console setup can safely call
+-	 * set_fixmap()). It may then be called again from within noexec_setup()
+-	 * during parsing early parameters to honor the respective command line
+-	 * option.
+-	 */
+-	x86_configure_nx();
+-
+-	/*
+-	 * This parses early params and it needs to run before
+-	 * early_reserve_memory() because latter relies on such settings
+-	 * supplied as early params.
+-	 */
+-	*cmdline_p = prepare_command_line();
+-
+-	/*
+ 	 * Do some memory reservations *before* memory is added to memblock, so
+ 	 * memblock allocations won't overwrite it.
+ 	 *
+@@ -902,6 +863,33 @@ void __init setup_arch(char **cmdline_p)
+ 	bss_resource.start = __pa_symbol(__bss_start);
+ 	bss_resource.end = __pa_symbol(__bss_stop)-1;
+ 
++#ifdef CONFIG_CMDLINE_BOOL
++#ifdef CONFIG_CMDLINE_OVERRIDE
++	strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
++#else
++	if (builtin_cmdline[0]) {
++		/* append boot loader cmdline to builtin */
++		strlcat(builtin_cmdline, " ", COMMAND_LINE_SIZE);
++		strlcat(builtin_cmdline, boot_command_line, COMMAND_LINE_SIZE);
++		strlcpy(boot_command_line, builtin_cmdline, COMMAND_LINE_SIZE);
++	}
++#endif
++#endif
 +
- Elf_Word *append_elf_note(Elf_Word *buf, char *name, unsigned int type,
- 			  void *data, size_t data_len)
- {
--- 
-2.34.1
-
++	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
++	*cmdline_p = command_line;
++
++	/*
++	 * x86_configure_nx() is called before parse_early_param() to detect
++	 * whether hardware doesn't support NX (so that the early EHCI debug
++	 * console setup can safely call set_fixmap()). It may then be called
++	 * again from within noexec_setup() during parsing early parameters
++	 * to honor the respective command line option.
++	 */
++	x86_configure_nx();
++
++	parse_early_param();
++
+ #ifdef CONFIG_MEMORY_HOTPLUG
+ 	/*
+ 	 * Memory used by the kernel cannot be hot-removed because Linux
 
 
