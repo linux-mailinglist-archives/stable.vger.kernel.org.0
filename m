@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5267447FDF5
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 15:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 803F247FDF6
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 15:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237247AbhL0OzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 09:55:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55222 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234171AbhL0OzP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 09:55:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC5BC06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 06:55:14 -0800 (PST)
+        id S234171AbhL0Oz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 09:55:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50502 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237248AbhL0OzZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 09:55:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 85DD961046
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 14:55:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65BC6C36AE7;
-        Mon, 27 Dec 2021 14:55:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE934B8109E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 14:55:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3109FC36AE7;
+        Mon, 27 Dec 2021 14:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640616913;
-        bh=9830G29BGomtg7nX7ygrKGZqR/dzEVQpak0NJsecm0I=;
+        s=korg; t=1640616922;
+        bh=jEK34dzhiWRYy12ZINnCJX2Z58lIG5Xnq8h8Y0vCTWM=;
         h=Subject:To:Cc:From:Date:From;
-        b=RviyfHteptHytH1kWq+JGTw4m0ZPsqq50pVIc+AJIiZtM1pR7T8qaO6GlJPe8B4o8
-         /fe7QAqJywXHGOwEZrJ7TjHsijzPlTpG1xiSzt6Dmn+HwVp0ZdmGN9ztyoOCeznKo+
-         L6zSCPSM0IEp/L2tdqUKt8Q9IFGRpXTMYTZrPsc0=
-Subject: FAILED: patch "[PATCH] tun: avoid double free in tun_free_netdev" failed to apply to 5.10-stable tree
+        b=CoO3+lYckUuU6iSjZk3byNQX4K6V+wxhh5HGYV8H6OUTkI8Yke0EbQ7uSncUIhHId
+         W4F47+9F1FLyRrQbVI0C+h8ETqgmjd63KgHHs82zwi6xvMRAlPoGHy/3++3iqZNtoc
+         BoShz3A56nwElonYJ3UmdPp/OFERcCsC+DTavEB0=
+Subject: FAILED: patch "[PATCH] tun: avoid double free in tun_free_netdev" failed to apply to 5.4-stable tree
 To:     george.kennedy@oracle.com, kuba@kernel.org,
         syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 15:55:11 +0100
-Message-ID: <164061691110924@kroah.com>
+Date:   Mon, 27 Dec 2021 15:55:12 +0100
+Message-ID: <164061691218081@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
