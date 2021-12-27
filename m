@@ -2,116 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AC354804E6
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 22:26:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF846480504
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 22:58:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233524AbhL0V0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 16:26:06 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:51518 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229728AbhL0V0F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 Dec 2021 16:26:05 -0500
-Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id A8EAD1EC0136;
-        Mon, 27 Dec 2021 22:25:59 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1640640359;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=3Cy1PdT8ee7b18BUpAQeCkPJPidVgoTXUgpiQywVRN4=;
-        b=m6LiU/XltNjPORveRWWGZ/X44V1K+ujkDgCpPAWQMC9V+qzDBp+9Bn0nbrALtQ/VwgFbm3
-        IbJ0tL4dk5QJKecJUiN2UQuD5Fgac8/LCQbbXD+eVIXLd3gF3AkY750J3xp8zJf4uhz59o
-        ti+zSCpcL9CI9POJ+ZDF+aTNsMTb5WE=
-Date:   Mon, 27 Dec 2021 22:26:02 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Alexander Lobakin <alexandr.lobakin@intel.com>
-Cc:     linux-hardening@vger.kernel.org, x86@kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Kristen Carlson Accardi <kristen@linux.intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Bruce Schlobohm <bruce.schlobohm@intel.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Evgenii Shatokhin <eshatokhin@virtuozzo.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Marios Pomonis <pomonis@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        "H.J. Lu" <hjl.tools@gmail.com>, Nicolas Pitre <nico@fluxnic.net>,
-        linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
-        linux-arch@vger.kernel.org, live-patching@vger.kernel.org,
-        llvm@lists.linux.dev, stable@vger.kernel.org
-Subject: Re: [PATCH v9 01/15] modpost: fix removing numeric suffixes
-Message-ID: <YcovajZkEd0WY8p4@zn.tnic>
-References: <20211223002209.1092165-1-alexandr.lobakin@intel.com>
- <20211223002209.1092165-2-alexandr.lobakin@intel.com>
- <YcShenJgaOeOdbIj@zn.tnic>
- <20211227182246.1447062-1-alexandr.lobakin@intel.com>
+        id S231603AbhL0V6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 16:58:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38206 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229626AbhL0V6A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 16:58:00 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85181C06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 13:58:00 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id u20so14569353pfi.12
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 13:58:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=am/REwiURls868ppBwZ0Zwi9Ek5ba4bt+RMnb9NNMF4=;
+        b=CEeQbnDBlOJZZ0CP1/0kUHC/Crq+xhAQsLCAIj6CSTWDuLebybTMPamu3UBQbfFCW3
+         Kg9iZACo+YvE9Wwuyqz15C8si42k+fTmfFn95IiU7nNkVbGl3JZt67za31/Qt8UG//Xp
+         H1b+yZafoUd04xTr/HPvxnXky7veUS0r68z9YJE6uRHvDtglw27tKGDnsPPKpvsm/NLW
+         yv7Hy22Rt8meIS/vKtxZwCzLya7BPJ7DkUuuUaYb5eQxL2G70I+pg6FAM7NQGnEQ2mf5
+         OMlU0OubvKxK3n9bkquH+0m8+jz2ivGulgu1+t6fCY8/8CgITTVK5GBAwxGgpcM6Ui1h
+         RhXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=am/REwiURls868ppBwZ0Zwi9Ek5ba4bt+RMnb9NNMF4=;
+        b=O81TT1r4QpyOx4giMGCCx58G1yCynz9oyeoL+6NDnd0gChZPM6Xygr4ixNC6ajTI2B
+         i5ZWeSrxCzzOzY9Psbe4WiQld9sc6Q0uxrQgQKqj4znD1eCeogBro+AidiD6pKsKu5zt
+         tm9bzMJ7XO6DAsJbyYS5X2GHXvFm4DME1h/GJOhf8h0/a/ZlWusY0HY8Or8qT1xnmOtq
+         JVS0oBMwKfx0n7W+lDT4SbS5dOeaEw/Q9jDHDJcnQcF21eJPe+ysIqWowc2oeVgRFcTk
+         b6PQsa3vDSuPDiCnfTo2o8gN1VkJzHFCxb9YNSC5GZUIk4q+E8wWdE+G8G8GEuq7YQV/
+         YaWg==
+X-Gm-Message-State: AOAM531Bz0zMaCfaCq+b78s8tekjSVLUSlkmhzcu4VdILjCPl02aucbq
+        wz64goVQ1WIXRV1uqlyHDWlfNeVGWs+zIrmd
+X-Google-Smtp-Source: ABdhPJz4EbEE278MG4V2GM21zl1QJRcDlM3qH95ixArPuG4ULshisL/+l1Vap0nnzLIr6OpU0o+zLQ==
+X-Received: by 2002:a63:9902:: with SMTP id d2mr17318219pge.104.1640642279846;
+        Mon, 27 Dec 2021 13:57:59 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b18sm18361514pfl.121.2021.12.27.13.57.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Dec 2021 13:57:59 -0800 (PST)
+Message-ID: <61ca36e7.1c69fb81.7bf6d.3df5@mx.google.com>
+Date:   Mon, 27 Dec 2021 13:57:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20211227182246.1447062-1-alexandr.lobakin@intel.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.168-46-g9fba6c8097e8
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 baseline: 156 runs,
+ 4 regressions (v5.4.168-46-g9fba6c8097e8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Dec 27, 2021 at 07:22:46PM +0100, Alexander Lobakin wrote:
-> It's just a couple lines below. I trigger this using `-z uniq-symbol`
-> which uses numeric suffixes for globals as well.
+stable-rc/queue/5.4 baseline: 156 runs, 4 regressions (v5.4.168-46-g9fba6c8=
+097e8)
 
-Aha, so that's for the fgkaslr purposes now.
+Regressions Summary
+-------------------
 
-> It fixes a commit dated 2014, thus Cc:stable. Although the
-> remove_dot() might've been introduced for neverlanded GCC LTO, but
-> in fact numeric suffixes are used a lot by the toolchains in regular
-> builds as well. Just not for globals, that's why it's "well hidden".
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Does "well hidden" warrant a stable backport then? Because if no
-toolchain is using numeric suffixes for globals, then no need for the
-stable tag, I'd say.
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-> I thought it's a common saying in commit messages, isn't it?
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Lemme give you my canned and a lot more eloquent explanation for that:
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-"Please use passive voice in your commit message: no "we" or "I", etc,
-and describe your changes in imperative mood.
 
-Also, pls read section "2) Describe your changes" in
-Documentation/process/submitting-patches.rst for more details.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.168-46-g9fba6c8097e8/plan/baseline/
 
-Also, see section "Changelog" in
-Documentation/process/maintainer-tip.rst
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.168-46-g9fba6c8097e8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9fba6c8097e8cb1e08b0c5e87fc703fb3e6ebb43 =
 
-Bottom line is: personal pronouns are ambiguous in text, especially with
-so many parties/companies/etc developing the kernel so let's avoid them
-please."
 
-Thx.
 
--- 
-Regards/Gruss,
-    Boris.
+Test Regressions
+---------------- =
 
-https://people.kernel.org/tglx/notes-about-netiquette
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c9fe6c326f3edbe5397140
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c9fe6c326f3edbe5397=
+141
+        failing since 11 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c9fe84ad031b999439714c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c9fe84ad031b9994397=
+14d
+        failing since 11 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c9fe7eb65ff3606f397138
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c9fe7eb65ff3606f397=
+139
+        failing since 11 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61c9fe9827f43e6bc7397134
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.168-4=
+6-g9fba6c8097e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61c9fe9827f43e6bc7397=
+135
+        failing since 11 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
