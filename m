@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFE247FF52
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 923A04800DE
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238266AbhL0Pgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:36:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36174 "EHLO
+        id S239519AbhL0PvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:51:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238512AbhL0Pex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:53 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D719C06173E;
-        Mon, 27 Dec 2021 07:34:52 -0800 (PST)
+        with ESMTP id S240420AbhL0Prc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:47:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0CD9C08EAE0;
+        Mon, 27 Dec 2021 07:43:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F3FB6CE10B6;
-        Mon, 27 Dec 2021 15:34:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4690C36AE7;
-        Mon, 27 Dec 2021 15:34:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9543AB80E5A;
+        Mon, 27 Dec 2021 15:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB5E9C36AEB;
+        Mon, 27 Dec 2021 15:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619289;
-        bh=R1yRbgb1ohXYbiyTaF07AoAH8FIFPm57uUU7irPMYtI=;
+        s=korg; t=1640619799;
+        bh=tNInkdAZZkaXO3IhqaXhNQSRyo0RbBYlB7OgWOC5Cqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0DvNwpMykLUN+hQ4Ka7y9SYWEgbp27q2NJW611B5GJfh+EAtQhPL20nHe9AvFnV7
-         fhTPM/9Tf7AVshq3VLqDi9or9mBWjoiQng/vBI0QKoAB04eoOeD3V7SReNTmHWKSzQ
-         rvZOmsJGct/SUqgT5ClE8tM1uTBMvSR/8jaAWNE0=
+        b=SzRA3tmKZdI5f8j71TtXW5d2cNwfNeB9WYU+7yqgSmAA91sp93MwY/umiYbVHHu5E
+         Zprr3HGg/ufIfuws3uxUzq8cAASw69s8jbiX1q01y7HsonQnVfyPxACVOMNnOx0T8t
+         plo5fsYNSjH/BMa3gye5NnY0/h4XVYGW9OBatfMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Fernando Fernandez Mancera <ffmancera@riseup.net>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 12/47] bonding: fix ad_actor_system option setting to default
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Geraldo Nascimento <geraldogabriel@gmail.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 073/128] ASoC: meson: aiu: Move AIU_I2S_MISC hold setting to aiu-fifo-i2s
 Date:   Mon, 27 Dec 2021 16:30:48 +0100
-Message-Id: <20211227151321.215501199@linuxfoundation.org>
+Message-Id: <20211227151333.932214963@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,65 +51,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fernando Fernandez Mancera <ffmancera@riseup.net>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 1c15b05baea71a5ff98235783e3e4ad227760876 ]
+commit ee907afb0c39a41ee74b862882cfe12820c74b98 upstream.
 
-When 802.3ad bond mode is configured the ad_actor_system option is set to
-"00:00:00:00:00:00". But when trying to set the all-zeroes MAC as actors'
-system address it was failing with EINVAL.
+The out-of-tree vendor driver uses the following approach to set the
+AIU_I2S_MISC register:
+1) write AIU_MEM_I2S_START_PTR and AIU_MEM_I2S_RD_PTR
+2) configure AIU_I2S_MUTE_SWAP[15:0]
+3) write AIU_MEM_I2S_END_PTR
+4) set AIU_I2S_MISC[2] to 1 (documented as: "put I2S interface in hold
+   mode")
+5) set AIU_I2S_MISC[4] to 1 (depending on the driver revision it always
+   stays at 1 while for older drivers this bit is unset in step 4)
+6) set AIU_I2S_MISC[2] to 0
+7) write AIU_MEM_I2S_MASKS
+8) toggle AIU_MEM_I2S_CONTROL[0]
+9) toggle AIU_MEM_I2S_BUF_CNTL[0]
 
-An all-zeroes ethernet address is valid, only multicast addresses are not
-valid values.
+Move setting the AIU_I2S_MISC[2] bit to aiu_fifo_i2s_hw_params() so it
+resembles the flow in the vendor kernel more closely. While here also
+configure AIU_I2S_MISC[4] (documented as: "force each audio data to
+left or right according to the bit attached with the audio data")
+similar to how the vendor driver does this. This fixes the infamous and
+long-standing "machine gun noise" issue (a buffer underrun issue).
 
-Fixes: 171a42c38c6e ("bonding: add netlink support for sys prio, actor sys mac, and port key")
-Signed-off-by: Fernando Fernandez Mancera <ffmancera@riseup.net>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/20211221111345.2462-1-ffmancera@riseup.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6ae9ca9ce986bf ("ASoC: meson: aiu: add i2s and spdif support")
+Reported-by: Christian Hewitt <christianshewitt@gmail.com>
+Reported-by: Geraldo Nascimento <geraldogabriel@gmail.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Tested-by: Geraldo Nascimento <geraldogabriel@gmail.com>
+Acked-by: Jerome Brunet <jbrunet@baylibre.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20211206210804.2512999-3-martin.blumenstingl@googlemail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/networking/bonding.txt | 11 ++++++-----
- drivers/net/bonding/bond_options.c   |  2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ sound/soc/meson/aiu-encoder-i2s.c |   33 ---------------------------------
+ sound/soc/meson/aiu-fifo-i2s.c    |   19 +++++++++++++++++++
+ 2 files changed, 19 insertions(+), 33 deletions(-)
 
-diff --git a/Documentation/networking/bonding.txt b/Documentation/networking/bonding.txt
-index e3abfbd32f71e..b020e6ce6dd49 100644
---- a/Documentation/networking/bonding.txt
-+++ b/Documentation/networking/bonding.txt
-@@ -191,11 +191,12 @@ ad_actor_sys_prio
- ad_actor_system
+--- a/sound/soc/meson/aiu-encoder-i2s.c
++++ b/sound/soc/meson/aiu-encoder-i2s.c
+@@ -18,7 +18,6 @@
+ #define AIU_RST_SOFT_I2S_FAST		BIT(0)
  
- 	In an AD system, this specifies the mac-address for the actor in
--	protocol packet exchanges (LACPDUs). The value cannot be NULL or
--	multicast. It is preferred to have the local-admin bit set for this
--	mac but driver does not enforce it. If the value is not given then
--	system defaults to using the masters' mac address as actors' system
--	address.
-+	protocol packet exchanges (LACPDUs). The value cannot be a multicast
-+	address. If the all-zeroes MAC is specified, bonding will internally
-+	use the MAC of the bond itself. It is preferred to have the
-+	local-admin bit set for this mac but driver does not enforce it. If
-+	the value is not given then system defaults to using the masters'
-+	mac address as actors' system address.
+ #define AIU_I2S_DAC_CFG_MSB_FIRST	BIT(2)
+-#define AIU_I2S_MISC_HOLD_EN		BIT(2)
+ #define AIU_CLK_CTRL_I2S_DIV_EN		BIT(0)
+ #define AIU_CLK_CTRL_I2S_DIV		GENMASK(3, 2)
+ #define AIU_CLK_CTRL_AOCLK_INVERT	BIT(6)
+@@ -36,37 +35,6 @@ static void aiu_encoder_i2s_divider_enab
+ 				      enable ? AIU_CLK_CTRL_I2S_DIV_EN : 0);
+ }
  
- 	This parameter has effect only in 802.3ad mode and is available through
- 	SysFs interface.
-diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
-index 215c109232893..933087d85549a 100644
---- a/drivers/net/bonding/bond_options.c
-+++ b/drivers/net/bonding/bond_options.c
-@@ -1452,7 +1452,7 @@ static int bond_option_ad_actor_system_set(struct bonding *bond,
- 		mac = (u8 *)&newval->value;
- 	}
+-static void aiu_encoder_i2s_hold(struct snd_soc_component *component,
+-				 bool enable)
+-{
+-	snd_soc_component_update_bits(component, AIU_I2S_MISC,
+-				      AIU_I2S_MISC_HOLD_EN,
+-				      enable ? AIU_I2S_MISC_HOLD_EN : 0);
+-}
+-
+-static int aiu_encoder_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
+-				   struct snd_soc_dai *dai)
+-{
+-	struct snd_soc_component *component = dai->component;
+-
+-	switch (cmd) {
+-	case SNDRV_PCM_TRIGGER_START:
+-	case SNDRV_PCM_TRIGGER_RESUME:
+-	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+-		aiu_encoder_i2s_hold(component, false);
+-		return 0;
+-
+-	case SNDRV_PCM_TRIGGER_STOP:
+-	case SNDRV_PCM_TRIGGER_SUSPEND:
+-	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+-		aiu_encoder_i2s_hold(component, true);
+-		return 0;
+-
+-	default:
+-		return -EINVAL;
+-	}
+-}
+-
+ static int aiu_encoder_i2s_setup_desc(struct snd_soc_component *component,
+ 				      struct snd_pcm_hw_params *params)
+ {
+@@ -353,7 +321,6 @@ static void aiu_encoder_i2s_shutdown(str
+ }
  
--	if (!is_valid_ether_addr(mac))
-+	if (is_multicast_ether_addr(mac))
- 		goto err;
+ const struct snd_soc_dai_ops aiu_encoder_i2s_dai_ops = {
+-	.trigger	= aiu_encoder_i2s_trigger,
+ 	.hw_params	= aiu_encoder_i2s_hw_params,
+ 	.hw_free	= aiu_encoder_i2s_hw_free,
+ 	.set_fmt	= aiu_encoder_i2s_set_fmt,
+--- a/sound/soc/meson/aiu-fifo-i2s.c
++++ b/sound/soc/meson/aiu-fifo-i2s.c
+@@ -20,6 +20,8 @@
+ #define AIU_MEM_I2S_CONTROL_MODE_16BIT	BIT(6)
+ #define AIU_MEM_I2S_BUF_CNTL_INIT	BIT(0)
+ #define AIU_RST_SOFT_I2S_FAST		BIT(0)
++#define AIU_I2S_MISC_HOLD_EN		BIT(2)
++#define AIU_I2S_MISC_FORCE_LEFT_RIGHT	BIT(4)
  
- 	netdev_dbg(bond->dev, "Setting ad_actor_system to %pM\n", mac);
--- 
-2.34.1
-
+ #define AIU_FIFO_I2S_BLOCK		256
+ 
+@@ -90,6 +92,10 @@ static int aiu_fifo_i2s_hw_params(struct
+ 	unsigned int val;
+ 	int ret;
+ 
++	snd_soc_component_update_bits(component, AIU_I2S_MISC,
++				      AIU_I2S_MISC_HOLD_EN,
++				      AIU_I2S_MISC_HOLD_EN);
++
+ 	ret = aiu_fifo_hw_params(substream, params, dai);
+ 	if (ret)
+ 		return ret;
+@@ -117,6 +123,19 @@ static int aiu_fifo_i2s_hw_params(struct
+ 	snd_soc_component_update_bits(component, AIU_MEM_I2S_MASKS,
+ 				      AIU_MEM_I2S_MASKS_IRQ_BLOCK, val);
+ 
++	/*
++	 * Most (all?) supported SoCs have this bit set by default. The vendor
++	 * driver however sets it manually (depending on the version either
++	 * while un-setting AIU_I2S_MISC_HOLD_EN or right before that). Follow
++	 * the same approach for consistency with the vendor driver.
++	 */
++	snd_soc_component_update_bits(component, AIU_I2S_MISC,
++				      AIU_I2S_MISC_FORCE_LEFT_RIGHT,
++				      AIU_I2S_MISC_FORCE_LEFT_RIGHT);
++
++	snd_soc_component_update_bits(component, AIU_I2S_MISC,
++				      AIU_I2S_MISC_HOLD_EN, 0);
++
+ 	return 0;
+ }
+ 
 
 
