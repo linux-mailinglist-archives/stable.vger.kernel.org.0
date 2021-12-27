@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9685C47FFB7
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4B747FF2D
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235265AbhL0Pkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:40:55 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:41656 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239136AbhL0Pit (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:38:49 -0500
+        id S238196AbhL0Pfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:35:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35860 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229508AbhL0Pfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:35:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E0A51CE10D2;
-        Mon, 27 Dec 2021 15:38:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C92B7C36AEA;
-        Mon, 27 Dec 2021 15:38:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4066161113;
+        Mon, 27 Dec 2021 15:35:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21DFAC36AEA;
+        Mon, 27 Dec 2021 15:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619526;
-        bh=pZOQ1woXoloJnOsX3Y3o1QHI0cJ5g7xWbmAlIDMfGHk=;
+        s=korg; t=1640619332;
+        bh=LD3VFktw92lT0Tpu4re+2GY/O4oQpkGgBRd2ZhLcbBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BdiRxS/dAavxLep0puYJ04j0biiLHy6s+4L0GbRkBnulf6UpgI46rVJ+PdjFw/qBm
-         XJM49VF3SPmWm1fg9BT+VYBp0OakChJO9XCEBpQw0qlJTEmOs71oxX/hXqExeMveZS
-         joJQ5L9szNhDu0dt1mG6eRB0mGOVMMCOHJfBgVVU=
+        b=ueQqQ2VFdyCCZSqVmsZu5RqfKjpjWNAYTKWIbzKS71w8NT7uG1flH1dV6hs6IrKyF
+         pbysUdP8CMA2CbhazTZPYeZAR2AFV1wYdef0p/5vwqGRwYR3GGJEyhLrN0PPn6Smzo
+         eb3OEVZMn3zcggPZaHbBaokRO5pQQ4GlYLx6ZEck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
-        Yann Gautier <yann.gautier@foss.st.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 55/76] mmc: mmci: stm32: clear DLYB_CR after sending tuning command
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 34/47] ARM: 9169/1: entry: fix Thumb2 bug in iWMMXt exception handling
 Date:   Mon, 27 Dec 2021 16:31:10 +0100
-Message-Id: <20211227151326.609217651@linuxfoundation.org>
+Message-Id: <20211227151321.968276848@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit ff31ee0a0f471776f67be5e5275c18d17736fc6b upstream.
+commit 8536a5ef886005bc443c2da9b842d69fd3d7647f upstream.
 
-During test campaign, and especially after several unbind/bind sequences,
-it has been seen that the SD-card on SDMMC1 thread could freeze.
-The freeze always appear on a CMD23 following a CMD19.
-Checking SDMMC internal registers shows that the tuning command (CMD19)
-has failed.
-The freeze is then due to the delay block involved in the tuning sequence.
-To correct this, clear the delay block register DLYB_CR register after
-the tuning commands.
+The Thumb2 version of the FP exception handling entry code treats the
+register holding the CP number (R8) differently, resulting in the iWMMXT
+CP number check to be incorrect.
 
-Signed-off-by: Christophe Kerello <christophe.kerello@foss.st.com>
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Fixes: 1103f807a3b9 ("mmc: mmci_sdmmc: Add execute tuning with delay block")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211215141727.4901-4-yann.gautier@foss.st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fix this by unifying the ARM and Thumb2 code paths, and switch the
+order of the additions of the TI_USED_CP offset and the shifted CP
+index.
+
+Cc: <stable@vger.kernel.org>
+Fixes: b86040a59feb ("Thumb-2: Implementation of the unified start-up and exceptions code")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/mmci_stm32_sdmmc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/kernel/entry-armv.S |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/mmc/host/mmci_stm32_sdmmc.c
-+++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
-@@ -441,6 +441,8 @@ static int sdmmc_dlyb_phase_tuning(struc
- 		return -EINVAL;
- 	}
- 
-+	writel_relaxed(0, dlyb->base + DLYB_CR);
-+
- 	phase = end_of_len - max_len / 2;
- 	sdmmc_dlyb_set_cfgr(dlyb, dlyb->unit, phase, false);
+--- a/arch/arm/kernel/entry-armv.S
++++ b/arch/arm/kernel/entry-armv.S
+@@ -596,11 +596,9 @@ call_fpe:
+ 	tstne	r0, #0x04000000			@ bit 26 set on both ARM and Thumb-2
+ 	reteq	lr
+ 	and	r8, r0, #0x00000f00		@ mask out CP number
+- THUMB(	lsr	r8, r8, #8		)
+ 	mov	r7, #1
+-	add	r6, r10, #TI_USED_CP
+- ARM(	strb	r7, [r6, r8, lsr #8]	)	@ set appropriate used_cp[]
+- THUMB(	strb	r7, [r6, r8]		)	@ set appropriate used_cp[]
++	add	r6, r10, r8, lsr #8		@ add used_cp[] array offset first
++	strb	r7, [r6, #TI_USED_CP]		@ set appropriate used_cp[]
+ #ifdef CONFIG_IWMMXT
+ 	@ Test if we need to give access to iWMMXt coprocessors
+ 	ldr	r5, [r10, #TI_FLAGS]
+@@ -609,7 +607,7 @@ call_fpe:
+ 	bcs	iwmmxt_task_enable
+ #endif
+  ARM(	add	pc, pc, r8, lsr #6	)
+- THUMB(	lsl	r8, r8, #2		)
++ THUMB(	lsr	r8, r8, #6		)
+  THUMB(	add	pc, r8			)
+ 	nop
  
 
 
