@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB40447FFB1
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:40:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58ED34800B6
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235248AbhL0Pks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:40:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36782 "EHLO
+        id S240458AbhL0Psm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:48:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238395AbhL0PiU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:38:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93756C06173E;
-        Mon, 27 Dec 2021 07:37:29 -0800 (PST)
+        with ESMTP id S239312AbhL0Pqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:46:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29B1CC06175D;
+        Mon, 27 Dec 2021 07:42:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 10AB1CE10D4;
-        Mon, 27 Dec 2021 15:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D59E2C36AEA;
-        Mon, 27 Dec 2021 15:37:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C568CB810AA;
+        Mon, 27 Dec 2021 15:42:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C400C36AE7;
+        Mon, 27 Dec 2021 15:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619446;
-        bh=hplmNwh5YxuGCg7Z/hEuOQrMP+6zDH2crA58Ob1D8KM=;
+        s=korg; t=1640619776;
+        bh=lvRUVczAdOaI/eCX12bq7+CKt00xLXnyN8GDCRq0GZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joK+Pw8hjyvvXMelO9gCMD88SOwm59DZquF8XPTemlQnrW15zu4IA0YJY0ZRJceTr
-         bROI6yRGnppoeTLerzpZsN2JF8YiDZRsA/ZsqeETOO4Q9SFTwlWX0q0ixkQWCCVSym
-         m/QZueN7h+dJmeMq6reGMzWW86orM2FWgKbl8gEY=
+        b=SIcwbJWtiQx6CUEFYf5djQC4eLZtSB+p4JrgLwZFSXMcYg1VItpOkm5S6slEf4Pne
+         CSDWwO1ljkXm4+2I3NBwimdzz55WkfP7xNaE5R9FWZODLa5QZY3ueDFHYegMylFt8J
+         wqT2x5rp8qshjNU/8DUsKI6vUN/EPVoVzniRgNno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/76] sfc: Check null pointer of rx_queue->page_ring
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 066/128] ALSA: drivers: opl3: Fix incorrect use of vp->state
 Date:   Mon, 27 Dec 2021 16:30:41 +0100
-Message-Id: <20211227151325.595242432@linuxfoundation.org>
+Message-Id: <20211227151333.699106333@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit bdf1b5c3884f6a0dc91b0dbdb8c3b7d205f449e0 ]
+commit 2dee54b289fbc810669a1b2b8a0887fa1c9a14d7 upstream.
 
-Because of the possible failure of the kcalloc, it should be better to
-set rx_queue->page_ptr_mask to 0 when it happens in order to maintain
-the consistency.
+Static analysis with scan-build has found an assignment to vp2 that is
+never used. It seems that the check on vp->state > 0 should be actually
+on vp2->state instead. Fix this.
 
-Fixes: 5a6681e22c14 ("sfc: separate out SFC4000 ("Falcon") support into new sfc-falcon driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Link: https://lore.kernel.org/r/20211220135603.954944-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
+commit 91e39521bbf6 ("[PATCH] ALSA patch for 2.5.4")
+
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211212172025.470367-1-colin.i.king@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sfc/rx_common.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/drivers/opl3/opl3_midi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/rx_common.c b/drivers/net/ethernet/sfc/rx_common.c
-index 19cf7cac1e6e9..8834bcb12fa97 100644
---- a/drivers/net/ethernet/sfc/rx_common.c
-+++ b/drivers/net/ethernet/sfc/rx_common.c
-@@ -150,7 +150,10 @@ static void efx_init_rx_recycle_ring(struct efx_rx_queue *rx_queue)
- 					    efx->rx_bufs_per_page);
- 	rx_queue->page_ring = kcalloc(page_ring_size,
- 				      sizeof(*rx_queue->page_ring), GFP_KERNEL);
--	rx_queue->page_ptr_mask = page_ring_size - 1;
-+	if (!rx_queue->page_ring)
-+		rx_queue->page_ptr_mask = 0;
-+	else
-+		rx_queue->page_ptr_mask = page_ring_size - 1;
- }
- 
- static void efx_fini_rx_recycle_ring(struct efx_rx_queue *rx_queue)
--- 
-2.34.1
-
+--- a/sound/drivers/opl3/opl3_midi.c
++++ b/sound/drivers/opl3/opl3_midi.c
+@@ -397,7 +397,7 @@ void snd_opl3_note_on(void *p, int note,
+ 	}
+ 	if (instr_4op) {
+ 		vp2 = &opl3->voices[voice + 3];
+-		if (vp->state > 0) {
++		if (vp2->state > 0) {
+ 			opl3_reg = reg_side | (OPL3_REG_KEYON_BLOCK +
+ 					       voice_offset + 3);
+ 			reg_val = vp->keyon_reg & ~OPL3_KEYON_BIT;
 
 
