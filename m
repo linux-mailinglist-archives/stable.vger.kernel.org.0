@@ -2,102 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51DCC47FC84
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:14:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A96A647FCA5
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:34:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233755AbhL0MOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 07:14:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48026 "EHLO
+        id S233588AbhL0Me2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 07:34:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233695AbhL0MOq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:14:46 -0500
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0177DC06173E
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 04:14:45 -0800 (PST)
-Received: by mail-pg1-x52a.google.com with SMTP id l10so13422734pgm.7
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 04:14:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=i74iqWhBJENtOvuw3K6D2opqyt58hJwnKN+RDkhJDg8=;
-        b=tgFCejzHrIl30djpscJMLP1qjS8quRfsRdgRBwdoeB4zrcwM+rR9fA3TIbq6A4NSzv
-         lOhTLCFRgJVhp07PwGRiqqP8iPrlsZhovO6uoJh197b7OPRSRjlMZqZMAS/xtyB/ZNhH
-         TNPezFGI7ZWQqjM4keiVao44yqBxc+xUyxnHybusQkoFteHv15O5i21y5lwSxebnsdbe
-         sDHKJDgngHnrzSPGRVx+nhXc3TVzM+KqcvHV5Wo/z7MHGvOHAkP5MSRRAdTw/AF3YpR+
-         cuquDegVUm1wnfVxoBzwgzH43Sr9ulec8g2cH1FSoNdicDIr1B7l4HU3wDJqA6hy4dM4
-         0OAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=i74iqWhBJENtOvuw3K6D2opqyt58hJwnKN+RDkhJDg8=;
-        b=kzj9BcOQ6JMRQ+6HG7n+bJMyqzGbp1CY7UY4p411VpfceaK17iUU8P27Mqugkvn8oY
-         tv6DNZ9SZLv+fznl9rUjdG0oSJtqTVP3sJvAy+dnHF0Cp1JNk90uPlksxHqzOU2QExai
-         1X3iXJXtGPcDO/2fFZUI+JEn6fkSJYY8vUUFRnJ8W3an4GyI4NJBFhuzDX10Xp8eVP42
-         ppwvyxavpJVT5iRITw3wF2jgAUuKRIsLb6v73hpTzYPgJKiVLGHPKWMFQ5FuofF7nPVl
-         GZidMsFXeV2BNM6p1NadD9HmmDHU9V+KK0DBa0OKYwz1a893y5+ZGIIHeddsACY39EBF
-         fqcw==
-X-Gm-Message-State: AOAM530wpTz0RRWby6/pr2/89Me6Cu2kKMlQD/HiEYzK21ENJH1Jxpez
-        V6Q49nq0rpQQfX64F2Xlt4/qXmByyVMo8w==
-X-Google-Smtp-Source: ABdhPJx+KbKaDlrd8gaVx7QdB4ZLCda9d3GV66wqqi6p5OlGepPH9BPWvCwNzHyrcmZ5VTTXL6wVaQ==
-X-Received: by 2002:a63:1748:: with SMTP id 8mr15245668pgx.33.1640607284988;
-        Mon, 27 Dec 2021 04:14:44 -0800 (PST)
-Received: from localhost.localdomain ([223.178.210.143])
-        by smtp.gmail.com with ESMTPSA id lp17sm17459535pjb.15.2021.12.27.04.14.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Dec 2021 04:14:44 -0800 (PST)
-From:   Sumit Garg <sumit.garg@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, jens.wiklander@linaro.org,
-        patrik.lantz@axis.com, tyhicks@linux.microsoft.com,
-        Sumit Garg <sumit.garg@linaro.org>
-Subject: [PATCH backport for 5.4/5.10/5.15] tee: optee: Fix incorrect page free bug
-Date:   Mon, 27 Dec 2021 17:44:32 +0530
-Message-Id: <20211227121432.2694129-1-sumit.garg@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S233041AbhL0Me2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:34:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A56BC06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 04:34:28 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CF7460FE4
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 12:34:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BCAEC36AE7;
+        Mon, 27 Dec 2021 12:34:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640608467;
+        bh=BS0hljxwoL24w/gcDMrNFMP7WIkm5S9tUAlzexP5Fyk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=iTJ0dglbFwrJY1CY/2jC2bJvHe7ZhBzw3fUZyc3nqSarwnS/PCRZjDokydQOLX9UT
+         Jm5HuYByJPpv5mO+06s6XhU6VgyH3u9571g8N4RJXfeBDiCLhvriITMJL5+OXWduFe
+         l6NQGSN8U1WRpnklzDK8OBrRLy5cyXqaYKa2gcT8=
+Subject: FAILED: patch "[PATCH] mm: mempolicy: fix THP allocations escaping mempolicy" failed to apply to 5.4-stable tree
+To:     arbn@yandex-team.com, aarcange@redhat.com,
+        akpm@linux-foundation.org, mgorman@techsingularity.net,
+        mhocko@suse.com, rientjes@google.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 Dec 2021 13:34:19 +0100
+Message-ID: <1640608459160181@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 18549bf4b21c739a9def39f27dcac53e27286ab5 upstream.
 
-Pointer to the allocated pages (struct page *page) has already
-progressed towards the end of allocation. It is incorrect to perform
-__free_pages(page, order) using this pointer as we would free any
-arbitrary pages. Fix this by stop modifying the page pointer.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fixes: ec185dd3ab25 ("optee: Fix memory leak when failing to register shm pages")
-Cc: stable@vger.kernel.org
-Reported-by: Patrik Lantz <patrik.lantz@axis.com>
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-[SG: Backport for stable kernels]
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
----
- drivers/tee/optee/shm_pool.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+thanks,
 
-diff --git a/drivers/tee/optee/shm_pool.c b/drivers/tee/optee/shm_pool.c
-index d167039af519..1aa843f2ecc7 100644
---- a/drivers/tee/optee/shm_pool.c
-+++ b/drivers/tee/optee/shm_pool.c
-@@ -41,10 +41,8 @@ static int pool_op_alloc(struct tee_shm_pool_mgr *poolm,
- 			goto err;
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 338635340669d5b317c7e8dcf4fff4a0f3651d87 Mon Sep 17 00:00:00 2001
+From: Andrey Ryabinin <arbn@yandex-team.com>
+Date: Fri, 24 Dec 2021 21:12:35 -0800
+Subject: [PATCH] mm: mempolicy: fix THP allocations escaping mempolicy
+ restrictions
+
+alloc_pages_vma() may try to allocate THP page on the local NUMA node
+first:
+
+	page = __alloc_pages_node(hpage_node,
+		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+
+And if the allocation fails it retries allowing remote memory:
+
+	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+    		page = __alloc_pages_node(hpage_node,
+					gfp, order);
+
+However, this retry allocation completely ignores memory policy nodemask
+allowing allocation to escape restrictions.
+
+The first appearance of this bug seems to be the commit ac5b2c18911f
+("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings").
+
+The bug disappeared later in the commit 89c83fb539f9 ("mm, thp:
+consolidate THP gfp handling into alloc_hugepage_direct_gfpmask") and
+reappeared again in slightly different form in the commit 76e654cc91bb
+("mm, page_alloc: allow hugepage fallback to remote nodes when
+madvised")
+
+Fix this by passing correct nodemask to the __alloc_pages() call.
+
+The demonstration/reproducer of the problem:
+
+    $ mount -oremount,size=4G,huge=always /dev/shm/
+    $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
+    $ cat mbind_thp.c
+    #include <unistd.h>
+    #include <sys/mman.h>
+    #include <sys/stat.h>
+    #include <fcntl.h>
+    #include <assert.h>
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <numaif.h>
+
+    #define SIZE 2ULL << 30
+    int main(int argc, char **argv)
+    {
+        int fd;
+        unsigned long long i;
+        char *addr;
+        pid_t pid;
+        char buf[100];
+        unsigned long nodemask = 1;
+
+        fd = open("/dev/shm/test", O_RDWR|O_CREAT);
+        assert(fd > 0);
+        assert(ftruncate(fd, SIZE) == 0);
+
+        addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
+                           MAP_SHARED, fd, 0);
+
+        assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
+        for (i = 0; i < SIZE; i+=4096) {
+          addr[i] = 1;
+        }
+        pid = getpid();
+        snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
+        system(buf);
+        sleep(10000);
+
+        return 0;
+    }
+    $ gcc mbind_thp.c -o mbind_thp -lnuma
+    $ numactl -H
+    available: 2 nodes (0-1)
+    node 0 cpus: 0 2
+    node 0 size: 1918 MB
+    node 0 free: 1595 MB
+    node 1 cpus: 1 3
+    node 1 size: 2014 MB
+    node 1 free: 1731 MB
+    node distances:
+    node   0   1
+      0:  10  20
+      1:  20  10
+    $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
+    7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
+
+Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
+Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index 10e9c87260ed..f6248affaf38 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
+ 			 * memory with both reclaim and compact as well.
+ 			 */
+ 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
+-				page = __alloc_pages_node(hpage_node,
+-								gfp, order);
++				page = __alloc_pages(gfp, order, hpage_node, nmask);
+ 
+ 			goto out;
  		}
- 
--		for (i = 0; i < nr_pages; i++) {
--			pages[i] = page;
--			page++;
--		}
-+		for (i = 0; i < nr_pages; i++)
-+			pages[i] = page + i;
- 
- 		shm->flags |= TEE_SHM_REGISTER;
- 		rc = optee_shm_register(shm->ctx, shm, pages, nr_pages,
--- 
-2.25.1
 
