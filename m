@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99AB247FE7A
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:29:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E19647FEBC
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:31:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237663AbhL0P3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:29:32 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59624 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237695AbhL0P3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:29:00 -0500
+        id S237711AbhL0PbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:31:14 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35598 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237998AbhL0Pad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:30:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A217610A2;
-        Mon, 27 Dec 2021 15:29:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E166C36AE7;
-        Mon, 27 Dec 2021 15:28:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88265B80E51;
+        Mon, 27 Dec 2021 15:30:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D48C36AEA;
+        Mon, 27 Dec 2021 15:30:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618939;
-        bh=asfYmqaiXY7RYN1v5stNBAhjj5bzCu1/M33g/7Og6SU=;
+        s=korg; t=1640619031;
+        bh=5gMN+LPCLm1yTGK1cCM/ymSM3wBv9EhqTA3DI6EotW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MECzNAnk8F5ni8Oj/2d4Irb37e8L2/SIrKszQVg950JWitMFN/5xlgdFrh92yOX7b
-         IL1hWNdbT/HDbH0UK6ZKSUAHWNVdc03AVIe36RPE6UJoye1MnPlvCW8r3aHWB9l3xR
-         a7sK8pKCHgw47RV0Xw2lJ9Ry/V+/WkbK47mXbuAI=
+        b=aCAnYqrnz4lhrSYVFmScwPuFvY1PY2onEBZiJgO2pENLNBmfiefNv1z4LGgHBdHKp
+         +77A8dCk9nGqr0viYGBWrXTFy1D3gEqN1xyPv3M1I4NHIU90K+Xqi7/yJCx3FANvle
+         pyUBbXs4ZGBJwbqTBEfDwUKSOJF2P7LNZJ5HgUkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 18/19] hamradio: improve the incomplete fix to avoid NPD
+        stable@vger.kernel.org,
+        Fernando Fernandez Mancera <ffmancera@riseup.net>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/29] bonding: fix ad_actor_system option setting to default
 Date:   Mon, 27 Dec 2021 16:27:20 +0100
-Message-Id: <20211227151317.142195235@linuxfoundation.org>
+Message-Id: <20211227151318.807607768@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151316.558965545@linuxfoundation.org>
-References: <20211227151316.558965545@linuxfoundation.org>
+In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
+References: <20211227151318.475251079@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Fernando Fernandez Mancera <ffmancera@riseup.net>
 
-commit b2f37aead1b82a770c48b5d583f35ec22aabb61e upstream.
+[ Upstream commit 1c15b05baea71a5ff98235783e3e4ad227760876 ]
 
-The previous commit 3e0588c291d6 ("hamradio: defer ax25 kfree after
-unregister_netdev") reorder the kfree operations and unregister_netdev
-operation to prevent UAF.
+When 802.3ad bond mode is configured the ad_actor_system option is set to
+"00:00:00:00:00:00". But when trying to set the all-zeroes MAC as actors'
+system address it was failing with EINVAL.
 
-This commit improves the previous one by also deferring the nullify of
-the ax->tty pointer. Otherwise, a NULL pointer dereference bug occurs.
-Partial of the stack trace is shown below.
+An all-zeroes ethernet address is valid, only multicast addresses are not
+valid values.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000538
-RIP: 0010:ax_xmit+0x1f9/0x400
-...
-Call Trace:
- dev_hard_start_xmit+0xec/0x320
- sch_direct_xmit+0xea/0x240
- __qdisc_run+0x166/0x5c0
- __dev_queue_xmit+0x2c7/0xaf0
- ax25_std_establish_data_link+0x59/0x60
- ax25_connect+0x3a0/0x500
- ? security_socket_connect+0x2b/0x40
- __sys_connect+0x96/0xc0
- ? __hrtimer_init+0xc0/0xc0
- ? common_nsleep+0x2e/0x50
- ? switch_fpu_return+0x139/0x1a0
- __x64_sys_connect+0x11/0x20
- do_syscall_64+0x33/0x40
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The crash point is shown as below
-
-static void ax_encaps(...) {
-  ...
-  set_bit(TTY_DO_WRITE_WAKEUP, &ax->tty->flags); // ax->tty = NULL!
-  ...
-}
-
-By placing the nullify action after the unregister_netdev, the ax->tty
-pointer won't be assigned as NULL net_device framework layer is well
-synchronized.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 171a42c38c6e ("bonding: add netlink support for sys prio, actor sys mac, and port key")
+Signed-off-by: Fernando Fernandez Mancera <ffmancera@riseup.net>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20211221111345.2462-1-ffmancera@riseup.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/mkiss.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/networking/bonding.txt | 11 ++++++-----
+ drivers/net/bonding/bond_options.c   |  2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/net/hamradio/mkiss.c
-+++ b/drivers/net/hamradio/mkiss.c
-@@ -803,14 +803,14 @@ static void mkiss_close(struct tty_struc
- 	 */
- 	netif_stop_queue(ax->dev);
+diff --git a/Documentation/networking/bonding.txt b/Documentation/networking/bonding.txt
+index 9ba04c0bab8db..f5d78c8005341 100644
+--- a/Documentation/networking/bonding.txt
++++ b/Documentation/networking/bonding.txt
+@@ -191,11 +191,12 @@ ad_actor_sys_prio
+ ad_actor_system
  
--	ax->tty = NULL;
--
- 	unregister_netdev(ax->dev);
+ 	In an AD system, this specifies the mac-address for the actor in
+-	protocol packet exchanges (LACPDUs). The value cannot be NULL or
+-	multicast. It is preferred to have the local-admin bit set for this
+-	mac but driver does not enforce it. If the value is not given then
+-	system defaults to using the masters' mac address as actors' system
+-	address.
++	protocol packet exchanges (LACPDUs). The value cannot be a multicast
++	address. If the all-zeroes MAC is specified, bonding will internally
++	use the MAC of the bond itself. It is preferred to have the
++	local-admin bit set for this mac but driver does not enforce it. If
++	the value is not given then system defaults to using the masters'
++	mac address as actors' system address.
  
- 	/* Free all AX25 frame buffers after unreg. */
- 	kfree(ax->rbuff);
- 	kfree(ax->xbuff);
+ 	This parameter has effect only in 802.3ad mode and is available through
+ 	SysFs interface.
+diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
+index f24df859f0a7e..1e81b1cafae35 100644
+--- a/drivers/net/bonding/bond_options.c
++++ b/drivers/net/bonding/bond_options.c
+@@ -1443,7 +1443,7 @@ static int bond_option_ad_actor_system_set(struct bonding *bond,
+ 		mac = (u8 *)&newval->value;
+ 	}
  
-+	ax->tty = NULL;
-+
- 	free_netdev(ax->dev);
- }
+-	if (!is_valid_ether_addr(mac))
++	if (is_multicast_ether_addr(mac))
+ 		goto err;
  
+ 	netdev_dbg(bond->dev, "Setting ad_actor_system to %pM\n", mac);
+-- 
+2.34.1
+
 
 
