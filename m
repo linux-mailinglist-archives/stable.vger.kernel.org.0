@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23EE547FFB8
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B81247FEF9
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235779AbhL0Pk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:40:57 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38800 "EHLO
+        id S238182AbhL0PeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:34:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34618 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239142AbhL0Piu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:38:50 -0500
+        with ESMTP id S237862AbhL0Pdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:33:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF2CC610D5;
-        Mon, 27 Dec 2021 15:38:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C86C36AEA;
-        Mon, 27 Dec 2021 15:38:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30ED461073;
+        Mon, 27 Dec 2021 15:33:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 419B5C36AE7;
+        Mon, 27 Dec 2021 15:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619529;
-        bh=LD3VFktw92lT0Tpu4re+2GY/O4oQpkGgBRd2ZhLcbBo=;
+        s=korg; t=1640619221;
+        bh=hZn2+KMwU2GwO/eyv5PRO21kTJajH9sJQGVi63KP6eI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XbrK0VVmGej2/ENSHM82JNADBkY10g8X3wjoIcxBImKUQIGDdpUmnbNfq4xUDXU4W
-         sMU81xzGKJOVoR0nsGXnEl5Zg1JXWGECuHwKEbSR2rvyVUTSow7rn3J89ndJfyF0Wv
-         Ehj/yv5CwtUJMgpHyLBrYCE+F1wzyQ4FuJIUSTNc=
+        b=SLnYjxC404LazxddossM91Bp+O57Wqeb0+vzIo2kJwNkzrtroTJHtRlHFrWClY09z
+         ZcTO7EfoDuz0tCGfnMcnWbV5m/RtLk2d+EBLp9ty/DHEK5BcAoOJh8uU6pR6E84Y5q
+         W+lZwJlnxnvZMpWF9PdASR0P6JWUdyHLFlfSyF70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 56/76] ARM: 9169/1: entry: fix Thumb2 bug in iWMMXt exception handling
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 34/38] hwmon: (lm90) Do not report busy status bit as alarm
 Date:   Mon, 27 Dec 2021 16:31:11 +0100
-Message-Id: <20211227151326.641532715@linuxfoundation.org>
+Message-Id: <20211227151320.527316810@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
+References: <20211227151319.379265346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit 8536a5ef886005bc443c2da9b842d69fd3d7647f upstream.
+commit cdc5287acad9ede121924a9c9313544b80d15842 upstream.
 
-The Thumb2 version of the FP exception handling entry code treats the
-register holding the CP number (R8) differently, resulting in the iWMMXT
-CP number check to be incorrect.
+Bit 7 of the status register indicates that the chip is busy
+doing a conversion. It does not indicate an alarm status.
+Stop reporting it as alarm status bit.
 
-Fix this by unifying the ARM and Thumb2 code paths, and switch the
-order of the additions of the TI_USED_CP offset and the shifted CP
-index.
-
-Cc: <stable@vger.kernel.org>
-Fixes: b86040a59feb ("Thumb-2: Implementation of the unified start-up and exceptions code")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/entry-armv.S |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/hwmon/lm90.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -596,11 +596,9 @@ call_fpe:
- 	tstne	r0, #0x04000000			@ bit 26 set on both ARM and Thumb-2
- 	reteq	lr
- 	and	r8, r0, #0x00000f00		@ mask out CP number
-- THUMB(	lsr	r8, r8, #8		)
- 	mov	r7, #1
--	add	r6, r10, #TI_USED_CP
-- ARM(	strb	r7, [r6, r8, lsr #8]	)	@ set appropriate used_cp[]
-- THUMB(	strb	r7, [r6, r8]		)	@ set appropriate used_cp[]
-+	add	r6, r10, r8, lsr #8		@ add used_cp[] array offset first
-+	strb	r7, [r6, #TI_USED_CP]		@ set appropriate used_cp[]
- #ifdef CONFIG_IWMMXT
- 	@ Test if we need to give access to iWMMXt coprocessors
- 	ldr	r5, [r10, #TI_FLAGS]
-@@ -609,7 +607,7 @@ call_fpe:
- 	bcs	iwmmxt_task_enable
- #endif
-  ARM(	add	pc, pc, r8, lsr #6	)
-- THUMB(	lsl	r8, r8, #2		)
-+ THUMB(	lsr	r8, r8, #6		)
-  THUMB(	add	pc, r8			)
- 	nop
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -197,6 +197,7 @@ enum chips { lm90, adm1032, lm99, lm86,
+ #define LM90_STATUS_RHIGH	(1 << 4) /* remote high temp limit tripped */
+ #define LM90_STATUS_LLOW	(1 << 5) /* local low temp limit tripped */
+ #define LM90_STATUS_LHIGH	(1 << 6) /* local high temp limit tripped */
++#define LM90_STATUS_BUSY	(1 << 7) /* conversion is ongoing */
  
+ #define MAX6696_STATUS2_R2THRM	(1 << 1) /* remote2 THERM limit tripped */
+ #define MAX6696_STATUS2_R2OPEN	(1 << 2) /* remote2 is an open circuit */
+@@ -786,7 +787,7 @@ static int lm90_update_device(struct dev
+ 		val = lm90_read_reg(client, LM90_REG_R_STATUS);
+ 		if (val < 0)
+ 			return val;
+-		data->alarms = val;	/* lower 8 bit of alarms */
++		data->alarms = val & ~LM90_STATUS_BUSY;
+ 
+ 		if (data->kind == max6696) {
+ 			val = lm90_select_remote_channel(client, data, 1);
 
 
