@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF9048007F
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 334F947FF48
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239856AbhL0Pql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:46:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42282 "EHLO
+        id S234965AbhL0Pgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:36:39 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35146 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239739AbhL0PnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:43:12 -0500
+        with ESMTP id S238269AbhL0PeW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AD616111D;
-        Mon, 27 Dec 2021 15:43:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 470CEC36AE7;
-        Mon, 27 Dec 2021 15:43:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BC9D61073;
+        Mon, 27 Dec 2021 15:34:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A01C36AEA;
+        Mon, 27 Dec 2021 15:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619790;
-        bh=kl6UkQJUTQXxFpnhH68KO0HrFTF2hhF/ZabYQ7dXLnk=;
+        s=korg; t=1640619261;
+        bh=XTFuv+3trPRcX4iSAIMdG+6Y6HGP2IN8vMVxAYg76Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e/F/XxhFJkx+FrmRl0MTWh+QI9vylBgwMoHaXp7lNn5trNDZm9tCmjD9nUeCBBN6D
-         meVXoschTC7UwhFA38lC2ql1Wgcuq0HxvUlVwcrnNI7Q/GU3F58TUIOdqNSP/5qpaD
-         pkdn0BX+PBBOtEfkiRrwVhIkFVlHWNLt2B2OmeEg=
+        b=moHryx6W1xVU+t3f6vGCjdzw5UYX+KZBfd2yIC7M+DQKr4xG0vc+AMCUDBTaF1WYh
+         V9yee2Vt3caWa/FK/nzjuKXZUz3U5nWsJ9dO7+Bkgz95TOKCsP3mON9DZmBLftXPHZ
+         1nXPlQK49p6ErgQdFDAadiIFELDSOtJzAj6Zrtco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bradley Scott <bscott@teksavvy.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 070/128] ALSA: hda/realtek: Add new alc285-hp-amp-init model
-Date:   Mon, 27 Dec 2021 16:30:45 +0100
-Message-Id: <20211227151333.824022963@linuxfoundation.org>
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/47] net: skip virtio_net_hdr_set_proto if protocol already set
+Date:   Mon, 27 Dec 2021 16:30:46 +0100
+Message-Id: <20211227151321.139250343@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bradley Scott <bscott@teksavvy.com>
+From: Willem de Bruijn <willemb@google.com>
 
-commit aa72394667e5cea3547e4c41ddff7ca8c632d764 upstream.
+[ Upstream commit 1ed1d592113959f00cc552c3b9f47ca2d157768f ]
 
-Adds a new "alc285-hp-amp-init" model that can be used to apply the ALC285
-HP speaker amplifier initialization fixup to devices that are not already
-known by passing "hda_model=alc285-hp-amp-init" to the
-snd-sof-intel-hda-common module or "model=alc285-hp-amp-init" to the
-snd-hda-intel module, depending on which is being used.
+virtio_net_hdr_set_proto infers skb->protocol from the virtio_net_hdr
+gso_type, to avoid packets getting dropped for lack of a proto type.
 
-Signed-off-by: Bradley Scott <bscott@teksavvy.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211213162246.506838-1-bscott@teksavvy.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Its protocol choice is a guess, especially in the case of UFO, where
+the single VIRTIO_NET_HDR_GSO_UDP label covers both UFOv4 and UFOv6.
+
+Skip this best effort if the field is already initialized. Whether
+explicitly from userspace, or implicitly based on an earlier call to
+dev_parse_header_protocol (which is more robust, but was introduced
+after this patch).
+
+Fixes: 9d2f67e43b73 ("net/packet: fix packet drop as of virtio gso")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20211220145027.2784293-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sound/hd-audio/models.rst |    2 ++
- sound/pci/hda/patch_realtek.c           |    1 +
- 2 files changed, 3 insertions(+)
+ include/linux/virtio_net.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/Documentation/sound/hd-audio/models.rst
-+++ b/Documentation/sound/hd-audio/models.rst
-@@ -326,6 +326,8 @@ usi-headset
-     Headset support on USI machines
- dual-codecs
-     Lenovo laptops with dual codecs
-+alc285-hp-amp-init
-+    HP laptops which require speaker amplifier initialization (ALC285)
- 
- ALC680
- ======
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9124,6 +9124,7 @@ static const struct hda_model_fixup alc2
- 	{.id = ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP, .name = "alc287-ideapad-bass-spk-amp"},
- 	{.id = ALC623_FIXUP_LENOVO_THINKSTATION_P340, .name = "alc623-lenovo-thinkstation-p340"},
- 	{.id = ALC255_FIXUP_ACER_HEADPHONE_AND_MIC, .name = "alc255-acer-headphone-and-mic"},
-+	{.id = ALC285_FIXUP_HP_GPIO_AMP_INIT, .name = "alc285-hp-amp-init"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 22dd48c825600..a960de68ac69e 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -25,6 +25,9 @@ static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
+ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
+ 					   const struct virtio_net_hdr *hdr)
+ {
++	if (skb->protocol)
++		return 0;
++
+ 	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+ 	case VIRTIO_NET_HDR_GSO_TCPV4:
+ 	case VIRTIO_NET_HDR_GSO_UDP:
+-- 
+2.34.1
+
 
 
