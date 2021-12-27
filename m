@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F411247FEA4
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7968B47FEA5
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:30:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237744AbhL0Pam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:30:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34764 "EHLO
+        id S237748AbhL0Pan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:30:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237777AbhL0PaC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:30:02 -0500
+        with ESMTP id S237793AbhL0PaF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:30:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592D4C06179B;
-        Mon, 27 Dec 2021 07:30:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42E0AC061396;
+        Mon, 27 Dec 2021 07:30:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12D64B810A2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3E24B810A2;
+        Mon, 27 Dec 2021 15:30:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27CE8C36AEA;
         Mon, 27 Dec 2021 15:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59792C36AE7;
-        Mon, 27 Dec 2021 15:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640618999;
-        bh=GDM88T6z+CoFM2O6zfeOAhu/7fGz0E1fKDui1Cy9nuc=;
+        s=korg; t=1640619002;
+        bh=asfYmqaiXY7RYN1v5stNBAhjj5bzCu1/M33g/7Og6SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cu0rOj0/OeZD2KXWqT+wKMto4zmHKMcsp4tm8+R3jVW4JdSUO+94JMDSJdFPrYslt
-         ERfDOCSBTNxg3vqwQxVIkMJQ4+UgrsVwgBdk9F3N1gCC8KXHDFN+xmsn0ZZhgZMNQ3
-         zK/Ue4ZBdNuwrvAqxHO3Gq/W2nTZVi753M5XGBEs=
+        b=gbtZMY2lnVWxp40crWnyidhHV5efXqiFOXcgms0FYpiXCaGJd2sKiTi0a+MtzDywm
+         kpUBVSI02c/wC/B2yTz3fcoPaewSq7onD7JaNDYI07CH+pKOtRwSsRNwmqQqlZY5LQ
+         hRTdjfDD/+VJF2JppARGrdrKFW8OddmsSARNgAFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 27/29] hamradio: defer ax25 kfree after unregister_netdev
-Date:   Mon, 27 Dec 2021 16:27:37 +0100
-Message-Id: <20211227151319.356510274@linuxfoundation.org>
+Subject: [PATCH 4.14 28/29] hamradio: improve the incomplete fix to avoid NPD
+Date:   Mon, 27 Dec 2021 16:27:38 +0100
+Message-Id: <20211227151319.388496991@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
 References: <20211227151318.475251079@linuxfoundation.org>
@@ -49,61 +49,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lin Ma <linma@zju.edu.cn>
 
-commit 3e0588c291d6ce225f2b891753ca41d45ba42469 upstream.
+commit b2f37aead1b82a770c48b5d583f35ec22aabb61e upstream.
 
-There is a possible race condition (use-after-free) like below
+The previous commit 3e0588c291d6 ("hamradio: defer ax25 kfree after
+unregister_netdev") reorder the kfree operations and unregister_netdev
+operation to prevent UAF.
 
- (USE)                       |  (FREE)
-ax25_sendmsg                 |
- ax25_queue_xmit             |
-  dev_queue_xmit             |
-   __dev_queue_xmit          |
-    __dev_xmit_skb           |
-     sch_direct_xmit         | ...
-      xmit_one               |
-       netdev_start_xmit     | tty_ldisc_kill
-        __netdev_start_xmit  |  mkiss_close
-         ax_xmit             |   kfree
-          ax_encaps          |
-                             |
+This commit improves the previous one by also deferring the nullify of
+the ax->tty pointer. Otherwise, a NULL pointer dereference bug occurs.
+Partial of the stack trace is shown below.
 
-Even though there are two synchronization primitives before the kfree:
-1. wait_for_completion(&ax->dead). This can prevent the race with
-routines from mkiss_ioctl. However, it cannot stop the routine coming
-from upper layer, i.e., the ax25_sendmsg.
+BUG: kernel NULL pointer dereference, address: 0000000000000538
+RIP: 0010:ax_xmit+0x1f9/0x400
+...
+Call Trace:
+ dev_hard_start_xmit+0xec/0x320
+ sch_direct_xmit+0xea/0x240
+ __qdisc_run+0x166/0x5c0
+ __dev_queue_xmit+0x2c7/0xaf0
+ ax25_std_establish_data_link+0x59/0x60
+ ax25_connect+0x3a0/0x500
+ ? security_socket_connect+0x2b/0x40
+ __sys_connect+0x96/0xc0
+ ? __hrtimer_init+0xc0/0xc0
+ ? common_nsleep+0x2e/0x50
+ ? switch_fpu_return+0x139/0x1a0
+ __x64_sys_connect+0x11/0x20
+ do_syscall_64+0x33/0x40
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-2. netif_stop_queue(ax->dev). It seems that this line of code aims to
-halt the transmit queue but it fails to stop the routine that already
-being xmit.
+The crash point is shown as below
 
-This patch reorder the kfree after the unregister_netdev to avoid the
-possible UAF as the unregister_netdev() is well synchronized and won't
-return if there is a running routine.
+static void ax_encaps(...) {
+  ...
+  set_bit(TTY_DO_WRITE_WAKEUP, &ax->tty->flags); // ax->tty = NULL!
+  ...
+}
+
+By placing the nullify action after the unregister_netdev, the ax->tty
+pointer won't be assigned as NULL net_device framework layer is well
+synchronized.
 
 Signed-off-by: Lin Ma <linma@zju.edu.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hamradio/mkiss.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/hamradio/mkiss.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/net/hamradio/mkiss.c
 +++ b/drivers/net/hamradio/mkiss.c
-@@ -803,13 +803,14 @@ static void mkiss_close(struct tty_struc
+@@ -803,14 +803,14 @@ static void mkiss_close(struct tty_struc
  	 */
  	netif_stop_queue(ax->dev);
  
--	/* Free all AX25 frame buffers. */
--	kfree(ax->rbuff);
--	kfree(ax->xbuff);
+-	ax->tty = NULL;
 -
- 	ax->tty = NULL;
- 
  	unregister_netdev(ax->dev);
-+
-+	/* Free all AX25 frame buffers after unreg. */
-+	kfree(ax->rbuff);
-+	kfree(ax->xbuff);
+ 
+ 	/* Free all AX25 frame buffers after unreg. */
+ 	kfree(ax->rbuff);
+ 	kfree(ax->xbuff);
+ 
++	ax->tty = NULL;
 +
  	free_netdev(ax->dev);
  }
