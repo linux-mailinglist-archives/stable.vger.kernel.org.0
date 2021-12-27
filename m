@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDAF47FF41
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21AAC47FFBB
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238642AbhL0Pgf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:36:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36404 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238510AbhL0PgH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:36:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46FEFC06137E;
-        Mon, 27 Dec 2021 07:35:42 -0800 (PST)
+        id S239004AbhL0PlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:41:01 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:41730 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239190AbhL0PjA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBEF5610A2;
-        Mon, 27 Dec 2021 15:35:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4AF8C36AEA;
-        Mon, 27 Dec 2021 15:35:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 52D99CE10B3;
+        Mon, 27 Dec 2021 15:38:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41AD4C36AEA;
+        Mon, 27 Dec 2021 15:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619341;
-        bh=t4jF6f4pwDtncnt8dOYqf1JCg2PCk199oTUJyuwiLXQ=;
+        s=korg; t=1640619537;
+        bh=4aGYp76oxLP85iqStjeg7AsePlkUOuGTEnq5fvGC0EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omu9/pMpMLq5bGVgND6trUDnMW3feJIIGeqMw7puH7OZn2n0RkuF9sfhAN10ROhht
-         3jOjfd7OFR+KDJd+8OpXYHH8xcMUKFU5l+Ai6LxGnN/0eTahdcp3tU6/omV8hkkxEd
-         0s+NIbiEqcP2gOs231/fZTo67CFMLULUrdFFd9o8=
+        b=h7n1FNHhu2sDU5qt4N4CYDRxntAyHFg0Ts15NogT/XoX45l40ufCa8hEuxL8m4qA7
+         3TKlkRQj+ER+8P6pAKX7urDmUzGca/WfUhKZhq1qwyqf9robTt3O5PTqg8E6F64O42
+         a87+hVqq8V9Bv2zgSynn5h2e/EzPe2kjyx/ZaIzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marian Postevca <posteuca@mutex.one>
-Subject: [PATCH 5.4 37/47] usb: gadget: u_ether: fix race in setting MAC address in setup phase
+        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 58/76] mm/hwpoison: clear MF_COUNT_INCREASED before retrying get_any_page()
 Date:   Mon, 27 Dec 2021 16:31:13 +0100
-Message-Id: <20211227151322.074079140@linuxfoundation.org>
+Message-Id: <20211227151326.710303327@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
+References: <20211227151324.694661623@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,88 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marian Postevca <posteuca@mutex.one>
+From: Liu Shixin <liushixin2@huawei.com>
 
-commit 890d5b40908bfd1a79be018d2d297cf9df60f4ee upstream.
+commit 2a57d83c78f889bf3f54eede908d0643c40d5418 upstream.
 
-When listening for notifications through netlink of a new interface being
-registered, sporadically, it is possible for the MAC to be read as zero.
-The zero MAC address lasts a short period of time and then switches to a
-valid random MAC address.
+Hulk Robot reported a panic in put_page_testzero() when testing
+madvise() with MADV_SOFT_OFFLINE.  The BUG() is triggered when retrying
+get_any_page().  This is because we keep MF_COUNT_INCREASED flag in
+second try but the refcnt is not increased.
 
-This causes problems for netd in Android, which assumes that the interface
-is malfunctioning and will not use it.
+    page dumped because: VM_BUG_ON_PAGE(page_ref_count(page) == 0)
+    ------------[ cut here ]------------
+    kernel BUG at include/linux/mm.h:737!
+    invalid opcode: 0000 [#1] PREEMPT SMP
+    CPU: 5 PID: 2135 Comm: sshd Tainted: G    B             5.16.0-rc6-dirty #373
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+    RIP: release_pages+0x53f/0x840
+    Call Trace:
+      free_pages_and_swap_cache+0x64/0x80
+      tlb_flush_mmu+0x6f/0x220
+      unmap_page_range+0xe6c/0x12c0
+      unmap_single_vma+0x90/0x170
+      unmap_vmas+0xc4/0x180
+      exit_mmap+0xde/0x3a0
+      mmput+0xa3/0x250
+      do_exit+0x564/0x1470
+      do_group_exit+0x3b/0x100
+      __do_sys_exit_group+0x13/0x20
+      __x64_sys_exit_group+0x16/0x20
+      do_syscall_64+0x34/0x80
+      entry_SYSCALL_64_after_hwframe+0x44/0xae
+    Modules linked in:
+    ---[ end trace e99579b570fe0649 ]---
+    RIP: 0010:release_pages+0x53f/0x840
 
-In the good case we get this log:
-InterfaceController::getCfg() ifName usb0
- hwAddr 92:a8:f0:73:79:5b ipv4Addr 0.0.0.0 flags 0x1002
-
-In the error case we get these logs:
-InterfaceController::getCfg() ifName usb0
- hwAddr 00:00:00:00:00:00 ipv4Addr 0.0.0.0 flags 0x1002
-
-netd : interfaceGetCfg("usb0")
-netd : interfaceSetCfg() -> ServiceSpecificException
- (99, "[Cannot assign requested address] : ioctl() failed")
-
-The reason for the issue is the order in which the interface is setup,
-it is first registered through register_netdev() and after the MAC
-address is set.
-
-Fixed by first setting the MAC address of the net_device and after that
-calling register_netdev().
-
-Fixes: bcd4a1c40bee885e ("usb: gadget: u_ether: construct with default values and add setters/getters")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marian Postevca <posteuca@mutex.one>
-Link: https://lore.kernel.org/r/20211204214912.17627-1-posteuca@mutex.one
+Link: https://lkml.kernel.org/r/20211221074908.3910286-1-liushixin2@huawei.com
+Fixes: b94e02822deb ("mm,hwpoison: try to narrow window race for free pages")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/u_ether.c |   15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ mm/memory-failure.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -860,19 +860,23 @@ int gether_register_netdev(struct net_de
- {
- 	struct eth_dev *dev;
- 	struct usb_gadget *g;
--	struct sockaddr sa;
- 	int status;
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1938,6 +1938,7 @@ retry:
+ 	else if (ret == 0)
+ 		if (soft_offline_free_page(page) && try_again) {
+ 			try_again = false;
++			flags &= ~MF_COUNT_INCREASED;
+ 			goto retry;
+ 		}
  
- 	if (!net->dev.parent)
- 		return -EINVAL;
- 	dev = netdev_priv(net);
- 	g = dev->gadget;
-+
-+	memcpy(net->dev_addr, dev->dev_mac, ETH_ALEN);
-+	net->addr_assign_type = NET_ADDR_RANDOM;
-+
- 	status = register_netdev(net);
- 	if (status < 0) {
- 		dev_dbg(&g->dev, "register_netdev failed, %d\n", status);
- 		return status;
- 	} else {
- 		INFO(dev, "HOST MAC %pM\n", dev->host_mac);
-+		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 		/* two kinds of host-initiated state changes:
- 		 *  - iff DATA transfer is active, carrier is "on"
-@@ -880,15 +884,6 @@ int gether_register_netdev(struct net_de
- 		 */
- 		netif_carrier_off(net);
- 	}
--	sa.sa_family = net->type;
--	memcpy(sa.sa_data, dev->dev_mac, ETH_ALEN);
--	rtnl_lock();
--	status = dev_set_mac_address(net, &sa, NULL);
--	rtnl_unlock();
--	if (status)
--		pr_warn("cannot set self ethernet address: %d\n", status);
--	else
--		INFO(dev, "MAC %pM\n", dev->dev_mac);
- 
- 	return status;
- }
 
 
