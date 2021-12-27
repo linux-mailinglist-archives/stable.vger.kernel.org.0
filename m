@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C11547FFC2
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1436C47FFC6
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238652AbhL0PlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:41:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36408 "EHLO
+        id S238657AbhL0PlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:41:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238782AbhL0PjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:16 -0500
+        with ESMTP id S238841AbhL0PjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:20 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83A5C06137A;
-        Mon, 27 Dec 2021 07:37:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68764C07E5F2;
+        Mon, 27 Dec 2021 07:37:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0664ACE10D9;
+        by sin.source.kernel.org (Postfix) with ESMTPS id EA734CE10CB;
+        Mon, 27 Dec 2021 15:37:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D84E4C36AEA;
         Mon, 27 Dec 2021 15:37:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D40C36AEA;
-        Mon, 27 Dec 2021 15:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619474;
-        bh=bxMXxTsP4QZnm5DqeVDtGpopBGYS3gjgNr99FkLBd8Y=;
+        s=korg; t=1640619477;
+        bh=2eQnyZm8XUbFpi1PzPra1LTTdi7+tMRrjUf75uDgyf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzRwHoC0It/OVWx27NFAlXBQlcSWlSSqife48t0cTN9DE2YvvS+iZy9M9QRMVoG8G
-         XbpcxZFK/enQL+3KxqLOvf5RR07u2vWGlvmxdEW0n/UKATw2/vDT6Up1PXTe14ts0K
-         DgxbS4K5f7y4/GPFWeJfEWo8qJxbtbRBAPImU+ks=
+        b=bJEnuF9x1EnYS9fvTXkps+9V1hYp3XwlTgX9PXFcKWQpt/mIXK/A2m4Nm6FdSqD+N
+         hwGJsj1HFqKOZnPgBv5xX0Vo7WutL7vHuS3wW9WnhkB8SQCPAbrlRLC9BtjCkkdgxF
+         H08V+fL7FVPSsGJliEwloKzMf6XL4pZIGwqMwino=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        stable@vger.kernel.org, Bradley Scott <Bradley.Scott@zebra.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 35/76] ALSA: drivers: opl3: Fix incorrect use of vp->state
-Date:   Mon, 27 Dec 2021 16:30:50 +0100
-Message-Id: <20211227151325.912133326@linuxfoundation.org>
+Subject: [PATCH 5.10 36/76] ALSA: hda/realtek: Amp init fixup for HP ZBook 15 G6
+Date:   Mon, 27 Dec 2021 16:30:51 +0100
+Message-Id: <20211227151325.952951634@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
 References: <20211227151324.694661623@linuxfoundation.org>
@@ -47,37 +47,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: Bradley Scott <Bradley.Scott@zebra.com>
 
-commit 2dee54b289fbc810669a1b2b8a0887fa1c9a14d7 upstream.
+commit d296a74b7b59ff9116236c17edb25f26935dbf70 upstream.
 
-Static analysis with scan-build has found an assignment to vp2 that is
-never used. It seems that the check on vp->state > 0 should be actually
-on vp2->state instead. Fix this.
+HP ZBook 15 G6 (SSID 103c:860f) needs the same speaker amplifier
+initialization as used on several other HP laptops using ALC285.
 
-This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
-commit 91e39521bbf6 ("[PATCH] ALSA patch for 2.5.4")
-
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Bradley Scott <Bradley.Scott@zebra.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211212172025.470367-1-colin.i.king@gmail.com
+Link: https://lore.kernel.org/r/20211213154938.503201-1-Bradley.Scott@zebra.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/drivers/opl3/opl3_midi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/drivers/opl3/opl3_midi.c
-+++ b/sound/drivers/opl3/opl3_midi.c
-@@ -398,7 +398,7 @@ void snd_opl3_note_on(void *p, int note,
- 	}
- 	if (instr_4op) {
- 		vp2 = &opl3->voices[voice + 3];
--		if (vp->state > 0) {
-+		if (vp2->state > 0) {
- 			opl3_reg = reg_side | (OPL3_REG_KEYON_BLOCK +
- 					       voice_offset + 3);
- 			reg_val = vp->keyon_reg & ~OPL3_KEYON_BIT;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8599,6 +8599,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x8519, "HP Spectre x360 15-df0xxx", ALC285_FIXUP_HP_SPECTRE_X360),
++	SND_PCI_QUIRK(0x103c, 0x860f, "HP ZBook 15 G6", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x861f, "HP Elite Dragonfly G1", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
 
 
