@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 038C147FF96
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76BCD47FFA2
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:39:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239119AbhL0Piq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:38:46 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40900 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238535AbhL0PhN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:37:13 -0500
+        id S237754AbhL0PjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:39:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238911AbhL0Phw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:37:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D430C079797;
+        Mon, 27 Dec 2021 07:37:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5738BCE10D2;
-        Mon, 27 Dec 2021 15:37:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16383C36AEA;
-        Mon, 27 Dec 2021 15:37:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C099C610A3;
+        Mon, 27 Dec 2021 15:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9BA9C36AE7;
+        Mon, 27 Dec 2021 15:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619429;
-        bh=4KCna9C8mC+FvcbcT1kttdc2NS9gKQ4mSk4IfMo2J2k=;
+        s=korg; t=1640619435;
+        bh=keQiBDN4Hp1nG4z2R8uXcR71qX1KoXT5yfzhee+i3ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umiwvConyhX1YygUbr5AUUkP5pLOZPexJxY47ZqZ1LKxRpzpB1TmQCrU8+JlqIU4z
-         welcpUx3z2nDw95ONubCFOh32QQv/fzELN5HciREZW75EeiMDQU7sGPfWwvYP2UJMc
-         sRxzPIVwdIWYISl4ViWPT5gAwbcfGRsK6t9T+Gu0=
+        b=ZeDAMiV0nbBUAI7gyyNyxClbxs0Rl7ZaSFBxfHEYYSq+qVWeoU62rMtX8yv7KR2Ev
+         zpKdCFMz1ynuuBTYCUsmxuxFylFeV6ppV9mgZ7jnJmBj+XvwQ18kJnxtua9p5UjYdB
+         G1GUzFJPLEtmr1s/parRwT9tUcj6M2glFDdQp2Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
-        Corey Minyard <cminyard@mvista.com>,
+        stable@vger.kernel.org,
+        Fernando Fernandez Mancera <ffmancera@riseup.net>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 21/76] ipmi: Fix UAF when uninstall ipmi_si and ipmi_msghandler module
-Date:   Mon, 27 Dec 2021 16:30:36 +0100
-Message-Id: <20211227151325.419125615@linuxfoundation.org>
+Subject: [PATCH 5.10 22/76] bonding: fix ad_actor_system option setting to default
+Date:   Mon, 27 Dec 2021 16:30:37 +0100
+Message-Id: <20211227151325.460376158@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
 References: <20211227151324.694661623@linuxfoundation.org>
@@ -45,141 +50,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Fernando Fernandez Mancera <ffmancera@riseup.net>
 
-[ Upstream commit ffb76a86f8096a8206be03b14adda6092e18e275 ]
+[ Upstream commit 1c15b05baea71a5ff98235783e3e4ad227760876 ]
 
-Hi,
+When 802.3ad bond mode is configured the ad_actor_system option is set to
+"00:00:00:00:00:00". But when trying to set the all-zeroes MAC as actors'
+system address it was failing with EINVAL.
 
-When testing install and uninstall of ipmi_si.ko and ipmi_msghandler.ko,
-the system crashed.
+An all-zeroes ethernet address is valid, only multicast addresses are not
+valid values.
 
-The log as follows:
-[  141.087026] BUG: unable to handle kernel paging request at ffffffffc09b3a5a
-[  141.087241] PGD 8fe4c0d067 P4D 8fe4c0d067 PUD 8fe4c0f067 PMD 103ad89067 PTE 0
-[  141.087464] Oops: 0010 [#1] SMP NOPTI
-[  141.087580] CPU: 67 PID: 668 Comm: kworker/67:1 Kdump: loaded Not tainted 4.18.0.x86_64 #47
-[  141.088009] Workqueue: events 0xffffffffc09b3a40
-[  141.088009] RIP: 0010:0xffffffffc09b3a5a
-[  141.088009] Code: Bad RIP value.
-[  141.088009] RSP: 0018:ffffb9094e2c3e88 EFLAGS: 00010246
-[  141.088009] RAX: 0000000000000000 RBX: ffff9abfdb1f04a0 RCX: 0000000000000000
-[  141.088009] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000246
-[  141.088009] RBP: 0000000000000000 R08: ffff9abfffee3cb8 R09: 00000000000002e1
-[  141.088009] R10: ffffb9094cb73d90 R11: 00000000000f4240 R12: ffff9abfffee8700
-[  141.088009] R13: 0000000000000000 R14: ffff9abfdb1f04a0 R15: ffff9abfdb1f04a8
-[  141.088009] FS:  0000000000000000(0000) GS:ffff9abfffec0000(0000) knlGS:0000000000000000
-[  141.088009] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  141.088009] CR2: ffffffffc09b3a30 CR3: 0000008fe4c0a001 CR4: 00000000007606e0
-[  141.088009] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  141.088009] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  141.088009] PKRU: 55555554
-[  141.088009] Call Trace:
-[  141.088009]  ? process_one_work+0x195/0x390
-[  141.088009]  ? worker_thread+0x30/0x390
-[  141.088009]  ? process_one_work+0x390/0x390
-[  141.088009]  ? kthread+0x10d/0x130
-[  141.088009]  ? kthread_flush_work_fn+0x10/0x10
-[  141.088009]  ? ret_from_fork+0x35/0x40] BUG: unable to handle kernel paging request at ffffffffc0b28a5a
-[  200.223240] PGD 97fe00d067 P4D 97fe00d067 PUD 97fe00f067 PMD a580cbf067 PTE 0
-[  200.223464] Oops: 0010 [#1] SMP NOPTI
-[  200.223579] CPU: 63 PID: 664 Comm: kworker/63:1 Kdump: loaded Not tainted 4.18.0.x86_64 #46
-[  200.224008] Workqueue: events 0xffffffffc0b28a40
-[  200.224008] RIP: 0010:0xffffffffc0b28a5a
-[  200.224008] Code: Bad RIP value.
-[  200.224008] RSP: 0018:ffffbf3c8e2a3e88 EFLAGS: 00010246
-[  200.224008] RAX: 0000000000000000 RBX: ffffa0799ad6bca0 RCX: 0000000000000000
-[  200.224008] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000246
-[  200.224008] RBP: 0000000000000000 R08: ffff9fe43fde3cb8 R09: 00000000000000d5
-[  200.224008] R10: ffffbf3c8cb53d90 R11: 00000000000f4240 R12: ffff9fe43fde8700
-[  200.224008] R13: 0000000000000000 R14: ffffa0799ad6bca0 R15: ffffa0799ad6bca8
-[  200.224008] FS:  0000000000000000(0000) GS:ffff9fe43fdc0000(0000) knlGS:0000000000000000
-[  200.224008] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  200.224008] CR2: ffffffffc0b28a30 CR3: 00000097fe00a002 CR4: 00000000007606e0
-[  200.224008] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  200.224008] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  200.224008] PKRU: 55555554
-[  200.224008] Call Trace:
-[  200.224008]  ? process_one_work+0x195/0x390
-[  200.224008]  ? worker_thread+0x30/0x390
-[  200.224008]  ? process_one_work+0x390/0x390
-[  200.224008]  ? kthread+0x10d/0x130
-[  200.224008]  ? kthread_flush_work_fn+0x10/0x10
-[  200.224008]  ? ret_from_fork+0x35/0x40
-[  200.224008] kernel fault(0x1) notification starting on CPU 63
-[  200.224008] kernel fault(0x1) notification finished on CPU 63
-[  200.224008] CR2: ffffffffc0b28a5a
-[  200.224008] ---[ end trace c82a412d93f57412 ]---
-
-The reason is as follows:
-T1: rmmod ipmi_si.
-    ->ipmi_unregister_smi()
-        -> ipmi_bmc_unregister()
-            -> __ipmi_bmc_unregister()
-                -> kref_put(&bmc->usecount, cleanup_bmc_device);
-                    -> schedule_work(&bmc->remove_work);
-
-T2: rmmod ipmi_msghandler.
-    ipmi_msghander module uninstalled, and the module space
-    will be freed.
-
-T3: bmc->remove_work doing cleanup the bmc resource.
-    -> cleanup_bmc_work()
-        -> platform_device_unregister(&bmc->pdev);
-            -> platform_device_del(pdev);
-                -> device_del(&pdev->dev);
-                    -> kobject_uevent(&dev->kobj, KOBJ_REMOVE);
-                        -> kobject_uevent_env()
-                            -> dev_uevent()
-                                -> if (dev->type && dev->type->name)
-
-   'dev->type'(bmc_device_type) pointer space has freed when uninstall
-    ipmi_msghander module, 'dev->type->name' cause the system crash.
-
-drivers/char/ipmi/ipmi_msghandler.c:
-2820 static const struct device_type bmc_device_type = {
-2821         .groups         = bmc_dev_attr_groups,
-2822 };
-
-Steps to reproduce:
-Add a time delay in cleanup_bmc_work() function,
-and uninstall ipmi_si and ipmi_msghandler module.
-
-2910 static void cleanup_bmc_work(struct work_struct *work)
-2911 {
-2912         struct bmc_device *bmc = container_of(work, struct bmc_device,
-2913                                               remove_work);
-2914         int id = bmc->pdev.id; /* Unregister overwrites id */
-2915
-2916         msleep(3000);   <---
-2917         platform_device_unregister(&bmc->pdev);
-2918         ida_simple_remove(&ipmi_bmc_ida, id);
-2919 }
-
-Use 'remove_work_wq' instead of 'system_wq' to solve this issues.
-
-Fixes: b2cfd8ab4add ("ipmi: Rework device id and guid handling to catch changing BMCs")
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Message-Id: <1640070034-56671-1-git-send-email-wubo40@huawei.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 171a42c38c6e ("bonding: add netlink support for sys prio, actor sys mac, and port key")
+Signed-off-by: Fernando Fernandez Mancera <ffmancera@riseup.net>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Link: https://lore.kernel.org/r/20211221111345.2462-1-ffmancera@riseup.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/networking/bonding.rst | 11 ++++++-----
+ drivers/net/bonding/bond_options.c   |  2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 38b545bef05a3..fc6445ed7c377 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -2945,7 +2945,7 @@ cleanup_bmc_device(struct kref *ref)
- 	 * with removing the device attributes while reading a device
- 	 * attribute.
- 	 */
--	schedule_work(&bmc->remove_work);
-+	queue_work(remove_work_wq, &bmc->remove_work);
- }
+diff --git a/Documentation/networking/bonding.rst b/Documentation/networking/bonding.rst
+index adc314639085b..413dca513e1db 100644
+--- a/Documentation/networking/bonding.rst
++++ b/Documentation/networking/bonding.rst
+@@ -196,11 +196,12 @@ ad_actor_sys_prio
+ ad_actor_system
  
- /*
+ 	In an AD system, this specifies the mac-address for the actor in
+-	protocol packet exchanges (LACPDUs). The value cannot be NULL or
+-	multicast. It is preferred to have the local-admin bit set for this
+-	mac but driver does not enforce it. If the value is not given then
+-	system defaults to using the masters' mac address as actors' system
+-	address.
++	protocol packet exchanges (LACPDUs). The value cannot be a multicast
++	address. If the all-zeroes MAC is specified, bonding will internally
++	use the MAC of the bond itself. It is preferred to have the
++	local-admin bit set for this mac but driver does not enforce it. If
++	the value is not given then system defaults to using the masters'
++	mac address as actors' system address.
+ 
+ 	This parameter has effect only in 802.3ad mode and is available through
+ 	SysFs interface.
+diff --git a/drivers/net/bonding/bond_options.c b/drivers/net/bonding/bond_options.c
+index a4e4e15f574df..fe55c81608daa 100644
+--- a/drivers/net/bonding/bond_options.c
++++ b/drivers/net/bonding/bond_options.c
+@@ -1466,7 +1466,7 @@ static int bond_option_ad_actor_system_set(struct bonding *bond,
+ 		mac = (u8 *)&newval->value;
+ 	}
+ 
+-	if (!is_valid_ether_addr(mac))
++	if (is_multicast_ether_addr(mac))
+ 		goto err;
+ 
+ 	netdev_dbg(bond->dev, "Setting ad_actor_system to %pM\n", mac);
 -- 
 2.34.1
 
