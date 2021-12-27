@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E8D47FEB3
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:31:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B37247FEAF
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:31:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232632AbhL0PbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:31:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35308 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237898AbhL0PaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:30:16 -0500
+        id S237652AbhL0Pa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:30:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34882 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237907AbhL0PaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:30:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0655AC06137D;
+        Mon, 27 Dec 2021 07:30:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80A99B810BF;
-        Mon, 27 Dec 2021 15:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAB12C36AE7;
-        Mon, 27 Dec 2021 15:30:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F65B610B1;
+        Mon, 27 Dec 2021 15:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73369C36AEB;
+        Mon, 27 Dec 2021 15:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619014;
-        bh=/FQescg+a25AiGW7rUF88yr7MLJtl2H2O9aEcPGD2e0=;
+        s=korg; t=1640619017;
+        bh=ZyuiVijWJmMxjvpxQsyz4dR2xVRaSuj9WJ1XVC/2Krc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BT6knRQZA+/Yx49p3MoYovowAexzdZXQskxcVN9sTJbx5kwBu4EUKAhKZwN3Bq77G
-         lNDnXf0w4vwGM+l7TcHgwPdXR1dwMVinQe7Y2OG5oFwOV+FWA1pzfkDA9cdrBWNYHL
-         W7swqWdWKrMUHWb+sIUk2F3++wAU9Yr0nf66v/uc=
+        b=WrmR6saJjsPuW/CtcQBf/vNFiY2tqSnMaFnPuHiiCeWpmdPCNaRGU50fbCEh9fsXg
+         J5tDL30BgjoEaUEtOKVKFlGTkNnbLfUVd0eS2D0RunhuD+LF1+Ov3dXoFnj5e6i1OR
+         aS45PVwrGkiseQtjReFo+aiilJjJ6ZYkuveQBySY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/29] hwmon: (lm90) Fix usage of CONFIG2 register in detect function
-Date:   Mon, 27 Dec 2021 16:27:24 +0100
-Message-Id: <20211227151318.931134208@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 15/29] ALSA: jack: Check the return value of kstrdup()
+Date:   Mon, 27 Dec 2021 16:27:25 +0100
+Message-Id: <20211227151318.963641179@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
 References: <20211227151318.475251079@linuxfoundation.org>
@@ -44,50 +47,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit fce15c45d3fbd9fc1feaaf3210d8e3f8b33dfd3a ]
+commit c01c1db1dc632edafb0dff32d40daf4f9c1a4e19 upstream.
 
-The detect function had a comment "Make compiler happy" when id did not
-read the second configuration register. As it turns out, the code was
-checking the contents of this register for manufacturer ID 0xA1 (NXP
-Semiconductor/Philips), but never actually read the register. So it
-wasn't surprising that the compiler complained, and it indeed had a point.
-Fix the code to read the register contents for manufacturer ID 0xa1.
+kstrdup() can return NULL, it is better to check the return value of it.
 
-At the same time, the code was reading the register for manufacturer ID
-0x41 (Analog Devices), but it was not using the results. In effect it was
-just checking if reading the register returned an error. That doesn't
-really add much if any value, so stop doing that.
-
-Fixes: f90be42fb383 ("hwmon: (lm90) Refactor reading of config2 register")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/tencent_094816F3522E0DC704056C789352EBBF0606@qq.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm90.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/core/jack.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hwmon/lm90.c b/drivers/hwmon/lm90.c
-index c187e557678ef..3df4e8654448b 100644
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -1439,12 +1439,11 @@ static int lm90_detect(struct i2c_client *client,
- 	if (man_id < 0 || chip_id < 0 || config1 < 0 || convrate < 0)
- 		return -ENODEV;
+--- a/sound/core/jack.c
++++ b/sound/core/jack.c
+@@ -234,6 +234,10 @@ int snd_jack_new(struct snd_card *card,
+ 		return -ENOMEM;
  
--	if (man_id == 0x01 || man_id == 0x5C || man_id == 0x41) {
-+	if (man_id == 0x01 || man_id == 0x5C || man_id == 0xA1) {
- 		config2 = i2c_smbus_read_byte_data(client, LM90_REG_R_CONFIG2);
- 		if (config2 < 0)
- 			return -ENODEV;
--	} else
--		config2 = 0;		/* Make compiler happy */
+ 	jack->id = kstrdup(id, GFP_KERNEL);
++	if (jack->id == NULL) {
++		kfree(jack);
++		return -ENOMEM;
 +	}
  
- 	if ((address == 0x4C || address == 0x4D)
- 	 && man_id == 0x01) { /* National Semiconductor */
--- 
-2.34.1
-
+ 	/* don't creat input device for phantom jack */
+ 	if (!phantom_jack) {
 
 
