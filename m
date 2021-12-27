@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C48E4800C5
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 357C347FF4D
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230515AbhL0Pt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:49:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39218 "EHLO
+        id S238190AbhL0Pgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:36:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233723AbhL0PrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:47:23 -0500
+        with ESMTP id S238410AbhL0Pem (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:42 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8E0C0617A1;
-        Mon, 27 Dec 2021 07:43:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C36C06175B;
+        Mon, 27 Dec 2021 07:34:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 70A06610B1;
-        Mon, 27 Dec 2021 15:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A73FC36AEA;
-        Mon, 27 Dec 2021 15:43:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8D2C6104C;
+        Mon, 27 Dec 2021 15:34:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B22C0C36AE7;
+        Mon, 27 Dec 2021 15:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619787;
-        bh=SQynjD/gO8qVV+53+s6MOoRg6pg+dgZHkyHPBaUkksA=;
+        s=korg; t=1640619281;
+        bh=Q800pA2ijMpWrEzTsGFf1zltMLsWTysoy+gaAGZ/moI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caTtKIus/wlUIJhrkvKD1z+SW1y8LMv+kyF3SpkUid1dtyzdo1Xrfl+tq2Bv0iJm9
-         PsroL8iAckUuRPKWMcTFrzU8Ve/GFP1+HxqSet4XSNlIaMvZjH44fpA4iBJLCc4964
-         wcam1bULKnQqgjRADbWto9jaHcAQ+8PWuvvmyvZU=
+        b=wWj2bjANrRNqcqUgeTGBEwnhVQkimP7LZLJVacXEmSCNt1IB0NdtVZH0E5iFT/Ona
+         +1S8cmsofYiwArvSjPzveK4GcIQwu57dbRYeg/hkaPr+MzZ48uCDF/SU5gt4eH77Dm
+         TH80KBOWoWbOaiSZyzUaPVCoGJO07jLnE9K4yVyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bradley Scott <Bradley.Scott@zebra.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 069/128] ALSA: hda/realtek: Amp init fixup for HP ZBook 15 G6
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 08/47] qlcnic: potential dereference null pointer of rx_queue->page_ring
 Date:   Mon, 27 Dec 2021 16:30:44 +0100
-Message-Id: <20211227151333.793149982@linuxfoundation.org>
+Message-Id: <20211227151321.068728382@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,31 +48,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bradley Scott <Bradley.Scott@zebra.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit d296a74b7b59ff9116236c17edb25f26935dbf70 upstream.
+[ Upstream commit 60ec7fcfe76892a1479afab51ff17a4281923156 ]
 
-HP ZBook 15 G6 (SSID 103c:860f) needs the same speaker amplifier
-initialization as used on several other HP laptops using ALC285.
+The return value of kcalloc() needs to be checked.
+To avoid dereference of null pointer in case of the failure of alloc.
+Therefore, it might be better to change the return type of
+qlcnic_sriov_alloc_vlans() and return -ENOMEM when alloc fails and
+return 0 the others.
+Also, qlcnic_sriov_set_guest_vlan_mode() and __qlcnic_pci_sriov_enable()
+should deal with the return value of qlcnic_sriov_alloc_vlans().
 
-Signed-off-by: Bradley Scott <Bradley.Scott@zebra.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211213154938.503201-1-Bradley.Scott@zebra.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 154d0c810c53 ("qlcnic: VLAN enhancement for 84XX adapters")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h    |  2 +-
+ .../net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c | 12 +++++++++---
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c |  4 +++-
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8660,6 +8660,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8519, "HP Spectre x360 15-df0xxx", ALC285_FIXUP_HP_SPECTRE_X360),
-+	SND_PCI_QUIRK(0x103c, 0x860f, "HP ZBook 15 G6", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x861f, "HP Elite Dragonfly G1", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
+index 5f327659efa7a..85b688f60b876 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov.h
+@@ -202,7 +202,7 @@ int qlcnic_sriov_get_vf_vport_info(struct qlcnic_adapter *,
+ 				   struct qlcnic_info *, u16);
+ int qlcnic_sriov_cfg_vf_guest_vlan(struct qlcnic_adapter *, u16, u8);
+ void qlcnic_sriov_free_vlans(struct qlcnic_adapter *);
+-void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *);
++int qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *);
+ bool qlcnic_sriov_check_any_vlan(struct qlcnic_vf_info *);
+ void qlcnic_sriov_del_vlan_id(struct qlcnic_sriov *,
+ 			      struct qlcnic_vf_info *, u16);
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
+index f7c2f32237cb0..400bc2c3f222e 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_common.c
+@@ -433,7 +433,7 @@ static int qlcnic_sriov_set_guest_vlan_mode(struct qlcnic_adapter *adapter,
+ 					    struct qlcnic_cmd_args *cmd)
+ {
+ 	struct qlcnic_sriov *sriov = adapter->ahw->sriov;
+-	int i, num_vlans;
++	int i, num_vlans, ret;
+ 	u16 *vlans;
+ 
+ 	if (sriov->allowed_vlans)
+@@ -444,7 +444,9 @@ static int qlcnic_sriov_set_guest_vlan_mode(struct qlcnic_adapter *adapter,
+ 	dev_info(&adapter->pdev->dev, "Number of allowed Guest VLANs = %d\n",
+ 		 sriov->num_allowed_vlans);
+ 
+-	qlcnic_sriov_alloc_vlans(adapter);
++	ret = qlcnic_sriov_alloc_vlans(adapter);
++	if (ret)
++		return ret;
+ 
+ 	if (!sriov->any_vlan)
+ 		return 0;
+@@ -2160,7 +2162,7 @@ static int qlcnic_sriov_vf_resume(struct qlcnic_adapter *adapter)
+ 	return err;
+ }
+ 
+-void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
++int qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
+ {
+ 	struct qlcnic_sriov *sriov = adapter->ahw->sriov;
+ 	struct qlcnic_vf_info *vf;
+@@ -2170,7 +2172,11 @@ void qlcnic_sriov_alloc_vlans(struct qlcnic_adapter *adapter)
+ 		vf = &sriov->vf_info[i];
+ 		vf->sriov_vlans = kcalloc(sriov->num_allowed_vlans,
+ 					  sizeof(*vf->sriov_vlans), GFP_KERNEL);
++		if (!vf->sriov_vlans)
++			return -ENOMEM;
+ 	}
++
++	return 0;
+ }
+ 
+ void qlcnic_sriov_free_vlans(struct qlcnic_adapter *adapter)
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
+index 5632da05145a5..ed218ed2f466d 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_sriov_pf.c
+@@ -598,7 +598,9 @@ static int __qlcnic_pci_sriov_enable(struct qlcnic_adapter *adapter,
+ 	if (err)
+ 		goto del_flr_queue;
+ 
+-	qlcnic_sriov_alloc_vlans(adapter);
++	err = qlcnic_sriov_alloc_vlans(adapter);
++	if (err)
++		goto del_flr_queue;
+ 
+ 	return err;
+ 
+-- 
+2.34.1
+
 
 
