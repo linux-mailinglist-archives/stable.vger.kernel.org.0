@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B7248002B
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 011D148007D
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239372AbhL0Pn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:43:27 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40732 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239366AbhL0Pl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:41:27 -0500
+        id S239811AbhL0Pqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:46:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239680AbhL0PnC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:43:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D4FFC07E5E2;
+        Mon, 27 Dec 2021 07:41:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1703610D5;
-        Mon, 27 Dec 2021 15:41:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84CE1C36AED;
-        Mon, 27 Dec 2021 15:41:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1ECD610F4;
+        Mon, 27 Dec 2021 15:41:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D090C36AE7;
+        Mon, 27 Dec 2021 15:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619685;
-        bh=oIgmO0mRHxv3bqYiesItCGa+d75K5ER1dqeR8hIqSXs=;
+        s=korg; t=1640619688;
+        bh=FFb7qYe9zPnStqAuxBqqK9I5ZGBVbZCF19q5g8n2kGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qT2cgQLmPtiLRLg1UPslz9HiOhY+VJPMoL+QZgC23/x9rR05dM8VYJbNwKj/pThy3
-         l8rsHbegz0rZ8y4GwyF7t56a58HtsG2tZO0xp9OmyxNteQNRN35HxqMRenRQlcCh0O
-         lLYy3xzXQuYytxYDmJtY4uk/sYYBCDUi283xgSp0=
+        b=KlA3rQk7kVEtiOdFqM3imBWSZuwKKZkK+dlZWc2UuxT9UjNa+MxGzUmnVsbv9Bpmz
+         wNjlvgxvjqakH87HH2aRX+IBK7pCsyX2jBwU44w1g1eNAjYMaCgLzUlw30pwoDxFqC
+         zzpSTuhfFHWFH7s71PvAEpcVeDcVLsmjFLCSMNRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Stolpe <martin.stolpe@gmail.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
+        Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/128] igb: fix deadlock caused by taking RTNL in RPM resume path
-Date:   Mon, 27 Dec 2021 16:30:08 +0100
-Message-Id: <20211227151332.638054128@linuxfoundation.org>
+Subject: [PATCH 5.15 034/128] ipmi: Fix UAF when uninstall ipmi_si and ipmi_msghandler module
+Date:   Mon, 27 Dec 2021 16:30:09 +0100
+Message-Id: <20211227151332.671488370@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
 References: <20211227151331.502501367@linuxfoundation.org>
@@ -47,100 +48,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Wu Bo <wubo40@huawei.com>
 
-[ Upstream commit ac8c58f5b535d6272324e2b8b4a0454781c9147e ]
+[ Upstream commit ffb76a86f8096a8206be03b14adda6092e18e275 ]
 
-Recent net core changes caused an issue with few Intel drivers
-(reportedly igb), where taking RTNL in RPM resume path results in a
-deadlock. See [0] for a bug report. I don't think the core changes
-are wrong, but taking RTNL in RPM resume path isn't needed.
-The Intel drivers are the only ones doing this. See [1] for a
-discussion on the issue. Following patch changes the RPM resume path
-to not take RTNL.
+Hi,
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=215129
-[1] https://lore.kernel.org/netdev/20211125074949.5f897431@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/t/
+When testing install and uninstall of ipmi_si.ko and ipmi_msghandler.ko,
+the system crashed.
 
-Fixes: bd869245a3dc ("net: core: try to runtime-resume detached device in __dev_open")
-Fixes: f32a21376573 ("ethtool: runtime-resume netdev parent before ethtool ioctl ops")
-Tested-by: Martin Stolpe <martin.stolpe@gmail.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20211220201844.2714498-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The log as follows:
+[  141.087026] BUG: unable to handle kernel paging request at ffffffffc09b3a5a
+[  141.087241] PGD 8fe4c0d067 P4D 8fe4c0d067 PUD 8fe4c0f067 PMD 103ad89067 PTE 0
+[  141.087464] Oops: 0010 [#1] SMP NOPTI
+[  141.087580] CPU: 67 PID: 668 Comm: kworker/67:1 Kdump: loaded Not tainted 4.18.0.x86_64 #47
+[  141.088009] Workqueue: events 0xffffffffc09b3a40
+[  141.088009] RIP: 0010:0xffffffffc09b3a5a
+[  141.088009] Code: Bad RIP value.
+[  141.088009] RSP: 0018:ffffb9094e2c3e88 EFLAGS: 00010246
+[  141.088009] RAX: 0000000000000000 RBX: ffff9abfdb1f04a0 RCX: 0000000000000000
+[  141.088009] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000246
+[  141.088009] RBP: 0000000000000000 R08: ffff9abfffee3cb8 R09: 00000000000002e1
+[  141.088009] R10: ffffb9094cb73d90 R11: 00000000000f4240 R12: ffff9abfffee8700
+[  141.088009] R13: 0000000000000000 R14: ffff9abfdb1f04a0 R15: ffff9abfdb1f04a8
+[  141.088009] FS:  0000000000000000(0000) GS:ffff9abfffec0000(0000) knlGS:0000000000000000
+[  141.088009] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  141.088009] CR2: ffffffffc09b3a30 CR3: 0000008fe4c0a001 CR4: 00000000007606e0
+[  141.088009] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  141.088009] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  141.088009] PKRU: 55555554
+[  141.088009] Call Trace:
+[  141.088009]  ? process_one_work+0x195/0x390
+[  141.088009]  ? worker_thread+0x30/0x390
+[  141.088009]  ? process_one_work+0x390/0x390
+[  141.088009]  ? kthread+0x10d/0x130
+[  141.088009]  ? kthread_flush_work_fn+0x10/0x10
+[  141.088009]  ? ret_from_fork+0x35/0x40] BUG: unable to handle kernel paging request at ffffffffc0b28a5a
+[  200.223240] PGD 97fe00d067 P4D 97fe00d067 PUD 97fe00f067 PMD a580cbf067 PTE 0
+[  200.223464] Oops: 0010 [#1] SMP NOPTI
+[  200.223579] CPU: 63 PID: 664 Comm: kworker/63:1 Kdump: loaded Not tainted 4.18.0.x86_64 #46
+[  200.224008] Workqueue: events 0xffffffffc0b28a40
+[  200.224008] RIP: 0010:0xffffffffc0b28a5a
+[  200.224008] Code: Bad RIP value.
+[  200.224008] RSP: 0018:ffffbf3c8e2a3e88 EFLAGS: 00010246
+[  200.224008] RAX: 0000000000000000 RBX: ffffa0799ad6bca0 RCX: 0000000000000000
+[  200.224008] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000246
+[  200.224008] RBP: 0000000000000000 R08: ffff9fe43fde3cb8 R09: 00000000000000d5
+[  200.224008] R10: ffffbf3c8cb53d90 R11: 00000000000f4240 R12: ffff9fe43fde8700
+[  200.224008] R13: 0000000000000000 R14: ffffa0799ad6bca0 R15: ffffa0799ad6bca8
+[  200.224008] FS:  0000000000000000(0000) GS:ffff9fe43fdc0000(0000) knlGS:0000000000000000
+[  200.224008] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  200.224008] CR2: ffffffffc0b28a30 CR3: 00000097fe00a002 CR4: 00000000007606e0
+[  200.224008] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  200.224008] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  200.224008] PKRU: 55555554
+[  200.224008] Call Trace:
+[  200.224008]  ? process_one_work+0x195/0x390
+[  200.224008]  ? worker_thread+0x30/0x390
+[  200.224008]  ? process_one_work+0x390/0x390
+[  200.224008]  ? kthread+0x10d/0x130
+[  200.224008]  ? kthread_flush_work_fn+0x10/0x10
+[  200.224008]  ? ret_from_fork+0x35/0x40
+[  200.224008] kernel fault(0x1) notification starting on CPU 63
+[  200.224008] kernel fault(0x1) notification finished on CPU 63
+[  200.224008] CR2: ffffffffc0b28a5a
+[  200.224008] ---[ end trace c82a412d93f57412 ]---
+
+The reason is as follows:
+T1: rmmod ipmi_si.
+    ->ipmi_unregister_smi()
+        -> ipmi_bmc_unregister()
+            -> __ipmi_bmc_unregister()
+                -> kref_put(&bmc->usecount, cleanup_bmc_device);
+                    -> schedule_work(&bmc->remove_work);
+
+T2: rmmod ipmi_msghandler.
+    ipmi_msghander module uninstalled, and the module space
+    will be freed.
+
+T3: bmc->remove_work doing cleanup the bmc resource.
+    -> cleanup_bmc_work()
+        -> platform_device_unregister(&bmc->pdev);
+            -> platform_device_del(pdev);
+                -> device_del(&pdev->dev);
+                    -> kobject_uevent(&dev->kobj, KOBJ_REMOVE);
+                        -> kobject_uevent_env()
+                            -> dev_uevent()
+                                -> if (dev->type && dev->type->name)
+
+   'dev->type'(bmc_device_type) pointer space has freed when uninstall
+    ipmi_msghander module, 'dev->type->name' cause the system crash.
+
+drivers/char/ipmi/ipmi_msghandler.c:
+2820 static const struct device_type bmc_device_type = {
+2821         .groups         = bmc_dev_attr_groups,
+2822 };
+
+Steps to reproduce:
+Add a time delay in cleanup_bmc_work() function,
+and uninstall ipmi_si and ipmi_msghandler module.
+
+2910 static void cleanup_bmc_work(struct work_struct *work)
+2911 {
+2912         struct bmc_device *bmc = container_of(work, struct bmc_device,
+2913                                               remove_work);
+2914         int id = bmc->pdev.id; /* Unregister overwrites id */
+2915
+2916         msleep(3000);   <---
+2917         platform_device_unregister(&bmc->pdev);
+2918         ida_simple_remove(&ipmi_bmc_ida, id);
+2919 }
+
+Use 'remove_work_wq' instead of 'system_wq' to solve this issues.
+
+Fixes: b2cfd8ab4add ("ipmi: Rework device id and guid handling to catch changing BMCs")
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Message-Id: <1640070034-56671-1-git-send-email-wubo40@huawei.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/char/ipmi/ipmi_msghandler.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 533199d819501..82a712f77cb34 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -9247,7 +9247,7 @@ static int __maybe_unused igb_suspend(struct device *dev)
- 	return __igb_shutdown(to_pci_dev(dev), NULL, 0);
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index b404cc46cbda7..ca13536ad0008 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -2932,7 +2932,7 @@ cleanup_bmc_device(struct kref *ref)
+ 	 * with removing the device attributes while reading a device
+ 	 * attribute.
+ 	 */
+-	schedule_work(&bmc->remove_work);
++	queue_work(remove_work_wq, &bmc->remove_work);
  }
  
--static int __maybe_unused igb_resume(struct device *dev)
-+static int __maybe_unused __igb_resume(struct device *dev, bool rpm)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev);
- 	struct net_device *netdev = pci_get_drvdata(pdev);
-@@ -9290,17 +9290,24 @@ static int __maybe_unused igb_resume(struct device *dev)
- 
- 	wr32(E1000_WUS, ~0);
- 
--	rtnl_lock();
-+	if (!rpm)
-+		rtnl_lock();
- 	if (!err && netif_running(netdev))
- 		err = __igb_open(netdev, true);
- 
- 	if (!err)
- 		netif_device_attach(netdev);
--	rtnl_unlock();
-+	if (!rpm)
-+		rtnl_unlock();
- 
- 	return err;
- }
- 
-+static int __maybe_unused igb_resume(struct device *dev)
-+{
-+	return __igb_resume(dev, false);
-+}
-+
- static int __maybe_unused igb_runtime_idle(struct device *dev)
- {
- 	struct net_device *netdev = dev_get_drvdata(dev);
-@@ -9319,7 +9326,7 @@ static int __maybe_unused igb_runtime_suspend(struct device *dev)
- 
- static int __maybe_unused igb_runtime_resume(struct device *dev)
- {
--	return igb_resume(dev);
-+	return __igb_resume(dev, true);
- }
- 
- static void igb_shutdown(struct pci_dev *pdev)
-@@ -9435,7 +9442,7 @@ static pci_ers_result_t igb_io_error_detected(struct pci_dev *pdev,
-  *  @pdev: Pointer to PCI device
-  *
-  *  Restart the card from scratch, as if from a cold-boot. Implementation
-- *  resembles the first-half of the igb_resume routine.
-+ *  resembles the first-half of the __igb_resume routine.
-  **/
- static pci_ers_result_t igb_io_slot_reset(struct pci_dev *pdev)
- {
-@@ -9475,7 +9482,7 @@ static pci_ers_result_t igb_io_slot_reset(struct pci_dev *pdev)
-  *
-  *  This callback is called when the error recovery driver tells us that
-  *  its OK to resume normal operation. Implementation resembles the
-- *  second-half of the igb_resume routine.
-+ *  second-half of the __igb_resume routine.
-  */
- static void igb_io_resume(struct pci_dev *pdev)
- {
+ /*
 -- 
 2.34.1
 
