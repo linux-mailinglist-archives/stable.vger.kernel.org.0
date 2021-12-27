@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1436C47FFC6
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B970847FF47
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238657AbhL0PlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:41:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36322 "EHLO
+        id S235157AbhL0Pgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:36:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238841AbhL0PjU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68764C07E5F2;
-        Mon, 27 Dec 2021 07:37:59 -0800 (PST)
+        with ESMTP id S238252AbhL0PeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6823AC0619D8;
+        Mon, 27 Dec 2021 07:34:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EA734CE10CB;
-        Mon, 27 Dec 2021 15:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D84E4C36AEA;
-        Mon, 27 Dec 2021 15:37:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0700961073;
+        Mon, 27 Dec 2021 15:34:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1ECBC36AE7;
+        Mon, 27 Dec 2021 15:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619477;
-        bh=2eQnyZm8XUbFpi1PzPra1LTTdi7+tMRrjUf75uDgyf4=;
+        s=korg; t=1640619255;
+        bh=NFkezmt+yWme4gk88o4+WRZHLk6EPLsnLnVIzGcjOMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJEnuF9x1EnYS9fvTXkps+9V1hYp3XwlTgX9PXFcKWQpt/mIXK/A2m4Nm6FdSqD+N
-         hwGJsj1HFqKOZnPgBv5xX0Vo7WutL7vHuS3wW9WnhkB8SQCPAbrlRLC9BtjCkkdgxF
-         H08V+fL7FVPSsGJliEwloKzMf6XL4pZIGwqMwino=
+        b=W9XRVEwfGFfE7VrTyZoOXqryqJwkhiCNl5L/S7UTtLWu+DUTc7sOMUZz8k6TaSGcF
+         0l8YcuePyWpwen94nW6bGld52fiLfcYUd8iGIRCmoti6rjkPWuEbIWA+N7oFmmyfl+
+         t455Z1v3puMNOlI8llB4bv4T7XSbOgSLR28UrQCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bradley Scott <Bradley.Scott@zebra.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 36/76] ALSA: hda/realtek: Amp init fixup for HP ZBook 15 G6
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 14/38] net: skip virtio_net_hdr_set_proto if protocol already set
 Date:   Mon, 27 Dec 2021 16:30:51 +0100
-Message-Id: <20211227151325.952951634@linuxfoundation.org>
+Message-Id: <20211227151319.841847010@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
+References: <20211227151319.379265346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,31 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bradley Scott <Bradley.Scott@zebra.com>
+From: Willem de Bruijn <willemb@google.com>
 
-commit d296a74b7b59ff9116236c17edb25f26935dbf70 upstream.
+[ Upstream commit 1ed1d592113959f00cc552c3b9f47ca2d157768f ]
 
-HP ZBook 15 G6 (SSID 103c:860f) needs the same speaker amplifier
-initialization as used on several other HP laptops using ALC285.
+virtio_net_hdr_set_proto infers skb->protocol from the virtio_net_hdr
+gso_type, to avoid packets getting dropped for lack of a proto type.
 
-Signed-off-by: Bradley Scott <Bradley.Scott@zebra.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211213154938.503201-1-Bradley.Scott@zebra.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Its protocol choice is a guess, especially in the case of UFO, where
+the single VIRTIO_NET_HDR_GSO_UDP label covers both UFOv4 and UFOv6.
+
+Skip this best effort if the field is already initialized. Whether
+explicitly from userspace, or implicitly based on an earlier call to
+dev_parse_header_protocol (which is more robust, but was introduced
+after this patch).
+
+Fixes: 9d2f67e43b73 ("net/packet: fix packet drop as of virtio gso")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20211220145027.2784293-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/virtio_net.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8599,6 +8599,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8519, "HP Spectre x360 15-df0xxx", ALC285_FIXUP_HP_SPECTRE_X360),
-+	SND_PCI_QUIRK(0x103c, 0x860f, "HP ZBook 15 G6", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x861f, "HP Elite Dragonfly G1", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 8874b278cd34a..faee73c084d49 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -25,6 +25,9 @@ static inline bool virtio_net_hdr_match_proto(__be16 protocol, __u8 gso_type)
+ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
+ 					   const struct virtio_net_hdr *hdr)
+ {
++	if (skb->protocol)
++		return 0;
++
+ 	switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+ 	case VIRTIO_NET_HDR_GSO_TCPV4:
+ 	case VIRTIO_NET_HDR_GSO_UDP:
+-- 
+2.34.1
+
 
 
