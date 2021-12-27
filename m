@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 984BB47FC28
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:22:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2575347FC29
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 12:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233404AbhL0LWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 06:22:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40064 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233519AbhL0LWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:22:04 -0500
+        id S236335AbhL0LX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 06:23:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36676 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233519AbhL0LX3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 06:23:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A936C06173E
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 03:23:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77F5360F83
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6162DC36AEB;
-        Mon, 27 Dec 2021 11:22:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8FC660DD0
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 11:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C79EC36AEA;
+        Mon, 27 Dec 2021 11:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640604123;
-        bh=ch1riEwFimnYAqfO9YswkGNDeOSDYdKDhzGj1Bk8Lac=;
+        s=korg; t=1640604208;
+        bh=509qzR9ei0uSEV0boP/RDEtlgPqUhXZbPiFJrnE1/4g=;
         h=Subject:To:Cc:From:Date:From;
-        b=aEU2TaxOTXh9sNve4uGJJgdyOUh6sZEP3kC2NstiGZ3irY0AdhKwQHubfm5Bm0RHB
-         YIJZBEXqYkv5BfSDHiAcKWkSMKJyyq0jNKQk89aNKxhRRDR15/nX3tP4IYRp5E3QM0
-         6TYle6xdTkvs79AP512e16PlcP6ZEO05QOTnKsrM=
-Subject: FAILED: patch "[PATCH] tee: optee: Fix incorrect page free bug" failed to apply to 5.15-stable tree
-To:     sumit.garg@linaro.org, jens.wiklander@linaro.org,
-        patrik.lantz@axis.com, tyhicks@linux.microsoft.com
+        b=zNufvHmJsMSZ8HmG9BsQgWEQqQvds3K4weN6gbBSI4JRpalrlun3m0FsX+mu8Py8O
+         gDpLu36l8rVyUpUkholVNA0+uZv8PnqiBrnlUtevaM1KU6k8F7uANR/4DfYpu3ud36
+         tCfg6Bqmnbil9AfTlQg9XGgSm18Vxf/QcOCfSRbY=
+Subject: FAILED: patch "[PATCH] tee: handle lookup of shm with reference count 0" failed to apply to 4.19-stable tree
+To:     jens.wiklander@linaro.org, gregkh@linuxfoundation.org,
+        larper@axis.com, patrik.lantz@axis.com, sumit.garg@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 12:21:51 +0100
-Message-ID: <16406041111194@kroah.com>
+Date:   Mon, 27 Dec 2021 12:23:25 +0100
+Message-ID: <16406042052361@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,38 +54,344 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 18549bf4b21c739a9def39f27dcac53e27286ab5 Mon Sep 17 00:00:00 2001
-From: Sumit Garg <sumit.garg@linaro.org>
-Date: Thu, 16 Dec 2021 11:17:25 +0530
-Subject: [PATCH] tee: optee: Fix incorrect page free bug
+From dfd0743f1d9ea76931510ed150334d571fbab49d Mon Sep 17 00:00:00 2001
+From: Jens Wiklander <jens.wiklander@linaro.org>
+Date: Thu, 9 Dec 2021 15:59:37 +0100
+Subject: [PATCH] tee: handle lookup of shm with reference count 0
 
-Pointer to the allocated pages (struct page *page) has already
-progressed towards the end of allocation. It is incorrect to perform
-__free_pages(page, order) using this pointer as we would free any
-arbitrary pages. Fix this by stop modifying the page pointer.
+Since the tee subsystem does not keep a strong reference to its idle
+shared memory buffers, it races with other threads that try to destroy a
+shared memory through a close of its dma-buf fd or by unmapping the
+memory.
 
-Fixes: ec185dd3ab25 ("optee: Fix memory leak when failing to register shm pages")
+In tee_shm_get_from_id() when a lookup in teedev->idr has been
+successful, it is possible that the tee_shm is in the dma-buf teardown
+path, but that path is blocked by the teedev mutex. Since we don't have
+an API to tell if the tee_shm is in the dma-buf teardown path or not we
+must find another way of detecting this condition.
+
+Fix this by doing the reference counting directly on the tee_shm using a
+new refcount_t refcount field. dma-buf is replaced by using
+anon_inode_getfd() instead, this separates the life-cycle of the
+underlying file from the tee_shm. tee_shm_put() is updated to hold the
+mutex when decreasing the refcount to 0 and then remove the tee_shm from
+teedev->idr before releasing the mutex. This means that the tee_shm can
+never be found unless it has a refcount larger than 0.
+
+Fixes: 967c9cca2cc5 ("tee: generic TEE subsystem")
 Cc: stable@vger.kernel.org
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Lars Persson <larper@axis.com>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
 Reported-by: Patrik Lantz <patrik.lantz@axis.com>
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
 Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 
-diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-index ab2edfcc6c70..2a66a5203d2f 100644
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -48,10 +48,8 @@ int optee_pool_op_alloc_helper(struct tee_shm_pool_mgr *poolm,
- 			goto err;
+diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
+index 8a8deb95e918..499fccba3d74 100644
+--- a/drivers/tee/tee_shm.c
++++ b/drivers/tee/tee_shm.c
+@@ -1,20 +1,17 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) 2015-2016, Linaro Limited
++ * Copyright (c) 2015-2017, 2019-2021 Linaro Limited
+  */
++#include <linux/anon_inodes.h>
+ #include <linux/device.h>
+-#include <linux/dma-buf.h>
+-#include <linux/fdtable.h>
+ #include <linux/idr.h>
++#include <linux/mm.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/tee_drv.h>
+ #include <linux/uio.h>
+-#include <linux/module.h>
+ #include "tee_private.h"
+ 
+-MODULE_IMPORT_NS(DMA_BUF);
+-
+ static void release_registered_pages(struct tee_shm *shm)
+ {
+ 	if (shm->pages) {
+@@ -31,16 +28,8 @@ static void release_registered_pages(struct tee_shm *shm)
+ 	}
+ }
+ 
+-static void tee_shm_release(struct tee_shm *shm)
++static void tee_shm_release(struct tee_device *teedev, struct tee_shm *shm)
+ {
+-	struct tee_device *teedev = shm->ctx->teedev;
+-
+-	if (shm->flags & TEE_SHM_DMA_BUF) {
+-		mutex_lock(&teedev->mutex);
+-		idr_remove(&teedev->idr, shm->id);
+-		mutex_unlock(&teedev->mutex);
+-	}
+-
+ 	if (shm->flags & TEE_SHM_POOL) {
+ 		struct tee_shm_pool_mgr *poolm;
+ 
+@@ -67,45 +56,6 @@ static void tee_shm_release(struct tee_shm *shm)
+ 	tee_device_put(teedev);
+ }
+ 
+-static struct sg_table *tee_shm_op_map_dma_buf(struct dma_buf_attachment
+-			*attach, enum dma_data_direction dir)
+-{
+-	return NULL;
+-}
+-
+-static void tee_shm_op_unmap_dma_buf(struct dma_buf_attachment *attach,
+-				     struct sg_table *table,
+-				     enum dma_data_direction dir)
+-{
+-}
+-
+-static void tee_shm_op_release(struct dma_buf *dmabuf)
+-{
+-	struct tee_shm *shm = dmabuf->priv;
+-
+-	tee_shm_release(shm);
+-}
+-
+-static int tee_shm_op_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma)
+-{
+-	struct tee_shm *shm = dmabuf->priv;
+-	size_t size = vma->vm_end - vma->vm_start;
+-
+-	/* Refuse sharing shared memory provided by application */
+-	if (shm->flags & TEE_SHM_USER_MAPPED)
+-		return -EINVAL;
+-
+-	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
+-			       size, vma->vm_page_prot);
+-}
+-
+-static const struct dma_buf_ops tee_shm_dma_buf_ops = {
+-	.map_dma_buf = tee_shm_op_map_dma_buf,
+-	.unmap_dma_buf = tee_shm_op_unmap_dma_buf,
+-	.release = tee_shm_op_release,
+-	.mmap = tee_shm_op_mmap,
+-};
+-
+ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+ {
+ 	struct tee_device *teedev = ctx->teedev;
+@@ -140,6 +90,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+ 		goto err_dev_put;
+ 	}
+ 
++	refcount_set(&shm->refcount, 1);
+ 	shm->flags = flags | TEE_SHM_POOL;
+ 	shm->ctx = ctx;
+ 	if (flags & TEE_SHM_DMA_BUF)
+@@ -153,10 +104,7 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+ 		goto err_kfree;
+ 	}
+ 
+-
+ 	if (flags & TEE_SHM_DMA_BUF) {
+-		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
+-
+ 		mutex_lock(&teedev->mutex);
+ 		shm->id = idr_alloc(&teedev->idr, shm, 1, 0, GFP_KERNEL);
+ 		mutex_unlock(&teedev->mutex);
+@@ -164,28 +112,11 @@ struct tee_shm *tee_shm_alloc(struct tee_context *ctx, size_t size, u32 flags)
+ 			ret = ERR_PTR(shm->id);
+ 			goto err_pool_free;
  		}
- 
--		for (i = 0; i < nr_pages; i++) {
--			pages[i] = page;
--			page++;
+-
+-		exp_info.ops = &tee_shm_dma_buf_ops;
+-		exp_info.size = shm->size;
+-		exp_info.flags = O_RDWR;
+-		exp_info.priv = shm;
+-
+-		shm->dmabuf = dma_buf_export(&exp_info);
+-		if (IS_ERR(shm->dmabuf)) {
+-			ret = ERR_CAST(shm->dmabuf);
+-			goto err_rem;
 -		}
-+		for (i = 0; i < nr_pages; i++)
-+			pages[i] = page + i;
+ 	}
  
- 		shm->flags |= TEE_SHM_REGISTER;
- 		rc = shm_register(shm->ctx, shm, pages, nr_pages,
+ 	teedev_ctx_get(ctx);
+ 
+ 	return shm;
+-err_rem:
+-	if (flags & TEE_SHM_DMA_BUF) {
+-		mutex_lock(&teedev->mutex);
+-		idr_remove(&teedev->idr, shm->id);
+-		mutex_unlock(&teedev->mutex);
+-	}
+ err_pool_free:
+ 	poolm->ops->free(poolm, shm);
+ err_kfree:
+@@ -246,6 +177,7 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+ 		goto err;
+ 	}
+ 
++	refcount_set(&shm->refcount, 1);
+ 	shm->flags = flags | TEE_SHM_REGISTER;
+ 	shm->ctx = ctx;
+ 	shm->id = -1;
+@@ -306,22 +238,6 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+ 		goto err;
+ 	}
+ 
+-	if (flags & TEE_SHM_DMA_BUF) {
+-		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
+-
+-		exp_info.ops = &tee_shm_dma_buf_ops;
+-		exp_info.size = shm->size;
+-		exp_info.flags = O_RDWR;
+-		exp_info.priv = shm;
+-
+-		shm->dmabuf = dma_buf_export(&exp_info);
+-		if (IS_ERR(shm->dmabuf)) {
+-			ret = ERR_CAST(shm->dmabuf);
+-			teedev->desc->ops->shm_unregister(ctx, shm);
+-			goto err;
+-		}
+-	}
+-
+ 	return shm;
+ err:
+ 	if (shm) {
+@@ -339,6 +255,35 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+ }
+ EXPORT_SYMBOL_GPL(tee_shm_register);
+ 
++static int tee_shm_fop_release(struct inode *inode, struct file *filp)
++{
++	tee_shm_put(filp->private_data);
++	return 0;
++}
++
++static int tee_shm_fop_mmap(struct file *filp, struct vm_area_struct *vma)
++{
++	struct tee_shm *shm = filp->private_data;
++	size_t size = vma->vm_end - vma->vm_start;
++
++	/* Refuse sharing shared memory provided by application */
++	if (shm->flags & TEE_SHM_USER_MAPPED)
++		return -EINVAL;
++
++	/* check for overflowing the buffer's size */
++	if (vma->vm_pgoff + vma_pages(vma) > shm->size >> PAGE_SHIFT)
++		return -EINVAL;
++
++	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
++			       size, vma->vm_page_prot);
++}
++
++static const struct file_operations tee_shm_fops = {
++	.owner = THIS_MODULE,
++	.release = tee_shm_fop_release,
++	.mmap = tee_shm_fop_mmap,
++};
++
+ /**
+  * tee_shm_get_fd() - Increase reference count and return file descriptor
+  * @shm:	Shared memory handle
+@@ -351,10 +296,11 @@ int tee_shm_get_fd(struct tee_shm *shm)
+ 	if (!(shm->flags & TEE_SHM_DMA_BUF))
+ 		return -EINVAL;
+ 
+-	get_dma_buf(shm->dmabuf);
+-	fd = dma_buf_fd(shm->dmabuf, O_CLOEXEC);
++	/* matched by tee_shm_put() in tee_shm_op_release() */
++	refcount_inc(&shm->refcount);
++	fd = anon_inode_getfd("tee_shm", &tee_shm_fops, shm, O_RDWR);
+ 	if (fd < 0)
+-		dma_buf_put(shm->dmabuf);
++		tee_shm_put(shm);
+ 	return fd;
+ }
+ 
+@@ -364,17 +310,7 @@ int tee_shm_get_fd(struct tee_shm *shm)
+  */
+ void tee_shm_free(struct tee_shm *shm)
+ {
+-	/*
+-	 * dma_buf_put() decreases the dmabuf reference counter and will
+-	 * call tee_shm_release() when the last reference is gone.
+-	 *
+-	 * In the case of driver private memory we call tee_shm_release
+-	 * directly instead as it doesn't have a reference counter.
+-	 */
+-	if (shm->flags & TEE_SHM_DMA_BUF)
+-		dma_buf_put(shm->dmabuf);
+-	else
+-		tee_shm_release(shm);
++	tee_shm_put(shm);
+ }
+ EXPORT_SYMBOL_GPL(tee_shm_free);
+ 
+@@ -481,10 +417,15 @@ struct tee_shm *tee_shm_get_from_id(struct tee_context *ctx, int id)
+ 	teedev = ctx->teedev;
+ 	mutex_lock(&teedev->mutex);
+ 	shm = idr_find(&teedev->idr, id);
++	/*
++	 * If the tee_shm was found in the IDR it must have a refcount
++	 * larger than 0 due to the guarantee in tee_shm_put() below. So
++	 * it's safe to use refcount_inc().
++	 */
+ 	if (!shm || shm->ctx != ctx)
+ 		shm = ERR_PTR(-EINVAL);
+-	else if (shm->flags & TEE_SHM_DMA_BUF)
+-		get_dma_buf(shm->dmabuf);
++	else
++		refcount_inc(&shm->refcount);
+ 	mutex_unlock(&teedev->mutex);
+ 	return shm;
+ }
+@@ -496,7 +437,24 @@ EXPORT_SYMBOL_GPL(tee_shm_get_from_id);
+  */
+ void tee_shm_put(struct tee_shm *shm)
+ {
+-	if (shm->flags & TEE_SHM_DMA_BUF)
+-		dma_buf_put(shm->dmabuf);
++	struct tee_device *teedev = shm->ctx->teedev;
++	bool do_release = false;
++
++	mutex_lock(&teedev->mutex);
++	if (refcount_dec_and_test(&shm->refcount)) {
++		/*
++		 * refcount has reached 0, we must now remove it from the
++		 * IDR before releasing the mutex. This will guarantee that
++		 * the refcount_inc() in tee_shm_get_from_id() never starts
++		 * from 0.
++		 */
++		if (shm->flags & TEE_SHM_DMA_BUF)
++			idr_remove(&teedev->idr, shm->id);
++		do_release = true;
++	}
++	mutex_unlock(&teedev->mutex);
++
++	if (do_release)
++		tee_shm_release(teedev, shm);
+ }
+ EXPORT_SYMBOL_GPL(tee_shm_put);
+diff --git a/include/linux/tee_drv.h b/include/linux/tee_drv.h
+index a1f03461369b..cf5999626e28 100644
+--- a/include/linux/tee_drv.h
++++ b/include/linux/tee_drv.h
+@@ -195,7 +195,7 @@ int tee_session_calc_client_uuid(uuid_t *uuid, u32 connection_method,
+  * @offset:	offset of buffer in user space
+  * @pages:	locked pages from userspace
+  * @num_pages:	number of locked pages
+- * @dmabuf:	dmabuf used to for exporting to user space
++ * @refcount:	reference counter
+  * @flags:	defined by TEE_SHM_* in tee_drv.h
+  * @id:		unique id of a shared memory object on this device, shared
+  *		with user space
+@@ -214,7 +214,7 @@ struct tee_shm {
+ 	unsigned int offset;
+ 	struct page **pages;
+ 	size_t num_pages;
+-	struct dma_buf *dmabuf;
++	refcount_t refcount;
+ 	u32 flags;
+ 	int id;
+ 	u64 sec_world_id;
 
