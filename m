@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EABA47FF63
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:37:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD95480068
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238586AbhL0PhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:37:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36286 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238579AbhL0PgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:36:14 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B88DC061B38;
-        Mon, 27 Dec 2021 07:35:50 -0800 (PST)
+        id S238766AbhL0PqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:46:03 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45354 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240069AbhL0Pog (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9D5E4CE10D9;
-        Mon, 27 Dec 2021 15:35:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65E1CC36AEB;
-        Mon, 27 Dec 2021 15:35:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84F74B810A3;
+        Mon, 27 Dec 2021 15:44:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA8BC36AE7;
+        Mon, 27 Dec 2021 15:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619346;
-        bh=L3jzjkZJuoA19T9M7XeHKugIqeJMbTHiY4W+mhtIqfo=;
+        s=korg; t=1640619873;
+        bh=VIB4/gmxwIe7z+SckKN0JcsGrt9Nypt9uKJfKrj1j90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLJ/qNzQPPFbJj3Sr6/O9O2RGgJ9d0KECYSzmQ5QCPa9DwWGM1+4Ar3Nu7AQhT13x
-         sudom1Es/UUHSRRqyTPJ6vP36UImVjtDKh1q02YZiXwEldhk4VMy1qQRyNZLqVCmAC
-         /hljAt7nUalaAQs6lLyBLdx6HC3kcMDp2jOAqk9U=
+        b=GPL0eqY9jwhzVY8TTEWvgI3OmTdBAjE746/BTYVFIkkncViAb7YDZLFreEeG6crrk
+         yoGLQKsDeBsaw/KsmBQGc2nFrpzpy0ScOmFS9gIOwhGPq8nyA0zLFcQGbHBas/tyTR
+         whvkP27PFpVRLeZ0jM9gdTHa7K3FhtgYUySz5pd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Ryabinin <arbn@yandex-team.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        David Rientjes <rientjes@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 39/47] mm: mempolicy: fix THP allocations escaping mempolicy restrictions
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Marcos Del Sol Vives <marcos@orca.pet>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 100/128] ksmbd: disable SMB2_GLOBAL_CAP_ENCRYPTION for SMB 3.1.1
 Date:   Mon, 27 Dec 2021 16:31:15 +0100
-Message-Id: <20211227151322.146610498@linuxfoundation.org>
+Message-Id: <20211227151334.860662780@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,122 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ryabinin <arbn@yandex-team.com>
+From: Marcos Del Sol Vives <marcos@orca.pet>
 
-commit 338635340669d5b317c7e8dcf4fff4a0f3651d87 upstream.
+commit 83912d6d55be10d65b5268d1871168b9ebe1ec4b upstream.
 
-alloc_pages_vma() may try to allocate THP page on the local NUMA node
-first:
+According to the official Microsoft MS-SMB2 document section 3.3.5.4, this
+flag should be used only for 3.0 and 3.0.2 dialects. Setting it for 3.1.1
+is a violation of the specification.
 
-	page = __alloc_pages_node(hpage_node,
-		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
+This causes my Windows 10 client to detect an anomaly in the negotiation,
+and disable encryption entirely despite being explicitly enabled in ksmbd,
+causing all data transfers to go in plain text.
 
-And if the allocation fails it retries allowing remote memory:
-
-	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
-    		page = __alloc_pages_node(hpage_node,
-					gfp, order);
-
-However, this retry allocation completely ignores memory policy nodemask
-allowing allocation to escape restrictions.
-
-The first appearance of this bug seems to be the commit ac5b2c18911f
-("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings").
-
-The bug disappeared later in the commit 89c83fb539f9 ("mm, thp:
-consolidate THP gfp handling into alloc_hugepage_direct_gfpmask") and
-reappeared again in slightly different form in the commit 76e654cc91bb
-("mm, page_alloc: allow hugepage fallback to remote nodes when
-madvised")
-
-Fix this by passing correct nodemask to the __alloc_pages() call.
-
-The demonstration/reproducer of the problem:
-
-    $ mount -oremount,size=4G,huge=always /dev/shm/
-    $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
-    $ cat mbind_thp.c
-    #include <unistd.h>
-    #include <sys/mman.h>
-    #include <sys/stat.h>
-    #include <fcntl.h>
-    #include <assert.h>
-    #include <stdlib.h>
-    #include <stdio.h>
-    #include <numaif.h>
-
-    #define SIZE 2ULL << 30
-    int main(int argc, char **argv)
-    {
-        int fd;
-        unsigned long long i;
-        char *addr;
-        pid_t pid;
-        char buf[100];
-        unsigned long nodemask = 1;
-
-        fd = open("/dev/shm/test", O_RDWR|O_CREAT);
-        assert(fd > 0);
-        assert(ftruncate(fd, SIZE) == 0);
-
-        addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
-                           MAP_SHARED, fd, 0);
-
-        assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
-        for (i = 0; i < SIZE; i+=4096) {
-          addr[i] = 1;
-        }
-        pid = getpid();
-        snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
-        system(buf);
-        sleep(10000);
-
-        return 0;
-    }
-    $ gcc mbind_thp.c -o mbind_thp -lnuma
-    $ numactl -H
-    available: 2 nodes (0-1)
-    node 0 cpus: 0 2
-    node 0 size: 1918 MB
-    node 0 free: 1595 MB
-    node 1 cpus: 1 3
-    node 1 size: 2014 MB
-    node 1 free: 1731 MB
-    node distances:
-    node   0   1
-      0:  10  20
-      1:  20  10
-    $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
-    7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
-
-Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
-Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
-Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Acked-by: David Rientjes <rientjes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Cc: stable@vger.kernel.org # v5.15
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Marcos Del Sol Vives <marcos@orca.pet>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mempolicy.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ksmbd/smb2ops.c |    3 ---
+ fs/ksmbd/smb2pdu.c |   25 +++++++++++++++++++++----
+ 2 files changed, 21 insertions(+), 7 deletions(-)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -2143,8 +2143,9 @@ alloc_pages_vma(gfp_t gfp, int order, st
- 			 * memory as well.
- 			 */
- 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
--				page = __alloc_pages_node(hpage_node,
--						gfp | __GFP_NORETRY, order);
-+				page = __alloc_pages_nodemask(gfp | __GFP_NORETRY,
-+							order, hpage_node,
-+							nmask);
+--- a/fs/ksmbd/smb2ops.c
++++ b/fs/ksmbd/smb2ops.c
+@@ -272,9 +272,6 @@ int init_smb3_11_server(struct ksmbd_con
+ 	if (server_conf.flags & KSMBD_GLOBAL_FLAG_SMB2_LEASES)
+ 		conn->vals->capabilities |= SMB2_GLOBAL_CAP_LEASING;
  
- 			goto out;
- 		}
+-	if (conn->cipher_type)
+-		conn->vals->capabilities |= SMB2_GLOBAL_CAP_ENCRYPTION;
+-
+ 	if (server_conf.flags & KSMBD_GLOBAL_FLAG_SMB3_MULTICHANNEL)
+ 		conn->vals->capabilities |= SMB2_GLOBAL_CAP_MULTI_CHANNEL;
+ 
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -917,6 +917,25 @@ static void decode_encrypt_ctxt(struct k
+ 	}
+ }
+ 
++/**
++ * smb3_encryption_negotiated() - checks if server and client agreed on enabling encryption
++ * @conn:	smb connection
++ *
++ * Return:	true if connection should be encrypted, else false
++ */
++static bool smb3_encryption_negotiated(struct ksmbd_conn *conn)
++{
++	if (!conn->ops->generate_encryptionkey)
++		return false;
++
++	/*
++	 * SMB 3.0 and 3.0.2 dialects use the SMB2_GLOBAL_CAP_ENCRYPTION flag.
++	 * SMB 3.1.1 uses the cipher_type field.
++	 */
++	return (conn->vals->capabilities & SMB2_GLOBAL_CAP_ENCRYPTION) ||
++	    conn->cipher_type;
++}
++
+ static void decode_compress_ctxt(struct ksmbd_conn *conn,
+ 				 struct smb2_compression_ctx *pneg_ctxt)
+ {
+@@ -1471,8 +1490,7 @@ static int ntlm_authenticate(struct ksmb
+ 		    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
+ 			sess->sign = true;
+ 
+-		if (conn->vals->capabilities & SMB2_GLOBAL_CAP_ENCRYPTION &&
+-		    conn->ops->generate_encryptionkey &&
++		if (smb3_encryption_negotiated(conn) &&
+ 		    !(req->Flags & SMB2_SESSION_REQ_FLAG_BINDING)) {
+ 			rc = conn->ops->generate_encryptionkey(sess);
+ 			if (rc) {
+@@ -1562,8 +1580,7 @@ static int krb5_authenticate(struct ksmb
+ 	    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
+ 		sess->sign = true;
+ 
+-	if ((conn->vals->capabilities & SMB2_GLOBAL_CAP_ENCRYPTION) &&
+-	    conn->ops->generate_encryptionkey) {
++	if (smb3_encryption_negotiated(conn)) {
+ 		retval = conn->ops->generate_encryptionkey(sess);
+ 		if (retval) {
+ 			ksmbd_debug(SMB,
 
 
