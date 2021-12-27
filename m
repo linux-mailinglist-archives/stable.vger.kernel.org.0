@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2692848000E
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5B1947FFC7
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238570AbhL0Pmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:42:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36666 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238621AbhL0PlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:41:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14C1C079797;
-        Mon, 27 Dec 2021 07:39:29 -0800 (PST)
+        id S239167AbhL0PlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:41:07 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:41952 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239237AbhL0Pjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FB9C61126;
-        Mon, 27 Dec 2021 15:39:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792B6C36AEA;
-        Mon, 27 Dec 2021 15:39:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6EE46CE10CB;
+        Mon, 27 Dec 2021 15:39:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC80C36AE7;
+        Mon, 27 Dec 2021 15:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619569;
-        bh=SCMNHAQcaDNz2EdIj3sDq4hHG/Ev+ZXlBo3gGV8BJys=;
+        s=korg; t=1640619571;
+        bh=iJ8oCRrMcy9gwmWL+GWPkbD52C48gXdJjhfL3Z82dFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mY2mZNh6quuBMHuqqVTgLXWBvWm/TQyeWW4Nk3zyuvFwpooCJEpMOsLhWAUmTLfOE
-         RhLJkL01yqDN1htkRRdaYqiAqajs+bOggMgcL7luBYLwrnpDA1kWYe0iLuW8dG7cv7
-         YXaovoJjf3q3Dhlh4zHeZYigI0L2f7CuLpyWSQiA=
+        b=EgKcmUoG5AlJFClKeR5MjBKoGB6ZhHR14FVUNlQQCSQfjaZp0vwvFu8LMGyIkz1J+
+         z8W954gVBGCi7VUo62yPJQzobjFEgkUI/y508LT0tJba99+icVnOSSFr1fDNtyimmt
+         qJ/Ah+DHPppThAUbBlywZM3ds85zUT0PgNKF3L5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik@protonmail.com>,
+        stable@vger.kernel.org, Derek Fang <derek.fang@realtek.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 68/76] ASoC: tas2770: Fix setting of high sample rates
-Date:   Mon, 27 Dec 2021 16:31:23 +0100
-Message-Id: <20211227151327.038123659@linuxfoundation.org>
+Subject: [PATCH 5.10 69/76] ASoC: rt5682: fix the wrong jack type detected
+Date:   Mon, 27 Dec 2021 16:31:24 +0100
+Message-Id: <20211227151327.076619444@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
 References: <20211227151324.694661623@linuxfoundation.org>
@@ -48,36 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik@protonmail.com>
+From: Derek Fang <derek.fang@realtek.com>
 
-commit 80d5be1a057e05f01d66e986cfd34d71845e5190 upstream.
+commit 8deb34a90f06374fd26f722c2a79e15160f66be7 upstream.
 
-Although the codec advertises support for 176.4 and 192 ksps, without
-this fix setting those sample rates fails with EINVAL at hw_params time.
+Some powers were changed during the jack insert detection
+and clk's enable/disable in CCF.
+If in parallel, the influence has a chance to detect
+the wrong jack type, so add a lock.
 
-Signed-off-by: Martin Povišer <povik@protonmail.com>
-Link: https://lore.kernel.org/r/20211206224529.74656-1-povik@protonmail.com
+Signed-off-by: Derek Fang <derek.fang@realtek.com>
+Link: https://lore.kernel.org/r/20211214105033.471-1-derek.fang@realtek.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/tas2770.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt5682.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/soc/codecs/tas2770.c
-+++ b/sound/soc/codecs/tas2770.c
-@@ -291,11 +291,11 @@ static int tas2770_set_samplerate(struct
- 		ramp_rate_val = TAS2770_TDM_CFG_REG0_SMP_44_1KHZ |
- 				TAS2770_TDM_CFG_REG0_31_88_2_96KHZ;
- 		break;
--	case 19200:
-+	case 192000:
- 		ramp_rate_val = TAS2770_TDM_CFG_REG0_SMP_48KHZ |
- 				TAS2770_TDM_CFG_REG0_31_176_4_192KHZ;
- 		break;
--	case 17640:
-+	case 176400:
- 		ramp_rate_val = TAS2770_TDM_CFG_REG0_SMP_44_1KHZ |
- 				TAS2770_TDM_CFG_REG0_31_176_4_192KHZ;
- 		break;
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -924,6 +924,8 @@ int rt5682_headset_detect(struct snd_soc
+ 	unsigned int val, count;
+ 
+ 	if (jack_insert) {
++		snd_soc_dapm_mutex_lock(dapm);
++
+ 		snd_soc_component_update_bits(component, RT5682_PWR_ANLG_1,
+ 			RT5682_PWR_VREF2 | RT5682_PWR_MB,
+ 			RT5682_PWR_VREF2 | RT5682_PWR_MB);
+@@ -968,6 +970,8 @@ int rt5682_headset_detect(struct snd_soc
+ 		snd_soc_component_update_bits(component, RT5682_MICBIAS_2,
+ 			RT5682_PWR_CLK25M_MASK | RT5682_PWR_CLK1M_MASK,
+ 			RT5682_PWR_CLK25M_PU | RT5682_PWR_CLK1M_PU);
++
++		snd_soc_dapm_mutex_unlock(dapm);
+ 	} else {
+ 		rt5682_enable_push_button_irq(component, false);
+ 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_1,
 
 
