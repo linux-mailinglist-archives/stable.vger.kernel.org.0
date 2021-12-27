@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D8C47FEC2
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:32:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7B547FFA4
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237819AbhL0Pcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:32:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35456 "EHLO
+        id S238890AbhL0Pj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:39:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237995AbhL0PcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:32:25 -0500
+        with ESMTP id S238918AbhL0Phx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:37:53 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A16DC06173E;
-        Mon, 27 Dec 2021 07:32:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1686EC061759;
+        Mon, 27 Dec 2021 07:37:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 61919CE10C4;
-        Mon, 27 Dec 2021 15:32:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F77BC36AE7;
-        Mon, 27 Dec 2021 15:32:20 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8522FCE10AF;
+        Mon, 27 Dec 2021 15:37:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78374C36AEA;
+        Mon, 27 Dec 2021 15:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619141;
-        bh=AeXf9CUPHaX5o4aodq+le/lqmNSOCCjahm+AXGnTDE8=;
+        s=korg; t=1640619438;
+        bh=3bELCSOYN5JdcH6fbxiuyoFk2x1jGY3BEgxliGvI5Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+7174rByYadQUH48/Hy6B5MBmkdnF+5TbhusiTSDLRzOmjmVc0aqDeMEHHdUfZvZ
-         s+xAo9DK1GKqGGxfE866cFzTsBb0RSJfmV7Hhq+wrMMZSH0CX/MnbhEc6pj6JmXd4c
-         iZORwUsLQAoWehx0s4Tr0E9SHEdE0N2ces/o4p/o=
+        b=NA1lF5rwihTOQ/roajpFNfMAL7+1lFLSiB2JMYw8RLO2yLv/aUUxgz/vaMvGzJMRh
+         CE6KhCPMhqC+189Gnkabg1kW94o0MykhdBeXxEfEflt6t3G9ifoeZkXR6OjSygVlYR
+         6ry7JdPEN33DM8ZgbFkoXb+nGE+Nl72BwHFhGnDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Greg Jesionowski <jesionowskigreg@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 01/38] net: usb: lan78xx: add Allied Telesis AT29M2-AF
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 23/76] fjes: Check for error irq
 Date:   Mon, 27 Dec 2021 16:30:38 +0100
-Message-Id: <20211227151319.427867164@linuxfoundation.org>
+Message-Id: <20211227151325.491786053@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
-References: <20211227151319.379265346@linuxfoundation.org>
+In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
+References: <20211227151324.694661623@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,42 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Jesionowski <jesionowskigreg@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit ef8a0f6eab1ca5d1a75c242c5c7b9d386735fa0a upstream.
+[ Upstream commit db6d6afe382de5a65d6ccf51253ab48b8e8336c3 ]
 
-This adds the vendor and product IDs for the AT29M2-AF which is a
-lan7801-based device.
+I find that platform_get_irq() will not always succeed.
+It will return error irq in case of the failure.
+Therefore, it might be better to check it if order to avoid the use of
+error irq.
 
-Signed-off-by: Greg Jesionowski <jesionowskigreg@gmail.com>
-Link: https://lore.kernel.org/r/20211214221027.305784-1-jesionowskigreg@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 658d439b2292 ("fjes: Introduce FUJITSU Extended Socket Network Device driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/fjes/fjes_main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -75,6 +75,8 @@
- #define LAN7801_USB_PRODUCT_ID		(0x7801)
- #define LAN78XX_EEPROM_MAGIC		(0x78A5)
- #define LAN78XX_OTP_MAGIC		(0x78F3)
-+#define AT29M2AF_USB_VENDOR_ID		(0x07C9)
-+#define AT29M2AF_USB_PRODUCT_ID	(0x0012)
- 
- #define	MII_READ			1
- #define	MII_WRITE			0
-@@ -4170,6 +4172,10 @@ static const struct usb_device_id produc
- 	/* LAN7801 USB Gigabit Ethernet Device */
- 	USB_DEVICE(LAN78XX_USB_VENDOR_ID, LAN7801_USB_PRODUCT_ID),
- 	},
-+	{
-+	/* ATM2-AF USB Gigabit Ethernet Device */
-+	USB_DEVICE(AT29M2AF_USB_VENDOR_ID, AT29M2AF_USB_PRODUCT_ID),
-+	},
- 	{},
- };
- MODULE_DEVICE_TABLE(usb, products);
+diff --git a/drivers/net/fjes/fjes_main.c b/drivers/net/fjes/fjes_main.c
+index e449d94661225..2a569eea4ee8f 100644
+--- a/drivers/net/fjes/fjes_main.c
++++ b/drivers/net/fjes/fjes_main.c
+@@ -1269,6 +1269,11 @@ static int fjes_probe(struct platform_device *plat_dev)
+ 	hw->hw_res.start = res->start;
+ 	hw->hw_res.size = resource_size(res);
+ 	hw->hw_res.irq = platform_get_irq(plat_dev, 0);
++	if (hw->hw_res.irq < 0) {
++		err = hw->hw_res.irq;
++		goto err_free_control_wq;
++	}
++
+ 	err = fjes_hw_init(&adapter->hw);
+ 	if (err)
+ 		goto err_free_control_wq;
+-- 
+2.34.1
+
 
 
