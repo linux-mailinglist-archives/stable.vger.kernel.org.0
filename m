@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A6247FF0A
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:35:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C34E47FFD7
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237498AbhL0PfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:35:07 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:39404 "EHLO
+        id S239335AbhL0PlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:41:22 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:42026 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238238AbhL0PeN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:34:13 -0500
+        with ESMTP id S239463AbhL0Pjv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:39:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 62B7DCE10AF;
-        Mon, 27 Dec 2021 15:34:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF58C36AE7;
-        Mon, 27 Dec 2021 15:34:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 45D4BCE10B6;
+        Mon, 27 Dec 2021 15:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108DCC36AEA;
+        Mon, 27 Dec 2021 15:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619249;
-        bh=vSi4a0PeyAs2P+eFhzGP25R9YR6Fs0KLSDvyanQxgKc=;
+        s=korg; t=1640619588;
+        bh=V2qw+lTL3q3d7YefE0rr8zmZwROjgfEPR1SGAe3lDMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTOBGPanlKCYZmQ1IIzB2U6rEJ+AyjXTPWrbAkeVEA0+Ij1YMzVarbkNbg6hIUGbX
-         ezzvuJjn7DQlt+PevP35PiVFRLrTabiSCR0/zDA8WYO+2NaBh9bKBrqjvnK0TrW1D7
-         Fuya0ZgYiOdQpB1Cm1ncLr4ZZ28LS9nhW6aPVN8w=
+        b=0EEyX3hartwaKVH+ty1S7JaateLG80XGMT9lLczQd6Ie2y5BoQhIbiS41E0YwX6uf
+         /O/VyFZbahczDVuhYnsffUgrg/xjKz/rZ9IJaoL/p4z+Hmf7z1s4Y5cVZ1Zdxern6r
+         U3/p5wvskUkZIf2OjKL1krJ11sb0N3Ib/J2kqs8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 22/38] ALSA: drivers: opl3: Fix incorrect use of vp->state
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 44/76] parisc: Correct completer in lws start
 Date:   Mon, 27 Dec 2021 16:30:59 +0100
-Message-Id: <20211227151320.113475760@linuxfoundation.org>
+Message-Id: <20211227151326.227776264@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
-References: <20211227151319.379265346@linuxfoundation.org>
+In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
+References: <20211227151324.694661623@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.i.king@gmail.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-commit 2dee54b289fbc810669a1b2b8a0887fa1c9a14d7 upstream.
+commit 8f66fce0f46560b9e910787ff7ad0974441c4f9c upstream.
 
-Static analysis with scan-build has found an assignment to vp2 that is
-never used. It seems that the check on vp->state > 0 should be actually
-on vp2->state instead. Fix this.
+The completer in the "or,ev %r1,%r30,%r30" instruction is reversed, so we are
+not clipping the LWS number when we are called from a 32-bit process (W=0).
+We need to nulify the following depdi instruction when the least-significant
+bit of %r30 is 1.
 
-This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
-commit 91e39521bbf6 ("[PATCH] ALSA patch for 2.5.4")
+If the %r20 register is not clipped, a user process could perform a LWS call
+that would branch to an undefined location in the kernel and potentially crash
+the machine.
 
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211212172025.470367-1-colin.i.king@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org # 4.19+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/drivers/opl3/opl3_midi.c |    2 +-
+ arch/parisc/kernel/syscall.S |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/drivers/opl3/opl3_midi.c
-+++ b/sound/drivers/opl3/opl3_midi.c
-@@ -412,7 +412,7 @@ void snd_opl3_note_on(void *p, int note,
- 	}
- 	if (instr_4op) {
- 		vp2 = &opl3->voices[voice + 3];
--		if (vp->state > 0) {
-+		if (vp2->state > 0) {
- 			opl3_reg = reg_side | (OPL3_REG_KEYON_BLOCK +
- 					       voice_offset + 3);
- 			reg_val = vp->keyon_reg & ~OPL3_KEYON_BIT;
+--- a/arch/parisc/kernel/syscall.S
++++ b/arch/parisc/kernel/syscall.S
+@@ -478,7 +478,7 @@ lws_start:
+ 	extrd,u	%r1,PSW_W_BIT,1,%r1
+ 	/* sp must be aligned on 4, so deposit the W bit setting into
+ 	 * the bottom of sp temporarily */
+-	or,ev	%r1,%r30,%r30
++	or,od	%r1,%r30,%r30
+ 
+ 	/* Clip LWS number to a 32-bit value for 32-bit processes */
+ 	depdi	0, 31, 32, %r20
 
 
