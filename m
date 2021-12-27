@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2653647FF1D
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:35:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5FAF47FEEB
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:34:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238164AbhL0Pf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:35:29 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:39890 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238357AbhL0PfS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:35:18 -0500
+        id S237470AbhL0Pdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:33:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35758 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237796AbhL0PdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:33:25 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B50C06179B;
+        Mon, 27 Dec 2021 07:33:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id ED0BDCE10D2;
-        Mon, 27 Dec 2021 15:35:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D74BDC36AEC;
-        Mon, 27 Dec 2021 15:35:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 72A9FCE10CC;
+        Mon, 27 Dec 2021 15:33:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F00C36AEA;
+        Mon, 27 Dec 2021 15:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619315;
-        bh=V2qw+lTL3q3d7YefE0rr8zmZwROjgfEPR1SGAe3lDMc=;
+        s=korg; t=1640619201;
+        bh=kuW4Gh6HoekXWP2yZW99KB05AYXbMmzd89GbpqaqzFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rpe4H0mngO5URoFLBq5qNffR+6JZ3xkjHwkjKOIjX9pLPQbUx5sMLq0RVH4bkVXLr
-         qID1npdjWekPHOEPpxl2wTUMC5bzf4NYxGQyO9/RDd+S/fT8eYyXi2yH/D2BEd9unH
-         fVVZHVvmUhjHLA1356hlPc/snwA61j8VPGG9SAA0=
+        b=cjDHUVH+e3S3gta79O3fZfKDkbfvBryHTWyLQIKRxk3tl1Hz/3DZwiG873e/wvwCB
+         61Z3N86QoiqWM+8Yp6c6Yj/9voTUXqm6F4DxbOgQBxE7MEp7bUUzpve+RludgdnFXP
+         X+MAx6ZwBvdvylbWLy2UaLbatP6uI2KvfW+teyQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 29/47] parisc: Correct completer in lws start
+        stable@vger.kernel.org, Christoph Fritz <chf.fritz@googlemail.com>,
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.19 28/38] pinctrl: stm32: consider the GPIO offset to expose all the GPIO lines
 Date:   Mon, 27 Dec 2021 16:31:05 +0100
-Message-Id: <20211227151321.798676370@linuxfoundation.org>
+Message-Id: <20211227151320.316813625@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-References: <20211227151320.801714429@linuxfoundation.org>
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
+References: <20211227151319.379265346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Fabien Dessenne <fabien.dessenne@foss.st.com>
 
-commit 8f66fce0f46560b9e910787ff7ad0974441c4f9c upstream.
+commit b67210cc217f9ca1c576909454d846970c13dfd4 upstream.
 
-The completer in the "or,ev %r1,%r30,%r30" instruction is reversed, so we are
-not clipping the LWS number when we are called from a 32-bit process (W=0).
-We need to nulify the following depdi instruction when the least-significant
-bit of %r30 is 1.
+Consider the GPIO controller offset (from "gpio-ranges") to compute the
+maximum GPIO line number.
+This fixes an issue where gpio-ranges uses a non-null offset.
+  e.g.: gpio-ranges = <&pinctrl 6 86 10>
+        In that case the last valid GPIO line is not 9 but 15 (6 + 10 - 1)
 
-If the %r20 register is not clipped, a user process could perform a LWS call
-that would branch to an undefined location in the kernel and potentially crash
-the machine.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org # 4.19+
-Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
+Fixes: 67e2996f72c7 ("pinctrl: stm32: fix the reported number of GPIO lines per bank")
+Reported-by: Christoph Fritz <chf.fritz@googlemail.com>
+Signed-off-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20211215095808.621716-1-fabien.dessenne@foss.st.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/syscall.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/stm32/pinctrl-stm32.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/parisc/kernel/syscall.S
-+++ b/arch/parisc/kernel/syscall.S
-@@ -478,7 +478,7 @@ lws_start:
- 	extrd,u	%r1,PSW_W_BIT,1,%r1
- 	/* sp must be aligned on 4, so deposit the W bit setting into
- 	 * the bottom of sp temporarily */
--	or,ev	%r1,%r30,%r30
-+	or,od	%r1,%r30,%r30
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -1011,10 +1011,10 @@ static int stm32_gpiolib_register_bank(s
+ 		bank_nr = args.args[1] / STM32_GPIO_PINS_PER_BANK;
+ 		bank->gpio_chip.base = args.args[1];
  
- 	/* Clip LWS number to a 32-bit value for 32-bit processes */
- 	depdi	0, 31, 32, %r20
+-		npins = args.args[2];
+-		while (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3,
+-							 ++i, &args))
+-			npins += args.args[2];
++		/* get the last defined gpio line (offset + nb of pins) */
++		npins = args.args[0] + args.args[2];
++		while (!of_parse_phandle_with_fixed_args(np, "gpio-ranges", 3, ++i, &args))
++			npins = max(npins, (int)(args.args[0] + args.args[2]));
+ 	} else {
+ 		bank_nr = pctl->nbanks;
+ 		bank->gpio_chip.base = bank_nr * STM32_GPIO_PINS_PER_BANK;
 
 
