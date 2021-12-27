@@ -2,170 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5943B47FCB4
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE76D47FCB7
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 13:46:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236725AbhL0MoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 07:44:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34466 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233722AbhL0MoX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:44:23 -0500
+        id S236724AbhL0MqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 07:46:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40078 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233722AbhL0MqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 07:46:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A80DB8102B
-        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 12:44:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B766CC36AE7;
-        Mon, 27 Dec 2021 12:44:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75A5160FE4
+        for <stable@vger.kernel.org>; Mon, 27 Dec 2021 12:46:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 881E5C36AEA;
+        Mon, 27 Dec 2021 12:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640609061;
-        bh=k8DGIVv36vNZoc4LiPoq28WD7zDiDQif6cduhQ/GrCg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=DesieKsaxD9VXY1gClYM78jegiBuGQUSSDq2qXY9R8Vn+qzDkfWIZvV4TQQu7O8b7
-         3fsvsC5kGIu6QtN2q0TYAUZT4aiV8M5LAhCojNAPl3DBaCCUmRwcw4KxpJ9hNaudP2
-         ybSPsmkAvIhVvTIzt1VWzO6ndOdiuDTOC2Z/Ba8Q=
-Subject: FAILED: patch "[PATCH] mm: mempolicy: fix THP allocations escaping mempolicy" failed to apply to 5.10-stable tree
-To:     arbn@yandex-team.com, aarcange@redhat.com,
-        akpm@linux-foundation.org, mgorman@techsingularity.net,
-        mhocko@suse.com, rientjes@google.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 Dec 2021 13:44:18 +0100
-Message-ID: <164060905882236@kroah.com>
+        s=korg; t=1640609160;
+        bh=AbuUPdSkik+xp/fNHo0nTHVxIuXHk5reig1PGYypCNs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2XWLkZkl5ypI0Bqvmy56k+EvXbzQUW7rsLaSK1xO18og2ZLP6YJGntLLHhAhOG+s2
+         2PStinkC7sbA6eCSsemWrLPVTWfctNcx9AJDN3yZSnEBsoo9DtsM0zc9PLlxvyZn4f
+         MAt58mqlES6Oua3jj38jAjAJznwynwVNXzj0AW4M=
+Date:   Mon, 27 Dec 2021 13:45:58 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Christian Brauner <brauner@kernel.org>,
+        Jeff Layton <jlayton@kernel.org>, idryomov@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v5.10] ceph: fix up non-directory creation in SGID
+ directories
+Message-ID: <Ycm1hvHTIvk23dHg@kroah.com>
+References: <https://lore.kernel.org/stable/YcBgWdVOT6GtICE6@kroah.com>
+ <20211223095733.587981-1-brauner@kernel.org>
+ <YcRNV5z5bkSNu2kr@kroah.com>
+ <20211223103129.3zc7iswcmaaswmp5@wittgenstein>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211223103129.3zc7iswcmaaswmp5@wittgenstein>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Dec 23, 2021 at 11:31:29AM +0100, Christian Brauner wrote:
+> On Thu, Dec 23, 2021 at 11:20:07AM +0100, Greg KH wrote:
+> > On Thu, Dec 23, 2021 at 10:57:33AM +0100, Christian Brauner wrote:
+> > > From: Christian Brauner <christian.brauner@ubuntu.com>
+> > > 
+> > > Ceph always inherits the SGID bit if it is set on the parent inode,
+> > > while the generic inode_init_owner does not do this in a few cases where
+> > > it can create a possible security problem (cf. [1]).
+> > > 
+> > > Update ceph to strip the SGID bit just as inode_init_owner would.
+> > > 
+> > > This bug was detected by the mapped mount testsuite in [3]. The
+> > > testsuite tests all core VFS functionality and semantics with and
+> > > without mapped mounts. That is to say it functions as a generic VFS
+> > > testsuite in addition to a mapped mount testsuite. While working on
+> > > mapped mount support for ceph, SIGD inheritance was the only failing
+> > > test for ceph after the port.
+> > > 
+> > > The same bug was detected by the mapped mount testsuite in XFS in
+> > > January 2021 (cf. [2]).
+> > > 
+> > > [1]: commit 0fa3ecd87848 ("Fix up non-directory creation in SGID directories")
+> > > [2]: commit 01ea173e103e ("xfs: fix up non-directory creation in SGID directories")
+> > > [3]: https://git.kernel.org/fs/xfs/xfstests-dev.git
+> > > 
+> > > Cc: stable@vger.kernel.org (adapted to v5.10)
+> > > Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> > > Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> > > Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+> > > ---
+> > >  fs/ceph/file.c | 18 +++++++++++++++---
+> > >  1 file changed, 15 insertions(+), 3 deletions(-)
+> > 
+> > What is the git commit id in Linus's tree?
+> 
+> commit fd84bfdddd169c219c3a637889a8b87f70a072c2
+> Author: Christian Brauner <christian.brauner@ubuntu.com>
+> Date:   Mon Nov 29 12:16:39 2021 +0100
+> 
+>     ceph: fix up non-directory creation in SGID directories
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Great, now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 338635340669d5b317c7e8dcf4fff4a0f3651d87 Mon Sep 17 00:00:00 2001
-From: Andrey Ryabinin <arbn@yandex-team.com>
-Date: Fri, 24 Dec 2021 21:12:35 -0800
-Subject: [PATCH] mm: mempolicy: fix THP allocations escaping mempolicy
- restrictions
-
-alloc_pages_vma() may try to allocate THP page on the local NUMA node
-first:
-
-	page = __alloc_pages_node(hpage_node,
-		gfp | __GFP_THISNODE | __GFP_NORETRY, order);
-
-And if the allocation fails it retries allowing remote memory:
-
-	if (!page && (gfp & __GFP_DIRECT_RECLAIM))
-    		page = __alloc_pages_node(hpage_node,
-					gfp, order);
-
-However, this retry allocation completely ignores memory policy nodemask
-allowing allocation to escape restrictions.
-
-The first appearance of this bug seems to be the commit ac5b2c18911f
-("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings").
-
-The bug disappeared later in the commit 89c83fb539f9 ("mm, thp:
-consolidate THP gfp handling into alloc_hugepage_direct_gfpmask") and
-reappeared again in slightly different form in the commit 76e654cc91bb
-("mm, page_alloc: allow hugepage fallback to remote nodes when
-madvised")
-
-Fix this by passing correct nodemask to the __alloc_pages() call.
-
-The demonstration/reproducer of the problem:
-
-    $ mount -oremount,size=4G,huge=always /dev/shm/
-    $ echo always > /sys/kernel/mm/transparent_hugepage/defrag
-    $ cat mbind_thp.c
-    #include <unistd.h>
-    #include <sys/mman.h>
-    #include <sys/stat.h>
-    #include <fcntl.h>
-    #include <assert.h>
-    #include <stdlib.h>
-    #include <stdio.h>
-    #include <numaif.h>
-
-    #define SIZE 2ULL << 30
-    int main(int argc, char **argv)
-    {
-        int fd;
-        unsigned long long i;
-        char *addr;
-        pid_t pid;
-        char buf[100];
-        unsigned long nodemask = 1;
-
-        fd = open("/dev/shm/test", O_RDWR|O_CREAT);
-        assert(fd > 0);
-        assert(ftruncate(fd, SIZE) == 0);
-
-        addr = mmap(NULL, SIZE, PROT_READ|PROT_WRITE,
-                           MAP_SHARED, fd, 0);
-
-        assert(mbind(addr, SIZE, MPOL_BIND, &nodemask, 2, MPOL_MF_STRICT|MPOL_MF_MOVE)==0);
-        for (i = 0; i < SIZE; i+=4096) {
-          addr[i] = 1;
-        }
-        pid = getpid();
-        snprintf(buf, sizeof(buf), "grep shm /proc/%d/numa_maps", pid);
-        system(buf);
-        sleep(10000);
-
-        return 0;
-    }
-    $ gcc mbind_thp.c -o mbind_thp -lnuma
-    $ numactl -H
-    available: 2 nodes (0-1)
-    node 0 cpus: 0 2
-    node 0 size: 1918 MB
-    node 0 free: 1595 MB
-    node 1 cpus: 1 3
-    node 1 size: 2014 MB
-    node 1 free: 1731 MB
-    node distances:
-    node   0   1
-      0:  10  20
-      1:  20  10
-    $ rm -f /dev/shm/test; taskset -c 0 ./mbind_thp
-    7fd970a00000 bind:0 file=/dev/shm/test dirty=524288 active=0 N0=396800 N1=127488 kernelpagesize_kB=4
-
-Link: https://lkml.kernel.org/r/20211208165343.22349-1-arbn@yandex-team.com
-Fixes: ac5b2c18911f ("mm: thp: relax __GFP_THISNODE for MADV_HUGEPAGE mappings")
-Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Acked-by: David Rientjes <rientjes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 10e9c87260ed..f6248affaf38 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -2140,8 +2140,7 @@ struct page *alloc_pages_vma(gfp_t gfp, int order, struct vm_area_struct *vma,
- 			 * memory with both reclaim and compact as well.
- 			 */
- 			if (!page && (gfp & __GFP_DIRECT_RECLAIM))
--				page = __alloc_pages_node(hpage_node,
--								gfp, order);
-+				page = __alloc_pages(gfp, order, hpage_node, nmask);
- 
- 			goto out;
- 		}
-
