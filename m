@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4599A480002
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:42:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77FC8480087
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:46:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239525AbhL0Pmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:42:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36508 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238522AbhL0Pkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:40:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 289AAC06175A;
-        Mon, 27 Dec 2021 07:39:27 -0800 (PST)
+        id S239900AbhL0Pqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:46:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42282 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240259AbhL0Po5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:44:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE598610A2;
-        Mon, 27 Dec 2021 15:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C2CC36AEA;
-        Mon, 27 Dec 2021 15:39:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C51B6610E8;
+        Mon, 27 Dec 2021 15:44:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF2A1C36AEA;
+        Mon, 27 Dec 2021 15:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619566;
-        bh=NevZnyb3Kyik+cQknpTUHX++8xoetuHZuVFFkb38/XU=;
+        s=korg; t=1640619896;
+        bh=dofrYzGEvFFYa7kJazekYfmxwLdc3UXGdMyjc86R1iU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoWafdSYBMNWbWRzGxQqsJWvtsQGW3HfxtlzbfKjpdLQ5rO3C+2hxTwroX3i+N5mF
-         UByFOrsPiS7jGV3SFR+GR0r5BqqcADtTzouS/ukry8QG4q3ildrwpKUjgUp+ufg+uh
-         01DoPfH9iFMVB+t84xRIuYkQvm2P638aHM77Pm8U=
+        b=FhrEcQDv5U/kac5GC8D56FQ/DeNDkl+N/noehHANuFmWZ+wiiDJVZK1rhpKniihC4
+         vjl8b22fRFj2i+q2tJBJYoeUSTBlImVLraw3QDh0aFVN0Pus8Zx8CJtgSO1zs5SVbe
+         lg/GAZ3V0WwjhWbvGdZzguTosz8yJIQQ4iKzI9jI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 67/76] Input: goodix - add id->model mapping for the "9111" model
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.15 107/128] f2fs: fix to do sanity check on last xattr entry in __f2fs_setxattr()
 Date:   Mon, 27 Dec 2021 16:31:22 +0100
-Message-Id: <20211227151327.006241080@linuxfoundation.org>
+Message-Id: <20211227151335.094070596@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-References: <20211227151324.694661623@linuxfoundation.org>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,31 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Chao Yu <chao@kernel.org>
 
-commit 81e818869be522bc8fa6f7df1b92d7e76537926c upstream.
+commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
 
-Add d->model mapping for the "9111" model, this fixes uses using
-a wrong config_len of 240 bytes while the "9111" model uses
-only 186 bytes of config.
+As Wenqing Liu reported in bugzilla:
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20211206164747.197309-2-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=215235
+
+- Overview
+page fault in f2fs_setxattr() when mount and operate on corrupted image
+
+- Reproduce
+tested on kernel 5.16-rc3, 5.15.X under root
+
+1. unzip tmp7.zip
+2. ./single.sh f2fs 7
+
+Sometimes need to run the script several times
+
+- Kernel dump
+loop0: detected capacity change from 0 to 131072
+F2FS-fs (loop0): Found nat_bits in checkpoint
+F2FS-fs (loop0): Mounted with checkpoint version = 7548c2ee
+BUG: unable to handle page fault for address: ffffe47bc7123f48
+RIP: 0010:kfree+0x66/0x320
+Call Trace:
+ __f2fs_setxattr+0x2aa/0xc00 [f2fs]
+ f2fs_setxattr+0xfa/0x480 [f2fs]
+ __f2fs_set_acl+0x19b/0x330 [f2fs]
+ __vfs_removexattr+0x52/0x70
+ __vfs_removexattr_locked+0xb1/0x140
+ vfs_removexattr+0x56/0x100
+ removexattr+0x57/0x80
+ path_removexattr+0xa3/0xc0
+ __x64_sys_removexattr+0x17/0x20
+ do_syscall_64+0x37/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is in __f2fs_setxattr(), we missed to do sanity check on
+last xattr entry, result in out-of-bound memory access during updating
+inconsistent xattr data of target inode.
+
+After the fix, it can detect such xattr inconsistency as below:
+
+F2FS-fs (loop11): inode (7) has invalid last xattr entry, entry_size: 60676
+F2FS-fs (loop11): inode (8) has corrupted xattr
+F2FS-fs (loop11): inode (8) has corrupted xattr
+F2FS-fs (loop11): inode (8) has invalid last xattr entry, entry_size: 47736
+
+Cc: stable@vger.kernel.org
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/goodix.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/xattr.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -162,6 +162,7 @@ static const struct goodix_chip_id goodi
- 	{ .id = "911", .data = &gt911_chip_data },
- 	{ .id = "9271", .data = &gt911_chip_data },
- 	{ .id = "9110", .data = &gt911_chip_data },
-+	{ .id = "9111", .data = &gt911_chip_data },
- 	{ .id = "927", .data = &gt911_chip_data },
- 	{ .id = "928", .data = &gt911_chip_data },
+--- a/fs/f2fs/xattr.c
++++ b/fs/f2fs/xattr.c
+@@ -684,8 +684,17 @@ static int __f2fs_setxattr(struct inode
+ 	}
+ 
+ 	last = here;
+-	while (!IS_XATTR_LAST_ENTRY(last))
++	while (!IS_XATTR_LAST_ENTRY(last)) {
++		if ((void *)(last) + sizeof(__u32) > last_base_addr ||
++			(void *)XATTR_NEXT_ENTRY(last) > last_base_addr) {
++			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has invalid last xattr entry, entry_size: %zu",
++					inode->i_ino, ENTRY_SIZE(last));
++			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
++			error = -EFSCORRUPTED;
++			goto exit;
++		}
+ 		last = XATTR_NEXT_ENTRY(last);
++	}
+ 
+ 	newsize = XATTR_ALIGN(sizeof(struct f2fs_xattr_entry) + len + size);
  
 
 
