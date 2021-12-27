@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67755480106
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:52:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E1047FF32
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:36:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240651AbhL0Pwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:52:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39348 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240772AbhL0Ptl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:49:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C36C5C061D7E;
-        Mon, 27 Dec 2021 07:44:25 -0800 (PST)
+        id S238321AbhL0PgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:36:05 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:40082 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238372AbhL0Pfl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:35:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62A9561118;
-        Mon, 27 Dec 2021 15:44:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47422C36AF8;
-        Mon, 27 Dec 2021 15:44:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E24E9CE10CB;
+        Mon, 27 Dec 2021 15:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1297C36AE7;
+        Mon, 27 Dec 2021 15:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619864;
-        bh=FoNcfYbQFsmv2PNWSMqv5DERIrX1+BCAKI/nMr30vzw=;
+        s=korg; t=1640619338;
+        bh=aApO13Xik7KTbQ04rZL9wk3SljIcafJyKPeR/8kSVhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUkq2EKZo6QN7wqNOBsJ9xYWdWsAcO4MlF2l0yQyssXT1xt/OFh2gB8ukprOAqf5C
-         xDt9yDIKSzR8/kOmtGFTJgSX2rgtZqoFM1t/IhCpLGGV4ZBM21Qe+XOsRnDi0b3KKl
-         P6g00J2r9i9YJeTL/F8ysf1eVmsqgJ6SYoTbr6eM=
+        b=PglczHWBH2u0uQLQx9weFUCMftR51jUv5V2giji4/1Vm11uAt11EqqqRuHR0gVa/a
+         jxBCLQhspXQpuUQmFuk8Q+EljJVsxLNldMHdX/uS6VTskw70DVEHosOTRcvEOwwz3R
+         cklZMDHuqJEXs4GzRKImusPHeFiI/RPNn4VBSMrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.15 097/128] ARM: 9169/1: entry: fix Thumb2 bug in iWMMXt exception handling
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.4 36/47] f2fs: fix to do sanity check on last xattr entry in __f2fs_setxattr()
 Date:   Mon, 27 Dec 2021 16:31:12 +0100
-Message-Id: <20211227151334.760987593@linuxfoundation.org>
+Message-Id: <20211227151322.035439127@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
+References: <20211227151320.801714429@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Chao Yu <chao@kernel.org>
 
-commit 8536a5ef886005bc443c2da9b842d69fd3d7647f upstream.
+commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
 
-The Thumb2 version of the FP exception handling entry code treats the
-register holding the CP number (R8) differently, resulting in the iWMMXT
-CP number check to be incorrect.
+As Wenqing Liu reported in bugzilla:
 
-Fix this by unifying the ARM and Thumb2 code paths, and switch the
-order of the additions of the TI_USED_CP offset and the shifted CP
-index.
+https://bugzilla.kernel.org/show_bug.cgi?id=215235
 
-Cc: <stable@vger.kernel.org>
-Fixes: b86040a59feb ("Thumb-2: Implementation of the unified start-up and exceptions code")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+- Overview
+page fault in f2fs_setxattr() when mount and operate on corrupted image
+
+- Reproduce
+tested on kernel 5.16-rc3, 5.15.X under root
+
+1. unzip tmp7.zip
+2. ./single.sh f2fs 7
+
+Sometimes need to run the script several times
+
+- Kernel dump
+loop0: detected capacity change from 0 to 131072
+F2FS-fs (loop0): Found nat_bits in checkpoint
+F2FS-fs (loop0): Mounted with checkpoint version = 7548c2ee
+BUG: unable to handle page fault for address: ffffe47bc7123f48
+RIP: 0010:kfree+0x66/0x320
+Call Trace:
+ __f2fs_setxattr+0x2aa/0xc00 [f2fs]
+ f2fs_setxattr+0xfa/0x480 [f2fs]
+ __f2fs_set_acl+0x19b/0x330 [f2fs]
+ __vfs_removexattr+0x52/0x70
+ __vfs_removexattr_locked+0xb1/0x140
+ vfs_removexattr+0x56/0x100
+ removexattr+0x57/0x80
+ path_removexattr+0xa3/0xc0
+ __x64_sys_removexattr+0x17/0x20
+ do_syscall_64+0x37/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is in __f2fs_setxattr(), we missed to do sanity check on
+last xattr entry, result in out-of-bound memory access during updating
+inconsistent xattr data of target inode.
+
+After the fix, it can detect such xattr inconsistency as below:
+
+F2FS-fs (loop11): inode (7) has invalid last xattr entry, entry_size: 60676
+F2FS-fs (loop11): inode (8) has corrupted xattr
+F2FS-fs (loop11): inode (8) has corrupted xattr
+F2FS-fs (loop11): inode (8) has invalid last xattr entry, entry_size: 47736
+
+Cc: stable@vger.kernel.org
+Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/entry-armv.S |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ fs/f2fs/xattr.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -597,11 +597,9 @@ call_fpe:
- 	tstne	r0, #0x04000000			@ bit 26 set on both ARM and Thumb-2
- 	reteq	lr
- 	and	r8, r0, #0x00000f00		@ mask out CP number
-- THUMB(	lsr	r8, r8, #8		)
- 	mov	r7, #1
--	add	r6, r10, #TI_USED_CP
-- ARM(	strb	r7, [r6, r8, lsr #8]	)	@ set appropriate used_cp[]
-- THUMB(	strb	r7, [r6, r8]		)	@ set appropriate used_cp[]
-+	add	r6, r10, r8, lsr #8		@ add used_cp[] array offset first
-+	strb	r7, [r6, #TI_USED_CP]		@ set appropriate used_cp[]
- #ifdef CONFIG_IWMMXT
- 	@ Test if we need to give access to iWMMXt coprocessors
- 	ldr	r5, [r10, #TI_FLAGS]
-@@ -610,7 +608,7 @@ call_fpe:
- 	bcs	iwmmxt_task_enable
- #endif
-  ARM(	add	pc, pc, r8, lsr #6	)
-- THUMB(	lsl	r8, r8, #2		)
-+ THUMB(	lsr	r8, r8, #6		)
-  THUMB(	add	pc, r8			)
- 	nop
+--- a/fs/f2fs/xattr.c
++++ b/fs/f2fs/xattr.c
+@@ -661,8 +661,17 @@ static int __f2fs_setxattr(struct inode
+ 	}
+ 
+ 	last = here;
+-	while (!IS_XATTR_LAST_ENTRY(last))
++	while (!IS_XATTR_LAST_ENTRY(last)) {
++		if ((void *)(last) + sizeof(__u32) > last_base_addr ||
++			(void *)XATTR_NEXT_ENTRY(last) > last_base_addr) {
++			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has invalid last xattr entry, entry_size: %zu",
++					inode->i_ino, ENTRY_SIZE(last));
++			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
++			error = -EFSCORRUPTED;
++			goto exit;
++		}
+ 		last = XATTR_NEXT_ENTRY(last);
++	}
+ 
+ 	newsize = XATTR_ALIGN(sizeof(struct f2fs_xattr_entry) + len + size);
  
 
 
