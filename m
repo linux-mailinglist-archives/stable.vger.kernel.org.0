@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92AD54800E3
-	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:51:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D2E247FFB9
+	for <lists+stable@lfdr.de>; Mon, 27 Dec 2021 16:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239854AbhL0PvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Dec 2021 10:51:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239875AbhL0PsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:48:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F83C0613A5;
-        Mon, 27 Dec 2021 07:43:40 -0800 (PST)
+        id S238582AbhL0Pk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Dec 2021 10:40:58 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38854 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239157AbhL0Piw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Dec 2021 10:38:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A86B8610D5;
-        Mon, 27 Dec 2021 15:43:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B5C0C36AEB;
-        Mon, 27 Dec 2021 15:43:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CAA06110F;
+        Mon, 27 Dec 2021 15:38:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7088DC36AEA;
+        Mon, 27 Dec 2021 15:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640619819;
-        bh=44V4qTvTyLeIAtv3pEmrIpppU+AAjFa49EPdxf1o8bU=;
+        s=korg; t=1640619532;
+        bh=tNInkdAZZkaXO3IhqaXhNQSRyo0RbBYlB7OgWOC5Cqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoLTZxzVKdlby9P6F7LMNoq8UeFiRUdmJlWq+sc6exTDJvCUZSO9ksWGMvJxWOrNG
-         /w/dsyv7m2U8eBiOJlKLyIHPqvEc8mYvHB9AI3uInJ8sgvmp7K9faHZlaD5jGLmCJO
-         8VK5YxYwI+nVjxYQC10Kgp7QzYDaBKAo7+2WIdR0=
+        b=Qw/iOO7PS8E37kHbJiZyWRqfDz9AFWkTJlfTh6HpA8i/4RAH7fAdyGfAdcd0W07UC
+         0Exn+CVsF2GIWg20gPhXdW8qKBXVyDBVqrcLLIEEX1erZHhGWRSzmg3KwYIiVbAC9A
+         +tBuFXlXsTVfYMJ0GEL9TBa4+L67MmZAAukDVSm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
-Subject: [PATCH 5.15 079/128] ipmi: fix initialization when workqueue allocation fails
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Geraldo Nascimento <geraldogabriel@gmail.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 39/76] ASoC: meson: aiu: Move AIU_I2S_MISC hold setting to aiu-fifo-i2s
 Date:   Mon, 27 Dec 2021 16:30:54 +0100
-Message-Id: <20211227151334.140959208@linuxfoundation.org>
+Message-Id: <20211227151326.064690030@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
+In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
+References: <20211227151324.694661623@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,59 +48,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-commit 75d70d76cb7b927cace2cb34265d68ebb3306b13 upstream.
+commit ee907afb0c39a41ee74b862882cfe12820c74b98 upstream.
 
-If the workqueue allocation fails, the driver is marked as not initialized,
-and timer and panic_notifier will be left registered.
+The out-of-tree vendor driver uses the following approach to set the
+AIU_I2S_MISC register:
+1) write AIU_MEM_I2S_START_PTR and AIU_MEM_I2S_RD_PTR
+2) configure AIU_I2S_MUTE_SWAP[15:0]
+3) write AIU_MEM_I2S_END_PTR
+4) set AIU_I2S_MISC[2] to 1 (documented as: "put I2S interface in hold
+   mode")
+5) set AIU_I2S_MISC[4] to 1 (depending on the driver revision it always
+   stays at 1 while for older drivers this bit is unset in step 4)
+6) set AIU_I2S_MISC[2] to 0
+7) write AIU_MEM_I2S_MASKS
+8) toggle AIU_MEM_I2S_CONTROL[0]
+9) toggle AIU_MEM_I2S_BUF_CNTL[0]
 
-Instead of removing those when workqueue allocation fails, do the workqueue
-initialization before doing it, and cleanup srcu_struct if it fails.
+Move setting the AIU_I2S_MISC[2] bit to aiu_fifo_i2s_hw_params() so it
+resembles the flow in the vendor kernel more closely. While here also
+configure AIU_I2S_MISC[4] (documented as: "force each audio data to
+left or right according to the bit attached with the audio data")
+similar to how the vendor driver does this. This fixes the infamous and
+long-standing "machine gun noise" issue (a buffer underrun issue).
 
-Fixes: 1d49eb91e86e ("ipmi: Move remove_work to dedicated workqueue")
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Cc: Corey Minyard <cminyard@mvista.com>
-Cc: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+Fixes: 6ae9ca9ce986bf ("ASoC: meson: aiu: add i2s and spdif support")
+Reported-by: Christian Hewitt <christianshewitt@gmail.com>
+Reported-by: Geraldo Nascimento <geraldogabriel@gmail.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Tested-by: Geraldo Nascimento <geraldogabriel@gmail.com>
+Acked-by: Jerome Brunet <jbrunet@baylibre.com>
 Cc: stable@vger.kernel.org
-Message-Id: <20211217154410.1228673-2-cascardo@canonical.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20211206210804.2512999-3-martin.blumenstingl@googlemail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ sound/soc/meson/aiu-encoder-i2s.c |   33 ---------------------------------
+ sound/soc/meson/aiu-fifo-i2s.c    |   19 +++++++++++++++++++
+ 2 files changed, 19 insertions(+), 33 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -5152,20 +5152,23 @@ static int ipmi_init_msghandler(void)
- 	if (rv)
- 		goto out;
+--- a/sound/soc/meson/aiu-encoder-i2s.c
++++ b/sound/soc/meson/aiu-encoder-i2s.c
+@@ -18,7 +18,6 @@
+ #define AIU_RST_SOFT_I2S_FAST		BIT(0)
  
--	timer_setup(&ipmi_timer, ipmi_timeout, 0);
--	mod_timer(&ipmi_timer, jiffies + IPMI_TIMEOUT_JIFFIES);
+ #define AIU_I2S_DAC_CFG_MSB_FIRST	BIT(2)
+-#define AIU_I2S_MISC_HOLD_EN		BIT(2)
+ #define AIU_CLK_CTRL_I2S_DIV_EN		BIT(0)
+ #define AIU_CLK_CTRL_I2S_DIV		GENMASK(3, 2)
+ #define AIU_CLK_CTRL_AOCLK_INVERT	BIT(6)
+@@ -36,37 +35,6 @@ static void aiu_encoder_i2s_divider_enab
+ 				      enable ? AIU_CLK_CTRL_I2S_DIV_EN : 0);
+ }
+ 
+-static void aiu_encoder_i2s_hold(struct snd_soc_component *component,
+-				 bool enable)
+-{
+-	snd_soc_component_update_bits(component, AIU_I2S_MISC,
+-				      AIU_I2S_MISC_HOLD_EN,
+-				      enable ? AIU_I2S_MISC_HOLD_EN : 0);
+-}
 -
--	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
+-static int aiu_encoder_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
+-				   struct snd_soc_dai *dai)
+-{
+-	struct snd_soc_component *component = dai->component;
 -
- 	remove_work_wq = create_singlethread_workqueue("ipmi-msghandler-remove-wq");
- 	if (!remove_work_wq) {
- 		pr_err("unable to create ipmi-msghandler-remove-wq workqueue");
- 		rv = -ENOMEM;
--		goto out;
-+		goto out_wq;
- 	}
+-	switch (cmd) {
+-	case SNDRV_PCM_TRIGGER_START:
+-	case SNDRV_PCM_TRIGGER_RESUME:
+-	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+-		aiu_encoder_i2s_hold(component, false);
+-		return 0;
+-
+-	case SNDRV_PCM_TRIGGER_STOP:
+-	case SNDRV_PCM_TRIGGER_SUSPEND:
+-	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
+-		aiu_encoder_i2s_hold(component, true);
+-		return 0;
+-
+-	default:
+-		return -EINVAL;
+-	}
+-}
+-
+ static int aiu_encoder_i2s_setup_desc(struct snd_soc_component *component,
+ 				      struct snd_pcm_hw_params *params)
+ {
+@@ -353,7 +321,6 @@ static void aiu_encoder_i2s_shutdown(str
+ }
  
-+	timer_setup(&ipmi_timer, ipmi_timeout, 0);
-+	mod_timer(&ipmi_timer, jiffies + IPMI_TIMEOUT_JIFFIES);
-+
-+	atomic_notifier_chain_register(&panic_notifier_list, &panic_block);
-+
- 	initialized = true;
+ const struct snd_soc_dai_ops aiu_encoder_i2s_dai_ops = {
+-	.trigger	= aiu_encoder_i2s_trigger,
+ 	.hw_params	= aiu_encoder_i2s_hw_params,
+ 	.hw_free	= aiu_encoder_i2s_hw_free,
+ 	.set_fmt	= aiu_encoder_i2s_set_fmt,
+--- a/sound/soc/meson/aiu-fifo-i2s.c
++++ b/sound/soc/meson/aiu-fifo-i2s.c
+@@ -20,6 +20,8 @@
+ #define AIU_MEM_I2S_CONTROL_MODE_16BIT	BIT(6)
+ #define AIU_MEM_I2S_BUF_CNTL_INIT	BIT(0)
+ #define AIU_RST_SOFT_I2S_FAST		BIT(0)
++#define AIU_I2S_MISC_HOLD_EN		BIT(2)
++#define AIU_I2S_MISC_FORCE_LEFT_RIGHT	BIT(4)
  
-+out_wq:
-+	if (rv)
-+		cleanup_srcu_struct(&ipmi_interfaces_srcu);
- out:
- 	mutex_unlock(&ipmi_interfaces_mutex);
- 	return rv;
+ #define AIU_FIFO_I2S_BLOCK		256
+ 
+@@ -90,6 +92,10 @@ static int aiu_fifo_i2s_hw_params(struct
+ 	unsigned int val;
+ 	int ret;
+ 
++	snd_soc_component_update_bits(component, AIU_I2S_MISC,
++				      AIU_I2S_MISC_HOLD_EN,
++				      AIU_I2S_MISC_HOLD_EN);
++
+ 	ret = aiu_fifo_hw_params(substream, params, dai);
+ 	if (ret)
+ 		return ret;
+@@ -117,6 +123,19 @@ static int aiu_fifo_i2s_hw_params(struct
+ 	snd_soc_component_update_bits(component, AIU_MEM_I2S_MASKS,
+ 				      AIU_MEM_I2S_MASKS_IRQ_BLOCK, val);
+ 
++	/*
++	 * Most (all?) supported SoCs have this bit set by default. The vendor
++	 * driver however sets it manually (depending on the version either
++	 * while un-setting AIU_I2S_MISC_HOLD_EN or right before that). Follow
++	 * the same approach for consistency with the vendor driver.
++	 */
++	snd_soc_component_update_bits(component, AIU_I2S_MISC,
++				      AIU_I2S_MISC_FORCE_LEFT_RIGHT,
++				      AIU_I2S_MISC_FORCE_LEFT_RIGHT);
++
++	snd_soc_component_update_bits(component, AIU_I2S_MISC,
++				      AIU_I2S_MISC_HOLD_EN, 0);
++
+ 	return 0;
+ }
+ 
 
 
