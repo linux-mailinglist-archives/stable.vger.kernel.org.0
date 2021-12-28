@@ -2,95 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAEC480D63
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 22:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1A2480D9B
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 23:11:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237423AbhL1Vag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 16:30:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36660 "EHLO
+        id S231645AbhL1WLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 17:11:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237409AbhL1Vaf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 16:30:35 -0500
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76A2FC06173E
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 13:30:35 -0800 (PST)
-Received: by mail-io1-xd32.google.com with SMTP id i14so23117479ioj.12
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 13:30:35 -0800 (PST)
+        with ESMTP id S230144AbhL1WLH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 17:11:07 -0500
+Received: from mail-vk1-xa2f.google.com (mail-vk1-xa2f.google.com [IPv6:2607:f8b0:4864:20::a2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E698C061574
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:11:07 -0800 (PST)
+Received: by mail-vk1-xa2f.google.com with SMTP id 70so11026422vkx.7
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:11:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ZvOfSOH8VFifkcrmWap8PZDc6B1c4tbfrTrYb0VU5Ok=;
-        b=DHFOvCCL9iJwPLjPnbuIAY2nU85/k0njuLcPNcdEQlFF+NYdW0F8eNZ8uTosAsu+uC
-         ilmjEAs8vB113UKCmMtlVrYjzvjYPrE/u/SZHUbo86wW28Dk7o+X6Ds32mSLcRCgCJM2
-         PcyitPOLPQgKgvu1SzY2TvEXjf36DzDjDa4F8=
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=eUMV0HLhg30stwX25SNqA4IGRD9+grjUzIs88+Nk1+M=;
+        b=GOF7NoXUc9l8RPaprx0aqdu1ycAHfm4OQl/aPB5SNtUrv2TWvjxl1qrSpAjO/iyXEM
+         Lzm0K1o1HUD9rSDI3hFPK1XXIBR1AMTViVrUl2Ms9ucJv4brnsCAleOcz3nHQvdKZwKg
+         WcvgS1MJ9fvM97REhYiECICNMLycroBCjJu7unK8wIu3rrDR2agnh7BjItd2MkgYRDHg
+         415xlzvvI9UEBu5xSBK2sSuLr6fa5pIrXlGHko8JhYW2gRyC4Jvty8HaIvOV0UAOqOFO
+         ZfXpUNJr9ZUn4OOZAaBO/OijGwFW0jMVUVdwq6zrA/L/ywk660oV7qTkwPpOs7ce2hym
+         edXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ZvOfSOH8VFifkcrmWap8PZDc6B1c4tbfrTrYb0VU5Ok=;
-        b=PUB5jNt/3JEUo9UchU58yxDn8gpAKio6nwNwbEqytn5Lypd4BvElDyh7vzMQWrKj2h
-         6RkZl7XtpwLjLRcX4Sl5eqNjxjX2qGo5deMFSB/BbbZogs5j4MkqqJXYfo0Q1GX6W++o
-         djKyMcznTGPKGaS1tkRzLGBSUI3SYIqk8fJELq/Lf031IhyMyONM1/mJLdfmvWHIJQwN
-         39X4ms2lr5U58w5thFviCtwbx5dmRCWjvyHB/Tl0WGkQjA+ukhjj3hEvG4dmA2EsY3kP
-         /OGN0TnVgLBd8qRYfBUHrtv7JlXoYdD+L/4u64yJeYug7ODfaRixArx/Hk/TxgsZUv00
-         XoRw==
-X-Gm-Message-State: AOAM5332ULKEBsvl6h1oJw3WXVGSnVWhu9fu1EIIKXt5uIC5QSIDnXVW
-        y9ZrRVLwJKy5vAAiwoW0MUVX5Q==
-X-Google-Smtp-Source: ABdhPJx+8/QcoXRzcFB8YMbAJr2xfhU/QiDG7+fjBSVkFCGiDCrb3D3L7dImRhvR1yxrlp/QPN30OQ==
-X-Received: by 2002:a05:6638:d49:: with SMTP id d9mr10414038jak.79.1640727034804;
-        Tue, 28 Dec 2021 13:30:34 -0800 (PST)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id n5sm11564536ilm.87.2021.12.28.13.30.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 28 Dec 2021 13:30:34 -0800 (PST)
-Subject: Re: [PATCH 4.4 00/17] 4.4.297-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20211227151315.962187770@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <9613459a-c98c-7f30-4e2a-ac55e24aac43@linuxfoundation.org>
-Date:   Tue, 28 Dec 2021 14:30:33 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eUMV0HLhg30stwX25SNqA4IGRD9+grjUzIs88+Nk1+M=;
+        b=Q82M0eLVN5ezaHWxAWrj39pIhgOgGABDTZjhRZvXb+9eSXZvWWogqEP+FuIgsFZE8b
+         TKpwi1+wCHERe8uzbPMPBi8MSP+Ku1dGwgu7F8HHQYDiHKc/k6bTXyzlKHEv7Q7+H7TG
+         WF0QYsERogTsvEyzH5VTRtE2o5muszWY1OqhqeOqSo+IM5WrTPosFCrKSx38lMDJnhjU
+         YmF1moAczfMFwKIkptApci1+JjY6GVZn3Cilo1tL8S8e/kyZeEW4BMWMQe3yiANBwzvs
+         CfyDk1yseqoh6OmjpLk72JvxXk8JlEvYLp7VsKSb1Z/htnk+KCTu3AJN+5rbfHbCMnwI
+         QgCA==
+X-Gm-Message-State: AOAM530cZxs2JBRRbLuyhxzSdvfcd4Wd8xpcGW4qgf9iLDYi9jr6u2h3
+        ZLeNYBqKqmQolDjrLXXRwQUH9GLrBSLY1nrZUTI=
+X-Google-Smtp-Source: ABdhPJyp/qXqIuUBrfToUhcYojznlPB8FJQFrZrGexvtH+m/cXz7X9KD1kF7syVncuFVD47Bv6yZvw9e9xRItJIIANw=
+X-Received: by 2002:a1f:218e:: with SMTP id h136mr7693316vkh.41.1640729465221;
+ Tue, 28 Dec 2021 14:11:05 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20211227151315.962187770@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <fdf8fe50-e3b0-2042-cc83-fb0a214d727a@tmb.nu>
+In-Reply-To: <fdf8fe50-e3b0-2042-cc83-fb0a214d727a@tmb.nu>
+From:   Kevin Anderson <andersonkw2@gmail.com>
+Date:   Tue, 28 Dec 2021 17:10:54 -0500
+Message-ID: <CAJsSGwVqgRAqjOAc7KsGn96vMPG40fYKA3ozhye_OqVt8Y6rQw@mail.gmail.com>
+Subject: Re: iwlwifi Backport Request
+To:     Thomas Backlund <tmb@tmb.nu>
+Cc:     gregkh@linuxfoundation.org,
+        Luciano Coelho <luciano.coelho@intel.com>,
+        johannes@sipsolutions.net, stable@vger.kernel.org,
+        ilan.peer@intel.com, johannes.berg@intel.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/27/21 8:26 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.297 release.
-> There are 17 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 29 Dec 2021 15:13:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.297-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Tue, Dec 28, 2021 at 11:37 AM Thomas Backlund <tmb@tmb.nu> wrote:
+>
+> Den 2021-12-28 kl. 02:59, skrev Kevin Anderson:
+> > Hello,
+> >
+> > I wanted to see if I could have two patches backported to 5.15 stable
+> > that concern Intel iwlwifi AX2XX stability.
+> >
+> > The patches are attached to the kernel bugzilla that can be found
+> > here: https://bugzilla.kernel.org/show_bug.cgi?id=214549. I've also
+> > attached them to this email.
+> >
+> > The patches fix an issue with the Intel AX210 that I have where it can
+> > cause a firmware reset when the device is under load causing
+> > performance to drop to around ~500Kb/s till the interface is
+> > restarted. This reset is easy to reproduce during normal use such as
+> > streaming videos and is problematic for devices such as laptops that
+> > primarily use wifi for connectivity.
+> >
+> > The mac80211 change is currently in the 5.16 RC and the scan timeout
+> > is in netdev-next and is supposed to be scheduled for 5.17 from what I
+> > can tell.
+> >  > I believe that the patches meet the requirements of the -stable tree
+> > as it makes the adapter for many users including myself difficult to
+> > use reliably.
+> >
+>
+> The mac80211 change was/is marked for stable@ and is already in 5.15.11
+>
+>
+> the scan timeout is only in a -next tree (as you already noted),
+> so it cant land in 5.15 stable until it is also in linus tree...
+>
+>
+> --
+> Thomas
+>
 
-Compiled and booted on my test system. No dmesg regressions.
+Hi Thomas,
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Thank you. I missed the fact that the mac80211 change was already
+tagged for stable. I will keep an eye for the other change to land in
+linus' tree and submit it for stable if it isn't submitted by the
+maintainer.
 
-thanks,
--- Shuah
+- Kevin
