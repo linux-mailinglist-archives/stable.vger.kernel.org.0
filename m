@@ -2,241 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00818480853
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 11:21:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C23480884
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 11:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233899AbhL1KVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 05:21:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58116 "EHLO
+        id S236239AbhL1KmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 05:42:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230099AbhL1KVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 05:21:25 -0500
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02AF7C06173E
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 02:21:24 -0800 (PST)
-Received: by mail-yb1-xb36.google.com with SMTP id p15so2218299ybk.10
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 02:21:24 -0800 (PST)
+        with ESMTP id S233308AbhL1KmD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 05:42:03 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE292C06173E
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 02:42:02 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id z3so13286417plg.8
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 02:42:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=nO8DvPRUSFx1m/HV/v44ZF8S9TbwvoVt7MBxOPc0dG4=;
-        b=BP4ET90SPvbViXA1OR0M2eb17MEXLTVh+ZyKQOrShJ+IU+ZsuVcASPUEOaOLHRbaoD
-         Jniyi1s8vLFUT1smrmtzo7f4VgcRwvEgeEBp++kwLYqzFFZEeC7v4OLanRdV39QYa/fq
-         gjkUW4UUBgk8j8bSJwwLbBwMhe7Hg/kvZsDV2Nk1d494RA6czQYHGPkk8DVkFYsD0OmW
-         3aFlOsDBc2hclIv/otFyB7SosKGeP2tNpXDdBBs0kvvffqhuuYelrEnbgd/Efoq5YduT
-         gvFyGJ0T79KGm4aIJeE5/uVD6FX5P+cqgShYN2PvqbZWW+C/Xk7KkWkOsodspmi9JMzL
-         Hl3A==
+        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=V2lufGQJcmKY2cAym2JF7ioLQmysawSKTxtO0HzaVFI=;
+        b=4VJdUsBEhq7t1WkLu0/FX++pPUrIZ+ihdvsBbFfX+mmt2GHAAxjUBUgZc7g/AbJbrO
+         wU4vxR9KaynziVK8dMTNAXhQJCw6Elg3qWdUZ5K/PUJSzUjIvCOvpH3/LnmySt3kkTmh
+         NA7s02zDHtbzwn9ByceoHkoZs48u5D420IcJ77O/IfnHryIqQuA8AU4I5Ux0rajkAmO/
+         eMHVeKwiUs2eOPAdvZUoXrPbxEDWc1le9KRcJJQKyD589oCCVXnN1BB5ohc1mtZawffC
+         24ALejde0dNyj7Ri1eyKqknxFzrHVwKc2aw7ZYT15a0byY01evzW+8dwIiJ+k8uVyO+L
+         swdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nO8DvPRUSFx1m/HV/v44ZF8S9TbwvoVt7MBxOPc0dG4=;
-        b=xZKNfhMHfIOBbn+bcteBuK3JIs7vdy11puVoVNOecphRAaTsvcCetNI7vkqZYnitfq
-         ZKEXRPrb9fO+wU7bIS0PPqQFLdOBqwZyxPwaP2m5KzqI9BrgQLOuzjZEo5L7YGfD1gtk
-         KiJXchLDOkNMskWLmH8K2BPCcVAEvl7Q0rjbhEqainS2pY+0ofySr981uT7PhUsJLOLi
-         0fIct6a+KBDq/ALaD6aSv64TCZ8zh9pOpoDatHKv+tluxSkrRaMcWoH64VQw8TVTazL+
-         cT4UmwuOkf7ozUPqYUl6EL3yyId84JzyTCGSoHq5WWbiJ7mkNv0omg0UXrlUD65rOfu6
-         tgYg==
-X-Gm-Message-State: AOAM532P+E6eeOzRQ1P2nV3KqK/7cuLR5TfZswYBnvmJ9P+tyjpFZX2E
-        Q8WngK7JVXca3FTO/m4SpF/FU84G9zcDjuVvJOS0aGyY/kfkAA==
-X-Google-Smtp-Source: ABdhPJxZB7IX/wo2a6TfZplSn1ukvQc7FiPK9eu0WoJaX1LXH+oEKYD42KL8ttHXwPf9qbMgAWeQQsOBYaAdi36e7I8=
-X-Received: by 2002:a25:4b85:: with SMTP id y127mr25287073yba.181.1640686883366;
- Tue, 28 Dec 2021 02:21:23 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=V2lufGQJcmKY2cAym2JF7ioLQmysawSKTxtO0HzaVFI=;
+        b=xkL+BGuXDEryD8t6s5LHdiRU/p2dgwDysEEcoXAIuS2gTd5cvamffhENyAyD+fIpFI
+         VtGl2GXa/RZz8YLWQzvHYAXO09nJs32fhKrsDPBbCk853a4LWen0k6nK6CArCJvWER+X
+         WfbT7nVS3++EJpc5LLz5igszvvSzcA8vMZdXWNTU5vhLUM7FnWVim1CiYUZ2az+vP8ai
+         PYIC2wVTrG/2iW2zikqlLAX4dE5LmG77oeDMcCcrqnBmnPTo1toBMJ7ilaunW2HK+H0z
+         iPYbvXSHlU/QhSfzHbn+DO5LAHzoOw0Dd4GLwauozWl0bnpcY1PoLUD6Lj957DtGE19c
+         FbCA==
+X-Gm-Message-State: AOAM531Fiej9DkZwjdXiEvIG4W6oLz8XCMX5zxdN2a3TPBMJhdwPAM1L
+        6STdwwLjjJjocaCYjkJZ1NMB8w==
+X-Google-Smtp-Source: ABdhPJyZpAuRWD66Y8AJSmTUZaoWU1FmBaH3I+KVTM+T0G2Gl26osron+9O84L86g+zngcUGbKodXQ==
+X-Received: by 2002:a17:90a:c788:: with SMTP id gn8mr25637549pjb.212.1640688122515;
+        Tue, 28 Dec 2021 02:42:02 -0800 (PST)
+Received: from C02FF4E5ML7H.bytedance.net ([153.254.110.101])
+        by smtp.gmail.com with ESMTPSA id g16sm17521397pfv.159.2021.12.28.02.41.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Dec 2021 02:42:02 -0800 (PST)
+From:   Muchun Song <songmuchun@bytedance.com>
+To:     davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        kuba@kernel.org, xemul@openvz.org
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Muchun Song <songmuchun@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Fam Zheng <fam.zheng@bytedance.com>, stable@vger.kernel.org
+Subject: [PATCH] net: fix use-after-free in tw_timer_handler
+Date:   Tue, 28 Dec 2021 18:41:45 +0800
+Message-Id: <20211228104145.9426-1-songmuchun@bytedance.com>
+X-Mailer: git-send-email 2.30.1 (Apple Git-130)
 MIME-Version: 1.0
-References: <20211227151320.801714429@linuxfoundation.org>
-In-Reply-To: <20211227151320.801714429@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 28 Dec 2021 15:51:12 +0530
-Message-ID: <CA+G9fYvDGsVM87BUR34v4pCTL2a7yFd4Ftzbkmrf+mRGtFWwnA@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/47] 5.4.169-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 27 Dec 2021 at 21:06, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.169 release.
-> There are 47 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 29 Dec 2021 15:13:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.169-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+A real world panic issue was found as follow in Linux 5.4.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+    BUG: unable to handle page fault for address: ffffde49a863de28
+    PGD 7e6fe62067 P4D 7e6fe62067 PUD 7e6fe63067 PMD f51e064067 PTE 0
+    RIP: 0010:tw_timer_handler+0x20/0x40
+    Call Trace:
+     <IRQ>
+     call_timer_fn+0x2b/0x120
+     run_timer_softirq+0x1ef/0x450
+     __do_softirq+0x10d/0x2b8
+     irq_exit+0xc7/0xd0
+     smp_apic_timer_interrupt+0x68/0x120
+     apic_timer_interrupt+0xf/0x20
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+This issue was also reported since 2017 in the thread [1],
+unfortunately, the issue was still can be reproduced after fixing
+DCCP.
 
-## Build
-* kernel: 5.4.169-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: 55d919268b6e0816a2eaa3a74303fb57102ab4a9
-* git describe: v5.4.168-48-g55d919268b6e
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-68-48-g55d919268b6e
+The ipv4_mib_exit_net is called before tcp_sk_exit_batch when a net
+namespace is destroyed since tcp_sk_ops is registered befrore
+ipv4_mib_ops, which means tcp_sk_ops is in the front of ipv4_mib_ops
+in the list of pernet_list. There will be a use-after-free on
+net->mib.net_statistics in tw_timer_handler after ipv4_mib_exit_net
+if there are some inflight time-wait timers.
 
-## No Test Regressions (compared to v5.4.168-40-g28a051401761)
+This bug is not introduced by commit f2bf415cfed7 ("mib: add net to
+NET_ADD_STATS_BH") since the net_statistics is a global variable
+instead of dynamic allocation and freeing. Actually, commit
+61a7e26028b9 ("mib: put net statistics on struct net") introduces
+the bug since it put net statistics on struct net and free it when
+net namespace is destroyed.
 
-## No Test Fixes (compared to v5.4.168-40-g28a051401761)
+Moving init_ipv4_mibs() to the front of tcp_init() to fix this bug
+and replace pr_crit() with panic() since continuing is meaningless
+when init_ipv4_mibs() fails.
 
-## Test result summary
-total: 90970, pass: 75722, fail: 752, skip: 13081, xfail: 1415
+[1] https://groups.google.com/g/syzkaller/c/p1tn-_Kc6l4/m/smuL_FMAAgAJ?pli=1
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 258 total, 254 passed, 4 failed
-* arm64: 36 total, 31 passed, 5 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 20 total, 20 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 34 total, 34 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 52 total, 48 passed, 4 failed
-* riscv: 24 total, 24 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 36 total, 36 passed, 0 failed
+Fixes: 61a7e26028b9 ("mib: put net statistics on struct net")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Xiongchun Duan <songmuchun@bytedance.com>
+Cc: Cong Wang <cong.wang@bytedance.com>
+Cc: Fam Zheng <fam.zheng@bytedance.com>
+Cc: <stable@vger.kernel.org>
+---
+ net/ipv4/af_inet.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+index 04067b249bf3..cb8ba7a0a114 100644
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1985,6 +1985,10 @@ static int __init inet_init(void)
+ 
+ 	ip_init();
+ 
++	/* Initialise per-cpu ipv4 mibs */
++	if (init_ipv4_mibs())
++		panic("%s: Cannot init ipv4 mibs\n", __func__);
++
+ 	/* Setup TCP slab cache for open requests. */
+ 	tcp_init();
+ 
+@@ -2015,12 +2019,6 @@ static int __init inet_init(void)
+ 
+ 	if (init_inet_pernet_ops())
+ 		pr_crit("%s: Cannot init ipv4 inet pernet ops\n", __func__);
+-	/*
+-	 *	Initialise per-cpu ipv4 mibs
+-	 */
+-
+-	if (init_ipv4_mibs())
+-		pr_crit("%s: Cannot init ipv4 mibs\n", __func__);
+ 
+ 	ipv4_proc_init();
+ 
+-- 
+2.11.0
 
---
-Linaro LKFT
-https://lkft.linaro.org
