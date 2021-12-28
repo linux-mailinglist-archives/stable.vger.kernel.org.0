@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F1A48076C
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 09:33:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D13F48076E
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 09:34:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235672AbhL1Idg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 03:33:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34484 "EHLO
+        id S235673AbhL1Iea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 03:34:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231670AbhL1Idg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 03:33:36 -0500
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79390C061574
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 00:33:35 -0800 (PST)
-Received: by mail-lj1-x236.google.com with SMTP id r22so29483701ljk.11
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 00:33:35 -0800 (PST)
+        with ESMTP id S231670AbhL1Iea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 03:34:30 -0500
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A174C061574
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 00:34:29 -0800 (PST)
+Received: by mail-lj1-x233.google.com with SMTP id x4so12014036ljc.6
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 00:34:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=nJRzWslgNccgxG4MIf29u0dhy3dS/6NTua8/ag1MF6I=;
-        b=YZNz0zzHup1F6p1NUDdzGKz8SLAK8zlR+jXl1z1U/Dnk5UsdEhHSk8fGPxhQf0VgNL
-         MtgaTG1OYyQC16nCcNYnbI7qQL5eCtcWNatYAM9HSo8yzU+A859+YXo25J5Uluri84xb
-         sWgYcZ6VCbqw+h1PdcDoFgjfi2TA40r4YARHs2YL9YNjazPH7cDPLgv1e/4JWyHIp9w4
-         aFf6p6ryDX2OTW9FNg3ayKiVnTnB5InnF92XCnw+tkFYSowDu8reYCoPjmxxi23ea1xf
-         CFSQTYyAq9I94B8gDGFfTo8VMLdiq1OkpRjVb+5S2IjtR5R4iFfqzP6sCHaRCsJnh+ut
-         aTcg==
+        bh=fEO3msYWqm6yJxgPgaBJSakGQZD4QkDwiMV+7+bf/L4=;
+        b=mzyixoKXswY6PaUEb2xEfXGqtsvRzGYgKE2bfsguxoqRtZtWrJU2c9iusJK1XjtrXt
+         Zjkfhg8wU5L1x1AF+hm/fBK3Z5C5pnX1rKyiUNbyRycyN5si9ZHjFliuny+8bV5c0jCd
+         p0J/JFklL/XTbCvVh3nwLOfc3mDK3Pt3xzJgCNPO8Q9RR/n5jup42DgGB3VvfLB2laSg
+         WORemPzfQc9+KWOQVPfBd1sgjYk99pAomBTX+L/TdTtsKNY/NuBwaYw7i6qFB0nDPdqI
+         V7xJs2GUMwnNxdtpfx5YXK98JYfvsj111FoBuMUQFpDitAYylWeBL/5TJCBQJ+cyTN4e
+         6sHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=nJRzWslgNccgxG4MIf29u0dhy3dS/6NTua8/ag1MF6I=;
-        b=sWq0IAu7TBCTjatCnkOKlXS0yJy9rh1tJOXeq8iCm32a9SP5YQXhITYuSbaa9DLDcl
-         HLGWpZNHH2rcMf9Y9IYte1fpIXJNqUwCzj8SqGJDbT8kvVqCS08HrLcclQZUfcY9QRbH
-         PP64FA3z/HZqQZSMuhShnTewDpdH8kCiKPFdZ88kXqenhjRl7mLF7bG7vxbiaPl5fCls
-         GVsmYkrndjWXEhZ+nt7dvkaa/Z8QlK6xubNyjiqapsZ6+5E4/7rhplWnOLa9xAnY/HeV
-         U0gfk386xBy2KvN7PkpGLLuUpoH6Jnz5H9Y9aqa0p5Clp0+TgBFlV8K+hT1YgBGoRuXH
-         9QIw==
-X-Gm-Message-State: AOAM532TYp+ivtZ5+X3ct0Av6vi7fj602oxfn04ZZeXBI7ObtjnzpWsR
-        AHJTsdQdEWZEZmNHZlrvrxGqBs4X7c5QMg==
-X-Google-Smtp-Source: ABdhPJxPRI8VoNELzenU0jZ89rIaINl1Ne/OFf/a2oSZw15dQRAj+mmZDK9b9ZZoV9PZ50UiaQzIVg==
-X-Received: by 2002:a05:651c:1993:: with SMTP id bx19mr1274195ljb.472.1640680413495;
-        Tue, 28 Dec 2021 00:33:33 -0800 (PST)
+        bh=fEO3msYWqm6yJxgPgaBJSakGQZD4QkDwiMV+7+bf/L4=;
+        b=G4LhOnkBoXDAf3gcv0IMVvAQ+77PyGqqmXSnH8WJHu7edov2hk45qsYPanvCqpR9ow
+         vHnU2f4JDfHgbkt+F+mKqCgtIpYC1WtKpCnsAJFbZyQFK1z5iJodt36DkkVfNovMTTtR
+         OqG5Ra+54zRhhlNlrsDTRF2tFxBYfKGbwRIAqWxsRzzKpP/6tIkVW+Xpw9xC1WyavJdO
+         j22ylupzm6wc0FoqG6xETOS2477pVuaeC+GDYz/Yw0pnza3Ww+dgA6lm7805txkN4uk5
+         GzKbRBn31ZFuNi+oexd+MYXxyFFyAvdVgtnOGmo0JsGPHc0N/eVNbdKO5nEBFvuYtIea
+         XJTA==
+X-Gm-Message-State: AOAM530kxtY10ZHtary1EzZtI4DUg9Ys9CCIEpnPQDrRJTovM84xQmd1
+        THxJhr7U8mzxEMXdnkSl4YC0FdIBcoMd7Q==
+X-Google-Smtp-Source: ABdhPJx8LmERKtf/4YrIuMoJ9klgOnf9/vA9ySqJ5SykMGB5KQH4wLT3ocFu+DX/I4RYcDl/gChUxg==
+X-Received: by 2002:a2e:6e0d:: with SMTP id j13mr16183525ljc.124.1640680467596;
+        Tue, 28 Dec 2021 00:34:27 -0800 (PST)
 Received: from jade.urgonet (h-94-254-48-165.A175.priv.bahnhof.se. [94.254.48.165])
-        by smtp.gmail.com with ESMTPSA id b17sm1865046lfq.238.2021.12.28.00.33.32
+        by smtp.gmail.com with ESMTPSA id f27sm1154591lfk.266.2021.12.28.00.34.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Dec 2021 00:33:33 -0800 (PST)
+        Tue, 28 Dec 2021 00:34:27 -0800 (PST)
 From:   Jens Wiklander <jens.wiklander@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Sumit Garg <sumit.garg@linaro.org>,
@@ -54,9 +54,9 @@ Cc:     Sumit Garg <sumit.garg@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lars Persson <larper@axis.com>,
         Patrik Lantz <patrik.lantz@axis.com>
-Subject: [PATCH backport for 5.4] tee: handle lookup of shm with reference count 0
-Date:   Tue, 28 Dec 2021 09:32:55 +0100
-Message-Id: <20211228083255.1350258-1-jens.wiklander@linaro.org>
+Subject: [PATCH backport for 4.19] tee: handle lookup of shm with reference count 0
+Date:   Tue, 28 Dec 2021 09:34:20 +0100
+Message-Id: <20211228083420.1350472-1-jens.wiklander@linaro.org>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -91,7 +91,7 @@ Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Reviewed-by: Lars Persson <larper@axis.com>
 Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
 Reported-by: Patrik Lantz <patrik.lantz@axis.com>
-[JW: backport to 5.4-stable]
+[JW: backport to 4.19-stable]
 Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 ---
  drivers/tee/tee_shm.c   | 177 +++++++++++++++-------------------------
@@ -99,14 +99,19 @@ Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
  2 files changed, 69 insertions(+), 112 deletions(-)
 
 diff --git a/drivers/tee/tee_shm.c b/drivers/tee/tee_shm.c
-index d6491e973fa4..0d5ae8053049 100644
+index 0b9ab1d0dd45..5fd5aa5f0a1d 100644
 --- a/drivers/tee/tee_shm.c
 +++ b/drivers/tee/tee_shm.c
-@@ -1,26 +1,18 @@
- // SPDX-License-Identifier: GPL-2.0-only
+@@ -1,5 +1,5 @@
  /*
 - * Copyright (c) 2015-2016, Linaro Limited
 + * Copyright (c) 2015-2017, 2019-2021 Linaro Limited
+  *
+  * This software is licensed under the terms of the GNU General Public
+  * License version 2, as published by the Free Software Foundation, and
+@@ -11,25 +11,17 @@
+  * GNU General Public License for more details.
+  *
   */
 +#include <linux/anon_inodes.h>
  #include <linux/device.h>
@@ -133,7 +138,7 @@ index d6491e973fa4..0d5ae8053049 100644
  	if (shm->flags & TEE_SHM_POOL) {
  		struct tee_shm_pool_mgr *poolm;
  
-@@ -52,51 +44,6 @@ static void tee_shm_release(struct tee_shm *shm)
+@@ -61,51 +53,6 @@ static void tee_shm_release(struct tee_shm *shm)
  	tee_device_put(teedev);
  }
  
@@ -185,7 +190,7 @@ index d6491e973fa4..0d5ae8053049 100644
  static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
  				       struct tee_device *teedev,
  				       size_t size, u32 flags)
-@@ -137,6 +84,7 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
+@@ -146,6 +93,7 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
  		goto err_dev_put;
  	}
  
@@ -193,7 +198,7 @@ index d6491e973fa4..0d5ae8053049 100644
  	shm->flags = flags | TEE_SHM_POOL;
  	shm->teedev = teedev;
  	shm->ctx = ctx;
-@@ -159,21 +107,6 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
+@@ -168,21 +116,6 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
  		goto err_pool_free;
  	}
  
@@ -215,7 +220,7 @@ index d6491e973fa4..0d5ae8053049 100644
  	if (ctx) {
  		teedev_ctx_get(ctx);
  		mutex_lock(&teedev->mutex);
-@@ -182,10 +115,6 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
+@@ -191,10 +124,6 @@ static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
  	}
  
  	return shm;
@@ -226,7 +231,7 @@ index d6491e973fa4..0d5ae8053049 100644
  err_pool_free:
  	poolm->ops->free(poolm, shm);
  err_kfree:
-@@ -268,6 +197,7 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+@@ -259,6 +188,7 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
  		goto err;
  	}
  
@@ -234,7 +239,7 @@ index d6491e973fa4..0d5ae8053049 100644
  	shm->flags = flags | TEE_SHM_REGISTER;
  	shm->teedev = teedev;
  	shm->ctx = ctx;
-@@ -309,22 +239,6 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+@@ -299,22 +229,6 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
  		goto err;
  	}
  
@@ -257,7 +262,7 @@ index d6491e973fa4..0d5ae8053049 100644
  	mutex_lock(&teedev->mutex);
  	list_add_tail(&shm->link, &ctx->list_shm);
  	mutex_unlock(&teedev->mutex);
-@@ -352,6 +266,35 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
+@@ -342,6 +256,35 @@ struct tee_shm *tee_shm_register(struct tee_context *ctx, unsigned long addr,
  }
  EXPORT_SYMBOL_GPL(tee_shm_register);
  
@@ -293,7 +298,7 @@ index d6491e973fa4..0d5ae8053049 100644
  /**
   * tee_shm_get_fd() - Increase reference count and return file descriptor
   * @shm:	Shared memory handle
-@@ -364,10 +307,11 @@ int tee_shm_get_fd(struct tee_shm *shm)
+@@ -354,10 +297,11 @@ int tee_shm_get_fd(struct tee_shm *shm)
  	if (!(shm->flags & TEE_SHM_DMA_BUF))
  		return -EINVAL;
  
@@ -308,7 +313,7 @@ index d6491e973fa4..0d5ae8053049 100644
  	return fd;
  }
  
-@@ -377,17 +321,7 @@ int tee_shm_get_fd(struct tee_shm *shm)
+@@ -367,17 +311,7 @@ int tee_shm_get_fd(struct tee_shm *shm)
   */
  void tee_shm_free(struct tee_shm *shm)
  {
@@ -327,7 +332,7 @@ index d6491e973fa4..0d5ae8053049 100644
  }
  EXPORT_SYMBOL_GPL(tee_shm_free);
  
-@@ -494,10 +428,15 @@ struct tee_shm *tee_shm_get_from_id(struct tee_context *ctx, int id)
+@@ -484,10 +418,15 @@ struct tee_shm *tee_shm_get_from_id(struct tee_context *ctx, int id)
  	teedev = ctx->teedev;
  	mutex_lock(&teedev->mutex);
  	shm = idr_find(&teedev->idr, id);
@@ -345,7 +350,7 @@ index d6491e973fa4..0d5ae8053049 100644
  	mutex_unlock(&teedev->mutex);
  	return shm;
  }
-@@ -509,7 +448,25 @@ EXPORT_SYMBOL_GPL(tee_shm_get_from_id);
+@@ -499,7 +438,25 @@ EXPORT_SYMBOL_GPL(tee_shm_get_from_id);
   */
  void tee_shm_put(struct tee_shm *shm)
  {
@@ -374,10 +379,10 @@ index d6491e973fa4..0d5ae8053049 100644
  }
  EXPORT_SYMBOL_GPL(tee_shm_put);
 diff --git a/include/linux/tee_drv.h b/include/linux/tee_drv.h
-index cd15c1b7fae0..e08ace76eba6 100644
+index a2b3dfcee0b5..535f2ecf3c16 100644
 --- a/include/linux/tee_drv.h
 +++ b/include/linux/tee_drv.h
-@@ -178,7 +178,7 @@ void tee_device_unregister(struct tee_device *teedev);
+@@ -177,7 +177,7 @@ void tee_device_unregister(struct tee_device *teedev);
   * @offset:	offset of buffer in user space
   * @pages:	locked pages from userspace
   * @num_pages:	number of locked pages
@@ -386,7 +391,7 @@ index cd15c1b7fae0..e08ace76eba6 100644
   * @flags:	defined by TEE_SHM_* in tee_drv.h
   * @id:		unique id of a shared memory object on this device
   *
-@@ -195,7 +195,7 @@ struct tee_shm {
+@@ -194,7 +194,7 @@ struct tee_shm {
  	unsigned int offset;
  	struct page **pages;
  	size_t num_pages;
