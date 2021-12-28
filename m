@@ -2,138 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C524808FB
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 13:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3735480928
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 13:43:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbhL1MLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 07:11:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:58290 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230256AbhL1MLp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 07:11:45 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 058AF611CA
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 12:11:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C52DCC36AE7;
-        Tue, 28 Dec 2021 12:11:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640693504;
-        bh=4bwd16o50NPnijm6vEgnLq16LhP1YtIdnMMSJIuM1jI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=PYNy8nxPoyMS3C5BrwAK7ude/XHOw/+hAOpgRMDQru/KElnD4yjDJysCdAE/W/FUq
-         badJyZoD90rcGSHTxfDtaxheN4sXYTVykjn9Zf2RNDwMd+ahnrCzKt9hHbbloztkR/
-         Pt9AnwrE16yjxx0owhEC0+xXLY/dsy8F24WHTEww=
-Date:   Tue, 28 Dec 2021 13:11:41 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jason Self <jason@bluehome.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: Please revert HID: add hid_is_usb() function to make it simpler
- for USB detection
-Message-ID: <Ycr+/UJZ18e2o4go@kroah.com>
-References: <20211227172618.6c3eb077@valencia>
- <YcrBraOFiQN6ZiXC@kroah.com>
+        id S231501AbhL1MnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 07:43:06 -0500
+Received: from szxga01-in.huawei.com ([45.249.212.187]:34855 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231464AbhL1MnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 07:43:05 -0500
+Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4JNZ1m1fKVzccG2;
+        Tue, 28 Dec 2021 20:42:36 +0800 (CST)
+Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
+ (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Tue, 28 Dec
+ 2021 20:43:03 +0800
+From:   Baokun Li <libaokun1@huawei.com>
+To:     <richard@nod.at>, <dwmw2@infradead.org>,
+        <christian.brauner@ubuntu.com>, <linux-mtd@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <libaokun1@huawei.com>, <yukuai3@huawei.com>,
+        <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>
+Subject: [PATCH -next] jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
+Date:   Tue, 28 Dec 2021 20:54:30 +0800
+Message-ID: <20211228125430.1880252-1-libaokun1@huawei.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YcrBraOFiQN6ZiXC@kroah.com>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500020.china.huawei.com (7.185.36.88)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 28, 2021 at 08:50:05AM +0100, Greg KH wrote:
-> On Mon, Dec 27, 2021 at 05:26:18PM -0800, Jason Self wrote:
-> > While compiling 5.4.168 for m68k with the attached config I encountered
-> > a compile error doing make -j$(nproc) bindeb-pkg.
-> > 
-> > I see that it is also affecting all older current releases too. In
-> > addition to the 5.4 series this also affects 4.19, 4.14, 4.9 and 4.4.
-> > 
-> > awk '!x[$0]++' init/modules.order usr/modules.order
-> > arch/m68k/kernel/modules.order arch/m68k/mm/modules.order
-> > arch/m68k/q40/modules.order arch/m68k/amiga/modules.order
-> > arch/m68k/atari/modules.order arch/m68k/mac/modules.order
-> > arch/m68k/apollo/modules.order arch/m68k/mvme147/modules.order
-> > arch/m68k/mvme16x/modules.order arch/m68k/bvme6000/modules.order
-> > arch/m68k/emu/modules.order arch/m68k/fpsp040/modules.order
-> > arch/m68k/ifpsp060/modules.order arch/m68k/math-emu/modules.order
-> > kernel/modules.order certs/modules.order mm/modules.order
-> > fs/modules.order ipc/modules.order security/modules.order
-> > crypto/modules.order block/modules.order drivers/modules.order
-> > sound/modules.order net/modules.order lib/modules.order
-> > arch/m68k/lib/modules.order virt/modules.order > modules.order awk
-> > '!x[$0]++' init/modules.builtin usr/modules.builtin
-> > arch/m68k/kernel/modules.builtin arch/m68k/mm/modules.builtin
-> > arch/m68k/q40/modules.builtin arch/m68k/amiga/modules.builtin
-> > arch/m68k/atari/modules.builtin arch/m68k/mac/modules.builtin
-> > arch/m68k/apollo/modules.builtin arch/m68k/mvme147/modules.builtin
-> > arch/m68k/mvme16x/modules.builtin arch/m68k/bvme6000/modules.builtin
-> > arch/m68k/emu/modules.builtin arch/m68k/fpsp040/modules.builtin
-> > arch/m68k/ifpsp060/modules.builtin arch/m68k/math-emu/modules.builtin
-> > kernel/modules.builtin certs/modules.builtin mm/modules.builtin
-> > fs/modules.builtin ipc/modules.builtin security/modules.builtin
-> > crypto/modules.builtin block/modules.builtin drivers/modules.builtin
-> > sound/modules.builtin net/modules.builtin lib/modules.builtin
-> > arch/m68k/lib/modules.builtin virt/modules.builtin > modules.builtin
-> > make -f ./scripts/Makefile.modpost sed 's/ko$/o/' modules.order |
-> > scripts/mod/modpost -m  -o ./Module.symvers        -s -T - vmlinux
-> > ERROR: "usb_hid_driver" [drivers/hid/hid-asus.ko] undefined!
-> > scripts/Makefile.modpost:93: recipe for target '__modpost' failed
-> > make[1]: *** [__modpost] Error 1 Makefile:1324: recipe for target
-> > 'modules' failed make: *** [modules] Error 2
-> > 
-> > Version 5.4.164 was the last good version. Doing git bisect on the
-> > stable kernel tree has given me this:
-> > 
-> > 6e1e0a01425810494ce00d7b800b69482790b198 is the first bad commit
-> > commit 6e1e0a01425810494ce00d7b800b69482790b198
-> > Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Date:   Wed Dec 1 19:35:01 2021 +0100
-> > 
-> >     HID: add hid_is_usb() function to make it simpler for USB detection
-> >     
-> >     commit f83baa0cb6cfc92ebaf7f9d3a99d7e34f2e77a8a upstream.
-> >     
-> >     A number of HID drivers already call hid_is_using_ll_driver() but
-> >     only for the detection of if this is a USB device or not.  Make
-> >     this more obvious by creating hid_is_usb() and calling the function
-> >     that way. 
-> >     Also converts the existing hid_is_using_ll_driver() functions to
-> >     use the new call.
-> >     
-> >     Cc: Jiri Kosina <jikos@kernel.org>
-> >     Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >     Cc: linux-input@vger.kernel.org
-> >     Cc: stable@vger.kernel.org
-> >     Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >     Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >     Link:
-> >     https://lore.kernel.org/r/20211201183503.2373082-1-gregkh@linuxfoundation.org
-> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > 
-> >  drivers/hid/hid-asus.c           | 2 +-
-> >  drivers/hid/hid-logitech-dj.c    | 2 +-
-> >  drivers/hid/hid-u2fzero.c        | 2 +-
-> >  drivers/hid/hid-uclogic-params.c | 3 +--
-> >  drivers/hid/wacom_sys.c          | 2 +-
-> >  include/linux/hid.h              | 5 +++++
-> >  6 files changed, 10 insertions(+), 6 deletions(-)
-> 
-> 
-> There were follow-on patches to prevent modules from being built if the
-> right options were not enabled, so bisection might fail with your config
-> at this point.  I'll check to see if those were added properly after my
-> morning coffee...
+When we mount a jffs2 image, assume that the first few blocks of
+the image are normal and contain at least one xattr-related inode,
+but the next block is abnormal. As a result, an error is returned
+in jffs2_scan_eraseblock(). jffs2_clear_xattr_subsystem() is then
+called in jffs2_build_filesystem() and then again in
+jffs2_do_fill_super().
 
-Looks like f237d9028f84 ("HID: add USB_HID dependancy on some USB HID
-drivers") was properly backported.  But maybe the dependancy needs to
-also be added for a few more drivers as well, like c4f0126d487f ("HID:
-asus: Add depends on USB_HID to HID_ASUS Kconfig option"), right?
+Finally we can observe the following report:
+ ==================================================================
+ BUG: KASAN: use-after-free in jffs2_clear_xattr_subsystem+0x95/0x6ac
+ Read of size 8 at addr ffff8881243384e0 by task mount/719
 
-If you backport that commit, does that solve this issue?
+ Call Trace:
+  dump_stack+0x115/0x16b
+  jffs2_clear_xattr_subsystem+0x95/0x6ac
+  jffs2_do_fill_super+0x84f/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+  mtd_get_sb+0x254/0x400
+  mtd_get_sb_by_nr+0x4f/0xd0
+  get_tree_mtd+0x498/0x840
+  jffs2_get_tree+0x25/0x30
+  vfs_get_tree+0x8d/0x2e0
+  path_mount+0x50f/0x1e50
+  do_mount+0x107/0x130
+  __se_sys_mount+0x1c5/0x2f0
+  __x64_sys_mount+0xc7/0x160
+  do_syscall_64+0x45/0x70
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-thanks,
+ Allocated by task 719:
+  kasan_save_stack+0x23/0x60
+  __kasan_kmalloc.constprop.0+0x10b/0x120
+  kasan_slab_alloc+0x12/0x20
+  kmem_cache_alloc+0x1c0/0x870
+  jffs2_alloc_xattr_ref+0x2f/0xa0
+  jffs2_scan_medium.cold+0x3713/0x4794
+  jffs2_do_mount_fs.cold+0xa7/0x2253
+  jffs2_do_fill_super+0x383/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+ [...]
 
-greg k-h
+ Freed by task 719:
+  kmem_cache_free+0xcc/0x7b0
+  jffs2_free_xattr_ref+0x78/0x98
+  jffs2_clear_xattr_subsystem+0xa1/0x6ac
+  jffs2_do_mount_fs.cold+0x5e6/0x2253
+  jffs2_do_fill_super+0x383/0xc30
+  jffs2_fill_super+0x2ea/0x4c0
+ [...]
+
+ The buggy address belongs to the object at ffff8881243384b8
+  which belongs to the cache jffs2_xattr_ref of size 48
+ The buggy address is located 40 bytes inside of
+  48-byte region [ffff8881243384b8, ffff8881243384e8)
+ [...]
+ ==================================================================
+
+The triggering of the BUG is shown in the following stack:
+-----------------------------------------------------------
+jffs2_fill_super
+  jffs2_do_fill_super
+    jffs2_do_mount_fs
+      jffs2_build_filesystem
+        jffs2_scan_medium
+          jffs2_scan_eraseblock        <--- ERROR
+        jffs2_clear_xattr_subsystem    <--- free
+    jffs2_clear_xattr_subsystem        <--- free again
+-----------------------------------------------------------
+
+An error is returned in jffs2_do_mount_fs(). If the error is returned
+by jffs2_sum_init(), the jffs2_clear_xattr_subsystem() does not need to
+be executed. If the error is returned by jffs2_build_filesystem(), the
+jffs2_clear_xattr_subsystem() also does not need to be executed again.
+So move jffs2_clear_xattr_subsystem() from 'out_inohash' to 'out_root'
+to fix this UAF problem.
+
+Fixes: aa98d7cf59b5 ("[JFFS2][XATTR] XATTR support on JFFS2 (version. 5)")
+Cc: stable@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ fs/jffs2/fs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/jffs2/fs.c b/fs/jffs2/fs.c
+index 2ac410477c4f..71f03a5d36ed 100644
+--- a/fs/jffs2/fs.c
++++ b/fs/jffs2/fs.c
+@@ -603,8 +603,8 @@ int jffs2_do_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	jffs2_free_ino_caches(c);
+ 	jffs2_free_raw_node_refs(c);
+ 	kvfree(c->blocks);
+- out_inohash:
+ 	jffs2_clear_xattr_subsystem(c);
++ out_inohash:
+ 	kfree(c->inocache_list);
+  out_wbuf:
+ 	jffs2_flash_cleanup(c);
+-- 
+2.31.1
+
