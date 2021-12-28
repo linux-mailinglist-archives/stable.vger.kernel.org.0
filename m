@@ -2,69 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1A2480D9B
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 23:11:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6D20480D9E
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 23:12:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231645AbhL1WLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 17:11:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45722 "EHLO
+        id S234276AbhL1WM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 17:12:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230144AbhL1WLH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 17:11:07 -0500
-Received: from mail-vk1-xa2f.google.com (mail-vk1-xa2f.google.com [IPv6:2607:f8b0:4864:20::a2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E698C061574
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:11:07 -0800 (PST)
-Received: by mail-vk1-xa2f.google.com with SMTP id 70so11026422vkx.7
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:11:07 -0800 (PST)
+        with ESMTP id S230144AbhL1WM1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 17:12:27 -0500
+Received: from mail-ua1-x929.google.com (mail-ua1-x929.google.com [IPv6:2607:f8b0:4864:20::929])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDB1C061574
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:12:27 -0800 (PST)
+Received: by mail-ua1-x929.google.com with SMTP id v14so16629808uau.2
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:12:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=eUMV0HLhg30stwX25SNqA4IGRD9+grjUzIs88+Nk1+M=;
-        b=GOF7NoXUc9l8RPaprx0aqdu1ycAHfm4OQl/aPB5SNtUrv2TWvjxl1qrSpAjO/iyXEM
-         Lzm0K1o1HUD9rSDI3hFPK1XXIBR1AMTViVrUl2Ms9ucJv4brnsCAleOcz3nHQvdKZwKg
-         WcvgS1MJ9fvM97REhYiECICNMLycroBCjJu7unK8wIu3rrDR2agnh7BjItd2MkgYRDHg
-         415xlzvvI9UEBu5xSBK2sSuLr6fa5pIrXlGHko8JhYW2gRyC4Jvty8HaIvOV0UAOqOFO
-         ZfXpUNJr9ZUn4OOZAaBO/OijGwFW0jMVUVdwq6zrA/L/ywk660oV7qTkwPpOs7ce2hym
-         edXw==
+        bh=KgnW6hDvw4Xm3UsB1Ur72oT67VzyjPXMVopq2T9K87A=;
+        b=G8W+8aHLdSNNZ3kGU30YrZ6PspoN18j2Y06ng35HNLuwBS0Yzcihm5WKGdJJRHbmnV
+         e8CiH23y+8x0GSSrrzMoIMuOFZJsisD7PLHD4e1+fNGdf0+v6aBcGpWasHwRHmAxDjbK
+         3Gpuu+EOdF8uIspFjzpxAGX5SRdTIo/5O257nbDP/4jpFoB1Iz0/+JzeYo9NYRPV7hwY
+         gFRfjlDSI/yVYbJ2QZtqi5PpX12/y+6sVSVJQMhSJKtvvDkVjRfaSTgH8Wyssa8mYXAz
+         zxFR6pvX0R0X+CKiYSni763mmpNpG6U+mAclQvoZg64aTI+snPn1lcn0Jr3HXOJMeyP2
+         GyTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=eUMV0HLhg30stwX25SNqA4IGRD9+grjUzIs88+Nk1+M=;
-        b=Q82M0eLVN5ezaHWxAWrj39pIhgOgGABDTZjhRZvXb+9eSXZvWWogqEP+FuIgsFZE8b
-         TKpwi1+wCHERe8uzbPMPBi8MSP+Ku1dGwgu7F8HHQYDiHKc/k6bTXyzlKHEv7Q7+H7TG
-         WF0QYsERogTsvEyzH5VTRtE2o5muszWY1OqhqeOqSo+IM5WrTPosFCrKSx38lMDJnhjU
-         YmF1moAczfMFwKIkptApci1+JjY6GVZn3Cilo1tL8S8e/kyZeEW4BMWMQe3yiANBwzvs
-         CfyDk1yseqoh6OmjpLk72JvxXk8JlEvYLp7VsKSb1Z/htnk+KCTu3AJN+5rbfHbCMnwI
-         QgCA==
-X-Gm-Message-State: AOAM530cZxs2JBRRbLuyhxzSdvfcd4Wd8xpcGW4qgf9iLDYi9jr6u2h3
-        ZLeNYBqKqmQolDjrLXXRwQUH9GLrBSLY1nrZUTI=
-X-Google-Smtp-Source: ABdhPJyp/qXqIuUBrfToUhcYojznlPB8FJQFrZrGexvtH+m/cXz7X9KD1kF7syVncuFVD47Bv6yZvw9e9xRItJIIANw=
-X-Received: by 2002:a1f:218e:: with SMTP id h136mr7693316vkh.41.1640729465221;
- Tue, 28 Dec 2021 14:11:05 -0800 (PST)
+        bh=KgnW6hDvw4Xm3UsB1Ur72oT67VzyjPXMVopq2T9K87A=;
+        b=YzJztqY4aZ2zMrUwDkm2WJxm9xK6J2kwVMS+gD+ra3BF+lcAm9nVpy2NH1SjIEJuHA
+         qYMufwKmlm/5yUUnGpbef5ei5rGGPaKTrCn5qIgaJQnR5Z6aUcFxYQgX5ZoKXcs6BFtj
+         UM27rQaO0ncFEwYLASj7oAmOp2CsCHnt47ixy2Ug5CbrIjk4H8Odqdvd+mMsgTxa98uO
+         izBa4YYUkItRN0kJz/iknTpOIpOiZzDE4z6CfSy9/1gAFyqPRAYLEEZTtdDtrv6XlVzO
+         eEMZzptt4a0QZiwd13/MKHKv28NJXttjDeOeo2VUtKYBJbBUF4DUUFoOExdqk1DQ/wnO
+         Ro3Q==
+X-Gm-Message-State: AOAM5335JFtkLb7kayxAI4675ThPzJjIM74tUDiEjCx//cRlySpMCiEv
+        sh+Z7mSklFWcnDRik3tPp+JPDMAELefQTe8F0EY=
+X-Google-Smtp-Source: ABdhPJwTZoZ7Yv47x2oROD4+eOkZDBrMxRUvBW5W/Z0vRrXnPsnsHBkq7nK4GcOoBzMj7SZHt/i4UV5rgu0gu+LXrlo=
+X-Received: by 2002:ab0:6813:: with SMTP id z19mr6991030uar.28.1640729546601;
+ Tue, 28 Dec 2021 14:12:26 -0800 (PST)
 MIME-Version: 1.0
-References: <fdf8fe50-e3b0-2042-cc83-fb0a214d727a@tmb.nu>
-In-Reply-To: <fdf8fe50-e3b0-2042-cc83-fb0a214d727a@tmb.nu>
+References: <CAJsSGwWz3qncvb-XkpZefJsCJ1wfCPaiHVdJ-BTFSdiFWvhmRQ@mail.gmail.com>
+ <516a36e229e9d57fb9640d44ca4920446b38c6dc.camel@intel.com>
+In-Reply-To: <516a36e229e9d57fb9640d44ca4920446b38c6dc.camel@intel.com>
 From:   Kevin Anderson <andersonkw2@gmail.com>
-Date:   Tue, 28 Dec 2021 17:10:54 -0500
-Message-ID: <CAJsSGwVqgRAqjOAc7KsGn96vMPG40fYKA3ozhye_OqVt8Y6rQw@mail.gmail.com>
+Date:   Tue, 28 Dec 2021 17:12:15 -0500
+Message-ID: <CAJsSGwXvpRHAYU3AX2iYK5cr2OhOFTb10R3kMbSRSsfyFo=E5Q@mail.gmail.com>
 Subject: Re: iwlwifi Backport Request
-To:     Thomas Backlund <tmb@tmb.nu>
-Cc:     gregkh@linuxfoundation.org,
-        Luciano Coelho <luciano.coelho@intel.com>,
-        johannes@sipsolutions.net, stable@vger.kernel.org,
-        ilan.peer@intel.com, johannes.berg@intel.com
+To:     "Coelho, Luciano" <luciano.coelho@intel.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "johannes@sipsolutions.net" <johannes@sipsolutions.net>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Berg, Johannes" <johannes.berg@intel.com>,
+        "Peer, Ilan" <ilan.peer@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 28, 2021 at 11:37 AM Thomas Backlund <tmb@tmb.nu> wrote:
+Hi Luca,
+
+Thank you for the guidance!
+
+- Kevin
+
+On Tue, Dec 28, 2021 at 1:46 AM Coelho, Luciano
+<luciano.coelho@intel.com> wrote:
 >
-> Den 2021-12-28 kl. 02:59, skrev Kevin Anderson:
+> On Mon, 2021-12-27 at 19:59 -0500, Kevin Anderson wrote:
 > > Hello,
-> >
+>
+> Hi Kevin,
+>
+>
 > > I wanted to see if I could have two patches backported to 5.15 stable
 > > that concern Intel iwlwifi AX2XX stability.
 > >
@@ -82,27 +94,25 @@ On Tue, Dec 28, 2021 at 11:37 AM Thomas Backlund <tmb@tmb.nu> wrote:
 > > The mac80211 change is currently in the 5.16 RC and the scan timeout
 > > is in netdev-next and is supposed to be scheduled for 5.17 from what I
 > > can tell.
-> >  > I believe that the patches meet the requirements of the -stable tree
+> >
+> > I believe that the patches meet the requirements of the -stable tree
 > > as it makes the adapter for many users including myself difficult to
 > > use reliably.
 > >
+> > If this is the incorrect venue for this please let me know.
 >
-> The mac80211 change was/is marked for stable@ and is already in 5.15.11
+> You can send the patches directly yourself, but not as attachments and
+> with with the following tag added:
+>
+> commit <SHA1 of the commit in Linus' tree> upstream.
+>
+> You can find more info on how to do it here:
+>
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/stable-kernel-rules.rst
 >
 >
-> the scan timeout is only in a -next tree (as you already noted),
-> so it cant land in 5.15 stable until it is also in linus tree...
->
+> Thanks for your help!
 >
 > --
-> Thomas
->
-
-Hi Thomas,
-
-Thank you. I missed the fact that the mac80211 change was already
-tagged for stable. I will keep an eye for the other change to land in
-linus' tree and submit it for stable if it isn't submitted by the
-maintainer.
-
-- Kevin
+> Cheers,
+> Luca.
