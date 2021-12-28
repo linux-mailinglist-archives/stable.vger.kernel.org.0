@@ -2,141 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3735480928
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 13:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 042C848097C
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 14:19:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231501AbhL1MnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 07:43:06 -0500
-Received: from szxga01-in.huawei.com ([45.249.212.187]:34855 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231464AbhL1MnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 07:43:05 -0500
-Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4JNZ1m1fKVzccG2;
-        Tue, 28 Dec 2021 20:42:36 +0800 (CST)
-Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
- (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Tue, 28 Dec
- 2021 20:43:03 +0800
-From:   Baokun Li <libaokun1@huawei.com>
-To:     <richard@nod.at>, <dwmw2@infradead.org>,
-        <christian.brauner@ubuntu.com>, <linux-mtd@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <libaokun1@huawei.com>, <yukuai3@huawei.com>,
-        <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>
-Subject: [PATCH -next] jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
-Date:   Tue, 28 Dec 2021 20:54:30 +0800
-Message-ID: <20211228125430.1880252-1-libaokun1@huawei.com>
-X-Mailer: git-send-email 2.31.1
+        id S232326AbhL1NTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 08:19:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40566 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231948AbhL1NTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 08:19:03 -0500
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F234CC061574;
+        Tue, 28 Dec 2021 05:19:02 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id b186-20020a1c1bc3000000b00345734afe78so10070108wmb.0;
+        Tue, 28 Dec 2021 05:19:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=bDb0kJmueK3fnTgDSSIcWoJthheJr9w8Abj9HHv7swQ=;
+        b=FTDuvcxdYNW7UadnMddK9oxiBXuuJ5PAmhjpyNfoLFMkbI0SGHcwDTYOZtPh3P4LNu
+         SlYeakemUlH4lk+KGt+vVxFkQYR8zQcxx0kPmuUcojedlmoByThe+5n+IMgh9ZBJJeBY
+         URxkq+NtoiKXY1IwlSNP1tr7GYSVeHTQfPa6DclUWL0VWMWUGRPs8/QgmEneQS97ujMP
+         JSt0+lDCMpoHIwNZR0cYAzI6d4ASWZnnMlFqYRNxmHjCP7fFyqw2vc8aGZaAp358U1QX
+         pMWoAUaK47/c450dEoRm8UV9QPn7mZDKsAq7WCIQPgH/1zvsE3ZPVTx/zzRt/2kpbmp4
+         GLcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=bDb0kJmueK3fnTgDSSIcWoJthheJr9w8Abj9HHv7swQ=;
+        b=ie/a4zqRPG6km8WfAB29DNsJC2E864WbDhC51+fPl6OjHUIXviZnY2uXxyiuSsxkQE
+         zOODjxid7HxDZ5YlZxOQBdtDPLOQHOM2ozTxAAZZQtKAejyinX7M5WYCsHNVOr5QyDQM
+         5HqSZ7WDwu7ZnWuTV7x+h2+eMACQPHlqE5TXcFg80hkPtC4wBYbp8bzbkBzs6FkDPj7y
+         ouwjlrZKUcTGPRt5o9Q8LFEbardoRADOhwakUrggRE1l5TxQqrDDG342sLBbmuX9/2YK
+         ukJTOos2qOOvPSsviaNqRktdU8qOr0VbZ24A+SlkDpJGY4zdMAZt/ffW3fXFB2muSx8L
+         JUBw==
+X-Gm-Message-State: AOAM530WY9DAOqNatu1/oDWXeowquP8UMkViiPnjPciY7GHdMOJrlTLa
+        r5hySA2AQv7zembXQjSIwnkh0VJV5Q4=
+X-Google-Smtp-Source: ABdhPJyiX3X/0tZB+xVwJu3lM6W4EPCt7X5IbOrgwu3OHuV9wg/6pVAniTNqzXAgKA26gOlS8FLLYw==
+X-Received: by 2002:a1c:9897:: with SMTP id a145mr17134708wme.194.1640697541584;
+        Tue, 28 Dec 2021 05:19:01 -0800 (PST)
+Received: from debian (host-2-98-43-34.as13285.net. [2.98.43.34])
+        by smtp.gmail.com with ESMTPSA id a3sm20208694wri.98.2021.12.28.05.19.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Dec 2021 05:19:01 -0800 (PST)
+Date:   Tue, 28 Dec 2021 13:18:59 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 00/38] 4.19.223-rc1 review
+Message-ID: <YcsOw/qt1OAp754K@debian>
+References: <20211227151319.379265346@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpeml500020.china.huawei.com (7.185.36.88)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211227151319.379265346@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When we mount a jffs2 image, assume that the first few blocks of
-the image are normal and contain at least one xattr-related inode,
-but the next block is abnormal. As a result, an error is returned
-in jffs2_scan_eraseblock(). jffs2_clear_xattr_subsystem() is then
-called in jffs2_build_filesystem() and then again in
-jffs2_do_fill_super().
+Hi Greg,
 
-Finally we can observe the following report:
- ==================================================================
- BUG: KASAN: use-after-free in jffs2_clear_xattr_subsystem+0x95/0x6ac
- Read of size 8 at addr ffff8881243384e0 by task mount/719
+On Mon, Dec 27, 2021 at 04:30:37PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.223 release.
+> There are 38 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 29 Dec 2021 15:13:09 +0000.
+> Anything received after that time might be too late.
 
- Call Trace:
-  dump_stack+0x115/0x16b
-  jffs2_clear_xattr_subsystem+0x95/0x6ac
-  jffs2_do_fill_super+0x84f/0xc30
-  jffs2_fill_super+0x2ea/0x4c0
-  mtd_get_sb+0x254/0x400
-  mtd_get_sb_by_nr+0x4f/0xd0
-  get_tree_mtd+0x498/0x840
-  jffs2_get_tree+0x25/0x30
-  vfs_get_tree+0x8d/0x2e0
-  path_mount+0x50f/0x1e50
-  do_mount+0x107/0x130
-  __se_sys_mount+0x1c5/0x2f0
-  __x64_sys_mount+0xc7/0x160
-  do_syscall_64+0x45/0x70
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Build test:
+mips (gcc version 11.2.1 20211214): 63 configs -> no failure
+arm (gcc version 11.2.1 20211214): 116 configs -> no new failure
+arm64 (gcc version 11.2.1 20211214): 2 configs -> no failure
+x86_64 (gcc version 11.2.1 20211214): 4 configs -> no failure
 
- Allocated by task 719:
-  kasan_save_stack+0x23/0x60
-  __kasan_kmalloc.constprop.0+0x10b/0x120
-  kasan_slab_alloc+0x12/0x20
-  kmem_cache_alloc+0x1c0/0x870
-  jffs2_alloc_xattr_ref+0x2f/0xa0
-  jffs2_scan_medium.cold+0x3713/0x4794
-  jffs2_do_mount_fs.cold+0xa7/0x2253
-  jffs2_do_fill_super+0x383/0xc30
-  jffs2_fill_super+0x2ea/0x4c0
- [...]
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
- Freed by task 719:
-  kmem_cache_free+0xcc/0x7b0
-  jffs2_free_xattr_ref+0x78/0x98
-  jffs2_clear_xattr_subsystem+0xa1/0x6ac
-  jffs2_do_mount_fs.cold+0x5e6/0x2253
-  jffs2_do_fill_super+0x383/0xc30
-  jffs2_fill_super+0x2ea/0x4c0
- [...]
+[1]. https://openqa.qa.codethink.co.uk/tests/554
 
- The buggy address belongs to the object at ffff8881243384b8
-  which belongs to the cache jffs2_xattr_ref of size 48
- The buggy address is located 40 bytes inside of
-  48-byte region [ffff8881243384b8, ffff8881243384e8)
- [...]
- ==================================================================
 
-The triggering of the BUG is shown in the following stack:
------------------------------------------------------------
-jffs2_fill_super
-  jffs2_do_fill_super
-    jffs2_do_mount_fs
-      jffs2_build_filesystem
-        jffs2_scan_medium
-          jffs2_scan_eraseblock        <--- ERROR
-        jffs2_clear_xattr_subsystem    <--- free
-    jffs2_clear_xattr_subsystem        <--- free again
------------------------------------------------------------
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-An error is returned in jffs2_do_mount_fs(). If the error is returned
-by jffs2_sum_init(), the jffs2_clear_xattr_subsystem() does not need to
-be executed. If the error is returned by jffs2_build_filesystem(), the
-jffs2_clear_xattr_subsystem() also does not need to be executed again.
-So move jffs2_clear_xattr_subsystem() from 'out_inohash' to 'out_root'
-to fix this UAF problem.
-
-Fixes: aa98d7cf59b5 ("[JFFS2][XATTR] XATTR support on JFFS2 (version. 5)")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
----
- fs/jffs2/fs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/jffs2/fs.c b/fs/jffs2/fs.c
-index 2ac410477c4f..71f03a5d36ed 100644
---- a/fs/jffs2/fs.c
-+++ b/fs/jffs2/fs.c
-@@ -603,8 +603,8 @@ int jffs2_do_fill_super(struct super_block *sb, struct fs_context *fc)
- 	jffs2_free_ino_caches(c);
- 	jffs2_free_raw_node_refs(c);
- 	kvfree(c->blocks);
-- out_inohash:
- 	jffs2_clear_xattr_subsystem(c);
-+ out_inohash:
- 	kfree(c->inocache_list);
-  out_wbuf:
- 	jffs2_flash_cleanup(c);
--- 
-2.31.1
-
+--
+Regards
+Sudip
