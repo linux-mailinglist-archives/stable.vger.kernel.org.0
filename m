@@ -2,101 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DAB48098C
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 14:27:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B81C4809C1
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 14:51:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232597AbhL1N1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 08:27:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42516 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232382AbhL1N1x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 08:27:53 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52FFAC061574
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 05:27:53 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id jw3so15918056pjb.4
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 05:27:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
-        h=message-id:subject:from:to:cc:date:in-reply-to:references
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=Gk9FWtuyNYuvWJUQpOrkgSFfOKOr2DlUz3fKN6vSpSA=;
-        b=i7TR62PGp8keW84EIsX4LeMipOhUxlwOcd0XO3h1LXaEVMbQlXEnmPFvZRqTFB1mxu
-         EHZi0qAr7Q3ce4RxicfOQhjbfpCWAPIgIyceEhvlcOKzYoK5F84CQ1X1OnRhfL8sMSyG
-         kTDw/aZvnCImyRAoVF0KcDp8HHajOqfxe02GA84xq+KgcpG2LxsPJ1NEEDW6yye7ay1K
-         vxJPOQvCM6x74rSTAszsnb3zf2yd8MPydJU/qCc02HXdNDJVaI6jHbYoY2F5ywmUWUaN
-         u+E1Xd4xwuGhiRohF0yN+TAcbb71sDsRFT9YTT6l2kjzl30hUthk9gIM3e0HYBDisLyQ
-         8QJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:user-agent:mime-version:content-transfer-encoding;
-        bh=Gk9FWtuyNYuvWJUQpOrkgSFfOKOr2DlUz3fKN6vSpSA=;
-        b=ervZz7X/VUwoy9qeerHaN+Wzh/RY7oxcC5n4kqdbQ/m0TkUcNwhuUHCd3dJMZ8gPTq
-         CThfqL5UgofwoqE1zXpMymaxKZcSEYJu+M3bfepDi56F46Zr0QJF8dcugRRSfJRjz8Et
-         jAqXw+AZnf8zoG8ysFXBUgNfCN7ynFFWVSzeYsGn5ZI5Lz0nfuzWExJkwSKmtO8PrUhU
-         h2xz8Uai51VSRZ35uTnUf6jmFJzggBLIyXL7tbc6V1I5xjRU5EneXJ3eWBo3doTL0ZTP
-         x9jY2nhD1yu5xPwf1Qr4dJXNBN7Prg8SwYBSE/Wbft+PSnhyRo+8TImat7OFDqd4uRD+
-         z03g==
-X-Gm-Message-State: AOAM532rgcFkm2Acmos/vi3eq9gU7Lw/kLVlTozS5WtQ7Q+nev6wUmfZ
-        jGDc2zcj9xnUkyCDMEHeToQrNg==
-X-Google-Smtp-Source: ABdhPJy6W4mQXQOtpEeo7p/zZpw+kr1zvE+7qasQ31P02hYukS2EN2q2RNA3CJ8xHkbkqJICI3YkxA==
-X-Received: by 2002:a17:902:e805:b0:149:95a:1983 with SMTP id u5-20020a170902e80500b00149095a1983mr21956401plg.9.1640698072887;
-        Tue, 28 Dec 2021 05:27:52 -0800 (PST)
-Received: from [192.168.1.32] ([122.164.22.119])
-        by smtp.gmail.com with ESMTPSA id m3sm16977120pgj.25.2021.12.28.05.27.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Dec 2021 05:27:52 -0800 (PST)
-Message-ID: <e48ec1bedf1e02e3b3230f47d8b8a3361cdad992.camel@rajagiritech.edu.in>
-Subject: Re: [PATCH 5.15 000/128] 5.15.12-rc1 review
-From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Date:   Tue, 28 Dec 2021 18:57:46 +0530
-In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
-References: <20211227151331.502501367@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.1-1 
+        id S232889AbhL1Nvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 08:51:50 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39754 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231989AbhL1Nvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 08:51:50 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4049E611B8
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 13:51:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 036D9C36AE7;
+        Tue, 28 Dec 2021 13:51:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640699509;
+        bh=7L6sBeGTeAI0nwLgE9k2BvtSgHm1w5CZeGELqMaiYKU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=C/SPq1TNEXpZO4JqwythO25vzq23jSWKqeZZ08ZDbe3k1ZBKvmhVax16eSRwO21uL
+         BalpfLnIZGlnVFTVI+Vj18YJi0ZR/cqDxUWh0aPz4v4D2Jb5/kbfA4nl8ks8LCUK5o
+         Tn8VWBmJBqEqwBh5sMOHCMWWHLXFSh/gZuoovopY=
+Date:   Tue, 28 Dec 2021 14:51:46 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shile Zhang <shile.zhang@linux.alibaba.com>
+Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
+        Wen Kang <kw01107137@alibaba-inc.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10.y] drm/cirrus: fix a NULL vs IS_ERR() checks
+Message-ID: <YcsWcqVN7Dwue1I2@kroah.com>
+References: <20211228132556.108711-1-shile.zhang@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211228132556.108711-1-shile.zhang@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2021-12-27 at 16:29 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.12 release.
-> There are 128 patches in this series, all will be posted as a
-> response
-> to this one.  If anyone has any issues with these being applied,
-> please
-> let me know.
+On Tue, Dec 28, 2021 at 09:25:56PM +0800, Shile Zhang wrote:
+> The function drm_gem_shmem_vmap can returns error pointers as well,
+> which could cause following kernel crash:
 > 
-> Responses should be made by Wed, 29 Dec 2021 15:13:09 +0000.
-> Anything received after that time might be too late.
+> BUG: unable to handle page fault for address: fffffffffffffffc
+> PGD 1426a12067 P4D 1426a12067 PUD 1426a14067 PMD 0
+> Oops: 0000 [#1] SMP NOPTI
+> CPU: 12 PID: 3598532 Comm: stress-ng Kdump: loaded Not tainted 5.10.50.x86_64 #1
+> ...
+> RIP: 0010:memcpy_toio+0x23/0x50
+> Code: 00 00 00 00 0f 1f 00 0f 1f 44 00 00 48 85 d2 74 28 40 f6 c7 01 75 2b 48 83 fa 01 76 06 40 f6 c7 02 75 17 48 89 d1 48 c1 e9 02 <f3> a5 f6 c2 02 74 02 66 a5 f6 c2 01 74 01 a4 c3 66 a5 48 83 ea 02
+> RSP: 0018:ffffafbf8a203c68 EFLAGS: 00010216
+> RAX: 0000000000000000 RBX: fffffffffffffffc RCX: 0000000000000200
+> RDX: 0000000000000800 RSI: fffffffffffffffc RDI: ffffafbf82000000
+> RBP: ffffafbf82000000 R08: 0000000000000002 R09: 0000000000000000
+> R10: 00000000000002b5 R11: 0000000000000000 R12: 0000000000000800
+> R13: ffff8a6801099300 R14: 0000000000000001 R15: 0000000000000300
+> FS:  00007f4a6bc5f740(0000) GS:ffff8a8641900000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: fffffffffffffffc CR3: 00000016d3874001 CR4: 00000000003606e0
+> Call Trace:
+>  drm_fb_memcpy_dstclip+0x5e/0x80 [drm_kms_helper]
+>  cirrus_fb_blit_rect.isra.0+0xb7/0xe0 [cirrus]
+>  cirrus_pipe_update+0x9f/0xa8 [cirrus]
+>  drm_atomic_helper_commit_planes+0xb8/0x220 [drm_kms_helper]
+>  drm_atomic_helper_commit_tail+0x42/0x80 [drm_kms_helper]
+>  commit_tail+0xce/0x130 [drm_kms_helper]
+>  drm_atomic_helper_commit+0x113/0x140 [drm_kms_helper]
+>  drm_client_modeset_commit_atomic+0x1c4/0x200 [drm]
+>  drm_client_modeset_commit_locked+0x53/0x80 [drm]
+>  drm_client_modeset_commit+0x24/0x40 [drm]
+>  drm_fbdev_client_restore+0x48/0x85 [drm_kms_helper]
+>  drm_client_dev_restore+0x64/0xb0 [drm]
+>  drm_release+0xf2/0x110 [drm]
+>  __fput+0x96/0x240
+>  task_work_run+0x5c/0x90
+>  exit_to_user_mode_loop+0xce/0xd0
+>  exit_to_user_mode_prepare+0x6a/0x70
+>  syscall_exit_to_user_mode+0x12/0x40
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> RIP: 0033:0x7f4a6bd82c2b
 > 
-> The whole patch series can be found in one patch at:
->         
-> https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.12-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-
-> stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
+> Fixes: ab3e023b1b4c9 ("drm/cirrus: rewrite and modernize driver.")
 > 
-> thanks,
-> 
+> CC: stable@vger.kernel.org
+> Reported-by: Wen Kang <kw01107137@alibaba-inc.com>
+> Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+> ---
+>  drivers/gpu/drm/tiny/cirrus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-> greg k-h
+What is the git commit id of this patch in Linus's tree?
 
-hello ,
+thanks,
 
-Compiled and booted  5.15.12-rc1. No errors  from dmesg -l err
-
-Tested by: Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-
--- 
-software engineer
-rajagiri school of engineering and technology - autonomous
+greg k-h
