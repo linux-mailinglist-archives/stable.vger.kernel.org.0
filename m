@@ -2,177 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7957E480D02
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 21:26:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2F18480D58
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 22:26:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236218AbhL1U0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 15:26:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50756 "EHLO
+        id S229841AbhL1V0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 16:26:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236101AbhL1U0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 15:26:22 -0500
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8920FC061574;
-        Tue, 28 Dec 2021 12:26:21 -0800 (PST)
-Received: by mail-lf1-x135.google.com with SMTP id o12so43678012lfk.1;
-        Tue, 28 Dec 2021 12:26:21 -0800 (PST)
+        with ESMTP id S229531AbhL1V0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 16:26:47 -0500
+Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1376C061574
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 13:26:46 -0800 (PST)
+Received: by mail-il1-x12f.google.com with SMTP id e8so15156104ilm.13
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 13:26:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=x9H1jwZuw47RIqVS8FsoYJoRzz2cUXj5zvjpJ6npwgc=;
-        b=B+d9lyKIiZ7AIGDnhbu3YYirNZTBqKOuNocTRQpIRr9GQXgBEaCAqhYnrQQ9Nhfjhh
-         FM4K0O+L5cYhUJxZEcjDAvJqqyhRbSUDKygvgdH3BTKNK0A7K1tABK5WNvDa85jjNNjo
-         cDZupRlNJsQPBeQG37nmEQbyE3SdiMorm95gPenZIlmWNP4YM7HIzH35MpB4J5k+qZxT
-         HmOD4XiCMPyKtJk5N9iu9tuIqomOldoaQYPfAjc1yK9YYtjfigvicozY7PonDhjk0lJL
-         YJXtnR12Ok4xfwpaRxgtViHbuCy+9OUibj9vcTkZF32I9nZZHxAgRqquggLsQUd4mMb1
-         AFkw==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=8TvEHADrYpunnbEiMmuvsDShsFF6nO9+iyYquSrp8ho=;
+        b=EiXE4D784kZi6Rby4mfeU23jOF1SO9g+VThI9febJfgb4mPZMs3kiUbre8/3mrwLG8
+         YBuV/Aif1qgfYc8sUXhtKCYfwdV7Re/bVgOk0ZIG/g4Df+vh4zIk8YCtbldgUCgeg6KR
+         bQQtN+H95EgPFbK/e7lodCppUdmRmULsDQhww=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=x9H1jwZuw47RIqVS8FsoYJoRzz2cUXj5zvjpJ6npwgc=;
-        b=Bdd2ohcSTJmZ9s8HEutNssGfHh2tN616GfY4QUDTCKPlrWz8waG6i8gYtz7e+AgP5O
-         Q+eWVVsUJOFVnsiXdgYvsxEXFNzgJDzqL0H/Wm74pNUjgesArzUzdBYFPp42N5mJeXGR
-         dOEDTD0q1vcYbdJs2hN0VhP3VqwmaKXZSnLvqzuQCS5bUtvdL+z30wzgNOgLB+zJBStJ
-         i+bwvq0tD+X8Zhpms/7rOO6nc6mAbZ2WRPlckgVKatbp+1eHb4RMoKJp8gwQdbfxfqTO
-         rOBSZVk4H8obvtuDGZuf2GjIk3RkeLaf6pvLZuUaU4NjYQ9dhs6BA6o/g4uxkNcHan0i
-         ThOg==
-X-Gm-Message-State: AOAM532XG0pLfgvzIU+UhTsyb0dDuZvVbnltw2FVjO0Z8jt8ZUebyFyL
-        kyvu7YuzzrvBflU2STh3RVQ=
-X-Google-Smtp-Source: ABdhPJyo56MvrHZq/Ljfy8VHLlMtXo4FFR1WW8OtjsDsiosKJ4zawuypX3wIdN7EpaAZHFZ9F3tL3w==
-X-Received: by 2002:ac2:455c:: with SMTP id j28mr19927816lfm.667.1640723179633;
-        Tue, 28 Dec 2021 12:26:19 -0800 (PST)
-Received: from pc638.lan (h5ef52e3d.seluork.dyn.perspektivbredband.net. [94.245.46.61])
-        by smtp.gmail.com with ESMTPSA id s21sm1788114ljg.131.2021.12.28.12.26.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Dec 2021 12:26:18 -0800 (PST)
-From:   Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@pc638.lan>
-Date:   Tue, 28 Dec 2021 21:26:16 +0100
-To:     Manfred Spraul <manfred@colorfullife.com>
-Cc:     Uladzislau Rezki <urezki@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vasily Averin <vvs@virtuozzo.com>, cgel.zte@gmail.com,
-        shakeelb@google.com, rdunlap@infradead.org, dbueso@suse.de,
-        unixbhaskar@gmail.com, chi.minghao@zte.com.cn, arnd@arndb.de,
-        Zeal Robot <zealci@zte.com.cn>, linux-mm@kvack.org,
-        1vier1@web.de, stable@vger.kernel.org
-Subject: Re: [PATCH] mm/util.c: Make kvfree() safe for calling while holding
- spinlocks
-Message-ID: <Ycty6NHpYHNeDyxg@pc638.lan>
-References: <20211222194828.15320-1-manfred@colorfullife.com>
- <Ycdo1PHC9KDD8eGD@pc638.lan>
- <YceiFXyoGcgPaLeJ@casper.infradead.org>
- <Ycis/J1U2DB6Zx7j@pc638.lan>
- <YctpUurav74Ir5YS@pc638.lan>
- <18b6afe8-43b1-4159-0ddd-eca08f175f0a@colorfullife.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8TvEHADrYpunnbEiMmuvsDShsFF6nO9+iyYquSrp8ho=;
+        b=ni/IR5X6ae686H0PaOQcGFHnSt+dEGwBvL4Q9hQFCrBwAALqUCnZtPOYtPXWqtMjMc
+         k++uZjHEbLQsr8BsS/V1TUDL0L0A5AkPEHr9kHVkhx8jtHplAdJ0MKTc/rwQZhMvdFl6
+         jQpoW7CdUVA1D9VreRS7Qyo/4pRda15nCJXn4r1vzki7kRb9OaSgygSseYvWTR101Rda
+         hTTbl2Tuwu3J+GHj3XGHD5AnkXQCbJZYbVVSw4nNAnNP5abrpmOKKJzZomHlaaEgRG97
+         q2FxTwnFr8abPDOFdQFTNJgXl+rd4M6doQzQnl8lknECW9nbDDLIlX5sT4Eu61rDntwz
+         1s0w==
+X-Gm-Message-State: AOAM531p5h978hQjhL+d1lUUEvbgbtnw4D+arsSPmOgXBDkkhGss/fb+
+        1JDSaHmE8pZ5ETG7gY20zJS3FA==
+X-Google-Smtp-Source: ABdhPJyrN92wesVNSdiLKRTG9JmJdL6a7KG51/9qIax+UzL8v9x8SdFCxpkAHF+Rtu86USdskx4XZQ==
+X-Received: by 2002:a92:d091:: with SMTP id h17mr9674349ilh.102.1640726806203;
+        Tue, 28 Dec 2021 13:26:46 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id i12sm5391119ilu.84.2021.12.28.13.26.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Dec 2021 13:26:45 -0800 (PST)
+Subject: Re: [PATCH 5.15 000/128] 5.15.12-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20211227151331.502501367@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <548fc71d-1eec-b350-38d3-b4740c22dbeb@linuxfoundation.org>
+Date:   Tue, 28 Dec 2021 14:26:44 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <18b6afe8-43b1-4159-0ddd-eca08f175f0a@colorfullife.com>
+In-Reply-To: <20211227151331.502501367@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Hello Vlad,
+On 12/27/21 8:29 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.12 release.
+> There are 128 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On 12/28/21 20:45, Uladzislau Rezki wrote:
-> > [...]
-> > Manfred, could you please have a look and if you have a time test it?
-> > I mean if it solves your issue. You can take over this patch and resend
-> > it, otherwise i can send it myself later if we all agree with it.
+> Responses should be made by Wed, 29 Dec 2021 15:13:09 +0000.
+> Anything received after that time might be too late.
 > 
-> I think we mix tasks: We have a bug in ipc/sem.c, thus we need a solution
-> suitable for stable.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.12-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
 > 
-> Fixes: fc37a3b8b438 ("[PATCH] ipc sem: use kvmalloc for sem_undo
-> allocation")
-> Cc: stable@vger.kernel.org
+> thanks,
 > 
-> I think for stable, there are only two options:
-> 
-> - change ipc/sem.c, call kvfree() after dropping the spinlock
-> 
-> - change kvfree() to use vfree_atomic().
-> 
-> From my point of view, both approaches are fine.
-> 
-> I.e. I'm waiting for feedback from an mm maintainer.
-> 
-> As soon as it is agreed, I will retest the chosen solution.
-> 
-Here for me it anyway looks like a change and it is hard to judge
-if the second solution is stable or not, because it is a new change
-and the kvfree() interface is changed internally.
+> greg k-h
 
-> 
-> Now you propose to redesign vfree(), so that vfree() is safe to be called
-> while holding spinlocks:
-> 
-> > <snip>
-> > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> > index d2a00ad4e1dd..b82db44fea60 100644
-> > --- a/mm/vmalloc.c
-> > +++ b/mm/vmalloc.c
-> > @@ -1717,17 +1717,10 @@ static bool __purge_vmap_area_lazy(unsigned long start, unsigned long end)
-> >   	return true;
-> >   }
-> > -/*
-> > - * Kick off a purge of the outstanding lazy areas. Don't bother if somebody
-> > - * is already purging.
-> > - */
-> > -static void try_purge_vmap_area_lazy(void)
-> > -{
-> > -	if (mutex_trylock(&vmap_purge_lock)) {
-> > -		__purge_vmap_area_lazy(ULONG_MAX, 0);
-> > -		mutex_unlock(&vmap_purge_lock);
-> > -	}
-> > -}
-> > +static void purge_vmap_area_lazy(void);
-> > +static void drain_vmap_area(struct work_struct *work);
-> > +static DECLARE_WORK(drain_vmap_area_work, drain_vmap_area);
-> > +static atomic_t drain_vmap_area_work_in_progress;
-> >   /*
-> >    * Kick off a purge of the outstanding lazy areas.
-> > @@ -1740,6 +1733,22 @@ static void purge_vmap_area_lazy(void)
-> >   	mutex_unlock(&vmap_purge_lock);
-> >   }
-> > +static void drain_vmap_area(struct work_struct *work)
-> > +{
-> > +	mutex_lock(&vmap_purge_lock);
-> > +	__purge_vmap_area_lazy(ULONG_MAX, 0);
-> > +	mutex_unlock(&vmap_purge_lock);
-> > +
-> > +	/*
-> > +	 * Check if rearming is still required. If not, we are
-> > +	 * done and can let a next caller to initiate a new drain.
-> > +	 */
-> > +	if (atomic_long_read(&vmap_lazy_nr) > lazy_max_pages())
-> > +		schedule_work(&drain_vmap_area_work);
-> > +	else
-> > +		atomic_set(&drain_vmap_area_work_in_progress, 0);
-> > +}
-> > +
-> >   /*
-> >    * Free a vmap area, caller ensuring that the area has been unmapped
-> >    * and flush_cache_vunmap had been called for the correct range
-> > @@ -1766,7 +1775,8 @@ static void free_vmap_area_noflush(struct vmap_area *va)
-> >   	/* After this point, we may free va at any time */
-> >   	if (unlikely(nr_lazy > lazy_max_pages()))
-> > -		try_purge_vmap_area_lazy();
-> > +		if (!atomic_xchg(&drain_vmap_area_work_in_progress, 1))
-> > +			schedule_work(&drain_vmap_area_work);
-> >   }
-> >   /*
-> > <snip>
-> I do now know the mm code well enough to understand the side effects of the
-> change. And doubt that it is suitable for stable, i.e. we need the simple
-> patch first.
-> 
-Well, it is as simple as it could be :)
+Compiled and booted on my test system. No dmesg regressions.
 
---
-Vlad Rezki
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
