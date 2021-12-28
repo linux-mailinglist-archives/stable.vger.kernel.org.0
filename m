@@ -2,231 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 606194808CB
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 12:28:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C524808FB
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 13:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229698AbhL1L2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 06:28:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229653AbhL1L2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 06:28:07 -0500
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A7E6C061574
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 03:28:07 -0800 (PST)
-Received: by mail-yb1-xb33.google.com with SMTP id y130so28431657ybe.8
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 03:28:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=9tiYE+A5IsV8BNtDtNs94jTBqjMG3OVIBQ1Y9dvwNeU=;
-        b=iT+JbpJ/0J5llTk5+bWUgst+LAznGzXsmHfDdGPW5yHKMSdxaylFwb6UU0sJkELePb
-         yQHN4ccaeYSsWdRi4umvzlNPg3ELfhv+KyIlLUqXtSG3GeCuoXF3hiSdDrGpUjkHjzIb
-         8WaLaOxIidn2Uic8zPe9F8kWmBq3mM4+RyTOdZX2IHGxBoJg9rSpdahqRIhgSJ0fChq3
-         AczoTXLe0qa65/awFyO1M4dB/AUYsm78eLprNDVpKXQInwtIi9rhmlskXX8+KlAtD0S1
-         0FfhHx+sTUluN1iWNDLNA48FHqOPTew5ma0SUNAbzzCxd+gA4PL6EeArizolBrw16NiK
-         mBdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=9tiYE+A5IsV8BNtDtNs94jTBqjMG3OVIBQ1Y9dvwNeU=;
-        b=7VCB3yxeBSsJ1GBTVBIPOEspAIBShLVJ7/IfTKCdf0D3lf33wtuaNlMer9gDrcBYCq
-         KVmZDuhkKU6se4ZLjdPuGr1cgYxp3crkui4hHvJyusnVm9IBaLmZzgerya7TN+kntb7B
-         eLqxIBfAALO9xLTQEWav2ykWUBdb0iatmW4E12PfxJmT0jxhUr9PgEybZiMb5ifIEjnl
-         SAG9NHwVe9cLUnq+YRpui8bSMo+y5Bbm3vI+ukqDtRQyS/WVfxDg9XUOGtMtsIbikMQI
-         bwT0Q5hn1i9NgfdjBGGvEk3HyUDkmtaglqrKaoHmdEM+kcuMabNML984gVv2fkHBJK6u
-         RUMg==
-X-Gm-Message-State: AOAM533o6EJ/NdvMZu2N2+3czi0ji3yb/6EwNyc9eYdGIdx4HIOc9L7V
-        ifFQ8NCw0obVpPG4iHNYKwzr4gcWaE8Kq1+hEJGnUcjC9qCpZg==
-X-Google-Smtp-Source: ABdhPJyjWE4BTyxeE3NqaYlYpafpe/S7FNUUOnFgLYAI0fA23TdxE1d2LZjiYpqvZKf5VcXfm2+6bAX+ZogEPXRiEhE=
-X-Received: by 2002:a25:84c3:: with SMTP id x3mr7938287ybm.553.1640690886250;
- Tue, 28 Dec 2021 03:28:06 -0800 (PST)
+        id S230268AbhL1MLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 07:11:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58290 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230256AbhL1MLp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 07:11:45 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 058AF611CA
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 12:11:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C52DCC36AE7;
+        Tue, 28 Dec 2021 12:11:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640693504;
+        bh=4bwd16o50NPnijm6vEgnLq16LhP1YtIdnMMSJIuM1jI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PYNy8nxPoyMS3C5BrwAK7ude/XHOw/+hAOpgRMDQru/KElnD4yjDJysCdAE/W/FUq
+         badJyZoD90rcGSHTxfDtaxheN4sXYTVykjn9Zf2RNDwMd+ahnrCzKt9hHbbloztkR/
+         Pt9AnwrE16yjxx0owhEC0+xXLY/dsy8F24WHTEww=
+Date:   Tue, 28 Dec 2021 13:11:41 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jason Self <jason@bluehome.net>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please revert HID: add hid_is_usb() function to make it simpler
+ for USB detection
+Message-ID: <Ycr+/UJZ18e2o4go@kroah.com>
+References: <20211227172618.6c3eb077@valencia>
+ <YcrBraOFiQN6ZiXC@kroah.com>
 MIME-Version: 1.0
-References: <20211227151318.475251079@linuxfoundation.org>
-In-Reply-To: <20211227151318.475251079@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 28 Dec 2021 16:57:55 +0530
-Message-ID: <CA+G9fYvpNZsU05y8i6XKfG08QXJo6O0k2R1FmK0_XTJb1-PSZA@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/29] 4.14.260-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YcrBraOFiQN6ZiXC@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 27 Dec 2021 at 21:00, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.260 release.
-> There are 29 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 29 Dec 2021 15:13:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.260-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Dec 28, 2021 at 08:50:05AM +0100, Greg KH wrote:
+> On Mon, Dec 27, 2021 at 05:26:18PM -0800, Jason Self wrote:
+> > While compiling 5.4.168 for m68k with the attached config I encountered
+> > a compile error doing make -j$(nproc) bindeb-pkg.
+> > 
+> > I see that it is also affecting all older current releases too. In
+> > addition to the 5.4 series this also affects 4.19, 4.14, 4.9 and 4.4.
+> > 
+> > awk '!x[$0]++' init/modules.order usr/modules.order
+> > arch/m68k/kernel/modules.order arch/m68k/mm/modules.order
+> > arch/m68k/q40/modules.order arch/m68k/amiga/modules.order
+> > arch/m68k/atari/modules.order arch/m68k/mac/modules.order
+> > arch/m68k/apollo/modules.order arch/m68k/mvme147/modules.order
+> > arch/m68k/mvme16x/modules.order arch/m68k/bvme6000/modules.order
+> > arch/m68k/emu/modules.order arch/m68k/fpsp040/modules.order
+> > arch/m68k/ifpsp060/modules.order arch/m68k/math-emu/modules.order
+> > kernel/modules.order certs/modules.order mm/modules.order
+> > fs/modules.order ipc/modules.order security/modules.order
+> > crypto/modules.order block/modules.order drivers/modules.order
+> > sound/modules.order net/modules.order lib/modules.order
+> > arch/m68k/lib/modules.order virt/modules.order > modules.order awk
+> > '!x[$0]++' init/modules.builtin usr/modules.builtin
+> > arch/m68k/kernel/modules.builtin arch/m68k/mm/modules.builtin
+> > arch/m68k/q40/modules.builtin arch/m68k/amiga/modules.builtin
+> > arch/m68k/atari/modules.builtin arch/m68k/mac/modules.builtin
+> > arch/m68k/apollo/modules.builtin arch/m68k/mvme147/modules.builtin
+> > arch/m68k/mvme16x/modules.builtin arch/m68k/bvme6000/modules.builtin
+> > arch/m68k/emu/modules.builtin arch/m68k/fpsp040/modules.builtin
+> > arch/m68k/ifpsp060/modules.builtin arch/m68k/math-emu/modules.builtin
+> > kernel/modules.builtin certs/modules.builtin mm/modules.builtin
+> > fs/modules.builtin ipc/modules.builtin security/modules.builtin
+> > crypto/modules.builtin block/modules.builtin drivers/modules.builtin
+> > sound/modules.builtin net/modules.builtin lib/modules.builtin
+> > arch/m68k/lib/modules.builtin virt/modules.builtin > modules.builtin
+> > make -f ./scripts/Makefile.modpost sed 's/ko$/o/' modules.order |
+> > scripts/mod/modpost -m  -o ./Module.symvers        -s -T - vmlinux
+> > ERROR: "usb_hid_driver" [drivers/hid/hid-asus.ko] undefined!
+> > scripts/Makefile.modpost:93: recipe for target '__modpost' failed
+> > make[1]: *** [__modpost] Error 1 Makefile:1324: recipe for target
+> > 'modules' failed make: *** [modules] Error 2
+> > 
+> > Version 5.4.164 was the last good version. Doing git bisect on the
+> > stable kernel tree has given me this:
+> > 
+> > 6e1e0a01425810494ce00d7b800b69482790b198 is the first bad commit
+> > commit 6e1e0a01425810494ce00d7b800b69482790b198
+> > Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Date:   Wed Dec 1 19:35:01 2021 +0100
+> > 
+> >     HID: add hid_is_usb() function to make it simpler for USB detection
+> >     
+> >     commit f83baa0cb6cfc92ebaf7f9d3a99d7e34f2e77a8a upstream.
+> >     
+> >     A number of HID drivers already call hid_is_using_ll_driver() but
+> >     only for the detection of if this is a USB device or not.  Make
+> >     this more obvious by creating hid_is_usb() and calling the function
+> >     that way. 
+> >     Also converts the existing hid_is_using_ll_driver() functions to
+> >     use the new call.
+> >     
+> >     Cc: Jiri Kosina <jikos@kernel.org>
+> >     Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >     Cc: linux-input@vger.kernel.org
+> >     Cc: stable@vger.kernel.org
+> >     Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >     Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >     Link:
+> >     https://lore.kernel.org/r/20211201183503.2373082-1-gregkh@linuxfoundation.org
+> >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> >  drivers/hid/hid-asus.c           | 2 +-
+> >  drivers/hid/hid-logitech-dj.c    | 2 +-
+> >  drivers/hid/hid-u2fzero.c        | 2 +-
+> >  drivers/hid/hid-uclogic-params.c | 3 +--
+> >  drivers/hid/wacom_sys.c          | 2 +-
+> >  include/linux/hid.h              | 5 +++++
+> >  6 files changed, 10 insertions(+), 6 deletions(-)
+> 
+> 
+> There were follow-on patches to prevent modules from being built if the
+> right options were not enabled, so bisection might fail with your config
+> at this point.  I'll check to see if those were added properly after my
+> morning coffee...
 
+Looks like f237d9028f84 ("HID: add USB_HID dependancy on some USB HID
+drivers") was properly backported.  But maybe the dependancy needs to
+also be added for a few more drivers as well, like c4f0126d487f ("HID:
+asus: Add depends on USB_HID to HID_ASUS Kconfig option"), right?
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+If you backport that commit, does that solve this issue?
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+thanks,
 
-## Build
-* kernel: 4.14.260-rc1
-* git: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git',
-'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
-* git branch: linux-4.14.y
-* git commit: 5ddb49631ce806b40b03cc8691a81579eea08178
-* git describe: v4.14.259-30-g5ddb49631ce8
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.259-30-g5ddb49631ce8
-
-## No Test Regressions (compared to v4.14.259)
-
-## No Test Fixes (compared to v4.14.259)
-
-## Test result summary
-total: 75212, pass: 60370, fail: 620, skip: 11931, xfail: 2291
-
-## Build Summary
-* arm: 254 total, 242 passed, 12 failed
-* arm64: 32 total, 32 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* powerpc: 52 total, 0 passed, 52 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 31 total, 31 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
