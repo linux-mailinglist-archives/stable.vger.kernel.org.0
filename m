@@ -2,131 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE094809DE
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 15:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5AAC480A0B
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 15:39:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbhL1OTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 09:19:34 -0500
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:54617 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231821AbhL1OTd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 09:19:33 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R301e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=shile.zhang@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0V06qfOm_1640701170;
-Received: from 30.225.28.46(mailfrom:shile.zhang@linux.alibaba.com fp:SMTPD_---0V06qfOm_1640701170)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 28 Dec 2021 22:19:31 +0800
-Message-ID: <1cc25ebe-2c68-458b-15a2-fc4c80ba2054@linux.alibaba.com>
-Date:   Tue, 28 Dec 2021 22:19:30 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.3.2
-Subject: Re: [PATCH 5.10.y] drm/cirrus: fix a NULL vs IS_ERR() checks
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S233778AbhL1OjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 09:39:07 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60746 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233497AbhL1OjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 09:39:06 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 708D1611DF
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:39:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530C9C36AE7;
+        Tue, 28 Dec 2021 14:39:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640702345;
+        bh=qjT2lqS/PnmtUxX1Z85O47mdQR+WJROTVDJI2jvJJnI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=jZU0MD5yRlQzPIikllP+YefpGihF3ztcr/xBjq+HgYxCveN4XIfti6ndgXLGKBdQN
+         8meCD2ygTrwMup+TBXHl3XiItnjsgW79a8Z+btxinVJ3Y6QTlQc3bbB7i/w6hUHZSX
+         zZgPqzfeA2k73fo1Kg6y8fLpXR9qEmruUmtfjSD8=
+Date:   Tue, 28 Dec 2021 15:39:02 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shile Zhang <shile.zhang@linux.alibaba.com>
 Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
         Wen Kang <kw01107137@alibaba-inc.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10.y] drm/cirrus: fix a NULL vs IS_ERR() checks
+Message-ID: <Ycshhu6pXC4Pt1YK@kroah.com>
 References: <20211228132556.108711-1-shile.zhang@linux.alibaba.com>
  <YcsWcqVN7Dwue1I2@kroah.com>
  <f4dedbfc-0cca-a6cb-996b-4bd928008269@linux.alibaba.com>
  <YcsZqU8M11elHqg3@kroah.com>
-From:   Shile Zhang <shile.zhang@linux.alibaba.com>
-In-Reply-To: <YcsZqU8M11elHqg3@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+ <1cc25ebe-2c68-458b-15a2-fc4c80ba2054@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1cc25ebe-2c68-458b-15a2-fc4c80ba2054@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/12/28 22:05, Greg Kroah-Hartman wrote:
-> On Tue, Dec 28, 2021 at 09:56:25PM +0800, Shile Zhang wrote:
->>
->>
->> On 2021/12/28 21:51, Greg Kroah-Hartman wrote:
->>> On Tue, Dec 28, 2021 at 09:25:56PM +0800, Shile Zhang wrote:
->>>> The function drm_gem_shmem_vmap can returns error pointers as well,
->>>> which could cause following kernel crash:
->>>>
->>>> BUG: unable to handle page fault for address: fffffffffffffffc
->>>> PGD 1426a12067 P4D 1426a12067 PUD 1426a14067 PMD 0
->>>> Oops: 0000 [#1] SMP NOPTI
->>>> CPU: 12 PID: 3598532 Comm: stress-ng Kdump: loaded Not tainted 5.10.50.x86_64 #1
->>>> ...
->>>> RIP: 0010:memcpy_toio+0x23/0x50
->>>> Code: 00 00 00 00 0f 1f 00 0f 1f 44 00 00 48 85 d2 74 28 40 f6 c7 01 75 2b 48 83 fa 01 76 06 40 f6 c7 02 75 17 48 89 d1 48 c1 e9 02 <f3> a5 f6 c2 02 74 02 66 a5 f6 c2 01 74 01 a4 c3 66 a5 48 83 ea 02
->>>> RSP: 0018:ffffafbf8a203c68 EFLAGS: 00010216
->>>> RAX: 0000000000000000 RBX: fffffffffffffffc RCX: 0000000000000200
->>>> RDX: 0000000000000800 RSI: fffffffffffffffc RDI: ffffafbf82000000
->>>> RBP: ffffafbf82000000 R08: 0000000000000002 R09: 0000000000000000
->>>> R10: 00000000000002b5 R11: 0000000000000000 R12: 0000000000000800
->>>> R13: ffff8a6801099300 R14: 0000000000000001 R15: 0000000000000300
->>>> FS:  00007f4a6bc5f740(0000) GS:ffff8a8641900000(0000) knlGS:0000000000000000
->>>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>>> CR2: fffffffffffffffc CR3: 00000016d3874001 CR4: 00000000003606e0
->>>> Call Trace:
->>>>    drm_fb_memcpy_dstclip+0x5e/0x80 [drm_kms_helper]
->>>>    cirrus_fb_blit_rect.isra.0+0xb7/0xe0 [cirrus]
->>>>    cirrus_pipe_update+0x9f/0xa8 [cirrus]
->>>>    drm_atomic_helper_commit_planes+0xb8/0x220 [drm_kms_helper]
->>>>    drm_atomic_helper_commit_tail+0x42/0x80 [drm_kms_helper]
->>>>    commit_tail+0xce/0x130 [drm_kms_helper]
->>>>    drm_atomic_helper_commit+0x113/0x140 [drm_kms_helper]
->>>>    drm_client_modeset_commit_atomic+0x1c4/0x200 [drm]
->>>>    drm_client_modeset_commit_locked+0x53/0x80 [drm]
->>>>    drm_client_modeset_commit+0x24/0x40 [drm]
->>>>    drm_fbdev_client_restore+0x48/0x85 [drm_kms_helper]
->>>>    drm_client_dev_restore+0x64/0xb0 [drm]
->>>>    drm_release+0xf2/0x110 [drm]
->>>>    __fput+0x96/0x240
->>>>    task_work_run+0x5c/0x90
->>>>    exit_to_user_mode_loop+0xce/0xd0
->>>>    exit_to_user_mode_prepare+0x6a/0x70
->>>>    syscall_exit_to_user_mode+0x12/0x40
->>>>    entry_SYSCALL_64_after_hwframe+0x44/0xa9
->>>> RIP: 0033:0x7f4a6bd82c2b
->>>>
->>>> Fixes: ab3e023b1b4c9 ("drm/cirrus: rewrite and modernize driver.")
->>>>
->>>> CC: stable@vger.kernel.org
->>>> Reported-by: Wen Kang <kw01107137@alibaba-inc.com>
->>>> Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
->>>> ---
->>>>    drivers/gpu/drm/tiny/cirrus.c | 2 +-
->>>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> What is the git commit id of this patch in Linus's tree?
->>
->> Sorry, I checked that this issue seems fixed by the improvement in following
->> series:
->> https://patchwork.freedesktop.org/series/82217/
+On Tue, Dec 28, 2021 at 10:19:30PM +0800, Shile Zhang wrote:
 > 
-> I do not understand, that is a huge patch series.  What individual
-> commit in Linus's tree resolves this?
-
-Sorry,
-1. This crash only happened in 5.10.y tree now, which fixed in Linus's 
-tree by refactoring in above huge series.
-
-2. It's hard to get the individual commit to fix this issue from that 
-series. So I try to send this simple fix help to fix only for 5.10.y, 
-which is needless to Linus's tree.
-
-3. If this patch is not OK for stable tree, Could you please help to 
-backport the correct fix from Linus's tree in next version of 5.10.y?
-
-Thanks!
-
 > 
->> But which does not backport into 5.10.y yet.
->> So, maybe you can help to backport this series help to fix this issue?
+> On 2021/12/28 22:05, Greg Kroah-Hartman wrote:
+> > On Tue, Dec 28, 2021 at 09:56:25PM +0800, Shile Zhang wrote:
+> > > 
+> > > 
+> > > On 2021/12/28 21:51, Greg Kroah-Hartman wrote:
+> > > > On Tue, Dec 28, 2021 at 09:25:56PM +0800, Shile Zhang wrote:
+> > > > > The function drm_gem_shmem_vmap can returns error pointers as well,
+> > > > > which could cause following kernel crash:
+> > > > > 
+> > > > > BUG: unable to handle page fault for address: fffffffffffffffc
+> > > > > PGD 1426a12067 P4D 1426a12067 PUD 1426a14067 PMD 0
+> > > > > Oops: 0000 [#1] SMP NOPTI
+> > > > > CPU: 12 PID: 3598532 Comm: stress-ng Kdump: loaded Not tainted 5.10.50.x86_64 #1
+> > > > > ...
+> > > > > RIP: 0010:memcpy_toio+0x23/0x50
+> > > > > Code: 00 00 00 00 0f 1f 00 0f 1f 44 00 00 48 85 d2 74 28 40 f6 c7 01 75 2b 48 83 fa 01 76 06 40 f6 c7 02 75 17 48 89 d1 48 c1 e9 02 <f3> a5 f6 c2 02 74 02 66 a5 f6 c2 01 74 01 a4 c3 66 a5 48 83 ea 02
+> > > > > RSP: 0018:ffffafbf8a203c68 EFLAGS: 00010216
+> > > > > RAX: 0000000000000000 RBX: fffffffffffffffc RCX: 0000000000000200
+> > > > > RDX: 0000000000000800 RSI: fffffffffffffffc RDI: ffffafbf82000000
+> > > > > RBP: ffffafbf82000000 R08: 0000000000000002 R09: 0000000000000000
+> > > > > R10: 00000000000002b5 R11: 0000000000000000 R12: 0000000000000800
+> > > > > R13: ffff8a6801099300 R14: 0000000000000001 R15: 0000000000000300
+> > > > > FS:  00007f4a6bc5f740(0000) GS:ffff8a8641900000(0000) knlGS:0000000000000000
+> > > > > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > > > > CR2: fffffffffffffffc CR3: 00000016d3874001 CR4: 00000000003606e0
+> > > > > Call Trace:
+> > > > >    drm_fb_memcpy_dstclip+0x5e/0x80 [drm_kms_helper]
+> > > > >    cirrus_fb_blit_rect.isra.0+0xb7/0xe0 [cirrus]
+> > > > >    cirrus_pipe_update+0x9f/0xa8 [cirrus]
+> > > > >    drm_atomic_helper_commit_planes+0xb8/0x220 [drm_kms_helper]
+> > > > >    drm_atomic_helper_commit_tail+0x42/0x80 [drm_kms_helper]
+> > > > >    commit_tail+0xce/0x130 [drm_kms_helper]
+> > > > >    drm_atomic_helper_commit+0x113/0x140 [drm_kms_helper]
+> > > > >    drm_client_modeset_commit_atomic+0x1c4/0x200 [drm]
+> > > > >    drm_client_modeset_commit_locked+0x53/0x80 [drm]
+> > > > >    drm_client_modeset_commit+0x24/0x40 [drm]
+> > > > >    drm_fbdev_client_restore+0x48/0x85 [drm_kms_helper]
+> > > > >    drm_client_dev_restore+0x64/0xb0 [drm]
+> > > > >    drm_release+0xf2/0x110 [drm]
+> > > > >    __fput+0x96/0x240
+> > > > >    task_work_run+0x5c/0x90
+> > > > >    exit_to_user_mode_loop+0xce/0xd0
+> > > > >    exit_to_user_mode_prepare+0x6a/0x70
+> > > > >    syscall_exit_to_user_mode+0x12/0x40
+> > > > >    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> > > > > RIP: 0033:0x7f4a6bd82c2b
+> > > > > 
+> > > > > Fixes: ab3e023b1b4c9 ("drm/cirrus: rewrite and modernize driver.")
+> > > > > 
+> > > > > CC: stable@vger.kernel.org
+> > > > > Reported-by: Wen Kang <kw01107137@alibaba-inc.com>
+> > > > > Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+> > > > > ---
+> > > > >    drivers/gpu/drm/tiny/cirrus.c | 2 +-
+> > > > >    1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > 
+> > > > What is the git commit id of this patch in Linus's tree?
+> > > 
+> > > Sorry, I checked that this issue seems fixed by the improvement in following
+> > > series:
+> > > https://patchwork.freedesktop.org/series/82217/
+> > 
+> > I do not understand, that is a huge patch series.  What individual
+> > commit in Linus's tree resolves this?
 > 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Sorry,
+> 1. This crash only happened in 5.10.y tree now, which fixed in Linus's tree
+> by refactoring in above huge series.
+
+Which specific patch resolved the issue?
+
+> 2. It's hard to get the individual commit to fix this issue from that
+> series. So I try to send this simple fix help to fix only for 5.10.y, which
+> is needless to Linus's tree.
+
+'git bisect' should be able to help you out.
+
+> 3. If this patch is not OK for stable tree, Could you please help to
+> backport the correct fix from Linus's tree in next version of 5.10.y?
+
+If you can provide the commit id of the fix, sure.
+
+thanks,
+
+greg k-h
