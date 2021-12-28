@@ -2,134 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5AAC480A0B
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 15:39:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 509C6480AEE
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 16:39:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233778AbhL1OjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 09:39:07 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60746 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233497AbhL1OjG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 09:39:06 -0500
+        id S235302AbhL1PjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 10:39:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50214 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235256AbhL1Pi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 10:38:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 708D1611DF
-        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 14:39:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530C9C36AE7;
-        Tue, 28 Dec 2021 14:39:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640702345;
-        bh=qjT2lqS/PnmtUxX1Z85O47mdQR+WJROTVDJI2jvJJnI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jZU0MD5yRlQzPIikllP+YefpGihF3ztcr/xBjq+HgYxCveN4XIfti6ndgXLGKBdQN
-         8meCD2ygTrwMup+TBXHl3XiItnjsgW79a8Z+btxinVJ3Y6QTlQc3bbB7i/w6hUHZSX
-         zZgPqzfeA2k73fo1Kg6y8fLpXR9qEmruUmtfjSD8=
-Date:   Tue, 28 Dec 2021 15:39:02 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
-        Wen Kang <kw01107137@alibaba-inc.com>, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10.y] drm/cirrus: fix a NULL vs IS_ERR() checks
-Message-ID: <Ycshhu6pXC4Pt1YK@kroah.com>
-References: <20211228132556.108711-1-shile.zhang@linux.alibaba.com>
- <YcsWcqVN7Dwue1I2@kroah.com>
- <f4dedbfc-0cca-a6cb-996b-4bd928008269@linux.alibaba.com>
- <YcsZqU8M11elHqg3@kroah.com>
- <1cc25ebe-2c68-458b-15a2-fc4c80ba2054@linux.alibaba.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15F85B81232;
+        Tue, 28 Dec 2021 15:38:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5E9DC36AE7;
+        Tue, 28 Dec 2021 15:38:55 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="AEsFxnvG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1640705934;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=xTlLiKh0j/yvjLyt9s1R3EwDW867RrzxbKV3/tx4QBE=;
+        b=AEsFxnvGo2dkabBTC4ailIgpKyZfbzaJM6/4wr1QzIHtiCs971fi/3XvMmpgdtZdcxMivI
+        Rvb2VWZoBhFAojU3lpGPBeTB2+vbUmLaNLD6dIXdspYP3C8N9cRrBdU/I6XevHhU/FGyfb
+        mMD8rbO7xJFuxrmNTmz2SxCIGg7HoEw=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 36d37c32 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Tue, 28 Dec 2021 15:38:54 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     linux-kernel@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Theodore Ts'o" <tytso@mit.edu>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        "Ivan T. Ivanov" <iivanov@suse.de>,
+        Ard Biesheuvel <ardb@kernel.org>, linux-efi@vger.kernel.org
+Cc:     stable@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH v7 1/4] random: fix crash on multiple early calls to add_bootloader_randomness()
+Date:   Tue, 28 Dec 2021 16:38:23 +0100
+Message-Id: <20211228153826.448805-1-Jason@zx2c4.com>
+In-Reply-To: <CAHmME9qC2iX5EvDLj5YBZBdDJ_n8xTUYZT73qonsEhbKCwizFw@mail.gmail.com>
+References: <CAHmME9qC2iX5EvDLj5YBZBdDJ_n8xTUYZT73qonsEhbKCwizFw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1cc25ebe-2c68-458b-15a2-fc4c80ba2054@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Dec 28, 2021 at 10:19:30PM +0800, Shile Zhang wrote:
-> 
-> 
-> On 2021/12/28 22:05, Greg Kroah-Hartman wrote:
-> > On Tue, Dec 28, 2021 at 09:56:25PM +0800, Shile Zhang wrote:
-> > > 
-> > > 
-> > > On 2021/12/28 21:51, Greg Kroah-Hartman wrote:
-> > > > On Tue, Dec 28, 2021 at 09:25:56PM +0800, Shile Zhang wrote:
-> > > > > The function drm_gem_shmem_vmap can returns error pointers as well,
-> > > > > which could cause following kernel crash:
-> > > > > 
-> > > > > BUG: unable to handle page fault for address: fffffffffffffffc
-> > > > > PGD 1426a12067 P4D 1426a12067 PUD 1426a14067 PMD 0
-> > > > > Oops: 0000 [#1] SMP NOPTI
-> > > > > CPU: 12 PID: 3598532 Comm: stress-ng Kdump: loaded Not tainted 5.10.50.x86_64 #1
-> > > > > ...
-> > > > > RIP: 0010:memcpy_toio+0x23/0x50
-> > > > > Code: 00 00 00 00 0f 1f 00 0f 1f 44 00 00 48 85 d2 74 28 40 f6 c7 01 75 2b 48 83 fa 01 76 06 40 f6 c7 02 75 17 48 89 d1 48 c1 e9 02 <f3> a5 f6 c2 02 74 02 66 a5 f6 c2 01 74 01 a4 c3 66 a5 48 83 ea 02
-> > > > > RSP: 0018:ffffafbf8a203c68 EFLAGS: 00010216
-> > > > > RAX: 0000000000000000 RBX: fffffffffffffffc RCX: 0000000000000200
-> > > > > RDX: 0000000000000800 RSI: fffffffffffffffc RDI: ffffafbf82000000
-> > > > > RBP: ffffafbf82000000 R08: 0000000000000002 R09: 0000000000000000
-> > > > > R10: 00000000000002b5 R11: 0000000000000000 R12: 0000000000000800
-> > > > > R13: ffff8a6801099300 R14: 0000000000000001 R15: 0000000000000300
-> > > > > FS:  00007f4a6bc5f740(0000) GS:ffff8a8641900000(0000) knlGS:0000000000000000
-> > > > > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > > > CR2: fffffffffffffffc CR3: 00000016d3874001 CR4: 00000000003606e0
-> > > > > Call Trace:
-> > > > >    drm_fb_memcpy_dstclip+0x5e/0x80 [drm_kms_helper]
-> > > > >    cirrus_fb_blit_rect.isra.0+0xb7/0xe0 [cirrus]
-> > > > >    cirrus_pipe_update+0x9f/0xa8 [cirrus]
-> > > > >    drm_atomic_helper_commit_planes+0xb8/0x220 [drm_kms_helper]
-> > > > >    drm_atomic_helper_commit_tail+0x42/0x80 [drm_kms_helper]
-> > > > >    commit_tail+0xce/0x130 [drm_kms_helper]
-> > > > >    drm_atomic_helper_commit+0x113/0x140 [drm_kms_helper]
-> > > > >    drm_client_modeset_commit_atomic+0x1c4/0x200 [drm]
-> > > > >    drm_client_modeset_commit_locked+0x53/0x80 [drm]
-> > > > >    drm_client_modeset_commit+0x24/0x40 [drm]
-> > > > >    drm_fbdev_client_restore+0x48/0x85 [drm_kms_helper]
-> > > > >    drm_client_dev_restore+0x64/0xb0 [drm]
-> > > > >    drm_release+0xf2/0x110 [drm]
-> > > > >    __fput+0x96/0x240
-> > > > >    task_work_run+0x5c/0x90
-> > > > >    exit_to_user_mode_loop+0xce/0xd0
-> > > > >    exit_to_user_mode_prepare+0x6a/0x70
-> > > > >    syscall_exit_to_user_mode+0x12/0x40
-> > > > >    entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> > > > > RIP: 0033:0x7f4a6bd82c2b
-> > > > > 
-> > > > > Fixes: ab3e023b1b4c9 ("drm/cirrus: rewrite and modernize driver.")
-> > > > > 
-> > > > > CC: stable@vger.kernel.org
-> > > > > Reported-by: Wen Kang <kw01107137@alibaba-inc.com>
-> > > > > Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-> > > > > ---
-> > > > >    drivers/gpu/drm/tiny/cirrus.c | 2 +-
-> > > > >    1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > 
-> > > > What is the git commit id of this patch in Linus's tree?
-> > > 
-> > > Sorry, I checked that this issue seems fixed by the improvement in following
-> > > series:
-> > > https://patchwork.freedesktop.org/series/82217/
-> > 
-> > I do not understand, that is a huge patch series.  What individual
-> > commit in Linus's tree resolves this?
-> 
-> Sorry,
-> 1. This crash only happened in 5.10.y tree now, which fixed in Linus's tree
-> by refactoring in above huge series.
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-Which specific patch resolved the issue?
+Currently, if CONFIG_RANDOM_TRUST_BOOTLOADER is enabled, multiple calls
+to add_bootloader_randomness() are broken and can cause a NULL pointer
+dereference, as noted by Ivan T. Ivanov. This is not only a hypothetical
+problem, as qemu on arm64 may provide bootloader entropy via EFI and via
+devicetree.
 
-> 2. It's hard to get the individual commit to fix this issue from that
-> series. So I try to send this simple fix help to fix only for 5.10.y, which
-> is needless to Linus's tree.
+On the first call to add_hwgenerator_randomness(), crng_fast_load() is
+executed, and if the seed is long enough, crng_init will be set to 1.
+On subsequent calls to add_bootloader_randomness() and then to
+add_hwgenerator_randomness(), crng_fast_load() will be skipped. Instead,
+wait_event_interruptible() and then credit_entropy_bits() will be called.
+If the entropy count for that second seed is large enough, that proceeds
+to crng_reseed().
 
-'git bisect' should be able to help you out.
+However, both wait_event_interruptible() and crng_reseed() depends
+(at least in numa_crng_init()) on workqueues. Therefore, test whether
+system_wq is already initialized, which is a sufficient indicator that
+workqueue_init_early() has progressed far enough.
 
-> 3. If this patch is not OK for stable tree, Could you please help to
-> backport the correct fix from Linus's tree in next version of 5.10.y?
+If we wind up hitting the !system_wq case, we later want to do what
+would have been done there when wqs are up, so set a flag, and do that
+work later from the rand_initialize() call.
 
-If you can provide the commit id of the fix, sure.
+Reported-by: Ivan T. Ivanov <iivanov@suse.de>
+Fixes: 18b915ac6b0a ("efi/random: Treat EFI_RNG_PROTOCOL output as bootloader randomness")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+[Jason: added crng_need_done state and related logic.]
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ drivers/char/random.c | 56 +++++++++++++++++++++++++++----------------
+ 1 file changed, 36 insertions(+), 20 deletions(-)
 
-thanks,
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 82db125aaed7..b003e266a499 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -468,6 +468,7 @@ static struct crng_state primary_crng = {
+  * its value (from 0->1->2).
+  */
+ static int crng_init = 0;
++static bool crng_need_done = false;
+ #define crng_ready() (likely(crng_init > 1))
+ static int crng_init_cnt = 0;
+ static unsigned long crng_global_init_time = 0;
+@@ -835,6 +836,36 @@ static void __init crng_initialize_primary(struct crng_state *crng)
+ 	crng->init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
+ }
+ 
++static void crng_init_done(struct crng_state *crng)
++{
++	if (crng != &primary_crng || crng_init >= 2)
++		return;
++	if (!system_wq) {
++		/* We can't call numa_crng_init until we have workqueues,
++		 * so mark this for processing later. */
++		crng_need_done = true;
++		return;
++	}
++
++	invalidate_batched_entropy();
++	numa_crng_init();
++	crng_init = 2;
++	process_random_ready_list();
++	wake_up_interruptible(&crng_init_wait);
++	kill_fasync(&fasync, SIGIO, POLL_IN);
++	pr_notice("crng init done\n");
++	if (unseeded_warning.missed) {
++		pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
++			  unseeded_warning.missed);
++		unseeded_warning.missed = 0;
++	}
++	if (urandom_warning.missed) {
++		pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
++			  urandom_warning.missed);
++		urandom_warning.missed = 0;
++	}
++}
++
+ #ifdef CONFIG_NUMA
+ static void do_numa_crng_init(struct work_struct *work)
+ {
+@@ -989,25 +1020,7 @@ static void crng_reseed(struct crng_state *crng, struct entropy_store *r)
+ 	memzero_explicit(&buf, sizeof(buf));
+ 	WRITE_ONCE(crng->init_time, jiffies);
+ 	spin_unlock_irqrestore(&crng->lock, flags);
+-	if (crng == &primary_crng && crng_init < 2) {
+-		invalidate_batched_entropy();
+-		numa_crng_init();
+-		crng_init = 2;
+-		process_random_ready_list();
+-		wake_up_interruptible(&crng_init_wait);
+-		kill_fasync(&fasync, SIGIO, POLL_IN);
+-		pr_notice("crng init done\n");
+-		if (unseeded_warning.missed) {
+-			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
+-				  unseeded_warning.missed);
+-			unseeded_warning.missed = 0;
+-		}
+-		if (urandom_warning.missed) {
+-			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
+-				  urandom_warning.missed);
+-			urandom_warning.missed = 0;
+-		}
+-	}
++	crng_init_done(crng);
+ }
+ 
+ static void _extract_crng(struct crng_state *crng,
+@@ -1780,6 +1793,8 @@ static void __init init_std_data(struct entropy_store *r)
+ int __init rand_initialize(void)
+ {
+ 	init_std_data(&input_pool);
++	if (crng_need_done)
++		crng_init_done(&primary_crng);
+ 	crng_initialize_primary(&primary_crng);
+ 	crng_global_init_time = jiffies;
+ 	if (ratelimit_disable) {
+@@ -2288,7 +2303,8 @@ void add_hwgenerator_randomness(const char *buffer, size_t count,
+ 	 * We'll be woken up again once below random_write_wakeup_thresh,
+ 	 * or when the calling thread is about to terminate.
+ 	 */
+-	wait_event_interruptible(random_write_wait, kthread_should_stop() ||
++	wait_event_interruptible(random_write_wait,
++			!system_wq || kthread_should_stop() ||
+ 			ENTROPY_BITS(&input_pool) <= random_write_wakeup_bits);
+ 	mix_pool_bytes(poolp, buffer, count);
+ 	credit_entropy_bits(poolp, entropy);
+-- 
+2.34.1
 
-greg k-h
