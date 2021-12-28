@@ -2,28 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F0D480BAF
-	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 18:00:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB25B480BB8
+	for <lists+stable@lfdr.de>; Tue, 28 Dec 2021 18:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233000AbhL1RAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 12:00:52 -0500
-Received: from waam-it.co.il ([185.145.252.217]:57324 "EHLO waam-it.co.il"
+        id S229617AbhL1RCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 12:02:09 -0500
+Received: from waam-it.co.il ([185.145.252.217]:58014 "EHLO waam-it.co.il"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232923AbhL1RAw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Dec 2021 12:00:52 -0500
-X-Greylist: delayed 651 seconds by postgrey-1.27 at vger.kernel.org; Tue, 28 Dec 2021 12:00:51 EST
+        id S236532AbhL1RCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 Dec 2021 12:02:07 -0500
 Received: from waamitco by cp.waam-it.com with local (Exim 4.94.2)
         (envelope-from <support@waam-it.co.il>)
-        id 1n2Ffi-00089Z-V7
-        for stable@vger.kernel.org; Tue, 28 Dec 2021 18:49:58 +0200
+        id 1n2FgO-00019N-6N
+        for stable@vger.kernel.org; Tue, 28 Dec 2021 18:50:40 +0200
 To:     stable@vger.kernel.org
 Subject: Verifica urgente.
 X-PHP-Script: www.waam-it.co.il/wp-content/uploads/2021/11/mailer-gw2ul.php for 102.64.203.154
 X-PHP-Originating-Script: 1004:mailer-gw2ul.php
-Date:   Tue, 28 Dec 2021 16:49:58 +0000
+Date:   Tue, 28 Dec 2021 16:50:40 +0000
 From:   ATTORNEY KARIM ALASSANI <support@waam-it.co.il>
 Reply-To: attorney.karimalassani@gmail.com
-Message-ID: <2d623a58aff2faf69f23a8765c17f09e@www.waam-it.co.il>
+Message-ID: <eb7be6850fcbd79fbe8026836e6f6c7a@www.waam-it.co.il>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
