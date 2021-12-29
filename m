@@ -2,105 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73524480FCE
-	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 06:07:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E64014810C0
+	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 08:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234253AbhL2FH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Dec 2021 00:07:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52386 "EHLO
+        id S230210AbhL2HoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Dec 2021 02:44:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbhL2FH1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 00:07:27 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB34C061574;
-        Tue, 28 Dec 2021 21:07:27 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id w24so15045728ply.12;
-        Tue, 28 Dec 2021 21:07:27 -0800 (PST)
+        with ESMTP id S230025AbhL2HoB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 02:44:01 -0500
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB36C061574
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 23:44:01 -0800 (PST)
+Received: by mail-pf1-x442.google.com with SMTP id b22so18126034pfb.5
+        for <stable@vger.kernel.org>; Tue, 28 Dec 2021 23:44:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Y6D6kbQh7Cm8wpKn4BMX0UeN0YW2Jh8hSVkReFZ+rr0=;
-        b=AnBHZiOUD8KsAoY3K1MG71EP84nDDtl4vM6ADKBTqCbqMPspmtkokR/HH2W64G/Iea
-         rnLcZPFJdi4wKhjvqiJJNVvg7afGzvIvxYcKBQLI8bfKo9/Z1sVUu1+FnQshcyoRkwdL
-         3jvoxuuDXsy0+JrBqLu/Ppjoo9BrXpDZ5T/zUTZv7V8KC8/DvMPR4+C9ugsLTeqlKERP
-         aJcJJ4jOUduAzWlCMifNHlE97fZVFQ1JaYxinYRhThrZiUDBWfmzU6SQClmvECJBNoIs
-         y2cSFiJxID9b80EHl1eBBHw3F8jPliTe+8DXM39HPkU/geUN4oKxbE0TDdEJC5X3GYLt
-         /W4A==
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=RY4Ck/FbAOXQAIlJ7NzArEMRakTYUxJxSeRPJiZEvjY=;
+        b=CF9dLUW3IQM1RySFjP/HkJyiIfEFf8Dj/uyB/Q+Jgw+7zW9mkATANz2r2FlM2XhYJ+
+         oiZStgqGLKUl8/HK77jbCaFLvB/VI3PSj/vIiVTEQ04FjHvWmnVNsVuEVpLYeoQLm+b5
+         nqs2j0Sa/MXkvj89RZNBMJjHFHMT+Byrx2BJ4Y0nDt3KMf5RZp99LuCvYYtih+Q3aC+t
+         nGiqIXTRvJim0Fa4Esznz/ufuwcuWXJ/mElYa3hzkx5sOA84+vdaXBrNch7MIHTpfFDg
+         2NC10A1jh/Ful79Niz7x7BYzFhK1FzxF0CGGXbcYDa/n6fv4mUAUdmOWfseqaNqDtASo
+         h73w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Y6D6kbQh7Cm8wpKn4BMX0UeN0YW2Jh8hSVkReFZ+rr0=;
-        b=2XfOfQJTNBSuSv/qQE1z4TrDwxZc70CDFyLy1KciuZnghzqUpwTukMxKYOzTMIf6p+
-         zBRLVvPyHAvYNbfs166bOiurQBLYU1dU5i9jO9bnim1DrvYcHMFzFsaie6dC1PKVcS1A
-         xUhsuNOS0gABbCEh+tpKafZQNEDtw6ZbnvA+DYzKZUT13QRPYdQfG3cNEAlb3O2VrYPq
-         sDK/8TxzTTWpGoo1e+OU2KSDbLikU4fUXmjpAbDf+Tc8tLkX0sknsgNGFlzGNbqw/Fss
-         jaZk2ZvpOU0KpkKr9pjn/U3VN/ZAeu8Dq9/LSOkbl2ysDMcLW7QN2LJTfKTWpx9ZUFYS
-         M9sQ==
-X-Gm-Message-State: AOAM532gFSVXJ1E3XdCma/GrNt2zUcyNn0x7xLjw6aVo67bhRUQGKjba
-        0HjeyyWbul90Tn6wfZUzHDw=
-X-Google-Smtp-Source: ABdhPJzk6oL9KXcJyWhxTR58cu+5MprY7TsEK+11sG9oXbwJInMenmBHGbzMASUI3wr1ajZUWg/Nkg==
-X-Received: by 2002:a17:90b:1b43:: with SMTP id nv3mr18247490pjb.136.1640754447119;
-        Tue, 28 Dec 2021 21:07:27 -0800 (PST)
-Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id w9sm18484274pge.18.2021.12.28.21.07.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Dec 2021 21:07:26 -0800 (PST)
-From:   Tadeusz Struk <tstruk@gmail.com>
-To:     jarkko@kernel.org
-Cc:     Tadeusz Struk <tstruk@gmail.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/2] tpm: Fix error handling in async work
-Date:   Tue, 28 Dec 2021 21:06:54 -0800
-Message-Id: <20211229050655.2030-1-tstruk@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=RY4Ck/FbAOXQAIlJ7NzArEMRakTYUxJxSeRPJiZEvjY=;
+        b=cUPTrlHnO8TA/75mwwMQHSDxSYODgxRy5NWBsfc+3SNd/h/BuQpUIWR3ecRZIg/MoF
+         aWDAM6tBasbbMHEg7qN8M3jB4ZtNjOOM2+IxS95APKGcSONmEPRUJ6zrD2r4z0s8lYcc
+         HdonmFfKNuAeIgx0RtoiXwPUu65Q/p5ZpSmLqHVkXhcY16BQtCluReISm0NVK1WFULDy
+         Snhsh7p/jCwzmSj2Qnh1wvxdvOeshQQIvI5mbVWaxUAsQeN3uxs9V8pXP7A1Zk3gXnAX
+         flz1Rn7f1wU554YgKoj2kHlnjRdGP7kBMQCTz2F3jlJ4w7ef7tHmtRD+bZ/7Z2sho355
+         M9OA==
+X-Gm-Message-State: AOAM530LThsdrNZVNBoU9ztf0qVtoNfowJgIqb8b/IRwqkLYZtEauc6j
+        6YJVpMIld42e1ePl94VjgdeIzweigE7xpL+SUZU=
+X-Google-Smtp-Source: ABdhPJyFBb7bi15e6hNZX2zIcnfrcyvSexPS/t0VfKO20sVOVMROPHtbPM24c7Fy7cAihnKtA3CSBM8jBSY38GtsmPc=
+X-Received: by 2002:a05:6a00:1308:b0:4a2:75cd:883a with SMTP id
+ j8-20020a056a00130800b004a275cd883amr26131977pfu.84.1640763840680; Tue, 28
+ Dec 2021 23:44:00 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Sender: xnancystevens1@gmail.com
+Received: by 2002:a05:6a10:687:0:0:0:0 with HTTP; Tue, 28 Dec 2021 23:43:59
+ -0800 (PST)
+From:   Aisha Al-Qaddafi <aishaqadafi77@gmail.com>
+Date:   Wed, 29 Dec 2021 08:43:59 +0100
+X-Google-Sender-Auth: qPl-8Y-zDstV4IxttOxWK5unUZI
+Message-ID: <CABFxSdZYn=obntw1jerrGeu7-Q4zi=ZCRmQLD0BiDvD20Uk2PQ@mail.gmail.com>
+Subject: Dear Friend,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When an invalid (non existing) handle is used in a tpm command,
-that uses the resource manager interface (/dev/tpmrm0) the resource
-manager tries to load it from its internal cache, but fails and
-returns an -EINVAL error to the caller. The async handler doesn't
-handle these error cases currently and the condition in the poll
-handler never returns mask with EPOLLIN set.
-The result is that the poll call blocks and the application gets stuck
-until the user_read_timer wakes it up after 120 sec.
-Make sure that error conditions also contribute to the poll mask
-so that a correct error code could passed back to the caller.
+Dear I Need An Investment Partner
 
-Cc: Jarkko Sakkinen <jarkko@kernel.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: <linux-integrity@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Fixes: 9e1b74a63f77 ("tpm: add support for nonblocking operation")
-Signed-off-by: Tadeusz Struk <tstruk@gmail.com>
----
-Changes in v2:
-- Updated commit message with better problem description.
-- Fixed typeos.
----
- drivers/char/tpm/tpm-dev-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Assalamu Alaikum Wa Rahmatullahi Wa Barakatuh
 
-diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-index c08cbb306636..fe2679f84cb6 100644
---- a/drivers/char/tpm/tpm-dev-common.c
-+++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -69,7 +69,7 @@ static void tpm_dev_async_work(struct work_struct *work)
- 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
- 			       sizeof(priv->data_buffer));
- 	tpm_put_ops(priv->chip);
--	if (ret > 0) {
-+	if (ret != 0) {
- 		priv->response_length = ret;
- 		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
- 	}
--- 
-2.30.2
+Dear Friend,
 
+I came across your e-mail contact prior to a private search while in
+need of your assistance. I am Aisha Al-Qaddafi, the only biological
+Daughter of Former President of Libya Col. Muammar Al-Qaddafi. Am a
+single Mother and a Widow with three Children.
+
+I have investment funds worth Twenty Seven Million Five Hundred
+Thousand United State Dollar ($27.500.000.00 ) and i need a trusted
+investment Manager/Partner because of my current refugee status,
+however, I am interested in you for investment project assistance in
+your country, may be from there, we can build business relationship in
+the nearest future.
+
+I am willing to negotiate an investment/business profit sharing ratio
+with you based on the future investment earning profits.
+
+If you are willing to handle this project on my behalf kindly reply
+urgently to enable me to provide you more information about the
+investment funds.
+
+Your Urgent Reply Will Be Appreciated
+
+Best Regards
+Mrs Aisha Al-Qaddafi
