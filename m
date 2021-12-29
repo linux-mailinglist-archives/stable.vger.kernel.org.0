@@ -2,83 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DEA481738
-	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 23:20:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FDBD48175C
+	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 23:50:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231949AbhL2WUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Dec 2021 17:20:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53378 "EHLO
+        id S232296AbhL2Wud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Dec 2021 17:50:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231259AbhL2WUL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 17:20:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D7FCC061574;
-        Wed, 29 Dec 2021 14:20:11 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C07AE614C7;
-        Wed, 29 Dec 2021 22:20:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 249C9C36AE9;
-        Wed, 29 Dec 2021 22:20:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640816410;
-        bh=hjQAZLb14OJobDPleSQaofwFXchb/C4eBEa+U9p+ttc=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=Oik0sPGUriGqzI8p2ImomrRWct0hF9V/m4lZO7KxzZ8xNX2kRj59hoPVoOhQE+lZH
-         O6EEJwO2vCBOtk4wd4gVN7XgrHx3vevoIhV9jVkWMsnPLUSl2wTDFi/z+CKV1X+qbY
-         H27Gv8nY2kHXvzqK1ikzUSGeRtIxLg152g1Bbwvt0LU3242MLOherO96NefOwzBCDO
-         miuUQz3ODjkAT2wTX86GGL/d6Uz+D6IyZj0psqcwlw/2rI5M7LES4Pi9IUN90nKqZc
-         ZJ5IKxBvta9Gg+JwVD/dfllsT6eR9xdCd8IWDvA/d8L6vHrLMCBx1dLkkjC0Dft1kN
-         +axquupsYItnQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 08B7AC395E5;
-        Wed, 29 Dec 2021 22:20:10 +0000 (UTC)
+        with ESMTP id S230243AbhL2Wuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 17:50:32 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D47C061574
+        for <stable@vger.kernel.org>; Wed, 29 Dec 2021 14:50:32 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id y16-20020a17090a6c9000b001b13ffaa625so25940844pjj.2
+        for <stable@vger.kernel.org>; Wed, 29 Dec 2021 14:50:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=JcNlDaVssxlbxkAazym4rzde3CGqiC+qaCZp5PkK4dk=;
+        b=vmWO7O3s8ixam7cvG2cVkNNhG81hsKTQHpQaSmq59LFgdGVnn8WDgZLin2kAhCUjNV
+         RDTJYdNi1HTe/bU5gEjOIOvKsjFG782IP2F6uDiMbA94syj8/GjA1Gev/vZUmMH0PK/D
+         07SrPHAY8fLsdPxAQgblqNzwTW9AYczd40afiX98CjnsTXn2FJKL8eT8bKSS8X9X6l28
+         eM+aUrKFEv/yhuX1F7HqCU/pw5pb8U62EHar5czrRkiw28Bp3aI8G/OeD9+j6acuJv4P
+         IlVJpWNz11C5TaFZqqxcy7KZLHqiV2zfQH3GryAYZwkxM+IXEnW3fspvtirtpKgLY01l
+         md0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=JcNlDaVssxlbxkAazym4rzde3CGqiC+qaCZp5PkK4dk=;
+        b=RfOOYTM78VevPaER2vfHHJzK3eL4tUEm/38mX84zjcYbrVroRTxc51pFeaAryrPwxi
+         aKknkfvgCai87ig4nVendwZEq6hALk2AJAUp9aXE0Y5wuv/Jp8Znu/4HrTQukXuh5iA2
+         RXUg0TfvvmUqtjFCz5T7hvmG8mHBPXJrLcIrrWeVCRZCp+SBFwuPMH2jw2BEuEJktw3P
+         Mj1hWX8QteMX823q1Tq31281WSZicKZB7xQpZGADcWoFsMMyyhmVDPW9Wi0pPKqQhX32
+         /+HBM9U/tCfVJW4/loDfaKBky4t/5kc+xu+ZbBvYH1jtFUULw/76JyYdvK+TzCbtmw81
+         s6GA==
+X-Gm-Message-State: AOAM531W/QkZMjuxNPlyJyAHEi5DKkcUyBSB4kSJG+JP2CkHVrwIGz4I
+        jbuxYeMiblW0HAeq7T3DFM3fbQ9MqXAD2bji
+X-Google-Smtp-Source: ABdhPJxLfGWnZL3l846cYLTOil68YPS7D+17dv/qPcqIrcqpXI9OX8Odx9WfU2HgvbK5pgyoWyt2Xw==
+X-Received: by 2002:a17:903:234a:b0:148:a94a:7e3c with SMTP id c10-20020a170903234a00b00148a94a7e3cmr28976826plh.121.1640818231735;
+        Wed, 29 Dec 2021 14:50:31 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x22sm18402742pjn.16.2021.12.29.14.50.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Dec 2021 14:50:31 -0800 (PST)
+Message-ID: <61cce637.1c69fb81.1f756.3db1@mx.google.com>
+Date:   Wed, 29 Dec 2021 14:50:31 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/2] net: bridge: mcast: add and enforce query interval
- minimum
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164081641003.5072.12853974016606114194.git-patchwork-notify@kernel.org>
-Date:   Wed, 29 Dec 2021 22:20:10 +0000
-References: <20211227172116.320768-1-nikolay@nvidia.com>
-In-Reply-To: <20211227172116.320768-1-nikolay@nvidia.com>
-To:     Nikolay Aleksandrov <nikolay@nvidia.com>
-Cc:     netdev@vger.kernel.org, eric.dumazet@gmail.com,
-        stable@vger.kernel.org, herbert@gondor.apana.org.au,
-        roopa@nvidia.com, davem@davemloft.net,
-        bridge@lists.linux-foundation.org, kuba@kernel.org
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.222-40-g0c97a90a36d0
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 132 runs,
+ 1 regressions (v4.19.222-40-g0c97a90a36d0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+stable-rc/queue/4.19 baseline: 132 runs, 1 regressions (v4.19.222-40-g0c97a=
+90a36d0)
 
-This series was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+Regressions Summary
+-------------------
 
-On Mon, 27 Dec 2021 19:21:14 +0200 you wrote:
-> Hi,
-> This set adds and enforces 1 second minimum value for bridge multicast
-> query and startup query intervals in order to avoid rearming the timers
-> too often which could lock and crash the host. I doubt anyone is using
-> such low values or anything lower than 1 second, so it seems like a good
-> minimum. In order to be compatible if the value is lower then it is
-> overwritten and a log message is emitted, since we can't return an error
-> at this point.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,1/2] net: bridge: mcast: add and enforce query interval minimum
-    https://git.kernel.org/netdev/net/c/99b40610956a
-  - [net,2/2] net: bridge: mcast: add and enforce startup query interval minimum
-    https://git.kernel.org/netdev/net/c/f83a112bd91a
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.222-40-g0c97a90a36d0/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.222-40-g0c97a90a36d0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0c97a90a36d0b44f3c8486080afd75a2b808139c =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ccadbf238ee970b7ef6744
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.222=
+-40-g0c97a90a36d0/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.222=
+-40-g0c97a90a36d0/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ccadbf238ee97=
+0b7ef6747
+        failing since 12 days (last pass: v4.19.221-9-ge98226372348, first =
+fail: v4.19.221-9-gf48d5f004d75)
+        2 lines
+
+    2021-12-29T18:49:18.757336  <8>[   21.686737] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-12-29T18:49:18.801579  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/100
+    2021-12-29T18:49:18.811266  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
