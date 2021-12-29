@@ -2,103 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6ADA480FBA
-	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 05:53:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73524480FCE
+	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 06:07:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238731AbhL2ExX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 23:53:23 -0500
-Received: from mga02.intel.com ([134.134.136.20]:26641 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234290AbhL2ExW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 Dec 2021 23:53:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1640753602; x=1672289602;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=LQtzgGcwFSLX6J66H/wYDpBcVLFBuSzw2YxqoiBSMQ8=;
-  b=TlmeW9jde8vB7/+gW3FxgLFYS1vp+Xl56/QiJytJvnvbdPUPxFGjHQQ7
-   NKtVMWv9I2R8JiI3IMTjsMAxbYTkQX2DYWd3gpYpqhqdyc4rnRLfIvuyZ
-   4M462E872tu6m7+rlmjs0hYoSxg7mY5vcgDTUZuY4+w4WoZc2nd5RKYaS
-   fpX59eNq2SrsxQVN2miVN4YV3xRb2mIP7U3g69kazhzzYeL1zFudGcjWc
-   1+hGBKS3STROtZt1vrs+jElxCc1nrH9LOrG7GvLUh2+EsSnRoRZ2+hFUi
-   od9DAFeUvUxkwWg4iCVAuYSuKzGNPmBDfxS3Y5rtsC2X5phAcT+694rzN
-   g==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10211"; a="228767834"
-X-IronPort-AV: E=Sophos;i="5.88,244,1635231600"; 
-   d="scan'208";a="228767834"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Dec 2021 20:53:22 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,244,1635231600"; 
-   d="scan'208";a="666190320"
-Received: from allen-box.sh.intel.com ([10.239.159.118])
-  by fmsmga001.fm.intel.com with ESMTP; 28 Dec 2021 20:53:16 -0800
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     "Rafael J . Wysocki" <rafael@kernel.org>,
-        Kay Sievers <kay.sievers@novell.com>,
-        linux-kernel@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/1] driver core: Fix driver_sysfs_remove() order in really_probe()
-Date:   Wed, 29 Dec 2021 12:51:59 +0800
-Message-Id: <20211229045159.1731943-1-baolu.lu@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S234253AbhL2FH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Dec 2021 00:07:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52386 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229514AbhL2FH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 00:07:27 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB34C061574;
+        Tue, 28 Dec 2021 21:07:27 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id w24so15045728ply.12;
+        Tue, 28 Dec 2021 21:07:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Y6D6kbQh7Cm8wpKn4BMX0UeN0YW2Jh8hSVkReFZ+rr0=;
+        b=AnBHZiOUD8KsAoY3K1MG71EP84nDDtl4vM6ADKBTqCbqMPspmtkokR/HH2W64G/Iea
+         rnLcZPFJdi4wKhjvqiJJNVvg7afGzvIvxYcKBQLI8bfKo9/Z1sVUu1+FnQshcyoRkwdL
+         3jvoxuuDXsy0+JrBqLu/Ppjoo9BrXpDZ5T/zUTZv7V8KC8/DvMPR4+C9ugsLTeqlKERP
+         aJcJJ4jOUduAzWlCMifNHlE97fZVFQ1JaYxinYRhThrZiUDBWfmzU6SQClmvECJBNoIs
+         y2cSFiJxID9b80EHl1eBBHw3F8jPliTe+8DXM39HPkU/geUN4oKxbE0TDdEJC5X3GYLt
+         /W4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Y6D6kbQh7Cm8wpKn4BMX0UeN0YW2Jh8hSVkReFZ+rr0=;
+        b=2XfOfQJTNBSuSv/qQE1z4TrDwxZc70CDFyLy1KciuZnghzqUpwTukMxKYOzTMIf6p+
+         zBRLVvPyHAvYNbfs166bOiurQBLYU1dU5i9jO9bnim1DrvYcHMFzFsaie6dC1PKVcS1A
+         xUhsuNOS0gABbCEh+tpKafZQNEDtw6ZbnvA+DYzKZUT13QRPYdQfG3cNEAlb3O2VrYPq
+         sDK/8TxzTTWpGoo1e+OU2KSDbLikU4fUXmjpAbDf+Tc8tLkX0sknsgNGFlzGNbqw/Fss
+         jaZk2ZvpOU0KpkKr9pjn/U3VN/ZAeu8Dq9/LSOkbl2ysDMcLW7QN2LJTfKTWpx9ZUFYS
+         M9sQ==
+X-Gm-Message-State: AOAM532gFSVXJ1E3XdCma/GrNt2zUcyNn0x7xLjw6aVo67bhRUQGKjba
+        0HjeyyWbul90Tn6wfZUzHDw=
+X-Google-Smtp-Source: ABdhPJzk6oL9KXcJyWhxTR58cu+5MprY7TsEK+11sG9oXbwJInMenmBHGbzMASUI3wr1ajZUWg/Nkg==
+X-Received: by 2002:a17:90b:1b43:: with SMTP id nv3mr18247490pjb.136.1640754447119;
+        Tue, 28 Dec 2021 21:07:27 -0800 (PST)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id w9sm18484274pge.18.2021.12.28.21.07.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Dec 2021 21:07:26 -0800 (PST)
+From:   Tadeusz Struk <tstruk@gmail.com>
+To:     jarkko@kernel.org
+Cc:     Tadeusz Struk <tstruk@gmail.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/2] tpm: Fix error handling in async work
+Date:   Tue, 28 Dec 2021 21:06:54 -0800
+Message-Id: <20211229050655.2030-1-tstruk@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver_sysfs_remove() should always be called after successful
-driver_sysfs_add(). Otherwise, NULL pointers will be passed to the
-sysfs_remove_link(), where it is decoded as searching sysfs root.
+When an invalid (non existing) handle is used in a tpm command,
+that uses the resource manager interface (/dev/tpmrm0) the resource
+manager tries to load it from its internal cache, but fails and
+returns an -EINVAL error to the caller. The async handler doesn't
+handle these error cases currently and the condition in the poll
+handler never returns mask with EPOLLIN set.
+The result is that the poll call blocks and the application gets stuck
+until the user_read_timer wakes it up after 120 sec.
+Make sure that error conditions also contribute to the poll mask
+so that a correct error code could passed back to the caller.
 
-Fixes: 1901fb2604fbc ("Driver core: fix "driver" symlink timing")
-Cc: stable@vger.kernel.org
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: <linux-integrity@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Fixes: 9e1b74a63f77 ("tpm: add support for nonblocking operation")
+Signed-off-by: Tadeusz Struk <tstruk@gmail.com>
 ---
- drivers/base/dd.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Changes in v2:
+- Updated commit message with better problem description.
+- Fixed typeos.
+---
+ drivers/char/tpm/tpm-dev-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 68ea1f949daa..9eaaff2f556c 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -577,14 +577,14 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	if (dev->bus->dma_configure) {
- 		ret = dev->bus->dma_configure(dev);
- 		if (ret)
--			goto probe_failed;
-+			goto pinctrl_bind_failed;
+diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
+index c08cbb306636..fe2679f84cb6 100644
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -69,7 +69,7 @@ static void tpm_dev_async_work(struct work_struct *work)
+ 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
+ 			       sizeof(priv->data_buffer));
+ 	tpm_put_ops(priv->chip);
+-	if (ret > 0) {
++	if (ret != 0) {
+ 		priv->response_length = ret;
+ 		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
  	}
- 
- 	ret = driver_sysfs_add(dev);
- 	if (ret) {
- 		pr_err("%s: driver_sysfs_add(%s) failed\n",
- 		       __func__, dev_name(dev));
--		goto probe_failed;
-+		goto sysfs_failed;
- 	}
- 
- 	if (dev->pm_domain && dev->pm_domain->activate) {
-@@ -657,6 +657,8 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	else if (drv->remove)
- 		drv->remove(dev);
- probe_failed:
-+	driver_sysfs_remove(dev);
-+sysfs_failed:
- 	if (dev->bus)
- 		blocking_notifier_call_chain(&dev->bus->p->bus_notifier,
- 					     BUS_NOTIFY_DRIVER_NOT_BOUND, dev);
-@@ -666,7 +668,6 @@ static int really_probe(struct device *dev, struct device_driver *drv)
- 	arch_teardown_dma_ops(dev);
- 	kfree(dev->dma_range_map);
- 	dev->dma_range_map = NULL;
--	driver_sysfs_remove(dev);
- 	dev->driver = NULL;
- 	dev_set_drvdata(dev, NULL);
- 	if (dev->pm_domain && dev->pm_domain->dismiss)
 -- 
-2.25.1
+2.30.2
 
