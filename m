@@ -2,100 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84799480E8D
-	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 02:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CACDF480EA4
+	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 02:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238194AbhL2Bdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Dec 2021 20:33:35 -0500
-Received: from szxga02-in.huawei.com ([45.249.212.188]:29306 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232378AbhL2Bdf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 20:33:35 -0500
-Received: from kwepemi500006.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4JNv6l6qPHzbjdx;
-        Wed, 29 Dec 2021 09:33:03 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- kwepemi500006.china.huawei.com (7.221.188.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Wed, 29 Dec 2021 09:33:32 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Wed, 29 Dec 2021 09:33:31 +0800
-Subject: Re: [PATCH 5.10 00/76] 5.10.89-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20211227151324.694661623@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <ed8e091f-abcb-bd28-eb26-75c2a0e58e91@huawei.com>
-Date:   Wed, 29 Dec 2021 09:33:30 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S232382AbhL2Biz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Dec 2021 20:38:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59258 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231948AbhL2Biy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Dec 2021 20:38:54 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E14E60BBF;
+        Wed, 29 Dec 2021 01:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20C0CC36AE7;
+        Wed, 29 Dec 2021 01:38:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1640741933;
+        bh=jeZlngD5pvLcEKLRpXuz0gQozCoRB0jq0E50boipzgg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lqUZQ6pcnBnIYofjpQh5NUgGxUufs1b4e5yrMEl6iziHfU5Uv1Y6QXv/La8Mtes1Y
+         3VoGUsDzTfCqDjS7KwrdgSLLz6PPBV0NhNLF1rLg5UXWch8KMu+YVPdpOIcAraZ+Bk
+         mPD5qtLs6J1VdeMbT2ajhb/q4u1u2nXac2JHOKqbLkHWnXEbLV7AbIneXhZUPEB3X2
+         +ke3qgjJvUpbODcbV76aMG+bAhoBv3K1H+Hsih1lfR07+hBUcqjWBHzCoh2HAy8Nvw
+         vpMbyeoXstz8TGdmU+TjtDTcY7rRg2WHxRp7ZQ0mS8Cp9mpIYUzrW9TyvTNi5xXnpc
+         uRBJOZZ+R6nXg==
+Date:   Wed, 29 Dec 2021 03:38:51 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Patrick Williams <patrick@stwcx.xyz>
+Cc:     Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Hao Wu <hao.wu@rubrik.com>, stable@vger.kernel.org,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tpm: fix NPE on probe for missing device
+Message-ID: <Ycu8KxrunNXvOobG@iki.fi>
+References: <20211223154932.678424-1-patrick@stwcx.xyz>
 MIME-Version: 1.0
-In-Reply-To: <20211227151324.694661623@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211223154932.678424-1-patrick@stwcx.xyz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/12/27 23:30, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.89 release.
-> There are 76 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Dec 23, 2021 at 09:49:31AM -0600, Patrick Williams wrote:
+> When using the tpm_tis-spi driver on a system missing the physical TPM,
+> a null pointer exception was observed.
 > 
-> Responses should be made by Wed, 29 Dec 2021 15:13:09 +0000.
-> Anything received after that time might be too late.
+>     [    0.938677] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+>     [    0.939020] pgd = 10c753cb
+>     [    0.939237] [00000004] *pgd=00000000
+>     [    0.939808] Internal error: Oops: 5 [#1] SMP ARM
+>     [    0.940157] CPU: 0 PID: 48 Comm: kworker/u4:1 Not tainted 5.15.10-dd1e40c #1
+>     [    0.940364] Hardware name: Generic DT based system
+>     [    0.940601] Workqueue: events_unbound async_run_entry_fn
+>     [    0.941048] PC is at tpm_tis_remove+0x28/0xb4
+>     [    0.941196] LR is at tpm_tis_core_init+0x170/0x6ac
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.89-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> This is due to an attempt in 'tpm_tis_remove' to use the drvdata, which
+> was not initialized in 'tpm_tis_core_init' prior to the first error.
 > 
-> thanks,
+> Move the initialization of drvdata earlier so 'tpm_tis_remove' has
+> access to it.
 > 
-> greg k-h
-> 
+> Signed-off-by: Patrick Williams <patrick@stwcx.xyz>
+> Fixes: 79ca6f74dae0 ("tpm: fix Atmel TPM crash caused by too frequent queries")
+> Cc: stable@vger.kernel.org
 
-Tested on arm64 and x86 for 5.10.89-rc1,
+Thank you.
+ 
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.89-rc1
-Commit: 44b3abecd41b48c75aab8337849358703fa5d58d
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9018
-passed: 9018
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9018
-passed: 9018
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+/Jarkko
