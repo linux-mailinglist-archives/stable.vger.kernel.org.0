@@ -2,137 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDBD48175C
-	for <lists+stable@lfdr.de>; Wed, 29 Dec 2021 23:50:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBCA54817B1
+	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 00:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232296AbhL2Wud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Dec 2021 17:50:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230243AbhL2Wuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 17:50:32 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D47C061574
-        for <stable@vger.kernel.org>; Wed, 29 Dec 2021 14:50:32 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id y16-20020a17090a6c9000b001b13ffaa625so25940844pjj.2
-        for <stable@vger.kernel.org>; Wed, 29 Dec 2021 14:50:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JcNlDaVssxlbxkAazym4rzde3CGqiC+qaCZp5PkK4dk=;
-        b=vmWO7O3s8ixam7cvG2cVkNNhG81hsKTQHpQaSmq59LFgdGVnn8WDgZLin2kAhCUjNV
-         RDTJYdNi1HTe/bU5gEjOIOvKsjFG782IP2F6uDiMbA94syj8/GjA1Gev/vZUmMH0PK/D
-         07SrPHAY8fLsdPxAQgblqNzwTW9AYczd40afiX98CjnsTXn2FJKL8eT8bKSS8X9X6l28
-         eM+aUrKFEv/yhuX1F7HqCU/pw5pb8U62EHar5czrRkiw28Bp3aI8G/OeD9+j6acuJv4P
-         IlVJpWNz11C5TaFZqqxcy7KZLHqiV2zfQH3GryAYZwkxM+IXEnW3fspvtirtpKgLY01l
-         md0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JcNlDaVssxlbxkAazym4rzde3CGqiC+qaCZp5PkK4dk=;
-        b=RfOOYTM78VevPaER2vfHHJzK3eL4tUEm/38mX84zjcYbrVroRTxc51pFeaAryrPwxi
-         aKknkfvgCai87ig4nVendwZEq6hALk2AJAUp9aXE0Y5wuv/Jp8Znu/4HrTQukXuh5iA2
-         RXUg0TfvvmUqtjFCz5T7hvmG8mHBPXJrLcIrrWeVCRZCp+SBFwuPMH2jw2BEuEJktw3P
-         Mj1hWX8QteMX823q1Tq31281WSZicKZB7xQpZGADcWoFsMMyyhmVDPW9Wi0pPKqQhX32
-         /+HBM9U/tCfVJW4/loDfaKBky4t/5kc+xu+ZbBvYH1jtFUULw/76JyYdvK+TzCbtmw81
-         s6GA==
-X-Gm-Message-State: AOAM531W/QkZMjuxNPlyJyAHEi5DKkcUyBSB4kSJG+JP2CkHVrwIGz4I
-        jbuxYeMiblW0HAeq7T3DFM3fbQ9MqXAD2bji
-X-Google-Smtp-Source: ABdhPJxLfGWnZL3l846cYLTOil68YPS7D+17dv/qPcqIrcqpXI9OX8Odx9WfU2HgvbK5pgyoWyt2Xw==
-X-Received: by 2002:a17:903:234a:b0:148:a94a:7e3c with SMTP id c10-20020a170903234a00b00148a94a7e3cmr28976826plh.121.1640818231735;
-        Wed, 29 Dec 2021 14:50:31 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x22sm18402742pjn.16.2021.12.29.14.50.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Dec 2021 14:50:31 -0800 (PST)
-Message-ID: <61cce637.1c69fb81.1f756.3db1@mx.google.com>
-Date:   Wed, 29 Dec 2021 14:50:31 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.222-40-g0c97a90a36d0
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 132 runs,
- 1 regressions (v4.19.222-40-g0c97a90a36d0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S233181AbhL2XXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Dec 2021 18:23:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47620 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233152AbhL2XXE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 18:23:04 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38C70B817AB;
+        Wed, 29 Dec 2021 23:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB71FC36AEA;
+        Wed, 29 Dec 2021 23:23:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1640820181;
+        bh=BXG18Sw1yVHCdB15AVt+Dqe/tked87k4pz322bxIyX0=;
+        h=Date:From:To:Subject:From;
+        b=on+fkySPLFbyRIZLhT3rFavU7yE8rMs6DnhD5N6/xhE/BuZw9rgmc3HMzCDGscL+i
+         hHII2/L2KaHPfQ2F655/55E/qTQvU5NWvKrFLefUSxiiYpKRmx9Bu1SmEF7yKRyZbg
+         Q0h5vfxJx/5zlnzXfdx24H+Q66OEIn8bG0rUs23E=
+Date:   Wed, 29 Dec 2021 15:23:02 -0800
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org
+Subject:  +
+ mm-damon-dbgfs-fix-struct-pid-leaks-in-dbgfs_target_ids_write.patch added to
+ -mm tree
+Message-ID: <20211229232302.2rP0w%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 132 runs, 1 regressions (v4.19.222-40-g0c97a=
-90a36d0)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm/damon/dbgfs: fix 'struct pid' leaks in 'dbgfs_target_ids_write()'
+has been added to the -mm tree.  Its filename is
+     mm-damon-dbgfs-fix-struct-pid-leaks-in-dbgfs_target_ids_write.patch
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-damon-dbgfs-fix-struct-pid-leaks-in-dbgfs_target_ids_write.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-damon-dbgfs-fix-struct-pid-leaks-in-dbgfs_target_ids_write.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: SeongJae Park <sj@kernel.org>
+Subject: mm/damon/dbgfs: fix 'struct pid' leaks in 'dbgfs_target_ids_write()'
+
+DAMON debugfs interface increases the reference counts of 'struct pid's
+for targets from the 'target_ids' file write callback
+('dbgfs_target_ids_write()'), but decreases the counts only in DAMON
+monitoring termination callback ('dbgfs_before_terminate()').
+
+Therefore, when 'target_ids' file is repeatedly written without DAMON
+monitoring start/termination, the reference count is not decreased and
+therefore memory for the 'struct pid' cannot be freed.  This commit fixes
+this issue by decreasing the reference counts when 'target_ids' is
+written.
+
+Link: https://lkml.kernel.org/r/20211229124029.23348-1-sj@kernel.org
+Fixes: 4bc05954d007 ("mm/damon: implement a debugfs-based user space interface")
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Cc: <stable@vger.kernel.org>	[5.15+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
 
+ mm/damon/dbgfs.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.222-40-g0c97a90a36d0/plan/baseline/
+--- a/mm/damon/dbgfs.c~mm-damon-dbgfs-fix-struct-pid-leaks-in-dbgfs_target_ids_write
++++ a/mm/damon/dbgfs.c
+@@ -353,6 +353,7 @@ static ssize_t dbgfs_target_ids_write(st
+ 		const char __user *buf, size_t count, loff_t *ppos)
+ {
+ 	struct damon_ctx *ctx = file->private_data;
++	struct damon_target *t, *next_t;
+ 	bool id_is_pid = true;
+ 	char *kbuf, *nrs;
+ 	unsigned long *targets;
+@@ -397,8 +398,12 @@ static ssize_t dbgfs_target_ids_write(st
+ 		goto unlock_out;
+ 	}
+ 
+-	/* remove targets with previously-set primitive */
+-	damon_set_targets(ctx, NULL, 0);
++	/* remove previously set targets */
++	damon_for_each_target_safe(t, next_t, ctx) {
++		if (targetid_is_pid(ctx))
++			put_pid((struct pid *)t->id);
++		damon_destroy_target(t);
++	}
+ 
+ 	/* Configure the context for the address space type */
+ 	if (id_is_pid)
+_
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.222-40-g0c97a90a36d0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0c97a90a36d0b44f3c8486080afd75a2b808139c =
+Patches currently in -mm which might be from sj@kernel.org are
 
+mm-damon-dbgfs-fix-struct-pid-leaks-in-dbgfs_target_ids_write.patch
+mm-damon-remove-some-no-need-func-definitions-in-damonh-file-fix.patch
+mm-damon-convert-macro-functions-to-static-inline-functions.patch
+docs-admin-guide-mm-damon-usage-update-for-scheme-quotas-and-watermarks.patch
+docs-admin-guide-mm-damon-usage-remove-redundant-information.patch
+docs-admin-guide-mm-damon-usage-mention-tracepoint-at-the-beginning.patch
+docs-admin-guide-mm-damon-usage-update-for-kdamond_pid-and-mkrm_contexts.patch
+mm-damon-remove-a-mistakenly-added-comment-for-a-future-feature.patch
+mm-damon-schemes-account-scheme-actions-that-successfully-applied.patch
+mm-damon-schemes-account-how-many-times-quota-limit-has-exceeded.patch
+mm-damon-reclaim-provide-reclamation-statistics.patch
+docs-admin-guide-mm-damon-reclaim-document-statistics-parameters.patch
+mm-damon-dbgfs-support-all-damos-stats.patch
+docs-admin-guide-mm-damon-usage-update-for-schemes-statistics.patch
+mm-damon-dbgfs-remove-a-unnecessary-variable.patch
+mm-damon-vaddr-use-pr_debug-for-damon_va_three_regions-failure-logging.patch
+mm-damon-vaddr-hide-kernel-pointer-from-damon_va_three_regions-failure-log.patch
+mm-damon-hide-kernel-pointer-from-tracepoint-event.patch
 
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ccadbf238ee970b7ef6744
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.222=
--40-g0c97a90a36d0/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.222=
--40-g0c97a90a36d0/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ccadbf238ee97=
-0b7ef6747
-        failing since 12 days (last pass: v4.19.221-9-ge98226372348, first =
-fail: v4.19.221-9-gf48d5f004d75)
-        2 lines
-
-    2021-12-29T18:49:18.757336  <8>[   21.686737] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-12-29T18:49:18.801579  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/100
-    2021-12-29T18:49:18.811266  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
