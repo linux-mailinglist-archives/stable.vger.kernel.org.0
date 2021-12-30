@@ -2,45 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC67481DEB
-	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 17:02:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFBBA481DC9
+	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 16:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238854AbhL3QCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Dec 2021 11:02:40 -0500
-Received: from mail.osorio.rs.gov.br ([177.73.0.123]:52521 "EHLO
-        mail.osorio.rs.gov.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236262AbhL3QCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Dec 2021 11:02:39 -0500
-Received: by mail.osorio.rs.gov.br (Postfix, from userid 999)
-        id 77887487AA02; Thu, 30 Dec 2021 14:21:50 -0200 (BRST)
-Received: from localhost (nac.osorio.rs.gov.br [127.0.0.1])
-        by nac (Postfix) with SMTP id AE746487A765;
-        Thu, 30 Dec 2021 14:21:37 -0200 (BRST)
-Received: from User (unknown [46.183.222.30])
-        by mail.osorio.rs.gov.br (Postfix) with ESMTP id BB925487A75E;
-        Thu, 30 Dec 2021 14:01:57 -0200 (BRST)
-Reply-To: <ande.bailey@mail2world.com>
-From:   "ab" <projetos@gov.br>
-Subject: my contact
-Date:   Thu, 30 Dec 2021 17:29:32 +0200
+        id S238624AbhL3Pom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Dec 2021 10:44:42 -0500
+Received: from mail-qv1-f44.google.com ([209.85.219.44]:35730 "EHLO
+        mail-qv1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232051AbhL3Pom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Dec 2021 10:44:42 -0500
+Received: by mail-qv1-f44.google.com with SMTP id kj16so22411686qvb.2;
+        Thu, 30 Dec 2021 07:44:41 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Z1Q52cq0OKcWOUis5rQNrlqR1ugktQWsBqg6wjrO+qY=;
+        b=SvRdQ6mNvkFnKy8w7lyKBTFDTXhTlQren8Z9sn6NZekDECx8liMpkOYUvPuxIVPL0p
+         FqfC3HphLhCk9f3etjyfUsSzvVqeEH+6Y4iDBhuRv8yqdBaC+bGdbdB6G/DOSOR4EeNJ
+         qS6aYLWu4gCLLYbLjS8flv6UP/vQMNAALa9shSnUkuFabGYneZdhIT1MGPjdkOj2HXpt
+         eJpeO7dZJkKvppady+iSok90Gi6f86R0uRVI6wi64tYyFrvDL2hpUT4y4LoKfyNDcIiV
+         eo+QrLShNGkyzspznuCWNHT/a4L1IfaXSolqDf2DdKKvYj6O8b4Crp5/XB6oryweGkwG
+         18LQ==
+X-Gm-Message-State: AOAM5315YUP1o67Y4DZadO9KTL7156wxsPofx+CrSotLoalL2nKX0CWf
+        wqN7y/khPak4pWgwqoxCiH0M2BFWzbtNRSiZv5JecyVX
+X-Google-Smtp-Source: ABdhPJzmk7onV+onWk5XDeZZ8tgDir5l1ZpXYgH9AjtsQG4BOtAn4J/vjxeSr3fFlPuxOmuXTXJPlCJFyZIx3pNU/84=
+X-Received: by 2002:ad4:5cec:: with SMTP id iv12mr13283996qvb.130.1640879081349;
+ Thu, 30 Dec 2021 07:44:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-Id: <20211230160157.BB925487A75E@mail.osorio.rs.gov.br>
-To:     undisclosed-recipients:;
+References: <20211223094236.15179-1-sumeet.r.pawnikar@intel.com> <2b55b71aaa89e9010d58f5b3c7f5823782ab760c.camel@linux.intel.com>
+In-Reply-To: <2b55b71aaa89e9010d58f5b3c7f5823782ab760c.camel@linux.intel.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Thu, 30 Dec 2021 16:44:30 +0100
+Message-ID: <CAJZ5v0hj83Bmw0-Yhb22xQHGauRWL-RADkiKQRuvcpYi3A45WA@mail.gmail.com>
+Subject: Re: [PATCH v2] thermal/drivers/int340x: Fix RFIM mailbox write commands
+To:     srinivas pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Day
-I Am Andrew Bailey Governor Bank of England (https://en.wikipedia.org/wiki/Andrew_Bailey_%28banker%29)
-I have a proposal for you, if you know you can Handle this,
-Contact me through my private email:(ande.bailey@mail2world.com)
-with your full names and address, phone numbers for more details. I await your reply,
-Regards,
-Andrew Bailey.
+On Thu, Dec 23, 2021 at 4:31 PM srinivas pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> On Thu, 2021-12-23 at 15:12 +0530, Sumeet Pawnikar wrote:
+> > The existing mail mechanism only supports writing of workload types.
+> > But mailbox command for RFIM (cmd = 0x08) also requires write operation
+> > which was ignored. This results in failing to store RFI restriction.
+> > This requires enhancing mailbox writes for non workload commands also.
+> > So, remove the check for MBOX_CMD_WORKLOAD_TYPE_WRITE in mailbox write,
+> > with this other write commands also can be supoorted. But at the same
+> > time, we have to make sure that there is no impact on read commands,
+> > by not writing anything in mailbox data register.
+> > To properly implement, add two separate functions for mbox read and
+> > write
+> > command for processor thermal workload command type. This helps to
+> > differentiate the read and write workload command types while sending
+> > mbox
+> > command.
+> >
+> > Fixes: 5d6fbc96bd36 ("thermal/drivers/int340x: processor_thermal:
+> > Export additional attributes")
+> > Signed-off-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+> > Cc: stable@vger.kernel.org # 5.14+
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+
+Applied (with some edits in the changelog) as 5.17 material, thanks!
