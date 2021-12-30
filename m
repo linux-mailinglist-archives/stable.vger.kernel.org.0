@@ -2,152 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3DBE481FD6
-	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 20:23:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8388048200A
+	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 20:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241765AbhL3TXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Dec 2021 14:23:31 -0500
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:44142
-        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240217AbhL3TXa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Dec 2021 14:23:30 -0500
-Received: from wittgenstein.fritz.box (ip5f5bd15c.dynamic.kabel-deutschland.de [95.91.209.92])
+        id S234372AbhL3Txh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Dec 2021 14:53:37 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:33606
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240485AbhL3Txh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Dec 2021 14:53:37 -0500
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com [209.85.208.198])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id C86CF3F12E;
-        Thu, 30 Dec 2021 19:23:22 +0000 (UTC)
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH] fs/mount_setattr: always cleanup mount_kattr
-Date:   Thu, 30 Dec 2021 20:23:09 +0100
-Message-Id: <20211230192309.115524-1-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.30.2
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id EE2F03F1A2
+        for <stable@vger.kernel.org>; Thu, 30 Dec 2021 19:53:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1640894015;
+        bh=IkNBdPvO0WBW1RMTehOrcXz9DKxSm9w/tT6yjAM5hts=;
+        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
+        b=qb8e71SBcKeZl93uper2QUNJThRhb5KKYK0TVTY1ZcQOLJB7iONzoi26ehctJU8o/
+         KT2WlhPPpSs0odvGDf+ld1C1pTqqbanGVr/zAQKNfJbd/0CtTF8aY8ybtYRWIYGFDT
+         oXGIo4KEmLgmFRuXU3AxMNU5DBCclpYMlMnvXzXiA3abxVBFM8Ho7c1hT1WwYNQag7
+         P+lSgq4cD6w8RHdeNRK+oE5XAiU8SP8LsoKLWEExqULigAgz++jbeToObrB1SsLZVW
+         gQ+4SeCAXOZQ/NAeXJcC7tL/YbXKdqVa5KZzM+4gnXtE0PgCjVdUOtw6W4fcZ8KZG3
+         tvK02tCRNmk8g==
+Received: by mail-lj1-f198.google.com with SMTP id bn28-20020a05651c179c00b002222b4cc6d8so8482033ljb.0
+        for <stable@vger.kernel.org>; Thu, 30 Dec 2021 11:53:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=IkNBdPvO0WBW1RMTehOrcXz9DKxSm9w/tT6yjAM5hts=;
+        b=c1Z9hlweN8iSlJD6uoAwKQU9xFIp8s/lonCNvnXATbcLO78rl88NiiVb8LfD2f7UUw
+         s8mLdnQ2rz46jwLSFeZHBckB6JLYhC4H4Z1r0t6OvcU9pMT2Z23AgSZgzTURxPqqwMLZ
+         +ujhZZrfsyPjb9DjDkncYnupS7RjmPVc66I/0Ir2cHfYr7rbptChWdZuShg655HBQlZx
+         ofhLFxBF9pQchFw3P9Q/1Ywfbygs9ixzBxrai8mNUCab/usCxEXwp7OUPrgBSVXBy5fk
+         ZUJ2IXtZXt6XlXwKw/DrlF6uQc1nEAp+tSRfjrZs0MmMGtpK+gx2w+gAUWRnHZyrkZbn
+         wpvg==
+X-Gm-Message-State: AOAM531TRT+v89MSIb2XA1SWapQglJz6KZKNYrULnHAxNV+JCP9zE2V/
+        M+ZiLM2VknWgr7EsnzFEnATvm3CGnFJHwttr+8zsoOabzqiIBWRtXKsoFk4dVVEMA9XKjNxBRY0
+        ANiCDo3B0giaPzQHJzIMkjZNeKOFYUPGvUA==
+X-Received: by 2002:a2e:b818:: with SMTP id u24mr20156778ljo.426.1640894015356;
+        Thu, 30 Dec 2021 11:53:35 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzCxn9v+74EYdO2VRQPTiHMdXaG/xqPgeB6RVZO0ch93m20tllLyIOYqIKVcNZ6kp/IBgkQ1w==
+X-Received: by 2002:a2e:b818:: with SMTP id u24mr20156769ljo.426.1640894015212;
+        Thu, 30 Dec 2021 11:53:35 -0800 (PST)
+Received: from krzk-bin.lan (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
+        by smtp.gmail.com with ESMTPSA id v9sm2454505lja.109.2021.12.30.11.53.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Dec 2021 11:53:34 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
+        Chanho Park <chanho61.park@samsung.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Sylwester Nawrocki <snawrocki@kernel.org>, stable@vger.kernel.org
+Subject: [RFT][PATCH 1/3] ARM: dts: exynos: fix UART3 pins configuration in Exynos5250
+Date:   Thu, 30 Dec 2021 20:53:23 +0100
+Message-Id: <20211230195325.328220-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make sure that finish_mount_kattr() is called after mount_kattr was
-succesfully built in both the success and failure case to prevent
-leaking any references we took when we built it. So far we returned
-early if path lookup failed thereby risking to leak an additional
-reference we took when building mount_kattr when an idmapped mount was
-requested.
+The gpa1-4 pin was put twice in UART3 pin configuration of Exynos5250,
+instead of proper pin gpa1-5.
 
-Cc: linux-fsdevel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Fixes: f8bfe2b050f3 ("ARM: dts: add pin state information in client nodes for Exynos5 platforms")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 ---
-Hey Linus,
+ arch/arm/boot/dts/exynos5250-pinctrl.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This contains a simple fix to get rid of a pointless refcount bump when
-requesting an idmapped mount after we built mount_kattr but in case we
-failed too lookup the target path and error out early without calling
-finish_mount_kattr().
-
-Would you be ok with applying this fix directly? I'm happy to send a pr
-too of course but I wasn't sure if that was worth it as there's not much
-explaining to do in the pr message for this one, I think.
-
-This hasn't been in -next but given that it hasn't been updated in about
-a week I don't think it makes much sense to delay this. The fix should
-hopefully be straightforward.
-Fstests and mount_setattr selftests pass without regressions
-(showing only relevant tests):
-
-SECTION       -- xfs
-RECREATING    -- xfs on /dev/loop4
-FSTYP         -- xfs (debug)
-PLATFORM      -- Linux/x86_64 f2-vm 5.16.0-rc7-fs-mount-setattr-fixes-1a24ab33373b #33 SMP PREEMPT Thu Dec 30 15:55:39 UTC 2021
-MKFS_OPTIONS  -- -f -f /dev/loop5
-MOUNT_OPTIONS -- /dev/loop5 /mnt/scratch
-
-generic/633 5s ...  25s
-generic/644 18s ...  14s
-generic/645 80s ...  75s
-generic/656 3s ...  15s
-xfs/152 63s ...  70s
-xfs/153 43s ...  46s
-Ran: generic/633 generic/644 generic/645 generic/656 xfs/152 xfs/153
-Passed all 6 tests
-
-SECTION       -- ext4
-RECREATING    -- ext4 on /dev/loop4
-FSTYP         -- ext4
-PLATFORM      -- Linux/x86_64 f2-vm 5.16.0-rc7-fs-mount-setattr-fixes-1a24ab33373b #33 SMP PREEMPT Thu Dec 30 15:55:39 UTC 2021
-MKFS_OPTIONS  -- -F -F /dev/loop5
-MOUNT_OPTIONS -- -o acl,user_xattr /dev/loop5 /mnt/scratch
-
-generic/633 25s ...  18s
-generic/644 14s ...  4s
-generic/645 75s ...  59s
-generic/656 15s ...  8s
-Ran: generic/633 generic/644 generic/645 generic/656
-Passed all 4 tests
-
-SECTION       -- btrfs
-RECREATING    -- btrfs on /dev/loop4
-FSTYP         -- btrfs
-PLATFORM      -- Linux/x86_64 f2-vm 5.16.0-rc7-fs-mount-setattr-fixes-1a24ab33373b #33 SMP PREEMPT Thu Dec 30 15:55:39 UTC 2021
-MKFS_OPTIONS  -- -f /dev/loop5
-MOUNT_OPTIONS -- /dev/loop5 /mnt/scratch
-
-btrfs/245 9s ...  10s
-generic/633 18s ...  21s
-generic/644 4s ...  4s
-generic/645 59s ...  62s
-generic/656 8s ...  8s
-Ran: btrfs/245 generic/633 generic/644 generic/645 generic/656
-Passed all 5 tests
-
-SECTION       -- xfs
-=========================
-Ran: generic/633 generic/644 generic/645 generic/656 xfs/152 xfs/153
-Passed all 6 tests
-
-SECTION       -- ext4
-=========================
-Ran: generic/633 generic/644 generic/645 generic/656
-Passed all 4 tests
-
-SECTION       -- btrfs
-=========================
-Ran: btrfs/245 generic/633 generic/644 generic/645 generic/656
-Passed all 5 tests
-
-Thanks!
-Christian
----
- fs/namespace.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 659a8f39c61a..b696543adab8 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -4263,12 +4263,11 @@ SYSCALL_DEFINE5(mount_setattr, int, dfd, const char __user *, path,
- 		return err;
+diff --git a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
+index d31a68672bfa..d7d756614edd 100644
+--- a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
+@@ -260,7 +260,7 @@ i2c3_hs_bus: i2c3-hs-bus {
+ 	};
  
- 	err = user_path_at(dfd, path, kattr.lookup_flags, &target);
--	if (err)
--		return err;
--
--	err = do_mount_setattr(&target, &kattr);
-+	if (!err) {
-+		err = do_mount_setattr(&target, &kattr);
-+		path_put(&target);
-+	}
- 	finish_mount_kattr(&kattr);
--	path_put(&target);
- 	return err;
- }
- 
-
-base-commit: fc74e0a40e4f9fd0468e34045b0c45bba11dcbb2
+ 	uart3_data: uart3-data {
+-		samsung,pins = "gpa1-4", "gpa1-4";
++		samsung,pins = "gpa1-4", "gpa1-5";
+ 		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
+ 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
+ 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
 -- 
-2.30.2
+2.32.0
 
