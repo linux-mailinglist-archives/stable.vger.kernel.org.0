@@ -2,81 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5894817D8
-	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 01:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07674481848
+	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 03:00:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233574AbhL3AGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Dec 2021 19:06:55 -0500
-Received: from mout.gmx.net ([212.227.17.20]:38453 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230083AbhL3AGy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 Dec 2021 19:06:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1640822813;
-        bh=UCEKqMCBwe/ZBUsIWPWma+7acAL2Vg9ytcL8yVbR4q0=;
-        h=X-UI-Sender-Class:Date:To:From:Subject;
-        b=Puz1IB/CvEwgHDR1WF5gKmxT4PlWEE4YwT4DXfAmjX+XdKRzmu2loO9Jbiik0V7V6
-         etlLm5isgKSQ3IKn/XgFgOwgTflvQSj77HOrvpLkeolAICdpKr3tFB3SGYs427nlSF
-         2G2hLYjTwJKgevZUpTTP/hagBBmTuFD4JGX988Og=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx104
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MSKu0-1mrc6m1wV6-00Sbut; Thu, 30
- Dec 2021 01:06:53 +0100
-Message-ID: <8b9f45d8-768a-d76d-3de1-f3998dd77e41@gmx.com>
-Date:   Thu, 30 Dec 2021 08:06:49 +0800
+        id S234256AbhL3CAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Dec 2021 21:00:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37394 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234245AbhL3CAM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 21:00:12 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 07C70601B6;
+        Thu, 30 Dec 2021 02:00:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 5973AC36AEA;
+        Thu, 30 Dec 2021 02:00:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1640829611;
+        bh=IwDXPpq15qyXlzhI/VWCsb4u2SUzDzS9ib1rdnRI6wE=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=PeptUt65uw6STXQmDGsxHrE08OWAAUGUGSxBFPyNa4l/jZBBlGRzULk2r9Uu47ZUo
+         qd7GDyY3saYY4snVDvkCYpjUB0PlMVCOmQONjt1E3MvOfOJ973eidgszQQN6gh0ua1
+         rziKLR6R6aHZlsa9M4bEQ7Ul7fPYNq7ilTY3BZk4yRSK+ML4+0YjxXcovwrgCrQNwp
+         nFTn0sZsCRoyxKE/8CTl9ayZkEAKrH/hiM2qmVN9kYERUJ2ltgDUoBLLDu+e4YSlaj
+         aSM+eW2Gkuya5nVnEQl8kY6b3tG3O9wfwTGvQUG4/DEkjlmcfYNVktb01Vh7af64DG
+         QTqEQHIS1Arsg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 3F1A2C32795;
+        Thu, 30 Dec 2021 02:00:11 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-Content-Language: en-US
-To:     "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-Subject: Should write-time tree-checker backported to v5.10?
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:pdcFcJDAsTEEnLlgH0UCqWM7n3XS65B3cZN2chq1+qvvUe2N9rH
- aBSqsVfnNeOkBJlZ/kstPvXJS9ssDJclmg5uBsaXGTYht9yEZdrWKp+nDyjT9k7XwB/62J8
- LHesKURrxS7cKmKppWwPXkmutrYdxpryGvWXaictnQRz9bkHBsAoylKVaZTJoUMXffsqRyX
- rsH7hR1ZSlwGs4epfE6PQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:OK8cMexUkyY=:5zTvVt78oQl8cjGSRHraEy
- GYVg1CHR0EX3Ex4dlQA1FRXvF2WADyFrHDexs1NkaXWEKwCX2y9ps55wkcl3dov57xfI3+1gB
- jyB2rd0WFR7pfYHgD0bB/tvyIahhXDJeVdVLLdQrcQEJa6IWBP1GDiqCRVhwlX7ZpybsqsNUp
- WcEscvD4IbTeI7vC7m0OYHytQYTkDIztdbR2ZHjtSl+Lzvy4D5pL9nUvlmEykzs24/+8Mnu3V
- hU8RvBpjd0CQeVzWhLq/p7qOTsUJNf1TWMRk88Sd9muucUSgEE5B3Pz3ISQpll8Mug96qxVLJ
- zLQc8VZC0QBCwnNWHBf2gT8JIx4vWPA0cigFBrih3XErraoec9eofyGWYU94RQjWNp1OqEp4E
- ZZVGToUJjYfGm/zOZaNVXNvpSCLNwF0GOybg4Fnd8zeZ5bEhZQa9n6ziFFV6FTpwO6NBUILQW
- 68FCVnPGWixWp2GPqs6rrV24yBihFoTEyCe3H2PJaEFT2HNOa8gMeYy+pLcKX0MOCVcqTMqIV
- ojN/WZuc7Ya+aE2sg9i6pkrithvyI8i7UdZ+6uhZIZ1q+eqAYJMj3DBPfxcroZ52QWSh7Jhyv
- IiBNyefKb6LPbhlRRhfOZZapF4rGP0QqosGgI7X1b3TBQYmQ5213WBHaOYaCzTLiuG86zfsI5
- VehXDC8efP8MD/KBr4zLUgQxHhQ/RtlBEeU+Epf66akhhsEvwKtUSLkxjE7b3n4aHaRJQNi8p
- bMLHxeanSmFQQVStnVn1TVBnelLxuA0gSx+MwC++N8zveOFmm8Q+BdN2mYmDsNU7miDB2DjQH
- O23INkeXijO90NEEpL+vxlt/gfkvKMbFRJeL5a24c2JG46BVYtsdCCNbpun8+DdYedXo3B8Wj
- bWOhLUVu7xhYCLf0K1estnxe2z8orbylltI6gQzDYwNmLpfdi3hg+lddLhv3k1HChJFeFS3LS
- +2cQCr6K9Gdb4Dd0Tj/rc40PwqWz5ePL/xnjKCp14scoGjnijnxaHm1OOSrCZNZ3brwHDNzfQ
- g6+UpO1Hebbh9RrcP5dzhy3rigl6pHwcJUNYqQvmCWoWkrHyLHme744aOh4A/xJakmi0cjV7y
- vZu/OREsJZwndQ=
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH] net: fix use-after-free in tw_timer_handler
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164082961125.30206.10818426908442232767.git-patchwork-notify@kernel.org>
+Date:   Thu, 30 Dec 2021 02:00:11 +0000
+References: <20211228104145.9426-1-songmuchun@bytedance.com>
+In-Reply-To: <20211228104145.9426-1-songmuchun@bytedance.com>
+To:     Muchun Song <songmuchun@bytedance.com>
+Cc:     davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
+        kuba@kernel.org, xemul@openvz.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, cong.wang@bytedance.com,
+        fam.zheng@bytedance.com, stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Hello:
 
-Since v5.10 is an LTS release, I'm wondering should we backport write
-time tree-checker feature to v5.10?
+This patch was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
 
-There are already some reports of runtime memory bitflip get written to
-disk and causing problems.
+On Tue, 28 Dec 2021 18:41:45 +0800 you wrote:
+> A real world panic issue was found as follow in Linux 5.4.
+> 
+>     BUG: unable to handle page fault for address: ffffde49a863de28
+>     PGD 7e6fe62067 P4D 7e6fe62067 PUD 7e6fe63067 PMD f51e064067 PTE 0
+>     RIP: 0010:tw_timer_handler+0x20/0x40
+>     Call Trace:
+>      <IRQ>
+>      call_timer_fn+0x2b/0x120
+>      run_timer_softirq+0x1ef/0x450
+>      __do_softirq+0x10d/0x2b8
+>      irq_exit+0xc7/0xd0
+>      smp_apic_timer_interrupt+0x68/0x120
+>      apic_timer_interrupt+0xf/0x20
+> 
+> [...]
 
-Unfortunately write-time tree-checker is only introduced in v5.11, one
-version late.
+Here is the summary with links:
+  - net: fix use-after-free in tw_timer_handler
+    https://git.kernel.org/netdev/net/c/e22e45fc9e41
 
-Considering how many bitflips write-time tree-checker has caught (and
-prevented corrupted data reaching disk), I think it's definitely worthy
-to backport it to an LTS kernel.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-Or is there any special requirement for LTS kernel to reject certain
-features?
 
-Thanks,
-Qu
