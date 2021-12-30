@@ -2,108 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FCE148200D
-	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 20:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7739482062
+	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 22:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242030AbhL3Txj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Dec 2021 14:53:39 -0500
-Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:33638
-        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241937AbhL3Txi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Dec 2021 14:53:38 -0500
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com [209.85.208.197])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 5B6563F1A4
-        for <stable@vger.kernel.org>; Thu, 30 Dec 2021 19:53:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1640894017;
-        bh=QNADCpp7Mlh0tiTM/IZxnSD9jEJmVsO7Ez+VZPkoolk=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=FZLpCDxlQfhIZFka20t/7kQ05zL58oiE1XaQ5937izdJuHuNYZuNpECW51K5MwYIG
-         j8oowMzlW2h6U0JuLxA0SeIkxq5XRylH2u/rUCFYQzkjaOvh72yE4IIG7BVSA8agF/
-         upIVb+ADPdFhY2HngydEb3B9s0yiAjK81W6h0lfZB/ZjNyGwDSIP0ziD4erP8yS5GU
-         LxyLCmVHvjRmUo6RpbOgQ7zpMypVKCdHwFN+2ZIRMhOFn4wDai2uqaNqlN/+cqT4wm
-         DPD6vyDdnLSweKH0/d3ul8rOwtXLxjHodAYb0fmmUabEl7ZZLAUyKEBxz6BIzyb6k+
-         miuCPeeaTd5eA==
-Received: by mail-lj1-f197.google.com with SMTP id o11-20020a2e90cb000000b0022dd251d30aso4901562ljg.8
-        for <stable@vger.kernel.org>; Thu, 30 Dec 2021 11:53:37 -0800 (PST)
+        id S242139AbhL3VPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 Dec 2021 16:15:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44724 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242120AbhL3VPg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 Dec 2021 16:15:36 -0500
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D59EC061574
+        for <stable@vger.kernel.org>; Thu, 30 Dec 2021 13:15:35 -0800 (PST)
+Received: by mail-oi1-x229.google.com with SMTP id w7so20966292oiw.0
+        for <stable@vger.kernel.org>; Thu, 30 Dec 2021 13:15:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=375EeFkWllOJoKksV27w9C4Voa3763zzeybbtk8RlSw=;
+        b=mu8/FwPDZIO1p0NEsa2PJoEtT5qdE7FoJl+jWekcyutYkD1BXUeDe43mqGlInrKLAg
+         i4An8bOW8o2+6HkVLZ4msbQ/yrllDURnMOWSUK5ZwI/5RRwJeKgWCDuBOKjsXT3dXtlc
+         rtJ/+VXoZ1TFRvH4ayzCQ6N1+SwUru9DA/012bPjDrKCL/esAULy2JwPJUi7ZBe51QGC
+         osqC5Kc6j/MPTgKy7PB84lm3nE2Ia2Kj4ab20hcr2CnbC6rX61HUk5gICxjAmmz2yLhD
+         ivsDoII1tQ2J507nktC1XbmvhDvcZKthACQ78D4Brr+FKuzNbjAfPzq4R77hZFMYLIvw
+         B6IQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=QNADCpp7Mlh0tiTM/IZxnSD9jEJmVsO7Ez+VZPkoolk=;
-        b=ZX2L1AeyRaU2c0ujxbOIEQfaNv4fsmUJty66TNa6f2RWQkSknotMQIv57HX5Dy8hua
-         IZ5epWr6SRaj+uCwXFmPLQdv8Cmz3xNl17ryHbTSvweA3tJzXW7rxhJ2XIuRtu1Rte5Y
-         L3UHTxWqJ7zEEARl8FMcFx/HNHGePUBesp2Fl23OANl/vrfSeIvNiEwzu2iD9EP39TsB
-         bIqPlzO8U2VfL6+i26gPSf18qlF+0dtIMOP61bASjNpfXZqYjj1UBRkgNfvaBwLB0f9P
-         J/kIi9Q1uSU/xktlOwReoUDFXibcEgj/7IN25Sr8HYXc4FJaC/GRHGiMCLbOUdL5EHdu
-         k37A==
-X-Gm-Message-State: AOAM53260xgrU1mGUdxq7BljRpIoRhksm734Ad9BbBJkvgvmepqnMTNG
-        bu33trgEMPzJL3vWOiKiQS8H59hMeE424o5tUfpB4NT4ZAhiCWcsGnNpAc06D2b+wXkudNuuMe/
-        grbDdu1++UgFRhArwIaFnlOEmj0u27suOxQ==
-X-Received: by 2002:ac2:4e0f:: with SMTP id e15mr28637091lfr.352.1640894016663;
-        Thu, 30 Dec 2021 11:53:36 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx7O09tl2Ts7mTIWiy2LfEGqGyrflqLZ61fdbAegNO9XsZTDpgxdoRm8WI5V2+TWOtiW3DmOw==
-X-Received: by 2002:ac2:4e0f:: with SMTP id e15mr28637080lfr.352.1640894016500;
-        Thu, 30 Dec 2021 11:53:36 -0800 (PST)
-Received: from krzk-bin.lan (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
-        by smtp.gmail.com with ESMTPSA id v9sm2454505lja.109.2021.12.30.11.53.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Dec 2021 11:53:36 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Sylwester Nawrocki <snawrocki@kernel.org>, stable@vger.kernel.org
-Subject: [RFT][PATCH 2/3] arm64: dts: exynos: fix WLAN pin configuration in TM2
-Date:   Thu, 30 Dec 2021 20:53:24 +0100
-Message-Id: <20211230195325.328220-2-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211230195325.328220-1-krzysztof.kozlowski@canonical.com>
-References: <20211230195325.328220-1-krzysztof.kozlowski@canonical.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=375EeFkWllOJoKksV27w9C4Voa3763zzeybbtk8RlSw=;
+        b=OdBWM2uKh621BaR3H36gKfGBnQBEakW4oluu41i/4arVkMweRAl2w9N3PLSYt9wPP2
+         mLS4VfHNLM1d1fQnE6g5RzB5veayrMcr9jjH9NTMtZTSKkKOahLCc+Prz3s1r0VrlJzu
+         q1AEDb0NPr6mPbyk7eVSAw8QVUB3qQnw8r4aDQ2SkmfBAeWP2O1yXd4KRrMe53JH5BIb
+         4/MbZgsLOytDYzcn6poWzHjAbB2vPTbV6cSw+xmabCKYEsDJLxT3u8MwRgLhMCLiM9uY
+         Elm5uULT3Asb5/Rw9IOlXVlbotrqPf1fHl/afLIrbLh9uPvGvJCD3poNAi2Er8kPYSyU
+         sn6w==
+X-Gm-Message-State: AOAM532175Cbxcdigz82Wme4zb2XvHDGJFj5fhYtV2ozg/eikQ3GMlET
+        N4chEFq+TR7QA1RRyhhhvGo2UbU9cg2IhugQGL4=
+X-Google-Smtp-Source: ABdhPJyfzcN+zFvqWReLvwgprjidG1SbCwDQ/X7UEkjpPQ+jQdraPdU7kcVRTofTvTOvianbj7w0PLTiRbYdKF6w4LQ=
+X-Received: by 2002:aca:ba85:: with SMTP id k127mr24480778oif.169.1640898935030;
+ Thu, 30 Dec 2021 13:15:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:6820:456:0:0:0:0 with HTTP; Thu, 30 Dec 2021 13:15:34
+ -0800 (PST)
+Reply-To: westonjas@globalfcbofficial.com
+From:   Dr Jasper Weston <steseavorisarl.togo@gmail.com>
+Date:   Thu, 30 Dec 2021 22:15:34 +0100
+Message-ID: <CAO4s6v6bdnaTUSQxgiJvo48kd9To9p_55vg7od3=L=SvbvXLEA@mail.gmail.com>
+Subject: URGENT REPLY NEEDED..
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Each pin configuration in pin controller should be a node with
-"samsung,pins" and other similar properties.  However the macro PIN()
-(used for initial/sleep states) defines entire node, so PCIe WLAN pin
-configuration node was ignored.
+--=20
+Dear Friend
 
-Fixes: 98c03b6eef3f ("arm64: dts: exynos: add the WiFi/PCIe support to TM2(e) boards")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
----
- arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+Hello, how are you and how are you coping with the outbreak
+coronavirus? Please be safe,I=E2=80=99m interested in partnership with you =
+on
+a great deal, kindly reply for more details
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi b/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
-index cbcc01a66aab..c5054c7a9c03 100644
---- a/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
-+++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
-@@ -1104,8 +1104,11 @@ &pinctrl_ese {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&initial_ese>;
- 
--	pcie_wlanen: pcie-wlanen {
--		PIN(INPUT, gpj2-0, UP, FAST_SR4);
-+	pcie_wlanen: pcie-wlanen-pins {
-+		samsung,pins = "gpj2-0";
-+		samsung,pin-function = <EXYNOS_PIN_FUNC_INPUT>;
-+		samsung,pin-pud = <EXYNOS_PIN_PULL_UP>;
-+		samsung,pin-drv = <EXYNOS5433_PIN_DRV_FAST_SR4>;
- 	};
- 
- 	initial_ese: initial-state {
--- 
-2.32.0
-
+Warm greetings,
+Dr Jasper Weston
