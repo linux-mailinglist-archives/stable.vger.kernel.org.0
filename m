@@ -2,135 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E2D4817C8
-	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 00:40:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5894817D8
+	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 01:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233384AbhL2XkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Dec 2021 18:40:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42358 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233254AbhL2XkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 18:40:01 -0500
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 365C6C061574
-        for <stable@vger.kernel.org>; Wed, 29 Dec 2021 15:40:01 -0800 (PST)
-Received: by mail-pj1-x102c.google.com with SMTP id y16-20020a17090a6c9000b001b13ffaa625so26012298pjj.2
-        for <stable@vger.kernel.org>; Wed, 29 Dec 2021 15:40:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+F0rx3kXAXHp+HXqPjEwwav2xVdLur+FV3iCTu85G3g=;
-        b=gWcdnuF5hnB25Ti8jWQFAH53BUPpQtuDon2ZMzmgI4SjD+CMrl2bIobR/h6nvGkbpa
-         h9pakGwMjsfQt/SP4SrTzzL+FNKIW+v59A83DogQFpdLt/wqyfQ68pqpfM2CE8g6ifKV
-         kGy/ToUvadxCKBHRXYO3ep/BN5nzMqhCm/KUoijf98LP4DnTm/srfdSa3f4AfVUL00B4
-         l0R0qE/YafH2Tmskd6zeZU/subOt9aG9ERJaBxMKZ3OyeX4HKaLy3CUvrSUp9ablIh9d
-         AL5GCbkEIBNGfLFlEikib+/Q5Dwn+EjL/Pi5lqSckbrW7fxywTm6NvAYFq8cYHgrIdhQ
-         0jhw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+F0rx3kXAXHp+HXqPjEwwav2xVdLur+FV3iCTu85G3g=;
-        b=XaEaJ4FaZ89Jja/lpKad4/bCKofRA25EpThiSnYxT0XeZAJGfBKAHb9eVSENwPopNW
-         ewW+VM7+ft+PEC1S6G+sUMem92njf8+J0Zk5DM7zTJVuAZFUIclzYoBDTR+JiAkSNjjF
-         JBzfF9Ubdw/utulxn4Z8t9K1GP94MF91sHElEWM9HzJFNTjZEfQaZL1zAkzjUBWPujRl
-         NIJPp3DIeDNW0lmhKgvSq/mdm7NUX86kbMblZB8MiplPw3yIBnQz/KdqX5tSbzAfHSsl
-         7AS3+cBh9jxoNXJBGvui5N+685tN9jV7nplK7aIsQvkT30sGOPYKX9HXQCh39cV24Fzl
-         Ro8g==
-X-Gm-Message-State: AOAM533EF+5Tu8VvOfVg8C0j7bXWAZpaR7F0iZVoh+Vf7wtmSOhcg34x
-        LLYEQgrw2XVIoNRC0kBVE3wW/U0A6rexQP2f
-X-Google-Smtp-Source: ABdhPJzd09q47RI5ywjpV0rvh+WBEpx8bu0aflu7TYatlVHmzdDWrzZQgkrsO8C5HXx/N7EedXeADg==
-X-Received: by 2002:a17:90b:4a81:: with SMTP id lp1mr34903684pjb.19.1640821200665;
-        Wed, 29 Dec 2021 15:40:00 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i185sm24660448pfe.199.2021.12.29.15.40.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Dec 2021 15:40:00 -0800 (PST)
-Message-ID: <61ccf1d0.1c69fb81.66daa.583e@mx.google.com>
-Date:   Wed, 29 Dec 2021 15:40:00 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S233574AbhL3AGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Dec 2021 19:06:55 -0500
+Received: from mout.gmx.net ([212.227.17.20]:38453 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230083AbhL3AGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Dec 2021 19:06:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1640822813;
+        bh=UCEKqMCBwe/ZBUsIWPWma+7acAL2Vg9ytcL8yVbR4q0=;
+        h=X-UI-Sender-Class:Date:To:From:Subject;
+        b=Puz1IB/CvEwgHDR1WF5gKmxT4PlWEE4YwT4DXfAmjX+XdKRzmu2loO9Jbiik0V7V6
+         etlLm5isgKSQ3IKn/XgFgOwgTflvQSj77HOrvpLkeolAICdpKr3tFB3SGYs427nlSF
+         2G2hLYjTwJKgevZUpTTP/hagBBmTuFD4JGX988Og=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx104
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1MSKu0-1mrc6m1wV6-00Sbut; Thu, 30
+ Dec 2021 01:06:53 +0100
+Message-ID: <8b9f45d8-768a-d76d-3de1-f3998dd77e41@gmx.com>
+Date:   Thu, 30 Dec 2021 08:06:49 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Content-Language: en-US
+To:     "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
+Subject: Should write-time tree-checker backported to v5.10?
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.296-17-g76d42990efb4
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 117 runs,
- 1 regressions (v4.4.296-17-g76d42990efb4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Provags-ID: V03:K1:pdcFcJDAsTEEnLlgH0UCqWM7n3XS65B3cZN2chq1+qvvUe2N9rH
+ aBSqsVfnNeOkBJlZ/kstPvXJS9ssDJclmg5uBsaXGTYht9yEZdrWKp+nDyjT9k7XwB/62J8
+ LHesKURrxS7cKmKppWwPXkmutrYdxpryGvWXaictnQRz9bkHBsAoylKVaZTJoUMXffsqRyX
+ rsH7hR1ZSlwGs4epfE6PQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:OK8cMexUkyY=:5zTvVt78oQl8cjGSRHraEy
+ GYVg1CHR0EX3Ex4dlQA1FRXvF2WADyFrHDexs1NkaXWEKwCX2y9ps55wkcl3dov57xfI3+1gB
+ jyB2rd0WFR7pfYHgD0bB/tvyIahhXDJeVdVLLdQrcQEJa6IWBP1GDiqCRVhwlX7ZpybsqsNUp
+ WcEscvD4IbTeI7vC7m0OYHytQYTkDIztdbR2ZHjtSl+Lzvy4D5pL9nUvlmEykzs24/+8Mnu3V
+ hU8RvBpjd0CQeVzWhLq/p7qOTsUJNf1TWMRk88Sd9muucUSgEE5B3Pz3ISQpll8Mug96qxVLJ
+ zLQc8VZC0QBCwnNWHBf2gT8JIx4vWPA0cigFBrih3XErraoec9eofyGWYU94RQjWNp1OqEp4E
+ ZZVGToUJjYfGm/zOZaNVXNvpSCLNwF0GOybg4Fnd8zeZ5bEhZQa9n6ziFFV6FTpwO6NBUILQW
+ 68FCVnPGWixWp2GPqs6rrV24yBihFoTEyCe3H2PJaEFT2HNOa8gMeYy+pLcKX0MOCVcqTMqIV
+ ojN/WZuc7Ya+aE2sg9i6pkrithvyI8i7UdZ+6uhZIZ1q+eqAYJMj3DBPfxcroZ52QWSh7Jhyv
+ IiBNyefKb6LPbhlRRhfOZZapF4rGP0QqosGgI7X1b3TBQYmQ5213WBHaOYaCzTLiuG86zfsI5
+ VehXDC8efP8MD/KBr4zLUgQxHhQ/RtlBEeU+Epf66akhhsEvwKtUSLkxjE7b3n4aHaRJQNi8p
+ bMLHxeanSmFQQVStnVn1TVBnelLxuA0gSx+MwC++N8zveOFmm8Q+BdN2mYmDsNU7miDB2DjQH
+ O23INkeXijO90NEEpL+vxlt/gfkvKMbFRJeL5a24c2JG46BVYtsdCCNbpun8+DdYedXo3B8Wj
+ bWOhLUVu7xhYCLf0K1estnxe2z8orbylltI6gQzDYwNmLpfdi3hg+lddLhv3k1HChJFeFS3LS
+ +2cQCr6K9Gdb4Dd0Tj/rc40PwqWz5ePL/xnjKCp14scoGjnijnxaHm1OOSrCZNZ3brwHDNzfQ
+ g6+UpO1Hebbh9RrcP5dzhy3rigl6pHwcJUNYqQvmCWoWkrHyLHme744aOh4A/xJakmi0cjV7y
+ vZu/OREsJZwndQ=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 117 runs, 1 regressions (v4.4.296-17-g76d4299=
-0efb4)
+Hi,
 
-Regressions Summary
--------------------
+Since v5.10 is an LTS release, I'm wondering should we backport write
+time tree-checker feature to v5.10?
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+There are already some reports of runtime memory bitflip get written to
+disk and causing problems.
 
+Unfortunately write-time tree-checker is only introduced in v5.11, one
+version late.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.296-17-g76d42990efb4/plan/baseline/
+Considering how many bitflips write-time tree-checker has caught (and
+prevented corrupted data reaching disk), I think it's definitely worthy
+to backport it to an LTS kernel.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.296-17-g76d42990efb4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      76d42990efb4902de293be254f5e93c693058c8f =
+Or is there any special requirement for LTS kernel to reject certain
+features?
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ccba069a31fe4742ef6759
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.296-1=
-7-g76d42990efb4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.296-1=
-7-g76d42990efb4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ccba069a31fe4=
-742ef675c
-        failing since 8 days (last pass: v4.4.295-12-gd8298cd08f0d, first f=
-ail: v4.4.295-23-gcec9bc2aa5d3)
-        2 lines
-
-    2021-12-29T19:41:38.226194  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/121
-    2021-12-29T19:41:38.234493  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+Thanks,
+Qu
