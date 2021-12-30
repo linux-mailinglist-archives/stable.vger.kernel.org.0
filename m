@@ -2,82 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07674481848
-	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 03:00:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C858F4818D7
+	for <lists+stable@lfdr.de>; Thu, 30 Dec 2021 04:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234256AbhL3CAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 Dec 2021 21:00:13 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:37394 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234245AbhL3CAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 Dec 2021 21:00:12 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07C70601B6;
-        Thu, 30 Dec 2021 02:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 5973AC36AEA;
-        Thu, 30 Dec 2021 02:00:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1640829611;
-        bh=IwDXPpq15qyXlzhI/VWCsb4u2SUzDzS9ib1rdnRI6wE=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=PeptUt65uw6STXQmDGsxHrE08OWAAUGUGSxBFPyNa4l/jZBBlGRzULk2r9Uu47ZUo
-         qd7GDyY3saYY4snVDvkCYpjUB0PlMVCOmQONjt1E3MvOfOJ973eidgszQQN6gh0ua1
-         rziKLR6R6aHZlsa9M4bEQ7Ul7fPYNq7ilTY3BZk4yRSK+ML4+0YjxXcovwrgCrQNwp
-         nFTn0sZsCRoyxKE/8CTl9ayZkEAKrH/hiM2qmVN9kYERUJ2ltgDUoBLLDu+e4YSlaj
-         aSM+eW2Gkuya5nVnEQl8kY6b3tG3O9wfwTGvQUG4/DEkjlmcfYNVktb01Vh7af64DG
-         QTqEQHIS1Arsg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 3F1A2C32795;
-        Thu, 30 Dec 2021 02:00:11 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S235122AbhL3DJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 Dec 2021 22:09:17 -0500
+Received: from mga09.intel.com ([134.134.136.24]:50521 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231751AbhL3DJR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 Dec 2021 22:09:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1640833757; x=1672369757;
+  h=cc:subject:to:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=tZZPHf2DyOK7p1G3x3mXivjDw99X+Vp50x10gR49ETg=;
+  b=NEUoU+YpHGQLmjw0B4D0Ar3KloLrfHZ8CgY4/TEbRKmhDcv+2z4NIiZE
+   SYGNO9X6oiTj4AfmGphBTFEObVI7pz6Z2teM+Q5bZ0w0jCxVPtDU0sspo
+   0Cz68yVPeb6btosLB82OpOJJhyA+w6+O6NaJ0qtU/rVyMWx+ZOiDQ+RHp
+   tUBYBkJY7PQFZkhrUz50NAShZE9PDyDI/IkGpixATao883wCanWgbdu9t
+   +LqnGckF1QG/CS0nVvBeSQaGu5PtN2rb6xTJMpyt881t6BT6ii7fpd2CE
+   CjCqF+TpivH9+GxclItiN7w123tT+aggaO5XvqgGXWDA5XyTW006m4IMC
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10212"; a="241408063"
+X-IronPort-AV: E=Sophos;i="5.88,247,1635231600"; 
+   d="scan'208";a="241408063"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Dec 2021 19:09:16 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,247,1635231600"; 
+   d="scan'208";a="524229955"
+Received: from allen-box.sh.intel.com (HELO [10.239.159.118]) ([10.239.159.118])
+  by orsmga008.jf.intel.com with ESMTP; 29 Dec 2021 19:09:14 -0800
+Cc:     baolu.lu@linux.intel.com, "Rafael J . Wysocki" <rafael@kernel.org>,
+        Kay Sievers <kay.sievers@novell.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] driver core: Fix driver_sysfs_remove() order in
+ really_probe()
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <20211229045159.1731943-1-baolu.lu@linux.intel.com>
+ <YcwyyXuqJ3QVevYW@kroah.com>
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <5d844360-60f1-731a-257f-ec6b0c6b1c4b@linux.intel.com>
+Date:   Thu, 30 Dec 2021 11:08:43 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH] net: fix use-after-free in tw_timer_handler
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164082961125.30206.10818426908442232767.git-patchwork-notify@kernel.org>
-Date:   Thu, 30 Dec 2021 02:00:11 +0000
-References: <20211228104145.9426-1-songmuchun@bytedance.com>
-In-Reply-To: <20211228104145.9426-1-songmuchun@bytedance.com>
-To:     Muchun Song <songmuchun@bytedance.com>
-Cc:     davem@davemloft.net, yoshfuji@linux-ipv6.org, dsahern@kernel.org,
-        kuba@kernel.org, xemul@openvz.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, cong.wang@bytedance.com,
-        fam.zheng@bytedance.com, stable@vger.kernel.org
+In-Reply-To: <YcwyyXuqJ3QVevYW@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Hi Greg,
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Tue, 28 Dec 2021 18:41:45 +0800 you wrote:
-> A real world panic issue was found as follow in Linux 5.4.
+On 12/29/21 6:04 PM, Greg Kroah-Hartman wrote:
+> On Wed, Dec 29, 2021 at 12:51:59PM +0800, Lu Baolu wrote:
+>> The driver_sysfs_remove() should always be called after successful
+>> driver_sysfs_add(). Otherwise, NULL pointers will be passed to the
+>> sysfs_remove_link(), where it is decoded as searching sysfs root.
 > 
->     BUG: unable to handle page fault for address: ffffde49a863de28
->     PGD 7e6fe62067 P4D 7e6fe62067 PUD 7e6fe63067 PMD f51e064067 PTE 0
->     RIP: 0010:tw_timer_handler+0x20/0x40
->     Call Trace:
->      <IRQ>
->      call_timer_fn+0x2b/0x120
->      run_timer_softirq+0x1ef/0x450
->      __do_softirq+0x10d/0x2b8
->      irq_exit+0xc7/0xd0
->      smp_apic_timer_interrupt+0x68/0x120
->      apic_timer_interrupt+0xf/0x20
+> What null pointer is being sent to sysfs_remove_link()?  For which link?
+
+Oh, my fault. Thank you for pointing this out.
+
+The device and driver sysfs nodes have already been created, so there's
+no null pointers. The out-of-order call of driver_sysfs_remove() just
+tries to remove some nonexistent nodes under the device and driver sysfs
+nodes. It is allowed by the sysfs layer.
+
 > 
-> [...]
+> How are you triggering this failure path and how was it tested?
 
-Here is the summary with links:
-  - net: fix use-after-free in tw_timer_handler
-    https://git.kernel.org/netdev/net/c/e22e45fc9e41
+I hacked the a driver to return failure in dma_configure() callback. I
+didn't see any failure. But I mistakenly thought that
+driver_sysfs_remove() could possibly delete some sysfs entries by
+mistake. That's not true. Sorry for the noise.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+> 
+>>
+>> Fixes: 1901fb2604fbc ("Driver core: fix "driver" symlink timing")
+>> Cc: stable@vger.kernel.org
 
+This patch only improves the readability of really_probe() and it does
+not fix any bugs. I will remove above tags and resent a version if you
+think this improvement is valuable.
 
+>> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+>> ---
+>>   drivers/base/dd.c | 7 ++++---
+>>   1 file changed, 4 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+>> index 68ea1f949daa..9eaaff2f556c 100644
+>> --- a/drivers/base/dd.c
+>> +++ b/drivers/base/dd.c
+>> @@ -577,14 +577,14 @@ static int really_probe(struct device *dev, struct device_driver *drv)
+>>   	if (dev->bus->dma_configure) {
+>>   		ret = dev->bus->dma_configure(dev);
+>>   		if (ret)
+>> -			goto probe_failed;
+>> +			goto pinctrl_bind_failed;
+> 
+> Why not call the notifier chain here?  Did you verify that this change
+> still works properly?
+
+The BUS_NOTIFY_DRIVER_NOT_BOUND event is listened in two places in the
+tree.
+
+$ git grep BUS_NOTIFY_DRIVER_NOT_BOUND -- :^drivers/base/dd.c :^include
+drivers/acpi/acpi_lpss.c:       case BUS_NOTIFY_DRIVER_NOT_BOUND:
+drivers/base/power/clock_ops.c: case BUS_NOTIFY_DRIVER_NOT_BOUND:
+
+The usage pattern is setting up something in BUS_NOTIFY_BIND_DRIVER and
+doing the cleanup in BUS_NOTIFY_DRIVER_NOT_BOUND or
+BUS_NOTIFY_UNBIND_DRIVER. The right order of these events should be
+
+  [failure case]
+  - BUS_NOTIFY_BIND_DRIVER: driver is about to be bound
+  - BUS_NOTIFY_DRIVER_NOT_BOUND: driver failed to be bound
+
+or
+
+  [successful case]
+  - BUS_NOTIFY_BIND_DRIVER: driver is about to be bound
+  - BUS_NOTIFY_BOUND_DRIVER: driver bound to device
+  - BUS_NOTIFY_UNBIND_DRIVER: driver is about to be unbound
+  - BUS_NOTIFY_UNBOUND_DRIVER: driver is unbound from the device
+
+Without above change, when dma_configure() returns failure, the listener 
+could get a BUS_NOTIFY_DRIVER_NOT_BOUND without BUS_NOTIFY_BIND_DRIVER.
+
+Please guide me if my understanding is wrong.
+
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Best regards,
+baolu
