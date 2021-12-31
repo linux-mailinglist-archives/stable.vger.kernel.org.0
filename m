@@ -2,80 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB46482330
-	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 11:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE020482377
+	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 11:30:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229686AbhLaKSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Dec 2021 05:18:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbhLaKSl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Dec 2021 05:18:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9832C061574;
-        Fri, 31 Dec 2021 02:18:41 -0800 (PST)
+        id S229591AbhLaKak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Dec 2021 05:30:40 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42968 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229554AbhLaKak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Dec 2021 05:30:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BC59617A8;
-        Fri, 31 Dec 2021 10:18:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D83C36AEA;
-        Fri, 31 Dec 2021 10:18:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640945920;
-        bh=W4gCix9DyaimD79GMXZWaGfwS+mV5yHLdzhBL/68EsQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IJojEaKyszuhZeZE8k0ejvlsIxYpdyyLSY7xFKeMMDvQSVi1UsHJNI0m0ickGzy9n
-         VilkGSmUNEJEDvrjo3vrxiMGArHfDZzy6fharvvNNPTioJU7St2ZKg4j0teeRmly2d
-         e203jW9u1JdQ2lOUv+JEQPH4OAumDAV++0P9jiPE=
-Date:   Fri, 31 Dec 2021 11:18:36 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 5.10 48/76] platform/x86: intel_pmc_core: fix memleak on
- registration failure
-Message-ID: <Yc7Y/HOgY5aT7STP@kroah.com>
-References: <20211227151324.694661623@linuxfoundation.org>
- <20211227151326.366957180@linuxfoundation.org>
- <20211231100405.GB17525@amd>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2013A61704;
+        Fri, 31 Dec 2021 10:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B2A6C36AEB;
+        Fri, 31 Dec 2021 10:30:38 +0000 (UTC)
+Date:   Fri, 31 Dec 2021 11:30:34 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] fs/mount_setattr: always cleanup mount_kattr
+Message-ID: <20211231103034.szasg7xymtfhh552@wittgenstein>
+References: <20211230192309.115524-1-christian.brauner@ubuntu.com>
+ <CAHk-=winoYrnz+KQA5Mqrw9f=PeyvKT2SsyAx=ZCUoBxm4kDpA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20211231100405.GB17525@amd>
+In-Reply-To: <CAHk-=winoYrnz+KQA5Mqrw9f=PeyvKT2SsyAx=ZCUoBxm4kDpA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Dec 31, 2021 at 11:04:05AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> On Mon 2021-12-27 16:31:03, Greg Kroah-Hartman wrote:
-> > From: Johan Hovold <johan@kernel.org>
-> > 
-> > commit 26a8b09437804fabfb1db080d676b96c0de68e7c upstream.
-> > 
-> > In case device registration fails during module initialisation, the
-> > platform device structure needs to be freed using platform_device_put()
-> > to properly free all resources (e.g. the device name).
+On Thu, Dec 30, 2021 at 03:14:33PM -0800, Linus Torvalds wrote:
+> On Thu, Dec 30, 2021 at 11:23 AM Christian Brauner
+> <christian.brauner@ubuntu.com> wrote:
 > >
+> > Would you be ok with applying this fix directly? I
 > 
-> Does it? What exactly was leaking here?
+> Done.
 > 
-> > +++ b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-> > @@ -65,7 +65,7 @@ static int __init pmc_core_platform_init
-> >  
-> >  	retval = platform_device_register(pmc_core_device);
-> >  	if (retval)
-> > -		kfree(pmc_core_device);
-> > +		platform_device_put(pmc_core_device);
-> >  
-> 
-> This is strange. Failing registration should have no effects that need
-> to be undone.
+> That said, I would have liked a "Fixes:" tag, or some indication of
+> how far back the stable people should take this..
 
-Sadly, that is not how the driver model has ever worked for various
-reasons.
+Ugh, I missed to add that.
+From a pure upstream stable perspective the only relevant and still
+supported kernel that should get this fix is 5.15.
 
-greg k-h
+I can make it a custom to mark all patches that should go to stable with
+the first kernel version where a given fix should be applied. In this
+case this whould've meant I'd given it:
+
+Cc: <stable@vger.kernel.org> # v5.12+
+
+For upstream stable maintainers it should be clear that since the only
+supported stable version within the range is v5.15.
+For downstream users/distros it should help to identify whether they
+still run/maintain a kernel that falls within the range of kernels that
+would technically be eligible for this fix.
+
+I haven't seen whether we prefer the Cc: with # v*.**+ syntax to a
+simple Cc: without it nowadays.
+
+> 
+> I assume it's 9caccd41541a ("fs: introduce MOUNT_ATTR_IDMAP"), and
+
+Yes, that's correct. Thanks!
+
+> that's what I added manually to it as I applied it, but relying on me
+> noticing and getting things right can be a risky business..
+
+Noted. :)
+
+Christian
