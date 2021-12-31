@@ -2,90 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 574584821EE
-	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 05:12:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7623C482304
+	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 10:40:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242667AbhLaEMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 Dec 2021 23:12:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:32822 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231222AbhLaEMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 Dec 2021 23:12:38 -0500
+        id S229626AbhLaJkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Dec 2021 04:40:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53076 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229555AbhLaJkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Dec 2021 04:40:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 048E4B81D4B;
-        Fri, 31 Dec 2021 04:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ACFEC36AE9;
-        Fri, 31 Dec 2021 04:12:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1640923955;
-        bh=qAa71we+OzH5frizipYFiM2+rzEExaMHymKmGW3O0VY=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=YD+OR0pTQXCDeCTH0vi2rQScST1fUXVhUHIAxKRL+SiVcc5hI3KWx2aAJ7Efmhnmf
-         wfFw3503EbJDxDS1icFXf41aZpU8CehX7LvyIXzBQpYYG8XXFc4Gwe0U3lwDzqZfB0
-         8x5Hp1vNfYl9I1t5UGD0iFX9QhkSjmEUKZDJ5IyA=
-Date:   Thu, 30 Dec 2021 20:12:34 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, sj@kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 2/2] mm/damon/dbgfs: fix 'struct pid' leaks in
- 'dbgfs_target_ids_write()'
-Message-ID: <20211231041234.50dCet98O%akpm@linux-foundation.org>
-In-Reply-To: <20211230201202.d9bcb24678cc3d9d503579a0@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0F7F617A8
+        for <stable@vger.kernel.org>; Fri, 31 Dec 2021 09:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5539DC36AEB;
+        Fri, 31 Dec 2021 09:40:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640943609;
+        bh=918PJt+iFOH9YmoTcbmB75fI77L/ng6/DY6d6GEB5+c=;
+        h=Subject:To:From:Date:From;
+        b=WlVREQ1aK2F70nDFZVRyWuClYkDpIUB9K+doxwE7UQ7+7AqHJkH+eNd+iW4xZJXGS
+         Xv2pHp+bHxn8vsXI2EwJFdaQpaedrONcbuA5Gne8gBpd4E8wErhNNanaZGmL5kKUPr
+         5d341bIdGYsrd02MgNxYpnyYowoB/ji/52uLVb2M=
+Subject: patch "mei: hbm: fix client dma reply status" added to char-misc-next
+To:     alexander.usyskin@intel.com, emmanuel.grumbach@intel.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        tomas.winkler@intel.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 31 Dec 2021 10:39:43 +0100
+Message-ID: <1640943583172197@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sj@kernel.org>
-Subject: mm/damon/dbgfs: fix 'struct pid' leaks in 'dbgfs_target_ids_write()'
 
-DAMON debugfs interface increases the reference counts of 'struct pid's
-for targets from the 'target_ids' file write callback
-('dbgfs_target_ids_write()'), but decreases the counts only in DAMON
-monitoring termination callback ('dbgfs_before_terminate()').
+This is a note to let you know that I've just added the patch titled
 
-Therefore, when 'target_ids' file is repeatedly written without DAMON
-monitoring start/termination, the reference count is not decreased and
-therefore memory for the 'struct pid' cannot be freed.  This commit fixes
-this issue by decreasing the reference counts when 'target_ids' is
-written.
+    mei: hbm: fix client dma reply status
 
-Link: https://lkml.kernel.org/r/20211229124029.23348-1-sj@kernel.org
-Fixes: 4bc05954d007 ("mm/damon: implement a debugfs-based user space interface")
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.15+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 6b0b80ac103b2a40c72a47c301745fd1f4ef4697 Mon Sep 17 00:00:00 2001
+From: Alexander Usyskin <alexander.usyskin@intel.com>
+Date: Tue, 28 Dec 2021 10:20:47 +0200
+Subject: mei: hbm: fix client dma reply status
+
+Don't blindly copy status value received from the firmware
+into internal client status field,
+It may be positive and ERR_PTR(ret) will translate it
+into an invalid address and the caller will crash.
+
+Put the error code into the client status on failure.
+
+Fixes: 369aea845951 ("mei: implement client dma setup.")
+Cc: <stable@vger.kernel.org> # v5.11+
+Reported-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Tested-by: : Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Acked-by: Tomas Winkler <tomas.winkler@intel.com>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20211228082047.378115-1-tomas.winkler@intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+ drivers/misc/mei/hbm.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
- mm/damon/dbgfs.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
---- a/mm/damon/dbgfs.c~mm-damon-dbgfs-fix-struct-pid-leaks-in-dbgfs_target_ids_write
-+++ a/mm/damon/dbgfs.c
-@@ -353,6 +353,7 @@ static ssize_t dbgfs_target_ids_write(st
- 		const char __user *buf, size_t count, loff_t *ppos)
- {
- 	struct damon_ctx *ctx = file->private_data;
-+	struct damon_target *t, *next_t;
- 	bool id_is_pid = true;
- 	char *kbuf, *nrs;
- 	unsigned long *targets;
-@@ -397,8 +398,12 @@ static ssize_t dbgfs_target_ids_write(st
- 		goto unlock_out;
- 	}
+diff --git a/drivers/misc/mei/hbm.c b/drivers/misc/mei/hbm.c
+index be41843df75b..cebcca6d6d3e 100644
+--- a/drivers/misc/mei/hbm.c
++++ b/drivers/misc/mei/hbm.c
+@@ -672,10 +672,14 @@ static void mei_hbm_cl_dma_map_res(struct mei_device *dev,
+ 	if (!cl)
+ 		return;
  
--	/* remove targets with previously-set primitive */
--	damon_set_targets(ctx, NULL, 0);
-+	/* remove previously set targets */
-+	damon_for_each_target_safe(t, next_t, ctx) {
-+		if (targetid_is_pid(ctx))
-+			put_pid((struct pid *)t->id);
-+		damon_destroy_target(t);
+-	dev_dbg(dev->dev, "cl dma map result = %d\n", res->status);
+-	cl->status = res->status;
+-	if (!cl->status)
++	if (res->status) {
++		dev_err(dev->dev, "cl dma map failed %d\n", res->status);
++		cl->status = -EFAULT;
++	} else {
++		dev_dbg(dev->dev, "cl dma map succeeded\n");
+ 		cl->dma_mapped = 1;
++		cl->status = 0;
 +	}
+ 	wake_up(&cl->wait);
+ }
  
- 	/* Configure the context for the address space type */
- 	if (id_is_pid)
-_
+@@ -698,10 +702,14 @@ static void mei_hbm_cl_dma_unmap_res(struct mei_device *dev,
+ 	if (!cl)
+ 		return;
+ 
+-	dev_dbg(dev->dev, "cl dma unmap result = %d\n", res->status);
+-	cl->status = res->status;
+-	if (!cl->status)
++	if (res->status) {
++		dev_err(dev->dev, "cl dma unmap failed %d\n", res->status);
++		cl->status = -EFAULT;
++	} else {
++		dev_dbg(dev->dev, "cl dma unmap succeeded\n");
+ 		cl->dma_mapped = 0;
++		cl->status = 0;
++	}
+ 	wake_up(&cl->wait);
+ }
+ 
+-- 
+2.34.1
+
+
