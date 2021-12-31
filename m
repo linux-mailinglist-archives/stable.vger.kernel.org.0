@@ -2,100 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABAA14823E4
-	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 13:02:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ACF0482404
+	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 13:52:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229953AbhLaMCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Dec 2021 07:02:41 -0500
-Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:50752
-        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229933AbhLaMCl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Dec 2021 07:02:41 -0500
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com [209.85.208.197])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        id S230109AbhLaMwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Dec 2021 07:52:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229519AbhLaMwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Dec 2021 07:52:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3869FC061574;
+        Fri, 31 Dec 2021 04:52:37 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 1BA1E3F175
-        for <stable@vger.kernel.org>; Fri, 31 Dec 2021 12:02:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1640952160;
-        bh=DK4b7SeKibw8lubZey1sb4uTn4FV7x816K3kbbgYWl8=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=uc62tn02ch55W/jW5oeM7iYIYpz+Xl1+zIaJDnzrQNTlP0cJKUp2FyCw0SWA+T1xF
-         8hCRROYXGmeAfrgFSKZzWFf/49JvUfRaHTlDjBOYAwF+4qdrYxaHmonxLeMKT6qHjH
-         dTF4ecVorVHvYAuDOEKqXSBkcB66eIbclIQ6Pmr7rV7J4O6w+ckqktqZDGA3cCdslG
-         W4SfYD+9FV/Bqa0Q+4411YIIOmXGwb5MlB7sw2U29ovG4V6gjF+CYUgDPspqnwkP3a
-         ChuAJ0sbQHLhYEdIMZ7/dMrw4AwlK/ixh2nF2nlYw20D8yYqXcv4uzd6qbyzcKfm9V
-         zxKly5Vg/Bpcw==
-Received: by mail-lj1-f197.google.com with SMTP id r20-20020a2eb894000000b0021a4e932846so9287280ljp.6
-        for <stable@vger.kernel.org>; Fri, 31 Dec 2021 04:02:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=DK4b7SeKibw8lubZey1sb4uTn4FV7x816K3kbbgYWl8=;
-        b=2KyowvNOBLOsrHakaIEEpGaY63x/vN8EFg2VCUYAHWmkiptgl81ajgQTT8dx893Z/M
-         VB+sE4t87fN1YHOvIXWPEcUrpyEBh78cb4wVhjPq764Co7O+BWHB/r8CZqSjxayMCktS
-         nRxhDm/6olUGMy+vT5HAwhF/NmBvuvJHboUdWC3DA8pZa6MCfAk1QGPaeO+FSYN3G0H2
-         LuXCOebpBhCDmqdU65hF4hXCde8kAfs2ZtHY1x59Iv0c0SmFDAygoHYgOi5SsUctGDq2
-         IYcDo7SKp2hHBpd6x1Ki+XapzFYKIMpqI8Oon0S4TEfJ1Q1HJyUrObAMTjWA19wRofNP
-         WOuQ==
-X-Gm-Message-State: AOAM530ReVNXsGr27oscfBtH+p6C4YdRn2KrO27N/p2Z9hJ4+RFKaZKC
-        2FUyVrBKe+4feL7E/XuZPD3WhN0li2q2nJpl3kdFNoGqtJ17P4U5yCKYPJuurBhAseHvpAeeD5h
-        CYjmNNAWg9eaXAIG/UWHCSeWhKIZnF8W2jw==
-X-Received: by 2002:a19:f80a:: with SMTP id a10mr31794656lff.203.1640952159465;
-        Fri, 31 Dec 2021 04:02:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyxM7O5azEaqF42QCZWl1/KJ+fXu32zsgTK4Tkau/+xGggZDXzpD41ErMb/I8LFsyRrH1ClKg==
-X-Received: by 2002:a19:f80a:: with SMTP id a10mr31794639lff.203.1640952159218;
-        Fri, 31 Dec 2021 04:02:39 -0800 (PST)
-Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
-        by smtp.gmail.com with ESMTPSA id b8sm2751040lft.96.2021.12.31.04.02.37
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 31 Dec 2021 04:02:38 -0800 (PST)
-Message-ID: <3b7e0827-bda5-91c5-24a5-77c67e2273ab@canonical.com>
-Date:   Fri, 31 Dec 2021 13:02:37 +0100
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B208061770;
+        Fri, 31 Dec 2021 12:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C42CC36AEA;
+        Fri, 31 Dec 2021 12:52:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1640955155;
+        bh=G0a9fCnRon8vGU2sZvjq27Sx8bTwd5NYHtDifqmtVM0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZJ/atFQ97KLHTNiwSJX+OAufrAw1PCTLHbwL7obC/6sRDnnwJDw4Px+6paOyOOL9a
+         a3AKoQ8b+mw49ovTnGd79ZGD17qGNJCXCZzGxZdIwJIxUC8+PzNFoJL87yVBUhGKAj
+         cPZmgmGlixvbM7ZHAwLMLdr6Yp0SKslNFfn63nL4=
+Date:   Fri, 31 Dec 2021 13:52:27 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] fs/mount_setattr: always cleanup mount_kattr
+Message-ID: <Yc79C0EDdSzNoQqP@kroah.com>
+References: <20211230192309.115524-1-christian.brauner@ubuntu.com>
+ <CAHk-=winoYrnz+KQA5Mqrw9f=PeyvKT2SsyAx=ZCUoBxm4kDpA@mail.gmail.com>
+ <20211231103034.szasg7xymtfhh552@wittgenstein>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
-Subject: Re: [RFT][PATCH 2/3] arm64: dts: exynos: fix WLAN pin configuration
- in TM2
-Content-Language: en-US
-To:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
-        Chanho Park <chanho61.park@samsung.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Sylwester Nawrocki <snawrocki@kernel.org>, stable@vger.kernel.org
-References: <20211230195325.328220-1-krzysztof.kozlowski@canonical.com>
- <20211230195325.328220-2-krzysztof.kozlowski@canonical.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20211230195325.328220-2-krzysztof.kozlowski@canonical.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211231103034.szasg7xymtfhh552@wittgenstein>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 30/12/2021 20:53, Krzysztof Kozlowski wrote:
-> Each pin configuration in pin controller should be a node with
-> "samsung,pins" and other similar properties.  However the macro PIN()
-> (used for initial/sleep states) defines entire node, so PCIe WLAN pin
-> configuration node was ignored.
+On Fri, Dec 31, 2021 at 11:30:34AM +0100, Christian Brauner wrote:
+> On Thu, Dec 30, 2021 at 03:14:33PM -0800, Linus Torvalds wrote:
+> > On Thu, Dec 30, 2021 at 11:23 AM Christian Brauner
+> > <christian.brauner@ubuntu.com> wrote:
+> > >
+> > > Would you be ok with applying this fix directly? I
+> > 
+> > Done.
+> > 
+> > That said, I would have liked a "Fixes:" tag, or some indication of
+> > how far back the stable people should take this..
 > 
-> Fixes: 98c03b6eef3f ("arm64: dts: exynos: add the WiFi/PCIe support to TM2(e) boards")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> ---
->  arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+> Ugh, I missed to add that.
+> >From a pure upstream stable perspective the only relevant and still
+> supported kernel that should get this fix is 5.15.
 > 
+> I can make it a custom to mark all patches that should go to stable with
+> the first kernel version where a given fix should be applied. In this
+> case this whould've meant I'd given it:
+> 
+> Cc: <stable@vger.kernel.org> # v5.12+
+> 
+> For upstream stable maintainers it should be clear that since the only
+> supported stable version within the range is v5.15.
+> For downstream users/distros it should help to identify whether they
+> still run/maintain a kernel that falls within the range of kernels that
+> would technically be eligible for this fix.
+> 
+> I haven't seen whether we prefer the Cc: with # v*.**+ syntax to a
+> simple Cc: without it nowadays.
 
-This patch is not correct, because the driver/bindings allow and work
-with such DTS. Please ignore.
+If you do the # v.** syntax, or the Fixes: tag, then I know exactly how
+far back to backport things.  If a failure occurs in backporting to a
+listed place, then I will send you a FAILED email.
 
+If there is no such marking, then I just have to guess myself and if I
+start to get conflicts on older kernels, I just stop and do not send a
+FAILED email if it does not look obviously relevant to me.
 
-Best regards,
-Krzysztof
+I'll just queue this up for 5.15, thanks.
+
+greg k-h
