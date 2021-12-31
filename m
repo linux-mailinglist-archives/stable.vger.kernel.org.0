@@ -2,127 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7623C482304
-	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 10:40:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E66848231D
+	for <lists+stable@lfdr.de>; Fri, 31 Dec 2021 10:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229626AbhLaJkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 Dec 2021 04:40:11 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53076 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbhLaJkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 Dec 2021 04:40:10 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0F7F617A8
-        for <stable@vger.kernel.org>; Fri, 31 Dec 2021 09:40:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5539DC36AEB;
-        Fri, 31 Dec 2021 09:40:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1640943609;
-        bh=918PJt+iFOH9YmoTcbmB75fI77L/ng6/DY6d6GEB5+c=;
-        h=Subject:To:From:Date:From;
-        b=WlVREQ1aK2F70nDFZVRyWuClYkDpIUB9K+doxwE7UQ7+7AqHJkH+eNd+iW4xZJXGS
-         Xv2pHp+bHxn8vsXI2EwJFdaQpaedrONcbuA5Gne8gBpd4E8wErhNNanaZGmL5kKUPr
-         5d341bIdGYsrd02MgNxYpnyYowoB/ji/52uLVb2M=
-Subject: patch "mei: hbm: fix client dma reply status" added to char-misc-next
-To:     alexander.usyskin@intel.com, emmanuel.grumbach@intel.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        tomas.winkler@intel.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 31 Dec 2021 10:39:43 +0100
-Message-ID: <1640943583172197@kroah.com>
+        id S229788AbhLaJwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 Dec 2021 04:52:47 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:33490 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229592AbhLaJwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 Dec 2021 04:52:46 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 6C7551C0B77; Fri, 31 Dec 2021 10:52:45 +0100 (CET)
+Date:   Fri, 31 Dec 2021 10:52:44 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Phil Elwell <phil@raspberrypi.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 29/76] pinctrl: bcm2835: Change init order for gpio
+ hogs
+Message-ID: <20211231095244.GA17525@amd>
+References: <20211227151324.694661623@linuxfoundation.org>
+ <20211227151325.694918163@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+In-Reply-To: <20211227151325.694918163@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-    mei: hbm: fix client dma reply status
+Hi!
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
+> From: Phil Elwell <phil@raspberrypi.com>
+>=20
+> [ Upstream commit 266423e60ea1b953fcc0cd97f3dad85857e434d1 ]
+>=20
+> ...and gpio-ranges
+>=20
+> pinctrl-bcm2835 is a combined pinctrl/gpio driver. Currently the gpio
+> side is registered first, but this breaks gpio hogs (which are
+> configured during gpiochip_add_data). Part of the hog initialisation
+> is a call to pinctrl_gpio_request, and since the pinctrl driver hasn't
+> yet been registered this results in an -EPROBE_DEFER from which it can
+> never recover.
+>=20
+> Change the initialisation sequence to register the pinctrl driver
+> first.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+This does not get error handling right.
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+> diff --git a/drivers/pinctrl/bcm/pinctrl-bcm2835.c b/drivers/pinctrl/bcm/=
+pinctrl-bcm2835.c
+> index 1d21129f7751c..40ce18a0d0190 100644
+> --- a/drivers/pinctrl/bcm/pinctrl-bcm2835.c
+> +++ b/drivers/pinctrl/bcm/pinctrl-bcm2835.c
+> @@ -1244,6 +1244,18 @@ static int bcm2835_pinctrl_probe(struct platform_d=
+evice *pdev)
+>  		raw_spin_lock_init(&pc->irq_lock[i]);
+>  	}
+> =20
+> +	pc->pctl_desc =3D *pdata->pctl_desc;
+> +	pc->pctl_dev =3D devm_pinctrl_register(dev, &pc->pctl_desc, pc);
+> +	if (IS_ERR(pc->pctl_dev)) {
+> +		gpiochip_remove(&pc->gpio_chip);
+> +		return PTR_ERR(pc->pctl_dev);
+> +	}
 
-If you have any questions about this process, please let me know.
+You do gpiochip_remove(), even when it was not added.
 
+> @@ -1251,8 +1263,10 @@ static int bcm2835_pinctrl_probe(struct platform_d=
+evice *pdev)
+>  	girq->parents =3D devm_kcalloc(dev, BCM2835_NUM_IRQS,
+>  				     sizeof(*girq->parents),
+>  				     GFP_KERNEL);
+> -	if (!girq->parents)
+> +	if (!girq->parents) {
+> +		pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
+>  		return -ENOMEM;
+> +	}
 
-From 6b0b80ac103b2a40c72a47c301745fd1f4ef4697 Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Tue, 28 Dec 2021 10:20:47 +0200
-Subject: mei: hbm: fix client dma reply status
+And yes, adding the removes here makes sense, but it looks like some
+are missing (in 5.10).
 
-Don't blindly copy status value received from the firmware
-into internal client status field,
-It may be positive and ERR_PTR(ret) will translate it
-into an invalid address and the caller will crash.
+Something like this?
 
-Put the error code into the client status on failure.
-
-Fixes: 369aea845951 ("mei: implement client dma setup.")
-Cc: <stable@vger.kernel.org> # v5.11+
-Reported-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Tested-by: : Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Acked-by: Tomas Winkler <tomas.winkler@intel.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20211228082047.378115-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/misc/mei/hbm.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/misc/mei/hbm.c b/drivers/misc/mei/hbm.c
-index be41843df75b..cebcca6d6d3e 100644
---- a/drivers/misc/mei/hbm.c
-+++ b/drivers/misc/mei/hbm.c
-@@ -672,10 +672,14 @@ static void mei_hbm_cl_dma_map_res(struct mei_device *dev,
- 	if (!cl)
- 		return;
- 
--	dev_dbg(dev->dev, "cl dma map result = %d\n", res->status);
--	cl->status = res->status;
--	if (!cl->status)
-+	if (res->status) {
-+		dev_err(dev->dev, "cl dma map failed %d\n", res->status);
-+		cl->status = -EFAULT;
-+	} else {
-+		dev_dbg(dev->dev, "cl dma map succeeded\n");
- 		cl->dma_mapped = 1;
-+		cl->status = 0;
-+	}
- 	wake_up(&cl->wait);
+Best regards,
+								Pavel
+diff --git a/drivers/pinctrl/bcm/pinctrl-bcm2835.c b/drivers/pinctrl/bcm/pi=
+nctrl-bcm2835.c
+index 40ce18a0d019..d605548de7df 100644
+--- a/drivers/pinctrl/bcm/pinctrl-bcm2835.c
++++ b/drivers/pinctrl/bcm/pinctrl-bcm2835.c
+@@ -1247,7 +1247,6 @@ static int bcm2835_pinctrl_probe(struct platform_devi=
+ce *pdev)
+ 	pc->pctl_desc =3D *pdata->pctl_desc;
+ 	pc->pctl_dev =3D devm_pinctrl_register(dev, &pc->pctl_desc, pc);
+ 	if (IS_ERR(pc->pctl_dev)) {
+-		gpiochip_remove(&pc->gpio_chip);
+ 		return PTR_ERR(pc->pctl_dev);
+ 	}
+=20
+@@ -1264,16 +1263,18 @@ static int bcm2835_pinctrl_probe(struct platform_de=
+vice *pdev)
+ 				     sizeof(*girq->parents),
+ 				     GFP_KERNEL);
+ 	if (!girq->parents) {
+-		pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
+-		return -ENOMEM;
++		err =3D -ENOMEM;
++		goto remove_gpio;
+ 	}
+=20
+ 	if (is_7211) {
+ 		pc->wake_irq =3D devm_kcalloc(dev, BCM2835_NUM_IRQS,
+ 					    sizeof(*pc->wake_irq),
+ 					    GFP_KERNEL);
+-		if (!pc->wake_irq)
+-			return -ENOMEM;
++		if (!pc->wake_irq) {
++			err =3D -ENOMEM;
++			goto remove_gpio;
++		}
+ 	}
+=20
+ 	/*
+@@ -1297,8 +1298,10 @@ static int bcm2835_pinctrl_probe(struct platform_dev=
+ice *pdev)
+=20
+ 		len =3D strlen(dev_name(pc->dev)) + 16;
+ 		name =3D devm_kzalloc(pc->dev, len, GFP_KERNEL);
+-		if (!name)
+-			return -ENOMEM;
++		if (!name) {
++			err =3D -ENOMEM;
++			goto remove_gpio;
++		}
+=20
+ 		snprintf(name, len, "%s:bank%d", dev_name(pc->dev), i);
+=20
+@@ -1317,11 +1320,14 @@ static int bcm2835_pinctrl_probe(struct platform_de=
+vice *pdev)
+ 	err =3D gpiochip_add_data(&pc->gpio_chip, pc);
+ 	if (err) {
+ 		dev_err(dev, "could not add GPIO chip\n");
+-		pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
+-		return err;
++		goto remove_gpio;
+ 	}
+=20
+ 	return 0;
++
++remove_gpio:
++	pinctrl_remove_gpio_range(pc->pctl_dev, &pc->gpio_range);
++	return err;
  }
- 
-@@ -698,10 +702,14 @@ static void mei_hbm_cl_dma_unmap_res(struct mei_device *dev,
- 	if (!cl)
- 		return;
- 
--	dev_dbg(dev->dev, "cl dma unmap result = %d\n", res->status);
--	cl->status = res->status;
--	if (!cl->status)
-+	if (res->status) {
-+		dev_err(dev->dev, "cl dma unmap failed %d\n", res->status);
-+		cl->status = -EFAULT;
-+	} else {
-+		dev_dbg(dev->dev, "cl dma unmap succeeded\n");
- 		cl->dma_mapped = 0;
-+		cl->status = 0;
-+	}
- 	wake_up(&cl->wait);
- }
- 
--- 
-2.34.1
+=20
+ static struct platform_driver bcm2835_pinctrl_driver =3D {
 
 
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmHO0uwACgkQMOfwapXb+vJNVACeKPWDpBMeNuuxZxvSqr3Nac/n
+gBEAnRXIwuf5s40g1TZLNiX1jCR3fxwL
+=Z4qv
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
