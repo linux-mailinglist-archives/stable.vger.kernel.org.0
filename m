@@ -2,94 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A51C748273A
-	for <lists+stable@lfdr.de>; Sat,  1 Jan 2022 11:29:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B62548275D
+	for <lists+stable@lfdr.de>; Sat,  1 Jan 2022 11:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232214AbiAAK33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jan 2022 05:29:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45132 "EHLO
+        id S232280AbiAAK43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jan 2022 05:56:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229624AbiAAK33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Jan 2022 05:29:29 -0500
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BCC9C061574
-        for <stable@vger.kernel.org>; Sat,  1 Jan 2022 02:29:29 -0800 (PST)
-Received: by mail-pl1-x641.google.com with SMTP id c3so8439540pls.5
-        for <stable@vger.kernel.org>; Sat, 01 Jan 2022 02:29:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:from:mime-version:content-transfer-encoding
-         :content-description:subject:to:date:reply-to;
-        bh=dhFaFNGf9P/hgzfpigNOAcNefTeR7Csml9+Bh/hdy/w=;
-        b=Drn2L46s6IB3xclVG/fRYsah3GSs8SvFMBX+ZXdwh0BJsSJ41nBgjF4WxVqJi9Z8Ae
-         fqvqc/NqhmNlWSQ7yogremZ8gdmPhfuCYMNU7waugMafuYBs/9XkfC4kwyyqTJGtg+Be
-         yfIPlSpJ+82vW7RlfQloGCTyYtf/CM1DFTfVDPpkJc9LHwAYaPpiLhYlj985Tnxv9q6a
-         eJs4JT/5mDUHG9jJ19dOb2q5IpVIUG9mDle+eQDyt+2YhwE1B/hQrFeJoBUCrKhbRgQe
-         GiITaDsTLxWDBfL2AuJKkYIQ+9Figy1p3Y7Yv8H0/imtx6GZbbBW37CVrkaz4S/Drnuj
-         uklQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:from:mime-version
-         :content-transfer-encoding:content-description:subject:to:date
-         :reply-to;
-        bh=dhFaFNGf9P/hgzfpigNOAcNefTeR7Csml9+Bh/hdy/w=;
-        b=MfU/nVRnisrIbHNVtMz9oVuRM+3mkoz99U+oxHsvAt69E94FTBpEdTq/e568nBI+hH
-         DkUQX9SL12IOC27ZQ8OSu5kdecGHj7j/KeaNXvZUaJkFMjRQ+J4pbsUpvx9vUpFiOVXg
-         Zbf3LWCZ6LSaJqxm71T1aDIbVo3oS7GqlBRSPFVCMRu7Jg0YDCVt94G+d1tmGC5or6T8
-         oqB7v9ys+aSNwIPvMBQJo2hbj7GuKWZzVf67uoiMCMRTvsuXRffY+Ub4iORZeEr1g8A+
-         w4vHPZXdB2d5LI8dFoEjU/Uh3tloMeRyKeKWgsssCsL9cgXVwgwGcoBg0g0JFaE5VfCH
-         qTxQ==
-X-Gm-Message-State: AOAM532945TsXbhjZe7gh0w72BM+RRmbdwUIJW1+8s1A67BeLMXZzeao
-        x8xEmlae9LfRxKpfQM1GGqk=
-X-Google-Smtp-Source: ABdhPJxqr3YjFqbsajkkdoGP9QG3K5F78TV7ZDhZIMi1gRd/p55li+az1eib8z5t1wqKwoJrRwudiw==
-X-Received: by 2002:a17:90a:5d16:: with SMTP id s22mr46732787pji.81.1641032968881;
-        Sat, 01 Jan 2022 02:29:28 -0800 (PST)
-Received: from [192.168.0.153] ([143.244.48.136])
-        by smtp.gmail.com with ESMTPSA id c24sm17039024pgj.57.2022.01.01.02.29.21
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sat, 01 Jan 2022 02:29:28 -0800 (PST)
-Message-ID: <61d02d08.1c69fb81.20b84.ed34@mx.google.com>
-From:   vipiolpeace@gmail.com
-X-Google-Original-From: suport.prilend@gmail.com
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S229624AbiAAK42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Jan 2022 05:56:28 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91CAFC061574;
+        Sat,  1 Jan 2022 02:56:28 -0800 (PST)
+Received: from ip4d173d02.dynamic.kabel-deutschland.de ([77.23.61.2] helo=[192.168.66.200]); authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1n3c3m-0003Dw-Vy; Sat, 01 Jan 2022 11:56:27 +0100
+Message-ID: <bbb587b1-4555-ba8d-fe43-d56d41a3c652@leemhuis.info>
+Date:   Sat, 1 Jan 2022 11:56:26 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: RE:
-To:     Recipients <suport.prilend@gmail.com>
-Date:   Sat, 01 Jan 2022 12:29:13 +0200
-Reply-To: andres.stemmet1@gmail.com
-X-Mailer: TurboMailer 2
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH 5.15 04/42] RDMA/mlx5: Fix releasing unallocated memory in
+ dereg MR flow
+Content-Language: en-BS
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Alaa Hleihel <alaa@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+References: <20211215172026.641863587@linuxfoundation.org>
+ <20211215172026.789963312@linuxfoundation.org>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+In-Reply-To: <20211215172026.789963312@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1641034588;529470cb;
+X-HE-SMSGID: 1n3c3m-0003Dw-Vy
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I want to confide in you to finalize this transaction of mutual benefits. I=
-t may seem strange to you, but it is real. This is a transaction that has n=
-o risk at all, due process shall be followed and it shall be carried out un=
-der the ambit of the financial laws. Being the Chief Financial Officer, BP =
-Plc. I want to trust and put in your care Eighteen Million British Pounds S=
-terling, The funds were acquired from an over-invoiced payment from a past =
-contract executed in one of my departments. I can't successfully achieve th=
-is transaction without presenting you as foreign contractor who will provid=
-e a bank account to receive the funds.
+Hi, this is your Linux kernel regression tracker speaking.
 
-Documentation for the claim of the funds will be legally processed and docu=
-mented, so I will need your full cooperation on this matter for our mutual =
-benefits. We will discuss details if you are interested to work with me to =
-secure this funds. I will appreciate your prompt response in every bit of o=
-ur communication. Stay Blessed and Stay Safe.
+On 15.12.21 18:20, Greg Kroah-Hartman wrote:
+> From: Alaa Hleihel <alaa@nvidia.com>
+> 
+> [ Upstream commit f0ae4afe3d35e67db042c58a52909e06262b740f ]
+> 
+> For the case of IB_MR_TYPE_DM the mr does doesn't have a umem, even though
+> it is a user MR. This causes function mlx5_free_priv_descs() to think that
+> it is a kernel MR, leading to wrongly accessing mr->descs that will get
+> wrong values in the union which leads to attempt to release resources that
+> were not allocated in the first place.
 
-Best Regards
+TWIMC, that commit made it into 5.15.y, but is known to cause a
+regression in v5.16-rc:
 
+https://lore.kernel.org/lkml/f298db4ec5fdf7a2d1d166ca2f66020fd9397e5c.1640079962.git.leonro@nvidia.com/
+https://lore.kernel.org/all/EEBA2D1C-F29C-4237-901C-587B60CEE113@oracle.com/
 
-Tel: +44 7537 185910
-Andres  Stemmet
-Email: andres.stemmet1@gmail.com  =
+A fix for mainline was posted, but got stuck afaics:
+https://lore.kernel.org/lkml/f298db4ec5fdf7a2d1d166ca2f66020fd9397e5c.1640079962.git.leonro@nvidia.com/
 
-Chief financial officer
-BP Petroleum p.l.c.
+A revert was also discussed, but not performed:
+https://lore.kernel.org/all/20211222101312.1358616-1-maorg@nvidia.com/
 
-                                                                           =
-                        Copyright =A9 1996-2021
+Ciao, Thorsten
+
+> For example:
+>  DMA-API: mlx5_core 0000:08:00.1: device driver tries to free DMA memory it has not allocated [device address=0x0000000000000000] [size=0 bytes]
+>  WARNING: CPU: 8 PID: 1021 at kernel/dma/debug.c:961 check_unmap+0x54f/0x8b0
+>  RIP: 0010:check_unmap+0x54f/0x8b0
+>  Call Trace:
+>   debug_dma_unmap_page+0x57/0x60
+>   mlx5_free_priv_descs+0x57/0x70 [mlx5_ib]
+>   mlx5_ib_dereg_mr+0x1fb/0x3d0 [mlx5_ib]
+>   ib_dereg_mr_user+0x60/0x140 [ib_core]
+>   uverbs_destroy_uobject+0x59/0x210 [ib_uverbs]
+>   uobj_destroy+0x3f/0x80 [ib_uverbs]
+>   ib_uverbs_cmd_verbs+0x435/0xd10 [ib_uverbs]
+>   ? uverbs_finalize_object+0x50/0x50 [ib_uverbs]
+>   ? lock_acquire+0xc4/0x2e0
+>   ? lock_acquired+0x12/0x380
+>   ? lock_acquire+0xc4/0x2e0
+>   ? lock_acquire+0xc4/0x2e0
+>   ? ib_uverbs_ioctl+0x7c/0x140 [ib_uverbs]
+>   ? lock_release+0x28a/0x400
+>   ib_uverbs_ioctl+0xc0/0x140 [ib_uverbs]
+>   ? ib_uverbs_ioctl+0x7c/0x140 [ib_uverbs]
+>   __x64_sys_ioctl+0x7f/0xb0
+>   do_syscall_64+0x38/0x90
+> 
+> Fix it by reorganizing the dereg flow and mlx5_ib_mr structure:
+>  - Move the ib_umem field into the user MRs structure in the union as it's
+>    applicable only there.
+>  - Function mlx5_ib_dereg_mr() will now call mlx5_free_priv_descs() only
+>    in case there isn't udata, which indicates that this isn't a user MR.
+> 
+> Fixes: f18ec4223117 ("RDMA/mlx5: Use a union inside mlx5_ib_mr")
+> Link: https://lore.kernel.org/r/66bb1dd253c1fd7ceaa9fc411061eefa457b86fb.1637581144.git.leonro@nvidia.com
+> Signed-off-by: Alaa Hleihel <alaa@nvidia.com>
+> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/infiniband/hw/mlx5/mlx5_ib.h |  6 +++---
+>  drivers/infiniband/hw/mlx5/mr.c      | 26 ++++++++++++--------------
+>  2 files changed, 15 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/infiniband/hw/mlx5/mlx5_ib.h b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+> index bf20a388eabe1..6204ae2caef58 100644
+> --- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
+> +++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+> @@ -641,7 +641,6 @@ struct mlx5_ib_mr {
+>  
+>  	/* User MR data */
+>  	struct mlx5_cache_ent *cache_ent;
+> -	struct ib_umem *umem;
+>  
+>  	/* This is zero'd when the MR is allocated */
+>  	union {
+> @@ -653,7 +652,7 @@ struct mlx5_ib_mr {
+>  			struct list_head list;
+>  		};
+>  
+> -		/* Used only by kernel MRs (umem == NULL) */
+> +		/* Used only by kernel MRs */
+>  		struct {
+>  			void *descs;
+>  			void *descs_alloc;
+> @@ -675,8 +674,9 @@ struct mlx5_ib_mr {
+>  			int data_length;
+>  		};
+>  
+> -		/* Used only by User MRs (umem != NULL) */
+> +		/* Used only by User MRs */
+>  		struct {
+> +			struct ib_umem *umem;
+>  			unsigned int page_shift;
+>  			/* Current access_flags */
+>  			int access_flags;
+> diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
+> index 22e2f4d79743d..69b2ce4c292ae 100644
+> --- a/drivers/infiniband/hw/mlx5/mr.c
+> +++ b/drivers/infiniband/hw/mlx5/mr.c
+> @@ -1911,19 +1911,18 @@ mlx5_alloc_priv_descs(struct ib_device *device,
+>  	return ret;
+>  }
+>  
+> -static void
+> -mlx5_free_priv_descs(struct mlx5_ib_mr *mr)
+> +static void mlx5_free_priv_descs(struct mlx5_ib_mr *mr)
+>  {
+> -	if (!mr->umem && mr->descs) {
+> -		struct ib_device *device = mr->ibmr.device;
+> -		int size = mr->max_descs * mr->desc_size;
+> -		struct mlx5_ib_dev *dev = to_mdev(device);
+> +	struct mlx5_ib_dev *dev = to_mdev(mr->ibmr.device);
+> +	int size = mr->max_descs * mr->desc_size;
+>  
+> -		dma_unmap_single(&dev->mdev->pdev->dev, mr->desc_map, size,
+> -				 DMA_TO_DEVICE);
+> -		kfree(mr->descs_alloc);
+> -		mr->descs = NULL;
+> -	}
+> +	if (!mr->descs)
+> +		return;
+> +
+> +	dma_unmap_single(&dev->mdev->pdev->dev, mr->desc_map, size,
+> +			 DMA_TO_DEVICE);
+> +	kfree(mr->descs_alloc);
+> +	mr->descs = NULL;
+>  }
+>  
+>  int mlx5_ib_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
+> @@ -1999,7 +1998,8 @@ int mlx5_ib_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
+>  	if (mr->cache_ent) {
+>  		mlx5_mr_cache_free(dev, mr);
+>  	} else {
+> -		mlx5_free_priv_descs(mr);
+> +		if (!udata)
+> +			mlx5_free_priv_descs(mr);
+>  		kfree(mr);
+>  	}
+>  	return 0;
+> @@ -2086,7 +2086,6 @@ static struct mlx5_ib_mr *mlx5_ib_alloc_pi_mr(struct ib_pd *pd,
+>  	if (err)
+>  		goto err_free_in;
+>  
+> -	mr->umem = NULL;
+>  	kfree(in);
+>  
+>  	return mr;
+> @@ -2213,7 +2212,6 @@ static struct ib_mr *__mlx5_ib_alloc_mr(struct ib_pd *pd,
+>  	}
+>  
+>  	mr->ibmr.device = pd->device;
+> -	mr->umem = NULL;
+>  
+>  	switch (mr_type) {
+>  	case IB_MR_TYPE_MEM_REG:
 
