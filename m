@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECC0B4831FB
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB13F483200
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232402AbiACOXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:23:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54202 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231167AbiACOXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:06 -0500
+        id S233591AbiACOXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:23:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37446 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233600AbiACOXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:12 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96689C06179B;
+        Mon,  3 Jan 2022 06:23:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB36B61120;
-        Mon,  3 Jan 2022 14:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C99BEC36AEE;
-        Mon,  3 Jan 2022 14:23:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 14262CE1105;
+        Mon,  3 Jan 2022 14:23:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF146C36AEB;
+        Mon,  3 Jan 2022 14:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219785;
-        bh=dtMYAsDM4/oe6cEsyJXoQP4lfkcwTelu3klTb55ajdk=;
+        s=korg; t=1641219788;
+        bh=q1y2rSOGp+yLXZH6g3odHuz0Pl79A/Cg7YjxsfUUMMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RF8GT1x3bRCC5hettXFLf8GU4JB7fr5ZkAdYGm3MqrxfCPJK9cjL1EU4kNTU0V2kp
-         CcXiD6fW9syoKBQ++crJol0ckr2J0328ZKMg78NA6HMVsf9RKe3RVsJmVpGHPb0J3V
-         QBI4QoDvpOMg2dxPaRipT/fayi4I0U/6eVhaNrUQ=
+        b=ArsvPRyUyfdnlf56CVAEKp2QktJhUttrsW6/OFlorzIF7K2qUQFOQUJNgfaAdM0Sl
+         UIxNafzhVyV1WbClLKEYMg7fRyncS7DaBCSi5qFObrpFeBZ1apw9dBLAkajn+ui8mK
+         azDzQegjsP3URS7Gw7DYvzUFlMtH7UIdD3crDPyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>
-Subject: [PATCH 4.14 14/19] binder: fix async_free_space accounting for empty parcels
-Date:   Mon,  3 Jan 2022 15:21:31 +0100
-Message-Id: <20220103142052.537383824@linuxfoundation.org>
+        stable@vger.kernel.org, Matt Wang <wwentao@vmware.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Vishal Bhakta <vbhakta@vmware.com>,
+        VMware PV-Drivers <pv-drivers@vmware.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        linux-scsi@vger.kernel.org, Alexey Makhalov <amakhalov@vmware.com>,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Subject: [PATCH 4.14 15/19] scsi: vmw_pvscsi: Set residual data length conditionally
+Date:   Mon,  3 Jan 2022 15:21:32 +0100
+Message-Id: <20220103142052.567975725@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
 References: <20220103142052.068378906@linuxfoundation.org>
@@ -43,46 +52,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Alexey Makhalov <amakhalov@vmware.com>
 
-commit cfd0d84ba28c18b531648c9d4a35ecca89ad9901 upstream.
+commit 142c779d05d1fef75134c3cb63f52ccbc96d9e1f upstream.
 
-In 4.13, commit 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
-fixed a kernel structure visibility issue. As part of that patch,
-sizeof(void *) was used as the buffer size for 0-length data payloads so
-the driver could detect abusive clients sending 0-length asynchronous
-transactions to a server by enforcing limits on async_free_size.
+The PVSCSI implementation in the VMware hypervisor under specific
+configuration ("SCSI Bus Sharing" set to "Physical") returns zero dataLen
+in the completion descriptor for READ CAPACITY(16). As a result, the kernel
+can not detect proper disk geometry. This can be recognized by the kernel
+message:
 
-Unfortunately, on the "free" side, the accounting of async_free_space
-did not add the sizeof(void *) back. The result was that up to 8-bytes of
-async_free_space were leaked on every async transaction of 8-bytes or
-less.  These small transactions are uncommon, so this accounting issue
-has gone undetected for several years.
+  [ 0.776588] sd 1:0:0:0: [sdb] Sector size 0 reported, assuming 512.
 
-The fix is to use "buffer_size" (the allocated buffer size) instead of
-"size" (the logical buffer size) when updating the async_free_space
-during the free operation. These are the same except for this
-corner case of asynchronous transactions with payloads < 8 bytes.
+The PVSCSI implementation in QEMU does not set dataLen at all, keeping it
+zeroed. This leads to a boot hang as was reported by Shmulik Ladkani.
 
-Fixes: 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Cc: stable@vger.kernel.org # 4.14+
-Link: https://lore.kernel.org/r/20211220190150.2107077-1-tkjos@google.com
+It is likely that the controller returns the garbage at the end of the
+buffer. Residual length should be set by the driver in that case. The SCSI
+layer will erase corresponding data. See commit bdb2b8cab439 ("[SCSI] erase
+invalid data returned by device") for details.
+
+Commit e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
+introduced the issue by setting residual length unconditionally, causing
+the SCSI layer to erase the useful payload beyond dataLen when this value
+is returned as 0.
+
+As a result, considering existing issues in implementations of PVSCSI
+controllers, we do not want to call scsi_set_resid() when dataLen ==
+0. Calling scsi_set_resid() has no effect if dataLen equals buffer length.
+
+Link: https://lore.kernel.org/lkml/20210824120028.30d9c071@blondie/
+Link: https://lore.kernel.org/r/20211220190514.55935-1-amakhalov@vmware.com
+Fixes: e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
+Cc: Matt Wang <wwentao@vmware.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Vishal Bhakta <vbhakta@vmware.com>
+Cc: VMware PV-Drivers <pv-drivers@vmware.com>
+Cc: James E.J. Bottomley <jejb@linux.ibm.com>
+Cc: linux-scsi@vger.kernel.org
+Cc: stable@vger.kernel.org
+Reported-and-suggested-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/vmw_pvscsi.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -619,7 +619,7 @@ static void binder_free_buf_locked(struc
- 	BUG_ON(buffer->data > alloc->buffer + alloc->buffer_size);
+--- a/drivers/scsi/vmw_pvscsi.c
++++ b/drivers/scsi/vmw_pvscsi.c
+@@ -578,9 +578,12 @@ static void pvscsi_complete_request(stru
+ 			 * Commands like INQUIRY may transfer less data than
+ 			 * requested by the initiator via bufflen. Set residual
+ 			 * count to make upper layer aware of the actual amount
+-			 * of data returned.
++			 * of data returned. There are cases when controller
++			 * returns zero dataLen with non zero data - do not set
++			 * residual count in that case.
+ 			 */
+-			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
++			if (e->dataLen && (e->dataLen < scsi_bufflen(cmd)))
++				scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
+ 			cmd->result = (DID_OK << 16);
+ 			break;
  
- 	if (buffer->async_transaction) {
--		alloc->free_async_space += size + sizeof(struct binder_buffer);
-+		alloc->free_async_space += buffer_size + sizeof(struct binder_buffer);
- 
- 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC_ASYNC,
- 			     "%d: binder_free_buf size %zd async free %zd\n",
 
 
