@@ -2,74 +2,268 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E86482F96
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 10:46:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38ABD482FED
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 11:34:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230393AbiACJqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 04:46:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32816 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230153AbiACJqM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 04:46:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532EBC061761;
-        Mon,  3 Jan 2022 01:46:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S232631AbiACKex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 05:34:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:27053 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232613AbiACKex (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 05:34:53 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1641206092;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=i+/Gej1wN+tXsIfY5jFAgH74/MuohtK2GEj/d6lDifo=;
+        b=PVdFwHtiVMq8Zz1lruBHFAH/BsObp22YvRgkeOJYP0FQr7ACZjIe9+kInEsP2LPcnJ2YJo
+        mwQZeUAVklXh/c2JynmlVggz1Y3ci4MyKgy6B0MQptse+viBT0GVlAzjJQwFr2F4gJQDi1
+        Hff8pH/m8Zumv2RntepvuAY7CWz5+rU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-641-GInjpPYkPy2CaOK8OWzuqg-1; Mon, 03 Jan 2022 05:34:51 -0500
+X-MC-Unique: GInjpPYkPy2CaOK8OWzuqg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E45A360FA6;
-        Mon,  3 Jan 2022 09:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B162AC36AE9;
-        Mon,  3 Jan 2022 09:46:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641203171;
-        bh=WyDTdExxTsqLjt9MtswmMyXYXYhiT7+KODkoSqxm+HU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KeI3nF7MRTNO6zbcnE6fa6N/nLNh/cHF5lYTFb82G7491NKM4gzRMGwA9w761Fpv7
-         UQAwnOVxC5wqs/KOP+RKZh0epP1anYeqv1M3umiwQGmBC8Jay3BFeH7JreVsD/6mZF
-         shQxtgL34m2NXbHHvA1QH+lzDfEFMXgfRlN6ZSsI=
-Date:   Mon, 3 Jan 2022 10:46:08 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     SeongJae Park <sj@kernel.org>
-Cc:     stable@vger.kernel.org, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH for-v5.15.x] mm/damon/dbgfs: fix 'struct pid' leaks in
- 'dbgfs_target_ids_write()'
-Message-ID: <YdLF4OSx30hpmwKB@kroah.com>
-References: <20220102112141.12281-1-sj@kernel.org>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1842F100D686
+        for <stable@vger.kernel.org>; Mon,  3 Jan 2022 10:34:50 +0000 (UTC)
+Received: from [172.64.9.13] (unknown [10.30.33.187])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DF5BC7A243;
+        Mon,  3 Jan 2022 10:34:49 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220102112141.12281-1-sj@kernel.org>
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.15.12 (stable-queue,
+ 5e5e0881)
+Date:   Mon, 03 Jan 2022 10:34:48 -0000
+Message-ID: <cki.52FRNZ2CDYS10GKBPY63@redhat.com>
+X-Gitlab-Pipeline-ID: 440318274
+X-Gitlab-Url: https://gitlab.com
+X-Gitlab-Path: =?utf-8?q?/redhat/red-hat-ci-tools/kernel/cki-internal-pipeli?=
+ =?utf-8?q?nes/cki-trusted-contributors/pipelines/440318274?=
+X-DataWarehouse-Checkout-IID: 27994
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 02, 2022 at 11:21:41AM +0000, SeongJae Park wrote:
-> commit ebb3f994dd92f8fb4d70c7541091216c1e10cb71 upstream.
-> 
-> DAMON debugfs interface increases the reference counts of 'struct pid's
-> for targets from the 'target_ids' file write callback
-> ('dbgfs_target_ids_write()'), but decreases the counts only in DAMON
-> monitoring termination callback ('dbgfs_before_terminate()').
-> 
-> Therefore, when 'target_ids' file is repeatedly written without DAMON
-> monitoring start/termination, the reference count is not decreased and
-> therefore memory for the 'struct pid' cannot be freed.  This commit
-> fixes this issue by decreasing the reference counts when 'target_ids' is
-> written.
-> 
-> Link: https://lkml.kernel.org/r/20211229124029.23348-1-sj@kernel.org
-> Fixes: 4bc05954d007 ("mm/damon: implement a debugfs-based user space interface")
-> Signed-off-by: SeongJae Park <sj@kernel.org>
-> Cc: <stable@vger.kernel.org> # 5.15.x
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> ---
-> This is a backport of a DAMON fix that merged in the mainline, for
-> v5.15.x stable series.
 
-Now queued up, thanks.
 
-greg k-h
+Check out this report and any autotriaged failures in our web dashboard:
+    https://datawarehouse.cki-project.org/kcidb/checkouts/27994
+
+Hello,
+
+We ran automated tests on a recent commit from this kernel tree:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 5e5e0881b41b - perf scripts python: intel-pt-events.py: F=
+ix printing of switch events
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+    Targeted tests: NO
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2022/01/03/440318274
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Reboot test
+       =E2=8F=B1  xfstests - ext4
+       =E2=8F=B1  xfstests - xfs
+       =E2=8F=B1  IPMI driver test
+       =E2=8F=B1  IPMItool loop stress test
+       =E2=8F=B1  selinux-policy: serge-testsuite
+       =E2=8F=B1  Storage blktests - blk
+       =E2=8F=B1  Storage block - filesystem fio test
+       =E2=8F=B1  Storage block - queue scheduler test
+       =E2=8F=B1  storage: software RAID testing
+       =E2=8F=B1  Storage: swraid mdadm raid_module test
+       =E2=8F=B1  stress: stress-ng - interrupt
+       =E2=8F=B1  stress: stress-ng - cpu
+       =E2=8F=B1  stress: stress-ng - cpu-cache
+       =E2=8F=B1  stress: stress-ng - memory
+       =E2=8F=B1  Podman system test - as root
+       =E2=8F=B1  Podman system test - as user
+       =E2=8F=B1  xfstests - btrfs
+       =E2=8F=B1  Storage blktests - nvme-tcp
+       =E2=8F=B1  lvm cache test
+       =E2=8F=B1  stress: stress-ng - os
+
+    Host 2:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Reboot test
+       =E2=8F=B1  Networking bridge: sanity - mlx5
+       =E2=8F=B1  Ethernet drivers sanity - mlx5
+
+    Host 3:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Reboot test
+       =E2=8F=B1  Storage blktests - nvmeof-mp
+
+    Host 4:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Reboot test
+       =E2=8F=B1  Storage blktests - srp
+
+    Host 5:
+       =E2=8F=B1  Boot test
+       =E2=8F=B1  Reboot test
+       =E2=8F=B1  ACPI table test
+       =E2=8F=B1  ACPI enabled test
+       =E2=8F=B1  LTP - cve
+       =E2=8F=B1  LTP - sched
+       =E2=8F=B1  LTP - syscalls
+       =E2=8F=B1  LTP - can
+       =E2=8F=B1  LTP - commands
+       =E2=8F=B1  LTP - containers
+       =E2=8F=B1  LTP - dio
+       =E2=8F=B1  LTP - fs
+       =E2=8F=B1  LTP - fsx
+       =E2=8F=B1  LTP - math
+       =E2=8F=B1  LTP - hugetlb
+       =E2=8F=B1  LTP - mm
+       =E2=8F=B1  LTP - nptl
+       =E2=8F=B1  LTP - pty
+       =E2=8F=B1  LTP - ipc
+       =E2=8F=B1  LTP - tracing
+       =E2=8F=B1  LTP: openposix test suite
+       =E2=8F=B1  CIFS Connectathon
+       =E2=8F=B1  POSIX pjd-fstest suites
+       =E2=8F=B1  NFS Connectathon
+       =E2=8F=B1  Loopdev Sanity
+       =E2=8F=B1  jvm - jcstress tests
+       =E2=8F=B1  Memory: fork_mem
+       =E2=8F=B1  Memory function: memfd_create
+       =E2=8F=B1  AMTU (Abstract Machine Test Utility)
+       =E2=8F=B1  Networking bridge: sanity
+       =E2=8F=B1  Ethernet drivers sanity
+       =E2=8F=B1  Networking socket: fuzz
+       =E2=8F=B1  Networking route: pmtu
+       =E2=8F=B1  Networking route_func - local
+       =E2=8F=B1  Networking route_func - forward
+       =E2=8F=B1  Networking TCP: keepalive test
+       =E2=8F=B1  Networking UDP: socket
+       =E2=8F=B1  Networking cki netfilter test
+       =E2=8F=B1  Networking tunnel: geneve basic test
+       =E2=8F=B1  Networking tunnel: gre basic
+       =E2=8F=B1  L2TP basic test
+       =E2=8F=B1  Networking tunnel: vxlan basic
+       =E2=8F=B1  Networking ipsec: basic netns - transport
+       =E2=8F=B1  Networking ipsec: basic netns - tunnel
+       =E2=8F=B1  Libkcapi AF_ALG test
+       =E2=8F=B1  pciutils: update pci ids test
+       =E2=8F=B1  ALSA PCM loopback test
+       =E2=8F=B1  ALSA Control (mixer) Userspace Element test
+       =E2=8F=B1  storage: dm/common
+       =E2=8F=B1  lvm snapper test
+       =E2=8F=B1  storage: SCSI VPD
+       =E2=8F=B1  trace: ftrace/tracer
+       =E2=8F=B1  xarray-idr-radixtree-test
+       =E2=8F=B1  i2c: i2cdetect sanity
+       =E2=8F=B1  Firmware test suite
+       =E2=8F=B1  Memory function: kaslr
+       =E2=8F=B1  Networking: igmp conformance test
+       =E2=8F=B1  audit: audit testsuite test
+
+  ppc64le:
+
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (mar=
+ked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  s390x:
+
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (mar=
+ked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  x86_64:
+
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (mar=
+ked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
+Targeted tests
+--------------
+Test runs for patches always include a set of base tests, plus some
+tests chosen based on the file paths modified by the patch. The latter
+are called "targeted tests". If no targeted tests are run, that means
+no patch-specific tests are available. Please, consider contributing a
+targeted test for related patches to increase test coverage. See
+https://docs.engineering.redhat.com/x/_wEZB for more details.
+
