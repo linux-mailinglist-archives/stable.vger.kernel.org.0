@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D701483338
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E6E54832B6
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234178AbiACOfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:35:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39828 "EHLO
+        id S234063AbiACOa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:30:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234372AbiACOcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:32:39 -0500
+        with ESMTP id S234580AbiACO3j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:29:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121A7C07E5E5;
-        Mon,  3 Jan 2022 06:31:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A367BC061784;
+        Mon,  3 Jan 2022 06:29:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADE2FB80EFB;
-        Mon,  3 Jan 2022 14:31:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA84EC36AFE;
-        Mon,  3 Jan 2022 14:31:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 642BBB80F1A;
+        Mon,  3 Jan 2022 14:29:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A14ECC36AEB;
+        Mon,  3 Jan 2022 14:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220289;
-        bh=lRiISj3/y9VsBRHDRgyp9MXbi4UHiXhDQpRnlaliZzM=;
+        s=korg; t=1641220145;
+        bh=TUmadFdk29V/j4ip7iNaRZQKjQD47/UXTdGrnEcl7YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Td2/5zDWFnyor1LANO9YJARbYLKU7zMKj2pBm8E+zMrcO45WxK3WQJPtOK0HBqR8+
-         nGushBsvg00vjX41FlK+ZtjsABV+Yx4tClug5VyHTLhSS9ETW/lNQ5oCVoPZqA6F3n
-         +mVuezgCG2YhDNpZtnW0IhsuBCEHK/EYf9JY/RlA=
+        b=PXXvWPDjpVmyjc597hovqT7f9sGL/OZtLpXV5VZiJlp/RBRzjHkHJFd0mkOdkLxv8
+         jnla4fSVVr/shSHTlP3Igav6bwi3zfq1aT9yGFQCzueR+CtUPzXuFw1GiiEbY6nehK
+         x05L+0qSWmUFmgon8pgl5sE6DyKlGHjVm1IoW2eI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 22/73] net/mlx5e: Fix interoperability between XSK and ICOSQ recovery flow
+Subject: [PATCH 5.10 06/48] platform/x86: apple-gmux: use resource_size() with res
 Date:   Mon,  3 Jan 2022 15:23:43 +0100
-Message-Id: <20220103142057.631452153@linuxfoundation.org>
+Message-Id: <20220103142053.698808957@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,217 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Wang Qing <wangqing@vivo.com>
 
-[ Upstream commit 17958d7cd731b977ae7d4af38d891c3a1235b5f1 ]
+[ Upstream commit eb66fb03a727cde0ab9b1a3858de55c26f3007da ]
 
-Both regular RQ and XSKRQ use the same ICOSQ for UMRs. When doing
-recovery for the ICOSQ, don't forget to deactivate XSKRQ.
+This should be (res->end - res->start + 1) here actually,
+use resource_size() derectly.
 
-XSK can be opened and closed while channels are active, so a new mutex
-prevents the ICOSQ recovery from running at the same time. The ICOSQ
-recovery deactivates and reactivates XSKRQ, so any parallel change in
-XSK state would break consistency. As the regular RQ is running, it's
-not enough to just flush the recovery work, because it can be
-rescheduled.
-
-Fixes: be5323c8379f ("net/mlx5e: Report and recover from CQE error on ICOSQ")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Wang Qing <wangqing@vivo.com>
+Link: https://lore.kernel.org/r/1639484316-75873-1-git-send-email-wangqing@vivo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h  |  2 ++
- .../ethernet/mellanox/mlx5/core/en/health.h   |  2 ++
- .../mellanox/mlx5/core/en/reporter_rx.c       | 35 ++++++++++++++++++-
- .../mellanox/mlx5/core/en/xsk/setup.c         | 16 ++++++++-
- .../net/ethernet/mellanox/mlx5/core/en_main.c |  7 ++--
- 5 files changed, 58 insertions(+), 4 deletions(-)
+ drivers/platform/x86/apple-gmux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index c10a107a3ea53..54757117071db 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -727,6 +727,8 @@ struct mlx5e_channel {
- 	DECLARE_BITMAP(state, MLX5E_CHANNEL_NUM_STATES);
- 	int                        ix;
- 	int                        cpu;
-+	/* Sync between icosq recovery and XSK enable/disable. */
-+	struct mutex               icosq_recovery_lock;
- };
+diff --git a/drivers/platform/x86/apple-gmux.c b/drivers/platform/x86/apple-gmux.c
+index 9aae45a452002..57553f9b4d1dc 100644
+--- a/drivers/platform/x86/apple-gmux.c
++++ b/drivers/platform/x86/apple-gmux.c
+@@ -625,7 +625,7 @@ static int gmux_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ 	}
  
- struct mlx5e_ptp;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/health.h b/drivers/net/ethernet/mellanox/mlx5/core/en/health.h
-index 018262d0164b3..3aaf3c2752feb 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/health.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/health.h
-@@ -30,6 +30,8 @@ void mlx5e_reporter_rx_destroy(struct mlx5e_priv *priv);
- void mlx5e_reporter_icosq_cqe_err(struct mlx5e_icosq *icosq);
- void mlx5e_reporter_rq_cqe_err(struct mlx5e_rq *rq);
- void mlx5e_reporter_rx_timeout(struct mlx5e_rq *rq);
-+void mlx5e_reporter_icosq_suspend_recovery(struct mlx5e_channel *c);
-+void mlx5e_reporter_icosq_resume_recovery(struct mlx5e_channel *c);
+ 	gmux_data->iostart = res->start;
+-	gmux_data->iolen = res->end - res->start;
++	gmux_data->iolen = resource_size(res);
  
- #define MLX5E_REPORTER_PER_Q_MAX_LEN 256
- #define MLX5E_REPORTER_FLUSH_TIMEOUT_MSEC 2000
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-index 0eb125316fe20..e329158fdc555 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-@@ -59,6 +59,7 @@ static void mlx5e_reset_icosq_cc_pc(struct mlx5e_icosq *icosq)
- 
- static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
- {
-+	struct mlx5e_rq *xskrq = NULL;
- 	struct mlx5_core_dev *mdev;
- 	struct mlx5e_icosq *icosq;
- 	struct net_device *dev;
-@@ -67,7 +68,13 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
- 	int err;
- 
- 	icosq = ctx;
-+
-+	mutex_lock(&icosq->channel->icosq_recovery_lock);
-+
-+	/* mlx5e_close_rq cancels this work before RQ and ICOSQ are killed. */
- 	rq = &icosq->channel->rq;
-+	if (test_bit(MLX5E_RQ_STATE_ENABLED, &icosq->channel->xskrq.state))
-+		xskrq = &icosq->channel->xskrq;
- 	mdev = icosq->channel->mdev;
- 	dev = icosq->channel->netdev;
- 	err = mlx5_core_query_sq_state(mdev, icosq->sqn, &state);
-@@ -81,6 +88,9 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
- 		goto out;
- 
- 	mlx5e_deactivate_rq(rq);
-+	if (xskrq)
-+		mlx5e_deactivate_rq(xskrq);
-+
- 	err = mlx5e_wait_for_icosq_flush(icosq);
- 	if (err)
- 		goto out;
-@@ -94,15 +104,28 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
- 		goto out;
- 
- 	mlx5e_reset_icosq_cc_pc(icosq);
-+
- 	mlx5e_free_rx_in_progress_descs(rq);
-+	if (xskrq)
-+		mlx5e_free_rx_in_progress_descs(xskrq);
-+
- 	clear_bit(MLX5E_SQ_STATE_RECOVERING, &icosq->state);
- 	mlx5e_activate_icosq(icosq);
--	mlx5e_activate_rq(rq);
- 
-+	mlx5e_activate_rq(rq);
- 	rq->stats->recover++;
-+
-+	if (xskrq) {
-+		mlx5e_activate_rq(xskrq);
-+		xskrq->stats->recover++;
-+	}
-+
-+	mutex_unlock(&icosq->channel->icosq_recovery_lock);
-+
- 	return 0;
- out:
- 	clear_bit(MLX5E_SQ_STATE_RECOVERING, &icosq->state);
-+	mutex_unlock(&icosq->channel->icosq_recovery_lock);
- 	return err;
- }
- 
-@@ -703,6 +726,16 @@ void mlx5e_reporter_icosq_cqe_err(struct mlx5e_icosq *icosq)
- 	mlx5e_health_report(priv, priv->rx_reporter, err_str, &err_ctx);
- }
- 
-+void mlx5e_reporter_icosq_suspend_recovery(struct mlx5e_channel *c)
-+{
-+	mutex_lock(&c->icosq_recovery_lock);
-+}
-+
-+void mlx5e_reporter_icosq_resume_recovery(struct mlx5e_channel *c)
-+{
-+	mutex_unlock(&c->icosq_recovery_lock);
-+}
-+
- static const struct devlink_health_reporter_ops mlx5_rx_reporter_ops = {
- 	.name = "rx",
- 	.recover = mlx5e_rx_reporter_recover,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-index 538bc2419bd83..8526a5fbbf0bf 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-@@ -4,6 +4,7 @@
- #include "setup.h"
- #include "en/params.h"
- #include "en/txrx.h"
-+#include "en/health.h"
- 
- /* It matches XDP_UMEM_MIN_CHUNK_SIZE, but as this constant is private and may
-  * change unexpectedly, and mlx5e has a minimum valid stride size for striding
-@@ -170,7 +171,13 @@ void mlx5e_close_xsk(struct mlx5e_channel *c)
- 
- void mlx5e_activate_xsk(struct mlx5e_channel *c)
- {
-+	/* ICOSQ recovery deactivates RQs. Suspend the recovery to avoid
-+	 * activating XSKRQ in the middle of recovery.
-+	 */
-+	mlx5e_reporter_icosq_suspend_recovery(c);
- 	set_bit(MLX5E_RQ_STATE_ENABLED, &c->xskrq.state);
-+	mlx5e_reporter_icosq_resume_recovery(c);
-+
- 	/* TX queue is created active. */
- 
- 	spin_lock_bh(&c->async_icosq_lock);
-@@ -180,6 +187,13 @@ void mlx5e_activate_xsk(struct mlx5e_channel *c)
- 
- void mlx5e_deactivate_xsk(struct mlx5e_channel *c)
- {
--	mlx5e_deactivate_rq(&c->xskrq);
-+	/* ICOSQ recovery may reactivate XSKRQ if clear_bit is called in the
-+	 * middle of recovery. Suspend the recovery to avoid it.
-+	 */
-+	mlx5e_reporter_icosq_suspend_recovery(c);
-+	clear_bit(MLX5E_RQ_STATE_ENABLED, &c->xskrq.state);
-+	mlx5e_reporter_icosq_resume_recovery(c);
-+	synchronize_net(); /* Sync with NAPI to prevent mlx5e_post_rx_wqes. */
-+
- 	/* TX queue is disabled on close. */
- }
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 8cf5fbebd674b..611c8a0cbf4f0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -911,8 +911,6 @@ void mlx5e_deactivate_rq(struct mlx5e_rq *rq)
- void mlx5e_close_rq(struct mlx5e_rq *rq)
- {
- 	cancel_work_sync(&rq->dim.work);
--	if (rq->icosq)
--		cancel_work_sync(&rq->icosq->recover_work);
- 	cancel_work_sync(&rq->recover_work);
- 	mlx5e_destroy_rq(rq);
- 	mlx5e_free_rx_descs(rq);
-@@ -1875,6 +1873,8 @@ static int mlx5e_open_queues(struct mlx5e_channel *c,
- 	if (err)
- 		goto err_close_xdpsq_cq;
- 
-+	mutex_init(&c->icosq_recovery_lock);
-+
- 	err = mlx5e_open_icosq(c, params, &cparam->icosq, &c->icosq);
- 	if (err)
- 		goto err_close_async_icosq;
-@@ -1943,9 +1943,12 @@ static void mlx5e_close_queues(struct mlx5e_channel *c)
- 	mlx5e_close_xdpsq(&c->xdpsq);
- 	if (c->xdp)
- 		mlx5e_close_xdpsq(&c->rq_xdpsq);
-+	/* The same ICOSQ is used for UMRs for both RQ and XSKRQ. */
-+	cancel_work_sync(&c->icosq.recover_work);
- 	mlx5e_close_rq(&c->rq);
- 	mlx5e_close_sqs(c);
- 	mlx5e_close_icosq(&c->icosq);
-+	mutex_destroy(&c->icosq_recovery_lock);
- 	mlx5e_close_icosq(&c->async_icosq);
- 	if (c->xdp)
- 		mlx5e_close_cq(&c->rq_xdpsq.cq);
+ 	if (gmux_data->iolen < GMUX_MIN_IO_LEN) {
+ 		pr_err("gmux I/O region too small (%lu < %u)\n",
 -- 
 2.34.1
 
