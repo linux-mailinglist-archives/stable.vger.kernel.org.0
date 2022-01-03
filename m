@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F5448323E
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB244832FE
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233692AbiACO0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:26:16 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47206 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233713AbiACOZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:44 -0500
+        id S235043AbiACOcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:32:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59588 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234917AbiACOac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:30:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 70B69CE110C;
-        Mon,  3 Jan 2022 14:25:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42139C36AF0;
-        Mon,  3 Jan 2022 14:25:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 285016111A;
+        Mon,  3 Jan 2022 14:30:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E877C36AED;
+        Mon,  3 Jan 2022 14:30:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219940;
-        bh=q1y2rSOGp+yLXZH6g3odHuz0Pl79A/Cg7YjxsfUUMMk=;
+        s=korg; t=1641220231;
+        bh=8NiLGWzp2OPFyswVi6da1JowMeKvagFevIehYjkMf8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQ4iX9MTPcFqfWbr5JNWIJrijarpNGGtKuZk6wfrk56X6LCR0TTCI3/1fiwVUlcm5
-         S/Kc3nbakv75P09k7oCrGkcl6/I1IxhniXU+gTRmVQBJ26LX+XaAfsAPoqYN9bJGL5
-         Dkj5wPj8asIJKBau3VGeiLIxOWL2CI3EKIikeKzE=
+        b=c8u/mN8ga0YIVlmhWR2gCq5EDEwqQb9I1E9ceFXnoh404AporvGv6cV90AWNHeemy
+         ODiiv7Me/mtCq/rrPa06zgjmgbavyimyVKlSk21fpYH69tUHJgKsYY2SZYYMoLoD5i
+         eqTGjsvVEpCiQ6ITak75U3R34x1qPU0+wibghn9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Wang <wwentao@vmware.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Vishal Bhakta <vbhakta@vmware.com>,
-        VMware PV-Drivers <pv-drivers@vmware.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        linux-scsi@vger.kernel.org, Alexey Makhalov <amakhalov@vmware.com>,
-        Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Subject: [PATCH 4.19 24/27] scsi: vmw_pvscsi: Set residual data length conditionally
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Shannon Nelson <snelson@pensando.io>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 27/48] ionic: Initialize the lif->dbid_inuse bitmap
 Date:   Mon,  3 Jan 2022 15:24:04 +0100
-Message-Id: <20220103142052.939806904@linuxfoundation.org>
+Message-Id: <20220103142054.391225236@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
-References: <20220103142052.162223000@linuxfoundation.org>
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,69 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Makhalov <amakhalov@vmware.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 142c779d05d1fef75134c3cb63f52ccbc96d9e1f upstream.
+[ Upstream commit 140c7bc7d1195750342ea0e6ab76179499ae7cd7 ]
 
-The PVSCSI implementation in the VMware hypervisor under specific
-configuration ("SCSI Bus Sharing" set to "Physical") returns zero dataLen
-in the completion descriptor for READ CAPACITY(16). As a result, the kernel
-can not detect proper disk geometry. This can be recognized by the kernel
-message:
+When allocated, this bitmap is not initialized. Only the first bit is set a
+few lines below.
 
-  [ 0.776588] sd 1:0:0:0: [sdb] Sector size 0 reported, assuming 512.
+Use bitmap_zalloc() to make sure that it is cleared before being used.
 
-The PVSCSI implementation in QEMU does not set dataLen at all, keeping it
-zeroed. This leads to a boot hang as was reported by Shmulik Ladkani.
-
-It is likely that the controller returns the garbage at the end of the
-buffer. Residual length should be set by the driver in that case. The SCSI
-layer will erase corresponding data. See commit bdb2b8cab439 ("[SCSI] erase
-invalid data returned by device") for details.
-
-Commit e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
-introduced the issue by setting residual length unconditionally, causing
-the SCSI layer to erase the useful payload beyond dataLen when this value
-is returned as 0.
-
-As a result, considering existing issues in implementations of PVSCSI
-controllers, we do not want to call scsi_set_resid() when dataLen ==
-0. Calling scsi_set_resid() has no effect if dataLen equals buffer length.
-
-Link: https://lore.kernel.org/lkml/20210824120028.30d9c071@blondie/
-Link: https://lore.kernel.org/r/20211220190514.55935-1-amakhalov@vmware.com
-Fixes: e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
-Cc: Matt Wang <wwentao@vmware.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: Vishal Bhakta <vbhakta@vmware.com>
-Cc: VMware PV-Drivers <pv-drivers@vmware.com>
-Cc: James E.J. Bottomley <jejb@linux.ibm.com>
-Cc: linux-scsi@vger.kernel.org
-Cc: stable@vger.kernel.org
-Reported-and-suggested-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6461b446f2a0 ("ionic: Add interrupts and doorbells")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Link: https://lore.kernel.org/r/6a478eae0b5e6c63774e1f0ddb1a3f8c38fa8ade.1640527506.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/vmw_pvscsi.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/vmw_pvscsi.c
-+++ b/drivers/scsi/vmw_pvscsi.c
-@@ -578,9 +578,12 @@ static void pvscsi_complete_request(stru
- 			 * Commands like INQUIRY may transfer less data than
- 			 * requested by the initiator via bufflen. Set residual
- 			 * count to make upper layer aware of the actual amount
--			 * of data returned.
-+			 * of data returned. There are cases when controller
-+			 * returns zero dataLen with non zero data - do not set
-+			 * residual count in that case.
- 			 */
--			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
-+			if (e->dataLen && (e->dataLen < scsi_bufflen(cmd)))
-+				scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
- 			cmd->result = (DID_OK << 16);
- 			break;
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+index 1b44155fa24b2..e95c09dc2c30d 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -2836,7 +2836,7 @@ int ionic_lif_init(struct ionic_lif *lif)
+ 		return -EINVAL;
+ 	}
  
+-	lif->dbid_inuse = bitmap_alloc(lif->dbid_count, GFP_KERNEL);
++	lif->dbid_inuse = bitmap_zalloc(lif->dbid_count, GFP_KERNEL);
+ 	if (!lif->dbid_inuse) {
+ 		dev_err(dev, "Failed alloc doorbell id bitmap, aborting\n");
+ 		return -ENOMEM;
+-- 
+2.34.1
+
 
 
