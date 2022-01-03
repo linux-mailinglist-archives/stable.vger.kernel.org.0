@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0CAB483297
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 478E148334A
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234354AbiACO3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:29:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39106 "EHLO
+        id S235041AbiACOfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:35:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234102AbiACO14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:56 -0500
+        with ESMTP id S234132AbiACOeW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:34:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D0EC061799;
-        Mon,  3 Jan 2022 06:27:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8AAC0698C8;
+        Mon,  3 Jan 2022 06:32:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2E02B80EBB;
-        Mon,  3 Jan 2022 14:27:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A43B9C36AEB;
-        Mon,  3 Jan 2022 14:27:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE48FB80F1A;
+        Mon,  3 Jan 2022 14:32:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112B6C36AED;
+        Mon,  3 Jan 2022 14:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220073;
-        bh=lMNLsExJkkQtSry2ym5POPqF1U8rKtcpyzfqFWHrJTo=;
+        s=korg; t=1641220359;
+        bh=5D/gM1GEoK6AdJS5J3D0j/p7sN/TAOOZtnXhx9ZZTE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plJykcS+FVVolPskU2lFbdE/zesAUUht3DpTGeMT0FG0g4/mkT0kezjCNZowZKpLT
-         a98+IXOBVsDe7zkaxjNtKJX3EWP+HDwFQg3sUbQJ3NUfZB315mX19C2Mt0l+gZyZ+d
-         c3UfG5gk6xtV2JurWyd7l0iXcP8v63kjFncHi2kY=
+        b=akKnozpKrkUf4M0lchbWyM9bmifqChLutDdu1nJFCgcASfEzJhJbrInpW/znKz+wz
+         5VIrlyK8e5yVdxvAMQGzRpSDg5cCAEKUcNIyAk4Gn4l9UxOcWxWTKdKWSkRo+DZjAN
+         FYskUJhbRRUWunth+s55EYPE3qO56mU+J5Do7Y90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Pelletier <plr.vincent@gmail.com>
-Subject: [PATCH 5.4 28/37] usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 45/73] selftests/net: udpgso_bench_tx: fix dst ip argument
 Date:   Mon,  3 Jan 2022 15:24:06 +0100
-Message-Id: <20220103142052.742220755@linuxfoundation.org>
+Message-Id: <20220103142058.371614166@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
-References: <20220103142051.883166998@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,115 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Pelletier <plr.vincent@gmail.com>
+From: wujianguo <wujianguo@chinatelecom.cn>
 
-commit b1e0887379422975f237d43d8839b751a6bcf154 upstream.
+[ Upstream commit 9c1952aeaa98b3cfc49e2a79cb2c7d6a674213e9 ]
 
-ffs_data_clear is indirectly called from both ffs_fs_kill_sb and
-ffs_ep0_release, so it ends up being called twice when userland closes ep0
-and then unmounts f_fs.
-If userland provided an eventfd along with function's USB descriptors, it
-ends up calling eventfd_ctx_put as many times, causing a refcount
-underflow.
-NULL-ify ffs_eventfd to prevent these extraneous eventfd_ctx_put calls.
+udpgso_bench_tx call setup_sockaddr() for dest address before
+parsing all arguments, if we specify "-p ${dst_port}" after "-D ${dst_ip}",
+then ${dst_port} will be ignored, and using default cfg_port 8000.
 
-Also, set epfiles to NULL right after de-allocating it, for readability.
+This will cause test case "multiple GRO socks" failed in udpgro.sh.
 
-For completeness, ffs_data_clear actually ends up being called thrice, the
-last call being before the whole ffs structure gets freed, so when this
-specific sequence happens there is a second underflow happening (but not
-being reported):
+Setup sockaddr after parsing all arguments.
 
-/sys/kernel/debug/tracing# modprobe usb_f_fs
-/sys/kernel/debug/tracing# echo ffs_data_clear > set_ftrace_filter
-/sys/kernel/debug/tracing# echo function > current_tracer
-/sys/kernel/debug/tracing# echo 1 > tracing_on
-(setup gadget, run and kill function userland process, teardown gadget)
-/sys/kernel/debug/tracing# echo 0 > tracing_on
-/sys/kernel/debug/tracing# cat trace
- smartcard-openp-436     [000] .....  1946.208786: ffs_data_clear <-ffs_data_closed
- smartcard-openp-431     [000] .....  1946.279147: ffs_data_clear <-ffs_data_closed
- smartcard-openp-431     [000] .n...  1946.905512: ffs_data_clear <-ffs_data_put
-
-Warning output corresponding to above trace:
-[ 1946.284139] WARNING: CPU: 0 PID: 431 at lib/refcount.c:28 refcount_warn_saturate+0x110/0x15c
-[ 1946.293094] refcount_t: underflow; use-after-free.
-[ 1946.298164] Modules linked in: usb_f_ncm(E) u_ether(E) usb_f_fs(E) hci_uart(E) btqca(E) btrtl(E) btbcm(E) btintel(E) bluetooth(E) nls_ascii(E) nls_cp437(E) vfat(E) fat(E) bcm2835_v4l2(CE) bcm2835_mmal_vchiq(CE) videobuf2_vmalloc(E) videobuf2_memops(E) sha512_generic(E) videobuf2_v4l2(E) sha512_arm(E) videobuf2_common(E) videodev(E) cpufreq_dt(E) snd_bcm2835(CE) brcmfmac(E) mc(E) vc4(E) ctr(E) brcmutil(E) snd_soc_core(E) snd_pcm_dmaengine(E) drbg(E) snd_pcm(E) snd_timer(E) snd(E) soundcore(E) drm_kms_helper(E) cec(E) ansi_cprng(E) rc_core(E) syscopyarea(E) raspberrypi_cpufreq(E) sysfillrect(E) sysimgblt(E) cfg80211(E) max17040_battery(OE) raspberrypi_hwmon(E) fb_sys_fops(E) regmap_i2c(E) ecdh_generic(E) rfkill(E) ecc(E) bcm2835_rng(E) rng_core(E) vchiq(CE) leds_gpio(E) libcomposite(E) fuse(E) configfs(E) ip_tables(E) x_tables(E) autofs4(E) ext4(E) crc16(E) mbcache(E) jbd2(E) crc32c_generic(E) sdhci_iproc(E) sdhci_pltfm(E) sdhci(E)
-[ 1946.399633] CPU: 0 PID: 431 Comm: smartcard-openp Tainted: G         C OE     5.15.0-1-rpi #1  Debian 5.15.3-1
-[ 1946.417950] Hardware name: BCM2835
-[ 1946.425442] Backtrace:
-[ 1946.432048] [<c08d60a0>] (dump_backtrace) from [<c08d62ec>] (show_stack+0x20/0x24)
-[ 1946.448226]  r7:00000009 r6:0000001c r5:c04a948c r4:c0a64e2c
-[ 1946.458412] [<c08d62cc>] (show_stack) from [<c08d9ae0>] (dump_stack+0x28/0x30)
-[ 1946.470380] [<c08d9ab8>] (dump_stack) from [<c0123500>] (__warn+0xe8/0x154)
-[ 1946.482067]  r5:c04a948c r4:c0a71dc8
-[ 1946.490184] [<c0123418>] (__warn) from [<c08d6948>] (warn_slowpath_fmt+0xa0/0xe4)
-[ 1946.506758]  r7:00000009 r6:0000001c r5:c0a71dc8 r4:c0a71e04
-[ 1946.517070] [<c08d68ac>] (warn_slowpath_fmt) from [<c04a948c>] (refcount_warn_saturate+0x110/0x15c)
-[ 1946.535309]  r8:c0100224 r7:c0dfcb84 r6:ffffffff r5:c3b84c00 r4:c24a17c0
-[ 1946.546708] [<c04a937c>] (refcount_warn_saturate) from [<c0380134>] (eventfd_ctx_put+0x48/0x74)
-[ 1946.564476] [<c03800ec>] (eventfd_ctx_put) from [<bf5464e8>] (ffs_data_clear+0xd0/0x118 [usb_f_fs])
-[ 1946.582664]  r5:c3b84c00 r4:c2695b00
-[ 1946.590668] [<bf546418>] (ffs_data_clear [usb_f_fs]) from [<bf547cc0>] (ffs_data_closed+0x9c/0x150 [usb_f_fs])
-[ 1946.609608]  r5:bf54d014 r4:c2695b00
-[ 1946.617522] [<bf547c24>] (ffs_data_closed [usb_f_fs]) from [<bf547da0>] (ffs_fs_kill_sb+0x2c/0x30 [usb_f_fs])
-[ 1946.636217]  r7:c0dfcb84 r6:c3a12260 r5:bf54d014 r4:c229f000
-[ 1946.646273] [<bf547d74>] (ffs_fs_kill_sb [usb_f_fs]) from [<c0326d50>] (deactivate_locked_super+0x54/0x9c)
-[ 1946.664893]  r5:bf54d014 r4:c229f000
-[ 1946.672921] [<c0326cfc>] (deactivate_locked_super) from [<c0326df8>] (deactivate_super+0x60/0x64)
-[ 1946.690722]  r5:c2a09000 r4:c229f000
-[ 1946.698706] [<c0326d98>] (deactivate_super) from [<c0349a28>] (cleanup_mnt+0xe4/0x14c)
-[ 1946.715553]  r5:c2a09000 r4:00000000
-[ 1946.723528] [<c0349944>] (cleanup_mnt) from [<c0349b08>] (__cleanup_mnt+0x1c/0x20)
-[ 1946.739922]  r7:c0dfcb84 r6:c3a12260 r5:c3a126fc r4:00000000
-[ 1946.750088] [<c0349aec>] (__cleanup_mnt) from [<c0143d10>] (task_work_run+0x84/0xb8)
-[ 1946.766602] [<c0143c8c>] (task_work_run) from [<c010bdc8>] (do_work_pending+0x470/0x56c)
-[ 1946.783540]  r7:5ac3c35a r6:c0d0424c r5:c200bfb0 r4:c200a000
-[ 1946.793614] [<c010b958>] (do_work_pending) from [<c01000c0>] (slow_work_pending+0xc/0x20)
-[ 1946.810553] Exception stack(0xc200bfb0 to 0xc200bff8)
-[ 1946.820129] bfa0:                                     00000000 00000000 000000aa b5e21430
-[ 1946.837104] bfc0: bef867a0 00000001 bef86840 00000034 bef86838 bef86790 bef86794 bef867a0
-[ 1946.854125] bfe0: 00000000 bef86798 b67b7a1c b6d626a4 60000010 b5a23760
-[ 1946.865335]  r10:00000000 r9:c200a000 r8:c0100224 r7:00000034 r6:bef86840 r5:00000001
-[ 1946.881914]  r4:bef867a0
-[ 1946.888793] ---[ end trace 7387f2a9725b28d0 ]---
-
-Fixes: 5e33f6fdf735 ("usb: gadget: ffs: add eventfd notification about ffs events")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Vincent Pelletier <plr.vincent@gmail.com>
-Link: https://lore.kernel.org/r/f79eeea29f3f98de6782a064ec0f7351ad2f598f.1639793920.git.plr.vincent@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3a687bef148d ("selftests: udp gso benchmark")
+Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/ff620d9f-5b52-06ab-5286-44b945453002@163.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ tools/testing/selftests/net/udpgso_bench_tx.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1791,11 +1791,15 @@ static void ffs_data_clear(struct ffs_da
+diff --git a/tools/testing/selftests/net/udpgso_bench_tx.c b/tools/testing/selftests/net/udpgso_bench_tx.c
+index 17512a43885e7..f1fdaa2702913 100644
+--- a/tools/testing/selftests/net/udpgso_bench_tx.c
++++ b/tools/testing/selftests/net/udpgso_bench_tx.c
+@@ -419,6 +419,7 @@ static void usage(const char *filepath)
  
- 	BUG_ON(ffs->gadget);
+ static void parse_opts(int argc, char **argv)
+ {
++	const char *bind_addr = NULL;
+ 	int max_len, hdrlen;
+ 	int c;
  
--	if (ffs->epfiles)
-+	if (ffs->epfiles) {
- 		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
-+		ffs->epfiles = NULL;
-+	}
+@@ -446,7 +447,7 @@ static void parse_opts(int argc, char **argv)
+ 			cfg_cpu = strtol(optarg, NULL, 0);
+ 			break;
+ 		case 'D':
+-			setup_sockaddr(cfg_family, optarg, &cfg_dst_addr);
++			bind_addr = optarg;
+ 			break;
+ 		case 'l':
+ 			cfg_runtime_ms = strtoul(optarg, NULL, 10) * 1000;
+@@ -492,6 +493,11 @@ static void parse_opts(int argc, char **argv)
+ 		}
+ 	}
  
--	if (ffs->ffs_eventfd)
-+	if (ffs->ffs_eventfd) {
- 		eventfd_ctx_put(ffs->ffs_eventfd);
-+		ffs->ffs_eventfd = NULL;
-+	}
++	if (!bind_addr)
++		bind_addr = cfg_family == PF_INET6 ? "::" : "0.0.0.0";
++
++	setup_sockaddr(cfg_family, bind_addr, &cfg_dst_addr);
++
+ 	if (optind != argc)
+ 		usage(argv[0]);
  
- 	kfree(ffs->raw_descs_data);
- 	kfree(ffs->raw_strings);
-@@ -1808,7 +1812,6 @@ static void ffs_data_reset(struct ffs_da
- 
- 	ffs_data_clear(ffs);
- 
--	ffs->epfiles = NULL;
- 	ffs->raw_descs_data = NULL;
- 	ffs->raw_descs = NULL;
- 	ffs->raw_strings = NULL;
+-- 
+2.34.1
+
 
 
