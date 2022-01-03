@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 057EE483300
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 150F5483244
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235062AbiACOcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:32:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
+        id S233595AbiACO0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:26:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234144AbiACOaf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:30:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A315C061377;
-        Mon,  3 Jan 2022 06:30:35 -0800 (PST)
+        with ESMTP id S233585AbiACOZr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66559C06179E;
+        Mon,  3 Jan 2022 06:25:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3685D61128;
-        Mon,  3 Jan 2022 14:30:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D03C36AED;
-        Mon,  3 Jan 2022 14:30:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B3BF0CE10AB;
+        Mon,  3 Jan 2022 14:25:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BEFBC36AED;
+        Mon,  3 Jan 2022 14:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220234;
-        bh=gO1S2HcV8Ci6bRImVueLuS2Y5hfwfGJIAaSnEa7DYoo=;
+        s=korg; t=1641219944;
+        bh=+2sqXt9wy7ZRWhuykIJzX3BPDlPPVvL5n15pXwXX0ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhxwWuG74Kn4OCvKEft2fLqGfRVFXp6DOPu3w9GpEgAOwEQiCWBwlqhzs7uRfI2je
-         wXFsl8F2B2rBHrfJauUuzZfxNXG5EYIM7ljVi/akHa2K3IlYYDWDm0nWayBqnnWjC4
-         /O5JQrxAUYG/85mFYXFMr1QhPZbnmLf8d8Q1nOW4=
+        b=LyI7v1MaO9UCDI/0SGjlSD4fReAy9K7M3K+A21KOtZqbE/4zHXKAmM9bTdH9j7Aqg
+         ZdgwZI1Co7RKkIpWopUstlimV8NU4u9IGNCFhCoCNpI0m+BJzPyENJ2TB4qE8sYr/T
+         oZz35Sk0/n2W2ZMr9b6qSYBdnEscAV5tkXTUewJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/48] net/mlx5e: Fix wrong features assignment in case of error
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 25/27] Input: appletouch - initialize work before device registration
 Date:   Mon,  3 Jan 2022 15:24:05 +0100
-Message-Id: <20220103142054.421209500@linuxfoundation.org>
+Message-Id: <20220103142052.975148806@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
-References: <20220103142053.466768714@linuxfoundation.org>
+In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
+References: <20220103142052.162223000@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,86 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <gal@nvidia.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 992d8a4e38f0527f24e273ce3a9cd6dea1a6a436 ]
+commit 9f3ccdc3f6ef10084ceb3a47df0961bec6196fd0 upstream.
 
-In case of an error in mlx5e_set_features(), 'netdev->features' must be
-updated with the correct state of the device to indicate which features
-were updated successfully.
-To do that we maintain a copy of 'netdev->features' and update it after
-successful feature changes, so we can assign it to back to
-'netdev->features' if needed.
+Syzbot has reported warning in __flush_work(). This warning is caused by
+work->func == NULL, which means missing work initialization.
 
-However, since not all netdev features are handled by the driver (e.g.
-GRO/TSO/etc), some features may not be updated correctly in case of an
-error updating another feature.
+This may happen, since input_dev->close() calls
+cancel_work_sync(&dev->work), but dev->work initalization happens _after_
+input_register_device() call.
 
-For example, while requesting to disable TSO (feature which is not
-handled by the driver) and enable HW-GRO, if an error occurs during
-HW-GRO enable, 'oper_features' will be assigned with 'netdev->features'
-and HW-GRO turned off. TSO will remain enabled in such case, which is a
-bug.
+So this patch moves dev->work initialization before registering input
+device
 
-To solve that, instead of using 'netdev->features' as the baseline of
-'oper_features' and changing it on set feature success, use 'features'
-instead and update it in case of errors.
-
-Fixes: 75b81ce719b7 ("net/mlx5e: Don't override netdev features field unless in error flow")
-Signed-off-by: Gal Pressman <gal@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5a6eb676d3bc ("Input: appletouch - improve powersaving for Geyser3 devices")
+Reported-and-tested-by: syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211230141151.17300-1-paskripkin@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/input/mouse/appletouch.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 3f5a2bb9b3c0b..2f6c3a5813ed1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3935,12 +3935,11 @@ static int set_feature_arfs(struct net_device *netdev, bool enable)
+--- a/drivers/input/mouse/appletouch.c
++++ b/drivers/input/mouse/appletouch.c
+@@ -930,6 +930,8 @@ static int atp_probe(struct usb_interfac
+ 	set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
+ 	set_bit(BTN_LEFT, input_dev->keybit);
  
- static int mlx5e_handle_feature(struct net_device *netdev,
- 				netdev_features_t *features,
--				netdev_features_t wanted_features,
- 				netdev_features_t feature,
- 				mlx5e_feature_handler feature_handler)
- {
--	netdev_features_t changes = wanted_features ^ netdev->features;
--	bool enable = !!(wanted_features & feature);
-+	netdev_features_t changes = *features ^ netdev->features;
-+	bool enable = !!(*features & feature);
- 	int err;
++	INIT_WORK(&dev->work, atp_reinit);
++
+ 	error = input_register_device(dev->input);
+ 	if (error)
+ 		goto err_free_buffer;
+@@ -937,8 +939,6 @@ static int atp_probe(struct usb_interfac
+ 	/* save our data pointer in this interface device */
+ 	usb_set_intfdata(iface, dev);
  
- 	if (!(changes & feature))
-@@ -3948,22 +3947,22 @@ static int mlx5e_handle_feature(struct net_device *netdev,
- 
- 	err = feature_handler(netdev, enable);
- 	if (err) {
-+		MLX5E_SET_FEATURE(features, feature, !enable);
- 		netdev_err(netdev, "%s feature %pNF failed, err %d\n",
- 			   enable ? "Enable" : "Disable", &feature, err);
- 		return err;
- 	}
- 
--	MLX5E_SET_FEATURE(features, feature, enable);
+-	INIT_WORK(&dev->work, atp_reinit);
+-
  	return 0;
- }
  
- int mlx5e_set_features(struct net_device *netdev, netdev_features_t features)
- {
--	netdev_features_t oper_features = netdev->features;
-+	netdev_features_t oper_features = features;
- 	int err = 0;
- 
- #define MLX5E_HANDLE_FEATURE(feature, handler) \
--	mlx5e_handle_feature(netdev, &oper_features, features, feature, handler)
-+	mlx5e_handle_feature(netdev, &oper_features, feature, handler)
- 
- 	err |= MLX5E_HANDLE_FEATURE(NETIF_F_LRO, set_feature_lro);
- 	err |= MLX5E_HANDLE_FEATURE(NETIF_F_HW_VLAN_CTAG_FILTER,
--- 
-2.34.1
-
+  err_free_buffer:
 
 
