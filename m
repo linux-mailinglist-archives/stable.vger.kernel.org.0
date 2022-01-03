@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA61483336
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15139483236
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233502AbiACOfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:35:19 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35376 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235021AbiACOc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:32:29 -0500
+        id S231504AbiACOZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:25:52 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56208 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232602AbiACOZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:38 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFC44B80F10;
-        Mon,  3 Jan 2022 14:32:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99EACC36AEE;
-        Mon,  3 Jan 2022 14:32:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5384D61117;
+        Mon,  3 Jan 2022 14:25:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30ACCC36AEF;
+        Mon,  3 Jan 2022 14:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220346;
-        bh=qaEqp8YudRu590dhRs8eng7RbMWmXDKwxILbzHO9Br0=;
+        s=korg; t=1641219937;
+        bh=6NFMk94zYp0v4csIDxeIfG4wpPjoHwGKRXR2wVaTjPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onJk7/EL6Ws3d+uHDAXNT1qTl8Xo4oSg5W+AhlzABR8Ik2VLNKoFlYGenk8pAQgqu
-         dgHp4Kk8wyOj9yo9wJA0iXLysNpy/u8v380LwqoRa6qgE8yNNq5FvIMCNpeWcVZpom
-         jhutUBH8m35utGHdUZrhwuhCIHDOCVzd3KE5NWXk=
+        b=sOHER7hnGONctdPqigKbRN/lTGBF3HnzsYyacZAZX0ZM0T+380pw83GUs4vUchDrY
+         qjQKFAnoXNqGyfEG9JduxLjVy1OKy0grv4oxuh1z163zAAZMFd98gkc517iZzV1ljx
+         54/VQ/UXm2RRKq784MAbG6GT/rfswEx6zgUIGB4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Shannon Nelson <snelson@pensando.io>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 41/73] ionic: Initialize the lif->dbid_inuse bitmap
-Date:   Mon,  3 Jan 2022 15:24:02 +0100
-Message-Id: <20220103142058.240014366@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>
+Subject: [PATCH 4.19 23/27] binder: fix async_free_space accounting for empty parcels
+Date:   Mon,  3 Jan 2022 15:24:03 +0100
+Message-Id: <20220103142052.910309259@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
+References: <20220103142052.162223000@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Todd Kjos <tkjos@google.com>
 
-[ Upstream commit 140c7bc7d1195750342ea0e6ab76179499ae7cd7 ]
+commit cfd0d84ba28c18b531648c9d4a35ecca89ad9901 upstream.
 
-When allocated, this bitmap is not initialized. Only the first bit is set a
-few lines below.
+In 4.13, commit 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
+fixed a kernel structure visibility issue. As part of that patch,
+sizeof(void *) was used as the buffer size for 0-length data payloads so
+the driver could detect abusive clients sending 0-length asynchronous
+transactions to a server by enforcing limits on async_free_size.
 
-Use bitmap_zalloc() to make sure that it is cleared before being used.
+Unfortunately, on the "free" side, the accounting of async_free_space
+did not add the sizeof(void *) back. The result was that up to 8-bytes of
+async_free_space were leaked on every async transaction of 8-bytes or
+less.  These small transactions are uncommon, so this accounting issue
+has gone undetected for several years.
 
-Fixes: 6461b446f2a0 ("ionic: Add interrupts and doorbells")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Link: https://lore.kernel.org/r/6a478eae0b5e6c63774e1f0ddb1a3f8c38fa8ade.1640527506.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The fix is to use "buffer_size" (the allocated buffer size) instead of
+"size" (the logical buffer size) when updating the async_free_space
+during the free operation. These are the same except for this
+corner case of asynchronous transactions with payloads < 8 bytes.
+
+Fixes: 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Cc: stable@vger.kernel.org # 4.14+
+Link: https://lore.kernel.org/r/20211220190150.2107077-1-tkjos@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c | 2 +-
+ drivers/android/binder_alloc.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index 7f3322ce044c7..6ac507ddf09af 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -3283,7 +3283,7 @@ int ionic_lif_init(struct ionic_lif *lif)
- 		return -EINVAL;
- 	}
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -630,7 +630,7 @@ static void binder_free_buf_locked(struc
+ 	BUG_ON(buffer->data > alloc->buffer + alloc->buffer_size);
  
--	lif->dbid_inuse = bitmap_alloc(lif->dbid_count, GFP_KERNEL);
-+	lif->dbid_inuse = bitmap_zalloc(lif->dbid_count, GFP_KERNEL);
- 	if (!lif->dbid_inuse) {
- 		dev_err(dev, "Failed alloc doorbell id bitmap, aborting\n");
- 		return -ENOMEM;
--- 
-2.34.1
-
+ 	if (buffer->async_transaction) {
+-		alloc->free_async_space += size + sizeof(struct binder_buffer);
++		alloc->free_async_space += buffer_size + sizeof(struct binder_buffer);
+ 
+ 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC_ASYNC,
+ 			     "%d: binder_free_buf size %zd async free %zd\n",
 
 
