@@ -2,238 +2,319 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5AC483285
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD4D04832BC
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:31:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230315AbiACO20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:28:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58882 "EHLO
+        id S234120AbiACOaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:30:35 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59630 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233639AbiACO1b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:31 -0500
+        with ESMTP id S234207AbiACO2S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:28:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C219B80EF8;
-        Mon,  3 Jan 2022 14:27:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30949C36AEB;
-        Mon,  3 Jan 2022 14:27:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A18F0B80EFC;
+        Mon,  3 Jan 2022 14:28:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB832C36AFF;
+        Mon,  3 Jan 2022 14:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220049;
-        bh=bFfx3uBTzqErhgJBt9ny5Cydc+4aubawZ2OrCw9CjAM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nHtsWGDTEN5A3Ivxi4gc2927LYBqvGrOb0AYJqhy3K2/qW6AJG8BLg70uNa24U+iQ
-         ubOV5AtCmIhOt/w6USybL6RzpY3m160r5jwAFPgepbuCaEmwi4rU1Mh16/3VwIxKA0
-         1Heqtpwn1jhTkpWefv105STSeGHl3117qsaQhOKw=
+        s=korg; t=1641220095;
+        bh=vkleRjeI1lb3f5mwzZ1Zpn+lS+lfuC5RZ3wvxXdYupo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HThjGA9sZ6P18R/CxJm97k7rHW6/DlUp76PMvuDXbCTiqTzQlMFPunFajKFZbJwfW
+         unmJ3/IQko8lIZfxoB2OkfZiStghK6XZEX/CzS1pdsr7tVJhJC0ppfmV3ydZHqYUud
+         5e5UVn7xmg9XWFgH11/cdnQfKp5SL2QWp+1lAOjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.4 00/37] 5.4.170-rc1 review
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <samuel@cavoj.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 01/48] Input: i8042 - add deferred probe support
 Date:   Mon,  3 Jan 2022 15:23:38 +0100
-Message-Id: <20220103142051.883166998@linuxfoundation.org>
+Message-Id: <20220103142053.516694949@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.170-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.170-rc1
-X-KernelTest-Deadline: 2022-01-05T14:20+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.170 release.
-There are 37 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Takashi Iwai <tiwai@suse.de>
 
-Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 9222ba68c3f4065f6364b99cc641b6b019ef2d42 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.170-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+We've got a bug report about the non-working keyboard on ASUS ZenBook
+UX425UA.  It seems that the PS/2 device isn't ready immediately at
+boot but takes some seconds to get ready.  Until now, the only
+workaround is to defer the probe, but it's available only when the
+driver is a module.  However, many distros, including openSUSE as in
+the original report, build the PS/2 input drivers into kernel, hence
+it won't work easily.
 
-thanks,
+This patch adds the support for the deferred probe for i8042 stuff as
+a workaround of the problem above.  When the deferred probe mode is
+enabled and the device couldn't be probed, it'll be repeated with the
+standard deferred probe mechanism.
 
-greg k-h
+The deferred probe mode is enabled either via the new option
+i8042.probe_defer or via the quirk table entry.  As of this patch, the
+quirk table contains only ASUS ZenBook UX425UA.
 
--------------
-Pseudo-Shortlog of commits:
+The deferred probe part is based on Fabio's initial work.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.170-rc1
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190256
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Samuel Čavoj <samuel@cavoj.net>
+Link: https://lore.kernel.org/r/20211117063757.11380-1-tiwai@suse.de
 
-Adrian Hunter <adrian.hunter@intel.com>
-    perf script: Fix CPU filtering of a script's switch events
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ .../admin-guide/kernel-parameters.txt         |  2 +
+ drivers/input/serio/i8042-x86ia64io.h         | 14 +++++
+ drivers/input/serio/i8042.c                   | 54 ++++++++++++-------
+ 3 files changed, 51 insertions(+), 19 deletions(-)
 
-Muchun Song <songmuchun@bytedance.com>
-    net: fix use-after-free in tw_timer_handler
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index ccaa72562538e..d00618967854d 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -1617,6 +1617,8 @@
+ 			architectures force reset to be always executed
+ 	i8042.unlock	[HW] Unlock (ignore) the keylock
+ 	i8042.kbdreset	[HW] Reset device connected to KBD port
++	i8042.probe_defer
++			[HW] Allow deferred probing upon i8042 probe errors
+ 
+ 	i810=		[HW,DRM]
+ 
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index aedd055410443..1acc7c8449294 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -995,6 +995,17 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
+ 	{ }
+ };
+ 
++static const struct dmi_system_id i8042_dmi_probe_defer_table[] __initconst = {
++	{
++		/* ASUS ZenBook UX425UA */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
++		},
++	},
++	{ }
++};
++
+ #endif /* CONFIG_X86 */
+ 
+ #ifdef CONFIG_PNP
+@@ -1315,6 +1326,9 @@ static int __init i8042_platform_init(void)
+ 	if (dmi_check_system(i8042_dmi_kbdreset_table))
+ 		i8042_kbdreset = true;
+ 
++	if (dmi_check_system(i8042_dmi_probe_defer_table))
++		i8042_probe_defer = true;
++
+ 	/*
+ 	 * A20 was already enabled during early kernel init. But some buggy
+ 	 * BIOSes (in MSI Laptops) require A20 to be enabled using 8042 to
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index abae23af0791e..a9f68f535b727 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -45,6 +45,10 @@ static bool i8042_unlock;
+ module_param_named(unlock, i8042_unlock, bool, 0);
+ MODULE_PARM_DESC(unlock, "Ignore keyboard lock.");
+ 
++static bool i8042_probe_defer;
++module_param_named(probe_defer, i8042_probe_defer, bool, 0);
++MODULE_PARM_DESC(probe_defer, "Allow deferred probing.");
++
+ enum i8042_controller_reset_mode {
+ 	I8042_RESET_NEVER,
+ 	I8042_RESET_ALWAYS,
+@@ -711,7 +715,7 @@ static int i8042_set_mux_mode(bool multiplex, unsigned char *mux_version)
+  * LCS/Telegraphics.
+  */
+ 
+-static int __init i8042_check_mux(void)
++static int i8042_check_mux(void)
+ {
+ 	unsigned char mux_version;
+ 
+@@ -740,10 +744,10 @@ static int __init i8042_check_mux(void)
+ /*
+  * The following is used to test AUX IRQ delivery.
+  */
+-static struct completion i8042_aux_irq_delivered __initdata;
+-static bool i8042_irq_being_tested __initdata;
++static struct completion i8042_aux_irq_delivered;
++static bool i8042_irq_being_tested;
+ 
+-static irqreturn_t __init i8042_aux_test_irq(int irq, void *dev_id)
++static irqreturn_t i8042_aux_test_irq(int irq, void *dev_id)
+ {
+ 	unsigned long flags;
+ 	unsigned char str, data;
+@@ -770,7 +774,7 @@ static irqreturn_t __init i8042_aux_test_irq(int irq, void *dev_id)
+  * verifies success by readinng CTR. Used when testing for presence of AUX
+  * port.
+  */
+-static int __init i8042_toggle_aux(bool on)
++static int i8042_toggle_aux(bool on)
+ {
+ 	unsigned char param;
+ 	int i;
+@@ -798,7 +802,7 @@ static int __init i8042_toggle_aux(bool on)
+  * the presence of an AUX interface.
+  */
+ 
+-static int __init i8042_check_aux(void)
++static int i8042_check_aux(void)
+ {
+ 	int retval = -1;
+ 	bool irq_registered = false;
+@@ -1005,7 +1009,7 @@ static int i8042_controller_init(void)
+ 
+ 		if (i8042_command(&ctr[n++ % 2], I8042_CMD_CTL_RCTR)) {
+ 			pr_err("Can't read CTR while initializing i8042\n");
+-			return -EIO;
++			return i8042_probe_defer ? -EPROBE_DEFER : -EIO;
+ 		}
+ 
+ 	} while (n < 2 || ctr[0] != ctr[1]);
+@@ -1320,7 +1324,7 @@ static void i8042_shutdown(struct platform_device *dev)
+ 	i8042_controller_reset(false);
+ }
+ 
+-static int __init i8042_create_kbd_port(void)
++static int i8042_create_kbd_port(void)
+ {
+ 	struct serio *serio;
+ 	struct i8042_port *port = &i8042_ports[I8042_KBD_PORT_NO];
+@@ -1349,7 +1353,7 @@ static int __init i8042_create_kbd_port(void)
+ 	return 0;
+ }
+ 
+-static int __init i8042_create_aux_port(int idx)
++static int i8042_create_aux_port(int idx)
+ {
+ 	struct serio *serio;
+ 	int port_no = idx < 0 ? I8042_AUX_PORT_NO : I8042_MUX_PORT_NO + idx;
+@@ -1386,13 +1390,13 @@ static int __init i8042_create_aux_port(int idx)
+ 	return 0;
+ }
+ 
+-static void __init i8042_free_kbd_port(void)
++static void i8042_free_kbd_port(void)
+ {
+ 	kfree(i8042_ports[I8042_KBD_PORT_NO].serio);
+ 	i8042_ports[I8042_KBD_PORT_NO].serio = NULL;
+ }
+ 
+-static void __init i8042_free_aux_ports(void)
++static void i8042_free_aux_ports(void)
+ {
+ 	int i;
+ 
+@@ -1402,7 +1406,7 @@ static void __init i8042_free_aux_ports(void)
+ 	}
+ }
+ 
+-static void __init i8042_register_ports(void)
++static void i8042_register_ports(void)
+ {
+ 	int i;
+ 
+@@ -1443,7 +1447,7 @@ static void i8042_free_irqs(void)
+ 	i8042_aux_irq_registered = i8042_kbd_irq_registered = false;
+ }
+ 
+-static int __init i8042_setup_aux(void)
++static int i8042_setup_aux(void)
+ {
+ 	int (*aux_enable)(void);
+ 	int error;
+@@ -1485,7 +1489,7 @@ static int __init i8042_setup_aux(void)
+ 	return error;
+ }
+ 
+-static int __init i8042_setup_kbd(void)
++static int i8042_setup_kbd(void)
+ {
+ 	int error;
+ 
+@@ -1535,7 +1539,7 @@ static int i8042_kbd_bind_notifier(struct notifier_block *nb,
+ 	return 0;
+ }
+ 
+-static int __init i8042_probe(struct platform_device *dev)
++static int i8042_probe(struct platform_device *dev)
+ {
+ 	int error;
+ 
+@@ -1600,6 +1604,7 @@ static struct platform_driver i8042_driver = {
+ 		.pm	= &i8042_pm_ops,
+ #endif
+ 	},
++	.probe		= i8042_probe,
+ 	.remove		= i8042_remove,
+ 	.shutdown	= i8042_shutdown,
+ };
+@@ -1610,7 +1615,6 @@ static struct notifier_block i8042_kbd_bind_notifier_block = {
+ 
+ static int __init i8042_init(void)
+ {
+-	struct platform_device *pdev;
+ 	int err;
+ 
+ 	dbg_init();
+@@ -1626,17 +1630,29 @@ static int __init i8042_init(void)
+ 	/* Set this before creating the dev to allow i8042_command to work right away */
+ 	i8042_present = true;
+ 
+-	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
+-	if (IS_ERR(pdev)) {
+-		err = PTR_ERR(pdev);
++	err = platform_driver_register(&i8042_driver);
++	if (err)
+ 		goto err_platform_exit;
++
++	i8042_platform_device = platform_device_alloc("i8042", -1);
++	if (!i8042_platform_device) {
++		err = -ENOMEM;
++		goto err_unregister_driver;
+ 	}
+ 
++	err = platform_device_add(i8042_platform_device);
++	if (err)
++		goto err_free_device;
++
+ 	bus_register_notifier(&serio_bus, &i8042_kbd_bind_notifier_block);
+ 	panic_blink = i8042_panic_blink;
+ 
+ 	return 0;
+ 
++err_free_device:
++	platform_device_put(i8042_platform_device);
++err_unregister_driver:
++	platform_driver_unregister(&i8042_driver);
+  err_platform_exit:
+ 	i8042_platform_exit();
+ 	return err;
+-- 
+2.34.1
 
-Leo L. Schwab <ewhac@ewhac.org>
-    Input: spaceball - fix parsing of movement data packets
-
-Pavel Skripkin <paskripkin@gmail.com>
-    Input: appletouch - initialize work before device registration
-
-Alexey Makhalov <amakhalov@vmware.com>
-    scsi: vmw_pvscsi: Set residual data length conditionally
-
-Todd Kjos <tkjos@google.com>
-    binder: fix async_free_space accounting for empty parcels
-
-Chunfeng Yun <chunfeng.yun@mediatek.com>
-    usb: mtu3: set interval of FS intr and isoc endpoint
-
-Chunfeng Yun <chunfeng.yun@mediatek.com>
-    usb: mtu3: fix list_head check warning
-
-Chunfeng Yun <chunfeng.yun@mediatek.com>
-    usb: mtu3: add memory barrier before set GPD's HWO
-
-Vincent Pelletier <plr.vincent@gmail.com>
-    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
-
-Dmitry V. Levin <ldv@altlinux.org>
-    uapi: fix linux/nfc.h userspace compilation errors
-
-Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-    nfc: uapi: use kernel size_t to fix user-space builds
-
-Pavel Skripkin <paskripkin@gmail.com>
-    i2c: validate user data in compat ioctl
-
-Miaoqian Lin <linmq006@gmail.com>
-    fsl/fman: Fix missing put_device() call in fman_port_probe
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    net/ncsi: check for error return from call to nla_put_u32
-
-wujianguo <wujianguo@chinatelecom.cn>
-    selftests/net: udpgso_bench_tx: fix dst ip argument
-
-Gal Pressman <gal@nvidia.com>
-    net/mlx5e: Fix wrong features assignment in case of error
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    ionic: Initialize the 'lif->dbid_inuse' bitmap
-
-Wei Yongjun <weiyongjun1@huawei.com>
-    NFC: st21nfca: Fix memory leak in device probe and remove
-
-Aleksander Jan Bajkowski <olek2@wp.pl>
-    net: lantiq_xrx200: fix statistics of received bytes
-
-Matthias-Christian Ott <ott@mirix.org>
-    net: usb: pegasus: Do not drop long Ethernet frames
-
-Xin Long <lucien.xin@gmail.com>
-    sctp: use call_rcu to free endpoint
-
-Miaoqian Lin <linmq006@gmail.com>
-    net: phy: fixed_phy: Fix NULL vs IS_ERR() checking in __fixed_phy_register
-
-Coco Li <lixiaoyan@google.com>
-    selftests: Calculate udpgso segment count without header adjustment
-
-Coco Li <lixiaoyan@google.com>
-    udp: using datalen to cap ipv6 udp max gso segments
-
-Miaoqian Lin <linmq006@gmail.com>
-    net/mlx5: DR, Fix NULL vs IS_ERR checking in dr_domain_init_resources
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    scsi: lpfc: Terminate string in lpfc_debugfs_nvmeio_trc_write()
-
-Tom Rix <trix@redhat.com>
-    selinux: initialize proto variable in selinux_ip_postroute_compat()
-
-Heiko Carstens <hca@linux.ibm.com>
-    recordmcount.pl: fix typo in s390 mcount regex
-
-Jackie Liu <liuyun01@kylinos.cn>
-    memblock: fix memblock_phys_alloc() section mismatch error
-
-Wang Qing <wangqing@vivo.com>
-    platform/x86: apple-gmux: use resource_size() with res
-
-Dmitry Vyukov <dvyukov@google.com>
-    tomoyo: Check exceeded quota early in tomoyo_domain_quota_is_ok().
-
-Samuel Čavoj <samuel@cavoj.net>
-    Input: i8042 - enable deferred probe quirk for ASUS UM325UA
-
-Takashi Iwai <tiwai@suse.de>
-    Input: i8042 - add deferred probe support
-
-Jens Wiklander <jens.wiklander@linaro.org>
-    tee: handle lookup of shm with reference count 0
-
-Hans de Goede <hdegoede@redhat.com>
-    HID: asus: Add depends on USB_HID to HID_ASUS Kconfig option
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/kernel-parameters.txt    |   2 +
- Makefile                                           |   4 +-
- drivers/android/binder_alloc.c                     |   2 +-
- drivers/hid/Kconfig                                |   1 +
- drivers/i2c/i2c-dev.c                              |   3 +
- drivers/input/joystick/spaceball.c                 |  11 +-
- drivers/input/mouse/appletouch.c                   |   4 +-
- drivers/input/serio/i8042-x86ia64io.h              |  21 +++
- drivers/input/serio/i8042.c                        |  54 ++++---
- drivers/net/ethernet/freescale/fman/fman_port.c    |  12 +-
- drivers/net/ethernet/lantiq_xrx200.c               |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |  11 +-
- .../mellanox/mlx5/core/steering/dr_domain.c        |   5 +-
- drivers/net/ethernet/pensando/ionic/ionic_lif.c    |   2 +-
- drivers/net/phy/fixed_phy.c                        |   4 +-
- drivers/net/usb/pegasus.c                          |   4 +-
- drivers/nfc/st21nfca/i2c.c                         |  29 ++--
- drivers/platform/x86/apple-gmux.c                  |   2 +-
- drivers/scsi/lpfc/lpfc_debugfs.c                   |   4 +-
- drivers/scsi/vmw_pvscsi.c                          |   7 +-
- drivers/tee/tee_shm.c                              | 177 ++++++++-------------
- drivers/usb/gadget/function/f_fs.c                 |   9 +-
- drivers/usb/host/xhci-pci.c                        |   5 +-
- drivers/usb/mtu3/mtu3_gadget.c                     |   8 +
- drivers/usb/mtu3/mtu3_qmu.c                        |   7 +-
- include/linux/memblock.h                           |   4 +-
- include/linux/tee_drv.h                            |   4 +-
- include/net/sctp/sctp.h                            |   6 +-
- include/net/sctp/structs.h                         |   3 +-
- include/uapi/linux/nfc.h                           |   6 +-
- net/ipv4/af_inet.c                                 |  10 +-
- net/ipv6/udp.c                                     |   2 +-
- net/ncsi/ncsi-netlink.c                            |   6 +-
- net/sctp/diag.c                                    |  12 +-
- net/sctp/endpointola.c                             |  23 ++-
- net/sctp/socket.c                                  |  23 ++-
- scripts/recordmcount.pl                            |   2 +-
- security/selinux/hooks.c                           |   2 +-
- security/tomoyo/util.c                             |  14 +-
- tools/perf/builtin-script.c                        |   2 +-
- tools/testing/selftests/net/udpgso.c               |  12 +-
- tools/testing/selftests/net/udpgso_bench_tx.c      |   8 +-
- 42 files changed, 297 insertions(+), 232 deletions(-)
 
 
