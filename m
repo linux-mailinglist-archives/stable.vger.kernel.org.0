@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56D3048334C
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFCF4833A3
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235098AbiACOfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:35:34 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35212 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235044AbiACOeX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:34:23 -0500
+        id S233898AbiACOkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:40:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40552 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233962AbiACOih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:38:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C862C07E5DC;
+        Mon,  3 Jan 2022 06:34:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD28F61117;
-        Mon,  3 Jan 2022 14:34:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3477C36AEB;
-        Mon,  3 Jan 2022 14:34:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A72C61126;
+        Mon,  3 Jan 2022 14:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED0F3C36AED;
+        Mon,  3 Jan 2022 14:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220462;
-        bh=FnJsv6hBjJV5hET3QUSdF5rgCpJw6nNsfjs3mvq+Fks=;
+        s=korg; t=1641220465;
+        bh=WPLmlQqOR7SkKcUjHuJ4sFpR5uksz7Q9+HJ4UudbmCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L9sPXGwROcxjR9ETZ3RbX3Mgw70/EtjSMTQiObv1I42zqD7ij5bupzTZAntvKNhgi
-         jSLG35utmZJP/mPp/v8VgGAoyxAuVpaRdeQ71/r97E3w50x/VVQjly2bnaHuPOU3Cj
-         spEzV7jer344jpu09LjzfgVPCloI/1thmnYx9zmc=
+        b=rmZfwXIvA6MBHuQW8FrE3LHDgWVeiBFxL0zAiSs+zSQDm4i3D1j3v9duDSYOg66or
+         +0BRxREolgWGguBXRMWdvF6tul0oFZ39WIkve83ZqnnngxI8SlEe4cbNACR1pxFVpy
+         jjtTBxnFXhXgM6+egG4dk9XgEVwYkYyWUN5yCmGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 69/73] net: fix use-after-free in tw_timer_handler
-Date:   Mon,  3 Jan 2022 15:24:30 +0100
-Message-Id: <20220103142059.158467552@linuxfoundation.org>
+        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 70/73] fs/mount_setattr: always cleanup mount_kattr
+Date:   Mon,  3 Jan 2022 15:24:31 +0100
+Message-Id: <20220103142059.188665953@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
 References: <20220103142056.911344037@linuxfoundation.org>
@@ -46,85 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit e22e45fc9e41bf9fcc1e92cfb78eb92786728ef0 upstream.
+commit 012e332286e2bb9f6ac77d195f17e74b2963d663 upstream.
 
-A real world panic issue was found as follow in Linux 5.4.
+Make sure that finish_mount_kattr() is called after mount_kattr was
+succesfully built in both the success and failure case to prevent
+leaking any references we took when we built it.  We returned early if
+path lookup failed thereby risking to leak an additional reference we
+took when building mount_kattr when an idmapped mount was requested.
 
-    BUG: unable to handle page fault for address: ffffde49a863de28
-    PGD 7e6fe62067 P4D 7e6fe62067 PUD 7e6fe63067 PMD f51e064067 PTE 0
-    RIP: 0010:tw_timer_handler+0x20/0x40
-    Call Trace:
-     <IRQ>
-     call_timer_fn+0x2b/0x120
-     run_timer_softirq+0x1ef/0x450
-     __do_softirq+0x10d/0x2b8
-     irq_exit+0xc7/0xd0
-     smp_apic_timer_interrupt+0x68/0x120
-     apic_timer_interrupt+0xf/0x20
-
-This issue was also reported since 2017 in the thread [1],
-unfortunately, the issue was still can be reproduced after fixing
-DCCP.
-
-The ipv4_mib_exit_net is called before tcp_sk_exit_batch when a net
-namespace is destroyed since tcp_sk_ops is registered befrore
-ipv4_mib_ops, which means tcp_sk_ops is in the front of ipv4_mib_ops
-in the list of pernet_list. There will be a use-after-free on
-net->mib.net_statistics in tw_timer_handler after ipv4_mib_exit_net
-if there are some inflight time-wait timers.
-
-This bug is not introduced by commit f2bf415cfed7 ("mib: add net to
-NET_ADD_STATS_BH") since the net_statistics is a global variable
-instead of dynamic allocation and freeing. Actually, commit
-61a7e26028b9 ("mib: put net statistics on struct net") introduces
-the bug since it put net statistics on struct net and free it when
-net namespace is destroyed.
-
-Moving init_ipv4_mibs() to the front of tcp_init() to fix this bug
-and replace pr_crit() with panic() since continuing is meaningless
-when init_ipv4_mibs() fails.
-
-[1] https://groups.google.com/g/syzkaller/c/p1tn-_Kc6l4/m/smuL_FMAAgAJ?pli=1
-
-Fixes: 61a7e26028b9 ("mib: put net statistics on struct net")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Cong Wang <cong.wang@bytedance.com>
-Cc: Fam Zheng <fam.zheng@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211228104145.9426-1-songmuchun@bytedance.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 9caccd41541a ("fs: introduce MOUNT_ATTR_IDMAP")
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/af_inet.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ fs/namespace.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -2004,6 +2004,10 @@ static int __init inet_init(void)
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -4263,12 +4263,11 @@ SYSCALL_DEFINE5(mount_setattr, int, dfd,
+ 		return err;
  
- 	ip_init();
- 
-+	/* Initialise per-cpu ipv4 mibs */
-+	if (init_ipv4_mibs())
-+		panic("%s: Cannot init ipv4 mibs\n", __func__);
-+
- 	/* Setup TCP slab cache for open requests. */
- 	tcp_init();
- 
-@@ -2034,12 +2038,6 @@ static int __init inet_init(void)
- 
- 	if (init_inet_pernet_ops())
- 		pr_crit("%s: Cannot init ipv4 inet pernet ops\n", __func__);
--	/*
--	 *	Initialise per-cpu ipv4 mibs
--	 */
+ 	err = user_path_at(dfd, path, kattr.lookup_flags, &target);
+-	if (err)
+-		return err;
 -
--	if (init_ipv4_mibs())
--		pr_crit("%s: Cannot init ipv4 mibs\n", __func__);
- 
- 	ipv4_proc_init();
+-	err = do_mount_setattr(&target, &kattr);
++	if (!err) {
++		err = do_mount_setattr(&target, &kattr);
++		path_put(&target);
++	}
+ 	finish_mount_kattr(&kattr);
+-	path_put(&target);
+ 	return err;
+ }
  
 
 
