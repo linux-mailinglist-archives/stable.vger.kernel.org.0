@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95C58483281
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA9F483339
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230236AbiACO2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:28:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58752 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234027AbiACO1V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:21 -0500
+        id S234548AbiACOfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:35:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39838 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235092AbiACOck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:32:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DCFC07E5E7;
+        Mon,  3 Jan 2022 06:31:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 931C4B80EFF;
-        Mon,  3 Jan 2022 14:27:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5970C36AEB;
-        Mon,  3 Jan 2022 14:27:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C4A861122;
+        Mon,  3 Jan 2022 14:31:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0530EC36AEB;
+        Mon,  3 Jan 2022 14:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220039;
-        bh=jYraZydYRAFrKPlqIsWfLV9e+BjA3LqSdGtNtSNDx4o=;
+        s=korg; t=1641220295;
+        bh=gX3xaCYqn/o8ZWptSwV9PaL5uN/NK5MpPRXQRyd/Z1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHHKHzfpgiIUHQYHEsuZR7JLNmvYjDnaYBtzyWSof12wVT2o42YuMwAc1dMnpLOiQ
-         Uhcxoq/C6YHpmMhCVwfb9Gd/gwfL91kFHDGmyZ+5YwjaY5tZf1rVdz9fvsDOW/bLU5
-         iyCAxR+hHVLSpNIm/dKeRTB8B1vYkUsQE2kGsQNY=
+        b=cQm7USC6ViazyLhEsicsUtPXPpas9QPVuft/3FHNY8GA+ZsCHBBNik40xX4i6KAhm
+         yfttNW8Hyd8cVN84OMW3z497u5WqFiEhlkn2oDVZ45nMs/2bjMFQFEp9t5V75r6MmH
+         PRpGv0fW0u76sCUuORNTajXKSbJKTH3xXkQsQUcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, k2ci <kernel-bot@kylinos.cn>,
-        Mike Rapoport <rppt@kernel.org>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Mike Rapoport <rppt@linux.ibm.com>,
+        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/37] memblock: fix memblock_phys_alloc() section mismatch error
+Subject: [PATCH 5.15 24/73] net/mlx5e: Use tc sample stubs instead of ifdefs in source file
 Date:   Mon,  3 Jan 2022 15:23:45 +0100
-Message-Id: <20220103142052.108834388@linuxfoundation.org>
+Message-Id: <20220103142057.692420083@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
-References: <20220103142051.883166998@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,53 +49,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit d7f55471db2719629f773c2d6b5742a69595bfd3 ]
+[ Upstream commit f3e02e479debb37777696c9f984f75152beeb56d ]
 
-Fix modpost Section mismatch error in memblock_phys_alloc()
+Instead of having sparse ifdefs in source files use a single
+ifdef in the tc sample header file and use stubs.
 
-[...]
-WARNING: modpost: vmlinux.o(.text.unlikely+0x1dcc): Section mismatch in reference
-from the function memblock_phys_alloc() to the function .init.text:memblock_phys_alloc_range()
-The function memblock_phys_alloc() references
-the function __init memblock_phys_alloc_range().
-This is often because memblock_phys_alloc lacks a __init
-annotation or the annotation of memblock_phys_alloc_range is wrong.
-
-ERROR: modpost: Section mismatches detected.
-Set CONFIG_SECTION_MISMATCH_WARN_ONLY=y to allow them.
-[...]
-
-memblock_phys_alloc() is a one-line wrapper, make it __always_inline to
-avoid these section mismatches.
-
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Suggested-by: Mike Rapoport <rppt@kernel.org>
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-[rppt: slightly massaged changelog ]
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211217020754.2874872-1-liu.yun@linux.dev
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/memblock.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../ethernet/mellanox/mlx5/core/en/rep/tc.c   |  2 --
+ .../mellanox/mlx5/core/en/tc/sample.h         | 27 +++++++++++++++++++
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   | 12 ---------
+ 3 files changed, 27 insertions(+), 14 deletions(-)
 
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index f491690d54c6c..64b971b2542d6 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -351,8 +351,8 @@ phys_addr_t memblock_phys_alloc_range(phys_addr_t size, phys_addr_t align,
- 				      phys_addr_t start, phys_addr_t end);
- phys_addr_t memblock_phys_alloc_try_nid(phys_addr_t size, phys_addr_t align, int nid);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
+index de03684528bbf..8451940c16ab9 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
+@@ -647,9 +647,7 @@ static void mlx5e_restore_skb_sample(struct mlx5e_priv *priv, struct sk_buff *sk
+ 			   "Failed to restore tunnel info for sampled packet\n");
+ 		return;
+ 	}
+-#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
+ 	mlx5e_tc_sample_skb(skb, mapped_obj);
+-#endif /* CONFIG_MLX5_TC_SAMPLE */
+ 	mlx5_rep_tc_post_napi_receive(tc_priv);
+ }
  
--static inline phys_addr_t memblock_phys_alloc(phys_addr_t size,
--					      phys_addr_t align)
-+static __always_inline phys_addr_t memblock_phys_alloc(phys_addr_t size,
-+						       phys_addr_t align)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h b/drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h
+index db0146df9b303..9ef8a49d78014 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc/sample.h
+@@ -19,6 +19,8 @@ struct mlx5e_sample_attr {
+ 	struct mlx5e_sample_flow *sample_flow;
+ };
+ 
++#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
++
+ void mlx5e_tc_sample_skb(struct sk_buff *skb, struct mlx5_mapped_obj *mapped_obj);
+ 
+ struct mlx5_flow_handle *
+@@ -38,4 +40,29 @@ mlx5e_tc_sample_init(struct mlx5_eswitch *esw, struct mlx5e_post_act *post_act);
+ void
+ mlx5e_tc_sample_cleanup(struct mlx5e_tc_psample *tc_psample);
+ 
++#else /* CONFIG_MLX5_TC_SAMPLE */
++
++static inline struct mlx5_flow_handle *
++mlx5e_tc_sample_offload(struct mlx5e_tc_psample *tc_psample,
++			struct mlx5_flow_spec *spec,
++			struct mlx5_flow_attr *attr,
++			u32 tunnel_id)
++{ return ERR_PTR(-EOPNOTSUPP); }
++
++static inline void
++mlx5e_tc_sample_unoffload(struct mlx5e_tc_psample *tc_psample,
++			  struct mlx5_flow_handle *rule,
++			  struct mlx5_flow_attr *attr) {}
++
++static inline struct mlx5e_tc_psample *
++mlx5e_tc_sample_init(struct mlx5_eswitch *esw, struct mlx5e_post_act *post_act)
++{ return ERR_PTR(-EOPNOTSUPP); }
++
++static inline void
++mlx5e_tc_sample_cleanup(struct mlx5e_tc_psample *tc_psample) {}
++
++static inline void
++mlx5e_tc_sample_skb(struct sk_buff *skb, struct mlx5_mapped_obj *mapped_obj) {}
++
++#endif /* CONFIG_MLX5_TC_SAMPLE */
+ #endif /* __MLX5_EN_TC_SAMPLE_H__ */
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index e3b320b6d85b9..e7736421d1bc2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -248,7 +248,6 @@ get_ct_priv(struct mlx5e_priv *priv)
+ 	return priv->fs.tc.ct;
+ }
+ 
+-#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
+ static struct mlx5e_tc_psample *
+ get_sample_priv(struct mlx5e_priv *priv)
  {
- 	return memblock_phys_alloc_range(size, align, 0,
- 					 MEMBLOCK_ALLOC_ACCESSIBLE);
+@@ -265,7 +264,6 @@ get_sample_priv(struct mlx5e_priv *priv)
+ 
+ 	return NULL;
+ }
+-#endif
+ 
+ struct mlx5_flow_handle *
+ mlx5_tc_rule_insert(struct mlx5e_priv *priv,
+@@ -1148,11 +1146,9 @@ mlx5e_tc_offload_fdb_rules(struct mlx5_eswitch *esw,
+ 		rule = mlx5_tc_ct_flow_offload(get_ct_priv(flow->priv),
+ 					       flow, spec, attr,
+ 					       mod_hdr_acts);
+-#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
+ 	} else if (flow_flag_test(flow, SAMPLE)) {
+ 		rule = mlx5e_tc_sample_offload(get_sample_priv(flow->priv), spec, attr,
+ 					       mlx5e_tc_get_flow_tun_id(flow));
+-#endif
+ 	} else {
+ 		rule = mlx5_eswitch_add_offloaded_rule(esw, spec, attr);
+ 	}
+@@ -1188,12 +1184,10 @@ void mlx5e_tc_unoffload_fdb_rules(struct mlx5_eswitch *esw,
+ 		return;
+ 	}
+ 
+-#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
+ 	if (flow_flag_test(flow, SAMPLE)) {
+ 		mlx5e_tc_sample_unoffload(get_sample_priv(flow->priv), flow->rule[0], attr);
+ 		return;
+ 	}
+-#endif
+ 
+ 	if (attr->esw_attr->split_count)
+ 		mlx5_eswitch_del_fwd_rule(esw, flow->rule[1], attr);
+@@ -5014,9 +5008,7 @@ int mlx5e_tc_esw_init(struct rhashtable *tc_ht)
+ 					       MLX5_FLOW_NAMESPACE_FDB,
+ 					       uplink_priv->post_act);
+ 
+-#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
+ 	uplink_priv->tc_psample = mlx5e_tc_sample_init(esw, uplink_priv->post_act);
+-#endif
+ 
+ 	mapping_id = mlx5_query_nic_system_image_guid(esw->dev);
+ 
+@@ -5060,9 +5052,7 @@ err_ht_init:
+ err_enc_opts_mapping:
+ 	mapping_destroy(uplink_priv->tunnel_mapping);
+ err_tun_mapping:
+-#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
+ 	mlx5e_tc_sample_cleanup(uplink_priv->tc_psample);
+-#endif
+ 	mlx5_tc_ct_clean(uplink_priv->ct_priv);
+ 	netdev_warn(priv->netdev,
+ 		    "Failed to initialize tc (eswitch), err: %d", err);
+@@ -5082,9 +5072,7 @@ void mlx5e_tc_esw_cleanup(struct rhashtable *tc_ht)
+ 	mapping_destroy(uplink_priv->tunnel_enc_opts_mapping);
+ 	mapping_destroy(uplink_priv->tunnel_mapping);
+ 
+-#if IS_ENABLED(CONFIG_MLX5_TC_SAMPLE)
+ 	mlx5e_tc_sample_cleanup(uplink_priv->tc_psample);
+-#endif
+ 	mlx5_tc_ct_clean(uplink_priv->ct_priv);
+ 	mlx5e_tc_post_act_destroy(uplink_priv->post_act);
+ }
 -- 
 2.34.1
 
