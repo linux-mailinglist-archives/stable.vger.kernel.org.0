@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E04B34835E2
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 18:31:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B6B44835E5
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 18:31:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235527AbiACRal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 12:30:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38418 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235543AbiACRaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 12:30:20 -0500
+        id S235553AbiACRas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 12:30:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235469AbiACRaW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 12:30:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFE0CC061785;
+        Mon,  3 Jan 2022 09:30:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C020BB81074;
-        Mon,  3 Jan 2022 17:30:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A360BC36AEE;
-        Mon,  3 Jan 2022 17:30:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E6C1611A3;
+        Mon,  3 Jan 2022 17:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03F43C36AED;
+        Mon,  3 Jan 2022 17:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641231017;
-        bh=l7CVo2z3VIAukLP5OI+M20kymgqAuMyHZpmtDAElU0w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyHjNQvCTSEFG+1a2zOkzbjx1h6015uwXST6CgQmRDRkUGoGpykoyLGUhWxlY0hQV
-         BQTEJspQhNhewHJk83EzsMsMt7PBGZCBfahjx+71DvWW/QE/4B65ifK64BeVtL9rMR
-         nhmlDZqNAW8186CpyfctiY0JcAulOH37nPK2sAo8f3p7v8CVZdpoeW9ULx0gA1jPJM
-         ZqBcRTuAuFcbvGCiRnoRPmgwSfBL2EB1ye7JbLP6Wi1YR7zpjwS3L++PAFDbP2IvAN
-         E+mZB48Hz9vRIkjUwmJARpf5OksLYIT8V85/JtYKdIJViYfgOQ2H715dWEsVoXqM0T
-         4DkvrRvX0n5Tw==
+        s=k20201202; t=1641231020;
+        bh=FbIKzz13KQM/5QEXBIQ84ND/042tlnZqxVNTfkT/m5U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DL59G1Z6w2eh7fOGwQDKIFhP0eJ0iyJ/dxbgsOwqbRWDi+XwuJaUcWi3WY17bVgHL
+         8njJIiur0YX5wWp5oH6iubKM/SHGBRmDsfn/ue66XlZSZFLjeRmbfqYSnYSTNZrD5l
+         nxgpjtkuQgRawSkD3pQzq4MdwixA4BLFprQfQpr4jMTlTuqU+RjVX37jaKSiPk/zd2
+         Pg2zUOHwxjSMHBzm/A+gOtNHnvngVj2Ml0cA66+I4Ad4l9oYcdo0leSRtelVEm4x9s
+         mG0o+J77+1OoxsaXLpxXOPPIYbMxFdPDvDiQ7r21PPU1XwjdGPG4l6sRlosQtIol4R
+         A/G17W+Oxw1Fw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tamir Duberstein <tamird@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        yoshfuji@linux-ipv6.org, dsahern@kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 8/8] ipv6: raw: check passed optlen before reading
-Date:   Mon,  3 Jan 2022 12:30:01 -0500
-Message-Id: <20220103173001.1613277-8-sashal@kernel.org>
+Cc:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, matthias.bgg@gmail.com,
+        linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 1/6] usb: mtu3: fix interval value for intr and isoc
+Date:   Mon,  3 Jan 2022 12:30:13 -0500
+Message-Id: <20220103173018.1613394-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103173001.1613277-1-sashal@kernel.org>
-References: <20220103173001.1613277-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,42 +50,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tamir Duberstein <tamird@gmail.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit fb7bc9204095090731430c8921f9e629740c110a ]
+[ Upstream commit e3d4621c22f90c33321ae6a6baab60cdb8e5a77c ]
 
-Add a check that the user-provided option is at least as long as the
-number of bytes we intend to read. Before this patch we would blindly
-read sizeof(int) bytes even in cases where the user passed
-optlen<sizeof(int), which would potentially read garbage or fault.
+Use the Interval value from isoc/intr endpoint descriptor, no need
+minus one. The original code doesn't cause transfer error for
+normal cases, but it may have side effect with respond time of ERDY
+or tPingTimeout.
 
-Discovered by new tests in https://github.com/google/gvisor/pull/6957 .
-
-The original get_user call predates history in the git repo.
-
-Signed-off-by: Tamir Duberstein <tamird@gmail.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20211229200947.2862255-1-willemdebruijn.kernel@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20211218095749.6250-1-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/raw.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/mtu3/mtu3_gadget.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
-index 00f133a55ef7c..38349054e361e 100644
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -1020,6 +1020,9 @@ static int do_rawv6_setsockopt(struct sock *sk, int level, int optname,
- 	struct raw6_sock *rp = raw6_sk(sk);
- 	int val;
- 
-+	if (optlen < sizeof(val))
-+		return -EINVAL;
-+
- 	if (copy_from_sockptr(&val, optval, sizeof(val)))
- 		return -EFAULT;
- 
+diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
+index 619c4598e64ea..63f82026cca39 100644
+--- a/drivers/usb/mtu3/mtu3_gadget.c
++++ b/drivers/usb/mtu3/mtu3_gadget.c
+@@ -85,7 +85,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_int(desc) ||
+ 				usb_endpoint_xfer_isoc(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			if (usb_endpoint_xfer_isoc(desc) && comp_desc)
+ 				mult = comp_desc->bmAttributes;
+ 		}
+@@ -97,7 +97,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_isoc(desc) ||
+ 				usb_endpoint_xfer_int(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			mult = usb_endpoint_maxp_mult(desc) - 1;
+ 		}
+ 		break;
 -- 
 2.34.1
 
