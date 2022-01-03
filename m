@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 739564832AD
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 052B3483366
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234218AbiACOaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:30:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60140 "EHLO
+        id S235141AbiACOgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:36:37 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37824 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233950AbiACO2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:28:49 -0500
+        with ESMTP id S234251AbiACOd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:33:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12A88B80EF8;
-        Mon,  3 Jan 2022 14:28:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46425C36AED;
-        Mon,  3 Jan 2022 14:28:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA292B80EF6;
+        Mon,  3 Jan 2022 14:33:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24671C36AED;
+        Mon,  3 Jan 2022 14:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220126;
-        bh=DcEoLIOeKHLVIZWfoAdonwiWILIcJmFCb6nMri3I/xo=;
+        s=korg; t=1641220434;
+        bh=NG9p3i4TVoXKIxthOIA3WhlJD2kKrkDSqJ1oHWWv+Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bfk2FVQH7R2rJd9oX+5I1INXqiT4uYa+uFYv+1u4XBPcA1kC07XJ5bEOfTXukYgTl
-         +XS8qpLgaGx+ic+e87BylHW63Wh8T7sVHuOMnHgYiRytcpXA32AkdbwyrohG3JoTZv
-         J5aLcuG5DuQTx/YLSYeKiCn0IbdLHHPRqTcfVo6A=
+        b=HIjZ6ouiratsgqYd3P5XD4V3fxC0qVaT/gzPnXyyQ+hATPVssBVAwREkk3tPIZcU+
+         WkbMKAO3pf3LpThSG5GrNFOGspvTp+R/BTS04eLKJXP9dF+dvWH5v4k0lZhnDP1R/0
+         9xzbdTjyf7CE17I9miQsHVF7aA5GkCnx75yvnXC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias-Christian Ott <ott@mirix.org>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/48] net: usb: pegasus: Do not drop long Ethernet frames
+Subject: [PATCH 5.15 35/73] net/smc: dont send CDC/LLC message if link not ready
 Date:   Mon,  3 Jan 2022 15:23:56 +0100
-Message-Id: <20220103142054.128694915@linuxfoundation.org>
+Message-Id: <20220103142058.034860505@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
-References: <20220103142053.466768714@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +45,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias-Christian Ott <ott@mirix.org>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-[ Upstream commit ca506fca461b260ab32952b610c3d4aadc6c11fd ]
+[ Upstream commit 90cee52f2e780345d3629e278291aea5ac74f40f ]
 
-The D-Link DSB-650TX (2001:4002) is unable to receive Ethernet frames
-that are longer than 1518 octets, for example, Ethernet frames that
-contain 802.1Q VLAN tags.
+We found smc_llc_send_link_delete_all() sometimes wait
+for 2s timeout when testing with RDMA link up/down.
+It is possible when a smc_link is in ACTIVATING state,
+the underlaying QP is still in RESET or RTR state, which
+cannot send any messages out.
 
-The frames are sent to the pegasus driver via USB but the driver
-discards them because they have the Long_pkt field set to 1 in the
-received status report. The function read_bulk_callback of the pegasus
-driver treats such received "packets" (in the terminology of the
-hardware) as errors but the field simply does just indicate that the
-Ethernet frame (MAC destination to FCS) is longer than 1518 octets.
+smc_llc_send_link_delete_all() use smc_link_usable() to
+checks whether the link is usable, if the QP is still in
+RESET or RTR state, but the smc_link is in ACTIVATING, this
+LLC message will always fail without any CQE entering the
+CQ, and we will always wait 2s before timeout.
 
-It seems that in the 1990s there was a distinction between
-"giant" (> 1518) and "runt" (< 64) frames and the hardware includes
-flags to indicate this distinction. It seems that the purpose of the
-distinction "giant" frames was to not allow infinitely long frames due
-to transmission errors and to allow hardware to have an upper limit of
-the frame size. However, the hardware already has such limit with its
-2048 octet receive buffer and, therefore, Long_pkt is merely a
-convention and should not be treated as a receive error.
+Since we cannot send any messages through the QP before
+the QP enter RTS. I add a wrapper smc_link_sendable()
+which checks the state of QP along with the link state.
+And replace smc_link_usable() with smc_link_sendable()
+in all LLC & CDC message sending routine.
 
-Actually, the hardware is even able to receive Ethernet frames with 2048
-octets which exceeds the claimed limit frame size limit of the driver of
-1536 octets (PEGASUS_MTU).
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Matthias-Christian Ott <ott@mirix.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: 5f08318f617b ("smc: connection data control (CDC)")
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/pegasus.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/smc/smc_core.c | 2 +-
+ net/smc/smc_core.h | 6 ++++++
+ net/smc/smc_llc.c  | 2 +-
+ net/smc/smc_wr.c   | 4 ++--
+ net/smc/smc_wr.h   | 2 +-
+ 5 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/usb/pegasus.c b/drivers/net/usb/pegasus.c
-index 2a748a924f838..138279bbb544b 100644
---- a/drivers/net/usb/pegasus.c
-+++ b/drivers/net/usb/pegasus.c
-@@ -518,11 +518,11 @@ static void read_bulk_callback(struct urb *urb)
- 		goto goon;
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 5a9c22ee75fa4..cb06568cf422f 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -604,7 +604,7 @@ static void smcr_lgr_link_deactivate_all(struct smc_link_group *lgr)
+ 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 		struct smc_link *lnk = &lgr->lnk[i];
  
- 	rx_status = buf[count - 2];
--	if (rx_status & 0x1e) {
-+	if (rx_status & 0x1c) {
- 		netif_dbg(pegasus, rx_err, net,
- 			  "RX packet error %x\n", rx_status);
- 		net->stats.rx_errors++;
--		if (rx_status & 0x06)	/* long or runt	*/
-+		if (rx_status & 0x04)	/* runt	*/
- 			net->stats.rx_length_errors++;
- 		if (rx_status & 0x08)
- 			net->stats.rx_crc_errors++;
+-		if (smc_link_usable(lnk))
++		if (smc_link_sendable(lnk))
+ 			lnk->state = SMC_LNK_INACTIVE;
+ 	}
+ 	wake_up_all(&lgr->llc_msg_waiter);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index c043ecdca5c44..51a3e8248ade2 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -366,6 +366,12 @@ static inline bool smc_link_usable(struct smc_link *lnk)
+ 	return true;
+ }
+ 
++static inline bool smc_link_sendable(struct smc_link *lnk)
++{
++	return smc_link_usable(lnk) &&
++		lnk->qp_attr.cur_qp_state == IB_QPS_RTS;
++}
++
+ static inline bool smc_link_active(struct smc_link *lnk)
+ {
+ 	return lnk->state == SMC_LNK_ACTIVE;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index f1d323439a2af..ee1f0fdba0855 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1358,7 +1358,7 @@ void smc_llc_send_link_delete_all(struct smc_link_group *lgr, bool ord, u32 rsn)
+ 	delllc.reason = htonl(rsn);
+ 
+ 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+-		if (!smc_link_usable(&lgr->lnk[i]))
++		if (!smc_link_sendable(&lgr->lnk[i]))
+ 			continue;
+ 		if (!smc_llc_send_message_wait(&lgr->lnk[i], &delllc))
+ 			break;
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index c9cd7a4c5acfc..fcc1942001760 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -169,7 +169,7 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
+ static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
+ {
+ 	*idx = link->wr_tx_cnt;
+-	if (!smc_link_usable(link))
++	if (!smc_link_sendable(link))
+ 		return -ENOLINK;
+ 	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
+ 		if (!test_and_set_bit(*idx, link->wr_tx_mask))
+@@ -212,7 +212,7 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
+ 	} else {
+ 		rc = wait_event_interruptible_timeout(
+ 			link->wr_tx_wait,
+-			!smc_link_usable(link) ||
++			!smc_link_sendable(link) ||
+ 			lgr->terminating ||
+ 			(smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY),
+ 			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index 2bc626f230a56..102d515757ee2 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -62,7 +62,7 @@ static inline void smc_wr_tx_set_wr_id(atomic_long_t *wr_tx_id, long val)
+ 
+ static inline bool smc_wr_tx_link_hold(struct smc_link *link)
+ {
+-	if (!smc_link_usable(link))
++	if (!smc_link_sendable(link))
+ 		return false;
+ 	atomic_inc(&link->wr_tx_refcnt);
+ 	return true;
 -- 
 2.34.1
 
