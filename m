@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FEF483247
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E23948324C
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbiACO03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:26:29 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56542 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232370AbiACOZ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:57 -0500
+        id S232329AbiACO0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:26:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38536 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233776AbiACO0A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:26:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F6EC061378;
+        Mon,  3 Jan 2022 06:26:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B66676111A;
-        Mon,  3 Jan 2022 14:25:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99C5EC36AEB;
-        Mon,  3 Jan 2022 14:25:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C85A561122;
+        Mon,  3 Jan 2022 14:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB460C36AED;
+        Mon,  3 Jan 2022 14:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219956;
-        bh=UmbZKoKXCk8AGLF3bv8Ko5PZRmEXy4bbdijletGn9Ns=;
+        s=korg; t=1641219959;
+        bh=kzFB35nUgKEGPQmA/GQT7vVblxDe8PHNHe1KRrpLT48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H64OWiQppcXeWdTq65YBGFM4F7cnqcmm+9X9vLIi6XF9lLapiptLvT/jU+pTO5Vqf
-         S+83cQoXvTT/TfP/ETuq6pqCuDRdnDRALXttQMdXnJcTF2z+tEatL7ocRPNnN1bUz0
-         K7cF67fQILKa5U5+iv9JS3zDK/gSqgItFgAZD3jU=
+        b=tRYw9TSMI5mZGXraUftzPsv5wX4scBRE6q1dd6wez3/VoJIuFN++YiotREu1BeFDM
+         xibI1+UTAHdzpAkIWIaCTRI01wsc7DiNyMSOaPjPjTD/LSOBFHcJsKmBgoY9bHR9mO
+         70k6Aj9il4ujT18Cj0dR3n3dyxorA1Sgvv58AB/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/27] platform/x86: apple-gmux: use resource_size() with res
-Date:   Mon,  3 Jan 2022 15:23:45 +0100
-Message-Id: <20220103142052.355989323@linuxfoundation.org>
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+        Jerome Marchand <jmarchan@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.19 06/27] recordmcount.pl: fix typo in s390 mcount regex
+Date:   Mon,  3 Jan 2022 15:23:46 +0100
+Message-Id: <20220103142052.393146838@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
 References: <20220103142052.162223000@linuxfoundation.org>
@@ -45,37 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit eb66fb03a727cde0ab9b1a3858de55c26f3007da ]
+commit 4eb1782eaa9fa1c224ad1fa0d13a9f09c3ab2d80 upstream.
 
-This should be (res->end - res->start + 1) here actually,
-use resource_size() derectly.
+Commit 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well
+as bcrl on s390") added a new alternative mnemonic for the existing brcl
+instruction. This is required for the combination old gcc version (pre 9.0)
+and binutils since version 2.37.
+However at the same time this commit introduced a typo, replacing brcl with
+bcrl. As a result no mcount locations are detected anymore with old gcc
+versions (pre 9.0) and binutils before version 2.37.
+Fix this by using the correct mnemonic again.
 
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Link: https://lore.kernel.org/r/1639484316-75873-1-git-send-email-wangqing@vivo.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Miroslav Benes <mbenes@suse.cz>
+Cc: Jerome Marchand <jmarchan@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well as bcrl on s390")
+Link: https://lore.kernel.org/r/alpine.LSU.2.21.2112230949520.19849@pobox.suse.cz
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/apple-gmux.c | 2 +-
+ scripts/recordmcount.pl |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/apple-gmux.c b/drivers/platform/x86/apple-gmux.c
-index fd2ffebc868fc..caa03565c139b 100644
---- a/drivers/platform/x86/apple-gmux.c
-+++ b/drivers/platform/x86/apple-gmux.c
-@@ -628,7 +628,7 @@ static int gmux_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
- 	}
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -252,7 +252,7 @@ if ($arch eq "x86_64") {
  
- 	gmux_data->iostart = res->start;
--	gmux_data->iolen = res->end - res->start;
-+	gmux_data->iolen = resource_size(res);
- 
- 	if (gmux_data->iolen < GMUX_MIN_IO_LEN) {
- 		pr_err("gmux I/O region too small (%lu < %u)\n",
--- 
-2.34.1
-
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(brcl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     } else {
+ 	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*R_390_(PC|PLT)32DBL\\s+_mcount\\+0x2\$";
 
 
