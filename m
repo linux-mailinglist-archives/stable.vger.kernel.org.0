@@ -2,148 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93DD94833C1
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:49:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDD224833DE
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 16:04:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233117AbiACOtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:49:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44498 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbiACOtW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:49:22 -0500
-Received: from mail-vk1-xa2f.google.com (mail-vk1-xa2f.google.com [IPv6:2607:f8b0:4864:20::a2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B0AC061761
-        for <stable@vger.kernel.org>; Mon,  3 Jan 2022 06:49:21 -0800 (PST)
-Received: by mail-vk1-xa2f.google.com with SMTP id h67so18960368vkh.1
-        for <stable@vger.kernel.org>; Mon, 03 Jan 2022 06:49:21 -0800 (PST)
+        id S233628AbiACPEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 10:04:09 -0500
+Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:34139 "EHLO
+        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229978AbiACPEJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 10:04:09 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HWc6kMGP/M+msoEBTnVD+/VQ6/IgWEBExdaLxDbpI5U=;
-        b=g7BmJBPMjxPW+Ba565Ck5u6y91erR7ajoBfz1K+6UZzNMaTYgdU3/604VSjUrNipbO
-         9EAkF9uG2AZh4L737doHouNA2ZGiF88vxfu0M1/PZMQ2bH6ujlfo+wVjh/vVlY2PA2P1
-         I6YMP2/a4KlaBTvUqZWYA8RCZXqekivT4NkoTh9BrghF5zKxG27tnCLddGi6P+dZln4m
-         Hf1ka8DNBu2YiXHgP46BFlyKsFVeS9AKoAp1/B0vmLm3SiWV6tyJ7gaXIHh9fbYIpKGj
-         aJGJTtWNCJHn94Xd1IU91DBVrN955TTJE8d3oSGqxqFfGk07/RFKlqZxLa2w9b8ar1k1
-         6Y1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HWc6kMGP/M+msoEBTnVD+/VQ6/IgWEBExdaLxDbpI5U=;
-        b=nt1/pQcRQrtn9gfB4E+M/ZhvDgYnKFBVRDmnxQ3wzGiF8tPTSY5mQvZf8Tc08O0GIT
-         CHDfeGs45Tw/egMZ6+mAFR94E316FN7kwD3OnFjlnCltUyrH327ZX3tvicdHphJgw1uL
-         1Y3UaxzJcOSZxxxmR5Sl1SqqTC7vzKorLMgsKXb0yOog3Q2WYa3lxDBPpDMqbq/DbjZN
-         F+ePqntvk3vJwkh+9clLdI5rWb8d63C4raGcImPdWBcuEGW0CFITob/CAKLXAwulAdLw
-         Mz4oi41+4Sk/RCiYLBpRTV7qOH5EbbSGbFeH1dEns4DvBfHC6/1tgkshXJ4MjZCow2v0
-         FRCQ==
-X-Gm-Message-State: AOAM532CzPi+3sclQ0NfO2xymm5nRrV1s7WhmAL3DMMmPexGJz+rnQp2
-        373Ohv7PoT3nLeoI8fmxgB573EQl46plgK0xi4KoDg==
-X-Google-Smtp-Source: ABdhPJwwIA/IfQvilN4fRR9XaYaLNL5dYfW/SyPMBHLI4fmxOM14YyT+pKiuH/zq7OrOqH4hy71kD0yP359HgsUko0g=
-X-Received: by 2002:ac5:cb72:: with SMTP id l18mr15057905vkn.1.1641221361003;
- Mon, 03 Jan 2022 06:49:21 -0800 (PST)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1641222249; x=1672758249;
+  h=message-id:date:mime-version:subject:from:to:cc:
+   references:in-reply-to:content-transfer-encoding;
+  bh=6DDI/5rt+hvVm8HYZLjfL2SPPunScVsJPs0AFGYZLjY=;
+  b=HMUMto6ITRNvyRccg0XapIQgQILY40gTBe0vxqMNyX5PZVxsvfM4oL9j
+   0MO6jGnT+z1+0GIghYK/Q5xogacrbJNX9n76UDHbBuNIox/NWf4zR+nBe
+   eCgslxd577n14GsoR4/d6R796LGCj6oosD5oeJhyXxoSpLaDP2BI30QdU
+   0=;
+X-IronPort-AV: E=Sophos;i="5.88,258,1635206400"; 
+   d="scan'208";a="165934371"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-98691110.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-6002.iad6.amazon.com with ESMTP; 03 Jan 2022 15:03:56 +0000
+Received: from EX13D16EUB003.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-iad-1e-98691110.us-east-1.amazon.com (Postfix) with ESMTPS id D578381342;
+        Mon,  3 Jan 2022 15:03:53 +0000 (UTC)
+Received: from [192.168.16.229] (10.43.160.87) by EX13D16EUB003.ant.amazon.com
+ (10.43.166.99) with Microsoft SMTP Server (TLS) id 15.0.1497.26; Mon, 3 Jan
+ 2022 15:03:47 +0000
+Message-ID: <0185a841-72df-1c8f-7e5f-d64dd18cee57@amazon.com>
+Date:   Mon, 3 Jan 2022 17:03:37 +0200
 MIME-Version: 1.0
-References: <20211231161930.256733-1-krzysztof.kozlowski@canonical.com> <20211231161930.256733-2-krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20211231161930.256733-2-krzysztof.kozlowski@canonical.com>
-From:   Sam Protsenko <semen.protsenko@linaro.org>
-Date:   Mon, 3 Jan 2022 16:49:08 +0200
-Message-ID: <CAPLW+4mosbk2_NPFFP=sUmKjBoZOG3vNcmT+7sMtTunhbVqcxA@mail.gmail.com>
-Subject: Re: [PATCH 01/24] pinctrl: samsung: drop pin banks references on
- error paths
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     Tomasz Figa <tomasz.figa@gmail.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-gpio@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
-        Chanho Park <chanho61.park@samsung.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.4.0
+Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2McKgXSBuaXRyb19lbmNsYXZlczogQWRkIG1tYXBf?=
+ =?UTF-8?Q?read=5flock=28=29_for_the_get=5fuser=5fpages=28=29_call?=
+Content-Language: en-US
+From:   "Paraschiv, Andra-Irina" <andraprs@amazon.com>
+To:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>
+CC:     Alexandru Ciobotaru <alcioa@amazon.com>,
+        Alexandru Vasile <lexnv@amazon.com>,
+        Marcelo Cerri <marcelo.cerri@canonical.com>,
+        "Paolo Bonzini" <pbonzini@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Tim Gardner <tim.gardner@canonical.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        kvm <kvm@vger.kernel.org>,
+        ne-devel-upstream <ne-devel-upstream@amazon.com>,
+        stable <stable@vger.kernel.org>
+References: <20211218103525.26739-1-andraprs@amazon.com>
+ <fccc4545-2a8e-df40-f7ba-ae48651dda39@amazon.com>
+In-Reply-To: <fccc4545-2a8e-df40-f7ba-ae48651dda39@amazon.com>
+X-Originating-IP: [10.43.160.87]
+X-ClientProxiedBy: EX13D17UWB004.ant.amazon.com (10.43.161.132) To
+ EX13D16EUB003.ant.amazon.com (10.43.166.99)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 31 Dec 2021 at 18:20, Krzysztof Kozlowski
-<krzysztof.kozlowski@canonical.com> wrote:
->
-> The driver iterates over its devicetree children with
-> for_each_child_of_node() and stores for later found node pointer.  This
-> has to be put in error paths to avoid leak during re-probing.
->
-> Fixes: ab663789d697 ("pinctrl: samsung: Match pin banks with their device nodes")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> ---
->  drivers/pinctrl/samsung/pinctrl-samsung.c | 29 +++++++++++++++++------
->  1 file changed, 22 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/pinctrl/samsung/pinctrl-samsung.c b/drivers/pinctrl/samsung/pinctrl-samsung.c
-> index 8941f658e7f1..f2864a7869b3 100644
-> --- a/drivers/pinctrl/samsung/pinctrl-samsung.c
-> +++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
-> @@ -1002,6 +1002,15 @@ samsung_pinctrl_get_soc_data_for_of_alias(struct platform_device *pdev)
->         return &(of_data->ctrl[id]);
->  }
->
-> +static void samsung_banks_of_node_put(struct samsung_pinctrl_drv_data *d)
-> +{
-> +       struct samsung_pin_bank *bank;
-> +       unsigned int i;
-> +
-> +       for (i = 0; i < d->nr_banks; ++i, ++bank)
-> +               of_node_put(bank->of_node);
+CgpPbiAxOC4xMi4yMDIxIDEyOjQzLCBQYXJhc2NoaXYsIEFuZHJhLUlyaW5hIHdyb3RlOgo+IAo+
+IAo+IE9uIDE4LjEyLjIwMjEgMTI6MzUsIEFuZHJhIFBhcmFzY2hpdiB3cm90ZToKPj4gQWZ0ZXIg
+Y29tbWl0IDViNzhlZDI0ZThlYyAobW0vcGFnZW1hcDogYWRkIG1tYXBfYXNzZXJ0X2xvY2tlZCgp
+Cj4+IGFubm90YXRpb25zIHRvIGZpbmRfdm1hKigpKSwgdGhlIGNhbGwgdG8gZ2V0X3VzZXJfcGFn
+ZXMoKSB3aWxsIHRyaWdnZXIKPj4gdGhlIG1tYXAgYXNzZXJ0Lgo+Pgo+PiBzdGF0aWMgaW5saW5l
+IHZvaWQgbW1hcF9hc3NlcnRfbG9ja2VkKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tKQo+PiB7Cj4+IMKg
+wqDCoMKgbG9ja2RlcF9hc3NlcnRfaGVsZCgmbW0tPm1tYXBfbG9jayk7Cj4+IMKgwqDCoMKgVk1f
+QlVHX09OX01NKCFyd3NlbV9pc19sb2NrZWQoJm1tLT5tbWFwX2xvY2spLCBtbSk7Cj4+IH0KPj4K
+Pj4gW8KgwqAgNjIuNTIxNDEwXSBrZXJuZWwgQlVHIGF0IGluY2x1ZGUvbGludXgvbW1hcF9sb2Nr
+Lmg6MTU2IQo+PiAuLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLgo+PiBbwqDCoCA2Mi41Mzg5MzhdIFJJUDogMDAxMDpmaW5kX3ZtYSsweDMy
+LzB4ODAKPj4gLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4KPj4gW8KgwqAgNjIuNjA1ODg5XSBDYWxsIFRyYWNlOgo+PiBbwqDCoCA2Mi42
+MDg1MDJdwqAgPFRBU0s+Cj4+IFvCoMKgIDYyLjYxMDk1Nl3CoCA/IGxvY2tfdGltZXJfYmFzZSsw
+eDYxLzB4ODAKPj4gW8KgwqAgNjIuNjE0MTA2XcKgIGZpbmRfZXh0ZW5kX3ZtYSsweDE5LzB4ODAK
+Pj4gW8KgwqAgNjIuNjE3MTk1XcKgIF9fZ2V0X3VzZXJfcGFnZXMrMHg5Yi8weDZhMAo+PiBbwqDC
+oCA2Mi42MjAzNTZdwqAgX19ndXBfbG9uZ3Rlcm1fbG9ja2VkKzB4NDJkLzB4NDUwCj4+IFvCoMKg
+IDYyLjYyMzcyMV3CoCA/IGZpbmlzaF93YWl0KzB4NDEvMHg4MAo+PiBbwqDCoCA2Mi42MjY3NDhd
+wqAgPyBfX2ttYWxsb2MrMHgxNzgvMHgyZjAKPj4gW8KgwqAgNjIuNjI5NzY4XcKgIG5lX3NldF91
+c2VyX21lbW9yeV9yZWdpb25faW9jdGwuaXNyYS4wKzB4MjI1LzB4NmEwIAo+PiBbbml0cm9fZW5j
+bGF2ZXNdCj4+IFvCoMKgIDYyLjYzNTc3Nl3CoCBuZV9lbmNsYXZlX2lvY3RsKzB4MWNmLzB4NmQ3
+IFtuaXRyb19lbmNsYXZlc10KPj4gW8KgwqAgNjIuNjM5NTQxXcKgIF9feDY0X3N5c19pb2N0bCsw
+eDgyLzB4YjAKPj4gW8KgwqAgNjIuNjQyNjIwXcKgIGRvX3N5c2NhbGxfNjQrMHgzYi8weDkwCj4+
+IFvCoMKgIDYyLjY0NTY0Ml3CoCBlbnRyeV9TWVNDQUxMXzY0X2FmdGVyX2h3ZnJhbWUrMHg0NC8w
+eGFlCj4+Cj4+IEFkZCBtbWFwX3JlYWRfbG9jaygpIGZvciB0aGUgZ2V0X3VzZXJfcGFnZXMoKSBj
+YWxsIHdoZW4gc2V0dGluZyB0aGUKPj4gZW5jbGF2ZSBtZW1vcnkgcmVnaW9ucy4KPj4KPj4gU2ln
+bmVkLW9mZi1ieTogQW5kcmEgUGFyYXNjaGl2IDxhbmRyYXByc0BhbWF6b24uY29tPgo+PiBDYzog
+c3RhYmxlQHZnZXIua2VybmVsLm9yZwo+PiAtLS0KPiAKPiBHcmVnLCBjYW4geW91IHBsZWFzZSBp
+bmNsdWRlIHRoaXMgZml4IGluIHRoZSBxdWV1ZSBmb3IgdjUuMTYgYW5kIHRoZW4gaW4gCj4gdGhl
+IG9uZSBmb3IgdGhlIHY1LjE1IHN0YWJsZSB0cmVlLiBMZXQgbWUga25vdyBpZiBhbnkgdXBkYXRl
+cyBhcmUgCj4gbmVjZXNzYXJ5IGZvciB0aGUgcGF0Y2guCj4gCgpUaGFuayB5b3UsIEdyZWcsIGZv
+ciBoZWxwaW5nIHdpdGggdGhlIG1lcmdlIG9mIHYyIGZvciB0aGlzIHBhdGNoLgoKQW5kcmEKCj4g
+Cj4+IMKgIGRyaXZlcnMvdmlydC9uaXRyb19lbmNsYXZlcy9uZV9taXNjX2Rldi5jIHwgNSArKysr
+Kwo+PiDCoCAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspCj4+Cj4+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL3ZpcnQvbml0cm9fZW5jbGF2ZXMvbmVfbWlzY19kZXYuYyAKPj4gYi9kcml2ZXJz
+L3ZpcnQvbml0cm9fZW5jbGF2ZXMvbmVfbWlzY19kZXYuYwo+PiBpbmRleCA4OTM5NjEyZWUwZTAu
+LjZjNTFmZjAyNDAzNiAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aXJ0L25pdHJvX2VuY2xhdmVz
+L25lX21pc2NfZGV2LmMKPj4gKysrIGIvZHJpdmVycy92aXJ0L25pdHJvX2VuY2xhdmVzL25lX21p
+c2NfZGV2LmMKPj4gQEAgLTg4Niw4ICs4ODYsMTMgQEAgc3RhdGljIGludCBuZV9zZXRfdXNlcl9t
+ZW1vcnlfcmVnaW9uX2lvY3RsKHN0cnVjdCAKPj4gbmVfZW5jbGF2ZSAqbmVfZW5jbGF2ZSwKPj4g
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZ290byBwdXRfcGFnZXM7Cj4+IMKgwqDCoMKgwqDC
+oMKgwqDCoCB9Cj4+ICvCoMKgwqDCoMKgwqDCoCBtbWFwX3JlYWRfbG9jayhjdXJyZW50LT5tbSk7
+Cj4+ICsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIGd1cF9yYyA9IGdldF91c2VyX3BhZ2VzKG1lbV9y
+ZWdpb24udXNlcnNwYWNlX2FkZHIgKyAKPj4gbWVtb3J5X3NpemUsIDEsIEZPTExfR0VULAo+PiDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgbmVfbWVtX3JlZ2lvbi0+
+cGFnZXMgKyBpLCBOVUxMKTsKPj4gKwo+PiArwqDCoMKgwqDCoMKgwqAgbW1hcF9yZWFkX3VubG9j
+ayhjdXJyZW50LT5tbSk7Cj4+ICsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChndXBfcmMgPCAw
+KSB7Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJjID0gZ3VwX3JjOwoKCgpBbWF6b24g
+RGV2ZWxvcG1lbnQgQ2VudGVyIChSb21hbmlhKSBTLlIuTC4gcmVnaXN0ZXJlZCBvZmZpY2U6IDI3
+QSBTZi4gTGF6YXIgU3RyZWV0LCBVQkM1LCBmbG9vciAyLCBJYXNpLCBJYXNpIENvdW50eSwgNzAw
+MDQ1LCBSb21hbmlhLiBSZWdpc3RlcmVkIGluIFJvbWFuaWEuIFJlZ2lzdHJhdGlvbiBudW1iZXIg
+SjIyLzI2MjEvMjAwNS4K
 
-But "bank" variable wasn't actually assigned before, only declared?
-
-> +}
-> +
->  /* retrieve the soc specific data */
->  static const struct samsung_pin_ctrl *
->  samsung_pinctrl_get_soc_data(struct samsung_pinctrl_drv_data *d,
-> @@ -1116,19 +1125,19 @@ static int samsung_pinctrl_probe(struct platform_device *pdev)
->         if (ctrl->retention_data) {
->                 drvdata->retention_ctrl = ctrl->retention_data->init(drvdata,
->                                                           ctrl->retention_data);
-> -               if (IS_ERR(drvdata->retention_ctrl))
-> -                       return PTR_ERR(drvdata->retention_ctrl);
-> +               if (IS_ERR(drvdata->retention_ctrl)) {
-> +                       ret = PTR_ERR(drvdata->retention_ctrl);
-> +                       goto err_put_banks;
-> +               }
->         }
->
->         ret = samsung_pinctrl_register(pdev, drvdata);
->         if (ret)
-> -               return ret;
-> +               goto err_put_banks;
->
->         ret = samsung_gpiolib_register(pdev, drvdata);
-> -       if (ret) {
-> -               samsung_pinctrl_unregister(pdev, drvdata);
-> -               return ret;
-> -       }
-> +       if (ret)
-> +               goto err_unregister;
->
->         if (ctrl->eint_gpio_init)
->                 ctrl->eint_gpio_init(drvdata);
-> @@ -1138,6 +1147,12 @@ static int samsung_pinctrl_probe(struct platform_device *pdev)
->         platform_set_drvdata(pdev, drvdata);
->
->         return 0;
-> +
-> +err_unregister:
-> +       samsung_pinctrl_unregister(pdev, drvdata);
-> +err_put_banks:
-> +       samsung_banks_of_node_put(drvdata);
-> +       return ret;
->  }
->
->  /*
-> --
-> 2.32.0
->
