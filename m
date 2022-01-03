@@ -2,145 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA4C48361B
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 18:32:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD456483633
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 18:33:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236053AbiACRcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 12:32:24 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33190 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235288AbiACRbY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 12:31:24 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA20761169;
-        Mon,  3 Jan 2022 17:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE9CC36AED;
-        Mon,  3 Jan 2022 17:31:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641231083;
-        bh=zmfqkjRv2inCV6030DusFTVgg7tQKcUyuxImduqerds=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSCw03Qmy7FlJ9sCAxAjWdSxtRIHutke3xF2OMIAcCqFrdd+b1mbXmhUYdzWGkGPM
-         xJAMLOveoy/mBqpvb8AKtRgisWUKkUkPFrVDgIWPuFKd7JqN51mh3DxYtHq0ELvRME
-         KWVWl77ODUJgeeojnFeBTJFmS+V2pNDOAlp8DHhkZ2Ipe03tKxdGcfoxMKAv3A4Elr
-         btsJsvL0tUzN1fOtFMF70VmZ+L72UyO8rH1PVFps4NKuTYc29VVNBLykgM3DcVSy6x
-         emLTm7KWjNo1vznxAkY+OG5gTyiMImskJjrkUDR+UadRalFfLTy8+NrmnZRwrIVQLo
-         UdfOWl4hvbjXQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     wolfgang huang <huangjinhui@kylinos.cn>,
-        k2ci <kernel-bot@kylinos.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, isdn@linux-pingi.de,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 4/4] mISDN: change function names to avoid conflicts
-Date:   Mon,  3 Jan 2022 12:31:05 -0500
-Message-Id: <20220103173105.1613707-4-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103173105.1613707-1-sashal@kernel.org>
-References: <20220103173105.1613707-1-sashal@kernel.org>
+        id S235846AbiACRdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 12:33:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236028AbiACRcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 12:32:17 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49332C079798
+        for <stable@vger.kernel.org>; Mon,  3 Jan 2022 09:31:30 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id v16so29338928pjn.1
+        for <stable@vger.kernel.org>; Mon, 03 Jan 2022 09:31:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lCVJs0VsjvPnpjoEd+i8zjezQHHoFivBW0yUHazzZDM=;
+        b=irfk85hElQzjHfGnmibhvoiwl3qTlFSKFwtlfBdRl2t+Nbr3zvdkAmWf+qvrjLq4Eh
+         ehrobOuh5fNeTzg+8fpWSxd/qkj74npBUhW1rbw5vhH5WJSHVoAQh44LqKcamVMBK+ZM
+         NL89qUh9mQvNFcmOnHxWyCPSHc+19eVqm1vzgq9nPhGzkHLMswhMUNi/GF2lgwC9IrTB
+         7Aymg7Sfg7Bckl+vPAnU8yrtl9D8pKw9MPqk8bfxOEw+6v2t4inHxfF9c391SuVk0rXA
+         UTUyQhMzxumgrJc/r2uxocvNGlebGO8AtJSdkm4pnB2bXmKYE4qJ/JWWnC4jZwoZ6Rmj
+         5ndQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lCVJs0VsjvPnpjoEd+i8zjezQHHoFivBW0yUHazzZDM=;
+        b=MibUa3UP4Afh4t0/+wSnXjdSiWtCyaHl16jqPSEECAJqD94ILclTEccCNmcpB0p9yR
+         apc8xhVtYF86Zev66lBY59eAqw7WRpbMqDlrLCRiYLmSbCpj4p0YpUGsP2WG6taLpJSn
+         wWZC9hgL9ESZ4i7eJcvrRMUtdidm33ODPbrETT2vRDwNGQb38309niTItABPlrJiQol3
+         fcBDGdf+sFU8ZZJ2Qm+b2u6BSb4hvmvtpGUbWFFbqvfyLjg9IiPoN/MvG+hbA4DqVRXD
+         8bV1lCNxs59YV2hdLLT88t/QucQdrz79FPNoVmzJRhZPjMWAXpulYWT2cIRoTkq3Ji/B
+         1kAw==
+X-Gm-Message-State: AOAM533zXSBKPFPMT9CYTMu35ZOvKTLaFFqVXobK1gyCBvRxAfSHz/GJ
+        S6HojexwaOaeImyZHMECiTiJKmhp3QuY8Lcf
+X-Google-Smtp-Source: ABdhPJxuNMLL2vc7782aRCYzqqzaghs8lHRgLNF3UfgKpHspH5VuRXybShF2a828vRp3bZIJHjPmNQ==
+X-Received: by 2002:a17:90b:1d82:: with SMTP id pf2mr56658860pjb.96.1641231089697;
+        Mon, 03 Jan 2022 09:31:29 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g9sm39489267pfj.123.2022.01.03.09.31.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Jan 2022 09:31:29 -0800 (PST)
+Message-ID: <61d332f1.1c69fb81.f86f6.8dd5@mx.google.com>
+Date:   Mon, 03 Jan 2022 09:31:29 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.295-14-g584e15b1cb05
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 97 runs,
+ 1 regressions (v4.9.295-14-g584e15b1cb05)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wolfgang huang <huangjinhui@kylinos.cn>
+stable-rc/linux-4.9.y baseline: 97 runs, 1 regressions (v4.9.295-14-g584e15=
+b1cb05)
 
-[ Upstream commit 8b5fdfc57cc2471179d1c51081424ded833c16c8 ]
+Regressions Summary
+-------------------
 
-As we build for mips, we meet following error. l1_init error with
-multiple definition. Some architecture devices usually marked with
-l1, l2, lxx as the start-up phase. so we change the mISDN function
-names, align with Isdnl2_xxx.
-
-mips-linux-gnu-ld: drivers/isdn/mISDN/layer1.o: in function `l1_init':
-(.text+0x890): multiple definition of `l1_init'; \
-arch/mips/kernel/bmips_5xxx_init.o:(.text+0xf0): first defined here
-make[1]: *** [home/mips/kernel-build/linux/Makefile:1161: vmlinux] Error 1
-
-Signed-off-by: wolfgang huang <huangjinhui@kylinos.cn>
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- drivers/isdn/mISDN/core.c   | 6 +++---
- drivers/isdn/mISDN/core.h   | 4 ++--
- drivers/isdn/mISDN/layer1.c | 4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index faf505462a4f5..f5a06a6fb297f 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -390,7 +390,7 @@ mISDNInit(void)
- 	err = mISDN_inittimer(&debug);
- 	if (err)
- 		goto error2;
--	err = l1_init(&debug);
-+	err = Isdnl1_Init(&debug);
- 	if (err)
- 		goto error3;
- 	err = Isdnl2_Init(&debug);
-@@ -404,7 +404,7 @@ mISDNInit(void)
- error5:
- 	Isdnl2_cleanup();
- error4:
--	l1_cleanup();
-+	Isdnl1_cleanup();
- error3:
- 	mISDN_timer_cleanup();
- error2:
-@@ -417,7 +417,7 @@ static void mISDN_cleanup(void)
- {
- 	misdn_sock_cleanup();
- 	Isdnl2_cleanup();
--	l1_cleanup();
-+	Isdnl1_cleanup();
- 	mISDN_timer_cleanup();
- 	class_unregister(&mISDN_class);
- 
-diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
-index 52695bb81ee7a..3c039b6ade2e1 100644
---- a/drivers/isdn/mISDN/core.h
-+++ b/drivers/isdn/mISDN/core.h
-@@ -69,8 +69,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
- extern int	mISDN_inittimer(u_int *);
- extern void	mISDN_timer_cleanup(void);
- 
--extern int	l1_init(u_int *);
--extern void	l1_cleanup(void);
-+extern int	Isdnl1_Init(u_int *);
-+extern void	Isdnl1_cleanup(void);
- extern int	Isdnl2_Init(u_int *);
- extern void	Isdnl2_cleanup(void);
- 
-diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
-index bebc57b72138e..94d7cc58da648 100644
---- a/drivers/isdn/mISDN/layer1.c
-+++ b/drivers/isdn/mISDN/layer1.c
-@@ -407,7 +407,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
- EXPORT_SYMBOL(create_l1);
- 
- int
--l1_init(u_int *deb)
-+Isdnl1_Init(u_int *deb)
- {
- 	debug = deb;
- 	l1fsm_s.state_count = L1S_STATE_COUNT;
-@@ -419,7 +419,7 @@ l1_init(u_int *deb)
- }
- 
- void
--l1_cleanup(void)
-+Isdnl1_cleanup(void)
- {
- 	mISDN_FsmFree(&l1fsm_s);
- }
--- 
-2.34.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.295-14-g584e15b1cb05/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.295-14-g584e15b1cb05
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      584e15b1cb056b405a979fe31376882197337962 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d2fc6e027e19c63def6768
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.295=
+-14-g584e15b1cb05/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.295=
+-14-g584e15b1cb05/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61d2fc6e027e19c=
+63def676b
+        new failure (last pass: v4.9.295)
+        2 lines
+
+    2022-01-03T13:38:37.254778  [   22.299316] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-03T13:38:37.296408  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/116
+    2022-01-03T13:38:37.306207  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
