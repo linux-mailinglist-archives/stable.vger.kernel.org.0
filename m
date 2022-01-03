@@ -2,89 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 950D148666A
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 16:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 878284866F0
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 16:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240299AbiAFPAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jan 2022 10:00:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35630 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240287AbiAFPAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 10:00:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE418C061212;
-        Thu,  6 Jan 2022 07:00:03 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        id S240584AbiAFPpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jan 2022 10:45:49 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:47190 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240593AbiAFPpq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 10:45:46 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 5107B1F39E;
+        Thu,  6 Jan 2022 15:45:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1641483945; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=14vcaJeWLzoYqMo5aNvjxM3LWBDBywLknqQjafAzAYM=;
+        b=cFoRphpgYg//vPAzdSTOh3YkeqW1VW9Ud3QiF7H8+hWiiav9zLi697nEswlr54VGjWZ0ZD
+        vxmDYffrEs3T65DBACISN8yrw8flGVZ8EUGD6XT5LXLk2oZrYjC7pi0cU733jaoQ6uaGiE
+        Hb0nZDYVjXjPgJL5JvChW7mNr4ugfOM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1641483945;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=14vcaJeWLzoYqMo5aNvjxM3LWBDBywLknqQjafAzAYM=;
+        b=sy2Pa5IDn5YbF4t38FsIv1zMqC4iH0HAGzjAkeYN2nUtuLR21/mgY6CPLtIFJ3RBMA8E4f
+        Dzm6mvQzNhW7bbAg==
+Received: from quack3.suse.cz (unknown [10.163.43.118])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8B23B8222C;
-        Thu,  6 Jan 2022 15:00:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61426C36AF5;
-        Thu,  6 Jan 2022 15:00:01 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.95)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1n5UFE-000sMz-HC;
-        Thu, 06 Jan 2022 10:00:00 -0500
-Message-ID: <20220106150000.366357523@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Thu, 06 Jan 2022 09:57:19 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
-Subject: [for-linus][PATCH 3/3] tracing: Tag trace_percpu_buffer as a percpu pointer
-References: <20220106145716.663267282@goodmis.org>
+        by relay2.suse.de (Postfix) with ESMTPS id 455D9A3B88;
+        Thu,  6 Jan 2022 15:45:45 +0000 (UTC)
+Received: by localhost (Postfix, from userid 1000)
+        id 04AAAA05A4; Mon,  3 Jan 2022 14:16:55 +0100 (CET)
+Date:   Mon, 3 Jan 2022 14:16:54 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     "yukuai (C)" <yukuai3@huawei.com>
+Cc:     Jan Kara <jack@suse.cz>, linux-block@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 2/3] bfq: Avoid merging queues with different parents
+Message-ID: <20220103131654.7seobu6gqhigjv2m@quack3>
+References: <20211223171425.3551-1-jack@suse.cz>
+ <20211223173207.15388-2-jack@suse.cz>
+ <fec7558a-1559-dae0-fe21-d11876dc7473@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fec7558a-1559-dae0-fe21-d11876dc7473@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+On Fri 24-12-21 09:45:02, yukuai (C) wrote:
+> 在 2021/12/24 1:31, Jan Kara 写道:
+> > diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+> > index 056399185c2f..0da47f2ca781 100644
+> > --- a/block/bfq-iosched.c
+> > +++ b/block/bfq-iosched.c
+> > @@ -2638,6 +2638,14 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
+> >   	if (process_refs == 0 || new_process_refs == 0)
+> >   		return NULL;
+> > +	/*
+> > +	 * Make sure merged queues belong to the same parent. Parents could
+> > +	 * have changed since the time we decided the two queues are suitable
+> > +	 * for merging.
+> > +	 */
+> > +	if (new_bfqq->entity.parent != bfqq->entity.parent)
+> > +		return NULL;
+> > +
+> Hi,
+> 
+> This seems unnecessary, the caller of bfq_setup_merge() aready make sure
+> bfqq and new_bfqq are under the same bfqg. Am I missing something?
 
-Tag trace_percpu_buffer as a percpu pointer to resolve warnings
-reported by sparse:
-  /linux/kernel/trace/trace.c:3218:46: warning: incorrect type in initializer (different address spaces)
-  /linux/kernel/trace/trace.c:3218:46:    expected void const [noderef] __percpu *__vpp_verify
-  /linux/kernel/trace/trace.c:3218:46:    got struct trace_buffer_struct *
-  /linux/kernel/trace/trace.c:3234:9: warning: incorrect type in initializer (different address spaces)
-  /linux/kernel/trace/trace.c:3234:9:    expected void const [noderef] __percpu *__vpp_verify
-  /linux/kernel/trace/trace.c:3234:9:    got int *
+Not all the callers of bfq_setup_merge() check that queues belong to the
+same cgroup (e.g. bfq_setup_cooperator() does not seem to check).
 
-Link: https://lkml.kernel.org/r/ebabd3f23101d89cb75671b68b6f819f5edc830b.1640255304.git.naveen.n.rao@linux.vnet.ibm.com
+								Honza
 
-Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 07d777fe8c398 ("tracing: Add percpu buffers for trace_printk()")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
----
- kernel/trace/trace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index e1f55851e53f..78ea542ce3bc 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -3207,7 +3207,7 @@ struct trace_buffer_struct {
- 	char buffer[4][TRACE_BUF_SIZE];
- };
- 
--static struct trace_buffer_struct *trace_percpu_buffer;
-+static struct trace_buffer_struct __percpu *trace_percpu_buffer;
- 
- /*
-  * This allows for lockless recording.  If we're nested too deeply, then
-@@ -3236,7 +3236,7 @@ static void put_trace_buf(void)
- 
- static int alloc_percpu_trace_buffer(void)
- {
--	struct trace_buffer_struct *buffers;
-+	struct trace_buffer_struct __percpu *buffers;
- 
- 	if (trace_percpu_buffer)
- 		return 0;
+> 
+> Thanks,
+> Kuai
+> >   	bfq_log_bfqq(bfqq->bfqd, bfqq, "scheduling merge with queue %d",
+> >   		new_bfqq->pid);
+> > 
 -- 
-2.33.0
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
