@@ -2,119 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDD224833DE
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 16:04:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B699048344C
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 16:35:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233628AbiACPEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 10:04:09 -0500
-Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:34139 "EHLO
-        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229978AbiACPEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 10:04:09 -0500
+        id S234060AbiACPfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 10:35:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55442 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232579AbiACPfQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 10:35:16 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95092C061761;
+        Mon,  3 Jan 2022 07:35:15 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id t26so70585757wrb.4;
+        Mon, 03 Jan 2022 07:35:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1641222249; x=1672758249;
-  h=message-id:date:mime-version:subject:from:to:cc:
-   references:in-reply-to:content-transfer-encoding;
-  bh=6DDI/5rt+hvVm8HYZLjfL2SPPunScVsJPs0AFGYZLjY=;
-  b=HMUMto6ITRNvyRccg0XapIQgQILY40gTBe0vxqMNyX5PZVxsvfM4oL9j
-   0MO6jGnT+z1+0GIghYK/Q5xogacrbJNX9n76UDHbBuNIox/NWf4zR+nBe
-   eCgslxd577n14GsoR4/d6R796LGCj6oosD5oeJhyXxoSpLaDP2BI30QdU
-   0=;
-X-IronPort-AV: E=Sophos;i="5.88,258,1635206400"; 
-   d="scan'208";a="165934371"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-98691110.us-east-1.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-6002.iad6.amazon.com with ESMTP; 03 Jan 2022 15:03:56 +0000
-Received: from EX13D16EUB003.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
-        by email-inbound-relay-iad-1e-98691110.us-east-1.amazon.com (Postfix) with ESMTPS id D578381342;
-        Mon,  3 Jan 2022 15:03:53 +0000 (UTC)
-Received: from [192.168.16.229] (10.43.160.87) by EX13D16EUB003.ant.amazon.com
- (10.43.166.99) with Microsoft SMTP Server (TLS) id 15.0.1497.26; Mon, 3 Jan
- 2022 15:03:47 +0000
-Message-ID: <0185a841-72df-1c8f-7e5f-d64dd18cee57@amazon.com>
-Date:   Mon, 3 Jan 2022 17:03:37 +0200
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=fwoh/wxpLCTrTZD3q7z2iU1EBbvcdilR8NQ1crz+Dak=;
+        b=FbSoY90AKEGYS7Bgpb3nuWnfa68L5JDl8Dj2rJnG7iw4CiY1Qitu+Z/fzhtAS5OMO/
+         hO68KW+RPZ+udHaAw1v4p7uOqE1USPbUzeURv7C2Q4nnLlGYLAt3ZsTbKlrnFPEgxrF9
+         UsHnEjhAZoSIxa1a4GMAjKQpzhbXQbfv7Lf0CV6RUuPlr/X4WOUahygScAfGQpf3j38W
+         wrd/0ioJJjBCqiZTb+6frG7j5PhE37ugu1MaDCmaApvbRcX1FRD/m7OPv0nlWL3md2WD
+         87Ys1771Dq3yQrz/uf0pxEbfUO0po0e6S0JrGdpkclzM4vSmhic/5p697yWi/bPXwPrJ
+         8ftA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fwoh/wxpLCTrTZD3q7z2iU1EBbvcdilR8NQ1crz+Dak=;
+        b=KNt6u9P2ZdzuQvqT9O6K0ePVlHhFFg4A8TrUzS07dUZPVvKfdaAr9w9xuP/vyNmSbD
+         P2fnmiZpcWvhRPqWr3251hkDTVU+CsoM9WlTXiOzhzdbOg93losZVsChhs6AsdZUDSCD
+         H8cxEHdPjLrj02szxOuI26KvQSvhfv8f22Jm1EJVi8/JR79+M1gf21akX6wDJzeC09ih
+         QEI6eK6XWpCo9WII+AmLEStsAJrRE73ebPxZax8D5IsC/XIBGnuE+jIoBBtRT/AcDlkM
+         JTq+s3xJDm0qNULIa2W7gujW+POcoV5vZsV5R5kXgQ9cIV9Y5I7Fmhiy9abOU0W2pV1y
+         H2hw==
+X-Gm-Message-State: AOAM533VZ5AezecNQHR0qc3vbVQhmKZShHSi/9HQPFwv+U9D41gAxonF
+        FfKXDf+vxQ2yI0dQtKxM8QtAkOyBQnVqQtRoaEo=
+X-Google-Smtp-Source: ABdhPJyfYR5Tgej1+JbfKke6k6aFWArD0MekU/04WhRD9OHXM6/dib5ggFdNePgFDDRJu1kABOsT7XoAjKW/ssWe5jM=
+X-Received: by 2002:a05:6000:186e:: with SMTP id d14mr40390261wri.205.1641224114204;
+ Mon, 03 Jan 2022 07:35:14 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.4.0
-Subject: =?UTF-8?B?UmU6IFtQQVRDSCB2McKgXSBuaXRyb19lbmNsYXZlczogQWRkIG1tYXBf?=
- =?UTF-8?Q?read=5flock=28=29_for_the_get=5fuser=5fpages=28=29_call?=
-Content-Language: en-US
-From:   "Paraschiv, Andra-Irina" <andraprs@amazon.com>
-To:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-CC:     Alexandru Ciobotaru <alcioa@amazon.com>,
-        Alexandru Vasile <lexnv@amazon.com>,
-        Marcelo Cerri <marcelo.cerri@canonical.com>,
-        "Paolo Bonzini" <pbonzini@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Tim Gardner <tim.gardner@canonical.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        kvm <kvm@vger.kernel.org>,
-        ne-devel-upstream <ne-devel-upstream@amazon.com>,
-        stable <stable@vger.kernel.org>
-References: <20211218103525.26739-1-andraprs@amazon.com>
- <fccc4545-2a8e-df40-f7ba-ae48651dda39@amazon.com>
-In-Reply-To: <fccc4545-2a8e-df40-f7ba-ae48651dda39@amazon.com>
-X-Originating-IP: [10.43.160.87]
-X-ClientProxiedBy: EX13D17UWB004.ant.amazon.com (10.43.161.132) To
- EX13D16EUB003.ant.amazon.com (10.43.166.99)
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
+References: <CAG_fn=VDEoQx5c7XzWX1yaYBd5y5FrG1aagrkv+SZ03c8TfQYQ@mail.gmail.com>
+ <20220102171943.28846-1-paskripkin@gmail.com> <YdL0GPxy4TdGDzOO@kroah.com>
+In-Reply-To: <YdL0GPxy4TdGDzOO@kroah.com>
+From:   Alexander Aring <alex.aring@gmail.com>
+Date:   Mon, 3 Jan 2022 10:35:03 -0500
+Message-ID: <CAB_54W7HQmm1ncCEsTmZFR+GVf6p6Vz0RMWDJXAhXQcW4r3hUQ@mail.gmail.com>
+Subject: Re: [PATCH RFT] ieee802154: atusb: move to new USB API
+To:     Greg KH <greg@kroah.com>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-wpan - ML <linux-wpan@vger.kernel.org>,
+        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        "# 3.19.x" <stable@vger.kernel.org>,
+        Alexander Potapenko <glider@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CgpPbiAxOC4xMi4yMDIxIDEyOjQzLCBQYXJhc2NoaXYsIEFuZHJhLUlyaW5hIHdyb3RlOgo+IAo+
-IAo+IE9uIDE4LjEyLjIwMjEgMTI6MzUsIEFuZHJhIFBhcmFzY2hpdiB3cm90ZToKPj4gQWZ0ZXIg
-Y29tbWl0IDViNzhlZDI0ZThlYyAobW0vcGFnZW1hcDogYWRkIG1tYXBfYXNzZXJ0X2xvY2tlZCgp
-Cj4+IGFubm90YXRpb25zIHRvIGZpbmRfdm1hKigpKSwgdGhlIGNhbGwgdG8gZ2V0X3VzZXJfcGFn
-ZXMoKSB3aWxsIHRyaWdnZXIKPj4gdGhlIG1tYXAgYXNzZXJ0Lgo+Pgo+PiBzdGF0aWMgaW5saW5l
-IHZvaWQgbW1hcF9hc3NlcnRfbG9ja2VkKHN0cnVjdCBtbV9zdHJ1Y3QgKm1tKQo+PiB7Cj4+IMKg
-wqDCoMKgbG9ja2RlcF9hc3NlcnRfaGVsZCgmbW0tPm1tYXBfbG9jayk7Cj4+IMKgwqDCoMKgVk1f
-QlVHX09OX01NKCFyd3NlbV9pc19sb2NrZWQoJm1tLT5tbWFwX2xvY2spLCBtbSk7Cj4+IH0KPj4K
-Pj4gW8KgwqAgNjIuNTIxNDEwXSBrZXJuZWwgQlVHIGF0IGluY2x1ZGUvbGludXgvbW1hcF9sb2Nr
-Lmg6MTU2IQo+PiAuLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4uLi4uLgo+PiBbwqDCoCA2Mi41Mzg5MzhdIFJJUDogMDAxMDpmaW5kX3ZtYSsweDMy
-LzB4ODAKPj4gLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
-Li4uLi4uLi4uLi4KPj4gW8KgwqAgNjIuNjA1ODg5XSBDYWxsIFRyYWNlOgo+PiBbwqDCoCA2Mi42
-MDg1MDJdwqAgPFRBU0s+Cj4+IFvCoMKgIDYyLjYxMDk1Nl3CoCA/IGxvY2tfdGltZXJfYmFzZSsw
-eDYxLzB4ODAKPj4gW8KgwqAgNjIuNjE0MTA2XcKgIGZpbmRfZXh0ZW5kX3ZtYSsweDE5LzB4ODAK
-Pj4gW8KgwqAgNjIuNjE3MTk1XcKgIF9fZ2V0X3VzZXJfcGFnZXMrMHg5Yi8weDZhMAo+PiBbwqDC
-oCA2Mi42MjAzNTZdwqAgX19ndXBfbG9uZ3Rlcm1fbG9ja2VkKzB4NDJkLzB4NDUwCj4+IFvCoMKg
-IDYyLjYyMzcyMV3CoCA/IGZpbmlzaF93YWl0KzB4NDEvMHg4MAo+PiBbwqDCoCA2Mi42MjY3NDhd
-wqAgPyBfX2ttYWxsb2MrMHgxNzgvMHgyZjAKPj4gW8KgwqAgNjIuNjI5NzY4XcKgIG5lX3NldF91
-c2VyX21lbW9yeV9yZWdpb25faW9jdGwuaXNyYS4wKzB4MjI1LzB4NmEwIAo+PiBbbml0cm9fZW5j
-bGF2ZXNdCj4+IFvCoMKgIDYyLjYzNTc3Nl3CoCBuZV9lbmNsYXZlX2lvY3RsKzB4MWNmLzB4NmQ3
-IFtuaXRyb19lbmNsYXZlc10KPj4gW8KgwqAgNjIuNjM5NTQxXcKgIF9feDY0X3N5c19pb2N0bCsw
-eDgyLzB4YjAKPj4gW8KgwqAgNjIuNjQyNjIwXcKgIGRvX3N5c2NhbGxfNjQrMHgzYi8weDkwCj4+
-IFvCoMKgIDYyLjY0NTY0Ml3CoCBlbnRyeV9TWVNDQUxMXzY0X2FmdGVyX2h3ZnJhbWUrMHg0NC8w
-eGFlCj4+Cj4+IEFkZCBtbWFwX3JlYWRfbG9jaygpIGZvciB0aGUgZ2V0X3VzZXJfcGFnZXMoKSBj
-YWxsIHdoZW4gc2V0dGluZyB0aGUKPj4gZW5jbGF2ZSBtZW1vcnkgcmVnaW9ucy4KPj4KPj4gU2ln
-bmVkLW9mZi1ieTogQW5kcmEgUGFyYXNjaGl2IDxhbmRyYXByc0BhbWF6b24uY29tPgo+PiBDYzog
-c3RhYmxlQHZnZXIua2VybmVsLm9yZwo+PiAtLS0KPiAKPiBHcmVnLCBjYW4geW91IHBsZWFzZSBp
-bmNsdWRlIHRoaXMgZml4IGluIHRoZSBxdWV1ZSBmb3IgdjUuMTYgYW5kIHRoZW4gaW4gCj4gdGhl
-IG9uZSBmb3IgdGhlIHY1LjE1IHN0YWJsZSB0cmVlLiBMZXQgbWUga25vdyBpZiBhbnkgdXBkYXRl
-cyBhcmUgCj4gbmVjZXNzYXJ5IGZvciB0aGUgcGF0Y2guCj4gCgpUaGFuayB5b3UsIEdyZWcsIGZv
-ciBoZWxwaW5nIHdpdGggdGhlIG1lcmdlIG9mIHYyIGZvciB0aGlzIHBhdGNoLgoKQW5kcmEKCj4g
-Cj4+IMKgIGRyaXZlcnMvdmlydC9uaXRyb19lbmNsYXZlcy9uZV9taXNjX2Rldi5jIHwgNSArKysr
-Kwo+PiDCoCAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspCj4+Cj4+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL3ZpcnQvbml0cm9fZW5jbGF2ZXMvbmVfbWlzY19kZXYuYyAKPj4gYi9kcml2ZXJz
-L3ZpcnQvbml0cm9fZW5jbGF2ZXMvbmVfbWlzY19kZXYuYwo+PiBpbmRleCA4OTM5NjEyZWUwZTAu
-LjZjNTFmZjAyNDAzNiAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aXJ0L25pdHJvX2VuY2xhdmVz
-L25lX21pc2NfZGV2LmMKPj4gKysrIGIvZHJpdmVycy92aXJ0L25pdHJvX2VuY2xhdmVzL25lX21p
-c2NfZGV2LmMKPj4gQEAgLTg4Niw4ICs4ODYsMTMgQEAgc3RhdGljIGludCBuZV9zZXRfdXNlcl9t
-ZW1vcnlfcmVnaW9uX2lvY3RsKHN0cnVjdCAKPj4gbmVfZW5jbGF2ZSAqbmVfZW5jbGF2ZSwKPj4g
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZ290byBwdXRfcGFnZXM7Cj4+IMKgwqDCoMKgwqDC
-oMKgwqDCoCB9Cj4+ICvCoMKgwqDCoMKgwqDCoCBtbWFwX3JlYWRfbG9jayhjdXJyZW50LT5tbSk7
-Cj4+ICsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIGd1cF9yYyA9IGdldF91c2VyX3BhZ2VzKG1lbV9y
-ZWdpb24udXNlcnNwYWNlX2FkZHIgKyAKPj4gbWVtb3J5X3NpemUsIDEsIEZPTExfR0VULAo+PiDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgbmVfbWVtX3JlZ2lvbi0+
-cGFnZXMgKyBpLCBOVUxMKTsKPj4gKwo+PiArwqDCoMKgwqDCoMKgwqAgbW1hcF9yZWFkX3VubG9j
-ayhjdXJyZW50LT5tbSk7Cj4+ICsKPj4gwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChndXBfcmMgPCAw
-KSB7Cj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJjID0gZ3VwX3JjOwoKCgpBbWF6b24g
-RGV2ZWxvcG1lbnQgQ2VudGVyIChSb21hbmlhKSBTLlIuTC4gcmVnaXN0ZXJlZCBvZmZpY2U6IDI3
-QSBTZi4gTGF6YXIgU3RyZWV0LCBVQkM1LCBmbG9vciAyLCBJYXNpLCBJYXNpIENvdW50eSwgNzAw
-MDQ1LCBSb21hbmlhLiBSZWdpc3RlcmVkIGluIFJvbWFuaWEuIFJlZ2lzdHJhdGlvbiBudW1iZXIg
-SjIyLzI2MjEvMjAwNS4K
+Hi,
 
+On Mon, 3 Jan 2022 at 08:03, Greg KH <greg@kroah.com> wrote:
+>
+> On Sun, Jan 02, 2022 at 08:19:43PM +0300, Pavel Skripkin wrote:
+> > Alexander reported a use of uninitialized value in
+> > atusb_set_extended_addr(), that is caused by reading 0 bytes via
+> > usb_control_msg().
+> >
+> > Since there is an API, that cannot read less bytes, than was requested,
+> > let's move atusb driver to use it. It will fix all potintial bugs with
+> > uninit values and make code more modern
+> >
+> > Fail log:
+> >
+> > BUG: KASAN: uninit-cmp in ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
+> > BUG: KASAN: uninit-cmp in atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
+> > BUG: KASAN: uninit-cmp in atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
+> > Uninit value used in comparison: 311daa649a2003bd stack handle: 000000009a2003bd
+> >  ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
+> >  atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
+> >  atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
+> >  usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
+> >
+> > Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
+> > Cc: stable@vger.kernel.org # 5.9
+> > Reported-by: Alexander Potapenko <glider@google.com>
+> > Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+> > ---
+> >  drivers/net/ieee802154/atusb.c | 61 +++++++++++++++++++++-------------
+> >  1 file changed, 38 insertions(+), 23 deletions(-)
+> >
+> > diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
+> > index 23ee0b14cbfa..43befea0110f 100644
+> > --- a/drivers/net/ieee802154/atusb.c
+> > +++ b/drivers/net/ieee802154/atusb.c
+> > @@ -80,10 +80,9 @@ struct atusb_chip_data {
+> >   * in atusb->err and reject all subsequent requests until the error is cleared.
+> >   */
+> >
+> > -static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
+> > -                          __u8 request, __u8 requesttype,
+> > -                          __u16 value, __u16 index,
+> > -                          void *data, __u16 size, int timeout)
+> > +static int atusb_control_msg_recv(struct atusb *atusb, __u8 request, __u8 requesttype,
+> > +                               __u16 value, __u16 index,
+> > +                               void *data, __u16 size, int timeout)
+>
+> Why do you need a wrapper function at all?  Why not just call the real
+> usb functions instead?
+>
+
+This driver has a lot of history, there is a comment which states:
+
+"To reduce the number of error checks in the code, we record the first
+error in atusb->err and reject all subsequent requests until the error
+is cleared."
+
+I think in the early state of this driver (as it was acting more as an
+USB<->SPI bridge) there was a lot of state handling involved. Nowadays
+we have a lot of such handling inside the device firmware (which is
+btw. open source). This might be not an excuse but an explanation why
+it was introduced in such a way.
+
+...
+>
+> I would recommend just moving to use the real USB functions and no
+> wrapper function at all like this, it will make things more obvious and
+> easier to understand over time.
+
+okay.
+
+- Alex
