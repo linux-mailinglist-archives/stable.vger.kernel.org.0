@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB244832FE
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2A55483330
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235043AbiACOcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:32:32 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59588 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234917AbiACOac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:30:32 -0500
+        id S234106AbiACOeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:34:20 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35484 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235057AbiACOcg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:32:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 285016111A;
-        Mon,  3 Jan 2022 14:30:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E877C36AED;
-        Mon,  3 Jan 2022 14:30:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9AF82B80EF8;
+        Mon,  3 Jan 2022 14:32:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E439BC36B04;
+        Mon,  3 Jan 2022 14:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220231;
-        bh=8NiLGWzp2OPFyswVi6da1JowMeKvagFevIehYjkMf8I=;
+        s=korg; t=1641220353;
+        bh=D7QpMAVsuNr9bDLu4QwwE7Y7VdQTcnTykwCl3LNFR2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8u/mN8ga0YIVlmhWR2gCq5EDEwqQb9I1E9ceFXnoh404AporvGv6cV90AWNHeemy
-         ODiiv7Me/mtCq/rrPa06zgjmgbavyimyVKlSk21fpYH69tUHJgKsYY2SZYYMoLoD5i
-         eqTGjsvVEpCiQ6ITak75U3R34x1qPU0+wibghn9I=
+        b=jcJVH61iZTRHv2Q9SfL1WmvWNnH4+xv9qx762BmJvX3ZENYsDEUAxv5tP24ZDiSav
+         xfbZnuWU8qwGHPiUTw+D3w7Uxag7rQaZARM+9E03guPT6u1DxTZS+SyV7kQ7YoOoMB
+         qlaZZ140efWrKjoUQ5r/2SPIyEj6/4J4g2H+1RgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Shannon Nelson <snelson@pensando.io>,
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 27/48] ionic: Initialize the lif->dbid_inuse bitmap
+Subject: [PATCH 5.15 43/73] net: bridge: mcast: add and enforce query interval minimum
 Date:   Mon,  3 Jan 2022 15:24:04 +0100
-Message-Id: <20220103142054.391225236@linuxfoundation.org>
+Message-Id: <20220103142058.300757135@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
-References: <20220103142053.466768714@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-[ Upstream commit 140c7bc7d1195750342ea0e6ab76179499ae7cd7 ]
+[ Upstream commit 99b40610956a8a8755653a67392e2a8b772453be ]
 
-When allocated, this bitmap is not initialized. Only the first bit is set a
-few lines below.
+As reported[1] if query interval is set too low and we have multiple
+bridges or even a single bridge with multiple querier vlans configured
+we can crash the machine. Add a 1 second minimum which must be enforced
+by overwriting the value if set lower (i.e. without returning an error) to
+avoid breaking user-space. If that happens a log message is emitted to let
+the administrator know that the interval has been set to the minimum.
+The issue has been present since these intervals could be user-controlled.
 
-Use bitmap_zalloc() to make sure that it is cleared before being used.
+[1] https://lore.kernel.org/netdev/e8b9ce41-57b9-b6e2-a46a-ff9c791cf0ba@gmail.com/
 
-Fixes: 6461b446f2a0 ("ionic: Add interrupts and doorbells")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Link: https://lore.kernel.org/r/6a478eae0b5e6c63774e1f0ddb1a3f8c38fa8ade.1640527506.git.christophe.jaillet@wanadoo.fr
+Fixes: d902eee43f19 ("bridge: Add multicast count/interval sysfs entries")
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_lif.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_multicast.c    | 16 ++++++++++++++++
+ net/bridge/br_netlink.c      |  2 +-
+ net/bridge/br_private.h      |  3 +++
+ net/bridge/br_sysfs_br.c     |  2 +-
+ net/bridge/br_vlan_options.c |  2 +-
+ 5 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-index 1b44155fa24b2..e95c09dc2c30d 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
-@@ -2836,7 +2836,7 @@ int ionic_lif_init(struct ionic_lif *lif)
- 		return -EINVAL;
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index f3d751105343c..998da4a2d2092 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -4522,6 +4522,22 @@ int br_multicast_set_mld_version(struct net_bridge_mcast *brmctx,
+ }
+ #endif
+ 
++void br_multicast_set_query_intvl(struct net_bridge_mcast *brmctx,
++				  unsigned long val)
++{
++	unsigned long intvl_jiffies = clock_t_to_jiffies(val);
++
++	if (intvl_jiffies < BR_MULTICAST_QUERY_INTVL_MIN) {
++		br_info(brmctx->br,
++			"trying to set multicast query interval below minimum, setting to %lu (%ums)\n",
++			jiffies_to_clock_t(BR_MULTICAST_QUERY_INTVL_MIN),
++			jiffies_to_msecs(BR_MULTICAST_QUERY_INTVL_MIN));
++		intvl_jiffies = BR_MULTICAST_QUERY_INTVL_MIN;
++	}
++
++	brmctx->multicast_query_interval = intvl_jiffies;
++}
++
+ /**
+  * br_multicast_list_adjacent - Returns snooped multicast addresses
+  * @dev:	The bridge port adjacent to which to retrieve addresses
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 5c6c4305ed235..09812df3bc91d 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -1357,7 +1357,7 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
+ 	if (data[IFLA_BR_MCAST_QUERY_INTVL]) {
+ 		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERY_INTVL]);
+ 
+-		br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
++		br_multicast_set_query_intvl(&br->multicast_ctx, val);
  	}
  
--	lif->dbid_inuse = bitmap_alloc(lif->dbid_count, GFP_KERNEL);
-+	lif->dbid_inuse = bitmap_zalloc(lif->dbid_count, GFP_KERNEL);
- 	if (!lif->dbid_inuse) {
- 		dev_err(dev, "Failed alloc doorbell id bitmap, aborting\n");
- 		return -ENOMEM;
+ 	if (data[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL]) {
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index fd5e7e74573ce..30c9411bfb646 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -28,6 +28,7 @@
+ #define BR_MAX_PORTS	(1<<BR_PORT_BITS)
+ 
+ #define BR_MULTICAST_DEFAULT_HASH_MAX 4096
++#define BR_MULTICAST_QUERY_INTVL_MIN msecs_to_jiffies(1000)
+ 
+ #define BR_HWDOM_MAX BITS_PER_LONG
+ 
+@@ -968,6 +969,8 @@ int br_multicast_dump_querier_state(struct sk_buff *skb,
+ 				    int nest_attr);
+ size_t br_multicast_querier_state_size(void);
+ size_t br_rports_size(const struct net_bridge_mcast *brmctx);
++void br_multicast_set_query_intvl(struct net_bridge_mcast *brmctx,
++				  unsigned long val);
+ 
+ static inline bool br_group_is_l2(const struct br_ip *group)
+ {
+diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
+index d9a89ddd03310..f5bd1114a434d 100644
+--- a/net/bridge/br_sysfs_br.c
++++ b/net/bridge/br_sysfs_br.c
+@@ -658,7 +658,7 @@ static ssize_t multicast_query_interval_show(struct device *d,
+ static int set_query_interval(struct net_bridge *br, unsigned long val,
+ 			      struct netlink_ext_ack *extack)
+ {
+-	br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
++	br_multicast_set_query_intvl(&br->multicast_ctx, val);
+ 	return 0;
+ }
+ 
+diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
+index 8ffd4ed2563c6..bf1ac08742794 100644
+--- a/net/bridge/br_vlan_options.c
++++ b/net/bridge/br_vlan_options.c
+@@ -521,7 +521,7 @@ static int br_vlan_process_global_one_opts(const struct net_bridge *br,
+ 		u64 val;
+ 
+ 		val = nla_get_u64(tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_INTVL]);
+-		v->br_mcast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
++		br_multicast_set_query_intvl(&v->br_mcast_ctx, val);
+ 		*changed = true;
+ 	}
+ 	if (tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_RESPONSE_INTVL]) {
 -- 
 2.34.1
 
