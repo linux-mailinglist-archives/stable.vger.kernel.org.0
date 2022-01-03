@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C519483287
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9F5448323E
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233776AbiACO22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:28:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38778 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233773AbiACO1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74232C06139B;
-        Mon,  3 Jan 2022 06:27:34 -0800 (PST)
+        id S233692AbiACO0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:26:16 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:47206 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233713AbiACOZo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44192B80EFD;
-        Mon,  3 Jan 2022 14:27:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7402AC36AEB;
-        Mon,  3 Jan 2022 14:27:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 70B69CE110C;
+        Mon,  3 Jan 2022 14:25:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42139C36AF0;
+        Mon,  3 Jan 2022 14:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220052;
-        bh=6uZ5RRlyZ/Ssvt9ME2JBVJM3wvIu6RYNKVaTMYpt1YE=;
+        s=korg; t=1641219940;
+        bh=q1y2rSOGp+yLXZH6g3odHuz0Pl79A/Cg7YjxsfUUMMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1EnMDgksRQ6AyKIMA8U1HajVUDa/ZScPhVv0D1CKgF8LVWKqZfMyBYADpwKYqAsgV
-         f3rNtzzhDJ6gBy1deklH/zpxiOMO53DsDDk1qxQDZPVnkfKFC+mapa2I34Z/l+BjhT
-         CzXbcsvhEM/uXuP6czCTk3wlU5VJNApugelhvC6Q=
+        b=DQ4iX9MTPcFqfWbr5JNWIJrijarpNGGtKuZk6wfrk56X6LCR0TTCI3/1fiwVUlcm5
+         S/Kc3nbakv75P09k7oCrGkcl6/I1IxhniXU+gTRmVQBJ26LX+XaAfsAPoqYN9bJGL5
+         Dkj5wPj8asIJKBau3VGeiLIxOWL2CI3EKIikeKzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 25/37] nfc: uapi: use kernel size_t to fix user-space builds
-Date:   Mon,  3 Jan 2022 15:24:03 +0100
-Message-Id: <20220103142052.655444354@linuxfoundation.org>
+        stable@vger.kernel.org, Matt Wang <wwentao@vmware.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Vishal Bhakta <vbhakta@vmware.com>,
+        VMware PV-Drivers <pv-drivers@vmware.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        linux-scsi@vger.kernel.org, Alexey Makhalov <amakhalov@vmware.com>,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Subject: [PATCH 4.19 24/27] scsi: vmw_pvscsi: Set residual data length conditionally
+Date:   Mon,  3 Jan 2022 15:24:04 +0100
+Message-Id: <20220103142052.939806904@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
-References: <20220103142051.883166998@linuxfoundation.org>
+In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
+References: <20220103142052.162223000@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,36 +49,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Alexey Makhalov <amakhalov@vmware.com>
 
-commit 79b69a83705e621b258ac6d8ae6d3bfdb4b930aa upstream.
+commit 142c779d05d1fef75134c3cb63f52ccbc96d9e1f upstream.
 
-Fix user-space builds if it includes /usr/include/linux/nfc.h before
-some of other headers:
+The PVSCSI implementation in the VMware hypervisor under specific
+configuration ("SCSI Bus Sharing" set to "Physical") returns zero dataLen
+in the completion descriptor for READ CAPACITY(16). As a result, the kernel
+can not detect proper disk geometry. This can be recognized by the kernel
+message:
 
-  /usr/include/linux/nfc.h:281:9: error: unknown type name ‘size_t’
-    281 |         size_t service_name_len;
-        |         ^~~~~~
+  [ 0.776588] sd 1:0:0:0: [sdb] Sector size 0 reported, assuming 512.
 
-Fixes: d646960f7986 ("NFC: Initial LLCP support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The PVSCSI implementation in QEMU does not set dataLen at all, keeping it
+zeroed. This leads to a boot hang as was reported by Shmulik Ladkani.
+
+It is likely that the controller returns the garbage at the end of the
+buffer. Residual length should be set by the driver in that case. The SCSI
+layer will erase corresponding data. See commit bdb2b8cab439 ("[SCSI] erase
+invalid data returned by device") for details.
+
+Commit e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
+introduced the issue by setting residual length unconditionally, causing
+the SCSI layer to erase the useful payload beyond dataLen when this value
+is returned as 0.
+
+As a result, considering existing issues in implementations of PVSCSI
+controllers, we do not want to call scsi_set_resid() when dataLen ==
+0. Calling scsi_set_resid() has no effect if dataLen equals buffer length.
+
+Link: https://lore.kernel.org/lkml/20210824120028.30d9c071@blondie/
+Link: https://lore.kernel.org/r/20211220190514.55935-1-amakhalov@vmware.com
+Fixes: e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
+Cc: Matt Wang <wwentao@vmware.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Vishal Bhakta <vbhakta@vmware.com>
+Cc: VMware PV-Drivers <pv-drivers@vmware.com>
+Cc: James E.J. Bottomley <jejb@linux.ibm.com>
+Cc: linux-scsi@vger.kernel.org
+Cc: stable@vger.kernel.org
+Reported-and-suggested-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/nfc.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/vmw_pvscsi.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/include/uapi/linux/nfc.h
-+++ b/include/uapi/linux/nfc.h
-@@ -278,7 +278,7 @@ struct sockaddr_nfc_llcp {
- 	__u8 dsap; /* Destination SAP, if known */
- 	__u8 ssap; /* Source SAP to be bound to */
- 	char service_name[NFC_LLCP_MAX_SERVICE_NAME]; /* Service name URI */;
--	size_t service_name_len;
-+	__kernel_size_t service_name_len;
- };
+--- a/drivers/scsi/vmw_pvscsi.c
++++ b/drivers/scsi/vmw_pvscsi.c
+@@ -578,9 +578,12 @@ static void pvscsi_complete_request(stru
+ 			 * Commands like INQUIRY may transfer less data than
+ 			 * requested by the initiator via bufflen. Set residual
+ 			 * count to make upper layer aware of the actual amount
+-			 * of data returned.
++			 * of data returned. There are cases when controller
++			 * returns zero dataLen with non zero data - do not set
++			 * residual count in that case.
+ 			 */
+-			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
++			if (e->dataLen && (e->dataLen < scsi_bufflen(cmd)))
++				scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
+ 			cmd->result = (DID_OK << 16);
+ 			break;
  
- /* NFC socket protocols */
 
 
