@@ -2,312 +2,410 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 429F6483206
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1CE948336A
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:36:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231630AbiACOXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:23:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37524 "EHLO
+        id S235147AbiACOgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:36:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233670AbiACOXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F7BCC06139B;
-        Mon,  3 Jan 2022 06:23:23 -0800 (PST)
+        with ESMTP id S234893AbiACOd5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:33:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730CAC061D76;
+        Mon,  3 Jan 2022 06:32:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1AE1CE1106;
-        Mon,  3 Jan 2022 14:23:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 991BFC36AEB;
-        Mon,  3 Jan 2022 14:23:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 077D161119;
+        Mon,  3 Jan 2022 14:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC64AC36AEB;
+        Mon,  3 Jan 2022 14:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219800;
-        bh=kQ4guDYlrQYbAjN/bYy1uZPTCskSgH/9rloGcEcedIQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6VjexzSWgZXyG2gBsjJmRi918HxQghlLm6xdAnYTTx7lbfUgNcI57dnCW3DXBwrs
-         V6nguVmh4vqt0cfHQIRxbTYjxXJghrjSa6KWG37j4Itj4ZFV7iCMKLNpZNZynXeyMV
-         OWS+zOgzhUAZagi1m35010QAPYEtZb5/JsktxZsw=
+        s=korg; t=1641220338;
+        bh=dpDdqHI6rn007THso89l2LoiPzpUxa2lD2PHjVhYHGw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rnENof1XJe0iad18WaM290/xj1NBqqPYiLFJ65LUCFUQZhwGn4Bh3waLtNdX9Ezhr
+         RCn0GS9bfxS+ms3+Q1uWKyenBcyj761fgRbjbyHbCmc1Xy6psdH6t2DYHS832rQkq8
+         99n0yzfJLFEMRIh1Y+0U7mYYsnJekrI0ABK0HGEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9276d76e83e3bcde6c99@syzkaller.appspotmail.com,
-        Lee Jones <lee.jones@linaro.org>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 19/19] sctp: use call_rcu to free endpoint
-Date:   Mon,  3 Jan 2022 15:21:36 +0100
-Message-Id: <20220103142052.693212217@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.15 00/73] 5.15.13-rc1 review
+Date:   Mon,  3 Jan 2022 15:23:21 +0100
+Message-Id: <20220103142056.911344037@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
-References: <20220103142052.068378906@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.13-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.15.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.15.13-rc1
+X-KernelTest-Deadline: 2022-01-05T14:20+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+This is the start of the stable review cycle for the 5.15.13 release.
+There are 73 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 5ec7d18d1813a5bead0b495045606c93873aecbb upstream.
+Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
+Anything received after that time might be too late.
 
-This patch is to delay the endpoint free by calling call_rcu() to fix
-another use-after-free issue in sctp_sock_dump():
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.13-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+and the diffstat can be found below.
 
-  BUG: KASAN: use-after-free in __lock_acquire+0x36d9/0x4c20
-  Call Trace:
-    __lock_acquire+0x36d9/0x4c20 kernel/locking/lockdep.c:3218
-    lock_acquire+0x1ed/0x520 kernel/locking/lockdep.c:3844
-    __raw_spin_lock_bh include/linux/spinlock_api_smp.h:135 [inline]
-    _raw_spin_lock_bh+0x31/0x40 kernel/locking/spinlock.c:168
-    spin_lock_bh include/linux/spinlock.h:334 [inline]
-    __lock_sock+0x203/0x350 net/core/sock.c:2253
-    lock_sock_nested+0xfe/0x120 net/core/sock.c:2774
-    lock_sock include/net/sock.h:1492 [inline]
-    sctp_sock_dump+0x122/0xb20 net/sctp/diag.c:324
-    sctp_for_each_transport+0x2b5/0x370 net/sctp/socket.c:5091
-    sctp_diag_dump+0x3ac/0x660 net/sctp/diag.c:527
-    __inet_diag_dump+0xa8/0x140 net/ipv4/inet_diag.c:1049
-    inet_diag_dump+0x9b/0x110 net/ipv4/inet_diag.c:1065
-    netlink_dump+0x606/0x1080 net/netlink/af_netlink.c:2244
-    __netlink_dump_start+0x59a/0x7c0 net/netlink/af_netlink.c:2352
-    netlink_dump_start include/linux/netlink.h:216 [inline]
-    inet_diag_handler_cmd+0x2ce/0x3f0 net/ipv4/inet_diag.c:1170
-    __sock_diag_cmd net/core/sock_diag.c:232 [inline]
-    sock_diag_rcv_msg+0x31d/0x410 net/core/sock_diag.c:263
-    netlink_rcv_skb+0x172/0x440 net/netlink/af_netlink.c:2477
-    sock_diag_rcv+0x2a/0x40 net/core/sock_diag.c:274
+thanks,
 
-This issue occurs when asoc is peeled off and the old sk is freed after
-getting it by asoc->base.sk and before calling lock_sock(sk).
+greg k-h
 
-To prevent the sk free, as a holder of the sk, ep should be alive when
-calling lock_sock(). This patch uses call_rcu() and moves sock_put and
-ep free into sctp_endpoint_destroy_rcu(), so that it's safe to try to
-hold the ep under rcu_read_lock in sctp_transport_traverse_process().
+-------------
+Pseudo-Shortlog of commits:
 
-If sctp_endpoint_hold() returns true, it means this ep is still alive
-and we have held it and can continue to dump it; If it returns false,
-it means this ep is dead and can be freed after rcu_read_unlock, and
-we should skip it.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.15.13-rc1
 
-In sctp_sock_dump(), after locking the sk, if this ep is different from
-tsp->asoc->ep, it means during this dumping, this asoc was peeled off
-before calling lock_sock(), and the sk should be skipped; If this ep is
-the same with tsp->asoc->ep, it means no peeloff happens on this asoc,
-and due to lock_sock, no peeloff will happen either until release_sock.
+Adrian Hunter <adrian.hunter@intel.com>
+    perf scripts python: intel-pt-events.py: Fix printing of switch events
 
-Note that delaying endpoint free won't delay the port release, as the
-port release happens in sctp_endpoint_destroy() before calling call_rcu().
-Also, freeing endpoint by call_rcu() makes it safe to access the sk by
-asoc->base.sk in sctp_assocs_seq_show() and sctp_rcv().
+Adrian Hunter <adrian.hunter@intel.com>
+    perf script: Fix CPU filtering of a script's switch events
 
-Thanks Jones to bring this issue up.
+Adrian Hunter <adrian.hunter@intel.com>
+    perf intel-pt: Fix parsing of VM time correlation arguments
 
-v1->v2:
-  - improve the changelog.
-  - add kfree(ep) into sctp_endpoint_destroy_rcu(), as Jakub noticed.
+Christian Brauner <christian.brauner@ubuntu.com>
+    fs/mount_setattr: always cleanup mount_kattr
 
-Reported-by: syzbot+9276d76e83e3bcde6c99@syzkaller.appspotmail.com
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Fixes: d25adbeb0cdb ("sctp: fix an use-after-free issue in sctp_sock_dump")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/sctp/sctp.h    |    6 +++---
- include/net/sctp/structs.h |    3 ++-
- net/sctp/endpointola.c     |   23 +++++++++++++++--------
- net/sctp/sctp_diag.c       |   12 ++++++------
- net/sctp/socket.c          |   23 +++++++++++++++--------
- 5 files changed, 41 insertions(+), 26 deletions(-)
+Muchun Song <songmuchun@bytedance.com>
+    net: fix use-after-free in tw_timer_handler
 
---- a/include/net/sctp/sctp.h
-+++ b/include/net/sctp/sctp.h
-@@ -118,6 +118,7 @@ extern struct percpu_counter sctp_socket
- int sctp_asconf_mgmt(struct sctp_sock *, struct sctp_sockaddr_entry *);
- struct sk_buff *sctp_skb_recv_datagram(struct sock *, int, int, int *);
- 
-+typedef int (*sctp_callback_t)(struct sctp_endpoint *, struct sctp_transport *, void *);
- int sctp_transport_walk_start(struct rhashtable_iter *iter);
- void sctp_transport_walk_stop(struct rhashtable_iter *iter);
- struct sctp_transport *sctp_transport_get_next(struct net *net,
-@@ -128,9 +129,8 @@ int sctp_transport_lookup_process(int (*
- 				  struct net *net,
- 				  const union sctp_addr *laddr,
- 				  const union sctp_addr *paddr, void *p);
--int sctp_for_each_transport(int (*cb)(struct sctp_transport *, void *),
--			    int (*cb_done)(struct sctp_transport *, void *),
--			    struct net *net, int *pos, void *p);
-+int sctp_transport_traverse_process(sctp_callback_t cb, sctp_callback_t cb_done,
-+				    struct net *net, int *pos, void *p);
- int sctp_for_each_endpoint(int (*cb)(struct sctp_endpoint *, void *), void *p);
- int sctp_get_sctp_info(struct sock *sk, struct sctp_association *asoc,
- 		       struct sctp_info *info);
---- a/include/net/sctp/structs.h
-+++ b/include/net/sctp/structs.h
-@@ -1272,6 +1272,7 @@ struct sctp_endpoint {
- 	      reconf_enable:1;
- 
- 	__u8  strreset_enable;
-+	struct rcu_head rcu;
- };
- 
- /* Recover the outter endpoint structure. */
-@@ -1287,7 +1288,7 @@ static inline struct sctp_endpoint *sctp
- struct sctp_endpoint *sctp_endpoint_new(struct sock *, gfp_t);
- void sctp_endpoint_free(struct sctp_endpoint *);
- void sctp_endpoint_put(struct sctp_endpoint *);
--void sctp_endpoint_hold(struct sctp_endpoint *);
-+int sctp_endpoint_hold(struct sctp_endpoint *ep);
- void sctp_endpoint_add_asoc(struct sctp_endpoint *, struct sctp_association *);
- struct sctp_association *sctp_endpoint_lookup_assoc(
- 	const struct sctp_endpoint *ep,
---- a/net/sctp/endpointola.c
-+++ b/net/sctp/endpointola.c
-@@ -242,6 +242,18 @@ void sctp_endpoint_free(struct sctp_endp
- }
- 
- /* Final destructor for endpoint.  */
-+static void sctp_endpoint_destroy_rcu(struct rcu_head *head)
-+{
-+	struct sctp_endpoint *ep = container_of(head, struct sctp_endpoint, rcu);
-+	struct sock *sk = ep->base.sk;
-+
-+	sctp_sk(sk)->ep = NULL;
-+	sock_put(sk);
-+
-+	kfree(ep);
-+	SCTP_DBG_OBJCNT_DEC(ep);
-+}
-+
- static void sctp_endpoint_destroy(struct sctp_endpoint *ep)
- {
- 	struct sock *sk;
-@@ -275,18 +287,13 @@ static void sctp_endpoint_destroy(struct
- 	if (sctp_sk(sk)->bind_hash)
- 		sctp_put_port(sk);
- 
--	sctp_sk(sk)->ep = NULL;
--	/* Give up our hold on the sock */
--	sock_put(sk);
--
--	kfree(ep);
--	SCTP_DBG_OBJCNT_DEC(ep);
-+	call_rcu(&ep->rcu, sctp_endpoint_destroy_rcu);
- }
- 
- /* Hold a reference to an endpoint. */
--void sctp_endpoint_hold(struct sctp_endpoint *ep)
-+int sctp_endpoint_hold(struct sctp_endpoint *ep)
- {
--	refcount_inc(&ep->base.refcnt);
-+	return refcount_inc_not_zero(&ep->base.refcnt);
- }
- 
- /* Release a reference to an endpoint and clean up if there are
---- a/net/sctp/sctp_diag.c
-+++ b/net/sctp/sctp_diag.c
-@@ -276,9 +276,8 @@ out:
- 	return err;
- }
- 
--static int sctp_sock_dump(struct sctp_transport *tsp, void *p)
-+static int sctp_sock_dump(struct sctp_endpoint *ep, struct sctp_transport *tsp, void *p)
- {
--	struct sctp_endpoint *ep = tsp->asoc->ep;
- 	struct sctp_comm_param *commp = p;
- 	struct sock *sk = ep->base.sk;
- 	struct sk_buff *skb = commp->skb;
-@@ -288,6 +287,8 @@ static int sctp_sock_dump(struct sctp_tr
- 	int err = 0;
- 
- 	lock_sock(sk);
-+	if (ep != tsp->asoc->ep)
-+		goto release;
- 	list_for_each_entry(assoc, &ep->asocs, asocs) {
- 		if (cb->args[4] < cb->args[1])
- 			goto next;
-@@ -330,9 +331,8 @@ release:
- 	return err;
- }
- 
--static int sctp_sock_filter(struct sctp_transport *tsp, void *p)
-+static int sctp_sock_filter(struct sctp_endpoint *ep, struct sctp_transport *tsp, void *p)
- {
--	struct sctp_endpoint *ep = tsp->asoc->ep;
- 	struct sctp_comm_param *commp = p;
- 	struct sock *sk = ep->base.sk;
- 	const struct inet_diag_req_v2 *r = commp->r;
-@@ -490,8 +490,8 @@ skip:
- 	if (!(idiag_states & ~(TCPF_LISTEN | TCPF_CLOSE)))
- 		goto done;
- 
--	sctp_for_each_transport(sctp_sock_filter, sctp_sock_dump,
--				net, &pos, &commp);
-+	sctp_transport_traverse_process(sctp_sock_filter, sctp_sock_dump,
-+					net, &pos, &commp);
- 	cb->args[2] = pos;
- 
- done:
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -4738,11 +4738,12 @@ int sctp_transport_lookup_process(int (*
- }
- EXPORT_SYMBOL_GPL(sctp_transport_lookup_process);
- 
--int sctp_for_each_transport(int (*cb)(struct sctp_transport *, void *),
--			    int (*cb_done)(struct sctp_transport *, void *),
--			    struct net *net, int *pos, void *p) {
-+int sctp_transport_traverse_process(sctp_callback_t cb, sctp_callback_t cb_done,
-+				    struct net *net, int *pos, void *p)
-+{
- 	struct rhashtable_iter hti;
- 	struct sctp_transport *tsp;
-+	struct sctp_endpoint *ep;
- 	int ret;
- 
- again:
-@@ -4752,26 +4753,32 @@ again:
- 
- 	tsp = sctp_transport_get_idx(net, &hti, *pos + 1);
- 	for (; !IS_ERR_OR_NULL(tsp); tsp = sctp_transport_get_next(net, &hti)) {
--		ret = cb(tsp, p);
--		if (ret)
--			break;
-+		ep = tsp->asoc->ep;
-+		if (sctp_endpoint_hold(ep)) { /* asoc can be peeled off */
-+			ret = cb(ep, tsp, p);
-+			if (ret)
-+				break;
-+			sctp_endpoint_put(ep);
-+		}
- 		(*pos)++;
- 		sctp_transport_put(tsp);
- 	}
- 	sctp_transport_walk_stop(&hti);
- 
- 	if (ret) {
--		if (cb_done && !cb_done(tsp, p)) {
-+		if (cb_done && !cb_done(ep, tsp, p)) {
- 			(*pos)++;
-+			sctp_endpoint_put(ep);
- 			sctp_transport_put(tsp);
- 			goto again;
- 		}
-+		sctp_endpoint_put(ep);
- 		sctp_transport_put(tsp);
- 	}
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(sctp_for_each_transport);
-+EXPORT_SYMBOL_GPL(sctp_transport_traverse_process);
- 
- /* 7.2.1 Association Status (SCTP_STATUS)
- 
+SeongJae Park <sj@kernel.org>
+    mm/damon/dbgfs: fix 'struct pid' leaks in 'dbgfs_target_ids_write()'
+
+Leo L. Schwab <ewhac@ewhac.org>
+    Input: spaceball - fix parsing of movement data packets
+
+Pavel Skripkin <paskripkin@gmail.com>
+    Input: appletouch - initialize work before device registration
+
+Alexey Makhalov <amakhalov@vmware.com>
+    scsi: vmw_pvscsi: Set residual data length conditionally
+
+Todd Kjos <tkjos@google.com>
+    binder: fix async_free_space accounting for empty parcels
+
+Andra Paraschiv <andraprs@amazon.com>
+    nitro_enclaves: Use get_user_pages_unlocked() call to handle mmap assert
+
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: mtu3: set interval of FS intr and isoc endpoint
+
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: mtu3: fix list_head check warning
+
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: mtu3: add memory barrier before set GPD's HWO
+
+Vincent Pelletier <plr.vincent@gmail.com>
+    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
+
+Angus Wang <angus.wang@amd.com>
+    drm/amd/display: Changed pipe split policy to allow for multi-display pipe split
+
+Alex Deucher <alexander.deucher@amd.com>
+    drm/amdgpu: add support for IP discovery gc_info table v2
+
+chen gong <curry.gong@amd.com>
+    drm/amdgpu: When the VCN(1.0) block is suspended, powergating is explicitly enabled
+
+Christian König <christian.koenig@amd.com>
+    drm/nouveau: wait for the exclusive fence after the shared ones v2
+
+Dmitry V. Levin <ldv@altlinux.org>
+    uapi: fix linux/nfc.h userspace compilation errors
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    nfc: uapi: use kernel size_t to fix user-space builds
+
+Pavel Skripkin <paskripkin@gmail.com>
+    i2c: validate user data in compat ioctl
+
+Miaoqian Lin <linmq006@gmail.com>
+    fsl/fman: Fix missing put_device() call in fman_port_probe
+
+Jianguo Wu <wujianguo@chinatelecom.cn>
+    selftests: net: using ping6 for IPv6 in udpgro_fwd.sh
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    net/ncsi: check for error return from call to nla_put_u32
+
+Nikolay Aleksandrov <nikolay@nvidia.com>
+    net: bridge: mcast: fix br_multicast_ctx_vlan_global_disabled helper
+
+Jianguo Wu <wujianguo@chinatelecom.cn>
+    selftests: net: Fix a typo in udpgro_fwd.sh
+
+wujianguo <wujianguo@chinatelecom.cn>
+    selftests/net: udpgso_bench_tx: fix dst ip argument
+
+Nikolay Aleksandrov <nikolay@nvidia.com>
+    net: bridge: mcast: add and enforce startup query interval minimum
+
+Nikolay Aleksandrov <nikolay@nvidia.com>
+    net: bridge: mcast: add and enforce query interval minimum
+
+Gal Pressman <gal@nvidia.com>
+    net/mlx5e: Fix wrong features assignment in case of error
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    ionic: Initialize the 'lif->dbid_inuse' bitmap
+
+Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+    drm/amd/display: Set optimize_pwr_state for DCN31
+
+Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+    drm/amd/display: Send s0i2_rdy in stream_count == 0 optimization
+
+James McLaughlin <james.mclaughlin@qsc.com>
+    igc: Fix TX timestamp support for non-MSI-X platforms
+
+Vinicius Costa Gomes <vinicius.gomes@intel.com>
+    igc: Do not enable crosstimestamping for i225-V models
+
+Dust Li <dust.li@linux.alibaba.com>
+    net/smc: fix kernel panic caused by race of smc_sock
+
+Dust Li <dust.li@linux.alibaba.com>
+    net/smc: don't send CDC/LLC message if link not ready
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    NFC: st21nfca: Fix memory leak in device probe and remove
+
+Aleksander Jan Bajkowski <olek2@wp.pl>
+    net: lantiq_xrx200: fix statistics of received bytes
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    net: ag71xx: Fix a potential double free in error handling paths
+
+Matthias-Christian Ott <ott@mirix.org>
+    net: usb: pegasus: Do not drop long Ethernet frames
+
+Karsten Graul <kgraul@linux.ibm.com>
+    net/smc: fix using of uninitialized completions
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: use call_rcu to free endpoint
+
+Miaoqian Lin <linmq006@gmail.com>
+    net: phy: fixed_phy: Fix NULL vs IS_ERR() checking in __fixed_phy_register
+
+Coco Li <lixiaoyan@google.com>
+    selftests: Calculate udpgso segment count without header adjustment
+
+Coco Li <lixiaoyan@google.com>
+    udp: using datalen to cap ipv6 udp max gso segments
+
+Chris Mi <cmi@nvidia.com>
+    net/mlx5e: Delete forward rule for ct or sample action
+
+Roi Dayan <roid@nvidia.com>
+    net/mlx5e: Use tc sample stubs instead of ifdefs in source file
+
+Maxim Mikityanskiy <maximmi@mellanox.com>
+    net/mlx5e: Fix ICOSQ recovery flow for XSK
+
+Maxim Mikityanskiy <maximmi@nvidia.com>
+    net/mlx5e: Fix interoperability between XSK and ICOSQ recovery flow
+
+Amir Tzin <amirtz@nvidia.com>
+    net/mlx5e: Wrap the tx reporter dump callback to extract the sq
+
+Chris Mi <cmi@nvidia.com>
+    net/mlx5: Fix tc max supported prio for nic mode
+
+Moshe Shemesh <moshe@nvidia.com>
+    net/mlx5: Fix SF health recovery flow
+
+Shay Drory <shayd@nvidia.com>
+    net/mlx5: Fix error print in case of IRQ request failed
+
+Miaoqian Lin <linmq006@gmail.com>
+    net/mlx5: DR, Fix NULL vs IS_ERR checking in dr_domain_init_resources
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    scsi: lpfc: Terminate string in lpfc_debugfs_nvmeio_trc_write()
+
+Tom Rix <trix@redhat.com>
+    selinux: initialize proto variable in selinux_ip_postroute_compat()
+
+Javier Martinez Canillas <javierm@redhat.com>
+    efi: Move efifb_setup_from_dmi() prototype from arch headers
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc/ptdump: Fix DEBUG_WX since generic ptdump conversion
+
+Heiko Carstens <hca@linux.ibm.com>
+    recordmcount.pl: fix typo in s390 mcount regex
+
+Libin Yang <libin.yang@intel.com>
+    ALSA: hda: intel-sdw-acpi: go through HDAS ACPI at max depth of 2
+
+Libin Yang <libin.yang@intel.com>
+    ALSA: hda: intel-sdw-acpi: harden detection of controller
+
+Jackie Liu <liuyun01@kylinos.cn>
+    memblock: fix memblock_phys_alloc() section mismatch error
+
+Wang Qing <wangqing@vivo.com>
+    platform/x86: apple-gmux: use resource_size() with res
+
+Miaoqian Lin <linmq006@gmail.com>
+    platform/mellanox: mlxbf-pmc: Fix an IS_ERR() vs NULL bug in mlxbf_pmc_map_counters
+
+Helge Deller <deller@gmx.de>
+    parisc: Clear stale IIR value on instruction access rights trap
+
+Paul Blakey <paulb@nvidia.com>
+    net/sched: Extend qdisc control block with tc control block
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    tomoyo: use hwight16() in tomoyo_domain_quota_is_ok()
+
+Dmitry Vyukov <dvyukov@google.com>
+    tomoyo: Check exceeded quota early in tomoyo_domain_quota_is_ok().
+
+Samuel Čavoj <samuel@cavoj.net>
+    Input: i8042 - enable deferred probe quirk for ASUS UM325UA
+
+Takashi Iwai <tiwai@suse.de>
+    Input: i8042 - add deferred probe support
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt    |  2 +
+ Makefile                                           |  4 +-
+ arch/arm/include/asm/efi.h                         |  1 -
+ arch/arm64/include/asm/efi.h                       |  1 -
+ arch/parisc/kernel/traps.c                         |  2 +
+ arch/powerpc/mm/ptdump/ptdump.c                    |  2 +-
+ arch/riscv/include/asm/efi.h                       |  1 -
+ arch/x86/include/asm/efi.h                         |  2 -
+ drivers/android/binder_alloc.c                     |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c      | 76 +++++++++++++++-------
+ drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c              |  7 ++
+ .../amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c   |  1 +
+ .../gpu/drm/amd/display/dc/dcn20/dcn20_resource.c  |  2 +-
+ .../gpu/drm/amd/display/dc/dcn21/dcn21_resource.c  |  2 +-
+ .../gpu/drm/amd/display/dc/dcn30/dcn30_resource.c  |  2 +-
+ .../drm/amd/display/dc/dcn301/dcn301_resource.c    |  2 +-
+ .../drm/amd/display/dc/dcn302/dcn302_resource.c    |  2 +-
+ .../drm/amd/display/dc/dcn303/dcn303_resource.c    |  2 +-
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c  |  1 +
+ .../gpu/drm/amd/display/dc/dcn31/dcn31_resource.c  |  2 +-
+ drivers/gpu/drm/amd/include/discovery.h            | 49 ++++++++++++++
+ drivers/gpu/drm/nouveau/nouveau_fence.c            | 28 ++++----
+ drivers/i2c/i2c-dev.c                              |  3 +
+ drivers/input/joystick/spaceball.c                 | 11 +++-
+ drivers/input/mouse/appletouch.c                   |  4 +-
+ drivers/input/serio/i8042-x86ia64io.h              | 21 ++++++
+ drivers/input/serio/i8042.c                        | 54 +++++++++------
+ drivers/net/ethernet/atheros/ag71xx.c              | 23 +++----
+ drivers/net/ethernet/freescale/fman/fman_port.c    | 12 ++--
+ drivers/net/ethernet/intel/igc/igc_main.c          |  6 ++
+ drivers/net/ethernet/intel/igc/igc_ptp.c           | 15 ++++-
+ drivers/net/ethernet/lantiq_xrx200.c               |  2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en.h       |  5 +-
+ .../net/ethernet/mellanox/mlx5/core/en/health.h    |  2 +
+ .../net/ethernet/mellanox/mlx5/core/en/rep/tc.c    |  2 -
+ .../ethernet/mellanox/mlx5/core/en/reporter_rx.c   | 35 +++++++++-
+ .../ethernet/mellanox/mlx5/core/en/reporter_tx.c   | 10 ++-
+ .../net/ethernet/mellanox/mlx5/core/en/tc/sample.h | 27 ++++++++
+ .../net/ethernet/mellanox/mlx5/core/en/xsk/setup.c | 16 ++++-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  | 48 +++++++++-----
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c    | 29 ++-------
+ .../ethernet/mellanox/mlx5/core/lib/fs_chains.c    |  3 +
+ drivers/net/ethernet/mellanox/mlx5/core/main.c     | 11 ++--
+ drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c  |  4 +-
+ .../mellanox/mlx5/core/steering/dr_domain.c        |  5 +-
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c    |  2 +-
+ drivers/net/phy/fixed_phy.c                        |  4 +-
+ drivers/net/usb/pegasus.c                          |  4 +-
+ drivers/nfc/st21nfca/i2c.c                         | 29 ++++++---
+ drivers/platform/mellanox/mlxbf-pmc.c              |  4 +-
+ drivers/platform/x86/apple-gmux.c                  |  2 +-
+ drivers/scsi/lpfc/lpfc_debugfs.c                   |  4 +-
+ drivers/scsi/vmw_pvscsi.c                          |  7 +-
+ drivers/usb/gadget/function/f_fs.c                 |  9 ++-
+ drivers/usb/host/xhci-pci.c                        |  5 +-
+ drivers/usb/mtu3/mtu3_gadget.c                     |  8 +++
+ drivers/usb/mtu3/mtu3_qmu.c                        |  7 +-
+ drivers/virt/nitro_enclaves/ne_misc_dev.c          |  5 +-
+ fs/namespace.c                                     |  9 ++-
+ include/linux/efi.h                                |  6 ++
+ include/linux/memblock.h                           |  4 +-
+ include/net/pkt_sched.h                            | 15 +++++
+ include/net/sch_generic.h                          |  2 -
+ include/net/sctp/sctp.h                            |  6 +-
+ include/net/sctp/structs.h                         |  3 +-
+ include/uapi/linux/nfc.h                           |  6 +-
+ mm/damon/dbgfs.c                                   |  8 +++
+ net/bridge/br_multicast.c                          | 32 +++++++++
+ net/bridge/br_netlink.c                            |  4 +-
+ net/bridge/br_private.h                            | 12 +++-
+ net/bridge/br_sysfs_br.c                           |  4 +-
+ net/bridge/br_vlan_options.c                       |  4 +-
+ net/core/dev.c                                     |  8 +--
+ net/ipv4/af_inet.c                                 | 10 ++-
+ net/ipv6/udp.c                                     |  2 +-
+ net/ncsi/ncsi-netlink.c                            |  6 +-
+ net/sched/act_ct.c                                 | 14 ++--
+ net/sched/cls_api.c                                |  6 +-
+ net/sched/cls_flower.c                             |  3 +-
+ net/sched/sch_frag.c                               |  3 +-
+ net/sctp/diag.c                                    | 12 ++--
+ net/sctp/endpointola.c                             | 23 ++++---
+ net/sctp/socket.c                                  | 23 ++++---
+ net/smc/smc.h                                      |  5 ++
+ net/smc/smc_cdc.c                                  | 52 +++++++--------
+ net/smc/smc_cdc.h                                  |  2 +-
+ net/smc/smc_core.c                                 | 27 ++++++--
+ net/smc/smc_core.h                                 |  6 ++
+ net/smc/smc_ib.c                                   |  4 +-
+ net/smc/smc_ib.h                                   |  1 +
+ net/smc/smc_llc.c                                  |  2 +-
+ net/smc/smc_wr.c                                   | 51 +++------------
+ net/smc/smc_wr.h                                   |  5 +-
+ scripts/recordmcount.pl                            |  2 +-
+ security/selinux/hooks.c                           |  2 +-
+ security/tomoyo/util.c                             | 31 ++++-----
+ sound/hda/intel-sdw-acpi.c                         | 13 +++-
+ tools/perf/builtin-script.c                        |  2 +-
+ tools/perf/scripts/python/intel-pt-events.py       | 23 ++++---
+ tools/perf/util/intel-pt.c                         |  1 +
+ tools/testing/selftests/net/udpgro_fwd.sh          |  6 +-
+ tools/testing/selftests/net/udpgso.c               | 12 ++--
+ tools/testing/selftests/net/udpgso_bench_tx.c      |  8 ++-
+ 103 files changed, 736 insertions(+), 375 deletions(-)
 
 
