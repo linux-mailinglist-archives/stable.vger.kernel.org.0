@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E88D3483241
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D701483338
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232757AbiACO0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:26:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38402 "EHLO
+        id S234178AbiACOfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:35:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233733AbiACOZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A51C0613B1;
-        Mon,  3 Jan 2022 06:25:51 -0800 (PST)
+        with ESMTP id S234372AbiACOcj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:32:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121A7C07E5E5;
+        Mon,  3 Jan 2022 06:31:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DD006111D;
-        Mon,  3 Jan 2022 14:25:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E313C36AEB;
-        Mon,  3 Jan 2022 14:25:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADE2FB80EFB;
+        Mon,  3 Jan 2022 14:31:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA84EC36AFE;
+        Mon,  3 Jan 2022 14:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219950;
-        bh=wdwddM4zjPcn5mPV/OFPRJeQYWwyLlvHaYNO3kkYaAw=;
+        s=korg; t=1641220289;
+        bh=lRiISj3/y9VsBRHDRgyp9MXbi4UHiXhDQpRnlaliZzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKpFbL9HZzKkG5gplGwIfBwin/fT/xzmo5n3rBJHJDNqplgSMQxqGcyCzzRjAPlL1
-         wKJA5WYDj5E7CswAn8cejCvrzwDr8UNd6xST2u09KpCH0K90RZUtiU8+PUAzo7UxyW
-         eN8tkzXIKiIds73soRs0DdJTGMRshypZ4LbVlCno=
+        b=Td2/5zDWFnyor1LANO9YJARbYLKU7zMKj2pBm8E+zMrcO45WxK3WQJPtOK0HBqR8+
+         nGushBsvg00vjX41FlK+ZtjsABV+Yx4tClug5VyHTLhSS9ETW/lNQ5oCVoPZqA6F3n
+         +mVuezgCG2YhDNpZtnW0IhsuBCEHK/EYf9JY/RlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <samuel@cavoj.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/27] Input: i8042 - add deferred probe support
+Subject: [PATCH 5.15 22/73] net/mlx5e: Fix interoperability between XSK and ICOSQ recovery flow
 Date:   Mon,  3 Jan 2022 15:23:43 +0100
-Message-Id: <20220103142052.286884793@linuxfoundation.org>
+Message-Id: <20220103142057.631452153@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
-References: <20220103142052.162223000@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,271 +48,217 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 9222ba68c3f4065f6364b99cc641b6b019ef2d42 ]
+[ Upstream commit 17958d7cd731b977ae7d4af38d891c3a1235b5f1 ]
 
-We've got a bug report about the non-working keyboard on ASUS ZenBook
-UX425UA.  It seems that the PS/2 device isn't ready immediately at
-boot but takes some seconds to get ready.  Until now, the only
-workaround is to defer the probe, but it's available only when the
-driver is a module.  However, many distros, including openSUSE as in
-the original report, build the PS/2 input drivers into kernel, hence
-it won't work easily.
+Both regular RQ and XSKRQ use the same ICOSQ for UMRs. When doing
+recovery for the ICOSQ, don't forget to deactivate XSKRQ.
 
-This patch adds the support for the deferred probe for i8042 stuff as
-a workaround of the problem above.  When the deferred probe mode is
-enabled and the device couldn't be probed, it'll be repeated with the
-standard deferred probe mechanism.
+XSK can be opened and closed while channels are active, so a new mutex
+prevents the ICOSQ recovery from running at the same time. The ICOSQ
+recovery deactivates and reactivates XSKRQ, so any parallel change in
+XSK state would break consistency. As the regular RQ is running, it's
+not enough to just flush the recovery work, because it can be
+rescheduled.
 
-The deferred probe mode is enabled either via the new option
-i8042.probe_defer or via the quirk table entry.  As of this patch, the
-quirk table contains only ASUS ZenBook UX425UA.
-
-The deferred probe part is based on Fabio's initial work.
-
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190256
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Tested-by: Samuel Čavoj <samuel@cavoj.net>
-Link: https://lore.kernel.org/r/20211117063757.11380-1-tiwai@suse.de
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: be5323c8379f ("net/mlx5e: Report and recover from CQE error on ICOSQ")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../admin-guide/kernel-parameters.txt         |  2 +
- drivers/input/serio/i8042-x86ia64io.h         | 14 +++++
- drivers/input/serio/i8042.c                   | 54 ++++++++++++-------
- 3 files changed, 51 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en.h  |  2 ++
+ .../ethernet/mellanox/mlx5/core/en/health.h   |  2 ++
+ .../mellanox/mlx5/core/en/reporter_rx.c       | 35 ++++++++++++++++++-
+ .../mellanox/mlx5/core/en/xsk/setup.c         | 16 ++++++++-
+ .../net/ethernet/mellanox/mlx5/core/en_main.c |  7 ++--
+ 5 files changed, 58 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 607db9519cfbd..0ee49b4929be2 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -1439,6 +1439,8 @@
- 			architectures force reset to be always executed
- 	i8042.unlock	[HW] Unlock (ignore) the keylock
- 	i8042.kbdreset	[HW] Reset device connected to KBD port
-+	i8042.probe_defer
-+			[HW] Allow deferred probing upon i8042 probe errors
- 
- 	i810=		[HW,DRM]
- 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index c218e107c0c8f..29179d42b467a 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -999,6 +999,17 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
- 	{ }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+index c10a107a3ea53..54757117071db 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -727,6 +727,8 @@ struct mlx5e_channel {
+ 	DECLARE_BITMAP(state, MLX5E_CHANNEL_NUM_STATES);
+ 	int                        ix;
+ 	int                        cpu;
++	/* Sync between icosq recovery and XSK enable/disable. */
++	struct mutex               icosq_recovery_lock;
  };
  
-+static const struct dmi_system_id i8042_dmi_probe_defer_table[] __initconst = {
-+	{
-+		/* ASUS ZenBook UX425UA */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
-+		},
-+	},
-+	{ }
-+};
-+
- #endif /* CONFIG_X86 */
+ struct mlx5e_ptp;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/health.h b/drivers/net/ethernet/mellanox/mlx5/core/en/health.h
+index 018262d0164b3..3aaf3c2752feb 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/health.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/health.h
+@@ -30,6 +30,8 @@ void mlx5e_reporter_rx_destroy(struct mlx5e_priv *priv);
+ void mlx5e_reporter_icosq_cqe_err(struct mlx5e_icosq *icosq);
+ void mlx5e_reporter_rq_cqe_err(struct mlx5e_rq *rq);
+ void mlx5e_reporter_rx_timeout(struct mlx5e_rq *rq);
++void mlx5e_reporter_icosq_suspend_recovery(struct mlx5e_channel *c);
++void mlx5e_reporter_icosq_resume_recovery(struct mlx5e_channel *c);
  
- #ifdef CONFIG_PNP
-@@ -1318,6 +1329,9 @@ static int __init i8042_platform_init(void)
- 	if (dmi_check_system(i8042_dmi_kbdreset_table))
- 		i8042_kbdreset = true;
+ #define MLX5E_REPORTER_PER_Q_MAX_LEN 256
+ #define MLX5E_REPORTER_FLUSH_TIMEOUT_MSEC 2000
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
+index 0eb125316fe20..e329158fdc555 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
+@@ -59,6 +59,7 @@ static void mlx5e_reset_icosq_cc_pc(struct mlx5e_icosq *icosq)
  
-+	if (dmi_check_system(i8042_dmi_probe_defer_table))
-+		i8042_probe_defer = true;
-+
- 	/*
- 	 * A20 was already enabled during early kernel init. But some buggy
- 	 * BIOSes (in MSI Laptops) require A20 to be enabled using 8042 to
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index c60593c8d2be5..082afbf088d67 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -48,6 +48,10 @@ static bool i8042_unlock;
- module_param_named(unlock, i8042_unlock, bool, 0);
- MODULE_PARM_DESC(unlock, "Ignore keyboard lock.");
- 
-+static bool i8042_probe_defer;
-+module_param_named(probe_defer, i8042_probe_defer, bool, 0);
-+MODULE_PARM_DESC(probe_defer, "Allow deferred probing.");
-+
- enum i8042_controller_reset_mode {
- 	I8042_RESET_NEVER,
- 	I8042_RESET_ALWAYS,
-@@ -702,7 +706,7 @@ static int i8042_set_mux_mode(bool multiplex, unsigned char *mux_version)
-  * LCS/Telegraphics.
-  */
- 
--static int __init i8042_check_mux(void)
-+static int i8042_check_mux(void)
+ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
  {
- 	unsigned char mux_version;
- 
-@@ -731,10 +735,10 @@ static int __init i8042_check_mux(void)
- /*
-  * The following is used to test AUX IRQ delivery.
-  */
--static struct completion i8042_aux_irq_delivered __initdata;
--static bool i8042_irq_being_tested __initdata;
-+static struct completion i8042_aux_irq_delivered;
-+static bool i8042_irq_being_tested;
- 
--static irqreturn_t __init i8042_aux_test_irq(int irq, void *dev_id)
-+static irqreturn_t i8042_aux_test_irq(int irq, void *dev_id)
- {
- 	unsigned long flags;
- 	unsigned char str, data;
-@@ -761,7 +765,7 @@ static irqreturn_t __init i8042_aux_test_irq(int irq, void *dev_id)
-  * verifies success by readinng CTR. Used when testing for presence of AUX
-  * port.
-  */
--static int __init i8042_toggle_aux(bool on)
-+static int i8042_toggle_aux(bool on)
- {
- 	unsigned char param;
- 	int i;
-@@ -789,7 +793,7 @@ static int __init i8042_toggle_aux(bool on)
-  * the presence of an AUX interface.
-  */
- 
--static int __init i8042_check_aux(void)
-+static int i8042_check_aux(void)
- {
- 	int retval = -1;
- 	bool irq_registered = false;
-@@ -996,7 +1000,7 @@ static int i8042_controller_init(void)
- 
- 		if (i8042_command(&ctr[n++ % 2], I8042_CMD_CTL_RCTR)) {
- 			pr_err("Can't read CTR while initializing i8042\n");
--			return -EIO;
-+			return i8042_probe_defer ? -EPROBE_DEFER : -EIO;
- 		}
- 
- 	} while (n < 2 || ctr[0] != ctr[1]);
-@@ -1311,7 +1315,7 @@ static void i8042_shutdown(struct platform_device *dev)
- 	i8042_controller_reset(false);
- }
- 
--static int __init i8042_create_kbd_port(void)
-+static int i8042_create_kbd_port(void)
- {
- 	struct serio *serio;
- 	struct i8042_port *port = &i8042_ports[I8042_KBD_PORT_NO];
-@@ -1339,7 +1343,7 @@ static int __init i8042_create_kbd_port(void)
- 	return 0;
- }
- 
--static int __init i8042_create_aux_port(int idx)
-+static int i8042_create_aux_port(int idx)
- {
- 	struct serio *serio;
- 	int port_no = idx < 0 ? I8042_AUX_PORT_NO : I8042_MUX_PORT_NO + idx;
-@@ -1376,13 +1380,13 @@ static int __init i8042_create_aux_port(int idx)
- 	return 0;
- }
- 
--static void __init i8042_free_kbd_port(void)
-+static void i8042_free_kbd_port(void)
- {
- 	kfree(i8042_ports[I8042_KBD_PORT_NO].serio);
- 	i8042_ports[I8042_KBD_PORT_NO].serio = NULL;
- }
- 
--static void __init i8042_free_aux_ports(void)
-+static void i8042_free_aux_ports(void)
- {
- 	int i;
- 
-@@ -1392,7 +1396,7 @@ static void __init i8042_free_aux_ports(void)
- 	}
- }
- 
--static void __init i8042_register_ports(void)
-+static void i8042_register_ports(void)
- {
- 	int i;
- 
-@@ -1444,7 +1448,7 @@ static void i8042_free_irqs(void)
- 	i8042_aux_irq_registered = i8042_kbd_irq_registered = false;
- }
- 
--static int __init i8042_setup_aux(void)
-+static int i8042_setup_aux(void)
- {
- 	int (*aux_enable)(void);
- 	int error;
-@@ -1486,7 +1490,7 @@ static int __init i8042_setup_aux(void)
- 	return error;
- }
- 
--static int __init i8042_setup_kbd(void)
-+static int i8042_setup_kbd(void)
- {
- 	int error;
- 
-@@ -1536,7 +1540,7 @@ static int i8042_kbd_bind_notifier(struct notifier_block *nb,
- 	return 0;
- }
- 
--static int __init i8042_probe(struct platform_device *dev)
-+static int i8042_probe(struct platform_device *dev)
- {
- 	int error;
- 
-@@ -1601,6 +1605,7 @@ static struct platform_driver i8042_driver = {
- 		.pm	= &i8042_pm_ops,
- #endif
- 	},
-+	.probe		= i8042_probe,
- 	.remove		= i8042_remove,
- 	.shutdown	= i8042_shutdown,
- };
-@@ -1611,7 +1616,6 @@ static struct notifier_block i8042_kbd_bind_notifier_block = {
- 
- static int __init i8042_init(void)
- {
--	struct platform_device *pdev;
++	struct mlx5e_rq *xskrq = NULL;
+ 	struct mlx5_core_dev *mdev;
+ 	struct mlx5e_icosq *icosq;
+ 	struct net_device *dev;
+@@ -67,7 +68,13 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
  	int err;
  
- 	dbg_init();
-@@ -1627,17 +1631,29 @@ static int __init i8042_init(void)
- 	/* Set this before creating the dev to allow i8042_command to work right away */
- 	i8042_present = true;
- 
--	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
--	if (IS_ERR(pdev)) {
--		err = PTR_ERR(pdev);
-+	err = platform_driver_register(&i8042_driver);
-+	if (err)
- 		goto err_platform_exit;
+ 	icosq = ctx;
 +
-+	i8042_platform_device = platform_device_alloc("i8042", -1);
-+	if (!i8042_platform_device) {
-+		err = -ENOMEM;
-+		goto err_unregister_driver;
- 	}
- 
-+	err = platform_device_add(i8042_platform_device);
-+	if (err)
-+		goto err_free_device;
++	mutex_lock(&icosq->channel->icosq_recovery_lock);
 +
- 	bus_register_notifier(&serio_bus, &i8042_kbd_bind_notifier_block);
- 	panic_blink = i8042_panic_blink;
++	/* mlx5e_close_rq cancels this work before RQ and ICOSQ are killed. */
+ 	rq = &icosq->channel->rq;
++	if (test_bit(MLX5E_RQ_STATE_ENABLED, &icosq->channel->xskrq.state))
++		xskrq = &icosq->channel->xskrq;
+ 	mdev = icosq->channel->mdev;
+ 	dev = icosq->channel->netdev;
+ 	err = mlx5_core_query_sq_state(mdev, icosq->sqn, &state);
+@@ -81,6 +88,9 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
+ 		goto out;
  
+ 	mlx5e_deactivate_rq(rq);
++	if (xskrq)
++		mlx5e_deactivate_rq(xskrq);
++
+ 	err = mlx5e_wait_for_icosq_flush(icosq);
+ 	if (err)
+ 		goto out;
+@@ -94,15 +104,28 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
+ 		goto out;
+ 
+ 	mlx5e_reset_icosq_cc_pc(icosq);
++
+ 	mlx5e_free_rx_in_progress_descs(rq);
++	if (xskrq)
++		mlx5e_free_rx_in_progress_descs(xskrq);
++
+ 	clear_bit(MLX5E_SQ_STATE_RECOVERING, &icosq->state);
+ 	mlx5e_activate_icosq(icosq);
+-	mlx5e_activate_rq(rq);
+ 
++	mlx5e_activate_rq(rq);
+ 	rq->stats->recover++;
++
++	if (xskrq) {
++		mlx5e_activate_rq(xskrq);
++		xskrq->stats->recover++;
++	}
++
++	mutex_unlock(&icosq->channel->icosq_recovery_lock);
++
  	return 0;
- 
-+err_free_device:
-+	platform_device_put(i8042_platform_device);
-+err_unregister_driver:
-+	platform_driver_unregister(&i8042_driver);
-  err_platform_exit:
- 	i8042_platform_exit();
+ out:
+ 	clear_bit(MLX5E_SQ_STATE_RECOVERING, &icosq->state);
++	mutex_unlock(&icosq->channel->icosq_recovery_lock);
  	return err;
+ }
+ 
+@@ -703,6 +726,16 @@ void mlx5e_reporter_icosq_cqe_err(struct mlx5e_icosq *icosq)
+ 	mlx5e_health_report(priv, priv->rx_reporter, err_str, &err_ctx);
+ }
+ 
++void mlx5e_reporter_icosq_suspend_recovery(struct mlx5e_channel *c)
++{
++	mutex_lock(&c->icosq_recovery_lock);
++}
++
++void mlx5e_reporter_icosq_resume_recovery(struct mlx5e_channel *c)
++{
++	mutex_unlock(&c->icosq_recovery_lock);
++}
++
+ static const struct devlink_health_reporter_ops mlx5_rx_reporter_ops = {
+ 	.name = "rx",
+ 	.recover = mlx5e_rx_reporter_recover,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
+index 538bc2419bd83..8526a5fbbf0bf 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
+@@ -4,6 +4,7 @@
+ #include "setup.h"
+ #include "en/params.h"
+ #include "en/txrx.h"
++#include "en/health.h"
+ 
+ /* It matches XDP_UMEM_MIN_CHUNK_SIZE, but as this constant is private and may
+  * change unexpectedly, and mlx5e has a minimum valid stride size for striding
+@@ -170,7 +171,13 @@ void mlx5e_close_xsk(struct mlx5e_channel *c)
+ 
+ void mlx5e_activate_xsk(struct mlx5e_channel *c)
+ {
++	/* ICOSQ recovery deactivates RQs. Suspend the recovery to avoid
++	 * activating XSKRQ in the middle of recovery.
++	 */
++	mlx5e_reporter_icosq_suspend_recovery(c);
+ 	set_bit(MLX5E_RQ_STATE_ENABLED, &c->xskrq.state);
++	mlx5e_reporter_icosq_resume_recovery(c);
++
+ 	/* TX queue is created active. */
+ 
+ 	spin_lock_bh(&c->async_icosq_lock);
+@@ -180,6 +187,13 @@ void mlx5e_activate_xsk(struct mlx5e_channel *c)
+ 
+ void mlx5e_deactivate_xsk(struct mlx5e_channel *c)
+ {
+-	mlx5e_deactivate_rq(&c->xskrq);
++	/* ICOSQ recovery may reactivate XSKRQ if clear_bit is called in the
++	 * middle of recovery. Suspend the recovery to avoid it.
++	 */
++	mlx5e_reporter_icosq_suspend_recovery(c);
++	clear_bit(MLX5E_RQ_STATE_ENABLED, &c->xskrq.state);
++	mlx5e_reporter_icosq_resume_recovery(c);
++	synchronize_net(); /* Sync with NAPI to prevent mlx5e_post_rx_wqes. */
++
+ 	/* TX queue is disabled on close. */
+ }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 8cf5fbebd674b..611c8a0cbf4f0 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -911,8 +911,6 @@ void mlx5e_deactivate_rq(struct mlx5e_rq *rq)
+ void mlx5e_close_rq(struct mlx5e_rq *rq)
+ {
+ 	cancel_work_sync(&rq->dim.work);
+-	if (rq->icosq)
+-		cancel_work_sync(&rq->icosq->recover_work);
+ 	cancel_work_sync(&rq->recover_work);
+ 	mlx5e_destroy_rq(rq);
+ 	mlx5e_free_rx_descs(rq);
+@@ -1875,6 +1873,8 @@ static int mlx5e_open_queues(struct mlx5e_channel *c,
+ 	if (err)
+ 		goto err_close_xdpsq_cq;
+ 
++	mutex_init(&c->icosq_recovery_lock);
++
+ 	err = mlx5e_open_icosq(c, params, &cparam->icosq, &c->icosq);
+ 	if (err)
+ 		goto err_close_async_icosq;
+@@ -1943,9 +1943,12 @@ static void mlx5e_close_queues(struct mlx5e_channel *c)
+ 	mlx5e_close_xdpsq(&c->xdpsq);
+ 	if (c->xdp)
+ 		mlx5e_close_xdpsq(&c->rq_xdpsq);
++	/* The same ICOSQ is used for UMRs for both RQ and XSKRQ. */
++	cancel_work_sync(&c->icosq.recover_work);
+ 	mlx5e_close_rq(&c->rq);
+ 	mlx5e_close_sqs(c);
+ 	mlx5e_close_icosq(&c->icosq);
++	mutex_destroy(&c->icosq_recovery_lock);
+ 	mlx5e_close_icosq(&c->async_icosq);
+ 	if (c->xdp)
+ 		mlx5e_close_cq(&c->rq_xdpsq.cq);
 -- 
 2.34.1
 
