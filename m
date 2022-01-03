@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E98F48331E
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76458483282
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233585AbiACOdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:33:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:32768 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234737AbiACObk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:31:40 -0500
+        id S231294AbiACO2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:28:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38980 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234041AbiACO1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB59BC0698CF;
+        Mon,  3 Jan 2022 06:27:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E6366110F;
-        Mon,  3 Jan 2022 14:31:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06CAAC36AEB;
-        Mon,  3 Jan 2022 14:31:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BAF96111A;
+        Mon,  3 Jan 2022 14:27:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC33C36AEB;
+        Mon,  3 Jan 2022 14:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220298;
-        bh=27e5PbD9EWqYAWYv9hAqSWtD7yB2Z/OoYQ5POT/Z1Vw=;
+        s=korg; t=1641220042;
+        bh=kzFB35nUgKEGPQmA/GQT7vVblxDe8PHNHe1KRrpLT48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6DebqqwSCEcHR1fUZ4toft/susGvCvS8geMMc6edfX8Xhc6SLIwxZ4W/YMO0G9lp
-         1brWtAw6d9kcuOWgr01B4uRF25qGt5Hs4xuqARaTPzrABqkccTmR+HMm8cBWkL2OuA
-         VG7jCN1zr1racJCXq7ng3x+jYp9+Wg7uRoEIyvTU=
+        b=DupfScinEuW5TNi6ViRs84mgxEf5CPfHAphS7APGoW+wik4Lza7sdaZsHENeAv6Z4
+         qnNRQLj4h4Oip4Ai1IRY8uS/K4P3/k/C/pfcAw+C7qKrz7Wxzqlx95LGxUvRe7vWzA
+         Bx5fQ7Gd4z3iVH92T/KfdjZbR5sRS1RoONRmXB14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Mi <cmi@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 25/73] net/mlx5e: Delete forward rule for ct or sample action
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+        Jerome Marchand <jmarchan@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.4 08/37] recordmcount.pl: fix typo in s390 mcount regex
 Date:   Mon,  3 Jan 2022 15:23:46 +0100
-Message-Id: <20220103142057.728180193@linuxfoundation.org>
+Message-Id: <20220103142052.139063669@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
+References: <20220103142051.883166998@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Mi <cmi@nvidia.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 2820110d945923ab2f4901753e4ccbb2a506fa8e ]
+commit 4eb1782eaa9fa1c224ad1fa0d13a9f09c3ab2d80 upstream.
 
-When there is ct or sample action, the ct or sample rule will be deleted
-and return. But if there is an extra mirror action, the forward rule can't
-be deleted because of the return.
+Commit 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well
+as bcrl on s390") added a new alternative mnemonic for the existing brcl
+instruction. This is required for the combination old gcc version (pre 9.0)
+and binutils since version 2.37.
+However at the same time this commit introduced a typo, replacing brcl with
+bcrl. As a result no mcount locations are detected anymore with old gcc
+versions (pre 9.0) and binutils before version 2.37.
+Fix this by using the correct mnemonic again.
 
-Fix it by removing the return.
-
-Fixes: 69e2916ebce4 ("net/mlx5: CT: Add support for mirroring")
-Fixes: f94d6389f6a8 ("net/mlx5e: TC, Add support to offload sample action")
-Signed-off-by: Chris Mi <cmi@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Miroslav Benes <mbenes@suse.cz>
+Cc: Jerome Marchand <jmarchan@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well as bcrl on s390")
+Link: https://lore.kernel.org/r/alpine.LSU.2.21.2112230949520.19849@pobox.suse.cz
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ scripts/recordmcount.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index e7736421d1bc2..fa461bc57baee 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -1179,21 +1179,16 @@ void mlx5e_tc_unoffload_fdb_rules(struct mlx5_eswitch *esw,
- 	if (attr->flags & MLX5_ESW_ATTR_FLAG_SLOW_PATH)
- 		goto offload_rule_0;
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -252,7 +252,7 @@ if ($arch eq "x86_64") {
  
--	if (flow_flag_test(flow, CT)) {
--		mlx5_tc_ct_delete_flow(get_ct_priv(flow->priv), flow, attr);
--		return;
--	}
--
--	if (flow_flag_test(flow, SAMPLE)) {
--		mlx5e_tc_sample_unoffload(get_sample_priv(flow->priv), flow->rule[0], attr);
--		return;
--	}
--
- 	if (attr->esw_attr->split_count)
- 		mlx5_eswitch_del_fwd_rule(esw, flow->rule[1], attr);
- 
-+	if (flow_flag_test(flow, CT))
-+		mlx5_tc_ct_delete_flow(get_ct_priv(flow->priv), flow, attr);
-+	else if (flow_flag_test(flow, SAMPLE))
-+		mlx5e_tc_sample_unoffload(get_sample_priv(flow->priv), flow->rule[0], attr);
-+	else
- offload_rule_0:
--	mlx5_eswitch_del_offloaded_rule(esw, flow->rule[0], attr);
-+		mlx5_eswitch_del_offloaded_rule(esw, flow->rule[0], attr);
- }
- 
- struct mlx5_flow_handle *
--- 
-2.34.1
-
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(brcl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     } else {
+ 	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*R_390_(PC|PLT)32DBL\\s+_mcount\\+0x2\$";
 
 
