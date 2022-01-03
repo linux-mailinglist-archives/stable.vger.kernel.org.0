@@ -2,94 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF66A4831CA
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:21:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0504831D7
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:22:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233309AbiACOV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:21:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37318 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233300AbiACOVv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:21:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89A9C06179E;
-        Mon,  3 Jan 2022 06:21:49 -0800 (PST)
+        id S233354AbiACOWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:22:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53362 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233337AbiACOWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 774986111D;
-        Mon,  3 Jan 2022 14:21:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC7FC36AEB;
-        Mon,  3 Jan 2022 14:21:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5DB361122;
+        Mon,  3 Jan 2022 14:22:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37955C36AED;
+        Mon,  3 Jan 2022 14:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219708;
-        bh=Nm5zNV5nzs2S0sWDBFqt41qcKNKeJuleJ5hkANXoOxI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rirq8QsBLD3mw8cGipoc3xifsOm5Ojil3+HBbpM1GnJUTu1z0zaqTXM0f0lYADnCM
-         hMnsNitdDQsQuFBHuzrqZblYIcaS2KTvEfpvOS6/GM1A7v4dEnUQxyY+yGyhp6D3r6
-         mPVcY3Z3XI8sfxcZ9sOuuqoXc/jqSTdFp9dte00w=
+        s=korg; t=1641219730;
+        bh=bI3LBGFTMF3Jbo3Sz0cSIm+rg3xx+O4hPnnBl5Fog6Q=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZdJ8sXmDD8Ey4U7xOm4xwOhb46uGHHTvx+rHD7Q0XUFA28HIyCP1E2xPYoa8rSsZG
+         XgNwaxPntZDQnVL/jQsTl9tDUUSCvopj3/jrML1erhsytwUxR2p8QIosP/KXz5vwhJ
+         3CjPMhkoaCIBA2g4BRrAcoip00qIYyQjLVcpyWeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 05/11] uapi: fix linux/nfc.h userspace compilation errors
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.9 00/13] 4.9.296-rc1 review
 Date:   Mon,  3 Jan 2022 15:21:16 +0100
-Message-Id: <20220103142050.952302604@linuxfoundation.org>
+Message-Id: <20220103142051.979780231@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142050.763904028@linuxfoundation.org>
-References: <20220103142050.763904028@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.296-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.296-rc1
+X-KernelTest-Deadline: 2022-01-05T14:20+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry V. Levin <ldv@altlinux.org>
+This is the start of the stable review cycle for the 4.9.296 release.
+There are 13 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 7175f02c4e5f5a9430113ab9ca0fd0ce98b28a51 upstream.
+Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
+Anything received after that time might be too late.
 
-Replace sa_family_t with __kernel_sa_family_t to fix the following
-linux/nfc.h userspace compilation errors:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.296-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-/usr/include/linux/nfc.h:266:2: error: unknown type name 'sa_family_t'
-  sa_family_t sa_family;
-/usr/include/linux/nfc.h:274:2: error: unknown type name 'sa_family_t'
-  sa_family_t sa_family;
+thanks,
 
-Fixes: 23b7869c0fd0 ("NFC: add the NFC socket raw protocol")
-Fixes: d646960f7986 ("NFC: Initial LLCP support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/uapi/linux/nfc.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+greg k-h
 
---- a/include/uapi/linux/nfc.h
-+++ b/include/uapi/linux/nfc.h
-@@ -261,7 +261,7 @@ enum nfc_sdp_attr {
- #define NFC_SE_ENABLED  0x1
- 
- struct sockaddr_nfc {
--	sa_family_t sa_family;
-+	__kernel_sa_family_t sa_family;
- 	__u32 dev_idx;
- 	__u32 target_idx;
- 	__u32 nfc_protocol;
-@@ -269,7 +269,7 @@ struct sockaddr_nfc {
- 
- #define NFC_LLCP_MAX_SERVICE_NAME 63
- struct sockaddr_nfc_llcp {
--	sa_family_t sa_family;
-+	__kernel_sa_family_t sa_family;
- 	__u32 dev_idx;
- 	__u32 target_idx;
- 	__u32 nfc_protocol;
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.296-rc1
+
+Muchun Song <songmuchun@bytedance.com>
+    net: fix use-after-free in tw_timer_handler
+
+Leo L. Schwab <ewhac@ewhac.org>
+    Input: spaceball - fix parsing of movement data packets
+
+Pavel Skripkin <paskripkin@gmail.com>
+    Input: appletouch - initialize work before device registration
+
+Alexey Makhalov <amakhalov@vmware.com>
+    scsi: vmw_pvscsi: Set residual data length conditionally
+
+Vincent Pelletier <plr.vincent@gmail.com>
+    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
+
+Dmitry V. Levin <ldv@altlinux.org>
+    uapi: fix linux/nfc.h userspace compilation errors
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    nfc: uapi: use kernel size_t to fix user-space builds
+
+Miaoqian Lin <linmq006@gmail.com>
+    fsl/fman: Fix missing put_device() call in fman_port_probe
+
+Tom Rix <trix@redhat.com>
+    selinux: initialize proto variable in selinux_ip_postroute_compat()
+
+Heiko Carstens <hca@linux.ibm.com>
+    recordmcount.pl: fix typo in s390 mcount regex
+
+Wang Qing <wangqing@vivo.com>
+    platform/x86: apple-gmux: use resource_size() with res
+
+Hans de Goede <hdegoede@redhat.com>
+    HID: asus: Add depends on USB_HID to HID_ASUS Kconfig option
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                        |  4 ++--
+ drivers/hid/Kconfig                             |  1 +
+ drivers/input/joystick/spaceball.c              | 11 +++++++++--
+ drivers/input/mouse/appletouch.c                |  4 ++--
+ drivers/net/ethernet/freescale/fman/fman_port.c | 12 +++++++-----
+ drivers/platform/x86/apple-gmux.c               |  2 +-
+ drivers/scsi/vmw_pvscsi.c                       |  7 +++++--
+ drivers/usb/gadget/function/f_fs.c              |  9 ++++++---
+ drivers/usb/host/xhci-pci.c                     |  5 ++++-
+ include/uapi/linux/nfc.h                        |  6 +++---
+ net/ipv4/af_inet.c                              | 10 ++++------
+ scripts/recordmcount.pl                         |  2 +-
+ security/selinux/hooks.c                        |  2 +-
+ 13 files changed, 46 insertions(+), 29 deletions(-)
 
 
