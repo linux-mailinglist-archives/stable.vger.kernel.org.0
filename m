@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BCA48337A
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:37:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C44C4832B4
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234725AbiACOhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:37:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235831AbiACOfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:35:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D6DC08E9B3;
-        Mon,  3 Jan 2022 06:32:57 -0800 (PST)
+        id S234302AbiACOaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:30:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60946 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234558AbiACO3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:29:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6F10FB80EFF;
-        Mon,  3 Jan 2022 14:32:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16B8C36AED;
-        Mon,  3 Jan 2022 14:32:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B468B80EFC;
+        Mon,  3 Jan 2022 14:29:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C55C6C36AED;
+        Mon,  3 Jan 2022 14:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220375;
-        bh=7Clt9w9SgJCoCBBhOigvz0aW8emFRgjAfgMACVY+ag8=;
+        s=korg; t=1641220175;
+        bh=uEmlorknZ4j1WY6HEon9h0FOTpjpcZa8gp1aoA334dQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ebxx5b+qhrX8p9SQEkh080WyUYY+IKzJ020M9DhA+inyzs6jcCTwPa8CdgW3g4Evt
-         f9Md4G73+QgNO1xwtl7UcMYapmepHeSox2NIVw/gR37gUgpSEM08lqaigU9FN2XlB6
-         sBy6xAaJsHJ2mdp29o4YXk35wc0ZoVk2xoVZCHUk=
+        b=vEAFXzkfK5Jq9KBj3MxoXx2xIO4is7K9vXU6Gub/HarV5/nYaAy88agZp6y0tgu29
+         wLVYL5//CDGWRJ19oxPK7IX6XeMoOxG+eCRJDssxeVR43Y6ZhVQnpfExqp7zjsjGw4
+         CZ4tcLGdZ+mAradUAjQDbwrms1OEepJ57YzduPuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 50/73] fsl/fman: Fix missing put_device() call in fman_port_probe
-Date:   Mon,  3 Jan 2022 15:24:11 +0100
-Message-Id: <20220103142058.527328572@linuxfoundation.org>
+        stable@vger.kernel.org, chen gong <curry.gong@amd.com>,
+        Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 35/48] drm/amdgpu: When the VCN(1.0) block is suspended, powergating is explicitly enabled
+Date:   Mon,  3 Jan 2022 15:24:12 +0100
+Message-Id: <20220103142054.657357805@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,82 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: chen gong <curry.gong@amd.com>
 
-[ Upstream commit bf2b09fedc17248b315f80fb249087b7d28a69a6 ]
+commit b7865173cf6ae59942e2c69326a06e1c1df5ecf6 upstream.
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the and error handling paths.
+Play a video on the raven (or PCO, raven2) platform, and then do the S3
+test. When resume, the following error will be reported:
 
-Fixes: 18a6c85fcc78 ("fsl/fman: Add FMan Port Support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+amdgpu 0000:02:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring
+vcn_dec test failed (-110)
+[drm:amdgpu_device_ip_resume_phase2 [amdgpu]] *ERROR* resume of IP block
+<vcn_v1_0> failed -110
+amdgpu 0000:02:00.0: amdgpu: amdgpu_device_ip_resume failed (-110).
+PM: dpm_run_callback(): pci_pm_resume+0x0/0x90 returns -110
+
+[why]
+When playing the video: The power state flag of the vcn block is set to
+POWER_STATE_ON.
+
+When doing suspend: There is no change to the power state flag of the
+vcn block, it is still POWER_STATE_ON.
+
+When doing resume: Need to open the power gate of the vcn block and set
+the power state flag of the VCN block to POWER_STATE_ON.
+But at this time, the power state flag of the vcn block is already
+POWER_STATE_ON. The power status flag check in the "8f2cdef drm/amd/pm:
+avoid duplicate powergate/ungate setting" patch will return the
+amdgpu_dpm_set_powergating_by_smu function directly.
+As a result, the gate of the power was not opened, causing the
+subsequent ring test to fail.
+
+[how]
+In the suspend function of the vcn block, explicitly change the power
+state flag of the vcn block to POWER_STATE_OFF.
+
+BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1828
+Signed-off-by: chen gong <curry.gong@amd.com>
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fman/fman_port.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/fman/fman_port.c b/drivers/net/ethernet/freescale/fman/fman_port.c
-index d9baac0dbc7d0..4c9d05c45c033 100644
---- a/drivers/net/ethernet/freescale/fman/fman_port.c
-+++ b/drivers/net/ethernet/freescale/fman/fman_port.c
-@@ -1805,7 +1805,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	fman = dev_get_drvdata(&fm_pdev->dev);
- 	if (!fman) {
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
+@@ -254,6 +254,13 @@ static int vcn_v1_0_suspend(void *handle
+ {
+ 	int r;
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++	bool idle_work_unexecuted;
++
++	idle_work_unexecuted = cancel_delayed_work_sync(&adev->vcn.idle_work);
++	if (idle_work_unexecuted) {
++		if (adev->pm.dpm_enabled)
++			amdgpu_dpm_enable_uvd(adev, false);
++	}
  
- 	err = of_property_read_u32(port_node, "cell-index", &val);
-@@ -1813,7 +1813,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: reading cell-index for %pOF failed\n",
- 			__func__, port_node);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 	port_id = (u8)val;
- 	port->dts_params.id = port_id;
-@@ -1847,7 +1847,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	}  else {
- 		dev_err(port->dev, "%s: Illegal port type\n", __func__);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 
- 	port->dts_params.type = port_type;
-@@ -1861,7 +1861,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 			dev_err(port->dev, "%s: incorrect qman-channel-id\n",
- 				__func__);
- 			err = -EINVAL;
--			goto return_err;
-+			goto put_device;
- 		}
- 		port->dts_params.qman_channel_id = qman_channel_id;
- 	}
-@@ -1871,7 +1871,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: of_address_to_resource() failed\n",
- 			__func__);
- 		err = -ENOMEM;
--		goto return_err;
-+		goto put_device;
- 	}
- 
- 	port->dts_params.fman = fman;
-@@ -1896,6 +1896,8 @@ static int fman_port_probe(struct platform_device *of_dev)
- 
- 	return 0;
- 
-+put_device:
-+	put_device(&fm_pdev->dev);
- return_err:
- 	of_node_put(port_node);
- free_port:
--- 
-2.34.1
-
+ 	r = vcn_v1_0_hw_fini(adev);
+ 	if (r)
 
 
