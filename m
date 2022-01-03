@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA84D483333
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F12B48321D
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235053AbiACOeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:34:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39822 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235083AbiACOci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:32:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5788FC07E5E0;
-        Mon,  3 Jan 2022 06:31:24 -0800 (PST)
+        id S231206AbiACOZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:25:07 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:55600 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232552AbiACOYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:24:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB57761118;
-        Mon,  3 Jan 2022 14:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46DCC36AEE;
-        Mon,  3 Jan 2022 14:31:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C987D610B1;
+        Mon,  3 Jan 2022 14:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD608C36AEB;
+        Mon,  3 Jan 2022 14:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220283;
-        bh=3Z2rteND1uw1h9IVQ9HpnVCi95H5LJX7sK04HUYJOAk=;
+        s=korg; t=1641219891;
+        bh=lwj2r/vdy5EfWCyc7fU8IpKZOJHgY2+UDpLNt7x7nbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zZ1GZFasJylm9N9oNjP7/LFHGH743jv8HXnkyctb8Reft/fjMWqLPx7E6hiw7mARC
-         wk82lqNfEdi5gX5fYBIXYBbUZyPOBnD7A0ioTMr06+fSpVi8jgcJK04amnPwe+P9V2
-         cy/8v6K5fiKqL5x62Y0coNR2dWzJbx1QsLdZHPh0=
+        b=MDEYT1MoK8A9iN8P3Rq7ERTQ4J4PKKUB8aOjvm5HWWuak7losUQzV7qe/GWmiLa8z
+         HGbsKPhGe1jEgfqBb0oQezDYo8ewsFcWbEuGkqg8VPxvgSwqKdg3eFUVKP8uZG2VCs
+         nPPuVZiQd2/UWonKt65X7ILL1I9q2qt63Lhltj9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Mi <cmi@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 20/73] net/mlx5: Fix tc max supported prio for nic mode
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Jason Self <jason@bluehome.net>
+Subject: [PATCH 4.19 01/27] HID: asus: Add depends on USB_HID to HID_ASUS Kconfig option
 Date:   Mon,  3 Jan 2022 15:23:41 +0100
-Message-Id: <20220103142057.572473336@linuxfoundation.org>
+Message-Id: <20220103142052.218007981@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
+References: <20220103142052.162223000@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,39 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Mi <cmi@nvidia.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d671e109bd8548d067b27e39e183a484430bf102 ]
+commit c4f0126d487f3c68ab19ccb7c561e8fbf3ea2247 upstream.
 
-Only prio 1 is supported if firmware doesn't support ignore flow
-level for nic mode. The offending commit removed the check wrongly.
-Add it back.
+Since commit 4bc43a421218 ("HID: asus: Add
+hid_is_using_ll_driver(usb_hid_driver) check") the hid-asus.c depends
+on the usb_hid_driver symbol. Add a depends on USB_HID to Kconfig to
+fix missing symbols errors in hid-asus when USB_HID is not enabled.
 
-Fixes: 9a99c8f1253a ("net/mlx5e: E-Switch, Offload all chain 0 priorities when modify header and forward action is not supported")
-Signed-off-by: Chris Mi <cmi@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4bc43a421218 ("HID: asus: Add hid_is_using_ll_driver(usb_hid_driver) check")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Jason Self <jason@bluehome.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
-index 97e5845b4cfdd..d5e47630e2849 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_chains.c
-@@ -121,6 +121,9 @@ u32 mlx5_chains_get_nf_ft_chain(struct mlx5_fs_chains *chains)
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -148,6 +148,7 @@ config HID_APPLEIR
  
- u32 mlx5_chains_get_prio_range(struct mlx5_fs_chains *chains)
- {
-+	if (!mlx5_chains_prios_supported(chains))
-+		return 1;
-+
- 	if (mlx5_chains_ignore_flow_level_supported(chains))
- 		return UINT_MAX;
- 
--- 
-2.34.1
-
+ config HID_ASUS
+ 	tristate "Asus"
++	depends on USB_HID
+ 	depends on LEDS_CLASS
+ 	---help---
+ 	Support for Asus notebook built-in keyboard and touchpad via i2c, and
 
 
