@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E6E54832B6
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:31:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0DC48327C
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234063AbiACOa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:30:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39026 "EHLO
+        id S233665AbiACO2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:28:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234580AbiACO3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:29:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A367BC061784;
-        Mon,  3 Jan 2022 06:29:07 -0800 (PST)
+        with ESMTP id S233627AbiACO1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85063C0617A1;
+        Mon,  3 Jan 2022 06:27:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 642BBB80F1A;
-        Mon,  3 Jan 2022 14:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A14ECC36AEB;
-        Mon,  3 Jan 2022 14:29:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E95666111C;
+        Mon,  3 Jan 2022 14:27:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5179C36AED;
+        Mon,  3 Jan 2022 14:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220145;
-        bh=TUmadFdk29V/j4ip7iNaRZQKjQD47/UXTdGrnEcl7YM=;
+        s=korg; t=1641220033;
+        bh=8GgqGsbxpCWx8a0xDbp37nRZ70LFcMCuY9GWf0vsys4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXXvWPDjpVmyjc597hovqT7f9sGL/OZtLpXV5VZiJlp/RBRzjHkHJFd0mkOdkLxv8
-         jnla4fSVVr/shSHTlP3Igav6bwi3zfq1aT9yGFQCzueR+CtUPzXuFw1GiiEbY6nehK
-         x05L+0qSWmUFmgon8pgl5sE6DyKlGHjVm1IoW2eI=
+        b=iRHzE7sFb3fWtSkmZPXjxFYpThyK/pLdfFJu4JWZJizIlX+GtRPXWWxvfJwRsis1Q
+         xDIRl/qRvGHrBpswvNN6qNc8m9EhuZV5lYZJ6eePKQ6kTp7E0JeEd4WH28A7Sbo61s
+         H9L403K2OMhgmz0Fvmwdfd5c9N/VXA3HQ47XcJfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/48] platform/x86: apple-gmux: use resource_size() with res
+Subject: [PATCH 5.4 05/37] tomoyo: Check exceeded quota early in tomoyo_domain_quota_is_ok().
 Date:   Mon,  3 Jan 2022 15:23:43 +0100
-Message-Id: <20220103142053.698808957@linuxfoundation.org>
+Message-Id: <20220103142052.049517619@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
-References: <20220103142053.466768714@linuxfoundation.org>
+In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
+References: <20220103142051.883166998@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,35 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Dmitry Vyukov <dvyukov@google.com>
 
-[ Upstream commit eb66fb03a727cde0ab9b1a3858de55c26f3007da ]
+[ Upstream commit 04e57a2d952bbd34bc45744e72be3eecdc344294 ]
 
-This should be (res->end - res->start + 1) here actually,
-use resource_size() derectly.
+If tomoyo is used in a testing/fuzzing environment in learning mode,
+for lots of domains the quota will be exceeded and stay exceeded
+for prolonged periods of time. In such cases it's pointless (and slow)
+to walk the whole acl list again and again just to rediscover that
+the quota is exceeded. We already have the TOMOYO_DIF_QUOTA_WARNED flag
+that notes the overflow condition. Check it early to avoid the slowdown.
 
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Link: https://lore.kernel.org/r/1639484316-75873-1-git-send-email-wangqing@vivo.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+[penguin-kernel]
+This patch causes a user visible change that the learning mode will not be
+automatically resumed after the quota is increased. To resume the learning
+mode, administrator will need to explicitly clear TOMOYO_DIF_QUOTA_WARNED
+flag after increasing the quota. But I think that this change is generally
+preferable, for administrator likely wants to optimize the acl list for
+that domain before increasing the quota, or that domain likely hits the
+quota again. Therefore, don't try to care to clear TOMOYO_DIF_QUOTA_WARNED
+flag automatically when the quota for that domain changed.
+
+Signed-off-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/apple-gmux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/tomoyo/util.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/platform/x86/apple-gmux.c b/drivers/platform/x86/apple-gmux.c
-index 9aae45a452002..57553f9b4d1dc 100644
---- a/drivers/platform/x86/apple-gmux.c
-+++ b/drivers/platform/x86/apple-gmux.c
-@@ -625,7 +625,7 @@ static int gmux_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
- 	}
- 
- 	gmux_data->iostart = res->start;
--	gmux_data->iolen = res->end - res->start;
-+	gmux_data->iolen = resource_size(res);
- 
- 	if (gmux_data->iolen < GMUX_MIN_IO_LEN) {
- 		pr_err("gmux I/O region too small (%lu < %u)\n",
+diff --git a/security/tomoyo/util.c b/security/tomoyo/util.c
+index eba0b3395851e..861fc6f4ebfb7 100644
+--- a/security/tomoyo/util.c
++++ b/security/tomoyo/util.c
+@@ -1029,6 +1029,8 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
+ 		return false;
+ 	if (!domain)
+ 		return true;
++	if (READ_ONCE(domain->flags[TOMOYO_DIF_QUOTA_WARNED]))
++		return false;
+ 	list_for_each_entry_rcu(ptr, &domain->acl_info_list, list,
+ 				srcu_read_lock_held(&tomoyo_ss)) {
+ 		u16 perm;
+@@ -1074,14 +1076,12 @@ bool tomoyo_domain_quota_is_ok(struct tomoyo_request_info *r)
+ 	if (count < tomoyo_profile(domain->ns, domain->profile)->
+ 	    pref[TOMOYO_PREF_MAX_LEARNING_ENTRY])
+ 		return true;
+-	if (!domain->flags[TOMOYO_DIF_QUOTA_WARNED]) {
+-		domain->flags[TOMOYO_DIF_QUOTA_WARNED] = true;
+-		/* r->granted = false; */
+-		tomoyo_write_log(r, "%s", tomoyo_dif[TOMOYO_DIF_QUOTA_WARNED]);
++	WRITE_ONCE(domain->flags[TOMOYO_DIF_QUOTA_WARNED], true);
++	/* r->granted = false; */
++	tomoyo_write_log(r, "%s", tomoyo_dif[TOMOYO_DIF_QUOTA_WARNED]);
+ #ifndef CONFIG_SECURITY_TOMOYO_INSECURE_BUILTIN_SETTING
+-		pr_warn("WARNING: Domain '%s' has too many ACLs to hold. Stopped learning mode.\n",
+-			domain->domainname->name);
++	pr_warn("WARNING: Domain '%s' has too many ACLs to hold. Stopped learning mode.\n",
++		domain->domainname->name);
+ #endif
+-	}
+ 	return false;
+ }
 -- 
 2.34.1
 
