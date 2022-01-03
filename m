@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 450714831BE
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 568F148320C
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233269AbiACOVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:21:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37212 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233266AbiACOVd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:21:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C30A5C061784;
-        Mon,  3 Jan 2022 06:21:33 -0800 (PST)
+        id S230291AbiACOYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:24:00 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:46310 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231195AbiACOXf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BFA060FAF;
-        Mon,  3 Jan 2022 14:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 250F1C36AF0;
-        Mon,  3 Jan 2022 14:21:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 54EC3CE1110;
+        Mon,  3 Jan 2022 14:23:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06FFFC36AED;
+        Mon,  3 Jan 2022 14:23:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219692;
-        bh=+Kb/GSarWuzEcaHbAJdggvzoiCNmLN17aKPiF3KKphA=;
+        s=korg; t=1641219812;
+        bh=vockE4d5UvlidGkv9Im4Rv4S0mFCwbAbZ40ui7n1iXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1aTsgjhLa3Zi8JjHIdML+8Ibg6l22vUGap2vKjuuYcsLm37TD/OXoEyfqMiLgui+
-         7GC3/iBXxICAhElEY9CH1zqZjnjBpdwe08Tb+A5VO5nOmn5OANWIyiVexKGygyCGCW
-         Hx3wVT9pgn70o0H3ISjsu6zCuGdnCb9Jj7Ksr3dI=
+        b=tRNqQBiYdZSL3iz0t4HqWupn+2mZ9IuHOmoDf0PR4f54Ewq+m/McjWiUr3M57tSxu
+         lTqs/2QXDfT5J42DaQJAZM0/myqHqv4wFA7DCWDLVw5Qj/1lK/JwiQcMlh6DjeGRIw
+         NVOEKtPdravU/DYCoSONlgsb/Bxs0JWro6GPIFEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Leo L. Schwab" <ewhac@ewhac.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 10/11] Input: spaceball - fix parsing of movement data packets
-Date:   Mon,  3 Jan 2022 15:21:21 +0100
-Message-Id: <20220103142051.102318120@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.14 05/19] selinux: initialize proto variable in selinux_ip_postroute_compat()
+Date:   Mon,  3 Jan 2022 15:21:22 +0100
+Message-Id: <20220103142052.241291041@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142050.763904028@linuxfoundation.org>
-References: <20220103142050.763904028@linuxfoundation.org>
+In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
+References: <20220103142052.068378906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo L. Schwab <ewhac@ewhac.org>
+From: Tom Rix <trix@redhat.com>
 
-commit bc7ec91718c49d938849697cfad98fcd9877cc26 upstream.
+commit 732bc2ff080c447f8524f40c970c481f5da6eed3 upstream.
 
-The spaceball.c module was not properly parsing the movement reports
-coming from the device.  The code read axis data as signed 16-bit
-little-endian values starting at offset 2.
+Clang static analysis reports this warning
 
-In fact, axis data in Spaceball movement reports are signed 16-bit
-big-endian values starting at offset 3.  This was determined first by
-visually inspecting the data packets, and later verified by consulting:
-http://spacemice.org/pdf/SpaceBall_2003-3003_Protocol.pdf
+hooks.c:5765:6: warning: 4th function call argument is an uninitialized
+                value
+        if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If this ever worked properly, it was in the time before Git...
+selinux_parse_skb() can return ok without setting proto.  The later call
+to selinux_xfrm_postroute_last() does an early check of proto and can
+return ok if the garbage proto value matches.  So initialize proto.
 
-Signed-off-by: Leo L. Schwab <ewhac@ewhac.org>
-Link: https://lore.kernel.org/r/20211221101630.1146385-1-ewhac@ewhac.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: eef9b41622f2 ("selinux: cleanup selinux_xfrm_sock_rcv_skb() and selinux_xfrm_postroute_last()")
+Signed-off-by: Tom Rix <trix@redhat.com>
+[PM: typo/spelling and checkpatch.pl description fixes]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/spaceball.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ security/selinux/hooks.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/joystick/spaceball.c
-+++ b/drivers/input/joystick/spaceball.c
-@@ -35,6 +35,7 @@
- #include <linux/module.h>
- #include <linux/input.h>
- #include <linux/serio.h>
-+#include <asm/unaligned.h>
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5321,7 +5321,7 @@ static unsigned int selinux_ip_postroute
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 	char *addrp;
+-	u8 proto;
++	u8 proto = 0;
  
- #define DRIVER_DESC	"SpaceTec SpaceBall 2003/3003/4000 FLX driver"
- 
-@@ -91,9 +92,15 @@ static void spaceball_process_packet(str
- 
- 		case 'D':					/* Ball data */
- 			if (spaceball->idx != 15) return;
--			for (i = 0; i < 6; i++)
-+			/*
-+			 * Skip first three bytes; read six axes worth of data.
-+			 * Axis values are signed 16-bit big-endian.
-+			 */
-+			data += 3;
-+			for (i = 0; i < ARRAY_SIZE(spaceball_axes); i++) {
- 				input_report_abs(dev, spaceball_axes[i],
--					(__s16)((data[2 * i + 3] << 8) | data[2 * i + 2]));
-+					(__s16)get_unaligned_be16(&data[i * 2]));
-+			}
- 			break;
- 
- 		case 'K':					/* Button data */
+ 	if (sk == NULL)
+ 		return NF_ACCEPT;
 
 
