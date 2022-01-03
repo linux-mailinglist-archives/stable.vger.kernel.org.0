@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFEC74831C4
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:21:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 544214831C5
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:21:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233266AbiACOVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:21:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37252 "EHLO
+        id S233306AbiACOVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:21:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233273AbiACOVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:21:42 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3047CC061785;
-        Mon,  3 Jan 2022 06:21:42 -0800 (PST)
+        with ESMTP id S233294AbiACOVn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:21:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65673C061761;
+        Mon,  3 Jan 2022 06:21:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A29FACE1105;
-        Mon,  3 Jan 2022 14:21:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 675BBC36AED;
-        Mon,  3 Jan 2022 14:21:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 043206112D;
+        Mon,  3 Jan 2022 14:21:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4D3C36AED;
+        Mon,  3 Jan 2022 14:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219699;
-        bh=ZQgnCo8OBOk9Ubp5ftiP95eaf1PHz3x3szgPpbV/w5s=;
+        s=korg; t=1641219702;
+        bh=HaFXeBRa8fQp5C2a938EqfoBMzB18eKCeR8v3sonIJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PghP+Xk8cGfOPl++nabmPotVKkcxeF8SEEymDQUYtuNWopNpaoyzVaEtHesSObekf
-         +tg++ajBi0r58tPaeGXpSS8j1tyVuU9XtVB9ZEeelNQUhvpYQHyuzzIWpS8hCBOW9H
-         1tWLQN9MYBBpKncXSO+BQoTZIwWok8NKeU9j72vw=
+        b=NyIxvKw/+7ws/Oi2Pwe5tHSqii8nVEvj25ITTwgNkXKbA6MsOoAVxGlffacD6uL3M
+         Rs/AXiqNys6I/qk1Z7I5Tw1qN/llcINDUn1nZlSUSEn5/hCQJBeDamTqblfyQEdach
+         8sd72b6RbNzJTWd8OyZlTHvAmlOMHpMnLUsxFCF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Jerome Marchand <jmarchan@redhat.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 4.4 02/11] recordmcount.pl: fix typo in s390 mcount regex
-Date:   Mon,  3 Jan 2022 15:21:13 +0100
-Message-Id: <20220103142050.853155290@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.4 03/11] selinux: initialize proto variable in selinux_ip_postroute_compat()
+Date:   Mon,  3 Jan 2022 15:21:14 +0100
+Message-Id: <20220103142050.891234312@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142050.763904028@linuxfoundation.org>
 References: <20220103142050.763904028@linuxfoundation.org>
@@ -48,40 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 4eb1782eaa9fa1c224ad1fa0d13a9f09c3ab2d80 upstream.
+commit 732bc2ff080c447f8524f40c970c481f5da6eed3 upstream.
 
-Commit 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well
-as bcrl on s390") added a new alternative mnemonic for the existing brcl
-instruction. This is required for the combination old gcc version (pre 9.0)
-and binutils since version 2.37.
-However at the same time this commit introduced a typo, replacing brcl with
-bcrl. As a result no mcount locations are detected anymore with old gcc
-versions (pre 9.0) and binutils before version 2.37.
-Fix this by using the correct mnemonic again.
+Clang static analysis reports this warning
 
-Reported-by: Miroslav Benes <mbenes@suse.cz>
-Cc: Jerome Marchand <jmarchan@redhat.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well as bcrl on s390")
-Link: https://lore.kernel.org/r/alpine.LSU.2.21.2112230949520.19849@pobox.suse.cz
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+hooks.c:5765:6: warning: 4th function call argument is an uninitialized
+                value
+        if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+selinux_parse_skb() can return ok without setting proto.  The later call
+to selinux_xfrm_postroute_last() does an early check of proto and can
+return ok if the garbage proto value matches.  So initialize proto.
+
+Cc: stable@vger.kernel.org
+Fixes: eef9b41622f2 ("selinux: cleanup selinux_xfrm_sock_rcv_skb() and selinux_xfrm_postroute_last()")
+Signed-off-by: Tom Rix <trix@redhat.com>
+[PM: typo/spelling and checkpatch.pl description fixes]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/recordmcount.pl |    2 +-
+ security/selinux/hooks.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -248,7 +248,7 @@ if ($arch eq "x86_64") {
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4974,7 +4974,7 @@ static unsigned int selinux_ip_postroute
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 	char *addrp;
+-	u8 proto;
++	u8 proto = 0;
  
- } elsif ($arch eq "s390" && $bits == 64) {
-     if ($cc =~ /-DCC_USING_HOTPATCH/) {
--	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
-+	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(brcl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
- 	$mcount_adjust = 0;
-     } else {
- 	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*R_390_(PC|PLT)32DBL\\s+_mcount\\+0x2\$";
+ 	if (sk == NULL)
+ 		return NF_ACCEPT;
 
 
