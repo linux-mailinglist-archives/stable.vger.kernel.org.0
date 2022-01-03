@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B65AB483387
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:38:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE444832CA
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:31:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234510AbiACOiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:38:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40336 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235403AbiACOgU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:36:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5203C08EA6F;
-        Mon,  3 Jan 2022 06:33:14 -0800 (PST)
+        id S232059AbiACOar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:30:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60116 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234710AbiACO3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:29:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83A836111B;
-        Mon,  3 Jan 2022 14:33:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8CEC36AEB;
-        Mon,  3 Jan 2022 14:33:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F06BAB80EF6;
+        Mon,  3 Jan 2022 14:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 182DFC36AEB;
+        Mon,  3 Jan 2022 14:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220394;
-        bh=adsa5yIJ3KhbdWOnL5KPzA9BZ9b6uXnyfcdTxXVGTPw=;
+        s=korg; t=1641220190;
+        bh=VDvbEMIlxV7uMa+49232b+6ch3ja85NF3smV3YTzl9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n+n2cJ2/0uT/y1MMPIok8itGCtQhFDZDL3fcIxOECTpy5sR67ooczPZgwKnPH+aS5
-         hjXRjbbCjtTbH9bvGOvxFm4O8avEcRL6B+ZooHMpYkFCaAYL7BqnKn1s/fxnMJ0oM2
-         YNvzePVD1OxjcWzhpV7oUl23SuF57rcXuKLJJwOg=
+        b=lANjoMLNpMB82vYsILMXHmfnGi0hgiuD6kriW7f2Q3IM0cUmaYReazXCBEtvCkTlZ
+         30jsfFRQz5gh1k//wFhHd8226alqfojHH9yetkxka1eJizZdQO4v853UtSa6GMVPWM
+         jBpi9uCFuikZT8yno9dlE3TD4AZdvW+m/E/A4BYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chen gong <curry.gong@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 55/73] drm/amdgpu: When the VCN(1.0) block is suspended, powergating is explicitly enabled
-Date:   Mon,  3 Jan 2022 15:24:16 +0100
-Message-Id: <20220103142058.696993813@linuxfoundation.org>
+        stable@vger.kernel.org, Yuwen Ng <yuwen.ng@mediatek.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.10 40/48] usb: mtu3: fix list_head check warning
+Date:   Mon,  3 Jan 2022 15:24:17 +0100
+Message-Id: <20220103142054.832901817@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,65 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chen gong <curry.gong@amd.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit b7865173cf6ae59942e2c69326a06e1c1df5ecf6 upstream.
+commit 8c313e3bfd9adae8d5c4ba1cc696dcbc86fbf9bf upstream.
 
-Play a video on the raven (or PCO, raven2) platform, and then do the S3
-test. When resume, the following error will be reported:
+This is caused by uninitialization of list_head.
 
-amdgpu 0000:02:00.0: [drm:amdgpu_ring_test_helper [amdgpu]] *ERROR* ring
-vcn_dec test failed (-110)
-[drm:amdgpu_device_ip_resume_phase2 [amdgpu]] *ERROR* resume of IP block
-<vcn_v1_0> failed -110
-amdgpu 0000:02:00.0: amdgpu: amdgpu_device_ip_resume failed (-110).
-PM: dpm_run_callback(): pci_pm_resume+0x0/0x90 returns -110
+BUG: KASAN: use-after-free in __list_del_entry_valid+0x34/0xe4
 
-[why]
-When playing the video: The power state flag of the vcn block is set to
-POWER_STATE_ON.
+Call trace:
+dump_backtrace+0x0/0x298
+show_stack+0x24/0x34
+dump_stack+0x130/0x1a8
+print_address_description+0x88/0x56c
+__kasan_report+0x1b8/0x2a0
+kasan_report+0x14/0x20
+__asan_load8+0x9c/0xa0
+__list_del_entry_valid+0x34/0xe4
+mtu3_req_complete+0x4c/0x300 [mtu3]
+mtu3_gadget_stop+0x168/0x448 [mtu3]
+usb_gadget_unregister_driver+0x204/0x3a0
+unregister_gadget_item+0x44/0xa4
 
-When doing suspend: There is no change to the power state flag of the
-vcn block, it is still POWER_STATE_ON.
-
-When doing resume: Need to open the power gate of the vcn block and set
-the power state flag of the VCN block to POWER_STATE_ON.
-But at this time, the power state flag of the vcn block is already
-POWER_STATE_ON. The power status flag check in the "8f2cdef drm/amd/pm:
-avoid duplicate powergate/ungate setting" patch will return the
-amdgpu_dpm_set_powergating_by_smu function directly.
-As a result, the gate of the power was not opened, causing the
-subsequent ring test to fail.
-
-[how]
-In the suspend function of the vcn block, explicitly change the power
-state flag of the vcn block to POWER_STATE_OFF.
-
-BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1828
-Signed-off-by: chen gong <curry.gong@amd.com>
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 83374e035b62 ("usb: mtu3: add tracepoints to help debug")
 Cc: stable@vger.kernel.org
+Reported-by: Yuwen Ng <yuwen.ng@mediatek.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20211218095749.6250-3-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/mtu3/mtu3_gadget.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-@@ -253,6 +253,13 @@ static int vcn_v1_0_suspend(void *handle
- {
- 	int r;
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
-+	bool idle_work_unexecuted;
-+
-+	idle_work_unexecuted = cancel_delayed_work_sync(&adev->vcn.idle_work);
-+	if (idle_work_unexecuted) {
-+		if (adev->pm.dpm_enabled)
-+			amdgpu_dpm_enable_uvd(adev, false);
-+	}
+--- a/drivers/usb/mtu3/mtu3_gadget.c
++++ b/drivers/usb/mtu3/mtu3_gadget.c
+@@ -235,6 +235,7 @@ struct usb_request *mtu3_alloc_request(s
+ 	mreq->request.dma = DMA_ADDR_INVALID;
+ 	mreq->epnum = mep->epnum;
+ 	mreq->mep = mep;
++	INIT_LIST_HEAD(&mreq->list);
+ 	trace_mtu3_alloc_request(mreq);
  
- 	r = vcn_v1_0_hw_fini(adev);
- 	if (r)
+ 	return &mreq->request;
 
 
