@@ -2,137 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BCAC482F2E
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 10:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFAA482F56
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 10:21:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232268AbiACJBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 04:01:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51256 "EHLO
+        id S232350AbiACJV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 04:21:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229723AbiACJBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 04:01:46 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A50AC061761
-        for <stable@vger.kernel.org>; Mon,  3 Jan 2022 01:01:46 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id b1-20020a17090a990100b001b14bd47532so31769961pjp.0
-        for <stable@vger.kernel.org>; Mon, 03 Jan 2022 01:01:46 -0800 (PST)
+        with ESMTP id S229683AbiACJV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 04:21:26 -0500
+Received: from mail-yb1-xb43.google.com (mail-yb1-xb43.google.com [IPv6:2607:f8b0:4864:20::b43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A42DC061761
+        for <stable@vger.kernel.org>; Mon,  3 Jan 2022 01:21:26 -0800 (PST)
+Received: by mail-yb1-xb43.google.com with SMTP id 139so65837395ybd.3
+        for <stable@vger.kernel.org>; Mon, 03 Jan 2022 01:21:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=v69cHNdl76Z1l9oetx04QE35yc5iqDvoIunwrI0/iLk=;
-        b=JyEwsT0AVCyzP42QslPK8LVkxslz7PEGG6S/0VNHI4n5Uix/h/A8ESx1/sIGb1weGi
-         U7MG/cIR+EBQdSJltFaaKgz1GXRsyEQJRpX62D8krBd9MlsZ1l33H9eTL/jqqauZUEcc
-         rGJ02nY2MZsTuG+Juu1gJyUXZfRnwMHM9EeXlrIFD5Z6qG4wRinca3tkFKDb7HDriTOV
-         CeI5vN//kL87hpGO+RGVz3Yr00jY/4utaEofqEdyefYDpBok+Fph42bJ8LRw+wbbcvBT
-         EkvcPxmawchFYt3waYpQ9CrUAfUYQ4+vBgZnqwUKhvS1pfzaT0dR7D4GdNhaHsRfisRP
-         0glg==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=WfrXUgSFI8fX3poHZCXyurnfnlLvKC2xRaygUoraNRE=;
+        b=CZx1ND3WPSQiCcS7ALgGj5Su4o4NdWIQ2PXjnmkvSJCLIXtIxwXiJ77MtonseZ1UOL
+         p2obejZP5Z0pgfYy2SZmcFgQddR62uuXUQI1Ykhwd2/wnmoWX2wGa0V7HTmSBdvqBOYM
+         j6we6gvoHKKn50P76v8a69cm9TDuou1VDG1+lH5PmV1iXWqw9lDgl3rGH9twc6g5BCS/
+         lKsxZBLBN3O6AqH2LMn2wewBlgQspLuOX4EDswjK5WQGR0j2kZPiLv6M9RCR01JqZuGZ
+         O6UqOtefy1MAe8MXwsw3LeHq3We+Abd08VkzksS0igF8tbxjydiORYYjBEln3yQkmK94
+         ydKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=v69cHNdl76Z1l9oetx04QE35yc5iqDvoIunwrI0/iLk=;
-        b=n7r0Q9BmUJQIBwYa4SDpJrm2oLo5aS8RyJgq9tPCelKWYBzTl5AKa7FfLvRCVH/bZ0
-         02a/kZlXnvKG2k1YeUMF4l1yr6UswKF06rCwAnVCwpUcsuC20O72z/8gERQkpadkVnrp
-         bnNu28iBECD6CjdCgXBfvZsKo65cV0KstH+0H8YXofjJC77mYnHZIDbERXqTKHTTu4D7
-         HDzkKEnuy2BJTb0heTV5XpiT/nDsHnh+QuVGRf50qZ/4o6pT/McLSLEpJxWroQticULb
-         4a3MpS/LRg9xc0xhXuRjw6nCdMwDeM6QY3CgF2lgQTnmFMBHjydTj9hoCu6109CzsfdG
-         I5tA==
-X-Gm-Message-State: AOAM532xFnFI4hK/xpHSA/fmFdVucchiNi0ngmGSIuCzqzYYCJ2VkZQj
-        PpopvB7xns8kf0AwXR5i4ShMjM/3AOyqav1v
-X-Google-Smtp-Source: ABdhPJxP7MhchRpRQHys8xoSFnjLwG+f509Hg1XBffu+K7zOzkeZ7MSNaEYPBaNazppihDl3w/a9EQ==
-X-Received: by 2002:a17:90b:3e87:: with SMTP id rj7mr52271998pjb.88.1641200505935;
-        Mon, 03 Jan 2022 01:01:45 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h3sm30226223pjk.48.2022.01.03.01.01.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Jan 2022 01:01:45 -0800 (PST)
-Message-ID: <61d2bb79.1c69fb81.52f5c.1ee8@mx.google.com>
-Date:   Mon, 03 Jan 2022 01:01:45 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=WfrXUgSFI8fX3poHZCXyurnfnlLvKC2xRaygUoraNRE=;
+        b=xL2v93DzAeBLUGBuII5Kej7FKcmpZwt8//GIC177xf95WPBTM2y4Vg1v4rIEwv56/O
+         f6JS6I4EGICAP5cclxhQ7RlmOd1iR17I2CKqH+/8eXvt2XI9TeRMZdMabIkOrf99ozdK
+         mOKWkDcAq24hzjm5X7sjJOw3RnravNX2EBcr1YOL1WnDLWuzPprOCAg6fW4ptem7qPZY
+         nBNzc8Oyp3QKtc+ol3y/QIvvLkajbvNCSQB6fp/EIBDHOgCe+RKXMJRXTjNpd5p9Gjpn
+         6Cv8Wa/h7zF0+ZNBT+LqI3Kzn+8UTeTzjaKVmsXTAeaf3pH9oRPUrbzjwoHBRgsWfh6y
+         qgYQ==
+X-Gm-Message-State: AOAM5333N4/OUc2x3jMMHvhJwhPJlWCxScG47eW9BBxRv1AdvkmOB6Be
+        vMqC/Pi9Ut+ozoGerSlks8X3rZF1T3oeRElrn5U=
+X-Google-Smtp-Source: ABdhPJzP6RbPR+kBjmqV5QdDcCxNGbn7fULlhzZ5rGCM+RHAzSHLLaFYQXx0mpscVFlBJXkB2l8Ipaj+wwlFtlq0EdQ=
+X-Received: by 2002:a25:2c8b:: with SMTP id s133mr23078545ybs.68.1641201684788;
+ Mon, 03 Jan 2022 01:21:24 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.295-5-ge297e6d38d55
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 118 runs,
- 1 regressions (v4.9.295-5-ge297e6d38d55)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a05:7110:6282:b0:11f:5fb9:baff with HTTP; Mon, 3 Jan 2022
+ 01:21:24 -0800 (PST)
+Reply-To: inforiaantim@planetmail.net
+From:   Riaan Samson <tawandajean@gmail.com>
+Date:   Mon, 3 Jan 2022 11:21:24 +0200
+Message-ID: <CAGZCLcgyvThyDUdnE4Hbwbk8RDib2M1tbVKerM_JgO1XNACXkg@mail.gmail.com>
+Subject: beneficial business
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 118 runs, 1 regressions (v4.9.295-5-ge297e6d3=
-8d55)
+Hello,
 
-Regressions Summary
--------------------
+It is my pleasure to contact you discreetly as to discuss a mutually
+beneficial business; I will want to have your trust and to go into
+partnership investment with you which must be built on confidentiality
+between us.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+I am the Contract Award Director of with a South African Government
+Department; my office is in charge of awarding contracts to
+international contractors, building and handling of government
+contract throughout the country.
 
+I am in the position to transfer the sum of US$17M of which I have
+written a memo informing the Government that this fund belongs to a
+Contractor waiting to be paid his contract sum; I want to transfer and
+invest this fund into your company as an investment fund from South
+Africa to your country.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.295-5-ge297e6d38d55/plan/baseline/
+The fund will be shared on the ratio of 60-40%; 40% for you on the
+assistance rendered. Please note that this fund will not be
+investigated or recalled in the near feature as all document to move
+this fund to your account will be legally obtained. You are to send me
+your company's name and address with your banking details where you
+want the fund to be transferred to.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.295-5-ge297e6d38d55
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e297e6d38d554e6dcbc7c44972642db3a084d583 =
+As soon as you agree to my proposition, I will send you my number to
+reach me. I want you to keep this private to yourself. Be assured that
+this is a legitimate fund and will be transferred legitimately.
 
+Thanks for your anticipated cooperation.
 
+Yours
 
-Test Regressions
----------------- =
+Mr. Riaan Tim Samson
 
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61d2875aa47ddc6a91ef6752
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.295-5=
--ge297e6d38d55/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.295-5=
--ge297e6d38d55/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61d2875aa47ddc6=
-a91ef6756
-        failing since 6 days (last pass: v4.9.294-8-gdf4b9763cd1e, first fa=
-il: v4.9.294-18-gaa81ab4e03f9)
-        2 lines
-
-    2022-01-03T05:19:04.898314  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/116
-    2022-01-03T05:19:04.907628  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2022-01-03T05:19:04.923443  [   20.025970] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+Note: Reply me through my private/secure email: inforiaantim@planetmail.net
