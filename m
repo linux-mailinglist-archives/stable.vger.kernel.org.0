@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5183448322A
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CC30483269
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:27:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232633AbiACOZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:25:36 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55790 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231514AbiACOZO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:14 -0500
+        id S233013AbiACO1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:27:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38562 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233651AbiACO0q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:26:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE82C06137C;
+        Mon,  3 Jan 2022 06:26:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FA1461115;
-        Mon,  3 Jan 2022 14:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA01DC36AEB;
-        Mon,  3 Jan 2022 14:25:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A14076111A;
+        Mon,  3 Jan 2022 14:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 753CAC36AED;
+        Mon,  3 Jan 2022 14:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219913;
-        bh=nH09yIs0wax0PiA9uNlgRbWcT4YBReLap6tdfJiFY6I=;
+        s=korg; t=1641220005;
+        bh=CRHlpZ/k7qgCu9yP+xEGcp4K1hZv6Ldobe3tOC1Ql9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4/FpnkQJXRTk2RjmCYviBj0ZGNYEk1JbMD53CxcSLXekZUzP2XfezSvza39NeBV7
-         pw/vSnHM+oRxdtk+g5nGUCwJDn75QZObZlz0nqsiMB/dVJgzmZjgH9nEyVdVc93r1m
-         c/rO7il8SCyKYj5z/Aaae8768V6jFSlzLReFgJFo=
+        b=asKSieAl+MWTLHn23QpD9A33EQPY7mr2dESa2Et3xlZFMCgORSzO0EzDGhRUoHKgh
+         6XfXZCfLqTM6Yd1xGrHA9EIIMh+ybAoMYXt8VyAqH/kwEG90DaTwEtlpDUxzzydCGG
+         zS59tbxtFI2fvZbb9G3myVBLfSV38vUuxqGsIwPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/27] fsl/fman: Fix missing put_device() call in fman_port_probe
+Subject: [PATCH 5.4 18/37] NFC: st21nfca: Fix memory leak in device probe and remove
 Date:   Mon,  3 Jan 2022 15:23:56 +0100
-Message-Id: <20220103142052.702175502@linuxfoundation.org>
+Message-Id: <20220103142052.440674542@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
-References: <20220103142052.162223000@linuxfoundation.org>
+In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
+References: <20220103142051.883166998@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +49,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit bf2b09fedc17248b315f80fb249087b7d28a69a6 ]
+[ Upstream commit 1b9dadba502234eea7244879b8d5d126bfaf9f0c ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the and error handling paths.
+'phy->pending_skb' is alloced when device probe, but forgot to free
+in the error handling path and remove path, this cause memory leak
+as follows:
 
-Fixes: 18a6c85fcc78 ("fsl/fman: Add FMan Port Support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+unreferenced object 0xffff88800bc06800 (size 512):
+  comm "8", pid 11775, jiffies 4295159829 (age 9.032s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000d66c09ce>] __kmalloc_node_track_caller+0x1ed/0x450
+    [<00000000c93382b3>] kmalloc_reserve+0x37/0xd0
+    [<000000005fea522c>] __alloc_skb+0x124/0x380
+    [<0000000019f29f9a>] st21nfca_hci_i2c_probe+0x170/0x8f2
+
+Fix it by freeing 'pending_skb' in error and remove.
+
+Fixes: 68957303f44a ("NFC: ST21NFCA: Add driver for STMicroelectronics ST21NFCA NFC Chip")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fman/fman_port.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/nfc/st21nfca/i2c.c | 29 ++++++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fman/fman_port.c b/drivers/net/ethernet/freescale/fman/fman_port.c
-index 47f6fee1f3964..1812434cda847 100644
---- a/drivers/net/ethernet/freescale/fman/fman_port.c
-+++ b/drivers/net/ethernet/freescale/fman/fman_port.c
-@@ -1791,7 +1791,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	fman = dev_get_drvdata(&fm_pdev->dev);
- 	if (!fman) {
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
+diff --git a/drivers/nfc/st21nfca/i2c.c b/drivers/nfc/st21nfca/i2c.c
+index 23ed11f91213d..6ea59426ab0bf 100644
+--- a/drivers/nfc/st21nfca/i2c.c
++++ b/drivers/nfc/st21nfca/i2c.c
+@@ -533,7 +533,8 @@ static int st21nfca_hci_i2c_probe(struct i2c_client *client,
+ 	phy->gpiod_ena = devm_gpiod_get(dev, "enable", GPIOD_OUT_LOW);
+ 	if (IS_ERR(phy->gpiod_ena)) {
+ 		nfc_err(dev, "Unable to get ENABLE GPIO\n");
+-		return PTR_ERR(phy->gpiod_ena);
++		r = PTR_ERR(phy->gpiod_ena);
++		goto out_free;
  	}
  
- 	err = of_property_read_u32(port_node, "cell-index", &val);
-@@ -1799,7 +1799,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: reading cell-index for %pOF failed\n",
- 			__func__, port_node);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 	port_id = (u8)val;
- 	port->dts_params.id = port_id;
-@@ -1833,7 +1833,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	}  else {
- 		dev_err(port->dev, "%s: Illegal port type\n", __func__);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
+ 	phy->se_status.is_ese_present =
+@@ -544,7 +545,7 @@ static int st21nfca_hci_i2c_probe(struct i2c_client *client,
+ 	r = st21nfca_hci_platform_init(phy);
+ 	if (r < 0) {
+ 		nfc_err(&client->dev, "Unable to reboot st21nfca\n");
+-		return r;
++		goto out_free;
  	}
  
- 	port->dts_params.type = port_type;
-@@ -1847,7 +1847,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 			dev_err(port->dev, "%s: incorrect qman-channel-id\n",
- 				__func__);
- 			err = -EINVAL;
--			goto return_err;
-+			goto put_device;
- 		}
- 		port->dts_params.qman_channel_id = qman_channel_id;
- 	}
-@@ -1857,7 +1857,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: of_address_to_resource() failed\n",
- 			__func__);
- 		err = -ENOMEM;
--		goto return_err;
-+		goto put_device;
+ 	r = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+@@ -553,15 +554,23 @@ static int st21nfca_hci_i2c_probe(struct i2c_client *client,
+ 				ST21NFCA_HCI_DRIVER_NAME, phy);
+ 	if (r < 0) {
+ 		nfc_err(&client->dev, "Unable to register IRQ handler\n");
+-		return r;
++		goto out_free;
  	}
  
- 	port->dts_params.fman = fman;
-@@ -1882,6 +1882,8 @@ static int fman_port_probe(struct platform_device *of_dev)
+-	return st21nfca_hci_probe(phy, &i2c_phy_ops, LLC_SHDLC_NAME,
+-					ST21NFCA_FRAME_HEADROOM,
+-					ST21NFCA_FRAME_TAILROOM,
+-					ST21NFCA_HCI_LLC_MAX_PAYLOAD,
+-					&phy->hdev,
+-					&phy->se_status);
++	r = st21nfca_hci_probe(phy, &i2c_phy_ops, LLC_SHDLC_NAME,
++			       ST21NFCA_FRAME_HEADROOM,
++			       ST21NFCA_FRAME_TAILROOM,
++			       ST21NFCA_HCI_LLC_MAX_PAYLOAD,
++			       &phy->hdev,
++			       &phy->se_status);
++	if (r)
++		goto out_free;
++
++	return 0;
++
++out_free:
++	kfree_skb(phy->pending_skb);
++	return r;
+ }
+ 
+ static int st21nfca_hci_i2c_remove(struct i2c_client *client)
+@@ -574,6 +583,8 @@ static int st21nfca_hci_i2c_remove(struct i2c_client *client)
+ 
+ 	if (phy->powered)
+ 		st21nfca_hci_i2c_disable(phy);
++	if (phy->pending_skb)
++		kfree_skb(phy->pending_skb);
  
  	return 0;
- 
-+put_device:
-+	put_device(&fm_pdev->dev);
- return_err:
- 	of_node_put(port_node);
- free_port:
+ }
 -- 
 2.34.1
 
