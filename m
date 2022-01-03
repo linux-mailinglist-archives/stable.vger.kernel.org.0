@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFE4E4831DA
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DEE48320F
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233406AbiACOW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:22:27 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53550 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233430AbiACOWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:20 -0500
+        id S233693AbiACOYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:24:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37816 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233501AbiACOX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6D9C0613B4;
+        Mon,  3 Jan 2022 06:23:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1374061137;
-        Mon,  3 Jan 2022 14:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC1D1C36AED;
-        Mon,  3 Jan 2022 14:22:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C9B161126;
+        Mon,  3 Jan 2022 14:23:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D11C36AEE;
+        Mon,  3 Jan 2022 14:23:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219739;
-        bh=WolK6lte37/w1lrCpwIh9ynWrB67zLTjT+lghN4dhxc=;
+        s=korg; t=1641219806;
+        bh=rcBFzJiCpsMCVAnHMP3OqwJO1EfdOVbUt3w6i8HljE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tW0GhoHDwLJFcvm89gjZJV0KbTpkTl2R5HHcRtZgzzDTUWBqrAHgY77Idwelc6bC0
-         gtGyXVEZKlGfn4j+Lz/b7zaTiRiNj9Ux9iSX3Pu+iGxFDsFE4bPWF5OfzmL3gPD2Z2
-         e74hXGIvo0DM0fdFefdzBUU8W9YCtYwwi2zfz3fw=
+        b=ndgdD+xcYovVdlEEWXBc67JXR/Gqpt2CRaHPXpK02vfGI1hCvql+t5xNKeDw7seIt
+         iIVeJXgG4t1mwzWgGU0HUqORoXBwg2CU7lYbMqplCK0TigSi1WyRpAUpVXzUym5aC4
+         0CViZiuwNeCu+xAvZEM+QsSqwmSnaDWEwkPuARGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.9 04/13] selinux: initialize proto variable in selinux_ip_postroute_compat()
+        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 03/19] platform/x86: apple-gmux: use resource_size() with res
 Date:   Mon,  3 Jan 2022 15:21:20 +0100
-Message-Id: <20220103142052.113357860@linuxfoundation.org>
+Message-Id: <20220103142052.177652949@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.979780231@linuxfoundation.org>
-References: <20220103142051.979780231@linuxfoundation.org>
+In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
+References: <20220103142052.068378906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Wang Qing <wangqing@vivo.com>
 
-commit 732bc2ff080c447f8524f40c970c481f5da6eed3 upstream.
+[ Upstream commit eb66fb03a727cde0ab9b1a3858de55c26f3007da ]
 
-Clang static analysis reports this warning
+This should be (res->end - res->start + 1) here actually,
+use resource_size() derectly.
 
-hooks.c:5765:6: warning: 4th function call argument is an uninitialized
-                value
-        if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-selinux_parse_skb() can return ok without setting proto.  The later call
-to selinux_xfrm_postroute_last() does an early check of proto and can
-return ok if the garbage proto value matches.  So initialize proto.
-
-Cc: stable@vger.kernel.org
-Fixes: eef9b41622f2 ("selinux: cleanup selinux_xfrm_sock_rcv_skb() and selinux_xfrm_postroute_last()")
-Signed-off-by: Tom Rix <trix@redhat.com>
-[PM: typo/spelling and checkpatch.pl description fixes]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wang Qing <wangqing@vivo.com>
+Link: https://lore.kernel.org/r/1639484316-75873-1-git-send-email-wangqing@vivo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/hooks.c |    2 +-
+ drivers/platform/x86/apple-gmux.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5194,7 +5194,7 @@ static unsigned int selinux_ip_postroute
- 	struct common_audit_data ad;
- 	struct lsm_network_audit net = {0,};
- 	char *addrp;
--	u8 proto;
-+	u8 proto = 0;
+diff --git a/drivers/platform/x86/apple-gmux.c b/drivers/platform/x86/apple-gmux.c
+index 7c4eb86c851ed..5463d740f3523 100644
+--- a/drivers/platform/x86/apple-gmux.c
++++ b/drivers/platform/x86/apple-gmux.c
+@@ -628,7 +628,7 @@ static int gmux_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ 	}
  
- 	if (sk == NULL)
- 		return NF_ACCEPT;
+ 	gmux_data->iostart = res->start;
+-	gmux_data->iolen = res->end - res->start;
++	gmux_data->iolen = resource_size(res);
+ 
+ 	if (gmux_data->iolen < GMUX_MIN_IO_LEN) {
+ 		pr_err("gmux I/O region too small (%lu < %u)\n",
+-- 
+2.34.1
+
 
 
