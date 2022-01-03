@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAFB74832B7
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:31:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4930248328F
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233670AbiACOa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:30:29 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59526 "EHLO
+        id S233878AbiACO2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:28:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58070 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234575AbiACO3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:29:39 -0500
+        with ESMTP id S233957AbiACO1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02EF26111C;
-        Mon,  3 Jan 2022 14:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE56FC36AEB;
-        Mon,  3 Jan 2022 14:29:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9F8361136;
+        Mon,  3 Jan 2022 14:27:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 899C4C36AFE;
+        Mon,  3 Jan 2022 14:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220178;
-        bh=tilPbvGEfZ6yknviSMdhsDp4HpeIP9yWwixT+b84e4A=;
+        s=korg; t=1641220061;
+        bh=835agNvo92K8Nrg+aPky4sSPjA3rMSz61RUL0EcWUSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qU9sJvrATb57E78x6Mhaqv0zoZ0IXkYSKSRyIZ1Nj4M/FBCUdy21JHpgc7urBjPC9
-         LFuM1pyjh+MOXUjbDy3D4ClEO9jtws3xeSo032dkCuJMbxnyOzqNdVJJvHehDw0n5G
-         py5Cu9W8qP44IkwBSlji5nS48XXKqTvKBeVXe9IE=
+        b=dt6XTJ2kz1nDahK6MoujfvJ7gCyj0e9PH3EkVK2EhQUnnNoWZsQaY7PsMglC0Q1Bm
+         BXIIh7lHOqh1bKM60H0qnHVD6+6t93UWZ+qZyDl4wXGaDuVbaAXeUnzsTxp6pZY4rU
+         Jd891rxZNKRFZT4MlGF7/EG9H+ZVMf585Ay0JuiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 36/48] drm/amdgpu: add support for IP discovery gc_info table v2
-Date:   Mon,  3 Jan 2022 15:24:13 +0100
-Message-Id: <20220103142054.697936926@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Fam Zheng <fam.zheng@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 36/37] net: fix use-after-free in tw_timer_handler
+Date:   Mon,  3 Jan 2022 15:24:14 +0100
+Message-Id: <20220103142052.985722765@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
-References: <20220103142053.466768714@linuxfoundation.org>
+In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
+References: <20220103142051.883166998@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,175 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 5e713c6afa34c0fd6f113bf7bb1c2847172d7b20 upstream.
+commit e22e45fc9e41bf9fcc1e92cfb78eb92786728ef0 upstream.
 
-Used on gfx9 based systems. Fixes incorrect CU counts reported
-in the kernel log.
+A real world panic issue was found as follow in Linux 5.4.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1833
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+    BUG: unable to handle page fault for address: ffffde49a863de28
+    PGD 7e6fe62067 P4D 7e6fe62067 PUD 7e6fe63067 PMD f51e064067 PTE 0
+    RIP: 0010:tw_timer_handler+0x20/0x40
+    Call Trace:
+     <IRQ>
+     call_timer_fn+0x2b/0x120
+     run_timer_softirq+0x1ef/0x450
+     __do_softirq+0x10d/0x2b8
+     irq_exit+0xc7/0xd0
+     smp_apic_timer_interrupt+0x68/0x120
+     apic_timer_interrupt+0xf/0x20
+
+This issue was also reported since 2017 in the thread [1],
+unfortunately, the issue was still can be reproduced after fixing
+DCCP.
+
+The ipv4_mib_exit_net is called before tcp_sk_exit_batch when a net
+namespace is destroyed since tcp_sk_ops is registered befrore
+ipv4_mib_ops, which means tcp_sk_ops is in the front of ipv4_mib_ops
+in the list of pernet_list. There will be a use-after-free on
+net->mib.net_statistics in tw_timer_handler after ipv4_mib_exit_net
+if there are some inflight time-wait timers.
+
+This bug is not introduced by commit f2bf415cfed7 ("mib: add net to
+NET_ADD_STATS_BH") since the net_statistics is a global variable
+instead of dynamic allocation and freeing. Actually, commit
+61a7e26028b9 ("mib: put net statistics on struct net") introduces
+the bug since it put net statistics on struct net and free it when
+net namespace is destroyed.
+
+Moving init_ipv4_mibs() to the front of tcp_init() to fix this bug
+and replace pr_crit() with panic() since continuing is meaningless
+when init_ipv4_mibs() fails.
+
+[1] https://groups.google.com/g/syzkaller/c/p1tn-_Kc6l4/m/smuL_FMAAgAJ?pli=1
+
+Fixes: 61a7e26028b9 ("mib: put net statistics on struct net")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Cong Wang <cong.wang@bytedance.com>
+Cc: Fam Zheng <fam.zheng@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211228104145.9426-1-songmuchun@bytedance.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c |   76 ++++++++++++++++++--------
- drivers/gpu/drm/amd/include/discovery.h       |   49 ++++++++++++++++
- 2 files changed, 103 insertions(+), 22 deletions(-)
+ net/ipv4/af_inet.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-@@ -372,10 +372,15 @@ int amdgpu_discovery_get_ip_version(stru
- 	return -EINVAL;
- }
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -1974,6 +1974,10 @@ static int __init inet_init(void)
  
-+union gc_info {
-+	struct gc_info_v1_0 v1;
-+	struct gc_info_v2_0 v2;
-+};
+ 	ip_init();
+ 
++	/* Initialise per-cpu ipv4 mibs */
++	if (init_ipv4_mibs())
++		panic("%s: Cannot init ipv4 mibs\n", __func__);
 +
- int amdgpu_discovery_get_gfx_info(struct amdgpu_device *adev)
- {
- 	struct binary_header *bhdr;
--	struct gc_info_v1_0 *gc_info;
-+	union gc_info *gc_info;
+ 	/* Setup TCP slab cache for open requests. */
+ 	tcp_init();
  
- 	if (!adev->mman.discovery_bin) {
- 		DRM_ERROR("ip discovery uninitialized\n");
-@@ -383,27 +388,54 @@ int amdgpu_discovery_get_gfx_info(struct
- 	}
+@@ -2004,12 +2008,6 @@ static int __init inet_init(void)
  
- 	bhdr = (struct binary_header *)adev->mman.discovery_bin;
--	gc_info = (struct gc_info_v1_0 *)(adev->mman.discovery_bin +
-+	gc_info = (union gc_info *)(adev->mman.discovery_bin +
- 			le16_to_cpu(bhdr->table_list[GC].offset));
+ 	if (init_inet_pernet_ops())
+ 		pr_crit("%s: Cannot init ipv4 inet pernet ops\n", __func__);
+-	/*
+-	 *	Initialise per-cpu ipv4 mibs
+-	 */
 -
--	adev->gfx.config.max_shader_engines = le32_to_cpu(gc_info->gc_num_se);
--	adev->gfx.config.max_cu_per_sh = 2 * (le32_to_cpu(gc_info->gc_num_wgp0_per_sa) +
--					      le32_to_cpu(gc_info->gc_num_wgp1_per_sa));
--	adev->gfx.config.max_sh_per_se = le32_to_cpu(gc_info->gc_num_sa_per_se);
--	adev->gfx.config.max_backends_per_se = le32_to_cpu(gc_info->gc_num_rb_per_se);
--	adev->gfx.config.max_texture_channel_caches = le32_to_cpu(gc_info->gc_num_gl2c);
--	adev->gfx.config.max_gprs = le32_to_cpu(gc_info->gc_num_gprs);
--	adev->gfx.config.max_gs_threads = le32_to_cpu(gc_info->gc_num_max_gs_thds);
--	adev->gfx.config.gs_vgt_table_depth = le32_to_cpu(gc_info->gc_gs_table_depth);
--	adev->gfx.config.gs_prim_buffer_depth = le32_to_cpu(gc_info->gc_gsprim_buff_depth);
--	adev->gfx.config.double_offchip_lds_buf = le32_to_cpu(gc_info->gc_double_offchip_lds_buffer);
--	adev->gfx.cu_info.wave_front_size = le32_to_cpu(gc_info->gc_wave_size);
--	adev->gfx.cu_info.max_waves_per_simd = le32_to_cpu(gc_info->gc_max_waves_per_simd);
--	adev->gfx.cu_info.max_scratch_slots_per_cu = le32_to_cpu(gc_info->gc_max_scratch_slots_per_cu);
--	adev->gfx.cu_info.lds_size = le32_to_cpu(gc_info->gc_lds_size);
--	adev->gfx.config.num_sc_per_sh = le32_to_cpu(gc_info->gc_num_sc_per_se) /
--					 le32_to_cpu(gc_info->gc_num_sa_per_se);
--	adev->gfx.config.num_packer_per_sc = le32_to_cpu(gc_info->gc_num_packer_per_sc);
--
-+	switch (gc_info->v1.header.version_major) {
-+	case 1:
-+		adev->gfx.config.max_shader_engines = le32_to_cpu(gc_info->v1.gc_num_se);
-+		adev->gfx.config.max_cu_per_sh = 2 * (le32_to_cpu(gc_info->v1.gc_num_wgp0_per_sa) +
-+						      le32_to_cpu(gc_info->v1.gc_num_wgp1_per_sa));
-+		adev->gfx.config.max_sh_per_se = le32_to_cpu(gc_info->v1.gc_num_sa_per_se);
-+		adev->gfx.config.max_backends_per_se = le32_to_cpu(gc_info->v1.gc_num_rb_per_se);
-+		adev->gfx.config.max_texture_channel_caches = le32_to_cpu(gc_info->v1.gc_num_gl2c);
-+		adev->gfx.config.max_gprs = le32_to_cpu(gc_info->v1.gc_num_gprs);
-+		adev->gfx.config.max_gs_threads = le32_to_cpu(gc_info->v1.gc_num_max_gs_thds);
-+		adev->gfx.config.gs_vgt_table_depth = le32_to_cpu(gc_info->v1.gc_gs_table_depth);
-+		adev->gfx.config.gs_prim_buffer_depth = le32_to_cpu(gc_info->v1.gc_gsprim_buff_depth);
-+		adev->gfx.config.double_offchip_lds_buf = le32_to_cpu(gc_info->v1.gc_double_offchip_lds_buffer);
-+		adev->gfx.cu_info.wave_front_size = le32_to_cpu(gc_info->v1.gc_wave_size);
-+		adev->gfx.cu_info.max_waves_per_simd = le32_to_cpu(gc_info->v1.gc_max_waves_per_simd);
-+		adev->gfx.cu_info.max_scratch_slots_per_cu = le32_to_cpu(gc_info->v1.gc_max_scratch_slots_per_cu);
-+		adev->gfx.cu_info.lds_size = le32_to_cpu(gc_info->v1.gc_lds_size);
-+		adev->gfx.config.num_sc_per_sh = le32_to_cpu(gc_info->v1.gc_num_sc_per_se) /
-+			le32_to_cpu(gc_info->v1.gc_num_sa_per_se);
-+		adev->gfx.config.num_packer_per_sc = le32_to_cpu(gc_info->v1.gc_num_packer_per_sc);
-+		break;
-+	case 2:
-+		adev->gfx.config.max_shader_engines = le32_to_cpu(gc_info->v2.gc_num_se);
-+		adev->gfx.config.max_cu_per_sh = le32_to_cpu(gc_info->v2.gc_num_cu_per_sh);
-+		adev->gfx.config.max_sh_per_se = le32_to_cpu(gc_info->v2.gc_num_sh_per_se);
-+		adev->gfx.config.max_backends_per_se = le32_to_cpu(gc_info->v2.gc_num_rb_per_se);
-+		adev->gfx.config.max_texture_channel_caches = le32_to_cpu(gc_info->v2.gc_num_tccs);
-+		adev->gfx.config.max_gprs = le32_to_cpu(gc_info->v2.gc_num_gprs);
-+		adev->gfx.config.max_gs_threads = le32_to_cpu(gc_info->v2.gc_num_max_gs_thds);
-+		adev->gfx.config.gs_vgt_table_depth = le32_to_cpu(gc_info->v2.gc_gs_table_depth);
-+		adev->gfx.config.gs_prim_buffer_depth = le32_to_cpu(gc_info->v2.gc_gsprim_buff_depth);
-+		adev->gfx.config.double_offchip_lds_buf = le32_to_cpu(gc_info->v2.gc_double_offchip_lds_buffer);
-+		adev->gfx.cu_info.wave_front_size = le32_to_cpu(gc_info->v2.gc_wave_size);
-+		adev->gfx.cu_info.max_waves_per_simd = le32_to_cpu(gc_info->v2.gc_max_waves_per_simd);
-+		adev->gfx.cu_info.max_scratch_slots_per_cu = le32_to_cpu(gc_info->v2.gc_max_scratch_slots_per_cu);
-+		adev->gfx.cu_info.lds_size = le32_to_cpu(gc_info->v2.gc_lds_size);
-+		adev->gfx.config.num_sc_per_sh = le32_to_cpu(gc_info->v2.gc_num_sc_per_se) /
-+			le32_to_cpu(gc_info->v2.gc_num_sh_per_se);
-+		adev->gfx.config.num_packer_per_sc = le32_to_cpu(gc_info->v2.gc_num_packer_per_sc);
-+		break;
-+	default:
-+		dev_err(adev->dev,
-+			"Unhandled GC info table %d.%d\n",
-+			gc_info->v1.header.version_major,
-+			gc_info->v1.header.version_minor);
-+		return -EINVAL;
-+	}
- 	return 0;
- }
---- a/drivers/gpu/drm/amd/include/discovery.h
-+++ b/drivers/gpu/drm/amd/include/discovery.h
-@@ -143,6 +143,55 @@ struct gc_info_v1_0 {
- 	uint32_t gc_num_gl2a;
- };
+-	if (init_ipv4_mibs())
+-		pr_crit("%s: Cannot init ipv4 mibs\n", __func__);
  
-+struct gc_info_v1_1 {
-+	struct gpu_info_header header;
-+
-+	uint32_t gc_num_se;
-+	uint32_t gc_num_wgp0_per_sa;
-+	uint32_t gc_num_wgp1_per_sa;
-+	uint32_t gc_num_rb_per_se;
-+	uint32_t gc_num_gl2c;
-+	uint32_t gc_num_gprs;
-+	uint32_t gc_num_max_gs_thds;
-+	uint32_t gc_gs_table_depth;
-+	uint32_t gc_gsprim_buff_depth;
-+	uint32_t gc_parameter_cache_depth;
-+	uint32_t gc_double_offchip_lds_buffer;
-+	uint32_t gc_wave_size;
-+	uint32_t gc_max_waves_per_simd;
-+	uint32_t gc_max_scratch_slots_per_cu;
-+	uint32_t gc_lds_size;
-+	uint32_t gc_num_sc_per_se;
-+	uint32_t gc_num_sa_per_se;
-+	uint32_t gc_num_packer_per_sc;
-+	uint32_t gc_num_gl2a;
-+	uint32_t gc_num_tcp_per_sa;
-+	uint32_t gc_num_sdp_interface;
-+	uint32_t gc_num_tcps;
-+};
-+
-+struct gc_info_v2_0 {
-+	struct gpu_info_header header;
-+
-+	uint32_t gc_num_se;
-+	uint32_t gc_num_cu_per_sh;
-+	uint32_t gc_num_sh_per_se;
-+	uint32_t gc_num_rb_per_se;
-+	uint32_t gc_num_tccs;
-+	uint32_t gc_num_gprs;
-+	uint32_t gc_num_max_gs_thds;
-+	uint32_t gc_gs_table_depth;
-+	uint32_t gc_gsprim_buff_depth;
-+	uint32_t gc_parameter_cache_depth;
-+	uint32_t gc_double_offchip_lds_buffer;
-+	uint32_t gc_wave_size;
-+	uint32_t gc_max_waves_per_simd;
-+	uint32_t gc_max_scratch_slots_per_cu;
-+	uint32_t gc_lds_size;
-+	uint32_t gc_num_sc_per_se;
-+	uint32_t gc_num_packer_per_sc;
-+};
-+
- typedef struct harvest_info_header {
- 	uint32_t signature; /* Table Signature */
- 	uint32_t version;   /* Table Version */
+ 	ipv4_proc_init();
+ 
 
 
