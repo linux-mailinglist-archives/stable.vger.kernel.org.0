@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C505E4831DF
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:22:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E86BE48320E
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233327AbiACOWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:22:38 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:45694 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233337AbiACOWZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:25 -0500
+        id S231522AbiACOYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:24:05 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54568 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233485AbiACOXa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CAE4CCE1105;
-        Mon,  3 Jan 2022 14:22:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE2E2C36AEB;
-        Mon,  3 Jan 2022 14:22:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EC066111B;
+        Mon,  3 Jan 2022 14:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F355AC36AEB;
+        Mon,  3 Jan 2022 14:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219742;
-        bh=0e4S8rSU2Evdu8EVpL7qivFvxpK3zM8ptuz1EENzDoI=;
+        s=korg; t=1641219809;
+        bh=kzFB35nUgKEGPQmA/GQT7vVblxDe8PHNHe1KRrpLT48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8wruNpG1F1OAIraq2MhhRLieN+lvmXZmvJAdkKWzZH/o3dBddiandvqtk/5scJvf
-         Jx/GnMeihmvU2Hxs2NeK41y6vZ0afQWm0Ewn+AF5NfkOOcn7yElb27ZkuvWFrHS+kn
-         uSz0Ogc3un+CsNFzGW10f5JMhMxoi+LsYzIJ90BM=
+        b=N2AIhzrN0kbhH6whfUZuUWN0lCZPVj/McVi3ePY+eTA2Yw5vzDDXJVJ/rKkJBnyj2
+         ijkU+UyZZ4MdWPWjkOG7w1tyqcxiPI8DmKjFaNU5sZJdAa7Cs10Qx0gLPz3o2Qto3q
+         V7TmqYbURqq6lRQU0yh80UK4SpuFJtg18yPTWAXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/13] fsl/fman: Fix missing put_device() call in fman_port_probe
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+        Jerome Marchand <jmarchan@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 4.14 04/19] recordmcount.pl: fix typo in s390 mcount regex
 Date:   Mon,  3 Jan 2022 15:21:21 +0100
-Message-Id: <20220103142052.142155428@linuxfoundation.org>
+Message-Id: <20220103142052.209276556@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.979780231@linuxfoundation.org>
-References: <20220103142051.979780231@linuxfoundation.org>
+In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
+References: <20220103142052.068378906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit bf2b09fedc17248b315f80fb249087b7d28a69a6 ]
+commit 4eb1782eaa9fa1c224ad1fa0d13a9f09c3ab2d80 upstream.
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the and error handling paths.
+Commit 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well
+as bcrl on s390") added a new alternative mnemonic for the existing brcl
+instruction. This is required for the combination old gcc version (pre 9.0)
+and binutils since version 2.37.
+However at the same time this commit introduced a typo, replacing brcl with
+bcrl. As a result no mcount locations are detected anymore with old gcc
+versions (pre 9.0) and binutils before version 2.37.
+Fix this by using the correct mnemonic again.
 
-Fixes: 18a6c85fcc78 ("fsl/fman: Add FMan Port Support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Miroslav Benes <mbenes@suse.cz>
+Cc: Jerome Marchand <jmarchan@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 85bf17b28f97 ("recordmcount.pl: look for jgnop instruction as well as bcrl on s390")
+Link: https://lore.kernel.org/r/alpine.LSU.2.21.2112230949520.19849@pobox.suse.cz
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fman/fman_port.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ scripts/recordmcount.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fman/fman_port.c b/drivers/net/ethernet/freescale/fman/fman_port.c
-index 4986f6ba278a3..45ac5cf717ea8 100644
---- a/drivers/net/ethernet/freescale/fman/fman_port.c
-+++ b/drivers/net/ethernet/freescale/fman/fman_port.c
-@@ -1658,7 +1658,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	fman = dev_get_drvdata(&fm_pdev->dev);
- 	if (!fman) {
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -252,7 +252,7 @@ if ($arch eq "x86_64") {
  
- 	err = of_property_read_u32(port_node, "cell-index", &val);
-@@ -1666,7 +1666,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: reading cell-index for %s failed\n",
- 			__func__, port_node->full_name);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 	port_id = (u8)val;
- 	port->dts_params.id = port_id;
-@@ -1700,7 +1700,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	}  else {
- 		dev_err(port->dev, "%s: Illegal port type\n", __func__);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 
- 	port->dts_params.type = port_type;
-@@ -1714,7 +1714,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 			dev_err(port->dev, "%s: incorrect qman-channel-id\n",
- 				__func__);
- 			err = -EINVAL;
--			goto return_err;
-+			goto put_device;
- 		}
- 		port->dts_params.qman_channel_id = qman_channel_id;
- 	}
-@@ -1724,7 +1724,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: of_address_to_resource() failed\n",
- 			__func__);
- 		err = -ENOMEM;
--		goto return_err;
-+		goto put_device;
- 	}
- 
- 	port->dts_params.fman = fman;
-@@ -1749,6 +1749,8 @@ static int fman_port_probe(struct platform_device *of_dev)
- 
- 	return 0;
- 
-+put_device:
-+	put_device(&fm_pdev->dev);
- return_err:
- 	of_node_put(port_node);
- free_port:
--- 
-2.34.1
-
+ } elsif ($arch eq "s390" && $bits == 64) {
+     if ($cc =~ /-DCC_USING_HOTPATCH/) {
+-	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(bcrl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
++	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*c0 04 00 00 00 00\\s*(brcl\\s*0,|jgnop\\s*)[0-9a-f]+ <([^\+]*)>\$";
+ 	$mcount_adjust = 0;
+     } else {
+ 	$mcount_regex = "^\\s*([0-9a-fA-F]+):\\s*R_390_(PC|PLT)32DBL\\s+_mcount\\+0x2\$";
 
 
