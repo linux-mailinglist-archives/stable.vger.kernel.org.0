@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D06A84831F5
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA75E4831F8
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232356AbiACOXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:23:14 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54108 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233616AbiACOW5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:57 -0500
+        id S232242AbiACOXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:23:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37684 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231309AbiACOXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B6B1C06139C;
+        Mon,  3 Jan 2022 06:23:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3E656111B;
-        Mon,  3 Jan 2022 14:22:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ACB3C36AFB;
-        Mon,  3 Jan 2022 14:22:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE8F26112B;
+        Mon,  3 Jan 2022 14:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1891C36AED;
+        Mon,  3 Jan 2022 14:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219776;
-        bh=Nm5zNV5nzs2S0sWDBFqt41qcKNKeJuleJ5hkANXoOxI=;
+        s=korg; t=1641219779;
+        bh=UmT29om26gq12r85w8+22PdAa3Pxnkury3JvzuceJo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aL2e91drxGBJ2T1dnlp+K5Qpq6a8WwyhAbHc6C+YLUcbVNsWlaN8qntic0U3LR8MM
-         GyCdybJE3ft/InMOhBxfP20ncS3JjD9CUleYid7yJSpcfPlY9SvymxXCHmtVpJxaht
-         cNKbBrl06a6F8OiLKhXsfwlu84OJAIn7PAeq706I=
+        b=WiA6rXJfL9sLA4mHmSEw+3+nkW03XhcdQ5EmkU/4C1IxDGbcImVD3d6e8niTMfWft
+         j4gzfkNyV5ha9skheTqQXr89k7wbe2pl738fmFIgIJkJfQKzMkeLclzePzhfm48MxA
+         43uPKxCkKou5PlDWGnVGIfkPkh1HwL6T9Quhlu7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 11/19] uapi: fix linux/nfc.h userspace compilation errors
-Date:   Mon,  3 Jan 2022 15:21:28 +0100
-Message-Id: <20220103142052.431494638@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Martynov <mar.kolya@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 12/19] xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
+Date:   Mon,  3 Jan 2022 15:21:29 +0100
+Message-Id: <20220103142052.470008118@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
 References: <20220103142052.068378906@linuxfoundation.org>
@@ -45,48 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry V. Levin <ldv@altlinux.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 7175f02c4e5f5a9430113ab9ca0fd0ce98b28a51 upstream.
+commit e4844092581ceec22489b66c42edc88bc6079783 upstream.
 
-Replace sa_family_t with __kernel_sa_family_t to fix the following
-linux/nfc.h userspace compilation errors:
+The Fresco Logic FL1100 controller needs the TRUST_TX_LENGTH quirk like
+other Fresco controllers, but should not have the BROKEN_MSI quirks set.
 
-/usr/include/linux/nfc.h:266:2: error: unknown type name 'sa_family_t'
-  sa_family_t sa_family;
-/usr/include/linux/nfc.h:274:2: error: unknown type name 'sa_family_t'
-  sa_family_t sa_family;
+BROKEN_MSI quirk causes issues in detecting usb drives connected to docks
+with this FL1100 controller.
+The BROKEN_MSI flag was apparently accidentally set together with the
+TRUST_TX_LENGTH quirk
 
-Fixes: 23b7869c0fd0 ("NFC: add the NFC socket raw protocol")
-Fixes: d646960f7986 ("NFC: Initial LLCP support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Original patch went to stable so this should go there as well.
+
+Fixes: ea0f69d82119 ("xhci: Enable trust tx length quirk for Fresco FL11 USB controller")
+Cc: stable@vger.kernel.org
+cc: Nikolay Martynov <mar.kolya@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211221112825.54690-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/nfc.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-pci.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/uapi/linux/nfc.h
-+++ b/include/uapi/linux/nfc.h
-@@ -261,7 +261,7 @@ enum nfc_sdp_attr {
- #define NFC_SE_ENABLED  0x1
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -100,7 +100,6 @@ static void xhci_pci_quirks(struct devic
+ 	/* Look for vendor-specific quirks */
+ 	if (pdev->vendor == PCI_VENDOR_ID_FRESCO_LOGIC &&
+ 			(pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK ||
+-			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1100 ||
+ 			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1400)) {
+ 		if (pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK &&
+ 				pdev->revision == 0x0) {
+@@ -135,6 +134,10 @@ static void xhci_pci_quirks(struct devic
+ 			pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1009)
+ 		xhci->quirks |= XHCI_BROKEN_STREAMS;
  
- struct sockaddr_nfc {
--	sa_family_t sa_family;
-+	__kernel_sa_family_t sa_family;
- 	__u32 dev_idx;
- 	__u32 target_idx;
- 	__u32 nfc_protocol;
-@@ -269,7 +269,7 @@ struct sockaddr_nfc {
++	if (pdev->vendor == PCI_VENDOR_ID_FRESCO_LOGIC &&
++			pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1100)
++		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
++
+ 	if (pdev->vendor == PCI_VENDOR_ID_NEC)
+ 		xhci->quirks |= XHCI_NEC_HOST;
  
- #define NFC_LLCP_MAX_SERVICE_NAME 63
- struct sockaddr_nfc_llcp {
--	sa_family_t sa_family;
-+	__kernel_sa_family_t sa_family;
- 	__u32 dev_idx;
- 	__u32 target_idx;
- 	__u32 nfc_protocol;
 
 
