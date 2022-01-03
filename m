@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15139483236
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B81874832FD
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231504AbiACOZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:25:52 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56208 "EHLO
+        id S234912AbiACOcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:32:31 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59564 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232602AbiACOZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:38 -0500
+        with ESMTP id S234360AbiACOab (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:30:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5384D61117;
-        Mon,  3 Jan 2022 14:25:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30ACCC36AEF;
-        Mon,  3 Jan 2022 14:25:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FF05610F4;
+        Mon,  3 Jan 2022 14:30:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 055ADC36AEB;
+        Mon,  3 Jan 2022 14:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219937;
-        bh=6NFMk94zYp0v4csIDxeIfG4wpPjoHwGKRXR2wVaTjPk=;
+        s=korg; t=1641220228;
+        bh=t37gPzxOgCQvjx/xijSpfsfMnIiA4NxPElkFOSTgoCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOHER7hnGONctdPqigKbRN/lTGBF3HnzsYyacZAZX0ZM0T+380pw83GUs4vUchDrY
-         qjQKFAnoXNqGyfEG9JduxLjVy1OKy0grv4oxuh1z163zAAZMFd98gkc517iZzV1ljx
-         54/VQ/UXm2RRKq784MAbG6GT/rfswEx6zgUIGB4A=
+        b=GUZN0WojNG2eIOSXa8XzZbS0Yc9CFuIgSNQ+GGSXwZdfTXXuW5/iR0bRBVjYuUCIm
+         qa/dKzmwFllGiphN6dK4WJ0kyaHN/BK1yulXL8XogkuSt2lvqdB4/yPDAqrpUKlyPA
+         kZHAlnIhYmkJPJba1Al91mDlaF3lELWYy25G6h+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>
-Subject: [PATCH 4.19 23/27] binder: fix async_free_space accounting for empty parcels
+        stable@vger.kernel.org,
+        James McLaughlin <james.mclaughlin@qsc.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Nechama Kraus <nechamax.kraus@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 26/48] igc: Fix TX timestamp support for non-MSI-X platforms
 Date:   Mon,  3 Jan 2022 15:24:03 +0100
-Message-Id: <20220103142052.910309259@linuxfoundation.org>
+Message-Id: <20220103142054.361993791@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
-References: <20220103142052.162223000@linuxfoundation.org>
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: James McLaughlin <james.mclaughlin@qsc.com>
 
-commit cfd0d84ba28c18b531648c9d4a35ecca89ad9901 upstream.
+[ Upstream commit f85846bbf43de38fb2c89fe7d2a085608c4eb25a ]
 
-In 4.13, commit 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
-fixed a kernel structure visibility issue. As part of that patch,
-sizeof(void *) was used as the buffer size for 0-length data payloads so
-the driver could detect abusive clients sending 0-length asynchronous
-transactions to a server by enforcing limits on async_free_size.
+Time synchronization was not properly enabled on non-MSI-X platforms.
 
-Unfortunately, on the "free" side, the accounting of async_free_space
-did not add the sizeof(void *) back. The result was that up to 8-bytes of
-async_free_space were leaked on every async transaction of 8-bytes or
-less.  These small transactions are uncommon, so this accounting issue
-has gone undetected for several years.
-
-The fix is to use "buffer_size" (the allocated buffer size) instead of
-"size" (the logical buffer size) when updating the async_free_space
-during the free operation. These are the same except for this
-corner case of asynchronous transactions with payloads < 8 bytes.
-
-Fixes: 74310e06be4d ("android: binder: Move buffer out of area shared with user space")
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Cc: stable@vger.kernel.org # 4.14+
-Link: https://lore.kernel.org/r/20211220190150.2107077-1-tkjos@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2c344ae24501 ("igc: Add support for TX timestamping")
+Signed-off-by: James McLaughlin <james.mclaughlin@qsc.com>
+Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Tested-by: Nechama Kraus <nechamax.kraus@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -630,7 +630,7 @@ static void binder_free_buf_locked(struc
- 	BUG_ON(buffer->data > alloc->buffer + alloc->buffer_size);
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index cae090a072524..61cebb7df6bcb 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -4422,6 +4422,9 @@ static irqreturn_t igc_intr_msi(int irq, void *data)
+ 			mod_timer(&adapter->watchdog_timer, jiffies + 1);
+ 	}
  
- 	if (buffer->async_transaction) {
--		alloc->free_async_space += size + sizeof(struct binder_buffer);
-+		alloc->free_async_space += buffer_size + sizeof(struct binder_buffer);
++	if (icr & IGC_ICR_TS)
++		igc_tsync_interrupt(adapter);
++
+ 	napi_schedule(&q_vector->napi);
  
- 		binder_alloc_debug(BINDER_DEBUG_BUFFER_ALLOC_ASYNC,
- 			     "%d: binder_free_buf size %zd async free %zd\n",
+ 	return IRQ_HANDLED;
+@@ -4465,6 +4468,9 @@ static irqreturn_t igc_intr(int irq, void *data)
+ 			mod_timer(&adapter->watchdog_timer, jiffies + 1);
+ 	}
+ 
++	if (icr & IGC_ICR_TS)
++		igc_tsync_interrupt(adapter);
++
+ 	napi_schedule(&q_vector->napi);
+ 
+ 	return IRQ_HANDLED;
+-- 
+2.34.1
+
 
 
