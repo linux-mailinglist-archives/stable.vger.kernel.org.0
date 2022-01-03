@@ -2,29 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA6F483251
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C2C2483259
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:27:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233955AbiACO0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:26:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56694 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233841AbiACO0G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:26:06 -0500
+        id S231838AbiACO1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:27:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232799AbiACO0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:26:23 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82BB7C0617A0;
+        Mon,  3 Jan 2022 06:26:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 089AC61122;
-        Mon,  3 Jan 2022 14:26:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2240C36AED;
-        Mon,  3 Jan 2022 14:26:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 00512CE1106;
+        Mon,  3 Jan 2022 14:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6433C36AEB;
+        Mon,  3 Jan 2022 14:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219965;
-        bh=bJOL+w84li+liL67SCn/kBsXUfI2qsu+dvvTOac/xEA=;
+        s=korg; t=1641219980;
+        bh=/m6SJhte+BRTmgF+/vDE7mDyX1fIHdLTekn7bDWtbPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BaJSI6wRJ5377+2HKd0B1WGa9OzQ0opHzzS3t5a+soioa8B+bgaAI2EcNgCvpr+B+
-         C+EzQoiTgM0c4J9zfJu6q9mUz+GQscTFbsgRgl5P8XcJzqPbXv4UK6SYVk0Dn+x1qR
-         2D1AzsgXtGMWC5kkymVoyho2R/bd7Lq6Ac7484fE=
+        b=uj56hNPHyKcD7ybjK04bHQtBpLh0JYHLOBgUywv4h9W3x6QCWWJe+k6TqdUDqQKVD
+         rY+RrMKIGYB6Me8voEBg9qLgIFOEwIAEdm3NhabgkzTizyPr9LJrWFfSmXR8UJe2m8
+         Ba7NPl47g9A531VW0Q8daMit525e5E1hgpKojzuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/27] scsi: lpfc: Terminate string in lpfc_debugfs_nvmeio_trc_write()
+Subject: [PATCH 5.4 10/37] scsi: lpfc: Terminate string in lpfc_debugfs_nvmeio_trc_write()
 Date:   Mon,  3 Jan 2022 15:23:48 +0100
-Message-Id: <20220103142052.463553673@linuxfoundation.org>
+Message-Id: <20220103142052.198703097@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
-References: <20220103142052.162223000@linuxfoundation.org>
+In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
+References: <20220103142051.883166998@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,10 +67,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/scsi/lpfc/lpfc_debugfs.c b/drivers/scsi/lpfc/lpfc_debugfs.c
-index 2c70e311943ac..0a908d1cc494a 100644
+index 3c9248d2435e1..e15bb3dfe9956 100644
 --- a/drivers/scsi/lpfc/lpfc_debugfs.c
 +++ b/drivers/scsi/lpfc/lpfc_debugfs.c
-@@ -2267,8 +2267,8 @@ lpfc_debugfs_nvmeio_trc_write(struct file *file, const char __user *buf,
+@@ -2757,8 +2757,8 @@ lpfc_debugfs_nvmeio_trc_write(struct file *file, const char __user *buf,
  	char mybuf[64];
  	char *pbuf;
  
