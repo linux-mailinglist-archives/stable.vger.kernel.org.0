@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB13F483200
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4707483213
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233591AbiACOXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:23:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37446 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233600AbiACOXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:12 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96689C06179B;
-        Mon,  3 Jan 2022 06:23:11 -0800 (PST)
+        id S233495AbiACOYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:24:17 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:46112 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233643AbiACOXO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 14262CE1105;
+        by sin.source.kernel.org (Postfix) with ESMTPS id F302DCE1112;
+        Mon,  3 Jan 2022 14:23:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAEE2C36AEB;
         Mon,  3 Jan 2022 14:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF146C36AEB;
-        Mon,  3 Jan 2022 14:23:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219788;
-        bh=q1y2rSOGp+yLXZH6g3odHuz0Pl79A/Cg7YjxsfUUMMk=;
+        s=korg; t=1641219791;
+        bh=yLmwlPHdrpgmr0YEKzev50jgMT2p9jeYzVcPI2wHECc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ArsvPRyUyfdnlf56CVAEKp2QktJhUttrsW6/OFlorzIF7K2qUQFOQUJNgfaAdM0Sl
-         UIxNafzhVyV1WbClLKEYMg7fRyncS7DaBCSi5qFObrpFeBZ1apw9dBLAkajn+ui8mK
-         azDzQegjsP3URS7Gw7DYvzUFlMtH7UIdD3crDPyc=
+        b=zEySxIgmnWFvnEH2ZG2oliOaY4Adneg0RNtVZaMX8bVc64nAGRenfohIYM1LwrXui
+         5rNxedmglUEUbGilcPucf8FGMd1rb+uXQgTrFme8mIbM+VV/5PJE44cLPREhFjW/WI
+         lvmMQFxCmeJsQ8r0pWuQxnoVkHVujjfWH2p1VljI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Wang <wwentao@vmware.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Vishal Bhakta <vbhakta@vmware.com>,
-        VMware PV-Drivers <pv-drivers@vmware.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        linux-scsi@vger.kernel.org, Alexey Makhalov <amakhalov@vmware.com>,
-        Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Subject: [PATCH 4.14 15/19] scsi: vmw_pvscsi: Set residual data length conditionally
-Date:   Mon,  3 Jan 2022 15:21:32 +0100
-Message-Id: <20220103142052.567975725@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 16/19] Input: appletouch - initialize work before device registration
+Date:   Mon,  3 Jan 2022 15:21:33 +0100
+Message-Id: <20220103142052.596678513@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
 References: <20220103142052.068378906@linuxfoundation.org>
@@ -52,69 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Makhalov <amakhalov@vmware.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 142c779d05d1fef75134c3cb63f52ccbc96d9e1f upstream.
+commit 9f3ccdc3f6ef10084ceb3a47df0961bec6196fd0 upstream.
 
-The PVSCSI implementation in the VMware hypervisor under specific
-configuration ("SCSI Bus Sharing" set to "Physical") returns zero dataLen
-in the completion descriptor for READ CAPACITY(16). As a result, the kernel
-can not detect proper disk geometry. This can be recognized by the kernel
-message:
+Syzbot has reported warning in __flush_work(). This warning is caused by
+work->func == NULL, which means missing work initialization.
 
-  [ 0.776588] sd 1:0:0:0: [sdb] Sector size 0 reported, assuming 512.
+This may happen, since input_dev->close() calls
+cancel_work_sync(&dev->work), but dev->work initalization happens _after_
+input_register_device() call.
 
-The PVSCSI implementation in QEMU does not set dataLen at all, keeping it
-zeroed. This leads to a boot hang as was reported by Shmulik Ladkani.
+So this patch moves dev->work initialization before registering input
+device
 
-It is likely that the controller returns the garbage at the end of the
-buffer. Residual length should be set by the driver in that case. The SCSI
-layer will erase corresponding data. See commit bdb2b8cab439 ("[SCSI] erase
-invalid data returned by device") for details.
-
-Commit e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
-introduced the issue by setting residual length unconditionally, causing
-the SCSI layer to erase the useful payload beyond dataLen when this value
-is returned as 0.
-
-As a result, considering existing issues in implementations of PVSCSI
-controllers, we do not want to call scsi_set_resid() when dataLen ==
-0. Calling scsi_set_resid() has no effect if dataLen equals buffer length.
-
-Link: https://lore.kernel.org/lkml/20210824120028.30d9c071@blondie/
-Link: https://lore.kernel.org/r/20211220190514.55935-1-amakhalov@vmware.com
-Fixes: e662502b3a78 ("scsi: vmw_pvscsi: Set correct residual data length")
-Cc: Matt Wang <wwentao@vmware.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: Vishal Bhakta <vbhakta@vmware.com>
-Cc: VMware PV-Drivers <pv-drivers@vmware.com>
-Cc: James E.J. Bottomley <jejb@linux.ibm.com>
-Cc: linux-scsi@vger.kernel.org
+Fixes: 5a6eb676d3bc ("Input: appletouch - improve powersaving for Geyser3 devices")
+Reported-and-tested-by: syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211230141151.17300-1-paskripkin@gmail.com
 Cc: stable@vger.kernel.org
-Reported-and-suggested-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/vmw_pvscsi.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/mouse/appletouch.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/vmw_pvscsi.c
-+++ b/drivers/scsi/vmw_pvscsi.c
-@@ -578,9 +578,12 @@ static void pvscsi_complete_request(stru
- 			 * Commands like INQUIRY may transfer less data than
- 			 * requested by the initiator via bufflen. Set residual
- 			 * count to make upper layer aware of the actual amount
--			 * of data returned.
-+			 * of data returned. There are cases when controller
-+			 * returns zero dataLen with non zero data - do not set
-+			 * residual count in that case.
- 			 */
--			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
-+			if (e->dataLen && (e->dataLen < scsi_bufflen(cmd)))
-+				scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
- 			cmd->result = (DID_OK << 16);
- 			break;
+--- a/drivers/input/mouse/appletouch.c
++++ b/drivers/input/mouse/appletouch.c
+@@ -929,6 +929,8 @@ static int atp_probe(struct usb_interfac
+ 	set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
+ 	set_bit(BTN_LEFT, input_dev->keybit);
  
++	INIT_WORK(&dev->work, atp_reinit);
++
+ 	error = input_register_device(dev->input);
+ 	if (error)
+ 		goto err_free_buffer;
+@@ -936,8 +938,6 @@ static int atp_probe(struct usb_interfac
+ 	/* save our data pointer in this interface device */
+ 	usb_set_intfdata(iface, dev);
+ 
+-	INIT_WORK(&dev->work, atp_reinit);
+-
+ 	return 0;
+ 
+  err_free_buffer:
 
 
