@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 734064831D3
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:22:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C505E4831DF
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:22:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233392AbiACOWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:22:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37428 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233423AbiACOWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A99A0C06179E;
-        Mon,  3 Jan 2022 06:22:06 -0800 (PST)
+        id S233327AbiACOWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:22:38 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:45694 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233337AbiACOWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 26E3FCE110D;
-        Mon,  3 Jan 2022 14:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D480CC36AED;
-        Mon,  3 Jan 2022 14:22:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CAE4CCE1105;
+        Mon,  3 Jan 2022 14:22:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE2E2C36AEB;
+        Mon,  3 Jan 2022 14:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219723;
-        bh=yLmwlPHdrpgmr0YEKzev50jgMT2p9jeYzVcPI2wHECc=;
+        s=korg; t=1641219742;
+        bh=0e4S8rSU2Evdu8EVpL7qivFvxpK3zM8ptuz1EENzDoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ih0wmr8yAfEE3ASvG2VtmNK592hMAUaffuuiGv5cEP3dVQfNyzCOPvtz2txmUKqC9
-         kH8dVoKgRDCmNDTesUKXZ9rDZPeRj9geuWdnYiSFLdZk0yb1ujjqT79dF4PAmqr/t3
-         nS+8f7LRPA4W/FvBFAb+9rDcHKMfh9GxgXhPklQA=
+        b=h8wruNpG1F1OAIraq2MhhRLieN+lvmXZmvJAdkKWzZH/o3dBddiandvqtk/5scJvf
+         Jx/GnMeihmvU2Hxs2NeK41y6vZ0afQWm0Ewn+AF5NfkOOcn7yElb27ZkuvWFrHS+kn
+         uSz0Ogc3un+CsNFzGW10f5JMhMxoi+LsYzIJ90BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 09/11] Input: appletouch - initialize work before device registration
-Date:   Mon,  3 Jan 2022 15:21:20 +0100
-Message-Id: <20220103142051.072145187@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 05/13] fsl/fman: Fix missing put_device() call in fman_port_probe
+Date:   Mon,  3 Jan 2022 15:21:21 +0100
+Message-Id: <20220103142052.142155428@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142050.763904028@linuxfoundation.org>
-References: <20220103142050.763904028@linuxfoundation.org>
+In-Reply-To: <20220103142051.979780231@linuxfoundation.org>
+References: <20220103142051.979780231@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,50 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 9f3ccdc3f6ef10084ceb3a47df0961bec6196fd0 upstream.
+[ Upstream commit bf2b09fedc17248b315f80fb249087b7d28a69a6 ]
 
-Syzbot has reported warning in __flush_work(). This warning is caused by
-work->func == NULL, which means missing work initialization.
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the and error handling paths.
 
-This may happen, since input_dev->close() calls
-cancel_work_sync(&dev->work), but dev->work initalization happens _after_
-input_register_device() call.
-
-So this patch moves dev->work initialization before registering input
-device
-
-Fixes: 5a6eb676d3bc ("Input: appletouch - improve powersaving for Geyser3 devices")
-Reported-and-tested-by: syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211230141151.17300-1-paskripkin@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 18a6c85fcc78 ("fsl/fman: Add FMan Port Support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/appletouch.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fman/fman_port.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -929,6 +929,8 @@ static int atp_probe(struct usb_interfac
- 	set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
- 	set_bit(BTN_LEFT, input_dev->keybit);
+diff --git a/drivers/net/ethernet/freescale/fman/fman_port.c b/drivers/net/ethernet/freescale/fman/fman_port.c
+index 4986f6ba278a3..45ac5cf717ea8 100644
+--- a/drivers/net/ethernet/freescale/fman/fman_port.c
++++ b/drivers/net/ethernet/freescale/fman/fman_port.c
+@@ -1658,7 +1658,7 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 	fman = dev_get_drvdata(&fm_pdev->dev);
+ 	if (!fman) {
+ 		err = -EINVAL;
+-		goto return_err;
++		goto put_device;
+ 	}
  
-+	INIT_WORK(&dev->work, atp_reinit);
-+
- 	error = input_register_device(dev->input);
- 	if (error)
- 		goto err_free_buffer;
-@@ -936,8 +938,6 @@ static int atp_probe(struct usb_interfac
- 	/* save our data pointer in this interface device */
- 	usb_set_intfdata(iface, dev);
+ 	err = of_property_read_u32(port_node, "cell-index", &val);
+@@ -1666,7 +1666,7 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 		dev_err(port->dev, "%s: reading cell-index for %s failed\n",
+ 			__func__, port_node->full_name);
+ 		err = -EINVAL;
+-		goto return_err;
++		goto put_device;
+ 	}
+ 	port_id = (u8)val;
+ 	port->dts_params.id = port_id;
+@@ -1700,7 +1700,7 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 	}  else {
+ 		dev_err(port->dev, "%s: Illegal port type\n", __func__);
+ 		err = -EINVAL;
+-		goto return_err;
++		goto put_device;
+ 	}
  
--	INIT_WORK(&dev->work, atp_reinit);
--
+ 	port->dts_params.type = port_type;
+@@ -1714,7 +1714,7 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 			dev_err(port->dev, "%s: incorrect qman-channel-id\n",
+ 				__func__);
+ 			err = -EINVAL;
+-			goto return_err;
++			goto put_device;
+ 		}
+ 		port->dts_params.qman_channel_id = qman_channel_id;
+ 	}
+@@ -1724,7 +1724,7 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 		dev_err(port->dev, "%s: of_address_to_resource() failed\n",
+ 			__func__);
+ 		err = -ENOMEM;
+-		goto return_err;
++		goto put_device;
+ 	}
+ 
+ 	port->dts_params.fman = fman;
+@@ -1749,6 +1749,8 @@ static int fman_port_probe(struct platform_device *of_dev)
+ 
  	return 0;
  
-  err_free_buffer:
++put_device:
++	put_device(&fm_pdev->dev);
+ return_err:
+ 	of_node_put(port_node);
+ free_port:
+-- 
+2.34.1
+
 
 
