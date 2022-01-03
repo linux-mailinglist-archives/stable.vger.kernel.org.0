@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0AD483345
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 658E24833A4
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:40:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231734AbiACOf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:35:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33094 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233765AbiACOdw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:33:52 -0500
+        id S235065AbiACOki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:40:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40596 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234122AbiACOil (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:38:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E36C07E5E4;
+        Mon,  3 Jan 2022 06:34:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34F4061128;
-        Mon,  3 Jan 2022 14:33:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1441CC36AEB;
-        Mon,  3 Jan 2022 14:33:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6BAD610B1;
+        Mon,  3 Jan 2022 14:34:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A62EC36AEB;
+        Mon,  3 Jan 2022 14:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220431;
-        bh=vyj/Vkr9EC4mEIQsxIDbkkOi9a3R9gjtU12B8TPCGuE=;
+        s=korg; t=1641220478;
+        bh=WNLy4danCxPOTul+2vLRxiOIeUxgWB/tuRBCV1+UiN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKmFFcfxWASEbFO56vHgPofpaF9e3OhZj22r8jfcIHjzQNn0jQuGtlxXC37GtPZJ2
-         vXO7QnJZ0cGzQEgGhi/7Esaj4VGS7aPQcQ5wD1IUKXCR2LAC+2gBZtCsNGTSZ+Kf2l
-         tY+C9if9lV8Fq85y3oetNncMwHIxdjU8DOuC/Csc=
+        b=CarCaIIPQpVbbuNOTe45IORVw5cAst1BVhkATpDe434tJIhz40iA0SWyrH8ACkM70
+         OEft95udnJM9yOfHchd5K3yL13ADHC9Nszz/PSDBFAsmvgm+rAYfuYPZbn3i6DvfkX
+         SqHmgeoLPa7jgo/zHp7eVpxQwNQbK/LlrTzw7ohk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 66/73] Input: appletouch - initialize work before device registration
-Date:   Mon,  3 Jan 2022 15:24:27 +0100
-Message-Id: <20220103142059.057784990@linuxfoundation.org>
+        stable@vger.kernel.org, "Leo L. Schwab" <ewhac@ewhac.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 67/73] Input: spaceball - fix parsing of movement data packets
+Date:   Mon,  3 Jan 2022 15:24:28 +0100
+Message-Id: <20220103142059.095174243@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
 References: <20220103142056.911344037@linuxfoundation.org>
@@ -45,50 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Leo L. Schwab <ewhac@ewhac.org>
 
-commit 9f3ccdc3f6ef10084ceb3a47df0961bec6196fd0 upstream.
+commit bc7ec91718c49d938849697cfad98fcd9877cc26 upstream.
 
-Syzbot has reported warning in __flush_work(). This warning is caused by
-work->func == NULL, which means missing work initialization.
+The spaceball.c module was not properly parsing the movement reports
+coming from the device.  The code read axis data as signed 16-bit
+little-endian values starting at offset 2.
 
-This may happen, since input_dev->close() calls
-cancel_work_sync(&dev->work), but dev->work initalization happens _after_
-input_register_device() call.
+In fact, axis data in Spaceball movement reports are signed 16-bit
+big-endian values starting at offset 3.  This was determined first by
+visually inspecting the data packets, and later verified by consulting:
+http://spacemice.org/pdf/SpaceBall_2003-3003_Protocol.pdf
 
-So this patch moves dev->work initialization before registering input
-device
+If this ever worked properly, it was in the time before Git...
 
-Fixes: 5a6eb676d3bc ("Input: appletouch - improve powersaving for Geyser3 devices")
-Reported-and-tested-by: syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211230141151.17300-1-paskripkin@gmail.com
+Signed-off-by: Leo L. Schwab <ewhac@ewhac.org>
+Link: https://lore.kernel.org/r/20211221101630.1146385-1-ewhac@ewhac.org
 Cc: stable@vger.kernel.org
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/appletouch.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/joystick/spaceball.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -916,6 +916,8 @@ static int atp_probe(struct usb_interfac
- 	set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
- 	set_bit(BTN_LEFT, input_dev->keybit);
+--- a/drivers/input/joystick/spaceball.c
++++ b/drivers/input/joystick/spaceball.c
+@@ -19,6 +19,7 @@
+ #include <linux/module.h>
+ #include <linux/input.h>
+ #include <linux/serio.h>
++#include <asm/unaligned.h>
  
-+	INIT_WORK(&dev->work, atp_reinit);
-+
- 	error = input_register_device(dev->input);
- 	if (error)
- 		goto err_free_buffer;
-@@ -923,8 +925,6 @@ static int atp_probe(struct usb_interfac
- 	/* save our data pointer in this interface device */
- 	usb_set_intfdata(iface, dev);
+ #define DRIVER_DESC	"SpaceTec SpaceBall 2003/3003/4000 FLX driver"
  
--	INIT_WORK(&dev->work, atp_reinit);
--
- 	return 0;
+@@ -75,9 +76,15 @@ static void spaceball_process_packet(str
  
-  err_free_buffer:
+ 		case 'D':					/* Ball data */
+ 			if (spaceball->idx != 15) return;
+-			for (i = 0; i < 6; i++)
++			/*
++			 * Skip first three bytes; read six axes worth of data.
++			 * Axis values are signed 16-bit big-endian.
++			 */
++			data += 3;
++			for (i = 0; i < ARRAY_SIZE(spaceball_axes); i++) {
+ 				input_report_abs(dev, spaceball_axes[i],
+-					(__s16)((data[2 * i + 3] << 8) | data[2 * i + 2]));
++					(__s16)get_unaligned_be16(&data[i * 2]));
++			}
+ 			break;
+ 
+ 		case 'K':					/* Button data */
 
 
