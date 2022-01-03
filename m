@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 478E148334A
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 409A6483242
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235041AbiACOfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:35:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39818 "EHLO
+        id S232869AbiACO0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:26:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234132AbiACOeW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:34:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8AAC0698C8;
-        Mon,  3 Jan 2022 06:32:42 -0800 (PST)
+        with ESMTP id S233729AbiACOZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D907C061394;
+        Mon,  3 Jan 2022 06:25:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE48FB80F1A;
-        Mon,  3 Jan 2022 14:32:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112B6C36AED;
-        Mon,  3 Jan 2022 14:32:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 80784CE1109;
+        Mon,  3 Jan 2022 14:25:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59BC7C36AED;
+        Mon,  3 Jan 2022 14:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220359;
-        bh=5D/gM1GEoK6AdJS5J3D0j/p7sN/TAOOZtnXhx9ZZTE4=;
+        s=korg; t=1641219946;
+        bh=+2uNALVy1y7V2oFBo9fj5T5pKlUJG1LE2IJ16//QuEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=akKnozpKrkUf4M0lchbWyM9bmifqChLutDdu1nJFCgcASfEzJhJbrInpW/znKz+wz
-         5VIrlyK8e5yVdxvAMQGzRpSDg5cCAEKUcNIyAk4Gn4l9UxOcWxWTKdKWSkRo+DZjAN
-         FYskUJhbRRUWunth+s55EYPE3qO56mU+J5Do7Y90=
+        b=s56ADg001TNgOja7m/unqz5H1IZXnsfN7xZ5urcVoFzXj3pztv5eSxRCnzcMIbsWe
+         GWSxrYWK0OZgNhHkL6ZEA1MKoFXmDcIFVKpQ7+koMlWnZz83FBg0MICQ4Moeoo9wyr
+         es5YuRE+XN45aHRBcHfzzB2FX41MpHwroLXPZEaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianguo Wu <wujianguo@chinatelecom.cn>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 45/73] selftests/net: udpgso_bench_tx: fix dst ip argument
+        stable@vger.kernel.org, "Leo L. Schwab" <ewhac@ewhac.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 26/27] Input: spaceball - fix parsing of movement data packets
 Date:   Mon,  3 Jan 2022 15:24:06 +0100
-Message-Id: <20220103142058.371614166@linuxfoundation.org>
+Message-Id: <20220103142053.015139390@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
+References: <20220103142052.162223000@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,63 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wujianguo <wujianguo@chinatelecom.cn>
+From: Leo L. Schwab <ewhac@ewhac.org>
 
-[ Upstream commit 9c1952aeaa98b3cfc49e2a79cb2c7d6a674213e9 ]
+commit bc7ec91718c49d938849697cfad98fcd9877cc26 upstream.
 
-udpgso_bench_tx call setup_sockaddr() for dest address before
-parsing all arguments, if we specify "-p ${dst_port}" after "-D ${dst_ip}",
-then ${dst_port} will be ignored, and using default cfg_port 8000.
+The spaceball.c module was not properly parsing the movement reports
+coming from the device.  The code read axis data as signed 16-bit
+little-endian values starting at offset 2.
 
-This will cause test case "multiple GRO socks" failed in udpgro.sh.
+In fact, axis data in Spaceball movement reports are signed 16-bit
+big-endian values starting at offset 3.  This was determined first by
+visually inspecting the data packets, and later verified by consulting:
+http://spacemice.org/pdf/SpaceBall_2003-3003_Protocol.pdf
 
-Setup sockaddr after parsing all arguments.
+If this ever worked properly, it was in the time before Git...
 
-Fixes: 3a687bef148d ("selftests: udp gso benchmark")
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/ff620d9f-5b52-06ab-5286-44b945453002@163.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Leo L. Schwab <ewhac@ewhac.org>
+Link: https://lore.kernel.org/r/20211221101630.1146385-1-ewhac@ewhac.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/udpgso_bench_tx.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/input/joystick/spaceball.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/udpgso_bench_tx.c b/tools/testing/selftests/net/udpgso_bench_tx.c
-index 17512a43885e7..f1fdaa2702913 100644
---- a/tools/testing/selftests/net/udpgso_bench_tx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_tx.c
-@@ -419,6 +419,7 @@ static void usage(const char *filepath)
+--- a/drivers/input/joystick/spaceball.c
++++ b/drivers/input/joystick/spaceball.c
+@@ -31,6 +31,7 @@
+ #include <linux/module.h>
+ #include <linux/input.h>
+ #include <linux/serio.h>
++#include <asm/unaligned.h>
  
- static void parse_opts(int argc, char **argv)
- {
-+	const char *bind_addr = NULL;
- 	int max_len, hdrlen;
- 	int c;
+ #define DRIVER_DESC	"SpaceTec SpaceBall 2003/3003/4000 FLX driver"
  
-@@ -446,7 +447,7 @@ static void parse_opts(int argc, char **argv)
- 			cfg_cpu = strtol(optarg, NULL, 0);
+@@ -87,9 +88,15 @@ static void spaceball_process_packet(str
+ 
+ 		case 'D':					/* Ball data */
+ 			if (spaceball->idx != 15) return;
+-			for (i = 0; i < 6; i++)
++			/*
++			 * Skip first three bytes; read six axes worth of data.
++			 * Axis values are signed 16-bit big-endian.
++			 */
++			data += 3;
++			for (i = 0; i < ARRAY_SIZE(spaceball_axes); i++) {
+ 				input_report_abs(dev, spaceball_axes[i],
+-					(__s16)((data[2 * i + 3] << 8) | data[2 * i + 2]));
++					(__s16)get_unaligned_be16(&data[i * 2]));
++			}
  			break;
- 		case 'D':
--			setup_sockaddr(cfg_family, optarg, &cfg_dst_addr);
-+			bind_addr = optarg;
- 			break;
- 		case 'l':
- 			cfg_runtime_ms = strtoul(optarg, NULL, 10) * 1000;
-@@ -492,6 +493,11 @@ static void parse_opts(int argc, char **argv)
- 		}
- 	}
  
-+	if (!bind_addr)
-+		bind_addr = cfg_family == PF_INET6 ? "::" : "0.0.0.0";
-+
-+	setup_sockaddr(cfg_family, bind_addr, &cfg_dst_addr);
-+
- 	if (optind != argc)
- 		usage(argv[0]);
- 
--- 
-2.34.1
-
+ 		case 'K':					/* Button data */
 
 
