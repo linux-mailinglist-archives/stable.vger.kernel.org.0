@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF320483295
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 057EE483300
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233989AbiACO2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:28:52 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:58158 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234002AbiACO1v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:51 -0500
+        id S235062AbiACOcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:32:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39790 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234144AbiACOaf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:30:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A315C061377;
+        Mon,  3 Jan 2022 06:30:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FF5C6111A;
-        Mon,  3 Jan 2022 14:27:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B1BDC36AEB;
-        Mon,  3 Jan 2022 14:27:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3685D61128;
+        Mon,  3 Jan 2022 14:30:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D03C36AED;
+        Mon,  3 Jan 2022 14:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220070;
-        bh=HYtJafyiNt2ZdmB6bpJil8mgJLtM2948ohs+3f8VEZE=;
+        s=korg; t=1641220234;
+        bh=gO1S2HcV8Ci6bRImVueLuS2Y5hfwfGJIAaSnEa7DYoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1z7NslNWQgpzDNrOJvyJGeXWvp4QaMQeQR3T3ZGd1U617lKCKoCpK7R05X38e2E0R
-         oQtsko7vEfaVhGP2jA4QbGieHP81PayB7hcC3piThTwD+chQtqV1S21NdoHo0D7bXO
-         NKt9qUkG3be0U1R9Ukf7W7vOnKA1gFEmdLZXYZ1Q=
+        b=RhxwWuG74Kn4OCvKEft2fLqGfRVFXp6DOPu3w9GpEgAOwEQiCWBwlqhzs7uRfI2je
+         wXFsl8F2B2rBHrfJauUuzZfxNXG5EYIM7ljVi/akHa2K3IlYYDWDm0nWayBqnnWjC4
+         /O5JQrxAUYG/85mFYXFMr1QhPZbnmLf8d8Q1nOW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Martynov <mar.kolya@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 27/37] xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 28/48] net/mlx5e: Fix wrong features assignment in case of error
 Date:   Mon,  3 Jan 2022 15:24:05 +0100
-Message-Id: <20220103142052.712311123@linuxfoundation.org>
+Message-Id: <20220103142054.421209500@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
-References: <20220103142051.883166998@linuxfoundation.org>
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +48,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Gal Pressman <gal@nvidia.com>
 
-commit e4844092581ceec22489b66c42edc88bc6079783 upstream.
+[ Upstream commit 992d8a4e38f0527f24e273ce3a9cd6dea1a6a436 ]
 
-The Fresco Logic FL1100 controller needs the TRUST_TX_LENGTH quirk like
-other Fresco controllers, but should not have the BROKEN_MSI quirks set.
+In case of an error in mlx5e_set_features(), 'netdev->features' must be
+updated with the correct state of the device to indicate which features
+were updated successfully.
+To do that we maintain a copy of 'netdev->features' and update it after
+successful feature changes, so we can assign it to back to
+'netdev->features' if needed.
 
-BROKEN_MSI quirk causes issues in detecting usb drives connected to docks
-with this FL1100 controller.
-The BROKEN_MSI flag was apparently accidentally set together with the
-TRUST_TX_LENGTH quirk
+However, since not all netdev features are handled by the driver (e.g.
+GRO/TSO/etc), some features may not be updated correctly in case of an
+error updating another feature.
 
-Original patch went to stable so this should go there as well.
+For example, while requesting to disable TSO (feature which is not
+handled by the driver) and enable HW-GRO, if an error occurs during
+HW-GRO enable, 'oper_features' will be assigned with 'netdev->features'
+and HW-GRO turned off. TSO will remain enabled in such case, which is a
+bug.
 
-Fixes: ea0f69d82119 ("xhci: Enable trust tx length quirk for Fresco FL11 USB controller")
-Cc: stable@vger.kernel.org
-cc: Nikolay Martynov <mar.kolya@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211221112825.54690-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To solve that, instead of using 'netdev->features' as the baseline of
+'oper_features' and changing it on set feature success, use 'features'
+instead and update it in case of errors.
+
+Fixes: 75b81ce719b7 ("net/mlx5e: Don't override netdev features field unless in error flow")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -108,7 +108,6 @@ static void xhci_pci_quirks(struct devic
- 	/* Look for vendor-specific quirks */
- 	if (pdev->vendor == PCI_VENDOR_ID_FRESCO_LOGIC &&
- 			(pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK ||
--			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1100 ||
- 			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1400)) {
- 		if (pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK &&
- 				pdev->revision == 0x0) {
-@@ -143,6 +142,10 @@ static void xhci_pci_quirks(struct devic
- 			pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1009)
- 		xhci->quirks |= XHCI_BROKEN_STREAMS;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 3f5a2bb9b3c0b..2f6c3a5813ed1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -3935,12 +3935,11 @@ static int set_feature_arfs(struct net_device *netdev, bool enable)
  
-+	if (pdev->vendor == PCI_VENDOR_ID_FRESCO_LOGIC &&
-+			pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1100)
-+		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
-+
- 	if (pdev->vendor == PCI_VENDOR_ID_NEC)
- 		xhci->quirks |= XHCI_NEC_HOST;
+ static int mlx5e_handle_feature(struct net_device *netdev,
+ 				netdev_features_t *features,
+-				netdev_features_t wanted_features,
+ 				netdev_features_t feature,
+ 				mlx5e_feature_handler feature_handler)
+ {
+-	netdev_features_t changes = wanted_features ^ netdev->features;
+-	bool enable = !!(wanted_features & feature);
++	netdev_features_t changes = *features ^ netdev->features;
++	bool enable = !!(*features & feature);
+ 	int err;
  
+ 	if (!(changes & feature))
+@@ -3948,22 +3947,22 @@ static int mlx5e_handle_feature(struct net_device *netdev,
+ 
+ 	err = feature_handler(netdev, enable);
+ 	if (err) {
++		MLX5E_SET_FEATURE(features, feature, !enable);
+ 		netdev_err(netdev, "%s feature %pNF failed, err %d\n",
+ 			   enable ? "Enable" : "Disable", &feature, err);
+ 		return err;
+ 	}
+ 
+-	MLX5E_SET_FEATURE(features, feature, enable);
+ 	return 0;
+ }
+ 
+ int mlx5e_set_features(struct net_device *netdev, netdev_features_t features)
+ {
+-	netdev_features_t oper_features = netdev->features;
++	netdev_features_t oper_features = features;
+ 	int err = 0;
+ 
+ #define MLX5E_HANDLE_FEATURE(feature, handler) \
+-	mlx5e_handle_feature(netdev, &oper_features, features, feature, handler)
++	mlx5e_handle_feature(netdev, &oper_features, feature, handler)
+ 
+ 	err |= MLX5E_HANDLE_FEATURE(NETIF_F_LRO, set_feature_lro);
+ 	err |= MLX5E_HANDLE_FEATURE(NETIF_F_HW_VLAN_CTAG_FILTER,
+-- 
+2.34.1
+
 
 
