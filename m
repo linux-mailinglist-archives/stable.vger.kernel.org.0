@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A86CA483317
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B36B48330E
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234562AbiACOdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:33:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39156 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234624AbiACObW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:31:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159F7C0617A1;
-        Mon,  3 Jan 2022 06:31:01 -0800 (PST)
+        id S230468AbiACOdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:33:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60558 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232809AbiACObC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:31:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5AACB80F03;
-        Mon,  3 Jan 2022 14:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16857C36AFF;
-        Mon,  3 Jan 2022 14:30:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BEB761128;
+        Mon,  3 Jan 2022 14:31:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F38C36AEB;
+        Mon,  3 Jan 2022 14:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220258;
-        bh=AicelTekhKQs7HjX2xn6r5Y5BecgrtTsjiw0hp7Mca4=;
+        s=korg; t=1641220261;
+        bh=AjmbD1bZlf3o6NhTp1B8VVix/zedRV+zIB9KjzeHeHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rz564MYmLFy0WVySpffq9oYzS4NgJR8Namw3AGMwhCRq5jypFSpRaujAzEbj3uRoG
-         xHASoxagH55f7W9FfbKStk3sQd3HPWrRt31rwrsOCdCGFTzZzlXDQbgHSXp7yN77j+
-         56e0unbA6lZUeBPZAwWl0AuKiBLgrtrzMRtLdjwk=
+        b=wNciToyvXNWmGH+rQb/tDwofUAuLdE+q+bBpwDNzUAB49A7sY4GkExHa1dx9bAPGF
+         sxIYpN4/C+ZUgkUf3RcEgcWKipgM2D3mOeI8+8zMeGACK+8x/vKQLFWX8sws2cYttA
+         UW/I08JSN7/wAXOH4DC3uQRtYZZ64TKwkWlJ1B5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH 5.15 13/73] powerpc/ptdump: Fix DEBUG_WX since generic ptdump conversion
-Date:   Mon,  3 Jan 2022 15:23:34 +0100
-Message-Id: <20220103142057.342309761@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.15 14/73] efi: Move efifb_setup_from_dmi() prototype from arch headers
+Date:   Mon,  3 Jan 2022 15:23:35 +0100
+Message-Id: <20220103142057.380585410@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
 References: <20220103142056.911344037@linuxfoundation.org>
@@ -47,36 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-commit 8d84fca4375e3c35dadc16b8c7eee6821b2a575c upstream.
+commit 4bc5e64e6cf37007e436970024e5998ee0935651 upstream.
 
-In note_prot_wx() we bail out without reporting anything if
-CONFIG_PPC_DEBUG_WX is disabled.
+Commit 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup
+for all arches") made the Generic System Framebuffers (sysfb) driver able
+to be built on non-x86 architectures.
 
-But CONFIG_PPC_DEBUG_WX was removed in the conversion to generic ptdump,
-we now need to use CONFIG_DEBUG_WX instead.
+But it left the efifb_setup_from_dmi() function prototype declaration in
+the architecture specific headers. This could lead to the following
+compiler warning as reported by the kernel test robot:
 
-Fixes: e084728393a5 ("powerpc/ptdump: Convert powerpc to GENERIC_PTDUMP")
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/r/20211203124112.2912562-1-mpe@ellerman.id.au
+   drivers/firmware/efi/sysfb_efi.c:70:6: warning: no previous prototype for function 'efifb_setup_from_dmi' [-Wmissing-prototypes]
+   void efifb_setup_from_dmi(struct screen_info *si, const char *opt)
+        ^
+   drivers/firmware/efi/sysfb_efi.c:70:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   void efifb_setup_from_dmi(struct screen_info *si, const char *opt)
+
+Fixes: 8633ef82f101 ("drivers/firmware: consolidate EFI framebuffer setup for all arches")
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://lore.kernel.org/r/20211126001333.555514-1-javierm@redhat.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/ptdump/ptdump.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/include/asm/efi.h   |    1 -
+ arch/arm64/include/asm/efi.h |    1 -
+ arch/riscv/include/asm/efi.h |    1 -
+ arch/x86/include/asm/efi.h   |    2 --
+ include/linux/efi.h          |    6 ++++++
+ 5 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/mm/ptdump/ptdump.c
-+++ b/arch/powerpc/mm/ptdump/ptdump.c
-@@ -183,7 +183,7 @@ static void note_prot_wx(struct pg_state
- {
- 	pte_t pte = __pte(st->current_flags);
+--- a/arch/arm/include/asm/efi.h
++++ b/arch/arm/include/asm/efi.h
+@@ -17,7 +17,6 @@
  
--	if (!IS_ENABLED(CONFIG_PPC_DEBUG_WX) || !st->check_wx)
-+	if (!IS_ENABLED(CONFIG_DEBUG_WX) || !st->check_wx)
- 		return;
+ #ifdef CONFIG_EFI
+ void efi_init(void);
+-extern void efifb_setup_from_dmi(struct screen_info *si, const char *opt);
  
- 	if (!pte_write(pte) || !pte_exec(pte))
+ int efi_create_mapping(struct mm_struct *mm, efi_memory_desc_t *md);
+ int efi_set_mapping_permissions(struct mm_struct *mm, efi_memory_desc_t *md);
+--- a/arch/arm64/include/asm/efi.h
++++ b/arch/arm64/include/asm/efi.h
+@@ -14,7 +14,6 @@
+ 
+ #ifdef CONFIG_EFI
+ extern void efi_init(void);
+-extern void efifb_setup_from_dmi(struct screen_info *si, const char *opt);
+ #else
+ #define efi_init()
+ #endif
+--- a/arch/riscv/include/asm/efi.h
++++ b/arch/riscv/include/asm/efi.h
+@@ -13,7 +13,6 @@
+ 
+ #ifdef CONFIG_EFI
+ extern void efi_init(void);
+-extern void efifb_setup_from_dmi(struct screen_info *si, const char *opt);
+ #else
+ #define efi_init()
+ #endif
+--- a/arch/x86/include/asm/efi.h
++++ b/arch/x86/include/asm/efi.h
+@@ -197,8 +197,6 @@ static inline bool efi_runtime_supported
+ 
+ extern void parse_efi_setup(u64 phys_addr, u32 data_len);
+ 
+-extern void efifb_setup_from_dmi(struct screen_info *si, const char *opt);
+-
+ extern void efi_thunk_runtime_setup(void);
+ efi_status_t efi_set_virtual_address_map(unsigned long memory_map_size,
+ 					 unsigned long descriptor_size,
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -1282,4 +1282,10 @@ static inline struct efi_mokvar_table_en
+ }
+ #endif
+ 
++#ifdef CONFIG_SYSFB
++extern void efifb_setup_from_dmi(struct screen_info *si, const char *opt);
++#else
++static inline void efifb_setup_from_dmi(struct screen_info *si, const char *opt) { }
++#endif
++
+ #endif /* _LINUX_EFI_H */
 
 
