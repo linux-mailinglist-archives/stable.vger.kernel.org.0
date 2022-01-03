@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A55483330
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C80483293
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234106AbiACOeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:34:20 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35484 "EHLO
+        id S229789AbiACO2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:28:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59176 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235057AbiACOcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:32:36 -0500
+        with ESMTP id S231176AbiACO1t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AF82B80EF8;
-        Mon,  3 Jan 2022 14:32:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E439BC36B04;
-        Mon,  3 Jan 2022 14:32:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F6F1B80F02;
+        Mon,  3 Jan 2022 14:27:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98C83C36AED;
+        Mon,  3 Jan 2022 14:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220353;
-        bh=D7QpMAVsuNr9bDLu4QwwE7Y7VdQTcnTykwCl3LNFR2k=;
+        s=korg; t=1641220067;
+        bh=81FEi5KOVRIXz2dOtAN0oZn0JSOlVOsOo5u44K4BUO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcJVH61iZTRHv2Q9SfL1WmvWNnH4+xv9qx762BmJvX3ZENYsDEUAxv5tP24ZDiSav
-         xfbZnuWU8qwGHPiUTw+D3w7Uxag7rQaZARM+9E03guPT6u1DxTZS+SyV7kQ7YoOoMB
-         qlaZZ140efWrKjoUQ5r/2SPIyEj6/4J4g2H+1RgQ=
+        b=hqjlXigW8PqwJU5aBRYatPLYRaDI9Q6mVzPxV3w//CBW9MZ+gW+45RpM+AtRSwKxP
+         eEGp0tO8EDDl0IDKwRxqT5nKGJMyh6IDXAKcqmmKYFq2njEfqy4k/hRJvr9QSs1o7c
+         oyiqIYsLrHhOwqSyA87YfNmq48aNtff2ItehURN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        Nikolay Aleksandrov <nikolay@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 43/73] net: bridge: mcast: add and enforce query interval minimum
+        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 26/37] uapi: fix linux/nfc.h userspace compilation errors
 Date:   Mon,  3 Jan 2022 15:24:04 +0100
-Message-Id: <20220103142058.300757135@linuxfoundation.org>
+Message-Id: <20220103142052.683904162@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
+In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
+References: <20220103142051.883166998@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,122 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Dmitry V. Levin <ldv@altlinux.org>
 
-[ Upstream commit 99b40610956a8a8755653a67392e2a8b772453be ]
+commit 7175f02c4e5f5a9430113ab9ca0fd0ce98b28a51 upstream.
 
-As reported[1] if query interval is set too low and we have multiple
-bridges or even a single bridge with multiple querier vlans configured
-we can crash the machine. Add a 1 second minimum which must be enforced
-by overwriting the value if set lower (i.e. without returning an error) to
-avoid breaking user-space. If that happens a log message is emitted to let
-the administrator know that the interval has been set to the minimum.
-The issue has been present since these intervals could be user-controlled.
+Replace sa_family_t with __kernel_sa_family_t to fix the following
+linux/nfc.h userspace compilation errors:
 
-[1] https://lore.kernel.org/netdev/e8b9ce41-57b9-b6e2-a46a-ff9c791cf0ba@gmail.com/
+/usr/include/linux/nfc.h:266:2: error: unknown type name 'sa_family_t'
+  sa_family_t sa_family;
+/usr/include/linux/nfc.h:274:2: error: unknown type name 'sa_family_t'
+  sa_family_t sa_family;
 
-Fixes: d902eee43f19 ("bridge: Add multicast count/interval sysfs entries")
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 23b7869c0fd0 ("NFC: add the NFC socket raw protocol")
+Fixes: d646960f7986 ("NFC: Initial LLCP support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bridge/br_multicast.c    | 16 ++++++++++++++++
- net/bridge/br_netlink.c      |  2 +-
- net/bridge/br_private.h      |  3 +++
- net/bridge/br_sysfs_br.c     |  2 +-
- net/bridge/br_vlan_options.c |  2 +-
- 5 files changed, 22 insertions(+), 3 deletions(-)
+ include/uapi/linux/nfc.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index f3d751105343c..998da4a2d2092 100644
---- a/net/bridge/br_multicast.c
-+++ b/net/bridge/br_multicast.c
-@@ -4522,6 +4522,22 @@ int br_multicast_set_mld_version(struct net_bridge_mcast *brmctx,
- }
- #endif
+--- a/include/uapi/linux/nfc.h
++++ b/include/uapi/linux/nfc.h
+@@ -263,7 +263,7 @@ enum nfc_sdp_attr {
+ #define NFC_SE_ENABLED  0x1
  
-+void br_multicast_set_query_intvl(struct net_bridge_mcast *brmctx,
-+				  unsigned long val)
-+{
-+	unsigned long intvl_jiffies = clock_t_to_jiffies(val);
-+
-+	if (intvl_jiffies < BR_MULTICAST_QUERY_INTVL_MIN) {
-+		br_info(brmctx->br,
-+			"trying to set multicast query interval below minimum, setting to %lu (%ums)\n",
-+			jiffies_to_clock_t(BR_MULTICAST_QUERY_INTVL_MIN),
-+			jiffies_to_msecs(BR_MULTICAST_QUERY_INTVL_MIN));
-+		intvl_jiffies = BR_MULTICAST_QUERY_INTVL_MIN;
-+	}
-+
-+	brmctx->multicast_query_interval = intvl_jiffies;
-+}
-+
- /**
-  * br_multicast_list_adjacent - Returns snooped multicast addresses
-  * @dev:	The bridge port adjacent to which to retrieve addresses
-diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-index 5c6c4305ed235..09812df3bc91d 100644
---- a/net/bridge/br_netlink.c
-+++ b/net/bridge/br_netlink.c
-@@ -1357,7 +1357,7 @@ static int br_changelink(struct net_device *brdev, struct nlattr *tb[],
- 	if (data[IFLA_BR_MCAST_QUERY_INTVL]) {
- 		u64 val = nla_get_u64(data[IFLA_BR_MCAST_QUERY_INTVL]);
+ struct sockaddr_nfc {
+-	sa_family_t sa_family;
++	__kernel_sa_family_t sa_family;
+ 	__u32 dev_idx;
+ 	__u32 target_idx;
+ 	__u32 nfc_protocol;
+@@ -271,7 +271,7 @@ struct sockaddr_nfc {
  
--		br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
-+		br_multicast_set_query_intvl(&br->multicast_ctx, val);
- 	}
- 
- 	if (data[IFLA_BR_MCAST_QUERY_RESPONSE_INTVL]) {
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index fd5e7e74573ce..30c9411bfb646 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -28,6 +28,7 @@
- #define BR_MAX_PORTS	(1<<BR_PORT_BITS)
- 
- #define BR_MULTICAST_DEFAULT_HASH_MAX 4096
-+#define BR_MULTICAST_QUERY_INTVL_MIN msecs_to_jiffies(1000)
- 
- #define BR_HWDOM_MAX BITS_PER_LONG
- 
-@@ -968,6 +969,8 @@ int br_multicast_dump_querier_state(struct sk_buff *skb,
- 				    int nest_attr);
- size_t br_multicast_querier_state_size(void);
- size_t br_rports_size(const struct net_bridge_mcast *brmctx);
-+void br_multicast_set_query_intvl(struct net_bridge_mcast *brmctx,
-+				  unsigned long val);
- 
- static inline bool br_group_is_l2(const struct br_ip *group)
- {
-diff --git a/net/bridge/br_sysfs_br.c b/net/bridge/br_sysfs_br.c
-index d9a89ddd03310..f5bd1114a434d 100644
---- a/net/bridge/br_sysfs_br.c
-+++ b/net/bridge/br_sysfs_br.c
-@@ -658,7 +658,7 @@ static ssize_t multicast_query_interval_show(struct device *d,
- static int set_query_interval(struct net_bridge *br, unsigned long val,
- 			      struct netlink_ext_ack *extack)
- {
--	br->multicast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
-+	br_multicast_set_query_intvl(&br->multicast_ctx, val);
- 	return 0;
- }
- 
-diff --git a/net/bridge/br_vlan_options.c b/net/bridge/br_vlan_options.c
-index 8ffd4ed2563c6..bf1ac08742794 100644
---- a/net/bridge/br_vlan_options.c
-+++ b/net/bridge/br_vlan_options.c
-@@ -521,7 +521,7 @@ static int br_vlan_process_global_one_opts(const struct net_bridge *br,
- 		u64 val;
- 
- 		val = nla_get_u64(tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_INTVL]);
--		v->br_mcast_ctx.multicast_query_interval = clock_t_to_jiffies(val);
-+		br_multicast_set_query_intvl(&v->br_mcast_ctx, val);
- 		*changed = true;
- 	}
- 	if (tb[BRIDGE_VLANDB_GOPTS_MCAST_QUERY_RESPONSE_INTVL]) {
--- 
-2.34.1
-
+ #define NFC_LLCP_MAX_SERVICE_NAME 63
+ struct sockaddr_nfc_llcp {
+-	sa_family_t sa_family;
++	__kernel_sa_family_t sa_family;
+ 	__u32 dev_idx;
+ 	__u32 target_idx;
+ 	__u32 nfc_protocol;
 
 
