@@ -2,128 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 386814831BC
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C740E4831BF
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230173AbiACOVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:21:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52686 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229928AbiACOVa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:21:30 -0500
+        id S233286AbiACOVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:21:39 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:45228 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233268AbiACOVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:21:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E498360FD8;
-        Mon,  3 Jan 2022 14:21:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72C0CC36AED;
-        Mon,  3 Jan 2022 14:21:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C0ED9CE1105;
+        Mon,  3 Jan 2022 14:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64E8EC36AEB;
+        Mon,  3 Jan 2022 14:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219689;
-        bh=hToAuo0RlVn6DRdHvQ70+srfMy6HI7laNHtkdJyxLyo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=eOSQxyZ56qZNQVM14EPgu5h+ICv5a09fWPIEuXU4gEKH/QTimMIhOJ16sL3kZhuLz
-         nempdrURDmXwqOAh2w4oC8nc6FdRkEkytg9QZhS7u5InjbityY1sMSwmrWwW9kf++h
-         uQ1D568EwveqQiYICwo8aKiOGiMS38kDH07BnzSI=
+        s=korg; t=1641219686;
+        bh=JSBB6I1iNycnOk23h6lCNT9O5YTlSrtEZ6D1iPq7PJI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pBX8FWjWdlm57+W3ysRooncxufYAa0Eu/nD4l3r6ibiGu1RHSnRvsVtUrWY2tZGBm
+         E1emxQiEiGMzMWjv7ujvFDS3E7ITYQBWHhSF78xuZgzdqTdykBDZ0tNQRNDy20Rfzp
+         kfMlB5XLwimUH1989dzhd8ASce27hekxqU9/g27U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.4 00/11] 4.4.298-rc1 review
-Date:   Mon,  3 Jan 2022 15:21:11 +0100
-Message-Id: <20220103142050.763904028@linuxfoundation.org>
+        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 01/11] platform/x86: apple-gmux: use resource_size() with res
+Date:   Mon,  3 Jan 2022 15:21:12 +0100
+Message-Id: <20220103142050.820872836@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220103142050.763904028@linuxfoundation.org>
+References: <20220103142050.763904028@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.298-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.298-rc1
-X-KernelTest-Deadline: 2022-01-05T14:20+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.298 release.
-There are 11 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Wang Qing <wangqing@vivo.com>
 
-Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
-Anything received after that time might be too late.
+[ Upstream commit eb66fb03a727cde0ab9b1a3858de55c26f3007da ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.298-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+This should be (res->end - res->start + 1) here actually,
+use resource_size() derectly.
 
-thanks,
+Signed-off-by: Wang Qing <wangqing@vivo.com>
+Link: https://lore.kernel.org/r/1639484316-75873-1-git-send-email-wangqing@vivo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/platform/x86/apple-gmux.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/platform/x86/apple-gmux.c b/drivers/platform/x86/apple-gmux.c
+index 976efeb3f2ba3..a0f10ccdca3e4 100644
+--- a/drivers/platform/x86/apple-gmux.c
++++ b/drivers/platform/x86/apple-gmux.c
+@@ -461,7 +461,7 @@ static int gmux_probe(struct pnp_dev *pnp, const struct pnp_device_id *id)
+ 	}
+ 
+ 	gmux_data->iostart = res->start;
+-	gmux_data->iolen = res->end - res->start;
++	gmux_data->iolen = resource_size(res);
+ 
+ 	if (gmux_data->iolen < GMUX_MIN_IO_LEN) {
+ 		pr_err("gmux I/O region too small (%lu < %u)\n",
+-- 
+2.34.1
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.298-rc1
-
-Muchun Song <songmuchun@bytedance.com>
-    net: fix use-after-free in tw_timer_handler
-
-Leo L. Schwab <ewhac@ewhac.org>
-    Input: spaceball - fix parsing of movement data packets
-
-Pavel Skripkin <paskripkin@gmail.com>
-    Input: appletouch - initialize work before device registration
-
-Alexey Makhalov <amakhalov@vmware.com>
-    scsi: vmw_pvscsi: Set residual data length conditionally
-
-Vincent Pelletier <plr.vincent@gmail.com>
-    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
-
-Dmitry V. Levin <ldv@altlinux.org>
-    uapi: fix linux/nfc.h userspace compilation errors
-
-Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-    nfc: uapi: use kernel size_t to fix user-space builds
-
-Tom Rix <trix@redhat.com>
-    selinux: initialize proto variable in selinux_ip_postroute_compat()
-
-Heiko Carstens <hca@linux.ibm.com>
-    recordmcount.pl: fix typo in s390 mcount regex
-
-Wang Qing <wangqing@vivo.com>
-    platform/x86: apple-gmux: use resource_size() with res
-
-
--------------
-
-Diffstat:
-
- Makefile                           |  4 ++--
- drivers/input/joystick/spaceball.c | 11 +++++++++--
- drivers/input/mouse/appletouch.c   |  4 ++--
- drivers/platform/x86/apple-gmux.c  |  2 +-
- drivers/scsi/vmw_pvscsi.c          |  7 +++++--
- drivers/usb/gadget/function/f_fs.c |  9 ++++++---
- drivers/usb/host/xhci-pci.c        |  5 ++++-
- include/uapi/linux/nfc.h           |  6 +++---
- net/ipv4/af_inet.c                 | 10 ++++------
- scripts/recordmcount.pl            |  2 +-
- security/selinux/hooks.c           |  2 +-
- 11 files changed, 38 insertions(+), 24 deletions(-)
 
 
