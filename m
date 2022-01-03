@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E049B4833A1
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D3048334C
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234376AbiACOkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:40:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41738 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235065AbiACOie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:38:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D654C07E5C5;
-        Mon,  3 Jan 2022 06:34:19 -0800 (PST)
+        id S235098AbiACOfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:35:34 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35212 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235044AbiACOeX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:34:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC824B80EFC;
-        Mon,  3 Jan 2022 14:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24181C36AEB;
-        Mon,  3 Jan 2022 14:34:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD28F61117;
+        Mon,  3 Jan 2022 14:34:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3477C36AEB;
+        Mon,  3 Jan 2022 14:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220457;
-        bh=0KT3S0XbWs81qlP4UYJnOm9Id4lGWX9ST4UF77bfTZs=;
+        s=korg; t=1641220462;
+        bh=FnJsv6hBjJV5hET3QUSdF5rgCpJw6nNsfjs3mvq+Fks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xhrm3QLmgpTybq+B3RjD7ZubWoW/I3Qvage55Dzp307PikPvKNZWqkw7EO5dyXIg/
-         kII+Uh3ONU8sn7lA51FqxBdkbW447T/Hc+q4DGVdVsHjTISiSzCyw6oGfUJ2r++Ou3
-         DYstivfD5dz3OjVOfxsjyHA0fKENpToP8368Frq8=
+        b=L9sPXGwROcxjR9ETZ3RbX3Mgw70/EtjSMTQiObv1I42zqD7ij5bupzTZAntvKNhgi
+         jSLG35utmZJP/mPp/v8VgGAoyxAuVpaRdeQ71/r97E3w50x/VVQjly2bnaHuPOU3Cj
+         spEzV7jer344jpu09LjzfgVPCloI/1thmnYx9zmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SeongJae Park <sj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 68/73] mm/damon/dbgfs: fix struct pid leaks in dbgfs_target_ids_write()
-Date:   Mon,  3 Jan 2022 15:24:29 +0100
-Message-Id: <20220103142059.125762091@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Fam Zheng <fam.zheng@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 69/73] net: fix use-after-free in tw_timer_handler
+Date:   Mon,  3 Jan 2022 15:24:30 +0100
+Message-Id: <20220103142059.158467552@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
 References: <20220103142056.911344037@linuxfoundation.org>
@@ -48,55 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sj@kernel.org>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit ebb3f994dd92f8fb4d70c7541091216c1e10cb71 upstream.
+commit e22e45fc9e41bf9fcc1e92cfb78eb92786728ef0 upstream.
 
-DAMON debugfs interface increases the reference counts of 'struct pid's
-for targets from the 'target_ids' file write callback
-('dbgfs_target_ids_write()'), but decreases the counts only in DAMON
-monitoring termination callback ('dbgfs_before_terminate()').
+A real world panic issue was found as follow in Linux 5.4.
 
-Therefore, when 'target_ids' file is repeatedly written without DAMON
-monitoring start/termination, the reference count is not decreased and
-therefore memory for the 'struct pid' cannot be freed.  This commit
-fixes this issue by decreasing the reference counts when 'target_ids' is
-written.
+    BUG: unable to handle page fault for address: ffffde49a863de28
+    PGD 7e6fe62067 P4D 7e6fe62067 PUD 7e6fe63067 PMD f51e064067 PTE 0
+    RIP: 0010:tw_timer_handler+0x20/0x40
+    Call Trace:
+     <IRQ>
+     call_timer_fn+0x2b/0x120
+     run_timer_softirq+0x1ef/0x450
+     __do_softirq+0x10d/0x2b8
+     irq_exit+0xc7/0xd0
+     smp_apic_timer_interrupt+0x68/0x120
+     apic_timer_interrupt+0xf/0x20
 
-Link: https://lkml.kernel.org/r/20211229124029.23348-1-sj@kernel.org
-Fixes: 4bc05954d007 ("mm/damon: implement a debugfs-based user space interface")
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.15+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This issue was also reported since 2017 in the thread [1],
+unfortunately, the issue was still can be reproduced after fixing
+DCCP.
+
+The ipv4_mib_exit_net is called before tcp_sk_exit_batch when a net
+namespace is destroyed since tcp_sk_ops is registered befrore
+ipv4_mib_ops, which means tcp_sk_ops is in the front of ipv4_mib_ops
+in the list of pernet_list. There will be a use-after-free on
+net->mib.net_statistics in tw_timer_handler after ipv4_mib_exit_net
+if there are some inflight time-wait timers.
+
+This bug is not introduced by commit f2bf415cfed7 ("mib: add net to
+NET_ADD_STATS_BH") since the net_statistics is a global variable
+instead of dynamic allocation and freeing. Actually, commit
+61a7e26028b9 ("mib: put net statistics on struct net") introduces
+the bug since it put net statistics on struct net and free it when
+net namespace is destroyed.
+
+Moving init_ipv4_mibs() to the front of tcp_init() to fix this bug
+and replace pr_crit() with panic() since continuing is meaningless
+when init_ipv4_mibs() fails.
+
+[1] https://groups.google.com/g/syzkaller/c/p1tn-_Kc6l4/m/smuL_FMAAgAJ?pli=1
+
+Fixes: 61a7e26028b9 ("mib: put net statistics on struct net")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Cong Wang <cong.wang@bytedance.com>
+Cc: Fam Zheng <fam.zheng@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211228104145.9426-1-songmuchun@bytedance.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/damon/dbgfs.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/ipv4/af_inet.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/mm/damon/dbgfs.c
-+++ b/mm/damon/dbgfs.c
-@@ -185,6 +185,7 @@ static ssize_t dbgfs_target_ids_write(st
- 		const char __user *buf, size_t count, loff_t *ppos)
- {
- 	struct damon_ctx *ctx = file->private_data;
-+	struct damon_target *t, *next_t;
- 	char *kbuf, *nrs;
- 	unsigned long *targets;
- 	ssize_t nr_targets;
-@@ -224,6 +225,13 @@ static ssize_t dbgfs_target_ids_write(st
- 		goto unlock_out;
- 	}
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -2004,6 +2004,10 @@ static int __init inet_init(void)
  
-+	/* remove previously set targets */
-+	damon_for_each_target_safe(t, next_t, ctx) {
-+		if (targetid_is_pid(ctx))
-+			put_pid((struct pid *)t->id);
-+		damon_destroy_target(t);
-+	}
+ 	ip_init();
+ 
++	/* Initialise per-cpu ipv4 mibs */
++	if (init_ipv4_mibs())
++		panic("%s: Cannot init ipv4 mibs\n", __func__);
 +
- 	err = damon_set_targets(ctx, targets, nr_targets);
- 	if (err) {
- 		if (targetid_is_pid(ctx))
+ 	/* Setup TCP slab cache for open requests. */
+ 	tcp_init();
+ 
+@@ -2034,12 +2038,6 @@ static int __init inet_init(void)
+ 
+ 	if (init_inet_pernet_ops())
+ 		pr_crit("%s: Cannot init ipv4 inet pernet ops\n", __func__);
+-	/*
+-	 *	Initialise per-cpu ipv4 mibs
+-	 */
+-
+-	if (init_ipv4_mibs())
+-		pr_crit("%s: Cannot init ipv4 mibs\n", __func__);
+ 
+ 	ipv4_proc_init();
+ 
 
 
