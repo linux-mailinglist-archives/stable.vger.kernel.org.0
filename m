@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0BC74835DE
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 18:31:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C844835E0
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 18:31:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233284AbiACRah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 12:30:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235520AbiACRaN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 12:30:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6F46C0617A0;
-        Mon,  3 Jan 2022 09:30:12 -0800 (PST)
+        id S235515AbiACRak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 12:30:40 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60370 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235538AbiACRaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 12:30:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 850A96112B;
-        Mon,  3 Jan 2022 17:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17581C36AEE;
-        Mon,  3 Jan 2022 17:30:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEE426119C;
+        Mon,  3 Jan 2022 17:30:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 062B7C36AED;
+        Mon,  3 Jan 2022 17:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641231012;
-        bh=/gdLnShWLpQP/o/mRaKeBqi4pXaE52yQZMGAJPcUVUY=;
+        s=k20201202; t=1641231016;
+        bh=XcKRw6VU8Obus4eQJer9KGJAkNtdp7IY/7VWiIpTi1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p1r0romz/guw4ccxt9TXMCOf7ViUiz3XyG6bHweprsvZbFycCpgJxeDPbj+8BHzIt
-         j82W6mjhfkTcOeurwXxUUHihG4049ItRyzMcPga4i1HywQbavVR35aDBZoJ2GNXmZ1
-         QZxuuXt8WwmScY6JpOyFb63WVe6qIwdGqX232Mp2bzbLnNPO8kUz/4jfaxtcYOh7EY
-         pXnONS+HZTU2r/lKFQ1NCY7KujHPVUslpPvQ3BOAtwiklXj19DfTdUMHagYmxD7iPu
-         1cVHS+xG4tekKra8msJtOVgH6rJ6Pe14TH5GUCB2n6CwMTNkzCc5Z9EisTXFXjDFj+
-         k98rXPioIj+1g==
+        b=FZvAExh6WAaU5afxv14EKISZKVNJ5MhA7B5ERY+FLqnTwCv7vsiSVn9pUx2jSzpg5
+         Tzac4Kjfy7EQ9Y9G5302Xr0HEKuiTjNOm+IMUVVxkf1Cssl6Bs98+JrpI/GeSJTcD/
+         nGGXE09AiLAyjxXOsvAqPNZPVrxyvuI5deE9COcCWSgI2rl8YBqsLY58s4NjGc1zth
+         JJxuoxlO4KbzU74vOLDzbLzVnVLhsE4Pc93mDyIWjvDliLXAzx+Wngz8RH5tS4typV
+         3/FL0Q9NFpAdOLwVMpEtOXL6QMPef55G5+0NOCn4xgxJe3/dOaa0Q0/H7WYpvVOoV8
+         2oW6jzJVw46JQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     wolfgang huang <huangjinhui@kylinos.cn>,
-        k2ci <kernel-bot@kylinos.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, isdn@linux-pingi.de,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 6/8] mISDN: change function names to avoid conflicts
-Date:   Mon,  3 Jan 2022 12:29:59 -0500
-Message-Id: <20220103173001.1613277-6-sashal@kernel.org>
+Cc:     "Lai, Derek" <Derek.Lai@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, christian.koenig@amd.com, Xinhui.Pan@amd.com,
+        airlied@linux.ie, daniel@ffwll.ch, qingqing.zhuo@amd.com,
+        wyatt.wood@amd.com, Jun.Lei@amd.com, aurabindo.pillai@amd.com,
+        paul.hsieh@amd.com, Wesley.Chalmers@amd.com,
+        victorchengchi.lu@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 7/8] drm/amd/display: Added power down for DCN10
+Date:   Mon,  3 Jan 2022 12:30:00 -0500
+Message-Id: <20220103173001.1613277-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103173001.1613277-1-sashal@kernel.org>
 References: <20220103173001.1613277-1-sashal@kernel.org>
@@ -52,98 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wolfgang huang <huangjinhui@kylinos.cn>
+From: "Lai, Derek" <Derek.Lai@amd.com>
 
-[ Upstream commit 8b5fdfc57cc2471179d1c51081424ded833c16c8 ]
+[ Upstream commit d97e631af2db84c8c9d63abf68d487d0bb559e4c ]
 
-As we build for mips, we meet following error. l1_init error with
-multiple definition. Some architecture devices usually marked with
-l1, l2, lxx as the start-up phase. so we change the mISDN function
-names, align with Isdnl2_xxx.
+[Why]
+The change of setting a timer callback on boot for 10 seconds is still
+working, just lacked power down for DCN10.
 
-mips-linux-gnu-ld: drivers/isdn/mISDN/layer1.o: in function `l1_init':
-(.text+0x890): multiple definition of `l1_init'; \
-arch/mips/kernel/bmips_5xxx_init.o:(.text+0xf0): first defined here
-make[1]: *** [home/mips/kernel-build/linux/Makefile:1161: vmlinux] Error 1
+[How]
+Added power down for DCN10.
 
-Signed-off-by: wolfgang huang <huangjinhui@kylinos.cn>
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Derek Lai <Derek.Lai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/core.c   | 6 +++---
- drivers/isdn/mISDN/core.h   | 4 ++--
- drivers/isdn/mISDN/layer1.c | 4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index 55891e4204460..a41b4b2645941 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -381,7 +381,7 @@ mISDNInit(void)
- 	err = mISDN_inittimer(&debug);
- 	if (err)
- 		goto error2;
--	err = l1_init(&debug);
-+	err = Isdnl1_Init(&debug);
- 	if (err)
- 		goto error3;
- 	err = Isdnl2_Init(&debug);
-@@ -395,7 +395,7 @@ mISDNInit(void)
- error5:
- 	Isdnl2_cleanup();
- error4:
--	l1_cleanup();
-+	Isdnl1_cleanup();
- error3:
- 	mISDN_timer_cleanup();
- error2:
-@@ -408,7 +408,7 @@ static void mISDN_cleanup(void)
- {
- 	misdn_sock_cleanup();
- 	Isdnl2_cleanup();
--	l1_cleanup();
-+	Isdnl1_cleanup();
- 	mISDN_timer_cleanup();
- 	class_unregister(&mISDN_class);
- 
-diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
-index 23b44d3033279..42599f49c189d 100644
---- a/drivers/isdn/mISDN/core.h
-+++ b/drivers/isdn/mISDN/core.h
-@@ -60,8 +60,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
- extern int	mISDN_inittimer(u_int *);
- extern void	mISDN_timer_cleanup(void);
- 
--extern int	l1_init(u_int *);
--extern void	l1_cleanup(void);
-+extern int	Isdnl1_Init(u_int *);
-+extern void	Isdnl1_cleanup(void);
- extern int	Isdnl2_Init(u_int *);
- extern void	Isdnl2_cleanup(void);
- 
-diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
-index 98a3bc6c17009..7b31c25a550e3 100644
---- a/drivers/isdn/mISDN/layer1.c
-+++ b/drivers/isdn/mISDN/layer1.c
-@@ -398,7 +398,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
- EXPORT_SYMBOL(create_l1);
- 
- int
--l1_init(u_int *deb)
-+Isdnl1_Init(u_int *deb)
- {
- 	debug = deb;
- 	l1fsm_s.state_count = L1S_STATE_COUNT;
-@@ -409,7 +409,7 @@ l1_init(u_int *deb)
- }
- 
- void
--l1_cleanup(void)
-+Isdnl1_cleanup(void)
- {
- 	mISDN_FsmFree(&l1fsm_s);
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
+index b24c8ae8b1ece..7e228c181b298 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
+@@ -77,6 +77,7 @@ static const struct hw_sequencer_funcs dcn10_funcs = {
+ 	.get_clock = dcn10_get_clock,
+ 	.get_vupdate_offset_from_vsync = dcn10_get_vupdate_offset_from_vsync,
+ 	.calc_vupdate_position = dcn10_calc_vupdate_position,
++	.power_down = dce110_power_down,
+ 	.set_backlight_level = dce110_set_backlight_level,
+ 	.set_abm_immediate_disable = dce110_set_abm_immediate_disable,
+ 	.set_pipe = dce110_set_pipe,
 -- 
 2.34.1
 
