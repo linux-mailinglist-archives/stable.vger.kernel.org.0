@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 170AA483257
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25BCB483313
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231147AbiACO1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:27:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38630 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233552AbiACO0V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:26:21 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D693C06179B;
-        Mon,  3 Jan 2022 06:26:20 -0800 (PST)
+        id S234527AbiACOdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:33:16 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60718 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234558AbiACObP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:31:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DF4CDCE1106;
-        Mon,  3 Jan 2022 14:26:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA96EC36AED;
-        Mon,  3 Jan 2022 14:26:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B851461073;
+        Mon,  3 Jan 2022 14:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F978C36AEB;
+        Mon,  3 Jan 2022 14:31:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219977;
-        bh=zzCY/fEsYqpMS+9mtH68nU1cAYzNk5ELATqcEm9U5P8=;
+        s=korg; t=1641220274;
+        bh=Foai4sLAMDdhPCoXa828rM1d8oaNt8Fvd2wVnhbSfQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ixkm0Er+zBFLoxoNp/kEZc3+8YmUjXGCy6X7qNatDpvaBAsviY/Gv1J039H1jD2ak
-         h8UrVmm0/FAQaukiFRvc/TthNBXFsRYpg3JDCuwiGltTom8I8bSxzVhWVGYAaFZOyT
-         VM0jMfxR9jv4Kkk59beUlf54O9i6hzsxd8AebMu8=
+        b=D+Fvfml6lBHsPy/VorLFBZZ87Ssj3tJ0ruXAStTQ2g8zklqsk6fwEW8efGy1M4Ckz
+         cgh1x5KQ93FCN4fqTTzTH3LUMEn8g9YoeIOz7f69cs7uUiyMbtbvJtdsBRCzYKFt2W
+         FIGVRXPb7ugyW/qx30tUXnG6rbUNLQqhuI+A9pks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Jason Self <jason@bluehome.net>
-Subject: [PATCH 5.4 01/37] HID: asus: Add depends on USB_HID to HID_ASUS Kconfig option
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 18/73] net/mlx5: Fix error print in case of IRQ request failed
 Date:   Mon,  3 Jan 2022 15:23:39 +0100
-Message-Id: <20220103142051.930280444@linuxfoundation.org>
+Message-Id: <20220103142057.508680336@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
-References: <20220103142051.883166998@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,34 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Shay Drory <shayd@nvidia.com>
 
-commit c4f0126d487f3c68ab19ccb7c561e8fbf3ea2247 upstream.
+[ Upstream commit aa968f922039706f6d13e8870b49e424d0a8d9ad ]
 
-Since commit 4bc43a421218 ("HID: asus: Add
-hid_is_using_ll_driver(usb_hid_driver) check") the hid-asus.c depends
-on the usb_hid_driver symbol. Add a depends on USB_HID to Kconfig to
-fix missing symbols errors in hid-asus when USB_HID is not enabled.
+In case IRQ layer failed to find or to request irq, the driver is
+printing the first cpu of the provided affinity as part of the error
+print. Empty affinity is a valid input for the IRQ layer, and it is
+an error to call cpumask_first() on empty affinity.
 
-Fixes: 4bc43a421218 ("HID: asus: Add hid_is_using_ll_driver(usb_hid_driver) check")
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Cc: Jason Self <jason@bluehome.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Remove the first cpu print from the error message.
+
+Fixes: c36326d38d93 ("net/mlx5: Round-Robin EQs over IRQs")
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -149,6 +149,7 @@ config HID_APPLEIR
- 
- config HID_ASUS
- 	tristate "Asus"
-+	depends on USB_HID
- 	depends on LEDS_CLASS
- 	depends on ASUS_WMI || ASUS_WMI=n
- 	select POWER_SUPPLY
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
+index 763c83a023809..11f3649fdaab1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c
+@@ -346,8 +346,8 @@ static struct mlx5_irq *irq_pool_request_affinity(struct mlx5_irq_pool *pool,
+ 	new_irq = irq_pool_create_irq(pool, affinity);
+ 	if (IS_ERR(new_irq)) {
+ 		if (!least_loaded_irq) {
+-			mlx5_core_err(pool->dev, "Didn't find IRQ for cpu = %u\n",
+-				      cpumask_first(affinity));
++			mlx5_core_err(pool->dev, "Didn't find a matching IRQ. err = %ld\n",
++				      PTR_ERR(new_irq));
+ 			mutex_unlock(&pool->lock);
+ 			return new_irq;
+ 		}
+-- 
+2.34.1
+
 
 
