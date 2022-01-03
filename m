@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F3148327A
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1952048336E
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234177AbiACO2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:28:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232807AbiACO1E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:27:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A738C061761;
-        Mon,  3 Jan 2022 06:27:04 -0800 (PST)
+        id S233699AbiACOgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:36:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38140 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235330AbiACOeO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:34:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E013D60FA2;
-        Mon,  3 Jan 2022 14:27:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F18C36AED;
-        Mon,  3 Jan 2022 14:27:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15F9EB80EF1;
+        Mon,  3 Jan 2022 14:34:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CED6C36AEB;
+        Mon,  3 Jan 2022 14:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220023;
-        bh=nH09yIs0wax0PiA9uNlgRbWcT4YBReLap6tdfJiFY6I=;
+        s=korg; t=1641220451;
+        bh=E+5/RIiKY/m5zMhWOzcyZNyybm3tMmAh2V2Ya+OtY6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyKUJ1O1Tz9OrAaY8Qgd0Vi2S/1cwP8cYmusfYRiskgwIj2n02LeIXuhoQh7+ImBZ
-         rJz12gAGlmH3fcoE3X4XKgbsS38JUI3bkl0cu1160SL+uij0hzcWvmboeULwMDaPhE
-         OPT8iBxudxlH6V/0O7FBAkvcLPYoMgZtGF/XzvnA=
+        b=Kog1QiDsPOo99jEHC+v6TIzUdsQ0r6YcKDE7e7/uQ0JGc291lV9/t7fA+2djyLQtQ
+         HEizRwNljhYb8tsqPEOaAZF8PwtN8dszVnYppSfGQUrZvPK/qKQUzarwjSi2Q3lpO3
+         71gBhPiGnIEg6Xuo2Ty+s8PHsAn21NzylBsPehSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Eric Yang <Eric.Yang2@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/37] fsl/fman: Fix missing put_device() call in fman_port_probe
+Subject: [PATCH 5.15 40/73] drm/amd/display: Set optimize_pwr_state for DCN31
 Date:   Mon,  3 Jan 2022 15:24:01 +0100
-Message-Id: <20220103142052.588232516@linuxfoundation.org>
+Message-Id: <20220103142058.199888144@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
-References: <20220103142051.883166998@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,80 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit bf2b09fedc17248b315f80fb249087b7d28a69a6 ]
+[ Upstream commit 33735c1c8d0223170d79dbe166976d9cd7339c7a ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the and error handling paths.
+[Why]
+We'll exit optimized power state to do link detection but we won't enter
+back into the optimized power state.
 
-Fixes: 18a6c85fcc78 ("fsl/fman: Add FMan Port Support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This could potentially block s2idle entry depending on the sequencing,
+but it also means we're losing some power during the transition period.
+
+[How]
+Hook up the handler like DCN21. It was also missed like the
+exit_optimized_pwr_state callback.
+
+Fixes: 64b1d0e8d500 ("drm/amd/display: Add DCN3.1 HWSEQ")
+
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fman/fman_port.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/freescale/fman/fman_port.c b/drivers/net/ethernet/freescale/fman/fman_port.c
-index 47f6fee1f3964..1812434cda847 100644
---- a/drivers/net/ethernet/freescale/fman/fman_port.c
-+++ b/drivers/net/ethernet/freescale/fman/fman_port.c
-@@ -1791,7 +1791,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	fman = dev_get_drvdata(&fm_pdev->dev);
- 	if (!fman) {
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 
- 	err = of_property_read_u32(port_node, "cell-index", &val);
-@@ -1799,7 +1799,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: reading cell-index for %pOF failed\n",
- 			__func__, port_node);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 	port_id = (u8)val;
- 	port->dts_params.id = port_id;
-@@ -1833,7 +1833,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 	}  else {
- 		dev_err(port->dev, "%s: Illegal port type\n", __func__);
- 		err = -EINVAL;
--		goto return_err;
-+		goto put_device;
- 	}
- 
- 	port->dts_params.type = port_type;
-@@ -1847,7 +1847,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 			dev_err(port->dev, "%s: incorrect qman-channel-id\n",
- 				__func__);
- 			err = -EINVAL;
--			goto return_err;
-+			goto put_device;
- 		}
- 		port->dts_params.qman_channel_id = qman_channel_id;
- 	}
-@@ -1857,7 +1857,7 @@ static int fman_port_probe(struct platform_device *of_dev)
- 		dev_err(port->dev, "%s: of_address_to_resource() failed\n",
- 			__func__);
- 		err = -ENOMEM;
--		goto return_err;
-+		goto put_device;
- 	}
- 
- 	port->dts_params.fman = fman;
-@@ -1882,6 +1882,8 @@ static int fman_port_probe(struct platform_device *of_dev)
- 
- 	return 0;
- 
-+put_device:
-+	put_device(&fm_pdev->dev);
- return_err:
- 	of_node_put(port_node);
- free_port:
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
+index ac8fb202fd5ee..4e9fe090b770a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
+@@ -100,6 +100,7 @@ static const struct hw_sequencer_funcs dcn31_funcs = {
+ 	.z10_save_init = dcn31_z10_save_init,
+ 	.is_abm_supported = dcn31_is_abm_supported,
+ 	.set_disp_pattern_generator = dcn30_set_disp_pattern_generator,
++	.optimize_pwr_state = dcn21_optimize_pwr_state,
+ 	.exit_optimized_pwr_state = dcn21_exit_optimized_pwr_state,
+ 	.update_visual_confirm_color = dcn20_update_visual_confirm_color,
+ };
 -- 
 2.34.1
 
