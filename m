@@ -2,136 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E0504831D7
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B844831C8
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:21:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233354AbiACOWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:22:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53362 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233337AbiACOWL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:11 -0500
+        id S233330AbiACOVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:21:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37330 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233332AbiACOVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:21:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B06FC061785;
+        Mon,  3 Jan 2022 06:21:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5DB361122;
-        Mon,  3 Jan 2022 14:22:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37955C36AED;
-        Mon,  3 Jan 2022 14:22:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE04B6111D;
+        Mon,  3 Jan 2022 14:21:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F2F2C36AED;
+        Mon,  3 Jan 2022 14:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219730;
-        bh=bI3LBGFTMF3Jbo3Sz0cSIm+rg3xx+O4hPnnBl5Fog6Q=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ZdJ8sXmDD8Ey4U7xOm4xwOhb46uGHHTvx+rHD7Q0XUFA28HIyCP1E2xPYoa8rSsZG
-         XgNwaxPntZDQnVL/jQsTl9tDUUSCvopj3/jrML1erhsytwUxR2p8QIosP/KXz5vwhJ
-         3CjPMhkoaCIBA2g4BRrAcoip00qIYyQjLVcpyWeA=
+        s=korg; t=1641219712;
+        bh=3k4VjepjUQBW9zoYoR6PlFadjMF5RED2P8+jAbu7OD8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=1ESL5GZ6a6wbKmTXUSiwpNkgU4nA5RezdcWvyX6bVXCBxQHkUjyvEp97FiI11kdVK
+         dujvXuVd9OAlqpvdAxEfDKmIIupdjfStAhir8PAmX0wctvnKPArlalhNZ5BOyiJAaA
+         Egwi1KNIROORFiwJ5fKZFnqtRKPLm53Ke8naAXbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.9 00/13] 4.9.296-rc1 review
-Date:   Mon,  3 Jan 2022 15:21:16 +0100
-Message-Id: <20220103142051.979780231@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Martynov <mar.kolya@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 06/11] xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
+Date:   Mon,  3 Jan 2022 15:21:17 +0100
+Message-Id: <20220103142050.980603324@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220103142050.763904028@linuxfoundation.org>
+References: <20220103142050.763904028@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.296-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.296-rc1
-X-KernelTest-Deadline: 2022-01-05T14:20+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.296 release.
-There are 13 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
-Anything received after that time might be too late.
+commit e4844092581ceec22489b66c42edc88bc6079783 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.296-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+The Fresco Logic FL1100 controller needs the TRUST_TX_LENGTH quirk like
+other Fresco controllers, but should not have the BROKEN_MSI quirks set.
 
-thanks,
+BROKEN_MSI quirk causes issues in detecting usb drives connected to docks
+with this FL1100 controller.
+The BROKEN_MSI flag was apparently accidentally set together with the
+TRUST_TX_LENGTH quirk
 
-greg k-h
+Original patch went to stable so this should go there as well.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: ea0f69d82119 ("xhci: Enable trust tx length quirk for Fresco FL11 USB controller")
+Cc: stable@vger.kernel.org
+cc: Nikolay Martynov <mar.kolya@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211221112825.54690-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/xhci-pci.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.296-rc1
-
-Muchun Song <songmuchun@bytedance.com>
-    net: fix use-after-free in tw_timer_handler
-
-Leo L. Schwab <ewhac@ewhac.org>
-    Input: spaceball - fix parsing of movement data packets
-
-Pavel Skripkin <paskripkin@gmail.com>
-    Input: appletouch - initialize work before device registration
-
-Alexey Makhalov <amakhalov@vmware.com>
-    scsi: vmw_pvscsi: Set residual data length conditionally
-
-Vincent Pelletier <plr.vincent@gmail.com>
-    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
-
-Dmitry V. Levin <ldv@altlinux.org>
-    uapi: fix linux/nfc.h userspace compilation errors
-
-Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-    nfc: uapi: use kernel size_t to fix user-space builds
-
-Miaoqian Lin <linmq006@gmail.com>
-    fsl/fman: Fix missing put_device() call in fman_port_probe
-
-Tom Rix <trix@redhat.com>
-    selinux: initialize proto variable in selinux_ip_postroute_compat()
-
-Heiko Carstens <hca@linux.ibm.com>
-    recordmcount.pl: fix typo in s390 mcount regex
-
-Wang Qing <wangqing@vivo.com>
-    platform/x86: apple-gmux: use resource_size() with res
-
-Hans de Goede <hdegoede@redhat.com>
-    HID: asus: Add depends on USB_HID to HID_ASUS Kconfig option
-
-
--------------
-
-Diffstat:
-
- Makefile                                        |  4 ++--
- drivers/hid/Kconfig                             |  1 +
- drivers/input/joystick/spaceball.c              | 11 +++++++++--
- drivers/input/mouse/appletouch.c                |  4 ++--
- drivers/net/ethernet/freescale/fman/fman_port.c | 12 +++++++-----
- drivers/platform/x86/apple-gmux.c               |  2 +-
- drivers/scsi/vmw_pvscsi.c                       |  7 +++++--
- drivers/usb/gadget/function/f_fs.c              |  9 ++++++---
- drivers/usb/host/xhci-pci.c                     |  5 ++++-
- include/uapi/linux/nfc.h                        |  6 +++---
- net/ipv4/af_inet.c                              | 10 ++++------
- scripts/recordmcount.pl                         |  2 +-
- security/selinux/hooks.c                        |  2 +-
- 13 files changed, 46 insertions(+), 29 deletions(-)
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -91,7 +91,6 @@ static void xhci_pci_quirks(struct devic
+ 	/* Look for vendor-specific quirks */
+ 	if (pdev->vendor == PCI_VENDOR_ID_FRESCO_LOGIC &&
+ 			(pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK ||
+-			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1100 ||
+ 			 pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1400)) {
+ 		if (pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_PDK &&
+ 				pdev->revision == 0x0) {
+@@ -126,6 +125,10 @@ static void xhci_pci_quirks(struct devic
+ 			pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1009)
+ 		xhci->quirks |= XHCI_BROKEN_STREAMS;
+ 
++	if (pdev->vendor == PCI_VENDOR_ID_FRESCO_LOGIC &&
++			pdev->device == PCI_DEVICE_ID_FRESCO_LOGIC_FL1100)
++		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
++
+ 	if (pdev->vendor == PCI_VENDOR_ID_NEC)
+ 		xhci->quirks |= XHCI_NEC_HOST;
+ 
 
 
