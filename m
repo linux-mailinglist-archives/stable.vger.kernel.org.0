@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 632D64831F0
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA40C483210
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:24:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233488AbiACOXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:23:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37556 "EHLO
+        id S233707AbiACOYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:24:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233561AbiACOWs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:22:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14D87C061395;
-        Mon,  3 Jan 2022 06:22:48 -0800 (PST)
+        with ESMTP id S233688AbiACOXj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:23:39 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70FCC061785;
+        Mon,  3 Jan 2022 06:23:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA3116111B;
-        Mon,  3 Jan 2022 14:22:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9075CC36AEE;
-        Mon,  3 Jan 2022 14:22:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 662BCCE110D;
+        Mon,  3 Jan 2022 14:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D80C36AEF;
+        Mon,  3 Jan 2022 14:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219767;
-        bh=Nm5zNV5nzs2S0sWDBFqt41qcKNKeJuleJ5hkANXoOxI=;
+        s=korg; t=1641219815;
+        bh=DFBi3Gm/siZpN73VUITUP4tLcLW+P/QHWvGUCmhwOdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMR6nKHXFGpAQW9Jkstg9JSS5XLa+y3tToJCGdqdqtwaxjcMccEpvohcwH97ib/v0
-         R8ICUSNsDpckyrU+5aWUyQTtctVcJGMG2C8WlJWyaLyLWRlNTbUp0mlOgKw63GZ5wh
-         qhORB80YcXLnTRLesPYG/twECT4KG/GxFDLBY0/Y=
+        b=2XOfRS1gTf/davu4OuepUF+mej1Ud+Ld/3hISwFNE1n7Ur218FhaWpsL4nGCBYflb
+         k9elDWizSrWf+XDKYoASFTflFR81DXIdad+avHEuA8iEdF6nbRL3991tGPe653WpDe
+         sD4Fji7iAUwAuE5BY6RNeWSJN+EZTGlZUCx3gXqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 07/13] uapi: fix linux/nfc.h userspace compilation errors
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/19] scsi: lpfc: Terminate string in lpfc_debugfs_nvmeio_trc_write()
 Date:   Mon,  3 Jan 2022 15:21:23 +0100
-Message-Id: <20220103142052.201398497@linuxfoundation.org>
+Message-Id: <20220103142052.270392937@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142051.979780231@linuxfoundation.org>
-References: <20220103142051.979780231@linuxfoundation.org>
+In-Reply-To: <20220103142052.068378906@linuxfoundation.org>
+References: <20220103142052.068378906@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,48 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry V. Levin <ldv@altlinux.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 7175f02c4e5f5a9430113ab9ca0fd0ce98b28a51 upstream.
+[ Upstream commit 9020be114a47bf7ff33e179b3bb0016b91a098e6 ]
 
-Replace sa_family_t with __kernel_sa_family_t to fix the following
-linux/nfc.h userspace compilation errors:
+The "mybuf" string comes from the user, so we need to ensure that it is NUL
+terminated.
 
-/usr/include/linux/nfc.h:266:2: error: unknown type name 'sa_family_t'
-  sa_family_t sa_family;
-/usr/include/linux/nfc.h:274:2: error: unknown type name 'sa_family_t'
-  sa_family_t sa_family;
-
-Fixes: 23b7869c0fd0 ("NFC: add the NFC socket raw protocol")
-Fixes: d646960f7986 ("NFC: Initial LLCP support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20211214070527.GA27934@kili
+Fixes: bd2cdd5e400f ("scsi: lpfc: NVME Initiator: Add debugfs support")
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/nfc.h |    4 ++--
+ drivers/scsi/lpfc/lpfc_debugfs.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/uapi/linux/nfc.h
-+++ b/include/uapi/linux/nfc.h
-@@ -261,7 +261,7 @@ enum nfc_sdp_attr {
- #define NFC_SE_ENABLED  0x1
+diff --git a/drivers/scsi/lpfc/lpfc_debugfs.c b/drivers/scsi/lpfc/lpfc_debugfs.c
+index c77ad2b78ce49..39a1c9e18c0ea 100644
+--- a/drivers/scsi/lpfc/lpfc_debugfs.c
++++ b/drivers/scsi/lpfc/lpfc_debugfs.c
+@@ -2177,8 +2177,8 @@ lpfc_debugfs_nvmeio_trc_write(struct file *file, const char __user *buf,
+ 	char mybuf[64];
+ 	char *pbuf;
  
- struct sockaddr_nfc {
--	sa_family_t sa_family;
-+	__kernel_sa_family_t sa_family;
- 	__u32 dev_idx;
- 	__u32 target_idx;
- 	__u32 nfc_protocol;
-@@ -269,7 +269,7 @@ struct sockaddr_nfc {
+-	if (nbytes > 64)
+-		nbytes = 64;
++	if (nbytes > 63)
++		nbytes = 63;
  
- #define NFC_LLCP_MAX_SERVICE_NAME 63
- struct sockaddr_nfc_llcp {
--	sa_family_t sa_family;
-+	__kernel_sa_family_t sa_family;
- 	__u32 dev_idx;
- 	__u32 target_idx;
- 	__u32 nfc_protocol;
+ 	memset(mybuf, 0, sizeof(mybuf));
+ 
+-- 
+2.34.1
+
 
 
