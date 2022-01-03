@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D72434832E9
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:32:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E33CD483341
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:35:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233455AbiACObv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:31:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39226 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233640AbiACOaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:30:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E604CC0613B1;
-        Mon,  3 Jan 2022 06:30:11 -0800 (PST)
+        id S234968AbiACOf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:35:26 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34574 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234392AbiACOdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:33:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A993B80EFB;
-        Mon,  3 Jan 2022 14:30:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA532C36AEB;
-        Mon,  3 Jan 2022 14:30:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BC2D61123;
+        Mon,  3 Jan 2022 14:33:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63DAFC36AEB;
+        Mon,  3 Jan 2022 14:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641220209;
-        bh=WNLy4danCxPOTul+2vLRxiOIeUxgWB/tuRBCV1+UiN8=;
+        s=korg; t=1641220415;
+        bh=VDvbEMIlxV7uMa+49232b+6ch3ja85NF3smV3YTzl9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=famlZv6GVxxEoC2XGDryKlYJWdTFL1bjPkBXGo6SPdmH9lb1HDHJQeXs0G5tjswho
-         1SX78/Cm5IbbiliAWKk8VBIrgqpzSMUOv6ytcs5nydY8ywOW8Y5n07XVAGXxarw2mJ
-         9FH+G8TO70V29JOg+fDWNKrl7Lst4hwj7fLTXRec=
+        b=YCtZBmrMQfs4yWFgXFZmVDoXQMMMJrT1NRH5IXQSCbym7h1h03a2LrWbXjTM/yMHx
+         79L5+eXdXFNCC+uPZISaUsszSIpNGc1S7GlrAmn8Wd3jD2Rm8PZIxDsiP04+4AptD2
+         9SMl27PoeQ6Wy0knN7d0JUJKVikSlr3t+E4DS78A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Leo L. Schwab" <ewhac@ewhac.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 45/48] Input: spaceball - fix parsing of movement data packets
+        stable@vger.kernel.org, Yuwen Ng <yuwen.ng@mediatek.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.15 61/73] usb: mtu3: fix list_head check warning
 Date:   Mon,  3 Jan 2022 15:24:22 +0100
-Message-Id: <20220103142054.995553880@linuxfoundation.org>
+Message-Id: <20220103142058.900485141@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
-References: <20220103142053.466768714@linuxfoundation.org>
+In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
+References: <20220103142056.911344037@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo L. Schwab <ewhac@ewhac.org>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit bc7ec91718c49d938849697cfad98fcd9877cc26 upstream.
+commit 8c313e3bfd9adae8d5c4ba1cc696dcbc86fbf9bf upstream.
 
-The spaceball.c module was not properly parsing the movement reports
-coming from the device.  The code read axis data as signed 16-bit
-little-endian values starting at offset 2.
+This is caused by uninitialization of list_head.
 
-In fact, axis data in Spaceball movement reports are signed 16-bit
-big-endian values starting at offset 3.  This was determined first by
-visually inspecting the data packets, and later verified by consulting:
-http://spacemice.org/pdf/SpaceBall_2003-3003_Protocol.pdf
+BUG: KASAN: use-after-free in __list_del_entry_valid+0x34/0xe4
 
-If this ever worked properly, it was in the time before Git...
+Call trace:
+dump_backtrace+0x0/0x298
+show_stack+0x24/0x34
+dump_stack+0x130/0x1a8
+print_address_description+0x88/0x56c
+__kasan_report+0x1b8/0x2a0
+kasan_report+0x14/0x20
+__asan_load8+0x9c/0xa0
+__list_del_entry_valid+0x34/0xe4
+mtu3_req_complete+0x4c/0x300 [mtu3]
+mtu3_gadget_stop+0x168/0x448 [mtu3]
+usb_gadget_unregister_driver+0x204/0x3a0
+unregister_gadget_item+0x44/0xa4
 
-Signed-off-by: Leo L. Schwab <ewhac@ewhac.org>
-Link: https://lore.kernel.org/r/20211221101630.1146385-1-ewhac@ewhac.org
+Fixes: 83374e035b62 ("usb: mtu3: add tracepoints to help debug")
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: Yuwen Ng <yuwen.ng@mediatek.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20211218095749.6250-3-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joystick/spaceball.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/usb/mtu3/mtu3_gadget.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/joystick/spaceball.c
-+++ b/drivers/input/joystick/spaceball.c
-@@ -19,6 +19,7 @@
- #include <linux/module.h>
- #include <linux/input.h>
- #include <linux/serio.h>
-+#include <asm/unaligned.h>
+--- a/drivers/usb/mtu3/mtu3_gadget.c
++++ b/drivers/usb/mtu3/mtu3_gadget.c
+@@ -235,6 +235,7 @@ struct usb_request *mtu3_alloc_request(s
+ 	mreq->request.dma = DMA_ADDR_INVALID;
+ 	mreq->epnum = mep->epnum;
+ 	mreq->mep = mep;
++	INIT_LIST_HEAD(&mreq->list);
+ 	trace_mtu3_alloc_request(mreq);
  
- #define DRIVER_DESC	"SpaceTec SpaceBall 2003/3003/4000 FLX driver"
- 
-@@ -75,9 +76,15 @@ static void spaceball_process_packet(str
- 
- 		case 'D':					/* Ball data */
- 			if (spaceball->idx != 15) return;
--			for (i = 0; i < 6; i++)
-+			/*
-+			 * Skip first three bytes; read six axes worth of data.
-+			 * Axis values are signed 16-bit big-endian.
-+			 */
-+			data += 3;
-+			for (i = 0; i < ARRAY_SIZE(spaceball_axes); i++) {
- 				input_report_abs(dev, spaceball_axes[i],
--					(__s16)((data[2 * i + 3] << 8) | data[2 * i + 2]));
-+					(__s16)get_unaligned_be16(&data[i * 2]));
-+			}
- 			break;
- 
- 		case 'K':					/* Button data */
+ 	return &mreq->request;
 
 
