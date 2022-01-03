@@ -2,153 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E0C2483736
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 19:53:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96E6D483750
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 20:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235697AbiACSxI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 13:53:08 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:33004 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235519AbiACSxH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 13:53:07 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id C47691F38A;
-        Mon,  3 Jan 2022 18:53:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1641235986;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=27xedfSx+nlFjeg7q+sNf0ilC7EOyBKGkhbJOzJzQ6I=;
-        b=hWkr5+Gkjp30k0b7bYeyp57uRT/GLH0uxwEO8qFy3z3L8Tn1GEvr1cyy1Z6nBYQqlIoe3P
-        40JlEunY7pHsFOo5+S10laVvSN4TwrjmTdfOIyQ5/lgu2ixhT9OgOA2HP63+5PQPxfyhp4
-        2ln6ENm8ruzcAdemuqV9O/LHcTzmK2I=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1641235986;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=27xedfSx+nlFjeg7q+sNf0ilC7EOyBKGkhbJOzJzQ6I=;
-        b=PNnHXngdhC3Mm+U8T9TPQVSObHVlMV/QY2/GcpqAVHI5t1CsQu99TT/mOSR/8qRstbRGBa
-        rxvgrPxau1i9W5AQ==
-Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id BD5CCA3B81;
-        Mon,  3 Jan 2022 18:53:06 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id CCB3DDA729; Mon,  3 Jan 2022 19:52:37 +0100 (CET)
-Date:   Mon, 3 Jan 2022 19:52:37 +0100
-From:   David Sterba <dsterba@suse.cz>
-To:     Qu Wenruo <wqu@suse.com>
-Cc:     linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] btrfs: don't start transaction for scrub if the fs
- is mounted read-only
-Message-ID: <20220103185237.GQ28560@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Qu Wenruo <wqu@suse.com>,
-        linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-References: <20211216114736.69757-1-wqu@suse.com>
- <20211216114736.69757-2-wqu@suse.com>
+        id S235946AbiACTCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 14:02:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45990 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235930AbiACTCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 14:02:06 -0500
+Received: from mail-vk1-xa2d.google.com (mail-vk1-xa2d.google.com [IPv6:2607:f8b0:4864:20::a2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1123C061761;
+        Mon,  3 Jan 2022 11:02:06 -0800 (PST)
+Received: by mail-vk1-xa2d.google.com with SMTP id s72so3603184vks.9;
+        Mon, 03 Jan 2022 11:02:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=GNIpy9RQ4x4PwLUuHcv96h7/jXsqh4G7X36M5tDW0gU=;
+        b=bsORjued5Oy7trclTEscVi8UzKmV9bbJPNctZFgQjnu3wczcsdkjCr/qWABkC8kbxx
+         gaZcqfK+yiZFeHJLrm2tm4OhH/nACkRVI9dqbDk+ZJZvHjK7iPDJJ0ba2DOtm+UxYuel
+         nO8MSJ38cm7zOKFWHm+nWnp2YANAP17rkwd+J0d94YoJv/5j/hD2lpUG1tpol5rnggBL
+         XdrERx3m2kX89g1dK42H4U8ge8snK0xK/9xth0Dpj+sktXQrtyVVAgIUUrYUHePiSHGO
+         /+r3AK51zAnCHVbvIkazIYH2o+LryjvMIwNDlUz/fihd4pQzON4ArVguuyNOxhKrxAqI
+         G40w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=GNIpy9RQ4x4PwLUuHcv96h7/jXsqh4G7X36M5tDW0gU=;
+        b=S3Xx0ipUow/bJl3PcluHvhL4RTPJv+6VucPRoSzcg4qV3gpTf+meIhtRNXUuWUYqzZ
+         IVHmDP8LGlqiHAekrJt9FWqgrs2IhDloUezJ2X6jyvheAOlGtpwgUjH5rVkcFm1FRfnf
+         vwGtzOodAslMZYQx/vEaa4qRtUEx97eQes8TYuD0Ryap2Xni/Cy94OGelVrR1Eg4//vN
+         eMSsDvzjZWkxb8L6YKAdVSynKCtChTcPMoPbD88yLCV+WdWCDsksgAgUCi92UtwRnjFn
+         0d24x7IR/isVGdkar9TlsKH5LBNctqDseOvBGrVzrMg1JKZ/2bBJ7v9T3MtPF3xjRSKO
+         o+Pg==
+X-Gm-Message-State: AOAM532pAWfAeZ2YVA5ZJJay36lBj3BDQCUUoLgE5bEZW+IbjHaFXx7l
+        2JpM0QV9vpKrxnUMwNQRsKXMkw2B0DU=
+X-Google-Smtp-Source: ABdhPJwSG0Buy3HIZZ1H/Za5Ncl+5yLGWuOMHW17tjDMfl6EDURgz/QgRLkRHCsayd2o3Uaem8cGJQ==
+X-Received: by 2002:ac5:c5c7:: with SMTP id g7mr14816431vkl.29.1641236525688;
+        Mon, 03 Jan 2022 11:02:05 -0800 (PST)
+Received: from [10.230.2.158] ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id b8sm7254646vsl.19.2022.01.03.11.02.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Jan 2022 11:02:05 -0800 (PST)
+Message-ID: <f5a6c584-6894-ff2e-d4cb-2af9f5fdaf55@gmail.com>
+Date:   Mon, 3 Jan 2022 11:02:02 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211216114736.69757-2-wqu@suse.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.1
+Subject: Re: [PATCH 5.4 00/37] 5.4.170-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20220103142051.883166998@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220103142051.883166998@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Dec 16, 2021 at 07:47:35PM +0800, Qu Wenruo wrote:
-> [BUG]
-> The following super simple script would crash btrfs at unmount time, if
-> CONFIG_BTRFS_ASSERT() is set.
-> 
->  mkfs.btrfs -f $dev
->  mount $dev $mnt
->  xfs_io -f -c "pwrite 0 4k" $mnt/file
->  umount $mnt
->  mount -r ro $dev $mnt
->  btrfs scrub start -Br $mnt
->  umount $mnt
-> 
-> This will trigger the following ASSERT() introduced by commit
-> 0a31daa4b602 ("btrfs: add assertion for empty list of transactions at
-> late stage of umount").
-> 
-> That patch is deifnitely not the cause, it just makes enough noise for
-> us developer.
-> 
-> [CAUSE]
-> We will start transaction for the following call chain during scrub:
-> 
->   scrub_enumerate_chunks()
->   |- btrfs_inc_block_group_ro()
->      |- btrfs_join_transaction()
-> 
-> However for RO mount, there is no running transaction at all, thus
-> btrfs_join_transaction() will start a new transaction.
-> 
-> Furthermore, since it's read-only mount, btrfs_sync_fs() will not call
-> btrfs_commit_super() to commit the new but empty transaction.
-> 
-> And lead to the ASSERT() being triggered.
-> 
-> The bug should be there for a long time. Only the new ASSERT() makes it
-> noisy enough to be noticed.
-> 
-> [FIX]
-> For read-only scrub on read-only mount, there is no need to start a
-> transaction nor to allocate new chunks in btrfs_inc_block_group_ro().
-> 
-> Just do extra read-only mount check in btrfs_inc_block_group_ro(), and
-> if it's read-only, skip all chunk allocation and go inc_block_group_ro()
-> directly.
-> 
-> Since we're here, also add extra debug message at unmount for
-> btrfs_fs_info::trans_list.
-> Sometimes just knowing that there is no dirty metadata bytes for a
-> uncommitted transaction can tell us a lot of things.
-> 
-> Cc: stable@vger.kernel.org # 5.4+
-> Signed-off-by: Qu Wenruo <wqu@suse.com>
-> ---
->  fs/btrfs/block-group.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-> index 1db24e6d6d90..702219361b12 100644
-> --- a/fs/btrfs/block-group.c
-> +++ b/fs/btrfs/block-group.c
-> @@ -2544,6 +2544,19 @@ int btrfs_inc_block_group_ro(struct btrfs_block_group *cache,
->  	int ret;
->  	bool dirty_bg_running;
->  
-> +	/*
-> +	 * This can only happen when we are doing read-only scrub on read-only
-> +	 * mount.
-> +	 * In that case we should not start a new transaction on read-only fs.
-> +	 * Thus here we skip all chunk allocation.
-> +	 */
-> +	if (sb_rdonly(fs_info->sb)) {
 
-Should this also verify or at least assert that do_chunk_alloc is not
-set? The scrub code is used for replace that can set the parameter to
-true.
 
-> +		mutex_lock(&fs_info->ro_block_group_mutex);
-> +		ret = inc_block_group_ro(cache, 0);
-> +		mutex_unlock(&fs_info->ro_block_group_mutex);
-> +		return ret;
+On 1/3/2022 6:23 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.170 release.
+> There are 37 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.170-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-So this is taking a shortcut and skips a few things done in the function
-that use the transaction. I'm not sure how safe this is, it depends on
-the read-only status of superblock, that can chage any time, so what are
-further calls to btrfs_inc_block_group_ro going to do regaring the
-transaction?
-
-> +	}
-> +
->  	do {
->  		trans = btrfs_join_transaction(root);
->  		if (IS_ERR(trans))
-> -- 
-> 2.34.1
+See my regression report about patch "net: phy: fixed_phy: Fix NULL vs 
+IS_ERR() checking in __fixed_phy_register", other than that, the rest 
+worked OK.
+-- 
+Florian
