@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03428483232
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:25:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7B44832F7
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232269AbiACOZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:25:46 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56082 "EHLO
+        id S233848AbiACOcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:32:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60012 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231309AbiACOZc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:32 -0500
+        with ESMTP id S234341AbiACOa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:30:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1196761134;
-        Mon,  3 Jan 2022 14:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01BBC36AEE;
-        Mon,  3 Jan 2022 14:25:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3676761120;
+        Mon,  3 Jan 2022 14:30:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B03BC36AEB;
+        Mon,  3 Jan 2022 14:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219931;
-        bh=EV0gMW+lW4Xs1/4vdQoO0+kzG1z2qLbTtxFqKQeJB4Q=;
+        s=korg; t=1641220225;
+        bh=YNPTQb3ov3sQpgqeEnRZ1X4SV0ovZycJKOC4Erg3p64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ruguxJjiRJiuwVXUBqoSrgo3hEwwIdW2Kg+XnP4bj9zX4YGdsPESB/YdOYJHngCBh
-         cbTRCm9URcrqqfXVj2Kn91goD/q+axoHRYrP8JxcGVCzH7AlT008/w0/y8UmiHsDyg
-         2vEHF4dPNubSGRcLNWTLN9IiiP9rk8yJ7BfiytdA=
+        b=2cvueCKb93RSXpBt8IuhvhWJn/wIYszWMItLwuLIpTdWnOwMY8UAdGYJgGDI6tOZu
+         CY9uBW4NVouPw4+XAtzs4NOg3X8ypyBvaq14NWY3n+Vt/mDx/ejLd5jaLoAYYDPfDG
+         Ob2gTO/pQ9ODFYvmlw/7ITXxIUjPd8ChYLnUB1IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Pelletier <plr.vincent@gmail.com>
-Subject: [PATCH 4.19 21/27] usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
-Date:   Mon,  3 Jan 2022 15:24:01 +0100
-Message-Id: <20220103142052.851372510@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 25/48] net/smc: fix kernel panic caused by race of smc_sock
+Date:   Mon,  3 Jan 2022 15:24:02 +0100
+Message-Id: <20220103142054.325782403@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
-References: <20220103142052.162223000@linuxfoundation.org>
+In-Reply-To: <20220103142053.466768714@linuxfoundation.org>
+References: <20220103142053.466768714@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,115 +46,437 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Pelletier <plr.vincent@gmail.com>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-commit b1e0887379422975f237d43d8839b751a6bcf154 upstream.
+[ Upstream commit 349d43127dac00c15231e8ffbcaabd70f7b0e544 ]
 
-ffs_data_clear is indirectly called from both ffs_fs_kill_sb and
-ffs_ep0_release, so it ends up being called twice when userland closes ep0
-and then unmounts f_fs.
-If userland provided an eventfd along with function's USB descriptors, it
-ends up calling eventfd_ctx_put as many times, causing a refcount
-underflow.
-NULL-ify ffs_eventfd to prevent these extraneous eventfd_ctx_put calls.
+A crash occurs when smc_cdc_tx_handler() tries to access smc_sock
+but smc_release() has already freed it.
 
-Also, set epfiles to NULL right after de-allocating it, for readability.
+[ 4570.695099] BUG: unable to handle page fault for address: 000000002eae9e88
+[ 4570.696048] #PF: supervisor write access in kernel mode
+[ 4570.696728] #PF: error_code(0x0002) - not-present page
+[ 4570.697401] PGD 0 P4D 0
+[ 4570.697716] Oops: 0002 [#1] PREEMPT SMP NOPTI
+[ 4570.698228] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.16.0-rc4+ #111
+[ 4570.699013] Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8c24b4c 04/0
+[ 4570.699933] RIP: 0010:_raw_spin_lock+0x1a/0x30
+<...>
+[ 4570.711446] Call Trace:
+[ 4570.711746]  <IRQ>
+[ 4570.711992]  smc_cdc_tx_handler+0x41/0xc0
+[ 4570.712470]  smc_wr_tx_tasklet_fn+0x213/0x560
+[ 4570.712981]  ? smc_cdc_tx_dismisser+0x10/0x10
+[ 4570.713489]  tasklet_action_common.isra.17+0x66/0x140
+[ 4570.714083]  __do_softirq+0x123/0x2f4
+[ 4570.714521]  irq_exit_rcu+0xc4/0xf0
+[ 4570.714934]  common_interrupt+0xba/0xe0
 
-For completeness, ffs_data_clear actually ends up being called thrice, the
-last call being before the whole ffs structure gets freed, so when this
-specific sequence happens there is a second underflow happening (but not
-being reported):
+Though smc_cdc_tx_handler() checked the existence of smc connection,
+smc_release() may have already dismissed and released the smc socket
+before smc_cdc_tx_handler() further visits it.
 
-/sys/kernel/debug/tracing# modprobe usb_f_fs
-/sys/kernel/debug/tracing# echo ffs_data_clear > set_ftrace_filter
-/sys/kernel/debug/tracing# echo function > current_tracer
-/sys/kernel/debug/tracing# echo 1 > tracing_on
-(setup gadget, run and kill function userland process, teardown gadget)
-/sys/kernel/debug/tracing# echo 0 > tracing_on
-/sys/kernel/debug/tracing# cat trace
- smartcard-openp-436     [000] .....  1946.208786: ffs_data_clear <-ffs_data_closed
- smartcard-openp-431     [000] .....  1946.279147: ffs_data_clear <-ffs_data_closed
- smartcard-openp-431     [000] .n...  1946.905512: ffs_data_clear <-ffs_data_put
+smc_cdc_tx_handler()           |smc_release()
+if (!conn)                     |
+                               |
+                               |smc_cdc_tx_dismiss_slots()
+                               |      smc_cdc_tx_dismisser()
+                               |
+                               |sock_put(&smc->sk) <- last sock_put,
+                               |                      smc_sock freed
+bh_lock_sock(&smc->sk) (panic) |
 
-Warning output corresponding to above trace:
-[ 1946.284139] WARNING: CPU: 0 PID: 431 at lib/refcount.c:28 refcount_warn_saturate+0x110/0x15c
-[ 1946.293094] refcount_t: underflow; use-after-free.
-[ 1946.298164] Modules linked in: usb_f_ncm(E) u_ether(E) usb_f_fs(E) hci_uart(E) btqca(E) btrtl(E) btbcm(E) btintel(E) bluetooth(E) nls_ascii(E) nls_cp437(E) vfat(E) fat(E) bcm2835_v4l2(CE) bcm2835_mmal_vchiq(CE) videobuf2_vmalloc(E) videobuf2_memops(E) sha512_generic(E) videobuf2_v4l2(E) sha512_arm(E) videobuf2_common(E) videodev(E) cpufreq_dt(E) snd_bcm2835(CE) brcmfmac(E) mc(E) vc4(E) ctr(E) brcmutil(E) snd_soc_core(E) snd_pcm_dmaengine(E) drbg(E) snd_pcm(E) snd_timer(E) snd(E) soundcore(E) drm_kms_helper(E) cec(E) ansi_cprng(E) rc_core(E) syscopyarea(E) raspberrypi_cpufreq(E) sysfillrect(E) sysimgblt(E) cfg80211(E) max17040_battery(OE) raspberrypi_hwmon(E) fb_sys_fops(E) regmap_i2c(E) ecdh_generic(E) rfkill(E) ecc(E) bcm2835_rng(E) rng_core(E) vchiq(CE) leds_gpio(E) libcomposite(E) fuse(E) configfs(E) ip_tables(E) x_tables(E) autofs4(E) ext4(E) crc16(E) mbcache(E) jbd2(E) crc32c_generic(E) sdhci_iproc(E) sdhci_pltfm(E) sdhci(E)
-[ 1946.399633] CPU: 0 PID: 431 Comm: smartcard-openp Tainted: G         C OE     5.15.0-1-rpi #1  Debian 5.15.3-1
-[ 1946.417950] Hardware name: BCM2835
-[ 1946.425442] Backtrace:
-[ 1946.432048] [<c08d60a0>] (dump_backtrace) from [<c08d62ec>] (show_stack+0x20/0x24)
-[ 1946.448226]  r7:00000009 r6:0000001c r5:c04a948c r4:c0a64e2c
-[ 1946.458412] [<c08d62cc>] (show_stack) from [<c08d9ae0>] (dump_stack+0x28/0x30)
-[ 1946.470380] [<c08d9ab8>] (dump_stack) from [<c0123500>] (__warn+0xe8/0x154)
-[ 1946.482067]  r5:c04a948c r4:c0a71dc8
-[ 1946.490184] [<c0123418>] (__warn) from [<c08d6948>] (warn_slowpath_fmt+0xa0/0xe4)
-[ 1946.506758]  r7:00000009 r6:0000001c r5:c0a71dc8 r4:c0a71e04
-[ 1946.517070] [<c08d68ac>] (warn_slowpath_fmt) from [<c04a948c>] (refcount_warn_saturate+0x110/0x15c)
-[ 1946.535309]  r8:c0100224 r7:c0dfcb84 r6:ffffffff r5:c3b84c00 r4:c24a17c0
-[ 1946.546708] [<c04a937c>] (refcount_warn_saturate) from [<c0380134>] (eventfd_ctx_put+0x48/0x74)
-[ 1946.564476] [<c03800ec>] (eventfd_ctx_put) from [<bf5464e8>] (ffs_data_clear+0xd0/0x118 [usb_f_fs])
-[ 1946.582664]  r5:c3b84c00 r4:c2695b00
-[ 1946.590668] [<bf546418>] (ffs_data_clear [usb_f_fs]) from [<bf547cc0>] (ffs_data_closed+0x9c/0x150 [usb_f_fs])
-[ 1946.609608]  r5:bf54d014 r4:c2695b00
-[ 1946.617522] [<bf547c24>] (ffs_data_closed [usb_f_fs]) from [<bf547da0>] (ffs_fs_kill_sb+0x2c/0x30 [usb_f_fs])
-[ 1946.636217]  r7:c0dfcb84 r6:c3a12260 r5:bf54d014 r4:c229f000
-[ 1946.646273] [<bf547d74>] (ffs_fs_kill_sb [usb_f_fs]) from [<c0326d50>] (deactivate_locked_super+0x54/0x9c)
-[ 1946.664893]  r5:bf54d014 r4:c229f000
-[ 1946.672921] [<c0326cfc>] (deactivate_locked_super) from [<c0326df8>] (deactivate_super+0x60/0x64)
-[ 1946.690722]  r5:c2a09000 r4:c229f000
-[ 1946.698706] [<c0326d98>] (deactivate_super) from [<c0349a28>] (cleanup_mnt+0xe4/0x14c)
-[ 1946.715553]  r5:c2a09000 r4:00000000
-[ 1946.723528] [<c0349944>] (cleanup_mnt) from [<c0349b08>] (__cleanup_mnt+0x1c/0x20)
-[ 1946.739922]  r7:c0dfcb84 r6:c3a12260 r5:c3a126fc r4:00000000
-[ 1946.750088] [<c0349aec>] (__cleanup_mnt) from [<c0143d10>] (task_work_run+0x84/0xb8)
-[ 1946.766602] [<c0143c8c>] (task_work_run) from [<c010bdc8>] (do_work_pending+0x470/0x56c)
-[ 1946.783540]  r7:5ac3c35a r6:c0d0424c r5:c200bfb0 r4:c200a000
-[ 1946.793614] [<c010b958>] (do_work_pending) from [<c01000c0>] (slow_work_pending+0xc/0x20)
-[ 1946.810553] Exception stack(0xc200bfb0 to 0xc200bff8)
-[ 1946.820129] bfa0:                                     00000000 00000000 000000aa b5e21430
-[ 1946.837104] bfc0: bef867a0 00000001 bef86840 00000034 bef86838 bef86790 bef86794 bef867a0
-[ 1946.854125] bfe0: 00000000 bef86798 b67b7a1c b6d626a4 60000010 b5a23760
-[ 1946.865335]  r10:00000000 r9:c200a000 r8:c0100224 r7:00000034 r6:bef86840 r5:00000001
-[ 1946.881914]  r4:bef867a0
-[ 1946.888793] ---[ end trace 7387f2a9725b28d0 ]---
+To make sure we won't receive any CDC messages after we free the
+smc_sock, add a refcount on the smc_connection for inflight CDC
+message(posted to the QP but haven't received related CQE), and
+don't release the smc_connection until all the inflight CDC messages
+haven been done, for both success or failed ones.
 
-Fixes: 5e33f6fdf735 ("usb: gadget: ffs: add eventfd notification about ffs events")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Vincent Pelletier <plr.vincent@gmail.com>
-Link: https://lore.kernel.org/r/f79eeea29f3f98de6782a064ec0f7351ad2f598f.1639793920.git.plr.vincent@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Using refcount on CDC messages brings another problem: when the link
+is going to be destroyed, smcr_link_clear() will reset the QP, which
+then remove all the pending CQEs related to the QP in the CQ. To make
+sure all the CQEs will always come back so the refcount on the
+smc_connection can always reach 0, smc_ib_modify_qp_reset() was replaced
+by smc_ib_modify_qp_error().
+And remove the timeout in smc_wr_tx_wait_no_pending_sends() since we
+need to wait for all pending WQEs done, or we may encounter use-after-
+free when handling CQEs.
+
+For IB device removal routine, we need to wait for all the QPs on that
+device been destroyed before we can destroy CQs on the device, or
+the refcount on smc_connection won't reach 0 and smc_sock cannot be
+released.
+
+Fixes: 5f08318f617b ("smc: connection data control (CDC)")
+Reported-by: Wen Gu <guwen@linux.alibaba.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/smc/smc.h      |  5 +++++
+ net/smc/smc_cdc.c  | 52 +++++++++++++++++++++-------------------------
+ net/smc/smc_cdc.h  |  2 +-
+ net/smc/smc_core.c | 25 +++++++++++++++++-----
+ net/smc/smc_ib.c   |  4 ++--
+ net/smc/smc_ib.h   |  1 +
+ net/smc/smc_wr.c   | 41 +++---------------------------------
+ net/smc/smc_wr.h   |  3 +--
+ 8 files changed, 57 insertions(+), 76 deletions(-)
 
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1698,11 +1698,15 @@ static void ffs_data_clear(struct ffs_da
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index d65e15f0c944c..e6919fe31617b 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -170,6 +170,11 @@ struct smc_connection {
+ 	u16			tx_cdc_seq;	/* sequence # for CDC send */
+ 	u16			tx_cdc_seq_fin;	/* sequence # - tx completed */
+ 	spinlock_t		send_lock;	/* protect wr_sends */
++	atomic_t		cdc_pend_tx_wr; /* number of pending tx CDC wqe
++						 * - inc when post wqe,
++						 * - dec on polled tx cqe
++						 */
++	wait_queue_head_t	cdc_pend_tx_wq; /* wakeup on no cdc_pend_tx_wr*/
+ 	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
+ 	u32			tx_off;		/* base offset in peer rmb */
  
- 	BUG_ON(ffs->gadget);
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 3602829006dda..0c490cdde6a49 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -31,10 +31,6 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
+ 	struct smc_sock *smc;
+ 	int diff;
  
--	if (ffs->epfiles)
-+	if (ffs->epfiles) {
- 		ffs_epfiles_destroy(ffs->epfiles, ffs->eps_count);
-+		ffs->epfiles = NULL;
+-	if (!conn)
+-		/* already dismissed */
+-		return;
+-
+ 	smc = container_of(conn, struct smc_sock, conn);
+ 	bh_lock_sock(&smc->sk);
+ 	if (!wc_status) {
+@@ -51,6 +47,12 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
+ 			      conn);
+ 		conn->tx_cdc_seq_fin = cdcpend->ctrl_seq;
+ 	}
++
++	if (atomic_dec_and_test(&conn->cdc_pend_tx_wr) &&
++	    unlikely(wq_has_sleeper(&conn->cdc_pend_tx_wq)))
++		wake_up(&conn->cdc_pend_tx_wq);
++	WARN_ON(atomic_read(&conn->cdc_pend_tx_wr) < 0);
++
+ 	smc_tx_sndbuf_nonfull(smc);
+ 	bh_unlock_sock(&smc->sk);
+ }
+@@ -107,6 +109,10 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+ 	conn->tx_cdc_seq++;
+ 	conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
+ 	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf, conn, &cfed);
++
++	atomic_inc(&conn->cdc_pend_tx_wr);
++	smp_mb__after_atomic(); /* Make sure cdc_pend_tx_wr added before post */
++
+ 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
+ 	if (!rc) {
+ 		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
+@@ -114,6 +120,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
+ 	} else {
+ 		conn->tx_cdc_seq--;
+ 		conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
++		atomic_dec(&conn->cdc_pend_tx_wr);
+ 	}
+ 
+ 	return rc;
+@@ -136,7 +143,18 @@ int smcr_cdc_msg_send_validation(struct smc_connection *conn,
+ 	peer->token = htonl(local->token);
+ 	peer->prod_flags.failover_validation = 1;
+ 
++	/* We need to set pend->conn here to make sure smc_cdc_tx_handler()
++	 * can handle properly
++	 */
++	smc_cdc_add_pending_send(conn, pend);
++
++	atomic_inc(&conn->cdc_pend_tx_wr);
++	smp_mb__after_atomic(); /* Make sure cdc_pend_tx_wr added before post */
++
+ 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
++	if (unlikely(rc))
++		atomic_dec(&conn->cdc_pend_tx_wr);
++
+ 	return rc;
+ }
+ 
+@@ -193,31 +211,9 @@ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn)
+ 	return rc;
+ }
+ 
+-static bool smc_cdc_tx_filter(struct smc_wr_tx_pend_priv *tx_pend,
+-			      unsigned long data)
++void smc_cdc_wait_pend_tx_wr(struct smc_connection *conn)
+ {
+-	struct smc_connection *conn = (struct smc_connection *)data;
+-	struct smc_cdc_tx_pend *cdc_pend =
+-		(struct smc_cdc_tx_pend *)tx_pend;
+-
+-	return cdc_pend->conn == conn;
+-}
+-
+-static void smc_cdc_tx_dismisser(struct smc_wr_tx_pend_priv *tx_pend)
+-{
+-	struct smc_cdc_tx_pend *cdc_pend =
+-		(struct smc_cdc_tx_pend *)tx_pend;
+-
+-	cdc_pend->conn = NULL;
+-}
+-
+-void smc_cdc_tx_dismiss_slots(struct smc_connection *conn)
+-{
+-	struct smc_link *link = conn->lnk;
+-
+-	smc_wr_tx_dismiss_slots(link, SMC_CDC_MSG_TYPE,
+-				smc_cdc_tx_filter, smc_cdc_tx_dismisser,
+-				(unsigned long)conn);
++	wait_event(conn->cdc_pend_tx_wq, !atomic_read(&conn->cdc_pend_tx_wr));
+ }
+ 
+ /* Send a SMC-D CDC header.
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 0a0a89abd38b2..696cc11f2303b 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -291,7 +291,7 @@ int smc_cdc_get_free_slot(struct smc_connection *conn,
+ 			  struct smc_wr_buf **wr_buf,
+ 			  struct smc_rdma_wr **wr_rdma_buf,
+ 			  struct smc_cdc_tx_pend **pend);
+-void smc_cdc_tx_dismiss_slots(struct smc_connection *conn);
++void smc_cdc_wait_pend_tx_wr(struct smc_connection *conn);
+ int smc_cdc_msg_send(struct smc_connection *conn, struct smc_wr_buf *wr_buf,
+ 		     struct smc_cdc_tx_pend *pend);
+ int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index fb4327a81a0f0..2a22dc85951ee 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -657,7 +657,7 @@ void smc_conn_free(struct smc_connection *conn)
+ 			smc_ism_unset_conn(conn);
+ 		tasklet_kill(&conn->rx_tsklet);
+ 	} else {
+-		smc_cdc_tx_dismiss_slots(conn);
++		smc_cdc_wait_pend_tx_wr(conn);
+ 		if (current_work() != &conn->abort_work)
+ 			cancel_work_sync(&conn->abort_work);
+ 	}
+@@ -734,7 +734,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+ 	smc_llc_link_clear(lnk, log);
+ 	smcr_buf_unmap_lgr(lnk);
+ 	smcr_rtoken_clear_link(lnk);
+-	smc_ib_modify_qp_reset(lnk);
++	smc_ib_modify_qp_error(lnk);
+ 	smc_wr_free_link(lnk);
+ 	smc_ib_destroy_queue_pair(lnk);
+ 	smc_ib_dealloc_protection_domain(lnk);
+@@ -878,7 +878,7 @@ static void smc_conn_kill(struct smc_connection *conn, bool soft)
+ 		else
+ 			tasklet_unlock_wait(&conn->rx_tsklet);
+ 	} else {
+-		smc_cdc_tx_dismiss_slots(conn);
++		smc_cdc_wait_pend_tx_wr(conn);
+ 	}
+ 	smc_lgr_unregister_conn(conn);
+ 	smc_close_active_abort(smc);
+@@ -1002,11 +1002,16 @@ void smc_smcd_terminate_all(struct smcd_dev *smcd)
+ /* Called when an SMCR device is removed or the smc module is unloaded.
+  * If smcibdev is given, all SMCR link groups using this device are terminated.
+  * If smcibdev is NULL, all SMCR link groups are terminated.
++ *
++ * We must wait here for QPs been destroyed before we destroy the CQs,
++ * or we won't received any CQEs and cdc_pend_tx_wr cannot reach 0 thus
++ * smc_sock cannot be released.
+  */
+ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
+ {
+ 	struct smc_link_group *lgr, *lg;
+ 	LIST_HEAD(lgr_free_list);
++	LIST_HEAD(lgr_linkdown_list);
+ 	int i;
+ 
+ 	spin_lock_bh(&smc_lgr_list.lock);
+@@ -1018,7 +1023,7 @@ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
+ 		list_for_each_entry_safe(lgr, lg, &smc_lgr_list.list, list) {
+ 			for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 				if (lgr->lnk[i].smcibdev == smcibdev)
+-					smcr_link_down_cond_sched(&lgr->lnk[i]);
++					list_move_tail(&lgr->list, &lgr_linkdown_list);
+ 			}
+ 		}
+ 	}
+@@ -1030,6 +1035,16 @@ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
+ 		__smc_lgr_terminate(lgr, false);
+ 	}
+ 
++	list_for_each_entry_safe(lgr, lg, &lgr_linkdown_list, list) {
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++			if (lgr->lnk[i].smcibdev == smcibdev) {
++				mutex_lock(&lgr->llc_conf_mutex);
++				smcr_link_down_cond(&lgr->lnk[i]);
++				mutex_unlock(&lgr->llc_conf_mutex);
++			}
++		}
 +	}
++
+ 	if (smcibdev) {
+ 		if (atomic_read(&smcibdev->lnk_cnt))
+ 			wait_event(smcibdev->lnks_deleted,
+@@ -1129,7 +1144,6 @@ static void smcr_link_down(struct smc_link *lnk)
+ 	if (!lgr || lnk->state == SMC_LNK_UNUSED || list_empty(&lgr->list))
+ 		return;
  
--	if (ffs->ffs_eventfd)
-+	if (ffs->ffs_eventfd) {
- 		eventfd_ctx_put(ffs->ffs_eventfd);
-+		ffs->ffs_eventfd = NULL;
-+	}
+-	smc_ib_modify_qp_reset(lnk);
+ 	to_lnk = smc_switch_conns(lgr, lnk, true);
+ 	if (!to_lnk) { /* no backup link available */
+ 		smcr_link_clear(lnk, true);
+@@ -1357,6 +1371,7 @@ create:
+ 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
+ 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+ 	conn->urg_state = SMC_URG_READ;
++	init_waitqueue_head(&conn->cdc_pend_tx_wq);
+ 	INIT_WORK(&smc->conn.abort_work, smc_conn_abort_work);
+ 	if (ini->is_smcd) {
+ 		conn->rx_off = sizeof(struct smcd_cdc_msg);
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index fc766b537ac7a..f1ffbd414602e 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -100,12 +100,12 @@ int smc_ib_modify_qp_rts(struct smc_link *lnk)
+ 			    IB_QP_MAX_QP_RD_ATOMIC);
+ }
  
- 	kfree(ffs->raw_descs_data);
- 	kfree(ffs->raw_strings);
-@@ -1715,7 +1719,6 @@ static void ffs_data_reset(struct ffs_da
+-int smc_ib_modify_qp_reset(struct smc_link *lnk)
++int smc_ib_modify_qp_error(struct smc_link *lnk)
+ {
+ 	struct ib_qp_attr qp_attr;
  
- 	ffs_data_clear(ffs);
+ 	memset(&qp_attr, 0, sizeof(qp_attr));
+-	qp_attr.qp_state = IB_QPS_RESET;
++	qp_attr.qp_state = IB_QPS_ERR;
+ 	return ib_modify_qp(lnk->roce_qp, &qp_attr, IB_QP_STATE);
+ }
  
--	ffs->epfiles = NULL;
- 	ffs->raw_descs_data = NULL;
- 	ffs->raw_descs = NULL;
- 	ffs->raw_strings = NULL;
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 2ce481187dd0b..f90d15eae2aab 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -74,6 +74,7 @@ int smc_ib_create_queue_pair(struct smc_link *lnk);
+ int smc_ib_ready_link(struct smc_link *lnk);
+ int smc_ib_modify_qp_rts(struct smc_link *lnk);
+ int smc_ib_modify_qp_reset(struct smc_link *lnk);
++int smc_ib_modify_qp_error(struct smc_link *lnk);
+ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev);
+ int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
+ 			     struct smc_buf_desc *buf_slot, u8 link_idx);
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index cae22d240e0a6..5a81f8c9ebf90 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -62,13 +62,9 @@ static inline bool smc_wr_is_tx_pend(struct smc_link *link)
+ }
+ 
+ /* wait till all pending tx work requests on the given link are completed */
+-int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
++void smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
+ {
+-	if (wait_event_timeout(link->wr_tx_wait, !smc_wr_is_tx_pend(link),
+-			       SMC_WR_TX_WAIT_PENDING_TIME))
+-		return 0;
+-	else /* timeout */
+-		return -EPIPE;
++	wait_event(link->wr_tx_wait, !smc_wr_is_tx_pend(link));
+ }
+ 
+ static inline int smc_wr_tx_find_pending_index(struct smc_link *link, u64 wr_id)
+@@ -87,7 +83,6 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+ 	struct smc_wr_tx_pend pnd_snd;
+ 	struct smc_link *link;
+ 	u32 pnd_snd_idx;
+-	int i;
+ 
+ 	link = wc->qp->qp_context;
+ 
+@@ -115,14 +110,6 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+ 	if (!test_and_clear_bit(pnd_snd_idx, link->wr_tx_mask))
+ 		return;
+ 	if (wc->status) {
+-		for_each_set_bit(i, link->wr_tx_mask, link->wr_tx_cnt) {
+-			/* clear full struct smc_wr_tx_pend including .priv */
+-			memset(&link->wr_tx_pends[i], 0,
+-			       sizeof(link->wr_tx_pends[i]));
+-			memset(&link->wr_tx_bufs[i], 0,
+-			       sizeof(link->wr_tx_bufs[i]));
+-			clear_bit(i, link->wr_tx_mask);
+-		}
+ 		/* terminate link */
+ 		smcr_link_down_cond_sched(link);
+ 	}
+@@ -351,25 +338,6 @@ int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
+ 	return rc;
+ }
+ 
+-void smc_wr_tx_dismiss_slots(struct smc_link *link, u8 wr_tx_hdr_type,
+-			     smc_wr_tx_filter filter,
+-			     smc_wr_tx_dismisser dismisser,
+-			     unsigned long data)
+-{
+-	struct smc_wr_tx_pend_priv *tx_pend;
+-	struct smc_wr_rx_hdr *wr_tx;
+-	int i;
+-
+-	for_each_set_bit(i, link->wr_tx_mask, link->wr_tx_cnt) {
+-		wr_tx = (struct smc_wr_rx_hdr *)&link->wr_tx_bufs[i];
+-		if (wr_tx->type != wr_tx_hdr_type)
+-			continue;
+-		tx_pend = &link->wr_tx_pends[i].priv;
+-		if (filter(tx_pend, data))
+-			dismisser(tx_pend);
+-	}
+-}
+-
+ /****************************** receive queue ********************************/
+ 
+ int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler)
+@@ -574,10 +542,7 @@ void smc_wr_free_link(struct smc_link *lnk)
+ 	smc_wr_wakeup_reg_wait(lnk);
+ 	smc_wr_wakeup_tx_wait(lnk);
+ 
+-	if (smc_wr_tx_wait_no_pending_sends(lnk))
+-		memset(lnk->wr_tx_mask, 0,
+-		       BITS_TO_LONGS(SMC_WR_BUF_CNT) *
+-						sizeof(*lnk->wr_tx_mask));
++	smc_wr_tx_wait_no_pending_sends(lnk);
+ 	wait_event(lnk->wr_reg_wait, (!atomic_read(&lnk->wr_reg_refcnt)));
+ 	wait_event(lnk->wr_tx_wait, (!atomic_read(&lnk->wr_tx_refcnt)));
+ 
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index 102d515757ee2..cb58e60078f57 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -22,7 +22,6 @@
+ #define SMC_WR_BUF_CNT 16	/* # of ctrl buffers per link */
+ 
+ #define SMC_WR_TX_WAIT_FREE_SLOT_TIME	(10 * HZ)
+-#define SMC_WR_TX_WAIT_PENDING_TIME	(5 * HZ)
+ 
+ #define SMC_WR_TX_SIZE 44 /* actual size of wr_send data (<=SMC_WR_BUF_SIZE) */
+ 
+@@ -122,7 +121,7 @@ void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
+ 			     smc_wr_tx_filter filter,
+ 			     smc_wr_tx_dismisser dismisser,
+ 			     unsigned long data);
+-int smc_wr_tx_wait_no_pending_sends(struct smc_link *link);
++void smc_wr_tx_wait_no_pending_sends(struct smc_link *link);
+ 
+ int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler);
+ int smc_wr_rx_post_init(struct smc_link *link);
+-- 
+2.34.1
+
 
 
