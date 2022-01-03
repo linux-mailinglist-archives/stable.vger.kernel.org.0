@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C036848322F
-	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:25:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E88D3483241
+	for <lists+stable@lfdr.de>; Mon,  3 Jan 2022 15:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbiACOZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jan 2022 09:25:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38334 "EHLO
+        id S232757AbiACO0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jan 2022 09:26:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233431AbiACOZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:29 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 100F8C061799;
-        Mon,  3 Jan 2022 06:25:29 -0800 (PST)
+        with ESMTP id S233733AbiACOZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jan 2022 09:25:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A51C0613B1;
+        Mon,  3 Jan 2022 06:25:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4BB04CE1064;
-        Mon,  3 Jan 2022 14:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2793BC36AEB;
-        Mon,  3 Jan 2022 14:25:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DD006111D;
+        Mon,  3 Jan 2022 14:25:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E313C36AEB;
+        Mon,  3 Jan 2022 14:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641219925;
-        bh=m3BAG8++AcjX5IZDQoY9Ayzgd7tWKmRlQImHFE4p5DI=;
+        s=korg; t=1641219950;
+        bh=wdwddM4zjPcn5mPV/OFPRJeQYWwyLlvHaYNO3kkYaAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKX44J4H8QOD7wIjA2DTKWPeu4dzalduO0xVLYQD4iZxODHszxUSw7YI4LrIE2jef
-         UcWCzukFdI5eYLNwHaCgaffD/DCcIjJzSfcbI1Yoj7dnu12vnSrSWd7YXsj9wg8Y4z
-         qNFgWtfyWg4Rtr3IPc0DmubkPv6diKWpsWBzd68g=
+        b=KKpFbL9HZzKkG5gplGwIfBwin/fT/xzmo5n3rBJHJDNqplgSMQxqGcyCzzRjAPlL1
+         wKJA5WYDj5E7CswAn8cejCvrzwDr8UNd6xST2u09KpCH0K90RZUtiU8+PUAzo7UxyW
+         eN8tkzXIKiIds73soRs0DdJTGMRshypZ4LbVlCno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars Persson <larper@axis.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Patrik Lantz <patrik.lantz@axis.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>
-Subject: [PATCH 4.19 02/27] tee: handle lookup of shm with reference count 0
-Date:   Mon,  3 Jan 2022 15:23:42 +0100
-Message-Id: <20220103142052.248424963@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <samuel@cavoj.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 03/27] Input: i8042 - add deferred probe support
+Date:   Mon,  3 Jan 2022 15:23:43 +0100
+Message-Id: <20220103142052.286884793@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220103142052.162223000@linuxfoundation.org>
 References: <20220103142052.162223000@linuxfoundation.org>
@@ -49,340 +49,273 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit dfd0743f1d9ea76931510ed150334d571fbab49d upstream.
+[ Upstream commit 9222ba68c3f4065f6364b99cc641b6b019ef2d42 ]
 
-Since the tee subsystem does not keep a strong reference to its idle
-shared memory buffers, it races with other threads that try to destroy a
-shared memory through a close of its dma-buf fd or by unmapping the
-memory.
+We've got a bug report about the non-working keyboard on ASUS ZenBook
+UX425UA.  It seems that the PS/2 device isn't ready immediately at
+boot but takes some seconds to get ready.  Until now, the only
+workaround is to defer the probe, but it's available only when the
+driver is a module.  However, many distros, including openSUSE as in
+the original report, build the PS/2 input drivers into kernel, hence
+it won't work easily.
 
-In tee_shm_get_from_id() when a lookup in teedev->idr has been
-successful, it is possible that the tee_shm is in the dma-buf teardown
-path, but that path is blocked by the teedev mutex. Since we don't have
-an API to tell if the tee_shm is in the dma-buf teardown path or not we
-must find another way of detecting this condition.
+This patch adds the support for the deferred probe for i8042 stuff as
+a workaround of the problem above.  When the deferred probe mode is
+enabled and the device couldn't be probed, it'll be repeated with the
+standard deferred probe mechanism.
 
-Fix this by doing the reference counting directly on the tee_shm using a
-new refcount_t refcount field. dma-buf is replaced by using
-anon_inode_getfd() instead, this separates the life-cycle of the
-underlying file from the tee_shm. tee_shm_put() is updated to hold the
-mutex when decreasing the refcount to 0 and then remove the tee_shm from
-teedev->idr before releasing the mutex. This means that the tee_shm can
-never be found unless it has a refcount larger than 0.
+The deferred probe mode is enabled either via the new option
+i8042.probe_defer or via the quirk table entry.  As of this patch, the
+quirk table contains only ASUS ZenBook UX425UA.
 
-Fixes: 967c9cca2cc5 ("tee: generic TEE subsystem")
-Cc: stable@vger.kernel.org
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Lars Persson <larper@axis.com>
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Reported-by: Patrik Lantz <patrik.lantz@axis.com>
-[JW: backport to 4.19-stable]
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The deferred probe part is based on Fabio's initial work.
+
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190256
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Samuel Čavoj <samuel@cavoj.net>
+Link: https://lore.kernel.org/r/20211117063757.11380-1-tiwai@suse.de
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tee/tee_shm.c   |  177 ++++++++++++++++++------------------------------
- include/linux/tee_drv.h |    4 -
- 2 files changed, 69 insertions(+), 112 deletions(-)
+ .../admin-guide/kernel-parameters.txt         |  2 +
+ drivers/input/serio/i8042-x86ia64io.h         | 14 +++++
+ drivers/input/serio/i8042.c                   | 54 ++++++++++++-------
+ 3 files changed, 51 insertions(+), 19 deletions(-)
 
---- a/drivers/tee/tee_shm.c
-+++ b/drivers/tee/tee_shm.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2015-2016, Linaro Limited
-+ * Copyright (c) 2015-2017, 2019-2021 Linaro Limited
-  *
-  * This software is licensed under the terms of the GNU General Public
-  * License version 2, as published by the Free Software Foundation, and
-@@ -11,25 +11,17 @@
-  * GNU General Public License for more details.
-  *
-  */
-+#include <linux/anon_inodes.h>
- #include <linux/device.h>
--#include <linux/dma-buf.h>
--#include <linux/fdtable.h>
- #include <linux/idr.h>
-+#include <linux/mm.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/tee_drv.h>
- #include "tee_private.h"
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 607db9519cfbd..0ee49b4929be2 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -1439,6 +1439,8 @@
+ 			architectures force reset to be always executed
+ 	i8042.unlock	[HW] Unlock (ignore) the keylock
+ 	i8042.kbdreset	[HW] Reset device connected to KBD port
++	i8042.probe_defer
++			[HW] Allow deferred probing upon i8042 probe errors
  
--static void tee_shm_release(struct tee_shm *shm)
-+static void tee_shm_release(struct tee_device *teedev, struct tee_shm *shm)
- {
--	struct tee_device *teedev = shm->teedev;
--
--	mutex_lock(&teedev->mutex);
--	idr_remove(&teedev->idr, shm->id);
--	if (shm->ctx)
--		list_del(&shm->link);
--	mutex_unlock(&teedev->mutex);
--
- 	if (shm->flags & TEE_SHM_POOL) {
- 		struct tee_shm_pool_mgr *poolm;
+ 	i810=		[HW,DRM]
  
-@@ -61,51 +53,6 @@ static void tee_shm_release(struct tee_s
- 	tee_device_put(teedev);
- }
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index c218e107c0c8f..29179d42b467a 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -999,6 +999,17 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
+ 	{ }
+ };
  
--static struct sg_table *tee_shm_op_map_dma_buf(struct dma_buf_attachment
--			*attach, enum dma_data_direction dir)
--{
--	return NULL;
--}
--
--static void tee_shm_op_unmap_dma_buf(struct dma_buf_attachment *attach,
--				     struct sg_table *table,
--				     enum dma_data_direction dir)
--{
--}
--
--static void tee_shm_op_release(struct dma_buf *dmabuf)
--{
--	struct tee_shm *shm = dmabuf->priv;
--
--	tee_shm_release(shm);
--}
--
--static void *tee_shm_op_map(struct dma_buf *dmabuf, unsigned long pgnum)
--{
--	return NULL;
--}
--
--static int tee_shm_op_mmap(struct dma_buf *dmabuf, struct vm_area_struct *vma)
--{
--	struct tee_shm *shm = dmabuf->priv;
--	size_t size = vma->vm_end - vma->vm_start;
--
--	/* Refuse sharing shared memory provided by application */
--	if (shm->flags & TEE_SHM_REGISTER)
--		return -EINVAL;
--
--	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
--			       size, vma->vm_page_prot);
--}
--
--static const struct dma_buf_ops tee_shm_dma_buf_ops = {
--	.map_dma_buf = tee_shm_op_map_dma_buf,
--	.unmap_dma_buf = tee_shm_op_unmap_dma_buf,
--	.release = tee_shm_op_release,
--	.map = tee_shm_op_map,
--	.mmap = tee_shm_op_mmap,
--};
--
- static struct tee_shm *__tee_shm_alloc(struct tee_context *ctx,
- 				       struct tee_device *teedev,
- 				       size_t size, u32 flags)
-@@ -146,6 +93,7 @@ static struct tee_shm *__tee_shm_alloc(s
- 		goto err_dev_put;
- 	}
- 
-+	refcount_set(&shm->refcount, 1);
- 	shm->flags = flags | TEE_SHM_POOL;
- 	shm->teedev = teedev;
- 	shm->ctx = ctx;
-@@ -168,21 +116,6 @@ static struct tee_shm *__tee_shm_alloc(s
- 		goto err_pool_free;
- 	}
- 
--	if (flags & TEE_SHM_DMA_BUF) {
--		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
--
--		exp_info.ops = &tee_shm_dma_buf_ops;
--		exp_info.size = shm->size;
--		exp_info.flags = O_RDWR;
--		exp_info.priv = shm;
--
--		shm->dmabuf = dma_buf_export(&exp_info);
--		if (IS_ERR(shm->dmabuf)) {
--			ret = ERR_CAST(shm->dmabuf);
--			goto err_rem;
--		}
--	}
--
- 	if (ctx) {
- 		teedev_ctx_get(ctx);
- 		mutex_lock(&teedev->mutex);
-@@ -191,10 +124,6 @@ static struct tee_shm *__tee_shm_alloc(s
- 	}
- 
- 	return shm;
--err_rem:
--	mutex_lock(&teedev->mutex);
--	idr_remove(&teedev->idr, shm->id);
--	mutex_unlock(&teedev->mutex);
- err_pool_free:
- 	poolm->ops->free(poolm, shm);
- err_kfree:
-@@ -259,6 +188,7 @@ struct tee_shm *tee_shm_register(struct
- 		goto err;
- 	}
- 
-+	refcount_set(&shm->refcount, 1);
- 	shm->flags = flags | TEE_SHM_REGISTER;
- 	shm->teedev = teedev;
- 	shm->ctx = ctx;
-@@ -299,22 +229,6 @@ struct tee_shm *tee_shm_register(struct
- 		goto err;
- 	}
- 
--	if (flags & TEE_SHM_DMA_BUF) {
--		DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
--
--		exp_info.ops = &tee_shm_dma_buf_ops;
--		exp_info.size = shm->size;
--		exp_info.flags = O_RDWR;
--		exp_info.priv = shm;
--
--		shm->dmabuf = dma_buf_export(&exp_info);
--		if (IS_ERR(shm->dmabuf)) {
--			ret = ERR_CAST(shm->dmabuf);
--			teedev->desc->ops->shm_unregister(ctx, shm);
--			goto err;
--		}
--	}
--
- 	mutex_lock(&teedev->mutex);
- 	list_add_tail(&shm->link, &ctx->list_shm);
- 	mutex_unlock(&teedev->mutex);
-@@ -342,6 +256,35 @@ err:
- }
- EXPORT_SYMBOL_GPL(tee_shm_register);
- 
-+static int tee_shm_fop_release(struct inode *inode, struct file *filp)
-+{
-+	tee_shm_put(filp->private_data);
-+	return 0;
-+}
-+
-+static int tee_shm_fop_mmap(struct file *filp, struct vm_area_struct *vma)
-+{
-+	struct tee_shm *shm = filp->private_data;
-+	size_t size = vma->vm_end - vma->vm_start;
-+
-+	/* Refuse sharing shared memory provided by application */
-+	if (shm->flags & TEE_SHM_USER_MAPPED)
-+		return -EINVAL;
-+
-+	/* check for overflowing the buffer's size */
-+	if (vma->vm_pgoff + vma_pages(vma) > shm->size >> PAGE_SHIFT)
-+		return -EINVAL;
-+
-+	return remap_pfn_range(vma, vma->vm_start, shm->paddr >> PAGE_SHIFT,
-+			       size, vma->vm_page_prot);
-+}
-+
-+static const struct file_operations tee_shm_fops = {
-+	.owner = THIS_MODULE,
-+	.release = tee_shm_fop_release,
-+	.mmap = tee_shm_fop_mmap,
++static const struct dmi_system_id i8042_dmi_probe_defer_table[] __initconst = {
++	{
++		/* ASUS ZenBook UX425UA */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
++		},
++	},
++	{ }
 +};
 +
- /**
-  * tee_shm_get_fd() - Increase reference count and return file descriptor
-  * @shm:	Shared memory handle
-@@ -354,10 +297,11 @@ int tee_shm_get_fd(struct tee_shm *shm)
- 	if (!(shm->flags & TEE_SHM_DMA_BUF))
- 		return -EINVAL;
+ #endif /* CONFIG_X86 */
  
--	get_dma_buf(shm->dmabuf);
--	fd = dma_buf_fd(shm->dmabuf, O_CLOEXEC);
-+	/* matched by tee_shm_put() in tee_shm_op_release() */
-+	refcount_inc(&shm->refcount);
-+	fd = anon_inode_getfd("tee_shm", &tee_shm_fops, shm, O_RDWR);
- 	if (fd < 0)
--		dma_buf_put(shm->dmabuf);
-+		tee_shm_put(shm);
- 	return fd;
- }
+ #ifdef CONFIG_PNP
+@@ -1318,6 +1329,9 @@ static int __init i8042_platform_init(void)
+ 	if (dmi_check_system(i8042_dmi_kbdreset_table))
+ 		i8042_kbdreset = true;
  
-@@ -367,17 +311,7 @@ int tee_shm_get_fd(struct tee_shm *shm)
-  */
- void tee_shm_free(struct tee_shm *shm)
- {
--	/*
--	 * dma_buf_put() decreases the dmabuf reference counter and will
--	 * call tee_shm_release() when the last reference is gone.
--	 *
--	 * In the case of driver private memory we call tee_shm_release
--	 * directly instead as it doesn't have a reference counter.
--	 */
--	if (shm->flags & TEE_SHM_DMA_BUF)
--		dma_buf_put(shm->dmabuf);
--	else
--		tee_shm_release(shm);
-+	tee_shm_put(shm);
- }
- EXPORT_SYMBOL_GPL(tee_shm_free);
- 
-@@ -484,10 +418,15 @@ struct tee_shm *tee_shm_get_from_id(stru
- 	teedev = ctx->teedev;
- 	mutex_lock(&teedev->mutex);
- 	shm = idr_find(&teedev->idr, id);
-+	/*
-+	 * If the tee_shm was found in the IDR it must have a refcount
-+	 * larger than 0 due to the guarantee in tee_shm_put() below. So
-+	 * it's safe to use refcount_inc().
-+	 */
- 	if (!shm || shm->ctx != ctx)
- 		shm = ERR_PTR(-EINVAL);
--	else if (shm->flags & TEE_SHM_DMA_BUF)
--		get_dma_buf(shm->dmabuf);
-+	else
-+		refcount_inc(&shm->refcount);
- 	mutex_unlock(&teedev->mutex);
- 	return shm;
- }
-@@ -499,7 +438,25 @@ EXPORT_SYMBOL_GPL(tee_shm_get_from_id);
-  */
- void tee_shm_put(struct tee_shm *shm)
- {
--	if (shm->flags & TEE_SHM_DMA_BUF)
--		dma_buf_put(shm->dmabuf);
-+	struct tee_device *teedev = shm->teedev;
-+	bool do_release = false;
++	if (dmi_check_system(i8042_dmi_probe_defer_table))
++		i8042_probe_defer = true;
 +
-+	mutex_lock(&teedev->mutex);
-+	if (refcount_dec_and_test(&shm->refcount)) {
-+		/*
-+		 * refcount has reached 0, we must now remove it from the
-+		 * IDR before releasing the mutex. This will guarantee that
-+		 * the refcount_inc() in tee_shm_get_from_id() never starts
-+		 * from 0.
-+		 */
-+		idr_remove(&teedev->idr, shm->id);
-+		if (shm->ctx)
-+			list_del(&shm->link);
-+		do_release = true;
-+	}
-+	mutex_unlock(&teedev->mutex);
+ 	/*
+ 	 * A20 was already enabled during early kernel init. But some buggy
+ 	 * BIOSes (in MSI Laptops) require A20 to be enabled using 8042 to
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index c60593c8d2be5..082afbf088d67 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -48,6 +48,10 @@ static bool i8042_unlock;
+ module_param_named(unlock, i8042_unlock, bool, 0);
+ MODULE_PARM_DESC(unlock, "Ignore keyboard lock.");
+ 
++static bool i8042_probe_defer;
++module_param_named(probe_defer, i8042_probe_defer, bool, 0);
++MODULE_PARM_DESC(probe_defer, "Allow deferred probing.");
 +
-+	if (do_release)
-+		tee_shm_release(teedev, shm);
+ enum i8042_controller_reset_mode {
+ 	I8042_RESET_NEVER,
+ 	I8042_RESET_ALWAYS,
+@@ -702,7 +706,7 @@ static int i8042_set_mux_mode(bool multiplex, unsigned char *mux_version)
+  * LCS/Telegraphics.
+  */
+ 
+-static int __init i8042_check_mux(void)
++static int i8042_check_mux(void)
+ {
+ 	unsigned char mux_version;
+ 
+@@ -731,10 +735,10 @@ static int __init i8042_check_mux(void)
+ /*
+  * The following is used to test AUX IRQ delivery.
+  */
+-static struct completion i8042_aux_irq_delivered __initdata;
+-static bool i8042_irq_being_tested __initdata;
++static struct completion i8042_aux_irq_delivered;
++static bool i8042_irq_being_tested;
+ 
+-static irqreturn_t __init i8042_aux_test_irq(int irq, void *dev_id)
++static irqreturn_t i8042_aux_test_irq(int irq, void *dev_id)
+ {
+ 	unsigned long flags;
+ 	unsigned char str, data;
+@@ -761,7 +765,7 @@ static irqreturn_t __init i8042_aux_test_irq(int irq, void *dev_id)
+  * verifies success by readinng CTR. Used when testing for presence of AUX
+  * port.
+  */
+-static int __init i8042_toggle_aux(bool on)
++static int i8042_toggle_aux(bool on)
+ {
+ 	unsigned char param;
+ 	int i;
+@@ -789,7 +793,7 @@ static int __init i8042_toggle_aux(bool on)
+  * the presence of an AUX interface.
+  */
+ 
+-static int __init i8042_check_aux(void)
++static int i8042_check_aux(void)
+ {
+ 	int retval = -1;
+ 	bool irq_registered = false;
+@@ -996,7 +1000,7 @@ static int i8042_controller_init(void)
+ 
+ 		if (i8042_command(&ctr[n++ % 2], I8042_CMD_CTL_RCTR)) {
+ 			pr_err("Can't read CTR while initializing i8042\n");
+-			return -EIO;
++			return i8042_probe_defer ? -EPROBE_DEFER : -EIO;
+ 		}
+ 
+ 	} while (n < 2 || ctr[0] != ctr[1]);
+@@ -1311,7 +1315,7 @@ static void i8042_shutdown(struct platform_device *dev)
+ 	i8042_controller_reset(false);
  }
- EXPORT_SYMBOL_GPL(tee_shm_put);
---- a/include/linux/tee_drv.h
-+++ b/include/linux/tee_drv.h
-@@ -177,7 +177,7 @@ void tee_device_unregister(struct tee_de
-  * @offset:	offset of buffer in user space
-  * @pages:	locked pages from userspace
-  * @num_pages:	number of locked pages
-- * @dmabuf:	dmabuf used to for exporting to user space
-+ * @refcount:	reference counter
-  * @flags:	defined by TEE_SHM_* in tee_drv.h
-  * @id:		unique id of a shared memory object on this device
-  *
-@@ -194,7 +194,7 @@ struct tee_shm {
- 	unsigned int offset;
- 	struct page **pages;
- 	size_t num_pages;
--	struct dma_buf *dmabuf;
-+	refcount_t refcount;
- 	u32 flags;
- 	int id;
+ 
+-static int __init i8042_create_kbd_port(void)
++static int i8042_create_kbd_port(void)
+ {
+ 	struct serio *serio;
+ 	struct i8042_port *port = &i8042_ports[I8042_KBD_PORT_NO];
+@@ -1339,7 +1343,7 @@ static int __init i8042_create_kbd_port(void)
+ 	return 0;
+ }
+ 
+-static int __init i8042_create_aux_port(int idx)
++static int i8042_create_aux_port(int idx)
+ {
+ 	struct serio *serio;
+ 	int port_no = idx < 0 ? I8042_AUX_PORT_NO : I8042_MUX_PORT_NO + idx;
+@@ -1376,13 +1380,13 @@ static int __init i8042_create_aux_port(int idx)
+ 	return 0;
+ }
+ 
+-static void __init i8042_free_kbd_port(void)
++static void i8042_free_kbd_port(void)
+ {
+ 	kfree(i8042_ports[I8042_KBD_PORT_NO].serio);
+ 	i8042_ports[I8042_KBD_PORT_NO].serio = NULL;
+ }
+ 
+-static void __init i8042_free_aux_ports(void)
++static void i8042_free_aux_ports(void)
+ {
+ 	int i;
+ 
+@@ -1392,7 +1396,7 @@ static void __init i8042_free_aux_ports(void)
+ 	}
+ }
+ 
+-static void __init i8042_register_ports(void)
++static void i8042_register_ports(void)
+ {
+ 	int i;
+ 
+@@ -1444,7 +1448,7 @@ static void i8042_free_irqs(void)
+ 	i8042_aux_irq_registered = i8042_kbd_irq_registered = false;
+ }
+ 
+-static int __init i8042_setup_aux(void)
++static int i8042_setup_aux(void)
+ {
+ 	int (*aux_enable)(void);
+ 	int error;
+@@ -1486,7 +1490,7 @@ static int __init i8042_setup_aux(void)
+ 	return error;
+ }
+ 
+-static int __init i8042_setup_kbd(void)
++static int i8042_setup_kbd(void)
+ {
+ 	int error;
+ 
+@@ -1536,7 +1540,7 @@ static int i8042_kbd_bind_notifier(struct notifier_block *nb,
+ 	return 0;
+ }
+ 
+-static int __init i8042_probe(struct platform_device *dev)
++static int i8042_probe(struct platform_device *dev)
+ {
+ 	int error;
+ 
+@@ -1601,6 +1605,7 @@ static struct platform_driver i8042_driver = {
+ 		.pm	= &i8042_pm_ops,
+ #endif
+ 	},
++	.probe		= i8042_probe,
+ 	.remove		= i8042_remove,
+ 	.shutdown	= i8042_shutdown,
  };
+@@ -1611,7 +1616,6 @@ static struct notifier_block i8042_kbd_bind_notifier_block = {
+ 
+ static int __init i8042_init(void)
+ {
+-	struct platform_device *pdev;
+ 	int err;
+ 
+ 	dbg_init();
+@@ -1627,17 +1631,29 @@ static int __init i8042_init(void)
+ 	/* Set this before creating the dev to allow i8042_command to work right away */
+ 	i8042_present = true;
+ 
+-	pdev = platform_create_bundle(&i8042_driver, i8042_probe, NULL, 0, NULL, 0);
+-	if (IS_ERR(pdev)) {
+-		err = PTR_ERR(pdev);
++	err = platform_driver_register(&i8042_driver);
++	if (err)
+ 		goto err_platform_exit;
++
++	i8042_platform_device = platform_device_alloc("i8042", -1);
++	if (!i8042_platform_device) {
++		err = -ENOMEM;
++		goto err_unregister_driver;
+ 	}
+ 
++	err = platform_device_add(i8042_platform_device);
++	if (err)
++		goto err_free_device;
++
+ 	bus_register_notifier(&serio_bus, &i8042_kbd_bind_notifier_block);
+ 	panic_blink = i8042_panic_blink;
+ 
+ 	return 0;
+ 
++err_free_device:
++	platform_device_put(i8042_platform_device);
++err_unregister_driver:
++	platform_driver_unregister(&i8042_driver);
+  err_platform_exit:
+ 	i8042_platform_exit();
+ 	return err;
+-- 
+2.34.1
+
 
 
