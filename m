@@ -2,32 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02140483D18
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 08:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FCBD483D1A
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 08:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233607AbiADHlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 02:41:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233239AbiADHlM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 02:41:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B63DC061761;
-        Mon,  3 Jan 2022 23:41:11 -0800 (PST)
+        id S233634AbiADHlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 02:41:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45226 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233698AbiADHlS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 02:41:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 038B2B81164;
-        Tue,  4 Jan 2022 07:41:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB572C36AE9;
-        Tue,  4 Jan 2022 07:41:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB71EB81164;
+        Tue,  4 Jan 2022 07:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07F58C36AED;
+        Tue,  4 Jan 2022 07:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641282068;
-        bh=I4V1sMir8BrR9dYntSfq/7jTsTKt9AIo83PeNeyuemo=;
+        s=korg; t=1641282075;
+        bh=kmEDrGxEGTaZZlTmnQVd/AEWqHPB7fmlEYiPSkY4S9c=;
         h=From:To:Cc:Subject:Date:From;
-        b=11snSGZsDHLli2Pr+WSFIV6UlvQYO5T9Hpj/3nK6QTwj4jI2g6IbzPAG99mNzH8Gg
-         lLvvKXvpY7EPJ6luLTbqp7h7DtONn22ASU2Lw4BHl4Azuz0UUXf3oha6+IV33dXMJG
-         xL5CzaHFEi4pSA9qqfVLYqdHIcIWZIc+aog7Q6lo=
+        b=0lVicSOdYBKBor+vOMYrL8yUuIHC5VGBbe/juJD7ghvFm2E9cTnywHwXcAxpNWxTe
+         ZGDzbA0ozy/srNev3XtxYEiB2jaqFCPwnbdsbC3EPDU2318RG4ZWMXiiG36vc48f7S
+         zWw79zkCwmmVcPffxXAjCAbDZfCndYNBYApGvnsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +32,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.10 00/47] 5.10.90-rc2 review
-Date:   Tue,  4 Jan 2022 08:41:05 +0100
-Message-Id: <20220104073841.681360658@linuxfoundation.org>
+Subject: [PATCH 5.15 00/72] 5.15.13-rc2 review
+Date:   Tue,  4 Jan 2022 08:41:12 +0100
+Message-Id: <20220104073845.629257314@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.90-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.13-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Branch: linux-5.15.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.90-rc2
+X-KernelTest-Version: 5.15.13-rc2
 X-KernelTest-Deadline: 2022-01-06T07:38+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,8 +52,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.90 release.
-There are 47 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.15.13 release.
+There are 72 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -64,9 +61,9 @@ Responses should be made by Thu, 06 Jan 2022 07:38:29 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.90-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.13-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
 and the diffstat can be found below.
 
 thanks,
@@ -77,16 +74,25 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.90-rc2
+    Linux 5.15.13-rc2
 
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Add kconfig knob for disabling unpriv bpf by default
+Adrian Hunter <adrian.hunter@intel.com>
+    perf scripts python: intel-pt-events.py: Fix printing of switch events
 
 Adrian Hunter <adrian.hunter@intel.com>
     perf script: Fix CPU filtering of a script's switch events
 
+Adrian Hunter <adrian.hunter@intel.com>
+    perf intel-pt: Fix parsing of VM time correlation arguments
+
+Christian Brauner <christian.brauner@ubuntu.com>
+    fs/mount_setattr: always cleanup mount_kattr
+
 Muchun Song <songmuchun@bytedance.com>
     net: fix use-after-free in tw_timer_handler
+
+SeongJae Park <sj@kernel.org>
+    mm/damon/dbgfs: fix 'struct pid' leaks in 'dbgfs_target_ids_write()'
 
 Leo L. Schwab <ewhac@ewhac.org>
     Input: spaceball - fix parsing of movement data packets
@@ -99,6 +105,9 @@ Alexey Makhalov <amakhalov@vmware.com>
 
 Todd Kjos <tkjos@google.com>
     binder: fix async_free_space accounting for empty parcels
+
+Andra Paraschiv <andraprs@amazon.com>
+    nitro_enclaves: Use get_user_pages_unlocked() call to handle mmap assert
 
 Chunfeng Yun <chunfeng.yun@mediatek.com>
     usb: mtu3: set interval of FS intr and isoc endpoint
@@ -115,11 +124,17 @@ Vincent Pelletier <plr.vincent@gmail.com>
 Mathias Nyman <mathias.nyman@linux.intel.com>
     xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
 
+Angus Wang <angus.wang@amd.com>
+    drm/amd/display: Changed pipe split policy to allow for multi-display pipe split
+
 Alex Deucher <alexander.deucher@amd.com>
     drm/amdgpu: add support for IP discovery gc_info table v2
 
 chen gong <curry.gong@amd.com>
     drm/amdgpu: When the VCN(1.0) block is suspended, powergating is explicitly enabled
+
+Christian König <christian.koenig@amd.com>
+    drm/nouveau: wait for the exclusive fence after the shared ones v2
 
 Dmitry V. Levin <ldv@altlinux.org>
     uapi: fix linux/nfc.h userspace compilation errors
@@ -133,11 +148,26 @@ Pavel Skripkin <paskripkin@gmail.com>
 Miaoqian Lin <linmq006@gmail.com>
     fsl/fman: Fix missing put_device() call in fman_port_probe
 
+Jianguo Wu <wujianguo@chinatelecom.cn>
+    selftests: net: using ping6 for IPv6 in udpgro_fwd.sh
+
 Jiasheng Jiang <jiasheng@iscas.ac.cn>
     net/ncsi: check for error return from call to nla_put_u32
 
+Nikolay Aleksandrov <nikolay@nvidia.com>
+    net: bridge: mcast: fix br_multicast_ctx_vlan_global_disabled helper
+
+Jianguo Wu <wujianguo@chinatelecom.cn>
+    selftests: net: Fix a typo in udpgro_fwd.sh
+
 wujianguo <wujianguo@chinatelecom.cn>
     selftests/net: udpgso_bench_tx: fix dst ip argument
+
+Nikolay Aleksandrov <nikolay@nvidia.com>
+    net: bridge: mcast: add and enforce startup query interval minimum
+
+Nikolay Aleksandrov <nikolay@nvidia.com>
+    net: bridge: mcast: add and enforce query interval minimum
 
 Gal Pressman <gal@nvidia.com>
     net/mlx5e: Fix wrong features assignment in case of error
@@ -145,17 +175,23 @@ Gal Pressman <gal@nvidia.com>
 Christophe JAILLET <christophe.jaillet@wanadoo.fr>
     ionic: Initialize the 'lif->dbid_inuse' bitmap
 
+Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+    drm/amd/display: Set optimize_pwr_state for DCN31
+
+Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+    drm/amd/display: Send s0i2_rdy in stream_count == 0 optimization
+
 James McLaughlin <james.mclaughlin@qsc.com>
     igc: Fix TX timestamp support for non-MSI-X platforms
+
+Vinicius Costa Gomes <vinicius.gomes@intel.com>
+    igc: Do not enable crosstimestamping for i225-V models
 
 Dust Li <dust.li@linux.alibaba.com>
     net/smc: fix kernel panic caused by race of smc_sock
 
 Dust Li <dust.li@linux.alibaba.com>
     net/smc: don't send CDC/LLC message if link not ready
-
-Karsten Graul <kgraul@linux.ibm.com>
-    net/smc: improved fix wait on already cleared link
 
 Wei Yongjun <weiyongjun1@huawei.com>
     NFC: st21nfca: Fix memory leak in device probe and remove
@@ -181,11 +217,29 @@ Coco Li <lixiaoyan@google.com>
 Coco Li <lixiaoyan@google.com>
     udp: using datalen to cap ipv6 udp max gso segments
 
+Chris Mi <cmi@nvidia.com>
+    net/mlx5e: Delete forward rule for ct or sample action
+
+Roi Dayan <roid@nvidia.com>
+    net/mlx5e: Use tc sample stubs instead of ifdefs in source file
+
 Maxim Mikityanskiy <maximmi@mellanox.com>
     net/mlx5e: Fix ICOSQ recovery flow for XSK
 
+Maxim Mikityanskiy <maximmi@nvidia.com>
+    net/mlx5e: Fix interoperability between XSK and ICOSQ recovery flow
+
 Amir Tzin <amirtz@nvidia.com>
     net/mlx5e: Wrap the tx reporter dump callback to extract the sq
+
+Chris Mi <cmi@nvidia.com>
+    net/mlx5: Fix tc max supported prio for nic mode
+
+Moshe Shemesh <moshe@nvidia.com>
+    net/mlx5: Fix SF health recovery flow
+
+Shay Drory <shayd@nvidia.com>
+    net/mlx5: Fix error print in case of IRQ request failed
 
 Miaoqian Lin <linmq006@gmail.com>
     net/mlx5: DR, Fix NULL vs IS_ERR checking in dr_domain_init_resources
@@ -196,8 +250,20 @@ Dan Carpenter <dan.carpenter@oracle.com>
 Tom Rix <trix@redhat.com>
     selinux: initialize proto variable in selinux_ip_postroute_compat()
 
+Javier Martinez Canillas <javierm@redhat.com>
+    efi: Move efifb_setup_from_dmi() prototype from arch headers
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc/ptdump: Fix DEBUG_WX since generic ptdump conversion
+
 Heiko Carstens <hca@linux.ibm.com>
     recordmcount.pl: fix typo in s390 mcount regex
+
+Libin Yang <libin.yang@intel.com>
+    ALSA: hda: intel-sdw-acpi: go through HDAS ACPI at max depth of 2
+
+Libin Yang <libin.yang@intel.com>
+    ALSA: hda: intel-sdw-acpi: harden detection of controller
 
 Jackie Liu <liuyun01@kylinos.cn>
     memblock: fix memblock_phys_alloc() section mismatch error
@@ -205,8 +271,14 @@ Jackie Liu <liuyun01@kylinos.cn>
 Wang Qing <wangqing@vivo.com>
     platform/x86: apple-gmux: use resource_size() with res
 
+Miaoqian Lin <linmq006@gmail.com>
+    platform/mellanox: mlxbf-pmc: Fix an IS_ERR() vs NULL bug in mlxbf_pmc_map_counters
+
 Helge Deller <deller@gmx.de>
     parisc: Clear stale IIR value on instruction access rights trap
+
+Paul Blakey <paulb@nvidia.com>
+    net/sched: Extend qdisc control block with tc control block
 
 Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
     tomoyo: use hwight16() in tomoyo_domain_quota_is_ok()
@@ -226,13 +298,27 @@ Takashi Iwai <tiwai@suse.de>
 Diffstat:
 
  Documentation/admin-guide/kernel-parameters.txt    |  2 +
- Documentation/admin-guide/sysctl/kernel.rst        | 17 ++++-
  Makefile                                           |  4 +-
+ arch/arm/include/asm/efi.h                         |  1 -
+ arch/arm64/include/asm/efi.h                       |  1 -
  arch/parisc/kernel/traps.c                         |  2 +
+ arch/powerpc/mm/ptdump/ptdump.c                    |  2 +-
+ arch/riscv/include/asm/efi.h                       |  1 -
+ arch/x86/include/asm/efi.h                         |  2 -
  drivers/android/binder_alloc.c                     |  2 +-
  drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c      | 76 +++++++++++++++-------
  drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c              |  7 ++
+ .../amd/display/dc/clk_mgr/dcn31/dcn31_clk_mgr.c   |  1 +
+ .../gpu/drm/amd/display/dc/dcn20/dcn20_resource.c  |  2 +-
+ .../gpu/drm/amd/display/dc/dcn21/dcn21_resource.c  |  2 +-
+ .../gpu/drm/amd/display/dc/dcn30/dcn30_resource.c  |  2 +-
+ .../drm/amd/display/dc/dcn301/dcn301_resource.c    |  2 +-
+ .../drm/amd/display/dc/dcn302/dcn302_resource.c    |  2 +-
+ .../drm/amd/display/dc/dcn303/dcn303_resource.c    |  2 +-
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c  |  1 +
+ .../gpu/drm/amd/display/dc/dcn31/dcn31_resource.c  |  2 +-
  drivers/gpu/drm/amd/include/discovery.h            | 49 ++++++++++++++
+ drivers/gpu/drm/nouveau/nouveau_fence.c            | 28 ++++----
  drivers/i2c/i2c-dev.c                              |  3 +
  drivers/input/joystick/spaceball.c                 | 11 +++-
  drivers/input/mouse/appletouch.c                   |  4 +-
@@ -241,14 +327,25 @@ Diffstat:
  drivers/net/ethernet/atheros/ag71xx.c              | 23 +++----
  drivers/net/ethernet/freescale/fman/fman_port.c    | 12 ++--
  drivers/net/ethernet/intel/igc/igc_main.c          |  6 ++
+ drivers/net/ethernet/intel/igc/igc_ptp.c           | 15 ++++-
  drivers/net/ethernet/lantiq_xrx200.c               |  2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en.h       |  3 -
+ drivers/net/ethernet/mellanox/mlx5/core/en.h       |  5 +-
+ .../net/ethernet/mellanox/mlx5/core/en/health.h    |  2 +
+ .../net/ethernet/mellanox/mlx5/core/en/rep/tc.c    |  2 -
+ .../ethernet/mellanox/mlx5/core/en/reporter_rx.c   | 35 +++++++++-
  .../ethernet/mellanox/mlx5/core/en/reporter_tx.c   | 10 ++-
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c  | 41 ++++++++----
+ .../net/ethernet/mellanox/mlx5/core/en/tc/sample.h | 27 ++++++++
+ .../net/ethernet/mellanox/mlx5/core/en/xsk/setup.c | 16 ++++-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  | 48 +++++++++-----
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c    | 29 ++-------
+ .../ethernet/mellanox/mlx5/core/lib/fs_chains.c    |  3 +
+ drivers/net/ethernet/mellanox/mlx5/core/main.c     | 11 ++--
+ drivers/net/ethernet/mellanox/mlx5/core/pci_irq.c  |  4 +-
  .../mellanox/mlx5/core/steering/dr_domain.c        |  5 +-
  drivers/net/ethernet/pensando/ionic/ionic_lif.c    |  2 +-
  drivers/net/usb/pegasus.c                          |  4 +-
  drivers/nfc/st21nfca/i2c.c                         | 29 ++++++---
+ drivers/platform/mellanox/mlxbf-pmc.c              |  4 +-
  drivers/platform/x86/apple-gmux.c                  |  2 +-
  drivers/scsi/lpfc/lpfc_debugfs.c                   |  4 +-
  drivers/scsi/vmw_pvscsi.c                          |  7 +-
@@ -256,36 +353,52 @@ Diffstat:
  drivers/usb/host/xhci-pci.c                        |  5 +-
  drivers/usb/mtu3/mtu3_gadget.c                     |  8 +++
  drivers/usb/mtu3/mtu3_qmu.c                        |  7 +-
+ drivers/virt/nitro_enclaves/ne_misc_dev.c          |  5 +-
+ fs/namespace.c                                     |  9 ++-
+ include/linux/efi.h                                |  6 ++
  include/linux/memblock.h                           |  4 +-
+ include/net/pkt_sched.h                            | 15 +++++
+ include/net/sch_generic.h                          |  2 -
  include/net/sctp/sctp.h                            |  6 +-
  include/net/sctp/structs.h                         |  3 +-
  include/uapi/linux/nfc.h                           |  6 +-
- init/Kconfig                                       | 10 +++
- kernel/bpf/syscall.c                               |  3 +-
- kernel/sysctl.c                                    | 29 +++++++--
+ mm/damon/dbgfs.c                                   |  8 +++
+ net/bridge/br_multicast.c                          | 32 +++++++++
+ net/bridge/br_netlink.c                            |  4 +-
+ net/bridge/br_private.h                            | 12 +++-
+ net/bridge/br_sysfs_br.c                           |  4 +-
+ net/bridge/br_vlan_options.c                       |  4 +-
+ net/core/dev.c                                     |  8 +--
  net/ipv4/af_inet.c                                 | 10 ++-
  net/ipv6/udp.c                                     |  2 +-
  net/ncsi/ncsi-netlink.c                            |  6 +-
+ net/sched/act_ct.c                                 | 14 ++--
+ net/sched/cls_api.c                                |  6 +-
+ net/sched/cls_flower.c                             |  3 +-
+ net/sched/sch_frag.c                               |  3 +-
  net/sctp/diag.c                                    | 12 ++--
  net/sctp/endpointola.c                             | 23 ++++---
  net/sctp/socket.c                                  | 23 ++++---
  net/smc/smc.h                                      |  5 ++
- net/smc/smc_cdc.c                                  | 59 ++++++++---------
+ net/smc/smc_cdc.c                                  | 52 +++++++--------
  net/smc/smc_cdc.h                                  |  2 +-
- net/smc/smc_core.c                                 | 47 ++++++++-----
+ net/smc/smc_core.c                                 | 27 ++++++--
  net/smc/smc_core.h                                 |  6 ++
  net/smc/smc_ib.c                                   |  4 +-
  net/smc/smc_ib.h                                   |  1 +
- net/smc/smc_llc.c                                  | 65 +++++++++++++-----
- net/smc/smc_tx.c                                   | 22 ++-----
+ net/smc/smc_llc.c                                  |  2 +-
  net/smc/smc_wr.c                                   | 51 +++------------
- net/smc/smc_wr.h                                   | 17 ++++-
+ net/smc/smc_wr.h                                   |  5 +-
  scripts/recordmcount.pl                            |  2 +-
  security/selinux/hooks.c                           |  2 +-
  security/tomoyo/util.c                             | 31 ++++-----
+ sound/hda/intel-sdw-acpi.c                         | 13 +++-
  tools/perf/builtin-script.c                        |  2 +-
+ tools/perf/scripts/python/intel-pt-events.py       | 23 ++++---
+ tools/perf/util/intel-pt.c                         |  1 +
+ tools/testing/selftests/net/udpgro_fwd.sh          |  6 +-
  tools/testing/selftests/net/udpgso.c               | 12 ++--
  tools/testing/selftests/net/udpgso_bench_tx.c      |  8 ++-
- 61 files changed, 595 insertions(+), 309 deletions(-)
+ 102 files changed, 734 insertions(+), 373 deletions(-)
 
 
