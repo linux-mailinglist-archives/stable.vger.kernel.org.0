@@ -2,95 +2,249 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E564847DA
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 19:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C49FA4847DC
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 19:30:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236163AbiADSa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 13:30:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54268 "EHLO
+        id S236297AbiADSau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 13:30:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233271AbiADSa0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 13:30:26 -0500
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 221A5C061761;
-        Tue,  4 Jan 2022 10:30:26 -0800 (PST)
-Received: by mail-pl1-x632.google.com with SMTP id i6so21625678pla.0;
-        Tue, 04 Jan 2022 10:30:26 -0800 (PST)
+        with ESMTP id S233271AbiADSau (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 13:30:50 -0500
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B56C061761;
+        Tue,  4 Jan 2022 10:30:50 -0800 (PST)
+Received: by mail-yb1-xb29.google.com with SMTP id d1so90047199ybh.6;
+        Tue, 04 Jan 2022 10:30:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=rnQPBHVgsKv6rSNMK5NhPILl9X9oiqIs0qquLCqqHQ0=;
-        b=HCGrT0sawWhxhFJ4mcbj/MzfDxvySeJ1ZpjfgqfgpIDimyiIkGHqEaSF9PDHyzPGCM
-         lrKKFZyRDuqwauIKVlEDV46kiOlNpSSZd2P3BlLkxo+9/MdpM8MJa/2ubBNZ9HbSFHcJ
-         ThRdVA2AHcbe9UHZpqYOAt0HAODyFKB0WdVzwBzSfGIjwNb1kHoRBXmnbyLMwXUYfLVR
-         Z1jLgVqR7Oaoyd2LNsja1sK+zsyzhW2KRbJIZ/JTFJQeW28T9MUuMIL7ViBCenI5kWwY
-         172WLZw+CBbKTlthdezuLFESVy9oHBOWxPvIDOflXNWCG1PJVLvQnHjXmGPpBZ0+aZb+
-         hcrw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=G2F5+r2qnamm9pjKbIg5LSzIszJLSrq7m3cZxipSvKE=;
+        b=TN4VxYGMzUD4RETNa7ai5hfByT38ysDMkdVKGpipj3PslatigszUQqkp+wGXCE0pfg
+         7M1KG9oYak9KTXuv29hQ6nu3ExP1zSMUgtp7YK7yhnk0yt/gd6Chdl9FZZA9RVkwW6uZ
+         fZjafMgDxKuebcBZt6mBVm3+ciJMr5b5d431DvuORL/zwWwFmJACOdU7qoxTATr+/qB8
+         4HFnpuLt1KM8p3xTEHbkAq93B6EfDCqeX/YhIysJhVMP/DsvAzFHvAP3VoL3B3Nb+FTG
+         85Z++aoFYbDzGR1Bqdp/PvAUmppBYfGxckyVKhLHLogTuVfLLIYkwb0Z/4hjvn4RRNch
+         qOIA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=rnQPBHVgsKv6rSNMK5NhPILl9X9oiqIs0qquLCqqHQ0=;
-        b=0E9NvwfYNneizHYVJ7WwzcBXaUJZ6QGIsSuVtnKNAFfyyvtZNZno7wL141AZrgKA2g
-         626pi4S7scl6re/4EsEpMJepDs79rhTaTMB0ILyGNTRP5uT85xjqeu6viP2Zp3sT53Js
-         T6kAv7JNt8mA1AqBdQsB78fTFu1vl9hC6MmXybbO6cS1G7o1BwlJRnn2ulA0+KlaRQR6
-         yWLNcr8kK72+kXuu8UmkwZhVegF/AxFdVIRIbrFb++rLGVSLSh0GibQUVWRCFQvBTR+8
-         4d5yzshDRQ2sDBsuOZtf3QxR5tLRXt5lrULleZMvXvioybM8U3FWCd0ZfEAyE0EMp9pq
-         oFrA==
-X-Gm-Message-State: AOAM532nH7VgDadCLgjboASx6XKZxdr3Y7RLr+fQa8fXgcL/f3+Pyqxw
-        Y0v/cGVarfdNVKJkpreFoC6rq+022P8=
-X-Google-Smtp-Source: ABdhPJyoSQceafFcNkfHl0BMw+h3C1wpdBcgvb++kqJRl3z4z6A/PjLgj+JKBOEHRETHleThJvtOZA==
-X-Received: by 2002:a17:902:ea0f:b0:149:3fdd:1090 with SMTP id s15-20020a170902ea0f00b001493fdd1090mr49447542plg.43.1641321025164;
-        Tue, 04 Jan 2022 10:30:25 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id f7sm41745299pfc.141.2022.01.04.10.30.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Jan 2022 10:30:24 -0800 (PST)
-Subject: Re: [PATCH 5.10 00/47] 5.10.90-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20220104073841.681360658@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <606e6212-1005-9f38-2286-a6f515d9c27e@gmail.com>
-Date:   Tue, 4 Jan 2022 10:30:22 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=G2F5+r2qnamm9pjKbIg5LSzIszJLSrq7m3cZxipSvKE=;
+        b=CuUexJWlJwkEhterJjV0qShUtm5mohhUaXWgad2CWqcBvZiqrO3AHJljcJaA4T0whV
+         tIJA6MrkXyRCvfgkXrGD8CfdZo0ej84Iibt+T03qDiE+CE+KDBU57Jg1AOjHvRWIDX1K
+         hWXhVURWygzuVsZF+8quDGzI2cv4mBJW8NMT345DsweR0CBz4q2CAeSvx+KKVlhabm1n
+         R6NB0jRn+BsaeJp5nvlHr/oQxei9/+MKUg+OqMp92Oa4UyuC9a9TW1wlg0+Xxe8wcUne
+         u3SKS1J6OwAlIg/J1F+iSZvM7vHM96hpjm3t6XZqPJf8ewnqulyGD3Te9XJNhrla/7Ce
+         NYCw==
+X-Gm-Message-State: AOAM533VLQSeKvQfjwdbOF4zwMKXXUmKeXhrSUOgng9BFGVyh1TQjwXP
+        gAQmfPrlVe00KhA9PFnl3L2nAxrNrtk/C/BQOHc=
+X-Google-Smtp-Source: ABdhPJytwf9sQ5H2BvcajHaGlNSUd7bQ3zAvzTUgoRNM+IeHg7B0G24tMzMJWdxaTvGZSl0ALzIUQHqYqdV/OlR6StQ=
+X-Received: by 2002:a25:c794:: with SMTP id w142mr33506683ybe.690.1641321049153;
+ Tue, 04 Jan 2022 10:30:49 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20220104073841.681360658@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20211222142025.30364-1-johan@kernel.org> <20211222142025.30364-4-johan@kernel.org>
+In-Reply-To: <20211222142025.30364-4-johan@kernel.org>
+From:   "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date:   Tue, 4 Jan 2022 18:30:23 +0000
+Message-ID: <CA+V-a8vGkHnGABm=AiNjkvp3S-JU8qkqQZoX=-ZkK4njUSAv8w@mail.gmail.com>
+Subject: Re: [PATCH 3/4] media: davinci: vpif: fix use-after-free on driver unbind
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-media <linux-media@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/3/22 11:41 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.90 release.
-> There are 47 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 06 Jan 2022 07:38:29 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.90-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Hi Johan,
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Thank you for the patch.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+On Wed, Dec 22, 2021 at 2:20 PM Johan Hovold <johan@kernel.org> wrote:
+>
+> The driver allocates and registers two platform device structures during
+> probe, but the devices were never deregistered on driver unbind.
+>
+> This results in a use-after-free on driver unbind as the device
+> structures were allocated using devres and would be freed by driver
+> core when remove() returns.
+>
+> Fix this by adding the missing deregistration calls to the remove()
+> callback and failing probe on registration errors.
+>
+> Note that the platform device structures must be freed using a proper
+> release callback to avoid leaking associated resources like device
+> names.
+>
+> Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
+> Cc: stable@vger.kernel.org      # 4.12
+> Cc: Kevin Hilman <khilman@baylibre.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/media/platform/davinci/vpif.c | 97 ++++++++++++++++++++-------
+>  1 file changed, 71 insertions(+), 26 deletions(-)
+>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+
+Cheers,
+Prabhakar
+
+> diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
+> index 1f5eacf48580..4a260f4ed236 100644
+> --- a/drivers/media/platform/davinci/vpif.c
+> +++ b/drivers/media/platform/davinci/vpif.c
+> @@ -41,6 +41,11 @@ MODULE_ALIAS("platform:" VPIF_DRIVER_NAME);
+>  #define VPIF_CH2_MAX_MODES     15
+>  #define VPIF_CH3_MAX_MODES     2
+>
+> +struct vpif_data {
+> +       struct platform_device *capture;
+> +       struct platform_device *display;
+> +};
+> +
+>  DEFINE_SPINLOCK(vpif_lock);
+>  EXPORT_SYMBOL_GPL(vpif_lock);
+>
+> @@ -423,17 +428,31 @@ int vpif_channel_getfid(u8 channel_id)
+>  }
+>  EXPORT_SYMBOL(vpif_channel_getfid);
+>
+> +static void vpif_pdev_release(struct device *dev)
+> +{
+> +       struct platform_device *pdev = to_platform_device(dev);
+> +
+> +       kfree(pdev);
+> +}
+> +
+>  static int vpif_probe(struct platform_device *pdev)
+>  {
+>         static struct resource *res_irq;
+>         struct platform_device *pdev_capture, *pdev_display;
+>         struct device_node *endpoint = NULL;
+> +       struct vpif_data *data;
+>         int ret;
+>
+>         vpif_base = devm_platform_ioremap_resource(pdev, 0);
+>         if (IS_ERR(vpif_base))
+>                 return PTR_ERR(vpif_base);
+>
+> +       data = kzalloc(sizeof(*data), GFP_KERNEL);
+> +       if (!data)
+> +               return -ENOMEM;
+> +
+> +       platform_set_drvdata(pdev, data);
+> +
+>         pm_runtime_enable(&pdev->dev);
+>         pm_runtime_get(&pdev->dev);
+>
+> @@ -461,49 +480,75 @@ static int vpif_probe(struct platform_device *pdev)
+>                 goto err_put_rpm;
+>         }
+>
+> -       pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
+> -                                   GFP_KERNEL);
+> -       if (pdev_capture) {
+> -               pdev_capture->name = "vpif_capture";
+> -               pdev_capture->id = -1;
+> -               pdev_capture->resource = res_irq;
+> -               pdev_capture->num_resources = 1;
+> -               pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
+> -               pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+> -               pdev_capture->dev.parent = &pdev->dev;
+> -               platform_device_register(pdev_capture);
+> -       } else {
+> -               dev_warn(&pdev->dev, "Unable to allocate memory for pdev_capture.\n");
+> +       pdev_capture = kzalloc(sizeof(*pdev_capture), GFP_KERNEL);
+> +       if (!pdev_capture) {
+> +               ret = -ENOMEM;
+> +               goto err_put_rpm;
+>         }
+>
+> -       pdev_display = devm_kzalloc(&pdev->dev, sizeof(*pdev_display),
+> -                                   GFP_KERNEL);
+> -       if (pdev_display) {
+> -               pdev_display->name = "vpif_display";
+> -               pdev_display->id = -1;
+> -               pdev_display->resource = res_irq;
+> -               pdev_display->num_resources = 1;
+> -               pdev_display->dev.dma_mask = pdev->dev.dma_mask;
+> -               pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+> -               pdev_display->dev.parent = &pdev->dev;
+> -               platform_device_register(pdev_display);
+> -       } else {
+> -               dev_warn(&pdev->dev, "Unable to allocate memory for pdev_display.\n");
+> +       pdev_capture->name = "vpif_capture";
+> +       pdev_capture->id = -1;
+> +       pdev_capture->resource = res_irq;
+> +       pdev_capture->num_resources = 1;
+> +       pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
+> +       pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+> +       pdev_capture->dev.parent = &pdev->dev;
+> +       pdev_capture->dev.release = vpif_pdev_release;
+> +
+> +       ret = platform_device_register(pdev_capture);
+> +       if (ret)
+> +               goto err_put_pdev_capture;
+> +
+> +       pdev_display = kzalloc(sizeof(*pdev_display), GFP_KERNEL);
+> +       if (!pdev_display) {
+> +               ret = -ENOMEM;
+> +               goto err_put_pdev_capture;
+>         }
+>
+> +       pdev_display->name = "vpif_display";
+> +       pdev_display->id = -1;
+> +       pdev_display->resource = res_irq;
+> +       pdev_display->num_resources = 1;
+> +       pdev_display->dev.dma_mask = pdev->dev.dma_mask;
+> +       pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
+> +       pdev_display->dev.parent = &pdev->dev;
+> +       pdev_display->dev.release = vpif_pdev_release;
+> +
+> +       ret = platform_device_register(pdev_display);
+> +       if (ret)
+> +               goto err_put_pdev_display;
+> +
+> +       data->capture = pdev_capture;
+> +       data->display = pdev_display;
+> +
+>         return 0;
+>
+> +err_put_pdev_display:
+> +       platform_device_put(pdev_display);
+> +err_put_pdev_capture:
+> +       platform_device_put(pdev_capture);
+>  err_put_rpm:
+>         pm_runtime_put(&pdev->dev);
+>         pm_runtime_disable(&pdev->dev);
+> +       kfree(data);
+>
+>         return ret;
+>  }
+>
+>  static int vpif_remove(struct platform_device *pdev)
+>  {
+> +       struct vpif_data *data = platform_get_drvdata(pdev);
+> +
+> +       if (data->capture)
+> +               platform_device_unregister(data->capture);
+> +       if (data->display)
+> +               platform_device_unregister(data->display);
+> +
+>         pm_runtime_put(&pdev->dev);
+>         pm_runtime_disable(&pdev->dev);
+> +
+> +       kfree(data);
+> +
+>         return 0;
+>  }
+>
+> --
+> 2.32.0
+>
