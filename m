@@ -2,62 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4825D48476E
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 19:05:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B1A484787
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 19:11:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236089AbiADSFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 13:05:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48484 "EHLO
+        id S236119AbiADSLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 13:11:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230332AbiADSFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 13:05:55 -0500
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6596C061761;
-        Tue,  4 Jan 2022 10:05:54 -0800 (PST)
-Received: by mail-yb1-xb31.google.com with SMTP id d201so86432115ybc.7;
-        Tue, 04 Jan 2022 10:05:54 -0800 (PST)
+        with ESMTP id S235869AbiADSLf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 13:11:35 -0500
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC593C061784;
+        Tue,  4 Jan 2022 10:11:35 -0800 (PST)
+Received: by mail-yb1-xb2d.google.com with SMTP id p15so60070965ybk.10;
+        Tue, 04 Jan 2022 10:11:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=tdQRUgSgwsJVMjTD8lJCE4WTI/seShOy5LEi4PlhXsI=;
-        b=PEtJpc0TB8gaBqgbOB/30nIwuGEJTxTljt+0TexaMKgIbcaUIbd0h0W0JVsMtUzaYR
-         6LUhIleBYN9P4uSm10Fh7LQk3xrHKEX/6I1sZ9UnOES6PD5jIJ9jh+kzT8sKvjvRzn4Z
-         siscCNd/Cdq0IYhF/SrGt7zz/4rDp7n7V8nnH8a+uFNm9EtSr08p0a7nYKCUqDE3t3Rr
-         HFHSsSjt5qzCOWG3L7ng/1QovhZ9siEDOp//y6Yex4AKjxOpL7iKmAPO2mRDJFOmoe2+
-         QLYcWrFyfSQxzodquUAovS/BFWVe8xu7z/0LJqiZ1V3GHI1kQJn9IHA0oZhieVn4rRml
-         VqZg==
+        bh=MDjxJOHTwu52UjAT13U1oPRVxB66Qhtp1a0S6RDIgtw=;
+        b=pR+/aDHumgms37I9W6niCPjlsTh8/Qzu9fJwd5zjLVxIKz67f3c7AXF2IzphnCHJzv
+         UKP4zxVCspTn+JyfZZUOJVfrDTVE1dq+CPZWrznCRDRSF4En+CmAyKG3YV4/vPJINBQB
+         1/j3z2KDTOPlZ9aEA8WhDcjjrfVJp4NUth41F+GuCY8Fv2f7VnhERM/fyY3+zxepeFl9
+         9ZdWEYEDuWMRYkMTU+Kd6Dkp3oTbhLMwPXc8LFI02hzvN1HoOuTb7DpwNYpl3ju91qpm
+         Sd8VEAGojgy1/VeaGjyZnH6ZP+vDruA9s4ByZEE2MijSrGs/+2UsRmMyIc4a0HetEJbO
+         bzAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=tdQRUgSgwsJVMjTD8lJCE4WTI/seShOy5LEi4PlhXsI=;
-        b=t5m894TP41kSBFJwAxAyKoBAftSqj46ukq0CmMZOdr185bn00ZzzlnVkzqDizk1nr7
-         Mf/NtUmZ490E9sARhCPW0ZdZS90/urWUqp2oVav8ls+1NKcflRdvTCOZVfgIXpdjeODh
-         kfve7h8TvcPHGC+xhM4jrTmNApyROEGysZFtcc2Bkf02L0OOTQ9asuvmk+2BBp2sF/U3
-         Le43ihFQCUdf5Yfv2TH+LzmmWFWnjnwCNp9ds1Yx7uZHQ9ZwkQ4dxVDElne00FoJHJYN
-         A8ISMkwfL6soHsRPSnCTrU6Flil4cITyNySxuruYNHESuDRjr8nakDYml6cwFJbqPdxx
-         4sAA==
-X-Gm-Message-State: AOAM530VJFqtweKjLkudos70j46lEsWsiR5CYweleRxKnMv6UbwNtKQc
-        6t1hq9VS+ZoM35HdceqPlXJTKZxMxdJA+aUr0F4=
-X-Google-Smtp-Source: ABdhPJzEn0oYHHUiQctltIZAAad1QnBbXX+3LxQKurnei0B9hpH3oKTFCM+zlB/ZVSWmyRaJMUaN/IuchKiZNU7923s=
-X-Received: by 2002:a5b:bc1:: with SMTP id c1mr40734301ybr.669.1641319554084;
- Tue, 04 Jan 2022 10:05:54 -0800 (PST)
+        bh=MDjxJOHTwu52UjAT13U1oPRVxB66Qhtp1a0S6RDIgtw=;
+        b=j5wW8JCEn1UqXWvCHxI+3NUlDkqq5+8As4IFf9M4DpDPuuHtd1sw4Jy4LEWOcg8/k2
+         VtXeLHCtD8u6wdNaRb4VaqeaU7P2SXtegcDaU+u2+uLeW9pMIMIxQR2WGcfouKTL0O8V
+         wwkQD01OFylbJgNRCLGRVudM7kdQDWQWWxz22hg0kLIftivZ5RvZOEl1fE3AR6yfj0eF
+         OUbucKv8esIj5fKONAXWr275fTWRB9SbmbrHqUpce4RzqYXbvF16sWThRtvm7OE/nr2+
+         UNdSOonbj6WXeBr4SO2qAzIogHnjBF6qQnY8DtOdfN2v5OC5FYP6AI7WbeBwAM91zkCd
+         yaqw==
+X-Gm-Message-State: AOAM532jPOw7Vfg/2CYv3yjf9xNAj/BEbT/uDrSf3gzZN4BPvGiJ+wK0
+        viYFtejECIxjedTRVVAa8Kvk62LiNa8vXjiBfLM=
+X-Google-Smtp-Source: ABdhPJyIKCGaxPOaGgLHloiL4Xyerz+BXKXOhX1eomZTYiwdSrw2j33B+V4AyabGqfm9RAFUWKBKLxOlwyMFApq3nzc=
+X-Received: by 2002:a25:e7cc:: with SMTP id e195mr52535370ybh.251.1641319894481;
+ Tue, 04 Jan 2022 10:11:34 -0800 (PST)
 MIME-Version: 1.0
-References: <20211222142025.30364-1-johan@kernel.org> <20211222142025.30364-2-johan@kernel.org>
-In-Reply-To: <20211222142025.30364-2-johan@kernel.org>
+References: <20211222142025.30364-1-johan@kernel.org> <20211222142025.30364-3-johan@kernel.org>
+In-Reply-To: <20211222142025.30364-3-johan@kernel.org>
 From:   "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Date:   Tue, 4 Jan 2022 18:05:28 +0000
-Message-ID: <CA+V-a8vS6O8YDVutH_df+v3B093aSVqpeXv4FAoChxjOjEQkkg@mail.gmail.com>
-Subject: Re: [PATCH 1/4] media: davinci: vpif: fix unbalanced runtime PM get
+Date:   Tue, 4 Jan 2022 18:11:08 +0000
+Message-ID: <CA+V-a8thJtWjL+2-TNdbZTe=hKCVYz2vwAL-uCNeW+-TmVKPVg@mail.gmail.com>
+Subject: Re: [PATCH 2/4] media: davinci: vpif: fix unbalanced runtime PM enable
 To:     Johan Hovold <johan@kernel.org>
 Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
         Hans Verkuil <hans.verkuil@cisco.com>,
         Kevin Hilman <khilman@baylibre.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-media <linux-media@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Lad@xi.lan
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -69,33 +68,58 @@ Thank you for the patch.
 
 On Wed, Dec 22, 2021 at 2:20 PM Johan Hovold <johan@kernel.org> wrote:
 >
-> Make sure to balance the runtime PM usage counter on driver unbind.
+> Make sure to disable runtime PM before returning on probe errors.
 >
-> Fixes: 407ccc65bfd2 ("[media] davinci: vpif: add pm_runtime support")
-> Cc: stable@vger.kernel.org      # 3.9
-> Cc: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+> Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
+> Cc: stable@vger.kernel.org      # 4.12: 4024d6f601e3c
+> Cc: Kevin Hilman <khilman@baylibre.com>
 > Signed-off-by: Johan Hovold <johan@kernel.org>
 > ---
->  drivers/media/platform/davinci/vpif.c | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/media/platform/davinci/vpif.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
 >
-Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-
 > diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
-> index 5a89d885d0e3..9752a5ec36f7 100644
+> index 9752a5ec36f7..1f5eacf48580 100644
 > --- a/drivers/media/platform/davinci/vpif.c
 > +++ b/drivers/media/platform/davinci/vpif.c
-> @@ -495,6 +495,7 @@ static int vpif_probe(struct platform_device *pdev)
+> @@ -428,6 +428,7 @@ static int vpif_probe(struct platform_device *pdev)
+>         static struct resource *res_irq;
+>         struct platform_device *pdev_capture, *pdev_display;
+>         struct device_node *endpoint = NULL;
+> +       int ret;
 >
->  static int vpif_remove(struct platform_device *pdev)
->  {
-> +       pm_runtime_put(&pdev->dev);
->         pm_runtime_disable(&pdev->dev);
->         return 0;
->  }
-> --
-> 2.32.0
->
+>         vpif_base = devm_platform_ioremap_resource(pdev, 0);
+>         if (IS_ERR(vpif_base))
+> @@ -456,8 +457,8 @@ static int vpif_probe(struct platform_device *pdev)
+>         res_irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+>         if (!res_irq) {
+>                 dev_warn(&pdev->dev, "Missing IRQ resource.\n");
+> -               pm_runtime_put(&pdev->dev);
+Maybe just add pm_runtime_disable(&pdev->dev); here, rest diff won't
+be required.
 
 Cheers,
 Prabhakar
+
+> -               return -EINVAL;
+> +               ret = -EINVAL;
+> +               goto err_put_rpm;
+>         }
+>
+>         pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
+> @@ -491,6 +492,12 @@ static int vpif_probe(struct platform_device *pdev)
+>         }
+>
+>         return 0;
+> +
+> +err_put_rpm:
+> +       pm_runtime_put(&pdev->dev);
+> +       pm_runtime_disable(&pdev->dev);
+> +
+> +       return ret;
+>  }
+>
+>  static int vpif_remove(struct platform_device *pdev)
+> --
+> 2.32.0
+>
