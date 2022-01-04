@@ -2,134 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30AE1483F71
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 10:53:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B924B483F77
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 10:56:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbiADJxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 04:53:18 -0500
-Received: from mail-dm6nam10on2050.outbound.protection.outlook.com ([40.107.93.50]:57125
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230308AbiADJxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jan 2022 04:53:16 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=eXnvlcCtYBq/clR060M21rAOnJdXqtVNGtd6b9Gibx8M+4DnOiM4rY4pUq09OgX07HjHPLQ9PQ5sidrsUJqPtOIYJ04oNFQqEYPf5ky5p9eafesyfu8ddkEr+hxJRNrcLyTbvrwmdA6o5OboaUJM/snzFQwdzE5dGtvC5QRgeAC9nALrks7srn1boPjFTpIMxTp6qSha3wPQZEPxJuSHoQtyJpH4fiMJnLpPUfzrNOMOOsKoJO09uYZrMnsEAlkNDbATp87NpoYMWn0Lp+5B8hAoteR4SBXOWBjnKRiQhsZOL8RolrNRirfpRWmERcyTOlOyduafZTqdGCrMReKUow==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CoSVLB04k0yKh+UJ3D4CZikRxTcjQcTGdC/Km9yBT4Q=;
- b=hyHE6WLLidXE7kanXy2pRfnHhiOaSCrerYhKURiftHRanx02H047Yy9REayikstIhueyJOGhlyWWbETmGKI+9wCOen8wisd6Y4cp/vu9/UO8iUl8np7sCNMuJhfEd162r2dT5mGcV6QhI/ezAqhgWbmIXWYpQkfeC3YM8IY5cbnjloKbHV3x0JJ1wSbkFBlfFgONISbSkyJU2AZrPic9vg8s3h0gomJ0CpvY/7dQoBBHSUUS8SEd/uxG6mYna/0NthcL6RcDo9slDC2ghrhDTCD5G0kcZ1RHI5UTyDKTNxNXQ3k4LVoGNVG8bVWMreTZGTgSsU3g+rVyhsiQMU9hGw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 12.22.5.234) smtp.rcpttodomain=linuxfoundation.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CoSVLB04k0yKh+UJ3D4CZikRxTcjQcTGdC/Km9yBT4Q=;
- b=LfZL1rx9Zkks/kVCvlUTN6vR4FvAcKF2UNLk2c4LKpC/mM39LLck/sf10pw/T9aL060hjKhwqKElVHLI2pzHuHz2YJZLIy2/Ho67V9XYfLdGcDx8EDI543KqLVHZH/AiHEPXQ40klpW3DZrDX2PAZKeVsZ8t6uXcYVFYwSlvoJaUNQ8Tv28dltMWSVuUbF+SWphGjeMO1Qzawerj3DnwmSICFUi5ZE7kP/AqXOszsFbzQffispk+SzilK5nD6/SRCeBqrV0/dmzjfLaPaJ3dP07LURASXX6sHKQZPaeM8qmJis59u7JEufr1M0OWvu+wXVQTgm0ATrNrmvwsAkuRRg==
-Received: from DM6PR07CA0065.namprd07.prod.outlook.com (2603:10b6:5:74::42) by
- MW3PR12MB4571.namprd12.prod.outlook.com (2603:10b6:303:5c::13) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4844.15; Tue, 4 Jan 2022 09:53:14 +0000
-Received: from DM6NAM11FT021.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:74:cafe::da) by DM6PR07CA0065.outlook.office365.com
- (2603:10b6:5:74::42) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4844.13 via Frontend
- Transport; Tue, 4 Jan 2022 09:53:14 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.234)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 12.22.5.234 as permitted sender) receiver=protection.outlook.com;
- client-ip=12.22.5.234; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (12.22.5.234) by
- DM6NAM11FT021.mail.protection.outlook.com (10.13.173.76) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4844.14 via Frontend Transport; Tue, 4 Jan 2022 09:53:14 +0000
-Received: from HQMAIL109.nvidia.com (172.20.187.15) by DRHQMAIL101.nvidia.com
- (10.27.9.10) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 4 Jan
- 2022 09:53:13 +0000
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 4 Jan
- 2022 01:53:12 -0800
-Received: from jonathanh-vm-01.nvidia.com (172.20.187.6) by mail.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
- Transport; Tue, 4 Jan 2022 09:53:12 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.15 00/73] 5.15.13-rc1 review
-In-Reply-To: <20220103142056.911344037@linuxfoundation.org>
-References: <20220103142056.911344037@linuxfoundation.org>
-X-NVConfidentiality: public
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S229817AbiADJ4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 04:56:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47540 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229702AbiADJ4b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 04:56:31 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2846C061761;
+        Tue,  4 Jan 2022 01:56:30 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id t26so74985673wrb.4;
+        Tue, 04 Jan 2022 01:56:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=iIGRBOba+jyxeaJMzStvp1uRrNmWJMNLyQXsGX8NDd0=;
+        b=okNuojHQw/d+wTIiH9UCOrOHo1aGKcbQMlRIDI8L1vZ80d0DPSjJ3M/kayI0c5KKqw
+         GSOjYPPgZVzHNj1PbD8ZsHl6F+Y/vfIA3o7881RcuFr+s/Yg7LYwYds52BQ7fk/zy37C
+         vzYPyWVncnxg6rXDILSj3kfWrKBybWlKckPurwEWD4Qr1U3+WGxV5CQdva4bgb8YFrLL
+         LHGOqikAL6dXiOK4y1JkBf3R5x+jatVXaqgtfrLOpacEhJcIaohw6+zvn/lXOVVrOxjU
+         YR392MzZQkUD0Itp+hE4eD+WOFm2MU2ldYeb/Zj6c+6cUn8GE/G66JB9YPhWQT892uK4
+         F97g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=iIGRBOba+jyxeaJMzStvp1uRrNmWJMNLyQXsGX8NDd0=;
+        b=lqpGK4fqQ7l8FglRMnsIQTcYLrQ1aX3OAX5TK8P0iAijlvGHQAUgHWhHPdDgvfZxy+
+         WbOFCiu1axlg+SfvuBkcZvrvYs2wquYmlZKWG489tBEdrcV6Ml/TjzvEdbaqJnARwnRP
+         I1n9iTyrr9Ti1ckZqn1lcSbHqBXo+9BJBTiZdG60MydTbn7Gl9lgo3UXYiTtGVaeYUEA
+         +A3EHqzGU+jBL1pEe7A1b9UgNMG5wwROiD3txEYhbdBREN+zva42hTB7hQwi9ud7MNcb
+         epUY1QFz5h4mUvgjsvaHw1uarbSnDMLdTw1tpExWkSlffwySaivScopYyn9tfRhVom2P
+         14vg==
+X-Gm-Message-State: AOAM531xfEuNSEfrvRPPIDPx4y5j/a5R1eBnlIuQsdCtmherFfQjS3gn
+        VLK1rSDIk18KzBzkEyqXl20=
+X-Google-Smtp-Source: ABdhPJxCrUiAK9sHdqC4aHhft4kT79B0K3ECAoEywLNImsoUemZ/5TlSFz6MrCFeWkhkdvED34MHmA==
+X-Received: by 2002:adf:80ca:: with SMTP id 68mr40569481wrl.528.1641290189483;
+        Tue, 04 Jan 2022 01:56:29 -0800 (PST)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id l7sm37515891wms.1.2022.01.04.01.56.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Jan 2022 01:56:29 -0800 (PST)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Tue, 4 Jan 2022 10:56:28 +0100
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Wenqing Liu <wenqingliu0120@gmail.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: Re: [PATCH 5.10 60/76] f2fs: fix to do sanity check on last xattr
+ entry in __f2fs_setxattr()
+Message-ID: <YdQZzAQg4vIQNXc4@eldamar.lan>
+References: <20211227151324.694661623@linuxfoundation.org>
+ <20211227151326.779679392@linuxfoundation.org>
+ <YdNmdhsKS5ZWHOlB@eldamar.lan>
+ <12184f7c-3662-7fdc-d44f-23ef29102ddd@kernel.org>
 MIME-Version: 1.0
-Message-ID: <592296fe8a2242c0a3e0da0ab02f9aa9@HQMAIL107.nvidia.com>
-Date:   Tue, 4 Jan 2022 09:53:12 +0000
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b416b831-4efb-4c80-ce68-08d9cf68067a
-X-MS-TrafficTypeDiagnostic: MW3PR12MB4571:EE_
-X-Microsoft-Antispam-PRVS: <MW3PR12MB4571D07BA0E1CD9DC026B436D94A9@MW3PR12MB4571.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Zjsyghx0EZqI0aTPaAv64Spj/htI6vTTar6vNQu/mMM5HFrS895ubtQ6txM5vW126lxOQjFfadU7ihtHdMXVrNvt0qmFXzXZLuUpjb5h5H3FyFs1o2VsYWrv3v47OfQd1JPc3IJvMdSW0IgMrbXS05xEOcRHEbHpiriqNqKcTC+kDXS38z+k6cVo32EvbW+okp5ygZlQCUPrzuzoNPcnFCwn/gdYUcHMqplM0TcCa2+kQjO4aq6eraarIb4F0nS+xB1lOhFwKRkI3esQQ1kD3P8RT0X8hVzBWlhAEgohO87Dr77QpY7Bg+WSeBWmJ022px7Z+ewlbdkslwU1yuTH6AsILr/Uz3qaKpZbppUNVSkdvF+qBZYo4TtALxvdsVqpm1vBmwfbcnp4rgLcrxk8PsVYMqAL80oJybpHYo5bigQnL86p/fEdyiS9ax6eI861SPna6FABEXQ+fDwpKkMb6xa5pU4iBrlkuyoMiFFRg7i12KjMzSZwb7lV2C8oF2pSlGCZGHzO6Dj+SeTWus659HgJI9LshAqVeNpywGuSfAAfHEJHwaOzCnizwl3cgCBLjIU/+IojKdjXGiJQB3TI+qwab2MGT+N7fL1WdZNAEF7k2uOYFrVkILfO36wit6sclKIC5EzcoY+Q6h5dbi0HOp1Yoz1prJWr1rAgHOaTUsnsqetN0Rz3Ec6hdSiZ+QBJeR6KKpcezKgco+HQM1wbRuMxtaGAE/Gzj/rVgxzfrKgo12uF9eT13N+3Gz/K7c99SyDpqvfsaIlWpZEwjhECn/F4u2J0AnmCbDtKfAt9pj/GwpQg2IZCpcHm2te3liuxz5rwdytOcHj0wlmsnbeFxkkrROzupGkW/HeAJBsp4BkSNBnt8cR3V07KPcNhyljv
-X-Forefront-Antispam-Report: CIP:12.22.5.234;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(4636009)(46966006)(40470700002)(36840700001)(8936002)(81166007)(2906002)(6916009)(186003)(86362001)(316002)(47076005)(54906003)(336012)(26005)(36860700001)(82310400004)(426003)(356005)(24736004)(5660300002)(508600001)(4326008)(70206006)(40460700001)(108616005)(70586007)(966005)(7416002)(8676002)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jan 2022 09:53:14.0489
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b416b831-4efb-4c80-ce68-08d9cf68067a
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.234];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT021.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4571
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12184f7c-3662-7fdc-d44f-23ef29102ddd@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 03 Jan 2022 15:23:21 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.13 release.
-> There are 73 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Hi,
+
+On Tue, Jan 04, 2022 at 05:29:30PM +0800, Chao Yu wrote:
+> On 2022/1/4 5:11, Salvatore Bonaccorso wrote:
+> > Hi,
+> > 
+> > On Mon, Dec 27, 2021 at 04:31:15PM +0100, Greg Kroah-Hartman wrote:
+> > > From: Chao Yu <chao@kernel.org>
+> > > 
+> > > commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
 > 
-> Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
-> Anything received after that time might be too late.
+> I've no idea.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.13-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
+> I didn't add this line from v1 to v3:
 > 
-> thanks,
+> https://lore.kernel.org/lkml/20211211154059.7173-1-chao@kernel.org/T/
+> https://lore.kernel.org/all/20211212071923.2398-1-chao@kernel.org/T/
+> https://lore.kernel.org/all/20211212091630.6325-1-chao@kernel.org/T/
 > 
-> greg k-h
+> Am I missing anything?
 
-All tests passing for Tegra ...
+The line is added when a commit from "upstream" is added to the stable
+series to identify the upstream commit it is taken from for
+cherry-pick (or backport).
 
-Test results for stable-v5.15:
-    10 builds:	10 pass, 0 fail
-    28 boots:	28 pass, 0 fail
-    114 tests:	114 pass, 0 fail
+Strange so, that the fix is not in mainline actually yet.
 
-Linux version:	5.15.13-rc1-gfbfd9867da50
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
-                tegra20-ventana, tegra210-p2371-2180,
-                tegra210-p3450-0000, tegra30-cardhu-a04
-
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-
-Jon
+Regards,
+Salvatore
