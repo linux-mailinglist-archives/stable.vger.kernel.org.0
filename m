@@ -2,79 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96130483BFB
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 07:28:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D24D6483CF7
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 08:33:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232951AbiADG2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 01:28:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56770 "EHLO
+        id S230229AbiADHdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 02:33:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230190AbiADG2j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 01:28:39 -0500
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF965C061784
-        for <stable@vger.kernel.org>; Mon,  3 Jan 2022 22:28:38 -0800 (PST)
-Received: by mail-yb1-xb33.google.com with SMTP id 139so73622090ybd.3
-        for <stable@vger.kernel.org>; Mon, 03 Jan 2022 22:28:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zo52sAcCrLydPJZGuQsUiSGb4V93u3EKnrmrn+NDnS0=;
-        b=WlaZA6JMCMy7eLmiXY3Es60G5MTviQPPi9KtFixE1yIiIqZky0UZaY2DXgVWH0+MVY
-         6YVVcmu1ubBfcqzvOa+2ZGoRgKo80Vs7awwpgWc1zsfOLrleZKjgl5lj4oovhXE8LWmV
-         OC8uSKS1wJu5OUFm+qBpax13LsXpPl1Jp8VA598k7cS+7DT4D5c62XlStVMjX6B1zciu
-         m2R8VN633HaYEkTl4qTVdRE7phu/rUb65CNNmAIb3VNUCgobRGi/CgU8B6csEtyodZey
-         jqrO4Nobp5NlwNCg/wsw8Lbd4yfH7AGBUOH4dKrJkfyggBGv4F+lwBuiuwZNrQSL9jRV
-         PCTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zo52sAcCrLydPJZGuQsUiSGb4V93u3EKnrmrn+NDnS0=;
-        b=jBKRJ6gJxLDtZVSbxvsPc0xtP9VRac4OlRpVPINuB1kE5CLt4yWp7c5bBQSQN9+zSp
-         0Zsr4WlUCQ9jBhdm3kZIQ2Yw+Ip79HZUsXVlfCbmdcDLs+LtBoSV/OQ+1m2J8HaKV/f+
-         NnD20NvIZ8x8bSZLM8K2csXrj/N8ccF76bM70tL0SRlfkZU75AUqFhqeaBXTT3RTjNFO
-         0ZjL6ZoB78sWaRzB3sJpOm5we/ZfUpSwS86ujeQ8LCWCeXovv8qIjJW+Uw1giQtEHizf
-         kYnFFlTPA8sejtodYaF61+c1fqF0JEDVuF1oek4pgkXnMflN6F0qnVlQJ9f+v7LI1Sl/
-         ACWA==
-X-Gm-Message-State: AOAM531CvIycVRDreXE03s+Y33oDINs2h9HRtmLOBbBS0IUtVDVI36pG
-        zzuPiFe6AN6yIRmk1cIV6oyblwvss12hkBZ2edL1iQ==
-X-Google-Smtp-Source: ABdhPJy4S8DhHHIyGWw5OPLAe5maT7DK5TOUJPM/35ziqRTyxDbk0qRLix8INKIUNwfrFe3MFLNFr0MTnjXO1xiEDj8=
-X-Received: by 2002:a25:8008:: with SMTP id m8mr6802981ybk.704.1641277718036;
- Mon, 03 Jan 2022 22:28:38 -0800 (PST)
-MIME-Version: 1.0
-References: <20220103142051.883166998@linuxfoundation.org> <f5a6c584-6894-ff2e-d4cb-2af9f5fdaf55@gmail.com>
-In-Reply-To: <f5a6c584-6894-ff2e-d4cb-2af9f5fdaf55@gmail.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 4 Jan 2022 11:58:26 +0530
-Message-ID: <CA+G9fYurRPwowcEw1LOjr1Lmogi9GMmY2WFgTCtS2H7bWwVx7Q@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/37] 5.4.170-rc1 review
+        with ESMTP id S229705AbiADHdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 02:33:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E9CC061761;
+        Mon,  3 Jan 2022 23:33:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82856612C3;
+        Tue,  4 Jan 2022 07:33:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB38C36AE9;
+        Tue,  4 Jan 2022 07:33:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641281621;
+        bh=+UAlUDdALq3FTAHTc3ld5ewqx0HoAHpUI+1dT9wN3xE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Y5R3IRLwt35TZgDJVERX3IKnTkJC/dqxFOA6oF6amOfWNDcIifKW23poyLyz+CaQR
+         drHztf01bSxS69iaqN/vWtaqnjxyj9kr6TjOomWMlMsrRuxHXDIYt0ZkAZiB7dzAbX
+         89ekOz7+Wh/JA9I3FgUM32PJZ/Oz3qRLbMQHpAKg=
+Date:   Tue, 4 Jan 2022 08:33:38 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Miaoqian Lin <linmq006@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 28/73] net: phy: fixed_phy: Fix NULL vs IS_ERR()
+ checking in __fixed_phy_register
+Message-ID: <YdP4UpzF99+bOAoF@kroah.com>
+References: <20220103142056.911344037@linuxfoundation.org>
+ <20220103142057.816768294@linuxfoundation.org>
+ <61f06784-722e-cbf3-aab3-009d300e236f@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <61f06784-722e-cbf3-aab3-009d300e236f@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Florian
+On Mon, Jan 03, 2022 at 11:47:34AM -0800, Florian Fainelli wrote:
+> 
+> 
+> On 1/3/2022 6:23 AM, Greg Kroah-Hartman wrote:
+> > From: Miaoqian Lin <linmq006@gmail.com>
+> > 
+> > [ Upstream commit b45396afa4177f2b1ddfeff7185da733fade1dc3 ]
+> > 
+> > The fixed_phy_get_gpiod function() returns NULL, it doesn't return error
+> > pointers, using NULL checking to fix this.i
+> > 
+> > Fixes: 5468e82f7034 ("net: phy: fixed-phy: Drop GPIO from fixed_phy_add()")
+> > Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+> > Link: https://lore.kernel.org/r/20211224021500.10362-1-linmq006@gmail.com
+> > Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> Same as 5.4 and 5.10, this patch causes a regression on 5.15 as well and
+> should be dropped. Since this is also affecting Linus' master a revert of
+> that changes has been submitted to the net/master tree and should reach
+> Linus' tree shortly assuming it gets applied:
+> 
+> https://lore.kernel.org/lkml/20220103193453.1214961-1-f.fainelli@gmail.com/
 
-> See my regression report about patch "net: phy: fixed_phy: Fix NULL vs
-> IS_ERR() checking in __fixed_phy_register", other than that, the rest
-> worked OK.
+Thanks, I have dropped this from all 3 stable queues now.
 
-I see your regression reported on netdev mailing list [1].
-Please share steps to reproduce,
-  - Kernel tree / branch / commit
-  - Kernel config file / link
-  - Hardware / Qemu command.
-
-
-[1] https://lore.kernel.org/netdev/20220103193453.1214961-1-f.fainelli@gmail.com/
-
-Best regards
-Naresh Kamboju
+greg k-h
