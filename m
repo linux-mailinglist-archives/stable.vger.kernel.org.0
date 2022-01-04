@@ -2,77 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D24D6483CF7
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 08:33:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB42D483D14
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 08:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230229AbiADHdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 02:33:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43044 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229705AbiADHdm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 02:33:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54E9CC061761;
-        Mon,  3 Jan 2022 23:33:42 -0800 (PST)
+        id S231956AbiADHlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 02:41:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42464 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232132AbiADHlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 02:41:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82856612C3;
-        Tue,  4 Jan 2022 07:33:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB38C36AE9;
-        Tue,  4 Jan 2022 07:33:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32CDD6121D;
+        Tue,  4 Jan 2022 07:41:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C337AC36AE9;
+        Tue,  4 Jan 2022 07:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641281621;
-        bh=+UAlUDdALq3FTAHTc3ld5ewqx0HoAHpUI+1dT9wN3xE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Y5R3IRLwt35TZgDJVERX3IKnTkJC/dqxFOA6oF6amOfWNDcIifKW23poyLyz+CaQR
-         drHztf01bSxS69iaqN/vWtaqnjxyj9kr6TjOomWMlMsrRuxHXDIYt0ZkAZiB7dzAbX
-         89ekOz7+Wh/JA9I3FgUM32PJZ/Oz3qRLbMQHpAKg=
-Date:   Tue, 4 Jan 2022 08:33:38 +0100
+        s=korg; t=1641282061;
+        bh=2GCrT6rf5KRYpqI8FoNzIbyeq5l5+w4WaCyN+lD5p54=;
+        h=From:To:Cc:Subject:Date:From;
+        b=L5M1NrvQrxm+u1u9aQbef6C40mItFkNtu32/kCSU7/aVMd1tHVBMknoiDwWRTCvZu
+         TgPxIq+fO0bKU2n7JwNLFNsCAnf59HINqTV1DyOT2HYWpToiSKLLEuSeTWGNongcE1
+         LcEzBOJwjm5TORZ//jHW6el9+cTA7Be6APcA7dQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Miaoqian Lin <linmq006@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.15 28/73] net: phy: fixed_phy: Fix NULL vs IS_ERR()
- checking in __fixed_phy_register
-Message-ID: <YdP4UpzF99+bOAoF@kroah.com>
-References: <20220103142056.911344037@linuxfoundation.org>
- <20220103142057.816768294@linuxfoundation.org>
- <61f06784-722e-cbf3-aab3-009d300e236f@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/36] 5.4.170-rc2 review
+Date:   Tue,  4 Jan 2022 08:40:58 +0100
+Message-Id: <20220104073839.317902293@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <61f06784-722e-cbf3-aab3-009d300e236f@gmail.com>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.170-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.170-rc2
+X-KernelTest-Deadline: 2022-01-06T07:38+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 03, 2022 at 11:47:34AM -0800, Florian Fainelli wrote:
-> 
-> 
-> On 1/3/2022 6:23 AM, Greg Kroah-Hartman wrote:
-> > From: Miaoqian Lin <linmq006@gmail.com>
-> > 
-> > [ Upstream commit b45396afa4177f2b1ddfeff7185da733fade1dc3 ]
-> > 
-> > The fixed_phy_get_gpiod function() returns NULL, it doesn't return error
-> > pointers, using NULL checking to fix this.i
-> > 
-> > Fixes: 5468e82f7034 ("net: phy: fixed-phy: Drop GPIO from fixed_phy_add()")
-> > Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-> > Link: https://lore.kernel.org/r/20211224021500.10362-1-linmq006@gmail.com
-> > Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> Same as 5.4 and 5.10, this patch causes a regression on 5.15 as well and
-> should be dropped. Since this is also affecting Linus' master a revert of
-> that changes has been submitted to the net/master tree and should reach
-> Linus' tree shortly assuming it gets applied:
-> 
-> https://lore.kernel.org/lkml/20220103193453.1214961-1-f.fainelli@gmail.com/
+This is the start of the stable review cycle for the 5.4.170 release.
+There are 36 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Thanks, I have dropped this from all 3 stable queues now.
+Responses should be made by Thu, 06 Jan 2022 07:38:29 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.170-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
+
+thanks,
 
 greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.170-rc2
+
+Adrian Hunter <adrian.hunter@intel.com>
+    perf script: Fix CPU filtering of a script's switch events
+
+Muchun Song <songmuchun@bytedance.com>
+    net: fix use-after-free in tw_timer_handler
+
+Leo L. Schwab <ewhac@ewhac.org>
+    Input: spaceball - fix parsing of movement data packets
+
+Pavel Skripkin <paskripkin@gmail.com>
+    Input: appletouch - initialize work before device registration
+
+Alexey Makhalov <amakhalov@vmware.com>
+    scsi: vmw_pvscsi: Set residual data length conditionally
+
+Todd Kjos <tkjos@google.com>
+    binder: fix async_free_space accounting for empty parcels
+
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: mtu3: set interval of FS intr and isoc endpoint
+
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: mtu3: fix list_head check warning
+
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: mtu3: add memory barrier before set GPD's HWO
+
+Vincent Pelletier <plr.vincent@gmail.com>
+    usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+
+Mathias Nyman <mathias.nyman@linux.intel.com>
+    xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
+
+Dmitry V. Levin <ldv@altlinux.org>
+    uapi: fix linux/nfc.h userspace compilation errors
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    nfc: uapi: use kernel size_t to fix user-space builds
+
+Pavel Skripkin <paskripkin@gmail.com>
+    i2c: validate user data in compat ioctl
+
+Miaoqian Lin <linmq006@gmail.com>
+    fsl/fman: Fix missing put_device() call in fman_port_probe
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    net/ncsi: check for error return from call to nla_put_u32
+
+wujianguo <wujianguo@chinatelecom.cn>
+    selftests/net: udpgso_bench_tx: fix dst ip argument
+
+Gal Pressman <gal@nvidia.com>
+    net/mlx5e: Fix wrong features assignment in case of error
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    ionic: Initialize the 'lif->dbid_inuse' bitmap
+
+Wei Yongjun <weiyongjun1@huawei.com>
+    NFC: st21nfca: Fix memory leak in device probe and remove
+
+Aleksander Jan Bajkowski <olek2@wp.pl>
+    net: lantiq_xrx200: fix statistics of received bytes
+
+Matthias-Christian Ott <ott@mirix.org>
+    net: usb: pegasus: Do not drop long Ethernet frames
+
+Xin Long <lucien.xin@gmail.com>
+    sctp: use call_rcu to free endpoint
+
+Coco Li <lixiaoyan@google.com>
+    selftests: Calculate udpgso segment count without header adjustment
+
+Coco Li <lixiaoyan@google.com>
+    udp: using datalen to cap ipv6 udp max gso segments
+
+Miaoqian Lin <linmq006@gmail.com>
+    net/mlx5: DR, Fix NULL vs IS_ERR checking in dr_domain_init_resources
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    scsi: lpfc: Terminate string in lpfc_debugfs_nvmeio_trc_write()
+
+Tom Rix <trix@redhat.com>
+    selinux: initialize proto variable in selinux_ip_postroute_compat()
+
+Heiko Carstens <hca@linux.ibm.com>
+    recordmcount.pl: fix typo in s390 mcount regex
+
+Jackie Liu <liuyun01@kylinos.cn>
+    memblock: fix memblock_phys_alloc() section mismatch error
+
+Wang Qing <wangqing@vivo.com>
+    platform/x86: apple-gmux: use resource_size() with res
+
+Dmitry Vyukov <dvyukov@google.com>
+    tomoyo: Check exceeded quota early in tomoyo_domain_quota_is_ok().
+
+Samuel Čavoj <samuel@cavoj.net>
+    Input: i8042 - enable deferred probe quirk for ASUS UM325UA
+
+Takashi Iwai <tiwai@suse.de>
+    Input: i8042 - add deferred probe support
+
+Jens Wiklander <jens.wiklander@linaro.org>
+    tee: handle lookup of shm with reference count 0
+
+Hans de Goede <hdegoede@redhat.com>
+    HID: asus: Add depends on USB_HID to HID_ASUS Kconfig option
+
+
+-------------
+
+Diffstat:
+
+ Documentation/admin-guide/kernel-parameters.txt    |   2 +
+ Makefile                                           |   4 +-
+ drivers/android/binder_alloc.c                     |   2 +-
+ drivers/hid/Kconfig                                |   1 +
+ drivers/i2c/i2c-dev.c                              |   3 +
+ drivers/input/joystick/spaceball.c                 |  11 +-
+ drivers/input/mouse/appletouch.c                   |   4 +-
+ drivers/input/serio/i8042-x86ia64io.h              |  21 +++
+ drivers/input/serio/i8042.c                        |  54 ++++---
+ drivers/net/ethernet/freescale/fman/fman_port.c    |  12 +-
+ drivers/net/ethernet/lantiq_xrx200.c               |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |  11 +-
+ .../mellanox/mlx5/core/steering/dr_domain.c        |   5 +-
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c    |   2 +-
+ drivers/net/usb/pegasus.c                          |   4 +-
+ drivers/nfc/st21nfca/i2c.c                         |  29 ++--
+ drivers/platform/x86/apple-gmux.c                  |   2 +-
+ drivers/scsi/lpfc/lpfc_debugfs.c                   |   4 +-
+ drivers/scsi/vmw_pvscsi.c                          |   7 +-
+ drivers/tee/tee_shm.c                              | 177 ++++++++-------------
+ drivers/usb/gadget/function/f_fs.c                 |   9 +-
+ drivers/usb/host/xhci-pci.c                        |   5 +-
+ drivers/usb/mtu3/mtu3_gadget.c                     |   8 +
+ drivers/usb/mtu3/mtu3_qmu.c                        |   7 +-
+ include/linux/memblock.h                           |   4 +-
+ include/linux/tee_drv.h                            |   4 +-
+ include/net/sctp/sctp.h                            |   6 +-
+ include/net/sctp/structs.h                         |   3 +-
+ include/uapi/linux/nfc.h                           |   6 +-
+ net/ipv4/af_inet.c                                 |  10 +-
+ net/ipv6/udp.c                                     |   2 +-
+ net/ncsi/ncsi-netlink.c                            |   6 +-
+ net/sctp/diag.c                                    |  12 +-
+ net/sctp/endpointola.c                             |  23 ++-
+ net/sctp/socket.c                                  |  23 ++-
+ scripts/recordmcount.pl                            |   2 +-
+ security/selinux/hooks.c                           |   2 +-
+ security/tomoyo/util.c                             |  14 +-
+ tools/perf/builtin-script.c                        |   2 +-
+ tools/testing/selftests/net/udpgso.c               |  12 +-
+ tools/testing/selftests/net/udpgso_bench_tx.c      |   8 +-
+ 41 files changed, 295 insertions(+), 230 deletions(-)
+
+
