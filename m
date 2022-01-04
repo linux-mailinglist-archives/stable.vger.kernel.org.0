@@ -2,95 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72D4A484794
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 19:13:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3B44847A7
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 19:20:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234540AbiADSNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 13:13:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
+        id S236194AbiADSUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 13:20:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233069AbiADSNW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 13:13:22 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A13EC061761;
-        Tue,  4 Jan 2022 10:13:22 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id l16so15537419plg.10;
-        Tue, 04 Jan 2022 10:13:22 -0800 (PST)
+        with ESMTP id S236177AbiADSUT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 13:20:19 -0500
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9518FC061761
+        for <stable@vger.kernel.org>; Tue,  4 Jan 2022 10:20:18 -0800 (PST)
+Received: by mail-lf1-x135.google.com with SMTP id o12so83625154lfk.1
+        for <stable@vger.kernel.org>; Tue, 04 Jan 2022 10:20:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=whL2S6rtPh6h7+qTsELuJiawBHscqEuY+9HepRLG3ro=;
-        b=J69BO8D3+itfdYxlnhU2cVYjR8Mjov4Kax7HdFttPq11Q5457whwEh3V36edYlyJLD
-         wjq88InBMbfx/ZE3GdDptmvUxDykq208A83Coi5kjp9kdNtPW5LGL6evixzT9a8uTkiX
-         FwqeiCe5uiKZyVJmNtbTnAT+HP5zBUVhe+YQF/Jh6HbenrJ8qr2TOZXlDVaSx3/DJsuZ
-         c4Tb9xc/NbvdRLabmrJS1Y7TW0fCBuFGr50Itv4g0UFpMEE598OISPwvQsA/QMcE39Wg
-         IbHPp8uPq4E4KYO0/a+3lTUrPmEuScNBUuMn8yXGyiNMfh9eGN7kHK3V1ESZZJ8tgQwg
-         nOmQ==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=T90qK5WrIProRXKF6NNglO1QrpHxd/4mhxmZa401pIE=;
+        b=hzC6WWrMCZZnON3Pps8dYWInoIrWRr8XyaIWomKCykwky/TndKi6B5JS4x96dYv7Lw
+         mvB7jxfylsVmEnNhhwFpEekur00G+XyuJe/0SEbePEexc1hI8PvvxqpnpHqOapJCCwQ2
+         mvbA8ixr/8rHLXOWSQLvoStlzCyRmWieZcf33Wqfkf/tw1p0VlvNxFljLVBtyox067D7
+         wnBDwSrz4itY+UQF2Mh75EHAtKRPSM30iv83k6sdK2g6A2v9kdtuWoU1pYZfS2vrhNO/
+         THbNTifGIkrRd6XYX2i8+IQJ/0YvFic1ZgRLnbxHpv8bepXC/sBJ6CRJuPRw3z+iEPfA
+         mmCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=whL2S6rtPh6h7+qTsELuJiawBHscqEuY+9HepRLG3ro=;
-        b=m3V8NzIYSptof8jV42cGehlYADLD3BXCqQNaapmQvDPEYF/birEVRGyYMeABCp01tt
-         B0feqR4hjTjAbZXkMygWqBtWW8Fy6GBPj3mjWMgT0t6E9OvT0USMNA8qnQwOcoLvFEms
-         Rw6B/4iSQ4oyaGh7EJ+o4uQeyrwMSWz0Y94z6nVrt5RTfRUStE2ZiaK5V9RqSY/QtKyf
-         zk13YAuISuQE/mGscQInXr8Oy2Ns8dLn1M4RsmNN5JLGkCjajfmjYzFGOoiVL15UFO4P
-         i2aX4gsFYmZ+p+pvPwCRXyTVyi7qtNgu73P3uQYYn9Yk6aCuut917y5L5MePOiCUH4Jn
-         2K+w==
-X-Gm-Message-State: AOAM531LQK7aWeWXwKw4oFKVHk9C1jN/N/BDQphhHklKun+cYqxjiVrH
-        DbGyUKVo9BbL/xafz2BvkuuPrVHxJq8=
-X-Google-Smtp-Source: ABdhPJwyKf/xA3MxG+pfuAsBBecp2eAcDGCQ6fCYZLK3gH5Au/yoFL901uUQuihPvnJUhi2fR/Po9g==
-X-Received: by 2002:a17:903:28f:b0:149:43db:f3cf with SMTP id j15-20020a170903028f00b0014943dbf3cfmr51356351plr.104.1641320001383;
-        Tue, 04 Jan 2022 10:13:21 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id c9sm38509740pfc.61.2022.01.04.10.13.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Jan 2022 10:13:20 -0800 (PST)
-Subject: Re: [PATCH 5.4 00/36] 5.4.170-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20220104073839.317902293@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <3146d623-b7fd-de2c-6845-87f59c06b6ed@gmail.com>
-Date:   Tue, 4 Jan 2022 10:13:18 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=T90qK5WrIProRXKF6NNglO1QrpHxd/4mhxmZa401pIE=;
+        b=XQ3gjKhlk49NTF+9DNu15iFufY2J8Zn7ojKtruSN4FZANFOeuKHIELKVjZXn5MqvMu
+         uKxWY7AeBcrUWnsp0TEeo+Mk8/J1eELdiN55AfMyrwYwyfANxQod+8vPzGftidhMHmrO
+         njkgJ9qvuOnMl0nUO8vj7hPxIc+IVW2ihFiq4ZutbWUSRIQ03FrSKFY2zv40gkY8EjGY
+         lXrr7jyuIZedoPfGuOMzLOnYuobQ3E4ar+Zr9thvBIzWtWc/opoxepn3lXizg1km9lLK
+         TYvII6xr9ZgbXqckla9Kdaa2PwZgYe3yBDavzj3g6M1PsoIT1jHhJ+6MzjyX4Y6KB04z
+         T9+g==
+X-Gm-Message-State: AOAM533PscUeT7AMs/hE3xB3kLTr+5sRm3bvljYZtpJVs7DgBbUdT6oX
+        7vvGajFVLha7mkfMVDoD/cjr0tI+kgjm3IXKKL6pkQ==
+X-Google-Smtp-Source: ABdhPJypw33U6G5rG8rTRnrSCwoXneNV6AvLAVOLne2qf4sGporOzRdQq1RWO5hXnZzFxZmjYVkR27Onq4stAUnh+Uc=
+X-Received: by 2002:ac2:446d:: with SMTP id y13mr42503225lfl.210.1641320416701;
+ Tue, 04 Jan 2022 10:20:16 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20220104073839.317902293@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <63840bf3-2199-3240-bdfa-abb55518b5f9@colorfullife.com>
+ <20211223031207.556189-1-chi.minghao@zte.com.cn> <97e94a27-6f9f-1a21-cf3e-11d97f74cbd8@kernel.org>
+ <2cfe35d4-3220-dd60-88d3-90b86eb5084a@colorfullife.com>
+In-Reply-To: <2cfe35d4-3220-dd60-88d3-90b86eb5084a@colorfullife.com>
+From:   Shakeel Butt <shakeelb@google.com>
+Date:   Tue, 4 Jan 2022 10:20:05 -0800
+Message-ID: <CALvZod5aTh6ZfQfkHiOhrdRKVxEaMVJ-ixbvD6j9JTLpcQWKzQ@mail.gmail.com>
+Subject: Re: [PATCH v2] ipc/sem: do not sleep with a spin lock held
+To:     Manfred Spraul <manfred@colorfullife.com>
+Cc:     Jiri Slaby <jirislaby@kernel.org>, cgel.zte@gmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        chi.minghao@zte.com.cn, Davidlohr Bueso <dbueso@suse.de>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>, unixbhaskar@gmail.com,
+        Vasily Averin <vvs@virtuozzo.com>, zealci@zte.com.cn
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/3/22 11:40 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.170 release.
-> There are 36 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 06 Jan 2022 07:38:29 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.170-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On Mon, Jan 3, 2022 at 9:18 AM Manfred Spraul <manfred@colorfullife.com> wrote:
+>
+> Hi Jiri,
+>
+> On 1/3/22 10:27, Jiri Slaby wrote:
+> > On 23. 12. 21, 4:12, cgel.zte@gmail.com wrote:
+> >> From: Minghao Chi <chi.minghao@zte.com.cn>
+> >>
+> >> We can't call kvfree() with a spin lock held, so defer it.
+> >
+> > Sorry, defer what?
+> >
+> First drop the spinlock, then call kvfree().
+>
+>
+> > There are attempts to fix kvfree instead, not sure which of these
+> > approaches (fix kvfree or its callers) won in the end?
+> >
+> Exactly. We have three options - but noone volunteered yet to decide:
+>
+> - change ipc/sem.c [minimal change]
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Let's go with the minimal change for now which can easily be
+cherry-picked for the stable tree. It seems other approaches need more
+work/discussion.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+>
+> - change kvfree() to use vfree_atomic() [would also fix other changes
+> that did s/kfree/kvfree/]
+>
+> - Modify the vma handling so that it becomes safe to call vfree() while
+> holding a spinlock. [perfect approach, but I'm concerned about side effects]
+>
+>
+> --
+>
+>      Manfred
+>
