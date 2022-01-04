@@ -2,101 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2719483FEB
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 11:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB7EC484094
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 12:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbiADK3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 05:29:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55122 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229604AbiADK3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 05:29:22 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609C2C061761;
-        Tue,  4 Jan 2022 02:29:22 -0800 (PST)
-Received: from ip4d173d02.dynamic.kabel-deutschland.de ([77.23.61.2] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1n4h48-00046v-43; Tue, 04 Jan 2022 11:29:16 +0100
-Message-ID: <f1ab176e-b899-8317-7811-86d26c6410de@leemhuis.info>
-Date:   Tue, 4 Jan 2022 11:29:15 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH rdma-rc] RDMA/mlx5: Fix dereg mr flow for kernel MRs
-Content-Language: en-BS
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     Tony Lu <tonylu@linux.alibaba.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Alaa Hleihel <alaa@nvidia.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>
-References: <f298db4ec5fdf7a2d1d166ca2f66020fd9397e5c.1640079962.git.leonro@nvidia.com>
- <YcKSzszT/zw2ECjh@TonyMac-Alibaba> <YdLHDzmNXlqSMj/A@unreal>
- <0d897f0a-6671-bb78-21d5-e475d1db29b9@leemhuis.info>
- <YdM/0EUd3S4obWWa@unreal>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <YdM/0EUd3S4obWWa@unreal>
-Content-Type: text/plain; charset=UTF-8
+        id S232033AbiADLNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 06:13:24 -0500
+Received: from mail-bn7nam10on2070.outbound.protection.outlook.com ([40.107.92.70]:46491
+        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231834AbiADLNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jan 2022 06:13:24 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ERGzfGwKuDoymNgPxJg5DU4Bc70vxWB0O5LRV6sU+feH7537Bc3ACm2cCSk85Jmm/T6Svq0bGuubE92FQrqr6wV0DDpkpa0M6mNpb1DeN16qpFzJQ7qLuKoR9My83JCg/a0vO4qnKgWUeaK2OyYJ1jfa/W1bctounwCtHXQVfZicg3B+zvB5q9HzmwHopJrAERUrugpWIRLr6ve+VMRiJYRUycs+k6vpl3+knFDOznxsj07yYmIubHLCS1+Ow7I7G0IcqwuJhbgfZ7aW+t29njY4tcR74O1PrcspCIjeRTJ/T8GsQ8SeFM2K9GGqDm+0P2Mh96CiyBI+/E3MOsDRYA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fdAffrjm0E0JXc8K5Yk2ckTFyGcQpPnjTLbRgVJa+tk=;
+ b=AS9+p+pURKKcz8SNpSczXVRoTLD4HSDLMnw3boPuHiZEpgUYkqVhegfNssS8UAX1s4gjq8R1IncpGkJl+6SXZ00wkMhdpXflsD3JKz0xVZbnerrlQ5tWJ2zCWJWWpgnOIYEcl6E+DbgPgcVVKPODzV2ymMIbFmtpl1Xy/m7rjPkiMPjm2xr2EtfnEfhM95lJRRUb5y4WTNCrILtzrztXDU4NoCN35KqLqEOrkAR3Xbyv68slZA71aMzArK259G3qAdf01O12WkPm0ej5Kq304b3IOi6UfyyllciKSjId1izWkqhcEBOGOA7rFf/Xc54iibc/0loKW/XB9MoGc9Iezg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.236) smtp.rcpttodomain=linuxfoundation.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fdAffrjm0E0JXc8K5Yk2ckTFyGcQpPnjTLbRgVJa+tk=;
+ b=mCL1ZRu9s2YHpJyTPEuexGlIrnpiGHDY0L1c+3TU8UrOkwHo9fhuvWjea2zolxpKzkTOnFSdhPy16Vdegvjw0MlJEnZZO/KceQr9ONJMdtvrwFIG5I5eURXl0WnUum6yj40Km2TC+4dyYKt0SM9o4hawk03THfH8VM7WyIEszZo8mdPRnSqGawTbhCOc+oslEc3qfkxme9TcsHOuAQBI7hWq4SPV7ewN0q3pUfYNguyz7jy7AiJUNYDyZRbamVFmlVaBKsOK/EUj+Lk8Wgb1h5ps+1Xx2I7yrND0ibc6Cj5km+M+lZ5atD2nasOTF6pzwCQ0gkdrW1O9UzwJa8RZ2A==
+Received: from DM5PR04CA0070.namprd04.prod.outlook.com (2603:10b6:3:ef::32) by
+ BY5PR12MB4833.namprd12.prod.outlook.com (2603:10b6:a03:1f6::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4844.15; Tue, 4 Jan
+ 2022 11:13:21 +0000
+Received: from DM6NAM11FT030.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:3:ef:cafe::45) by DM5PR04CA0070.outlook.office365.com
+ (2603:10b6:3:ef::32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4844.15 via Frontend
+ Transport; Tue, 4 Jan 2022 11:13:21 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.236)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.236 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.236; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (12.22.5.236) by
+ DM6NAM11FT030.mail.protection.outlook.com (10.13.172.146) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4844.14 via Frontend Transport; Tue, 4 Jan 2022 11:13:20 +0000
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by DRHQMAIL109.nvidia.com
+ (10.27.9.19) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 4 Jan
+ 2022 11:13:20 +0000
+Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 4 Jan
+ 2022 11:13:20 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
+ Transport; Tue, 4 Jan 2022 03:13:19 -0800
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.10 00/47] 5.10.90-rc2 review
+In-Reply-To: <20220104073841.681360658@linuxfoundation.org>
+References: <20220104073841.681360658@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1641292162;42a5e166;
-X-HE-SMSGID: 1n4h48-00046v-43
+MIME-Version: 1.0
+Message-ID: <b20a5a0df2694e60897dd42aa59ed23e@HQMAIL109.nvidia.com>
+Date:   Tue, 4 Jan 2022 03:13:19 -0800
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 0fb89cd4-d645-49a6-19df-08d9cf7337a8
+X-MS-TrafficTypeDiagnostic: BY5PR12MB4833:EE_
+X-Microsoft-Antispam-PRVS: <BY5PR12MB48337DA4B158D829FE1C56AAD94A9@BY5PR12MB4833.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: g6bYSHk6qZ+71Ns2Hp0X//WZjpXyxEpa8Ms5lYndhNHlWiEaUYBvPgrbfYP/Izsb1LoGIG+Q07GxQCES11i4cu6KBGs/wNlp7etm88UURqFySn9Pc5caZUZXVtfbOavGuUStNpNpieoYp3qg7iHsgERitR7KGYRO4G7GtW8xEBnXQnsYdDs+pRyixu/en7ACeA77forVY+rY01mkZqYFXBLM0u30z/XUi9+mLxZZgyKkGxbc2GxFORkaDLx6xiyRs8GAUTRzHtvuG0Gd14Ndf2oH+Qb8ygV9NNwWpwqIe2MgeGwhzwEyYp9ERa5CrMt43T2YKjQaUc4AFHFLlkytJbg353swKxbK2B24oJA9mANqpndBQZCokDz7VlG4fx3GMrv8Z0pS9DJOM9azNQEXObQV9J0Nj37ojAZU2bdhAuPL8MWC1JK2qlmo1jfLisRC4zky6CxCQdtXMK7wsXgWf8apgwOIqz4zkJNKKwgUKBwaDTC0eIGopdyggoOSlBcVKXgEcwTV2K6ysZJzF67HkEBxSm03qasjLpYDa0IUNX6nYgEWjSoOhhuTM65z0pR+K8y1/ibAQC6WdqSMMNDv/upeBJC5JbPMiI1TuV4mv5pzYmgEscyr+fBm9r2Xh6coRPWd2QM5o+yf0Z38+kXSjxWrwHcwBuO1z/d+1l3yoCuZdiWefEtLXcU6D2dKhOyuKFyMgefcyy5wANGrPcAAaN2M0FrjWNxvuHcwYwSy6dyiEzAULm+yRbN5enhCRfVgdVA5Uk3AJ0K/c++WH0a3R4axGIycgZelUGOwfUTlMeYcscfV7ufLOiX9/jihcqHjS9wq23doVEc3srYydum48GD0aqI1riK+8eAEIZB+6CqPY4UviVl1GjIJ8ETl0a0B
+X-Forefront-Antispam-Report: CIP:12.22.5.236;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(40470700002)(81166007)(70586007)(54906003)(186003)(966005)(508600001)(6916009)(8676002)(26005)(40460700001)(356005)(7416002)(70206006)(24736004)(4326008)(108616005)(86362001)(5660300002)(8936002)(82310400004)(316002)(2906002)(336012)(426003)(47076005)(36860700001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jan 2022 11:13:20.9869
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0fb89cd4-d645-49a6-19df-08d9cf7337a8
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.236];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT030.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4833
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 03.01.22 19:26, Leon Romanovsky wrote:
-> On Mon, Jan 03, 2022 at 02:15:59PM +0100, Thorsten Leemhuis wrote:
->> Hi, this is your Linux kernel regression tracker speaking.
->>
->> On 03.01.22 10:51, Leon Romanovsky wrote:
->>> On Wed, Dec 22, 2021 at 10:51:58AM +0800, Tony Lu wrote:
->>>> On Tue, Dec 21, 2021 at 11:46:41AM +0200, Leon Romanovsky wrote:
->>>>> From: Maor Gottlieb <maorg@nvidia.com>
->>>>>
->>>>> The cited commit moved umem into the union, hence
->>>>> umem could be accessed only for user MRs. Add udata check
->>>>> before access umem in the dereg flow.
->>>>>
->>>>> Fixes: f0ae4afe3d35 ("RDMA/mlx5: Fix releasing unallocated memory in dereg MR flow")
->>>>> Tested-by: Chuck Lever <chuck.lever@oracle.com>
->>>>> Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
->>>>> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
->>>>> ---
->>>>>  drivers/infiniband/hw/mlx5/mlx5_ib.h | 2 +-
->>>>>  drivers/infiniband/hw/mlx5/mr.c      | 4 ++--
->>>>>  drivers/infiniband/hw/mlx5/odp.c     | 4 ++--
->>>>>  3 files changed, 5 insertions(+), 5 deletions(-)
->>>>>
->>>>> diff --git a/drivers/infiniband/hw/mlx5/mlx5_ib.h b/drivers/infiniband/hw/mlx5/mlx5_ib.h
->>>>
->>>> This patch was tested and works for me in our environment for SMC. It
->>>> wouldn't panic when release link and call ib_dereg_mr.
->>>>
->>>> Tested-by: Tony Lu <tonylu@linux.alibaba.com>
->>>
->>> Thanks, unfortunately, this patch is incomplete.
->>
->> Could you be a bit more verbose and give a status update? It's hard to
->> follow from the outside. But according to the "Fixes: f0ae4afe3d35"
->> above this was supposed to fix a regression introduced in v5.16-rc5 that
->> was also reported here:
->> https://lore.kernel.org/linux-rdma/9974ea8c-f1cb-aeb4-cf1b-19d37536894a@linux.alibaba.com/
+On Tue, 04 Jan 2022 08:41:05 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.90 release.
+> There are 47 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> The problematic commit f0ae4afe3d35 ("RDMA/mlx5: Fix releasing unallocated memory in dereg MR flow")
-> should be reverted https://lore.kernel.org/all/20211222101312.1358616-1-maorg@nvidia.com
-> and rewritten from the beginning.
+> Responses should be made by Thu, 06 Jan 2022 07:38:29 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.90-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Thx for the clarification. Is anyone tasked for sending the revert
-upstream, to make sure the revert makes it into 5.16, which is due on
-Sunday night?
+All tests passing for Tegra ...
 
-And someone likely should ensure the change backported to 5.15.y as
-e3bc4d4b50cae7db08e50dbe43f771c906e97701 is reverted as well. CCing a
-few lists and Greg to make sure everyone is in the loop.
+Test results for stable-v5.10:
+    10 builds:	10 pass, 0 fail
+    28 boots:	28 pass, 0 fail
+    75 tests:	75 pass, 0 fail
 
-Ciao, Thorsten
+Linux version:	5.10.90-rc2-gc129f56d557c
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
+                tegra20-ventana, tegra210-p2371-2180,
+                tegra210-p3450-0000, tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
