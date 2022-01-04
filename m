@@ -2,158 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 052BD483F27
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 10:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07C02483F66
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 10:53:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229784AbiADJ3j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 04:29:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41520 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229693AbiADJ3i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 04:29:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDBCC061784;
-        Tue,  4 Jan 2022 01:29:38 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C692B81163;
-        Tue,  4 Jan 2022 09:29:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52D17C36AEB;
-        Tue,  4 Jan 2022 09:29:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641288574;
-        bh=ySIA2aBN9LRv1tJ+pRUGBiq1mQARk0uKjAbUu7on19E=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=bdtRSeG73Wly7TiQ+FDgzQnffLlU8hDPq0jQmmq3OSv/Y8cKIRjDv+1e8WPiyKXQn
-         3VID2f64Sv1Te11PlwR0kFyETDi0qbFvPkqwic/TgKpK1j5NN6/WHWkjzLqhp12s4R
-         L4r8HuHs3Q3gmlTAms+HPoa9q3aiBe1o5BZFqgO70oUuyxoP+T4hsB8qxB4CDeonyb
-         +0Na0t6y3oqqcHAJGJ9vVZA6eX6QbWHQ9FUZbNTdEReQdoHKeMh7vDBo314sjbSPbK
-         cBGiLAuve8fR37fjZsrMGFdAWw7Ko5Ex5DSveyh+AhstgQHHzqFPebnTGWuHhUaj8P
-         s6Ttr978TFI7Q==
-Message-ID: <12184f7c-3662-7fdc-d44f-23ef29102ddd@kernel.org>
-Date:   Tue, 4 Jan 2022 17:29:30 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH 5.10 60/76] f2fs: fix to do sanity check on last xattr
- entry in __f2fs_setxattr()
-Content-Language: en-US
-To:     Salvatore Bonaccorso <carnil@debian.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Wenqing Liu <wenqingliu0120@gmail.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-References: <20211227151324.694661623@linuxfoundation.org>
- <20211227151326.779679392@linuxfoundation.org> <YdNmdhsKS5ZWHOlB@eldamar.lan>
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <YdNmdhsKS5ZWHOlB@eldamar.lan>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        id S230291AbiADJxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 04:53:11 -0500
+Received: from mail-co1nam11on2057.outbound.protection.outlook.com ([40.107.220.57]:24736
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230272AbiADJxK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jan 2022 04:53:10 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=CzCLDRIaY7+t2ZAEF/fDjS5YIFOuXvQFAcM8xwlRLShM2ZrXm1VWNUIF6THzcOYQ+tGmj23i4jzAT/lzeFlxpTKIaMSnuO6fzMEyOLvbqT0/1Obk4FLs9JhD3hrDPYVraO/w5+e4vGzWj52vz4T4SzaBhEC3tHGvIaza2eBonaUtuc+Ha/znSwOuXnXIIV5cwmMDTnNchRUTDKoTtQXBoJpY7ohgrTQjffNJQyn7Bhorh9fVGDaw4uE0n0tYvL7fNnAg6629UA533pkLvqSwWUUid6z+yzZvgyZaPKThrD8btfozo1AV4xCzhm4THyAkzB97VRo3N8OPDkgtwyWTGA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=mbq+7aE2OvXdF41KDiO1SzZ4p53MSnozYD8Ve1CWN1I=;
+ b=oerxfCSTtyF0nslxWcEJvWW223DBCQ3wbrSqz/6A+35HsLIKHUYVHKbcA22R9MRVrGxasojsSkYE92AAvxh8VCDRTGR1gtwQTVRpDWAvzbxcMwTRuG016Db4p3ke46RMcEe3ZeR2pZ2AL1EYUdHJHR6urLYYab1JD4HR8aIDpjA/BOQwot1B4l0ly1SPoyHjnBtqWcsMw4VdmE5H5WaL+pyImroIi6KGSfbe8Dhi7rxOUxc4F3YG1aI1USAex+CMZ4NvG2ZbJ1Z9g+/BiTilC/ITR+etAjsQ7xKXeOGS158fDCJ7N5nzFAYsx68XGtRem0mx0tDj2oMzog6RMTiokA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.234) smtp.rcpttodomain=linuxfoundation.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mbq+7aE2OvXdF41KDiO1SzZ4p53MSnozYD8Ve1CWN1I=;
+ b=f6KT4nHx/U554Y0Fecy40pkd3ViqSgkvbdMBLkpHQmXip5Svo3cCgHVp4y312ZwQpWmBajARwEaKtfwQWTI1GrzgADm0LvDY30hrQzYMglhvPldCn333UShNIg9lmsqDTyDD9b6CYx3zYnGMMqD1nHInf+X+YNiCN+N/NIzjRUiHfMHv6vU5gI38NZQChRlorNJJnN84quXoIzprx6G6394dQzqGBXYLS9YDrfpYvavwgUSpyAfnrjhAUJUR8MlAx/svC9cx3VKhGrFSKUzWi4Pmk7pxxxbzpjizIw2OcPRWjxsTgrbcnpf16jan6FfN+DTt0Hz8AHGw9vkRbjp2Zg==
+Received: from DS7PR06CA0001.namprd06.prod.outlook.com (2603:10b6:8:2a::12) by
+ DM6PR12MB4418.namprd12.prod.outlook.com (2603:10b6:5:28e::9) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4844.15; Tue, 4 Jan 2022 09:53:08 +0000
+Received: from DM6NAM11FT035.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:8:2a:cafe::11) by DS7PR06CA0001.outlook.office365.com
+ (2603:10b6:8:2a::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4844.13 via Frontend
+ Transport; Tue, 4 Jan 2022 09:53:08 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.234)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.234 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.234; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (12.22.5.234) by
+ DM6NAM11FT035.mail.protection.outlook.com (10.13.172.100) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4844.14 via Frontend Transport; Tue, 4 Jan 2022 09:53:08 +0000
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by DRHQMAIL101.nvidia.com
+ (10.27.9.10) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 4 Jan
+ 2022 09:53:07 +0000
+Received: from HQMAIL111.nvidia.com (172.20.187.18) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 4 Jan
+ 2022 09:53:07 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.187.6) by mail.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
+ Transport; Tue, 4 Jan 2022 09:53:07 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 00/11] 4.4.298-rc1 review
+In-Reply-To: <20220103142050.763904028@linuxfoundation.org>
+References: <20220103142050.763904028@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-ID: <e8c7979f82ef4b1bb8a8379576521395@HQMAIL111.nvidia.com>
+Date:   Tue, 4 Jan 2022 09:53:07 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 19b8e95d-05ae-4b02-11a7-08d9cf6802fa
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4418:EE_
+X-Microsoft-Antispam-PRVS: <DM6PR12MB4418E166A00423DFAEFC348BD94A9@DM6PR12MB4418.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YWqZC5d/oGYJEp0zke0gHKQCEXI+3bZQTYGrMni75/PzUH0ALnUVaTTz/yetD4UFT9F/BtpEj/VvfR01t0EX06hkylPZdvA/6fcEK0jE9gbgAsynwzNCqRPutV1qXBVBht6ouRCYS3+AQ/GYFcLYPR+lP3JKV27D8TyFDeeFDdyJKXIatHy73K89fDR4AAuJAgPv6avpBSQ647emjh+gyzTHqR8jMRufsV3FNovZ7ELm5XrQhRUextZyr7G+VQNaW8CQqm30ZzhowdeiG+uH4knQ0SL+KWlPKEPdolSGo+GECDheiD2gPpwCp1gKUkTOccQx9Edmy0nzrQ7CXifkKOH+bOfYCcVGkBrz/hg3D0OX8hFfyWFtHng6Lb1Xna3TQijJtJ53A3ADmaxbnI0rpqExorN5z6eNJbAvbp3TRhqGU5Tf7hWP9mqgdhcUrYOcb9owUBh8Fxg8pj4RZ4KGH4f8PcVhkgnctMhDUPU+MdFp8E1qYJb2yCuf+j2foVCi7HfHqte5kRTuaGadJxYaEIG7Aonxvg//5gLDjglFcg+rghRFOYaSrmWRrSLehLFQWrE4RYKc6AFfsHAA5vdrCOErPv1De8A+iJ7X7l34Z99lbQ0eZgcbJU8tdMwgiHiEFLojVlB/xuXPKDfzlHTQoDq4NbU6OCJwfmqtWbcIo5Ns4xzeO/CrOzcJ3MBZSJWZ/v6aC38CKmpczor18fsABaKGYl9e3KAyfXXJDAY9Py6ENZ+Sqh22vnvrlAkyGxxUMPGGhwIb2AgLwTgbbx5M7l6R4qnYOG+hoQxh/bCDdVCkOok3PlHfFcUDf/lXvnKhIzDVVfnmd/5bAaoNrhu33KCzqpQpC6r0yIviTG2z1yVElBv/7f/NYRuGXVXgHqGq
+X-Forefront-Antispam-Report: CIP:12.22.5.234;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(40470700002)(356005)(47076005)(508600001)(336012)(5660300002)(7416002)(966005)(81166007)(36860700001)(24736004)(108616005)(8936002)(8676002)(54906003)(4326008)(82310400004)(70586007)(2906002)(6916009)(426003)(26005)(86362001)(70206006)(316002)(186003)(40460700001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jan 2022 09:53:08.2033
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 19b8e95d-05ae-4b02-11a7-08d9cf6802fa
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.234];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT035.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4418
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022/1/4 5:11, Salvatore Bonaccorso wrote:
-> Hi,
+On Mon, 03 Jan 2022 15:21:11 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.298 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> On Mon, Dec 27, 2021 at 04:31:15PM +0100, Greg Kroah-Hartman wrote:
->> From: Chao Yu <chao@kernel.org>
->>
->> commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
-
-I've no idea.
-
-I didn't add this line from v1 to v3:
-
-https://lore.kernel.org/lkml/20211211154059.7173-1-chao@kernel.org/T/
-https://lore.kernel.org/all/20211212071923.2398-1-chao@kernel.org/T/
-https://lore.kernel.org/all/20211212091630.6325-1-chao@kernel.org/T/
-
-Am I missing anything?
-
-Thanks,
-
->>
->> As Wenqing Liu reported in bugzilla:
->>
->> https://bugzilla.kernel.org/show_bug.cgi?id=215235
->>
->> - Overview
->> page fault in f2fs_setxattr() when mount and operate on corrupted image
->>
->> - Reproduce
->> tested on kernel 5.16-rc3, 5.15.X under root
->>
->> 1. unzip tmp7.zip
->> 2. ./single.sh f2fs 7
->>
->> Sometimes need to run the script several times
->>
->> - Kernel dump
->> loop0: detected capacity change from 0 to 131072
->> F2FS-fs (loop0): Found nat_bits in checkpoint
->> F2FS-fs (loop0): Mounted with checkpoint version = 7548c2ee
->> BUG: unable to handle page fault for address: ffffe47bc7123f48
->> RIP: 0010:kfree+0x66/0x320
->> Call Trace:
->>   __f2fs_setxattr+0x2aa/0xc00 [f2fs]
->>   f2fs_setxattr+0xfa/0x480 [f2fs]
->>   __f2fs_set_acl+0x19b/0x330 [f2fs]
->>   __vfs_removexattr+0x52/0x70
->>   __vfs_removexattr_locked+0xb1/0x140
->>   vfs_removexattr+0x56/0x100
->>   removexattr+0x57/0x80
->>   path_removexattr+0xa3/0xc0
->>   __x64_sys_removexattr+0x17/0x20
->>   do_syscall_64+0x37/0xb0
->>   entry_SYSCALL_64_after_hwframe+0x44/0xae
->>
->> The root cause is in __f2fs_setxattr(), we missed to do sanity check on
->> last xattr entry, result in out-of-bound memory access during updating
->> inconsistent xattr data of target inode.
->>
->> After the fix, it can detect such xattr inconsistency as below:
->>
->> F2FS-fs (loop11): inode (7) has invalid last xattr entry, entry_size: 60676
->> F2FS-fs (loop11): inode (8) has corrupted xattr
->> F2FS-fs (loop11): inode (8) has corrupted xattr
->> F2FS-fs (loop11): inode (8) has invalid last xattr entry, entry_size: 47736
->>
->> Cc: stable@vger.kernel.org
->> Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
->> Signed-off-by: Chao Yu <chao@kernel.org>
->> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
->> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> ---
->>   fs/f2fs/xattr.c |   11 ++++++++++-
->>   1 file changed, 10 insertions(+), 1 deletion(-)
->>
->> --- a/fs/f2fs/xattr.c
->> +++ b/fs/f2fs/xattr.c
->> @@ -680,8 +680,17 @@ static int __f2fs_setxattr(struct inode
->>   	}
->>   
->>   	last = here;
->> -	while (!IS_XATTR_LAST_ENTRY(last))
->> +	while (!IS_XATTR_LAST_ENTRY(last)) {
->> +		if ((void *)(last) + sizeof(__u32) > last_base_addr ||
->> +			(void *)XATTR_NEXT_ENTRY(last) > last_base_addr) {
->> +			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has invalid last xattr entry, entry_size: %zu",
->> +					inode->i_ino, ENTRY_SIZE(last));
->> +			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
->> +			error = -EFSCORRUPTED;
->> +			goto exit;
->> +		}
->>   		last = XATTR_NEXT_ENTRY(last);
->> +	}
->>   
->>   	newsize = XATTR_ALIGN(sizeof(struct f2fs_xattr_entry) + len + size);
+> Responses should be made by Wed, 05 Jan 2022 14:20:40 +0000.
+> Anything received after that time might be too late.
 > 
-> It looks this commit while it was applied to several stable series
-> (TTBOMK in 5.15.12, 5.10.89, 5.4.169, 4.19.223 and 4.14.260) it is
-> still missing from mainline, Chao, or anyone else, do you know what
-> happened here?
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.298-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
 > 
-> Regards,
-> Salvatore
+> thanks,
+> 
+> greg k-h
+
+All tests passing for Tegra ...
+
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    30 tests:	30 pass, 0 fail
+
+Linux version:	4.4.298-rc1-ga1c4d899b501
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
