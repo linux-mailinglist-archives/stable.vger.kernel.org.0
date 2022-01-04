@@ -2,164 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8087D484738
-	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 18:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4825D48476E
+	for <lists+stable@lfdr.de>; Tue,  4 Jan 2022 19:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235946AbiADRvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jan 2022 12:51:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45094 "EHLO
+        id S236089AbiADSFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jan 2022 13:05:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235942AbiADRvE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 12:51:04 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5883EC061761
-        for <stable@vger.kernel.org>; Tue,  4 Jan 2022 09:51:04 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id 8so33330470pgc.10
-        for <stable@vger.kernel.org>; Tue, 04 Jan 2022 09:51:04 -0800 (PST)
+        with ESMTP id S230332AbiADSFz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jan 2022 13:05:55 -0500
+Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6596C061761;
+        Tue,  4 Jan 2022 10:05:54 -0800 (PST)
+Received: by mail-yb1-xb31.google.com with SMTP id d201so86432115ybc.7;
+        Tue, 04 Jan 2022 10:05:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Ia9ZmRi/BefmkvpS4DcgBZJrrO8BW3qy05dI6U2R32Q=;
-        b=GgTurskPmDxSHJvi57Ogm3kGZekCFUzn2Xw4cpoj5uIcrJJXmRsoVlQ9NzKf4dS6zk
-         2h/OJis7snMuXm/xZrK1NGfuY6MhGJxUKjDivp80a/g9Ccre/H1at7sGbr6N7/4+Yam4
-         MENX6AdlvrBvEzHriIWiro85lK6KzhkRHgGUHQDQRQsSYO/hTaHieWSkpmrjS1KMEoDO
-         oZnlDRvLliCROq/AsNQ+OooHAsZ0voIB/U6Gbh8vFJ/1A0zZlC2DjQ+qIqDyHisSbd1e
-         pTCXxKHA2PsK52c7qnbVRKMh/twl71TfLwjYz4xG5pAsPJf2DsrF5bgCgmnK6pYIme3Y
-         eeGQ==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tdQRUgSgwsJVMjTD8lJCE4WTI/seShOy5LEi4PlhXsI=;
+        b=PEtJpc0TB8gaBqgbOB/30nIwuGEJTxTljt+0TexaMKgIbcaUIbd0h0W0JVsMtUzaYR
+         6LUhIleBYN9P4uSm10Fh7LQk3xrHKEX/6I1sZ9UnOES6PD5jIJ9jh+kzT8sKvjvRzn4Z
+         siscCNd/Cdq0IYhF/SrGt7zz/4rDp7n7V8nnH8a+uFNm9EtSr08p0a7nYKCUqDE3t3Rr
+         HFHSsSjt5qzCOWG3L7ng/1QovhZ9siEDOp//y6Yex4AKjxOpL7iKmAPO2mRDJFOmoe2+
+         QLYcWrFyfSQxzodquUAovS/BFWVe8xu7z/0LJqiZ1V3GHI1kQJn9IHA0oZhieVn4rRml
+         VqZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Ia9ZmRi/BefmkvpS4DcgBZJrrO8BW3qy05dI6U2R32Q=;
-        b=a3UbjPoRLoNPNRnbc8axvGuSSHXSbeoszHt07gasOZe5fuWyOI/US5O5LjdZM1wRtj
-         3JysWzySVnWiXEo3Bm8oJXh8d4jMKoeCa+EyUrvDn9+MI8HfXV/uMd2S3iESIHcD9Lct
-         SxSKNIb9yoRl4slpC9R/dK6V0M+HOY+SDMhKN2Mq33br+Xfiracz2mBc/0JL4O33my0T
-         /H+Ed0r3+lMc2vBxGupyScYbXVjVXnWmfE7LYmpD+o383WsEdcOkTK0wQkkysQ5Sdt/n
-         Pir9FFhFULfwh/MMw4i9VKYXVf5Qvzm30JDxH1Lr6QhV4Vf6MjkijlRh7H4E03M//GkX
-         h39A==
-X-Gm-Message-State: AOAM531FFM+pDukjPmIS/8qZREqLFgzFmzB1jF6r6bQ9uRgMpCeCbf1V
-        zUbHY1CABl9dbnGEHr8W+RhY+dL3HKcVHxzE
-X-Google-Smtp-Source: ABdhPJy13GjOWhpOOPyNuwoJ/GvG58SgFHkBDjb86uGsEPe5qqjaQep49mV09BvOJIKE2ETePv3NyQ==
-X-Received: by 2002:a63:af07:: with SMTP id w7mr19251163pge.209.1641318663687;
-        Tue, 04 Jan 2022 09:51:03 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h19sm41727351pfh.30.2022.01.04.09.51.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 04 Jan 2022 09:51:03 -0800 (PST)
-Message-ID: <61d48907.1c69fb81.d7fea.fa14@mx.google.com>
-Date:   Tue, 04 Jan 2022 09:51:03 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tdQRUgSgwsJVMjTD8lJCE4WTI/seShOy5LEi4PlhXsI=;
+        b=t5m894TP41kSBFJwAxAyKoBAftSqj46ukq0CmMZOdr185bn00ZzzlnVkzqDizk1nr7
+         Mf/NtUmZ490E9sARhCPW0ZdZS90/urWUqp2oVav8ls+1NKcflRdvTCOZVfgIXpdjeODh
+         kfve7h8TvcPHGC+xhM4jrTmNApyROEGysZFtcc2Bkf02L0OOTQ9asuvmk+2BBp2sF/U3
+         Le43ihFQCUdf5Yfv2TH+LzmmWFWnjnwCNp9ds1Yx7uZHQ9ZwkQ4dxVDElne00FoJHJYN
+         A8ISMkwfL6soHsRPSnCTrU6Flil4cITyNySxuruYNHESuDRjr8nakDYml6cwFJbqPdxx
+         4sAA==
+X-Gm-Message-State: AOAM530VJFqtweKjLkudos70j46lEsWsiR5CYweleRxKnMv6UbwNtKQc
+        6t1hq9VS+ZoM35HdceqPlXJTKZxMxdJA+aUr0F4=
+X-Google-Smtp-Source: ABdhPJzEn0oYHHUiQctltIZAAad1QnBbXX+3LxQKurnei0B9hpH3oKTFCM+zlB/ZVSWmyRaJMUaN/IuchKiZNU7923s=
+X-Received: by 2002:a5b:bc1:: with SMTP id c1mr40734301ybr.669.1641319554084;
+ Tue, 04 Jan 2022 10:05:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.12-73-g2e05ea9d1c9a
-X-Kernelci-Branch: linux-5.15.y
-Subject: stable-rc/linux-5.15.y baseline: 118 runs,
- 2 regressions (v5.15.12-73-g2e05ea9d1c9a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211222142025.30364-1-johan@kernel.org> <20211222142025.30364-2-johan@kernel.org>
+In-Reply-To: <20211222142025.30364-2-johan@kernel.org>
+From:   "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Date:   Tue, 4 Jan 2022 18:05:28 +0000
+Message-ID: <CA+V-a8vS6O8YDVutH_df+v3B093aSVqpeXv4FAoChxjOjEQkkg@mail.gmail.com>
+Subject: Re: [PATCH 1/4] media: davinci: vpif: fix unbalanced runtime PM get
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-media <linux-media@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Lad@xi.lan
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 118 runs, 2 regressions (v5.15.12-73-g2e05=
-ea9d1c9a)
+Hi Johan,
 
-Regressions Summary
--------------------
+Thank you for the patch.
 
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-meson-gxbb-p200     | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
+On Wed, Dec 22, 2021 at 2:20 PM Johan Hovold <johan@kernel.org> wrote:
+>
+> Make sure to balance the runtime PM usage counter on driver unbind.
+>
+> Fixes: 407ccc65bfd2 ("[media] davinci: vpif: add pm_runtime support")
+> Cc: stable@vger.kernel.org      # 3.9
+> Cc: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/media/platform/davinci/vpif.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
 
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
+> diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
+> index 5a89d885d0e3..9752a5ec36f7 100644
+> --- a/drivers/media/platform/davinci/vpif.c
+> +++ b/drivers/media/platform/davinci/vpif.c
+> @@ -495,6 +495,7 @@ static int vpif_probe(struct platform_device *pdev)
+>
+>  static int vpif_remove(struct platform_device *pdev)
+>  {
+> +       pm_runtime_put(&pdev->dev);
+>         pm_runtime_disable(&pdev->dev);
+>         return 0;
+>  }
+> --
+> 2.32.0
+>
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.12-73-g2e05ea9d1c9a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.12-73-g2e05ea9d1c9a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2e05ea9d1c9a321bc00be4d8bd8ebbd58e5421e4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-meson-gxbb-p200     | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61d457512fe8a33c14ef6762
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-2-73-g2e05ea9d1c9a/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-2-73-g2e05ea9d1c9a/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61d457512fe8a33c14ef6=
-763
-        new failure (last pass: v5.15.12-74-gfbfd9867da50) =
-
- =
-
-
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61d456698f2c5af1d7ef674e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-2-73-g2e05ea9d1c9a/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-2-73-g2e05ea9d1c9a/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61d456698f2c5af1d7ef6=
-74f
-        new failure (last pass: v5.15.12-74-gfbfd9867da50) =
-
- =20
+Cheers,
+Prabhakar
