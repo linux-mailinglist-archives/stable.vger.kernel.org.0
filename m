@@ -2,111 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9999D485525
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 15:58:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45765485539
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 16:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241166AbiAEO6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 09:58:51 -0500
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36373 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236073AbiAEO6v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 09:58:51 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 48E1C5C0125;
-        Wed,  5 Jan 2022 09:58:50 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 05 Jan 2022 09:58:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=s
-        t6fZtdj4ukXBxBxlYKWJ2Xs+4oe4wH5UsAyXJlDaMs=; b=wlpwzDErtmHsRXywt
-        9+b80byXvnv0KBcFm3f0i7rr1hl9O8Yq15ZeK4Zag3JG0jAJws3T/N2jx7OgVmaa
-        Oiu8RSCOmkzND5r9f+w6X6xynKRywi4U/GHTgIhrfG3HtMXHeJtUCVLqwltDBYiq
-        QzAwJpjXoQHmxuDfJaSzg24YnrYKtueaTso14T85mfzo2fnVWDemwHkhrSPbuDzA
-        mzmyVg7XT918Cz8Ij4W7zRvZ0VQYb+Y5sr5iP79w3bzt38uHAxF+ebSKNWs3Fy6H
-        jeIILFP5IXPVzdDfEMHT52oDltSxIW3JLLaS7i41BOnXMJVQerX8c9PwjberS8bk
-        CzBWQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=st6fZtdj4ukXBxBxlYKWJ2Xs+4oe4wH5UsAyXJlDa
-        Ms=; b=Vds24gYVEZpb/JEzCA4po4eg1U1FsgLlwl9MLHdwF8yflZCQSdUVHtIS3
-        vKuHT65PN/xLdRsowTpYg7Hxkhq0iEohyLdVteBC/EdAyGQOohCYjr6k6ds2lsJL
-        FWwEOTgZ6/8v6W0qSMVao8XiE2D7OxDjjENvauli5aOTID1b2TIrQc+jG/UEjC/J
-        Dz0OVjQMGH8m3lV7EgfKigxR1rxoyPLWVMcxlB12SYDY3uKg8BYHITDYaO8sf4YZ
-        1EH986l2dKd/BZc2VV0Ft6TwLqitCMCeFRTQwO2l8PehIVVv9DqluVYKkJvKlZxQ
-        VcPKSXzLD66Z1Qr1XzeSr6f3x0meQ==
-X-ME-Sender: <xms:KrLVYaRKL7ZkNPJSW1Ps5u8REYNim2GkE0GaCdvt8JgT6gNjrpL6LA>
-    <xme:KrLVYfw7WF6tU-BgVXJhQkH4C8SE9mkfYlUMOeuztnwgsXf8V-15bNjo3Q-uijkCh
-    0DjnQ4ds5zvXg>
-X-ME-Received: <xmr:KrLVYX1KJj3lNbRN1htgP3ZnGqrH0QIBApohfQ9-RgiBLt5PhqjB_0a6w4lEthL34powoWmwhk0aitKP860w4wlwr9wlT_n4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrudefiedggedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepieevke
-    egjeeufeelkeeujeegueffhefgkefghfeuudethefgteefheevjeelleevnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghdpudeiqdhrtgdurdhnohifnecuvehluhhsthgvrhfuih
-    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:KrLVYWBxWcagSen6F9e3yHXX1uXrG68v8DUP6I1l-hDSED2Z_Vsaaw>
-    <xmx:KrLVYThKtdC_qp8Cn67BLVEq0O3m3awvx2lpSv75RNnlavpT6N4DFw>
-    <xmx:KrLVYSqGZTo444MF6EhjV9Q18BzXMn-svXsdhDf0JbzsUgh7ZXZgRg>
-    <xmx:KrLVYTdBNEyjXvVVxtzivrNAm3lvuvCUDRGys1gUZHNGOAj0Tmlg_Q>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 5 Jan 2022 09:58:49 -0500 (EST)
-Date:   Wed, 5 Jan 2022 15:58:46 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Jeffrey E Altman <jaltman@auristor.com>
-Cc:     stable@vger.kernel.org, linux-afs@lists.infradead.org
-Subject: Re: Backport request: commit 0dc54bd4d6e0 ("fscache_cookie_enabled:
- check cookie is valid before accessing it")
-Message-ID: <YdWyJuRus3zknfak@kroah.com>
-References: <8b47354f-ff8f-4dfe-6c1e-813ffefbcf79@auristor.com>
+        id S233942AbiAEPBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 10:01:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241175AbiAEPBo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 10:01:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D18BC061245
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 07:01:44 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AE926178E
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 15:01:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A23C36AE3;
+        Wed,  5 Jan 2022 15:01:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641394903;
+        bh=CD89Bk4p1/Y++Rnwm7lJnL3hwXMixERyPrxxV9HwqIQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KJAkbj0mHkka3crRuvSFpNd3Av83nJ13NMsUI571Id4ZACnXqMU28BRLbX2dWtwaU
+         14V0upTnn2+NbBQjJwtXzOY5qkEHmokPNGYJt97lWbqapsfQo/l/9b1Fzv3mLmSz6p
+         k324HYaW538QvA0oa4SDhJFPfq5yHNuKgABPoY9M=
+Date:   Wed, 5 Jan 2022 16:01:40 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     stable@vger.kernel.org, jaegeuk@kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net,
+        Yi Zhuang <zhuangyi1@huawei.com>
+Subject: Re: [PATCH] f2fs: quota: fix potential deadlock
+Message-ID: <YdWy1I7pFrnV4NTa@kroah.com>
+References: <20220104130513.3077-1-chao@kernel.org>
+ <YdRJEBhSg8vlD6cP@kroah.com>
+ <53d75d26-2289-a66a-a7fa-62593bad81c8@kernel.org>
+ <YdRk8tXZ6PHXKLJV@kroah.com>
+ <f07cbfa3-29f8-c671-98cf-45b664000f95@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8b47354f-ff8f-4dfe-6c1e-813ffefbcf79@auristor.com>
+In-Reply-To: <f07cbfa3-29f8-c671-98cf-45b664000f95@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 04, 2022 at 05:29:34PM -0500, Jeffrey E Altman wrote:
-> Please backport commit 0dc54bd4d6e03be1f0b678c4297170b79f1a44ab
-> ("fscache_cookie_enabled: check cookie is valid before accessing it") to
-> the 5.13, 5.14, and 5.15 kernel series.
-
-Only 5.15 is still alive, see the front page of kernel.org to see the
-active kernel verisons.
-
-> Commit 0dc54bd4d6e03be1f0b678c4297170b79f1a44ab fixes a bug introduced
-> by 3003bbd0697b659944237f3459489cb596ba196c ("afs: Use the
-> netfs_write_begin() helper") that results in a NULL pointer dereference
-> observed in Fedora 35 when accessing afs volumes from Kubernetes.
+On Tue, Jan 04, 2022 at 11:48:25PM +0800, Chao Yu wrote:
+> On 2022/1/4 23:17, Greg KH wrote:
+> > On Tue, Jan 04, 2022 at 11:05:36PM +0800, Chao Yu wrote:
+> > > On 2022/1/4 21:18, Greg KH wrote:
+> > > > On Tue, Jan 04, 2022 at 09:05:13PM +0800, Chao Yu wrote:
+> > > > > commit a5c0042200b28fff3bde6fa128ddeaef97990f8d upstream.
+> > > > > 
+> > > > > As Yi Zhuang reported in bugzilla:
+> > > > > 
+> > > > > https://bugzilla.kernel.org/show_bug.cgi?id=214299
+> > > > > 
+> > > > > There is potential deadlock during quota data flush as below:
+> > > > > 
+> > > > > Thread A:			Thread B:
+> > > > > f2fs_dquot_acquire
+> > > > > down_read(&sbi->quota_sem)
+> > > > > 				f2fs_write_checkpoint
+> > > > > 				block_operations
+> > > > > 				f2fs_look_all
+> > > > > 				down_write(&sbi->cp_rwsem)
+> > > > > f2fs_quota_write
+> > > > > f2fs_write_begin
+> > > > > __do_map_lock
+> > > > > f2fs_lock_op
+> > > > > down_read(&sbi->cp_rwsem)
+> > > > > 				__need_flush_qutoa
+> > > > > 				down_write(&sbi->quota_sem)
+> > > > > 
+> > > > > This patch changes block_operations() to use trylock, if it fails,
+> > > > > it means there is potential quota data updater, in this condition,
+> > > > > let's flush quota data first and then trylock again to check dirty
+> > > > > status of quota data.
+> > > > > 
+> > > > > The side effect is: in heavy race condition (e.g. multi quota data
+> > > > > upaters vs quota data flusher), it may decrease the probability of
+> > > > > synchronizing quota data successfully in checkpoint() due to limited
+> > > > > retry time of quota flush.
+> > > > > 
+> > > > > Fixes: db6ec53b7e03 ("f2fs: add a rw_sem to cover quota flag changes")
+> > > > > Cc: stable@vger.kernel.org # v5.3+
+> > > > > Reported-by: Yi Zhuang <zhuangyi1@huawei.com>
+> > > > > Signed-off-by: Chao Yu <chao@kernel.org>
+> > > > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> > > > > ---
+> > > > >    fs/f2fs/checkpoint.c | 3 ++-
+> > > > >    1 file changed, 2 insertions(+), 1 deletion(-)
+> > > > > 
+> > > > > diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
+> > > > > index 83e9bc0f91ff..7b0282724231 100644
+> > > > > --- a/fs/f2fs/checkpoint.c
+> > > > > +++ b/fs/f2fs/checkpoint.c
+> > > > > @@ -1162,7 +1162,8 @@ static bool __need_flush_quota(struct f2fs_sb_info *sbi)
+> > > > >    	if (!is_journalled_quota(sbi))
+> > > > >    		return false;
+> > > > > -	down_write(&sbi->quota_sem);
+> > > > > +	if (!down_write_trylock(&sbi->quota_sem))
+> > > > > +		return true;
+> > > > >    	if (is_sbi_flag_set(sbi, SBI_QUOTA_SKIP_FLUSH)) {
+> > > > >    		ret = false;
+> > > > >    	} else if (is_sbi_flag_set(sbi, SBI_QUOTA_NEED_REPAIR)) {
+> > > > > -- 
+> > > > > 2.32.0
+> > > > > 
+> > > > 
+> > > > What stable tree(s) is this for?
+> > > 
+> > > Oh, please help to try applying to 5.4, 5.10, and 5.15 stable trees, thanks!
+> > 
+> > This is already in the 5.15.6 kernel release, do you need it applied
+> > there again?  :)
 > 
-> [ 3627.403829] BUG: kernel NULL pointer dereference, address:
-> 0000000000000068
-> [ 3627.411649] RIP: 0010:afs_is_cache_enabled+0xc/0x30 [kafs]
-> [ 3627.419900] Call Trace:
-> [ 3627.420432]  <TASK>
-> [ 3627.420957]  netfs_write_begin+0x1ff/0x810 [netfs]
-> [ 3627.421498]  ? lock_timer_base+0x61/0x80
-> [ 3627.422124]  afs_write_begin+0x58/0x240 [kafs]
-> [ 3627.422738]  generic_perform_write+0xae/0x1d0
-> [ 3627.423325]  ? file_update_time+0xd2/0x120
-> [ 3627.423806]  __generic_file_write_iter+0x101/0x1d0
-> [ 3627.424275]  generic_file_write_iter+0x5d/0xb0
-> [ 3627.424741]  afs_file_write+0x73/0xa0 [kafs]
-> [ 3627.425270]  new_sync_write+0x10b/0x180
-> [ 3627.425708]  vfs_write+0x1ce/0x260
-> [ 3627.426160]  ksys_write+0x4f/0xc0
-> [ 3627.426606]  do_syscall_64+0x3b/0x90
-> [ 3627.427086]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> The defect was introduced in v5.13-rc1 and fixed in v5.16-rc1.
+> Oops, no, so 5.4 and 5.10 is enough. ;)
+> We can skip 5.15 since this patch was merged in 5.15-rc1 at the first time.
 
+It was merged in 5.16-rc1, and then backported to 5.15.6.  You might
+want to check your git scripts.
 
-Now queued up, thanks.
+Anyway, now queued up, thanks.
 
 greg k-h
