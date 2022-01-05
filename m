@@ -2,103 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F815485B1A
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 22:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DCAA485B38
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 23:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235425AbiAEVw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 16:52:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58764 "EHLO
+        id S244693AbiAEWCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 17:02:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244600AbiAEVwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 16:52:11 -0500
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72401C061212;
-        Wed,  5 Jan 2022 13:52:10 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id b13so1827078edd.8;
-        Wed, 05 Jan 2022 13:52:10 -0800 (PST)
+        with ESMTP id S244703AbiAEWCd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 17:02:33 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70BE4C061201
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 14:02:33 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id t19so536295pfg.9
+        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 14:02:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bjB/Zn0uKKBu8yfN2dleBmwCa7tAycjeqrCCen9R2Cw=;
-        b=b/qmShWmOlCqy6QMXlTvASUJddaI5zI/6aasF937ZZK8GAZfDjfsdL6yKNyEt6/RkH
-         iJlxLpLLr5Q+SwswJnZp9Z6Kf6ZkDR6HLcoVuW729au4Rsd/9u/IxAicbiYz/LZgz79L
-         GdS6DjbKZFWX9APSwNY2L6Xwcv6bLRLPwnbKS3AyZSMel4MOgl00C3E8ylvqFJBIwfiO
-         Kc6dXVU/6CbfFG0TsMc1hAm5eAaOj5h0Jiy7pDA628SPqrFPjg+WyCiGwEpJKmiaEU9B
-         KRIeAPI+FaOTMyZfdiSwMtbT4GpNaelDJVcz4qOt2Fx+3O97Y08gm2DkeYlXIwxFJmgW
-         sITQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XgMd9FwCXZ9zY7m5OKAMYGzsoCFUumepQmE10LD0F4Y=;
+        b=kX7V6IBTxXyZo3317n6EZWd8sdw83/u5DKxHwJptk0lckCR4Sjrc+v8zYw7Yr4ZtR5
+         3CT6tI9l/c1Z7UBoWzGan2/Z5brMhFOUyvSBzvySEM380eBOBro5HxfQ6CFF4ASVTC6I
+         isETADywsDPb2Cg1RVXVDmCb2y0EaIL1hgyKdGaQjh7aCwPwxaPNU2bQH26QiVJDgZsT
+         AZTUcG8crmTINHgFwNzXGH/LYWNWr9QxfOoIVBMWpXiHc85wiiRenioyoDnTwQSZ/wPe
+         XGGl07kn7B5G0DE4uSmdB8pc+/N4dtO0f007+PSsu2mDq6j6K2jp8TRiNuQBtu+uxht1
+         XtLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bjB/Zn0uKKBu8yfN2dleBmwCa7tAycjeqrCCen9R2Cw=;
-        b=OG0bSNEQulyCdqrsvH8M+YmrIg6IRmBf417XPVEagVUICTt57pM6BWrO6ueUFP82AS
-         43Zl5HdsRYKdKRgRET8Prqq1qqfoFdJOmJ4hOvY6Mt8fDn+KsCUpOw7jgkIK+KrOZLD5
-         7cQ36cQhWef/8PiuIguB+o/ZAf6cues+9ktfLXV2rWU0+ol1zf5HViwaXHDhjD2N5O5i
-         LGdJVmMBHiuvD+Pg9kep/zXEarLu7OA5rXj6ThR8WCfBX/p5kqgciIG0kRyYPJ65dxOO
-         +gjSpVtGOqvcKohxb0NPjl6/cDmIJAhG4FCdAN0voSqqwsjWozCxZkoWXHl7b2A3GgIv
-         2Isg==
-X-Gm-Message-State: AOAM531LwlVfTKm9vap//IVypWOP2ClzfmpVkifISNO6eivOtWB2RrhD
-        a1XCMwCK3LTZuxK3Atv7+1pUtmmDbG1WEhylCg0=
-X-Google-Smtp-Source: ABdhPJwLfQRw8pC3JV+6Qx5qoGjNdZEjOwnd3EUlmiwp8FgXYbFvx6A04tcHF77/pjpG2dpE3fekXYJMyL5ND9OZCyI=
-X-Received: by 2002:a50:d710:: with SMTP id t16mr55428708edi.50.1641419528997;
- Wed, 05 Jan 2022 13:52:08 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XgMd9FwCXZ9zY7m5OKAMYGzsoCFUumepQmE10LD0F4Y=;
+        b=pxceTo9s6W/swtJyazRk8rgfX9OV5uyKTS6s5275+XQiaym+VU1IzCeMUE250zN0ez
+         XRETyxUwyHdpmqxPfzeQpJDgmIUB1Scw3gXSWArR9RC1hL3e8z/WCbglTQeEPuS7m9YA
+         ge5k5USzUvIut/qaGOt6bUIx3RyouHkoHW2uq1PFBOv6JGVl1fyswE5YKxo9+Pn5qntA
+         XnvHHRkuQndAmarBlK5LdQDBWFdLvrN9CEt2yK4NZA6b6DGFGLmi0rIFv9gD3d7ZjcEM
+         rCeVeNaM14rfA3ymYPXchVBN0RGGBgMf0dTE6qVxpjYgBGGQNdIAQTBKhTCtllwjcG2w
+         GFXw==
+X-Gm-Message-State: AOAM533lLIqotnknntPIFluFhgRNyD39DeXqAy7rgj14O1b6n8EQ4DOw
+        mqm/ujuWb1UvwGghNSucUYtOSxz/X5kyC9tX
+X-Google-Smtp-Source: ABdhPJyRFeZ6yT/pKhHAAt3SL8LgkpzdPxBzuh4lsXxx3OAooPqA64WXPxS1h0ACWhu5yBMNlpSPOw==
+X-Received: by 2002:a05:6a00:139b:b0:4ba:a476:364e with SMTP id t27-20020a056a00139b00b004baa476364emr57650584pfg.59.1641420152716;
+        Wed, 05 Jan 2022 14:02:32 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e11sm18122pjh.14.2022.01.05.14.02.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jan 2022 14:02:32 -0800 (PST)
+Message-ID: <61d61578.1c69fb81.3b3dc.0150@mx.google.com>
+Date:   Wed, 05 Jan 2022 14:02:32 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <1641368602-20401-1-git-send-email-hongxing.zhu@nxp.com> <1641368602-20401-6-git-send-email-hongxing.zhu@nxp.com>
-In-Reply-To: <1641368602-20401-6-git-send-email-hongxing.zhu@nxp.com>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Wed, 5 Jan 2022 18:51:58 -0300
-Message-ID: <CAOMZO5AqgOOo3+r3yQSsfaNxW9eHXhCi=m+mqR=sf=K6dXA8tw@mail.gmail.com>
-Subject: Re: [PATCH v5 5/6] PCI: imx6: Fix the regulator dump when link never
- came up
-To:     Richard Zhu <hongxing.zhu@nxp.com>
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mark Brown <broonie@kernel.org>, lorenzo.pieralisi@arm.com,
-        jingoohan1@gmail.com, stable@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-imx@nxp.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel@pengutronix.de
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.170-2-g8ebc30b5d171
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 128 runs,
+ 4 regressions (v5.4.170-2-g8ebc30b5d171)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Richard,
+stable-rc/queue/5.4 baseline: 128 runs, 4 regressions (v5.4.170-2-g8ebc30b5=
+d171)
 
-On Wed, Jan 5, 2022 at 5:12 AM Richard Zhu <hongxing.zhu@nxp.com> wrote:
->
-> When PCIe PHY link never came up and vpcie regulator is present, there
-> would be following dump when try to put the regulator.
-> Add a new host_exit() callback for i.MX PCIe driver to disable this
-> regulator and fix this dump when link never came up.
->
-> The driver should undo any enables it did itself, and not undo any
-> enables that anything else did which means it should never be basing
-> decisions on regulator_is_enabled().
->
-> To keep usage counter balance of the clocks, powers and so on. Do the
-> clock disable in the error handling after host_init too.
->
->   imx6q-pcie 33800000.pcie: Phy link never came up
->   imx6q-pcie: probe of 33800000.pcie failed with error -110
+Regressions Summary
+-------------------
 
-Shouldn't we ignore the dw_pcie_wait_for_link() error?
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-At least, this was the intention of 886a9c134755 ("PCI: dwc: Move link
-handling into
-common code").
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
->   ------------[ cut here ]------------
->   WARNING: CPU: 3 PID: 119 at drivers/regulator/core.c:2256 _regulator_put.part.0+0x14c/0x158
->   Modules linked in:
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-My concern is that this issue is still present in 5.15, which is LTS.
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-You only address this problem in 5/6 and I am not sure if the previous
-patches could be applied to stable as they are cleanups.
 
-How can we fix this for 5.15 stable?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.170-2-g8ebc30b5d171/plan/baseline/
 
-Could you make a minimal fix as the first patch of the series and
-cleanup patches later?
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.170-2-g8ebc30b5d171
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8ebc30b5d171593e37581f6356878fbad3800deb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d5e1607bf0b9a4d3ef675e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d5e1607bf0b9a4d3ef6=
+75f
+        failing since 20 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d5e170bffcd3401cef674f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d5e170bffcd3401cef6=
+750
+        failing since 20 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d5e15e454bfd9519ef6755
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d5e15e454bfd9519ef6=
+756
+        failing since 20 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d5e16d7ff2594042ef675e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+-g8ebc30b5d171/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-=
+virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d5e16d7ff2594042ef6=
+75f
+        failing since 20 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
