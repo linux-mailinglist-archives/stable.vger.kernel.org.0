@@ -2,94 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2883485804
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 19:14:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 869BD485807
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 19:15:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242796AbiAESOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 13:14:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37420 "EHLO
+        id S242800AbiAESPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 13:15:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242792AbiAESOm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 13:14:42 -0500
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED513C061245;
-        Wed,  5 Jan 2022 10:14:41 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id s1so84793473wra.6;
-        Wed, 05 Jan 2022 10:14:41 -0800 (PST)
+        with ESMTP id S242792AbiAESPR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 13:15:17 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE7C0C061245
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 10:15:16 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id l15so208597pls.7
+        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 10:15:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=8IjMW6kyewB7HLmt/uQqvKqK5mbucpa6D6MSyk1fHdQ=;
-        b=gKE4UomKBFwRpUshG0snXgWNC/rxvjVyQ8jVCfO9j82EJZwmb/UcMTRrrQbgXq0hrF
-         rTfFlCyhgANb2v7sdxl4Jin7ut5WN1WO44htt/gQJIupRLBZO+PTL6+bHiVoMePRGHBR
-         EX228Bum6EoQAPa+1wnEjBJou/GyrQ5EDD/eROUQYiw/DryE685vocVXA3xysDiXy5kT
-         fZrXKsqOc+QtW22/Ua86OONpG/tzAIjreZFDL2At7gvmadwou/RD1D1P8eexwGOOW3De
-         cktCBuVV8ceC2SnmqXZFU8xKAnIq2ojSpgN2/qoRaBa0pIaf+f9d5x9eEUk9BTmrOqBy
-         wVcg==
+        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :user-agent:mime-version:content-transfer-encoding;
+        bh=1dZCF8W0sgi/NYKKPCum4a1GBwgmZojpRmdK8UlCwHA=;
+        b=bZCgK7ZVnOlRZoVul9+2QVUo9qPPMqnGMGH/KK4UUOLFgA43P1f9BKM1oIz3WYMacs
+         /llFgaZhbx0nOx/tDjXQlDEfTDYXV1OTy+dTxUXyAzgfPReyJNdR6T4KJ5MB1IsOkvhd
+         VkvMY/5bMKxd8D6unFyYpb9QeZ2wX7dSHL8Day1lkgndAYqbu5GoVJHz/R7s/o/HDA8a
+         FyE+ttd88g1q3oXrQBEiP8IzJo7hsAUVVLJj6sqfu5kaIQMW+wjI/x4UUiIwJxgYoKI3
+         Oym89ryDTYQioz4mewrbqmijurGNaDYj0tSOUkbfJTu78Vyhzjy7H517M5iYeJbPosHr
+         16Lg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=8IjMW6kyewB7HLmt/uQqvKqK5mbucpa6D6MSyk1fHdQ=;
-        b=WP7cdOl7JohOCkNwkSC7Rn6YK9E1rjHOH/mGY+oCj7V0YsPQ07yFHLBS/JqMAYfNEB
-         eV+A4kyBvbvKQxJT1mqSSY/4THi69epOhCm0d2SCCu/OjSskVTZ821Bg1k+mhDuWvIxq
-         V8TaNh7QEhEJ501PPf4DFwbvSZM6fvdl2KjoqqMhg2khCpiz/m2fEZdFkUO+fYyflRJQ
-         IQ94nCGmCAwKUwpnRMmpOfS4w1GG4wfb2ihHXFVH+UxQuiiqi3O1nJLOMZfy9ZU8jgVs
-         DUk9aBbjNtP62PC/UachaN783QKv2dM/kaG+tm67Nm5vwxy8N7KxELLdPRBpeO+VbS9I
-         Uh7w==
-X-Gm-Message-State: AOAM532IsG4Xt1u8Ci01JtrvYtKXbp34Z5s/txVCxdhDABnTjuir3YRn
-        KauGtogBxVtA2ad5rjlFSKnri2g1uF0RWA==
-X-Google-Smtp-Source: ABdhPJwV50tlWG5s4pF6cVKwOxhOo8WttB1QjSKihGp4jw4Pg8cviW/0sYraxqiJi76XO6Ft7KaHpg==
-X-Received: by 2002:a5d:64aa:: with SMTP id m10mr49230327wrp.500.1641406480629;
-        Wed, 05 Jan 2022 10:14:40 -0800 (PST)
-Received: from [10.0.0.5] ([37.166.219.18])
-        by smtp.gmail.com with ESMTPSA id 9sm53334440wrz.90.2022.01.05.10.14.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Jan 2022 10:14:40 -0800 (PST)
-Message-ID: <425e92d0-4321-8f9d-fc75-bba29f172550@gmail.com>
-Date:   Wed, 5 Jan 2022 10:14:37 -0800
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=1dZCF8W0sgi/NYKKPCum4a1GBwgmZojpRmdK8UlCwHA=;
+        b=muAAD9VIXyPUOBRGuodarDIh8+VFSqWW/3tUjaIGCT1lxRCuXSdXsAl0PaZOJdRxaY
+         7RAP+A0/LXsmj0CB1YAcnzH6ZCtZkxGh/zWZHLi5jaSFY7gXnOAkvq6hHR58GCmrIzAm
+         tWBx6n+YRsS30GtA77+jwDx7Bm40LxJDtBZVrJgLeFVyFLp14LWZfEmzI3o39qKMyDVJ
+         o38PzM09iTDHWt8WL231EqIWA9JxbOg/7t/x+u0D3xbvZMmF03dQfbvPNv/963fDfvj7
+         0MKReveePEn4UhUfZbiFnlSXFinl4wXxBoZZHsjHK6WBW4spUmD2v0haPEm4X1EsvCqi
+         Kz9A==
+X-Gm-Message-State: AOAM532Qn94b2GYwD90iWXGm+PSmFsJTF/6zSdlt/Oue3fy/cPc7lt+C
+        Vm0PO16OLNhsFcQVS6gRnnv5Uw==
+X-Google-Smtp-Source: ABdhPJwzMlHdd6/779thMkHF1YznalbdxyhAOWTirI//SUlpuAVIEAddDmIGcjOXV0Ng/1/iA1JS3w==
+X-Received: by 2002:a17:90b:3808:: with SMTP id mq8mr5490839pjb.85.1641406516439;
+        Wed, 05 Jan 2022 10:15:16 -0800 (PST)
+Received: from [192.168.1.32] ([122.164.22.119])
+        by smtp.gmail.com with ESMTPSA id k18sm45105753pfu.76.2022.01.05.10.15.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jan 2022 10:15:15 -0800 (PST)
+Message-ID: <b57a54adb349f21888db2efec2e6a6a342044d7e.camel@rajagiritech.edu.in>
+Subject: Re: [PATCH 5.15 00/72] 5.15.13-rc2 review
+From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Date:   Wed, 05 Jan 2022 23:45:11 +0530
+In-Reply-To: <YdWxh/OR0dQDeS9E@kroah.com>
+References: <20220104073845.629257314@linuxfoundation.org>
+         <54461ffb9ebe34e673e6730f3e9cc94218ad2f49.camel@rajagiritech.edu.in>
+         <YdWxh/OR0dQDeS9E@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.1-1 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Subject: Re: [PATCH net 1/2] net: bridge: mcast: add and enforce query
- interval minimum
-Content-Language: en-US
-To:     Nikolay Aleksandrov <nikolay@nvidia.com>, netdev@vger.kernel.org
-Cc:     eric.dumazet@gmail.com, stable@vger.kernel.org,
-        herbert@gondor.apana.org.au, roopa@nvidia.com, davem@davemloft.net,
-        bridge@lists.linux-foundation.org, kuba@kernel.org
-References: <20211227172116.320768-1-nikolay@nvidia.com>
- <20211227172116.320768-2-nikolay@nvidia.com>
-From:   Eric Dumazet <eric.dumazet@gmail.com>
-In-Reply-To: <20211227172116.320768-2-nikolay@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 2022-01-05 at 15:56 +0100, Greg Kroah-Hartman wrote:
+> On Wed, Jan 05, 2022 at 06:32:43PM +0530, Jeffrin Jose T wrote:
+> > On Tue, 2022-01-04 at 08:41 +0100, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 5.15.13
+> > > release.
+> > > There are 72 patches in this series, all will be posted as a
+> > > response
+> > > to this one.  If anyone has any issues with these being applied,
+> > > please
+> > > let me know.
+> > > 
+> > > Responses should be made by Thu, 06 Jan 2022 07:38:29 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > >         
+> > > https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.13-rc2.gz
+> > > or in the git tree and branch at:
+> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linu
+> > > x-
+> > > stable-rc.git linux-5.15.y
+> > > and the diffstat can be found below.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > > 
+> >  hello,
+> > 
+> > There was a compilation error....
+> > 
+> > -----------x--------------x------------------x--
+> > MODPOST vmlinux.symvers
+> >   MODINFO modules.builtin.modinfo
+> >   GEN     modules.builtin
+> > BTF: .tmp_vmlinux.btf: pahole (pahole) is not available
+> > Failed to generate BTF for vmlinux
+> > Try to disable CONFIG_DEBUG_INFO_BTF
+> > make: *** [Makefile:1183: vmlinux] Error 1
+> 
+> Is this a regression?  If so, what commit caused this?
+> 
+> > i did CONFIG_DEBUG_INFO_BTF=n  in .config and then compilation was
+> > success.
+> 
+> Or you can install pahole, right?  That's a requirement for that
+> build
+> option I think.
+> 
+i installed pahole  which is in package "dwarves"  in debian after  
+reading yours and shuah's  message
 
-On 12/27/21 09:21, Nikolay Aleksandrov wrote:
-> As reported[1] if query interval is set too low and we have multiple
-> bridges or even a single bridge with multiple querier vlans configured
-> we can crash the machine. Add a 1 second minimum which must be enforced
-> by overwriting the value if set lower (i.e. without returning an error) to
-> avoid breaking user-space. If that happens a log message is emitted to let
-> the administrator know that the interval has been set to the minimum.
-> The issue has been present since these intervals could be user-controlled.
->
-> [1] https://lore.kernel.org/netdev/e8b9ce41-57b9-b6e2-a46a-ff9c791cf0ba@gmail.com/
->
-> Fixes: d902eee43f19 ("bridge: Add multicast count/interval sysfs entries")
-> Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-> Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-> ---
+i agree with shuah's  answer. 
+thanks shuah
 
-
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-
-Thanks !
-
-
+-- 
+software engineer
+rajagiri school of engineering and technology - autonomous
