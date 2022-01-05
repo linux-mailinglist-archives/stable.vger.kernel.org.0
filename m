@@ -2,145 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B685F484F15
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 09:13:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E863484EFF
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 09:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238373AbiAEINJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 03:13:09 -0500
-Received: from inva020.nxp.com ([92.121.34.13]:39624 "EHLO inva020.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238361AbiAEINE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jan 2022 03:13:04 -0500
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 1FE311A12AA;
-        Wed,  5 Jan 2022 09:12:58 +0100 (CET)
-Received: from aprdc01srsp001v.ap-rdc01.nxp.com (aprdc01srsp001v.ap-rdc01.nxp.com [165.114.16.16])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id B15301A2374;
-        Wed,  5 Jan 2022 09:12:57 +0100 (CET)
-Received: from localhost.localdomain (shlinux2.ap.freescale.net [10.192.224.44])
-        by aprdc01srsp001v.ap-rdc01.nxp.com (Postfix) with ESMTP id 6D6FE183AD6D;
-        Wed,  5 Jan 2022 16:12:56 +0800 (+08)
-From:   Richard Zhu <hongxing.zhu@nxp.com>
-To:     l.stach@pengutronix.de, bhelgaas@google.com, broonie@kernel.org,
-        lorenzo.pieralisi@arm.com, jingoohan1@gmail.com, festevam@gmail.com
-Cc:     hongxing.zhu@nxp.com, stable@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-imx@nxp.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: [PATCH v5 6/6] PCI: imx6: Add the compliance tests mode support
-Date:   Wed,  5 Jan 2022 15:43:22 +0800
-Message-Id: <1641368602-20401-7-git-send-email-hongxing.zhu@nxp.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1641368602-20401-1-git-send-email-hongxing.zhu@nxp.com>
-References: <1641368602-20401-1-git-send-email-hongxing.zhu@nxp.com>
-X-Virus-Scanned: ClamAV using ClamSMTP
+        id S231244AbiAEIIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 03:08:44 -0500
+Received: from new4-smtp.messagingengine.com ([66.111.4.230]:39713 "EHLO
+        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230005AbiAEIIn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 03:08:43 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.nyi.internal (Postfix) with ESMTP id A0EFA58035C;
+        Wed,  5 Jan 2022 03:08:42 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 05 Jan 2022 03:08:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=loyXCU6417rX16GHEn/ISzTNLPl
+        e2vA9pVFu1dVyqOo=; b=vs+GGYihLVNGh92J4HffLjOA1b5Y5vtYWroHRah41Yf
+        IfuEOJJGteBCGdtEn5/wvbFJqtf4SLoIKlq1c43EGMgx7MgmrutRbo177TnssWjT
+        +3d9nmi2zAuXUpNluI12bpmtjZ4al+tTyA4WE1s+qcvsCcVDYvCxqbqbkYoz9ABh
+        wTNW5QroKUkrHx8KjXfmLu0e+ydIvFR9gxafVaW+tv6vrgsbyHaIPaipSe3KAa5P
+        KYJIHewX5YROcwrivs0AQOi93il5GG/pPHO389TPkmqAFsrwxnrdh+1lRsJznFyr
+        1atNpLjkJYvj+GX8ZweLFD8lSokKmlBcsLYHRl3nnzw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=loyXCU
+        6417rX16GHEn/ISzTNLPle2vA9pVFu1dVyqOo=; b=I/jBf6Fj9YqwcdykGYsuDO
+        rsMrMFLqjSFGbMYGG9ykbStfXS/DZROPXYptO+MSP/1dk76b33iMrrZSnuUwqNMh
+        cAS1lUTb9quD0d45F4BOB9s1a6WuaBglsNgyh6Dmn2T5BIYhzo8bi78c6F8GT6CL
+        MaZz82yUuPkiZcThJGhQCJ/evvLnUDVDnOkk1muATsnodwF2T6AQicgFMxLVbBf+
+        VIFLTjLx7a7O20AUvEqIVMoKv4SPYW1dIysYIjtsFZZM2wS8c1EWJbgvZFPVApO/
+        HrCKcn5uKCjOoCieH/NCXdLYGu+MHwIH7j8pj1G+BWc4MGB8ghedarkPFe3lCggw
+        ==
+X-ME-Sender: <xms:CVLVYQLtaThXR_8yXR67VDplI-byTQLK4FTQYMvJGpnt083MTQ3u_w>
+    <xme:CVLVYQLS17Ez1uGfUszHPL8cooDnaJnbcmzZR9QJl2ap7JSFM3L-JcfeTF4pVmNX4
+    UTL1D44riM30g>
+X-ME-Received: <xmr:CVLVYQuPyuy-2tRjGfEsa3Ijn9gkPnoVwrZ2w6X2T70sn_APiUIV5fNTTHqtp6pFj-fSZdzpUhbIKe8lav-qDkrgMfFPzuDp>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrudefgedguddufecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
+    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhs
+    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:CVLVYdY1ynuihQV4ovWLFP8NzuFKffyQtWTOPD0MKtYm3MfXJTCp2g>
+    <xmx:CVLVYXb0AtPFZy9w2dVR83OqzQiEUbIKZQuyznQTOnRawps4G-YC7w>
+    <xmx:CVLVYZC2krFTnK49RirAq1VIgdArc21n07-jJpIjwxoQhnoDOf0lSw>
+    <xmx:ClLVYUTGrMlVf-ULEyuqPNTd6le8BK3Ns3guYw19HUE91vtzbo4H2Q>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 5 Jan 2022 03:08:41 -0500 (EST)
+Date:   Wed, 5 Jan 2022 09:08:39 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Stefan Schmidt <stefan@datenfreihafen.org>
+Cc:     Alexander Aring <alex.aring@gmail.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-wpan - ML <linux-wpan@vger.kernel.org>,
+        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        "# 3.19.x" <stable@vger.kernel.org>,
+        Alexander Potapenko <glider@google.com>
+Subject: Re: [PATCH RFT] ieee802154: atusb: move to new USB API
+Message-ID: <YdVSBy47e0+OdXAo@kroah.com>
+References: <CAG_fn=VDEoQx5c7XzWX1yaYBd5y5FrG1aagrkv+SZ03c8TfQYQ@mail.gmail.com>
+ <20220102171943.28846-1-paskripkin@gmail.com>
+ <YdL0GPxy4TdGDzOO@kroah.com>
+ <CAB_54W7HQmm1ncCEsTmZFR+GVf6p6Vz0RMWDJXAhXQcW4r3hUQ@mail.gmail.com>
+ <ab1ec1c0-389c-dcae-9cd8-6e6771a94178@datenfreihafen.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ab1ec1c0-389c-dcae-9cd8-6e6771a94178@datenfreihafen.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Refer to the system board signal Quality of PCIe archiecture PHY test
-specification. Signal quality tests(for example: jitters,  differential
-eye opening and so on ) can be executed with devices in the
-polling.compliance state.
+On Tue, Jan 04, 2022 at 08:41:23PM +0100, Stefan Schmidt wrote:
+> Hello.
+> 
+> On 03.01.22 16:35, Alexander Aring wrote:
+> > Hi,
+> > 
+> > On Mon, 3 Jan 2022 at 08:03, Greg KH <greg@kroah.com> wrote:
+> > > 
+> > > On Sun, Jan 02, 2022 at 08:19:43PM +0300, Pavel Skripkin wrote:
+> > > > Alexander reported a use of uninitialized value in
+> > > > atusb_set_extended_addr(), that is caused by reading 0 bytes via
+> > > > usb_control_msg().
+> > > > 
+> > > > Since there is an API, that cannot read less bytes, than was requested,
+> > > > let's move atusb driver to use it. It will fix all potintial bugs with
+> > > > uninit values and make code more modern
+> > > > 
+> > > > Fail log:
+> > > > 
+> > > > BUG: KASAN: uninit-cmp in ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
+> > > > BUG: KASAN: uninit-cmp in atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
+> > > > BUG: KASAN: uninit-cmp in atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
+> > > > Uninit value used in comparison: 311daa649a2003bd stack handle: 000000009a2003bd
+> > > >   ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
+> > > >   atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
+> > > >   atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
+> > > >   usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
+> > > > 
+> > > > Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
+> > > > Cc: stable@vger.kernel.org # 5.9
+> > > > Reported-by: Alexander Potapenko <glider@google.com>
+> > > > Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+> > > > ---
+> > > >   drivers/net/ieee802154/atusb.c | 61 +++++++++++++++++++++-------------
+> > > >   1 file changed, 38 insertions(+), 23 deletions(-)
+> > > > 
+> > > > diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
+> > > > index 23ee0b14cbfa..43befea0110f 100644
+> > > > --- a/drivers/net/ieee802154/atusb.c
+> > > > +++ b/drivers/net/ieee802154/atusb.c
+> > > > @@ -80,10 +80,9 @@ struct atusb_chip_data {
+> > > >    * in atusb->err and reject all subsequent requests until the error is cleared.
+> > > >    */
+> > > > 
+> > > > -static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
+> > > > -                          __u8 request, __u8 requesttype,
+> > > > -                          __u16 value, __u16 index,
+> > > > -                          void *data, __u16 size, int timeout)
+> > > > +static int atusb_control_msg_recv(struct atusb *atusb, __u8 request, __u8 requesttype,
+> > > > +                               __u16 value, __u16 index,
+> > > > +                               void *data, __u16 size, int timeout)
+> > > 
+> > > Why do you need a wrapper function at all?  Why not just call the real
+> > > usb functions instead?
+> 
+> > ...
+> 
+> > > 
+> > > I would recommend just moving to use the real USB functions and no
+> > > wrapper function at all like this, it will make things more obvious and
+> > > easier to understand over time.
+> > 
+> > okay.
+> 
+> With the small fix handle the actual KASAN report applied now
 
-To let the device support polling.compliance stat, the clocks and powers
-shouldn't be turned off when the probe of device driver is failed.
+It was?  What is the git commit id?
 
-Based on CLB(Compliance Load Board) Test Fixture and so on test
-equipments, the PHY link would be down during the compliance tests.
-Refer to this scenario, add the i.MX PCIe compliance tests mode enable
-support, and keep the clocks and powers on, and finish the driver probe
-without error return.
+thanks,
 
-Use the "pci_imx6.compliance=1" in kernel command line to enable the
-compliance tests mode.
-
-Signed-off-by: Richard Zhu <hongxing.zhu@nxp.com>
----
- drivers/pci/controller/dwc/pci-imx6.c | 47 ++++++++++++++++++---------
- 1 file changed, 31 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/pci/controller/dwc/pci-imx6.c b/drivers/pci/controller/dwc/pci-imx6.c
-index 61b25f5cbf5c..773b9e45806b 100644
---- a/drivers/pci/controller/dwc/pci-imx6.c
-+++ b/drivers/pci/controller/dwc/pci-imx6.c
-@@ -146,6 +146,10 @@ struct imx6_pcie {
- #define PHY_RX_OVRD_IN_LO_RX_DATA_EN		BIT(5)
- #define PHY_RX_OVRD_IN_LO_RX_PLL_EN		BIT(3)
- 
-+static bool imx6_pcie_cmp_mode;
-+module_param_named(compliance, imx6_pcie_cmp_mode, bool, 0644);
-+MODULE_PARM_DESC(compliance, "i.MX PCIe compliance test mode (1=compliance test mode enabled)");
-+
- static int pcie_phy_poll_ack(struct imx6_pcie *imx6_pcie, bool exp_val)
- {
- 	struct dw_pcie *pci = imx6_pcie->pci;
-@@ -832,10 +836,12 @@ static int imx6_pcie_start_link(struct dw_pcie *pci)
- 	 * started in Gen2 mode, there is a possibility the devices on the
- 	 * bus will not be detected at all.  This happens with PCIe switches.
- 	 */
--	tmp = dw_pcie_readl_dbi(pci, offset + PCI_EXP_LNKCAP);
--	tmp &= ~PCI_EXP_LNKCAP_SLS;
--	tmp |= PCI_EXP_LNKCAP_SLS_2_5GB;
--	dw_pcie_writel_dbi(pci, offset + PCI_EXP_LNKCAP, tmp);
-+	if (!imx6_pcie_cmp_mode) {
-+		tmp = dw_pcie_readl_dbi(pci, offset + PCI_EXP_LNKCAP);
-+		tmp &= ~PCI_EXP_LNKCAP_SLS;
-+		tmp |= PCI_EXP_LNKCAP_SLS_2_5GB;
-+		dw_pcie_writel_dbi(pci, offset + PCI_EXP_LNKCAP, tmp);
-+	}
- 
- 	/* Start LTSSM. */
- 	imx6_pcie_ltssm_enable(dev);
-@@ -924,18 +930,20 @@ static void imx6_pcie_host_exit(struct pcie_port *pp)
- 	struct device *dev = pci->dev;
- 	struct imx6_pcie *imx6_pcie = to_imx6_pcie(pci);
- 
--	imx6_pcie_reset_phy(imx6_pcie);
--	imx6_pcie_clk_disable(imx6_pcie);
--	switch (imx6_pcie->drvdata->variant) {
--	case IMX8MM:
--		if (phy_power_off(imx6_pcie->phy))
--			dev_err(dev, "unable to power off phy\n");
--		break;
--	default:
--		break;
-+	if (!imx6_pcie_cmp_mode) {
-+		imx6_pcie_reset_phy(imx6_pcie);
-+		imx6_pcie_clk_disable(imx6_pcie);
-+		switch (imx6_pcie->drvdata->variant) {
-+		case IMX8MM:
-+			if (phy_power_off(imx6_pcie->phy))
-+				dev_err(dev, "unable to power off phy\n");
-+			break;
-+		default:
-+			break;
-+		}
-+		if (imx6_pcie->vpcie)
-+			regulator_disable(imx6_pcie->vpcie);
- 	}
--	if (imx6_pcie->vpcie)
--		regulator_disable(imx6_pcie->vpcie);
- }
- 
- static const struct dw_pcie_host_ops imx6_pcie_host_ops = {
-@@ -1250,8 +1258,15 @@ static int imx6_pcie_probe(struct platform_device *pdev)
- 		return ret;
- 
- 	ret = dw_pcie_host_init(&pci->pp);
--	if (ret < 0)
-+	if (ret < 0) {
-+		if (imx6_pcie_cmp_mode) {
-+			dev_info(dev, "Driver loaded with compliance test mode enabled.\n");
-+			ret = 0;
-+		} else {
-+			dev_err(dev, "Unable to add pcie port.\n");
-+		}
- 		return ret;
-+	}
- 
- 	if (pci_msi_enabled()) {
- 		u8 offset = dw_pcie_find_capability(pci, PCI_CAP_ID_MSI);
--- 
-2.25.1
-
+greg k-h
