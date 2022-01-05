@@ -2,93 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81364484F05
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 09:11:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01020484F5C
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 09:30:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231428AbiAEILC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 03:11:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45864 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230005AbiAEILC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 03:11:02 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63F45B818F7;
-        Wed,  5 Jan 2022 08:11:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5B7C36AE3;
-        Wed,  5 Jan 2022 08:10:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641370260;
-        bh=EKWivhL6+8Ou2By4uZJ4ChfZj1G9F6VLoou0uj2Bmk0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JK2yiMWoahe6Cpo2TJ/XBJaSLW6WaJzckj3+accqeN5uIH+f3JWRdbpSyht9Mx71J
-         66DhvlYT+M2dW/R8R+lT8hpcbyI0ZbAiFgjVFif4chIooXksynE14nK45cTDnRJntr
-         8JX8Ulv8NyEgO81LnLUbQycwlzcLfSlMxVcdmqIM=
-Date:   Wed, 5 Jan 2022 09:10:56 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jaegeuk Kim <jaegeuk@kernel.org>
-Cc:     Salvatore Bonaccorso <carnil@debian.org>,
-        Chao Yu <chao@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>
-Subject: Re: [PATCH 5.10 60/76] f2fs: fix to do sanity check on last xattr
- entry in __f2fs_setxattr()
-Message-ID: <YdVSkF3zLxFHu2u1@kroah.com>
-References: <20211227151324.694661623@linuxfoundation.org>
- <20211227151326.779679392@linuxfoundation.org>
- <YdNmdhsKS5ZWHOlB@eldamar.lan>
- <12184f7c-3662-7fdc-d44f-23ef29102ddd@kernel.org>
- <YdQZzAQg4vIQNXc4@eldamar.lan>
- <YdQf5CZUYMJlamzp@kroah.com>
- <YdS341+t5Us9gol1@google.com>
+        id S231559AbiAEIaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 03:30:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229962AbiAEIaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 03:30:30 -0500
+Received: from mail-vk1-xa34.google.com (mail-vk1-xa34.google.com [IPv6:2607:f8b0:4864:20::a34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66B1C061761
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 00:30:29 -0800 (PST)
+Received: by mail-vk1-xa34.google.com with SMTP id m200so22362116vka.6
+        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 00:30:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
+        b=O4PHviES238h4axMgKTd+9JDi+ziSE0ulxoXk4Fh6TYvJDlzBzWz+9xri6pZzag7Ja
+         5rHRsqQ3l0S61GKNjpPmjn4mJo5D2qswIppm7XDUkxXDuO/Y2Q0GfZb4ROokp6IIlzwE
+         4KJdtjRNW+S8S90/SPb0XK/yWJk7oWwG/YyjwSY9X4kwsfXd8RpFiOpcg1Tnm8bMCDUz
+         bxodD2pXcWF0O5Nk1UZDL+patS868XBnRR7byldbH+qtZ4snFRKhOA8lkrL7cQI2DvXq
+         0ripMk42m1IgQolpT/O036W6gHK1Is+E7i4HQuMyTtj73MvzPJtIq4KwI5FfwCa8o22o
+         WKww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
+        b=Rec2xlfw3qe2Y6TSrckT6zG4GOymQ2kHfufU/K+r8WMWt6s2QBcfxw6r3RrOp83Bjw
+         kCf4roFanZFXHTdUWnD1WwT0BB4WyZ0HaboruaSF6DLa2jXYq7nt73gnfz1fDot7sYSw
+         VcWkbqKwshIMg/3vd+Zit0vmB+MRGJArekQQ3MwqjXK0MAgvZrNczGJnOzLPIjV22EwC
+         GTcvcJnkx9m7lIE4xh4T4y+Ula5P/4WuTgIB2lxjfL1PL/tF2KF4QkBkw2gZFwYvIl+r
+         eU03GMYEX+9UmQ2WqGzDPIi9n1zgczHdyXY5iXEvLVFAK2OzJf37jPOSqLabHxNKASC/
+         Vl6w==
+X-Gm-Message-State: AOAM530mUEv0Nn7i+mPleyv09eZs+WonGtuWuKVrEDjpiS3Dy/YipKcr
+        ij3ZDkoqYKmBuNeoS6QwSepP9FnvoJ1uX9FyanI=
+X-Google-Smtp-Source: ABdhPJxDsHa6I9SguyDVm0zAj9dOuVfk+aCYX53OA8urAWrdApW+UryB8DtN5BoTYxapUshYTb3S9Z7YUTh3ACee5JY=
+X-Received: by 2002:a05:6122:220d:: with SMTP id bb13mr8969943vkb.33.1641371428529;
+ Wed, 05 Jan 2022 00:30:28 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YdS341+t5Us9gol1@google.com>
+Sender: aishagaddafi1056@gmail.com
+Received: by 2002:a05:612c:1a3:b0:273:a2dd:3116 with HTTP; Wed, 5 Jan 2022
+ 00:30:28 -0800 (PST)
+From:   DINA MCKENNA <dinamckennahowley@gmail.com>
+Date:   Wed, 5 Jan 2022 08:30:28 +0000
+X-Google-Sender-Auth: II7_zOriova9Ie9ngUqfiiQHJRg
+Message-ID: <CANtwLy12v=q4r0LsJZv52AGY1NRihtQdmdHFGY8FxvmUQ=DKOQ@mail.gmail.com>
+Subject: Calvary greetings.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 04, 2022 at 01:10:59PM -0800, Jaegeuk Kim wrote:
-> On 01/04, Greg Kroah-Hartman wrote:
-> > On Tue, Jan 04, 2022 at 10:56:28AM +0100, Salvatore Bonaccorso wrote:
-> > > Hi,
-> > > 
-> > > On Tue, Jan 04, 2022 at 05:29:30PM +0800, Chao Yu wrote:
-> > > > On 2022/1/4 5:11, Salvatore Bonaccorso wrote:
-> > > > > Hi,
-> > > > > 
-> > > > > On Mon, Dec 27, 2021 at 04:31:15PM +0100, Greg Kroah-Hartman wrote:
-> > > > > > From: Chao Yu <chao@kernel.org>
-> > > > > > 
-> > > > > > commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
-> > > > 
-> > > > I've no idea.
-> > > > 
-> > > > I didn't add this line from v1 to v3:
-> > > > 
-> > > > https://lore.kernel.org/lkml/20211211154059.7173-1-chao@kernel.org/T/
-> > > > https://lore.kernel.org/all/20211212071923.2398-1-chao@kernel.org/T/
-> > > > https://lore.kernel.org/all/20211212091630.6325-1-chao@kernel.org/T/
-> > > > 
-> > > > Am I missing anything?
-> > > 
-> > > The line is added when a commit from "upstream" is added to the stable
-> > > series to identify the upstream commit it is taken from for
-> > > cherry-pick (or backport).
-> > > 
-> > > Strange so, that the fix is not in mainline actually yet.
-> > 
-> > I thought it was about to be sent to Linus.  Why has the f2fs maintainer
-> > not sent a merge request to him to get this merged properly yet?
-> 
-> It's very surprising that -stable can cherry-pick non-upstreamed patches based
-> on the stable maintainer's self assumption. Please wait for being upstreamed.
+Hello my dear,
 
-I normally do wait, but when a commit has a public CVE registered for
-it, and it shows up in -next, I assume that it will be sent to Linus any
-moment now.  Because of that, I made the call to take the patch then.
+ I sent this mail praying it will get to you in a good condition of
+health, since I myself are in a very critical health condition in
+which I sleep every night without knowing if I may be alive to see the
+next day. I bring peace and love to you. It is by the grace of God, I
+had no choice than to do what is lawful and right in the sight of God
+for eternal life and in the sight of man, for witness of God=E2=80=99s merc=
+y
+and glory upon my life. I am Mrs. Dina. Howley Mckenna, a widow. I am
+suffering from a long time brain tumor, It has defiled all forms of
+medical treatment, and right now I have about a few months to leave,
+according to medical experts. The situation has gotten complicated
+recently with my inability to hear proper, am communicating with you
+with the help of the chief nurse herein the hospital, from all
+indication my conditions is really deteriorating and it is quite
+obvious that, according to my doctors they have advised me that I may
+not live too long, Because this illness has gotten to a very bad
+stage. I plead that you will not expose or betray this trust and
+confidence that I am about to repose on you for the mutual benefit of
+the orphans and the less privilege. I have some funds I inherited from
+my late husband, the sum of ($ 11,000,000.00, Eleven Million Dollars).
+Having known my condition, I decided to donate this fund to you
+believing that you will utilize it the way i am going to instruct
+herein. I need you to assist me and reclaim this money and use it for
+Charity works therein your country  for orphanages and gives justice
+and help to the poor, needy and widows says The Lord." Jeremiah
+22:15-16.=E2=80=9C and also build schools for less privilege that will be
+named after my late husband if possible and to promote the word of God
+and the effort that the house of God is maintained. I do not want a
+situation where this money will be used in an ungodly manner. That's
+why I'm taking this decision. I'm not afraid of death, so I know where
+I'm going. I accept this decision because I do not have any child who
+will inherit this money after I die.. Please I want your sincerely and
+urgent answer to know if you will be able to execute this project for
+the glory of God, and I will give you more information on how the fund
+will be transferred to your bank account. May the grace, peace, love
+and the truth in the Word of God be with you and all those that you
+love and care for.
 
-Odd that you wish to delay this, sorry I took it early.
+I'm waiting for your immediate reply..
 
-greg k-h
+May God Bless you,
+Mrs. Dina. Howley Mckenna.
