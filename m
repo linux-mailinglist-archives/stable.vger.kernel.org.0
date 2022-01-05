@@ -2,105 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC8F4850DF
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 11:16:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96309485207
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 12:52:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239322AbiAEKQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 05:16:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44556 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229984AbiAEKP5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 05:15:57 -0500
+        id S239812AbiAELwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 06:52:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34144 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239802AbiAELwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 06:52:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F4DFC061761;
+        Wed,  5 Jan 2022 03:52:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5474DB80D96;
-        Wed,  5 Jan 2022 10:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A140C36AE9;
-        Wed,  5 Jan 2022 10:15:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3943616FC;
+        Wed,  5 Jan 2022 11:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A828C36AE9;
+        Wed,  5 Jan 2022 11:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641377755;
-        bh=LfNhQg+xRqmZe8b0diDkdlYo/hMV3uNLgHV9f5TP2jc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P9ozdcOBmSV5H8YeZ9xdYlCKmAjejscrggNvonzPWctYLaYODDRgJxXfrWbA9NbOq
-         Iml1Sd4zM3E1g1TBII+62x4ziUCx+uwBlUsF/GL+v2h4S2tCXl7S5hFb4nywdWM76a
-         pgtu0PWFZEOOZ2OFAGgTFsqEY12YD/0WYxYU9nKs=
-Date:   Wed, 5 Jan 2022 11:15:52 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Richard Zhu <hongxing.zhu@nxp.com>
-Cc:     l.stach@pengutronix.de, bhelgaas@google.com, broonie@kernel.org,
-        lorenzo.pieralisi@arm.com, jingoohan1@gmail.com,
-        festevam@gmail.com, stable@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-imx@nxp.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: Re: [PATCH v5 0/6] PCI: imx6: refine codes and add compliance tests
- mode support
-Message-ID: <YdVv2K+ezwv2iG80@kroah.com>
-References: <1641368602-20401-1-git-send-email-hongxing.zhu@nxp.com>
+        s=korg; t=1641383528;
+        bh=hFLrBTXj3p7wL2USvxsahbOevxgKqsL6wAfMq2NoC+8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vA5DpR4EODKwr6wFtwvOdwYB0lbhKr96uJbNdXOF+4g0R8x4LY82vzyoJPYUdcveB
+         3adyDDmO8TreuzF8f8myZVKbSc3AQGYsEDtw6e1qgCUFhcmqJRb7bdTgYnl/DOHjHa
+         xduQR7Ajv9SJ2plOMGs5npectLAdpxwgUs5cScVc=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.298
+Date:   Wed,  5 Jan 2022 12:52:03 +0100
+Message-Id: <1641383524120143@kroah.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1641368602-20401-1-git-send-email-hongxing.zhu@nxp.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 05, 2022 at 03:43:16PM +0800, Richard Zhu wrote:
-> This series patches refine pci-imx6 driver and do the following changes.
-> - Encapsulate the clock enable into one standalone function
-> - Add the error propagation from host_init
-> - Balance the usage of the regulator and clocks when link never came up
-> - Add the compliance tests mode support
-> 
-> Main changes from v4 to v5:
-> - Since i.MX8MM PCIe support had been merged. Based on Lorenzo's git repos,
->   rebase and resend the patch-set.
-> 
-> Main changes from v3 to v4:
-> - Regarding Mark's comments, delete the regulator_is_enabled() check.
-> - Squash #3 and #6 of v3 patch into #5 patch of v4 set.
-> 
-> Main changes from v2 to v3:
-> - Add "Reviewed-by: Lucas Stach <l.stach@pengutronix.de>" tag into
->   first two patches.
-> - Add a Fixes tag into #3 patch.
-> - Split the #4 of v2 to two patches, one is clock disable codes move,
->   the other one is the acutal clock unbalance fix.
-> - Add a new host_exit() callback into dw_pcie_host_ops, then it could be
->   invoked to handle the unbalance issue in the error handling after
->   host_init() function when link is down.
-> - Add a new host_exit() callback for i.MX PCIe driver to handle this case
->   in the error handling after host_init.
-> 
-> Main changes from v1 to v2:
-> Regarding Lucas' comments.
->   - Move the placement of the new imx6_pcie_clk_enable() to avoid the
->     forward declarition.
->   - Seperate the second patch of v1 patch-set to three patches.
->   - Use the module_param to replace the kernel command line.
-> Regarding Bjorn's comments:
->   - Use the cover-letter for a multi-patch series.
->   - Correct the subject line, and refine the commit logs. For example,
->     remove the timestamp of the logs.
-> 
-> drivers/pci/controller/dwc/pci-imx6.c             | 197 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++----------------------------------
-> drivers/pci/controller/dwc/pcie-designware-host.c |   5 ++-
-> drivers/pci/controller/dwc/pcie-designware.h      |   1 +
-> 3 files changed, 128 insertions(+), 75 deletions(-)
-> 
-> [PATCH v5 1/6] PCI: imx6: Encapsulate the clock enable into one
-> [PATCH v5 2/6] PCI: imx6: Add the error propagation from host_init
-> [PATCH v5 3/6] PCI: imx6: PCI: imx6: Move imx6_pcie_clk_disable()
-> [PATCH v5 4/6] PCI: dwc: Add dw_pcie_host_ops.host_exit() callback
-> [PATCH v5 5/6] PCI: imx6: Fix the regulator dump when link never came
-> [PATCH v5 6/6] PCI: imx6: Add the compliance tests mode support
+I'm announcing the release of the 4.4.298 kernel.
 
-<formletter>
+All users of the 4.4 kernel series must upgrade.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-</formletter>
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                           |    2 +-
+ drivers/input/joystick/spaceball.c |   11 +++++++++--
+ drivers/input/mouse/appletouch.c   |    4 ++--
+ drivers/platform/x86/apple-gmux.c  |    2 +-
+ drivers/scsi/vmw_pvscsi.c          |    7 +++++--
+ drivers/usb/gadget/function/f_fs.c |    9 ++++++---
+ drivers/usb/host/xhci-pci.c        |    5 ++++-
+ include/uapi/linux/nfc.h           |    6 +++---
+ net/ipv4/af_inet.c                 |   10 ++++------
+ scripts/recordmcount.pl            |    2 +-
+ security/selinux/hooks.c           |    2 +-
+ 11 files changed, 37 insertions(+), 23 deletions(-)
+
+Alexey Makhalov (1):
+      scsi: vmw_pvscsi: Set residual data length conditionally
+
+Dmitry V. Levin (1):
+      uapi: fix linux/nfc.h userspace compilation errors
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.298
+
+Heiko Carstens (1):
+      recordmcount.pl: fix typo in s390 mcount regex
+
+Krzysztof Kozlowski (1):
+      nfc: uapi: use kernel size_t to fix user-space builds
+
+Leo L. Schwab (1):
+      Input: spaceball - fix parsing of movement data packets
+
+Mathias Nyman (1):
+      xhci: Fresco FL1100 controller should not have BROKEN_MSI quirk set.
+
+Muchun Song (1):
+      net: fix use-after-free in tw_timer_handler
+
+Pavel Skripkin (1):
+      Input: appletouch - initialize work before device registration
+
+Tom Rix (1):
+      selinux: initialize proto variable in selinux_ip_postroute_compat()
+
+Vincent Pelletier (1):
+      usb: gadget: f_fs: Clear ffs_eventfd in ffs_data_clear.
+
+Wang Qing (1):
+      platform/x86: apple-gmux: use resource_size() with res
+
