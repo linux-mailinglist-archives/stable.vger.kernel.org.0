@@ -2,117 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE36948574F
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 18:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FEB6485756
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 18:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242314AbiAERdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 12:33:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56076 "EHLO
+        id S231202AbiAERgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 12:36:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231202AbiAERdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 12:33:20 -0500
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B76C1C061245
-        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 09:33:20 -0800 (PST)
-Received: by mail-pg1-x532.google.com with SMTP id g22so36098226pgn.1
-        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 09:33:20 -0800 (PST)
+        with ESMTP id S242345AbiAERgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 12:36:03 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FECEC061245
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 09:36:03 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id b22so35788576pfb.5
+        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 09:36:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Nmndt0VkOAtLY1ci31WXQCy4a4STYE251ahE/JdWZjQ=;
-        b=eGxZrueRzdgW6cCKEy5n7l9h9+Trx6i1sxweYwIV+uq3y7jPGFmZO3nxIQTLbWZVZR
-         NVt1H/t6VulG15QjjsQa1aqGYU2ihZMcCEuPKygXC22IOj7s8C+wFjdzyYPaExyW16ol
-         NY+4RPtFN5b3SHVtUAEuSa2IZvZ4cs6FbOqTs=
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=4ixj3Ik0JYZE/54/jJ2rTYc+Sc6Wis5I7cvPKoHny80=;
+        b=jt5mxZVTJqNvPNHoKrfXmJxGQAsl3cTjNDEnOrB3WHRbdbbHf6a9bDn+ac42G6V7i0
+         iGITpMzzoytAO0xkMT1rYz8tMs7png4I4a/gmdUFZoXZtCt5se2Pp6er8j6OibRvyZdI
+         IhM0HuKgZ4hmmf40g7scq7pQKgKkQY2tEZEEij32Ylpi3Wvk2ytDu0H/qtqPG8qzwoOF
+         m1nG9wwSnz2yDpeAlIVM7F5x+JV573HWHFPYIb04rCAeHbmZDsd1WKOptyGthNbkz52l
+         eyguuvutfys6q00BSBYcWrT3SPU6YMv1ilmQ867yIUF8YboWVgfUR4eB24mzqEiPcaz9
+         gaQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Nmndt0VkOAtLY1ci31WXQCy4a4STYE251ahE/JdWZjQ=;
-        b=y51WjkVjfvYnAhfkdkShQ53GSiHRl9gtGnJRTIJ732RsgUn0Kk8UufwUhRBGyuNZPg
-         E2DZuNQxmgEz0/PCs9Pwz2NTmBElXGGBR0TNCiA42ROL1fkFICM/SHZeB4YqY0kxMR7Z
-         uadUNlYU8tL/5cQCoP91sBbwyh29z6Kr6mCjVvaAr1ZIHOksb6SHur4Sjh5PP2bUmZAJ
-         /65UYolQi4BfYLylthKXYq5gSaG62kakUuRzu5KksI+w3GsmZjmJh19MSA4HsMyDAI+V
-         V4YCZB6MRpL5wLY2YbPC0pWcbshkyaPR7+ZWmo4GrCdu3qNYHIbh8QHmxRK9dxNbthi/
-         vQSg==
-X-Gm-Message-State: AOAM533J6EO/vsgntUp7FerRUalyxF/esWL2tv9l0OPieraR9avbb2Mg
-        HdGBxq0auTUWKGq31mA28qp67Q==
-X-Google-Smtp-Source: ABdhPJwvWsluov2M3xQQOKdxaYmcA3f5D7ugC6+xoOxa4jnEW4fDKXegJU9tgmb/4zVjisJ12Eip3A==
-X-Received: by 2002:a63:8148:: with SMTP id t69mr49651559pgd.318.1641403999583;
-        Wed, 05 Jan 2022 09:33:19 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id f125sm35804175pfa.28.2022.01.05.09.33.19
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=4ixj3Ik0JYZE/54/jJ2rTYc+Sc6Wis5I7cvPKoHny80=;
+        b=QbY3ATJRxyBz2OokK0kfHuWrAt+3X3tzpxgIG21XMTusmoo9wfbbahHVi3gr5j0g0w
+         vzdWJL9CaQEYGhL8xOayBAXCM8yrp5Oi429t5y1i2Sey9h2PHm9LBJa5tme2jD7S4gDF
+         Arv+BDlo+VksTr0bZjFS0MSc36aqpPmAtE5FtMqXDefj1ZUjGrnA1MjjRuMicOE4G2fd
+         ggWuUnaIwaRujrUkEW+KpBj2aSAB0e8ynOiGJvjwXzVuH/ecXKI1k83qdOe0b7xX+aNt
+         xfyCPZ8/KfAvDgt4k2BgntverJeJdrNO5fEIKI3/7yTQp3MBEWlFdZKk8aGTnlneDNyE
+         BMsw==
+X-Gm-Message-State: AOAM530GSwKhZmQV8NjKsm+nOObSyJnxDgOVAd2E+mNsNIeImY//yYHr
+        c+1qagzoPDRhQ9Pxi0dcpCnOBtXzeHmnEuWS
+X-Google-Smtp-Source: ABdhPJzo0bq498KY3zG34DCq7jmxVutiDJb3Sgv2gKLgCOFjwMi0zsCkpQ7xvEZWbca4yT0eQpa5zA==
+X-Received: by 2002:a63:414:: with SMTP id 20mr48450056pge.178.1641404162641;
+        Wed, 05 Jan 2022 09:36:02 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b21sm12106866pfv.74.2022.01.05.09.36.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Jan 2022 09:33:19 -0800 (PST)
-From:   Kees Cook <keescook@chromium.org>
-To:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Uma Shankar <uma.shankar@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: [PATCH v2] drm/dp: Fix off-by-one in register cache size
-Date:   Wed,  5 Jan 2022 09:33:10 -0800
-Message-Id: <20220105173310.2420598-1-keescook@chromium.org>
-X-Mailer: git-send-email 2.30.2
+        Wed, 05 Jan 2022 09:36:02 -0800 (PST)
+Message-ID: <61d5d702.1c69fb81.7f96.bd38@mx.google.com>
+Date:   Wed, 05 Jan 2022 09:36:02 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2221; h=from:subject; bh=FKzoP1+Ajq0adEYhRP1CewNZxc4TZAiLM0jC2P8yyAU=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBh1dZWy/nQqWmat0jak1V87p/MQZdy6f8jwBwkG+sK M0Gs7VmJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYdXWVgAKCRCJcvTf3G3AJsg9EA CWwI79Dlno4hKxtgvfxb3hGWq5EXAlfZTvAB90dWpess3EFCDDOE5cMKYQKou0opRccmgGwFu0fsPU xTl46z/W9IbbXs5vyTBOJCydBaNUjj/lwR9P7bgXfa0gBoI6WnmZ7gohQ49+LZNEZ4wNJXWFlYzAQ/ s21o7BKnGXrawgnBMpfwz5cUx+rH6xDhJVUZlyJkv4XaRM5iRpLRUB0ViymOvZWZ0iKybHiQcIY8uT QquwLVd/s6X0FmjUuDCbyUbPbgoejl2eVJ6Ugl8cYkm7DwwnJCvG59i6zh+ScjR67ys0ROtApqK7qq NV+g9WC2LY1I+/pAgkTDQqqMD8DUQoKB1hi4qM9o4f9B7bAQW6u98q7bSh55IysN3PSacybx5c+S5g xd920HE37gmARNaJPxZrLm+gVsU3vWtzP4j1FGDZ/hhXb7L+MR5b6iQJl9z/n1Sw9eZRDtz7SdkVOT nmbCgSFtZFyAVGqR3rv9u7KggNppfVXjT+sFCu9UwvwF+uqMWyCHJq0uHEgurEzSFCt25qnartDo2x qxdPe7pjfWgdLa3pGKC4q9FtscpvfXBS/zuuAABJ5sj2Hxhcq8D7Ql0JnuyFTzJexzA8q9iX3gDjBC 2HgLW/d4RUMU9gJcxXqGMY9iXVgEro5Ko3q6xKzx+RkyOZ0SOZ1shTquvgNw==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.9.296
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y baseline: 132 runs, 1 regressions (v4.9.296)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The pcon_dsc_dpcd array holds 13 registers (0x92 through 0x9E). Fix the
-math to calculate the max size. Found from a -Warray-bounds build:
+stable/linux-4.9.y baseline: 132 runs, 1 regressions (v4.9.296)
 
-drivers/gpu/drm/drm_dp_helper.c: In function 'drm_dp_pcon_dsc_bpp_incr':
-drivers/gpu/drm/drm_dp_helper.c:3130:28: error: array subscript 12 is outside array bounds of 'const u8[12]' {aka 'const unsigned char[12]'} [-Werror=array-bounds]
- 3130 |         buf = pcon_dsc_dpcd[DP_PCON_DSC_BPP_INCR - DP_PCON_DSC_ENCODER];
-      |               ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/gpu/drm/drm_dp_helper.c:3126:39: note: while referencing 'pcon_dsc_dpcd'
- 3126 | int drm_dp_pcon_dsc_bpp_incr(const u8 pcon_dsc_dpcd[DP_PCON_DSC_ENCODER_CAP_SIZE])
-      |                              ~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Regressions Summary
+-------------------
 
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Fixes: e2e16da398d9 ("drm/dp_helper: Add support for Configuring DSC for HDMI2.1 Pcon")
-Cc: stable@vger.kernel.org
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Link: https://lore.kernel.org/lkml/20211214001849.GA62559@embeddedor/
-Signed-off-by: Kees Cook <keescook@chromium.org>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
-v1: https://lore.kernel.org/lkml/20211203084333.3105038-1-keescook@chromium.org/
-v2:
- - add reviewed-by
- - add cc:stable
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/=
+v4.9.296/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.9.y
+  Describe: v4.9.296
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      710bf39c7aec32641ea63f6593db1df8c3e4a4d7 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- include/drm/drm_dp_helper.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/include/drm/drm_dp_helper.h b/include/drm/drm_dp_helper.h
-index 30359e434c3f..472dac376284 100644
---- a/include/drm/drm_dp_helper.h
-+++ b/include/drm/drm_dp_helper.h
-@@ -456,7 +456,7 @@ struct drm_panel;
- #define DP_FEC_CAPABILITY_1			0x091   /* 2.0 */
- 
- /* DP-HDMI2.1 PCON DSC ENCODER SUPPORT */
--#define DP_PCON_DSC_ENCODER_CAP_SIZE        0xC	/* 0x9E - 0x92 */
-+#define DP_PCON_DSC_ENCODER_CAP_SIZE        0xD	/* 0x92 through 0x9E */
- #define DP_PCON_DSC_ENCODER                 0x092
- # define DP_PCON_DSC_ENCODER_SUPPORTED      (1 << 0)
- # define DP_PCON_DSC_PPS_ENC_OVERRIDE       (1 << 1)
--- 
-2.30.2
 
+  Details:     https://kernelci.org/test/plan/id/61d5a27d47c1a58a8cef676d
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.296/ar=
+m/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.296/ar=
+m/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61d5a27d47c1a58=
+a8cef6770
+        failing since 22 days (last pass: v4.9.292, first fail: v4.9.293)
+        2 lines
+
+    2022-01-05T13:51:41.284165  [   19.857482] smsc95xx 3-1.1:1.0 eth0: reg=
+ister 'smsc95xx' at usb-4a064c00.ehci-1.1, smsc95xx USB 2.0 Ethernet, 4e:54=
+:52:57:10:6a
+    2022-01-05T13:51:41.290782  [   19.858367] usbcore: registered new inte=
+rface driver smsc95xx
+    2022-01-05T13:51:41.340258  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/116
+    2022-01-05T13:51:41.349110  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
