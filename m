@@ -2,141 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12AB3484FAF
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 10:02:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74EF8485019
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 10:36:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233395AbiAEJCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 04:02:00 -0500
-Received: from proxima.lasnet.de ([78.47.171.185]:44226 "EHLO
-        proxima.lasnet.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230087AbiAEJB7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 04:01:59 -0500
-X-Greylist: delayed 48033 seconds by postgrey-1.27 at vger.kernel.org; Wed, 05 Jan 2022 04:01:58 EST
-Received: from [IPV6:2003:e9:d722:f5b8:b3df:e256:11d7:2e0d] (p200300e9d722f5b8b3dfe25611d72e0d.dip0.t-ipconnect.de [IPv6:2003:e9:d722:f5b8:b3df:e256:11d7:2e0d])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: stefan@datenfreihafen.org)
-        by proxima.lasnet.de (Postfix) with ESMTPSA id 7AC8FC0A36;
-        Wed,  5 Jan 2022 10:01:54 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=datenfreihafen.org;
-        s=2021; t=1641373317;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bvqacC8i3xL41fYYYbc5wjA74e/tTyJLPCJ2AoWFAiw=;
-        b=TPmAWeHqVwKrLpgrodE7JTdS3xsNYv7Rwo2OPJAmJ2YcI8HEsdW/5oZbVfRQQTeup3QFpZ
-        EB4HvZNfpzyrrTDBnMzTBQLL2JMSOIlFw+NGYoHVjPboBn14T2XnzTn/UgoQCeruPZeL18
-        eZfzVmJDiteQ3orTqIAbsp/vd5v1xI9HPWJxeWogMpI1t5ySkSpgHn5eQK+Jsy4M1cGMdA
-        BeCqi1uu+RBaCklnHfrHP3v97erl1c47GChyW7hE4CW4VC9yBrMhfq/zdIlkrvuJqGmVc0
-        IQElFQ9QiSTNWKUj20sLvF9ReA2GcylEYOzKug2D/614yIvYFPJ177F2J8Rm+w==
-Message-ID: <33c41865-4915-38f4-448a-9dc80c403b6c@datenfreihafen.org>
-Date:   Wed, 5 Jan 2022 10:01:52 +0100
+        id S238897AbiAEJgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 04:36:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59882 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233853AbiAEJge (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 04:36:34 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 761EEC061761;
+        Wed,  5 Jan 2022 01:36:34 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id q8so1105745wra.12;
+        Wed, 05 Jan 2022 01:36:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=G5USAhnPcOQaApPKE6/XINe72jhys0o03YHjx6AUo34=;
+        b=fsWL5e4hpoRPKa4AwJGr/Tc3cHHvU0gkNXf8PvPGgQES9lshAdQnBHWxGrKVRaSoeD
+         QIbtT37gS5vxmVvbiZV3EVvYdM7+jMzPD3E/GOpZ0XROV97JnhekX5g6Ua3coVqLmtW+
+         KjQ8vD2Lvsi36leZ/oEhCCqMQoOR95lLSz3imGTZ7HhYRdZPViaJ18wvjktLwD1YJR3R
+         EnBWemFmE2bEue4qHYGk6Rju8zUdR6bkgUwZwrsqwyitlMuyhrHfXiWhYQ/QxRx8yw0A
+         r0Xa69GrdAw/dVFvyYqfno0H7mJsa3AIp6MNG6EeiEJqVnbZV0LTM9jkQyAsTrQL/CvL
+         Hlkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=G5USAhnPcOQaApPKE6/XINe72jhys0o03YHjx6AUo34=;
+        b=jO/XK1NH37LFRPIs912310ujxvLput54GhxLBZPYqc2sNbqY74dtfEh9zGPJN0WaQ4
+         1xs1jjvEyu6bCtFzOV9f4eiNKW/wQ65rjE0PHlay7b9n0fo++OzyboBhu5YEc1k6RMrI
+         W+i3Mk80Mx+w1UAUeqRbrcRYInDigs4akP63TIh/fqL6mb5Ws7HxzFT8Uksm30aLaHA6
+         TLVoQqf2DV/5hnlZzf1l75Phnah90A1A7QO/ZXI3HyECftZH15tEkPSnTP20C/4pj9ws
+         28XxLL/CqI2wZcnewrokz98dTczBncQLHfLpfBgd3xlVg9W5XCn5qY8TSVUwc5gj6P9D
+         mX8Q==
+X-Gm-Message-State: AOAM530N+qEWZuzEr5MtbFXutdSykNVJg83++seCpqNyhNlIr+tpve4U
+        9dQlxRZTLtEq0xpN0ZmYbdw=
+X-Google-Smtp-Source: ABdhPJwdC9wVwlx0zRMBIx7aPepv3lNNgST90u8OkPcKbWGIOrC8BNXztzqtnZWjsOou0V0ougBZNg==
+X-Received: by 2002:a05:6000:156c:: with SMTP id 12mr47004320wrz.502.1641375393109;
+        Wed, 05 Jan 2022 01:36:33 -0800 (PST)
+Received: from debian (host-2-98-43-34.as13285.net. [2.98.43.34])
+        by smtp.gmail.com with ESMTPSA id q3sm4408822wrr.55.2022.01.05.01.36.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jan 2022 01:36:32 -0800 (PST)
+Date:   Wed, 5 Jan 2022 09:36:30 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/36] 5.4.170-rc2 review
+Message-ID: <YdVmnnqBwYzJy138@debian>
+References: <20220104073839.317902293@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-Subject: Re: [PATCH RFT] ieee802154: atusb: move to new USB API
-Content-Language: en-US
-To:     Greg KH <greg@kroah.com>
-Cc:     Alexander Aring <alex.aring@gmail.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        linux-wpan - ML <linux-wpan@vger.kernel.org>,
-        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        "# 3.19.x" <stable@vger.kernel.org>,
-        Alexander Potapenko <glider@google.com>
-References: <CAG_fn=VDEoQx5c7XzWX1yaYBd5y5FrG1aagrkv+SZ03c8TfQYQ@mail.gmail.com>
- <20220102171943.28846-1-paskripkin@gmail.com> <YdL0GPxy4TdGDzOO@kroah.com>
- <CAB_54W7HQmm1ncCEsTmZFR+GVf6p6Vz0RMWDJXAhXQcW4r3hUQ@mail.gmail.com>
- <ab1ec1c0-389c-dcae-9cd8-6e6771a94178@datenfreihafen.org>
- <YdVSBy47e0+OdXAo@kroah.com>
-From:   Stefan Schmidt <stefan@datenfreihafen.org>
-In-Reply-To: <YdVSBy47e0+OdXAo@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220104073839.317902293@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-Hello.
-
-On 05.01.22 09:08, Greg KH wrote:
-> On Tue, Jan 04, 2022 at 08:41:23PM +0100, Stefan Schmidt wrote:
->> Hello.
->>
->> On 03.01.22 16:35, Alexander Aring wrote:
->>> Hi,
->>>
->>> On Mon, 3 Jan 2022 at 08:03, Greg KH <greg@kroah.com> wrote:
->>>>
->>>> On Sun, Jan 02, 2022 at 08:19:43PM +0300, Pavel Skripkin wrote:
->>>>> Alexander reported a use of uninitialized value in
->>>>> atusb_set_extended_addr(), that is caused by reading 0 bytes via
->>>>> usb_control_msg().
->>>>>
->>>>> Since there is an API, that cannot read less bytes, than was requested,
->>>>> let's move atusb driver to use it. It will fix all potintial bugs with
->>>>> uninit values and make code more modern
->>>>>
->>>>> Fail log:
->>>>>
->>>>> BUG: KASAN: uninit-cmp in ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
->>>>> BUG: KASAN: uninit-cmp in atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
->>>>> BUG: KASAN: uninit-cmp in atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
->>>>> Uninit value used in comparison: 311daa649a2003bd stack handle: 000000009a2003bd
->>>>>    ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
->>>>>    atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
->>>>>    atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
->>>>>    usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
->>>>>
->>>>> Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
->>>>> Cc: stable@vger.kernel.org # 5.9
->>>>> Reported-by: Alexander Potapenko <glider@google.com>
->>>>> Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
->>>>> ---
->>>>>    drivers/net/ieee802154/atusb.c | 61 +++++++++++++++++++++-------------
->>>>>    1 file changed, 38 insertions(+), 23 deletions(-)
->>>>>
->>>>> diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
->>>>> index 23ee0b14cbfa..43befea0110f 100644
->>>>> --- a/drivers/net/ieee802154/atusb.c
->>>>> +++ b/drivers/net/ieee802154/atusb.c
->>>>> @@ -80,10 +80,9 @@ struct atusb_chip_data {
->>>>>     * in atusb->err and reject all subsequent requests until the error is cleared.
->>>>>     */
->>>>>
->>>>> -static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
->>>>> -                          __u8 request, __u8 requesttype,
->>>>> -                          __u16 value, __u16 index,
->>>>> -                          void *data, __u16 size, int timeout)
->>>>> +static int atusb_control_msg_recv(struct atusb *atusb, __u8 request, __u8 requesttype,
->>>>> +                               __u16 value, __u16 index,
->>>>> +                               void *data, __u16 size, int timeout)
->>>>
->>>> Why do you need a wrapper function at all?  Why not just call the real
->>>> usb functions instead?
->>
->>> ...
->>
->>>>
->>>> I would recommend just moving to use the real USB functions and no
->>>> wrapper function at all like this, it will make things more obvious and
->>>> easier to understand over time.
->>>
->>> okay.
->>
->> With the small fix handle the actual KASAN report applied now
+On Tue, Jan 04, 2022 at 08:40:58AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.170 release.
+> There are 36 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> It was?  What is the git commit id?
+> Responses should be made by Thu, 06 Jan 2022 07:38:29 +0000.
+> Anything received after that time might be too late.
 
-I applied it to my wpan tree from where it will go to the net tree with 
-my next pull request.
+Build test:
+mips (gcc version 11.2.1 20211214): 65 configs -> no new failure
+arm (gcc version 11.2.1 20211214): 107 configs -> no new failure
+arm64 (gcc version 11.2.1 20211214): 2 configs -> no failure
+x86_64 (gcc version 11.2.1 20211214): 4 configs -> no failure
 
-https://git.kernel.org/pub/scm/linux/kernel/git/sschmidt/wpan.git/commit/?id=754e4382354f7908923a1949d8dc8d05f82f09cb
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
-regards
-Stefan Schmidt
+[1]. https://openqa.qa.codethink.co.uk/tests/587
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
+
