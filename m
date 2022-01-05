@@ -2,153 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E863484EFF
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 09:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81364484F05
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 09:11:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231244AbiAEIIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 03:08:44 -0500
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:39713 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230005AbiAEIIn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 03:08:43 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id A0EFA58035C;
-        Wed,  5 Jan 2022 03:08:42 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 05 Jan 2022 03:08:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=loyXCU6417rX16GHEn/ISzTNLPl
-        e2vA9pVFu1dVyqOo=; b=vs+GGYihLVNGh92J4HffLjOA1b5Y5vtYWroHRah41Yf
-        IfuEOJJGteBCGdtEn5/wvbFJqtf4SLoIKlq1c43EGMgx7MgmrutRbo177TnssWjT
-        +3d9nmi2zAuXUpNluI12bpmtjZ4al+tTyA4WE1s+qcvsCcVDYvCxqbqbkYoz9ABh
-        wTNW5QroKUkrHx8KjXfmLu0e+ydIvFR9gxafVaW+tv6vrgsbyHaIPaipSe3KAa5P
-        KYJIHewX5YROcwrivs0AQOi93il5GG/pPHO389TPkmqAFsrwxnrdh+1lRsJznFyr
-        1atNpLjkJYvj+GX8ZweLFD8lSokKmlBcsLYHRl3nnzw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=loyXCU
-        6417rX16GHEn/ISzTNLPle2vA9pVFu1dVyqOo=; b=I/jBf6Fj9YqwcdykGYsuDO
-        rsMrMFLqjSFGbMYGG9ykbStfXS/DZROPXYptO+MSP/1dk76b33iMrrZSnuUwqNMh
-        cAS1lUTb9quD0d45F4BOB9s1a6WuaBglsNgyh6Dmn2T5BIYhzo8bi78c6F8GT6CL
-        MaZz82yUuPkiZcThJGhQCJ/evvLnUDVDnOkk1muATsnodwF2T6AQicgFMxLVbBf+
-        VIFLTjLx7a7O20AUvEqIVMoKv4SPYW1dIysYIjtsFZZM2wS8c1EWJbgvZFPVApO/
-        HrCKcn5uKCjOoCieH/NCXdLYGu+MHwIH7j8pj1G+BWc4MGB8ghedarkPFe3lCggw
-        ==
-X-ME-Sender: <xms:CVLVYQLtaThXR_8yXR67VDplI-byTQLK4FTQYMvJGpnt083MTQ3u_w>
-    <xme:CVLVYQLS17Ez1uGfUszHPL8cooDnaJnbcmzZR9QJl2ap7JSFM3L-JcfeTF4pVmNX4
-    UTL1D44riM30g>
-X-ME-Received: <xmr:CVLVYQuPyuy-2tRjGfEsa3Ijn9gkPnoVwrZ2w6X2T70sn_APiUIV5fNTTHqtp6pFj-fSZdzpUhbIKe8lav-qDkrgMfFPzuDp>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrudefgedguddufecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhs
-    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:CVLVYdY1ynuihQV4ovWLFP8NzuFKffyQtWTOPD0MKtYm3MfXJTCp2g>
-    <xmx:CVLVYXb0AtPFZy9w2dVR83OqzQiEUbIKZQuyznQTOnRawps4G-YC7w>
-    <xmx:CVLVYZC2krFTnK49RirAq1VIgdArc21n07-jJpIjwxoQhnoDOf0lSw>
-    <xmx:ClLVYUTGrMlVf-ULEyuqPNTd6le8BK3Ns3guYw19HUE91vtzbo4H2Q>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 5 Jan 2022 03:08:41 -0500 (EST)
-Date:   Wed, 5 Jan 2022 09:08:39 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Stefan Schmidt <stefan@datenfreihafen.org>
-Cc:     Alexander Aring <alex.aring@gmail.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        linux-wpan - ML <linux-wpan@vger.kernel.org>,
-        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        "# 3.19.x" <stable@vger.kernel.org>,
-        Alexander Potapenko <glider@google.com>
-Subject: Re: [PATCH RFT] ieee802154: atusb: move to new USB API
-Message-ID: <YdVSBy47e0+OdXAo@kroah.com>
-References: <CAG_fn=VDEoQx5c7XzWX1yaYBd5y5FrG1aagrkv+SZ03c8TfQYQ@mail.gmail.com>
- <20220102171943.28846-1-paskripkin@gmail.com>
- <YdL0GPxy4TdGDzOO@kroah.com>
- <CAB_54W7HQmm1ncCEsTmZFR+GVf6p6Vz0RMWDJXAhXQcW4r3hUQ@mail.gmail.com>
- <ab1ec1c0-389c-dcae-9cd8-6e6771a94178@datenfreihafen.org>
+        id S231428AbiAEILC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 03:11:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45864 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230005AbiAEILC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 03:11:02 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63F45B818F7;
+        Wed,  5 Jan 2022 08:11:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D5B7C36AE3;
+        Wed,  5 Jan 2022 08:10:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641370260;
+        bh=EKWivhL6+8Ou2By4uZJ4ChfZj1G9F6VLoou0uj2Bmk0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JK2yiMWoahe6Cpo2TJ/XBJaSLW6WaJzckj3+accqeN5uIH+f3JWRdbpSyht9Mx71J
+         66DhvlYT+M2dW/R8R+lT8hpcbyI0ZbAiFgjVFif4chIooXksynE14nK45cTDnRJntr
+         8JX8Ulv8NyEgO81LnLUbQycwlzcLfSlMxVcdmqIM=
+Date:   Wed, 5 Jan 2022 09:10:56 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>,
+        Chao Yu <chao@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>
+Subject: Re: [PATCH 5.10 60/76] f2fs: fix to do sanity check on last xattr
+ entry in __f2fs_setxattr()
+Message-ID: <YdVSkF3zLxFHu2u1@kroah.com>
+References: <20211227151324.694661623@linuxfoundation.org>
+ <20211227151326.779679392@linuxfoundation.org>
+ <YdNmdhsKS5ZWHOlB@eldamar.lan>
+ <12184f7c-3662-7fdc-d44f-23ef29102ddd@kernel.org>
+ <YdQZzAQg4vIQNXc4@eldamar.lan>
+ <YdQf5CZUYMJlamzp@kroah.com>
+ <YdS341+t5Us9gol1@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ab1ec1c0-389c-dcae-9cd8-6e6771a94178@datenfreihafen.org>
+In-Reply-To: <YdS341+t5Us9gol1@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 04, 2022 at 08:41:23PM +0100, Stefan Schmidt wrote:
-> Hello.
-> 
-> On 03.01.22 16:35, Alexander Aring wrote:
-> > Hi,
+On Tue, Jan 04, 2022 at 01:10:59PM -0800, Jaegeuk Kim wrote:
+> On 01/04, Greg Kroah-Hartman wrote:
+> > On Tue, Jan 04, 2022 at 10:56:28AM +0100, Salvatore Bonaccorso wrote:
+> > > Hi,
+> > > 
+> > > On Tue, Jan 04, 2022 at 05:29:30PM +0800, Chao Yu wrote:
+> > > > On 2022/1/4 5:11, Salvatore Bonaccorso wrote:
+> > > > > Hi,
+> > > > > 
+> > > > > On Mon, Dec 27, 2021 at 04:31:15PM +0100, Greg Kroah-Hartman wrote:
+> > > > > > From: Chao Yu <chao@kernel.org>
+> > > > > > 
+> > > > > > commit 5598b24efaf4892741c798b425d543e4bed357a1 upstream.
+> > > > 
+> > > > I've no idea.
+> > > > 
+> > > > I didn't add this line from v1 to v3:
+> > > > 
+> > > > https://lore.kernel.org/lkml/20211211154059.7173-1-chao@kernel.org/T/
+> > > > https://lore.kernel.org/all/20211212071923.2398-1-chao@kernel.org/T/
+> > > > https://lore.kernel.org/all/20211212091630.6325-1-chao@kernel.org/T/
+> > > > 
+> > > > Am I missing anything?
+> > > 
+> > > The line is added when a commit from "upstream" is added to the stable
+> > > series to identify the upstream commit it is taken from for
+> > > cherry-pick (or backport).
+> > > 
+> > > Strange so, that the fix is not in mainline actually yet.
 > > 
-> > On Mon, 3 Jan 2022 at 08:03, Greg KH <greg@kroah.com> wrote:
-> > > 
-> > > On Sun, Jan 02, 2022 at 08:19:43PM +0300, Pavel Skripkin wrote:
-> > > > Alexander reported a use of uninitialized value in
-> > > > atusb_set_extended_addr(), that is caused by reading 0 bytes via
-> > > > usb_control_msg().
-> > > > 
-> > > > Since there is an API, that cannot read less bytes, than was requested,
-> > > > let's move atusb driver to use it. It will fix all potintial bugs with
-> > > > uninit values and make code more modern
-> > > > 
-> > > > Fail log:
-> > > > 
-> > > > BUG: KASAN: uninit-cmp in ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
-> > > > BUG: KASAN: uninit-cmp in atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
-> > > > BUG: KASAN: uninit-cmp in atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
-> > > > Uninit value used in comparison: 311daa649a2003bd stack handle: 000000009a2003bd
-> > > >   ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
-> > > >   atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
-> > > >   atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
-> > > >   usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
-> > > > 
-> > > > Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
-> > > > Cc: stable@vger.kernel.org # 5.9
-> > > > Reported-by: Alexander Potapenko <glider@google.com>
-> > > > Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-> > > > ---
-> > > >   drivers/net/ieee802154/atusb.c | 61 +++++++++++++++++++++-------------
-> > > >   1 file changed, 38 insertions(+), 23 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
-> > > > index 23ee0b14cbfa..43befea0110f 100644
-> > > > --- a/drivers/net/ieee802154/atusb.c
-> > > > +++ b/drivers/net/ieee802154/atusb.c
-> > > > @@ -80,10 +80,9 @@ struct atusb_chip_data {
-> > > >    * in atusb->err and reject all subsequent requests until the error is cleared.
-> > > >    */
-> > > > 
-> > > > -static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
-> > > > -                          __u8 request, __u8 requesttype,
-> > > > -                          __u16 value, __u16 index,
-> > > > -                          void *data, __u16 size, int timeout)
-> > > > +static int atusb_control_msg_recv(struct atusb *atusb, __u8 request, __u8 requesttype,
-> > > > +                               __u16 value, __u16 index,
-> > > > +                               void *data, __u16 size, int timeout)
-> > > 
-> > > Why do you need a wrapper function at all?  Why not just call the real
-> > > usb functions instead?
+> > I thought it was about to be sent to Linus.  Why has the f2fs maintainer
+> > not sent a merge request to him to get this merged properly yet?
 > 
-> > ...
-> 
-> > > 
-> > > I would recommend just moving to use the real USB functions and no
-> > > wrapper function at all like this, it will make things more obvious and
-> > > easier to understand over time.
-> > 
-> > okay.
-> 
-> With the small fix handle the actual KASAN report applied now
+> It's very surprising that -stable can cherry-pick non-upstreamed patches based
+> on the stable maintainer's self assumption. Please wait for being upstreamed.
 
-It was?  What is the git commit id?
+I normally do wait, but when a commit has a public CVE registered for
+it, and it shows up in -next, I assume that it will be sent to Linus any
+moment now.  Because of that, I made the call to take the patch then.
 
-thanks,
+Odd that you wish to delay this, sorry I took it early.
 
 greg k-h
