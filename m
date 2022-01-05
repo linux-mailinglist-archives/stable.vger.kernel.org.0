@@ -2,96 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C79D485A4C
-	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 21:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A66485A9F
+	for <lists+stable@lfdr.de>; Wed,  5 Jan 2022 22:31:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbiAEUyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 15:54:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45828 "EHLO
+        id S244429AbiAEVbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 16:31:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244241AbiAEUyv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 15:54:51 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1694C06118C
-        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 12:54:50 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1n5DJ3-0000e6-7H
-        for stable@vger.kernel.org; Wed, 05 Jan 2022 21:54:49 +0100
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 2DEBC6D1F11
-        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 20:54:47 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id A8F076D1EFC;
-        Wed,  5 Jan 2022 20:54:45 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id aa124207;
-        Wed, 5 Jan 2022 20:54:44 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Marc Kleine-Budde <mkl@pengutronix.de>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com
-Subject: [PATCH net 2/2] can: isotp: convert struct tpcon::{idx,len} to unsigned int
-Date:   Wed,  5 Jan 2022 21:54:43 +0100
-Message-Id: <20220105205443.1274709-3-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220105205443.1274709-1-mkl@pengutronix.de>
-References: <20220105205443.1274709-1-mkl@pengutronix.de>
+        with ESMTP id S244426AbiAEVbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 16:31:00 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85257C061245
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 13:31:00 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id iy13so329929pjb.5
+        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 13:31:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5K8T5gIhoZBssOB1//QXnVN8Lu5QbJ4pzxnheVsutd0=;
+        b=QJ5avgQelTuxjzAJF9CmEiY0e6jvQ+jqs0H0KNXT8i8yQHGoE64NFDwCZV+H/vUTHy
+         goLZPk3xFQZ6ScHpMqH5xgf+VnXkCADd9Kma8Y30Ft2nlT+l50KMmb+RR4s+rBCVokdK
+         99IvlXJzZtaORqtI0os+sTbW9HqprVNkuyiE5HUk7UwbveEOyZuZXimlCiCbOKHtjtC9
+         L8sYy7XCk/EdQ+21Dqlh0tGIV16kpLaE5UTRFs/2kULq/RYhaGW/e9CnsdsAvtqf8J43
+         slUbpJv3bbpmjfpz1Rygv9LxdzvKx21kIm21007Zzr0vzmLRqnZ1776odbC865FWoaVi
+         7Exg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5K8T5gIhoZBssOB1//QXnVN8Lu5QbJ4pzxnheVsutd0=;
+        b=jEnFQTcTFuHUO0kdbq0x+t7ydlzMAnptJVCHHB3vWNC+85fZTfvs1SnqPMaPZoly3I
+         O68K8zW6vfNpIFxXyJPlzRcbJKQbX0HEuH1jAuPrjvMBNt3nhes9yDy9ac2k27umSDjp
+         FXOsxKWuMn6PNtCH/ONcVN8NVVjbuoo56yTHM6hUcscBbv9ytmU4vO0cwAQayLuXke2o
+         q9JGqFCUhu3l6SgtZjsGRD8EYAjvxc+eujC6pymUmOy3plByRYTomNLivC8iyMEkyBto
+         4uy1x1Jd2MA8ySJrxTGM9hbel4/Anu4wCFBJhpX7igtH+d7FXyiENAGRUOHcEi6SLgKs
+         t/fg==
+X-Gm-Message-State: AOAM530eQ90jZF+J1q3z08uaqlpJrLCGN9mQD/3bEQ8W7wvEHlQfESdr
+        xMF4g6sprXYT3FPkx3ZKDSRE2pv7P4PVwUz9
+X-Google-Smtp-Source: ABdhPJxTD4Om3R3fcOJgXIl/bI+UdKXq9WucJkx+mmK46EBzJhken3GT0n1Tam8nSDnacL0e7e7q3g==
+X-Received: by 2002:a17:903:1ce:b0:148:ca49:b017 with SMTP id e14-20020a17090301ce00b00148ca49b017mr55122184plh.18.1641418259810;
+        Wed, 05 Jan 2022 13:30:59 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b14sm61190pfm.122.2022.01.05.13.30.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jan 2022 13:30:59 -0800 (PST)
+Message-ID: <61d60e13.1c69fb81.2d4b9.04db@mx.google.com>
+Date:   Wed, 05 Jan 2022 13:30:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.295-13-g1d9484cc9e1a
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 132 runs,
+ 2 regressions (v4.9.295-13-g1d9484cc9e1a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In isotp_rcv_ff() 32 bit of data received over the network is assigned
-to struct tpcon::len. Later in that function the length is checked for
-the maximal supported length against MAX_MSG_LENGTH.
+stable-rc/queue/4.9 baseline: 132 runs, 2 regressions (v4.9.295-13-g1d9484c=
+c9e1a)
 
-As struct tpcon::len is an "int" this check does not work, if the
-provided length overflows the "int".
+Regressions Summary
+-------------------
 
-Later on struct tpcon::idx is compared against struct tpcon::len.
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 1      =
+    =
 
-To fix this problem this patch converts both struct tpcon::{idx,len}
-to unsigned int.
-
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/all/20220105132429.1170627-1-mkl@pengutronix.de
-Cc: stable@vger.kernel.org
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Reported-by: syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- net/can/isotp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index df6968b28bf4..02cbcb2ecf0d 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -119,8 +119,8 @@ enum {
- };
- 
- struct tpcon {
--	int idx;
--	int len;
-+	unsigned int idx;
-+	unsigned int len;
- 	u32 state;
- 	u8 bs;
- 	u8 sn;
--- 
-2.34.1
+panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
+    =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.295-13-g1d9484cc9e1a/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.295-13-g1d9484cc9e1a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1d9484cc9e1a4df669a3985ac43ca6818c88cfc7 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d5d9afec6a0c5e42ef675d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.295-1=
+3-g1d9484cc9e1a/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
+-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.295-1=
+3-g1d9484cc9e1a/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle=
+-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d5d9afec6a0c5e42ef6=
+75e
+        new failure (last pass: v4.9.295-13-gf65af3015b1d) =
+
+ =
+
+
+
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d5d8ea962da349e8ef6760
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.295-1=
+3-g1d9484cc9e1a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.295-1=
+3-g1d9484cc9e1a/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61d5d8eb962da34=
+9e8ef6763
+        failing since 8 days (last pass: v4.9.294-8-gdf4b9763cd1e, first fa=
+il: v4.9.294-18-gaa81ab4e03f9)
+        2 lines
+
+    2022-01-05T17:43:51.626740  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, mmcqd/0/83
+    2022-01-05T17:43:51.635966  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
