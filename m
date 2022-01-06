@@ -2,73 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 927DA485CA8
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 00:55:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8315B485D0B
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 01:22:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245686AbiAEXzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 18:55:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58802 "EHLO
+        id S1343684AbiAFAWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 19:22:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245706AbiAEXyx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 18:54:53 -0500
-Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0676C028C37
-        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 15:53:22 -0800 (PST)
-Received: by mail-lf1-x130.google.com with SMTP id o12so1427690lfk.1
-        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 15:53:22 -0800 (PST)
+        with ESMTP id S1343675AbiAFAV5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 19:21:57 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B974CC061245
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 16:21:57 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id n30-20020a17090a5aa100b001b2b6509685so1022537pji.3
+        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 16:21:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=FxwDTSRolEaC6At0rz6W2FSZWGdppefsJwnlxpB7pEA=;
-        b=Tq9vCTItQasDpYeDrfo7RleyeXLzGAL9ei2sFlp7RccrDvxEcY1Xg0nzqV3X3Zmq8w
-         2zQn1MsA4jqtMpWv+78TGOljowLtnf2XgAGlWHlwuPf/+ENd8M3KZoIGHzuvYQDKaEGS
-         ty3M/CNnA+h51wvUHLUsIv5UYGsek4YgAB24XcvaYwRHRKvlwh4mPRBGK3rQjre/k7q0
-         XGvw2twpd8crHdTk7JtSDGhdlz3z5jGKqk7Cy00k1kkHTvFCD9u/jTF1RQ9TyyIY9Kqc
-         VNahbKJLIgrMkWqkC4KDJs4hmP4AIThpKm42I2H9aoC9juALsVZb0JRkxImO9LSC1PlN
-         LDYw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=P5Q0QdUm96PFlI6Ehik/Y5/QWvMg8sATPJHTX09lx+Q=;
+        b=vWoRdb/z5+69uYhtA6fnmYBx3bPuzuFTEpX1nkNpUd87zvyfNDO6cy2kQYhOXmMFMD
+         HdMgIHcrKnljxUk3EkjMCHzaYeFW9o37dDW0dZ3h9BDLrB9XuPl0Y2MH8uFJdtwafz68
+         vdFL5m7CXfiQtR4Bd1wGmGwds8E3k60jn7Lv8WneE3EYO9wTJ7+vdLwWUpZQoLDu35Y5
+         WUdSzMBf/wcT/1dHzYRwf4jvIsQoUWiGoWBU4Bs7xnE0qO4s2KZsyp22lL4wdcRmJRir
+         BtWAGVdPqmbARwrmS3SCkwmV4hGuHz/t/rWVnPoIY6sI72xxRo2O8dwE2RfSxWfmATUe
+         bjcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=FxwDTSRolEaC6At0rz6W2FSZWGdppefsJwnlxpB7pEA=;
-        b=mK0dnzYGMQ64JoGrstieaJUHNflLC3Nfy7e3pq7YfDa1ETAOejDrec+J/mNBWIXSN2
-         cY1NpS3BOTIpTdv3ndtH9qQioxkfsXA3TVBZhlgjjvHGbrFAYW1EYYxLenNA1ZHydesn
-         R5AMB5dhC5cHwmuMsq/eSSSaYIQWG1UUtEUOstlqwarGAIDegS3zli5BujHZDL9h4NcK
-         ggpJcQ5jfLf3jGRqNsc/gl1Mht7iwXMJShxQ171qUcqXrJiCIi7sl5gDMa2nCh1YU1IJ
-         U8I6iA3+y7jwjKNvMZe36N1R4wulx3iGcTiOXdczhJVxDeE5W4iJrgTEALziewN2uRxM
-         2Mcw==
-X-Gm-Message-State: AOAM530pteRmrqjBkY4LZdJnPnxJaXCM255ZRNTrTlUt+O8CIbpkwjIV
-        SFhdHXCSwx4cnue3dNchhFQ5RJ/gUMwyQuSjJgJ5gC+SKIs=
-X-Google-Smtp-Source: ABdhPJzlqBaChI7BC/1/xeCARFrOVzcBdm0nRm4p4Vbx5up6sQ0xU1AmIwMw3pFL2GgPKdcOc+IEsKDzcHOQ5CaCKH0=
-X-Received: by 2002:a05:6512:3e15:: with SMTP id i21mr50751884lfv.232.1641426801164;
- Wed, 05 Jan 2022 15:53:21 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=P5Q0QdUm96PFlI6Ehik/Y5/QWvMg8sATPJHTX09lx+Q=;
+        b=5ENNZVHJ8aBNVFSgDQbKN7Fk8UEP4NjprW9kZ7ZnO4BcknCoh6BydPPh43FhbrHq5B
+         oZJKMHo/Cb16JekhC/jpKxaT0NaXk3Q1FDrNaocH46tY1wgvT/u4Dy4N+5StSbfEmYdb
+         DgkirvqM8B6QfQrU0Wsy13A3sTpKohBkZIH8uLjhTHjvB+KgAW2z8/OOQUmvbtx3v1rW
+         ufriKt0nwx0h1khRxyK0U44vwekSxXzD96/yuEKpFeify6TWUD3JF+fPTacKAwnUK3OD
+         wNTsT3ccZ0RIUNUvuVxFNTBTIhfFEjLXBf0ZccVQAUiDTZRGrE5NnE5m1iec+MOzBYAf
+         IVtw==
+X-Gm-Message-State: AOAM531XkBokLeHjQRC8ZDjWMC1UGUk9uzIZ81FPHcRmEasIFU4RdT/E
+        2dT9uqizvfy9YSxvauQF/GG3gl3WIif8Ft32
+X-Google-Smtp-Source: ABdhPJzslgxvmFOJdEXYg1FITR837TzupZkEaBq1NpKQHHRZReHlQQgRP3Rlv6f3j+diggB4e0Qalg==
+X-Received: by 2002:a17:90a:578b:: with SMTP id g11mr7083567pji.76.1641428517117;
+        Wed, 05 Jan 2022 16:21:57 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v12sm157143pgc.13.2022.01.05.16.21.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jan 2022 16:21:56 -0800 (PST)
+Message-ID: <61d63624.1c69fb81.b949c.0bb1@mx.google.com>
+Date:   Wed, 05 Jan 2022 16:21:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Sender: gracemamadou1@gmail.com
-Received: by 2002:a05:6504:504a:0:0:0:0 with HTTP; Wed, 5 Jan 2022 15:53:20
- -0800 (PST)
-From:   "Mrs. Ferhana Rahim" <mrsferhanarahim42@gmail.com>
-Date:   Wed, 5 Jan 2022 23:53:20 +0000
-X-Google-Sender-Auth: Fgq6NTklKb952R7XurkHq6jNivg
-Message-ID: <CANpEPv7N3G=5YqsYsKuC1fA0uuC5+Mgzx+ByiFYah8BzQGg67g@mail.gmail.com>
-Subject: Hello Happy New To You
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.261
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 121 runs, 1 regressions (v4.14.261)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Good Day and happy new year,
+stable-rc/queue/4.14 baseline: 121 runs, 1 regressions (v4.14.261)
 
-My name is Mrs. Ferhana Rahim I am from Herat city of Afghanistan.
+Regressions Summary
+-------------------
 
-please i got your e-mail on (PDF) I will like to discuss a profitable
-business with you, kindly reply to me together with your WhatsApp
-number so that we can chat on WhatsApp and know ourselves very well
-before proceeding with the business.
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-I am waiting for your urgent reply,
 
-Thanks and God bless you.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.261/plan/baseline/
 
-Yours Sincerely,
-Mrs. Ferhana Rahim
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.261
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      bfdef05c8da46b022172695aa493cff7ac667a4b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d5fed99d1eca64dfef6746
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.261=
+/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.261=
+/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61d5fed99d1eca6=
+4dfef6749
+        failing since 2 days (last pass: v4.14.260-5-g5ba2b1f2b4df, first f=
+ail: v4.14.260-9-gb7bb5018400c)
+        2 lines
+
+    2022-01-05T20:25:41.983683  [   19.845825] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-05T20:25:42.026165  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, syslogd/78
+    2022-01-05T20:25:42.035538  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
