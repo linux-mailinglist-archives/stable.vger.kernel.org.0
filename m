@@ -2,121 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5317A486301
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 11:37:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8104863C1
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 12:33:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237847AbiAFKhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jan 2022 05:37:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33232 "EHLO
+        id S238528AbiAFLdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jan 2022 06:33:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232212AbiAFKhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 05:37:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97723C061245;
-        Thu,  6 Jan 2022 02:37:32 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E1A5B82057;
-        Thu,  6 Jan 2022 10:37:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05247C36AE5;
-        Thu,  6 Jan 2022 10:37:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641465448;
-        bh=X0wz0lYz05U9K22FsPT6MUcN3arQdAhXiAZ56bH2CSI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Gt95TYUPkA4UQBChqQPMIliP5XM4d7x/yUG6SGtPBMp4Z0Bryje/FeGy/dm+CcPEO
-         vg4JSvGoA7Sd429ktTkEARmpS6XwGN5FN86/mH1C2MB+SuiTC48uauQObpOJsWY3lQ
-         KrWsD372kF37sEKjLYMCho/ordJi6O95nP0Xvey0=
-Date:   Thu, 6 Jan 2022 11:37:26 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>, Netdev <netdev@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, Shuah Khan <shuah@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Yangbo Lu <yangbo.lu@nxp.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Jian Yang <jianyang@google.com>
-Subject: Re: txtimestamp.c:164:29: warning: format '0' expects argument of
- type 'long unsigned int', but argument 3 has type 'int64_t' {aka 'long long
- int'} [-Wformat=]
-Message-ID: <YdbGZiKKdVgh8A4i@kroah.com>
-References: <CA+G9fYtaoxVF-bL40kt=FKcjjaLUnS+h8hNf=wQv_dKKWn_MNQ@mail.gmail.com>
+        with ESMTP id S238526AbiAFLdL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 06:33:11 -0500
+X-Greylist: delayed 528 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 06 Jan 2022 03:33:11 PST
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 307D4C061245
+        for <stable@vger.kernel.org>; Thu,  6 Jan 2022 03:33:11 -0800 (PST)
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id 4884E92009E; Thu,  6 Jan 2022 12:24:16 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id 44B9092009B;
+        Thu,  6 Jan 2022 11:24:16 +0000 (GMT)
+Date:   Thu, 6 Jan 2022 11:24:16 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
+To:     Nikolai Zhubr <zhubr.2@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>
+cc:     Arnd Bergmann <arnd@kernel.org>,
+        Michal Necasek <mnecasek@yahoo.com>, x86@kernel.org,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v3 3/4] x86/PCI: Fix ALi M1487 (IBC) PIRQ router link value
+ interpretation
+In-Reply-To: <alpine.DEB.2.21.2201021821480.56863@angie.orcam.me.uk>
+Message-ID: <alpine.DEB.2.21.2201022131050.56863@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2201021821480.56863@angie.orcam.me.uk>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYtaoxVF-bL40kt=FKcjjaLUnS+h8hNf=wQv_dKKWn_MNQ@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 06, 2022 at 03:39:09PM +0530, Naresh Kamboju wrote:
-> While building selftests the following warnings were noticed for arm
-> architecture on Linux stable v5.15.13 kernel and also on Linus's tree.
-> 
-> arm-linux-gnueabihf-gcc -Wall -Wl,--no-as-needed -O2 -g
-> -I../../../../usr/include/    txtimestamp.c  -o
-> /home/tuxbuild/.cache/tuxmake/builds/current/kselftest/net/txtimestamp
-> txtimestamp.c: In function 'validate_timestamp':
-> txtimestamp.c:164:29: warning: format '0' expects argument of type
-> 'long unsigned int', but argument 3 has type 'int64_t' {aka 'long long
-> int'} [-Wformat=]
->   164 |   fprintf(stderr, "ERROR: 0 us expected between 0 and 0\n",
->       |                           ~~^
->       |                             |
->       |                             long unsigned int
->       |                           0
->   165 |     cur64 - start64, min_delay, max_delay);
->       |     ~~~~~~~~~~~~~~~
->       |           |
->       |           int64_t {aka long long int}
-> txtimestamp.c: In function '__print_ts_delta_formatted':
-> txtimestamp.c:173:22: warning: format '0' expects argument of type
-> 'long unsigned int', but argument 3 has type 'int64_t' {aka 'long long
-> int'} [-Wformat=]
->   173 |   fprintf(stderr, "0 ns", ts_delta);
->       |                    ~~^      ~~~~~~~~
->       |                      |      |
->       |                      |      int64_t {aka long long int}
->       |                      long unsigned int
->       |                    0
-> txtimestamp.c:175:22: warning: format '0' expects argument of type
-> 'long unsigned int', but argument 3 has type 'int64_t' {aka 'long long
-> int'} [-Wformat=]
->   175 |   fprintf(stderr, "0 us", ts_delta / NSEC_PER_USEC);
->       |                    ~~^
->       |                      |
->       |                      long unsigned int
->       |                    0
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> build link:
-> https://builds.tuxbuild.com/23HFntxpqyCx0RbiuadfGZ36Kym/
-> 
-> metadata:
->   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->   git commit: 734eb1fd2073f503f5c6b44f1c0d453ca6986b84
->   git describe: v5.15.13
->   toolchain: gcc-11
->   kernel-config: https://builds.tuxbuild.com/23HFntxpqyCx0RbiuadfGZ36Kym/config
-> 
-> 
-> # To install tuxmake on your system globally:
-> # sudo pip3 install -U tuxmake
-> 
-> tuxmake --runtime podman --target-arch arm --toolchain gcc-10 \
->  --kconfig https://builds.tuxbuild.com/23HFntxpqyCx0RbiuadfGZ36Kym/config \
->   dtbs dtbs-legacy headers kernel kselftest kselftest-merge modules
+Fix an issue with commit 1ce849c75534 ("x86/PCI: Add support for the ALi 
+M1487 (IBC) PIRQ router") and correct ALi M1487 (IBC) PIRQ router link 
+value (`pirq' cookie) interpretation according to findings in the BIOS.
 
-Same question as before, is this a regression, and if so, any pointers
-to a fix?
+Credit to Nikolai Zhubr for the detective work as to the bit layout.
 
-thanks,
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Cc: Nikolai Zhubr <zhubr.2@gmail.com>
+Fixes: 1ce849c75534 ("x86/PCI: Add support for the ALi M1487 (IBC) PIRQ router")
+Cc: stable@vger.kernel.org # v5.15+
+---
+New change in v3.
+---
+ arch/x86/pci/irq.c |   19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-greg k-h
+linux-x86-pirq-router-finali-link.diff
+Index: linux-macro/arch/x86/pci/irq.c
+===================================================================
+--- linux-macro.orig/arch/x86/pci/irq.c
++++ linux-macro/arch/x86/pci/irq.c
+@@ -325,6 +325,15 @@ static void write_pc_conf_nybble(u8 base
+ 	pc_conf_set(reg, x);
+ }
+ 
++/*
++ * FinALi pirq rules are as follows:
++ *
++ * - bit 0 selects between INTx Routing Table Mapping Registers,
++ *
++ * - bit 3 selects the nibble within the INTx Routing Table Mapping Register,
++ *
++ * - bits 7:4 map to bits 3:0 of the PCI INTx Sensitivity Register.
++ */
+ static int pirq_finali_get(struct pci_dev *router, struct pci_dev *dev,
+ 			   int pirq)
+ {
+@@ -332,11 +341,13 @@ static int pirq_finali_get(struct pci_de
+ 		0, 9, 3, 10, 4, 5, 7, 6, 0, 11, 0, 12, 0, 14, 0, 15
+ 	};
+ 	unsigned long flags;
++	u8 index;
+ 	u8 x;
+ 
++	index = (pirq & 1) << 1 | (pirq & 8) >> 3;
+ 	raw_spin_lock_irqsave(&pc_conf_lock, flags);
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, PC_CONF_FINALI_LOCK_KEY);
+-	x = irqmap[read_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, pirq - 1)];
++	x = irqmap[read_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, index)];
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, 0);
+ 	raw_spin_unlock_irqrestore(&pc_conf_lock, flags);
+ 	return x;
+@@ -350,13 +361,15 @@ static int pirq_finali_set(struct pci_de
+ 	};
+ 	u8 val = irqmap[irq];
+ 	unsigned long flags;
++	u8 index;
+ 
+ 	if (!val)
+ 		return 0;
+ 
++	index = (pirq & 1) << 1 | (pirq & 8) >> 3;
+ 	raw_spin_lock_irqsave(&pc_conf_lock, flags);
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, PC_CONF_FINALI_LOCK_KEY);
+-	write_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, pirq - 1, val);
++	write_pc_conf_nybble(PC_CONF_FINALI_PCI_INTX_RT1, index, val);
+ 	pc_conf_set(PC_CONF_FINALI_LOCK, 0);
+ 	raw_spin_unlock_irqrestore(&pc_conf_lock, flags);
+ 	return 1;
+@@ -365,7 +378,7 @@ static int pirq_finali_set(struct pci_de
+ static int pirq_finali_lvl(struct pci_dev *router, struct pci_dev *dev,
+ 			   int pirq, int irq)
+ {
+-	u8 mask = ~(1u << (pirq - 1));
++	u8 mask = ~((pirq & 0xf0u) >> 4);
+ 	unsigned long flags;
+ 	u8 trig;
+ 
