@@ -2,84 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3308A486248
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 10:44:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 596BF48625D
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 10:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237480AbiAFJo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jan 2022 04:44:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
+        id S237570AbiAFJuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jan 2022 04:50:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237427AbiAFJo5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 04:44:57 -0500
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADA5C061245
-        for <stable@vger.kernel.org>; Thu,  6 Jan 2022 01:44:57 -0800 (PST)
-Received: by mail-wr1-x42d.google.com with SMTP id e5so3644047wrc.5
-        for <stable@vger.kernel.org>; Thu, 06 Jan 2022 01:44:57 -0800 (PST)
+        with ESMTP id S237567AbiAFJuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 04:50:12 -0500
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18784C061212
+        for <stable@vger.kernel.org>; Thu,  6 Jan 2022 01:50:12 -0800 (PST)
+Received: by mail-yb1-xb34.google.com with SMTP id c6so3748946ybk.3
+        for <stable@vger.kernel.org>; Thu, 06 Jan 2022 01:50:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=pfGBDnaE0i+YAsrortDf79hY8I/7+CV3o2ygx/QVtC0=;
-        b=R4ekXLaSa8lqQnIRFzSdaxwfc5uiHUeIRvNWcoC9TjlHvRenttv6H5K0P2FJy1JzU8
-         M0UUZLSUldxV1O/oWu/TyGfaEBGobjuZu55Ao24xsUlhd8PpFgYnd/UrBS7H75hUd/VB
-         vu3NKDTSw4OcQvMTAjp6S1bQao949pMp9nVNXXQBHWy+kfqjo1lNkRPvP0OMMGesIi4Q
-         INTQlXyfnFLGOwbrF+u7i3DDpL2CcCgucBWOt9hkJU+bEISaDkAi1KwMeYr2dpYaOqsb
-         9B5WJosSWrcsGgrn7qZUU0Pw+C7N5CgHCMdys0IyyBK02eU8GALWY83iO7GiZ2b+7Dzb
-         LEAA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=K8lARk+9aIceWETxoJnQyDEyoZX3xAzp3WCfINwI6nM=;
+        b=k9xVZQ7F0zo07Vy5vxEiX15gDzQ/J8WPpVLEcmZcOxvEOEsxI+uA1tbFmD+ryerBQ0
+         URYkWpkO5NPe8ZSXPNUkrBq/p2p0rJSi0Ov36BZOIU8dEawNxkcz9sYrOqcA2OLqVQfa
+         Pmc9+UZcwCm4VWtjOUkjlrUYb3HwrsKVH5hr9yfBKjSQUY9mAJ3VGuCg/quT70qVEent
+         fDsWG7UQJw/f31HDqod4tRJZQqgIA93DaBgNfs3+dq6O96ASSnc7BeE9lpmq5feoZQP1
+         bOHqkfgUamss86JkpTaTdp6Gezl2oT5a650xuUO9ugsdZ7k4iT8laMAXOnWCYbweLk9a
+         UlSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=pfGBDnaE0i+YAsrortDf79hY8I/7+CV3o2ygx/QVtC0=;
-        b=Pv9a7Yq3W1EdNDRbYJJD/QyOMucTMnW/yBCYOShFamsIGwiw1uwX71OGng19sy5Rau
-         AGzX+DVRv/e6fBM1YZsElaZoKSHVgff2En0VJcl2K9QqSS/JVwZC9qDTgyXo9CpbBVE1
-         PEIcP68KRXjb9R/YMRn5W44yXobmMQUO+/0Sce6vl2C7AujJh3VEbnXIZNr1H2U90xL/
-         PC30j2QZZN2DLKOyr7xyfMd4Sagnbvtm6siVOHMwlrCcrYYY5ju/MqJEQsjYNniU34Mt
-         Ljg0hSMzsIzM53SwdnN+viBqt4UUJYm3p/3vRZZilGleU84RHmLlxTNa428+viRFf7nt
-         Jngw==
-X-Gm-Message-State: AOAM5307Dt0hZ/qxyhDqXkuaKtRwx+VyWHcAHUEU+DUqFfQZdDUkpzg/
-        x8QPBoROdl8aHSb/OddAXRN8UKj8MlwanoyQNMU=
-X-Google-Smtp-Source: ABdhPJyloWkBtmGU1Ehw6yTDtzBXf7fdGqV01oFbsKGnigKO4hWlScMGR41GHpP8638QOfIFKIBa0Xsr1iFpOhaskzM=
-X-Received: by 2002:adf:e947:: with SMTP id m7mr1374237wrn.544.1641462295818;
- Thu, 06 Jan 2022 01:44:55 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=K8lARk+9aIceWETxoJnQyDEyoZX3xAzp3WCfINwI6nM=;
+        b=LCAY3bGhS5O/9e+WInOz1a8jP/t7MeOiKWZjg+ddkR+mik9ZfrpjLfS4ZIIKlgy2i7
+         gtJulw8retlT7Xk7PzzzmZjrwuHb6uaTesY+ev1HQMfGNijNdLbBAVdP8BItfDkHuj0n
+         ybNT1fyjynj3J7BrSlDE4+V8HgQJpS4RsUmbRpU5zlXnvdSu64BzF7hlG+HUF17eEkSO
+         TwjrObHSUOLCMURaSJ/D15LGhoQt5JICMjDCYozefdv+s3Mv6HT+zgYTV05PR6YZJstd
+         91KdnxpeXkDcgQtj67dbGrmoC+BPEvvWcDljPhUskL0dkK3HlsZGIHXplaRa3i0/R9Jf
+         AksA==
+X-Gm-Message-State: AOAM530K9hGqOPYyC3dY7cf1rxPWht53pvBzT9cL3E6LbhtI7h6nFSAn
+        MGOF0FYZ4xzDHQtcNQ5DKpfNM8TnnO//loyCx1NXrWrBm9pR6Q==
+X-Google-Smtp-Source: ABdhPJwuRNMrNbvBg4YjrN/D91Fr46dhfxItlTDQnp7sGMJmAh0rX6MJOEXcWkd8jZEKIJV+FKdae74tO2GnvWwMyBA=
+X-Received: by 2002:a25:73c7:: with SMTP id o190mr23381904ybc.108.1641462611076;
+ Thu, 06 Jan 2022 01:50:11 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a05:6000:2cd:0:0:0:0 with HTTP; Thu, 6 Jan 2022 01:44:55
- -0800 (PST)
-Reply-To: aisha.qaddafi33@yahoo.com
-From:   "Mrs.Aisha El Gaddafi" <aishaelgaddfi980@gmail.com>
-Date:   Thu, 6 Jan 2022 09:44:55 +0000
-Message-ID: <CAD4rp4q6i6VCgB_LR7txFGdkMmuLsxJgD1_4WnWtzOh9_piY-g@mail.gmail.com>
-Subject: Can I invest in your country from Mrs. Aisha El Gaddafi?
-To:     undisclosed-recipients:;
+References: <CA+G9fYvUu9+68mkCT0S8L0gL28jc5MXGQqOGH6ObciK72FbD8A@mail.gmail.com>
+ <Yda3L0givFBDZtXs@kroah.com>
+In-Reply-To: <Yda3L0givFBDZtXs@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 6 Jan 2022 15:19:59 +0530
+Message-ID: <CA+G9fYuRUsmsj+f3RXAKpvX2k=YJwxj4-_MqWzi1L-D9YdE5Cg@mail.gmail.com>
+Subject: Re: test_vsyscall.c:500:22: warning: '__builtin_memcmp_eq' specified
+ bound 4096 exceeds source size 0
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        skhan@linuxfoundation.org
+Cc:     linux-stable <stable@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, X86 ML <x86@kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jann Horn <jannh@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Anders Roxell <anders.roxell@linaro.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Can I invest in your country from Mrs. Aisha El Gaddafi?
-Dear Friend,
+On Thu, 6 Jan 2022 at 15:02, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Jan 06, 2022 at 02:55:53PM +0530, Naresh Kamboju wrote:
+> > While building selftests the following warnings were noticed for x86_64
+> > architecture on Linux stable v5.15.13 kernel.
+> >
+> > metadata:
+> >   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
+x.git
+> >   git commit: 734eb1fd2073f503f5c6b44f1c0d453ca6986b84
+> >   git describe: v5.15.13
+> >   toolchain":  gcc-11
+> >   kernel-config: https://builds.tuxbuild.com/23HFo8abXIL6i4FFfSYiJlqAYM=
+W/config
+> >
+> > x86_64-linux-gnu-gcc -m64 -o \
+> > /home/tuxbuild/.cache/tuxmake/builds/current/kselftest/x86/test_vsyscal=
+l_64 \
+> >  -O2 -g -std=3Dgnu99 -pthread -Wall -no-pie \
+> >  -DCAN_BUILD_64 test_vsyscall.c helpers.h -lrt -ldl
+> >
+> > test_vsyscall.c: In function 'test_process_vm_readv':
+> > test_vsyscall.c:500:22: warning: '__builtin_memcmp_eq' specified bound
+> > 4096 exceeds source size 0 [-Wstringop-overread]
+> >   500 |                 if (!memcmp(buf, (const void
+> > *)0xffffffffff600000, 4096)) {
+> >       |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~~~~~~~
+> >
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> >
+> > Build link:
+> > https://builds.tuxbuild.com/23HFo8abXIL6i4FFfSYiJlqAYMW/
+> >
+> > # To install tuxmake on your system globally:
+> > # sudo pip3 install -U tuxmake
+> >
+> > tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-11 \
+> >  --kconfig https://builds.tuxbuild.com/23HFo8abXIL6i4FFfSYiJlqAYMW/conf=
+ig \
+> >  cpupower headers kernel kselftest kselftest-merge modules
+>
+> Is this a new regression from 5.15.0?  Is it also present on Linus's tree=
+?
 
-I came across your e-mail contact prior a private search while in need
-of your assistance. My name is Aisha  Al-Qaddafi a single Mother and a
-Widow with three Children. I am the only biological Daughter of late
-Libyan President (Late Colonel Muammar Gaddafi).
+This build warning is not present in Linus's tree.
+Following patch to be backported to 5.15.x
 
-I have investment funds worth Twenty Seven Million Five Hundred
-Thousand United State Dollar ($27.500.000.00 ) and i need a trusted
-investment Manager/Partner because of my current refugee status,
-however, I am interested in you for investment project assistance in
-your country, may be from there, we can build business relationship in
-the nearest future.
+---
+From dd40f44eabe1e122c6852fabb298aac05b083fce Mon Sep 17 00:00:00 2001
+From: Shuah Khan <skhan@linuxfoundation.org>
+Date: Thu, 21 Oct 2021 15:33:33 -0600
+Subject: selftests: x86: fix [-Wstringop-overread] warn in
+ test_process_vm_readv()
 
-I am willing to negotiate investment/business profit sharing ratio
-with you base on the future investment earning profits.
+Fix the following [-Wstringop-overread] by passing in the variable
+instead of the value.
 
-If you are willing to handle this project on my behalf kindly reply
-urgent to enable me provide you more information about the investment
-funds.
+test_vsyscall.c: In function =E2=80=98test_process_vm_readv=E2=80=99:
+test_vsyscall.c:500:22: warning: =E2=80=98__builtin_memcmp_eq=E2=80=99 spec=
+ified bound
+4096 exceeds source size 0 [-Wstringop-overread]
+  500 |                 if (!memcmp(buf, (const void
+*)0xffffffffff600000, 4096)) {
+      |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~~~
 
-Your Urgent Reply Will Be Appreciated. contact me at this email
-address ( aisha.qaddafi33@yahoo.com ) for further discussion.
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Best Regards
-Mrs Aisha Al-Qaddaf
+- Naresh
