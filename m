@@ -2,96 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B6E486226
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 10:32:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3308A486248
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 10:44:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237437AbiAFJcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jan 2022 04:32:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53548 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236552AbiAFJcf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 04:32:35 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0912961B13;
-        Thu,  6 Jan 2022 09:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B921DC36AE5;
-        Thu,  6 Jan 2022 09:32:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641461554;
-        bh=ftjlVIE88difaa6YOW416g8IrMlFSVbJJ74FffwzjNg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OCsHU/ICJmjDVlFG0oUKGtRXwCPFqounhngvPBM+nR183prLmf3MsSxBjChc1IkJE
-         9h58560a9all1SuCeHO5dH73N/J8tgzF0ENNo3to3Yy7aCUJg2FCaFObJvSDq2GKzq
-         avsOHaik5aEo5uM59sRSZL/RE9NtZhz1UZd7uRFg=
-Date:   Thu, 6 Jan 2022 10:32:31 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, X86 ML <x86@kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jann Horn <jannh@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: Re: test_vsyscall.c:500:22: warning: '__builtin_memcmp_eq' specified
- bound 4096 exceeds source size 0
-Message-ID: <Yda3L0givFBDZtXs@kroah.com>
-References: <CA+G9fYvUu9+68mkCT0S8L0gL28jc5MXGQqOGH6ObciK72FbD8A@mail.gmail.com>
+        id S237480AbiAFJo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jan 2022 04:44:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237427AbiAFJo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 04:44:57 -0500
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADA5C061245
+        for <stable@vger.kernel.org>; Thu,  6 Jan 2022 01:44:57 -0800 (PST)
+Received: by mail-wr1-x42d.google.com with SMTP id e5so3644047wrc.5
+        for <stable@vger.kernel.org>; Thu, 06 Jan 2022 01:44:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=pfGBDnaE0i+YAsrortDf79hY8I/7+CV3o2ygx/QVtC0=;
+        b=R4ekXLaSa8lqQnIRFzSdaxwfc5uiHUeIRvNWcoC9TjlHvRenttv6H5K0P2FJy1JzU8
+         M0UUZLSUldxV1O/oWu/TyGfaEBGobjuZu55Ao24xsUlhd8PpFgYnd/UrBS7H75hUd/VB
+         vu3NKDTSw4OcQvMTAjp6S1bQao949pMp9nVNXXQBHWy+kfqjo1lNkRPvP0OMMGesIi4Q
+         INTQlXyfnFLGOwbrF+u7i3DDpL2CcCgucBWOt9hkJU+bEISaDkAi1KwMeYr2dpYaOqsb
+         9B5WJosSWrcsGgrn7qZUU0Pw+C7N5CgHCMdys0IyyBK02eU8GALWY83iO7GiZ2b+7Dzb
+         LEAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=pfGBDnaE0i+YAsrortDf79hY8I/7+CV3o2ygx/QVtC0=;
+        b=Pv9a7Yq3W1EdNDRbYJJD/QyOMucTMnW/yBCYOShFamsIGwiw1uwX71OGng19sy5Rau
+         AGzX+DVRv/e6fBM1YZsElaZoKSHVgff2En0VJcl2K9QqSS/JVwZC9qDTgyXo9CpbBVE1
+         PEIcP68KRXjb9R/YMRn5W44yXobmMQUO+/0Sce6vl2C7AujJh3VEbnXIZNr1H2U90xL/
+         PC30j2QZZN2DLKOyr7xyfMd4Sagnbvtm6siVOHMwlrCcrYYY5ju/MqJEQsjYNniU34Mt
+         Ljg0hSMzsIzM53SwdnN+viBqt4UUJYm3p/3vRZZilGleU84RHmLlxTNa428+viRFf7nt
+         Jngw==
+X-Gm-Message-State: AOAM5307Dt0hZ/qxyhDqXkuaKtRwx+VyWHcAHUEU+DUqFfQZdDUkpzg/
+        x8QPBoROdl8aHSb/OddAXRN8UKj8MlwanoyQNMU=
+X-Google-Smtp-Source: ABdhPJyloWkBtmGU1Ehw6yTDtzBXf7fdGqV01oFbsKGnigKO4hWlScMGR41GHpP8638QOfIFKIBa0Xsr1iFpOhaskzM=
+X-Received: by 2002:adf:e947:: with SMTP id m7mr1374237wrn.544.1641462295818;
+ Thu, 06 Jan 2022 01:44:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvUu9+68mkCT0S8L0gL28jc5MXGQqOGH6ObciK72FbD8A@mail.gmail.com>
+Received: by 2002:a05:6000:2cd:0:0:0:0 with HTTP; Thu, 6 Jan 2022 01:44:55
+ -0800 (PST)
+Reply-To: aisha.qaddafi33@yahoo.com
+From:   "Mrs.Aisha El Gaddafi" <aishaelgaddfi980@gmail.com>
+Date:   Thu, 6 Jan 2022 09:44:55 +0000
+Message-ID: <CAD4rp4q6i6VCgB_LR7txFGdkMmuLsxJgD1_4WnWtzOh9_piY-g@mail.gmail.com>
+Subject: Can I invest in your country from Mrs. Aisha El Gaddafi?
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 06, 2022 at 02:55:53PM +0530, Naresh Kamboju wrote:
-> While building selftests the following warnings were noticed for x86_64
-> architecture on Linux stable v5.15.13 kernel.
-> 
-> metadata:
->   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->   git commit: 734eb1fd2073f503f5c6b44f1c0d453ca6986b84
->   git describe: v5.15.13
->   toolchain":  gcc-11
->   kernel-config: https://builds.tuxbuild.com/23HFo8abXIL6i4FFfSYiJlqAYMW/config
-> 
-> x86_64-linux-gnu-gcc -m64 -o \
-> /home/tuxbuild/.cache/tuxmake/builds/current/kselftest/x86/test_vsyscall_64 \
->  -O2 -g -std=gnu99 -pthread -Wall -no-pie \
->  -DCAN_BUILD_64 test_vsyscall.c helpers.h -lrt -ldl
-> 
-> test_vsyscall.c: In function 'test_process_vm_readv':
-> test_vsyscall.c:500:22: warning: '__builtin_memcmp_eq' specified bound
-> 4096 exceeds source size 0 [-Wstringop-overread]
->   500 |                 if (!memcmp(buf, (const void
-> *)0xffffffffff600000, 4096)) {
->       |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> Build link:
-> https://builds.tuxbuild.com/23HFo8abXIL6i4FFfSYiJlqAYMW/
-> 
-> # To install tuxmake on your system globally:
-> # sudo pip3 install -U tuxmake
-> 
-> tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-11 \
->  --kconfig https://builds.tuxbuild.com/23HFo8abXIL6i4FFfSYiJlqAYMW/config \
->  cpupower headers kernel kselftest kselftest-merge modules
+Can I invest in your country from Mrs. Aisha El Gaddafi?
+Dear Friend,
 
-Is this a new regression from 5.15.0?  Is it also present on Linus's tree?
+I came across your e-mail contact prior a private search while in need
+of your assistance. My name is Aisha  Al-Qaddafi a single Mother and a
+Widow with three Children. I am the only biological Daughter of late
+Libyan President (Late Colonel Muammar Gaddafi).
 
-thanks,
+I have investment funds worth Twenty Seven Million Five Hundred
+Thousand United State Dollar ($27.500.000.00 ) and i need a trusted
+investment Manager/Partner because of my current refugee status,
+however, I am interested in you for investment project assistance in
+your country, may be from there, we can build business relationship in
+the nearest future.
 
-greg k-h
+I am willing to negotiate investment/business profit sharing ratio
+with you base on the future investment earning profits.
+
+If you are willing to handle this project on my behalf kindly reply
+urgent to enable me provide you more information about the investment
+funds.
+
+Your Urgent Reply Will Be Appreciated. contact me at this email
+address ( aisha.qaddafi33@yahoo.com ) for further discussion.
+
+Best Regards
+Mrs Aisha Al-Qaddaf
