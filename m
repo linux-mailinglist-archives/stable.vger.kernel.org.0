@@ -2,133 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8315B485D0B
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 01:22:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18EFA485E04
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 02:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343684AbiAFAWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jan 2022 19:22:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36790 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343675AbiAFAV5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 19:21:57 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B974CC061245
-        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 16:21:57 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id n30-20020a17090a5aa100b001b2b6509685so1022537pji.3
-        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 16:21:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=P5Q0QdUm96PFlI6Ehik/Y5/QWvMg8sATPJHTX09lx+Q=;
-        b=vWoRdb/z5+69uYhtA6fnmYBx3bPuzuFTEpX1nkNpUd87zvyfNDO6cy2kQYhOXmMFMD
-         HdMgIHcrKnljxUk3EkjMCHzaYeFW9o37dDW0dZ3h9BDLrB9XuPl0Y2MH8uFJdtwafz68
-         vdFL5m7CXfiQtR4Bd1wGmGwds8E3k60jn7Lv8WneE3EYO9wTJ7+vdLwWUpZQoLDu35Y5
-         WUdSzMBf/wcT/1dHzYRwf4jvIsQoUWiGoWBU4Bs7xnE0qO4s2KZsyp22lL4wdcRmJRir
-         BtWAGVdPqmbARwrmS3SCkwmV4hGuHz/t/rWVnPoIY6sI72xxRo2O8dwE2RfSxWfmATUe
-         bjcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=P5Q0QdUm96PFlI6Ehik/Y5/QWvMg8sATPJHTX09lx+Q=;
-        b=5ENNZVHJ8aBNVFSgDQbKN7Fk8UEP4NjprW9kZ7ZnO4BcknCoh6BydPPh43FhbrHq5B
-         oZJKMHo/Cb16JekhC/jpKxaT0NaXk3Q1FDrNaocH46tY1wgvT/u4Dy4N+5StSbfEmYdb
-         DgkirvqM8B6QfQrU0Wsy13A3sTpKohBkZIH8uLjhTHjvB+KgAW2z8/OOQUmvbtx3v1rW
-         ufriKt0nwx0h1khRxyK0U44vwekSxXzD96/yuEKpFeify6TWUD3JF+fPTacKAwnUK3OD
-         wNTsT3ccZ0RIUNUvuVxFNTBTIhfFEjLXBf0ZccVQAUiDTZRGrE5NnE5m1iec+MOzBYAf
-         IVtw==
-X-Gm-Message-State: AOAM531XkBokLeHjQRC8ZDjWMC1UGUk9uzIZ81FPHcRmEasIFU4RdT/E
-        2dT9uqizvfy9YSxvauQF/GG3gl3WIif8Ft32
-X-Google-Smtp-Source: ABdhPJzslgxvmFOJdEXYg1FITR837TzupZkEaBq1NpKQHHRZReHlQQgRP3Rlv6f3j+diggB4e0Qalg==
-X-Received: by 2002:a17:90a:578b:: with SMTP id g11mr7083567pji.76.1641428517117;
-        Wed, 05 Jan 2022 16:21:57 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v12sm157143pgc.13.2022.01.05.16.21.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Jan 2022 16:21:56 -0800 (PST)
-Message-ID: <61d63624.1c69fb81.b949c.0bb1@mx.google.com>
-Date:   Wed, 05 Jan 2022 16:21:56 -0800 (PST)
+        id S1344306AbiAFBUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jan 2022 20:20:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43300 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344308AbiAFBUK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jan 2022 20:20:10 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D21461A11;
+        Thu,  6 Jan 2022 01:20:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B41FAC36AE9;
+        Thu,  6 Jan 2022 01:20:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641432009;
+        bh=U48RtyVvcZAb11ESIWJVKP2J8q2PyXH7STc+hMqc/JI=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=oauJHd2MfyOUYEi+eNsBBH8VLAAKF1YWFruBOfceckDs6GAcZfdpgRE3rFeHwlWzS
+         /LDkZVE9jo1xIP5Uqu3JgjxBy9cxQBXzZp6K9zmchvLcrzFBwOdU51I5DDcA4izSF2
+         GcL/KWuhWyRPfMGN1UHyXt6gM1p9RzvFFiCvB3AmdrOhGXuQhPqoklfr8z6LOucACU
+         Hx3ioHbhl811L+MaCOxqKlJNeN0WTHj32hI1yVbJ4RKQDb3zE8LCpj5XYz7HsJ8eqS
+         qNJX1qvrP++8pqEpBmnRvOIhFKpj/9lxQm3s87ZmLnVjJYxMnYzMq0GVjZhctJOQS5
+         MZLbvXwlayqVA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 99D64F7940B;
+        Thu,  6 Jan 2022 01:20:09 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.261
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 121 runs, 1 regressions (v4.14.261)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 1/2] can: gs_usb: fix use of uninitialized variable,
+ detach device on reception of invalid USB data
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164143200962.6490.5453127499700459621.git-patchwork-notify@kernel.org>
+Date:   Thu, 06 Jan 2022 01:20:09 +0000
+References: <20220105205443.1274709-2-mkl@pengutronix.de>
+In-Reply-To: <20220105205443.1274709-2-mkl@pengutronix.de>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux-can@vger.kernel.org, kernel@pengutronix.de,
+        stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 121 runs, 1 regressions (v4.14.261)
+Hello:
 
-Regressions Summary
--------------------
+This series was applied to netdev/net.git (master)
+by Marc Kleine-Budde <mkl@pengutronix.de>:
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+On Wed,  5 Jan 2022 21:54:42 +0100 you wrote:
+> The received data contains the channel the received data is associated
+> with. If the channel number is bigger than the actual number of
+> channels assume broken or malicious USB device and shut it down.
+> 
+> This fixes the error found by clang:
+> 
+> | drivers/net/can/usb/gs_usb.c:386:6: error: variable 'dev' is used
+> |                                     uninitialized whenever 'if' condition is true
+> |         if (hf->channel >= GS_MAX_INTF)
+> |             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+> | drivers/net/can/usb/gs_usb.c:474:10: note: uninitialized use occurs here
+> |                           hf, dev->gs_hf_size, gs_usb_receive_bulk_callback,
+> |                               ^~~
+> 
+> [...]
 
+Here is the summary with links:
+  - [net,1/2] can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
+    https://git.kernel.org/netdev/net/c/4a8737ff0687
+  - [net,2/2] can: isotp: convert struct tpcon::{idx,len} to unsigned int
+    https://git.kernel.org/netdev/net/c/5f33a09e769a
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.261/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.261
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bfdef05c8da46b022172695aa493cff7ac667a4b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
-  Details:     https://kernelci.org/test/plan/id/61d5fed99d1eca64dfef6746
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.261=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.261=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61d5fed99d1eca6=
-4dfef6749
-        failing since 2 days (last pass: v4.14.260-5-g5ba2b1f2b4df, first f=
-ail: v4.14.260-9-gb7bb5018400c)
-        2 lines
-
-    2022-01-05T20:25:41.983683  [   19.845825] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-05T20:25:42.026165  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, syslogd/78
-    2022-01-05T20:25:42.035538  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
