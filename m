@@ -2,101 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 507294868FE
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 18:44:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BB50486906
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 18:46:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242260AbiAFRo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jan 2022 12:44:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37844 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242273AbiAFRoV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 12:44:21 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9BBEB822A4;
-        Thu,  6 Jan 2022 17:44:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7C65C36AE3;
-        Thu,  6 Jan 2022 17:44:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641491058;
-        bh=/Z4tijhHD0ZDCKofZQW7TfrtBbAeXpE5PX0D7zD/CDI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aBsbboTj1VwKriWPj1sG2XWXlE6tHxKTcO0Dvrt/tOsoWkn6PJqmIu4KRgNu4APOt
-         OtDeVRlE1mZpwbJypjWOfNc6PXxjhiF782dS+GQHyiuj34Wv/F6y3eKyRp3MLouAWP
-         3FZmTQKb9kIyWxKj/I9wJD8ySc3HJksyTHSzJWK0=
-Date:   Thu, 6 Jan 2022 18:44:15 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc:     Manivannan Sadhasivam <mani@kernel.org>,
-        linux-arm-msm@vger.kernel.org, linux-mtd@lists.infradead.org,
-        miquel.raynal@bootlin.com, architt@codeaurora.org,
-        bbrezillon@kernel.org, absahu@codeaurora.org, baruch@tkos.co.il,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] mtd: rawnand: qcom: Fix clock sequencing in
- qcom_nandc_probe()
-Message-ID: <Ydcqb5k8EcDqPJLD@kroah.com>
-References: <20220103030316.58301-1-bryan.odonoghue@linaro.org>
- <20220103030316.58301-2-bryan.odonoghue@linaro.org>
- <20220103055152.GA3581@thinkpad>
- <edcd752d-37a5-2004-3508-01efcfa571ba@linaro.org>
+        id S242161AbiAFRqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jan 2022 12:46:18 -0500
+Received: from mail-qk1-f169.google.com ([209.85.222.169]:45602 "EHLO
+        mail-qk1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231470AbiAFRqP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 12:46:15 -0500
+Received: by mail-qk1-f169.google.com with SMTP id e25so3375816qkl.12;
+        Thu, 06 Jan 2022 09:46:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=A+kg58RJUdU3TEwPb/OXklUxQQrIJTYnYTJT2lTmJPE=;
+        b=BwNjvGeerVNwqB/3jq8sJ8NdJYLJtcg6uOyFtLTgEXRsJRrOhhtR0Orc+IHi9zJC4E
+         3gmEVlPgth433qJXT5Iz7no3nccCfJz9Yruv2XlXLMFL6x7Veokbwa/e10zrquNMBV4e
+         dO/anLU1T2Z4UzqHqGnnUHz4KcCpeBVzxWH3ieBH2K4NLtegH4z6J7yK6vmYjtDGeSEW
+         xXZV6xAAOcUF3POn0R+/ZAoY1CQ1wsXwnPHxuEG3oIcRln0FxsODaw/i4jt5nUzpDS9W
+         6V1GvyFC5I+1gA/nXtjs0iBPO9JCSwFEf6aePY2/Y/qHyek28OML72l9+y0wTOCNoX86
+         6hEg==
+X-Gm-Message-State: AOAM532HxgbJQoRpOYTj2wleuFreXxla3RrOdGwDXEUNIlAgE1L6iOue
+        8dO5uGqGcS5R5rCmYjrfxFAccrwPJVulUgJJEALWe8JP
+X-Google-Smtp-Source: ABdhPJwE49C7LXEuMuTMeRtwOkwL04MrpLdEggN+HnPC2axjH4ETbdW428FVIjbRJDqQprvsCK39aMa+dtBQp/zGUXA=
+X-Received: by 2002:a05:620a:40cc:: with SMTP id g12mr2029849qko.621.1641491175098;
+ Thu, 06 Jan 2022 09:46:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <edcd752d-37a5-2004-3508-01efcfa571ba@linaro.org>
+References: <20220106074306.2712090-1-ray.huang@amd.com> <20220106074306.2712090-2-ray.huang@amd.com>
+ <CAJZ5v0htW=twuLY88XJmLGnDtmmjoav=Z8WLZZcjG29-YKQMog@mail.gmail.com>
+In-Reply-To: <CAJZ5v0htW=twuLY88XJmLGnDtmmjoav=Z8WLZZcjG29-YKQMog@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Thu, 6 Jan 2022 18:46:04 +0100
+Message-ID: <CAJZ5v0iH=rAgC0YPcCv_zoMtNoA1hG=ZGgLRdrgKqWAjmsYqcw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] x86, sched: Fix the undefined reference building
+ error of init_freq_invariance_cppc
+To:     Huang Rui <ray.huang@amd.com>
+Cc:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Perry Yuan <Perry.Yuan@amd.com>,
+        Jinzhou Su <Jinzhou.Su@amd.com>,
+        Xiaojian Du <Xiaojian.Du@amd.com>,
+        kernel test robot <lkp@intel.com>,
+        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "the arch/x86 maintainers" <x86@kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 06, 2022 at 05:24:27PM +0000, Bryan O'Donoghue wrote:
-> On 03/01/2022 05:51, Manivannan Sadhasivam wrote:
-> > On Mon, Jan 03, 2022 at 03:03:15AM +0000, Bryan O'Donoghue wrote:
-> > > Interacting with a NAND chip on an IPQ6018 I found that the qcomsmem NAND
-> > > partition parser was returning -EPROBE_DEFER waiting for the main smem
-> > > driver to load.
-> > > 
-> > > This caused the board to reset. Playing about with the probe() function
-> > > shows that the problem lies in the core clock being switched off before the
-> > > nandc_unalloc() routine has completed.
-> > > 
-> > > If we look at how qcom_nandc_remove() tears down allocated resources we see
-> > > the expected order is
-> > > 
-> > > qcom_nandc_unalloc(nandc);
-> > > 
-> > > clk_disable_unprepare(nandc->aon_clk);
-> > > clk_disable_unprepare(nandc->core_clk);
-> > > 
-> > > dma_unmap_resource(&pdev->dev, nandc->base_dma, resource_size(res),
-> > > 		   DMA_BIDIRECTIONAL, 0);
-> > > 
-> > > Tweaking probe() to both bring up and tear-down in that order removes the
-> > > reset if we end up deferring elsewhere.
-> > > 
-> > > Fixes: c76b78d8ec05 ("mtd: nand: Qualcomm NAND controller driver")
-> > > Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-> > 
-> > Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-> > 
-> > Can you please CC stable list for backporting?
-> > 
-> > Thanks,
-> > Mani
-> > 
-> 
-> NP.
-> 
-> + cc stable
-> 
-> FWIW I believe Greg's scripts will pick up on Fixes: tags automatically
+On Thu, Jan 6, 2022 at 6:12 PM Rafael J. Wysocki <rafael@kernel.org> wrote:
+>
+> On Thu, Jan 6, 2022 at 8:43 AM Huang Rui <ray.huang@amd.com> wrote:
+> >
+> > The init_freq_invariance_cppc function is implemented in smpboot and depends on
+> > CONFIG_SMP.
+> >
+> >   MODPOST vmlinux.symvers
+> >   MODINFO modules.builtin.modinfo
+> >   GEN     modules.builtin
+> >   LD      .tmp_vmlinux.kallsyms1
+> > ld: drivers/acpi/cppc_acpi.o: in function `acpi_cppc_processor_probe':
+> > /home/ray/brahma3/linux/drivers/acpi/cppc_acpi.c:819: undefined reference to `init_freq_invariance_cppc'
+> > make: *** [Makefile:1161: vmlinux] Error 1
+> >
+> > See https://lore.kernel.org/lkml/484af487-7511-647e-5c5b-33d4429acdec@infradead.org/.
+> >
+> > Fixes: 41ea667227ba ("x86, sched: Calculate frequency invariance for AMD systems")
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > Reported-by: Randy Dunlap <rdunlap@infradead.org>
+> > Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> > Signed-off-by: Huang Rui <ray.huang@amd.com>
+> > Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > Cc: Borislav Petkov <bp@alien8.de>
+> > Cc: Ingo Molnar <mingo@kernel.org>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Cc: x86@kernel.org
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  arch/x86/include/asm/topology.h | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/arch/x86/include/asm/topology.h b/arch/x86/include/asm/topology.h
+> > index cc164777e661..2f0b6be8eaab 100644
+> > --- a/arch/x86/include/asm/topology.h
+> > +++ b/arch/x86/include/asm/topology.h
+> > @@ -221,7 +221,7 @@ static inline void arch_set_max_freq_ratio(bool turbo_disabled)
+> >  }
+> >  #endif
+> >
+> > -#ifdef CONFIG_ACPI_CPPC_LIB
+> > +#if defined(CONFIG_ACPI_CPPC_LIB) && defined(CONFIG_SMP)
+> >  void init_freq_invariance_cppc(void);
+> >  #define init_freq_invariance_cppc init_freq_invariance_cppc
+>
+> Why don't you check CONFIG_SMP instead of this symbol in cppc_acpi.c?
+> That file depends on CONFIG_ACPI_CPPC_LIB anyway.
 
-No, that is NOT the way to ensure that a patch will get picked up, that
-is a "this might eventually get there".
+Scratch that, it needs to compile on non-x86 too.
 
-Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+The $subject patch is cleaner than all of the alternatives I have
+considered, so I'm going to apply it.
 
-thanks,
-
-greg k-h
+However, I'm not really happy with the dependencies between CPPC and
+smpboot.c going both ways.
