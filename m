@@ -2,144 +2,272 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DDB486114
-	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 08:44:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 885FF48611F
+	for <lists+stable@lfdr.de>; Thu,  6 Jan 2022 08:48:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236080AbiAFHno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jan 2022 02:43:44 -0500
-Received: from mail-dm6nam10on2058.outbound.protection.outlook.com ([40.107.93.58]:41953
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S234484AbiAFHnn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jan 2022 02:43:43 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=InRfE+yg2ivPqqUsrFhxPwdN67aQ/yXRwIuYWS/hi7KGXHHXQjiKAu9vPgXNoqgnvgAUXXV4ucAvbAX7NWANu8ainwYwrWOtQGk6yWqASSb9A1UXuYZDRy6+DDZyDYg8aiCV4GowiSCIW6/b1awLY3mlpDhx00F51ZhaoFr2mO+LqI6lyA+B9jkxuTsYZUWo07tAgv1qACbMHfoqG0yKgkSk3mjni1lTF3UvKwOZYUJ6J7gTgz0+w/flCXASm7W4oNkQyAsN3So5YHqwjTKC8hLmMLcNwSFdmMQAcUk8+whiBtEqdazrEN543djUf/rOH7gCV0h2HD/PCESWStHcPA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uPR0atBDHY80BPB4rfw9xxOAR0z+Hek8HoPovBWKUh4=;
- b=XEAzHr8v76MESKO00UFlXwn2dmJnlp/tl1VxfBDq1AOyNIlo0oxBAA0iYwEceemTyIF1/URb9VJlrsLt7SARk5mTPI23I4C7bVzMWK9bSNnysz0QG1k4xhig2RPQtHYRlnwYapMPuVf0WTbI7il0w/x4kIkL/OG3pWBvmrBkCGOYgzeP77AVrawFFc3368Q6gzVnNA3MKCNo3X2Vg2ZijMNgsM+WDfd3kUlzpqfCavHTHMgS/VfRH2ZzoGtEUsBmpxdyhHk4GqPGu1I36NiKL00Ep++VdmFYEWJ+W0DN79wp/VjOF6lTPGnu/Os0uRpuX7heHvmE0UXU9jadz4bnow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=intel.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uPR0atBDHY80BPB4rfw9xxOAR0z+Hek8HoPovBWKUh4=;
- b=bYenOkd25WoGbKkVzte++c5KtVv4VwexYH+3xH3AaECrmUHaU1XAz4A0aps5Pq8l1usRn1C4m4MUVpIq80X4yWbFNau2v8z3VBf4iH2WH3njuVIXeUyMwLOx3gEi1RvylkEgkpCLEcnptg8S5AIXbSuLppmcDrU3x1f47CQh9qk=
-Received: from BN9PR03CA0191.namprd03.prod.outlook.com (2603:10b6:408:f9::16)
- by BN9PR12MB5130.namprd12.prod.outlook.com (2603:10b6:408:137::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.7; Thu, 6 Jan
- 2022 07:43:34 +0000
-Received: from BN8NAM11FT052.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:f9:cafe::a7) by BN9PR03CA0191.outlook.office365.com
- (2603:10b6:408:f9::16) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.7 via Frontend
- Transport; Thu, 6 Jan 2022 07:43:34 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB03.amd.com;
-Received: from SATLEXMB03.amd.com (165.204.84.17) by
- BN8NAM11FT052.mail.protection.outlook.com (10.13.177.210) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4867.7 via Frontend Transport; Thu, 6 Jan 2022 07:43:34 +0000
-Received: from hr-amd.amd.com (10.180.168.240) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Thu, 6 Jan
- 2022 01:43:29 -0600
-From:   Huang Rui <ray.huang@amd.com>
-To:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     Perry Yuan <Perry.Yuan@amd.com>, Jinzhou Su <Jinzhou.Su@amd.com>,
-        "Xiaojian Du" <Xiaojian.Du@amd.com>, Huang Rui <ray.huang@amd.com>,
-        kernel test robot <lkp@intel.com>,
-        Borislav Petkov <bp@alien8.de>, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, <x86@kernel.org>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 2/2] x86, sched: Fix the undefined reference building error of init_freq_invariance_cppc
-Date:   Thu, 6 Jan 2022 15:43:06 +0800
-Message-ID: <20220106074306.2712090-2-ray.huang@amd.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220106074306.2712090-1-ray.huang@amd.com>
-References: <20220106074306.2712090-1-ray.huang@amd.com>
+        id S236162AbiAFHsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jan 2022 02:48:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51354 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236158AbiAFHsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 02:48:16 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF6EC061245
+        for <stable@vger.kernel.org>; Wed,  5 Jan 2022 23:48:16 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id m13so1800537pji.3
+        for <stable@vger.kernel.org>; Wed, 05 Jan 2022 23:48:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EBXFuqzDJGf3KNxSYqcGZkwCMBT3LJFvYqUgfM0oR4w=;
+        b=GMbSwnsHXwFOhAxpqPTwTbsGx3ET2ugglr7oOi4nfg73Z0BgdJHJJvflbfAi/ee/Xd
+         ZbuXyHIqOD9m9qs4ORrgJp1ftPsfSJq9dYwWErpExahJuq/w9gOyLNLrPqRryUXWmB78
+         J6ypuokQ8lPXsLW0OIVR06lNAZMb0fgL9QMFM+i05AmYrusN3cQNycJ2Bzbr6dnLYJ8I
+         EJj1y0wR29nAmCSq2MOCR9F2WA4VUKGiC4EHL5e0jLUCn2VpKmmeXJR+eZ/K+4ETIVnn
+         bIGSGaAOvWEQjcacclyBvnobZ9wp7L70jNuFtIumARKH8+9fhQhLN3/079Ry3uUiy69M
+         XZSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EBXFuqzDJGf3KNxSYqcGZkwCMBT3LJFvYqUgfM0oR4w=;
+        b=t8ooVU/C804prLxg+bFH8xN4q+lXE3bQLdQKh/ppWBPvi36tW6apqW7DmWCPqY3Kfm
+         Kv+aiTd2CBJaFfM7j5I+7xNGEqCQU6Mzvi4/06GIKqol6pcZThZzP84pMP9LKaCMZ5VJ
+         ITNDcBE6pngi/8+OWmdwDkoM8Lu9wlojY3J03YY3++lKxUCXXviD6T546D+8rFe6/CVo
+         uQ3ef/XEd1ORwR/4jfxeqKfA8hzuoMvim9CQ1qqS1iHRTf/5tYBN0meR6XQ63La83iiC
+         nP7zJRkFa7q5JmzM/CstnHybSKqtPtYaaSIf0DBMqOEarxuByZVpN6J64BPA6JMQmGZU
+         EiSQ==
+X-Gm-Message-State: AOAM531TawRINzFxmPXzN1BVgGMklRu+PF9DA+lN/rs6Y3QEFvDASiT2
+        13Nb5y3R9UPelbPZkF+RI6kWWsXrJWYSltAX
+X-Google-Smtp-Source: ABdhPJyuA6YyBouUH4cgwaJVaoBIYDikc7qi2Tp34vt7h4ND+ti5Nt38D/Xg+B9fdxNXae5fzW05jg==
+X-Received: by 2002:a17:902:dac9:b0:148:a2e7:fb1a with SMTP id q9-20020a170902dac900b00148a2e7fb1amr58132574plx.91.1641455296092;
+        Wed, 05 Jan 2022 23:48:16 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t7sm1351546pfj.168.2022.01.05.23.48.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jan 2022 23:48:15 -0800 (PST)
+Message-ID: <61d69ebf.1c69fb81.ec2ed.3dff@mx.google.com>
+Date:   Wed, 05 Jan 2022 23:48:15 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB03.amd.com
- (10.181.40.144)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 17b74f13-a550-4263-8a48-08d9d0e83e6f
-X-MS-TrafficTypeDiagnostic: BN9PR12MB5130:EE_
-X-Microsoft-Antispam-PRVS: <BN9PR12MB5130B52FB7D374EBA53CD4A5EC4C9@BN9PR12MB5130.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3276;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: qW4kIlqpXYju5u0vziJWVPad5dfDSRCXJmvJlWfFGGdwzo/3fJXIlfV0V4mnm6lYjooUg1MmBFV8+ddQiktrWFIl7btuc+RA4fqk5WBkFzj42uVB0qIaUkI3O6YDf1HJ/PNiQzaB1Rx1C9DkL2n7P47jFm9dRxoBqeyjRBvXiB2fvq2CBco0yyIgP+NYiATgqa39oWBtRAsPy/X0DvNSdpdi3wM8T61iOTTMclg20ZcwuQQPi/XnVg+C00DfNQ/yXITt4w2ilY44S9uH0kwTdD8sqWVCMtl/RjNMg5bIfOBPZmlcz35iz8k7R++8GNvQZQaOuXPH9sCVkbwhdKsz4vE1kXZavFHcR10XFaCnHaoZaoSZCXKr4m9XIkcHbdNVz5pP9ilLVXXWrjRxiIxYkPAytogsLHORNYfE64SnRcVXWMz0rBiQ6wmo88dRwZI4bWsu5Ow7OzF2EvkOeiP+rljoDIJ2Vt+pHuSl/ZDGgFFs0gepHGUjZO7LPVkpZy2p6FbmhWkdMLG8QOS2FdnfKQz7cP5aKTBd70AwQPLGNVJswQo1j5fD/Njwdv/5Obu8oTzUiSv0CsGKSlfL46w5mncteEF4FUsFD2THqLF9dOc5O0cGOouCJNkUR4ShVM8dDCI3DVgGiyyp3ReSAZl3INPE9TB8zqTLkF6R6mQ1KNanbzdVcMqvQK53qIHDku4I7oVbjcVrIWDlcB/FODLKqWgUL+vpfYGcZqzHVKF+o+B7H8/mqwa/mfOs5I4xorr0UftXwkGzl5HUhu+eWruiWhgP2CtPDQajY2zPuY6uPoiveQhJvgLY9VobU3ngYA2eC2xzmz8cYwplJcMvP12VpUehfIk2txa9lhjhiQlrx79M1NvOnkRZGf9zBwEx/bTH
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(40470700002)(316002)(2906002)(336012)(966005)(36860700001)(82310400004)(5660300002)(8676002)(6666004)(508600001)(4326008)(110136005)(2616005)(86362001)(70586007)(40460700001)(47076005)(83380400001)(70206006)(81166007)(26005)(16526019)(356005)(1076003)(36756003)(8936002)(54906003)(426003)(7696005)(186003)(7416002)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jan 2022 07:43:34.7654
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 17b74f13-a550-4263-8a48-08d9d0e83e6f
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT052.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5130
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.170
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 169 runs, 5 regressions (v5.4.170)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The init_freq_invariance_cppc function is implemented in smpboot and depends on
-CONFIG_SMP.
+stable-rc/linux-5.4.y baseline: 169 runs, 5 regressions (v5.4.170)
 
-  MODPOST vmlinux.symvers
-  MODINFO modules.builtin.modinfo
-  GEN     modules.builtin
-  LD      .tmp_vmlinux.kallsyms1
-ld: drivers/acpi/cppc_acpi.o: in function `acpi_cppc_processor_probe':
-/home/ray/brahma3/linux/drivers/acpi/cppc_acpi.c:819: undefined reference to `init_freq_invariance_cppc'
-make: *** [Makefile:1161: vmlinux] Error 1
+Regressions Summary
+-------------------
 
-See https://lore.kernel.org/lkml/484af487-7511-647e-5c5b-33d4429acdec@infradead.org/.
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+meson-gxl-s905d-p230     | arm64 | lab-baylibre | gcc-10   | defconfig     =
+     | 1          =
 
-Fixes: 41ea667227ba ("x86, sched: Calculate frequency invariance for AMD systems")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Huang Rui <ray.huang@amd.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: x86@kernel.org
-Cc: stable@vger.kernel.org
----
- arch/x86/include/asm/topology.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
-diff --git a/arch/x86/include/asm/topology.h b/arch/x86/include/asm/topology.h
-index cc164777e661..2f0b6be8eaab 100644
---- a/arch/x86/include/asm/topology.h
-+++ b/arch/x86/include/asm/topology.h
-@@ -221,7 +221,7 @@ static inline void arch_set_max_freq_ratio(bool turbo_disabled)
- }
- #endif
- 
--#ifdef CONFIG_ACPI_CPPC_LIB
-+#if defined(CONFIG_ACPI_CPPC_LIB) && defined(CONFIG_SMP)
- void init_freq_invariance_cppc(void);
- #define init_freq_invariance_cppc init_freq_invariance_cppc
- #endif
--- 
-2.25.1
+qemu_arm-virt-gicv2-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
 
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.170/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.170
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      047dedaa38ce703d3c6a6b0fae180c85a5220cdb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+meson-gxl-s905d-p230     | arm64 | lab-baylibre | gcc-10   | defconfig     =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d66bab781f14222bef678d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d66bab781f14222bef6=
+78e
+        new failure (last pass: v5.4.169-38-g41ba4f080544) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d66c18c7f1cc0211ef6751
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
+fi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
+fi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d66c18c7f1cc0211ef6=
+752
+        failing since 21 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d66c27f2db823c1cef6772
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv2-uef=
+i.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv2-uef=
+i.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d66c27f2db823c1cef6=
+773
+        failing since 21 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d66c2cf2db823c1cef6778
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
+fi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
+fi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d66c2cf2db823c1cef6=
+779
+        failing since 21 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab          | compiler | defconfig     =
+     | regressions
+-------------------------+-------+--------------+----------+---------------=
+-----+------------
+qemu_arm-virt-gicv3-uefi | arm   | lab-broonie  | gcc-10   | multi_v7_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d66c28f2db823c1cef6775
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv3-uef=
+i.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.170=
+/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm-virt-gicv3-uef=
+i.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d66c28f2db823c1cef6=
+776
+        failing since 21 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =20
