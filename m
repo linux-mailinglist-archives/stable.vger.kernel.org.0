@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EF71487830
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:24:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F313487832
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347539AbiAGNYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:24:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57988 "EHLO
+        id S1347538AbiAGNYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:24:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347540AbiAGNYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:24:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2DEC06173E
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:24:13 -0800 (PST)
+        with ESMTP id S1347542AbiAGNYV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:24:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103F4C061574
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:24:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A6FD611B9
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22DF2C36AE0;
-        Fri,  7 Jan 2022 13:24:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D795B825F0
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:24:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA571C36AE0;
+        Fri,  7 Jan 2022 13:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641561852;
-        bh=gbpQ72OZ0hnti0Bpk0ijC2w31guQPzWTUXRasGo++Tg=;
+        s=korg; t=1641561858;
+        bh=XzAXrb+2ki6TN7vy2/Q+w/I81sYfi+SeSoZvtj70Boo=;
         h=Subject:To:Cc:From:Date:From;
-        b=11nkmEPr2gQspl6GdpnscDLbebrYTN0nIShDXGiXysR1s9gaZogpdVztMir/RwGuo
-         sHvffO6KZCLE7bFzhwiHwiJnUTq6BZxjI4GAPC5qErzNN+EEKUJYbXpbQo98L5xGjV
-         +bMC5LZAwHIsu67D38fTAJewnPUU2HgG4yEC6FbM=
-Subject: FAILED: patch "[PATCH] mac80211: mesh: embedd mesh_paths and mpp_paths into" failed to apply to 4.14-stable tree
+        b=t2WVWaFbZDF1ZYZEB8pOHZFG3R3NKSV9XFN+qKr3G6xTGYTL9h/emaq2aXC9cjmuy
+         +JxZUVdB+AWwwQHc9qRdtq1iBWzKY5IDDREqlr8izG4aJPq5zDDjDKftBu1MtD/9pB
+         4WAgI1liCxFHkd1CWzEqCPjjVom2qhlgYNNS4+r8=
+Subject: FAILED: patch "[PATCH] mac80211: mesh: embedd mesh_paths and mpp_paths into" failed to apply to 4.9-stable tree
 To:     paskripkin@gmail.com, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:24:00 +0100
-Message-ID: <1641561840135253@kroah.com>
+Date:   Fri, 07 Jan 2022 14:24:01 +0100
+Message-ID: <164156184178144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
