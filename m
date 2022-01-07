@@ -2,99 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A77274877CE
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 13:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55AFA487816
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238489AbiAGMxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 07:53:38 -0500
-Received: from smtp21.cstnet.cn ([159.226.251.21]:47396 "EHLO cstnet.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232347AbiAGMxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jan 2022 07:53:38 -0500
-Received: from localhost.localdomain (unknown [124.16.138.126])
-        by APP-01 (Coremail) with SMTP id qwCowADn7Jy2N9hh_rL5BQ--.48737S2;
-        Fri, 07 Jan 2022 20:53:10 +0800 (CST)
-From:   Jiasheng Jiang <jiasheng@iscas.ac.cn>
-To:     damien.lemoal@opensource.wdc.com, David.Laight@ACULAB.COM,
-        davem@davemloft.net
-Cc:     linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>, stable@vger.kernel.org
-Subject: [PATCH v3] ide: Check for null pointer after calling devm_ioremap
-Date:   Fri,  7 Jan 2022 20:53:08 +0800
-Message-Id: <20220107125308.4057544-1-jiasheng@iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+        id S1347520AbiAGNUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:20:17 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47364 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347519AbiAGNUO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:20:14 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4B94610D5
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4803C36AE5;
+        Fri,  7 Jan 2022 13:20:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641561613;
+        bh=4KaVtgWBPjwl53XhuOwdplSQFr0xBKDkDqxSiF8P3hc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=eSRHotikqnJCdnY75wTrNkpEwCUbtL/jBFyw1I/O/JkOMBmIAfcAVpH7fEibViH5u
+         dNaZHqnkNB7jQXt5ipWjbhYo1yV7EkIJYgP4e0oz3Xve5926NKq2ojQeCSJR6kvYOZ
+         78QauI4oYKRkFhWJxUsL78f9AVmy96JkNU+s36TY=
+Subject: FAILED: patch "[PATCH] i40e: Fix to not show opcode msg on unsuccessful VF MAC" failed to apply to 5.4-stable tree
+To:     mateusz.palczewski@intel.com, aleksandr.loktionov@intel.com,
+        anthony.l.nguyen@intel.com, grzegorzx.szczurek@intel.com,
+        paul.m.stillwell.jr@intel.com, tony.brelinski@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 07 Jan 2022 14:20:10 +0100
+Message-ID: <164156161022714@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: qwCowADn7Jy2N9hh_rL5BQ--.48737S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Cw47AF1fZry5Gw1UKr15Arb_yoW8Aw4rpF
-        4SgFWSvrWDWr1UK3WxAr18ZFyUu3ZrJa4FgFyYvw4kZ3s0qr18JrWaqFWIqr9rJrW3CayY
-        v3W2yr4kuFZ8ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkq14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-        1l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
-        6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
-        0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
-        jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr
-        1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkIecxEwVAFwVW5JwCF
-        04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r
-        18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vI
-        r41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr
-        1lIxAIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAI
-        cVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUjsjjDUUUUU==
-X-Originating-IP: [124.16.138.126]
-X-CM-SenderInfo: pmld2xxhqjqxpvfd2hldfou0/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In linux-stable-5.15.13, this file has been removed and combined
-to `drivers/ata/pata_platform.c` without this bug.
-But in the older LTS kernels, like 5.10.90, this bug still exists.
-As the possible failure of the devres_alloc(), the devm_ioremap() and
-devm_ioport_map() may return NULL pointer.
-And then, the 'base' and 'alt_base' are used in plat_ide_setup_ports().
-Therefore, it should be better to add the check in order to avoid the
-dereference of the NULL pointer.
-Actually, it introduced the bug from commit 8cb1f567f4c0
-("ide: Platform IDE driver") and we can know from the commit message
-that it tended to be similar to the `drivers/ata/pata_platform.c`.
-But actually, even the first time pata_platform was built,
-commit a20c9e820864 ("[PATCH] ata: Generic platform_device libata driver"),
-there was no the bug, as there was a check after the ioremap().
-So possibly the bug was caused by ide itself.
 
-Fixes: 8cb1f567f4c0 ("ide: Platform IDE driver")
-Cc: stable@vger.kernel.org#5.10
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
----
-Changelog
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-v1 -> v2
+thanks,
 
-* Change 1. Correct the fixes tag and commit message.
+greg k-h
 
-v2 -> v3
+------------------ original commit in Linus's tree ------------------
 
-* Change 1. Correct the code.
----
- drivers/ide/ide_platform.c | 4 ++++
- 1 file changed, 4 insertions(+)
+From 01cbf50877e602e2376af89e4a51c30bc574c618 Mon Sep 17 00:00:00 2001
+From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Date: Wed, 3 Mar 2021 11:45:33 +0000
+Subject: [PATCH] i40e: Fix to not show opcode msg on unsuccessful VF MAC
+ change
 
-diff --git a/drivers/ide/ide_platform.c b/drivers/ide/ide_platform.c
-index 91639fd6c276..5500c5afb3ca 100644
---- a/drivers/ide/ide_platform.c
-+++ b/drivers/ide/ide_platform.c
-@@ -85,6 +85,10 @@ static int plat_ide_probe(struct platform_device *pdev)
- 		alt_base = devm_ioport_map(&pdev->dev,
- 			res_alt->start, resource_size(res_alt));
- 	}
-+	if (!base || !alt_base) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
+Hide i40e opcode information sent during response to VF in case when
+untrusted VF tried to change MAC on the VF interface.
+
+This is implemented by adding an additional parameter 'hide' to the
+response sent to VF function that hides the display of error
+information, but forwards the error code to VF.
+
+Previously it was not possible to send response with some error code
+to VF without displaying opcode information.
+
+Fixes: 5c3c48ac6bf5 ("i40e: implement virtual device interface")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Reviewed-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 2ea4deb8fc44..048f1678ab8a 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1877,17 +1877,19 @@ int i40e_pci_sriov_configure(struct pci_dev *pdev, int num_vfs)
+ /***********************virtual channel routines******************/
  
- 	memset(&hw, 0, sizeof(hw));
- 	plat_ide_setup_ports(&hw, base, alt_base, pdata, res_irq->start);
--- 
-2.25.1
+ /**
+- * i40e_vc_send_msg_to_vf
++ * i40e_vc_send_msg_to_vf_ex
+  * @vf: pointer to the VF info
+  * @v_opcode: virtual channel opcode
+  * @v_retval: virtual channel return value
+  * @msg: pointer to the msg buffer
+  * @msglen: msg length
++ * @is_quiet: true for not printing unsuccessful return values, false otherwise
+  *
+  * send msg to VF
+  **/
+-static int i40e_vc_send_msg_to_vf(struct i40e_vf *vf, u32 v_opcode,
+-				  u32 v_retval, u8 *msg, u16 msglen)
++static int i40e_vc_send_msg_to_vf_ex(struct i40e_vf *vf, u32 v_opcode,
++				     u32 v_retval, u8 *msg, u16 msglen,
++				     bool is_quiet)
+ {
+ 	struct i40e_pf *pf;
+ 	struct i40e_hw *hw;
+@@ -1903,7 +1905,7 @@ static int i40e_vc_send_msg_to_vf(struct i40e_vf *vf, u32 v_opcode,
+ 	abs_vf_id = vf->vf_id + hw->func_caps.vf_base_id;
+ 
+ 	/* single place to detect unsuccessful return values */
+-	if (v_retval) {
++	if (v_retval && !is_quiet) {
+ 		vf->num_invalid_msgs++;
+ 		dev_info(&pf->pdev->dev, "VF %d failed opcode %d, retval: %d\n",
+ 			 vf->vf_id, v_opcode, v_retval);
+@@ -1933,6 +1935,23 @@ static int i40e_vc_send_msg_to_vf(struct i40e_vf *vf, u32 v_opcode,
+ 	return 0;
+ }
+ 
++/**
++ * i40e_vc_send_msg_to_vf
++ * @vf: pointer to the VF info
++ * @v_opcode: virtual channel opcode
++ * @v_retval: virtual channel return value
++ * @msg: pointer to the msg buffer
++ * @msglen: msg length
++ *
++ * send msg to VF
++ **/
++static int i40e_vc_send_msg_to_vf(struct i40e_vf *vf, u32 v_opcode,
++				  u32 v_retval, u8 *msg, u16 msglen)
++{
++	return i40e_vc_send_msg_to_vf_ex(vf, v_opcode, v_retval,
++					 msg, msglen, false);
++}
++
+ /**
+  * i40e_vc_send_resp_to_vf
+  * @vf: pointer to the VF info
+@@ -2695,6 +2714,7 @@ static int i40e_vc_get_stats_msg(struct i40e_vf *vf, u8 *msg)
+  * i40e_check_vf_permission
+  * @vf: pointer to the VF info
+  * @al: MAC address list from virtchnl
++ * @is_quiet: set true for printing msg without opcode info, false otherwise
+  *
+  * Check that the given list of MAC addresses is allowed. Will return -EPERM
+  * if any address in the list is not valid. Checks the following conditions:
+@@ -2709,13 +2729,15 @@ static int i40e_vc_get_stats_msg(struct i40e_vf *vf, u8 *msg)
+  * addresses might not be accurate.
+  **/
+ static inline int i40e_check_vf_permission(struct i40e_vf *vf,
+-					   struct virtchnl_ether_addr_list *al)
++					   struct virtchnl_ether_addr_list *al,
++					   bool *is_quiet)
+ {
+ 	struct i40e_pf *pf = vf->pf;
+ 	struct i40e_vsi *vsi = pf->vsi[vf->lan_vsi_idx];
+ 	int mac2add_cnt = 0;
+ 	int i;
+ 
++	*is_quiet = false;
+ 	for (i = 0; i < al->num_elements; i++) {
+ 		struct i40e_mac_filter *f;
+ 		u8 *addr = al->list[i].addr;
+@@ -2739,6 +2761,7 @@ static inline int i40e_check_vf_permission(struct i40e_vf *vf,
+ 		    !ether_addr_equal(addr, vf->default_lan_addr.addr)) {
+ 			dev_err(&pf->pdev->dev,
+ 				"VF attempting to override administratively set MAC address, bring down and up the VF interface to resume normal operation\n");
++			*is_quiet = true;
+ 			return -EPERM;
+ 		}
+ 
+@@ -2775,6 +2798,7 @@ static int i40e_vc_add_mac_addr_msg(struct i40e_vf *vf, u8 *msg)
+ 	    (struct virtchnl_ether_addr_list *)msg;
+ 	struct i40e_pf *pf = vf->pf;
+ 	struct i40e_vsi *vsi = NULL;
++	bool is_quiet = false;
+ 	i40e_status ret = 0;
+ 	int i;
+ 
+@@ -2791,7 +2815,7 @@ static int i40e_vc_add_mac_addr_msg(struct i40e_vf *vf, u8 *msg)
+ 	 */
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
+ 
+-	ret = i40e_check_vf_permission(vf, al);
++	ret = i40e_check_vf_permission(vf, al, &is_quiet);
+ 	if (ret) {
+ 		spin_unlock_bh(&vsi->mac_filter_hash_lock);
+ 		goto error_param;
+@@ -2829,8 +2853,8 @@ static int i40e_vc_add_mac_addr_msg(struct i40e_vf *vf, u8 *msg)
+ 
+ error_param:
+ 	/* send the response to the VF */
+-	return i40e_vc_send_resp_to_vf(vf, VIRTCHNL_OP_ADD_ETH_ADDR,
+-				       ret);
++	return i40e_vc_send_msg_to_vf_ex(vf, VIRTCHNL_OP_ADD_ETH_ADDR,
++				       ret, NULL, 0, is_quiet);
+ }
+ 
+ /**
 
