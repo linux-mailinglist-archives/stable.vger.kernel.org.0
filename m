@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05A62487480
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 10:07:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DD7487483
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 10:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346367AbiAGJHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 04:07:33 -0500
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:56616 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1346369AbiAGJHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 04:07:33 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=yang.wei@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V1A.K51_1641546434;
-Received: from localhost(mailfrom:yang.wei@linux.alibaba.com fp:SMTPD_---0V1A.K51_1641546434)
+        id S236732AbiAGJL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 04:11:56 -0500
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:35735 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236305AbiAGJL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 04:11:56 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=yang.wei@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V1A.KbH_1641546702;
+Received: from localhost(mailfrom:yang.wei@linux.alibaba.com fp:SMTPD_---0V1A.KbH_1641546702)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 07 Jan 2022 17:07:31 +0800
+          Fri, 07 Jan 2022 17:11:54 +0800
 From:   Yang Wei <albin.yangwei@alibaba-inc.com>
 To:     gregkh@linuxfoundation.org, mst@redhat.com, jasowang@redhat.com
 Cc:     virtualization@lists.linux-foundation.org, stable@vger.kernel.org,
         albin.yangwei@alibaba-inc.com, yang.wei@linux.alibaba.com
-Subject: [PATCH 4.14] virtio_pci: Support surprise removal of virtio pci device
-Date:   Fri,  7 Jan 2022 17:07:14 +0800
-Message-Id: <20220107090714.58756-1-albin.yangwei@alibaba-inc.com>
+Subject: [PATCH v2 4.14 ] virtio_pci: Support surprise removal of virtio pci device
+Date:   Fri,  7 Jan 2022 17:11:42 +0800
+Message-Id: <20220107091142.64108-1-albin.yangwei@alibaba-inc.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -78,6 +78,7 @@ which prevents infinite loop and system lockup.
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
 ---
  drivers/virtio/virtio_pci_common.c | 7 +++++++
  1 file changed, 7 insertions(+)
