@@ -2,122 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DDBF487638
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 12:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC30487662
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 12:21:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347005AbiAGLHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 06:07:37 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37214 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237725AbiAGLHg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 06:07:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1641553656;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mErlQ9bFbWCh8pEI+M0nh3UElgFrVyLNdlmQovZz1FE=;
-        b=XQrqtJLfC7yoOodnMylFN8HTiwKMGpZn4HYW9KK554ly2Xuk4aLBPhLPrSAyj+35Jq/pl8
-        jh6iE6sNyOqrjWD+8HT/Bnrq/71jwOTULcTgqm6zT6LJ5zOQdw0W1ZgvOnmh6x6gm4w/D3
-        1umiAYT0W9OV2N7Vx8LxoQc+omA4HfA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-318-VkAYQFaiMz-eRqs48LTZ9A-1; Fri, 07 Jan 2022 06:07:35 -0500
-X-MC-Unique: VkAYQFaiMz-eRqs48LTZ9A-1
-Received: by mail-wm1-f70.google.com with SMTP id r2-20020a05600c35c200b00345c3b82b22so4525277wmq.0
-        for <stable@vger.kernel.org>; Fri, 07 Jan 2022 03:07:35 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=mErlQ9bFbWCh8pEI+M0nh3UElgFrVyLNdlmQovZz1FE=;
-        b=X+VD0ra/FCs4i5qAIEUMXWIMyFx4Nv/sFPnOfPrBz4OzYT/DDtRBfGgZ7AjtpamQLp
-         lUcCIQSJzKPq8gw7c0hkvGietuTxjenanDTuMqKiOtDoIrUaC2cEqvGnuwD7GP+b9tTm
-         JYJbds59BgLnksxObeyfB8I1VXfio2hM9MGHN03GkGwnUUJccRyF2JIXjZ7R3QRxUj5i
-         S8OdKdKBtM+VCE5+r1HrRHkAzD5rtm7jzoF7yXDc2Ogd21wMY5dXskBfrgVRjuVGXkpg
-         cCe8Q8gvlYGmPbmuL1DQuPkh26g7eO77snYwoKbjX4ky5fuetqApFqGO3gKdUh0n8fbp
-         kaVg==
-X-Gm-Message-State: AOAM531y98IW0QYDTQNcdYODfW1m5jCRR+CnqVCp3FQOoIsyGunEmm+v
-        r2xB7H204ielFbYMRPwq0szwEGEEOYN8ezO17bxQsbvauSxjom7Hlv8KrGXVJclGA9lOMaWOzWZ
-        itnpkBMR4yGXctBwv
-X-Received: by 2002:adf:d1ef:: with SMTP id g15mr56009298wrd.198.1641553654029;
-        Fri, 07 Jan 2022 03:07:34 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzpfs8sNGNszizzpb8wIqMXaS0IM36pG7DV7riTr9kWpDEc6r6DU/cu0qurtWMt/rqjTZw+Ug==
-X-Received: by 2002:adf:d1ef:: with SMTP id g15mr56009285wrd.198.1641553653870;
-        Fri, 07 Jan 2022 03:07:33 -0800 (PST)
-Received: from minerva.home ([92.176.231.205])
-        by smtp.gmail.com with ESMTPSA id r9sm9337273wmq.18.2022.01.07.03.07.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Jan 2022 03:07:33 -0800 (PST)
-From:   Javier Martinez Canillas <javierm@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Kris Karas <bugs-a21@moonlit-rail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH 2/2] video: vga16fb: Only probe for EGA and VGA 16 color graphic cards
-Date:   Fri,  7 Jan 2022 12:07:23 +0100
-Message-Id: <20220107110723.323276-3-javierm@redhat.com>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20220107110723.323276-1-javierm@redhat.com>
-References: <20220107110723.323276-1-javierm@redhat.com>
+        id S1346877AbiAGLVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 06:21:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57124 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237830AbiAGLVV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 06:21:21 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0868760A6D
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 11:21:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D1EC36AE9;
+        Fri,  7 Jan 2022 11:21:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641554480;
+        bh=TIKtwdLyiyF92hZb62dr30nuCXc4HPQXsYaVnDcJ4x4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CuAL9VN6zqyqXY+fhFVSHaJNBpCgh94g7Lt/kLqqYtkizgUYHSKbZ2kfq9Sh7p/3m
+         VZiA7ZPHq5UteS+GtUp7r1oIeHn9pWoweEV9a0PO38smNTdn8lVVLzolRYOc5AGelZ
+         3nZWnebCr4V+5MeVtKKUwBhZIfUapu3ZX3aYr8yM=
+Date:   Fri, 7 Jan 2022 12:21:13 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Yang Wei <albin.yangwei@alibaba-inc.com>
+Cc:     mst@redhat.com, jasowang@redhat.com,
+        virtualization@lists.linux-foundation.org, stable@vger.kernel.org,
+        yang.wei@linux.alibaba.com
+Subject: Re: [PATCH 4.9] virtio_pci: Support surprise removal of virtio pci
+ device
+Message-ID: <YdgiKa9YLXrWVfxZ@kroah.com>
+References: <20220107085128.100165-1-albin.yangwei@alibaba-inc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220107085128.100165-1-albin.yangwei@alibaba-inc.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The vga16fb framebuffer driver only supports Enhanced Graphics Adapter
-(EGA) and Video Graphics Array (VGA) 16 color graphic cards.
+On Fri, Jan 07, 2022 at 04:51:28PM +0800, Yang Wei wrote:
+> From: Parav Pandit <parav@nvidia.com>
+> 
+> commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 upstream.
+> 
+> When a virtio pci device undergo surprise removal (aka async removal in
+> PCIe spec), mark the device as broken so that any upper layer drivers can
+> abort any outstanding operation.
+> 
+> When a virtio net pci device undergo surprise removal which is used by a
+> NetworkManager, a below call trace was observed.
+> 
+> kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
+> watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
+> CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
+> Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
+> Workqueue: events linkwatch_event
+> RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
+> Call Trace:
+>  virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
+>  ? __hw_addr_create_ex+0x85/0xc0
+>  __dev_mc_add+0x72/0x80
+>  igmp6_group_added+0xa7/0xd0
+>  ipv6_mc_up+0x3c/0x60
+>  ipv6_find_idev+0x36/0x80
+>  addrconf_add_dev+0x1e/0xa0
+>  addrconf_dev_config+0x71/0x130
+>  addrconf_notify+0x1f5/0xb40
+>  ? rtnl_is_locked+0x11/0x20
+>  ? __switch_to_asm+0x42/0x70
+>  ? finish_task_switch+0xaf/0x2c0
+>  ? raw_notifier_call_chain+0x3e/0x50
+>  raw_notifier_call_chain+0x3e/0x50
+>  netdev_state_change+0x67/0x90
+>  linkwatch_do_dev+0x3c/0x50
+>  __linkwatch_run_queue+0xd2/0x220
+>  linkwatch_event+0x21/0x30
+>  process_one_work+0x1c8/0x370
+>  worker_thread+0x30/0x380
+>  ? process_one_work+0x370/0x370
+>  kthread+0x118/0x140
+>  ? set_kthread_struct+0x40/0x40
+>  ret_from_fork+0x1f/0x30
+> 
+> Hence, add the ability to abort the command on surprise removal
+> which prevents infinite loop and system lockup.
+> 
+> Signed-off-by: Parav Pandit <parav@nvidia.com>
+> Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
+> ---
+>  drivers/virtio/virtio_pci_common.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index d9a905827967..37e3ba5dadf6 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -547,6 +547,13 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+>  	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+>  	struct device *dev = get_device(&vp_dev->vdev.dev);
+>  
+> +	/*
+> +	 * Device is marked broken on surprise removal so that virtio upper
+> +	 * layers can abort any ongoing operation.
+> +	 */
+> +	if (!pci_device_is_present(pci_dev))
+> +		virtio_break_device(&vp_dev->vdev);
+> +
+>  	unregister_virtio_device(&vp_dev->vdev);
+>  
+>  	if (vp_dev->ioaddr)
+> -- 
+> 2.19.1.6.gb485710b
+> 
 
-But it doesn't check if the adapter is one of those or if a VGA16 mode
-is used. This means that the driver will be probed even if a VESA BIOS
-Extensions (VBE) or Graphics Output Protocol (GOP) interface is used.
+Both patches now queued up, thanks.
 
-This issue has been present for a long time but it was only exposed by
-commit d391c5827107 ("drivers/firmware: move x86 Generic System
-Framebuffers support") since the platform device registration to match
-the {vesa,efi}fb drivers is done later as a consequence of that change.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215001
-Fixes: d391c5827107 ("drivers/firmware: move x86 Generic System Framebuffers support")
-Reported-by: Kris Karas <bugs-a21@moonlit-rail.com>
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Kris Karas <bugs-a21@moonlit-rail.com>
----
-
- drivers/video/fbdev/vga16fb.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
-index 3347c9b6a332..72b6aeceeff8 100644
---- a/drivers/video/fbdev/vga16fb.c
-+++ b/drivers/video/fbdev/vga16fb.c
-@@ -1422,6 +1422,18 @@ static int __init vga16fb_init(void)
- 
- 	vga16fb_setup(option);
- #endif
-+
-+	/* only EGA and VGA in 16 color graphic mode are supported */
-+	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EGAC &&
-+	    screen_info.orig_video_isVGA != VIDEO_TYPE_VGAC)
-+		return -ENODEV;
-+
-+	if (screen_info.orig_video_mode != 0x0D &&	/* 320x200/4 (EGA) */
-+	    screen_info.orig_video_mode != 0x0E &&	/* 640x200/4 (EGA) */
-+	    screen_info.orig_video_mode != 0x10 &&	/* 640x350/4 (EGA) */
-+	    screen_info.orig_video_mode != 0x12)	/* 640x480/4 (VGA) */
-+		return -ENODEV;
-+
- 	ret = platform_driver_register(&vga16fb_driver);
- 
- 	if (!ret) {
--- 
-2.33.1
-
+greg k-h
