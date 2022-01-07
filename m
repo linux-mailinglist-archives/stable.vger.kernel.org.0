@@ -2,91 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2234A4875EB
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 11:53:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25EF34875F4
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 11:56:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237431AbiAGKxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 05:53:53 -0500
-Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:53544 "EHLO
-        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232217AbiAGKxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 05:53:53 -0500
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 207A0kPj014394;
-        Fri, 7 Jan 2022 10:53:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-transfer-encoding;
- s=corp-2021-07-09; bh=jMR9O+FM9qEWJpGAyuSKDdDsmxJsR9AVCqr0pHidOwo=;
- b=NhRSszZexyZmoHbLxUWBaCRi/zXrjPkJDCzF9xzokULus7+PwdbAizZnv7GdXWYjK9Zb
- XPZd94WpmNxRQFgHNI/uQQv4xIV1kdHHlwncerqWuyxpONHViKhZVnQ3O991pALkIiEg
- 30DNatthZKdNqJx+/DC8pYaVU0FxPvYcV4Gwz+bQ8cO8xAV01Hm7LNn7FLMB/XJB9q9c
- JpTGZvuG84+5oqdzTHnwxYDUNFgCJMaGaIUk0IefGRQt1m9r7mX6izWdqb8c2vcObHrG
- UzsNS1EJ1RliiNM5YVtsivkw0NPg0ERM2+DKr3/BDNeLImc4y8szGAPmER2uPnV8kxde Kw== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3de4v8hrav-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 07 Jan 2022 10:53:49 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 207AVeaS127051;
-        Fri, 7 Jan 2022 10:53:48 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by userp3020.oracle.com with ESMTP id 3de4vngpdw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 07 Jan 2022 10:53:48 +0000
-Received: from userp3020.oracle.com (userp3020.oracle.com [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 207AnTKY192863;
-        Fri, 7 Jan 2022 10:53:47 GMT
-Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.147.25.63])
-        by userp3020.oracle.com with ESMTP id 3de4vngpdk-1;
-        Fri, 07 Jan 2022 10:53:47 +0000
-From:   Aayush Agarwal <aayush.a.agarwal@oracle.com>
-Cc:     aayush.a.agarwal@oracle.com, stable@vger.kernel.org,
-        Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Remi Denis-Courmont <courmisch@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 4.14] phonet: refcount leak in pep_sock_accep
-Date:   Fri,  7 Jan 2022 02:53:32 -0800
-Message-Id: <20220107105332.61347-1-aayush.a.agarwal@oracle.com>
-X-Mailer: git-send-email 2.27.0
+        id S237912AbiAGK4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 05:56:34 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47196 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237991AbiAGK4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 05:56:33 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94A1160AC9
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 10:56:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D98C36AE9;
+        Fri,  7 Jan 2022 10:56:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641552993;
+        bh=unsz6Fgp+2ILc2NKoJCJ+aVuRYvZnWLFkt1l1NXkeAU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=p3WtnWDPK0G5F1FGhIjoPEk/rc7rtxCagEb2RG0UMNO4nhIE4NF67yVlrRNc6C7PQ
+         Ga/tfrMO5PbEXfudaLi5A+K3z4ascXg1wqeewOoCgm0sgG+md0XEeR0DpN1QPCUy7m
+         YZEBOLC7OPLKF7DQ9MoWEVlBporNt1OmKwCCjD8s=
+Subject: FAILED: patch "[PATCH] tracing: Tag trace_percpu_buffer as a percpu pointer" failed to apply to 4.4-stable tree
+To:     naveen.n.rao@linux.vnet.ibm.com, lkp@intel.com, rostedt@goodmis.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 07 Jan 2022 11:56:30 +0100
+Message-ID: <16415529901298@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: 32QdoMVOwQVHfzppnChfzo1Q79XUlUxF
-X-Proofpoint-GUID: 32QdoMVOwQVHfzppnChfzo1Q79XUlUxF
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
 
-commit bcd0f9335332 ("phonet: refcount leak in pep_sock_accep")
-upstream.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-sock_hold(sk) is invoked in pep_sock_accept(), but __sock_put(sk) is not
-invoked in subsequent failure branches(pep_accept_conn() != 0).
+thanks,
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20211209082839.33985-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Aayush Agarwal <aayush.a.agarwal@oracle.com>
----
- net/phonet/pep.c | 1 +
- 1 file changed, 1 insertion(+)
+greg k-h
 
-diff --git a/net/phonet/pep.c b/net/phonet/pep.c
-index b0d958cd1823..4c4a8a42ee88 100644
---- a/net/phonet/pep.c
-+++ b/net/phonet/pep.c
-@@ -881,6 +881,7 @@ static struct sock *pep_sock_accept(struct sock *sk, int flags, int *errp,
+------------------ original commit in Linus's tree ------------------
+
+From f28439db470cca8b6b082239314e9fd10bd39034 Mon Sep 17 00:00:00 2001
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Date: Thu, 23 Dec 2021 16:04:39 +0530
+Subject: [PATCH] tracing: Tag trace_percpu_buffer as a percpu pointer
+
+Tag trace_percpu_buffer as a percpu pointer to resolve warnings
+reported by sparse:
+  /linux/kernel/trace/trace.c:3218:46: warning: incorrect type in initializer (different address spaces)
+  /linux/kernel/trace/trace.c:3218:46:    expected void const [noderef] __percpu *__vpp_verify
+  /linux/kernel/trace/trace.c:3218:46:    got struct trace_buffer_struct *
+  /linux/kernel/trace/trace.c:3234:9: warning: incorrect type in initializer (different address spaces)
+  /linux/kernel/trace/trace.c:3234:9:    expected void const [noderef] __percpu *__vpp_verify
+  /linux/kernel/trace/trace.c:3234:9:    got int *
+
+Link: https://lkml.kernel.org/r/ebabd3f23101d89cb75671b68b6f819f5edc830b.1640255304.git.naveen.n.rao@linux.vnet.ibm.com
+
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 07d777fe8c398 ("tracing: Add percpu buffers for trace_printk()")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index e1f55851e53f..78ea542ce3bc 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3207,7 +3207,7 @@ struct trace_buffer_struct {
+ 	char buffer[4][TRACE_BUF_SIZE];
+ };
  
- 	err = pep_accept_conn(newsk, skb);
- 	if (err) {
-+		__sock_put(sk);
- 		sock_put(newsk);
- 		newsk = NULL;
- 		goto drop;
--- 
-2.27.0
+-static struct trace_buffer_struct *trace_percpu_buffer;
++static struct trace_buffer_struct __percpu *trace_percpu_buffer;
+ 
+ /*
+  * This allows for lockless recording.  If we're nested too deeply, then
+@@ -3236,7 +3236,7 @@ static void put_trace_buf(void)
+ 
+ static int alloc_percpu_trace_buffer(void)
+ {
+-	struct trace_buffer_struct *buffers;
++	struct trace_buffer_struct __percpu *buffers;
+ 
+ 	if (trace_percpu_buffer)
+ 		return 0;
 
