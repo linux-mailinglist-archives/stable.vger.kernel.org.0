@@ -2,92 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5CB4875FA
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 11:57:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DDBF487638
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 12:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346728AbiAGK5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 05:57:46 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:55224 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237991AbiAGK5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 05:57:44 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7F6B2CE29BE;
-        Fri,  7 Jan 2022 10:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68250C36AE9;
-        Fri,  7 Jan 2022 10:57:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641553060;
-        bh=Zx/AXWLVluUT54cAqQJ0SxAQoNbFfocAhgDAYiIwEqs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iynpA4ecmQlJKnuCXtmTCewwhRuYTkO+xGMDA6shpvAU1g/BMgheKruQ6239iylZS
-         LyJZVGyvDp4+8OyDQYdWICOslNfB8ldCebQOBDfnA4lACgjlVrkgWQ5eCsfAwbwIJN
-         y0D5gMOJJfZKf2k8O3nQlrTRs40E+6mi4sLjSxB4=
-Date:   Fri, 7 Jan 2022 11:57:38 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Alaa Hleihel <alaa@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.15 04/42] RDMA/mlx5: Fix releasing unallocated memory
- in dereg MR flow
-Message-ID: <YdgcogmDQcZwLxxe@kroah.com>
-References: <20211215172026.641863587@linuxfoundation.org>
- <20211215172026.789963312@linuxfoundation.org>
- <bbb587b1-4555-ba8d-fe43-d56d41a3c652@leemhuis.info>
- <3802192c-d9ce-8f4a-88c5-a87f58eaf37b@leemhuis.info>
+        id S1347005AbiAGLHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 06:07:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37214 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237725AbiAGLHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 06:07:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1641553656;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mErlQ9bFbWCh8pEI+M0nh3UElgFrVyLNdlmQovZz1FE=;
+        b=XQrqtJLfC7yoOodnMylFN8HTiwKMGpZn4HYW9KK554ly2Xuk4aLBPhLPrSAyj+35Jq/pl8
+        jh6iE6sNyOqrjWD+8HT/Bnrq/71jwOTULcTgqm6zT6LJ5zOQdw0W1ZgvOnmh6x6gm4w/D3
+        1umiAYT0W9OV2N7Vx8LxoQc+omA4HfA=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-318-VkAYQFaiMz-eRqs48LTZ9A-1; Fri, 07 Jan 2022 06:07:35 -0500
+X-MC-Unique: VkAYQFaiMz-eRqs48LTZ9A-1
+Received: by mail-wm1-f70.google.com with SMTP id r2-20020a05600c35c200b00345c3b82b22so4525277wmq.0
+        for <stable@vger.kernel.org>; Fri, 07 Jan 2022 03:07:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=mErlQ9bFbWCh8pEI+M0nh3UElgFrVyLNdlmQovZz1FE=;
+        b=X+VD0ra/FCs4i5qAIEUMXWIMyFx4Nv/sFPnOfPrBz4OzYT/DDtRBfGgZ7AjtpamQLp
+         lUcCIQSJzKPq8gw7c0hkvGietuTxjenanDTuMqKiOtDoIrUaC2cEqvGnuwD7GP+b9tTm
+         JYJbds59BgLnksxObeyfB8I1VXfio2hM9MGHN03GkGwnUUJccRyF2JIXjZ7R3QRxUj5i
+         S8OdKdKBtM+VCE5+r1HrRHkAzD5rtm7jzoF7yXDc2Ogd21wMY5dXskBfrgVRjuVGXkpg
+         cCe8Q8gvlYGmPbmuL1DQuPkh26g7eO77snYwoKbjX4ky5fuetqApFqGO3gKdUh0n8fbp
+         kaVg==
+X-Gm-Message-State: AOAM531y98IW0QYDTQNcdYODfW1m5jCRR+CnqVCp3FQOoIsyGunEmm+v
+        r2xB7H204ielFbYMRPwq0szwEGEEOYN8ezO17bxQsbvauSxjom7Hlv8KrGXVJclGA9lOMaWOzWZ
+        itnpkBMR4yGXctBwv
+X-Received: by 2002:adf:d1ef:: with SMTP id g15mr56009298wrd.198.1641553654029;
+        Fri, 07 Jan 2022 03:07:34 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzpfs8sNGNszizzpb8wIqMXaS0IM36pG7DV7riTr9kWpDEc6r6DU/cu0qurtWMt/rqjTZw+Ug==
+X-Received: by 2002:adf:d1ef:: with SMTP id g15mr56009285wrd.198.1641553653870;
+        Fri, 07 Jan 2022 03:07:33 -0800 (PST)
+Received: from minerva.home ([92.176.231.205])
+        by smtp.gmail.com with ESMTPSA id r9sm9337273wmq.18.2022.01.07.03.07.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Jan 2022 03:07:33 -0800 (PST)
+From:   Javier Martinez Canillas <javierm@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Kris Karas <bugs-a21@moonlit-rail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH 2/2] video: vga16fb: Only probe for EGA and VGA 16 color graphic cards
+Date:   Fri,  7 Jan 2022 12:07:23 +0100
+Message-Id: <20220107110723.323276-3-javierm@redhat.com>
+X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20220107110723.323276-1-javierm@redhat.com>
+References: <20220107110723.323276-1-javierm@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3802192c-d9ce-8f4a-88c5-a87f58eaf37b@leemhuis.info>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 07, 2022 at 06:57:51AM +0100, Thorsten Leemhuis wrote:
-> Hi Greg!
-> 
-> On 01.01.22 11:56, Thorsten Leemhuis wrote:
-> > Hi, this is your Linux kernel regression tracker speaking.
-> > 
-> > On 15.12.21 18:20, Greg Kroah-Hartman wrote:
-> >> From: Alaa Hleihel <alaa@nvidia.com>
-> >>
-> >> [ Upstream commit f0ae4afe3d35e67db042c58a52909e06262b740f ]
-> >>
-> >> For the case of IB_MR_TYPE_DM the mr does doesn't have a umem, even though
-> >> it is a user MR. This causes function mlx5_free_priv_descs() to think that
-> >> it is a kernel MR, leading to wrongly accessing mr->descs that will get
-> >> wrong values in the union which leads to attempt to release resources that
-> >> were not allocated in the first place.
-> > 
-> > TWIMC, that commit made it into 5.15.y, but is known to cause a
-> > regression in v5.16-rc:
-> > 
-> > https://lore.kernel.org/lkml/f298db4ec5fdf7a2d1d166ca2f66020fd9397e5c.1640079962.git.leonro@nvidia.com/
-> > https://lore.kernel.org/all/EEBA2D1C-F29C-4237-901C-587B60CEE113@oracle.com/
-> > 
-> > A fix for mainline was posted, but got stuck afaics:
-> > https://lore.kernel.org/lkml/f298db4ec5fdf7a2d1d166ca2f66020fd9397e5c.1640079962.git.leonro@nvidia.com/
-> > 
-> > A revert was also discussed, but not performed:
-> > https://lore.kernel.org/all/20211222101312.1358616-1-maorg@nvidia.com/
-> 
-> I assume your scripts will catch this, nevertheless FYI:
-> 
-> Below patch was reverted in mainline, as it "is not the full fix and
-> still causes to call traces". You likely want to revert it from v5.15.y
-> as well. For details see
-> 
-> 4163cb3d1980 ("Revert "RDMA/mlx5: Fix releasing unallocated memory in
-> dereg MR flow"")
-> 
-> https://git.kernel.org/torvalds/c/4163cb3d1980383220ad7043002b930995dcba33
+The vga16fb framebuffer driver only supports Enhanced Graphics Adapter
+(EGA) and Video Graphics Array (VGA) 16 color graphic cards.
 
-Thanks for the heads-up, I have now queued this patch up for 5.15.y.
+But it doesn't check if the adapter is one of those or if a VGA16 mode
+is used. This means that the driver will be probed even if a VESA BIOS
+Extensions (VBE) or Graphics Output Protocol (GOP) interface is used.
 
-greg k-h
+This issue has been present for a long time but it was only exposed by
+commit d391c5827107 ("drivers/firmware: move x86 Generic System
+Framebuffers support") since the platform device registration to match
+the {vesa,efi}fb drivers is done later as a consequence of that change.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215001
+Fixes: d391c5827107 ("drivers/firmware: move x86 Generic System Framebuffers support")
+Reported-by: Kris Karas <bugs-a21@moonlit-rail.com>
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Kris Karas <bugs-a21@moonlit-rail.com>
+---
+
+ drivers/video/fbdev/vga16fb.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
+index 3347c9b6a332..72b6aeceeff8 100644
+--- a/drivers/video/fbdev/vga16fb.c
++++ b/drivers/video/fbdev/vga16fb.c
+@@ -1422,6 +1422,18 @@ static int __init vga16fb_init(void)
+ 
+ 	vga16fb_setup(option);
+ #endif
++
++	/* only EGA and VGA in 16 color graphic mode are supported */
++	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EGAC &&
++	    screen_info.orig_video_isVGA != VIDEO_TYPE_VGAC)
++		return -ENODEV;
++
++	if (screen_info.orig_video_mode != 0x0D &&	/* 320x200/4 (EGA) */
++	    screen_info.orig_video_mode != 0x0E &&	/* 640x200/4 (EGA) */
++	    screen_info.orig_video_mode != 0x10 &&	/* 640x350/4 (EGA) */
++	    screen_info.orig_video_mode != 0x12)	/* 640x480/4 (VGA) */
++		return -ENODEV;
++
+ 	ret = platform_driver_register(&vga16fb_driver);
+ 
+ 	if (!ret) {
+-- 
+2.33.1
+
