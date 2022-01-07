@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D41EE487898
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F0C487897
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347728AbiAGNzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:55:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36926 "EHLO
+        id S1347727AbiAGNzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:55:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347731AbiAGNzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:55:41 -0500
+        with ESMTP id S1347725AbiAGNzc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:55:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F34C061574
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:55:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CEBC061574
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:55:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 724FC60F00
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:55:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D102C36AE0;
-        Fri,  7 Jan 2022 13:55:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 153146157E
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:55:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2973C36AE5;
+        Fri,  7 Jan 2022 13:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641563739;
-        bh=6pj0PRY+bOgHc8Dqfe56owseEzjlTvY2fDg+KHK6yDs=;
+        s=korg; t=1641563731;
+        bh=cksj1Io0BN9mUDZxv4z1BmJRYYF0WVz8yHJm+me7h24=;
         h=Subject:To:Cc:From:Date:From;
-        b=mrvS4CzLkEhweLU68QQA1M55/29yHXUyGJbUHtv9CU1xOJB3zDlw5xmPSIujmz46j
-         CLD+ksjcKXchJonQH6CUOZeeqGxetLfnuW4VoDPXJE+g9/RMUXxWJQImlrJD/zddy9
-         fzCltxd+dY0voiZ8q9kVrnrjLIA7MHznvUCiFs/g=
-Subject: FAILED: patch "[PATCH] net: ena: Fix wrong rx request id by resetting device" failed to apply to 5.4-stable tree
+        b=M/fJrBxhKMQhtIQW86Qu+ASf+lunjezYij8SvNYZelDLjyFt6S6UBq9sZcLCYXAwu
+         vdF6qENoB+iwjzPRqSSqvS0vgpgIbQYEVjh81s1mlHayjm1SkZ+XZ0kUIuo+EGmJSv
+         UMlHZRsWOdftwAs1yYRPiiMJJrO3rjbgC/GpY8sA=
+Subject: FAILED: patch "[PATCH] net: ena: Fix wrong rx request id by resetting device" failed to apply to 5.10-stable tree
 To:     akiyano@amazon.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 07 Jan 2022 14:55:29 +0100
-Message-ID: <1641563729155248@kroah.com>
+Message-ID: <16415637294059@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
