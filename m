@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD142487886
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:48:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E9CA487885
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347664AbiAGNso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:48:44 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59792 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238971AbiAGNso (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:48:44 -0500
+        id S1347663AbiAGNsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:48:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35338 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238971AbiAGNsh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:48:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 296F5C061574
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:48:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBED661D41
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:48:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A169BC36AE0;
-        Fri,  7 Jan 2022 13:48:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7F38B82527
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36510C36AE0;
+        Fri,  7 Jan 2022 13:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641563323;
-        bh=s/1OBGhFs2hM4BfU9QrO0uxAmv6ionM9AnqYwSpGTKE=;
+        s=korg; t=1641563314;
+        bh=WmewzoqasgI9hjIfIpdElHbD6dVZ7Poer2jxnFRvBo4=;
         h=Subject:To:Cc:From:Date:From;
-        b=x+yB3w9Q614Ksbn37rYxlyhxx+i8sus2R1VYItoQwQnMdaVZBj4AFKDGStDh4hFwc
-         6wv0WdyZx0Gdw7rnObMeL6cRWyC02Y1T8rZY0hASdE51oOcj3IO6UUNPYEix7lSv+7
-         aI2HLgbQY+mfg7dxv4EH6KOu2tp9fDmA6QvfltNg=
-Subject: FAILED: patch "[PATCH] ipv6: Check attribute length for RTA_GATEWAY in multipath" failed to apply to 4.4-stable tree
+        b=Dxa+uP7UzvY8Y2RxIKrSTmnrlraaimjyNeWYMz+lhqjXBbjLK94GAobjj21GHHNIf
+         aVODw2zM6riYsiYrNO4Knlt5S+I2QrAjdxbRYwTYsjFIYV7LsNVg6wCBl879iWPOnJ
+         UfE9qwRAhbJi7oaEYmCuOWYInjCpZkenmF7ptWcg=
+Subject: FAILED: patch "[PATCH] ipv6: Check attribute length for RTA_GATEWAY in multipath" failed to apply to 4.9-stable tree
 To:     dsahern@kernel.org, davem@davemloft.net, nicolas.dichtel@6wind.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 07 Jan 2022 14:48:32 +0100
-Message-ID: <164156331217042@kroah.com>
+Message-ID: <164156331294155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
