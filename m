@@ -2,105 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83DD7487483
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 10:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D87F487484
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 10:12:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236732AbiAGJL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 04:11:56 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:35735 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236305AbiAGJL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 04:11:56 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=yang.wei@linux.alibaba.com;NM=1;PH=DS;RN=7;SR=0;TI=SMTPD_---0V1A.KbH_1641546702;
-Received: from localhost(mailfrom:yang.wei@linux.alibaba.com fp:SMTPD_---0V1A.KbH_1641546702)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 07 Jan 2022 17:11:54 +0800
-From:   Yang Wei <albin.yangwei@alibaba-inc.com>
-To:     gregkh@linuxfoundation.org, mst@redhat.com, jasowang@redhat.com
-Cc:     virtualization@lists.linux-foundation.org, stable@vger.kernel.org,
-        albin.yangwei@alibaba-inc.com, yang.wei@linux.alibaba.com
-Subject: [PATCH v2 4.14 ] virtio_pci: Support surprise removal of virtio pci device
-Date:   Fri,  7 Jan 2022 17:11:42 +0800
-Message-Id: <20220107091142.64108-1-albin.yangwei@alibaba-inc.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
+        id S1346372AbiAGJMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 04:12:18 -0500
+Received: from smtp23.cstnet.cn ([159.226.251.23]:57514 "EHLO cstnet.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S236305AbiAGJMR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jan 2022 04:12:17 -0500
+Received: from localhost.localdomain (unknown [124.16.138.126])
+        by APP-03 (Coremail) with SMTP id rQCowAB3fS3YA9hhOGtBBQ--.3160S2;
+        Fri, 07 Jan 2022 17:11:52 +0800 (CST)
+From:   Jiasheng Jiang <jiasheng@iscas.ac.cn>
+To:     damien.lemoal@opensource.wdc.com, davem@davemloft.net
+Cc:     linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>, stable@vger.kernel.org
+Subject: [PATCH v2] ide: Check for null pointer after calling devm_ioremap
+Date:   Fri,  7 Jan 2022 17:11:51 +0800
+Message-Id: <20220107091151.4057283-1-jiasheng@iscas.ac.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: rQCowAB3fS3YA9hhOGtBBQ--.3160S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Cw47AF1fZry5Gw1UKr15Arb_yoW8AFyfpF
+        sagFWIvrZ8Wr1UK3W7Ar18ZFyUu3ZrJa4FgFyYvw4kZ3s0vr1rJrWagFWIqr9rJrW3Ca4a
+        y3W2yr4kuFZ8ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkv14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+        1l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+        6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+        Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+        I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+        4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY02Avz4vE14v_GFWl
+        42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJV
+        WUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAK
+        I48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r
+        4UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF
+        0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUIhFcUUUUU=
+X-Originating-IP: [124.16.138.126]
+X-CM-SenderInfo: pmld2xxhqjqxpvfd2hldfou0/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+In linux-stable-5.15.13, this file has been removed and combined
+to `drivers/ata/pata_platform.c` without this bug.
+But in the older LTS kernels, like 5.10.90, this bug still exists.
+As the possible failure of the devres_alloc(), the devm_ioremap() and
+devm_ioport_map() may return NULL pointer.
+And then, the 'base' and 'alt_base' are used in plat_ide_setup_ports().
+Therefore, it should be better to add the check in order to avoid the
+dereference of the NULL pointer.
+Actually, it introduced the bug from commit 8cb1f567f4c0
+("ide: Platform IDE driver") and we can know from the commit message
+that it tended to be similar to the `drivers/ata/pata_platform.c`.
+But actually, even the first time pata_platform was built,
+commit a20c9e820864 ("[PATCH] ata: Generic platform_device libata driver"),
+there was no the bug, as there was a check after the ioremap().
+So possibly the bug was caused by ide itself.
 
-commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 upstream.
-
-When a virtio pci device undergo surprise removal (aka async removal in
-PCIe spec), mark the device as broken so that any upper layer drivers can
-abort any outstanding operation.
-
-When a virtio net pci device undergo surprise removal which is used by a
-NetworkManager, a below call trace was observed.
-
-kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
-watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
-CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
-Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
-Workqueue: events linkwatch_event
-RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
-Call Trace:
- virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
- ? __hw_addr_create_ex+0x85/0xc0
- __dev_mc_add+0x72/0x80
- igmp6_group_added+0xa7/0xd0
- ipv6_mc_up+0x3c/0x60
- ipv6_find_idev+0x36/0x80
- addrconf_add_dev+0x1e/0xa0
- addrconf_dev_config+0x71/0x130
- addrconf_notify+0x1f5/0xb40
- ? rtnl_is_locked+0x11/0x20
- ? __switch_to_asm+0x42/0x70
- ? finish_task_switch+0xaf/0x2c0
- ? raw_notifier_call_chain+0x3e/0x50
- raw_notifier_call_chain+0x3e/0x50
- netdev_state_change+0x67/0x90
- linkwatch_do_dev+0x3c/0x50
- __linkwatch_run_queue+0xd2/0x220
- linkwatch_event+0x21/0x30
- process_one_work+0x1c8/0x370
- worker_thread+0x30/0x380
- ? process_one_work+0x370/0x370
- kthread+0x118/0x140
- ? set_kthread_struct+0x40/0x40
- ret_from_fork+0x1f/0x30
-
-Hence, add the ability to abort the command on surprise removal
-which prevents infinite loop and system lockup.
-
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
+Fixes: 8cb1f567f4c0 ("ide: Platform IDE driver")
+Cc: stable@vger.kernel.org#5.10.90
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 ---
- drivers/virtio/virtio_pci_common.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Changelog
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 80a3704939cd..b9c06885de6a 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -575,6 +575,13 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 	struct device *dev = get_device(&vp_dev->vdev.dev);
+v1 -> v2
+
+* Change 1. Correct the fixes tag and commit message.
+---
+ drivers/ide/ide_platform.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/ide/ide_platform.c b/drivers/ide/ide_platform.c
+index 91639fd6c276..5500c5afb3ca 100644
+--- a/drivers/ide/ide_platform.c
++++ b/drivers/ide/ide_platform.c
+@@ -85,6 +85,10 @@ static int plat_ide_probe(struct platform_device *pdev)
+ 		alt_base = devm_ioport_map(&pdev->dev,
+ 			res_alt->start, resource_size(res_alt));
+ 	}
++	if (!base || !!alt_base) {
++		ret = -ENOMEM;
++		goto out;
++	}
  
-+	/*
-+	 * Device is marked broken on surprise removal so that virtio upper
-+	 * layers can abort any ongoing operation.
-+	 */
-+	if (!pci_device_is_present(pci_dev))
-+		virtio_break_device(&vp_dev->vdev);
-+
- 	unregister_virtio_device(&vp_dev->vdev);
- 
- 	if (vp_dev->ioaddr)
+ 	memset(&hw, 0, sizeof(hw));
+ 	plat_ide_setup_ports(&hw, base, alt_base, pdata, res_irq->start);
 -- 
-2.19.1.6.gb485710b
+2.25.1
 
