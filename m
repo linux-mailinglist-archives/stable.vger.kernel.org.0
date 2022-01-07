@@ -2,170 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A680487AAD
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 17:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA22B487AC3
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 17:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbiAGQsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 11:48:22 -0500
-Received: from mail-sn1anam02on2073.outbound.protection.outlook.com ([40.107.96.73]:14439
-        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229483AbiAGQsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jan 2022 11:48:21 -0500
+        id S1348356AbiAGQzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 11:55:15 -0500
+Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:33588 "EHLO
+        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240137AbiAGQzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 11:55:14 -0500
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 207DswIg014686;
+        Fri, 7 Jan 2022 16:55:09 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=h+x3fYIFmmCy1DZJl1g+VUIFxBml2+dgbUfmAdj0T3s=;
+ b=Or6XOy7zQt/zYdIMieDJ0j2r5DnnabOUzeaj6acF95k7SSEWHcfIQ5ogNcU+kT+DZ2Eh
+ tDYs31B/JWkPYykamHjei1Ur8gI4nl2ezIjbUQni/GLzA1+nTgNy6AePqdRk73i1iwZY
+ 7URc5ZLKrPK4M9XRUKDT7soVGBxgEY2Rmlneo5KRjIJS3eA55NBICk6mxe8pe7vutPUL
+ BQYz50SbfXyu0rOkfZxQoWckDk7QxopvxY4iHExCUz462lEz2lyE9ePQyEUiHWpASdqw
+ M15PyK2VKA4gAAG72UE0hH8pNpuryl/2Z8NaX+Gj7zTfIG1yY+9e3syMIDf0Tnwpk3vJ XA== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3de4v8jh7d-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 07 Jan 2022 16:55:09 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+        by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 207GVPSM181467;
+        Fri, 7 Jan 2022 16:55:08 GMT
+Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2172.outbound.protection.outlook.com [104.47.55.172])
+        by userp3020.oracle.com with ESMTP id 3de4vnxr8w-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 07 Jan 2022 16:55:07 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LQhK+ZcGctRSo7e1EItJ0sulkIbIfSPkCOGLsDF1L9EM03xJ/evRlxbiEWjCh8tbh49IY28hSMN2YaLPUndqm3PlDKtFEy04yJyLO3KETlPPViCxj2up3hJ4EngP/YP4v0+0kYprdc/qose8iGFLy+psrizd21CC/SreF9Ayg/7VkK9JdltC6/00vFD/JSBPmZzA7V8uwksxbcMkvVTahHsdck61qHNZz1ssjxwBEYvsrqfGNMUJzM2C/YwWoHcFbT0fh7jzBn4FBr78t8+QRXRkjq9TF+3S4sqGMmdjjrxhT4WvnNVHYOJcYYhoUC5XffDFx7OHtJXZUKZG6MFqig==
+ b=TLzm/LmMF3S/x0mSyr6tp+wZM2jFNbSx8J4oEx2xW1qaa6+0XfpMvU+X2r0DaKpgRyoUB0vJMXkO15Pz7PeAym0farrYZPAJqyxMUVn7Flcx3EqEs7Hj+rpi+erLT9e12LZRoZEL23cnpVTYjaL8KyRs0vuT+cJtaMKXWHO1lBDt20zpaodYnxD7TFeU/n0/vYOeoOFER1MzJC6iWqef1FdGonDpv2EVIS0QX+6zx6ySUzorD0bZyHwwKE3uBYgpPMDXKxMdos4CMv+qn6XAq65I+v7ka8eRPTEHxuWmlpDYDak7cOECmispnLqxfO5MrlV3wderX0zbtC9uHXUE5g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=91xx5VgODqOygqZB5jE5ke09j1ZyKUJkSPLpTxjuzdY=;
- b=oIITI3ZWIDja7M8XwHOJSmnPjIu7847TXiG1eMezdoLEV7UToHULOzMFO2B0JYWWa2EG7xLqjhOBwUqSRs+V8b+wiB7mIliqDPI4uufLzpglQX/Ee5UVOpOjN6qtXhTzL3NcvoY2j95fQwRJxe5WJ+XjscseOKGBcuexyBO07aIEy33fWxEoQpQNa+kK2eeXPYYfXebJs0BZpGvnX9Elh1Q1JPUbzespPpKZUAE5aIOtBKpFsK+J9g00HYp+ChgbHfEA4/RPpqPWU12fsK9cPxMgK+HXP+FO9IhzX8d6ITUapr++/randxiQzh+vPlP47wkYuzfwDoC0Ifhyh6JnGg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ bh=h+x3fYIFmmCy1DZJl1g+VUIFxBml2+dgbUfmAdj0T3s=;
+ b=RPfq1CQ5EQYBW+m7ozry7ClkUBqAn29SPbM3UPvZ/heX9k3agUI+PIXddOBGNZj/qHwPYuVkwZx2h6t64XsJ3u59rmhDrG+x7jlwZi6Y7bvWHlEwB4uKTTQlSXvmMMXJRDQBqjQMkO7AYXdZon3XAGOzD0U79+1MvBD6cBPK4zTF5eEq5mIBvQuISgs4PgJ1AQWZeHxx1PmrXZ/6tKG1tXPrj+VkRK76IpjOeNd/Vex2sySuTBeSnt83LIhtTze4Jfr1HKieK7WKFwYIgEJqfeXXQKDH4tcKvIe58MyuQVQYgmu5Cz3BNjM2lTZbaVyXbmHJAXv84yI+2gRxL4RrMQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=91xx5VgODqOygqZB5jE5ke09j1ZyKUJkSPLpTxjuzdY=;
- b=jSyjIo2YnrxJlyttB49OkJNq0lnLGDcoVVcTrt940SwWpb9nLIPuBb4dKytb0/IAEWhe6EbQ6c8sJ19EydpfEKtaiyBPz2g1vpIWk5s+EYtBmFF+NdIUuGasnSDLpINKYC4S11e1T/iVxi8y5lSb1V+5PjBQSjC7ezlEixaPA6c=
-Received: from BN0PR04CA0147.namprd04.prod.outlook.com (2603:10b6:408:ed::32)
- by BYAPR12MB3525.namprd12.prod.outlook.com (2603:10b6:a03:13b::26) with
+ bh=h+x3fYIFmmCy1DZJl1g+VUIFxBml2+dgbUfmAdj0T3s=;
+ b=Wg5J8wYsUoVtioQfudWB8Rin7XUZFfpm02F6Ov+JJLi4uavLX3BGAkzCbWjpQr3qUFl3zhfvUAPwgvLQJc6Uc7zEf7zYGRz2AI45+34TfFq5RcLynSox5JHnJjehTwjN7sHxcBK907k/Nz0RPvuy7BuBmSu0+/3ULMIHm1r8pLY=
+Received: from CO1PR10MB4532.namprd10.prod.outlook.com (2603:10b6:303:6d::17)
+ by MWHPR1001MB2080.namprd10.prod.outlook.com (2603:10b6:301:35::27) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4844.15; Fri, 7 Jan
- 2022 16:48:18 +0000
-Received: from BN8NAM11FT068.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:ed:cafe::38) by BN0PR04CA0147.outlook.office365.com
- (2603:10b6:408:ed::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.7 via Frontend
- Transport; Fri, 7 Jan 2022 16:48:18 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BN8NAM11FT068.mail.protection.outlook.com (10.13.177.69) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4867.7 via Frontend Transport; Fri, 7 Jan 2022 16:48:18 +0000
-Received: from SATLEXMB07.amd.com (10.181.41.45) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Fri, 7 Jan
- 2022 10:48:17 -0600
-Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB07.amd.com
- (10.181.41.45) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Fri, 7 Jan
- 2022 08:48:17 -0800
-Received: from hwentlanryzen.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server id 15.1.2375.17 via Frontend
- Transport; Fri, 7 Jan 2022 10:48:16 -0600
-From:   Harry Wentland <harry.wentland@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     Harry Wentland <harry.wentland@amd.com>, <stable@vger.kernel.org>,
-        "Huang Rui" <ray.huang@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH v2] drm/amdgpu: Use correct VIEWPORT_DIMENSION for DCN2
-Date:   Fri, 7 Jan 2022 11:48:14 -0500
-Message-ID: <20220107164814.7161-1-harry.wentland@amd.com>
-X-Mailer: git-send-email 2.34.1
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.7; Fri, 7 Jan
+ 2022 16:55:05 +0000
+Received: from CO1PR10MB4532.namprd10.prod.outlook.com
+ ([fe80::39d5:4686:22ac:da3b]) by CO1PR10MB4532.namprd10.prod.outlook.com
+ ([fe80::39d5:4686:22ac:da3b%7]) with mapi id 15.20.4867.011; Fri, 7 Jan 2022
+ 16:55:05 +0000
+Message-ID: <baa2a339-2917-fc6b-6cc5-c4174c20f533@oracle.com>
+Date:   Fri, 7 Jan 2022 22:24:53 +0530
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.4.1
+Subject: Re: [External] : Re: [PATCH 4.14] phonet: refcount leak in
+ pep_sock_accep
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Remi Denis-Courmont <courmisch@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220107105332.61347-1-aayush.a.agarwal@oracle.com>
+ <Ydgi0qF/7GwoCh96@kroah.com>
+From:   aayush.a.agarwal@oracle.com
+In-Reply-To: <Ydgi0qF/7GwoCh96@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: SG2PR0601CA0003.apcprd06.prod.outlook.com (2603:1096:3::13)
+ To CO1PR10MB4532.namprd10.prod.outlook.com (2603:10b6:303:6d::17)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0fd599bb-97a1-41ca-8966-08d9d1fd81a3
-X-MS-TrafficTypeDiagnostic: BYAPR12MB3525:EE_
-X-Microsoft-Antispam-PRVS: <BYAPR12MB3525F1BB2AECDDBA8F7A3B328C4D9@BYAPR12MB3525.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6430;
+X-MS-Office365-Filtering-Correlation-Id: 19527ad8-2dd7-4794-69ad-08d9d1fe7427
+X-MS-TrafficTypeDiagnostic: MWHPR1001MB2080:EE_
+X-Microsoft-Antispam-PRVS: <MWHPR1001MB20800E27E01862035AEACB64BA4D9@MWHPR1001MB2080.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:404;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 9n9ONXfNWhHH6WA1Jp0SPOOb71Yy8n+E4RZqMYtmuRdbiG+wb6BUU8DFU/7EsqYiyIAt5UgmM51CiDKHGNAG2aAo0wOouOsY6tG03Q7rf5/ZvupntVa2Uiixo7JDEGPhlE9Ifd9jX/eBsenrqD2lkY8zD5ddFQ00hHr7F8peNGddziuOqMWZHWyo8irQwPqeMbNb7TxKixhoA5MtmFM+nonMMzvCm121Fdx3FSXT/taU3CMiFm6q+a7XGEG0FYxVKjEaYtsoLe1PwjJfv1/Hnfkgkbv4inkssdu8BprR5LvW7DB73Ui+pB4x25YNO4Sw9CDWtu7KqRhKVWl2C0Yp31zLTPm3UTR38T0wa1dep2yx+EC7MRKugjwY3xncuqgyfgz7jZtHhxafB6HetrCQU9ikBH0gpO9XAi7H7HnqXIR4Hb1sjyrSWXDHVe7+x4B1xdsyyMaZapf2HCRrFeXHol8sGs4Fq/YWt5ccKHmNXJmNqFwMgtchVR0W7oQFx/0gmkNOL/eN0xBYVBH35/ctqnChMeo4YXx/twvK3LzTA/M0kPzwzEYXGkvexjy+F1uMFEwzlMLA0lkJW9Baubz4x9PJYekl0NLwkG60QelFyvm8bQs+LGYxwQX9FcHnoojMeVK6eFe4XzEY6l1U1ySdxBKUgUWx+3f7B/5d7fqD/dkA1aBwYDBnEsiZMR4mnP7t5hiw2G875dR1qghjcGkU+pDIFIslA24A5/bVq2mifXBOWeZV2d51F/PWrmqU4H0Nkwly5ItzofpY6bv6sNh2MPBzQ282PIabW3WzBQRwdTw=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(40470700002)(36840700001)(81166007)(40460700001)(44832011)(2616005)(186003)(86362001)(2906002)(6916009)(82310400004)(36860700001)(54906003)(36756003)(508600001)(7696005)(83380400001)(8936002)(316002)(70206006)(5660300002)(336012)(8676002)(66574015)(26005)(426003)(70586007)(356005)(1076003)(4326008)(47076005)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jan 2022 16:48:18.1076
+X-Microsoft-Antispam-Message-Info: WgPc1cQr2rbLa27ftNC04IOA2VHSf8/Hyg6u6+mhQHDN51IP7Z6rhKMSMaKrgccRrLYQiLGLkAasWXHP4tIGSGvi2/B5gOQbZ64zC/czXhxYoMdTGhKugar9ru0uPl7nEXO3qo1rMlQH9gp9+jtmMU6f7qr7kDqV1mcprOlS1T1B1UlAuP1vLHgbsZDChIkfKBPqqeu91ZFAubhOG2R80dwufSNBUdMKpcvdSv43VBGGMijd+DjMEw/arCMrrJR893Tlpzdrzu4bXMz/YpoqOb8wXINSFQp2M8uxQg9l8MDxPCvnUNmyj63CLjCkNDAnYbW9+CigYN4ItkLe/nV0nDI0pVy1od0IN4D4wOTgvtbLNS2YDtdC/uJVcT16pgatlg+GGmZjpKQvjHRLOaNNeUEL/QOXpxtsDsXBp6HWV3lKeMWBmkws5FL8V8U3HVDBS1QVzzuQXEIhc/ublVcO0zrYOFFElW9l5gS4xIHsiJzm/ZoiQywdsqLpjbm5MtwT8Tp15ksJBeUotrunfHejESJN/a/X86Ux/1IouoxHZPJTn0Rp51WAn3OMvc4hdqENKEYJ7Ji7Ikjn2pwUFfrg/wLuOgPObRSIMewbeVHuUO0QrlUvvWhKHAAdm0b4rUuSd6pOFA5jayq0AB1YNkUGho4jY18xEjpUv9l/s1hu2gdha6tMdEWO8f5ccPP/dQXXBtU1/2GV50oQXpl6zZcU2tQ2fzOWPiySKRw+8gikcmkQopKiXL8+c09ElV3SoeUJkr2sDaEk0xCJTZ0aDEBrZIIDuICqwp4h6T+f4hqj6/E=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR10MB4532.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(66946007)(2616005)(6916009)(53546011)(36756003)(38100700002)(6666004)(508600001)(2906002)(86362001)(966005)(31696002)(9686003)(6512007)(5660300002)(6506007)(26005)(6486002)(66556008)(31686004)(66476007)(186003)(316002)(54906003)(4326008)(83380400001)(8936002)(8676002)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?TG02TmZMK0dPaFhNaWF6d3lNdUFQQnpoOEs2eXMvdzlEcmxwNVpwVkYyQ0JW?=
+ =?utf-8?B?ZTRuc0ZHanFYUXY2MG1XYVQwYm82bk8zbUVKVjZFUWMzd0puNGZKVzIxR2pS?=
+ =?utf-8?B?OG0yS3pZemdRNnhFdE14QU1TYXg5ZmMxRFFSR2pNSmZRQ0l2MEhzSDRZWFJr?=
+ =?utf-8?B?Wjh5Y2RreC9IQXJ4RDVUVXRpbW9sSWN2MXpLdnlsc1AyOGQ4UzhNKy9NelhU?=
+ =?utf-8?B?T1orSkE2ME82L2ZiT2tIVXplVWxXQUNMVnNhb2JGSzYyblFQNXF5VUMxZE1l?=
+ =?utf-8?B?Yk1saWZtVTJrNUtUdkpuVExXZ2dRb3pDSkhwWG5wVVBvZGo2NU5PODJ4ZDVX?=
+ =?utf-8?B?cUZDWDE3RGpLV3pkOVJJTUlaOUo0TFRWZTBqM1lwdS8rRm45QjgrcDU1M2xY?=
+ =?utf-8?B?c2NSSU9uZUJmN2laUG5DZWlBK1loMjMwaElhKzlPL2NBTkFzNWd1b2EwZXEw?=
+ =?utf-8?B?T0NiSFZkOHp1aXZxYmNKZUFBbjlsbzk3bFJNMGI0ODA3VmNrRzZKL3Q4Z1F4?=
+ =?utf-8?B?NFk5K0FXc2RnL2V1Z0pDdVJzVXNYQU9zbXp6VG5Ma2dsRlF5cDhIK0cwTFd5?=
+ =?utf-8?B?UjJpcnNLN3lLYk5SMDFvU1UxbDFneVc0YUJhOXA4Qmw4YWpoOG1Od0t2TUhX?=
+ =?utf-8?B?Z1BBS2pYVGNjQ0d3SXA1RWthTnUyVU5OMTU2QUpmaGdvOE9xR2YwdUQvQi9S?=
+ =?utf-8?B?V3RwSERPWnBXWFZ0d3hRbVZoTXY2aUZqMjR4OFZDZitlR3pCN0VDMTlNcWpD?=
+ =?utf-8?B?WEpWL3RGWFBDaWhUYi9EdW92VW8vR1ZpUC84M2FRL3ZHZU5KcTYyYnpyenVq?=
+ =?utf-8?B?WlRlM0pvMHh6UGdEc3RRTUtocGpaYlRyR2poOTZKak9Ybi9Ec1BsT0hORkpB?=
+ =?utf-8?B?Zmx0dUJkempHQ3BsSXJLa2xRYUdla3RWTS94UFYxbmUyQjFrdkdra2hqejdt?=
+ =?utf-8?B?Z2RoZzRsZFpxMDlhbE9qckF3RHBvc0dtdTMwbi9CdWZ0WjZCTm1FOSsxZHN0?=
+ =?utf-8?B?eWJaMGdQT3hBNUhuOHgzbDdhVGtZL3Qzd2Z0Z1Y4SDR2b0xqeHN0RGMrUURN?=
+ =?utf-8?B?U0V6UGtKeXFvVUtFUnpyWmR4VDFOUkRqNXBraXNadUdmZVhNMHhvZEh2Yjlj?=
+ =?utf-8?B?cjZQc2ord2kxWEQ2YVlSSHhEQnhIRmpxMTIrOHUwejd1T2R5UlphVndkNy83?=
+ =?utf-8?B?c0RJSXNOc0VCU1JxMEYwaVhoQWQ1TjVhNHJBbnp2S0ZkZ1ROUW45RTFuK3R4?=
+ =?utf-8?B?NzIxaVBWQXpyaEx3UnF1dEZuSGlhSm96TkpZb0M2VmZjMXNGK01ZV2Q2Zklo?=
+ =?utf-8?B?MUZQS3puS1BTOTBNU0p6WXprUjh4RzR2Y1JBd1RvaXpWbkdRakJLMGdFK1pE?=
+ =?utf-8?B?NXkyLzBSUHRROTJSVjBlWXBERnM4dk4xUTJMbjh6WEp2b09ZYnAyYlNVVkJa?=
+ =?utf-8?B?eWlDQXg1dDJEbHFFWVlGVXB0UDdKY2Vhb2FsUjROOFdJWGJTOEZlazJxRjdJ?=
+ =?utf-8?B?OWk5Ui9aUlNtb1FEV1VNZHdkc09sWHNXcG5KZ0NraVFMdmhiZ1h0R0JyZHEr?=
+ =?utf-8?B?b1h6WjB0RVpSZFZkdmVVT05YSlhpRkdWak1IKzV6R3FqYURCRWRWYXU5clRu?=
+ =?utf-8?B?SGxtNVhtazBGcVB3dzNFTXl2em5KdFY5aDY2d3FwcDZPcEUrMzBzTTMrRlJR?=
+ =?utf-8?B?TWwvNk1iMEFDSVdNcTUzL0ljYVVXR0FaYVYzZmVUQ25wMDkrSE5kaW9MS1Vt?=
+ =?utf-8?B?eFFGL2tRaUJScnJZNHhmbElGbTQwcjJBb0ltZUdzdTQyOUR0aFVSM1liclRn?=
+ =?utf-8?B?NFRmdlZpV0tPbTNOR3ZEMWhNTndNVWlJckdoVzRKdVViUit6VXEzdGFRWlgr?=
+ =?utf-8?B?QU8rRGNVRHBQcUNpK3RQYjlVYmRIUmhOcitERVI4cUNVd2xhaC9mWEx5WlVr?=
+ =?utf-8?B?ZzkrSHl1NW16WGNSblozZWxRRm9XUjdWcVNPRTQycHYyZG01SFhtS2hSZDJW?=
+ =?utf-8?B?NmJISkxFUEdPOGFZeHZpS1NpamJpUlYrZFhnd0ZDTlFWRkk3TGFldTQ3Tmcw?=
+ =?utf-8?B?dSs4SEdTTW5oSmt3RmVTZ255dDgwRCtZcUkveFB6NWlDRmVKRllyeTJGQjgv?=
+ =?utf-8?B?OGZDUmZXWTg3VGNlY1M0cXVhZFFYdDlteU9QcTJYcTdLSjhHOEZyZFBlNEE3?=
+ =?utf-8?B?Q1J3TDNpK0xSWHUzYy9YaGp1dnpSYlhueWFPR3RmS3QwRWFZdFV0dU9uaXpz?=
+ =?utf-8?B?WDFXK0E5N1JjNGdidzJuMExsZG93PT0=?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 19527ad8-2dd7-4794-69ad-08d9d1fe7427
+X-MS-Exchange-CrossTenant-AuthSource: CO1PR10MB4532.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Jan 2022 16:55:05.3074
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0fd599bb-97a1-41ca-8966-08d9d1fd81a3
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT068.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3525
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LlWB4jrh1122SEXA85T/tBhGlYdRz11OhXPpM4/IhD7d/zXjAziyJ1VFpzl14xNFHiSnTOv1b7DpC/aUIVh9+3hfGw9tcdzrD7GovobsDHs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR1001MB2080
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10220 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
+ mlxlogscore=999 adultscore=0 suspectscore=0 mlxscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2201070112
+X-Proofpoint-ORIG-GUID: jQjaWlJqbDErfpFRdPo7MYkVEBa1ySg-
+X-Proofpoint-GUID: jQjaWlJqbDErfpFRdPo7MYkVEBa1ySg-
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For some reason this file isn't using the appropriate register
-headers for DCN headers, which means that on DCN2 we're getting
-the VIEWPORT_DIMENSION offset wrong.
 
-This means that we're not correctly carving out the framebuffer
-memory correctly for a framebuffer allocated by EFI and
-therefore see corruption when loading amdgpu before the display
-driver takes over control of the framebuffer scanout.
+On 07/01/22 4:54 pm, Greg KH wrote:
+> On Fri, Jan 07, 2022 at 02:53:32AM -0800, Aayush Agarwal wrote:
+>> From: Hangyu Hua <hbh25y@gmail.com>
+>>
+>> commit bcd0f9335332 ("phonet: refcount leak in pep_sock_accep")
+>> upstream.
+>>
+>> sock_hold(sk) is invoked in pep_sock_accept(), but __sock_put(sk) is not
+>> invoked in subsequent failure branches(pep_accept_conn() != 0).
+>>
+>> Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+>> Link: https://urldefense.com/v3/__https://lore.kernel.org/r/20211209082839.33985-1-hbh25y@gmail.com__;!!ACWV5N9M2RV99hQ!Znc0Oy9gtZZ18UDMwcZiYrfjj4GUibhEq5WJZ44m6azDWCC1hrZpkFh9AmGOqqS94cqz-A$
+>> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+>> Signed-off-by: Aayush Agarwal <aayush.a.agarwal@oracle.com>
+>> ---
+>>   net/phonet/pep.c | 1 +
+>>   1 file changed, 1 insertion(+)
+> What about releases 5.15.y, 5.10.y, 5.4.y, and 4.19.y?  Is this also
+> relevant for those trees?
+>
+> thanks,
+>
+> greg k-h
 
-Fix this by checking the DCE_HWIP and picking the correct offset
-accordingly.
+It's relevant for all currently supported stable releases: 4.4.y, 4.9.y, 
+4.14.y, 4.19.y, 5.4.y, 5.10.y, 5.15.y . I missed adding the tag "Cc: 
+stable@viger.kernel.org #4.4+". Should I send the patch again?
 
-Long-term we should expose this info from DC as GMC shouldn't
-need to know about DCN registers.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
----
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-index 57f2729a7bd0..c1a22a8a4c85 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -72,6 +72,9 @@
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0                                                                  0x049d
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0_BASE_IDX                                                         2
- 
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2                                                          0x05ea
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2_BASE_IDX                                                 2
-+
- 
- static const char *gfxhub_client_ids[] = {
- 	"CB",
-@@ -1134,6 +1137,8 @@ static unsigned gmc_v9_0_get_vbios_fb_size(struct amdgpu_device *adev)
- 	u32 d1vga_control = RREG32_SOC15(DCE, 0, mmD1VGA_CONTROL);
- 	unsigned size;
- 
-+	/* TODO move to DC so GMC doesn't need to hard-code DCN registers */
-+
- 	if (REG_GET_FIELD(d1vga_control, D1VGA_CONTROL, D1VGA_MODE_ENABLE)) {
- 		size = AMDGPU_VBIOS_VGA_ALLOCATION;
- 	} else {
-@@ -1142,7 +1147,6 @@ static unsigned gmc_v9_0_get_vbios_fb_size(struct amdgpu_device *adev)
- 		switch (adev->ip_versions[DCE_HWIP][0]) {
- 		case IP_VERSION(1, 0, 0):
- 		case IP_VERSION(1, 0, 1):
--		case IP_VERSION(2, 1, 0):
- 			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION);
- 			size = (REG_GET_FIELD(viewport,
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
-@@ -1150,6 +1154,14 @@ static unsigned gmc_v9_0_get_vbios_fb_size(struct amdgpu_device *adev)
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
- 				4);
- 			break;
-+		case IP_VERSION(2, 1, 0):
-+			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2);
-+			size = (REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
-+				REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
-+				4);
-+			break;
- 		default:
- 			viewport = RREG32_SOC15(DCE, 0, mmSCL0_VIEWPORT_SIZE);
- 			size = (REG_GET_FIELD(viewport, SCL0_VIEWPORT_SIZE, VIEWPORT_HEIGHT) *
--- 
-2.34.1
 
