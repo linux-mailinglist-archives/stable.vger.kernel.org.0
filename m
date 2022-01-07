@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55AFA487816
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:20:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85720487817
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:20:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347520AbiAGNUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:20:17 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47364 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347519AbiAGNUO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:20:14 -0500
+        id S1347523AbiAGNUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:20:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57114 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347522AbiAGNUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:20:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F1AC061201
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:20:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E4B94610D5
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:20:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4803C36AE5;
-        Fri,  7 Jan 2022 13:20:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08871B825F0
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 398B0C36AE0;
+        Fri,  7 Jan 2022 13:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641561613;
-        bh=4KaVtgWBPjwl53XhuOwdplSQFr0xBKDkDqxSiF8P3hc=;
+        s=korg; t=1641561618;
+        bh=Sxx2vP0VRnCuDt45CjKt3jOdFqhXL6aj4puShcoGwr0=;
         h=Subject:To:Cc:From:Date:From;
-        b=eSRHotikqnJCdnY75wTrNkpEwCUbtL/jBFyw1I/O/JkOMBmIAfcAVpH7fEibViH5u
-         dNaZHqnkNB7jQXt5ipWjbhYo1yV7EkIJYgP4e0oz3Xve5926NKq2ojQeCSJR6kvYOZ
-         78QauI4oYKRkFhWJxUsL78f9AVmy96JkNU+s36TY=
-Subject: FAILED: patch "[PATCH] i40e: Fix to not show opcode msg on unsuccessful VF MAC" failed to apply to 5.4-stable tree
+        b=RRqXUq97H8Crb2+PVArAV3Z7UsR3p86ZUwwCvRIjB6prKraT3wtIid3jnyp8kF1WQ
+         fbi0d1aRBjabUwg//9DsktdmY9LUbABPk0CIGDWP7UOGCAxzbI5e1/rXIasG0uvFTB
+         FGr/nXn4OBapMCzx83SdUMhXqyIegCRkIJKaSR5w=
+Subject: FAILED: patch "[PATCH] i40e: Fix to not show opcode msg on unsuccessful VF MAC" failed to apply to 4.19-stable tree
 To:     mateusz.palczewski@intel.com, aleksandr.loktionov@intel.com,
         anthony.l.nguyen@intel.com, grzegorzx.szczurek@intel.com,
         paul.m.stillwell.jr@intel.com, tony.brelinski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:20:10 +0100
-Message-ID: <164156161022714@kroah.com>
+Date:   Fri, 07 Jan 2022 14:20:13 +0100
+Message-ID: <164156161328231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +44,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
