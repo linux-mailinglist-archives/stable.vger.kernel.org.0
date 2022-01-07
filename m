@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE56048788C
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:51:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 237EA48788E
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:51:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347685AbiAGNvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:51:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35928 "EHLO
+        id S1347684AbiAGNvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:51:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347684AbiAGNvT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:51:19 -0500
+        with ESMTP id S1347679AbiAGNvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:51:24 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02ECBC061574
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:51:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1423BC061574
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:51:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 94398CE2AEF
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:51:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D350C36AE5;
-        Fri,  7 Jan 2022 13:51:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 60F24CE2B0A
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:51:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FB11C36AE5;
+        Fri,  7 Jan 2022 13:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641563474;
-        bh=lzMGGw9lPX0/0G8udOw+dEH2RSAuN+8fS7YiD6TdtBA=;
+        s=korg; t=1641563480;
+        bh=1PUyIBh5l+9a5mRGIWm/WZvezWes792cPGmUrR3fauc=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ehtl/LErrsc0hoPET9RLStMxEGnJE2QD14A2bIE1goESK/nRLYHmU67ejQx8E/tgV
-         WzkeLMzhERebjd5WKYLUisebLx83i5zv9BprI76fkMC2dzBT8W73t7OvHLiw/bZffj
-         penYAJ8MvUdkHrQ86Fv739gC65tLGd//bGBDrMxA=
-Subject: FAILED: patch "[PATCH] sctp: hold endpoint before calling cb in" failed to apply to 5.4-stable tree
+        b=XxEL2FkA4XaBeGwbPjHZrEzB9p7oqtwKTqez8pWf1z+E77DOXmicMguORyTjYOkUD
+         upYAgGAlm4oTBnYJtQeMv4+33LVq/Zb4zOtOMs+PyVETVA2V7L/ly7G8cjYvQS2Fvf
+         nBT4cS6zFzzKOObkcYFPethpMfmbbDhvoh6QFBlE=
+Subject: FAILED: patch "[PATCH] sctp: hold endpoint before calling cb in" failed to apply to 4.14-stable tree
 To:     lucien.xin@gmail.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:51:04 +0100
-Message-ID: <164156346424368@kroah.com>
+Date:   Fri, 07 Jan 2022 14:51:05 +0100
+Message-ID: <1641563465170248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
