@@ -2,89 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 976744870A5
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 03:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C46F44870C8
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 03:51:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345522AbiAGCkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jan 2022 21:40:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55008 "EHLO
+        id S1345594AbiAGCvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jan 2022 21:51:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345512AbiAGCkq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 21:40:46 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 859B7C061245
-        for <stable@vger.kernel.org>; Thu,  6 Jan 2022 18:40:46 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id 2-20020a05600c02c200b003470f96e778so1941607wmn.5
-        for <stable@vger.kernel.org>; Thu, 06 Jan 2022 18:40:46 -0800 (PST)
+        with ESMTP id S1345590AbiAGCvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jan 2022 21:51:43 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09863C061201
+        for <stable@vger.kernel.org>; Thu,  6 Jan 2022 18:51:43 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id f5so4226201pgk.12
+        for <stable@vger.kernel.org>; Thu, 06 Jan 2022 18:51:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=+dkiLt9yMO6x46qZW333QEXi70FYxlft58uImyv90V8=;
-        b=OBXz1MmY9nMTjquZjNR85FB9nZdSTfhWmfO/vZG9YGnL7KW47MDlSIrWhhRaf8S6/i
-         /StQ4K8nWUkJcVTV22DqolfNDBYvd0XRj2SAf25FUSJRMwWWoZfp4F5jlcw7UOda+TXM
-         /JfL/HiR3R6izbiFVLsEmm64DQeestEbgWXxn3IqJmPx3TyJCaQH1z2xNKhCkEBLDA+2
-         T8alt/DAWYu9YP7BwAOS1qDUwcOxzrQ6CCMxhVw6x4sy2tKV90fSqfOoJCU1ROSItmgO
-         rY6U0r0E0vywXhwyj0xw6ms/fwFZpc8zfLMEBhpa66+Ts15wxDUgcnmGVHC9k8iuwCm4
-         Ugow==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc
+         :references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=cPcCRIX7tHQEplt2lUi0Y51MSkEipcGHYjn3QIumPhE=;
+        b=pYXFsiWa4vQwjvrPQMRGCmNY/uilPyoBovOsGE74CDPK8VencstsmrK9Ikq/hlHprk
+         ZRCOVUesXqs7pI2Ht4SqeXLlG78LxDWWwn7p4ERUt4VqqRXJIKzOn8gCt6NQh95gSgRk
+         sICeSxQnrL6TjJjnO9jwzj4O3soyvsncLKUtlEXx2X0tR4d/nMo65zGCTrjIbw7kVBOk
+         B2wUP0602ZyvfRYfN/4Ar+qKBPWxXSCF15e+4rQoIQfBnuWegguB92jNwsP+7F1thzw0
+         D6BYaXVqioXRqTI93T22IOSyHA7Pvnjm+kHRcpZN7ksIFC7tHov8B1orjD8MEqofqYx9
+         yvkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=+dkiLt9yMO6x46qZW333QEXi70FYxlft58uImyv90V8=;
-        b=6G966vJckfbTsRx5Dlb3uACajv/4X+EgRfoijnrvhW9fdNC14OmU/4h9E9qiTndWd9
-         NUG/6qJFUO1oXm3/hbApi6cBg80hznVkL+7TLsN9+5Wp23nDLsfse3gF52EMuAbhWCyF
-         KVSRi2sXxFCRGZ+mSk+gpviMku20Lcdw/oTcZE189SZG9MZdDAATnF01oIIGlGg+C8zB
-         +3NNaR/x6eH1OcGHbtiCSu+tWDw4xfwTMIJWYwdnLBq22GWI5mrVrSpr/01udj51eduo
-         u+byhXXvzqOMPycmKKJHhmqPRhiaIpDWl8REvLghB83QUt1jXubXRl8nxPB8Feb7UI/q
-         UbMA==
-X-Gm-Message-State: AOAM532REYvdRiB31CHhNKgGY2e1sDnOO55aPcbk0QYccmQZgM5BBPf0
-        KUehoCv8/8DK/v27LzCWgHFzEWZN69Lz+XVdyNQ=
-X-Google-Smtp-Source: ABdhPJx0Fj8lnVRMbX437o8jcZx6v02JngsaCQMrKQOXiTkW81AVIlwaVxzkYKQfJixyKbg6rcqJj9sSjBYkCCTxk2U=
-X-Received: by 2002:a7b:c3c5:: with SMTP id t5mr9113440wmj.168.1641523244898;
- Thu, 06 Jan 2022 18:40:44 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=cPcCRIX7tHQEplt2lUi0Y51MSkEipcGHYjn3QIumPhE=;
+        b=w5lzfB8+y2YHZ/2JiU+giNyM/TKN4HXh0EfcKyesmY9Kinu6sx9OBKK9YVxR8anTfy
+         OBzAxnZAb3QaTCwnSzuDySCK9zKVIPi6YJEL154Cfmc/gVqxzmhBCKwzJULWlX78x+Ix
+         jviXQd+Z7Mpjq7nCIx0nhwkC5E8dq37YYZMZ0xxxh8DQfo6zPXuPk78tWNWj9q6+dnSW
+         7vIYPyBqwzoAWvB5mZB5qAkAMwk9LwiSH7BPAn+7vcPUop2j4PrI5o6m3QCN/nts+O82
+         NIO5K2YjjsM+8Nk+F5nyBnGpXjPwS67CBaw8q+EVUY0Jhc3Rk03c2l1qvqqOJ9csw9Pr
+         TOXw==
+X-Gm-Message-State: AOAM533YrWoUOnxgQ9LwwYQqyjMmlj2K0IA7kB3uelO5UL3FpjiMN3Id
+        woNAvJv6iZ86N+Kdmdvsp1plbQ==
+X-Google-Smtp-Source: ABdhPJwMczFSW3d5J7keE+dDS5YoHi7AndSjmC3HuQ+yyclWI3jvtms8Lllan7azHUEjaeV+MqHlpw==
+X-Received: by 2002:a63:d2:: with SMTP id 201mr55368315pga.56.1641523902522;
+        Thu, 06 Jan 2022 18:51:42 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id l191sm3012998pgd.8.2022.01.06.18.51.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Jan 2022 18:51:42 -0800 (PST)
+Message-ID: <5d6ebe64-df5b-9cc5-be08-a550dec296f8@linaro.org>
+Date:   Thu, 6 Jan 2022 18:51:41 -0800
 MIME-Version: 1.0
-Received: by 2002:a05:6000:110c:0:0:0:0 with HTTP; Thu, 6 Jan 2022 18:40:44
- -0800 (PST)
-Reply-To: mr.luisfernando5050@gmail.com
-From:   "Mr. Luis Fernando" <kasimmohamed0099@gmail.com>
-Date:   Thu, 6 Jan 2022 18:40:44 -0800
-Message-ID: <CANUogzUZ10HdD8vBGqidhdReWMfuTwMLn8Sd=R4hQT53Jg0V7A@mail.gmail.com>
-Subject: GOOD DAY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Content-Language: en-US
+To:     Jarkko Sakkinen <jarkko@kernel.org>,
+        Tadeusz Struk <tstruk@gmail.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20211229050655.2030-1-tstruk@gmail.com>
+ <883e4ac1a10dc192824dff3eb6489d027417d1d4.camel@kernel.org>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: Re: [PATCH v2 1/2] tpm: Fix error handling in async work
+In-Reply-To: <883e4ac1a10dc192824dff3eb6489d027417d1d4.camel@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LS0gDQpJIGFtIE1yLmx1aXMgZmVybmFuZG8NCg0KSGkgRnJpZW5kIEkgd29yayBpbiBhIEJhbmsg
-Zm9yIEFmcmljYSAoQk9BKSBoZXJlIGluIEJVUktJTkEgRkFTTw0KDQpJIHdhbnRzIHRvIHRyYW5z
-ZmVyIGFuIGFiYW5kb25lZCBzdW0gb2YgMjcuNSBtaWxsaW9ucyBVU0QgdG8geW91DQp0aHJvdWdo
-IEFUTSBWSVNBIENBUkQgLjUwJSB3aWxsIGJlIGZvciB5b3UuIE5vIHJpc2sgaW52b2x2ZWQuDQoN
-Cg0KVGhlIChCT0EpIGJhbmsgd2FzIGJlaW5nIHVzZWQgYnkgbWFueSBBZnJpY2FuIFBvbGl0aWNp
-YW5zIHRvIGRpdmVydA0KZnVuZHMgKHRoZSBQb2xpdGljaWFucyBsb290ZWQgb3ZlcjViaWxsaW9u
-IFVuaXRlZCBTdGF0ZXMgZG9sbGFycykgdG8NCnRoZWlyIGZvcmVpZ24gYWNjb3VudHMgYW5kIHRo
-ZXkgZGlkIE5vdCBib3RoZXIgdG8ga25vdyBob3cgbXVjaCB3YXMNCnRyYW5zZmVycmVkIGJlY2F1
-c2UgdGhlIGZ1bmRzIGJlbG9uZ2VkIHRvIHRoZSAnU3RhdGUnIHRoYXQgaXMgd2h5IEkNCmFsc28g
-ZGVjaWRlZCB0byBwdXQgYXBhcnQgdGhlIHN1bSBvZiAgJDI3LjVtaWxsaW9uIERvbGxhcnMgd2hp
-Y2ggaXMNCnN0aWxsIGluIG91ciBiYW5rIHVuZGVyIG15IGN1c3RvZHkgZm9yIGEgbG9uZyBwZXJp
-b2Qgbm93IQ0KDQpJIGhhdmUgdG8gZ2l2ZSB5b3UgYWxsIHRoZSByZXF1aXJlZCBndWlkZWxpbmVz
-IHNvIHRoYXQgeW91IGRvIG5vdA0KbWFrZSBhbnkgbWlzdGFrZS4gSWYgeW91IGFyZSBjYXBhYmxl
-IHRvIGhhbmRsZSB0aGUgdHJhbnNhY3Rpb24gQ29udGFjdA0KbWUgZm9yIG1vcmUgZGV0YWlscy4g
-S2luZGx5IHJlcGx5IG1lIGJhY2sgdG8gbXkgYWx0ZXJuYXRpdmUgZW1haWwNCmFkZHJlc3MgKG1y
-Lmx1aXNmZXJuYW5kbzUwNTBAZ21haWwuY29tKSBNci5sdWlzIEZlcm5hbmRvDQoNCg0KDQoNCg0K
-DQrmiJHmmK/ot6/mmJPmlq/Ct+i0ueWwlOWNl+WkmuWFiOeUnw0KDQrll6jvvIzmnIvlj4vvvIzm
-iJHlnKjluIPln7rnurPms5XntKLnmoTkuIDlrrbpnZ7mtLLpk7booYwgKEJPQSkg5bel5L2cDQoN
-CuaIkeaDs+mAmui/hyBBVE0gVklTQSBDQVJEIOWwhuS4gOeslOW6n+W8g+eahCAyNzUwIOS4h+e+
-juWFg+i9rOe7meaCqO+8jDAuNTAlIOWwhuaYr+e7meaCqOeahOOAgiDkuI3mtonlj4rpo47pmanj
-gIINCg0KDQrorrjlpJrpnZ7mtLLmlL/lrqLliKnnlKggKEJPQSkg6ZO26KGM5bCG6LWE6YeR77yI
-5pS/5a6i5o6g5aS65LqG6LaF6L+HIDUwDQrkur/nvo7lhYPvvInovaznp7vliLDku5bku6znmoTl
-pJblm73otKbmiLfvvIzku5bku6zkuZ/mh5Llvpfnn6XpgZPovaznp7vkuoblpJrlsJHvvIzlm6Dk
-uLrov5nkupvotYTph5HlsZ7kuo7igJzlm73lrrbigJ0NCuS4uuS7gOS5iOaIkei/mOWGs+WumuaK
-iueOsOWcqOmVv+acn+S/neeuoeWcqOaIkeS7rOmTtuihjOeahDI3NTDkuIfnvo7lhYPliIblvIDv
-vIENCg0KICDmiJHlv4Xpobvnu5nkvaDmiYDmnInlv4XopoHnmoTmjIflr7zmlrnpkojvvIzov5nm
-oLfkvaDlsLHkuI3kvJrniq/ku7vkvZXplJnor6/jgIIg5aaC5p6c5oKo5pyJ6IO95Yqb5aSE55CG
-5Lqk5piT77yM6K+36IGU57O75oiR5LqG6Kej5pu05aSa6K+m5oOF44CCIOivt+WbnuWkjeaIkeea
-hOWkh+eUqOeUteWtkOmCruS7tuWcsOWdgA0KKG1yLmx1aXNmZXJuYW5kbzUwNTBAZ21haWwuY29t
-KSBNci5sdWlzIEZlcm5hbmRvDQo=
+On 1/5/22 12:05, Jarkko Sakkinen wrote:
+>> until the user_read_timer wakes it up after 120 sec.
+>> Make sure that error conditions also contribute to the poll mask
+>> so that a correct error code could passed back to the caller.
+> I'm not sure what "making sure" means.
+
+
+
+> 
+>>          tpm_put_ops(priv->chip);
+>> -       if (ret > 0) {
+>> +       if (ret != 0) {
+> What if ret < 0?
+> 
+> You should explain this change in the commit message. Also, consider
+> adding an inline comment.
+
+As the commit message says tpm_dev_transmit() returns -EINVAL when
+the given handle doesn't exist, and the tmprm can not find it.
+This is not handled properly and the application gets stuck.
+I will add a comment here send a new version.
+
+-- 
+Thanks,
+Tadeusz
