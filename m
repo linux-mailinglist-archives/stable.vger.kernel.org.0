@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8940048786A
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:44:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE059487869
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:44:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238947AbiAGNo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:44:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34452 "EHLO
+        id S1347643AbiAGNou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:44:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238931AbiAGNo4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:44:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E3FC061574
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:44:55 -0800 (PST)
+        with ESMTP id S238962AbiAGNou (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:44:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DFD6C061574
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:44:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F36C60F00
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:44:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5102C36AE5;
-        Fri,  7 Jan 2022 13:44:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19774B825A5
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:44:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F3EC36AE5;
+        Fri,  7 Jan 2022 13:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641563095;
-        bh=jOMKo0694GCX7s7C9Ml/ouCcIf4QqhADKi2EOjaRQ2E=;
+        s=korg; t=1641563086;
+        bh=NqiNDAyqPuqqWy06I0T96nPYwART3AadKemLTY1ds9I=;
         h=Subject:To:Cc:From:Date:From;
-        b=thEFjMtCA5SqSGRGQzJFzVYvBO18qvAKxTNQwxM0qEekhikyaPTo9OxxSfBw/DfPL
-         H3AZnqNB9wxoWUzV6ejNVqdi7+GbODuhb2/6ZIni562CVcOQS0iQ184DBFN4IJMuAO
-         nysL8hce5uDyWRET4R46phJmdzbYHygWK1QjxT9E=
-Subject: FAILED: patch "[PATCH] sfc: The RX page_ring is optional" failed to apply to 4.19-stable tree
+        b=hfcniIIMXGYExGvh2S2/8oaWEuBYI5qc3z2VALjbLoEbXcRgl3EQi2tddrucIiVi+
+         io+ZknIbfq8rIy4S7Gd+r2TDslHvRAb0Aqpp4l27KQ0PDx/2xdp8tdrPAydF5wexQq
+         w5U+tU5m93j1wU7ifOA78DtR/UzfFNQEVsow75mM=
+Subject: FAILED: patch "[PATCH] sfc: The RX page_ring is optional" failed to apply to 5.4-stable tree
 To:     habetsm.xilinx@gmail.com, jiasheng@iscas.ac.cn, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 07 Jan 2022 14:44:44 +0100
-Message-ID: <1641563084142169@kroah.com>
+Message-ID: <164156308415632@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
