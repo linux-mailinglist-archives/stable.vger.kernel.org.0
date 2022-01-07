@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0672348786C
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0EC048786E
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238962AbiAGNpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:45:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51788 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238991AbiAGNpC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:45:02 -0500
+        id S238951AbiAGNpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:45:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58108 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347645AbiAGNpK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:45:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0744B82527
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:45:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F534C36AE5;
-        Fri,  7 Jan 2022 13:44:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D40260F00
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:45:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8177FC36AE0;
+        Fri,  7 Jan 2022 13:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641563100;
-        bh=IeTJvUHUgwtc/3x1vN2GKjGULzjdulVHyF4FWlx+ErM=;
+        s=korg; t=1641563108;
+        bh=7OX2fHuqBxs69vT2RUL5Mg9spv8eGrj+BU4uGyvbLU8=;
         h=Subject:To:Cc:From:Date:From;
-        b=MnYHn/iJiHPIQctESgqgkhsiYY5JFHp9Q4i+JyOzTc7NXNZ9cPuuVYiTVOILdxb7x
-         FuAuJLCeF8BwQmfU9trllYix0ezgohdPCqEfhZl1UCUmb+tPNId2PZryMyPwDbXr/0
-         EGX6/0GDLiHnXzzQtxq+Qdfm8eWzy1EGn7cjduB0=
-Subject: FAILED: patch "[PATCH] sfc: The RX page_ring is optional" failed to apply to 4.4-stable tree
-To:     habetsm.xilinx@gmail.com, jiasheng@iscas.ac.cn, kuba@kernel.org
+        b=r/ZHUzgDdrdsCe2zbGVWjr9IYTp2o8l/DjHv2FRF34le0qU8Ai4DmICpkt8U8MPq8
+         DnFCQj5ccmUjfiG4xHeCr1/pYrpc6Wpq+AJz38lf7UFvs11EzSb3YFbOk/oK3utBbn
+         ELT0wMZmmJQImPB+NG+ZMypBCl9GUdnByrPkdVW0=
+Subject: FAILED: patch "[PATCH] i40e: fix use-after-free in i40e_sync_filters_subtask()" failed to apply to 4.4-stable tree
+To:     zhudi2@huawei.com, anthony.l.nguyen@intel.com,
+        gurucharanx.g@intel.com, zhangrui182@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:44:45 +0100
-Message-ID: <1641563085850@kroah.com>
+Date:   Fri, 07 Jan 2022 14:45:06 +0100
+Message-ID: <16415631061239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,66 +51,136 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1d5a474240407c38ca8c7484a656ee39f585399c Mon Sep 17 00:00:00 2001
-From: Martin Habets <habetsm.xilinx@gmail.com>
-Date: Sun, 2 Jan 2022 08:41:22 +0000
-Subject: [PATCH] sfc: The RX page_ring is optional
+From 3116f59c12bd24c513194cd3acb3ec1f7d468954 Mon Sep 17 00:00:00 2001
+From: Di Zhu <zhudi2@huawei.com>
+Date: Mon, 29 Nov 2021 19:52:01 +0600
+Subject: [PATCH] i40e: fix use-after-free in i40e_sync_filters_subtask()
 
-The RX page_ring is an optional feature that improves
-performance. When allocation fails the driver can still
-function, but possibly with a lower bandwidth.
-Guard against dereferencing a NULL page_ring.
+Using ifconfig command to delete the ipv6 address will cause
+the i40e network card driver to delete its internal mac_filter and
+i40e_service_task kernel thread will concurrently access the mac_filter.
+These two processes are not protected by lock
+so causing the following use-after-free problems.
 
-Fixes: 2768935a4660 ("sfc: reuse pages to avoid DMA mapping/unmapping costs")
-Signed-off-by: Martin Habets <habetsm.xilinx@gmail.com>
-Reported-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/164111288276.5798.10330502993729113868.stgit@palantir17.mph.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ print_address_description+0x70/0x360
+ ? vprintk_func+0x5e/0xf0
+ kasan_report+0x1b2/0x330
+ i40e_sync_vsi_filters+0x4f0/0x1850 [i40e]
+ i40e_sync_filters_subtask+0xe3/0x130 [i40e]
+ i40e_service_task+0x195/0x24c0 [i40e]
+ process_one_work+0x3f5/0x7d0
+ worker_thread+0x61/0x6c0
+ ? process_one_work+0x7d0/0x7d0
+ kthread+0x1c3/0x1f0
+ ? kthread_park+0xc0/0xc0
+ ret_from_fork+0x35/0x40
 
-diff --git a/drivers/net/ethernet/sfc/falcon/rx.c b/drivers/net/ethernet/sfc/falcon/rx.c
-index 11a6aee852e9..0c6cc2191369 100644
---- a/drivers/net/ethernet/sfc/falcon/rx.c
-+++ b/drivers/net/ethernet/sfc/falcon/rx.c
-@@ -110,6 +110,8 @@ static struct page *ef4_reuse_page(struct ef4_rx_queue *rx_queue)
- 	struct ef4_rx_page_state *state;
- 	unsigned index;
+Allocated by task 2279810:
+ kasan_kmalloc+0xa0/0xd0
+ kmem_cache_alloc_trace+0xf3/0x1e0
+ i40e_add_filter+0x127/0x2b0 [i40e]
+ i40e_add_mac_filter+0x156/0x190 [i40e]
+ i40e_addr_sync+0x2d/0x40 [i40e]
+ __hw_addr_sync_dev+0x154/0x210
+ i40e_set_rx_mode+0x6d/0xf0 [i40e]
+ __dev_set_rx_mode+0xfb/0x1f0
+ __dev_mc_add+0x6c/0x90
+ igmp6_group_added+0x214/0x230
+ __ipv6_dev_mc_inc+0x338/0x4f0
+ addrconf_join_solict.part.7+0xa2/0xd0
+ addrconf_dad_work+0x500/0x980
+ process_one_work+0x3f5/0x7d0
+ worker_thread+0x61/0x6c0
+ kthread+0x1c3/0x1f0
+ ret_from_fork+0x35/0x40
+
+Freed by task 2547073:
+ __kasan_slab_free+0x130/0x180
+ kfree+0x90/0x1b0
+ __i40e_del_filter+0xa3/0xf0 [i40e]
+ i40e_del_mac_filter+0xf3/0x130 [i40e]
+ i40e_addr_unsync+0x85/0xa0 [i40e]
+ __hw_addr_sync_dev+0x9d/0x210
+ i40e_set_rx_mode+0x6d/0xf0 [i40e]
+ __dev_set_rx_mode+0xfb/0x1f0
+ __dev_mc_del+0x69/0x80
+ igmp6_group_dropped+0x279/0x510
+ __ipv6_dev_mc_dec+0x174/0x220
+ addrconf_leave_solict.part.8+0xa2/0xd0
+ __ipv6_ifa_notify+0x4cd/0x570
+ ipv6_ifa_notify+0x58/0x80
+ ipv6_del_addr+0x259/0x4a0
+ inet6_addr_del+0x188/0x260
+ addrconf_del_ifaddr+0xcc/0x130
+ inet6_ioctl+0x152/0x190
+ sock_do_ioctl+0xd8/0x2b0
+ sock_ioctl+0x2e5/0x4c0
+ do_vfs_ioctl+0x14e/0xa80
+ ksys_ioctl+0x7c/0xa0
+ __x64_sys_ioctl+0x42/0x50
+ do_syscall_64+0x98/0x2c0
+ entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Di Zhu <zhudi2@huawei.com>
+Signed-off-by: Rui Zhang <zhangrui182@huawei.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index e118cf9265c7..e0c4d6113c02 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -99,6 +99,24 @@ MODULE_LICENSE("GPL v2");
  
-+	if (unlikely(!rx_queue->page_ring))
-+		return NULL;
- 	index = rx_queue->page_remove & rx_queue->page_ptr_mask;
- 	page = rx_queue->page_ring[index];
- 	if (page == NULL)
-@@ -293,6 +295,9 @@ static void ef4_recycle_rx_pages(struct ef4_channel *channel,
- {
- 	struct ef4_rx_queue *rx_queue = ef4_channel_get_rx_queue(channel);
+ static struct workqueue_struct *i40e_wq;
  
-+	if (unlikely(!rx_queue->page_ring))
++static void netdev_hw_addr_refcnt(struct i40e_mac_filter *f,
++				  struct net_device *netdev, int delta)
++{
++	struct netdev_hw_addr *ha;
++
++	if (!f || !netdev)
 +		return;
 +
- 	do {
- 		ef4_recycle_rx_page(channel, rx_buf);
- 		rx_buf = ef4_rx_buf_next(rx_queue, rx_buf);
-diff --git a/drivers/net/ethernet/sfc/rx_common.c b/drivers/net/ethernet/sfc/rx_common.c
-index 0983abc0cc5f..633ca77a26fd 100644
---- a/drivers/net/ethernet/sfc/rx_common.c
-+++ b/drivers/net/ethernet/sfc/rx_common.c
-@@ -45,6 +45,8 @@ static struct page *efx_reuse_page(struct efx_rx_queue *rx_queue)
- 	unsigned int index;
- 	struct page *page;
- 
-+	if (unlikely(!rx_queue->page_ring))
-+		return NULL;
- 	index = rx_queue->page_remove & rx_queue->page_ptr_mask;
- 	page = rx_queue->page_ring[index];
- 	if (page == NULL)
-@@ -114,6 +116,9 @@ void efx_recycle_rx_pages(struct efx_channel *channel,
- {
- 	struct efx_rx_queue *rx_queue = efx_channel_get_rx_queue(channel);
- 
-+	if (unlikely(!rx_queue->page_ring))
-+		return;
++	netdev_for_each_mc_addr(ha, netdev) {
++		if (ether_addr_equal(ha->addr, f->macaddr)) {
++			ha->refcount += delta;
++			if (ha->refcount <= 0)
++				ha->refcount = 1;
++			break;
++		}
++	}
++}
 +
- 	do {
- 		efx_recycle_rx_page(channel, rx_buf);
- 		rx_buf = efx_rx_buf_next(rx_queue, rx_buf);
+ /**
+  * i40e_allocate_dma_mem_d - OS specific memory alloc for shared code
+  * @hw:   pointer to the HW structure
+@@ -2036,6 +2054,7 @@ static void i40e_undo_add_filter_entries(struct i40e_vsi *vsi,
+ 	hlist_for_each_entry_safe(new, h, from, hlist) {
+ 		/* We can simply free the wrapper structure */
+ 		hlist_del(&new->hlist);
++		netdev_hw_addr_refcnt(new->f, vsi->netdev, -1);
+ 		kfree(new);
+ 	}
+ }
+@@ -2383,6 +2402,10 @@ int i40e_sync_vsi_filters(struct i40e_vsi *vsi)
+ 						       &tmp_add_list,
+ 						       &tmp_del_list,
+ 						       vlan_filters);
++
++		hlist_for_each_entry(new, &tmp_add_list, hlist)
++			netdev_hw_addr_refcnt(new->f, vsi->netdev, 1);
++
+ 		if (retval)
+ 			goto err_no_memory_locked;
+ 
+@@ -2515,6 +2538,7 @@ int i40e_sync_vsi_filters(struct i40e_vsi *vsi)
+ 			if (new->f->state == I40E_FILTER_NEW)
+ 				new->f->state = new->state;
+ 			hlist_del(&new->hlist);
++			netdev_hw_addr_refcnt(new->f, vsi->netdev, -1);
+ 			kfree(new);
+ 		}
+ 		spin_unlock_bh(&vsi->mac_filter_hash_lock);
 
