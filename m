@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C97487887
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51333487889
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:50:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347676AbiAGNt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:49:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60162 "EHLO
+        id S1347671AbiAGNuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:50:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60206 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347671AbiAGNt2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:49:28 -0500
+        with ESMTP id S1347702AbiAGNtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:49:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD6CC61589
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:49:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 944BBC36AE5;
-        Fri,  7 Jan 2022 13:49:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 828A061589
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A52DC36AE0;
+        Fri,  7 Jan 2022 13:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641563367;
-        bh=QR1uloT6KbhecKXSQXr4mM9xoIIUSg7ISI1bpk66TX8=;
+        s=korg; t=1641563373;
+        bh=zPvTcvn+4O87qTZYQrG66SsL2f5BURfa+mgVxIQv9R4=;
         h=Subject:To:Cc:From:Date:From;
-        b=GS0WIz0DfqIQSY2WvlwuS3B0RMrEFGbKvqtnDlvvvRqg2ihkGHY6AaE+c9CFVInOw
-         Bok4WhPLJPNHtQIoYi/Ro5eDHrDa+iroWCrloEtWMyWvRpeTn71bdZobOt/EFSV4Ym
-         bOj/Krxe56cqSZErpS/rrnpEYqtdrNA5Y7I1Tt8E=
-Subject: FAILED: patch "[PATCH] lwtunnel: Validate RTA_ENCAP_TYPE attribute length" failed to apply to 4.19-stable tree
+        b=bcP6GvTdHoB3rakJbDF5Ebz6jh9qHinSMjV9DjjvvAJde4mS0sScJrQCfZHtTi7Ba
+         tzHSMZso+p/fSzsE/0e5ybWW11XL5txfCBoZGHz7EWVFyafBe64gcE5yAbIsR5y1DO
+         +QdgWYx5gghaM779zfVtgaaR43nmLlgSy4B8uci8=
+Subject: FAILED: patch "[PATCH] lwtunnel: Validate RTA_ENCAP_TYPE attribute length" failed to apply to 4.14-stable tree
 To:     dsahern@kernel.org, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:49:24 +0100
-Message-ID: <164156336438169@kroah.com>
+Date:   Fri, 07 Jan 2022 14:49:25 +0100
+Message-ID: <1641563365197130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
