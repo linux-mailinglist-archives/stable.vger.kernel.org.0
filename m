@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A751848782D
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:24:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C4E48782F
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:24:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238705AbiAGNYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:24:02 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48592 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347538AbiAGNYC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:24:02 -0500
+        id S1347541AbiAGNYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:24:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347539AbiAGNYN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:24:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A9DC061574
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:24:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E176860ED0
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:24:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE7B4C36AE5;
-        Fri,  7 Jan 2022 13:24:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D3DFB825F1
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ABA3C36AE5;
+        Fri,  7 Jan 2022 13:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641561841;
-        bh=GGEnnU0a4RUUy84/VNtipLmgFZ6/pHmik1KDmZJEThU=;
+        s=korg; t=1641561849;
+        bh=4+QlIRYyZRcWbpSoteHbLepdu7nqdM0iYlFDLPxal8E=;
         h=Subject:To:Cc:From:Date:From;
-        b=a98DlxYTitxtAvne7F8vqDebI8Ygj9PPtNvYcrAAjj6VPGL9XImpRnLSWbHZU8rGV
-         YNjC17GDDiUupcK1mGfauUcnkahhs6yFgbfB7AkrVoHTsvFvtHW0K99DXDXBJqkGaE
-         zyig7NUN/wbAcmsSXqr/e/zCYqq0Cevsm5SpS0fU=
-Subject: FAILED: patch "[PATCH] mac80211: mesh: embedd mesh_paths and mpp_paths into" failed to apply to 5.10-stable tree
+        b=cMzEM7ncGLaYwDr87ADFHW5+1BVdm56o6vAhXEqXl0SInrjrAg6JIeGCDZwtvUR2T
+         PhDyS093PxX6fFccK7FxB+a+MIFNyFSNcR+tx1QNndD1vO/6MDGUZ8edebS6LOLV+7
+         scuVbmp6eHIuBRy6jaM/oO0F2NKzPeDL5s08XCfs=
+Subject: FAILED: patch "[PATCH] mac80211: mesh: embedd mesh_paths and mpp_paths into" failed to apply to 5.4-stable tree
 To:     paskripkin@gmail.com, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:23:58 +0100
-Message-ID: <164156183867203@kroah.com>
+Date:   Fri, 07 Jan 2022 14:23:59 +0100
+Message-ID: <16415618393208@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
