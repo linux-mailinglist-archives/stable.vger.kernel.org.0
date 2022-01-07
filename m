@@ -2,110 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA62487C16
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 19:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ACD1487C23
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 19:25:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240432AbiAGSVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 13:21:01 -0500
-Received: from mailgate.ics.forth.gr ([139.91.1.2]:41118 "EHLO
-        mailgate.ics.forth.gr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240474AbiAGSVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 13:21:00 -0500
-X-Greylist: delayed 1008 seconds by postgrey-1.27 at vger.kernel.org; Fri, 07 Jan 2022 13:21:00 EST
-Received: from av3.ics.forth.gr (av3in.ics.forth.gr [139.91.1.77])
-        by mailgate.ics.forth.gr (8.15.2/ICS-FORTH/V10-1.8-GATE) with ESMTP id 207I4AUu063116
-        for <stable@vger.kernel.org>; Fri, 7 Jan 2022 20:04:10 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; d=ics.forth.gr; s=av; c=relaxed/simple;
-        q=dns/txt; i=@ics.forth.gr; t=1641578645; x=1644170645;
-        h=From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=s5cE7HP13OGL6tOvFCkENHSYqRvjKRhAnn9y2DfklEY=;
-        b=Mp+IGz0UgN4HJYPOjgg+7qeQlNA4QDeHhRQoBpfVqFazG5PR9WJnNCeaRcTiWr3a
-        1t1JnTZ9zO4/i4CN1oa3KP2GBUeBGnNKjLpwDKoNzR80fp+ab12YXXaGEN+x5Naj
-        Jzp4ltQUFw7F4jw67r4Rc3rcJ9dhUQGk+fjYgfDy/ophM1p2+zx1fiOHyZ1wXRBL
-        LTZPjtM61sN9rSGmi120RKImF+IvzXAhehY3WUhuV/84/JthaQlbmSxybXvGSUYL
-        51jtxJUp8tm+oybQCq+GwKpwJWNXFT4D288s13sYZxJd9jqluXBE3kui7iCQ23tP
-        TDxotv07U3eKDgnLpV0htQ==;
-X-AuditID: 8b5b014d-9a2477000000460a-c1-61d880957c58
-Received: from enigma.ics.forth.gr (webmail.ics.forth.gr [139.91.151.35])
-        by av3.ics.forth.gr (Symantec Messaging Gateway) with SMTP id 8F.71.17930.59088D16; Fri,  7 Jan 2022 20:04:05 +0200 (EET)
-X-ICS-AUTH-INFO: Authenticated user:  at ics.forth.gr
+        id S240975AbiAGSZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 13:25:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41656 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240991AbiAGSZa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 13:25:30 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B281C061747
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 10:25:27 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id h1so5465312pls.11
+        for <stable@vger.kernel.org>; Fri, 07 Jan 2022 10:25:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=SoDnX74z6fho4jOEfmWA/OaHXv7LSjFf4PBe5xOBBQA=;
+        b=pu9N7KOkurvaqnJXfORDpoyPwpKsF76o62vp+qjGPx2+Uvhfx5CnZ/fzB6hTV3xLtQ
+         8e74aCQo6wQirrd0svxIDQz10VT9FxItZraAF1vE7rMbRtFu7MmWxzJT0w65DD3Ln6hE
+         KupAlYF8wp0hhWaPxElZGpXlUOjO4nu54K00q+cfh0tNBA3+pmpOLovwOCmQxPfSob3n
+         G6IWcHlv/aBOO0ATLQViXGrOmrBhpFnXlPDxtQjSIW3vIW65r053a8NxrzRBYrudSPOM
+         TYPsAy3qxEQ4OMuMNME03yqBwg+PQyRov4+Sr0SJGFk1jHi0aCr2DiglIqrarKHHdNrR
+         Aimw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=SoDnX74z6fho4jOEfmWA/OaHXv7LSjFf4PBe5xOBBQA=;
+        b=Xu258JNyRI+e4xxSv2HaLaSEwZ51lG+R8BA+g0aUn/XwgCvxdQhT/xCmPXDsdle4gI
+         YeVd+wKo8d4WGdGG59xoaQ5v1QFETguVZkEgwMdokj8eTZtjmXUWrW/31jIloTEpzObg
+         v+U28a7VUeaBuxFluwmH12doyn9en4Bq208dvWX19AjZP6pBj9CU0yIdhxf437vy5eYE
+         ky0033psXUdctby12mOKrS7bF4FtLYeNbPvjJmBk3FoEuagfemf3F0B3E0dVMIsFOzrL
+         hk3IGH4m+22Wb3J73AJVPtvfBi8pULphXt3y0cjAEEuBs7Avd6tHXISs0+8QG75SaFna
+         rEhA==
+X-Gm-Message-State: AOAM530KbbC7+d5rIY/aeOhrK7Ml20fMrNEuwSPV8juKjX+vJoI83wEA
+        fbqqt0Qticipn2I5VVpqkd7VOjIzKPv4H2uX
+X-Google-Smtp-Source: ABdhPJw3mLcG6d/r7xmWrZM8tZGl8Ceck1tyCPjm50dq2Ump1cBnuNR/9E4j7ZI0Ri17urbSkByQlA==
+X-Received: by 2002:a17:90a:e7c6:: with SMTP id kb6mr16995090pjb.200.1641579926867;
+        Fri, 07 Jan 2022 10:25:26 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q19sm6562058pfk.83.2022.01.07.10.25.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Jan 2022 10:25:26 -0800 (PST)
+Message-ID: <61d88596.1c69fb81.66b4c.0656@mx.google.com>
+Date:   Fri, 07 Jan 2022 10:25:26 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
-Date:   Fri, 07 Jan 2022 20:03:59 +0200
-From:   Nick Kossifidis <mick@ics.forth.gr>
-To:     Nick Kossifidis <mick@ics.forth.gr>
-Cc:     palmer@dabbelt.com, paul.walmsley@sifive.com,
-        aou@eecs.berkeley.edu, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] riscv: Don't use va_pa_offset on kdump
-Organization: FORTH
-In-Reply-To: <20211126180411.187597-1-mick@ics.forth.gr>
-References: <20211126180411.187597-1-mick@ics.forth.gr>
-Message-ID: <70fe8aa8bfe3923308e6248377577f58@mailhost.ics.forth.gr>
-X-Sender: mick@mailhost.ics.forth.gr
-User-Agent: Roundcube Webmail/1.3.16
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrILMWRmVeSWpSXmKPExsXSHT1dWXdqw41Eg2NTuC2e3fnKarH19yx2
-        i8u75rBZbPvcwmbR/O4cu8XLyz3MFm2z+C0WbHzE6MDh8eblSxaPwx1f2D3unZjG6vFw0yUm
-        j81L6j0uNV9n9/i8SS6APYrLJiU1J7MstUjfLoEr49ehPWwF87grrjedY29gbOHsYuTkkBAw
-        kbg/Zx5bFyMXh5DAUUaJAw+3MEEkTCVm7+1kBLF5BQQlTs58wgJiMwtYSEy9sp8RwpaXaN46
-        mxnEZhFQlZh9oxGsl01AU2L+pYNg9SIC6hKdz98wgixgFrjMKPFu4WqwBmEBe4nO9/vBbH4B
-        YYlPdy+ydjFycHACLdjxOxIkLCRgLvF+00pWiBtcJJ7e7WGFuE1F4sPvB+wg5aJA9ua5ShMY
-        BWchuXQWkktnIbl0ASPzKkaBxDJjvczkYr20/KKSDL30ok2M4Fhg9N3BeHvzW71DjEwcjIcY
-        JTiYlUR4p+69lijEm5JYWZValB9fVJqTWnyIUZqDRUmcl1dvQryQQHpiSWp2ampBahFMlomD
-        U6qBae99g7p1KWatCf+sQjh2H7+i/eYBl92ODdOOnG74Lr/487rZFamqpy7ubOCadPOIwqIf
-        U5OTg4yfirT+YXq9+jFvpqFF/cRv1+32T2Dfm3JAmbHuyn6Bu9wmNsqHBWe2h7O1XBWJWVGx
-        76QJ87KNihfyj0w0zTwZx79jl2m2vbex4M+ZFmw8sx7+rfQ6sOJz+mffb9O8PHP53XefDp9o
-        tmx5kVKPRMO/KoYL0yp+Rd0/9b4zx3vPbI7v/w5mLnyXZxOySONs6Mrym7u2adqE8X+8y2r2
-        LZQl8tzjS+XrtptKLBc1mCh0++e3FXO+xgctyZB/nXTKYb33HpdJLG1Rt2Yy+B9qY+Qsdnl/
-        ZLoIU4gSS3FGoqEWc1FxIgDELZZR9AIAAA==
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.296-5-g7203781ae31d
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 116 runs,
+ 2 regressions (v4.9.296-5-g7203781ae31d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Palmer,
+stable-rc/queue/4.9 baseline: 116 runs, 2 regressions (v4.9.296-5-g7203781a=
+e31d)
 
-Any updates on those 3 patches ?
+Regressions Summary
+-------------------
 
-Regards,
-Nick
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-10   | defconfig           | =
+1          =
 
-Στις 2021-11-26 20:04, Nick Kossifidis έγραψε:
-> On kdump instead of using an intermediate step to relocate the kernel,
-> that lives in a "control buffer" outside the current kernel's mapping,
-> we jump to the crash kernel directly by calling 
-> riscv_kexec_norelocate().
-> The current implementation uses va_pa_offset while switching to 
-> physical
-> addressing, however since we moved the kernel outside the linear 
-> mapping
-> this won't work anymore since riscv_kexec_norelocate() is part of the
-> kernel mapping and we should use kernel_map.va_kernel_pa_offset, and 
-> also
-> take XIP kernel into account.
-> 
-> We don't really need to use va_pa_offset on riscv_kexec_norelocate, we
-> can just set STVEC to the physical address of the new kernel instead 
-> and
-> let the hart jump to the new kernel on the next instruction after 
-> setting
-> SATP to zero. This fixes kdump and is also simpler/cleaner.
-> 
-> I tested this on the latest qemu and HiFive Unmatched and works as
-> expected.
-> 
-> v2: I removed the direct jump after setting satp as suggested.
-> 
-> Fixes: 2bfc6cd81bd1 ("riscv: Move kernel mapping outside of linear 
-> mapping")
-> 
-> Signed-off-by: Nick Kossifidis <mick@ics.forth.gr>
-> Reviewed-by: Alexandre Ghiti <alex@ghiti.fr>
-> Cc: <stable@vger.kernel.org> # 5.13
-> Cc: <stable@vger.kernel.org> # 5.14
+panda           | arm   | lab-collabora | gcc-10   | omap2plus_defconfig | =
+1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.296-5-g7203781ae31d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.296-5-g7203781ae31d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7203781ae31dbd7a37a3746b9c410efad7e9d553 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-10   | defconfig           | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d852a0084b07c159ef674b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.296-5=
+-g7203781ae31d/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.296-5=
+-g7203781ae31d/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d852a0084b07c159ef6=
+74c
+        new failure (last pass: v4.9.296-1-gdae9eb7a8688) =
+
+ =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+panda           | arm   | lab-collabora | gcc-10   | omap2plus_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d84dcf7b3837c178ef6756
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.296-5=
+-g7203781ae31d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.296-5=
+-g7203781ae31d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61d84dcf7b3837c=
+178ef6759
+        failing since 10 days (last pass: v4.9.294-8-gdf4b9763cd1e, first f=
+ail: v4.9.294-18-gaa81ab4e03f9)
+        2 lines
+
+    2022-01-07T14:27:02.656587  [   20.459899] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-07T14:27:02.707753  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/120
+    2022-01-07T14:27:02.716916  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
