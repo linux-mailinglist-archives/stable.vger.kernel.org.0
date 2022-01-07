@@ -2,85 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D28BF4877B0
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 13:49:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A77274877CE
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 13:53:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238675AbiAGMtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 07:49:52 -0500
-Received: from mx-out.tlen.pl ([193.222.135.175]:9836 "EHLO mx-out.tlen.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238320AbiAGMtt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jan 2022 07:49:49 -0500
-Received: (wp-smtpd smtp.tlen.pl 25369 invoked from network); 7 Jan 2022 13:49:47 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1641559787; bh=UHf1ypbd17Kopy+oZJ9KeBqXEW0Si75CBEqlrPjJ6Rk=;
-          h=From:To:Cc:Subject;
-          b=Niuuaj6vl4Ldq+u9JxR845WtXP6Ugz6sglMRNFy3pQBZ73cszccKeE4ofdjGY8bxX
-           G7fwZ4UDwPZWKPUFhwKdvgvORtlESiQdJKsQLycldaJbDcyPK9887gw1lon+1eDRVl
-           Dtt1il7kSNQf6Y5/Y/nlQgTEY1EiVhYgNddITA4o=
-Received: from aafo3.neoplus.adsl.tpnet.pl (HELO localhost.localdomain) (mat.jonczyk@o2.pl@[83.4.144.3])
-          (envelope-sender <mat.jonczyk@o2.pl>)
-          by smtp.tlen.pl (WP-SMTPD) with SMTP
-          for <linux-rtc@vger.kernel.org>; 7 Jan 2022 13:49:47 +0100
-From:   =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-To:     linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v5 1/9] rtc-cmos: take rtc_lock while reading from CMOS
-Date:   Fri,  7 Jan 2022 13:49:26 +0100
-Message-Id: <20220107124934.159878-2-mat.jonczyk@o2.pl>
+        id S238489AbiAGMxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 07:53:38 -0500
+Received: from smtp21.cstnet.cn ([159.226.251.21]:47396 "EHLO cstnet.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232347AbiAGMxi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jan 2022 07:53:38 -0500
+Received: from localhost.localdomain (unknown [124.16.138.126])
+        by APP-01 (Coremail) with SMTP id qwCowADn7Jy2N9hh_rL5BQ--.48737S2;
+        Fri, 07 Jan 2022 20:53:10 +0800 (CST)
+From:   Jiasheng Jiang <jiasheng@iscas.ac.cn>
+To:     damien.lemoal@opensource.wdc.com, David.Laight@ACULAB.COM,
+        davem@davemloft.net
+Cc:     linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>, stable@vger.kernel.org
+Subject: [PATCH v3] ide: Check for null pointer after calling devm_ioremap
+Date:   Fri,  7 Jan 2022 20:53:08 +0800
+Message-Id: <20220107125308.4057544-1-jiasheng@iscas.ac.cn>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220107124934.159878-1-mat.jonczyk@o2.pl>
-References: <20220107124934.159878-1-mat.jonczyk@o2.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-WP-MailID: dd77bd68e39a807167e8cc7b9dfb0677
-X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 0100001 [4XKz]                               
+X-CM-TRANSID: qwCowADn7Jy2N9hh_rL5BQ--.48737S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Cw47AF1fZry5Gw1UKr15Arb_yoW8Aw4rpF
+        4SgFWSvrWDWr1UK3WxAr18ZFyUu3ZrJa4FgFyYvw4kZ3s0qr18JrWaqFWIqr9rJrW3CayY
+        v3W2yr4kuFZ8ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUkq14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+        1l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+        6F4UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
+        0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
+        jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr
+        1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkIecxEwVAFwVW5JwCF
+        04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r
+        18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vI
+        r41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr
+        1lIxAIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAI
+        cVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUjsjjDUUUUU==
+X-Originating-IP: [124.16.138.126]
+X-CM-SenderInfo: pmld2xxhqjqxpvfd2hldfou0/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reading from the CMOS involves writing to the index register and then
-reading from the data register. Therefore access to the CMOS has to be
-serialized with rtc_lock. This invocation of CMOS_READ was not
-serialized, which could cause trouble when other code is accessing CMOS
-at the same time.
+In linux-stable-5.15.13, this file has been removed and combined
+to `drivers/ata/pata_platform.c` without this bug.
+But in the older LTS kernels, like 5.10.90, this bug still exists.
+As the possible failure of the devres_alloc(), the devm_ioremap() and
+devm_ioport_map() may return NULL pointer.
+And then, the 'base' and 'alt_base' are used in plat_ide_setup_ports().
+Therefore, it should be better to add the check in order to avoid the
+dereference of the NULL pointer.
+Actually, it introduced the bug from commit 8cb1f567f4c0
+("ide: Platform IDE driver") and we can know from the commit message
+that it tended to be similar to the `drivers/ata/pata_platform.c`.
+But actually, even the first time pata_platform was built,
+commit a20c9e820864 ("[PATCH] ata: Generic platform_device libata driver"),
+there was no the bug, as there was a check after the ioremap().
+So possibly the bug was caused by ide itself.
 
-Use spin_lock_irq() like the rest of the function.
-
-Nothing in kernel modifies the RTC_DM_BINARY bit, so there could be a
-separate pair of spin_lock_irq() / spin_unlock_irq() before doing the
-math.
-
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: stable@vger.kernel.org
+Fixes: 8cb1f567f4c0 ("ide: Platform IDE driver")
+Cc: stable@vger.kernel.org#5.10
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 ---
- drivers/rtc/rtc-cmos.c | 3 +++
- 1 file changed, 3 insertions(+)
+Changelog
 
-diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
-index 4eb53412b808..dc3f8b0dde98 100644
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -457,7 +457,10 @@ static int cmos_set_alarm(struct device *dev, struct rtc_wkalrm *t)
- 	min = t->time.tm_min;
- 	sec = t->time.tm_sec;
+v1 -> v2
+
+* Change 1. Correct the fixes tag and commit message.
+
+v2 -> v3
+
+* Change 1. Correct the code.
+---
+ drivers/ide/ide_platform.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/ide/ide_platform.c b/drivers/ide/ide_platform.c
+index 91639fd6c276..5500c5afb3ca 100644
+--- a/drivers/ide/ide_platform.c
++++ b/drivers/ide/ide_platform.c
+@@ -85,6 +85,10 @@ static int plat_ide_probe(struct platform_device *pdev)
+ 		alt_base = devm_ioport_map(&pdev->dev,
+ 			res_alt->start, resource_size(res_alt));
+ 	}
++	if (!base || !alt_base) {
++		ret = -ENOMEM;
++		goto out;
++	}
  
-+	spin_lock_irq(&rtc_lock);
- 	rtc_control = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irq(&rtc_lock);
-+
- 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 		/* Writing 0xff means "don't care" or "match all".  */
- 		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
+ 	memset(&hw, 0, sizeof(hw));
+ 	plat_ide_setup_ports(&hw, base, alt_base, pdata, res_irq->start);
 -- 
 2.25.1
 
