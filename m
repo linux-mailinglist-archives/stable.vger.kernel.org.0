@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25180487880
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:48:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 809E4487881
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:48:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238943AbiAGNsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:48:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35188 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229838AbiAGNr7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:47:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D42AC061574
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:47:59 -0800 (PST)
+        id S238993AbiAGNsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:48:07 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52540 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229838AbiAGNsG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:48:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF91AB82527
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:47:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B88C36AE5;
-        Fri,  7 Jan 2022 13:47:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6ACD8B82527
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:48:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CF79C36AE0;
+        Fri,  7 Jan 2022 13:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641563276;
-        bh=u0UaD1fiKK3WbkKK6z0s6XP5azv6uxSi809Wb5jfex0=;
+        s=korg; t=1641563284;
+        bh=p2FlaoX4n+n9l+Sg7vktsQFvcV1SKN4dFbnskuux3FM=;
         h=Subject:To:Cc:From:Date:From;
-        b=URNOnXaRLJv5kc9BkUHIsrL/Baj2F3jqkxVAu4BFur4deCVxRrO9wEXTjQRKHTBa0
-         Gc2JYd41a39aUGLfcncDcZx0zxcnAv2dZd4UCbym6/5tWZwkTMbNxLfcQaMVbSuv2v
-         2hDu83XCNWy6DANDNhmNt3Sebp/n7QNkZt27p0lM=
-Subject: FAILED: patch "[PATCH] ipv4: Check attribute length for RTA_GATEWAY in multipath" failed to apply to 4.4-stable tree
-To:     dsahern@kernel.org, davem@davemloft.net, tgraf@suug.ch
+        b=eKRmJpT0M8olvUMsS0ea2vtZh43Y0HNe/IZxGYYjW3NE5ZgXhxUpvEBXysVd/WOc8
+         QLELM7H/I76nc/T3gTwhdANjX1xNkjpBppB0EeQehlKs0S56goUTv9fW2XuwBw1PUc
+         ULdGTgnEe1//3cUoit9dwYfKpDUDXEM24UBM/tkM=
+Subject: FAILED: patch "[PATCH] ipv4: Check attribute length for RTA_FLOW in multipath route" failed to apply to 4.19-stable tree
+To:     dsahern@kernel.org, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:47:41 +0100
-Message-ID: <16415632611428@kroah.com>
+Date:   Fri, 07 Jan 2022 14:48:01 +0100
+Message-ID: <1641563281200218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,92 +50,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7a3429bace0e08d94c39245631ea6bc109dafa49 Mon Sep 17 00:00:00 2001
+From 664b9c4b7392ce723b013201843264bf95481ce5 Mon Sep 17 00:00:00 2001
 From: David Ahern <dsahern@kernel.org>
-Date: Thu, 30 Dec 2021 17:36:31 -0700
-Subject: [PATCH] ipv4: Check attribute length for RTA_GATEWAY in multipath
- route
+Date: Thu, 30 Dec 2021 17:36:32 -0700
+Subject: [PATCH] ipv4: Check attribute length for RTA_FLOW in multipath route
 
-syzbot reported uninit-value:
-============================================================
-  BUG: KMSAN: uninit-value in fib_get_nhs+0xac4/0x1f80
-  net/ipv4/fib_semantics.c:708
-   fib_get_nhs+0xac4/0x1f80 net/ipv4/fib_semantics.c:708
-   fib_create_info+0x2411/0x4870 net/ipv4/fib_semantics.c:1453
-   fib_table_insert+0x45c/0x3a10 net/ipv4/fib_trie.c:1224
-   inet_rtm_newroute+0x289/0x420 net/ipv4/fib_frontend.c:886
-
-Add helper to validate RTA_GATEWAY length before using the attribute.
+Make sure RTA_FLOW is at least 4B before using.
 
 Fixes: 4e902c57417c ("[IPv4]: FIB configuration using struct fib_config")
-Reported-by: syzbot+d4b9a2851cc3ce998741@syzkaller.appspotmail.com
 Signed-off-by: David Ahern <dsahern@kernel.org>
-Cc: Thomas Graf <tgraf@suug.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
 diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index fde7797b5806..f1caa2c1c041 100644
+index f1caa2c1c041..36bc429f1635 100644
 --- a/net/ipv4/fib_semantics.c
 +++ b/net/ipv4/fib_semantics.c
-@@ -662,6 +662,19 @@ static int fib_count_nexthops(struct rtnexthop *rtnh, int remaining,
- 	return nhs;
- }
- 
-+static int fib_gw_from_attr(__be32 *gw, struct nlattr *nla,
-+			    struct netlink_ext_ack *extack)
-+{
-+	if (nla_len(nla) < sizeof(*gw)) {
-+		NL_SET_ERR_MSG(extack, "Invalid IPv4 address in RTA_GATEWAY");
-+		return -EINVAL;
-+	}
-+
-+	*gw = nla_get_in_addr(nla);
-+
-+	return 0;
-+}
-+
- /* only called when fib_nh is integrated into fib_info */
- static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
- 		       int remaining, struct fib_config *cfg,
-@@ -704,7 +717,11 @@ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
- 				return -EINVAL;
- 			}
- 			if (nla) {
--				fib_cfg.fc_gw4 = nla_get_in_addr(nla);
-+				ret = fib_gw_from_attr(&fib_cfg.fc_gw4, nla,
-+						       extack);
-+				if (ret)
-+					goto errout;
-+
- 				if (fib_cfg.fc_gw4)
- 					fib_cfg.fc_gw_family = AF_INET;
- 			} else if (nlav) {
-@@ -902,6 +919,7 @@ int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
- 		attrlen = rtnh_attrlen(rtnh);
- 		if (attrlen > 0) {
- 			struct nlattr *nla, *nlav, *attrs = rtnh_attrs(rtnh);
-+			int err;
- 
- 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
- 			nlav = nla_find(attrs, attrlen, RTA_VIA);
-@@ -912,12 +930,17 @@ int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
+@@ -731,8 +731,13 @@ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
  			}
  
- 			if (nla) {
-+				__be32 gw;
-+
-+				err = fib_gw_from_attr(&gw, nla, extack);
-+				if (err)
-+					return err;
-+
- 				if (nh->fib_nh_gw_family != AF_INET ||
--				    nla_get_in_addr(nla) != nh->fib_nh_gw4)
-+				    gw != nh->fib_nh_gw4)
- 					return 1;
- 			} else if (nlav) {
- 				struct fib_config cfg2;
--				int err;
+ 			nla = nla_find(attrs, attrlen, RTA_FLOW);
+-			if (nla)
++			if (nla) {
++				if (nla_len(nla) < sizeof(u32)) {
++					NL_SET_ERR_MSG(extack, "Invalid RTA_FLOW");
++					return -EINVAL;
++				}
+ 				fib_cfg.fc_flow = nla_get_u32(nla);
++			}
  
- 				err = fib_gw_from_via(&cfg2, nlav, extack);
- 				if (err)
+ 			fib_cfg.fc_encap = nla_find(attrs, attrlen, RTA_ENCAP);
+ 			nla = nla_find(attrs, attrlen, RTA_ENCAP_TYPE);
+@@ -963,8 +968,14 @@ int fib_nh_match(struct net *net, struct fib_config *cfg, struct fib_info *fi,
+ 
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+ 			nla = nla_find(attrs, attrlen, RTA_FLOW);
+-			if (nla && nla_get_u32(nla) != nh->nh_tclassid)
+-				return 1;
++			if (nla) {
++				if (nla_len(nla) < sizeof(u32)) {
++					NL_SET_ERR_MSG(extack, "Invalid RTA_FLOW");
++					return -EINVAL;
++				}
++				if (nla_get_u32(nla) != nh->nh_tclassid)
++					return 1;
++			}
+ #endif
+ 		}
+ 
 
