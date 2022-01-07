@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28C3E487821
-	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:21:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A751848782D
+	for <lists+stable@lfdr.de>; Fri,  7 Jan 2022 14:24:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347519AbiAGNVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 08:21:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57394 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238705AbiAGNVd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:21:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03679C061245
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 05:21:33 -0800 (PST)
+        id S238705AbiAGNYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 08:24:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48592 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347538AbiAGNYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 08:24:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C21F1B82553
-        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:21:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1632BC36AE5;
-        Fri,  7 Jan 2022 13:21:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E176860ED0
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 13:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE7B4C36AE5;
+        Fri,  7 Jan 2022 13:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641561690;
-        bh=EWrysZOPxOXUCjwMhDrF/CXkHV+2be6kGrpsqLD0mtU=;
+        s=korg; t=1641561841;
+        bh=GGEnnU0a4RUUy84/VNtipLmgFZ6/pHmik1KDmZJEThU=;
         h=Subject:To:Cc:From:Date:From;
-        b=jf3vgwHLbgBMPbcFrgx9q0UtPi0yJmbLXd0Pmtsg/DWIgdY+8VrEPTwEX7h1eSz7D
-         YoEmM13fesSClOyo9cMsXLlyfsPuJj5yvS3c58UllhKfSqytxZLKr1AuCbgXKzcr7v
-         f/gamFYUaw5dWpZKdOSUdl2VEm+oTgDVeWBBVO2g=
-Subject: FAILED: patch "[PATCH] iavf: Fix limit of total number of queues to active queues of" failed to apply to 4.19-stable tree
-To:     karen.sornek@intel.com, anthony.l.nguyen@intel.com,
-        ashwin.vijayavel@intel.com, konrad0.jankowski@intel.com
+        b=a98DlxYTitxtAvne7F8vqDebI8Ygj9PPtNvYcrAAjj6VPGL9XImpRnLSWbHZU8rGV
+         YNjC17GDDiUupcK1mGfauUcnkahhs6yFgbfB7AkrVoHTsvFvtHW0K99DXDXBJqkGaE
+         zyig7NUN/wbAcmsSXqr/e/zCYqq0Cevsm5SpS0fU=
+Subject: FAILED: patch "[PATCH] mac80211: mesh: embedd mesh_paths and mpp_paths into" failed to apply to 5.10-stable tree
+To:     paskripkin@gmail.com, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 07 Jan 2022 14:21:27 +0100
-Message-ID: <164156168783230@kroah.com>
+Date:   Fri, 07 Jan 2022 14:23:58 +0100
+Message-ID: <164156183867203@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,42 +50,326 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b712941c8085e638bb92456e866ed3de4404e3d5 Mon Sep 17 00:00:00 2001
-From: Karen Sornek <karen.sornek@intel.com>
-Date: Wed, 1 Sep 2021 09:21:46 +0200
-Subject: [PATCH] iavf: Fix limit of total number of queues to active queues of
- VF
+From 8b5cb7e41d9d77ffca036b0239177de123394a55 Mon Sep 17 00:00:00 2001
+From: Pavel Skripkin <paskripkin@gmail.com>
+Date: Thu, 30 Dec 2021 22:55:47 +0300
+Subject: [PATCH] mac80211: mesh: embedd mesh_paths and mpp_paths into
+ ieee80211_if_mesh
 
-In the absence of this validation, if the user requests to
-configure queues more than the enabled queues, it results in
-sending the requested number of queues to the kernel stack
-(due to the asynchronous nature of VF response), in which
-case the stack might pick a queue to transmit that is not
-enabled and result in Tx hang. Fix this bug by
-limiting the total number of queues allocated for VF to
-active queues of VF.
+Syzbot hit NULL deref in rhashtable_free_and_destroy(). The problem was
+in mesh_paths and mpp_paths being NULL.
 
-Fixes: d5b33d024496 ("i40evf: add ndo_setup_tc callback to i40evf")
-Signed-off-by: Ashwin Vijayavel <ashwin.vijayavel@intel.com>
-Signed-off-by: Karen Sornek <karen.sornek@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+mesh_pathtbl_init() could fail in case of memory allocation failure, but
+nobody cared, since ieee80211_mesh_init_sdata() returns void. It led to
+leaving 2 pointers as NULL. Syzbot has found null deref on exit path,
+but it could happen anywhere else, because code assumes these pointers are
+valid.
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 4e7c04047f91..e4439b095533 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2708,8 +2708,11 @@ static int iavf_validate_ch_config(struct iavf_adapter *adapter,
- 		total_max_rate += tx_rate;
- 		num_qps += mqprio_qopt->qopt.count[i];
- 	}
--	if (num_qps > IAVF_MAX_REQ_QUEUES)
-+	if (num_qps > adapter->num_active_queues) {
-+		dev_err(&adapter->pdev->dev,
-+			"Cannot support requested number of queues\n");
- 		return -EINVAL;
-+	}
+Since all ieee80211_*_setup_sdata functions are void and do not fail,
+let's embedd mesh_paths and mpp_paths into parent struct to avoid
+adding error handling on higher levels and follow the pattern of others
+setup_sdata functions
+
+Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
+Reported-and-tested-by: syzbot+860268315ba86ea6b96b@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211230195547.23977-1-paskripkin@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+
+diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
+index 5666bbb8860b..482c98ede19b 100644
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -647,6 +647,26 @@ struct mesh_csa_settings {
+ 	struct cfg80211_csa_settings settings;
+ };
  
- 	ret = iavf_validate_tx_bandwidth(adapter, total_max_rate);
- 	return ret;
++/**
++ * struct mesh_table
++ *
++ * @known_gates: list of known mesh gates and their mpaths by the station. The
++ * gate's mpath may or may not be resolved and active.
++ * @gates_lock: protects updates to known_gates
++ * @rhead: the rhashtable containing struct mesh_paths, keyed by dest addr
++ * @walk_head: linked list containing all mesh_path objects
++ * @walk_lock: lock protecting walk_head
++ * @entries: number of entries in the table
++ */
++struct mesh_table {
++	struct hlist_head known_gates;
++	spinlock_t gates_lock;
++	struct rhashtable rhead;
++	struct hlist_head walk_head;
++	spinlock_t walk_lock;
++	atomic_t entries;		/* Up to MAX_MESH_NEIGHBOURS */
++};
++
+ struct ieee80211_if_mesh {
+ 	struct timer_list housekeeping_timer;
+ 	struct timer_list mesh_path_timer;
+@@ -721,8 +741,8 @@ struct ieee80211_if_mesh {
+ 	/* offset from skb->data while building IE */
+ 	int meshconf_offset;
+ 
+-	struct mesh_table *mesh_paths;
+-	struct mesh_table *mpp_paths; /* Store paths for MPP&MAP */
++	struct mesh_table mesh_paths;
++	struct mesh_table mpp_paths; /* Store paths for MPP&MAP */
+ 	int mesh_paths_generation;
+ 	int mpp_paths_generation;
+ };
+diff --git a/net/mac80211/mesh.h b/net/mac80211/mesh.h
+index 77080b4f87b8..b2b717a78114 100644
+--- a/net/mac80211/mesh.h
++++ b/net/mac80211/mesh.h
+@@ -127,26 +127,6 @@ struct mesh_path {
+ 	u32 path_change_count;
+ };
+ 
+-/**
+- * struct mesh_table
+- *
+- * @known_gates: list of known mesh gates and their mpaths by the station. The
+- * gate's mpath may or may not be resolved and active.
+- * @gates_lock: protects updates to known_gates
+- * @rhead: the rhashtable containing struct mesh_paths, keyed by dest addr
+- * @walk_head: linked list containing all mesh_path objects
+- * @walk_lock: lock protecting walk_head
+- * @entries: number of entries in the table
+- */
+-struct mesh_table {
+-	struct hlist_head known_gates;
+-	spinlock_t gates_lock;
+-	struct rhashtable rhead;
+-	struct hlist_head walk_head;
+-	spinlock_t walk_lock;
+-	atomic_t entries;		/* Up to MAX_MESH_NEIGHBOURS */
+-};
+-
+ /* Recent multicast cache */
+ /* RMC_BUCKETS must be a power of 2, maximum 256 */
+ #define RMC_BUCKETS		256
+@@ -308,7 +288,7 @@ int mesh_path_error_tx(struct ieee80211_sub_if_data *sdata,
+ void mesh_path_assign_nexthop(struct mesh_path *mpath, struct sta_info *sta);
+ void mesh_path_flush_pending(struct mesh_path *mpath);
+ void mesh_path_tx_pending(struct mesh_path *mpath);
+-int mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata);
++void mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata);
+ void mesh_pathtbl_unregister(struct ieee80211_sub_if_data *sdata);
+ int mesh_path_del(struct ieee80211_sub_if_data *sdata, const u8 *addr);
+ void mesh_path_timer(struct timer_list *t);
+diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
+index 7cab1cf09bf1..acc1c299f1ae 100644
+--- a/net/mac80211/mesh_pathtbl.c
++++ b/net/mac80211/mesh_pathtbl.c
+@@ -47,32 +47,24 @@ static void mesh_path_rht_free(void *ptr, void *tblptr)
+ 	mesh_path_free_rcu(tbl, mpath);
+ }
+ 
+-static struct mesh_table *mesh_table_alloc(void)
++static void mesh_table_init(struct mesh_table *tbl)
+ {
+-	struct mesh_table *newtbl;
++	INIT_HLIST_HEAD(&tbl->known_gates);
++	INIT_HLIST_HEAD(&tbl->walk_head);
++	atomic_set(&tbl->entries,  0);
++	spin_lock_init(&tbl->gates_lock);
++	spin_lock_init(&tbl->walk_lock);
+ 
+-	newtbl = kmalloc(sizeof(struct mesh_table), GFP_ATOMIC);
+-	if (!newtbl)
+-		return NULL;
+-
+-	INIT_HLIST_HEAD(&newtbl->known_gates);
+-	INIT_HLIST_HEAD(&newtbl->walk_head);
+-	atomic_set(&newtbl->entries,  0);
+-	spin_lock_init(&newtbl->gates_lock);
+-	spin_lock_init(&newtbl->walk_lock);
+-	if (rhashtable_init(&newtbl->rhead, &mesh_rht_params)) {
+-		kfree(newtbl);
+-		return NULL;
+-	}
+-
+-	return newtbl;
++	/* rhashtable_init() may fail only in case of wrong
++	 * mesh_rht_params
++	 */
++	WARN_ON(rhashtable_init(&tbl->rhead, &mesh_rht_params));
+ }
+ 
+ static void mesh_table_free(struct mesh_table *tbl)
+ {
+ 	rhashtable_free_and_destroy(&tbl->rhead,
+ 				    mesh_path_rht_free, tbl);
+-	kfree(tbl);
+ }
+ 
+ /**
+@@ -238,13 +230,13 @@ static struct mesh_path *mpath_lookup(struct mesh_table *tbl, const u8 *dst,
+ struct mesh_path *
+ mesh_path_lookup(struct ieee80211_sub_if_data *sdata, const u8 *dst)
+ {
+-	return mpath_lookup(sdata->u.mesh.mesh_paths, dst, sdata);
++	return mpath_lookup(&sdata->u.mesh.mesh_paths, dst, sdata);
+ }
+ 
+ struct mesh_path *
+ mpp_path_lookup(struct ieee80211_sub_if_data *sdata, const u8 *dst)
+ {
+-	return mpath_lookup(sdata->u.mesh.mpp_paths, dst, sdata);
++	return mpath_lookup(&sdata->u.mesh.mpp_paths, dst, sdata);
+ }
+ 
+ static struct mesh_path *
+@@ -281,7 +273,7 @@ __mesh_path_lookup_by_idx(struct mesh_table *tbl, int idx)
+ struct mesh_path *
+ mesh_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
+ {
+-	return __mesh_path_lookup_by_idx(sdata->u.mesh.mesh_paths, idx);
++	return __mesh_path_lookup_by_idx(&sdata->u.mesh.mesh_paths, idx);
+ }
+ 
+ /**
+@@ -296,7 +288,7 @@ mesh_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
+ struct mesh_path *
+ mpp_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
+ {
+-	return __mesh_path_lookup_by_idx(sdata->u.mesh.mpp_paths, idx);
++	return __mesh_path_lookup_by_idx(&sdata->u.mesh.mpp_paths, idx);
+ }
+ 
+ /**
+@@ -309,7 +301,7 @@ int mesh_path_add_gate(struct mesh_path *mpath)
+ 	int err;
+ 
+ 	rcu_read_lock();
+-	tbl = mpath->sdata->u.mesh.mesh_paths;
++	tbl = &mpath->sdata->u.mesh.mesh_paths;
+ 
+ 	spin_lock_bh(&mpath->state_lock);
+ 	if (mpath->is_gate) {
+@@ -418,7 +410,7 @@ struct mesh_path *mesh_path_add(struct ieee80211_sub_if_data *sdata,
+ 	if (!new_mpath)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	tbl = sdata->u.mesh.mesh_paths;
++	tbl = &sdata->u.mesh.mesh_paths;
+ 	spin_lock_bh(&tbl->walk_lock);
+ 	mpath = rhashtable_lookup_get_insert_fast(&tbl->rhead,
+ 						  &new_mpath->rhash,
+@@ -460,7 +452,7 @@ int mpp_path_add(struct ieee80211_sub_if_data *sdata,
+ 		return -ENOMEM;
+ 
+ 	memcpy(new_mpath->mpp, mpp, ETH_ALEN);
+-	tbl = sdata->u.mesh.mpp_paths;
++	tbl = &sdata->u.mesh.mpp_paths;
+ 
+ 	spin_lock_bh(&tbl->walk_lock);
+ 	ret = rhashtable_lookup_insert_fast(&tbl->rhead,
+@@ -489,7 +481,7 @@ int mpp_path_add(struct ieee80211_sub_if_data *sdata,
+ void mesh_plink_broken(struct sta_info *sta)
+ {
+ 	struct ieee80211_sub_if_data *sdata = sta->sdata;
+-	struct mesh_table *tbl = sdata->u.mesh.mesh_paths;
++	struct mesh_table *tbl = &sdata->u.mesh.mesh_paths;
+ 	static const u8 bcast[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+ 	struct mesh_path *mpath;
+ 
+@@ -548,7 +540,7 @@ static void __mesh_path_del(struct mesh_table *tbl, struct mesh_path *mpath)
+ void mesh_path_flush_by_nexthop(struct sta_info *sta)
+ {
+ 	struct ieee80211_sub_if_data *sdata = sta->sdata;
+-	struct mesh_table *tbl = sdata->u.mesh.mesh_paths;
++	struct mesh_table *tbl = &sdata->u.mesh.mesh_paths;
+ 	struct mesh_path *mpath;
+ 	struct hlist_node *n;
+ 
+@@ -563,7 +555,7 @@ void mesh_path_flush_by_nexthop(struct sta_info *sta)
+ static void mpp_flush_by_proxy(struct ieee80211_sub_if_data *sdata,
+ 			       const u8 *proxy)
+ {
+-	struct mesh_table *tbl = sdata->u.mesh.mpp_paths;
++	struct mesh_table *tbl = &sdata->u.mesh.mpp_paths;
+ 	struct mesh_path *mpath;
+ 	struct hlist_node *n;
+ 
+@@ -597,8 +589,8 @@ static void table_flush_by_iface(struct mesh_table *tbl)
+  */
+ void mesh_path_flush_by_iface(struct ieee80211_sub_if_data *sdata)
+ {
+-	table_flush_by_iface(sdata->u.mesh.mesh_paths);
+-	table_flush_by_iface(sdata->u.mesh.mpp_paths);
++	table_flush_by_iface(&sdata->u.mesh.mesh_paths);
++	table_flush_by_iface(&sdata->u.mesh.mpp_paths);
+ }
+ 
+ /**
+@@ -644,7 +636,7 @@ int mesh_path_del(struct ieee80211_sub_if_data *sdata, const u8 *addr)
+ 	/* flush relevant mpp entries first */
+ 	mpp_flush_by_proxy(sdata, addr);
+ 
+-	err = table_path_del(sdata->u.mesh.mesh_paths, sdata, addr);
++	err = table_path_del(&sdata->u.mesh.mesh_paths, sdata, addr);
+ 	sdata->u.mesh.mesh_paths_generation++;
+ 	return err;
+ }
+@@ -682,7 +674,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
+ 	struct mesh_path *gate;
+ 	bool copy = false;
+ 
+-	tbl = sdata->u.mesh.mesh_paths;
++	tbl = &sdata->u.mesh.mesh_paths;
+ 
+ 	rcu_read_lock();
+ 	hlist_for_each_entry_rcu(gate, &tbl->known_gates, gate_list) {
+@@ -762,29 +754,10 @@ void mesh_path_fix_nexthop(struct mesh_path *mpath, struct sta_info *next_hop)
+ 	mesh_path_tx_pending(mpath);
+ }
+ 
+-int mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata)
++void mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata)
+ {
+-	struct mesh_table *tbl_path, *tbl_mpp;
+-	int ret;
+-
+-	tbl_path = mesh_table_alloc();
+-	if (!tbl_path)
+-		return -ENOMEM;
+-
+-	tbl_mpp = mesh_table_alloc();
+-	if (!tbl_mpp) {
+-		ret = -ENOMEM;
+-		goto free_path;
+-	}
+-
+-	sdata->u.mesh.mesh_paths = tbl_path;
+-	sdata->u.mesh.mpp_paths = tbl_mpp;
+-
+-	return 0;
+-
+-free_path:
+-	mesh_table_free(tbl_path);
+-	return ret;
++	mesh_table_init(&sdata->u.mesh.mesh_paths);
++	mesh_table_init(&sdata->u.mesh.mpp_paths);
+ }
+ 
+ static
+@@ -806,12 +779,12 @@ void mesh_path_tbl_expire(struct ieee80211_sub_if_data *sdata,
+ 
+ void mesh_path_expire(struct ieee80211_sub_if_data *sdata)
+ {
+-	mesh_path_tbl_expire(sdata, sdata->u.mesh.mesh_paths);
+-	mesh_path_tbl_expire(sdata, sdata->u.mesh.mpp_paths);
++	mesh_path_tbl_expire(sdata, &sdata->u.mesh.mesh_paths);
++	mesh_path_tbl_expire(sdata, &sdata->u.mesh.mpp_paths);
+ }
+ 
+ void mesh_pathtbl_unregister(struct ieee80211_sub_if_data *sdata)
+ {
+-	mesh_table_free(sdata->u.mesh.mesh_paths);
+-	mesh_table_free(sdata->u.mesh.mpp_paths);
++	mesh_table_free(&sdata->u.mesh.mesh_paths);
++	mesh_table_free(&sdata->u.mesh.mpp_paths);
+ }
 
