@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5169448840A
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5009B48840C
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234480AbiAHOod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jan 2022 09:44:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49352 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234474AbiAHOod (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:33 -0500
+        id S234476AbiAHOoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jan 2022 09:44:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229918AbiAHOoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6BCC06173F
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 06:44:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCABAB8091D
-        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DA17C36AE3;
-        Sat,  8 Jan 2022 14:44:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C179760BAC
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A008DC36AE9;
+        Sat,  8 Jan 2022 14:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641653070;
-        bh=Zz3ig1euekuJbbnvPq289w092ZeCjrSk7DF9BrQcVfI=;
+        s=korg; t=1641653076;
+        bh=TK9P8O3vr9MAHO4P6u0aud9KNykfrXGY0TjXHGQ2Z1E=;
         h=Subject:To:Cc:From:Date:From;
-        b=xu31Blljb4rDDA8v/gHcT+hBeVyT/A7qGF70l8Ff7+aa668vtURvFHHgFv3e75br3
-         DcBFqBzaMotATrN2XJdY35jWtCtlzJYQ2arz965SMP7pLulfp8MK4ywbvcunVJEt4a
-         wy+a0GafDK3BtkTSn+pZoNdtDV5XEcJYHRVnzcp4=
-Subject: FAILED: patch "[PATCH] cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv" failed to apply to 4.19-stable tree
+        b=SUONW3InEAPxylb3MiTSzqBngnYrOAh93+73zvZeYngnk0FqZlgJbg/M/89fp2j4e
+         ew2Fvs04V5wVqd5LGFyuEIjDklg+I9uPJJA2cZ7Qma+xei+t02pytCXlP1U1cddms0
+         9hFXFkeLBnk5hhSuWF5OTN0yxulaHwBWDTlT7XfI=
+Subject: FAILED: patch "[PATCH] cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv" failed to apply to 5.4-stable tree
 To:     tj@kernel.org, mkoutny@suse.com, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Jan 2022 15:44:20 +0100
-Message-ID: <16416530602278@kroah.com>
+Date:   Sat, 08 Jan 2022 15:44:21 +0100
+Message-ID: <1641653061162172@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
