@@ -2,82 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECCAC488140
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 04:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 697E8488349
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 12:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230442AbiAHD4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 22:56:20 -0500
-Received: from smtp23.cstnet.cn ([159.226.251.23]:58752 "EHLO cstnet.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230292AbiAHD4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jan 2022 22:56:20 -0500
-Received: from localhost.localdomain (unknown [124.16.138.126])
-        by APP-03 (Coremail) with SMTP id rQCowAD3_i5JC9lhxUlJBQ--.17779S2;
-        Sat, 08 Jan 2022 11:55:53 +0800 (CST)
-From:   Jiasheng Jiang <jiasheng@iscas.ac.cn>
-To:     damien.lemoal@opensource.wdc.com, David.Laight@ACULAB.COM,
-        davem@davemloft.net, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-Cc:     linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Subject: Re: Re: [PATCH v3] ide: Check for null pointer after calling devm_ioremap
-Date:   Sat,  8 Jan 2022 11:55:52 +0800
-Message-Id: <20220108035552.4081511-1-jiasheng@iscas.ac.cn>
-X-Mailer: git-send-email 2.25.1
+        id S234142AbiAHLta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jan 2022 06:49:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45198 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234139AbiAHLt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 06:49:27 -0500
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFC49C061574
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 03:49:27 -0800 (PST)
+Received: by mail-pg1-x52c.google.com with SMTP id y9so8072165pgr.11
+        for <stable@vger.kernel.org>; Sat, 08 Jan 2022 03:49:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=djkUv0Y13iMubwiaC9m/E5/1i3X6c0YiCurqapufyBY=;
+        b=c17BF65pN5Oo4QDe84shFJKUhDk1C+hxAoshKtH31GPRQKy05IZq+GquN7beqsFHMM
+         kvRvxZo1basKYlKM0lFez5KBtL83gFk0SvdeiKJOvmWwzNAc6uILbFluB28KTefFOr60
+         gdxTtplw+gBIDvuKHGtW33NhoBwndUdU0K3wdSPcnuUH0lM1lkDBnKS9OMtAdZrFyEyG
+         wCSH9suUmA3uW7ou2v9v/EK0pXXBlSABuozC3BmTmolS4zcVvABX6NiOz1OIp9D1XdcK
+         Q39eGu/4ohnoUHsFSPonInfB/y8/dkvuf/vqB8kEui0rWbv8Ha5P+yN0xm30dDo7wwwK
+         qQUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=djkUv0Y13iMubwiaC9m/E5/1i3X6c0YiCurqapufyBY=;
+        b=wxZoYHocx8HjJ200pxjSge6M87Z/lE3L5y/Gdhqzpmmn7+aWboJ/OnN3D76GjSq52l
+         QjtMp/lw+FX39YTN15+VCUaC8CtN0nutJSUZfYYBHrI3rYyRSMp3SU26UMTQ1H9ZqUhT
+         XXrM6iWmPaZVMnn5ClW41gSWp9O8IX10IvkKSYbxH4+tC6R/0d922rrTGudOVYBWeVYB
+         23Y/ZwgK0hqALTZdBVANwYyWfDkabqdr1yZJAcz4ZldWsnwpupZz2FeE1KLoC5IgOcSs
+         LY3/LxLetu8HN33vwi2d1kyJOhKUUWOTlh95R5rN8VEhR5VvhZuMdmxGMD4UK3pVhtk/
+         4s8w==
+X-Gm-Message-State: AOAM533TyZFOF2sN+7WSjBjTFZUJ8Gp7SZDqGjG0FsBH0eZ2KEtuXVKV
+        n0SGlmK8KXx8ho4SEqjlFL2BAIfL7yr0Fm02wSY=
+X-Google-Smtp-Source: ABdhPJwkIruDZxNRV4Fa8AvOKKGuoQORSLU3EV6wTDiuPkTpbN/FRVLfWpRAN+RoX9DzUazC0OwTdtvmC5CJ7fbZCS8=
+X-Received: by 2002:a63:b90c:: with SMTP id z12mr14365678pge.364.1641642567046;
+ Sat, 08 Jan 2022 03:49:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: rQCowAD3_i5JC9lhxUlJBQ--.17779S2
-X-Coremail-Antispam: 1UD129KBjvdXoW7Jw13ArWxtry7tr18ur15Arb_yoWDZwcEgr
-        ZYg34DX398JFW5tan3Cr1Svr4I9a47WrykArn0vrW3Wr93Gr4fXF93Kr93Xw1DWas5Cws8
-        Gan8A3sxXrWjvjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUbcAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-        6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-        A2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
-        Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AKxVW8Jr
-        0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj
-        6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr
-        0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkIecxEwVAFwVW8
-        GwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r
-        1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij
-        64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr
-        0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1l
-        IxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjfUnQ6pDUUUU
-X-Originating-IP: [124.16.138.126]
-X-CM-SenderInfo: pmld2xxhqjqxpvfd2hldfou0/
+Received: by 2002:a05:6a10:c581:0:0:0:0 with HTTP; Sat, 8 Jan 2022 03:49:26
+ -0800 (PST)
+Reply-To: christinemuller959@gmail.com
+From:   Christine <stella21joyce@gmail.com>
+Date:   Sat, 8 Jan 2022 12:49:26 +0100
+Message-ID: <CAOcYx50fAOHfaMTCh3BVgoPCPwHHk6gML-A4cbf0NLtJESRHAw@mail.gmail.com>
+Subject: =?UTF-8?Q?HOSPITAL_MESSAGE=2FSLIMN=C4=AACAS_ZI=C5=85OJUMS?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 08, 2022 at 10:53:42PM +0800, Damien Le Moal wrote:
->> Cc: stable@vger.kernel.org#5.10
->
-> Please keep the space before the #
->
-> Cc: stable@vger.kernel.org #5.10
+--=20
+my humble regards,
 
-Actually, I added the space before, but the when I use the tool
-'scripts/checkpatch.pl' to check my format, it told me a warning
-that it should not have space.
+Dear friend, how are you? I have a charitable donation fund that I
+will donate through your help. Try contacting me for more information.
+I will tell you more about myself and my plans with this money when I
+hear from you.
 
-The warning is as follow:
-WARNING: email address 'stable@vger.kernel.org #5.10' might be
-better as 'stable@vger.kernel.org#5.10'
+I am waiting for your reply so that I can give you more details.
 
-So I have no idea what is correct.
-Is the tool outdated?
-If so, I will correct my cc and please update the tool.
+---------
 
-> As commented before, what exactly was corrected ? That is what needs to be
-> mentioned here. In any case, I fail to see what code change you added between v2
-> and v3. The code changes are identical in the 2 versions.
+ar pazem=C4=ABgiem sveicieniem,
 
-Thanks, I will make the changelog more clear.
-In fact, in the v2 I was careless to write '!!alt_base'.
-So I removed the redundant '!' in v3.
+D=C4=81rgais draugs, k=C4=81 tev iet? Man ir labdar=C4=ABbas ziedojumu fond=
+s, ko es
+ziedos ar j=C5=ABsu pal=C4=ABdz=C4=ABbu. M=C4=93=C4=A3iniet sazin=C4=81ties=
+ ar mani, lai ieg=C5=ABtu
+vair=C4=81k inform=C4=81cijas.
+Vair=C4=81k par sevi un saviem pl=C4=81niem ar =C5=A1o naudu past=C4=81st=
+=C4=AB=C5=A1u, kad es
+dzird=C4=93t no tevis.
 
-Please tell me the right cc format, and then I will submit a new v3,
-without the problems above.
-
-Sincerely thanks,
-Jiang
-
+Es gaidu j=C5=ABsu atbildi, lai var=C4=93tu sniegt jums s=C4=ABk=C4=81ku in=
+form=C4=81ciju.
