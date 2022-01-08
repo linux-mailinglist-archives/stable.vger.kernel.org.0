@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 580A9488404
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 418DA488406
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234471AbiAHOoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jan 2022 09:44:09 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57354 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229712AbiAHOoJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:09 -0500
+        id S234468AbiAHOoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jan 2022 09:44:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55176 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234470AbiAHOoP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E34FC061401
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 06:44:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F5E360B10
-        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1635DC36AF2;
-        Sat,  8 Jan 2022 14:44:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D327F60BB5
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F73C36AE9;
+        Sat,  8 Jan 2022 14:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641653048;
-        bh=pQgW65fotcCqreLDyuKfooN2up7N4hmcUAXoRLc0eu4=;
+        s=korg; t=1641653054;
+        bh=6Ol+kKh51qTXCLAh96gPtIpFH/+ZOdTNP7KN28+Idn8=;
         h=Subject:To:Cc:From:Date:From;
-        b=Yu2pEbemafDMiWs8nigowkkjs14Zqy+vjiPyFqjk0qDlyzpY6L1/kKsoiyiUIxDvI
-         2rbHfY9LpszLsUvtkpXEJgv/w7TeZr/ocy4zlTZi8G8sWh+FALNJbY6qtFZfe6yLTz
-         DMv2R7QKf1eJbJIkcVRGYtaYGdRl0BNIYKsrPoAw=
-Subject: FAILED: patch "[PATCH] cgroup: Use open-time credentials for process migraton perm" failed to apply to 4.14-stable tree
+        b=F8NZr2K29bY3aAwFrcoGGScvTnqR30uXkMB0SC1BSdXUBrKdMKUv+smfKzr2cYx1/
+         7N72PrKGVuLP6GGSVPMewp4uRuHTfBliSVVZf1VUEfO+aKTGaRuxhJkRkk65ApIxgL
+         +ntMU6C91SuKoXWzoxIMOr3nbTH7KVMblT1vKg2s=
+Subject: FAILED: patch "[PATCH] cgroup: Use open-time credentials for process migraton perm" failed to apply to 4.19-stable tree
 To:     tj@kernel.org, ebiederm@xmission.com, mkoutny@suse.com,
         torvalds@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Jan 2022 15:44:04 +0100
-Message-ID: <164165304421277@kroah.com>
+Date:   Sat, 08 Jan 2022 15:44:05 +0100
+Message-ID: <164165304529100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
