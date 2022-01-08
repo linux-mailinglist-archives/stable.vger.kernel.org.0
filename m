@@ -2,110 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31040487F9B
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 00:51:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03C6F487FD4
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 01:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231718AbiAGXve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jan 2022 18:51:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58502 "EHLO
+        id S229733AbiAHAHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jan 2022 19:07:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231708AbiAGXve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 18:51:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 607E5C061574;
-        Fri,  7 Jan 2022 15:51:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1A54B827AB;
-        Fri,  7 Jan 2022 23:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82029C36AE5;
-        Fri,  7 Jan 2022 23:51:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1641599491;
-        bh=HDgvXZEnOpD6pk/1GkFzCDWzQxYhAnwtgl62foas9U8=;
-        h=Date:From:To:Subject:From;
-        b=y/MIe32HBNDqVPFTMou+lTttn8gDLmtRc1H8zcHvX9yEDv2ELez1lSOuoSNHlltau
-         YgNb8dJyfU91xswEfPqZDtBAYZhbDvH15lMYZ5fEDPmlffYYTO7Dn7kxXo+mj4oFkW
-         qkKi2G4UdeGXFlu3VGRfGiFbtR6rWftcBREgBWF0=
-Date:   Fri, 07 Jan 2022 15:51:30 -0800
-From:   akpm@linux-foundation.org
-To:     deller@gmx.de, mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  [to-be-updated]
- usercopy-do-not-fail-on-memory-from-former-init-sections.patch removed from
- -mm tree
-Message-ID: <20220107235130.0tLfuD1h7%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        with ESMTP id S229703AbiAHAHe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jan 2022 19:07:34 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3036C061574
+        for <stable@vger.kernel.org>; Fri,  7 Jan 2022 16:07:33 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id p14so6241849plf.3
+        for <stable@vger.kernel.org>; Fri, 07 Jan 2022 16:07:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+9d8eBRM+SsfR3/jh1dpZkJ44DkktmcrrKvIooLh0cA=;
+        b=CwZyWd5XfFoS4PkDplFCGPNZ8aSEEkErN2syZc/mK/QPYuZY1FFBe75RvmARoJB9UC
+         m3E3Pkzhzf3Zav23QNwIMnH0hZJJM8DtYyfiOaUo1GSEtqhkiAJGl/mlKkEHzoSqOl3d
+         whDQDa3RhMSPTY3Auk7M9529NPKiCin+F1zkHlVLohHUNO2WIkMvmFLUB0jIcdq1bCoS
+         WQE+SnLEVVm+ZbY6+9+yZmwXVP20ljRxY2rJK0Hee3DqDcrGELXA/BQ5k6h/c5WnADBz
+         ZxVwEzPOIkh9RaIF4C3AIcx8Y/eDQUFqqf6dwRRchqkq/nQ3yM6qq4YVBwmXf3i4lFDg
+         ZvHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+9d8eBRM+SsfR3/jh1dpZkJ44DkktmcrrKvIooLh0cA=;
+        b=hvZkW9VWNq8iHghxj0lKQcxifrqUzYhAHy3Vtq4J2iS4bLH+BFK95e8uyrr7Dz2O2h
+         bmdJZTKU+Wf8UzrvVk9FUpC8WFhysIRw3xbEXxmxVaD7t4k/I9sBPcNETnBofZSxAvSZ
+         AuSnu9ATHSMhrQDbhNFcaP6kwjW368L/deHnU6l65DX8SkQSXg+nuiqJ9yaYk1H3b8Op
+         Yji6egPT44+ReAPhMSSNlDdeGjtPFdnHsg4Ysadx+KgtngfR/wCn3dI6KXf2Skx1zfEX
+         TU5QzIWmu/Bi9UoYJIvm5TS1F/2B3a/1k8L0enApl2+0LPzHAeDE6uAW4wUNpaFdOeNT
+         RFrg==
+X-Gm-Message-State: AOAM531cThNxYBapKsNB2R/QPfs+04+R7EiYO6YBIRJcSpmrZJK6Jgzy
+        ub30Wc/jLBLVWYiEcbswLa7jQVvKmv2qloJK
+X-Google-Smtp-Source: ABdhPJzMmAhfTpXK+oP8Xc2zvSRylvY4QvfrSmCYzPIQPJJgh4qvwfyPJTyzBGAjb6YeMk2KKzgXrg==
+X-Received: by 2002:a17:902:b48a:b0:149:5454:193e with SMTP id y10-20020a170902b48a00b001495454193emr62590540plr.131.1641600453190;
+        Fri, 07 Jan 2022 16:07:33 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h19sm65966pfh.112.2022.01.07.16.07.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Jan 2022 16:07:32 -0800 (PST)
+Message-ID: <61d8d5c4.1c69fb81.8699a.053c@mx.google.com>
+Date:   Fri, 07 Jan 2022 16:07:32 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.90-25-g1e147306777a
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 180 runs,
+ 1 regressions (v5.10.90-25-g1e147306777a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 180 runs, 1 regressions (v5.10.90-25-g1e1473=
+06777a)
 
-The patch titled
-     Subject: usercopy: do not fail on memory from former init sections
-has been removed from the -mm tree.  Its filename was
-     usercopy-do-not-fail-on-memory-from-former-init-sections.patch
+Regressions Summary
+-------------------
 
-This patch was dropped because an updated version will be merged
-
-------------------------------------------------------
-From: Helge Deller <deller@gmx.de>
-Subject: usercopy: do not fail on memory from former init sections
-
-On some platforms the memory area between the _stext and the _etext
-symbols includes the init sections (parisc and csky).  If the init
-sections are freed after bootup, the kernel may reuse this memory.
-
-In one test the usercopy checks if the given address is inside the .text
-section (from _stext to _etext), and it wrongly fails on the mentioned
-platforms if the memory is from the former init section.
-
-Fix this failure by first checking against the init sections before
-checking against the _stext/_etext section.
-
-Link: https://lkml.kernel.org/r/YdeHDDAP+TY5wNeT@ls3530
-Fixes: 98400ad75e95 ("parisc: Fix backtrace to always include init funtion names")
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/usercopy.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
-
---- a/mm/usercopy.c~usercopy-do-not-fail-on-memory-from-former-init-sections
-+++ a/mm/usercopy.c
-@@ -113,6 +113,15 @@ static bool overlaps(const unsigned long
- 	return true;
- }
- 
-+static bool inside_init_area(const unsigned long ptr, unsigned long n,
-+		char *start, char *end)
-+{
-+	unsigned long initlow = (unsigned long) start;
-+	unsigned long inithigh = (unsigned long) end;
-+
-+	return (ptr >= initlow && (ptr + n) < inithigh);
-+}
-+
- /* Is this address range in the kernel text area? */
- static inline void check_kernel_text_object(const unsigned long ptr,
- 					    unsigned long n, bool to_user)
-@@ -121,6 +130,12 @@ static inline void check_kernel_text_obj
- 	unsigned long texthigh = (unsigned long)_etext;
- 	unsigned long textlow_linear, texthigh_linear;
- 
-+	/* Ok if inside the former init sections */
-+	if (inside_init_area(ptr, n, __init_begin, __init_end))
-+		return;
-+	if (inside_init_area(ptr, n, _sinittext, _einittext))
-+		return;
-+
- 	if (overlaps(ptr, n, textlow, texthigh))
- 		usercopy_abort("kernel text", NULL, to_user, ptr - textlow, n);
- 
-_
-
-Patches currently in -mm which might be from deller@gmx.de are
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.90-25-g1e147306777a/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.90-25-g1e147306777a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1e147306777a8a42b317e5e7cede4ee417c35e20 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/61d8a3cc1d4a4de321ef675b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.90-=
+25-g1e147306777a/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.90-=
+25-g1e147306777a/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61d8a3cc1d4a4de321ef6=
+75c
+        new failure (last pass: v5.10.90-5-g7575d2506fb1) =
+
+ =20
