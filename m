@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C63148840B
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 084E148840D
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234470AbiAHOof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jan 2022 09:44:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55260 "EHLO
+        id S229918AbiAHOom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jan 2022 09:44:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234474AbiAHOoe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D77C06173F
-        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 06:44:34 -0800 (PST)
+        with ESMTP id S229749AbiAHOom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C625EC06173F
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 06:44:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04C0960BAB
-        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8348C36AE9;
-        Sat,  8 Jan 2022 14:44:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81830B8091D
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2517C36AE3;
+        Sat,  8 Jan 2022 14:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641653073;
-        bh=+g80jXDa4k/bDkkZ5sNB4cKxbx3Yalipd7gVZtiLZfE=;
+        s=korg; t=1641653079;
+        bh=swSrBtF4XDJVz4DfeQOxUp/btX0YtlpmAyW02aqhJFU=;
         h=Subject:To:Cc:From:Date:From;
-        b=JSVV62YKQ9sRdl+J6/rw/jBnMNbLOyQRzgv2/YVo3jdgDZW9wpN1q6I0AmIc1L62G
-         cswU3DFA+y64XW42fvXTajrCVbKz8ttYYaDGtU1NL4JdqXBy7tPQXpxcSVpmV6qg1w
-         bGbPKTP1QZuw37X5StE7x5SbnJdlRj23lRZ4ssfs=
-Subject: FAILED: patch "[PATCH] cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv" failed to apply to 5.10-stable tree
-To:     tj@kernel.org, mkoutny@suse.com, torvalds@linux-foundation.org
+        b=Ld284wYHQwIzJELxnpie87fRcP9ciWV6umBj2SVRhvyjZk584zLxYcnGC/PhpuTko
+         bPDzPCL/Wb9sCZEgku2d5BKJ5HnZhYPxKb0vmK9NCoeQS70GsVLc+7Ezy/+DqTO6A+
+         qJD331rXOBU4biRvXhhj6Bp9EE09AVLsjgt2PweQ=
+Subject: FAILED: patch "[PATCH] cgroup: Use open-time cgroup namespace for process migration" failed to apply to 4.14-stable tree
+To:     tj@kernel.org, ebiederm@xmission.com, mkoutny@suse.com,
+        oleg@redhat.com, torvalds@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Jan 2022 15:44:21 +0100
-Message-ID: <164165306145151@kroah.com>
+Date:   Sat, 08 Jan 2022 15:44:35 +0100
+Message-ID: <1641653075122139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,257 +54,158 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0d2b5955b36250a9428c832664f2079cbf723bec Mon Sep 17 00:00:00 2001
+From e57457641613fef0d147ede8bd6a3047df588b95 Mon Sep 17 00:00:00 2001
 From: Tejun Heo <tj@kernel.org>
 Date: Thu, 6 Jan 2022 11:02:29 -1000
-Subject: [PATCH] cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv
+Subject: [PATCH] cgroup: Use open-time cgroup namespace for process migration
+ perm checks
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-of->priv is currently used by each interface file implementation to store
-private information. This patch collects the current two private data usages
-into struct cgroup_file_ctx which is allocated and freed by the common path.
-This allows generic private data which applies to multiple files, which will
-be used to in the following patch.
+cgroup process migration permission checks are performed at write time as
+whether a given operation is allowed or not is dependent on the content of
+the write - the PID. This currently uses current's cgroup namespace which is
+a potential security weakness as it may allow scenarios where a less
+privileged process tricks a more privileged one into writing into a fd that
+it created.
 
-Note that cgroup_procs iterator is now embedded as procs.iter in the new
-cgroup_file_ctx so that it doesn't need to be allocated and freed
-separately.
+This patch makes cgroup remember the cgroup namespace at the time of open
+and uses it for migration permission checks instad of current's. Note that
+this only applies to cgroup2 as cgroup1 doesn't have namespace support.
 
-v2: union dropped from cgroup_file_ctx and the procs iterator is embedded in
-    cgroup_file_ctx as suggested by Linus.
+This also fixes a use-after-free bug on cgroupns reported in
 
-v3: Michal pointed out that cgroup1's procs pidlist uses of->priv too.
-    Converted. Didn't change to embedded allocation as cgroup1 pidlists get
-    stored for caching.
+ https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Note that backporting this fix also requires the preceding patch.
+
+Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
 Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Reported-by: syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
+Fixes: 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option")
+Signed-off-by: Tejun Heo <tj@kernel.org>
 
 diff --git a/kernel/cgroup/cgroup-internal.h b/kernel/cgroup/cgroup-internal.h
-index bfbeabc17a9d..cf637bc4ab45 100644
+index cf637bc4ab45..6e36e854b512 100644
 --- a/kernel/cgroup/cgroup-internal.h
 +++ b/kernel/cgroup/cgroup-internal.h
-@@ -65,6 +65,23 @@ static inline struct cgroup_fs_context *cgroup_fc2context(struct fs_context *fc)
- 	return container_of(kfc, struct cgroup_fs_context, kfc);
- }
+@@ -68,6 +68,8 @@ static inline struct cgroup_fs_context *cgroup_fc2context(struct fs_context *fc)
+ struct cgroup_pidlist;
  
-+struct cgroup_pidlist;
+ struct cgroup_file_ctx {
++	struct cgroup_namespace	*ns;
 +
-+struct cgroup_file_ctx {
-+	struct {
-+		void			*trigger;
-+	} psi;
-+
-+	struct {
-+		bool			started;
-+		struct css_task_iter	iter;
-+	} procs;
-+
-+	struct {
-+		struct cgroup_pidlist	*pidlist;
-+	} procs1;
-+};
-+
- /*
-  * A cgroup can be associated with multiple css_sets as different tasks may
-  * belong to different cgroups on different hierarchies.  In the other
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 0e7369103ba6..41e0837a5a0b 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -394,6 +394,7 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
- 	 * next pid to display, if any
- 	 */
- 	struct kernfs_open_file *of = s->private;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
- 	struct cgroup_pidlist *l;
- 	enum cgroup_filetype type = seq_cft(s)->private;
-@@ -403,25 +404,24 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
- 	mutex_lock(&cgrp->pidlist_mutex);
- 
- 	/*
--	 * !NULL @of->priv indicates that this isn't the first start()
--	 * after open.  If the matching pidlist is around, we can use that.
--	 * Look for it.  Note that @of->priv can't be used directly.  It
--	 * could already have been destroyed.
-+	 * !NULL @ctx->procs1.pidlist indicates that this isn't the first
-+	 * start() after open. If the matching pidlist is around, we can use
-+	 * that. Look for it. Note that @ctx->procs1.pidlist can't be used
-+	 * directly. It could already have been destroyed.
- 	 */
--	if (of->priv)
--		of->priv = cgroup_pidlist_find(cgrp, type);
-+	if (ctx->procs1.pidlist)
-+		ctx->procs1.pidlist = cgroup_pidlist_find(cgrp, type);
- 
- 	/*
- 	 * Either this is the first start() after open or the matching
- 	 * pidlist has been destroyed inbetween.  Create a new one.
- 	 */
--	if (!of->priv) {
--		ret = pidlist_array_load(cgrp, type,
--					 (struct cgroup_pidlist **)&of->priv);
-+	if (!ctx->procs1.pidlist) {
-+		ret = pidlist_array_load(cgrp, type, &ctx->procs1.pidlist);
- 		if (ret)
- 			return ERR_PTR(ret);
- 	}
--	l = of->priv;
-+	l = ctx->procs1.pidlist;
- 
- 	if (pid) {
- 		int end = l->length;
-@@ -449,7 +449,8 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
- static void cgroup_pidlist_stop(struct seq_file *s, void *v)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
- 
- 	if (l)
- 		mod_delayed_work(cgroup_pidlist_destroy_wq, &l->destroy_dwork,
-@@ -460,7 +461,8 @@ static void cgroup_pidlist_stop(struct seq_file *s, void *v)
- static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
- 	pid_t *p = v;
- 	pid_t *end = l->list + l->length;
- 	/*
+ 	struct {
+ 		void			*trigger;
+ 	} psi;
 diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 2632e46da1d4..a84631d08d98 100644
+index a84631d08d98..cafb8c114a21 100644
 --- a/kernel/cgroup/cgroup.c
 +++ b/kernel/cgroup/cgroup.c
-@@ -3630,6 +3630,7 @@ static int cgroup_cpu_pressure_show(struct seq_file *seq, void *v)
- static ssize_t cgroup_pressure_write(struct kernfs_open_file *of, char *buf,
- 					  size_t nbytes, enum psi_res res)
- {
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct psi_trigger *new;
- 	struct cgroup *cgrp;
- 	struct psi_group *psi;
-@@ -3648,7 +3649,7 @@ static ssize_t cgroup_pressure_write(struct kernfs_open_file *of, char *buf,
- 		return PTR_ERR(new);
- 	}
- 
--	psi_trigger_replace(&of->priv, new);
-+	psi_trigger_replace(&ctx->psi.trigger, new);
- 
- 	cgroup_put(cgrp);
- 
-@@ -3679,12 +3680,16 @@ static ssize_t cgroup_cpu_pressure_write(struct kernfs_open_file *of,
- static __poll_t cgroup_pressure_poll(struct kernfs_open_file *of,
- 					  poll_table *pt)
- {
--	return psi_trigger_poll(&of->priv, of->file, pt);
-+	struct cgroup_file_ctx *ctx = of->priv;
+@@ -3822,14 +3822,19 @@ static int cgroup_file_open(struct kernfs_open_file *of)
+ 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+ 		return -ENOMEM;
 +
-+	return psi_trigger_poll(&ctx->psi.trigger, of->file, pt);
++	ctx->ns = current->nsproxy->cgroup_ns;
++	get_cgroup_ns(ctx->ns);
+ 	of->priv = ctx;
+ 
+ 	if (!cft->open)
+ 		return 0;
+ 
+ 	ret = cft->open(of);
+-	if (ret)
++	if (ret) {
++		put_cgroup_ns(ctx->ns);
+ 		kfree(ctx);
++	}
+ 	return ret;
  }
  
- static void cgroup_pressure_release(struct kernfs_open_file *of)
- {
--	psi_trigger_replace(&of->priv, NULL);
-+	struct cgroup_file_ctx *ctx = of->priv;
-+
-+	psi_trigger_replace(&ctx->psi.trigger, NULL);
- }
- 
- bool cgroup_psi_enabled(void)
-@@ -3811,18 +3816,31 @@ static ssize_t cgroup_kill_write(struct kernfs_open_file *of, char *buf,
- static int cgroup_file_open(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of_cft(of);
-+	struct cgroup_file_ctx *ctx;
-+	int ret;
- 
--	if (cft->open)
--		return cft->open(of);
--	return 0;
-+	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
-+	if (!ctx)
-+		return -ENOMEM;
-+	of->priv = ctx;
-+
-+	if (!cft->open)
-+		return 0;
-+
-+	ret = cft->open(of);
-+	if (ret)
-+		kfree(ctx);
-+	return ret;
- }
- 
- static void cgroup_file_release(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of_cft(of);
-+	struct cgroup_file_ctx *ctx = of->priv;
+@@ -3840,13 +3845,14 @@ static void cgroup_file_release(struct kernfs_open_file *of)
  
  	if (cft->release)
  		cft->release(of);
-+	kfree(ctx);
++	put_cgroup_ns(ctx->ns);
+ 	kfree(ctx);
  }
  
  static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
-@@ -4751,21 +4769,21 @@ void css_task_iter_end(struct css_task_iter *it)
- 
- static void cgroup_procs_release(struct kernfs_open_file *of)
+ 				 size_t nbytes, loff_t off)
  {
--	if (of->priv) {
--		css_task_iter_end(of->priv);
--		kfree(of->priv);
--	}
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
 +	struct cgroup_file_ctx *ctx = of->priv;
-+
-+	if (ctx->procs.started)
-+		css_task_iter_end(&ctx->procs.iter);
- }
- 
- static void *cgroup_procs_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 
- 	if (pos)
- 		(*pos)++;
- 
--	return css_task_iter_next(it);
-+	return css_task_iter_next(&ctx->procs.iter);
- }
- 
- static void *__cgroup_procs_start(struct seq_file *s, loff_t *pos,
-@@ -4773,21 +4791,18 @@ static void *__cgroup_procs_start(struct seq_file *s, loff_t *pos,
- {
- 	struct kernfs_open_file *of = s->private;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct css_task_iter *it = &ctx->procs.iter;
- 
- 	/*
- 	 * When a seq_file is seeked, it's always traversed sequentially
- 	 * from position 0, so we can simply keep iterating on !0 *pos.
+ 	struct cgroup *cgrp = of->kn->parent->priv;
+ 	struct cftype *cft = of_cft(of);
+ 	struct cgroup_subsys_state *css;
+@@ -3863,7 +3869,7 @@ static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
  	 */
--	if (!it) {
-+	if (!ctx->procs.started) {
- 		if (WARN_ON_ONCE((*pos)))
- 			return ERR_PTR(-EINVAL);
--
--		it = kzalloc(sizeof(*it), GFP_KERNEL);
--		if (!it)
--			return ERR_PTR(-ENOMEM);
--		of->priv = it;
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
-+		ctx->procs.started = true;
- 	} else if (!(*pos)) {
- 		css_task_iter_end(it);
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
+ 	if ((cgrp->root->flags & CGRP_ROOT_NS_DELEGATE) &&
+ 	    !(cft->flags & CFTYPE_NS_DELEGATABLE) &&
+-	    ns != &init_cgroup_ns && ns->root_cset->dfl_cgrp == cgrp)
++	    ctx->ns != &init_cgroup_ns && ctx->ns->root_cset->dfl_cgrp == cgrp)
+ 		return -EPERM;
+ 
+ 	if (cft->write)
+@@ -4853,9 +4859,9 @@ static int cgroup_may_write(const struct cgroup *cgrp, struct super_block *sb)
+ 
+ static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
+ 					 struct cgroup *dst_cgrp,
+-					 struct super_block *sb)
++					 struct super_block *sb,
++					 struct cgroup_namespace *ns)
+ {
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
+ 	struct cgroup *com_cgrp = src_cgrp;
+ 	int ret;
+ 
+@@ -4884,11 +4890,12 @@ static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
+ 
+ static int cgroup_attach_permissions(struct cgroup *src_cgrp,
+ 				     struct cgroup *dst_cgrp,
+-				     struct super_block *sb, bool threadgroup)
++				     struct super_block *sb, bool threadgroup,
++				     struct cgroup_namespace *ns)
+ {
+ 	int ret = 0;
+ 
+-	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp, sb);
++	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp, sb, ns);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -4905,6 +4912,7 @@ static int cgroup_attach_permissions(struct cgroup *src_cgrp,
+ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
+ 				    bool threadgroup)
+ {
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+@@ -4932,7 +4940,8 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
+ 	 */
+ 	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_attach_permissions(src_cgrp, dst_cgrp,
+-					of->file->f_path.dentry->d_sb, threadgroup);
++					of->file->f_path.dentry->d_sb,
++					threadgroup, ctx->ns);
+ 	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+@@ -6152,7 +6161,8 @@ static int cgroup_css_set_fork(struct kernel_clone_args *kargs)
+ 		goto err;
+ 
+ 	ret = cgroup_attach_permissions(cset->dfl_cgrp, dst_cgrp, sb,
+-					!(kargs->flags & CLONE_THREAD));
++					!(kargs->flags & CLONE_THREAD),
++					current->nsproxy->cgroup_ns);
+ 	if (ret)
+ 		goto err;
+ 
 
