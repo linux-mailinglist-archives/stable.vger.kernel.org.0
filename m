@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42A0B48840F
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E1E9488410
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229749AbiAHOos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jan 2022 09:44:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49432 "EHLO
+        id S234479AbiAHOov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jan 2022 09:44:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49454 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234477AbiAHOos (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:48 -0500
+        with ESMTP id S234477AbiAHOov (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FC86B8091D
-        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59E7CC36AE9;
-        Sat,  8 Jan 2022 14:44:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06CF3B8091D
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E6FAC36AE9;
+        Sat,  8 Jan 2022 14:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641653085;
-        bh=yuNOvdQYEY6737Ct6J+hsdpBdLrGFZKSitQcoWb9kQA=;
+        s=korg; t=1641653088;
+        bh=YarXPlpdGCo9Wrlbf1cq9T+hCjvbYXxi4y6xhDtPVco=;
         h=Subject:To:Cc:From:Date:From;
-        b=04PdBGRVF4yUvGdazJC4pKzhwRABAsw+iExSzlzUq1i0X9MnpSXR49btebchvvd5a
-         xrG3l0tOWa4yGOS+aTb6emBxuWp87hKPfq3yXl7qqZC1fuxtgZr0QuMGOjT+FcRq/6
-         Iaiw9zrSiSmrjWwdzTUAJD25iAXlxox/e32ss9NE=
-Subject: FAILED: patch "[PATCH] cgroup: Use open-time cgroup namespace for process migration" failed to apply to 5.4-stable tree
+        b=WKrX0GLvNYUzWKOuiVr9J8ZnDntwqte0fCvYsUVcUgDEEZo0LHXDJZp4SbgS+WX7z
+         9yg3wdpSXYRRdAR9QcJweU34q01RUJK9wK92NiRJEJ6aMFiVPTKYj+IkW7iNjMknGt
+         2qICjmAgoKlSNFY4kEaS7Qng/PaqSvyHzAV56jpE=
+Subject: FAILED: patch "[PATCH] cgroup: Use open-time cgroup namespace for process migration" failed to apply to 5.10-stable tree
 To:     tj@kernel.org, ebiederm@xmission.com, mkoutny@suse.com,
         oleg@redhat.com, torvalds@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Jan 2022 15:44:37 +0100
-Message-ID: <164165307771166@kroah.com>
+Date:   Sat, 08 Jan 2022 15:44:38 +0100
+Message-ID: <1641653078213225@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
