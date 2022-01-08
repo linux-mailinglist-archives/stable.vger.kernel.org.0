@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E1E9488410
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:44:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3325F488413
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 15:47:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234479AbiAHOov (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jan 2022 09:44:51 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49454 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234477AbiAHOov (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:44:51 -0500
+        id S229746AbiAHOrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jan 2022 09:47:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229695AbiAHOrk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 09:47:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780A0C06173F
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 06:47:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06CF3B8091D
-        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E6FAC36AE9;
-        Sat,  8 Jan 2022 14:44:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B03C60BBA
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 14:47:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEFDAC36AE9;
+        Sat,  8 Jan 2022 14:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641653088;
-        bh=YarXPlpdGCo9Wrlbf1cq9T+hCjvbYXxi4y6xhDtPVco=;
+        s=korg; t=1641653259;
+        bh=tv9egGmruaVrmN+/wvL5EyFc/bi25ftLr+GrCPuB1hY=;
         h=Subject:To:Cc:From:Date:From;
-        b=WKrX0GLvNYUzWKOuiVr9J8ZnDntwqte0fCvYsUVcUgDEEZo0LHXDJZp4SbgS+WX7z
-         9yg3wdpSXYRRdAR9QcJweU34q01RUJK9wK92NiRJEJ6aMFiVPTKYj+IkW7iNjMknGt
-         2qICjmAgoKlSNFY4kEaS7Qng/PaqSvyHzAV56jpE=
-Subject: FAILED: patch "[PATCH] cgroup: Use open-time cgroup namespace for process migration" failed to apply to 5.10-stable tree
-To:     tj@kernel.org, ebiederm@xmission.com, mkoutny@suse.com,
-        oleg@redhat.com, torvalds@linuxfoundation.org
+        b=dsP/WI63BId4whbTn0JKwCMlInvKXNf9LdoBrB1QofiQYMESo5uMswIynUxsr3FOt
+         yL84WLIdkc82f33uY8VWjG++RqbFvoOMhpBMqgMAdGpIodBBB/i8gho/fu+FhLSAYr
+         VWDjDVx60pBpj7yBSiu9Ajv07UTze4gkVuRWdc60=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: disable runpm if we are the primary adapter" failed to apply to 5.15-stable tree
+To:     alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 08 Jan 2022 15:44:38 +0100
-Message-ID: <1641653078213225@kroah.com>
+Date:   Sat, 08 Jan 2022 15:47:36 +0100
+Message-ID: <164165325654138@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,158 +53,118 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e57457641613fef0d147ede8bd6a3047df588b95 Mon Sep 17 00:00:00 2001
-From: Tejun Heo <tj@kernel.org>
-Date: Thu, 6 Jan 2022 11:02:29 -1000
-Subject: [PATCH] cgroup: Use open-time cgroup namespace for process migration
- perm checks
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From b95dc06af3e683d6b7ddbbae178b2b2a21ee8b2b Mon Sep 17 00:00:00 2001
+From: Alex Deucher <alexander.deucher@amd.com>
+Date: Wed, 22 Dec 2021 22:57:16 -0500
+Subject: [PATCH] drm/amdgpu: disable runpm if we are the primary adapter
 
-cgroup process migration permission checks are performed at write time as
-whether a given operation is allowed or not is dependent on the content of
-the write - the PID. This currently uses current's cgroup namespace which is
-a potential security weakness as it may allow scenarios where a less
-privileged process tricks a more privileged one into writing into a fd that
-it created.
+If we are the primary adapter (i.e., the one used by the firwmare
+framebuffer), disable runtime pm.  This fixes a regression caused
+by commit 55285e21f045 which results in the displays waking up
+shortly after they go to sleep due to the device coming out of
+runtime suspend and sending a hotplug uevent.
 
-This patch makes cgroup remember the cgroup namespace at the time of open
-and uses it for migration permission checks instad of current's. Note that
-this only applies to cgroup2 as cgroup1 doesn't have namespace support.
+v2: squash in reworked fix from Evan
 
-This also fixes a use-after-free bug on cgroupns reported in
+Fixes: 55285e21f045 ("fbdev/efifb: Release PCI device's runtime PM ref during FB destroy")
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=215203
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1840
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
- https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
-
-Note that backporting this fix also requires the preceding patch.
-
-Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Cc: Michal Koutný <mkoutny@suse.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reported-by: syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
-Fixes: 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-
-diff --git a/kernel/cgroup/cgroup-internal.h b/kernel/cgroup/cgroup-internal.h
-index cf637bc4ab45..6e36e854b512 100644
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -68,6 +68,8 @@ static inline struct cgroup_fs_context *cgroup_fc2context(struct fs_context *fc)
- struct cgroup_pidlist;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+index b85b67a88a3d..7d67aec6f4a2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -1077,6 +1077,7 @@ struct amdgpu_device {
+ 	bool                            runpm;
+ 	bool                            in_runpm;
+ 	bool                            has_pr3;
++	bool                            is_fw_fb;
  
- struct cgroup_file_ctx {
-+	struct cgroup_namespace	*ns;
+ 	bool                            pm_sysfs_en;
+ 	bool                            ucode_sysfs_en;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 86ca80da9eea..99370bdd8c5b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -39,6 +39,7 @@
+ #include <linux/mmu_notifier.h>
+ #include <linux/suspend.h>
+ #include <linux/cc_platform.h>
++#include <linux/fb.h>
+ 
+ #include "amdgpu.h"
+ #include "amdgpu_irq.h"
+@@ -1890,6 +1891,26 @@ MODULE_DEVICE_TABLE(pci, pciidlist);
+ 
+ static const struct drm_driver amdgpu_kms_driver;
+ 
++static bool amdgpu_is_fw_framebuffer(resource_size_t base,
++				     resource_size_t size)
++{
++	bool found = false;
++#if IS_REACHABLE(CONFIG_FB)
++	struct apertures_struct *a;
 +
- 	struct {
- 		void			*trigger;
- 	} psi;
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index a84631d08d98..cafb8c114a21 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3822,14 +3822,19 @@ static int cgroup_file_open(struct kernfs_open_file *of)
- 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx)
- 		return -ENOMEM;
++	a = alloc_apertures(1);
++	if (!a)
++		return false;
 +
-+	ctx->ns = current->nsproxy->cgroup_ns;
-+	get_cgroup_ns(ctx->ns);
- 	of->priv = ctx;
- 
- 	if (!cft->open)
- 		return 0;
- 
- 	ret = cft->open(of);
--	if (ret)
-+	if (ret) {
-+		put_cgroup_ns(ctx->ns);
- 		kfree(ctx);
-+	}
- 	return ret;
- }
- 
-@@ -3840,13 +3845,14 @@ static void cgroup_file_release(struct kernfs_open_file *of)
- 
- 	if (cft->release)
- 		cft->release(of);
-+	put_cgroup_ns(ctx->ns);
- 	kfree(ctx);
- }
- 
- static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
- 				 size_t nbytes, loff_t off)
++	a->ranges[0].base = base;
++	a->ranges[0].size = size;
++
++	found = is_firmware_framebuffer(a);
++	kfree(a);
++#endif
++	return found;
++}
++
+ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
  {
--	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *cgrp = of->kn->parent->priv;
- 	struct cftype *cft = of_cft(of);
- 	struct cgroup_subsys_state *css;
-@@ -3863,7 +3869,7 @@ static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
- 	 */
- 	if ((cgrp->root->flags & CGRP_ROOT_NS_DELEGATE) &&
- 	    !(cft->flags & CFTYPE_NS_DELEGATABLE) &&
--	    ns != &init_cgroup_ns && ns->root_cset->dfl_cgrp == cgrp)
-+	    ctx->ns != &init_cgroup_ns && ctx->ns->root_cset->dfl_cgrp == cgrp)
- 		return -EPERM;
+@@ -1898,6 +1919,8 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 	unsigned long flags = ent->driver_data;
+ 	int ret, retry = 0, i;
+ 	bool supports_atomic = false;
++	bool is_fw_fb;
++	resource_size_t base, size;
  
- 	if (cft->write)
-@@ -4853,9 +4859,9 @@ static int cgroup_may_write(const struct cgroup *cgrp, struct super_block *sb)
+ 	/* skip devices which are owned by radeon */
+ 	for (i = 0; i < ARRAY_SIZE(amdgpu_unsupported_pciidlist); i++) {
+@@ -1966,6 +1989,10 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 	}
+ #endif
  
- static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
- 					 struct cgroup *dst_cgrp,
--					 struct super_block *sb)
-+					 struct super_block *sb,
-+					 struct cgroup_namespace *ns)
- {
--	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
- 	struct cgroup *com_cgrp = src_cgrp;
- 	int ret;
- 
-@@ -4884,11 +4890,12 @@ static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
- 
- static int cgroup_attach_permissions(struct cgroup *src_cgrp,
- 				     struct cgroup *dst_cgrp,
--				     struct super_block *sb, bool threadgroup)
-+				     struct super_block *sb, bool threadgroup,
-+				     struct cgroup_namespace *ns)
- {
- 	int ret = 0;
- 
--	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp, sb);
-+	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp, sb, ns);
++	base = pci_resource_start(pdev, 0);
++	size = pci_resource_len(pdev, 0);
++	is_fw_fb = amdgpu_is_fw_framebuffer(base, size);
++
+ 	/* Get rid of things like offb */
+ 	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &amdgpu_kms_driver);
  	if (ret)
- 		return ret;
+@@ -1978,6 +2005,7 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 	adev->dev  = &pdev->dev;
+ 	adev->pdev = pdev;
+ 	ddev = adev_to_drm(adev);
++	adev->is_fw_fb = is_fw_fb;
  
-@@ -4905,6 +4912,7 @@ static int cgroup_attach_permissions(struct cgroup *src_cgrp,
- static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
- 				    bool threadgroup)
- {
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *src_cgrp, *dst_cgrp;
- 	struct task_struct *task;
- 	const struct cred *saved_cred;
-@@ -4932,7 +4940,8 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
- 	 */
- 	saved_cred = override_creds(of->file->f_cred);
- 	ret = cgroup_attach_permissions(src_cgrp, dst_cgrp,
--					of->file->f_path.dentry->d_sb, threadgroup);
-+					of->file->f_path.dentry->d_sb,
-+					threadgroup, ctx->ns);
- 	revert_creds(saved_cred);
- 	if (ret)
- 		goto out_finish;
-@@ -6152,7 +6161,8 @@ static int cgroup_css_set_fork(struct kernel_clone_args *kargs)
- 		goto err;
- 
- 	ret = cgroup_attach_permissions(cset->dfl_cgrp, dst_cgrp, sb,
--					!(kargs->flags & CLONE_THREAD));
-+					!(kargs->flags & CLONE_THREAD),
-+					current->nsproxy->cgroup_ns);
- 	if (ret)
- 		goto err;
- 
+ 	if (!supports_atomic)
+ 		ddev->driver_features &= ~DRIVER_ATOMIC;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+index 651c7abfde03..09ad17944eb2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -206,6 +206,12 @@ int amdgpu_driver_load_kms(struct amdgpu_device *adev, unsigned long flags)
+ 			adev->runpm = true;
+ 			break;
+ 		}
++		/* XXX: disable runtime pm if we are the primary adapter
++		 * to avoid displays being re-enabled after DPMS.
++		 * This needs to be sorted out and fixed properly.
++		 */
++		if (adev->is_fw_fb)
++			adev->runpm = false;
+ 		if (adev->runpm)
+ 			dev_info(adev->dev, "Using BACO for runtime pm\n");
+ 	}
 
