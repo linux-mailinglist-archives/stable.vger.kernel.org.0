@@ -2,164 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68687488583
-	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 20:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD62488585
+	for <lists+stable@lfdr.de>; Sat,  8 Jan 2022 20:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230445AbiAHTFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jan 2022 14:05:11 -0500
-Received: from mga05.intel.com ([192.55.52.43]:5105 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229538AbiAHTFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jan 2022 14:05:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1641668709; x=1673204709;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=K4X8Y8f1pY3S0dmZw5XiasYMbgEQb1XWFb9uzokkf2E=;
-  b=VeLAgtqH886m25AZlCzyBUOrLVmwBS77q2YvIxYI5T9kTLCWUBGoRRa5
-   B/08SyrLDHNwFNydXoyhWLl1Hscbc1gMaPqmCkhq5EQCXJZfma5ffXMso
-   BInYbnA/+vuJdds1ATcwyCqk+OPPXKf45AjMB9CM55Cz7CqpoW7OlctYP
-   8DFUjjcpYNvu+M9dMRNIQ/Q+D2auMhhnHFTnaoT25wnSXbtPKr05B/j0W
-   Et7LR86U7XP+Lbe/+KE2aPJY7btHnq9p5nLDFRj9cbqygcK/z4DsLTAZO
-   /HhBQBGEJNrAK6HCxoXe7waYOKE5fgL3SLckqu7KpXw28dLWuTpiQPnll
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10221"; a="329375662"
-X-IronPort-AV: E=Sophos;i="5.88,273,1635231600"; 
-   d="scan'208";a="329375662"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jan 2022 11:05:09 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,273,1635231600"; 
-   d="scan'208";a="690141548"
-Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
-  by orsmga005.jf.intel.com with ESMTP; 08 Jan 2022 11:05:06 -0800
-Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1n6H1V-0000wc-QO; Sat, 08 Jan 2022 19:05:05 +0000
-Date:   Sun, 9 Jan 2022 03:04:51 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Cc:     kbuild-all@lists.01.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>, stable@vger.kernel.org,
-        Pingfan Liu <kernelfans@gmail.com>
-Subject: Re: [PATCH 2/2] tracing: Add test for user space strings when
- filtering on string pointers
-Message-ID: <202201090343.IKIQqdk4-lkp@intel.com>
-References: <20220107225840.003487216@goodmis.org>
+        id S230520AbiAHTFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jan 2022 14:05:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55688 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229538AbiAHTFs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jan 2022 14:05:48 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D59C06173F
+        for <stable@vger.kernel.org>; Sat,  8 Jan 2022 11:05:48 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id m21so36134724edc.0
+        for <stable@vger.kernel.org>; Sat, 08 Jan 2022 11:05:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Y7zBl0QJhQaIMKWir3D2qyPpg5BRTJfotr5P2ix9a6M=;
+        b=CMkchWkhb1ErXHhsBqu5/I7GWoSys5Dll2s9CCHWgbXXDTKAj1iqm3HWWIH/vcg9ct
+         PG41fK+4BRHbtywUpNAUeTgqPSNJGLOWOU8J2JWt3BhSFqJXuRtUKEXhnbpJAw8Aqq9k
+         24+SCB0nTbaS+UYWUswSEtvSKqk2u8vwJiFrk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Y7zBl0QJhQaIMKWir3D2qyPpg5BRTJfotr5P2ix9a6M=;
+        b=rP69PbM0h5NGKb7HyOpnRVrpg3Nwm618Cqx6kqPy9CNgo4Sl5N8WvwcoAAIbJ/4Jfh
+         mgp7p+DR6JkN0JaE/VIKn2uVC5r6UUUo3qLwtC13MXy2cPOc4SPcE0OogkrF0eHXl5JC
+         TbHc7aL2QfUDKO5T4aq/oDdcFElSiC8SnErzB5d71F4getavALzc/O+LqmOUbKFigdOH
+         vEO0NdRcWPtAVOzfq2o9Z7IkyUC31y70fHi8VhFd+2iInmVNSURC0vYg537/dC7qqZ9C
+         jS+iI15haWcNrj+P8gFW+B7/N9S90Qctl0demkMF2tBoqondpIu3peJxFat6i69l3Ope
+         dHaA==
+X-Gm-Message-State: AOAM531W2T2WEFsPLJMLNGyhmQfwlTVf+XFNBSytjY9a61J/P1SSGkfs
+        zJHNQSaOmneCSeuJtSLGOGlRq2LyEu8rCxjI
+X-Google-Smtp-Source: ABdhPJxb3MthfJI/SZJJJfut6Th5j7kfYekylC1ZrHDS1tNd+MybMC0tCmtyve7RVxRYoft8ZqIQeQ==
+X-Received: by 2002:a17:906:4347:: with SMTP id z7mr56773816ejm.671.1641668746644;
+        Sat, 08 Jan 2022 11:05:46 -0800 (PST)
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com. [209.85.128.48])
+        by smtp.gmail.com with ESMTPSA id f15sm1059267edq.33.2022.01.08.11.05.46
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 08 Jan 2022 11:05:46 -0800 (PST)
+Received: by mail-wm1-f48.google.com with SMTP id 18-20020a05600c22d200b00347d3a13c7cso2317814wmg.0
+        for <stable@vger.kernel.org>; Sat, 08 Jan 2022 11:05:46 -0800 (PST)
+X-Received: by 2002:a7b:c92a:: with SMTP id h10mr15403895wml.26.1641668745875;
+ Sat, 08 Jan 2022 11:05:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220107225840.003487216@goodmis.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <d796d15c3577a35a46e4feac7e6a9e85@ercanersoy.net> <YdnBZXiGf57u6fut@kroah.com>
+In-Reply-To: <YdnBZXiGf57u6fut@kroah.com>
+From:   Linus Torvalds <torvalds@linuxfoundation.org>
+Date:   Sat, 8 Jan 2022 11:05:29 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiRVWyT2Kg8uAdxE3T8mbWQew5EASpYS6AK7OEVDuQj4g@mail.gmail.com>
+Message-ID: <CAHk-=wiRVWyT2Kg8uAdxE3T8mbWQew5EASpYS6AK7OEVDuQj4g@mail.gmail.com>
+Subject: Re: [PATCH 1/1] Fix uninitialiazed variable bug
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Ercan Ersoy <ercanersoy@ercanersoy.net>,
+        Security Officers <security@kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Steven,
+On Sat, Jan 8, 2022 at 8:52 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Sat, Jan 08, 2022 at 07:37:59PM +0300, Ercan Ersoy wrote:
+> >
+> > This bug is in mem_cgroup_resize_max function
+> > in mm/memcontrol.c source file.
+> >
+> > Signed-off-by: Ercan Ersoy <ercanersoy@ercanersoy.net>
+>
+>
+> <formletter>
+>
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.
 
-I love your patch! Perhaps something to improve:
+Even more relevantly, I think the patch is bogus.
 
-[auto build test WARNING on rostedt-trace/for-next]
-[also build test WARNING on linux/master linus/master hnaz-mm/master v5.16-rc8 next-20220107]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+What broken tool claims that 'ret' is uninitialized?
 
-url:    https://github.com/0day-ci/linux/commits/Steven-Rostedt/tracing-Fix-filtering-on-string-pointers/20220108-070047
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/rostedt/linux-trace.git for-next
-config: openrisc-randconfig-s031-20220107 (https://download.01.org/0day-ci/archive/20220109/202201090343.IKIQqdk4-lkp@intel.com/config)
-compiler: or1k-linux-gcc (GCC) 11.2.0
-reproduce:
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # apt-get install sparse
-        # sparse version: v0.6.4-dirty
-        # https://github.com/0day-ci/linux/commit/19b8c1c0fee0d7bff07ed0d5862a29ac2bb4adc9
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Steven-Rostedt/tracing-Fix-filtering-on-string-pointers/20220108-070047
-        git checkout 19b8c1c0fee0d7bff07ed0d5862a29ac2bb4adc9
-        # save the config file to linux build tree
-        mkdir build_dir
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=openrisc SHELL=/bin/bash kernel/trace/
+That mem_cgroup_resize_max() uses an endless loop construct
+(admittedly an odd one - "do while (true)" is not the usual "for (;;)"
+syntax). And every single 'break' out of that loop sets the 'ret'
+variable.
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
+Whatever tool reported this is just broken, or I'm blind.
 
-
-sparse warnings: (new ones prefixed by >>)
->> kernel/trace/trace_events_filter.c:685:22: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char [noderef] __user *ustr @@     got char *str @@
-   kernel/trace/trace_events_filter.c:685:22: sparse:     expected char [noderef] __user *ustr
-   kernel/trace/trace_events_filter.c:685:22: sparse:     got char *str
->> kernel/trace/trace_events_filter.c:685:22: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char [noderef] __user *ustr @@     got char *str @@
-   kernel/trace/trace_events_filter.c:685:22: sparse:     expected char [noderef] __user *ustr
-   kernel/trace/trace_events_filter.c:685:22: sparse:     got char *str
->> kernel/trace/trace_events_filter.c:685:22: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char [noderef] __user *ustr @@     got char *str @@
-   kernel/trace/trace_events_filter.c:685:22: sparse:     expected char [noderef] __user *ustr
-   kernel/trace/trace_events_filter.c:685:22: sparse:     got char *str
->> kernel/trace/trace_events_filter.c:685:22: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char [noderef] __user *ustr @@     got char *str @@
-   kernel/trace/trace_events_filter.c:685:22: sparse:     expected char [noderef] __user *ustr
-   kernel/trace/trace_events_filter.c:685:22: sparse:     got char *str
->> kernel/trace/trace_events_filter.c:685:22: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char [noderef] __user *ustr @@     got char *str @@
-   kernel/trace/trace_events_filter.c:685:22: sparse:     expected char [noderef] __user *ustr
-   kernel/trace/trace_events_filter.c:685:22: sparse:     got char *str
->> kernel/trace/trace_events_filter.c:685:22: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char [noderef] __user *ustr @@     got char *str @@
-   kernel/trace/trace_events_filter.c:685:22: sparse:     expected char [noderef] __user *ustr
-   kernel/trace/trace_events_filter.c:685:22: sparse:     got char *str
->> kernel/trace/trace_events_filter.c:685:22: sparse: sparse: incorrect type in assignment (different address spaces) @@     expected char [noderef] __user *ustr @@     got char *str @@
-   kernel/trace/trace_events_filter.c:685:22: sparse:     expected char [noderef] __user *ustr
-   kernel/trace/trace_events_filter.c:685:22: sparse:     got char *str
-   kernel/trace/trace_events_filter.c:1066:20: sparse: sparse: incorrect type in return expression (different address spaces) @@     expected struct event_filter * @@     got struct event_filter [noderef] __rcu *filter @@
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     expected struct event_filter *
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     got struct event_filter [noderef] __rcu *filter
-   kernel/trace/trace_events_filter.c:1136:34: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct event_filter *filter @@     got struct event_filter [noderef] __rcu *filter @@
-   kernel/trace/trace_events_filter.c:1136:34: sparse:     expected struct event_filter *filter
-   kernel/trace/trace_events_filter.c:1136:34: sparse:     got struct event_filter [noderef] __rcu *filter
-   kernel/trace/trace_events_filter.c:1153:27: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct event_filter *filter @@     got struct event_filter [noderef] __rcu *filter @@
-   kernel/trace/trace_events_filter.c:1153:27: sparse:     expected struct event_filter *filter
-   kernel/trace/trace_events_filter.c:1153:27: sparse:     got struct event_filter [noderef] __rcu *filter
-   kernel/trace/trace_events_filter.c:1066:20: sparse: sparse: incorrect type in return expression (different address spaces) @@     expected struct event_filter * @@     got struct event_filter [noderef] __rcu *filter @@
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     expected struct event_filter *
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     got struct event_filter [noderef] __rcu *filter
-   kernel/trace/trace_events_filter.c:1066:20: sparse: sparse: incorrect type in return expression (different address spaces) @@     expected struct event_filter * @@     got struct event_filter [noderef] __rcu *filter @@
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     expected struct event_filter *
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     got struct event_filter [noderef] __rcu *filter
-   kernel/trace/trace_events_filter.c:1066:20: sparse: sparse: incorrect type in return expression (different address spaces) @@     expected struct event_filter * @@     got struct event_filter [noderef] __rcu *filter @@
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     expected struct event_filter *
-   kernel/trace/trace_events_filter.c:1066:20: sparse:     got struct event_filter [noderef] __rcu *filter
-
-vim +685 kernel/trace/trace_events_filter.c
-
-   666	
-   667	static __always_inline char *test_string(char *str)
-   668	{
-   669		struct ustring_buffer *ubuf;
-   670		char __user *ustr;
-   671		char *kstr;
-   672	
-   673		if (!ustring_per_cpu)
-   674			return NULL;
-   675	
-   676		ubuf = this_cpu_ptr(ustring_per_cpu);
-   677		kstr = ubuf->buffer;
-   678	
-   679		if (likely((unsigned long)str >= TASK_SIZE)) {
-   680			/* For safety, do not trust the string pointer */
-   681			if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))
-   682				return NULL;
-   683		} else {
-   684			/* user space address? */
- > 685			ustr = str;
-   686			if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
-   687				return NULL;
-   688		}
-   689		return kstr;
-   690	}
-   691	
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+                    Linus
