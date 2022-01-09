@@ -2,137 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BABD0488C5D
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 21:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E49F488CC9
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 23:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232169AbiAIUtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 15:49:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50106 "EHLO
+        id S237233AbiAIWKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 17:10:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232045AbiAIUtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 15:49:05 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 147A6C06173F
-        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 12:49:05 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id 78so990088pfu.10
-        for <stable@vger.kernel.org>; Sun, 09 Jan 2022 12:49:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ed2hN4UigdzMEwFOHMO1Wo/gWPfFaJ55CQKuXAZm5kc=;
-        b=KuC754mi0qSc2PXI55YNeKXvh70KBrxnfOz8McP3vTCMzVDvjy4bqwSPNoiq9fXTVz
-         sKH5q/K7yO+LQQdQ28tu+9PajgoJOSOj/giPg+PTj5r3i8bZTZLW5S73X/vw+02Do5wp
-         l2y1RIYG7RhGUkJRmQZkW3hrXcqtlNjkVoIkCrG77acaEd80AEFnY4kx0qYK382UTv0e
-         kwIntsRUNCMo+1xUwWcqzK0gfXwTmrnaq+ZZFBJOeBAfxKQvsF7q6tJJnDEPGG6R85J7
-         INvoBazJYzHMURM0DnN5RXMA0qp72Wqgy10RALHcrPH4Y1uk2WBeTFfuksGFeDY8W+gW
-         Kb1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ed2hN4UigdzMEwFOHMO1Wo/gWPfFaJ55CQKuXAZm5kc=;
-        b=QFMl+qhuTDhF0DACOH5FE6skhwFvZS17XTb/5e7ZhqRFAwaXAMJl+JvchiS3zDDOp4
-         OfBhjqlh4brmK9khrLIQ0wjCkAF6++tMqr2s0DJSQGxWngjLndPZkvUqfLJozT0LVsqm
-         UEBsbxUIZ5lG45/PELGS90geHZD6/NJQPZRrESHKXmSoBD1LZkmPnIt+M8rnk7pMEwr6
-         LNoejdqdrCxL2pkOh4yOriA85D84U7oC3Q94LfUHx9rLrhan/XialWkMHHDYhmTdKpJJ
-         KrXQrhj+oMhQ9fVYkWhNnWa/Wz9RjEhwdxkg5Zgw5esulUf3bfIZL8/hWD1VkbOMOQcM
-         mD1A==
-X-Gm-Message-State: AOAM533eU8l5RaXEeXQnvjHQmECSdsEeiqdOHx2mCOi8lmwLjDkVSNMM
-        wEXSrOETXQM4S6h8hkHYLuS2oYNCigDVGUYD
-X-Google-Smtp-Source: ABdhPJwJZhhn0jtUVEPCXM/SqcrpSm8wMEyzqnIXqA60ID0vHU8c5TtEYzmLSq6NnhTV89jARHml0A==
-X-Received: by 2002:a63:d312:: with SMTP id b18mr65037618pgg.198.1641761344516;
-        Sun, 09 Jan 2022 12:49:04 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l18sm6222668pjy.6.2022.01.09.12.49.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Jan 2022 12:49:04 -0800 (PST)
-Message-ID: <61db4a40.1c69fb81.dd5a0.06b9@mx.google.com>
-Date:   Sun, 09 Jan 2022 12:49:04 -0800 (PST)
+        with ESMTP id S234756AbiAIWKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 17:10:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E0EC06173F;
+        Sun,  9 Jan 2022 14:10:11 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F56C60FB0;
+        Sun,  9 Jan 2022 22:10:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 58CAEC36AEF;
+        Sun,  9 Jan 2022 22:10:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641766210;
+        bh=Dij7jpNAgwwFkc+7/+wtr0/+iMyJ+ZotBJhoIy0UwbM=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=N7oropML/8dW6y50UJYQ6kv3iG3nMskwPthJETKq3chiANNleMO/ygGas3Jo5oYQZ
+         9AfPoJiA147pH82R7LMm2kTalqQOjxjIiKjCMQHe7uXoPeuwCBZnSfjQOzhXIqpbgf
+         mJ00ZgrL0H1LAMkJxfFlXEKX0q95BNT/uT6llbbPeXzIsGM/6J0oGLf5u17Ag3DoAd
+         jlmD8p1Yvd+vRMmWQj2ZTnv16rAzB0+xgVfZ+Yj2jgKOHy7SIsWiuLa6Ka9NMBe2Ih
+         AIpw9iGOmKAxHBsicxUu77ZcE+djGe5APFcUONtxqsIlYk40NQBHjUr+AnkYQy6yLb
+         Sh/XDA0gqL6XQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 41326F7940D;
+        Sun,  9 Jan 2022 22:10:10 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.224-14-g70dbcce03da4
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 159 runs,
- 1 regressions (v4.19.224-14-g70dbcce03da4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 1/5] can: softing_cs: softingcs_probe(): fix memleak on
+ registration failure
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164176621026.2545.7181216847383250912.git-patchwork-notify@kernel.org>
+Date:   Sun, 09 Jan 2022 22:10:10 +0000
+References: <20220109134040.1945428-2-mkl@pengutronix.de>
+In-Reply-To: <20220109134040.1945428-2-mkl@pengutronix.de>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux-can@vger.kernel.org, kernel@pengutronix.de, johan@kernel.org,
+        stable@vger.kernel.org, gregkh@linuxfoundation.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 159 runs, 1 regressions (v4.19.224-14-g70dbc=
-ce03da4)
+Hello:
 
-Regressions Summary
--------------------
+This series was applied to netdev/net.git (master)
+by Marc Kleine-Budde <mkl@pengutronix.de>:
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+On Sun,  9 Jan 2022 14:40:36 +0100 you wrote:
+> From: Johan Hovold <johan@kernel.org>
+> 
+> In case device registration fails during probe, the driver state and
+> the embedded platform device structure needs to be freed using
+> platform_device_put() to properly free all resources (e.g. the device
+> name).
+> 
+> [...]
 
+Here is the summary with links:
+  - [net,1/5] can: softing_cs: softingcs_probe(): fix memleak on registration failure
+    https://git.kernel.org/netdev/net/c/ced4913efb0a
+  - [net,2/5] can: softing: softing_startstop(): fix set but not used variable warning
+    https://git.kernel.org/netdev/net/c/370d988cc529
+  - [net,3/5] can: xilinx_can: xcan_probe(): check for error irq
+    https://git.kernel.org/netdev/net/c/c6564c13dae2
+  - [net,4/5] can: rcar_canfd: rcar_canfd_channel_probe(): make sure we free CAN network device
+    https://git.kernel.org/netdev/net/c/72b1e360572f
+  - [net,5/5] can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
+    https://git.kernel.org/netdev/net/c/89d58aebe14a
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.224-14-g70dbcce03da4/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.224-14-g70dbcce03da4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      70dbcce03da4a306c0aa83d6d70f79f79f8a24ad =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
-  Details:     https://kernelci.org/test/plan/id/61db171e0bd32cb9d6ef6775
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.224=
--14-g70dbcce03da4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.224=
--14-g70dbcce03da4/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61db171e0bd32cb=
-9d6ef6778
-        failing since 5 days (last pass: v4.19.223-16-ge86e6ad8a5c1, first =
-fail: v4.19.223-27-g939eabea13d4)
-        2 lines
-
-    2022-01-09T17:10:38.446938  <8>[   21.547882] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-09T17:10:38.495645  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/104
-    2022-01-09T17:10:38.504744  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
