@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EAC348896C
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 13:51:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AEA848896D
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 13:52:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229474AbiAIMvw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 07:51:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:39436 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235544AbiAIMvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 07:51:49 -0500
+        id S235556AbiAIMv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 07:51:58 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34428 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235548AbiAIMv5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 07:51:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9802FB80CD2
-        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 12:51:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B61FCC36AEB;
-        Sun,  9 Jan 2022 12:51:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05F0460EFA
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 12:51:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D724AC36AED;
+        Sun,  9 Jan 2022 12:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641732707;
-        bh=o3mYhKMVpIDn7zE1AKtem0T3yXDVhFbG8PzjjeyiK0M=;
+        s=korg; t=1641732716;
+        bh=JKohEbg8NfEtEe3ccKdU5hWGLjTw/+xwej0dOFoADuE=;
         h=Subject:To:Cc:From:Date:From;
-        b=xAl4Eu7tvlnelmVvDCW94PBAPo0niwSLq+3XZJArDI9GdUKlv22PiFBMKusxgJSUG
-         /GKJn6KWNYKRf+ypM6HfB3HDUQFrDerlOmM2bQ029RDfGp3eL01jpCpeXuGW5gIfoq
-         qkTEPtD1tHXx/9mL961IcouVXDXeqRynqNlOSl1c=
-Subject: FAILED: patch "[PATCH] power: reset: ltc2952: Fix use of floating point literals" failed to apply to 4.4-stable tree
+        b=x2fcnfQNGQu3p+UcrR2SDXVvcDmbQ6kw8qMYUU8MXEK+gh0dtxbzdhdhERBXm6At3
+         Dfy/Wzq0adNN9mL9z+6s74Ij//ewC2ptBW0UNkHtjO0DacWTJG1TvZe1qDwv5UAE9k
+         eUmy4ZaghrThprV+qT4N7WMWA6yRTzkG5YfRDwQw=
+Subject: FAILED: patch "[PATCH] power: reset: ltc2952: Fix use of floating point literals" failed to apply to 4.9-stable tree
 To:     nathan@kernel.org, ndesaulniers@google.com,
         sebastian.reichel@collabora.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Jan 2022 13:51:44 +0100
-Message-ID: <164173270446142@kroah.com>
+Date:   Sun, 09 Jan 2022 13:51:45 +0100
+Message-ID: <164173270519248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
