@@ -2,59 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E1A488979
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 14:04:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 798BA4889A3
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 14:40:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235569AbiAINEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 08:04:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
+        id S233624AbiAINkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 08:40:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231394AbiAINEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 08:04:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99DD8C06173F
-        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 05:04:15 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FC5D60F2A
-        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 13:04:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 073B9C36AED;
-        Sun,  9 Jan 2022 13:04:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641733454;
-        bh=uJ2vTEct3MNpl4/0EY9AGwMvEyptDbuuDAbEOQeBm64=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VWeETtTPoS5fhdpu/142TNOg4AuOuTy2awvlrzpXMn9SxHk+lslLyppWgzdkfOvl/
-         9JxjkD+xPIhHKHCpwrXGobqQa1V1WdaYlUTxkq389o8DNo1Mntu3OJ8ZPw6fA2WGmp
-         OZ299XPLy2X0P3ZG6iIwixuuOInUDE2cCAHCgdlE=
-Date:   Sun, 9 Jan 2022 14:04:11 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     alexander.deucher@amd.com
-Cc:     stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] drm/amdgpu: disable runpm if we are the
- primary adapter" failed to apply to 5.15-stable tree
-Message-ID: <YdrdS4u1jNPho3in@kroah.com>
-References: <164165325654138@kroah.com>
+        with ESMTP id S235671AbiAINku (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 08:40:50 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC061C06173F
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 05:40:49 -0800 (PST)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1n6YRE-00046i-7t
+        for stable@vger.kernel.org; Sun, 09 Jan 2022 14:40:48 +0100
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id 59B1C6D3EFD
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 13:40:44 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id E49576D3ED5;
+        Sun,  9 Jan 2022 13:40:41 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 63035770;
+        Sun, 9 Jan 2022 13:40:41 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 1/5] can: softing_cs: softingcs_probe(): fix memleak on registration failure
+Date:   Sun,  9 Jan 2022 14:40:36 +0100
+Message-Id: <20220109134040.1945428-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220109134040.1945428-1-mkl@pengutronix.de>
+References: <20220109134040.1945428-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <164165325654138@kroah.com>
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 08, 2022 at 03:47:36PM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.15-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+From: Johan Hovold <johan@kernel.org>
 
-Nevermind, there was a pre-requisite patch in the series that this one
-relied on.  Next time please mark it as such so that it gives us a hint
-as to what is needed to do here.
+In case device registration fails during probe, the driver state and
+the embedded platform device structure needs to be freed using
+platform_device_put() to properly free all resources (e.g. the device
+name).
 
-thanks,
+Fixes: 0a0b7a5f7a04 ("can: add driver for Softing card")
+Link: https://lore.kernel.org/all/20211222104843.6105-1-johan@kernel.org
+Cc: stable@vger.kernel.org # 2.6.38
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/softing/softing_cs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/net/can/softing/softing_cs.c b/drivers/net/can/softing/softing_cs.c
+index 2e93ee792373..e5c939b63fa6 100644
+--- a/drivers/net/can/softing/softing_cs.c
++++ b/drivers/net/can/softing/softing_cs.c
+@@ -293,7 +293,7 @@ static int softingcs_probe(struct pcmcia_device *pcmcia)
+ 	return 0;
+ 
+ platform_failed:
+-	kfree(dev);
++	platform_device_put(pdev);
+ mem_failed:
+ pcmcia_bad:
+ pcmcia_failed:
+
+base-commit: 6dc9a23e29061e50c36523270de60039ccf536fa
+-- 
+2.34.1
+
+
