@@ -2,131 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC9A48889D
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 11:01:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 675CE4888A7
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 11:07:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbiAIKB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 05:01:56 -0500
-Received: from mail-pj1-f52.google.com ([209.85.216.52]:43532 "EHLO
-        mail-pj1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbiAIKB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 05:01:56 -0500
-Received: by mail-pj1-f52.google.com with SMTP id ie23-20020a17090b401700b001b38a5318easo3915831pjb.2;
-        Sun, 09 Jan 2022 02:01:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qVWt1AOHq8FaZK5a1Obn95ziGdwNeIdN+dxQ37ARsjk=;
-        b=paHBr5bKG2rQheXCmwJ4dS4H1fR4dM2sVTmiQc4NjgLn+mEQzwb9bouxwCTTbNMZJC
-         2nJZ7mQ+05I6vzTBjRx725+ln+fA+pg4h1uFtvrxsY7yByZqC5W29D1Ze37ooQMhAfDc
-         JO9GCfJ/YTitm33Of0RwuI8eB+5wq/8Q3dMDaNWe+tbJHQGcrLDOpIEAoxmbW2JIMzVi
-         n52N7y9D6ezx2XPPBbAmj3OtYqI1QFs67vPO6JNzWxItqPcbQUI6vr1pvri8rkjVEcgO
-         6fYnYasf89+xDNrrxk5HJFizNN5wbSt7QJeCptXT/JwA3ZLTJrmxr9sNQukrKHA9wxGn
-         Vw1w==
-X-Gm-Message-State: AOAM5302CCymzWrCTwjjg6BMHNcaubHc5svULCHOZcsG9cZhKPTR325u
-        zdhBIkjRpAuhJuRCuAdWQk+MmdcWBKG91g==
-X-Google-Smtp-Source: ABdhPJxCDVKm/loC0NBZH667A2F59JO4QcPTUVleIWxENLM/W4d5qDnzA+Qiu3h0O9MYPNX0kCv1Cw==
-X-Received: by 2002:a05:6102:3746:: with SMTP id u6mr23168225vst.60.1641722505077;
-        Sun, 09 Jan 2022 02:01:45 -0800 (PST)
-Received: from mail-ua1-f45.google.com (mail-ua1-f45.google.com. [209.85.222.45])
-        by smtp.gmail.com with ESMTPSA id c15sm2190459uaj.13.2022.01.09.02.01.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 09 Jan 2022 02:01:44 -0800 (PST)
-Received: by mail-ua1-f45.google.com with SMTP id m15so4136949uap.6;
-        Sun, 09 Jan 2022 02:01:44 -0800 (PST)
-X-Received: by 2002:ab0:2118:: with SMTP id d24mr23782568ual.78.1641722504022;
- Sun, 09 Jan 2022 02:01:44 -0800 (PST)
+        id S235266AbiAIKHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 05:07:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51394 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233614AbiAIKHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 05:07:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D793C06173F
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 02:07:12 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0812DB80C98
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 10:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B34C36AE3;
+        Sun,  9 Jan 2022 10:07:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641722829;
+        bh=LU5nflu69PNsnG2uKowQC9Ph7zfnACVZ0UMFcITFss0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nn9LU237IVNkK34Y+/DJNKS0D8CY2RwxW+KKHX9k5/+U3sc48PVEpuG9wVIFF9jVX
+         x1ZTdOtQX9oW2VNqUV83vUok3Cc2hZCNORSqvCpEIqno1kjLOwIytNd20dpFkBY16o
+         gJJW+Pa9FjLDs8o89bHfuDCf5l4gzn2QouOFxSgU=
+Date:   Sun, 9 Jan 2022 11:07:05 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     dsahern@kernel.org, davem@davemloft.net, nicolas.dichtel@6wind.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ipv6: Check attribute length for
+ RTA_GATEWAY in multipath" failed to apply to 4.4-stable tree
+Message-ID: <YdqzyV0RdLFZDqqI@kroah.com>
+References: <164156331217042@kroah.com>
+ <20220109093058.GA8434@amd>
 MIME-Version: 1.0
-References: <20220107110723.323276-1-javierm@redhat.com> <20220107110723.323276-3-javierm@redhat.com>
-In-Reply-To: <20220107110723.323276-3-javierm@redhat.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Sun, 9 Jan 2022 11:01:32 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdWvFL9GYM-dMdZeyZrQjr13Sgt-XXN19bc6jA3emn2Dcw@mail.gmail.com>
-Message-ID: <CAMuHMdWvFL9GYM-dMdZeyZrQjr13Sgt-XXN19bc6jA3emn2Dcw@mail.gmail.com>
-Subject: Re: [PATCH 2/2] video: vga16fb: Only probe for EGA and VGA 16 color
- graphic cards
-To:     Javier Martinez Canillas <javierm@redhat.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Kris Karas <bugs-a21@moonlit-rail.com>,
-        stable <stable@vger.kernel.org>, Borislav Petkov <bp@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        Linux Fbdev development list <linux-fbdev@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220109093058.GA8434@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Javier,
+On Sun, Jan 09, 2022 at 10:30:59AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > The patch below does not apply to the 4.4-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> 
+> I could not find better place to reply.
+> 
+> I see this patch is queued for 5.10 and 4.19. But it is wrong:
+> 
+> > >From 4619bcf91399f00a40885100fb61d594d8454033 Mon Sep 17 00:00:00 2001
+> > From: David Ahern <dsahern@kernel.org>
+> > Date: Thu, 30 Dec 2021 17:36:33 -0700
+> > Subject: [PATCH] ipv6: Check attribute length for RTA_GATEWAY in multipath
+> >  route
+> > 
+> > Commit referenced in the Fixes tag used nla_memcpy for RTA_GATEWAY as
+> > does the current nla_get_in6_addr. nla_memcpy protects against accessing
+> > memory greater than what is in the attribute, but there is no check
+> > requiring the attribute to have an IPv6 address. Add it.
+> > 
+> > Fixes: 51ebd3181572 ("ipv6: add support of equal cost multipath
+> > (ECMP)")
+> 
+> ...> @@ -5264,7 +5277,13 @@ static int ip6_route_multipath_add(struct fib6_config *cfg,
+> >  
+> >  			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+> >  			if (nla) {
+> > -				r_cfg.fc_gateway = nla_get_in6_addr(nla);
+> > +				int ret;
+> > +
+> > +				ret = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
+> > +							extack);
+> > +				if (ret)
+> > +					return ret;
+> > +
+> 
+> Direct return may not be used here. It needs to goto cleanup.
+> 
+> It is already fixed in mainline, so you can probably just cherry-pick
+> followup patch, too.
 
-On Fri, Jan 7, 2022 at 9:00 PM Javier Martinez Canillas
-<javierm@redhat.com> wrote:
-> The vga16fb framebuffer driver only supports Enhanced Graphics Adapter
-> (EGA) and Video Graphics Array (VGA) 16 color graphic cards.
->
-> But it doesn't check if the adapter is one of those or if a VGA16 mode
-> is used. This means that the driver will be probed even if a VESA BIOS
-> Extensions (VBE) or Graphics Output Protocol (GOP) interface is used.
->
-> This issue has been present for a long time but it was only exposed by
-> commit d391c5827107 ("drivers/firmware: move x86 Generic System
-> Framebuffers support") since the platform device registration to match
-> the {vesa,efi}fb drivers is done later as a consequence of that change.
->
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=215001
-> Fixes: d391c5827107 ("drivers/firmware: move x86 Generic System Framebuffers support")
-> Reported-by: Kris Karas <bugs-a21@moonlit-rail.com>
-> Cc: <stable@vger.kernel.org> # 5.15.x
-> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-> Tested-by: Kris Karas <bugs-a21@moonlit-rail.com>
+What is the follow-up patch git id?
 
-Thanks for your patch!
+thanks,
 
-> --- a/drivers/video/fbdev/vga16fb.c
-> +++ b/drivers/video/fbdev/vga16fb.c
-> @@ -1422,6 +1422,18 @@ static int __init vga16fb_init(void)
->
->         vga16fb_setup(option);
->  #endif
-> +
-> +       /* only EGA and VGA in 16 color graphic mode are supported */
-> +       if (screen_info.orig_video_isVGA != VIDEO_TYPE_EGAC &&
-> +           screen_info.orig_video_isVGA != VIDEO_TYPE_VGAC)
-> +               return -ENODEV;
-
-Probably these checks should be wrapped inside a check for CONFIG_X86?
-
-All non-x86 architectures (except for 2 MIPS platforms) treat
-orig_video_isVGA as a boolean flag, and just assign 1 to it.
-
-> +
-> +       if (screen_info.orig_video_mode != 0x0D &&      /* 320x200/4 (EGA) */
-> +           screen_info.orig_video_mode != 0x0E &&      /* 640x200/4 (EGA) */
-> +           screen_info.orig_video_mode != 0x10 &&      /* 640x350/4 (EGA) */
-> +           screen_info.orig_video_mode != 0x12)        /* 640x480/4 (VGA) */
-> +               return -ENODEV;
-> +
-
-Likewise.
-
-A long time ago, I used vga16fb on a PPC box to use a standard PC
-graphics card (initialized using an emulator for the card's BIOS ROM),
-as a second display. The above changes would break such a use case.
-
->         ret = platform_driver_register(&vga16fb_driver);
->
->         if (!ret) {
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+greg k-h
