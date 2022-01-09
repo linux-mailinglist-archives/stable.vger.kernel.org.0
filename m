@@ -2,104 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85929488BE0
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 19:59:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E625488BE9
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 20:07:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229573AbiAIS71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 13:59:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53270 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbiAIS71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 13:59:27 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 050BEB80DBE
-        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 18:59:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F569C36AE5;
-        Sun,  9 Jan 2022 18:59:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641754764;
-        bh=DppBm8cZ2h+K8X5C3GMCsiY4vJDR355qvRjzdEba1Cc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FRw7jCtoE649jxkqgKnYZcP3mSbUWOwRLDnaH8C9kB+x5rNS4NfDpv+/rd6AaD0zl
-         Jeu2jggGL69DRsBK8PT5gvHKmRkaxQM/vDBvHEqil+AYHHHySptDhctL1HG7HJH29d
-         rqXWuDRcfajjzkHKKRNKLK7SBUoUwwU+3potFWw1rj9KyJ8YbnXrLrJ2RudqYNTQdW
-         EPy9MLkzdfUJ4jakvYSkLBMMPg8U7ELf0agnjt8a4elNzKB1KrJPKVv+EpXOTQY3/I
-         UBcBobLdy51YlPUEYV9yyFCMtVg3xWHLHNUWKhoLPlNWp3m7eaELpgscdY9AtXV4Sm
-         S4LibK+ohB+GQ==
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     ndesaulniers@google.com, sebastian.reichel@collabora.com,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.4,4.9] power: reset: ltc2952: Fix use of floating point literals
-Date:   Sun,  9 Jan 2022 11:59:02 -0700
-Message-Id: <20220109185902.1097931-1-nathan@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <164173270519248@kroah.com>
-References: <164173270519248@kroah.com>
+        id S229582AbiAITHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 14:07:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234570AbiAITHd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 14:07:33 -0500
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7CEC06173F
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 11:07:32 -0800 (PST)
+Received: by mail-pj1-x1029.google.com with SMTP id c14-20020a17090a674e00b001b31e16749cso18324420pjm.4
+        for <stable@vger.kernel.org>; Sun, 09 Jan 2022 11:07:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ti0aYAl53FWnasX8+vP1txu4v9ENE08jhTQvuS46tJE=;
+        b=VS+GQMQ2lTqUJGK2G8SGEAhm9iNXXXesm4jTLjplghBEXqcvKshDcjfZFNbZWQ+eo/
+         9XX0oNpDwLdbZeyxu7gFT7R+8SiD+KzL6snNZT/bcr41qLxtLU0sXvyOEVop/9nlpSY2
+         /XToXQcd9WBWqYsyRT5mlZhAoGdVegM1ch8/Ob8JJ+ufyztZBn7fHqWSP3L5UrFzULVT
+         HA+bGy/PtbNz/Hr4VhAs5YeGNDR+nSh8Xp/ZX6QpDYmy69bvFef4dUbJLh4JYsTEmSiL
+         ei+hV+WpXRHQ9QPGAavf21QvZL3zcQzHfFsCPUqIL/oKcsyGQ0+GWpCBl6XIKyLHiWNV
+         RhcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ti0aYAl53FWnasX8+vP1txu4v9ENE08jhTQvuS46tJE=;
+        b=IUwjR4oMzJSbl/rrmTUOzlKyJBRt/TVbuFvxMIO1PEBNV3H31PnByWO6D8EegDp9to
+         7vT4+uIqc9VtbR7rherXvhroAgoAKm87GEHI+jwJvuwNOYNFp+982Buf67cAaDL+RObZ
+         jM+VdxenKdsbbSFndJ7dQ29cilW5djPtBiqqlE+l25n2yAu0vclCphk4LE+MZxMZFQ8q
+         i93zUs1g97eT54Ww25EDKJNfq28kFa0r0i3osH0s0C8mHpaR/8sVhD8EHkTiXdkckpD0
+         wUVGZfAvR0GbD/1MChuBy7chm4OCMCZ7u6gOzNn1zqiosPNl7ND1S4027vlKMyZCBnaI
+         vaGA==
+X-Gm-Message-State: AOAM531p1gzWWEwyD/5qHU3vpNnN021dmGY1FGJjS/FB8QgBq1GsHPQQ
+        Coswl8tT8fj+GEVdcyZR8prUUbzp8Q/Wx8te
+X-Google-Smtp-Source: ABdhPJxu/95WmlRdzjyd7FAXz6p2Ojz7WWCQ3dVkvjyAf6hmGoUWSjYfsF4etJeg8ZX0nXn95fdkzw==
+X-Received: by 2002:a17:902:ee4d:b0:14a:2eac:8e49 with SMTP id 13-20020a170902ee4d00b0014a2eac8e49mr3500457plo.24.1641755252330;
+        Sun, 09 Jan 2022 11:07:32 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e30sm3340169pgb.10.2022.01.09.11.07.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 09 Jan 2022 11:07:32 -0800 (PST)
+Message-ID: <61db3274.1c69fb81.dd31d.80d6@mx.google.com>
+Date:   Sun, 09 Jan 2022 11:07:32 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.170-26-g37c081715ec3
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 168 runs,
+ 4 regressions (v5.4.170-26-g37c081715ec3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 644106cdb89844be2496b21175b7c0c2e0fab381 upstream.
+stable-rc/queue/5.4 baseline: 168 runs, 4 regressions (v5.4.170-26-g37c0817=
+15ec3)
 
-A new commit in LLVM causes an error on the use of 'long double' when
-'-mno-x87' is used, which the kernel does through an alias,
-'-mno-80387' (see the LLVM commit below for more details around why it
-does this).
+Regressions Summary
+-------------------
 
-drivers/power/reset/ltc2952-poweroff.c:162:28: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                                  ^
-drivers/power/reset/ltc2952-poweroff.c:162:21: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                           ^
-drivers/power/reset/ltc2952-poweroff.c:163:41: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->trigger_delay = ktime_set(2, 500L*1E6L);
-                                               ^
-3 errors generated.
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-This happens due to the use of a 'long double' literal. The 'E6' part of
-'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
-it to 'long double'.
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-There is no visible reason for floating point values in this driver, as
-the values are only assigned to integer types. Use NSEC_PER_MSEC, which
-is the same integer value as '1E6L', to avoid changing functionality but
-fix the error.
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Fixes: 6647156c00cc ("power: reset: add LTC2952 poweroff driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1497
-Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-[nathan: Resolve conflict due to lack of 8b0e195314fab]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- drivers/power/reset/ltc2952-poweroff.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-diff --git a/drivers/power/reset/ltc2952-poweroff.c b/drivers/power/reset/ltc2952-poweroff.c
-index 15fed9d8f871..ec54cff108b3 100644
---- a/drivers/power/reset/ltc2952-poweroff.c
-+++ b/drivers/power/reset/ltc2952-poweroff.c
-@@ -169,8 +169,8 @@ static void ltc2952_poweroff_kill(void)
- 
- static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
- {
--	data->wde_interval = ktime_set(0, 300L*1E6L);
--	data->trigger_delay = ktime_set(2, 500L*1E6L);
-+	data->wde_interval = ktime_set(0, 300L * NSEC_PER_MSEC);
-+	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
- 
- 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
 
-base-commit: 710bf39c7aec32641ea63f6593db1df8c3e4a4d7
--- 
-2.34.1
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.170-26-g37c081715ec3/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.170-26-g37c081715ec3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      37c081715ec3bac098bc652266cf0dcb61ca2859 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61db003398add88252ef6783
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61db003398add88252ef6=
+784
+        failing since 24 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61db0036581ece3579ef6746
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61db0036581ece3579ef6=
+747
+        failing since 24 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61db0034581ece3579ef673d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61db0034581ece3579ef6=
+73e
+        failing since 24 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61db0048db3d231979ef6762
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-2=
+6-g37c081715ec3/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61db0048db3d231979ef6=
+763
+        failing since 24 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
