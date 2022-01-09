@@ -2,122 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 835C4488BDA
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 19:56:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85929488BE0
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 19:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230020AbiAIS4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 13:56:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229668AbiAIS4y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 13:56:54 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80F0C06173F
-        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 10:56:53 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id v11so8888319pfu.2
-        for <stable@vger.kernel.org>; Sun, 09 Jan 2022 10:56:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
-        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wJEUw9ff5ZoyLDqzlPoT0/RMmRbe6oRM0UsL8abW2Hc=;
-        b=nTW3bDU69D+maIKyxjfA6EnVwxU+mhMaNR5SCm/lYu7vEvl8ymOHumN8fBNq+OX+Mu
-         yTq6u/xKNc7GPDJWaNOToTFg3dZ5cmgOvmoQ20gYdNMZeFPphC2pRDKDkGJxgX1jbDXq
-         QvliYpvuMIXD2ENnu7p0OokAjEXoOY0OKh589ax8WNrIwQAcpbsRzk7ISDGME6hcfTzu
-         8zsm/esLTe5a5vWid2Ki2BVcKuuhaeYsJghhu/mhgDCkOZxVTDcfJ/P5F1oXu1vTK6MZ
-         XOd+cznTrxoaSh22tmlZDvHstM5yOjpy2g6S20yBQCFBpOfSOIfqa5MB+JLU7wBlddCR
-         xksg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
-         :mime-version:content-transfer-encoding;
-        bh=wJEUw9ff5ZoyLDqzlPoT0/RMmRbe6oRM0UsL8abW2Hc=;
-        b=feQ/0VZPfzS6lzKH0zSlNynkPp4Jv7JH4evG6D43bQfFZrGDipdaZcj4V4YnT5xsP7
-         +eUqQVeaX6jo72F4bMs/eSx2QqPO044adOvJLMLwqpt/aViFqXhBKtqL7aqIy9205fhI
-         Yj4PfzzCwy9I693x5Nw2N1fkaMdxEP6VpDCgr7878kuVaWE5J+zEgtZEf3mCRgadv9XO
-         BTO/cFdhYaLJXxJeQTKJbOGoHbpmHK288rPjSoU2LWojiQtwyikQ+LgJZffXfgsnU1hc
-         o90VTDnqTMh2B4EP32TVu2xvonaYfA/6uuZB1rVcKnC0nwbhn/1qP+txpFWWlgOWMqjy
-         tAHw==
-X-Gm-Message-State: AOAM532f5rXI7mVBn4MPFkeSvhnmtIAhnsKCC+8171qxQVJgndGueA23
-        fgz4jWDuNaCseMM6e3LHb32wIg==
-X-Google-Smtp-Source: ABdhPJyr0zws2LdZ788TXsTMQDc/XOoIDXppwbYJus0GYLTDrTrLrpomN372UEv+yckAjiNujYAteQ==
-X-Received: by 2002:a63:4a5f:: with SMTP id j31mr62757106pgl.222.1641754613260;
-        Sun, 09 Jan 2022 10:56:53 -0800 (PST)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id d4sm4216032pfu.50.2022.01.09.10.56.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Jan 2022 10:56:52 -0800 (PST)
-Date:   Sun, 09 Jan 2022 10:56:52 -0800 (PST)
-X-Google-Original-Date: Sun, 09 Jan 2022 10:55:49 PST (-0800)
-Subject:     Re: [PATCH 1/3] riscv: Don't use va_pa_offset on kdump
-In-Reply-To: <70fe8aa8bfe3923308e6248377577f58@mailhost.ics.forth.gr>
-CC:     Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu,
-        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-        alex@ghiti.fr, stable@vger.kernel.org
-From:   Palmer Dabbelt <palmer@dabbelt.com>
-To:     mick@ics.forth.gr
-Message-ID: <mhng-d399244b-db6d-40e5-9113-77baf96bf987@palmer-ri-x1c9>
-Mime-Version: 1.0 (MHng)
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S229573AbiAIS71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 13:59:27 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53270 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229521AbiAIS71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 13:59:27 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 050BEB80DBE
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 18:59:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F569C36AE5;
+        Sun,  9 Jan 2022 18:59:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641754764;
+        bh=DppBm8cZ2h+K8X5C3GMCsiY4vJDR355qvRjzdEba1Cc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FRw7jCtoE649jxkqgKnYZcP3mSbUWOwRLDnaH8C9kB+x5rNS4NfDpv+/rd6AaD0zl
+         Jeu2jggGL69DRsBK8PT5gvHKmRkaxQM/vDBvHEqil+AYHHHySptDhctL1HG7HJH29d
+         rqXWuDRcfajjzkHKKRNKLK7SBUoUwwU+3potFWw1rj9KyJ8YbnXrLrJ2RudqYNTQdW
+         EPy9MLkzdfUJ4jakvYSkLBMMPg8U7ELf0agnjt8a4elNzKB1KrJPKVv+EpXOTQY3/I
+         UBcBobLdy51YlPUEYV9yyFCMtVg3xWHLHNUWKhoLPlNWp3m7eaELpgscdY9AtXV4Sm
+         S4LibK+ohB+GQ==
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     ndesaulniers@google.com, sebastian.reichel@collabora.com,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.4,4.9] power: reset: ltc2952: Fix use of floating point literals
+Date:   Sun,  9 Jan 2022 11:59:02 -0700
+Message-Id: <20220109185902.1097931-1-nathan@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <164173270519248@kroah.com>
+References: <164173270519248@kroah.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 07 Jan 2022 10:03:59 PST (-0800), mick@ics.forth.gr wrote:
-> Hello Palmer,
->
-> Any updates on those 3 patches ?
+commit 644106cdb89844be2496b21175b7c0c2e0fab381 upstream.
 
-Sorry, I hadn't realized these were fixes so they got stuck in the 
-queue0.  I do now remember you saying you had some fixes at the RISC-V 
-conference, but I guess that got lost as well.  Including something like 
-"fix" or "-fixes" in a subject line always helps, but if I miss stuff 
-IRC's always a good bet as that'll at least make sure I see it when I'm 
-in front of the computer -- there's a lot of people who want things at 
-these conferences.
+A new commit in LLVM causes an error on the use of 'long double' when
+'-mno-x87' is used, which the kernel does through an alias,
+'-mno-80387' (see the LLVM commit below for more details around why it
+does this).
 
-It's too late for fixes, but it looks like things have been broken for a 
-while so these will have to all get backported to stable regardless.
+drivers/power/reset/ltc2952-poweroff.c:162:28: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
+        data->wde_interval = 300L * 1E6L;
+                                  ^
+drivers/power/reset/ltc2952-poweroff.c:162:21: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
+        data->wde_interval = 300L * 1E6L;
+                           ^
+drivers/power/reset/ltc2952-poweroff.c:163:41: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
+        data->trigger_delay = ktime_set(2, 500L*1E6L);
+                                               ^
+3 errors generated.
 
-This is on for-next.
+This happens due to the use of a 'long double' literal. The 'E6' part of
+'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
+it to 'long double'.
 
-Thanks!
+There is no visible reason for floating point values in this driver, as
+the values are only assigned to integer types. Use NSEC_PER_MSEC, which
+is the same integer value as '1E6L', to avoid changing functionality but
+fix the error.
 
->
-> Regards,
-> Nick
->
-> Στις 2021-11-26 20:04, Nick Kossifidis έγραψε:
->> On kdump instead of using an intermediate step to relocate the kernel,
->> that lives in a "control buffer" outside the current kernel's mapping,
->> we jump to the crash kernel directly by calling
->> riscv_kexec_norelocate().
->> The current implementation uses va_pa_offset while switching to
->> physical
->> addressing, however since we moved the kernel outside the linear
->> mapping
->> this won't work anymore since riscv_kexec_norelocate() is part of the
->> kernel mapping and we should use kernel_map.va_kernel_pa_offset, and
->> also
->> take XIP kernel into account.
->>
->> We don't really need to use va_pa_offset on riscv_kexec_norelocate, we
->> can just set STVEC to the physical address of the new kernel instead
->> and
->> let the hart jump to the new kernel on the next instruction after
->> setting
->> SATP to zero. This fixes kdump and is also simpler/cleaner.
->>
->> I tested this on the latest qemu and HiFive Unmatched and works as
->> expected.
->>
->> v2: I removed the direct jump after setting satp as suggested.
->>
->> Fixes: 2bfc6cd81bd1 ("riscv: Move kernel mapping outside of linear
->> mapping")
->>
->> Signed-off-by: Nick Kossifidis <mick@ics.forth.gr>
->> Reviewed-by: Alexandre Ghiti <alex@ghiti.fr>
->> Cc: <stable@vger.kernel.org> # 5.13
->> Cc: <stable@vger.kernel.org> # 5.14
+Fixes: 6647156c00cc ("power: reset: add LTC2952 poweroff driver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1497
+Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+[nathan: Resolve conflict due to lack of 8b0e195314fab]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ drivers/power/reset/ltc2952-poweroff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/power/reset/ltc2952-poweroff.c b/drivers/power/reset/ltc2952-poweroff.c
+index 15fed9d8f871..ec54cff108b3 100644
+--- a/drivers/power/reset/ltc2952-poweroff.c
++++ b/drivers/power/reset/ltc2952-poweroff.c
+@@ -169,8 +169,8 @@ static void ltc2952_poweroff_kill(void)
+ 
+ static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
+ {
+-	data->wde_interval = ktime_set(0, 300L*1E6L);
+-	data->trigger_delay = ktime_set(2, 500L*1E6L);
++	data->wde_interval = ktime_set(0, 300L * NSEC_PER_MSEC);
++	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
+ 
+ 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
+
+base-commit: 710bf39c7aec32641ea63f6593db1df8c3e4a4d7
+-- 
+2.34.1
+
