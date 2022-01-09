@@ -2,120 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F2C4488B80
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 19:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 835C4488BDA
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 19:56:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236368AbiAISLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 13:11:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43890 "EHLO
+        id S230020AbiAIS4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 13:56:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234535AbiAISLu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 13:11:50 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF76FC06173F;
-        Sun,  9 Jan 2022 10:11:49 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id pf13so2922817pjb.0;
-        Sun, 09 Jan 2022 10:11:49 -0800 (PST)
+        with ESMTP id S229668AbiAIS4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 13:56:54 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80F0C06173F
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 10:56:53 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id v11so8888319pfu.2
+        for <stable@vger.kernel.org>; Sun, 09 Jan 2022 10:56:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:from:to:cc:subject:date:message-id:mime-version:reply-to
-         :organization:content-transfer-encoding;
-        bh=tNvI+a7A8PS5Wd2PToIgDMYPiKE2u7O11qPaKJfdtO8=;
-        b=hFx4PqOcNZK5MuhbcALaswLAWpYR63pmyKMyh3S1r4Dkx2YT9LsxaoSfGDgGTqktAB
-         izsb8drDwggw5idyFf8BE9Yx6Z/c8yjegszok9iAO31xvjdvQgHKJPMkB+bmVambspHc
-         edGrF9kxxltrQOgWkEx4t/iW9GCDaq7dIKgswpbPRWCAnZ3e+wq4b9erEaNphdtClGFP
-         uZZSLB2zsU2s67S2/TBCfDocJUGkJLfaSbNvoI0sbpD1OTkK8103AhbEPjYs4TdsIkw/
-         lzzlNlbbb09ddQ87s3T0ZlaaIxY6wZreQrPPhkVmmMJNYgUWceNQJA0ElerW1/m3Inwe
-         q+PQ==
+        d=dabbelt-com.20210112.gappssmtp.com; s=20210112;
+        h=date:subject:in-reply-to:cc:from:to:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wJEUw9ff5ZoyLDqzlPoT0/RMmRbe6oRM0UsL8abW2Hc=;
+        b=nTW3bDU69D+maIKyxjfA6EnVwxU+mhMaNR5SCm/lYu7vEvl8ymOHumN8fBNq+OX+Mu
+         yTq6u/xKNc7GPDJWaNOToTFg3dZ5cmgOvmoQ20gYdNMZeFPphC2pRDKDkGJxgX1jbDXq
+         QvliYpvuMIXD2ENnu7p0OokAjEXoOY0OKh589ax8WNrIwQAcpbsRzk7ISDGME6hcfTzu
+         8zsm/esLTe5a5vWid2Ki2BVcKuuhaeYsJghhu/mhgDCkOZxVTDcfJ/P5F1oXu1vTK6MZ
+         XOd+cznTrxoaSh22tmlZDvHstM5yOjpy2g6S20yBQCFBpOfSOIfqa5MB+JLU7wBlddCR
+         xksg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:reply-to:organization:content-transfer-encoding;
-        bh=tNvI+a7A8PS5Wd2PToIgDMYPiKE2u7O11qPaKJfdtO8=;
-        b=4Pjgb3CPlWtVXA4QwXi1vZnFqUH3BgRvt+Fq9p7YnCVs+qiTeX4DEPZpaOKXO2OUeo
-         r/6psmJP6KsB+qtowYLXwGo8mGaFKQAc+z+huW0o3jtH7xLUAJMPMvKYkpaJOOdcOUuL
-         mJUfIEyCy8rRLxFMR4ThCJoZQGojTOvjgvmiELIHlXt27Vdo3lo2AsPTJHekajP5jRui
-         5TpOrH9mIMKRrtEqEUYcED1IqAnsNvxDqMbnT4ih8Zxq1r6m0LEHaAH5+FOcgrjlPTAQ
-         2LXbUD4RHgYrtR07UyVIH7STwLW04YOO13+GDR8Jh15o7K5wH6PT0F0BHyyJuYBeN1sp
-         cmFg==
-X-Gm-Message-State: AOAM532XbhxYf1awFYQ4UVXWe1u3BOiUgLWZ6Jq3L9Km89PNG2PVmcBb
-        SKt5oIYsyqXMPVPL1sBBLi6D7O0jOgRijg==
-X-Google-Smtp-Source: ABdhPJyh8djCs5KBhtHmWvs+w17xnphZd7/tx119erntsFX9510Pj8MdMJrgE3jzC2Hewn4vcst2iQ==
-X-Received: by 2002:a17:90b:4c11:: with SMTP id na17mr27193063pjb.84.1641751909234;
-        Sun, 09 Jan 2022 10:11:49 -0800 (PST)
-Received: from localhost.localdomain (h69-131-29-103.cntcnh.broadband.dynamic.tds.net. [69.131.29.103])
-        by smtp.gmail.com with ESMTPSA id j4sm4372827pfj.34.2022.01.09.10.11.47
+        h=x-gm-message-state:date:subject:in-reply-to:cc:from:to:message-id
+         :mime-version:content-transfer-encoding;
+        bh=wJEUw9ff5ZoyLDqzlPoT0/RMmRbe6oRM0UsL8abW2Hc=;
+        b=feQ/0VZPfzS6lzKH0zSlNynkPp4Jv7JH4evG6D43bQfFZrGDipdaZcj4V4YnT5xsP7
+         +eUqQVeaX6jo72F4bMs/eSx2QqPO044adOvJLMLwqpt/aViFqXhBKtqL7aqIy9205fhI
+         Yj4PfzzCwy9I693x5Nw2N1fkaMdxEP6VpDCgr7878kuVaWE5J+zEgtZEf3mCRgadv9XO
+         BTO/cFdhYaLJXxJeQTKJbOGoHbpmHK288rPjSoU2LWojiQtwyikQ+LgJZffXfgsnU1hc
+         o90VTDnqTMh2B4EP32TVu2xvonaYfA/6uuZB1rVcKnC0nwbhn/1qP+txpFWWlgOWMqjy
+         tAHw==
+X-Gm-Message-State: AOAM532f5rXI7mVBn4MPFkeSvhnmtIAhnsKCC+8171qxQVJgndGueA23
+        fgz4jWDuNaCseMM6e3LHb32wIg==
+X-Google-Smtp-Source: ABdhPJyr0zws2LdZ788TXsTMQDc/XOoIDXppwbYJus0GYLTDrTrLrpomN372UEv+yckAjiNujYAteQ==
+X-Received: by 2002:a63:4a5f:: with SMTP id j31mr62757106pgl.222.1641754613260;
+        Sun, 09 Jan 2022 10:56:53 -0800 (PST)
+Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
+        by smtp.gmail.com with ESMTPSA id d4sm4216032pfu.50.2022.01.09.10.56.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Jan 2022 10:11:48 -0800 (PST)
-Sender: Len Brown <lenb417@gmail.com>
-From:   Len Brown <lenb@kernel.org>
-To:     torvalds@linux-foundation.org
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Len Brown <len.brown@intel.com>,
-        Guchun Chen <guchun.chen@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Christian Koenig <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        stable@vger.kernel.org
-Subject: [PATCH REGRESSION] Revert "drm/amdgpu: stop scheduler when calling hw_fini (v2)"
-Date:   Sun,  9 Jan 2022 13:11:37 -0500
-Message-Id: <8ab406c8bb2e58969668a806a529d5988b447530.1641750730.git.len.brown@intel.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
+        Sun, 09 Jan 2022 10:56:52 -0800 (PST)
+Date:   Sun, 09 Jan 2022 10:56:52 -0800 (PST)
+X-Google-Original-Date: Sun, 09 Jan 2022 10:55:49 PST (-0800)
+Subject:     Re: [PATCH 1/3] riscv: Don't use va_pa_offset on kdump
+In-Reply-To: <70fe8aa8bfe3923308e6248377577f58@mailhost.ics.forth.gr>
+CC:     Paul Walmsley <paul.walmsley@sifive.com>, aou@eecs.berkeley.edu,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        alex@ghiti.fr, stable@vger.kernel.org
+From:   Palmer Dabbelt <palmer@dabbelt.com>
+To:     mick@ics.forth.gr
+Message-ID: <mhng-d399244b-db6d-40e5-9113-77baf96bf987@palmer-ri-x1c9>
+Mime-Version: 1.0 (MHng)
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Brown <len.brown@intel.com>
+On Fri, 07 Jan 2022 10:03:59 PST (-0800), mick@ics.forth.gr wrote:
+> Hello Palmer,
+>
+> Any updates on those 3 patches ?
 
-This reverts commit f7d6779df642720e22bffd449e683bb8690bd3bf.
+Sorry, I hadn't realized these were fixes so they got stuck in the 
+queue0.  I do now remember you saying you had some fixes at the RISC-V 
+conference, but I guess that got lost as well.  Including something like 
+"fix" or "-fixes" in a subject line always helps, but if I miss stuff 
+IRC's always a good bet as that'll at least make sure I see it when I'm 
+in front of the computer -- there's a lot of people who want things at 
+these conferences.
 
-This bisected regression has impacted suspend-resume stability
-since 5.15-rc1. It regressed -stable via 5.14.10.
+It's too late for fixes, but it looks like things have been broken for a 
+while so these will have to all get backported to stable regardless.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215315
+This is on for-next.
 
-Fixes: f7d6779df64 ("drm/amdgpu: stop scheduler when calling hw_fini (v2)")
-Cc: Guchun Chen <guchun.chen@amd.com>
-Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Cc: Christian Koenig <christian.koenig@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: <stable@vger.kernel.org> # 5.14+
-Signed-off-by: Len Brown <len.brown@intel.com>
----
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 8 --------
- 1 file changed, 8 deletions(-)
+Thanks!
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index 9afd11ca2709..45977a72b5dd 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -547,9 +547,6 @@ void amdgpu_fence_driver_hw_fini(struct amdgpu_device *adev)
- 		if (!ring || !ring->fence_drv.initialized)
- 			continue;
- 
--		if (!ring->no_scheduler)
--			drm_sched_stop(&ring->sched, NULL);
--
- 		/* You can't wait for HW to signal if it's gone */
- 		if (!drm_dev_is_unplugged(adev_to_drm(adev)))
- 			r = amdgpu_fence_wait_empty(ring);
-@@ -609,11 +606,6 @@ void amdgpu_fence_driver_hw_init(struct amdgpu_device *adev)
- 		if (!ring || !ring->fence_drv.initialized)
- 			continue;
- 
--		if (!ring->no_scheduler) {
--			drm_sched_resubmit_jobs(&ring->sched);
--			drm_sched_start(&ring->sched, true);
--		}
--
- 		/* enable the interrupt */
- 		if (ring->fence_drv.irq_src)
- 			amdgpu_irq_get(adev, ring->fence_drv.irq_src,
--- 
-2.25.1
-
+>
+> Regards,
+> Nick
+>
+> Στις 2021-11-26 20:04, Nick Kossifidis έγραψε:
+>> On kdump instead of using an intermediate step to relocate the kernel,
+>> that lives in a "control buffer" outside the current kernel's mapping,
+>> we jump to the crash kernel directly by calling
+>> riscv_kexec_norelocate().
+>> The current implementation uses va_pa_offset while switching to
+>> physical
+>> addressing, however since we moved the kernel outside the linear
+>> mapping
+>> this won't work anymore since riscv_kexec_norelocate() is part of the
+>> kernel mapping and we should use kernel_map.va_kernel_pa_offset, and
+>> also
+>> take XIP kernel into account.
+>>
+>> We don't really need to use va_pa_offset on riscv_kexec_norelocate, we
+>> can just set STVEC to the physical address of the new kernel instead
+>> and
+>> let the hart jump to the new kernel on the next instruction after
+>> setting
+>> SATP to zero. This fixes kdump and is also simpler/cleaner.
+>>
+>> I tested this on the latest qemu and HiFive Unmatched and works as
+>> expected.
+>>
+>> v2: I removed the direct jump after setting satp as suggested.
+>>
+>> Fixes: 2bfc6cd81bd1 ("riscv: Move kernel mapping outside of linear
+>> mapping")
+>>
+>> Signed-off-by: Nick Kossifidis <mick@ics.forth.gr>
+>> Reviewed-by: Alexandre Ghiti <alex@ghiti.fr>
+>> Cc: <stable@vger.kernel.org> # 5.13
+>> Cc: <stable@vger.kernel.org> # 5.14
