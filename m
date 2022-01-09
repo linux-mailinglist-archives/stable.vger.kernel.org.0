@@ -2,105 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AEA848896D
-	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 13:52:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F3C488970
+	for <lists+stable@lfdr.de>; Sun,  9 Jan 2022 13:58:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235556AbiAIMv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jan 2022 07:51:58 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34428 "EHLO
+        id S234000AbiAIM6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jan 2022 07:58:23 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36500 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235548AbiAIMv5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 07:51:57 -0500
+        with ESMTP id S231394AbiAIM6X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jan 2022 07:58:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05F0460EFA
-        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 12:51:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D724AC36AED;
-        Sun,  9 Jan 2022 12:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4B8160EA7
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 12:58:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 851E2C36AED;
+        Sun,  9 Jan 2022 12:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641732716;
-        bh=JKohEbg8NfEtEe3ccKdU5hWGLjTw/+xwej0dOFoADuE=;
-        h=Subject:To:Cc:From:Date:From;
-        b=x2fcnfQNGQu3p+UcrR2SDXVvcDmbQ6kw8qMYUU8MXEK+gh0dtxbzdhdhERBXm6At3
-         Dfy/Wzq0adNN9mL9z+6s74Ij//ewC2ptBW0UNkHtjO0DacWTJG1TvZe1qDwv5UAE9k
-         eUmy4ZaghrThprV+qT4N7WMWA6yRTzkG5YfRDwQw=
-Subject: FAILED: patch "[PATCH] power: reset: ltc2952: Fix use of floating point literals" failed to apply to 4.9-stable tree
-To:     nathan@kernel.org, ndesaulniers@google.com,
-        sebastian.reichel@collabora.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Jan 2022 13:51:45 +0100
-Message-ID: <164173270519248@kroah.com>
+        s=korg; t=1641733102;
+        bh=AWQgXlavyPt2CPbhhZna9wMYGhSB95KVcO0k8/Mhzmo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WXeVbzAIKzN3pNVRLmXLM2MWQLa1x9eJVBUi1oXVA7puBsXd1ZhtdIITc4/Seoev1
+         bHwbHIiTf1l7D47fOwbxN08qv9iGvmYPxo/KSfeD5wqCW2JVCantp95ikHHaiH4gfV
+         L+7vck7C2l4EwODEIZFzBhJMLpiBfzpJG0bOI60Q=
+Date:   Sun, 9 Jan 2022 13:58:19 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: Re: [PATCH RFC 4.9 0/5] Fix booting arm64 big endian with QEMU 5.0.0+
+Message-ID: <Ydrb604dRBdB9xmq@kroah.com>
+References: <20220107194335.3090066-1-nathan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220107194335.3090066-1-nathan@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jan 07, 2022 at 12:43:30PM -0700, Nathan Chancellor wrote:
+> Hello everyone,
+> 
+> After upgrading the version of QEMU used in our CI from 4.2.0 to 6.2.0,
+> I noticed that our 4.9 arm64 big endian builds stopped booting properly.
+> This is not something that is clang specific, I could reproduce it with
+> GCC 8.3.0 (the rootfs is at [1]).
+> 
+> $ make -skj"$(nproc)" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- distclean defconfig
+> 
+> $ scripts/config -e CPU_BIG_ENDIAN
+> 
+> $ make -skj"$(nproc)" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- olddefconfig Image.gz
+> 
+> $ qemu-system-aarch64 \
+>     -initrd rootfs.cpio \
+>     -append 'console=ttyAMA0 earlycon' \
+>     -cpu max \
+>     -machine virt,gic-version=max \
+>     -machine virtualization=true \
+>     -display none \
+>     -kernel arch/arm64/boot/Image.gz \
+>     -m 512m \
+>     -nodefaults \
+>     -serial mon:stdio
+> [    0.000000] Booting Linux on physical CPU 0x0
+> [    0.000000] Linux version 4.9.296 (nathan@archlinux-ax161) (gcc version 8.3.0 (Debian 8.3.0-2) ) #1 SMP PREEMPT Fri Jan 7 19:10:49 UTC 2022
+> ...
+> [    0.773924] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+> [    0.773924]
+> [    0.776016] CPU: 0 PID: 1 Comm: init Not tainted 4.9.296 #1
+> [    0.776149] Hardware name: linux,dummy-virt (DT)
+> [    0.776375] Call trace:
+> [    0.777063] [<ffff000008088ba0>] dump_backtrace+0x0/0x1b0
+> [    0.777293] [<ffff000008088d64>] show_stack+0x14/0x20
+> [    0.777420] [<ffff0000088c2d18>] dump_stack+0x98/0xb8
+> [    0.777555] [<ffff0000088c0ee8>] panic+0x11c/0x278
+> [    0.777684] [<ffff0000080c4d20>] do_exit+0x940/0x970
+> [    0.777816] [<ffff0000080c4db8>] do_group_exit+0x38/0xa0
+> [    0.777974] [<ffff0000080cf698>] get_signal+0xb8/0x678
+> [    0.778111] [<ffff000008087ca8>] do_signal+0xd8/0x9b0
+> [    0.778248] [<ffff0000080888dc>] do_notify_resume+0x8c/0xa8
+> [    0.778392] [<ffff000008082ff4>] work_pending+0x8/0x10
+> [    0.778790] Kernel Offset: disabled
+> [    0.778891] Memory Limit: none
+> [    0.779241] ---[ end Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+> 
+> I ended up bisecting QEMU down to cd3f80aba0 ("target/arm: Enable
+> ARMv8.1-VHE in -cpu max") [2], which did not seem obviously broken. I
+> noticed that our 4.14 builds were fine so I ended up doing a reverse
+> bisect down to commit ec347012bbec ("arm64: sysreg: Move to use
+> definitions for all the SCTLR bits"). Getting that change to apply
+> cleanly involved applying the three other arm64 patches in this series
+> and making it build properly required the BUILD_BUG_ON header split
+> (including bug.h might have been sufficient but I did not want to risk
+> any further breakage). I searched through mainline to see if there were
+> any fixes commits that I missed and I did not find any.
+> 
+> I am not sure if this series would be acceptable in 4.9, hence the RFC
+> tag. If not, I am happy to just spin down our boot tests of arm64 big
+> endian on 4.9, which is not a super valuable target, but I figured I
+> would send the series and let others decide!
+> 
+> [1]: https://github.com/ClangBuiltLinux/boot-utils/tree/6cfa15992d375dfb874ca0677abdaebfba4f74e6/images/arm64be
+> [2]: https://gitlab.com/qemu-project/qemu/-/commit/cd3f80aba0c559a6291f7c3e686422b15381f6b7
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Seems sane, having build coverage for 4.9 for the next year is always
+good to keep going.  I'll queue these up now, thanks!
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 644106cdb89844be2496b21175b7c0c2e0fab381 Mon Sep 17 00:00:00 2001
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Fri, 5 Nov 2021 08:20:50 -0700
-Subject: [PATCH] power: reset: ltc2952: Fix use of floating point literals
-
-A new commit in LLVM causes an error on the use of 'long double' when
-'-mno-x87' is used, which the kernel does through an alias,
-'-mno-80387' (see the LLVM commit below for more details around why it
-does this).
-
-drivers/power/reset/ltc2952-poweroff.c:162:28: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                                  ^
-drivers/power/reset/ltc2952-poweroff.c:162:21: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                           ^
-drivers/power/reset/ltc2952-poweroff.c:163:41: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->trigger_delay = ktime_set(2, 500L*1E6L);
-                                               ^
-3 errors generated.
-
-This happens due to the use of a 'long double' literal. The 'E6' part of
-'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
-it to 'long double'.
-
-There is no visible reason for floating point values in this driver, as
-the values are only assigned to integer types. Use NSEC_PER_MSEC, which
-is the same integer value as '1E6L', to avoid changing functionality but
-fix the error.
-
-Fixes: 6647156c00cc ("power: reset: add LTC2952 poweroff driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1497
-Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-
-diff --git a/drivers/power/reset/ltc2952-poweroff.c b/drivers/power/reset/ltc2952-poweroff.c
-index fbb344353fe4..65d9528cc989 100644
---- a/drivers/power/reset/ltc2952-poweroff.c
-+++ b/drivers/power/reset/ltc2952-poweroff.c
-@@ -159,8 +159,8 @@ static void ltc2952_poweroff_kill(void)
- 
- static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
- {
--	data->wde_interval = 300L * 1E6L;
--	data->trigger_delay = ktime_set(2, 500L*1E6L);
-+	data->wde_interval = 300L * NSEC_PER_MSEC;
-+	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
- 
- 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
-
