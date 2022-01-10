@@ -2,192 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D5A6489C3E
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 16:34:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 179E3489C6C
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 16:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235105AbiAJPev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 10:34:51 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53424 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231674AbiAJPev (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 10:34:51 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20C3FB81671;
-        Mon, 10 Jan 2022 15:34:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05E2BC36AE3;
-        Mon, 10 Jan 2022 15:34:46 +0000 (UTC)
-Date:   Mon, 10 Jan 2022 10:34:45 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Pingfan Liu <kernelfans@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] tracing: Add test for user space strings when
- filtering on string pointers
-Message-ID: <20220110103445.21801e12@gandalf.local.home>
-In-Reply-To: <YdukyGuyYlCa/sZT@piliu.users.ipa.redhat.com>
-References: <20220107225655.647376947@goodmis.org>
-        <20220107225840.003487216@goodmis.org>
-        <YdukyGuyYlCa/sZT@piliu.users.ipa.redhat.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        id S236358AbiAJPmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 10:42:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236361AbiAJPmL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 10:42:11 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5CFEC061751
+        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 07:42:11 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id l8so10175655plt.6
+        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 07:42:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hVKI9Lh2uckPXXTqycT8D+71uXeggG+jPIlm+iB8mNw=;
+        b=nlzjGlo52p1eBu92BtshIifJqb/ElhNRbN6WLj8hjUQmLANgqiJ1zvPy1zT5I27VQt
+         bzNvoHhZO60N0AdcTCHcgw2d9ojqyJmaH9mpgOB721yxn/m0hvFGvMQ6a1jTpCVLfBR3
+         qbhQUB9AizQBDbK0W6iZvWzwVvJ5SKdVwxeQ02HTvD8R64EoFC3iZ5sKSyckg5nsl6Su
+         kiKyrkx5lJZnnfWcxrGGIsKRajp4P/gKyThGJuBxjE/JYDRBx49wQDmopy2YbILelCSM
+         iM4SH0sJjd6X/C/TlISVCb8tY1fv1+vsQFlxXXb/5sbC3Zjg8b2obZYeASnpL/pVHEU4
+         vr/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hVKI9Lh2uckPXXTqycT8D+71uXeggG+jPIlm+iB8mNw=;
+        b=L+JzQTd18UMsjMhY13NYRdr9JpppioFKAm/RMcU8uctQsHF9zX7AXxdoYq0Zt+R5gE
+         iIck4F+RCUAgxQZlGwc7U+u7RJn3aFzWoxuOVfFD5ijyzWKBwZYPlvRbR01jTqqrc83G
+         GldarNbUh8f0YjhRPQUUv+8mUv1EvTbQpqp9gIrlecHkxsi9T8OoMnckeTPBhic8Qiju
+         0QMOYI44VT8qh8MSnbRXu0UlPfSkMLP+y+ZFJCEX39roY1c9ZuE0fBWhccL+4gh5U6VR
+         ksp4ccpDUN8aRDUY866EWg/co95zknkctPq1uFEnVo7LWZaKvPt5LIbTNt/Co61xbJPP
+         nXkA==
+X-Gm-Message-State: AOAM530ZbfOufu1hy8PWzv34AoNpccD6TBL342atN3aGFXvMBe7G+++L
+        uoOKjM7zO7I6ctLsY7UAxO7GqoughcFvnSXm
+X-Google-Smtp-Source: ABdhPJzhv5ZiTgB9ayuRTOgmAdKm9up+ci8PMJl7DTiXRhixCJT6tp3O3oTj9CCETj4auqLNm3gPIg==
+X-Received: by 2002:a17:902:a50a:b0:149:7aa8:37f6 with SMTP id s10-20020a170902a50a00b001497aa837f6mr32150plq.91.1641829331016;
+        Mon, 10 Jan 2022 07:42:11 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h13sm5943994pgq.63.2022.01.10.07.42.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jan 2022 07:42:10 -0800 (PST)
+Message-ID: <61dc53d2.1c69fb81.1a076.eb26@mx.google.com>
+Date:   Mon, 10 Jan 2022 07:42:10 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.13-73-ge8d40b0a7738
+X-Kernelci-Branch: linux-5.15.y
+Subject: stable-rc/linux-5.15.y baseline: 146 runs,
+ 1 regressions (v5.15.13-73-ge8d40b0a7738)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 Jan 2022 11:15:20 +0800
-Pingfan Liu <kernelfans@gmail.com> wrote:
+stable-rc/linux-5.15.y baseline: 146 runs, 1 regressions (v5.15.13-73-ge8d4=
+0b0a7738)
 
-> Hi Steven,
-> 
-> This patch passed my test. But I have some concern, please see comment inline.
+Regressions Summary
+-------------------
 
-Thanks, can I add a "Tested-by:" from you?
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
-(when I have my final version)
 
-> > index 996920ed1812..cf0fa9a785c7 100644
-> > --- a/kernel/trace/trace_events_filter.c
-> > +++ b/kernel/trace/trace_events_filter.c
-> > @@ -5,6 +5,7 @@
-> >   * Copyright (C) 2009 Tom Zanussi <tzanussi@gmail.com>
-> >   */
-> >  
-> > +#include <linux/uaccess.h>
-> >  #include <linux/module.h>
-> >  #include <linux/ctype.h>
-> >  #include <linux/mutex.h>
-> > @@ -654,12 +655,50 @@ DEFINE_EQUALITY_PRED(32);
-> >  DEFINE_EQUALITY_PRED(16);
-> >  DEFINE_EQUALITY_PRED(8);
-> >  
-> > +/* user space strings temp buffer */
-> > +#define USTRING_BUF_SIZE	512  
-> 
-> Should it be PATH_MAX(4096) in case of matching against a file path?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.13-73-ge8d40b0a7738/plan/baseline/
 
-I went back and forth with this size in my head, and since I currently do
-not free it, and it is 4 * nr_cpus in size, I went with the smallest number
-I felt was OK.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.13-73-ge8d40b0a7738
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e8d40b0a77381adfdcadb8307596341334c9e18d =
 
-We can increase it in the future, and even expose the size to user space.
 
-> 
-> > +
-> > +struct ustring_buffer {
-> > +	char		buffer[USTRING_BUF_SIZE];
-> > +};
-> > +
-> > +static __percpu struct ustring_buffer *ustring_per_cpu;
-> > +
-> > +static __always_inline char *test_string(char *str)
-> > +{
-> > +	struct ustring_buffer *ubuf;
-> > +	char __user *ustr;
-> > +	char *kstr;
-> > +
-> > +	if (!ustring_per_cpu)
-> > +		return NULL;
-> > +
-> > +	ubuf = this_cpu_ptr(ustring_per_cpu);
-> > +	kstr = ubuf->buffer;
-> > +
-> > +	if (likely((unsigned long)str >= TASK_SIZE)) {
-> > +		/* For safety, do not trust the string pointer */
-> > +		if (!strncpy_from_kernel_nofault(kstr, str, USTRING_BUF_SIZE))  
-> 
-> Since no other trace_event_class except event_class_syscall_enter tries
-> to uaccess, so the unreliable source only comes from
-> event_class_syscall_enter.
-> 
-> In that case, the access to kernel address is forbidden. So here just
-> return -EACCES ?
 
-I changed the way all pointers work. Any event that access a string pointer
-(there are a few), and we filter on it, then I want it to go through this
-path.
+Test Regressions
+---------------- =
 
-And returning -EACCES is useless this is done in the filtering logic and
-that error will not be exposed to anyone. The best we can do is to fail the
-filter.
 
-> 
-> > +			return NULL;
-> > +	} else {
-> > +		/* user space address? */
-> > +		ustr = str;
-> > +		if (!strncpy_from_user_nofault(kstr, ustr, USTRING_BUF_SIZE))
-> > +			return NULL;
-> > +	}
-> > +	return kstr;
-> > +}
-> > +
-> >  /* Filter predicate for fixed sized arrays of characters */
-> >  static int filter_pred_string(struct filter_pred *pred, void *event)
-> >  {
-> >  	char *addr = (char *)(event + pred->offset);
-> >  	int cmp, match;
-> >  
-> > +	addr = test_string(addr);  
-> 
-> Among all of trace_event_class, only event_class_syscall_enter exposed
-> to this fault (uprobe does not uaccess). So I think the strncpy_*() can
-> be avoided based on class, which improves performance.
 
-The thing is, tracing should never cause a fault in the system. If a
-pointer is bad and you filter on it, it should not cause a crash. Your
-patch showed me we have this issues with kernel pointers too. And since we
-have no safe "strncmp" the best we can do is a safe "strncpy" and then
-compare it.
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
-You actually exposed more issues than the one you were trying to solve, and
-this patch now addresses those issues.
 
-Yes, it will impact performance, but robustness always trumps performance.
+  Details:     https://kernelci.org/test/plan/id/61dc210a130e690636ef6740
 
-> 
-> > +	if (!addr)
-> > +		return 0;
-> > +
-> >  	cmp = pred->regex.match(addr, &pred->regex, pred->regex.field_len);
-> >  
-> >  	match = cmp ^ pred->not;
-> > @@ -671,10 +710,16 @@ static int filter_pred_string(struct filter_pred *pred, void *event)
-> >  static int filter_pred_pchar(struct filter_pred *pred, void *event)
-> >  {
-> >  	char **addr = (char **)(event + pred->offset);
-> > +	char *str;
-> >  	int cmp, match;
-> > -	int len = strlen(*addr) + 1;	/* including tailing '\0' */
-> > +	int len;
-> > +
-> > +	str = test_string(*addr);
-> > +	if (!str)
-> > +		return 0;
-> >  
-> > -	cmp = pred->regex.match(*addr, &pred->regex, len);
-> > +	len = strlen(str) + 1;	/* including tailing '\0' */
-> > +	cmp = pred->regex.match(str, &pred->regex, len);
-> >  
-> >  	match = cmp ^ pred->not;
-> >  
-> > @@ -784,6 +829,10 @@ static int filter_pred_none(struct filter_pred *pred, void *event)
-> >  
-> >  static int regex_match_full(char *str, struct regex *r, int len)
-> >  {
-> > +	str = test_string(str);  
-> 
-> Since all regex_match_*() are called in filter_pred_*(), which have
-> already protected codes from page fault. So no need to double check.
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+3-73-ge8d40b0a7738/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
+nanapi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
+3-73-ge8d40b0a7738/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
+nanapi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/arm64/rootfs.cpio.gz =
 
-Ah, you're right. I only need to add this to filter_pred_pchar() and not
-the regex.
 
-Thanks, I'll send a v2.
 
--- Steve
+  * baseline.login: https://kernelci.org/test/case/id/61dc210a130e690636ef6=
+741
+        new failure (last pass: v5.15.13) =
+
+ =20
