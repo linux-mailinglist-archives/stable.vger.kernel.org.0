@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22A28489110
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1A264890F3
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239738AbiAJH2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:28:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239798AbiAJH0w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79B62C02983D;
-        Sun,  9 Jan 2022 23:25:55 -0800 (PST)
+        id S239468AbiAJH12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:27:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56470 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239466AbiAJHZp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19F3E611CB;
-        Mon, 10 Jan 2022 07:25:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02FF7C36AED;
-        Mon, 10 Jan 2022 07:25:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4BD0B81213;
+        Mon, 10 Jan 2022 07:25:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB3BFC36AED;
+        Mon, 10 Jan 2022 07:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799554;
-        bh=oRuKsWuXd7rWSTaW3hc33NOCyZXi5lLLPnILt8k0u/I=;
+        s=korg; t=1641799543;
+        bh=bgVpJrrY7RWgXM+ZQVkHINVlds67un5ThG9L/+XlI6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvuSO7etq4NCkDpMgRtWQ4wxuEJvXXGArzzIO/l0c30ER7xVzqwh8vlzH2oFzqVp5
-         Wwz4icJbdlnp1C7SELjqCOOrszFjntTINBpV3YmxrNR82WvdeZrx6/e5c9sPiwaNhJ
-         0ewpK81RcvNyGA/fsSeUmKjgss4QR9LSdCsfai78=
+        b=e8T127JRH3hJnrtm07hpUiZ6QUPEIApEg1czHrNKaM/P3s8QKS3b/NuZBwsWdLh7w
+         bxXjKJ5d7wjSeHJgKdHdTao7e/yogDyTKiLjAIJuwQ/NWlZTUpi4c2BQLPHrGsBdJ+
+         kZeDcJi4E2+N0L/Eo6NjhllmTuJ1WE8x3898//0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 12/22] sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
-Date:   Mon, 10 Jan 2022 08:23:05 +0100
-Message-Id: <20220110071814.676562253@linuxfoundation.org>
+        stable@vger.kernel.org, yangxingwu <xingwu.yang@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 19/21] net: udp: fix alignment problem in udp4_seq_show()
+Date:   Mon, 10 Jan 2022 08:23:06 +0100
+Message-Id: <20220110071813.451603585@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
-References: <20220110071814.261471354@linuxfoundation.org>
+In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
+References: <20220110071812.806606886@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,65 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: yangxingwu <xingwu.yang@gmail.com>
 
-commit 7d18a07897d07495ee140dd319b0e9265c0f68ba upstream.
+[ Upstream commit 6c25449e1a32c594d743df8e8258e8ef870b6a77 ]
 
-tx_queue_len can be set to ~0U, we need to be more
-careful about overflows.
+$ cat /pro/net/udp
 
-__fls(0) is undefined, as this report shows:
+before:
 
-UBSAN: shift-out-of-bounds in net/sched/sch_qfq.c:1430:24
-shift exponent 51770272 is too large for 32-bit type 'int'
-CPU: 0 PID: 25574 Comm: syz-executor.0 Not tainted 5.16.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x201/0x2d8 lib/dump_stack.c:106
- ubsan_epilogue lib/ubsan.c:151 [inline]
- __ubsan_handle_shift_out_of_bounds+0x494/0x530 lib/ubsan.c:330
- qfq_init_qdisc+0x43f/0x450 net/sched/sch_qfq.c:1430
- qdisc_create+0x895/0x1430 net/sched/sch_api.c:1253
- tc_modify_qdisc+0x9d9/0x1e20 net/sched/sch_api.c:1660
- rtnetlink_rcv_msg+0x934/0xe60 net/core/rtnetlink.c:5571
- netlink_rcv_skb+0x200/0x470 net/netlink/af_netlink.c:2496
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x814/0x9f0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0xaea/0xe60 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg net/socket.c:724 [inline]
- ____sys_sendmsg+0x5b9/0x910 net/socket.c:2409
- ___sys_sendmsg net/socket.c:2463 [inline]
- __sys_sendmsg+0x280/0x370 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when
+26050: 0100007F:0035 00000000:0000 07 00000000:00000000 00:00000000
+26320: 0100007F:0143 00000000:0000 07 00000000:00000000 00:00000000
+27135: 00000000:8472 00000000:0000 07 00000000:00000000 00:00000000
 
-Fixes: 462dbc9101ac ("pkt_sched: QFQ Plus: fair-queueing service at DRR cost")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+after:
+
+   sl  local_address rem_address   st tx_queue rx_queue tr tm->when
+26050: 0100007F:0035 00000000:0000 07 00000000:00000000 00:00000000
+26320: 0100007F:0143 00000000:0000 07 00000000:00000000 00:00000000
+27135: 00000000:8472 00000000:0000 07 00000000:00000000 00:00000000
+
+Signed-off-by: yangxingwu <xingwu.yang@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_qfq.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/ipv4/udp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/sch_qfq.c
-+++ b/net/sched/sch_qfq.c
-@@ -1425,10 +1425,8 @@ static int qfq_init_qdisc(struct Qdisc *
- 	if (err < 0)
- 		return err;
- 
--	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
--		max_classes = QFQ_MAX_AGG_CLASSES;
--	else
--		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
-+	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
-+			    QFQ_MAX_AGG_CLASSES);
- 	/* max_cl_shift = floor(log_2(max_classes)) */
- 	max_cl_shift = __fls(max_classes);
- 	q->max_agg_classes = 1<<max_cl_shift;
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 860ab2e6544cc..8770966a564b5 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2435,7 +2435,7 @@ int udp4_seq_show(struct seq_file *seq, void *v)
+ {
+ 	seq_setwidth(seq, 127);
+ 	if (v == SEQ_START_TOKEN)
+-		seq_puts(seq, "  sl  local_address rem_address   st tx_queue "
++		seq_puts(seq, "   sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+ 			   "inode ref pointer drops");
+ 	else {
+-- 
+2.34.1
+
 
 
