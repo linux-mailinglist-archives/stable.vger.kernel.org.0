@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEA74890E1
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D48BF48921C
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239724AbiAJH0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:26:34 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56312 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239414AbiAJHZf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:35 -0500
+        id S232553AbiAJHiy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:38:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240801AbiAJHgg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:36:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B9AC0251A7;
+        Sun,  9 Jan 2022 23:32:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71A70B8120C;
-        Mon, 10 Jan 2022 07:25:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD293C36AE9;
-        Mon, 10 Jan 2022 07:25:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5AA2AB81212;
+        Mon, 10 Jan 2022 07:32:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B9FBC36AF2;
+        Mon, 10 Jan 2022 07:32:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799532;
-        bh=jEWETEhMt/0iaw7aoQt8w5/flIMiRWUMR0HN+YwOJNE=;
+        s=korg; t=1641799926;
+        bh=1RZ0kPZl9KxI1zgPVbZnXcBRIz2Lcdn7bViV5huftKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=whjrXTcXUaZl8cksptAaHHLkqbRFcbHxv224urXG75pUbDDe2gMMmaBaEm4ritg5t
-         MouALQP5F88Bua1S0dXJwCFdP9iFGJnymyECeyggEPsbhrZC16rTQ+z1ukCkNeE0C4
-         cr0s8mv1aoDus0yp/ytQBjnZCcMQk00MpSyRuvLw=
+        b=0uVAu2PKZzayeQe30RXBr7nKW0JhyRaZY8R/ZXb6kDraKVDQEoK9jJUNkPqPt5zvv
+         gy2iOPSfUNTfwudbvJ5YbzoeusQTsGQvq3qe8Vw2pBqSHnLNish9fXQ1ODtd+NBIOa
+         7i2ATuXfZm7BTIk3J9NZKsogKlKoV0/ev4bC4J6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>
-Subject: [PATCH 4.9 09/21] xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 5.15 19/72] ftrace/samples: Add missing prototypes direct functions
 Date:   Mon, 10 Jan 2022 08:22:56 +0100
-Message-Id: <20220110071813.117424262@linuxfoundation.org>
+Message-Id: <20220110071822.221527797@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
-References: <20220110071812.806606886@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,35 +48,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Jiri Olsa <jolsa@redhat.com>
 
-commit 983d8e60f50806f90534cc5373d0ce867e5aaf79 upstream.
+commit 0daf5cb217a9ca8ae91b8f966ddae322699fb71d upstream.
 
-The old ALLOCSP/FREESP ioctls in XFS can be used to preallocate space at
-the end of files, just like fallocate and RESVSP.  Make the behavior
-consistent with the other ioctls.
+There's another compilation fail (first here [1]) reported by kernel
+test robot for W=1 clang build:
 
-Reported-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+  >> samples/ftrace/ftrace-direct-multi-modify.c:7:6: warning: no previous
+  prototype for function 'my_direct_func1' [-Wmissing-prototypes]
+     void my_direct_func1(unsigned long ip)
+
+Direct functions in ftrace direct sample modules need to have prototypes
+defined. They are already global in order to be visible for the inline
+assembly, so there's no problem.
+
+The kernel test robot reported just error for ftrace-direct-multi-modify,
+but I got same errors also for the rest of the modules touched by this patch.
+
+[1] 67d4f6e3bf5d ftrace/samples: Add missing prototype for my_direct_func
+
+Link: https://lkml.kernel.org/r/20211219135317.212430-1-jolsa@kernel.org
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: e1067a07cfbc ("ftrace/samples: Add module to test multi direct modify interface")
+Fixes: ae0cc3b7e7f5 ("ftrace/samples: Add a sample module that implements modify_ftrace_direct()")
+Fixes: 156473a0ff4f ("ftrace: Add another example of register_ftrace_direct() use case")
+Fixes: b06457c83af6 ("ftrace: Add sample module that uses register_ftrace_direct()")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_ioctl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ samples/ftrace/ftrace-direct-modify.c |    3 +++
+ samples/ftrace/ftrace-direct-too.c    |    3 +++
+ samples/ftrace/ftrace-direct.c        |    2 ++
+ 3 files changed, 8 insertions(+)
 
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -712,7 +712,8 @@ xfs_ioc_space(
- 		flags |= XFS_PREALLOC_CLEAR;
- 		if (bf->l_start > XFS_ISIZE(ip)) {
- 			error = xfs_alloc_file_space(ip, XFS_ISIZE(ip),
--					bf->l_start - XFS_ISIZE(ip), 0);
-+					bf->l_start - XFS_ISIZE(ip),
-+					XFS_BMAPI_PREALLOC);
- 			if (error)
- 				goto out_unlock;
- 		}
+--- a/samples/ftrace/ftrace-direct-modify.c
++++ b/samples/ftrace/ftrace-direct-modify.c
+@@ -3,6 +3,9 @@
+ #include <linux/kthread.h>
+ #include <linux/ftrace.h>
+ 
++extern void my_direct_func1(void);
++extern void my_direct_func2(void);
++
+ void my_direct_func1(void)
+ {
+ 	trace_printk("my direct func1\n");
+--- a/samples/ftrace/ftrace-direct-too.c
++++ b/samples/ftrace/ftrace-direct-too.c
+@@ -4,6 +4,9 @@
+ #include <linux/mm.h> /* for handle_mm_fault() */
+ #include <linux/ftrace.h>
+ 
++extern void my_direct_func(struct vm_area_struct *vma,
++			   unsigned long address, unsigned int flags);
++
+ void my_direct_func(struct vm_area_struct *vma,
+ 			unsigned long address, unsigned int flags)
+ {
+--- a/samples/ftrace/ftrace-direct.c
++++ b/samples/ftrace/ftrace-direct.c
+@@ -4,6 +4,8 @@
+ #include <linux/sched.h> /* for wake_up_process() */
+ #include <linux/ftrace.h>
+ 
++extern void my_direct_func(struct task_struct *p);
++
+ void my_direct_func(struct task_struct *p)
+ {
+ 	trace_printk("waking up %s-%d\n", p->comm, p->pid);
 
 
